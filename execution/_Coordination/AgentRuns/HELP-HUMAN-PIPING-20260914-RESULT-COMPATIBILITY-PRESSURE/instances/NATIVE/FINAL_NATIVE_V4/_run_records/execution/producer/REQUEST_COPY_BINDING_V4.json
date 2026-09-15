@@ -1,0 +1,54 @@
+{
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "items": [
+    {
+      "case": "combination_modulus",
+      "copy_sha256": "2f24a9f2497e9ae85ad5d1766a23b6e241a88b5a1e363d48c69f62d80c6a7a8c",
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/combination_modulus.request.json",
+      "original_sha256": "2f24a9f2497e9ae85ad5d1766a23b6e241a88b5a1e363d48c69f62d80c6a7a8c",
+      "verified_copy": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/combination_modulus.request_v4.json"
+    },
+    {
+      "case": "curved",
+      "copy_sha256": "f4333184f4c6d6f8361b9af6189f3176b383a951df4c5b8f8bbb1876c909cc07",
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/curved.request.json",
+      "original_sha256": "f4333184f4c6d6f8361b9af6189f3176b383a951df4c5b8f8bbb1876c909cc07",
+      "verified_copy": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/curved.request_v4.json"
+    },
+    {
+      "case": "friction",
+      "copy_sha256": "d72334f3943bb07e7ca56d5b80a72bc5c253928acab0de9420845fc6979dbd79",
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/friction.request.json",
+      "original_sha256": "d72334f3943bb07e7ca56d5b80a72bc5c253928acab0de9420845fc6979dbd79",
+      "verified_copy": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/friction.request_v4.json"
+    },
+    {
+      "case": "hanger_constant_effort",
+      "copy_sha256": "e6dcaccfbefe6b1f18eab0e64b0ae5f0bcc8f6ed869fda312ce68ce7a2aaa62d",
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/hanger_constant_effort.successor-request.json",
+      "original_sha256": "e6dcaccfbefe6b1f18eab0e64b0ae5f0bcc8f6ed869fda312ce68ce7a2aaa62d",
+      "verified_copy": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/hanger_constant_effort.request_v4.json"
+    },
+    {
+      "case": "modulus",
+      "copy_sha256": "e2214a5b0c8d8dd40982c4a3b6e182fda93918611df227d6ed29c273586fc051",
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/modulus.request.json",
+      "original_sha256": "e2214a5b0c8d8dd40982c4a3b6e182fda93918611df227d6ed29c273586fc051",
+      "verified_copy": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/modulus.request_v4.json"
+    },
+    {
+      "case": "rotational_nonlinear",
+      "copy_sha256": "6f428f1c81c5804860f58cc495cb76af53de414aea94acb296406aa67a35e62e",
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/rotational_nonlinear.successor-request.json",
+      "original_sha256": "6f428f1c81c5804860f58cc495cb76af53de414aea94acb296406aa67a35e62e",
+      "verified_copy": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/rotational_nonlinear.request_v4.json"
+    },
+    {
+      "case": "zero_pressure_longitudinal",
+      "copy_sha256": "b5e307a4f6ca31c4ccf6c081bc5fd44946421e3e4c4946eaca83339e7646f9c2",
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/zero_pressure_longitudinal.successor-request.json",
+      "original_sha256": "b5e307a4f6ca31c4ccf6c081bc5fd44946421e3e4c4946eaca83339e7646f9c2",
+      "verified_copy": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/zero_pressure_longitudinal.request_v4.json"
+    }
+  ]
+}

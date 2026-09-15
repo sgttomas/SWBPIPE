@@ -1,0 +1,14 @@
+{
+  "schema": "native-portability-validation-v1",
+  "status": "PASS",
+  "exit_code": 0,
+  "path_scan": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_NATIVE_V4/after.json",
+    "sha256": "e04d7ccd0bf48fae1d86b263de063a679e6a8ee117a41d72b87fe636b64afbb1"
+  },
+  "finding_count": 0,
+  "disposition": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_NATIVE_V4/DISPOSITION_V1.json",
+    "sha256": "db6fcf249a61c2f04681c1432516d95e0c9750aaa1cb87f6890339e871e924e1"
+  }
+}

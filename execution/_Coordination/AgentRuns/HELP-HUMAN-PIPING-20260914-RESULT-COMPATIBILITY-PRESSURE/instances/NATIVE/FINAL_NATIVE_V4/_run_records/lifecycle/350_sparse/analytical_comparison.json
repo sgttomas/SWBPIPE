@@ -1,0 +1,59 @@
+{
+  "row_count": 67,
+  "solver_mode_row": {
+    "index": 0,
+    "id": "result:solver-mode:linear-solve-basis",
+    "kind": "linear_solver_mode_basis",
+    "value": 1,
+    "unit": "mode_code",
+    "basis_ref": {
+      "ref_id": "load:WF",
+      "ref_type": "load_case"
+    },
+    "component": null,
+    "location": null
+  },
+  "checks": {
+    "tip_Uy_mm": {
+      "result_id": "result:disp:node-TIP:uy",
+      "actual": 1.663072,
+      "unit": "mm",
+      "expected": 1.663072,
+      "abs_delta": 0.0,
+      "pass": true
+    },
+    "tip_Rz_rad": {
+      "result_id": "result:disp:node-TIP:rz",
+      "actual": 0.00078,
+      "unit": "rad",
+      "expected": 0.00078,
+      "abs_delta": 0.0,
+      "pass": true
+    },
+    "support_resultant_N": {
+      "result_id": "result:reaction:support-ROOT",
+      "actual": 350,
+      "unit": "N",
+      "expected": 350,
+      "abs_delta": 0,
+      "pass": true
+    },
+    "local_shear_z_N": {
+      "result_id": "result:force:pipe-CANTILEVER:shear-z",
+      "actual": 350,
+      "unit": "N",
+      "expected": 350,
+      "abs_delta": 0,
+      "pass": true
+    },
+    "local_bending_y_Nm": {
+      "result_id": "result:moment:pipe-CANTILEVER:bending-y",
+      "actual": -1120,
+      "unit": "N*m",
+      "expected": -1120,
+      "abs_delta": 0,
+      "pass": true
+    }
+  },
+  "all_pass": true
+}

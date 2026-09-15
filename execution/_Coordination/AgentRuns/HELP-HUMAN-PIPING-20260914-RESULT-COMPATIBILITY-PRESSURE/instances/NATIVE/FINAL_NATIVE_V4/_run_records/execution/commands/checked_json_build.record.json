@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "tools/serialization/build_checked_json.py",
+    "--target-dir",
+    "/private/tmp/piping-foundation-native-v4-20260915/build/checked-json"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping",
+  "environment": {
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "started_unix": 1789453175.108515,
+  "ended_unix": 1789453180.228553,
+  "elapsed_seconds": 5.120038032531738,
+  "exit_code": 0,
+  "stdout": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/commands/checked_json_build.stdout.txt",
+  "stderr": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/commands/checked_json_build.stderr.txt"
+}

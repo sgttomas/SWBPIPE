@@ -1,0 +1,51 @@
+{
+  "analysis": {
+    "input_manifest_old_profile": "rfc8785_jcs_unchanged_and_verified",
+    "received_result_checksum": "match",
+    "record_checksum": "match",
+    "row_checksums": "match",
+    "row_count": 77,
+    "run_id": "run:preview-linear-static-001"
+  },
+  "checked_authority": {
+    "path": "/private/tmp/piping-foundation-native-v4-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+    "profile": "openpipestress_jcs_ijson_v1",
+    "sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9"
+  },
+  "composition_receipt": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/composition_receipt.json",
+  "delivery_receipt": null,
+  "result": {
+    "authentic_producer_available": false,
+    "model_hash": "verified_without_profile_relabel",
+    "origin_class": "received_current_dimension_absent",
+    "row_count": 77
+  },
+  "schemas": {
+    "analysis": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/schemas/analysis_run.schema.json",
+    "result": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/schemas/results.schema.yaml",
+    "stress": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/schemas/stress_neutral_export.schema.json"
+  },
+  "status": "PASS",
+  "stress": {
+    "complete_package_checksum": "verified_by_owning_validator",
+    "covered_field_tamper_rejected": "SN-MEMBER-CHECKSUM-MISMATCH: result_rows.json",
+    "derived_witness_eligible_count": 76,
+    "manifest_seed": "verified_by_owning_validator",
+    "materialized_member_bytes": "match_owning_product_api",
+    "member_inventory": [
+      "manifest.json",
+      "stress_neutral_results.csv",
+      "result_rows.json",
+      "unit_system_disclosure.json",
+      "unit_preservation_witnesses.json",
+      "stable_id_map.json",
+      "loss_report.json",
+      "validation_report.json",
+      "diagnostics.json"
+    ],
+    "row_count": 77,
+    "solver_mode_discrete_ids": [
+      "result:solver-mode:linear-solve-basis"
+    ]
+  }
+}

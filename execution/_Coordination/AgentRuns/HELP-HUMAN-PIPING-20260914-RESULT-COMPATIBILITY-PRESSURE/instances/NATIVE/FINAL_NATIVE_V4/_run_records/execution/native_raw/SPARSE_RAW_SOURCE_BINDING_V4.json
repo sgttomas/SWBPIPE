@@ -1,0 +1,8 @@
+{
+  "bytes": 502404,
+  "column": "mechanics_result_json",
+  "exact_utf8_text_from_closed_store": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/store/after_first_save_v2.sqlite3",
+  "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/native_raw/sparse_mechanics_result_exact_stored.json",
+  "sha256": "114d3e92d502f19bd70b3d239f8944773360c547e1dbdde8b84aa554323bb294",
+  "table": "local_projects"
+}

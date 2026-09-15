@@ -1,0 +1,686 @@
+{
+  "accounting": {
+    "all_rows_retained": true,
+    "diagnostic_work_withheld": 1,
+    "eligible_witnesses": 81,
+    "missing_or_contradictory_withheld": 0
+  },
+  "classifications": {
+    "result:disp:node-N-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 0,
+      "raw_source_row_index": 15,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:disp:node-N-100:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 1,
+      "raw_source_row_index": 20,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:disp:node-N-100:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 2,
+      "raw_source_row_index": 21,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:disp:node-N-100:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 3,
+      "raw_source_row_index": 22,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:disp:node-N-100:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 4,
+      "raw_source_row_index": 17,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:disp:node-N-100:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 5,
+      "raw_source_row_index": 18,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:disp:node-N-100:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 6,
+      "raw_source_row_index": 19,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:disp:node-N-110": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 7,
+      "raw_source_row_index": 16,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:disp:node-N-110:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 8,
+      "raw_source_row_index": 26,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:disp:node-N-110:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 9,
+      "raw_source_row_index": 27,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:disp:node-N-110:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 10,
+      "raw_source_row_index": 28,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:disp:node-N-110:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 11,
+      "raw_source_row_index": 23,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:disp:node-N-110:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 12,
+      "raw_source_row_index": 24,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:disp:node-N-110:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 13,
+      "raw_source_row_index": 25,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:force:pipe-P-100:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 14,
+      "raw_source_row_index": 31,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:force:pipe-P-100:axial:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 15,
+      "raw_source_row_index": 32,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:force:pipe-P-100:midspan:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 16,
+      "raw_source_row_index": 49,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:force:pipe-P-100:midspan:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 17,
+      "raw_source_row_index": 50,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:force:pipe-P-100:midspan:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 18,
+      "raw_source_row_index": 51,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:force:pipe-P-100:quarter-1:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 19,
+      "raw_source_row_index": 43,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:force:pipe-P-100:quarter-1:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 20,
+      "raw_source_row_index": 44,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:force:pipe-P-100:quarter-1:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 21,
+      "raw_source_row_index": 45,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:force:pipe-P-100:quarter-3:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 22,
+      "raw_source_row_index": 55,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:force:pipe-P-100:quarter-3:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 23,
+      "raw_source_row_index": 56,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:force:pipe-P-100:quarter-3:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 24,
+      "raw_source_row_index": 57,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:force:pipe-P-100:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 25,
+      "raw_source_row_index": 33,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:force:pipe-P-100:shear-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 26,
+      "raw_source_row_index": 34,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:force:pipe-P-100:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 27,
+      "raw_source_row_index": 35,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:force:pipe-P-100:shear-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 28,
+      "raw_source_row_index": 36,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:moment:pipe-P-100:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 29,
+      "raw_source_row_index": 39,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:moment:pipe-P-100:bending-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 30,
+      "raw_source_row_index": 40,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:moment:pipe-P-100:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 31,
+      "raw_source_row_index": 41,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:moment:pipe-P-100:bending-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 32,
+      "raw_source_row_index": 42,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:moment:pipe-P-100:midspan:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 33,
+      "raw_source_row_index": 53,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:moment:pipe-P-100:midspan:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 34,
+      "raw_source_row_index": 54,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:moment:pipe-P-100:midspan:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 35,
+      "raw_source_row_index": 52,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:moment:pipe-P-100:quarter-1:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 36,
+      "raw_source_row_index": 47,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:moment:pipe-P-100:quarter-1:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 37,
+      "raw_source_row_index": 48,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:moment:pipe-P-100:quarter-1:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 38,
+      "raw_source_row_index": 46,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:moment:pipe-P-100:quarter-3:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 39,
+      "raw_source_row_index": 59,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:moment:pipe-P-100:quarter-3:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 40,
+      "raw_source_row_index": 60,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:moment:pipe-P-100:quarter-3:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 41,
+      "raw_source_row_index": 58,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:moment:pipe-P-100:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 42,
+      "raw_source_row_index": 37,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:moment:pipe-P-100:torsion:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 43,
+      "raw_source_row_index": 38,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:nonlinear-support:converged-flag": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 44,
+      "raw_source_row_index": 3,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-025"
+    },
+    "result:nonlinear-support:final-residual-count": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 45,
+      "raw_source_row_index": 2,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-024"
+    },
+    "result:nonlinear-support:free-dof-force-residual": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 46,
+      "raw_source_row_index": 8,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-026"
+    },
+    "result:nonlinear-support:free-dof-moment-residual": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 47,
+      "raw_source_row_index": 9,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-027"
+    },
+    "result:nonlinear-support:free-dof-work-residual": {
+      "classification": "diagnostic_work",
+      "interpreted_dimension": null,
+      "packet_row_index": 48,
+      "raw_source_row_index": 10,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-028"
+    },
+    "result:nonlinear-support:iteration-count": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 49,
+      "raw_source_row_index": 1,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-023"
+    },
+    "result:nonlinear-support:max-force-reaction-delta": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 50,
+      "raw_source_row_index": 6,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-035"
+    },
+    "result:nonlinear-support:max-moment-reaction-delta": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 51,
+      "raw_source_row_index": 7,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-036"
+    },
+    "result:nonlinear-support:max-rotation-delta": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 52,
+      "raw_source_row_index": 5,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-034"
+    },
+    "result:nonlinear-support:max-translation-delta": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 53,
+      "raw_source_row_index": 4,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-033"
+    },
+    "result:nonlinear-support:support-NL-FRIC-110:friction-normal-reaction": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 54,
+      "raw_source_row_index": 11,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-029"
+    },
+    "result:nonlinear-support:support-NL-FRIC-110:state-code": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 55,
+      "raw_source_row_index": 12,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-030"
+    },
+    "result:nonlinear-support:support-NL-FRIC-110:ux-displacement": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 56,
+      "raw_source_row_index": 13,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-031"
+    },
+    "result:nonlinear-support:support-NL-FRIC-110:ux-reaction": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 57,
+      "raw_source_row_index": 14,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-032"
+    },
+    "result:reaction:support-NL-FRIC-110": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 58,
+      "raw_source_row_index": 30,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-008"
+    },
+    "result:reaction:support-S-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 59,
+      "raw_source_row_index": 29,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-008"
+    },
+    "result:solver-mode:linear-solve-basis": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 60,
+      "raw_source_row_index": 0,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-000"
+    },
+    "result:stress:pipe-P-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 61,
+      "raw_source_row_index": 81,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-020"
+    },
+    "result:stress:pipe-P-100:end-i:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 62,
+      "raw_source_row_index": 61,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:stress:pipe-P-100:end-i:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 63,
+      "raw_source_row_index": 62,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:stress:pipe-P-100:end-i:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 64,
+      "raw_source_row_index": 63,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:stress:pipe-P-100:end-i:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 65,
+      "raw_source_row_index": 64,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:stress:pipe-P-100:end-j:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 66,
+      "raw_source_row_index": 65,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:stress:pipe-P-100:end-j:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 67,
+      "raw_source_row_index": 66,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:stress:pipe-P-100:end-j:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 68,
+      "raw_source_row_index": 67,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:stress:pipe-P-100:end-j:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 69,
+      "raw_source_row_index": 68,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:stress:pipe-P-100:midspan:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 70,
+      "raw_source_row_index": 73,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:stress:pipe-P-100:midspan:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 71,
+      "raw_source_row_index": 74,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:stress:pipe-P-100:midspan:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 72,
+      "raw_source_row_index": 75,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:stress:pipe-P-100:midspan:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 73,
+      "raw_source_row_index": 76,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:stress:pipe-P-100:quarter-1:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 74,
+      "raw_source_row_index": 69,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:stress:pipe-P-100:quarter-1:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 75,
+      "raw_source_row_index": 70,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:stress:pipe-P-100:quarter-1:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 76,
+      "raw_source_row_index": 71,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:stress:pipe-P-100:quarter-1:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 77,
+      "raw_source_row_index": 72,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:stress:pipe-P-100:quarter-3:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 78,
+      "raw_source_row_index": 77,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:stress:pipe-P-100:quarter-3:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 79,
+      "raw_source_row_index": 78,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:stress:pipe-P-100:quarter-3:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 80,
+      "raw_source_row_index": 79,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:stress:pipe-P-100:quarter-3:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 81,
+      "raw_source_row_index": 80,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    }
+  },
+  "row_index_semantics": "Witness source_row_index indexes deterministic packet result_rows order; raw producer ordinal is recorded separately and identity is joined by result_id.",
+  "semantic_contract": {
+    "export_profile_reference_present": true,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/fixtures/results/semantic_contract_v0_2.json",
+    "required_reference": {
+      "object_type": "ExternalReference",
+      "ref": "fixtures/results/semantic_contract_v0_2.json"
+    },
+    "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+    "signature_count": 60,
+    "unit_system_disclosure_reference_present": true
+  },
+  "source_output": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/friction.output_v2.json",
+    "raw_row_count": 82,
+    "rows_with_raw_dimension": 0,
+    "sha256_before_after": "8932264305a5fe0fd158158ffb91c8da05effe350c45fba960ead69ecea29dcd"
+  },
+  "status": "PASS",
+  "trace_statement": "Every emitted dimension was independently traced from raw kind/unit/component to derivative_target_dimension and signature_id in the accepted semantic contract; raw source values, units, rows and bytes were unchanged."
+}

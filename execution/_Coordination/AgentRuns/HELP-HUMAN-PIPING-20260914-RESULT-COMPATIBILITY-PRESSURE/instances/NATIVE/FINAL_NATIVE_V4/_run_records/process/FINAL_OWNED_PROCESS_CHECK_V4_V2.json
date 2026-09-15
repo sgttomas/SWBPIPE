@@ -1,0 +1,24 @@
+{
+  "schema": "final-native-v4-owned-process-and-store-check-v2",
+  "created_utc": "2026-09-15T07:55:53.806744+00:00",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "command": [
+    "ps",
+    "-axo",
+    "pid=,comm="
+  ],
+  "checked_executable_names": [
+    "openpipestress-desktop",
+    "openpipestress-runner",
+    "openpipestress_jcs_ijson"
+  ],
+  "matches": [],
+  "owned_processes_absent": true,
+  "owned_browser_started": false,
+  "owned_server_started": false,
+  "active_store_sha256": "f9ba6b34dbd377487568a3ec449f51e2b8501dfba52c8efd10b2f8291474643d",
+  "restored_baseline_sha256": "f9ba6b34dbd377487568a3ec449f51e2b8501dfba52c8efd10b2f8291474643d",
+  "active_store_equals_final500_baseline": true,
+  "active_store_sidecars": [],
+  "status": "PASS"
+}

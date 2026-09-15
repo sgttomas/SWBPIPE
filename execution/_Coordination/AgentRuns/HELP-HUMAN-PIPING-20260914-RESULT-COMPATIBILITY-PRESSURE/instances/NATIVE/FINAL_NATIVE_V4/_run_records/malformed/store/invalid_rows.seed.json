@@ -1,0 +1,13 @@
+{
+  "active_store": "/Users/ryan/Library/Application Support/org.openpipestress.foundation-v4-20260915/openpipestress-projects.sqlite3",
+  "app_process_required_absent_during_call": true,
+  "baseline_store_sha256": "f9ba6b34dbd377487568a3ec449f51e2b8501dfba52c8efd10b2f8291474643d",
+  "before_open_snapshot": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/malformed/store/invalid_rows.before_open.sqlite3",
+  "before_open_snapshot_sha256": "2e260165a3f69fe9b30a95b43ba8bcca62e4103b1fc300f600c3936e42f3d9a8",
+  "case_id": "invalid_rows",
+  "mechanics_result_json": "{\"diagnostics\":[],\"model_ref\":\"project:invented-loop-01\",\"results\":[false,0,\"\",[],{}],\"run_id\":\"run:malformed-invalid-rows\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\"}}",
+  "mechanics_result_json_sha256": "21ab68cf28ca629a2bd472d5925ca8fb538e9127520d21e8b17eccbef85d21c3",
+  "prepared_row": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/malformed/prepared/invalid_rows.json",
+  "prepared_row_sha256": "b7cce7665a7b02aca2d7c1a4e100768f0bfb9297506e2047bf732bddd262125b",
+  "schema": "malformed-store-seed-capture-v5"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "native-self-test-command-record-v4",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "argv": [
+    "/private/tmp/piping-foundation-native-v4-20260915/bound/OpenPipeStress Foundation V4 20260915.app/Contents/MacOS/openpipestress-desktop",
+    "--self-test-saved-edited-load"
+  ],
+  "cwd": "projects/chirality-piping",
+  "started_utc": "2026-09-15T07:54:54Z",
+  "ended_utc": "2026-09-15T07:54:54Z",
+  "exit_code": 0,
+  "stdout": {
+    "path": "native_self_test.stdout.txt",
+    "bytes": 5371,
+    "sha256": "3821bc35b5ac117d57f1fd6f2f26f75c751a3d806a423e39bcb63e79069943c7"
+  },
+  "stderr": {
+    "path": "native_self_test.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

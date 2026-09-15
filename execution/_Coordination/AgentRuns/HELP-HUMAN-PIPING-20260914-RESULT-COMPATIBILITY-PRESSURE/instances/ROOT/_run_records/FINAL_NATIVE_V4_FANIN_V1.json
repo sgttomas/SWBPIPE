@@ -1,0 +1,60 @@
+{
+  "schema": "root-native-v4-fanin-v1",
+  "created_utc": "2026-09-15T08:00:11.276959+00:00",
+  "candidate_commit": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "verdict": "ACCEPTED_NATIVE_QUALIFICATION",
+  "native_records": {
+    "FINAL_NATIVE_RESULT_V4.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/FINAL_NATIVE_RESULT_V4.json",
+      "sha256": "1d3ec53caaa003d820c5291080d84c465d1baa9e03905c6591e5078adcbdd600"
+    },
+    "EVIDENCE_MANIFEST_V4.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/EVIDENCE_MANIFEST_V4.json",
+      "sha256": "e04ba928e8163197b74f00d76ccc6c64816fbacfcd13248093cb8d6b121039a2"
+    },
+    "SEALED_RESULT_V4.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/SEALED_RESULT_V4.json",
+      "sha256": "a1c1b8b3684b27476705a3934aa0fe0288f10802a22fcae18633a88e5f531abc"
+    },
+    "LEASE_RELEASE_V4.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/LEASE_RELEASE_V4.json",
+      "sha256": "9518e28d0d8242f50c24b3973c20b3fb549e7970cb8d39936c2e562711ee7593"
+    }
+  },
+  "verified_manifest_entries": 406,
+  "verified_result_bindings": 35,
+  "frozen_source_verified": 76,
+  "bound_context_verified_before_policy_change": 58,
+  "root_owned_process_recheck": {
+    "command": [
+      "ps",
+      "-axo",
+      "pid=,comm="
+    ],
+    "owned_matches": []
+  },
+  "original_local_handoff_preserved": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md",
+    "sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035"
+  },
+  "independent_backchecks": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/NATIVE_FULL60_BACKCHECK_V1.json",
+      "sha256": "ecf93c09e189e89a819e3ad6177e69abd83c6b020d839f624547dd40f522d002"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/NATIVE_CANTILEVER_BACKCHECK_V1.json",
+      "sha256": "5b8d849fe75fa6086dcfdda0381703006b5f7bc5f69265fe1efe53afa0de443e"
+    }
+  ],
+  "acceptance_calibration": [
+    "All60 signatures include actual producer/native contributions; delivered JSON and nine-member materialization are distinct from constructor-only checks.",
+    "Standalone CSV control remains withheld; CSV extraction/materialization succeeds within delivered JSON.",
+    "Root unrounded analytical backcheck owns exact5.001e-7 publication allowance acceptance; native rounded comparisons remain preserved.",
+    "Early first-gate GUI action testimony is a calibrated later transcription of actual CUA observations; it lacks contemporaneously persisted raw AX/screenshot/process files and is not stored-state proof.",
+    "Native-normalized historical record bytes are preserved. An insertion-order external legacy seed normalized JSON order on first save while preserving semantic data and advertised claims; arbitrary external serialized byte equality is not claimed.",
+    "Guard source attribution is accepted as attribution only; current execution awaits the registered full sweep."
+  ],
+  "lease_decision": "Native lease release accepted. Root takes exclusive build/browser/native ownership for the registered complete DEC-025; other agents remain read-only until it finishes.",
+  "remaining": "Complete DEC-025, additive evidence/metadata review, combined acceptance/readiness/receipt, actual candidate CI and one PR/merge remain open."
+}

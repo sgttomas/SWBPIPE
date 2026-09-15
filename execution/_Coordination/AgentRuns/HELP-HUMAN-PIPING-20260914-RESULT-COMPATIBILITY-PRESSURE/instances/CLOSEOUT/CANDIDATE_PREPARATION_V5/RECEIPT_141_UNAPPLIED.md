@@ -1,0 +1,12 @@
+# Conditional Receipt 141 draft — do not append until the three placeholders resolve
+
+- **2026-09-15 — Receipt 141** (result compatibility and private pressure foundation).
+  - Receipt-ID: `Receipt-141`
+  - Examined-Through: `eff9a58dd712ff9673fa26b9fa809a2f725f6f97`
+  - Parent-Receipt: `Receipt-140`
+  - Pointers: `execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md`; source `8ad37207cf088025623aa1e777a97a6fcb802f48`; `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V6.json`; same run `instances/ROOT/_run_records/FINAL_REVIEW_V6/REVIEW_RETURN_V6.json`; `<FINAL_NATIVE_PATH_SHA256>`; `<FULL_DEC025_PATH_SHA256>`; `<ROOT_COMBINED_ACCEPTANCE_PATH_SHA256>`; final handoff in the same run.
+  - Model-Attribution: Actual HELP_HUMAN, WORKING_ITEMS and TASK allocations, parentage, scopes and execution limits are recorded in the owning AgentRuns dispatch and return records.
+  - Checks: Independent cumulative source review: PASS. Final native qualification and complete registered DEC-025: PENDING as of this preparation. Hosted actual-head CI, PR and merge: PENDING.
+  - Gate-Outcome: `AWAITING` — final native seal/release, complete registered DEC-025 and Root combined acceptance remain pending; do not append this draft.
+
+Before append: resolve the three placeholders and verify their accepting dispositions. Replace the Checks record with “Independent cumulative source review, final native qualification, complete registered DEC-025 and final local closeout backchecks: PASS. Hosted actual-head CI, PR and merge: PENDING at this pre-CI receipt commit.” Replace the Gate-Outcome record with “`EXECUTED` — HELP_HUMAN accepts the bounded technical foundation under D-67. Producer-metadata, lifecycle/dependency, semantic-derivative, target-conversion, pressure-runtime, connector, production-UI and numerical follow-ons remain in the final handoff; no whole-project closure, hosted-CI result, merge, release or professional reliance is inferred.” Use the actual later acceptance date if closure occurs after 2026-09-15, remove this heading, retain the seven top-level receipt records, and run `python3 tools/validation/validate_piping_loop_receipts.py --repo-root . --validation-commit HEAD`. The pre-CI `PENDING` statement is intentional; subsequent CI/PR/merge state belongs in Git/PR and final local evidence, without rewriting Receipt 141 or creating a commit/CI echo.

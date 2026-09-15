@@ -1,0 +1,32 @@
+{
+  "case": "friction",
+  "claim_class": "actual_product_frontend_constructor_composition_of_captured_headless_output",
+  "gui_or_browser_download_claimed": false,
+  "python_member_materialization_claimed": false,
+  "candidate": {
+    "runner_sha256": "6cb37b0e9447fe34af1028be3c6da93a83c683524aac43ccb3807b40dbab7a9f",
+    "source_commit": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+    "source_tree_sha256": "ad18bceaa8e6d958a9182d94f5f6095619fe197eb227c1234edae1abea56dc72",
+    "wasm_sha256": "ee5f753e4ae87d079c765e96657ddfb4b70caac7e414830f48956f3393a3566d"
+  },
+  "captured_request": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/friction.request_v4.json",
+    "sha256": "d72334f3943bb07e7ca56d5b80a72bc5c253928acab0de9420845fc6979dbd79"
+  },
+  "captured_output": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/friction.output_v2.json",
+    "sha256": "8932264305a5fe0fd158158ffb91c8da05effe350c45fba960ead69ecea29dcd"
+  },
+  "source_run_id": "run:preview-linear-static-001",
+  "source_model_ref": "project:invented-loop-01",
+  "source_row_count": 82,
+  "expected_signature_ids": [
+    "supported-source-029"
+  ],
+  "artifact_sha256": {
+    "input_manifest.json": "488810c1850b1fb4641cf6c325873425a1e93db122c7f7060e7e4191fb13c966",
+    "analysis_run_v0_2.json": "b12f3097b40a41b246370ba7d68ddd3d4d6cdecd0f11aff3f8e2265cbed02c51",
+    "result_export_v0_2.json": "66e0980ca984b998ea0d52e3901a2660128bd169470e10f75afbf9cd2eaeeeeb",
+    "stress_neutral_v0_2.json": "10f3b32a383e4e4eda2b0d24aa0f32e6f50090699a6a1a312a4c6dff298b370f"
+  }
+}

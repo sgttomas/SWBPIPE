@@ -1,0 +1,75 @@
+{
+  "schema": "legacy-external-seed-normalization-observation-v4",
+  "status": "EXPECTED_EVIDENCE_HELPER_CORRECTION_REQUIRED",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "case_id": "legacy_desktop",
+  "cause": "V1 evidence helper serialized external seed using JavaScript insertion order. Native Save normalized JSON key order. The four changed strings are semantically equal; no claim is made that arbitrary external serialization remains byte-identical.",
+  "visible_gui_findings_before_save": [
+    "HISTORICAL_INPUT_MANIFEST_MISSING"
+  ],
+  "false_mismatch_findings_visible": false,
+  "field_checks": {
+    "project_name": {
+      "byte_exact": true,
+      "semantic_equal": null,
+      "seed_sha256": "d88533763b80b5b2ff71f69ea64723514bfbf26964743ba7774d6eb6ebc83ade",
+      "native_saved_sha256": "d88533763b80b5b2ff71f69ea64723514bfbf26964743ba7774d6eb6ebc83ade"
+    },
+    "model_json": {
+      "byte_exact": true,
+      "semantic_equal": true,
+      "seed_sha256": "fcb2c9394a9182d863ca9108209028562538bc0ea5bd6372af9f7ea0e554ad46",
+      "native_saved_sha256": "fcb2c9394a9182d863ca9108209028562538bc0ea5bd6372af9f7ea0e554ad46"
+    },
+    "editor_intents_json": {
+      "byte_exact": true,
+      "semantic_equal": true,
+      "seed_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "native_saved_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "proposal_json": {
+      "byte_exact": true,
+      "semantic_equal": true,
+      "seed_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "native_saved_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "selected_review_target_json": {
+      "byte_exact": true,
+      "semantic_equal": true,
+      "seed_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "native_saved_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "mechanics_result_json": {
+      "byte_exact": false,
+      "semantic_equal": true,
+      "seed_sha256": "26bd391a29b3b881c24afcf77dace2e4f8a9cae5190c17317f1046c3cb189717",
+      "native_saved_sha256": "927fcd42704a0804a6113aff012352d5e9c47575abb3bfcac35e601081783602"
+    },
+    "analysis_run_json": {
+      "byte_exact": false,
+      "semantic_equal": true,
+      "seed_sha256": "fac94230a30f3cba88b0e32d03ffc01a229a81068392bec58802008cadc5c62b",
+      "native_saved_sha256": "8f34f86cfb73d06a075de571c70c78546d6da04bbfc18f7bf98aa9bc16a5e627"
+    },
+    "model_hash_json": {
+      "byte_exact": false,
+      "semantic_equal": true,
+      "seed_sha256": "77616e6850b79eb84ff3b11d26018fc5f908f8685b2227d225fcff1e6943429f",
+      "native_saved_sha256": "fd72a7b730355df713326cb1a4257dce7e62f5860716d954062ec0d223e92036"
+    },
+    "project_envelope_hash_json": {
+      "byte_exact": false,
+      "semantic_equal": true,
+      "seed_sha256": "97ced6115469e9efdf37086d2ec77422096568b2716a98d86e403ddbf70f955d",
+      "native_saved_sha256": "4e100c3ee191b705497d091816f5e191447c6be32a79d47499843bb0adcf2aae"
+    },
+    "model_migration_ledger_json": {
+      "byte_exact": true,
+      "semantic_equal": true,
+      "seed_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "native_saved_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "before_store": "_run_records/legacy/store/legacy_desktop.before_open.sqlite3",
+  "after_store": "_run_records/legacy/store/legacy_desktop.after_first_external_seed_save.sqlite3"
+}

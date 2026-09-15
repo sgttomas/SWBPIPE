@@ -1,0 +1,1 @@
+{"algorithm":"sha256","canonicalization":"rfc8785_jcs","hash_status":"computed_local_preview","payload_excludes":"storage_summary_and_envelope_hash_carrier_fields","payload_ref":"project:blank-local-20260915t063824z","payload_scope":"project_envelope_payload","value":"sha256:09478235ebbfec93cec47188eb5e9b8e96dbd0f17c2af1d26c9a0ac679dbc8de"}

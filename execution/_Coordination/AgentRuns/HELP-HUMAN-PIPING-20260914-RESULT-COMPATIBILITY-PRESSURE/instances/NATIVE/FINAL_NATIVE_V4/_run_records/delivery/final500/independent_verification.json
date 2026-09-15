@@ -1,0 +1,71 @@
+{
+  "analysis": {
+    "record_checksum": "match",
+    "row_count": 67,
+    "strict_schema": "PASS"
+  },
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "checked_authority": {
+    "path": "/private/tmp/piping-foundation-native-v4-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+    "profile": "openpipestress_jcs_ijson_v1",
+    "sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9"
+  },
+  "members": {
+    "count": 9,
+    "exact_owning_materialization": true,
+    "items": {
+      "diagnostics.json": {
+        "bytes": 967,
+        "sha256": "c5a3b1dbc720d9b0a1f3dbc84999de086684c46055463ab745b413f48a9c6f04"
+      },
+      "loss_report.json": {
+        "bytes": 3443,
+        "sha256": "8bb30fe40a7ab6e29d704becd2b6224bd82d7534be78802aa4d6e9f00e3fb44c"
+      },
+      "manifest.json": {
+        "bytes": 5883,
+        "sha256": "ec500b3e6d8a773ddfe2f966314e7908701e22bfa293ec3113be2ddb2abda7a6"
+      },
+      "result_rows.json": {
+        "bytes": 70454,
+        "sha256": "d401dce0e0e818c77546400a14abe8d81aeadfbd74dad15ea56b9239d3196c8d"
+      },
+      "stable_id_map.json": {
+        "bytes": 50788,
+        "sha256": "8ffd41ea00fba3bd909599393f7d52da1421a364a366fbb0f68d7c83d0c1ce66"
+      },
+      "stress_neutral_results.csv": {
+        "bytes": 11282,
+        "sha256": "4c5a22dabde248d3d96df8abb79460a613b7385dc266fa6eedf618050566483e"
+      },
+      "unit_preservation_witnesses.json": {
+        "bytes": 24117,
+        "sha256": "e397344471f70a264cb34089d04f5d9148a2db4a3d5bd82ca9229e32f3af7e66"
+      },
+      "unit_system_disclosure.json": {
+        "bytes": 1370,
+        "sha256": "d4dddf06b2d6bf9918c549d190dd3ad2ff1062eb498a27b107beb102c3410ac1"
+      },
+      "validation_report.json": {
+        "bytes": 4709,
+        "sha256": "9bbfd1e8f1ddf0cc75a21c7f4fcebe27b5abc9f495e407b75381a9e1200a9ff8"
+      }
+    }
+  },
+  "result": {
+    "authentic_producer_available": false,
+    "delivered_sha256": "4762085c16313365d929f6519136d5697404f4a3b6c779f505715d28d36df038",
+    "origin_class": "received_current_dimension_absent",
+    "row_count": 67,
+    "strict_schema": "PASS"
+  },
+  "standalone_native_csv_control": "withheld_by_registered_local-private-transport_guard; successful CSV is packet-derived csv_text and owning nine-member materialization",
+  "status": "PASS",
+  "stress": {
+    "delivered_sha256": "93b5207caaaa49c83b66ddece391df89cf7f7762937be7e8ef9f45c3d7f3337d",
+    "owning_validator": "PASS",
+    "row_count": 67,
+    "strict_schema": "PASS",
+    "tamper_rejection": "SN-MEMBER-CHECKSUM-MISMATCH: result_rows.json"
+  }
+}

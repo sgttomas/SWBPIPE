@@ -1,0 +1,7 @@
+{
+  "agent_model_sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+  "oracle_h500_sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+  "human_redo_model_sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+  "agent_equals_oracle": true,
+  "agent_equals_human_redo": true
+}

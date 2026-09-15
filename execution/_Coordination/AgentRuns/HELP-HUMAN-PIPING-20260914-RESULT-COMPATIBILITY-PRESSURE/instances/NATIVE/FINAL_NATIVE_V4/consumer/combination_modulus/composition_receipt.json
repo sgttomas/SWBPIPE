@@ -1,0 +1,32 @@
+{
+  "case": "combination_modulus",
+  "claim_class": "actual_product_frontend_constructor_composition_of_captured_headless_output",
+  "gui_or_browser_download_claimed": false,
+  "python_member_materialization_claimed": false,
+  "candidate": {
+    "runner_sha256": "6cb37b0e9447fe34af1028be3c6da93a83c683524aac43ccb3807b40dbab7a9f",
+    "source_commit": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+    "source_tree_sha256": "ad18bceaa8e6d958a9182d94f5f6095619fe197eb227c1234edae1abea56dc72",
+    "wasm_sha256": "ee5f753e4ae87d079c765e96657ddfb4b70caac7e414830f48956f3393a3566d"
+  },
+  "captured_request": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/combination_modulus.request_v4.json",
+    "sha256": "2f24a9f2497e9ae85ad5d1766a23b6e241a88b5a1e363d48c69f62d80c6a7a8c"
+  },
+  "captured_output": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/combination_modulus.output_v2.json",
+    "sha256": "b46256f8a2b84f880f8843f4acfa8019b415663894b9b2ccf993c1c1310d7027"
+  },
+  "source_run_id": "run:preview-linear-static-001",
+  "source_model_ref": "project:invented-loop-01",
+  "source_row_count": 534,
+  "expected_signature_ids": [
+    "supported-source-051"
+  ],
+  "artifact_sha256": {
+    "input_manifest.json": "7c4fa4e84698234187c129d916d7b7815861492b57974c601fcc866949308666",
+    "analysis_run_v0_2.json": "be5d6f5e124818737fc6a8da2ad9ccc0bd3db8531bb5008708b8ce24974bb8f7",
+    "result_export_v0_2.json": "13ec8c3202cab4af762425ed19ac4cdf9d7bd43fe69f3a05ee84e15486e9f0c4",
+    "stress_neutral_v0_2.json": "bcf0987a06592315e7f3b869057bff17444429aa456d5c17e9500cfbf6f57166"
+  }
+}

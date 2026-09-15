@@ -1,0 +1,43 @@
+{
+  "schema": "final-native-v4-observer-transcription-v1",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "claim_class": "additive observer transcription of actual interactive CUA observations; not a replay and not a substitute for stored-state proofs",
+  "raw_screenshot_or_ax_file_persisted_at_time": false,
+  "observation_source": "interactive cua_repl tool history in this foundation_native task",
+  "sequence": [
+    {
+      "step": "first_save",
+      "observed": "Actual native app completed sparse solve; Save local reported Saved current project model snapshot without external file copies.",
+      "state_evidence_refs": [
+        "instances/NATIVE/FINAL_NATIVE_V4/_run_records/store/after_first_save_v2.row.json",
+        "instances/NATIVE/FINAL_NATIVE_V4/_run_records/validation/after_first_save_analysis.json",
+        "instances/NATIVE/FINAL_NATIVE_V4/_run_records/validation/after_first_save_model_envelope_hashes.json"
+      ]
+    },
+    {
+      "step": "first_normal_quit",
+      "observed": "The app was quit through the native application menu and the window closed before relaunch.",
+      "durable_process_scan_at_that_exact_boundary": false,
+      "calibration": "normal-quit action was observed in tool history; no separate process-scan JSON was written at that time"
+    },
+    {
+      "step": "first_relaunch_open_historical",
+      "observed": "The exact bound app was relaunched on the same unique store; Open local restored the saved run as Historical. The displayed integrity finding set contained HISTORICAL_INPUT_MANIFEST_MISSING and no false model, project-envelope, record, result, or row hash mismatch."
+    },
+    {
+      "step": "unchanged_save",
+      "observed": "Save local completed from Historical without a re-solve.",
+      "state_evidence_refs": [
+        "instances/NATIVE/FINAL_NATIVE_V4/_run_records/store/after_unchanged_save.row.json",
+        "instances/NATIVE/FINAL_NATIVE_V4/_run_records/validation/unchanged_save_preservation.json"
+      ]
+    },
+    {
+      "step": "second_normal_quit",
+      "observed": "The app was quit through the native application menu after unchanged-save verification.",
+      "durable_process_scan_at_that_exact_boundary": false,
+      "calibration": "normal-quit action was observed in tool history; no separate process-scan JSON was written at that time"
+    }
+  ],
+  "evidence_boundary": "Stored-state hash and preservation assertions are owned by the referenced JSON evidence. This transcription owns only what the interactive operator observed and explicitly discloses the absent contemporaneous raw GUI/process files."
+}

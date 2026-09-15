@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "checked_json_bin": "/private/tmp/piping-foundation-native-v4-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+  "checked_json_bin_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+  "profile": "openpipestress_jcs_ijson_v1",
+  "source_model": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/350_sparse/model_json.json",
+  "M350": {
+    "byte_count": 2717,
+    "sha256": "578ed0da4a4a1aa59eb20dfc2403a3b1fa912305a07ddeb39539c87833fdf028"
+  },
+  "M500": {
+    "byte_count": 2717,
+    "sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f"
+  },
+  "exact_diffs": [
+    {
+      "path": "/load_cases/0/primitive_loads/0/magnitude/value",
+      "before": 350,
+      "after": 500
+    }
+  ],
+  "expected_diffs": [
+    {
+      "path": "/load_cases/0/primitive_loads/0/magnitude/value",
+      "before": 350,
+      "after": 500
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "case": "zero_pressure_longitudinal",
+  "claim_class": "actual_product_frontend_constructor_composition_of_captured_headless_output",
+  "gui_or_browser_download_claimed": false,
+  "python_member_materialization_claimed": false,
+  "candidate": {
+    "runner_sha256": "6cb37b0e9447fe34af1028be3c6da93a83c683524aac43ccb3807b40dbab7a9f",
+    "source_commit": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+    "source_tree_sha256": "ad18bceaa8e6d958a9182d94f5f6095619fe197eb227c1234edae1abea56dc72",
+    "wasm_sha256": "ee5f753e4ae87d079c765e96657ddfb4b70caac7e414830f48956f3393a3566d"
+  },
+  "captured_request": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/zero_pressure_longitudinal.request_v4.json",
+    "sha256": "b5e307a4f6ca31c4ccf6c081bc5fd44946421e3e4c4946eaca83339e7646f9c2"
+  },
+  "captured_output": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/zero_pressure_longitudinal.output_v2.json",
+    "sha256": "ad4505204482ef9a8c6f7ac364da335459c4fa543294441dbe029c9fc446354c"
+  },
+  "source_run_id": "run:preview-linear-static-001",
+  "source_model_ref": "project:v3-zero-pressure-longitudinal",
+  "source_row_count": 77,
+  "expected_signature_ids": [
+    "supported-source-059"
+  ],
+  "artifact_sha256": {
+    "input_manifest.json": "65e5f6a9cac1ae6edff55c9d57d435be21420a0a1ec9130ee27c72afe147e39a",
+    "analysis_run_v0_2.json": "3e710dc93d89fe27b79eff64b937329723d52a0395be29d6320c839bfe630f29",
+    "result_export_v0_2.json": "e975787649a81ef9b51dc52c0f71c157cd3382bc11ca938361c0517f79c4ff29",
+    "stress_neutral_v0_2.json": "e54485cacaed95ff3194d1d0e3b6d90dd9f6c748e5a065bbf103759cde0354ae"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "legacy-historical-gui-observation-v4",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "case_id": "legacy_python_v2",
+  "profile": "analysis_run_python_sorted_compact_v0_1",
+  "observation_source": "actual native CUA open/results/save/normal-quit sequence after native-normalized canonical seed",
+  "visible_project": "Legacy python 0.1 compatibility witness",
+  "visible_designation": "HISTORICAL SAVED RUN",
+  "visible_run_id": "run:legacy-python",
+  "visible_mechanics": "MECHANICS_SOLVED",
+  "visible_findings": [
+    "HISTORICAL_INPUT_MANIFEST_MISSING",
+    "HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE"
+  ],
+  "false_hash_mismatch_visible": false,
+  "analysis_hash_unverifiable_visible": false,
+  "result_hash_unverifiable_visible": true,
+  "visible_result_rows": 1,
+  "current_result_rows": 0,
+  "save_message": "Saved current project model snapshot without external file copies.",
+  "normal_quit_observed": true,
+  "owned_process_check_command": [
+    "ps",
+    "-axo",
+    "pid=,comm="
+  ],
+  "owned_app_process_matches_after_quit": [],
+  "owned_app_process_absent_after_quit": true
+}

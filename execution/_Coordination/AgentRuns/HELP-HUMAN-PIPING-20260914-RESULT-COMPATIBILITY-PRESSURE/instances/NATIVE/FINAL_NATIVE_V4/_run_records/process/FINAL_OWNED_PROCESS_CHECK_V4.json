@@ -1,0 +1,20 @@
+{
+  "schema": "final-native-v4-owned-process-check-v1",
+  "created_utc": "2026-09-15T07:52:45.939434+00:00",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "command": [
+    "ps",
+    "-axo",
+    "pid=,comm="
+  ],
+  "checked_executable_names": [
+    "openpipestress-desktop",
+    "openpipestress-runner",
+    "openpipestress_jcs_ijson"
+  ],
+  "matches": [],
+  "owned_processes_absent": true,
+  "browser_activity_by_this_run": false,
+  "owned_browser_or_server_processes_expected": false,
+  "status": "PASS"
+}

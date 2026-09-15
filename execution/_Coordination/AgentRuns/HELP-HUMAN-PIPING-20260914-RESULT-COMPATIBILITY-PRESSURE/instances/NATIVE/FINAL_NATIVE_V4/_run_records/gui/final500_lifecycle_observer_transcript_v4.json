@@ -1,0 +1,58 @@
+{
+  "schema": "final500-native-lifecycle-observer-transcript-v4",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "observation_source": "actual native CUA actions and exact-boundary process records from this execution",
+  "sequence": [
+    {
+      "boundary": "first final500 normal quit",
+      "actual_action": "super+q on bound app after Save local",
+      "process_evidence": "_run_records/process/final500_after_first_normal_quit.json",
+      "observed_process_absent": true
+    },
+    {
+      "boundary": "reopen Historical before recovery",
+      "actual_action": "relaunched bound app; clicked Open local then Results",
+      "visible_designation": "HISTORICAL SAVED RUN",
+      "visible_run_id": "run:preview-linear-static-001",
+      "visible_result_rows": 67,
+      "visible_values": {
+        "tip_displacement_y": "2.375817 mm",
+        "tip_rotation_z": "0.001114 rad",
+        "root_reaction_y": "500 N",
+        "end_i_shear_z": "500 N",
+        "end_i_bending_y": "-1600 N*m"
+      },
+      "visible_findings": [
+        "HISTORICAL_INPUT_MANIFEST_MISSING"
+      ],
+      "false_mismatch_visible": false,
+      "current_result_rows": 0
+    },
+    {
+      "boundary": "Historical unchanged Save and second normal quit",
+      "actual_action": "clicked Save local; observed exact save message; super+q",
+      "save_message": "Saved current project model snapshot without external file copies.",
+      "process_evidence": "_run_records/process/final500_after_historical_unchanged_save_normal_quit.json",
+      "observed_process_absent": true
+    },
+    {
+      "boundary": "fresh recovery solve",
+      "actual_action": "relaunched bound app; Open local; Analyze; sparse_interactive; ran actual native mechanics; Save local",
+      "visible_current_status": "MECHANICS_SOLVED",
+      "visible_result_rows": 67,
+      "visible_model_hash": "sha256:db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f"
+    },
+    {
+      "boundary": "post-recovery normal quit before disposable malformed loop",
+      "actual_action": "super+q on bound app; subsequent closed-store snapshot/seed preconditions and process checks passed",
+      "normal_quit_observed": true
+    }
+  ],
+  "independent_state_proofs": [
+    "_run_records/validation/final500_before_quit_analysis_v4.json",
+    "_run_records/validation/final500_before_quit_model_envelope_hashes.json",
+    "_run_records/validation/final500_unchanged_save_preservation.json",
+    "_run_records/lifecycle/500_current_after_recovery/recovery_parity.json"
+  ],
+  "capture_limit": "This additive record transcribes exact CUA observations from the execution tool history. No screenshot or raw AX dump file was captured at these boundaries; independently checkable SQLite bytes, validation reports, and process scans remain separate evidence."
+}

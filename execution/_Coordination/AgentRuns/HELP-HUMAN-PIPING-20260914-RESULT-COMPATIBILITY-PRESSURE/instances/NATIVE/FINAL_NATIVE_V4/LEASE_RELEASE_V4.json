@@ -1,0 +1,24 @@
+{
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "holder": "/root/foundation_native",
+  "original_lease": {
+    "bytes": 3764,
+    "path": "instances/ROOT/_run_records/FINAL_NATIVE_LEASE_V4.json",
+    "sha256": "eae86142798853d077a256c54ee410dc1b420566ea703e89e65a687a45a6ee79"
+  },
+  "release_assertions": [
+    "All V4-owned application, runner, checked-JSON, browser, and server processes are absent.",
+    "The 76 frozen maintained source paths remain byte-identical to the V6 source release.",
+    "The native application completed its final normal quit.",
+    "The unique V4 native store is restored to the final500 baseline with no WAL or SHM sidecars.",
+    "No future native/build/UI lease is claimed by /root/foundation_native.",
+    "Root may now acquire the shared build/browser/native lease for the registered full DEC-025 sweep."
+  ],
+  "released_utc": "2026-09-15T07:58:28Z",
+  "schema": "chirality.final_native_v4.lease_release.v1",
+  "sealed_result": {
+    "bytes": 1674,
+    "path": "SEALED_RESULT_V4.json",
+    "sha256": "a1c1b8b3684b27476705a3934aa0fe0288f10802a22fcae18633a88e5f531abc"
+  }
+}

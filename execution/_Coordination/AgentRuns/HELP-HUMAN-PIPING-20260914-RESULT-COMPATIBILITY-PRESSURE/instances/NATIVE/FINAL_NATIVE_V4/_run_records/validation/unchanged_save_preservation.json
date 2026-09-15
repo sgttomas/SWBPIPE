@@ -1,0 +1,58 @@
+{
+  "schema": "final-native-v4-unchanged-save-comparison-v1",
+  "status": "PASS",
+  "payload_fields": {
+    "project_name": {
+      "equal": true,
+      "before_sha256": "df839f0ac6384007b2aeff0238fd585565fcaefee2a1122c1bd4cc96aae9311a",
+      "after_sha256": "df839f0ac6384007b2aeff0238fd585565fcaefee2a1122c1bd4cc96aae9311a"
+    },
+    "model_json": {
+      "equal": true,
+      "before_sha256": "405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+      "after_sha256": "405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2"
+    },
+    "editor_intents_json": {
+      "equal": true,
+      "before_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "after_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "proposal_json": {
+      "equal": true,
+      "before_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "after_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "selected_review_target_json": {
+      "equal": true,
+      "before_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "after_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "mechanics_result_json": {
+      "equal": true,
+      "before_sha256": "114d3e92d502f19bd70b3d239f8944773360c547e1dbdde8b84aa554323bb294",
+      "after_sha256": "114d3e92d502f19bd70b3d239f8944773360c547e1dbdde8b84aa554323bb294"
+    },
+    "analysis_run_json": {
+      "equal": true,
+      "before_sha256": "b1b83504febbc5177729b32839b14b14b8ab8abed35a623ca18b235c82603e87",
+      "after_sha256": "b1b83504febbc5177729b32839b14b14b8ab8abed35a623ca18b235c82603e87"
+    },
+    "model_hash_json": {
+      "equal": true,
+      "before_sha256": "ddeba77654066754e14794198f78d9fc77e72dd479cc770e3ba6a47a2af85cb4",
+      "after_sha256": "ddeba77654066754e14794198f78d9fc77e72dd479cc770e3ba6a47a2af85cb4"
+    },
+    "project_envelope_hash_json": {
+      "equal": true,
+      "before_sha256": "79614ee1e30108a6fac9255dfa15a26990fd5e3ca216f1dd4c4d5ae44c4bb9cf",
+      "after_sha256": "79614ee1e30108a6fac9255dfa15a26990fd5e3ca216f1dd4c4d5ae44c4bb9cf"
+    },
+    "model_migration_ledger_json": {
+      "equal": true,
+      "before_sha256": "cc06b127efa13b5e17aeef6d6e529681208780b44a6deffd29175e383df0fcba",
+      "after_sha256": "cc06b127efa13b5e17aeef6d6e529681208780b44a6deffd29175e383df0fcba"
+    }
+  },
+  "updated_at_before": 1789453347,
+  "updated_at_after": 1789453468
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "malformed-historical-gui-observation-v4",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "case_id": "incomplete_object",
+  "observation_source": "actual native CUA open/results/save/normal-quit sequence",
+  "visible_designation": "HISTORICAL SAVED RUN",
+  "visible_findings": [
+    "HISTORICAL_INPUT_MANIFEST_MISSING",
+    "HISTORICAL_MECHANICS_EVIDENCE_MALFORMED",
+    "HISTORICAL_RUN_EVIDENCE_INCOMPLETE"
+  ],
+  "visible_safe_fallback": "Run the bounded preview mechanics path to populate result summaries.",
+  "current_result_established": false,
+  "current_result_rows": 0,
+  "save_message": "Saved current project model snapshot without external file copies.",
+  "normal_quit_observed": true,
+  "owned_process_check_command": [
+    "ps",
+    "-axo",
+    "pid=,comm="
+  ],
+  "owned_app_process_matches_after_quit": [],
+  "owned_app_process_absent_after_quit": true
+}

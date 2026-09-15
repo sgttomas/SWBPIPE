@@ -1,0 +1,239 @@
+{
+  "schema": "root-native-cantilever-backcheck-v1",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "status": "PASS",
+  "method": "Agent 0 independently reads actual saved models and raw results; closed-form annular inertia and Euler-Bernoulli cantilever equations, without importing product implementation. Expectations are unrounded, with the user-approved publication allowance.",
+  "inertia_m4": 1.1493591335983794e-05,
+  "checks": [
+    {
+      "run": "350_sparse",
+      "row_id": "result:disp:node-TIP",
+      "observed": 1.663072,
+      "expected_unrounded": 1.663071716046058,
+      "unit": "mm",
+      "absolute_error": 2.8395394213731606e-07,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "350_sparse",
+      "row_id": "result:disp:node-TIP:rz",
+      "observed": 0.00078,
+      "expected_unrounded": 0.0007795648668965897,
+      "unit": "rad",
+      "absolute_error": 4.351331034102568e-07,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "350_sparse",
+      "row_id": "result:reaction:support-ROOT",
+      "observed": 350,
+      "expected_unrounded": 350,
+      "unit": "N",
+      "absolute_error": 0,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "350_sparse",
+      "row_id": "result:force:pipe-CANTILEVER:shear-z",
+      "observed": 350,
+      "expected_unrounded": 350,
+      "unit": "N",
+      "absolute_error": 0,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "350_sparse",
+      "row_id": "result:moment:pipe-CANTILEVER:bending-y",
+      "observed": -1120,
+      "expected_unrounded": -1120.0,
+      "unit": "N*m",
+      "absolute_error": 0.0,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "500_current_before_quit",
+      "row_id": "result:disp:node-TIP",
+      "observed": 2.375817,
+      "expected_unrounded": 2.375816737208654,
+      "unit": "mm",
+      "absolute_error": 2.6279134601736587e-07,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "500_current_before_quit",
+      "row_id": "result:disp:node-TIP:rz",
+      "observed": 0.001114,
+      "expected_unrounded": 0.0011136640955665567,
+      "unit": "rad",
+      "absolute_error": 3.35904433443248e-07,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "500_current_before_quit",
+      "row_id": "result:reaction:support-ROOT",
+      "observed": 500,
+      "expected_unrounded": 500,
+      "unit": "N",
+      "absolute_error": 0,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "500_current_before_quit",
+      "row_id": "result:force:pipe-CANTILEVER:shear-z",
+      "observed": 500,
+      "expected_unrounded": 500,
+      "unit": "N",
+      "absolute_error": 0,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "500_current_before_quit",
+      "row_id": "result:moment:pipe-CANTILEVER:bending-y",
+      "observed": -1600,
+      "expected_unrounded": -1600.0,
+      "unit": "N*m",
+      "absolute_error": 0.0,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "500_current_after_recovery",
+      "row_id": "result:disp:node-TIP",
+      "observed": 2.375817,
+      "expected_unrounded": 2.375816737208654,
+      "unit": "mm",
+      "absolute_error": 2.6279134601736587e-07,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "500_current_after_recovery",
+      "row_id": "result:disp:node-TIP:rz",
+      "observed": 0.001114,
+      "expected_unrounded": 0.0011136640955665567,
+      "unit": "rad",
+      "absolute_error": 3.35904433443248e-07,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "500_current_after_recovery",
+      "row_id": "result:reaction:support-ROOT",
+      "observed": 500,
+      "expected_unrounded": 500,
+      "unit": "N",
+      "absolute_error": 0,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "500_current_after_recovery",
+      "row_id": "result:force:pipe-CANTILEVER:shear-z",
+      "observed": 500,
+      "expected_unrounded": 500,
+      "unit": "N",
+      "absolute_error": 0,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    },
+    {
+      "run": "500_current_after_recovery",
+      "row_id": "result:moment:pipe-CANTILEVER:bending-y",
+      "observed": -1600,
+      "expected_unrounded": -1600.0,
+      "unit": "N*m",
+      "absolute_error": 0.0,
+      "absolute_allowance": 5.001e-07,
+      "pass": true
+    }
+  ],
+  "exact_history_and_agent_hashes": {
+    "H350": "578ed0da4a4a1aa59eb20dfc2403a3b1fa912305a07ddeb39539c87833fdf028",
+    "H500": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+    "pass": true
+  },
+  "references_and_entities_preserved_across_load_edit": true,
+  "only_model_delta": "load:WF-FY magnitude 350 N to 500 N",
+  "recovery_byte_parity": [
+    {
+      "file": "model_json.json",
+      "sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+      "byte_exact": true
+    },
+    {
+      "file": "mechanics_result_json.json",
+      "sha256": "7559060ed2bbb8fc8cc35eccfb744483a086ed18aa0d202d51e06134dfaebe54",
+      "byte_exact": true
+    },
+    {
+      "file": "analysis_run_json.json",
+      "sha256": "7d827fbb924bded4df8dc83420bfcd7ee7c7fceccb56b44af8d945db3042bce1",
+      "byte_exact": true
+    },
+    {
+      "file": "model_hash_json.json",
+      "sha256": "b2b4a74efc2e486ac56a5327ca71c1235b4b7bc332eed4d7cb7593049504a0a8",
+      "byte_exact": true
+    }
+  ],
+  "evidence_refs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/350_sparse/model_json.json",
+      "sha256": "578ed0da4a4a1aa59eb20dfc2403a3b1fa912305a07ddeb39539c87833fdf028"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/350_sparse/mechanics_result_json.json",
+      "sha256": "31582fcd1983609b5cec983ef091b2023069c68f3fe3a3bc432adebeca32193e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/500_current_before_quit/model_json.json",
+      "sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/500_current_before_quit/mechanics_result_json.json",
+      "sha256": "7559060ed2bbb8fc8cc35eccfb744483a086ed18aa0d202d51e06134dfaebe54"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/500_current_after_recovery/model_json.json",
+      "sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/500_current_after_recovery/mechanics_result_json.json",
+      "sha256": "7559060ed2bbb8fc8cc35eccfb744483a086ed18aa0d202d51e06134dfaebe54"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/350_sparse/model_json.json",
+      "sha256": "578ed0da4a4a1aa59eb20dfc2403a3b1fa912305a07ddeb39539c87833fdf028"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/undo350/model_json.json",
+      "sha256": "578ed0da4a4a1aa59eb20dfc2403a3b1fa912305a07ddeb39539c87833fdf028"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/redo500/model_json.json",
+      "sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/agent500/model_json.json",
+      "sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/500_current_before_quit/model_json.json",
+      "sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/lifecycle/500_current_after_recovery/model_json.json",
+      "sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f"
+    }
+  ],
+  "calibration": "Native analytical_comparison files used rounded expectations and a looser 1e-6 numeric allowance. Those observations remain unchanged. This independent record owns acceptance at the exact 0.5e-6 + 1e-10 allowance. Root support reaction row is magnitude; signed global reactions follow the authored frame/equilibrium and are not misrepresented as separate published component rows."
+}

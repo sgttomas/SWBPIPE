@@ -1,0 +1,63 @@
+{
+  "schema": "cantilever-stored-attachment-preservation-v4-v2",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "status": "PASS",
+  "stored_attachment_fields": [
+    "model_json",
+    "editor_intents_json",
+    "proposal_json",
+    "selected_review_target_json",
+    "mechanics_result_json",
+    "analysis_run_json",
+    "model_hash_json",
+    "project_envelope_hash_json",
+    "model_migration_ledger_json"
+  ],
+  "unchanged_save_all_exact": true,
+  "unchanged_save_source": "_run_records/validation/final500_unchanged_save_preservation.json",
+  "recovery_exact_fields": {
+    "model_json.json": {
+      "before_sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+      "after_sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+      "exact": true
+    },
+    "mechanics_result_json.json": {
+      "before_sha256": "7559060ed2bbb8fc8cc35eccfb744483a086ed18aa0d202d51e06134dfaebe54",
+      "after_sha256": "7559060ed2bbb8fc8cc35eccfb744483a086ed18aa0d202d51e06134dfaebe54",
+      "exact": true
+    },
+    "analysis_run_json.json": {
+      "before_sha256": "7d827fbb924bded4df8dc83420bfcd7ee7c7fceccb56b44af8d945db3042bce1",
+      "after_sha256": "7d827fbb924bded4df8dc83420bfcd7ee7c7fceccb56b44af8d945db3042bce1",
+      "exact": true
+    },
+    "model_hash_json.json": {
+      "before_sha256": "b2b4a74efc2e486ac56a5327ca71c1235b4b7bc332eed4d7cb7593049504a0a8",
+      "after_sha256": "b2b4a74efc2e486ac56a5327ca71c1235b4b7bc332eed4d7cb7593049504a0a8",
+      "exact": true
+    }
+  },
+  "recovery_source": "_run_records/lifecycle/500_current_after_recovery/recovery_parity.json",
+  "agent_human_oracle_model_exact": {
+    "agent_model_sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+    "oracle_h500_sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+    "human_redo_model_sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+    "agent_equals_oracle": true,
+    "agent_equals_human_redo": true
+  },
+  "agent_human_source": "_run_records/lifecycle/agent500/agent_human_model_parity.json",
+  "scope_note": "Attachment means every versioned field attached to the persisted local project row. The authored PreviewModel itself contains no field named attachment.",
+  "packaged_self_test_attachment_inventory": {
+    "source": "_run_records/execution/commands/native_self_test.stdout.txt",
+    "route": "packaged_binary_saved_edited_load_self_test",
+    "attachments": {
+      "load_node": "node:WF-TIP",
+      "material": "material:invented-carbon-steel",
+      "pipe_from": "node:WF-ROOT",
+      "pipe_to": "node:WF-TIP",
+      "support_node": "node:WF-ROOT"
+    },
+    "status": "PASS",
+    "attribution": "packaged supporting self-test; its fixture hashes are distinct from actual GUI-authored H350/H500"
+  }
+}

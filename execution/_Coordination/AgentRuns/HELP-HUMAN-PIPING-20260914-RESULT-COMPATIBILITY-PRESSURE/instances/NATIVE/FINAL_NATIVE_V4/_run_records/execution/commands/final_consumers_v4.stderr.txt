@@ -1,0 +1,18 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/compose_captured_outputs_v2.test.ts > captured headless producer to desktop consumers > composes all seven real outputs and preserves the source carrier
+Error: INPUT-MANIFEST-LOAD-BASIS-INCOMPLETE: complete load-case bases are required.
+ ❯ validateArgs src/services/inputManifestService.ts:204:11
+    202|     )
+    203|   ) {
+    204|     throw new Error(
+       |           ^
+    205|       "INPUT-MANIFEST-LOAD-BASIS-INCOMPLETE: complete load-case bases …
+    206|     );
+ ❯ buildCurrentSessionInputManifest src/services/inputManifestService.ts:77:3
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/compose_captured_outputs_v2.test.ts:74:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+COMMAND_FAILED:1:["npm", "exec", "--workspace", "apps/desktop", "--", "vitest", "run", "--config", "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/vitest.v2.config.ts"]

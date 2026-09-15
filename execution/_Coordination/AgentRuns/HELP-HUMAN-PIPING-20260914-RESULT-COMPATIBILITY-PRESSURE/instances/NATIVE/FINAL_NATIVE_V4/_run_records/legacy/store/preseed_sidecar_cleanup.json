@@ -1,0 +1,16 @@
+{
+  "schema": "owned-isolated-store-sidecar-cleanup-v4",
+  "reason": "Read-only schema inspection used a default SQLite connection and created owned WAL/SHM sidecars after baseline restoration; exact sidecars removed with app closed before legacy seed.",
+  "removed": [
+    {
+      "path": "/Users/ryan/Library/Application Support/org.openpipestress.foundation-v4-20260915/openpipestress-projects.sqlite3-wal",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/ryan/Library/Application Support/org.openpipestress.foundation-v4-20260915/openpipestress-projects.sqlite3-shm",
+      "bytes": 32768,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+    }
+  ]
+}

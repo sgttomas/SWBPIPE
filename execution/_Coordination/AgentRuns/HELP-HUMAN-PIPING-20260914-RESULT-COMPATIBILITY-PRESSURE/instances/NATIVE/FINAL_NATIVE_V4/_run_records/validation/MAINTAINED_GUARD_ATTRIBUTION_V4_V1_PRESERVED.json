@@ -1,0 +1,117 @@
+{
+  "schema": "maintained-guard-attribution-v4",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "status": "FAIL",
+  "source_files": [
+    {
+      "path": "apps/desktop/src/App.test.tsx",
+      "bytes": 740499,
+      "sha256": "b6e9b838e86c312ec94eff086668dab4dfb26977877a294149b972e20fb011e1",
+      "test_names": [
+        {
+          "name": "suppresses solve proof unless the completed job, result, and exact model version remain bound",
+          "present": true
+        },
+        {
+          "name": "suppresses a real delayed backend completion when native open commits a new model",
+          "present": true
+        },
+        {
+          "name": "persists native immediate-cancel intent until the backend start receipt exists",
+          "present": true
+        },
+        {
+          "name": "dispatches detached pre-start cancellation once after native open invalidates the run",
+          "present": true
+        },
+        {
+          "name": "withdraws an in-flight apply without resurrecting state or clearing newer busy ownership",
+          "present": false
+        },
+        {
+          "name": "withdraws an in-flight validate without resurrecting state or clearing newer busy ownership",
+          "present": false
+        },
+        {
+          "name": "retains a malformed restored member as untrusted data and rejects it without crashing or accepting",
+          "present": true
+        },
+        {
+          "name": "discards a pending batch when another model opens, and ignores delayed save metadata after a model replacement",
+          "present": true
+        }
+      ]
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "bytes": 18398,
+      "sha256": "1a778fb7b7c3f424cbf0394c0b3b3cc8dd174ecaae5863392236d92bb2cc6404",
+      "test_names": [
+        {
+          "name": "rejects missing proof, same-id changed model, stale run, changed value and mixed/null/empty/wrong dimensions",
+          "present": true
+        },
+        {
+          "name": "rejects a rehashed 0.2 known explicit carrier dimension contradiction without mutating evidence",
+          "present": true
+        }
+      ]
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/nativeResultSave.test.ts",
+      "bytes": 7026,
+      "sha256": "4e169fc5af4ccc3f97ba6cf90416f0442d0bbd874a4350cc6cf65e6c587111b8",
+      "test_names": [
+        {
+          "name": "keeps native primary error and cleanup status without echoing payload",
+          "present": true
+        },
+        {
+          "name": "rejects missing, forged and contradictory success receipts",
+          "present": true
+        }
+      ]
+    },
+    {
+      "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "bytes": 20246,
+      "sha256": "3d454046af67d1b41a30f7220f1675c675996ff88c2eb3cccd248be12ffe6241",
+      "test_names": [
+        {
+          "name": "does not publish a delayed packet after its source result is replaced",
+          "present": true
+        },
+        {
+          "name": "saves native stress JSON only after validation and intent and invalidates a pending source generation",
+          "present": true
+        }
+      ]
+    },
+    {
+      "path": "apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "bytes": 20279,
+      "sha256": "6d5a762e6d7e1b6238eb3eb8873e83f88904af6986a84b52f13049f4061f94c9",
+      "test_names": [
+        {
+          "name": "does not misclassify a full Python 0.1 record as the abbreviated desktop profile",
+          "present": true
+        },
+        {
+          "name": "keeps locale-sensitive desktop 0.1 replay explicitly unverifiable",
+          "present": true
+        }
+      ]
+    }
+  ],
+  "covered_classes": [
+    "busy ownership",
+    "stale/delayed completion",
+    "cancellation",
+    "late response after model replacement",
+    "native IPC/save error",
+    "invalid operation batch",
+    "legacy numeric-type/locale preimage limits"
+  ],
+  "actual_gui_injection_claim": false,
+  "execution_boundary": "Source/hash attribution only in this native run. Root owns execution of these maintained tests in the complete registered DEC-025 source/dist sweep after lease release."
+}

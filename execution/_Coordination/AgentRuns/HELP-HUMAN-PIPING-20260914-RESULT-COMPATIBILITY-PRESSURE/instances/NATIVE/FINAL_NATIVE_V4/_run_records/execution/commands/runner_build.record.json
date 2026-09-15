@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "cargo",
+    "build",
+    "--offline",
+    "--release",
+    "--manifest-path",
+    "core/runner/headless/Cargo.toml",
+    "--bin",
+    "openpipestress-runner",
+    "--target-dir",
+    "/private/tmp/piping-foundation-native-v4-20260915/build/headless-runner"
+  ],
+  "cwd": "/private/tmp/piping-foundation-native-v4-20260915/build/source",
+  "environment": {
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "started_unix": 1789453071.322051,
+  "ended_unix": 1789453093.107455,
+  "elapsed_seconds": 21.785403966903687,
+  "exit_code": 0,
+  "stdout": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/commands/runner_build.stdout.txt",
+  "stderr": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/commands/runner_build.stderr.txt"
+}

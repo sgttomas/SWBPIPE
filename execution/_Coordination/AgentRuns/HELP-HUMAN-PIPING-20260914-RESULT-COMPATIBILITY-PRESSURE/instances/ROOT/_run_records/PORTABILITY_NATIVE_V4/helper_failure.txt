@@ -1,0 +1,1 @@
+Root classification helper first attempt exited 1 before any policy write. Actual tool exception: KeyError: 'files'. The native manifest uses entries. Corrected helper accepts its actual manifest structure. This is an evidence-helper error, not a product defect.

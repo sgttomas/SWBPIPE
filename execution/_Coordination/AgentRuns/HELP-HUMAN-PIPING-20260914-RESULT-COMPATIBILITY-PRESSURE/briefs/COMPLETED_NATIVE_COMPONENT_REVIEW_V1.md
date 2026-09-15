@@ -1,0 +1,18 @@
+# TASK — completed native component and UI preparation review
+
+Parent: HELP_HUMAN Agent 0. Continue foundation_final_review as TASK / Type 2 with the existing configured gpt-6-astra / high allocation. No delegation. Role and non-delegation remain instruction/config asserted.
+
+Resolve REPO_ROOT from the supplied integration checkout. WORKING_ROOT is REPO_ROOT/projects/chirality-piping. RUN is WORKING_ROOT/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE.
+
+Read agents/AGENT_TASK.md, project AGENTS.md and the existing software-code-review skill already used by this reviewer. Consume this brief, the V6 source/review release, and instances/ROOT/_run_records/COMPLETED_NATIVE_COMPONENT_REVIEW_CUT_V1.json (SHA-256 69d68aecdca259ff14699c8298000a0aa479905dc03a2b0742f6ec86d080a3a1). The cut binds 154 completed evidence/preparation files at source candidate8ad37207cf088025623aa1e777a97a6fcb802f48. Verify every cut file before and after review; report any changed/missing file without assuming it remains frozen. Read linked owning source/expectation/contract evidence as needed, using V6 for maintained source hashes.
+
+This is a bounded additive review while native V4 remains active in disjoint lifecycle/store scopes. Source V6 review remains PASS. Review actual seven-case request/output binding and preserved case-map corrections; strict analysis/result/stress composition and nine-member materialization evidence; actual sparse/dense JSON delivery receipts and file identity claims; source/row/witness accounting and full60 union; first-save/normal-quit/reopen/unchanged-save evidence; and the updated UI interface source binding and next-tranche candidate. Check whether reported success and limitations match the actual artifacts and whether any actionable gap compromises these completed component claims. Inspect the actual helper logic where relevant. Unknown or unexecuted boundaries must remain explicit.
+
+The standalone CSV control is intentionally withheld by existing screening in both source/distribution tests. Successful CSV evidence here is extraction and validated member materialization from delivered Package JSON; no standalone download is claimed. Dense signatures are reconstructed from actual delivered derivative fields, not independently recovered original producer bytes. The first-save raw model/envelope hashes use the existing WASM profile; new analysis/result hashes use the checked profile. Preserve that distinction.
+
+Active500N lifecycle, final malformed carriers, final native acceptance/seal, full registered DEC025, metadata/policy/receipt closeout, CI and merge are outside this cut. Do not infer acceptance of those gates. Do not reopen accepted pressure/source work absent a concrete contradiction found in this review. UI is a prepared next implementation tranche, not production implementation or personal visual approval.
+
+Tools: read-only filesystem/Git inspection and deterministic local file hashing/JSON/CSV examination. Do not import or execute product tools, tests, builds, native/browser/UI, servers, network, Git mutations, writes, or delegation. Native V4 retains the exclusive execution lease. There are no write targets.
+
+Return PASS_COMPONENT_EVIDENCE_REVIEW or CHANGES_REQUIRED with actionable findings and exact evidence. Include candidate, brief/cut hashes, before/after binding results, covered and excluded boundaries, configured model/effort and actual tool/side-effect limitations. Return through the agent message; Root will persist the exact return with attribution. This return is additive evidence, not final tranche acceptance.
+

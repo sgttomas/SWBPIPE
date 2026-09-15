@@ -1,0 +1,300 @@
+{
+  "schema": "final-native-v4-artifact-postgui-check-v1",
+  "created_utc": "2026-09-15T07:54:24.810485+00:00",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "status": "PASS",
+  "checked_count": 29,
+  "mismatches": [],
+  "checks": [
+    {
+      "id": "native_executable",
+      "path": "/private/tmp/piping-foundation-native-v4-20260915/bound/OpenPipeStress Foundation V4 20260915.app/Contents/MacOS/openpipestress-desktop",
+      "exists": true,
+      "expected_bytes": 20025824,
+      "actual_bytes": 20025824,
+      "expected_sha256": "cb1ba4f94a8981c5f6929da8e2088e7df10510ca75fcc705b9ea9164c978febe",
+      "actual_sha256": "cb1ba4f94a8981c5f6929da8e2088e7df10510ca75fcc705b9ea9164c978febe",
+      "match": true
+    },
+    {
+      "id": "operation_wasm",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "exists": true,
+      "expected_bytes": 1000111,
+      "actual_bytes": 1000111,
+      "expected_sha256": "ee5f753e4ae87d079c765e96657ddfb4b70caac7e414830f48956f3393a3566d",
+      "actual_sha256": "ee5f753e4ae87d079c765e96657ddfb4b70caac7e414830f48956f3393a3566d",
+      "match": true
+    },
+    {
+      "id": "self_weight_wasm",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "exists": true,
+      "expected_bytes": 683807,
+      "actual_bytes": 683807,
+      "expected_sha256": "2df6b2481bdb14b046feb4ff023ad83dd177b12ff40cc62578db7b3955257ec0",
+      "actual_sha256": "2df6b2481bdb14b046feb4ff023ad83dd177b12ff40cc62578db7b3955257ec0",
+      "match": true
+    },
+    {
+      "id": "checked_json",
+      "path": "/private/tmp/piping-foundation-native-v4-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+      "exists": true,
+      "expected_bytes": 621296,
+      "actual_bytes": 621296,
+      "expected_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+      "actual_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+      "match": true
+    },
+    {
+      "id": "headless_runner",
+      "path": "/private/tmp/piping-foundation-native-v4-20260915/build/headless-runner/release/openpipestress-runner",
+      "exists": true,
+      "expected_bytes": 5518112,
+      "actual_bytes": 5518112,
+      "expected_sha256": "6cb37b0e9447fe34af1028be3c6da93a83c683524aac43ccb3807b40dbab7a9f",
+      "actual_sha256": "6cb37b0e9447fe34af1028be3c6da93a83c683524aac43ccb3807b40dbab7a9f",
+      "match": true
+    },
+    {
+      "id": "bound_bundle:Contents/Info.plist",
+      "path": "/private/tmp/piping-foundation-native-v4-20260915/bound/OpenPipeStress Foundation V4 20260915.app/Contents/Info.plist",
+      "exists": true,
+      "expected_bytes": 1059,
+      "actual_bytes": 1059,
+      "expected_sha256": "d348c9168aba500479a5ba10fe18e4523ce4ebcccf6c727e550b2a87039ca726",
+      "actual_sha256": "d348c9168aba500479a5ba10fe18e4523ce4ebcccf6c727e550b2a87039ca726",
+      "match": true
+    },
+    {
+      "id": "bound_bundle:Contents/MacOS/openpipestress-desktop",
+      "path": "/private/tmp/piping-foundation-native-v4-20260915/bound/OpenPipeStress Foundation V4 20260915.app/Contents/MacOS/openpipestress-desktop",
+      "exists": true,
+      "expected_bytes": 20025824,
+      "actual_bytes": 20025824,
+      "expected_sha256": "cb1ba4f94a8981c5f6929da8e2088e7df10510ca75fcc705b9ea9164c978febe",
+      "actual_sha256": "cb1ba4f94a8981c5f6929da8e2088e7df10510ca75fcc705b9ea9164c978febe",
+      "match": true
+    },
+    {
+      "id": "bound_bundle:Contents/Resources/icon.icns",
+      "path": "/private/tmp/piping-foundation-native-v4-20260915/bound/OpenPipeStress Foundation V4 20260915.app/Contents/Resources/icon.icns",
+      "exists": true,
+      "expected_bytes": 77148,
+      "actual_bytes": 77148,
+      "expected_sha256": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e",
+      "actual_sha256": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e",
+      "match": true
+    },
+    {
+      "id": "dist:assets/index-BbqXWFNO.css",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/assets/index-BbqXWFNO.css",
+      "exists": true,
+      "expected_bytes": 58611,
+      "actual_bytes": 58611,
+      "expected_sha256": "f1b3bc415ae58d738ddb318ea05d6bfaa18dc42ba919dd58914d3a17657aee72",
+      "actual_sha256": "f1b3bc415ae58d738ddb318ea05d6bfaa18dc42ba919dd58914d3a17657aee72",
+      "match": true
+    },
+    {
+      "id": "dist:assets/index-BoWx7yC9.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/assets/index-BoWx7yC9.js",
+      "exists": true,
+      "expected_bytes": 1231506,
+      "actual_bytes": 1231506,
+      "expected_sha256": "5fd6a7e9bdff271d171878c433235b4ad722fd916b596d206cba22335d9f9a83",
+      "actual_sha256": "5fd6a7e9bdff271d171878c433235b4ad722fd916b596d206cba22335d9f9a83",
+      "match": true
+    },
+    {
+      "id": "dist:assets/invented_agent_proposal-Bm57LVt-.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/assets/invented_agent_proposal-Bm57LVt-.js",
+      "exists": true,
+      "expected_bytes": 1820,
+      "actual_bytes": 1820,
+      "expected_sha256": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c",
+      "actual_sha256": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c",
+      "match": true
+    },
+    {
+      "id": "dist:assets/invented_demo_rule_pack-dhX9tvT1.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/assets/invented_demo_rule_pack-dhX9tvT1.js",
+      "exists": true,
+      "expected_bytes": 10858,
+      "actual_bytes": 10858,
+      "expected_sha256": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a",
+      "actual_sha256": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a",
+      "match": true
+    },
+    {
+      "id": "dist:assets/invented_design_knowledge-H12r-oKQ.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/assets/invented_design_knowledge-H12r-oKQ.js",
+      "exists": true,
+      "expected_bytes": 1660,
+      "actual_bytes": 1660,
+      "expected_sha256": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040",
+      "actual_sha256": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040",
+      "match": true
+    },
+    {
+      "id": "dist:assets/invented_mechanics_result-CleTy2JL.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/assets/invented_mechanics_result-CleTy2JL.js",
+      "exists": true,
+      "expected_bytes": 502608,
+      "actual_bytes": 502608,
+      "expected_sha256": "493050a50b346dd1c53de6481da58d3c33d3302c0308f17b49e60584a233be4d",
+      "actual_sha256": "493050a50b346dd1c53de6481da58d3c33d3302c0308f17b49e60584a233be4d",
+      "match": true
+    },
+    {
+      "id": "dist:assets/invented_preview_model-pJA3_nB8.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/assets/invented_preview_model-pJA3_nB8.js",
+      "exists": true,
+      "expected_bytes": 12670,
+      "actual_bytes": 12670,
+      "expected_sha256": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a",
+      "actual_sha256": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a",
+      "match": true
+    },
+    {
+      "id": "dist:assets/vendor-7OC5HNn7.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/assets/vendor-7OC5HNn7.js",
+      "exists": true,
+      "expected_bytes": 3613,
+      "actual_bytes": 3613,
+      "expected_sha256": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76",
+      "actual_sha256": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76",
+      "match": true
+    },
+    {
+      "id": "dist:assets/vendor-icons-Fcg__Luf.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/assets/vendor-icons-Fcg__Luf.js",
+      "exists": true,
+      "expected_bytes": 18788,
+      "actual_bytes": 18788,
+      "expected_sha256": "539e3ba3bc1867cf0866cb7025b4296e9ba7ff8a931b3f18dba5808ca5ca2d1c",
+      "actual_sha256": "539e3ba3bc1867cf0866cb7025b4296e9ba7ff8a931b3f18dba5808ca5ca2d1c",
+      "match": true
+    },
+    {
+      "id": "dist:assets/vendor-react-BT_8sX57.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/assets/vendor-react-BT_8sX57.js",
+      "exists": true,
+      "expected_bytes": 188744,
+      "actual_bytes": 188744,
+      "expected_sha256": "74d9d8d27c20049b7abe2af905e64d58a1fb669b716184346b1de608884cdfe4",
+      "actual_sha256": "74d9d8d27c20049b7abe2af905e64d58a1fb669b716184346b1de608884cdfe4",
+      "match": true
+    },
+    {
+      "id": "dist:assets/vendor-tauri-DlQNAQKj.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/assets/vendor-tauri-DlQNAQKj.js",
+      "exists": true,
+      "expected_bytes": 91,
+      "actual_bytes": 91,
+      "expected_sha256": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73",
+      "actual_sha256": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73",
+      "match": true
+    },
+    {
+      "id": "dist:assets/vendor-three-DC4iGhup.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/assets/vendor-three-DC4iGhup.js",
+      "exists": true,
+      "expected_bytes": 526268,
+      "actual_bytes": 526268,
+      "expected_sha256": "3d965cf58a28a9e737a33c5bea71debec18f024efe9c82fa9e35499b1b748e7f",
+      "actual_sha256": "3d965cf58a28a9e737a33c5bea71debec18f024efe9c82fa9e35499b1b748e7f",
+      "match": true
+    },
+    {
+      "id": "dist:index.html",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/index.html",
+      "exists": true,
+      "expected_bytes": 1158,
+      "actual_bytes": 1158,
+      "expected_sha256": "0ce054b6fc791fcc3d787eb256b990c1ab4edd191f487cb8813b1027a512c488",
+      "actual_sha256": "0ce054b6fc791fcc3d787eb256b990c1ab4edd191f487cb8813b1027a512c488",
+      "match": true
+    },
+    {
+      "id": "dist:self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "exists": true,
+      "expected_bytes": 1688,
+      "actual_bytes": 1688,
+      "expected_sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+      "actual_sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+      "match": true
+    },
+    {
+      "id": "dist:self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "exists": true,
+      "expected_bytes": 6961,
+      "actual_bytes": 6961,
+      "expected_sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+      "actual_sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+      "match": true
+    },
+    {
+      "id": "dist:self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "exists": true,
+      "expected_bytes": 683807,
+      "actual_bytes": 683807,
+      "expected_sha256": "2df6b2481bdb14b046feb4ff023ad83dd177b12ff40cc62578db7b3955257ec0",
+      "actual_sha256": "2df6b2481bdb14b046feb4ff023ad83dd177b12ff40cc62578db7b3955257ec0",
+      "match": true
+    },
+    {
+      "id": "dist:self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "exists": true,
+      "expected_bytes": 520,
+      "actual_bytes": 520,
+      "expected_sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+      "actual_sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+      "match": true
+    },
+    {
+      "id": "dist:wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "exists": true,
+      "expected_bytes": 4253,
+      "actual_bytes": 4253,
+      "expected_sha256": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8",
+      "actual_sha256": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8",
+      "match": true
+    },
+    {
+      "id": "dist:wasm-engine/open_pipe_stress_operation_applier.js",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.js",
+      "exists": true,
+      "expected_bytes": 14773,
+      "actual_bytes": 14773,
+      "expected_sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+      "actual_sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+      "match": true
+    },
+    {
+      "id": "dist:wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "exists": true,
+      "expected_bytes": 1000111,
+      "actual_bytes": 1000111,
+      "expected_sha256": "ee5f753e4ae87d079c765e96657ddfb4b70caac7e414830f48956f3393a3566d",
+      "actual_sha256": "ee5f753e4ae87d079c765e96657ddfb4b70caac7e414830f48956f3393a3566d",
+      "match": true
+    },
+    {
+      "id": "dist:wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "exists": true,
+      "expected_bytes": 1467,
+      "actual_bytes": 1467,
+      "expected_sha256": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16",
+      "actual_sha256": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16",
+      "match": true
+    }
+  ]
+}

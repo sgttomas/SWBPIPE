@@ -1,0 +1,78 @@
+{
+  "schema": "root-persisted-independent-review-v6",
+  "persistence": "Structured parent transcription of actual final collaboration return; not byte-identical raw tool transcript.",
+  "verdict": "PASS_SOURCE_REVIEW",
+  "suitable_for_manager_fanin": true,
+  "reviewer": {
+    "agent": "/root/foundation_final_review",
+    "parent": "/root",
+    "role": "TASK",
+    "type": 2,
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "execution": "Read-only; no writes, tests, product execution, builds, UI, network, Git mutations or delegation."
+  },
+  "candidate_commit": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "base_commit": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_CANDIDATE_REVIEW_V6.md",
+    "sha256": "78100f17e28621059483f9ae5d6e7d90c15d28a2e4d7fef2f14e95f05dd73233"
+  },
+  "release": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V6.json",
+    "sha256": "ad18bceaa8e6d958a9182d94f5f6095619fe197eb227c1234edae1abea56dc72"
+  },
+  "complete_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FULL_CHANGED_PATHS_V6.json",
+    "sha256": "2e569db3436aa91bca9a0586d1951f4bb63ae67885644b5ffdf57b5d092034d9"
+  },
+  "prior_review": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_REVIEW_V5/REVIEW_RETURN_V5.json",
+    "sha256": "d1435ae41f6e337c759be10287b007c62f22f60c37ef8213bd24d32b9ecc24c6"
+  },
+  "coverage": {
+    "cumulative_maintained_percent": 100,
+    "maintained_paths": 76,
+    "reviewed_successor_paths": 5,
+    "unchanged_retaining_prior_coverage": 71,
+    "context_hashes": 58,
+    "manifest_entries": 1335,
+    "governed_contract_policy_paths": 5,
+    "evidence_coordination_paths": 1254,
+    "before_after_hash_mismatches": 0,
+    "git_diff_path_set_exact": true,
+    "context_identity": "Complete 58-entry context array in the hash-bound V6 release.",
+    "limits": "Historical raw numerical results were not all independently recomputed."
+  },
+  "findings": [],
+  "dispositions": {
+    "F11": "Resolved: fully rehashed explicit-dimension contradiction rejected without mutation; preserved failing regression demonstrates former acceptance. Four accepted legacy dimension exceptions and genuine dimension-absent carriers remain supported.",
+    "null_legacy_entries": "The nine signatures explicitly record failed legacy admission. Rejecting their explicit declarations is consistent with the existing qualified legacy-enriched Current carrier boundary. This is not a general prohibition on physical dimensions or the supported dimension-absent representation.",
+    "prior_repairs": "F09/F10 and earlier repairs remain effective.",
+    "formatting": "Every hunk inspected; independently confirmed whitespace-only changes preserving keys, values, order and tokens. Owning AST checks report equal streams; actual DEC-081 validator PASS without changes or suppression."
+  },
+  "evidence": {
+    "genuine_reused_pair_hashes_verified": 7,
+    "packets_materialized_verified": 8,
+    "member_files_verified": 72,
+    "checks": "Hash, JSON content and original CSV comparisons.",
+    "eighth_case": "Maintained-fixture replay, JSON-value equal to earlier native carrier but byte-distinct; no fresh-native or original-byte claim.",
+    "cargo_deviation": "Executed unleased setup/build invocation; manager reports no collision. Resulting binary equals pre-V16 binding, which does not establish build-free execution or erase the deviation.",
+    "checked_cli_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+    "portability": "Two exact completed-evidence additions; active native instructions require new review and explicit lease.",
+    "bindings": {
+      "source_checkpoint": "06c045e318fb1af44cab19d4f30607db43ae9e9a6c167d181db47446b3e1e9f5",
+      "manager_return": "c494f317f931a1b2247f314718871d426f4b187f7ba47ce8278b8d8625f52154",
+      "root_fanin": "2721ca0797afa0794de43b3e3be1d54934b3ddcb85d7c44130a691ad213813d6",
+      "schema_validated_writer": "782afb0d3dbe13fe6749b7941662e2e0a6afa1c30c3947be22c4501b20857474"
+    }
+  },
+  "remaining": [
+    "Final native V4",
+    "Full registered DEC-025",
+    "Full genuine 60 signatures",
+    "Closure metadata and review",
+    "Actual candidate CI and merge"
+  ],
+  "limits": "Source review is not native, lifecycle or release acceptance; runtime results derive from inspected owning evidence."
+}

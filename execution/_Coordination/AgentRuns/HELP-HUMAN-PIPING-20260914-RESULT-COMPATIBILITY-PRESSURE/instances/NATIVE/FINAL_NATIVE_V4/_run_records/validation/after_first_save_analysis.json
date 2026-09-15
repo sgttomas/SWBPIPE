@@ -1,0 +1,150 @@
+{
+  "analysis_run": {
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "input_manifest_hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "object_type": "InputManifest",
+          "ref": "input-manifest:project-invented-loop-01:94c2ac6de9310ffb501fc6d5f79ac8b1938780f3eeaf5382d36f7f50e82ef2e0"
+        },
+        "payload_scope": "input_manifest",
+        "value": "94c2ac6de9310ffb501fc6d5f79ac8b1938780f3eeaf5382d36f7f50e82ef2e0"
+      }
+    ],
+    "input_manifest_payload_persisted": false,
+    "input_manifest_refs": [
+      {
+        "object_type": "InputManifest",
+        "ref": "input-manifest:project-invented-loop-01:94c2ac6de9310ffb501fc6d5f79ac8b1938780f3eeaf5382d36f7f50e82ef2e0"
+      }
+    ],
+    "known_semantic_signature_rows": 830,
+    "result_ref_count": 830,
+    "run_id": "run:preview-linear-static-001",
+    "semantics_unavailable_rows": 0
+  },
+  "checked_authority": {
+    "executable": "/private/tmp/piping-foundation-native-v4-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+    "executable_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+    "items_canonicalized": 832,
+    "protocol_profile": "openpipestress_jcs_ijson_v1"
+  },
+  "full_record_self_exclusion_checksum": {
+    "advertised": {
+      "algorithm": "sha256",
+      "canonicalization": "openpipestress_jcs_ijson_v1",
+      "payload_ref": {
+        "object_type": "AnalysisRun",
+        "ref": "run:preview-linear-static-001"
+      },
+      "payload_scope": "analysis_run_record",
+      "value": "46548ad64518e1ccfb0c7480db3e5cf6c43e41219035261507597327f2d90304"
+    },
+    "independently_computed": "46548ad64518e1ccfb0c7480db3e5cf6c43e41219035261507597327f2d90304",
+    "match": true,
+    "projection": "whole envelope with all analysis_run.hashes entries of payload_scope analysis_run_record removed"
+  },
+  "migration_ledger": {
+    "checks": {
+      "computed_post_model_matches_stored": true,
+      "post_model_matches_stored": true,
+      "record_kind": true
+    },
+    "envelope_note": "computed post-migration envelope binds the create-time normalized return and is not asserted equal to the later solve/save envelope",
+    "record": {
+      "applied_migration_ids": [
+        "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"
+      ],
+      "destructive_rewrite": false,
+      "hash_evidence": {
+        "computed": {
+          "post_migration_model_hash": "sha256:405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+          "post_migration_project_envelope_hash": "sha256:e3b3ec632457d1f45507321ac0267fcc1a6037b244869fe4ef389b0f767039d1",
+          "pre_migration_model_hash": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3"
+        },
+        "prior_stored": null,
+        "received": {
+          "model_hash": {
+            "algorithm": "sha256",
+            "canonicalization": "rfc8785_jcs",
+            "hash_status": "computed_local_preview",
+            "payload_ref": "project:invented-loop-01",
+            "payload_scope": "model_payload",
+            "value": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3"
+          },
+          "project_envelope_hash": {
+            "algorithm": "sha256",
+            "canonicalization": "rfc8785_jcs",
+            "hash_status": "computed_local_preview",
+            "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+            "payload_ref": "project:invented-loop-01",
+            "payload_scope": "project_envelope_payload",
+            "value": "sha256:981b67fe99c0b5cffa2870468b5d6c9e4bb8fd41d1b0da504d195ece61c35979"
+          }
+        },
+        "received_claim_verification": "not_asserted",
+        "schema": "model_migration_hash_evidence_v1",
+        "source_payload_basis": "incoming_pre_migration_model"
+      },
+      "migration_framework": "application_service_separate_db_and_product_schema",
+      "post_migration_model_hash": "sha256:405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+      "pre_migration_model_hash": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3",
+      "professional_boundary": {
+        "human_review_required": true,
+        "software_makes_approval_claim": false,
+        "software_makes_compliance_claim": false
+      },
+      "record_kind": "model_document_migration_ledger_record",
+      "recorded_at_unix": 1789453329,
+      "source_schema_version": "0.1.0",
+      "target_schema_version": "0.2.0",
+      "trigger": "migrate_in_memory_on_open_persisted_on_save"
+    },
+    "record_count": 1
+  },
+  "received_result_checksum": {
+    "advertised": {
+      "algorithm": "sha256",
+      "canonicalization": "openpipestress_jcs_ijson_v1",
+      "payload_ref": {
+        "object_type": "ResultEnvelope",
+        "ref": "result-envelope:run:preview-linear-static-001"
+      },
+      "payload_scope": "received_result",
+      "value": "f3b3b8277f70844cf139be2febe9258810889926259f6f4d474dcc1f4076597c"
+    },
+    "independently_computed": "f3b3b8277f70844cf139be2febe9258810889926259f6f4d474dcc1f4076597c",
+    "match": true,
+    "payload": "exact parsed mechanics_result_json from same stored row"
+  },
+  "result_row_checksums": {
+    "count": 830,
+    "mismatches": [],
+    "status": "PASS"
+  },
+  "schema_validation": {
+    "dispatcher": "PASS",
+    "selected_schema": "analysis_run.v0.2.schema.json",
+    "selected_version": "0.2.0",
+    "strict_v0_2": "PASS"
+  },
+  "source_snapshot": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/store/after_first_save_v2.row.json",
+  "status": "PASS",
+  "stored_field_sha256": {
+    "analysis_run_json": "b1b83504febbc5177729b32839b14b14b8ab8abed35a623ca18b235c82603e87",
+    "editor_intents_json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "mechanics_result_json": "114d3e92d502f19bd70b3d239f8944773360c547e1dbdde8b84aa554323bb294",
+    "model_hash_json": "ddeba77654066754e14794198f78d9fc77e72dd479cc770e3ba6a47a2af85cb4",
+    "model_json": "405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+    "model_migration_ledger_json": "cc06b127efa13b5e17aeef6d6e529681208780b44a6deffd29175e383df0fcba",
+    "project_envelope_hash_json": "79614ee1e30108a6fac9255dfa15a26990fd5e3ca216f1dd4c4d5ae44c4bb9cf",
+    "proposal_json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+    "selected_review_target_json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+  }
+}

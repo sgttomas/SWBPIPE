@@ -1,0 +1,129 @@
+{
+  "schema": "final-native-v4-case-map-binding-v1",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "source_case_map_sha256": "8a1c4b3c572bd7c25156f2cf866f849c6ed2d7729c2a6b45b5e7cca4043af892",
+  "cases": {
+    "combination_modulus": {
+      "request_source": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/combination_modulus.request.json",
+      "accepted_request_sha256": "2f24a9f2497e9ae85ad5d1766a23b6e241a88b5a1e363d48c69f62d80c6a7a8c",
+      "accepted_output_source": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/combination_modulus.output.json",
+      "accepted_output_sha256": "b46256f8a2b84f880f8843f4acfa8019b415663894b9b2ccf993c1c1310d7027",
+      "expected_signatures": [
+        {
+          "component": "material_modulus_basis",
+          "kind": "combination_modulus_basis_record",
+          "signature_id": "supported-source-051",
+          "unit": "record"
+        }
+      ]
+    },
+    "curved": {
+      "request_source": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/curved.request.json",
+      "accepted_request_sha256": "f4333184f4c6d6f8361b9af6189f3176b383a951df4c5b8f8bbb1876c909cc07",
+      "accepted_output_source": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/curved.output.json",
+      "accepted_output_sha256": "19480957ce2c48d19c9d41f062784c2ca4a20ad3d3c68bf5c0807c24c0de086f",
+      "expected_signatures": [
+        {
+          "component": "curved_bend_flexibility",
+          "kind": "curved_bend_macro_element_review",
+          "signature_id": "supported-source-022",
+          "unit": "unitless"
+        }
+      ]
+    },
+    "friction": {
+      "request_source": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/friction.request.json",
+      "accepted_request_sha256": "d72334f3943bb07e7ca56d5b80a72bc5c253928acab0de9420845fc6979dbd79",
+      "accepted_output_source": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/friction.output.json",
+      "accepted_output_sha256": "8932264305a5fe0fd158158ffb91c8da05effe350c45fba960ead69ecea29dcd",
+      "expected_signatures": [
+        {
+          "component": "friction_normal_reaction_input",
+          "kind": "nonlinear_support_friction_normal_reaction_input",
+          "signature_id": "supported-source-029",
+          "unit": "N"
+        }
+      ]
+    },
+    "hanger_constant_effort": {
+      "request_source": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/hanger_constant_effort.successor-request.json",
+      "accepted_request_sha256": "e6dcaccfbefe6b1f18eab0e64b0ae5f0bcc8f6ed869fda312ce68ce7a2aaa62d",
+      "accepted_output_source": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/successor_producers/hanger_constant_effort.successor-output.json",
+      "accepted_output_sha256": "a20a1779772e30a7c9c4d71cac87fc6db8b8a15aa12081d9b3b5d99648283737",
+      "expected_signatures": [
+        {
+          "component": "constant_effort_support_applied_load",
+          "kind": "constant_effort_support_applied_load",
+          "signature_id": "supported-source-052",
+          "unit": "N"
+        },
+        {
+          "component": "variable_spring_hanger_movement_limit",
+          "kind": "spring_hanger_user_input_review",
+          "signature_id": "supported-source-056",
+          "unit": "m"
+        },
+        {
+          "component": "constant_effort_support_movement_limit",
+          "kind": "constant_effort_user_input_review",
+          "signature_id": "supported-source-057",
+          "unit": "m"
+        },
+        {
+          "component": "variable_spring_hanger_stiffness",
+          "kind": "spring_hanger_user_input_review",
+          "signature_id": "supported-source-058",
+          "unit": "N*m/rad"
+        }
+      ]
+    },
+    "modulus": {
+      "request_source": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/modulus.request.json",
+      "accepted_request_sha256": "e2214a5b0c8d8dd40982c4a3b6e182fda93918611df227d6ed29c273586fc051",
+      "accepted_output_source": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/modulus.output_v2.json",
+      "accepted_output_sha256": "e9e5915316c2aea39160ecff2c2428568fbbbeec2e0bdc98fe98c951a3dc9bae",
+      "expected_signatures": [
+        {
+          "component": "material_modulus_basis",
+          "kind": "modulus_basis_record",
+          "signature_id": "supported-source-050",
+          "unit": "record"
+        }
+      ]
+    },
+    "rotational_nonlinear": {
+      "request_source": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/rotational_nonlinear.successor-request.json",
+      "accepted_request_sha256": "6f428f1c81c5804860f58cc495cb76af53de414aea94acb296406aa67a35e62e",
+      "accepted_output_source": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/successor_producers/rotational_nonlinear.successor-output.json",
+      "accepted_output_sha256": "bd2c14a6d5f7f9567995a398b408a0a92167430a7019819f259253f90ca26949",
+      "expected_signatures": [
+        {
+          "component": "nonlinear_support_final_displacement",
+          "kind": "nonlinear_support_final_displacement",
+          "signature_id": "supported-source-053",
+          "unit": "rad"
+        },
+        {
+          "component": "nonlinear_support_final_reaction",
+          "kind": "nonlinear_support_final_reaction",
+          "signature_id": "supported-source-054",
+          "unit": "N*m"
+        }
+      ]
+    },
+    "zero_pressure_longitudinal": {
+      "request_source": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/zero_pressure_longitudinal.successor-request.json",
+      "accepted_request_sha256": "b5e307a4f6ca31c4ccf6c081bc5fd44946421e3e4c4946eaca83339e7646f9c2",
+      "accepted_output_source": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/successor_producers/zero_pressure_longitudinal.successor-output.json",
+      "accepted_output_sha256": "ad4505204482ef9a8c6f7ac364da335459c4fa543294441dbe029c9fc446354c",
+      "expected_signatures": [
+        {
+          "component": "pressure_longitudinal_stress",
+          "kind": "pipe_section_pressure_longitudinal_stress",
+          "signature_id": "supported-source-059",
+          "unit": "MPa"
+        }
+      ]
+    }
+  }
+}

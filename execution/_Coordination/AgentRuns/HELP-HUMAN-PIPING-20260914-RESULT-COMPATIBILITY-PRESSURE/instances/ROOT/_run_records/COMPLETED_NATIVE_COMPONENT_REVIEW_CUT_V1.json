@@ -1,0 +1,778 @@
+{
+  "schema": "completed-foundation-evidence-review-cut-v1",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "status": "BOUNDED_COMPLETED_COMPONENT_REVIEW_ONLY",
+  "excluded": "Active cantilever500 and malformed-carrier work, final native seal, final metadata/policy/receipt, full DEC025, CI and merge are not included or claimed. SQLite auxiliary files are not this cut\u2019s evidence.",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/PRODUCTION_UI_FOUNDATION_CANDIDATE.md",
+      "sha256": "fff8ccf1a61e9c9cd5227b50b0025e4d4b4df0ec312c531268cdf4d8b92a1b81",
+      "bytes": 9128
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/delivery/sparse/DELIVERY_RECEIPTS_SPARSE_V4.json",
+      "sha256": "fa8870a9e1fd914782e92e7be7d97aff778b56241f6ae0136f10d72d38d51d86",
+      "bytes": 2907
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/delivery/sparse/f03_accounting_v8.json",
+      "sha256": "663e95a511d7a4b7f72b91c0dc3e7cdde96dc6832bdb0141af5c1a79d3acaee9",
+      "bytes": 250484
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/delivery/sparse/openpipestress-preview-results-run-preview-linear-static-001 (3).json",
+      "sha256": "ed9a5a36f18059fff8e43d2e91568f9d33c7e50f34bf13e823538077f990cd94",
+      "bytes": 3890214
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/delivery/sparse/openpipestress-preview-stress-neutral-result-envelope-run-preview-linear-static-001.json",
+      "sha256": "a6ed64c90ff67135c98b58c8bcdc4c53fa21400024c503a4336d49dfd70e95bf",
+      "bytes": 2650163
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/delivery/sparse/stress_neutral_results.from_delivered_json.csv",
+      "sha256": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a",
+      "bytes": 172162
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/FULL60_UNION_V4.json",
+      "sha256": "bf454dba71777feba752dda843bc782ea2e8d61cac3fb61332a59bd145b47e3f",
+      "bytes": 12522
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/consumer/case_map_v4.json",
+      "sha256": "0f6d046db76ae404a3ce92b2b13d896d74cbb9f7aa8b13beb721a09dc4a3c0d7",
+      "bytes": 10947
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/consumer/case_map_v4_v2.json",
+      "sha256": "e98e3b31ebf9223fb3da92e2bd580c5c83d04d187cb6d85c63ef8e44d1744e7a",
+      "bytes": 11053
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/REQUEST_COPY_BINDING_V4.json",
+      "sha256": "0fa2dec2995408efabc9c285b35d990510490742fa5bb86d1f5381ebe9a602fa",
+      "bytes": 6180
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/combination_modulus.output_v2.json",
+      "sha256": "b46256f8a2b84f880f8843f4acfa8019b415663894b9b2ccf993c1c1310d7027",
+      "bytes": 8184802
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/combination_modulus.request_v4.json",
+      "sha256": "2f24a9f2497e9ae85ad5d1766a23b6e241a88b5a1e363d48c69f62d80c6a7a8c",
+      "bytes": 9992
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/curved.output_v2.json",
+      "sha256": "19480957ce2c48d19c9d41f062784c2ca4a20ad3d3c68bf5c0807c24c0de086f",
+      "bytes": 1025242
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/curved.request_v4.json",
+      "sha256": "f4333184f4c6d6f8361b9af6189f3176b383a951df4c5b8f8bbb1876c909cc07",
+      "bytes": 9028
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/friction.output_v2.json",
+      "sha256": "8932264305a5fe0fd158158ffb91c8da05effe350c45fba960ead69ecea29dcd",
+      "bytes": 1204982
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/friction.request_v4.json",
+      "sha256": "d72334f3943bb07e7ca56d5b80a72bc5c253928acab0de9420845fc6979dbd79",
+      "bytes": 7547
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/hanger_constant_effort.output_v2.json",
+      "sha256": "a20a1779772e30a7c9c4d71cac87fc6db8b8a15aa12081d9b3b5d99648283737",
+      "bytes": 1148674
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/hanger_constant_effort.request_v4.json",
+      "sha256": "e6dcaccfbefe6b1f18eab0e64b0ae5f0bcc8f6ed869fda312ce68ce7a2aaa62d",
+      "bytes": 8235
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/modulus.output_v2.json",
+      "sha256": "e9e5915316c2aea39160ecff2c2428568fbbbeec2e0bdc98fe98c951a3dc9bae",
+      "bytes": 999671
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/modulus.request_v4.json",
+      "sha256": "e2214a5b0c8d8dd40982c4a3b6e182fda93918611df227d6ed29c273586fc051",
+      "bytes": 8220
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/rotational_nonlinear.output_v2.json",
+      "sha256": "bd2c14a6d5f7f9567995a398b408a0a92167430a7019819f259253f90ca26949",
+      "bytes": 1133379
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/rotational_nonlinear.request_v4.json",
+      "sha256": "6f428f1c81c5804860f58cc495cb76af53de414aea94acb296406aa67a35e62e",
+      "bytes": 6317
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/zero_pressure_longitudinal.output_v2.json",
+      "sha256": "ad4505204482ef9a8c6f7ac364da335459c4fa543294441dbe029c9fc446354c",
+      "bytes": 1122587
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/zero_pressure_longitudinal.request_v4.json",
+      "sha256": "b5e307a4f6ca31c4ccf6c081bc5fd44946421e3e4c4946eaca83339e7646f9c2",
+      "bytes": 5922
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/helpers/verify_f03_accounting_v7.py",
+      "sha256": "8207aaa495f4d048b0e215bea426985034c3933341347709224e739115cfb2d6",
+      "bytes": 8728
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/helpers/verify_f03_accounting_v8.py",
+      "sha256": "5f6d5586ab615dd19a45e38f1432bb93a733d620a85ccb72c5854eb979f3375a",
+      "bytes": 9148
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/store/after_first_save_v2.row.json",
+      "sha256": "2afc43021e519c74c3ea92f902dd9e11a67b8b38db283bf399efaf6df8fae1bb",
+      "bytes": 1848389
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/store/after_unchanged_save.row.json",
+      "sha256": "d9d1de0b1d09786fbcd476fa2f5341207fb3ce171e9e3c06866d3611fdb3af35",
+      "bytes": 1848389
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/validation/after_first_save_analysis.json",
+      "sha256": "ab8bb16f6f7f059a76e86344f627c37235241e7a6086f82439b1ab3faa3858e6",
+      "bytes": 6809
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/validation/after_first_save_model_envelope_hashes.json",
+      "sha256": "0fbfe1dfad8c728534833fa37a3bcdabf8575c505de5e87104b8e0f0bcef3ae8",
+      "bytes": 2331
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/validation/unchanged_save_preservation.json",
+      "sha256": "6bd0d91219ba22fa26d41c27f3c4a56a93dc6b93f342520935659b68ab71a323",
+      "bytes": 2545
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/analysis_run_v0_2.json",
+      "sha256": "be5d6f5e124818737fc6a8da2ad9ccc0bd3db8531bb5008708b8ce24974bb8f7",
+      "bytes": 1050827
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/composition_receipt.json",
+      "sha256": "17a487bb1bf146ab26af1f7c08613bb155deb9c5033f91554ba1f04623cccd4f",
+      "bytes": 2042
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/f03_accounting_v8.json",
+      "sha256": "6fd091dbca7f5a9a2f546b83963ead10fda535097e6ad2a167334626db1f0fbd",
+      "bytes": 165156
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/independent_verification.json",
+      "sha256": "739c90dfc711f764dc9c471abf968ad9e4e6591ebbc59dad823f4279dc09511c",
+      "bytes": 2415
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/input_manifest.json",
+      "sha256": "7c4fa4e84698234187c129d916d7b7815861492b57974c601fcc866949308666",
+      "bytes": 20474
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/result_export_v0_2.json",
+      "sha256": "13ec8c3202cab4af762425ed19ac4cdf9d7bd43fe69f3a05ee84e15486e9f0c4",
+      "bytes": 3504455
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/stress_members/diagnostics.json",
+      "sha256": "c5a3b1dbc720d9b0a1f3dbc84999de086684c46055463ab745b413f48a9c6f04",
+      "bytes": 967
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/stress_members/loss_report.json",
+      "sha256": "380a176e0e0fc5e48f45e95d20a6becb2542cfc31217871ae2cd6153839f3ce7",
+      "bytes": 3445
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/stress_members/manifest.json",
+      "sha256": "92856f576606d692750c3364c7bdb8a5df4eb5625fb3145eaa51863982dcbebe",
+      "bytes": 5883
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/stress_members/result_rows.json",
+      "sha256": "c1a8f8e79bb146905c333b4ab1abd6c04831094fa415f5f3f25a26ff178612a5",
+      "bytes": 603268
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/stress_members/stable_id_map.json",
+      "sha256": "bbaa4fad4cb136f60d99a349272a97a334c627b6d01efa6763483012ddc49d0e",
+      "bytes": 429579
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/stress_members/stress_neutral_results.csv",
+      "sha256": "03073f5fc2f6ff8bbbd1f33fed3b31071239f6d24eda5560fbbfac10b261fd0d",
+      "bytes": 117168
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/stress_members/unit_preservation_witnesses.json",
+      "sha256": "c32f35d6201605831579ad37bd0947f4fcfdd156917f6aa287609fb6384f3405",
+      "bytes": 217269
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/stress_members/unit_system_disclosure.json",
+      "sha256": "20c66972ae08452fb87bbc53b17dd0db1ab58a21806bbdebd27e3c21d9b4c7de",
+      "bytes": 1370
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/stress_members/validation_report.json",
+      "sha256": "9bbfd1e8f1ddf0cc75a21c7f4fcebe27b5abc9f495e407b75381a9e1200a9ff8",
+      "bytes": 4709
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/stress_neutral_v0_2.json",
+      "sha256": "bcf0987a06592315e7f3b869057bff17444429aa456d5c17e9500cfbf6f57166",
+      "bytes": 1739709
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/composition_index.json",
+      "sha256": "699fd436c0c971a3579187ea0aced9251e1d2768b90ceaa236da2629a7dcd24f",
+      "bytes": 17320
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/analysis_run_v0_2.json",
+      "sha256": "ed8f95c15ffd30068816ae01011ac6205604748ac2b9f9876f3a5b9c19334b2d",
+      "bytes": 138241
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/composition_receipt.json",
+      "sha256": "2e47b3a39ed7354e0154f1a9e950dee42c559affba6793b7d79132621468f8ea",
+      "bytes": 2002
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/f03_accounting_v8.json",
+      "sha256": "36911e3d86a0e0aa2d878ffcfc6f20b4ca20ae56c47408f710c12840866e2abc",
+      "bytes": 20869
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/independent_verification.json",
+      "sha256": "5e774cee9a2ca8c6dde0225139030eacdc2a40d385d8f3f78673df29fcbbdb00",
+      "bytes": 2326
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/input_manifest.json",
+      "sha256": "c135c72c28fabd47a5c44885c6407e2a04e6be4ef62dfabacb49af0b28fa7bbd",
+      "bytes": 15053
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/result_export_v0_2.json",
+      "sha256": "cdd68fe297b0acd0beee156078eb15092896923fabb037b372fa0cf604c7d593",
+      "bytes": 444575
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/stress_members/diagnostics.json",
+      "sha256": "c5a3b1dbc720d9b0a1f3dbc84999de086684c46055463ab745b413f48a9c6f04",
+      "bytes": 967
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/stress_members/loss_report.json",
+      "sha256": "2005952f81bfc5c91abbd51875ab9ba9a1418feb14fc2cf9582aadf4c9a8889e",
+      "bytes": 3443
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/stress_members/manifest.json",
+      "sha256": "0a4abd366eddcdaea27d9a36b2f11ed1c6a60db1348d8c0d9fd26fda540c5d07",
+      "bytes": 5883
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/stress_members/result_rows.json",
+      "sha256": "ee21c261c69432b5f1be8cb4658e1a3852a87e00f25d8c5734fc076aaef6f560",
+      "bytes": 72307
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/stress_members/stable_id_map.json",
+      "sha256": "47314f19102e75228ab5772a12ac7e316000dde0faaa8464005899ab9fc707f9",
+      "bytes": 51928
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/stress_members/stress_neutral_results.csv",
+      "sha256": "fed722da24c763b289c4368317c3f018d0fc883320a7f6b7a0288bfdb0b69a32",
+      "bytes": 11551
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/stress_members/unit_preservation_witnesses.json",
+      "sha256": "a73bbe26d1aabef92a48274fc36a20a06db5927cf8bca8d4da01b978ae379a2c",
+      "bytes": 25069
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/stress_members/unit_system_disclosure.json",
+      "sha256": "5d8b256ed7f0a079d5ce1934d3a24a618e62f20870cdbd124f0bdb2d53143fda",
+      "bytes": 1372
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/stress_members/validation_report.json",
+      "sha256": "9bbfd1e8f1ddf0cc75a21c7f4fcebe27b5abc9f495e407b75381a9e1200a9ff8",
+      "bytes": 4709
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/stress_neutral_v0_2.json",
+      "sha256": "e848a0584837fb25b202e0cea7d5f180ed9401858e23453fe5ff94ac7c8dd7df",
+      "bytes": 231960
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/analysis_run_v0_2.json",
+      "sha256": "b12f3097b40a41b246370ba7d68ddd3d4d6cdecd0f11aff3f8e2265cbed02c51",
+      "bytes": 167896
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/composition_receipt.json",
+      "sha256": "183ce022faf35f4e99a4788c4fb8d9314efc57843703b935a42f31f74375d730",
+      "bytes": 2008
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/f03_accounting_v8.json",
+      "sha256": "d4bd3b0cb2c39267894d4b31e7bfe1dec55146d3a09d9b28451c63fea2dacc37",
+      "bytes": 24612
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/independent_verification.json",
+      "sha256": "5dc9223046a9b887063c034f589483889eb615c385988b4eb1af7481540e9609",
+      "bytes": 2328
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/input_manifest.json",
+      "sha256": "488810c1850b1fb4641cf6c325873425a1e93db122c7f7060e7e4191fb13c966",
+      "bytes": 11867
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/result_export_v0_2.json",
+      "sha256": "66e0980ca984b998ea0d52e3901a2660128bd169470e10f75afbf9cd2eaeeeeb",
+      "bytes": 500605
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/stress_members/diagnostics.json",
+      "sha256": "a6a90fd2e164aa56ebe8aa49caa517db39de6516ee682a7a378a67593b55660f",
+      "bytes": 2964
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/stress_members/loss_report.json",
+      "sha256": "163491adcb625b80954addfefda985f586113f638cad000abecf54e0d2632264",
+      "bytes": 3443
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/stress_members/manifest.json",
+      "sha256": "c6dd6dffe282aa9884a258c65471ecd59e851c7acf017fa35a76ae5993b125ec",
+      "bytes": 5883
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/stress_members/result_rows.json",
+      "sha256": "c3336c91fc3e938113e0d82be80f87b6811adeb905cb6cac4ddcb034f8abfeff",
+      "bytes": 86055
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/stress_members/stable_id_map.json",
+      "sha256": "c5152a6c61462f074287b5261d389ed134975915fcdcd54eab44da9835ac3d9e",
+      "bytes": 61909
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/stress_members/stress_neutral_results.csv",
+      "sha256": "799a8ebf9c3bbda4d58953300f62ac3c272680963cea7dbb49b2e92c026b4fae",
+      "bytes": 13690
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/stress_members/unit_preservation_witnesses.json",
+      "sha256": "559b77aa89a70f4d109abbd348221916dced4e40c9f6a71321f4b14041d7f747",
+      "bytes": 28921
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/stress_members/unit_system_disclosure.json",
+      "sha256": "92db8ab018f823081d9376ba62162498ad4ccf1a67b044d331f1590bdc122add",
+      "bytes": 1392
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/stress_members/validation_report.json",
+      "sha256": "b47c7e0658829ff86c3a4e3ac1c64d8e9e90e7be5dbea75789af3e223e2fd6c7",
+      "bytes": 4714
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/stress_neutral_v0_2.json",
+      "sha256": "10f3b32a383e4e4eda2b0d24aa0f32e6f50090699a6a1a312a4c6dff298b370f",
+      "bytes": 272411
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/analysis_run_v0_2.json",
+      "sha256": "b2e8a11332c31d10894f83e1aa1d7159339323619de3c27dd9b5b3e8d81c03c7",
+      "bytes": 162009
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/composition_receipt.json",
+      "sha256": "506612f0662130e392f3cdbc8af442638c698be812df364cc60af941fcf73aa4",
+      "bytes": 2143
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/f03_accounting_v8.json",
+      "sha256": "c13647dd312c489e82981c2733945d21a7f9e920eac8747f4f563a51b2cbb83b",
+      "bytes": 23640
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/independent_verification.json",
+      "sha256": "a1a726b193c6b14633a50a939159789ea84166aaed8e23374220c833d6ec8aa0",
+      "bytes": 2342
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/input_manifest.json",
+      "sha256": "f4be63b9384e578d5c56c41add295c6b90b7c2c4fce9513b34540d605472a48a",
+      "bytes": 12942
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/result_export_v0_2.json",
+      "sha256": "2615128bd980a767b52a8be1ae8f161acaf7a5e240b9712556ccd0fb711a7195",
+      "bytes": 513117
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/stress_members/diagnostics.json",
+      "sha256": "c5a3b1dbc720d9b0a1f3dbc84999de086684c46055463ab745b413f48a9c6f04",
+      "bytes": 967
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/stress_members/loss_report.json",
+      "sha256": "e5cfb998ce22939addedc84bab2da1a397947701f3cac34b4edd7cf4d083f969",
+      "bytes": 3443
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/stress_members/manifest.json",
+      "sha256": "6a23118f931c8b20007ec7bb7484c9374b9986ba972709fa721eea391c4697cf",
+      "bytes": 5883
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/stress_members/result_rows.json",
+      "sha256": "dbc454d8e4d2d493396c6ed4cf039860889c0719ec0c01dee6013eef065c4ccb",
+      "bytes": 82899
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/stress_members/stable_id_map.json",
+      "sha256": "52787cae0e1f87a28ed12eebc46d0d9be13eafc81cb085d0c942494bf65d6e33",
+      "bytes": 59388
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/stress_members/stress_neutral_results.csv",
+      "sha256": "60749952f3c2bf6ac1fcdda23a41e096c80b4505b59095388d420935656ee7fc",
+      "bytes": 13358
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/stress_members/unit_preservation_witnesses.json",
+      "sha256": "d2eab88230e6e293b1105cad5d444a0b1a3441fd4b80afc101222c37de5d9881",
+      "bytes": 28019
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/stress_members/unit_system_disclosure.json",
+      "sha256": "de59077f4dd07779733f08725376d70dd271a23b694354985996059cecd562f4",
+      "bytes": 1384
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/stress_members/validation_report.json",
+      "sha256": "9bbfd1e8f1ddf0cc75a21c7f4fcebe27b5abc9f495e407b75381a9e1200a9ff8",
+      "bytes": 4709
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/stress_neutral_v0_2.json",
+      "sha256": "3ea870cded2594f624fb0bd4faa7722337539ce391ac4876fc294055a41eaf03",
+      "bytes": 261277
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/independent_verification_index.json",
+      "sha256": "1530ef1db12949f99d7910714ba1bd275300c58b93350b05a68c5697ba190e5a",
+      "bytes": 3098
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/analysis_run_v0_2.json",
+      "sha256": "fb9500430b689e01169c94adad07322c941f1d6a62fbb2ad9f88be731c29e977",
+      "bytes": 136181
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/composition_receipt.json",
+      "sha256": "95f3e703074712df9c37e27430b004589914ba8189e9b8d425612b3cd45b3776",
+      "bytes": 2005
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/f03_accounting_v8.json",
+      "sha256": "c4e5235b0df7e76c3f49e0e9df034a70d716c4f4e202f775496c4992a9a28a0c",
+      "bytes": 20533
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/independent_verification.json",
+      "sha256": "b096326ba675aed2da60b74c93b00d2ce2fb7605c7be472aaf7c5a1271b2cc1e",
+      "bytes": 2327
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/input_manifest.json",
+      "sha256": "d86a5eb0edd3be08415eca4d454993483f53e0af7b371763960ddf1f0a1d353a",
+      "bytes": 13225
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/result_export_v0_2.json",
+      "sha256": "b820c2884716bf40e459f9ee60f748ee15b18ad43d8a8b4ab150b6304779679a",
+      "bytes": 435057
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/stress_members/diagnostics.json",
+      "sha256": "c5a3b1dbc720d9b0a1f3dbc84999de086684c46055463ab745b413f48a9c6f04",
+      "bytes": 967
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/stress_members/loss_report.json",
+      "sha256": "647bc2ea8327031c84657d47b57f3534b03c02daa133e04cf56588e4dda78a5f",
+      "bytes": 3443
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/stress_members/manifest.json",
+      "sha256": "9c19832858e01c85b4be956f758dec321487b39c91b4b391e469fa1e396f61e7",
+      "bytes": 5883
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/stress_members/result_rows.json",
+      "sha256": "1b7dcb5f9340306b3180a293d1881fe4d23d53e7d5b96884d028676fe5634f85",
+      "bytes": 70758
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/stress_members/stable_id_map.json",
+      "sha256": "7534204dc1d74b4ae6e8a93c8176b58554b07ca0a1f09b0873f380f1c02f2af6",
+      "bytes": 51059
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/stress_members/stress_neutral_results.csv",
+      "sha256": "41cc43f28a506283e31e0ead7d9e8e868f9286261a0d2c6beab029506bb1238b",
+      "bytes": 10939
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/stress_members/unit_preservation_witnesses.json",
+      "sha256": "2d40dc9257cf9c84dc3b28a8f3ba346d5bb2df911b3189417f13236f6da1db35",
+      "bytes": 24001
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/stress_members/unit_system_disclosure.json",
+      "sha256": "20c66972ae08452fb87bbc53b17dd0db1ab58a21806bbdebd27e3c21d9b4c7de",
+      "bytes": 1370
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/stress_members/validation_report.json",
+      "sha256": "9bbfd1e8f1ddf0cc75a21c7f4fcebe27b5abc9f495e407b75381a9e1200a9ff8",
+      "bytes": 4709
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/stress_neutral_v0_2.json",
+      "sha256": "f9cdd947ffb227d6990c06f4baa5dc29e56757be0528a6921a3bd347036b6c91",
+      "bytes": 227212
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/analysis_run_v0_2.json",
+      "sha256": "53a5821120c7428e9c848301b4f18d23360472a1e5aac1515455933c552c2885",
+      "bytes": 155607
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/composition_receipt.json",
+      "sha256": "a0002bba5bea4fba3660db8f28b74f7586c6944f3132c2842d5139da2a1e91db",
+      "bytes": 2079
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/f03_accounting_v8.json",
+      "sha256": "6375a7dd18422f0729632db643b06662669480009a1847eef317d6b792f5d316",
+      "bytes": 23028
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/independent_verification.json",
+      "sha256": "b1a03306f76bff6f727e2db99421789ec82a1a6d6eb93177693bde4ec5863c57",
+      "bytes": 2340
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/input_manifest.json",
+      "sha256": "0c37644fbbcbd287d597bd1d486866eca2201cb0a307ae4743504538c62cd3a3",
+      "bytes": 9913
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/result_export_v0_2.json",
+      "sha256": "12292ae7398396d864ff1e9662ffb24785c864c7a62843b3ced931c048f0413b",
+      "bytes": 477126
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/stress_members/diagnostics.json",
+      "sha256": "5bb5b2ebccfe10f18bebaa4d4b28401b3fdc721f02a3fcf9d9f5ff92f5fa69fd",
+      "bytes": 2964
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/stress_members/loss_report.json",
+      "sha256": "03e165d9b185f94b4a02d0da108d29f191cf65e96851cfa0c211de60d24a9f04",
+      "bytes": 3443
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/stress_members/manifest.json",
+      "sha256": "f7161b748dd6e5eb4f8076bd15807fc74bac33a681a70d4cfd0f1fffd12a5543",
+      "bytes": 5883
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/stress_members/result_rows.json",
+      "sha256": "74b0252e7f4d4c0395e9444709646b2421a5e2077b8373c12707b01625a79be5",
+      "bytes": 79932
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/stress_members/stable_id_map.json",
+      "sha256": "94ab28dd7de71a43d5c11113a6ccbf22ba2bbb1ca9b8faa510d533ebd8428811",
+      "bytes": 57736
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/stress_members/stress_neutral_results.csv",
+      "sha256": "27c46e3202757278f43ea974a95007fa0047a967615834efe386aba989bb1b3a",
+      "bytes": 12203
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/stress_members/unit_preservation_witnesses.json",
+      "sha256": "7a4299c481d1f829cd2ca5a25a8b3acea708afe00a1c77e6e8964a3a28e23879",
+      "bytes": 26611
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/stress_members/unit_system_disclosure.json",
+      "sha256": "93475683197df2dbcecd8410c0c5886cc97b12e36f7f138f76d5c48520ba8956",
+      "bytes": 1399
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/stress_members/validation_report.json",
+      "sha256": "b47c7e0658829ff86c3a4e3ac1c64d8e9e90e7be5dbea75789af3e223e2fd6c7",
+      "bytes": 4714
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/stress_neutral_v0_2.json",
+      "sha256": "05e3bc36c5f0fe5beb8a6605548c8f3b11c419ca6f39db55d32560ded57723c2",
+      "bytes": 255092
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/analysis_run_v0_2.json",
+      "sha256": "3e710dc93d89fe27b79eff64b937329723d52a0395be29d6320c839bfe630f29",
+      "bytes": 153037
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/composition_receipt.json",
+      "sha256": "ab1d1e3ca69c100a1be87a0059f90d8ed9b97af120d577ab14bd10fe0ddf088e",
+      "bytes": 2075
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/f03_accounting_v8.json",
+      "sha256": "edd7c25ff062af2eede5bd572d22b0a49da99db35e451a178ba5dbc9848a87e9",
+      "bytes": 23014
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/independent_verification.json",
+      "sha256": "5cf15bc9a9bcfbcf4b6a14497e4ab36c27accbea8ac3807a1a8d78bbed4bd2bd",
+      "bytes": 2346
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/input_manifest.json",
+      "sha256": "65e5f6a9cac1ae6edff55c9d57d435be21420a0a1ec9130ee27c72afe147e39a",
+      "bytes": 9226
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/result_export_v0_2.json",
+      "sha256": "e975787649a81ef9b51dc52c0f71c157cd3382bc11ca938361c0517f79c4ff29",
+      "bytes": 495054
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/stress_members/diagnostics.json",
+      "sha256": "c5a3b1dbc720d9b0a1f3dbc84999de086684c46055463ab745b413f48a9c6f04",
+      "bytes": 967
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/stress_members/loss_report.json",
+      "sha256": "bbe014604713027c13b45d41abade5b012866c9aca246ee0e4dbede5275caf1c",
+      "bytes": 3443
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/stress_members/manifest.json",
+      "sha256": "38f688bef1c93bd02c253b875460fca5be6325b32500673aeb0629cd55fb9922",
+      "bytes": 5883
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/stress_members/result_rows.json",
+      "sha256": "86e3bc160c838b68f38ed735c228821aa948af15fdebc62172c2b1cc3ce3c864",
+      "bytes": 79771
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/stress_members/stable_id_map.json",
+      "sha256": "174a03d97dd4acec5ec26f658956d374785f9b5320c62e0bdadb0ce0e97fe1b4",
+      "bytes": 57752
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/stress_members/stress_neutral_results.csv",
+      "sha256": "cff5d952819fa9f02f549623efbec78b86306391891369c69e782297b9616a53",
+      "bytes": 12042
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/stress_members/unit_preservation_witnesses.json",
+      "sha256": "21b32aea35f471ce5b765f26ef4f9e44abd936dc62c358c61822041291f5d7b4",
+      "bytes": 26921
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/stress_members/unit_system_disclosure.json",
+      "sha256": "162bf72f3cd1ea3e1cc49fc3eee5e1a96be8ed63181d5e85cc965a1e62033a37",
+      "bytes": 1374
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/stress_members/validation_report.json",
+      "sha256": "9bbfd1e8f1ddf0cc75a21c7f4fcebe27b5abc9f495e407b75381a9e1200a9ff8",
+      "bytes": 4709
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/stress_neutral_v0_2.json",
+      "sha256": "e54485cacaed95ff3194d1d0e3b6d90dd9f6c748e5a065bbf103759cde0354ae",
+      "bytes": 252783
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/delivery/dense/DELIVERY_RECEIPTS_DENSE_V4.json",
+      "sha256": "9237983c991f056baddea498b2213f4dfc56ce4e0f6868eb717e0bf2340fdae3",
+      "bytes": 2855
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/delivery/dense/openpipestress-preview-results-run-preview-linear-static-001 (4).json",
+      "sha256": "7804559e26690f643e68e70734a2933dbba17edb84cdb1e4c348d4920d880903",
+      "bytes": 3896632
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/delivery/dense/openpipestress-preview-stress-neutral-result-envelope-run-preview-linear-static-001 (1).json",
+      "sha256": "5b88bb7b8025901b3429e049c538f4bab6583d1c7165ed0c00cdba3da60d88d1",
+      "bytes": 2656491
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/delivery/dense/stress_neutral_results.from_delivered_json.csv",
+      "sha256": "f7b6483eea2b635e0a5e26e7efc9953f08e783e8739db548a7ecbc9b514acf43",
+      "bytes": 172580
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_REVIEW_V6/REVIEW_RETURN_V6.json",
+      "sha256": "a0589d0739907f790baa1020bf868a17da5f82a29bd1251e9555a5457fab6adc",
+      "bytes": 4830
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V6.json",
+      "sha256": "ad18bceaa8e6d958a9182d94f5f6095619fe197eb227c1234edae1abea56dc72",
+      "bytes": 34839
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/NATIVE_FULL60_BACKCHECK_V1.json",
+      "sha256": "ecf93c09e189e89a819e3ad6177e69abd83c6b020d839f624547dd40f522d002",
+      "bytes": 19014
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/UI_INTERFACE_SOURCE_BINDING_V1.json",
+      "sha256": "d6e40b7e497b4123e8fd64258a3535f01d7277ffa55c4b7e907aa57313b012aa",
+      "bytes": 10291
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/backcheck_native_full60_v1.py",
+      "sha256": "880fc8f32508408797c161994e65bf7ea2654d83986d5ca869d1600a08ceea9d",
+      "bytes": 4652
+    }
+  ]
+}

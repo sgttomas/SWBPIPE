@@ -1,0 +1,279 @@
+{
+  "schema": "final-native-qualification-result-v4",
+  "sealed_candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "created_utc": "2026-09-15T07:56:56.570845+00:00",
+  "agent": "/root/foundation_native",
+  "role": "TASK / Type 2",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "delegation": false,
+  "verdict": "PASS_NATIVE_V4",
+  "scope_calibration": "Native/build/UI qualification passes for the frozen candidate. Root combined acceptance and the complete registered DEC-025 source/distribution browser sweep remain separate pending gates.",
+  "release_bindings": {
+    "source_release": {
+      "path": "instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V6.json",
+      "sha256": "ad18bceaa8e6d958a9182d94f5f6095619fe197eb227c1234edae1abea56dc72"
+    },
+    "independent_source_review": {
+      "path": "instances/ROOT/_run_records/FINAL_REVIEW_V6/REVIEW_RETURN_V6.json",
+      "sha256": "a0589d0739907f790baa1020bf868a17da5f82a29bd1251e9555a5457fab6adc",
+      "verdict": "PASS_SOURCE_REVIEW"
+    },
+    "lease": {
+      "path": "instances/ROOT/_run_records/FINAL_NATIVE_LEASE_V4.json",
+      "sha256": "eae86142798853d077a256c54ee410dc1b420566ea703e89e65a687a45a6ee79"
+    },
+    "brief": {
+      "path": "briefs/FINAL_NATIVE_EXECUTION_V4.md",
+      "sha256": "ed7e6a7ce109b256560214d047f27834a84984685cc6827d8407686459dae139"
+    },
+    "release_addendum": {
+      "path": "briefs/FINAL_NATIVE_RELEASE_ADDENDUM_V6.md",
+      "sha256": "bec56e38c1156d50642f47dc04b2cf9bdb3772aa638531f67fbce28d22c90004"
+    },
+    "delivery_addendum": {
+      "path": "briefs/FINAL_NATIVE_V4_DELIVERY_PATH_ADDENDUM.md",
+      "sha256": "10703f3977f1558992727b5ed235e5fe127f4700080bd1df50804d1ffbae7ab9"
+    }
+  },
+  "gates": {
+    "source_and_artifacts": {
+      "status": "PASS",
+      "source_final": {
+        "path": "_run_records/execution/SOURCE_FINAL_CHECK_V4.json",
+        "sha256": "ef10fd8cf7a4ac5df11eb5e0b5d60d1f26d8c475a8c17f498bb4ee3c0b24464a",
+        "bytes": 28261
+      },
+      "artifact_final": {
+        "path": "_run_records/execution/ARTIFACT_FINAL_CHECK_V4.json",
+        "sha256": "62d847c874c9773889b29316f1f666532ca1aa2fbf452d23df792799b87624cb",
+        "bytes": 15080
+      },
+      "fresh_build": {
+        "path": "_run_records/execution/FRESH_BUILD_BINDING_V4_V2.json",
+        "sha256": "901560fe1ac0625e4826dd1c2b188d0fc344c4fb5f301a7cf156572ff4a59bc9",
+        "bytes": 7857
+      },
+      "native_self_test": {
+        "path": "_run_records/execution/commands/native_self_test.record.json",
+        "sha256": "67923f6efd6723ed739544e7cf154c9ca072adf7092c8e24c679bb7a27d152c4",
+        "bytes": 765
+      }
+    },
+    "first_save_normalization_lifecycle": {
+      "status": "PASS",
+      "stored_analysis": {
+        "path": "_run_records/validation/after_first_save_analysis.json",
+        "sha256": "ab8bb16f6f7f059a76e86344f627c37235241e7a6086f82439b1ab3faa3858e6",
+        "bytes": 6809
+      },
+      "model_envelope": {
+        "path": "_run_records/validation/after_first_save_model_envelope_hashes.json",
+        "sha256": "0fbfe1dfad8c728534833fa37a3bcdabf8575c505de5e87104b8e0f0bcef3ae8",
+        "bytes": 2331
+      },
+      "unchanged_save": {
+        "path": "_run_records/validation/unchanged_save_preservation.json",
+        "sha256": "6bd0d91219ba22fa26d41c27f3c4a56a93dc6b93f342520935659b68ab71a323",
+        "bytes": 2545
+      },
+      "observer": {
+        "path": "_run_records/gui/early_first_gate_observer_transcript_v4.json",
+        "sha256": "77984c4cbdda52d36f9d739e54af34bf4d0467ea14ef078dccefb3ea341ff04a",
+        "bytes": 2622
+      },
+      "attribution_limit": "Observer transcription is separate from independently checkable stored-state proof and discloses that no exact-boundary screenshot/raw AX file was captured."
+    },
+    "producer_and_full60": {
+      "status": "PASS",
+      "authentic_producers": {
+        "path": "_run_records/execution/AUTHENTIC_PRODUCER_INDEX_V4_V2.json",
+        "sha256": "025f23900bac19c1b317d2f5c2a9be189427bbd181dac93643fccadfa73fa451",
+        "bytes": 11857
+      },
+      "full60": {
+        "path": "_run_records/execution/FULL60_UNION_V4.json",
+        "sha256": "bf454dba71777feba752dda843bc782ea2e8d61cac3fb61332a59bd145b47e3f",
+        "bytes": 12522
+      },
+      "complete_signature_count": 60,
+      "authentic_producer_signature_count": 52,
+      "native_gap_signature_count": 8,
+      "hard_059_present": true
+    },
+    "frontend_consumer_and_python_materialization": {
+      "status": "PASS",
+      "composition": {
+        "path": "consumer/composition_index.json",
+        "sha256": "699fd436c0c971a3579187ea0aced9251e1d2768b90ceaa236da2629a7dcd24f",
+        "bytes": 17320
+      },
+      "independent_verification": {
+        "path": "consumer/independent_verification_index.json",
+        "sha256": "1530ef1db12949f99d7910714ba1bd275300c58b93350b05a68c5697ba190e5a",
+        "bytes": 3098
+      },
+      "case_count": 7,
+      "member_count_each": 9,
+      "claim_boundary": "Actual headless producer bytes entered actual frontend constructors; Python nine-member materialization is a separate owning product API action, not GUI delivery."
+    },
+    "native_sparse_dense_delivery": {
+      "status": "PASS",
+      "sparse_receipt": {
+        "path": "_run_records/delivery/sparse/DELIVERY_RECEIPTS_SPARSE_V4.json",
+        "sha256": "fa8870a9e1fd914782e92e7be7d97aff778b56241f6ae0136f10d72d38d51d86",
+        "bytes": 2907
+      },
+      "dense_receipt": {
+        "path": "delivery/dense/DELIVERY_RECEIPTS_DENSE_V4.json",
+        "sha256": "9237983c991f056baddea498b2213f4dfc56ce4e0f6868eb717e0bf2340fdae3",
+        "bytes": 2855
+      },
+      "f03_accounting": {
+        "path": "_run_records/delivery/sparse/f03_accounting_v8.json",
+        "sha256": "663e95a511d7a4b7f72b91c0dc3e7cdde96dc6832bdb0141af5c1a79d3acaee9",
+        "bytes": 250484
+      },
+      "row_accounting": {
+        "received_rows": 830,
+        "eligible_semantic_witnesses": 828,
+        "diagnostic_work_withheld": 2,
+        "missing_or_contradictory": 0
+      },
+      "standalone_csv_boundary": "No standalone native CSV file was produced. The registered local-private transport guard intentionally leaves the separate CSV link without href; successful CSV evidence is packet csv_text extraction and independently verified nine-member materialization."
+    },
+    "cantilever_lifecycle": {
+      "status": "PASS",
+      "H350": "578ed0da4a4a1aa59eb20dfc2403a3b1fa912305a07ddeb39539c87833fdf028",
+      "H500": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+      "agent_human_oracle": {
+        "path": "_run_records/lifecycle/agent500/agent_human_model_parity.json",
+        "sha256": "8173e72021e4ae29feae98aa1b1957a59af496c0cf69fb04edd564db303c5bbb",
+        "bytes": 350
+      },
+      "final500_analysis": {
+        "path": "_run_records/validation/final500_before_quit_analysis_v4.json",
+        "sha256": "936a27e93acdb1a5b052a54e10f1004b5f568fbc881e0f00164f64dfd4ad1cc0",
+        "bytes": 4438
+      },
+      "final500_model_envelope": {
+        "path": "_run_records/validation/final500_before_quit_model_envelope_hashes.json",
+        "sha256": "9d48296a4bdb4c5a48dd87a11b1a88744cfbb96b6c101fe0a3009beed6d4a0b5",
+        "bytes": 2307
+      },
+      "unchanged_save": {
+        "path": "_run_records/validation/final500_unchanged_save_preservation.json",
+        "sha256": "88e95b034548eb6900618a950014e3090953ae3488e9e993d06ee835d4b0c312",
+        "bytes": 2371
+      },
+      "recovery": {
+        "path": "_run_records/lifecycle/500_current_after_recovery/recovery_parity.json",
+        "sha256": "dd1c1ded0e02f2089b1508761621538e3c03de136e32ebd5c99b52057547548d",
+        "bytes": 1023
+      },
+      "delivery": {
+        "path": "_run_records/delivery/final500/independent_verification.json",
+        "sha256": "daa40be09c291dbf64e6066d2a2935902079185712a8de6278a03dc9e9f8ca8f",
+        "bytes": 2604
+      },
+      "attachments": {
+        "path": "_run_records/validation/CANTILEVER_ATTACHMENT_PRESERVATION_V4_V2.json",
+        "sha256": "1595376457811628472a682c12d3c8719e3012857840cc9f3283a246fe241f6b",
+        "bytes": 2851
+      },
+      "observer": {
+        "path": "_run_records/gui/final500_lifecycle_observer_transcript_v4.json",
+        "sha256": "69b5cadac888fb61a978ee31c1a0f88c7a8adacfa90e1665decb4d4f5cecac62",
+        "bytes": 2823
+      },
+      "strict_analytical_backcheck": {
+        "path": "instances/ROOT/_run_records/NATIVE_CANTILEVER_BACKCHECK_V1.json",
+        "sha256": "5b8d849fe75fa6086dcfdda0381703006b5f7bc5f69265fe1efe53afa0de443e",
+        "status": "PASS",
+        "allowance_declared_units": 5.001e-07
+      },
+      "row_count_sparse": 67,
+      "recovery_bytes_exact": true
+    },
+    "malformed_historical": {
+      "status": "PASS",
+      "summary": {
+        "path": "_run_records/malformed/SEVEN_CARRIER_SUMMARY_V4.json",
+        "sha256": "faf7fb67326053c85cadd2b867f3345e32673b434e005f90e94b91027b4ec876",
+        "bytes": 1111
+      },
+      "case_count": 7,
+      "required_finding": "HISTORICAL_MECHANICS_EVIDENCE_MALFORMED",
+      "all_zero_current": true,
+      "all_unchanged_save_exact": true
+    },
+    "record_profiles": {
+      "status": "PASS",
+      "summary": {
+        "path": "_run_records/legacy/ANALYSIS_RECORD_PROFILE_SUMMARY_V4.json",
+        "sha256": "41dbb98be2746119e9b92ca1614471161a940bdf5149a99a100ef643fe40ded5",
+        "bytes": 3198
+      },
+      "current": "0.2 checked profile PASS",
+      "legacy_desktop": "three advertised rfc8785_jcs claims match; GUI sole finding HISTORICAL_INPUT_MANIFEST_MISSING",
+      "legacy_python": "three advertised SORTED_COMPACT_JSON claims match; GUI truthfully shows HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE without mismatch",
+      "external_seed_boundary": "Insertion-order external seed normalized semantically on first Save; native-normalized V2 seeds remained byte-exact. Arbitrary external-serialization byte preservation is not claimed."
+    },
+    "guard_attribution": {
+      "status": "PASS_SOURCE_ATTRIBUTION",
+      "evidence": {
+        "path": "_run_records/validation/MAINTAINED_GUARD_ATTRIBUTION_V4.json",
+        "sha256": "5b28b2595563bd4a5663a1908622a89741f6a14edcdd5530eb71e0d1a8daad71",
+        "bytes": 4355
+      },
+      "actual_gui_injection_claim": false,
+      "registered_execution": "pending Root complete sweep"
+    },
+    "process_and_store_closeout": {
+      "status": "PASS",
+      "evidence": {
+        "path": "_run_records/process/FINAL_OWNED_PROCESS_CHECK_V4_V2.json",
+        "sha256": "5eea3a4166500cfc9dc3f967ed462a8bf05394d9509af265ab84c4b4a55fffe9",
+        "bytes": 774
+      },
+      "owned_processes_absent": true,
+      "final_store_restored_to_final500_baseline": true,
+      "sidecars_absent": true
+    }
+  },
+  "preserved_failures": {
+    "path": "_run_records/FAILURE_LEDGER_V4.json",
+    "sha256": "730abe572919142a76d04b443d2cc154fc4a1355dfc3d09daa54d0eca06d5d5f",
+    "bytes": 4139
+  },
+  "product_defects_observed": [],
+  "executed_boundaries": [
+    "fresh checked JSON/runner/frontend/native build",
+    "packaged native supporting self-test",
+    "early actual first-save/normal quit/reopen/unchanged save",
+    "seven authentic producer solves and frontend consumer composition",
+    "actual sparse/dense native JSON delivery and package-derived CSV/nine members",
+    "full 60-signature union including hard 059",
+    "actual GUI-authored cantilever 350\u2192500 edit/invalidate/undo/redo/agent parity/save/quit/reopen/unchanged-save/recovery solve",
+    "seven malformed Historical carrier opens/saves/quits",
+    "desktop and Python legacy 0.1 opens/saves/quits",
+    "final source/artifact/store/process checks"
+  ],
+  "unexecuted_or_separate_boundaries": [
+    {
+      "gate": "complete registered DEC-025 source/distribution browser sweep",
+      "owner": "Root",
+      "status": "PENDING_AFTER_NATIVE_RELEASE"
+    },
+    {
+      "gate": "standalone stress-neutral CSV native link",
+      "status": "WITHHELD_BY_REGISTERED_LOCAL_PRIVATE_TRANSPORT_GUARD",
+      "accepted_successful_csv": "packet-derived csv_text plus nine-member materialization"
+    },
+    {
+      "gate": "Root combined acceptance/release/Git integration",
+      "owner": "Root",
+      "status": "PENDING"
+    }
+  ]
+}

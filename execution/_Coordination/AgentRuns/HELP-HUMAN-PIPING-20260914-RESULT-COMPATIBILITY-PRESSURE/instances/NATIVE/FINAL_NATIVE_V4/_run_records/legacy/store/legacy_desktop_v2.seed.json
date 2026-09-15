@@ -1,0 +1,10 @@
+{
+  "app_process_required_absent_during_call": true,
+  "baseline_store_sha256": "f9ba6b34dbd377487568a3ec449f51e2b8501dfba52c8efd10b2f8291474643d",
+  "before_open_snapshot": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/legacy/store/legacy_desktop_v2.before_open.sqlite3",
+  "before_open_snapshot_sha256": "d9cd672a5b4b25ba80f8c0f054a89260a0fcd5dfc00efa534758bd099fa34458",
+  "case_id": "legacy_desktop_v2",
+  "prepared_row": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/legacy/prepared/legacy_desktop_v2.json",
+  "prepared_row_sha256": "747cde090c58e06415c297744a3848dbf8674c4e82a0490cdadb119e28ea6243",
+  "schema": "legacy-store-seed-capture-v4"
+}

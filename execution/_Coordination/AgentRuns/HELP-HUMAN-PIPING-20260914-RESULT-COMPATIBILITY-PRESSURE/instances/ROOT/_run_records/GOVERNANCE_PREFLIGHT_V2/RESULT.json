@@ -1,0 +1,101 @@
+{
+  "schema": "root-governance-preflight-v2",
+  "candidate_commit": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "created_utc": "2026-09-15T06:11:20.238763+00:00",
+  "routed_tests": {
+    "exit_code": 0,
+    "result": "890 passed, 48 subtests passed in 36.90s"
+  },
+  "self_check": {
+    "exit_code": 0,
+    "summary": "Finding severities: INFO=14, NOT_APPLICABLE=1, REVIEW=4, WARN=112"
+  },
+  "static_checks": "static_checks.json",
+  "scope": "Pre-native governance and actual routed CI entrypoints. Final metadata, receipt, source review, native, full DEC-025, actual hosted CI and merge remain separately gated.",
+  "raw_evidence": [
+    {
+      "path": "G0.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G0.stdout.log",
+      "sha256": "19878a424b48ca671d3e758269df15cb764f6158b2626ff8670d80c93cd9b11c"
+    },
+    {
+      "path": "G1.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G1.stdout.log",
+      "sha256": "a446575a34e6896cb92123eab0cfd5c4e0180db7ff62699e5db07b438fe9be37"
+    },
+    {
+      "path": "G2.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G2.stdout.log",
+      "sha256": "8a2425c5d13c122eb51b2482911778315724f5d3854922916c43f49cc6247618"
+    },
+    {
+      "path": "G3.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G3.stdout.log",
+      "sha256": "02ef198ca71b3d832101ae4e4fd358f9e4c65732da5f0bc0d77b8f2bdd7ab0b6"
+    },
+    {
+      "path": "G4.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G4.stdout.log",
+      "sha256": "fcc97ad97868511de376ee24727ec9080af021844055e93ddf0c1ea45062f47d"
+    },
+    {
+      "path": "agent_instructions.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "agent_instructions.stdout.log",
+      "sha256": "74e955ec260140f91d03643f678c994fcd26c7d5bb29008e0b04fbcda71456a6"
+    },
+    {
+      "path": "conflict_markers.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "conflict_markers.stdout.log",
+      "sha256": "77e86fa18dd10ff92a9b2ba59fe74a0ae6d5a364749064e44aa2301c274b6df8"
+    },
+    {
+      "path": "routed_tests.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "routed_tests.stdout.log",
+      "sha256": "afcedcb491d7bd9ca24568b2fc53b42f093d7be4f9a2305130625d838ccbac1c"
+    },
+    {
+      "path": "self_check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "self_check.stdout.md",
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+    },
+    {
+      "path": "static_checks.json",
+      "sha256": "da5b0b4602460c10fc637aa0f5dbd32fe8da7f2e02523da9fe6c16b5c34a6704"
+    },
+    {
+      "path": "workflow_metadata.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "workflow_metadata.stdout.log",
+      "sha256": "275b16c8086cd5aca35563635a124b38fa1e750929bc45b140dbfa9b083d52b4"
+    }
+  ]
+}

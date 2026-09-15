@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "case": "modulus",
+      "report": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/independent_verification.json",
+      "sha256": "b096326ba675aed2da60b74c93b00d2ce2fb7605c7be472aaf7c5a1271b2cc1e"
+    },
+    {
+      "case": "combination_modulus",
+      "report": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/independent_verification.json",
+      "sha256": "739c90dfc711f764dc9c471abf968ad9e4e6591ebbc59dad823f4279dc09511c"
+    },
+    {
+      "case": "curved",
+      "report": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/independent_verification.json",
+      "sha256": "5e774cee9a2ca8c6dde0225139030eacdc2a40d385d8f3f78673df29fcbbdb00"
+    },
+    {
+      "case": "friction",
+      "report": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/independent_verification.json",
+      "sha256": "5dc9223046a9b887063c034f589483889eb615c385988b4eb1af7481540e9609"
+    },
+    {
+      "case": "hanger_constant_effort",
+      "report": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/independent_verification.json",
+      "sha256": "a1a726b193c6b14633a50a939159789ea84166aaed8e23374220c833d6ec8aa0"
+    },
+    {
+      "case": "rotational_nonlinear",
+      "report": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/independent_verification.json",
+      "sha256": "b1a03306f76bff6f727e2db99421789ec82a1a6d6eb93177693bde4ec5863c57"
+    },
+    {
+      "case": "zero_pressure_longitudinal",
+      "report": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/independent_verification.json",
+      "sha256": "5cf15bc9a9bcfbcf4b6a14497e4ab36c27accbea8ac3807a1a8d78bbed4bd2bd"
+    }
+  ],
+  "status": "PASS"
+}

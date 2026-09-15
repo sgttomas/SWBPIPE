@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "authority": {
+    "profile": "rfc8785_jcs",
+    "implementation": "built exact-candidate open_pipe_stress_operation_applier WASM canonical_sha256_hex export used by apps/desktop/src/services/hashService.ts",
+    "glue_path": "./apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js",
+    "glue_sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+    "wasm_path": "./apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+    "wasm_sha256": "ee5f753e4ae87d079c765e96657ddfb4b70caac7e414830f48956f3393a3566d"
+  },
+  "model_hash": {
+    "owning_scope": "model_payload",
+    "projection": "exact parsed stored model_json",
+    "stored_claim": {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "hash_status": "computed_local_preview",
+      "payload_ref": "project:blank-local-20260915t063824z",
+      "payload_scope": "model_payload",
+      "value": "sha256:db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f"
+    },
+    "recomputed_value": "sha256:db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+    "match": true,
+    "finding_if_mismatch": "HISTORICAL_MODEL_HASH_MISMATCH"
+  },
+  "project_envelope_hash": {
+    "owning_scope": "project_envelope_payload",
+    "projection_keys": [
+      "model",
+      "editor_intents",
+      "proposal",
+      "selected_review_target",
+      "mechanics_result",
+      "analysis_run",
+      "model_hash"
+    ],
+    "excluded": "storage_summary_and_envelope_hash_carrier_fields",
+    "stored_claim": {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "hash_status": "computed_local_preview",
+      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+      "payload_ref": "project:blank-local-20260915t063824z",
+      "payload_scope": "project_envelope_payload",
+      "value": "sha256:914882292b09c0a75acb4ad478f523fddf5bd5452b0a31d85d38106c90cfbc13"
+    },
+    "recomputed_value": "sha256:914882292b09c0a75acb4ad478f523fddf5bd5452b0a31d85d38106c90cfbc13",
+    "match": true,
+    "finding_if_mismatch": "HISTORICAL_ENVELOPE_HASH_MISMATCH"
+  },
+  "note": "These two persisted claims use the existing rfc8785_jcs WASM authority, not the checked JSON profile used by analysis 0.2."
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "malformed-historical-seven-carrier-summary-v4",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "status": "PASS",
+  "case_ids": [
+    "scalar_string",
+    "array",
+    "incomplete_object",
+    "invalid_rows",
+    "scalar_false",
+    "scalar_zero",
+    "scalar_empty_string"
+  ],
+  "case_count": 7,
+  "each_visible_designation": "HISTORICAL SAVED RUN",
+  "each_visible_required_finding": "HISTORICAL_MECHANICS_EVIDENCE_MALFORMED",
+  "each_safe_fallback": true,
+  "each_current_result_rows": true,
+  "each_unchanged_save_exact": true,
+  "each_normal_quit_process_absent": true,
+  "baseline_store_restored": {
+    "baseline_sha256": "f9ba6b34dbd377487568a3ec449f51e2b8501dfba52c8efd10b2f8291474643d",
+    "active_sha256": "f9ba6b34dbd377487568a3ec449f51e2b8501dfba52c8efd10b2f8291474643d",
+    "exact": true,
+    "sqlite_integrity_check": "ok",
+    "local_project_count": 2
+  },
+  "process_scan_correction": "array initial command-line scan self-matched; original preserved at malformed/gui/array.process_scan_self_match_preserved.json and corrected comm-only scan is authoritative."
+}

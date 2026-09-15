@@ -1,0 +1,949 @@
+{
+  "project_id": "project:blank-local-20260915t063824z",
+  "project_name": "Blank Local Model",
+  "created_at_unix": 1789454304,
+  "updated_at_unix": 1789455288,
+  "fields": {
+    "model_json": {
+      "file": "model_json.json",
+      "byte_count": 2717,
+      "sha256": "578ed0da4a4a1aa59eb20dfc2403a3b1fa912305a07ddeb39539c87833fdf028"
+    },
+    "editor_intents_json": {
+      "file": "editor_intents_json.json",
+      "byte_count": 14899,
+      "sha256": "428412bc689d16482f87b4e0571370ba6575d22b3275ca9a6ad666aa2d083392"
+    },
+    "proposal_json": {
+      "file": "proposal_json.json",
+      "byte_count": 4,
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "selected_review_target_json": {
+      "file": "selected_review_target_json.json",
+      "byte_count": 4,
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "mechanics_result_json": {
+      "file": "mechanics_result_json.json",
+      "byte_count": 37762,
+      "sha256": "d1f7e27a8b2a0474ebfc4a102422ce044f583ff3b3c6e7cb396677464b2a73f4"
+    },
+    "analysis_run_json": {
+      "file": "analysis_run_json.json",
+      "byte_count": 97583,
+      "sha256": "53c07e0e6cbe809192f190cdc8a36f847e642ede0df604dc6fa232cf24a909fb"
+    },
+    "model_hash_json": {
+      "file": "model_hash_json.json",
+      "byte_count": 261,
+      "sha256": "900b1d0b248559a9de417113d084f8941875585c00aed88875aa56a61f70c003"
+    },
+    "project_envelope_hash_json": {
+      "file": "project_envelope_hash_json.json",
+      "byte_count": 342,
+      "sha256": "36f2468434242d85b26c80e55016b9f835d82f235ecf88cdc51ba628f902f389"
+    },
+    "model_migration_ledger_json": {
+      "file": "model_migration_ledger_json.json",
+      "byte_count": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "mechanics": {
+    "run_id": "run:preview-linear-static-001",
+    "model_ref": "project:blank-local-20260915t063824z",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "professional_acceptance": "NOT_PROVIDED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE"
+    },
+    "result_count": 68,
+    "rows": [
+      {
+        "index": 0,
+        "id": "result:solver-mode:linear-solve-basis",
+        "kind": "linear_solver_mode_basis",
+        "value": 2,
+        "unit": "mode_code",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 1,
+        "id": "result:sparse-live:dense-parity-relative-delta",
+        "kind": "sparse_live_path_dense_parity_relative_delta",
+        "value": 0,
+        "unit": "unitless",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 2,
+        "id": "result:disp:node-ROOT",
+        "kind": "displacement_magnitude",
+        "value": 0,
+        "unit": "mm",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 3,
+        "id": "result:disp:node-TIP",
+        "kind": "displacement_magnitude",
+        "value": 1.663072,
+        "unit": "mm",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 4,
+        "id": "result:disp:node-ROOT:ux",
+        "kind": "global_nodal_displacement_x",
+        "value": 0,
+        "unit": "mm",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 5,
+        "id": "result:disp:node-ROOT:uy",
+        "kind": "global_nodal_displacement_y",
+        "value": 0,
+        "unit": "mm",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 6,
+        "id": "result:disp:node-ROOT:uz",
+        "kind": "global_nodal_displacement_z",
+        "value": 0,
+        "unit": "mm",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 7,
+        "id": "result:disp:node-ROOT:rx",
+        "kind": "global_nodal_rotation_x",
+        "value": 0,
+        "unit": "rad",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 8,
+        "id": "result:disp:node-ROOT:ry",
+        "kind": "global_nodal_rotation_y",
+        "value": 0,
+        "unit": "rad",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 9,
+        "id": "result:disp:node-ROOT:rz",
+        "kind": "global_nodal_rotation_z",
+        "value": 0,
+        "unit": "rad",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 10,
+        "id": "result:disp:node-TIP:ux",
+        "kind": "global_nodal_displacement_x",
+        "value": 0,
+        "unit": "mm",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 11,
+        "id": "result:disp:node-TIP:uy",
+        "kind": "global_nodal_displacement_y",
+        "value": 1.663072,
+        "unit": "mm",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 12,
+        "id": "result:disp:node-TIP:uz",
+        "kind": "global_nodal_displacement_z",
+        "value": 0,
+        "unit": "mm",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 13,
+        "id": "result:disp:node-TIP:rx",
+        "kind": "global_nodal_rotation_x",
+        "value": 0,
+        "unit": "rad",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 14,
+        "id": "result:disp:node-TIP:ry",
+        "kind": "global_nodal_rotation_y",
+        "value": 0,
+        "unit": "rad",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 15,
+        "id": "result:disp:node-TIP:rz",
+        "kind": "global_nodal_rotation_z",
+        "value": 0.00078,
+        "unit": "rad",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 16,
+        "id": "result:reaction:support-ROOT",
+        "kind": "reaction_resultant",
+        "value": 350,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 17,
+        "id": "result:force:pipe-CANTILEVER:axial",
+        "kind": "element_local_axial_force",
+        "value": 0,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 18,
+        "id": "result:force:pipe-CANTILEVER:axial:end-j",
+        "kind": "element_local_axial_force",
+        "value": 0,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 19,
+        "id": "result:force:pipe-CANTILEVER:shear-y",
+        "kind": "element_local_shear_force_y",
+        "value": 0,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 20,
+        "id": "result:force:pipe-CANTILEVER:shear-y:end-j",
+        "kind": "element_local_shear_force_y",
+        "value": 0,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 21,
+        "id": "result:force:pipe-CANTILEVER:shear-z",
+        "kind": "element_local_shear_force_z",
+        "value": 350,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 22,
+        "id": "result:force:pipe-CANTILEVER:shear-z:end-j",
+        "kind": "element_local_shear_force_z",
+        "value": -350,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 23,
+        "id": "result:moment:pipe-CANTILEVER:torsion",
+        "kind": "element_local_torsional_moment",
+        "value": 0,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 24,
+        "id": "result:moment:pipe-CANTILEVER:torsion:end-j",
+        "kind": "element_local_torsional_moment",
+        "value": 0,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 25,
+        "id": "result:moment:pipe-CANTILEVER:bending-y",
+        "kind": "element_local_bending_moment_y",
+        "value": -1120,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 26,
+        "id": "result:moment:pipe-CANTILEVER:bending-y:end-j",
+        "kind": "element_local_bending_moment_y",
+        "value": 0,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 27,
+        "id": "result:moment:pipe-CANTILEVER:bending-z",
+        "kind": "element_local_bending_moment_z",
+        "value": 0,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 28,
+        "id": "result:moment:pipe-CANTILEVER:bending-z:end-j",
+        "kind": "element_local_bending_moment_z",
+        "value": 0,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 29,
+        "id": "result:force:pipe-CANTILEVER:quarter-1:axial",
+        "kind": "element_local_axial_force",
+        "value": 0,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 30,
+        "id": "result:force:pipe-CANTILEVER:quarter-1:shear-y",
+        "kind": "element_local_shear_force_y",
+        "value": 0,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 31,
+        "id": "result:force:pipe-CANTILEVER:quarter-1:shear-z",
+        "kind": "element_local_shear_force_z",
+        "value": -350,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 32,
+        "id": "result:moment:pipe-CANTILEVER:quarter-1:torsion",
+        "kind": "element_local_torsional_moment",
+        "value": 0,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 33,
+        "id": "result:moment:pipe-CANTILEVER:quarter-1:bending-y",
+        "kind": "element_local_bending_moment_y",
+        "value": 840,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 34,
+        "id": "result:moment:pipe-CANTILEVER:quarter-1:bending-z",
+        "kind": "element_local_bending_moment_z",
+        "value": 0,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 35,
+        "id": "result:force:pipe-CANTILEVER:midspan:axial",
+        "kind": "element_local_axial_force",
+        "value": 0,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 36,
+        "id": "result:force:pipe-CANTILEVER:midspan:shear-y",
+        "kind": "element_local_shear_force_y",
+        "value": 0,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 37,
+        "id": "result:force:pipe-CANTILEVER:midspan:shear-z",
+        "kind": "element_local_shear_force_z",
+        "value": -350,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 38,
+        "id": "result:moment:pipe-CANTILEVER:midspan:torsion",
+        "kind": "element_local_torsional_moment",
+        "value": 0,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 39,
+        "id": "result:moment:pipe-CANTILEVER:midspan:bending-y",
+        "kind": "element_local_bending_moment_y",
+        "value": 560,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 40,
+        "id": "result:moment:pipe-CANTILEVER:midspan:bending-z",
+        "kind": "element_local_bending_moment_z",
+        "value": 0,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 41,
+        "id": "result:force:pipe-CANTILEVER:quarter-3:axial",
+        "kind": "element_local_axial_force",
+        "value": 0,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 42,
+        "id": "result:force:pipe-CANTILEVER:quarter-3:shear-y",
+        "kind": "element_local_shear_force_y",
+        "value": 0,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 43,
+        "id": "result:force:pipe-CANTILEVER:quarter-3:shear-z",
+        "kind": "element_local_shear_force_z",
+        "value": -350,
+        "unit": "N",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 44,
+        "id": "result:moment:pipe-CANTILEVER:quarter-3:torsion",
+        "kind": "element_local_torsional_moment",
+        "value": 0,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 45,
+        "id": "result:moment:pipe-CANTILEVER:quarter-3:bending-y",
+        "kind": "element_local_bending_moment_y",
+        "value": 280,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 46,
+        "id": "result:moment:pipe-CANTILEVER:quarter-3:bending-z",
+        "kind": "element_local_bending_moment_z",
+        "value": 0,
+        "unit": "N*m",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 47,
+        "id": "result:stress:pipe-CANTILEVER:end-i:axial-normal",
+        "kind": "element_local_axial_normal_stress",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 48,
+        "id": "result:stress:pipe-CANTILEVER:end-i:bending-normal-y",
+        "kind": "element_local_bending_normal_stress_y",
+        "value": 8.185431,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 49,
+        "id": "result:stress:pipe-CANTILEVER:end-i:bending-normal-z",
+        "kind": "element_local_bending_normal_stress_z",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 50,
+        "id": "result:stress:pipe-CANTILEVER:end-i:torsional-shear",
+        "kind": "element_local_torsional_shear_stress",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 51,
+        "id": "result:stress:pipe-CANTILEVER:end-j:axial-normal",
+        "kind": "element_local_axial_normal_stress",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 52,
+        "id": "result:stress:pipe-CANTILEVER:end-j:bending-normal-y",
+        "kind": "element_local_bending_normal_stress_y",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 53,
+        "id": "result:stress:pipe-CANTILEVER:end-j:bending-normal-z",
+        "kind": "element_local_bending_normal_stress_z",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 54,
+        "id": "result:stress:pipe-CANTILEVER:end-j:torsional-shear",
+        "kind": "element_local_torsional_shear_stress",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 55,
+        "id": "result:stress:pipe-CANTILEVER:quarter-1:axial-normal",
+        "kind": "element_local_axial_normal_stress",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 56,
+        "id": "result:stress:pipe-CANTILEVER:quarter-1:bending-normal-y",
+        "kind": "element_local_bending_normal_stress_y",
+        "value": 6.139073,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 57,
+        "id": "result:stress:pipe-CANTILEVER:quarter-1:bending-normal-z",
+        "kind": "element_local_bending_normal_stress_z",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 58,
+        "id": "result:stress:pipe-CANTILEVER:quarter-1:torsional-shear",
+        "kind": "element_local_torsional_shear_stress",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 59,
+        "id": "result:stress:pipe-CANTILEVER:midspan:axial-normal",
+        "kind": "element_local_axial_normal_stress",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 60,
+        "id": "result:stress:pipe-CANTILEVER:midspan:bending-normal-y",
+        "kind": "element_local_bending_normal_stress_y",
+        "value": 4.092716,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 61,
+        "id": "result:stress:pipe-CANTILEVER:midspan:bending-normal-z",
+        "kind": "element_local_bending_normal_stress_z",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 62,
+        "id": "result:stress:pipe-CANTILEVER:midspan:torsional-shear",
+        "kind": "element_local_torsional_shear_stress",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 63,
+        "id": "result:stress:pipe-CANTILEVER:quarter-3:axial-normal",
+        "kind": "element_local_axial_normal_stress",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 64,
+        "id": "result:stress:pipe-CANTILEVER:quarter-3:bending-normal-y",
+        "kind": "element_local_bending_normal_stress_y",
+        "value": 2.046358,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 65,
+        "id": "result:stress:pipe-CANTILEVER:quarter-3:bending-normal-z",
+        "kind": "element_local_bending_normal_stress_z",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 66,
+        "id": "result:stress:pipe-CANTILEVER:quarter-3:torsional-shear",
+        "kind": "element_local_torsional_shear_stress",
+        "value": 0,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      },
+      {
+        "index": 67,
+        "id": "result:stress:pipe-CANTILEVER",
+        "kind": "open_formula_stress_summary",
+        "value": 8.185431,
+        "unit": "MPa",
+        "basis_ref": {
+          "ref_id": "load:WF",
+          "ref_type": "load_case"
+        },
+        "component": null,
+        "location": null
+      }
+    ]
+  }
+}

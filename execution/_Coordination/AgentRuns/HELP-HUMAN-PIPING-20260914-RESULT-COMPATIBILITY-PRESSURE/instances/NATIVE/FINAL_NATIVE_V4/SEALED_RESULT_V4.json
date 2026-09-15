@@ -1,0 +1,42 @@
+{
+  "acceptance_boundary": {
+    "combined_final_acceptance": "owned by Root",
+    "native_v4": "passed",
+    "root_registered_full_dec025_sweep": "pending after lease release",
+    "standalone_stress_neutral_csv_control": "intentionally withheld by maintained product contract; package csv_text extraction and nine-member materialization passed"
+  },
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "closure_checks": {
+    "artifact_final": {
+      "path": "_run_records/execution/ARTIFACT_FINAL_CHECK_V4.json",
+      "sha256": "62d847c874c9773889b29316f1f666532ca1aa2fbf452d23df792799b87624cb"
+    },
+    "failure_ledger": {
+      "path": "_run_records/FAILURE_LEDGER_V4.json",
+      "sha256": "730abe572919142a76d04b443d2cc154fc4a1355dfc3d09daa54d0eca06d5d5f"
+    },
+    "owned_process_final": {
+      "path": "_run_records/process/FINAL_OWNED_PROCESS_CHECK_V4_V2.json",
+      "sha256": "5eea3a4166500cfc9dc3f967ed462a8bf05394d9509af265ab84c4b4a55fffe9"
+    },
+    "source_final": {
+      "path": "_run_records/execution/SOURCE_FINAL_CHECK_V4.json",
+      "sha256": "ef10fd8cf7a4ac5df11eb5e0b5d60d1f26d8c475a8c17f498bb4ee3c0b24464a"
+    }
+  },
+  "evidence_manifest": {
+    "bytes": 79134,
+    "entry_count": 406,
+    "path": "EVIDENCE_MANIFEST_V4.json",
+    "sha256": "e04ba928e8163197b74f00d76ccc6c64816fbacfcd13248093cb8d6b121039a2"
+  },
+  "product_defects": [],
+  "result": {
+    "bytes": 12317,
+    "path": "FINAL_NATIVE_RESULT_V4.json",
+    "sha256": "1d3ec53caaa003d820c5291080d84c465d1baa9e03905c6591e5078adcbdd600"
+  },
+  "schema": "chirality.final_native_v4.sealed_result.v1",
+  "sealed_utc": "2026-09-15T07:58:28Z",
+  "verdict": "PASS_NATIVE_V4"
+}

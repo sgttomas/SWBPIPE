@@ -1,0 +1,59 @@
+{
+  "status": "PASS",
+  "model_sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+  "result_count": 67,
+  "physical_quantity_rows": 66,
+  "solver_mode_row": {
+    "id": "result:solver-mode:linear-solve-basis",
+    "value": 1,
+    "unit": "mode_code",
+    "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_profile_direct_primary; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=1051.469644; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none"
+  },
+  "checks": [
+    {
+      "id": "result:disp:node-TIP",
+      "observed": 2.375817,
+      "expected": 2.375817,
+      "unit": "mm",
+      "expected_unit": "mm",
+      "absolute_tolerance": 1e-06,
+      "pass": true
+    },
+    {
+      "id": "result:disp:node-TIP:rz",
+      "observed": 0.001114,
+      "expected": 0.001114,
+      "unit": "rad",
+      "expected_unit": "rad",
+      "absolute_tolerance": 1e-06,
+      "pass": true
+    },
+    {
+      "id": "result:reaction:support-ROOT",
+      "observed": 500,
+      "expected": 500.0,
+      "unit": "N",
+      "expected_unit": "N",
+      "absolute_tolerance": 1e-09,
+      "pass": true
+    },
+    {
+      "id": "result:force:pipe-CANTILEVER:shear-z",
+      "observed": 500,
+      "expected": 500.0,
+      "unit": "N",
+      "expected_unit": "N",
+      "absolute_tolerance": 1e-09,
+      "pass": true
+    },
+    {
+      "id": "result:moment:pipe-CANTILEVER:bending-y",
+      "observed": -1600,
+      "expected": -1600.0,
+      "unit": "N*m",
+      "expected_unit": "N*m",
+      "absolute_tolerance": 1e-09,
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "analysis_run_json_sha256": "bbbfcf43b4b17054966f8ace478a4b11bfc30548c133a16905eec45c94a29df3",
+  "analysis_schema_version": "0.1.0",
+  "case_id": "legacy_python_v2",
+  "mechanics_result_json_sha256": "d27eb73060b667037df946650dfbc818fa331ec87a646897ef6f064eabd9e2d5",
+  "payload_fields": {
+    "analysis_run_json": {
+      "actual_sha256": "bbbfcf43b4b17054966f8ace478a4b11bfc30548c133a16905eec45c94a29df3",
+      "exact": true,
+      "expected_sha256": "bbbfcf43b4b17054966f8ace478a4b11bfc30548c133a16905eec45c94a29df3"
+    },
+    "editor_intents_json": {
+      "actual_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "exact": true,
+      "expected_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "mechanics_result_json": {
+      "actual_sha256": "d27eb73060b667037df946650dfbc818fa331ec87a646897ef6f064eabd9e2d5",
+      "exact": true,
+      "expected_sha256": "d27eb73060b667037df946650dfbc818fa331ec87a646897ef6f064eabd9e2d5"
+    },
+    "model_hash_json": {
+      "actual_sha256": "c9de6a0377ccac880c24dc34680d481b298ad9c3dd3faedb95cd15b06d4eaca9",
+      "exact": true,
+      "expected_sha256": "c9de6a0377ccac880c24dc34680d481b298ad9c3dd3faedb95cd15b06d4eaca9"
+    },
+    "model_json": {
+      "actual_sha256": "ef28834d3af3fefeb94f148710486d42083566feeff9128f0b58c3b7f26da68f",
+      "exact": true,
+      "expected_sha256": "ef28834d3af3fefeb94f148710486d42083566feeff9128f0b58c3b7f26da68f"
+    },
+    "model_migration_ledger_json": {
+      "actual_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "exact": true,
+      "expected_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "project_envelope_hash_json": {
+      "actual_sha256": "9c3ac5616e3fa82e92761a90ed6e5ea3a6743d6e6f1a48898473014ec2da65b1",
+      "exact": true,
+      "expected_sha256": "9c3ac5616e3fa82e92761a90ed6e5ea3a6743d6e6f1a48898473014ec2da65b1"
+    },
+    "project_name": {
+      "actual_sha256": "c093be350aaaf857e2401792d05821637ce450c333375ddb055555b199a71520",
+      "exact": true,
+      "expected_sha256": "c093be350aaaf857e2401792d05821637ce450c333375ddb055555b199a71520"
+    },
+    "proposal_json": {
+      "actual_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "exact": true,
+      "expected_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "selected_review_target_json": {
+      "actual_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "exact": true,
+      "expected_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    }
+  },
+  "profile": "python",
+  "schema": "legacy-historical-unchanged-save-verification-v4",
+  "source_fixture": "fixtures/analysis_runs/invented/legacy_python_v0_1.json",
+  "source_fixture_sha256": "03040257859d1a82b2a05166f743451e97266c5bfe897a8b75ae886a5b275ebc",
+  "sqlite_integrity_check": "ok",
+  "status": "PASS",
+  "timestamps": {
+    "created_at_unix": 1789454304,
+    "updated_at_unix": 1789458551
+  }
+}

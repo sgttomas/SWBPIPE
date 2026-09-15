@@ -1,0 +1,35 @@
+{
+  "case": "hanger_constant_effort",
+  "claim_class": "actual_product_frontend_constructor_composition_of_captured_headless_output",
+  "gui_or_browser_download_claimed": false,
+  "python_member_materialization_claimed": false,
+  "candidate": {
+    "runner_sha256": "6cb37b0e9447fe34af1028be3c6da93a83c683524aac43ccb3807b40dbab7a9f",
+    "source_commit": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+    "source_tree_sha256": "ad18bceaa8e6d958a9182d94f5f6095619fe197eb227c1234edae1abea56dc72",
+    "wasm_sha256": "ee5f753e4ae87d079c765e96657ddfb4b70caac7e414830f48956f3393a3566d"
+  },
+  "captured_request": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/hanger_constant_effort.request_v4.json",
+    "sha256": "e6dcaccfbefe6b1f18eab0e64b0ae5f0bcc8f6ed869fda312ce68ce7a2aaa62d"
+  },
+  "captured_output": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/hanger_constant_effort.output_v2.json",
+    "sha256": "a20a1779772e30a7c9c4d71cac87fc6db8b8a15aa12081d9b3b5d99648283737"
+  },
+  "source_run_id": "run:preview-linear-static-001",
+  "source_model_ref": "project:v3-hanger-constant-effort",
+  "source_row_count": 79,
+  "expected_signature_ids": [
+    "supported-source-052",
+    "supported-source-056",
+    "supported-source-057",
+    "supported-source-058"
+  ],
+  "artifact_sha256": {
+    "input_manifest.json": "f4be63b9384e578d5c56c41add295c6b90b7c2c4fce9513b34540d605472a48a",
+    "analysis_run_v0_2.json": "b2e8a11332c31d10894f83e1aa1d7159339323619de3c27dd9b5b3e8d81c03c7",
+    "result_export_v0_2.json": "2615128bd980a767b52a8be1ae8f161acaf7a5e240b9712556ccd0fb711a7195",
+    "stress_neutral_v0_2.json": "3ea870cded2594f624fb0bd4faa7722337539ce391ac4876fc294055a41eaf03"
+  }
+}

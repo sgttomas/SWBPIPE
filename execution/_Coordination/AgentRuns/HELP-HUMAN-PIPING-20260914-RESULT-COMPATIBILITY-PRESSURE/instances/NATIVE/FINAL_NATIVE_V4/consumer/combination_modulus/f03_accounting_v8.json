@@ -1,0 +1,4302 @@
+{
+  "accounting": {
+    "all_rows_retained": true,
+    "diagnostic_work_withheld": 0,
+    "eligible_witnesses": 534,
+    "missing_or_contradictory_withheld": 0
+  },
+  "classifications": {
+    "result:combination:combination-R-max:disp:node-N-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 67,
+      "raw_source_row_index": 329,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:combination:combination-R-max:disp:node-N-100:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 68,
+      "raw_source_row_index": 330,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:combination:combination-R-max:disp:node-N-100:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 69,
+      "raw_source_row_index": 331,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:combination:combination-R-max:disp:node-N-100:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 70,
+      "raw_source_row_index": 332,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:combination:combination-R-max:disp:node-N-100:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 71,
+      "raw_source_row_index": 333,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:combination:combination-R-max:disp:node-N-100:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 72,
+      "raw_source_row_index": 334,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:combination:combination-R-max:disp:node-N-100:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 73,
+      "raw_source_row_index": 335,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:combination:combination-R-max:disp:node-N-110": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 74,
+      "raw_source_row_index": 336,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:combination:combination-R-max:disp:node-N-110:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 75,
+      "raw_source_row_index": 337,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:combination:combination-R-max:disp:node-N-110:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 76,
+      "raw_source_row_index": 338,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:combination:combination-R-max:disp:node-N-110:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 77,
+      "raw_source_row_index": 339,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:combination:combination-R-max:disp:node-N-110:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 78,
+      "raw_source_row_index": 340,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:combination:combination-R-max:disp:node-N-110:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 79,
+      "raw_source_row_index": 341,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:combination:combination-R-max:disp:node-N-110:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 80,
+      "raw_source_row_index": 342,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 81,
+      "raw_source_row_index": 343,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:axial:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 82,
+      "raw_source_row_index": 344,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:midspan:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 83,
+      "raw_source_row_index": 345,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:midspan:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 84,
+      "raw_source_row_index": 346,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:midspan:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 85,
+      "raw_source_row_index": 347,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:quarter-1:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 86,
+      "raw_source_row_index": 348,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:quarter-1:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 87,
+      "raw_source_row_index": 349,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:quarter-1:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 88,
+      "raw_source_row_index": 350,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:quarter-3:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 89,
+      "raw_source_row_index": 351,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:quarter-3:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 90,
+      "raw_source_row_index": 352,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:quarter-3:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 91,
+      "raw_source_row_index": 353,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 92,
+      "raw_source_row_index": 354,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:shear-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 93,
+      "raw_source_row_index": 355,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 94,
+      "raw_source_row_index": 356,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-max:force:pipe-P-100:shear-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 95,
+      "raw_source_row_index": 357,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-max:modulus-basis:load-L-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 96,
+      "raw_source_row_index": 528,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-051"
+    },
+    "result:combination:combination-R-max:modulus-basis:load-R-negative": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 97,
+      "raw_source_row_index": 529,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-051"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 98,
+      "raw_source_row_index": 358,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:bending-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 99,
+      "raw_source_row_index": 359,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 100,
+      "raw_source_row_index": 360,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:bending-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 101,
+      "raw_source_row_index": 361,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:midspan:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 102,
+      "raw_source_row_index": 362,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:midspan:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 103,
+      "raw_source_row_index": 363,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:midspan:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 104,
+      "raw_source_row_index": 364,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:quarter-1:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 105,
+      "raw_source_row_index": 365,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:quarter-1:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 106,
+      "raw_source_row_index": 366,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:quarter-1:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 107,
+      "raw_source_row_index": 367,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:quarter-3:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 108,
+      "raw_source_row_index": 368,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:quarter-3:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 109,
+      "raw_source_row_index": 369,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:quarter-3:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 110,
+      "raw_source_row_index": 370,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 111,
+      "raw_source_row_index": 371,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-max:moment:pipe-P-100:torsion:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 112,
+      "raw_source_row_index": 372,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-max:reaction:support-S-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 113,
+      "raw_source_row_index": 373,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-008"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:end-i:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 114,
+      "raw_source_row_index": 374,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:end-i:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 115,
+      "raw_source_row_index": 375,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:end-i:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 116,
+      "raw_source_row_index": 376,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:end-i:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 117,
+      "raw_source_row_index": 377,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:end-j:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 118,
+      "raw_source_row_index": 378,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:end-j:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 119,
+      "raw_source_row_index": 379,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:end-j:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 120,
+      "raw_source_row_index": 380,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:end-j:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 121,
+      "raw_source_row_index": 381,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:midspan:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 122,
+      "raw_source_row_index": 382,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:midspan:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 123,
+      "raw_source_row_index": 383,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:midspan:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 124,
+      "raw_source_row_index": 384,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:midspan:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 125,
+      "raw_source_row_index": 385,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:quarter-1:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 126,
+      "raw_source_row_index": 386,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:quarter-1:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 127,
+      "raw_source_row_index": 387,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:quarter-1:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 128,
+      "raw_source_row_index": 388,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:quarter-1:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 129,
+      "raw_source_row_index": 389,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:quarter-3:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 130,
+      "raw_source_row_index": 390,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:quarter-3:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 131,
+      "raw_source_row_index": 391,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:quarter-3:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 132,
+      "raw_source_row_index": 392,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-max:stress:pipe-P-100:quarter-3:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 133,
+      "raw_source_row_index": 393,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 0,
+      "raw_source_row_index": 459,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-100:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 1,
+      "raw_source_row_index": 460,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-100:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 2,
+      "raw_source_row_index": 461,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-100:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 3,
+      "raw_source_row_index": 462,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-100:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 4,
+      "raw_source_row_index": 463,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-100:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 5,
+      "raw_source_row_index": 464,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-100:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 6,
+      "raw_source_row_index": 465,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-110": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 7,
+      "raw_source_row_index": 466,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-110:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 8,
+      "raw_source_row_index": 467,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-110:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 9,
+      "raw_source_row_index": 468,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-110:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 10,
+      "raw_source_row_index": 469,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-110:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 11,
+      "raw_source_row_index": 470,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-110:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 12,
+      "raw_source_row_index": 471,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:combination:combination-R-max_abs:disp:node-N-110:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 13,
+      "raw_source_row_index": 472,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 14,
+      "raw_source_row_index": 473,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:axial:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 15,
+      "raw_source_row_index": 474,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:midspan:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 16,
+      "raw_source_row_index": 475,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:midspan:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 17,
+      "raw_source_row_index": 476,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:midspan:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 18,
+      "raw_source_row_index": 477,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:quarter-1:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 19,
+      "raw_source_row_index": 478,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:quarter-1:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 20,
+      "raw_source_row_index": 479,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:quarter-1:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 21,
+      "raw_source_row_index": 480,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:quarter-3:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 22,
+      "raw_source_row_index": 481,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:quarter-3:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 23,
+      "raw_source_row_index": 482,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:quarter-3:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 24,
+      "raw_source_row_index": 483,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 25,
+      "raw_source_row_index": 484,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:shear-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 26,
+      "raw_source_row_index": 485,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 27,
+      "raw_source_row_index": 486,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-max_abs:force:pipe-P-100:shear-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 28,
+      "raw_source_row_index": 487,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-max_abs:modulus-basis:load-L-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 29,
+      "raw_source_row_index": 532,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-051"
+    },
+    "result:combination:combination-R-max_abs:modulus-basis:load-R-negative": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 30,
+      "raw_source_row_index": 533,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-051"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 31,
+      "raw_source_row_index": 488,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:bending-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 32,
+      "raw_source_row_index": 489,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 33,
+      "raw_source_row_index": 490,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:bending-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 34,
+      "raw_source_row_index": 491,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:midspan:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 35,
+      "raw_source_row_index": 492,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:midspan:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 36,
+      "raw_source_row_index": 493,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:midspan:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 37,
+      "raw_source_row_index": 494,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:quarter-1:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 38,
+      "raw_source_row_index": 495,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:quarter-1:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 39,
+      "raw_source_row_index": 496,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:quarter-1:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 40,
+      "raw_source_row_index": 497,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:quarter-3:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 41,
+      "raw_source_row_index": 498,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:quarter-3:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 42,
+      "raw_source_row_index": 499,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:quarter-3:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 43,
+      "raw_source_row_index": 500,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 44,
+      "raw_source_row_index": 501,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-max_abs:moment:pipe-P-100:torsion:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 45,
+      "raw_source_row_index": 502,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-max_abs:reaction:support-S-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 46,
+      "raw_source_row_index": 503,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-008"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:end-i:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 47,
+      "raw_source_row_index": 504,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:end-i:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 48,
+      "raw_source_row_index": 505,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:end-i:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 49,
+      "raw_source_row_index": 506,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:end-i:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 50,
+      "raw_source_row_index": 507,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:end-j:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 51,
+      "raw_source_row_index": 508,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:end-j:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 52,
+      "raw_source_row_index": 509,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:end-j:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 53,
+      "raw_source_row_index": 510,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:end-j:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 54,
+      "raw_source_row_index": 511,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:midspan:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 55,
+      "raw_source_row_index": 512,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:midspan:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 56,
+      "raw_source_row_index": 513,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:midspan:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 57,
+      "raw_source_row_index": 514,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:midspan:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 58,
+      "raw_source_row_index": 515,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:quarter-1:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 59,
+      "raw_source_row_index": 516,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:quarter-1:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 60,
+      "raw_source_row_index": 517,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:quarter-1:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 61,
+      "raw_source_row_index": 518,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:quarter-1:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 62,
+      "raw_source_row_index": 519,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:quarter-3:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 63,
+      "raw_source_row_index": 520,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:quarter-3:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 64,
+      "raw_source_row_index": 521,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:quarter-3:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 65,
+      "raw_source_row_index": 522,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-max_abs:stress:pipe-P-100:quarter-3:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 66,
+      "raw_source_row_index": 523,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-min:disp:node-N-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 201,
+      "raw_source_row_index": 264,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:combination:combination-R-min:disp:node-N-100:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 202,
+      "raw_source_row_index": 265,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:combination:combination-R-min:disp:node-N-100:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 203,
+      "raw_source_row_index": 266,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:combination:combination-R-min:disp:node-N-100:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 204,
+      "raw_source_row_index": 267,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:combination:combination-R-min:disp:node-N-100:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 205,
+      "raw_source_row_index": 268,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:combination:combination-R-min:disp:node-N-100:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 206,
+      "raw_source_row_index": 269,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:combination:combination-R-min:disp:node-N-100:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 207,
+      "raw_source_row_index": 270,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:combination:combination-R-min:disp:node-N-110": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 208,
+      "raw_source_row_index": 271,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:combination:combination-R-min:disp:node-N-110:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 209,
+      "raw_source_row_index": 272,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:combination:combination-R-min:disp:node-N-110:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 210,
+      "raw_source_row_index": 273,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:combination:combination-R-min:disp:node-N-110:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 211,
+      "raw_source_row_index": 274,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:combination:combination-R-min:disp:node-N-110:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 212,
+      "raw_source_row_index": 275,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:combination:combination-R-min:disp:node-N-110:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 213,
+      "raw_source_row_index": 276,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:combination:combination-R-min:disp:node-N-110:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 214,
+      "raw_source_row_index": 277,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 215,
+      "raw_source_row_index": 278,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:axial:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 216,
+      "raw_source_row_index": 279,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:midspan:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 217,
+      "raw_source_row_index": 280,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:midspan:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 218,
+      "raw_source_row_index": 281,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:midspan:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 219,
+      "raw_source_row_index": 282,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:quarter-1:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 220,
+      "raw_source_row_index": 283,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:quarter-1:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 221,
+      "raw_source_row_index": 284,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:quarter-1:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 222,
+      "raw_source_row_index": 285,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:quarter-3:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 223,
+      "raw_source_row_index": 286,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:quarter-3:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 224,
+      "raw_source_row_index": 287,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:quarter-3:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 225,
+      "raw_source_row_index": 288,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 226,
+      "raw_source_row_index": 289,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:shear-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 227,
+      "raw_source_row_index": 290,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 228,
+      "raw_source_row_index": 291,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-min:force:pipe-P-100:shear-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 229,
+      "raw_source_row_index": 292,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-min:modulus-basis:load-L-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 230,
+      "raw_source_row_index": 526,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-051"
+    },
+    "result:combination:combination-R-min:modulus-basis:load-R-negative": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 231,
+      "raw_source_row_index": 527,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-051"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 232,
+      "raw_source_row_index": 293,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:bending-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 233,
+      "raw_source_row_index": 294,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 234,
+      "raw_source_row_index": 295,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:bending-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 235,
+      "raw_source_row_index": 296,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:midspan:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 236,
+      "raw_source_row_index": 297,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:midspan:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 237,
+      "raw_source_row_index": 298,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:midspan:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 238,
+      "raw_source_row_index": 299,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:quarter-1:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 239,
+      "raw_source_row_index": 300,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:quarter-1:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 240,
+      "raw_source_row_index": 301,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:quarter-1:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 241,
+      "raw_source_row_index": 302,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:quarter-3:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 242,
+      "raw_source_row_index": 303,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:quarter-3:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 243,
+      "raw_source_row_index": 304,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:quarter-3:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 244,
+      "raw_source_row_index": 305,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 245,
+      "raw_source_row_index": 306,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-min:moment:pipe-P-100:torsion:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 246,
+      "raw_source_row_index": 307,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-min:reaction:support-S-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 247,
+      "raw_source_row_index": 308,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-008"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:end-i:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 248,
+      "raw_source_row_index": 309,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:end-i:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 249,
+      "raw_source_row_index": 310,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:end-i:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 250,
+      "raw_source_row_index": 311,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:end-i:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 251,
+      "raw_source_row_index": 312,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:end-j:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 252,
+      "raw_source_row_index": 313,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:end-j:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 253,
+      "raw_source_row_index": 314,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:end-j:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 254,
+      "raw_source_row_index": 315,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:end-j:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 255,
+      "raw_source_row_index": 316,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:midspan:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 256,
+      "raw_source_row_index": 317,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:midspan:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 257,
+      "raw_source_row_index": 318,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:midspan:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 258,
+      "raw_source_row_index": 319,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:midspan:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 259,
+      "raw_source_row_index": 320,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:quarter-1:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 260,
+      "raw_source_row_index": 321,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:quarter-1:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 261,
+      "raw_source_row_index": 322,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:quarter-1:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 262,
+      "raw_source_row_index": 323,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:quarter-1:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 263,
+      "raw_source_row_index": 324,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:quarter-3:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 264,
+      "raw_source_row_index": 325,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:quarter-3:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 265,
+      "raw_source_row_index": 326,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:quarter-3:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 266,
+      "raw_source_row_index": 327,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-min:stress:pipe-P-100:quarter-3:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 267,
+      "raw_source_row_index": 328,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 134,
+      "raw_source_row_index": 394,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-100:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 135,
+      "raw_source_row_index": 395,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-100:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 136,
+      "raw_source_row_index": 396,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-100:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 137,
+      "raw_source_row_index": 397,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-100:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 138,
+      "raw_source_row_index": 398,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-100:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 139,
+      "raw_source_row_index": 399,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-100:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 140,
+      "raw_source_row_index": 400,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-110": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 141,
+      "raw_source_row_index": 401,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-110:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 142,
+      "raw_source_row_index": 402,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-110:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 143,
+      "raw_source_row_index": 403,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-110:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 144,
+      "raw_source_row_index": 404,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-110:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 145,
+      "raw_source_row_index": 405,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-110:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 146,
+      "raw_source_row_index": 406,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:combination:combination-R-min_abs:disp:node-N-110:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 147,
+      "raw_source_row_index": 407,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 148,
+      "raw_source_row_index": 408,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:axial:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 149,
+      "raw_source_row_index": 409,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:midspan:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 150,
+      "raw_source_row_index": 410,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:midspan:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 151,
+      "raw_source_row_index": 411,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:midspan:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 152,
+      "raw_source_row_index": 412,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:quarter-1:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 153,
+      "raw_source_row_index": 413,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:quarter-1:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 154,
+      "raw_source_row_index": 414,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:quarter-1:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 155,
+      "raw_source_row_index": 415,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:quarter-3:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 156,
+      "raw_source_row_index": 416,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:quarter-3:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 157,
+      "raw_source_row_index": 417,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:quarter-3:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 158,
+      "raw_source_row_index": 418,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 159,
+      "raw_source_row_index": 419,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:shear-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 160,
+      "raw_source_row_index": 420,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 161,
+      "raw_source_row_index": 421,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-min_abs:force:pipe-P-100:shear-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 162,
+      "raw_source_row_index": 422,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-min_abs:modulus-basis:load-L-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 163,
+      "raw_source_row_index": 530,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-051"
+    },
+    "result:combination:combination-R-min_abs:modulus-basis:load-R-negative": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 164,
+      "raw_source_row_index": 531,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-051"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 165,
+      "raw_source_row_index": 423,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:bending-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 166,
+      "raw_source_row_index": 424,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 167,
+      "raw_source_row_index": 425,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:bending-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 168,
+      "raw_source_row_index": 426,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:midspan:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 169,
+      "raw_source_row_index": 427,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:midspan:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 170,
+      "raw_source_row_index": 428,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:midspan:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 171,
+      "raw_source_row_index": 429,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:quarter-1:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 172,
+      "raw_source_row_index": 430,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:quarter-1:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 173,
+      "raw_source_row_index": 431,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:quarter-1:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 174,
+      "raw_source_row_index": 432,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:quarter-3:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 175,
+      "raw_source_row_index": 433,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:quarter-3:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 176,
+      "raw_source_row_index": 434,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:quarter-3:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 177,
+      "raw_source_row_index": 435,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 178,
+      "raw_source_row_index": 436,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-min_abs:moment:pipe-P-100:torsion:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 179,
+      "raw_source_row_index": 437,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-min_abs:reaction:support-S-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 180,
+      "raw_source_row_index": 438,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-008"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:end-i:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 181,
+      "raw_source_row_index": 439,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:end-i:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 182,
+      "raw_source_row_index": 440,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:end-i:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 183,
+      "raw_source_row_index": 441,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:end-i:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 184,
+      "raw_source_row_index": 442,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:end-j:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 185,
+      "raw_source_row_index": 443,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:end-j:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 186,
+      "raw_source_row_index": 444,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:end-j:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 187,
+      "raw_source_row_index": 445,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:end-j:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 188,
+      "raw_source_row_index": 446,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:midspan:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 189,
+      "raw_source_row_index": 447,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:midspan:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 190,
+      "raw_source_row_index": 448,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:midspan:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 191,
+      "raw_source_row_index": 449,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:midspan:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 192,
+      "raw_source_row_index": 450,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:quarter-1:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 193,
+      "raw_source_row_index": 451,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:quarter-1:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 194,
+      "raw_source_row_index": 452,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:quarter-1:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 195,
+      "raw_source_row_index": 453,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:quarter-1:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 196,
+      "raw_source_row_index": 454,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:quarter-3:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 197,
+      "raw_source_row_index": 455,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:quarter-3:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 198,
+      "raw_source_row_index": 456,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:quarter-3:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 199,
+      "raw_source_row_index": 457,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-min_abs:stress:pipe-P-100:quarter-3:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 200,
+      "raw_source_row_index": 458,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-sub:disp:node-N-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 268,
+      "raw_source_row_index": 199,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:combination:combination-R-sub:disp:node-N-100:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 269,
+      "raw_source_row_index": 200,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:combination:combination-R-sub:disp:node-N-100:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 270,
+      "raw_source_row_index": 201,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:combination:combination-R-sub:disp:node-N-100:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 271,
+      "raw_source_row_index": 202,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:combination:combination-R-sub:disp:node-N-100:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 272,
+      "raw_source_row_index": 203,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:combination:combination-R-sub:disp:node-N-100:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 273,
+      "raw_source_row_index": 204,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:combination:combination-R-sub:disp:node-N-100:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 274,
+      "raw_source_row_index": 205,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:combination:combination-R-sub:disp:node-N-110": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 275,
+      "raw_source_row_index": 206,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:combination:combination-R-sub:disp:node-N-110:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 276,
+      "raw_source_row_index": 207,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:combination:combination-R-sub:disp:node-N-110:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 277,
+      "raw_source_row_index": 208,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:combination:combination-R-sub:disp:node-N-110:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 278,
+      "raw_source_row_index": 209,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:combination:combination-R-sub:disp:node-N-110:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 279,
+      "raw_source_row_index": 210,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:combination:combination-R-sub:disp:node-N-110:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 280,
+      "raw_source_row_index": 211,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:combination:combination-R-sub:disp:node-N-110:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 281,
+      "raw_source_row_index": 212,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 282,
+      "raw_source_row_index": 213,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:axial:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 283,
+      "raw_source_row_index": 214,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:midspan:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 284,
+      "raw_source_row_index": 215,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:midspan:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 285,
+      "raw_source_row_index": 216,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:midspan:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 286,
+      "raw_source_row_index": 217,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:quarter-1:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 287,
+      "raw_source_row_index": 218,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:quarter-1:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 288,
+      "raw_source_row_index": 219,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:quarter-1:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 289,
+      "raw_source_row_index": 220,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:quarter-3:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 290,
+      "raw_source_row_index": 221,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:quarter-3:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 291,
+      "raw_source_row_index": 222,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:quarter-3:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 292,
+      "raw_source_row_index": 223,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 293,
+      "raw_source_row_index": 224,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:shear-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 294,
+      "raw_source_row_index": 225,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 295,
+      "raw_source_row_index": 226,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-sub:force:pipe-P-100:shear-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 296,
+      "raw_source_row_index": 227,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-sub:modulus-basis:load-L-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 297,
+      "raw_source_row_index": 524,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-051"
+    },
+    "result:combination:combination-R-sub:modulus-basis:load-R-negative": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 298,
+      "raw_source_row_index": 525,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-051"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 299,
+      "raw_source_row_index": 228,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:bending-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 300,
+      "raw_source_row_index": 229,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 301,
+      "raw_source_row_index": 230,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:bending-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 302,
+      "raw_source_row_index": 231,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:midspan:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 303,
+      "raw_source_row_index": 232,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:midspan:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 304,
+      "raw_source_row_index": 233,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:midspan:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 305,
+      "raw_source_row_index": 234,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:quarter-1:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 306,
+      "raw_source_row_index": 235,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:quarter-1:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 307,
+      "raw_source_row_index": 236,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:quarter-1:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 308,
+      "raw_source_row_index": 237,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:quarter-3:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 309,
+      "raw_source_row_index": 238,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:quarter-3:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 310,
+      "raw_source_row_index": 239,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:quarter-3:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 311,
+      "raw_source_row_index": 240,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 312,
+      "raw_source_row_index": 241,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-sub:moment:pipe-P-100:torsion:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 313,
+      "raw_source_row_index": 242,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-sub:reaction:support-S-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 314,
+      "raw_source_row_index": 243,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-008"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:end-i:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 315,
+      "raw_source_row_index": 244,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:end-i:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 316,
+      "raw_source_row_index": 245,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:end-i:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 317,
+      "raw_source_row_index": 246,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:end-i:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 318,
+      "raw_source_row_index": 247,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:end-j:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 319,
+      "raw_source_row_index": 248,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:end-j:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 320,
+      "raw_source_row_index": 249,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:end-j:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 321,
+      "raw_source_row_index": 250,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:end-j:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 322,
+      "raw_source_row_index": 251,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:midspan:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 323,
+      "raw_source_row_index": 252,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:midspan:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 324,
+      "raw_source_row_index": 253,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:midspan:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 325,
+      "raw_source_row_index": 254,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:midspan:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 326,
+      "raw_source_row_index": 255,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:quarter-1:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 327,
+      "raw_source_row_index": 256,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:quarter-1:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 328,
+      "raw_source_row_index": 257,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:quarter-1:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 329,
+      "raw_source_row_index": 258,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:quarter-1:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 330,
+      "raw_source_row_index": 259,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:quarter-3:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 331,
+      "raw_source_row_index": 260,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:quarter-3:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 332,
+      "raw_source_row_index": 261,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:quarter-3:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 333,
+      "raw_source_row_index": 262,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-sub:stress:pipe-P-100:quarter-3:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 334,
+      "raw_source_row_index": 263,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-sum:disp:node-N-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 335,
+      "raw_source_row_index": 134,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:combination:combination-R-sum:disp:node-N-100:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 336,
+      "raw_source_row_index": 135,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:combination:combination-R-sum:disp:node-N-100:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 337,
+      "raw_source_row_index": 136,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:combination:combination-R-sum:disp:node-N-100:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 338,
+      "raw_source_row_index": 137,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:combination:combination-R-sum:disp:node-N-100:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 339,
+      "raw_source_row_index": 138,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:combination:combination-R-sum:disp:node-N-100:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 340,
+      "raw_source_row_index": 139,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:combination:combination-R-sum:disp:node-N-100:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 341,
+      "raw_source_row_index": 140,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:combination:combination-R-sum:disp:node-N-110": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 342,
+      "raw_source_row_index": 141,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:combination:combination-R-sum:disp:node-N-110:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 343,
+      "raw_source_row_index": 142,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:combination:combination-R-sum:disp:node-N-110:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 344,
+      "raw_source_row_index": 143,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:combination:combination-R-sum:disp:node-N-110:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 345,
+      "raw_source_row_index": 144,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:combination:combination-R-sum:disp:node-N-110:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 346,
+      "raw_source_row_index": 145,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:combination:combination-R-sum:disp:node-N-110:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 347,
+      "raw_source_row_index": 146,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:combination:combination-R-sum:disp:node-N-110:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 348,
+      "raw_source_row_index": 147,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 349,
+      "raw_source_row_index": 148,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:axial:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 350,
+      "raw_source_row_index": 149,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:midspan:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 351,
+      "raw_source_row_index": 150,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:midspan:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 352,
+      "raw_source_row_index": 151,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:midspan:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 353,
+      "raw_source_row_index": 152,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:quarter-1:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 354,
+      "raw_source_row_index": 153,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:quarter-1:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 355,
+      "raw_source_row_index": 154,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:quarter-1:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 356,
+      "raw_source_row_index": 155,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:quarter-3:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 357,
+      "raw_source_row_index": 156,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:quarter-3:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 358,
+      "raw_source_row_index": 157,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:quarter-3:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 359,
+      "raw_source_row_index": 158,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 360,
+      "raw_source_row_index": 159,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:shear-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 361,
+      "raw_source_row_index": 160,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 362,
+      "raw_source_row_index": 161,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-sum:force:pipe-P-100:shear-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 363,
+      "raw_source_row_index": 162,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 364,
+      "raw_source_row_index": 163,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:bending-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 365,
+      "raw_source_row_index": 164,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 366,
+      "raw_source_row_index": 165,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:bending-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 367,
+      "raw_source_row_index": 166,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:midspan:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 368,
+      "raw_source_row_index": 167,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:midspan:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 369,
+      "raw_source_row_index": 168,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:midspan:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 370,
+      "raw_source_row_index": 169,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:quarter-1:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 371,
+      "raw_source_row_index": 170,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:quarter-1:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 372,
+      "raw_source_row_index": 171,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:quarter-1:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 373,
+      "raw_source_row_index": 172,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:quarter-3:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 374,
+      "raw_source_row_index": 173,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:quarter-3:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 375,
+      "raw_source_row_index": 174,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:quarter-3:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 376,
+      "raw_source_row_index": 175,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 377,
+      "raw_source_row_index": 176,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-sum:moment:pipe-P-100:torsion:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 378,
+      "raw_source_row_index": 177,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:combination:combination-R-sum:reaction:support-S-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 379,
+      "raw_source_row_index": 178,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-008"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:end-i:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 380,
+      "raw_source_row_index": 179,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:end-i:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 381,
+      "raw_source_row_index": 180,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:end-i:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 382,
+      "raw_source_row_index": 181,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:end-i:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 383,
+      "raw_source_row_index": 182,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:end-j:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 384,
+      "raw_source_row_index": 183,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:end-j:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 385,
+      "raw_source_row_index": 184,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:end-j:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 386,
+      "raw_source_row_index": 185,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:end-j:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 387,
+      "raw_source_row_index": 186,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:midspan:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 388,
+      "raw_source_row_index": 187,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:midspan:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 389,
+      "raw_source_row_index": 188,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:midspan:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 390,
+      "raw_source_row_index": 189,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:midspan:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 391,
+      "raw_source_row_index": 190,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:quarter-1:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 392,
+      "raw_source_row_index": 191,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:quarter-1:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 393,
+      "raw_source_row_index": 192,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:quarter-1:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 394,
+      "raw_source_row_index": 193,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:quarter-1:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 395,
+      "raw_source_row_index": 194,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:quarter-3:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 396,
+      "raw_source_row_index": 195,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:quarter-3:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 397,
+      "raw_source_row_index": 196,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:quarter-3:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 398,
+      "raw_source_row_index": 197,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:combination:combination-R-sum:stress:pipe-P-100:quarter-3:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 399,
+      "raw_source_row_index": 198,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:disp:node-N-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 400,
+      "raw_source_row_index": 1,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:disp:node-N-100:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 401,
+      "raw_source_row_index": 6,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:disp:node-N-100:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 402,
+      "raw_source_row_index": 7,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:disp:node-N-100:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 403,
+      "raw_source_row_index": 8,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:disp:node-N-100:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 404,
+      "raw_source_row_index": 3,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:disp:node-N-100:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 405,
+      "raw_source_row_index": 4,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:disp:node-N-100:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 406,
+      "raw_source_row_index": 5,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:disp:node-N-110": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 407,
+      "raw_source_row_index": 2,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:disp:node-N-110:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 408,
+      "raw_source_row_index": 12,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:disp:node-N-110:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 409,
+      "raw_source_row_index": 13,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:disp:node-N-110:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 410,
+      "raw_source_row_index": 14,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:disp:node-N-110:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 411,
+      "raw_source_row_index": 9,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:disp:node-N-110:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 412,
+      "raw_source_row_index": 10,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:disp:node-N-110:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 413,
+      "raw_source_row_index": 11,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:force:pipe-P-100:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 414,
+      "raw_source_row_index": 16,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:force:pipe-P-100:axial:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 415,
+      "raw_source_row_index": 17,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:force:pipe-P-100:midspan:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 416,
+      "raw_source_row_index": 34,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:force:pipe-P-100:midspan:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 417,
+      "raw_source_row_index": 35,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:force:pipe-P-100:midspan:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 418,
+      "raw_source_row_index": 36,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:force:pipe-P-100:quarter-1:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 419,
+      "raw_source_row_index": 28,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:force:pipe-P-100:quarter-1:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 420,
+      "raw_source_row_index": 29,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:force:pipe-P-100:quarter-1:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 421,
+      "raw_source_row_index": 30,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:force:pipe-P-100:quarter-3:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 422,
+      "raw_source_row_index": 40,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:force:pipe-P-100:quarter-3:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 423,
+      "raw_source_row_index": 41,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:force:pipe-P-100:quarter-3:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 424,
+      "raw_source_row_index": 42,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:force:pipe-P-100:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 425,
+      "raw_source_row_index": 18,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:force:pipe-P-100:shear-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 426,
+      "raw_source_row_index": 19,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:force:pipe-P-100:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 427,
+      "raw_source_row_index": 20,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:force:pipe-P-100:shear-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 428,
+      "raw_source_row_index": 21,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 429,
+      "raw_source_row_index": 68,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-100:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 430,
+      "raw_source_row_index": 73,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-100:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 431,
+      "raw_source_row_index": 74,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-100:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 432,
+      "raw_source_row_index": 75,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-100:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 433,
+      "raw_source_row_index": 70,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-100:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 434,
+      "raw_source_row_index": 71,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-100:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 435,
+      "raw_source_row_index": 72,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-110": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 436,
+      "raw_source_row_index": 69,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-001"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-110:rx": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 437,
+      "raw_source_row_index": 79,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-005"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-110:ry": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 438,
+      "raw_source_row_index": 80,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-006"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-110:rz": {
+      "classification": "eligible",
+      "interpreted_dimension": "angle",
+      "packet_row_index": 439,
+      "raw_source_row_index": 81,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-007"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-110:ux": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 440,
+      "raw_source_row_index": 76,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-002"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-110:uy": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 441,
+      "raw_source_row_index": 77,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-003"
+    },
+    "result:loadcase:load-R-negative:disp:node-N-110:uz": {
+      "classification": "eligible",
+      "interpreted_dimension": "length",
+      "packet_row_index": 442,
+      "raw_source_row_index": 78,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-004"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 443,
+      "raw_source_row_index": 83,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:axial:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 444,
+      "raw_source_row_index": 84,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:midspan:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 445,
+      "raw_source_row_index": 101,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:midspan:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 446,
+      "raw_source_row_index": 102,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:midspan:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 447,
+      "raw_source_row_index": 103,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:quarter-1:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 448,
+      "raw_source_row_index": 95,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:quarter-1:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 449,
+      "raw_source_row_index": 96,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:quarter-1:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 450,
+      "raw_source_row_index": 97,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:quarter-3:axial": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 451,
+      "raw_source_row_index": 107,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-009"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:quarter-3:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 452,
+      "raw_source_row_index": 108,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:quarter-3:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 453,
+      "raw_source_row_index": 109,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:shear-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 454,
+      "raw_source_row_index": 85,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:shear-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 455,
+      "raw_source_row_index": 86,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-010"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:shear-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 456,
+      "raw_source_row_index": 87,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:loadcase:load-R-negative:force:pipe-P-100:shear-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 457,
+      "raw_source_row_index": 88,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-011"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 458,
+      "raw_source_row_index": 91,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:bending-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 459,
+      "raw_source_row_index": 92,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 460,
+      "raw_source_row_index": 93,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:bending-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 461,
+      "raw_source_row_index": 94,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:midspan:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 462,
+      "raw_source_row_index": 105,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:midspan:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 463,
+      "raw_source_row_index": 106,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:midspan:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 464,
+      "raw_source_row_index": 104,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:quarter-1:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 465,
+      "raw_source_row_index": 99,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:quarter-1:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 466,
+      "raw_source_row_index": 100,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:quarter-1:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 467,
+      "raw_source_row_index": 98,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:quarter-3:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 468,
+      "raw_source_row_index": 111,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:quarter-3:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 469,
+      "raw_source_row_index": 112,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:quarter-3:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 470,
+      "raw_source_row_index": 110,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 471,
+      "raw_source_row_index": 89,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:loadcase:load-R-negative:moment:pipe-P-100:torsion:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 472,
+      "raw_source_row_index": 90,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:loadcase:load-R-negative:reaction:support-S-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 473,
+      "raw_source_row_index": 82,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-008"
+    },
+    "result:loadcase:load-R-negative:solver-mode:linear-solve-basis": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 474,
+      "raw_source_row_index": 67,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-000"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 475,
+      "raw_source_row_index": 133,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-020"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:end-i:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 476,
+      "raw_source_row_index": 113,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:end-i:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 477,
+      "raw_source_row_index": 114,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:end-i:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 478,
+      "raw_source_row_index": 115,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:end-i:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 479,
+      "raw_source_row_index": 116,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:end-j:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 480,
+      "raw_source_row_index": 117,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:end-j:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 481,
+      "raw_source_row_index": 118,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:end-j:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 482,
+      "raw_source_row_index": 119,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:end-j:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 483,
+      "raw_source_row_index": 120,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:midspan:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 484,
+      "raw_source_row_index": 125,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:midspan:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 485,
+      "raw_source_row_index": 126,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:midspan:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 486,
+      "raw_source_row_index": 127,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:midspan:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 487,
+      "raw_source_row_index": 128,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:quarter-1:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 488,
+      "raw_source_row_index": 121,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:quarter-1:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 489,
+      "raw_source_row_index": 122,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:quarter-1:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 490,
+      "raw_source_row_index": 123,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:quarter-1:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 491,
+      "raw_source_row_index": 124,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:quarter-3:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 492,
+      "raw_source_row_index": 129,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:quarter-3:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 493,
+      "raw_source_row_index": 130,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:quarter-3:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 494,
+      "raw_source_row_index": 131,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:loadcase:load-R-negative:stress:pipe-P-100:quarter-3:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 495,
+      "raw_source_row_index": 132,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:moment:pipe-P-100:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 496,
+      "raw_source_row_index": 24,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:moment:pipe-P-100:bending-y:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 497,
+      "raw_source_row_index": 25,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:moment:pipe-P-100:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 498,
+      "raw_source_row_index": 26,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:moment:pipe-P-100:bending-z:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 499,
+      "raw_source_row_index": 27,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:moment:pipe-P-100:midspan:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 500,
+      "raw_source_row_index": 38,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:moment:pipe-P-100:midspan:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 501,
+      "raw_source_row_index": 39,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:moment:pipe-P-100:midspan:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 502,
+      "raw_source_row_index": 37,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:moment:pipe-P-100:quarter-1:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 503,
+      "raw_source_row_index": 32,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:moment:pipe-P-100:quarter-1:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 504,
+      "raw_source_row_index": 33,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:moment:pipe-P-100:quarter-1:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 505,
+      "raw_source_row_index": 31,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:moment:pipe-P-100:quarter-3:bending-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 506,
+      "raw_source_row_index": 44,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-013"
+    },
+    "result:moment:pipe-P-100:quarter-3:bending-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 507,
+      "raw_source_row_index": 45,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-014"
+    },
+    "result:moment:pipe-P-100:quarter-3:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 508,
+      "raw_source_row_index": 43,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:moment:pipe-P-100:torsion": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 509,
+      "raw_source_row_index": 22,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:moment:pipe-P-100:torsion:end-j": {
+      "classification": "eligible",
+      "interpreted_dimension": "moment",
+      "packet_row_index": 510,
+      "raw_source_row_index": 23,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-012"
+    },
+    "result:reaction:support-S-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "force",
+      "packet_row_index": 511,
+      "raw_source_row_index": 15,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-008"
+    },
+    "result:solver-mode:linear-solve-basis": {
+      "classification": "eligible",
+      "interpreted_dimension": "dimensionless",
+      "packet_row_index": 512,
+      "raw_source_row_index": 0,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-000"
+    },
+    "result:stress:pipe-P-100": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 513,
+      "raw_source_row_index": 66,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-020"
+    },
+    "result:stress:pipe-P-100:end-i:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 514,
+      "raw_source_row_index": 46,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:stress:pipe-P-100:end-i:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 515,
+      "raw_source_row_index": 47,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:stress:pipe-P-100:end-i:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 516,
+      "raw_source_row_index": 48,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:stress:pipe-P-100:end-i:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 517,
+      "raw_source_row_index": 49,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:stress:pipe-P-100:end-j:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 518,
+      "raw_source_row_index": 50,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:stress:pipe-P-100:end-j:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 519,
+      "raw_source_row_index": 51,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:stress:pipe-P-100:end-j:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 520,
+      "raw_source_row_index": 52,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:stress:pipe-P-100:end-j:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 521,
+      "raw_source_row_index": 53,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:stress:pipe-P-100:midspan:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 522,
+      "raw_source_row_index": 58,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:stress:pipe-P-100:midspan:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 523,
+      "raw_source_row_index": 59,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:stress:pipe-P-100:midspan:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 524,
+      "raw_source_row_index": 60,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:stress:pipe-P-100:midspan:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 525,
+      "raw_source_row_index": 61,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:stress:pipe-P-100:quarter-1:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 526,
+      "raw_source_row_index": 54,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:stress:pipe-P-100:quarter-1:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 527,
+      "raw_source_row_index": 55,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:stress:pipe-P-100:quarter-1:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 528,
+      "raw_source_row_index": 56,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:stress:pipe-P-100:quarter-1:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 529,
+      "raw_source_row_index": 57,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    },
+    "result:stress:pipe-P-100:quarter-3:axial-normal": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 530,
+      "raw_source_row_index": 62,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-015"
+    },
+    "result:stress:pipe-P-100:quarter-3:bending-normal-y": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 531,
+      "raw_source_row_index": 63,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-016"
+    },
+    "result:stress:pipe-P-100:quarter-3:bending-normal-z": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 532,
+      "raw_source_row_index": 64,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-017"
+    },
+    "result:stress:pipe-P-100:quarter-3:torsional-shear": {
+      "classification": "eligible",
+      "interpreted_dimension": "stress",
+      "packet_row_index": 533,
+      "raw_source_row_index": 65,
+      "reason": "accepted_contract",
+      "signature_id": "supported-source-018"
+    }
+  },
+  "row_index_semantics": "Witness source_row_index indexes deterministic packet result_rows order; raw producer ordinal is recorded separately and identity is joined by result_id.",
+  "semantic_contract": {
+    "export_profile_reference_present": true,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/fixtures/results/semantic_contract_v0_2.json",
+    "required_reference": {
+      "object_type": "ExternalReference",
+      "ref": "fixtures/results/semantic_contract_v0_2.json"
+    },
+    "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+    "signature_count": 60,
+    "unit_system_disclosure_reference_present": true
+  },
+  "source_output": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/execution/producer/combination_modulus.output_v2.json",
+    "raw_row_count": 534,
+    "rows_with_raw_dimension": 0,
+    "sha256_before_after": "b46256f8a2b84f880f8843f4acfa8019b415663894b9b2ccf993c1c1310d7027"
+  },
+  "status": "PASS",
+  "trace_statement": "Every emitted dimension was independently traced from raw kind/unit/component to derivative_target_dimension and signature_id in the accepted semantic contract; raw source values, units, rows and bytes were unchanged."
+}

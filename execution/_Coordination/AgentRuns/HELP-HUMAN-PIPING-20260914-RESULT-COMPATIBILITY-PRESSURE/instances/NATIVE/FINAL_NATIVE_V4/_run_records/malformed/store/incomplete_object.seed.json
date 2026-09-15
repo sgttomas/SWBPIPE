@@ -1,0 +1,13 @@
+{
+  "active_store": "/Users/ryan/Library/Application Support/org.openpipestress.foundation-v4-20260915/openpipestress-projects.sqlite3",
+  "app_process_required_absent_during_call": true,
+  "baseline_store_sha256": "f9ba6b34dbd377487568a3ec449f51e2b8501dfba52c8efd10b2f8291474643d",
+  "before_open_snapshot": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/malformed/store/incomplete_object.before_open.sqlite3",
+  "before_open_snapshot_sha256": "f9471f2c4c5184b81b044690fc37904ef821cc997ed246bd2ffdeef1d35e2590",
+  "case_id": "incomplete_object",
+  "mechanics_result_json": "{\"results\":[],\"run_id\":\"run:malformed-incomplete\",\"status\":{}}",
+  "mechanics_result_json_sha256": "87ed1b5712c2be6d5302bc1fb754a11f646f49019232a37d22fc2874a2076775",
+  "prepared_row": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/malformed/prepared/incomplete_object.json",
+  "prepared_row_sha256": "446df0a342e2b27a526e389576cb33f2583cd69ff4362c282d9674fcb26637a0",
+  "schema": "malformed-store-seed-capture-v5"
+}

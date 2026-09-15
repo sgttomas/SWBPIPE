@@ -1,0 +1,21 @@
+{
+  "schema": "malformed-historical-gui-observation-v4",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "case_id": "array",
+  "observation_source": "actual native CUA open/results/save/normal-quit sequence",
+  "visible_designation": "HISTORICAL SAVED RUN",
+  "visible_findings": [
+    "HISTORICAL_INPUT_MANIFEST_MISSING",
+    "HISTORICAL_MECHANICS_EVIDENCE_MALFORMED",
+    "HISTORICAL_RUN_EVIDENCE_INCOMPLETE"
+  ],
+  "visible_safe_fallback": "Run the bounded preview mechanics path to populate result summaries.",
+  "current_result_established": false,
+  "current_result_rows": 0,
+  "save_message": "Saved current project model snapshot without external file copies.",
+  "normal_quit_observed": true,
+  "owned_app_process_matches_after_quit": [
+    "58764 /bin/zsh -lc set -euo pipefail\\012BASE=/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914\\012RUN=\"$BASE/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE\"\\012V4=\"$RUN/instances/NATIVE/FINAL_NATIVE_V4\"\\012STORE='/Users/ryan/Library/Application Support/org.openpipestress.foundation-v4-20260915/openpipestress-projects.sqlite3'\\012TOKEN='org.openpipestress.foundation-v4-20260915'\\012python3 \"$RUN/instances/NATIVE/REPAIR_PREPARATION_V5/verify_malformed_unchanged_save_v5.py\" --prepared-row \"$V4/_run_records/malformed/prepared/array.json\" --store \"$STORE\" --report \"$V4/_run_records/malformed/verification/array.json\" --isolated-binding-token \"$TOKEN\"\\012python3 - <<'PY'\\012import json, pathlib, subprocess\\012v4=pathlib.Path('/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4')\\012needle='OpenPipeStress Foundation V4 20260915.app/Contents/MacOS/'\\012matches=[x.strip() for x in subprocess.run(['ps','-axo','pid=,command='],text=True,capture_output=True,check=True).stdout.splitlines() if needle in x]\\012obj={'schema':'malformed-historical-gui-observation-v4','candidate':'8ad37207cf088025623aa1e777a97a6fcb802f48','case_id':'array','observation_source':'actual native CUA open/results/save/normal-quit sequence','visible_designation':'HISTORICAL SAVED RUN','visible_findings':['HISTORICAL_INPUT_MANIFEST_MISSING','HISTORICAL_MECHANICS_EVIDENCE_MALFORMED','HISTORICAL_RUN_EVIDENCE_INCOMPLETE'],'visible_safe_fallback':'Run the bounded preview mechanics path to populate result summaries.','current_result_established':False,'current_result_rows':0,'save_message':'Saved current project model snapshot without external file copies.','normal_quit_observed':True,'owned_app_process_matches_after_quit':matches,'owned_app_process_absent_after_quit':not matches}\\012(v4/'_run_records/malformed/gui/array.json').write_text(json.dumps(obj,indent=2)+'\\n')\\012print(json.dumps({'verification':json.loads((v4/'_run_records/malformed/verification/array.json').read_text())['status'],'process_absent':not matches},indent=2))\\012PY\\012for side in \"$STORE-wal\" \"$STORE-shm\"; do test ! -e \"$side\" || { echo \"unexpected sidecar $side\" >&2; exit 1; }; done\\012python3 \"$RUN/instances/NATIVE/REPAIR_PREPARATION_V5/restore_seed_and_capture_store_v5.py\" --baseline-store \"$V4/_run_records/store/final500_baseline_before_malformed.sqlite3\" --active-store \"$STORE\" --prepared-row \"$V4/_run_records/malformed/prepared/incomplete_object.json\" --evidence-dir \"$V4/_run_records/malformed/store\" --isolated-binding-token \"$TOKEN\""
+  ],
+  "owned_app_process_absent_after_quit": false
+}

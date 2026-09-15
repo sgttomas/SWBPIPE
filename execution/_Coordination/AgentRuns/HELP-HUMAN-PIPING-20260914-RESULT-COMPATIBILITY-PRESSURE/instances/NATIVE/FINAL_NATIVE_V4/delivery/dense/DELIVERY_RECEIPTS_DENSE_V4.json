@@ -1,0 +1,53 @@
+{
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "delivery_path_addendum": "briefs/FINAL_NATIVE_V4_DELIVERY_PATH_ADDENDUM.md",
+  "files": [
+    {
+      "kind": "result",
+      "original_device": 16777232,
+      "original_inode": 96369021,
+      "original_mtime_ns": 1789453829535557217,
+      "original_path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (4).json",
+      "original_size": 3896632,
+      "sha256": "7804559e26690f643e68e70734a2933dbba17edb84cdb1e4c348d4920d880903",
+      "ui_receipt_bytes": 3896632,
+      "ui_receipt_filename": "openpipestress-preview-results-run-preview-linear-static-001 (4).json",
+      "verified_copy": "instances/NATIVE/FINAL_NATIVE_V4/delivery/dense/openpipestress-preview-results-run-preview-linear-static-001 (4).json",
+      "verified_copy_sha256": "7804559e26690f643e68e70734a2933dbba17edb84cdb1e4c348d4920d880903"
+    },
+    {
+      "kind": "stress",
+      "original_device": 16777232,
+      "original_inode": 96369041,
+      "original_mtime_ns": 1789453833929859570,
+      "original_path": "/Users/ryan/Downloads/openpipestress-preview-stress-neutral-result-envelope-run-preview-linear-static-001 (1).json",
+      "original_size": 2656491,
+      "sha256": "5b88bb7b8025901b3429e049c538f4bab6583d1c7165ed0c00cdba3da60d88d1",
+      "ui_receipt_bytes": 2656491,
+      "ui_receipt_filename": "openpipestress-preview-stress-neutral-result-envelope-run-preview-linear-static-001 (1).json",
+      "verified_copy": "instances/NATIVE/FINAL_NATIVE_V4/delivery/dense/openpipestress-preview-stress-neutral-result-envelope-run-preview-linear-static-001 (1).json",
+      "verified_copy_sha256": "5b88bb7b8025901b3429e049c538f4bab6583d1c7165ed0c00cdba3da60d88d1"
+    },
+    {
+      "kind": "stress_csv_materialized_from_delivered_json",
+      "original_inode_read": false,
+      "sha256": "f7b6483eea2b635e0a5e26e7efc9953f08e783e8739db548a7ecbc9b514acf43",
+      "size": 172580,
+      "source_original_path": "/Users/ryan/Downloads/openpipestress-preview-stress-neutral-result-envelope-run-preview-linear-static-001 (1).json",
+      "source_sha256": "5b88bb7b8025901b3429e049c538f4bab6583d1c7165ed0c00cdba3da60d88d1",
+      "verified_copy": "instances/NATIVE/FINAL_NATIVE_V4/delivery/dense/stress_neutral_results.from_delivered_json.csv"
+    }
+  ],
+  "mode": "dense_scrutiny",
+  "native_ui_observation": {
+    "result_export_rows": 778,
+    "result_receipt": "Saved openpipestress-preview-results-run-preview-linear-static-001 (4).json (3896632 bytes).",
+    "result_rows": 832,
+    "stress_members": 9,
+    "stress_receipt": "Saved openpipestress-preview-stress-neutral-result-envelope-run-preview-linear-static-001 (1).json (2656491 bytes).",
+    "stress_rows": 832,
+    "stress_validation": "blocked",
+    "stress_witness_count": 830
+  },
+  "schema_version": "1.0"
+}

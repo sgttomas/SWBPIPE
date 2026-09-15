@@ -1,0 +1,56 @@
+{
+  "project_id": "project:blank-local-20260915t063824z",
+  "capture": "undo350_before_redo",
+  "fields": {
+    "analysis_run_json": {
+      "file": "analysis_run_json.json",
+      "byte_count": 4,
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "editor_intents_json": {
+      "file": "editor_intents_json.json",
+      "byte_count": 16158,
+      "sha256": "96d2a863b952fb0a31714071a69f9a77e038f6f4be0d27093f92ff95b772e014"
+    },
+    "mechanics_result_json": {
+      "file": "mechanics_result_json.json",
+      "byte_count": 4,
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "model_hash_json": {
+      "file": "model_hash_json.json",
+      "byte_count": 261,
+      "sha256": "900b1d0b248559a9de417113d084f8941875585c00aed88875aa56a61f70c003"
+    },
+    "model_json": {
+      "file": "model_json.json",
+      "byte_count": 2717,
+      "sha256": "578ed0da4a4a1aa59eb20dfc2403a3b1fa912305a07ddeb39539c87833fdf028"
+    },
+    "model_migration_ledger_json": {
+      "file": "model_migration_ledger_json.json",
+      "byte_count": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "project_envelope_hash_json": {
+      "file": "project_envelope_hash_json.json",
+      "byte_count": 342,
+      "sha256": "78515ce6eccd0906fc3c008ded115b786d66ab3a19baaccd18695db2d0dec589"
+    },
+    "proposal_json": {
+      "file": "proposal_json.json",
+      "byte_count": 4,
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "selected_review_target_json": {
+      "file": "selected_review_target_json.json",
+      "byte_count": 4,
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    }
+  },
+  "mechanics": {
+    "result_count": 0,
+    "status": null
+  },
+  "model_exact_M350": true
+}

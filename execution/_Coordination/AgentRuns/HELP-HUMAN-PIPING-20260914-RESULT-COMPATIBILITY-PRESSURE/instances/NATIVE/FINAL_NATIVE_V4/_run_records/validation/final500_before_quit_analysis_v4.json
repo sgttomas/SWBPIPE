@@ -1,0 +1,100 @@
+{
+  "analysis_run": {
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "input_manifest_hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "object_type": "InputManifest",
+          "ref": "input-manifest:project-blank-local-20260915t063824z:927050a04b830d37abb7a9abaacf2c2bc705387be1ea4a8eda0c165e1abbc9c1"
+        },
+        "payload_scope": "input_manifest",
+        "value": "927050a04b830d37abb7a9abaacf2c2bc705387be1ea4a8eda0c165e1abbc9c1"
+      }
+    ],
+    "input_manifest_payload_persisted": false,
+    "input_manifest_refs": [
+      {
+        "object_type": "InputManifest",
+        "ref": "input-manifest:project-blank-local-20260915t063824z:927050a04b830d37abb7a9abaacf2c2bc705387be1ea4a8eda0c165e1abbc9c1"
+      }
+    ],
+    "known_semantic_signature_rows": 67,
+    "result_ref_count": 67,
+    "run_id": "run:preview-linear-static-001",
+    "semantics_unavailable_rows": 0
+  },
+  "checked_authority": {
+    "executable": "/private/tmp/piping-foundation-native-v4-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+    "executable_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+    "items_canonicalized": 69,
+    "protocol_profile": "openpipestress_jcs_ijson_v1"
+  },
+  "full_record_self_exclusion_checksum": {
+    "advertised": {
+      "algorithm": "sha256",
+      "canonicalization": "openpipestress_jcs_ijson_v1",
+      "payload_ref": {
+        "object_type": "AnalysisRun",
+        "ref": "run:preview-linear-static-001"
+      },
+      "payload_scope": "analysis_run_record",
+      "value": "720daf8161a34cfcf3cb08ff8f5c6749bdd24e8e6178d02dbed90dd66596c639"
+    },
+    "independently_computed": "720daf8161a34cfcf3cb08ff8f5c6749bdd24e8e6178d02dbed90dd66596c639",
+    "match": true,
+    "projection": "whole envelope with all analysis_run.hashes entries of payload_scope analysis_run_record removed"
+  },
+  "migration_ledger": {
+    "checks": {
+      "not_applicable_to_fresh_current_model": true
+    },
+    "envelope_note": "fresh current models may have an empty migration ledger; a migrated model has one create-time normalization record that is not asserted equal to the later solve/save envelope",
+    "record": null,
+    "record_count": 0
+  },
+  "received_result_checksum": {
+    "advertised": {
+      "algorithm": "sha256",
+      "canonicalization": "openpipestress_jcs_ijson_v1",
+      "payload_ref": {
+        "object_type": "ResultEnvelope",
+        "ref": "result-envelope:run:preview-linear-static-001"
+      },
+      "payload_scope": "received_result",
+      "value": "7559060ed2bbb8fc8cc35eccfb744483a086ed18aa0d202d51e06134dfaebe54"
+    },
+    "independently_computed": "7559060ed2bbb8fc8cc35eccfb744483a086ed18aa0d202d51e06134dfaebe54",
+    "match": true,
+    "payload": "exact parsed mechanics_result_json from same stored row"
+  },
+  "result_row_checksums": {
+    "count": 67,
+    "mismatches": [],
+    "status": "PASS"
+  },
+  "schema_validation": {
+    "dispatcher": "PASS",
+    "selected_schema": "analysis_run.v0.2.schema.json",
+    "selected_version": "0.2.0",
+    "strict_v0_2": "PASS"
+  },
+  "source_snapshot": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/store/final500_before_quit.row.json",
+  "status": "PASS",
+  "stored_field_sha256": {
+    "analysis_run_json": "7d827fbb924bded4df8dc83420bfcd7ee7c7fceccb56b44af8d945db3042bce1",
+    "editor_intents_json": "e6df62ae87fedab68e7905f493b8f6d55a7290b050a41c9470de3f9c5fd01377",
+    "mechanics_result_json": "7559060ed2bbb8fc8cc35eccfb744483a086ed18aa0d202d51e06134dfaebe54",
+    "model_hash_json": "b2b4a74efc2e486ac56a5327ca71c1235b4b7bc332eed4d7cb7593049504a0a8",
+    "model_json": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+    "model_migration_ledger_json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "project_envelope_hash_json": "733551ff01a7395f39b8493a58f43354f2e3f314d02d18a921ece8e1748143b1",
+    "proposal_json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+    "selected_review_target_json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+  }
+}

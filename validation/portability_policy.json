@@ -793,6 +793,198 @@
       "role": "EVIDENCE",
       "reason": "Completed and frozen V16 source/manager evidence records the actual compatibility checkout. Exact bytes and source assertions are preserved; this is a completed execution record, not an active instruction or future path exemption.",
       "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_COMPATIBILITY_FANIN_V4.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/composition_receipt.json",
+      "sha256": "17a487bb1bf146ab26af1f7c08613bb155deb9c5033f91554ba1f04623cccd4f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/f03_accounting_v8.json",
+      "sha256": "6fd091dbca7f5a9a2f546b83963ead10fda535097e6ad2a167334626db1f0fbd",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/combination_modulus/independent_verification.json",
+      "sha256": "739c90dfc711f764dc9c471abf968ad9e4e6591ebbc59dad823f4279dc09511c",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/composition_index.json",
+      "sha256": "699fd436c0c971a3579187ea0aced9251e1d2768b90ceaa236da2629a7dcd24f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/composition_receipt.json",
+      "sha256": "2e47b3a39ed7354e0154f1a9e950dee42c559affba6793b7d79132621468f8ea",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/f03_accounting_v8.json",
+      "sha256": "36911e3d86a0e0aa2d878ffcfc6f20b4ca20ae56c47408f710c12840866e2abc",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/curved/independent_verification.json",
+      "sha256": "5e774cee9a2ca8c6dde0225139030eacdc2a40d385d8f3f78673df29fcbbdb00",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/composition_receipt.json",
+      "sha256": "183ce022faf35f4e99a4788c4fb8d9314efc57843703b935a42f31f74375d730",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/f03_accounting_v8.json",
+      "sha256": "d4bd3b0cb2c39267894d4b31e7bfe1dec55146d3a09d9b28451c63fea2dacc37",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/friction/independent_verification.json",
+      "sha256": "5dc9223046a9b887063c034f589483889eb615c385988b4eb1af7481540e9609",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/composition_receipt.json",
+      "sha256": "506612f0662130e392f3cdbc8af442638c698be812df364cc60af941fcf73aa4",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/f03_accounting_v8.json",
+      "sha256": "c13647dd312c489e82981c2733945d21a7f9e920eac8747f4f563a51b2cbb83b",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/hanger_constant_effort/independent_verification.json",
+      "sha256": "a1a726b193c6b14633a50a939159789ea84166aaed8e23374220c833d6ec8aa0",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/independent_verification_index.json",
+      "sha256": "1530ef1db12949f99d7910714ba1bd275300c58b93350b05a68c5697ba190e5a",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/composition_receipt.json",
+      "sha256": "95f3e703074712df9c37e27430b004589914ba8189e9b8d425612b3cd45b3776",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/f03_accounting_v8.json",
+      "sha256": "c4e5235b0df7e76c3f49e0e9df034a70d716c4f4e202f775496c4992a9a28a0c",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/modulus/independent_verification.json",
+      "sha256": "b096326ba675aed2da60b74c93b00d2ce2fb7605c7be472aaf7c5a1271b2cc1e",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/composition_receipt.json",
+      "sha256": "a0002bba5bea4fba3660db8f28b74f7586c6944f3132c2842d5139da2a1e91db",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/f03_accounting_v8.json",
+      "sha256": "6375a7dd18422f0729632db643b06662669480009a1847eef317d6b792f5d316",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/rotational_nonlinear/independent_verification.json",
+      "sha256": "b1a03306f76bff6f727e2db99421789ec82a1a6d6eb93177693bde4ec5863c57",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/composition_receipt.json",
+      "sha256": "ab1d1e3ca69c100a1be87a0059f90d8ed9b97af120d577ab14bd10fe0ddf088e",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/f03_accounting_v8.json",
+      "sha256": "edd7c25ff062af2eede5bd572d22b0a49da99db35e451a178ba5dbc9848a87e9",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/consumer/zero_pressure_longitudinal/independent_verification.json",
+      "sha256": "5cf15bc9a9bcfbcf4b6a14497e4ab36c27accbea8ac3807a1a8d78bbed4bd2bd",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/delivery/dense/DELIVERY_RECEIPTS_DENSE_V4.json",
+      "sha256": "9237983c991f056baddea498b2213f4dfc56ce4e0f6868eb717e0bf2340fdae3",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
     }
   ],
   "control_path_exceptions": [

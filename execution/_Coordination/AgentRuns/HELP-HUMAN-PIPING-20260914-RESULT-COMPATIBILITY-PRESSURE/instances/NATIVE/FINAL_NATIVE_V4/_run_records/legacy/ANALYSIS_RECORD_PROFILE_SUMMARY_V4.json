@@ -1,0 +1,68 @@
+{
+  "schema": "analysis-record-profile-summary-v4",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "status": "PASS",
+  "current_v0_2": {
+    "source": "_run_records/validation/final500_before_quit_analysis_v4.json",
+    "status": "PASS"
+  },
+  "legacy": {
+    "desktop": {
+      "advertised_profile": [
+        "rfc8785_jcs",
+        "rfc8785_jcs",
+        "rfc8785_jcs"
+      ],
+      "claims": {
+        "result_value": "c8008b4be3aacdb9b9b298a090dd0f06fc9a7d83a2d598a96f0622448beb15b3",
+        "result_envelope": "927fcd42704a0804a6113aff012352d5e9c47575abb3bfcac35e601081783602",
+        "analysis_run_record": "b711c67fa1cfda2bc56fd5a8b75c7f18553ee6a31e7e2455b40933e0e7ae4300"
+      },
+      "calculated": {
+        "result_value": "c8008b4be3aacdb9b9b298a090dd0f06fc9a7d83a2d598a96f0622448beb15b3",
+        "result_envelope": "927fcd42704a0804a6113aff012352d5e9c47575abb3bfcac35e601081783602",
+        "analysis_run_record": "b711c67fa1cfda2bc56fd5a8b75c7f18553ee6a31e7e2455b40933e0e7ae4300"
+      },
+      "all_claims_match": true,
+      "native_normalized_unchanged_save": true,
+      "gui_findings": [
+        "HISTORICAL_INPUT_MANIFEST_MISSING"
+      ]
+    },
+    "python": {
+      "advertised_profile": [
+        "SORTED_COMPACT_JSON",
+        "SORTED_COMPACT_JSON",
+        "SORTED_COMPACT_JSON"
+      ],
+      "claims": {
+        "result_value": "9adc125432499c0fde185120d7054fa04a286ab50a51f41a48a428a0b7a5c660",
+        "result_envelope": "d27eb73060b667037df946650dfbc818fa331ec87a646897ef6f064eabd9e2d5",
+        "analysis_run_record": "350694f7e4dc460ca037513ba44cedc0e77341291db6a1d99c0e4cbe3b8e9742"
+      },
+      "calculated": {
+        "result_value": "9adc125432499c0fde185120d7054fa04a286ab50a51f41a48a428a0b7a5c660",
+        "result_envelope": "d27eb73060b667037df946650dfbc818fa331ec87a646897ef6f064eabd9e2d5",
+        "analysis_run_record": "350694f7e4dc460ca037513ba44cedc0e77341291db6a1d99c0e4cbe3b8e9742"
+      },
+      "all_claims_match": true,
+      "native_normalized_unchanged_save": true,
+      "gui_findings": [
+        "HISTORICAL_INPUT_MANIFEST_MISSING",
+        "HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE"
+      ]
+    }
+  },
+  "python_numeric_type_loss_boundary": {
+    "claim": "Maintained test exercises JSON numeric-type loss and expects legacy result preimage to remain explicitly unverifiable; the actual GUI fixture shows the matching result-unverifiable outcome but does not inject a distinct 1.0-vs-1 carrier.",
+    "maintained_test": "apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+    "maintained_test_sha256": "6d5a762e6d7e1b6238eb3eb8873e83f88904af6986a84b52f13049f4061f94c9",
+    "actual_gui_injection_claim": false
+  },
+  "external_seed_normalization_boundary": "V1 insertion-order external seed normalized semantically on first native Save; V2 native-normalized seeds remained byte exact. No byte-preservation claim is made for arbitrary external serialization.",
+  "baseline_store_restored": {
+    "baseline_sha256": "f9ba6b34dbd377487568a3ec449f51e2b8501dfba52c8efd10b2f8291474643d",
+    "active_sha256": "f9ba6b34dbd377487568a3ec449f51e2b8501dfba52c8efd10b2f8291474643d",
+    "exact": true
+  }
+}

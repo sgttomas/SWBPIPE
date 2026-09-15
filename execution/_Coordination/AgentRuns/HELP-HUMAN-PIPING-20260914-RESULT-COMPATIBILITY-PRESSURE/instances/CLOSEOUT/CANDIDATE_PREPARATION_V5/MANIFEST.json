@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "status": "PREPARATION_ONLY",
+  "hash_algorithm": "sha256",
+  "self_excluded": true,
+  "files": [
+    {"path": "METADATA_PATCH_PLAN.md", "sha256": "88b9556e902d5b1c2cbd7419f57d490f9a8e7d4e45303bcd0b14fd8b6ae4b851"},
+    {"path": "PR_DRAFT.md", "sha256": "011c96e519ac422c5c0ead3c2c26aa7d831bacd1a79933aa9cbf3dbf90b44fa0"},
+    {"path": "RECEIPT_141_UNAPPLIED.md", "sha256": "bc40015d66ac84e960032df0cd86b842feabb948baccbfd5ecfc4b943557464f"},
+    {"path": "RETURN.md", "sha256": "949a071819b781f9a4d5aa38d572ddcc9565652137d55ce3407c05b4bfc93218"},
+    {"path": "_run_records/CONTEXT_MANIFEST.json", "sha256": "438123b2c61fc4e286261fd14f81a998f153644552bc5a5548ed696d901df72a"}
+  ]
+}

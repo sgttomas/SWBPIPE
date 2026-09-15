@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "result_count": 67,
+  "comparisons": {
+    "model_json.json": {
+      "before_sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+      "after_sha256": "db1705b6b2f774d51dbc4e042f29283d147140e6669e3e0c154c4ff59054105f",
+      "exact": true
+    },
+    "mechanics_result_json.json": {
+      "before_sha256": "7559060ed2bbb8fc8cc35eccfb744483a086ed18aa0d202d51e06134dfaebe54",
+      "after_sha256": "7559060ed2bbb8fc8cc35eccfb744483a086ed18aa0d202d51e06134dfaebe54",
+      "exact": true
+    },
+    "analysis_run_json.json": {
+      "before_sha256": "7d827fbb924bded4df8dc83420bfcd7ee7c7fceccb56b44af8d945db3042bce1",
+      "after_sha256": "7d827fbb924bded4df8dc83420bfcd7ee7c7fceccb56b44af8d945db3042bce1",
+      "exact": true
+    },
+    "model_hash_json.json": {
+      "before_sha256": "b2b4a74efc2e486ac56a5327ca71c1235b4b7bc332eed4d7cb7593049504a0a8",
+      "after_sha256": "b2b4a74efc2e486ac56a5327ca71c1235b4b7bc332eed4d7cb7593049504a0a8",
+      "exact": true
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "final-native-v4-sparse-delivery-receipts-v1",
+  "items": [
+    {
+      "kind": "result",
+      "native_action_receipt_filename": "openpipestress-preview-results-run-preview-linear-static-001 (3).json",
+      "receipt_byte_count": 3890214,
+      "original_path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (3).json",
+      "original_inode_read": true,
+      "original_inode": 96368245,
+      "original_sha256": "ed9a5a36f18059fff8e43d2e91568f9d33c7e50f34bf13e823538077f990cd94",
+      "evidence_copy": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/delivery/sparse/openpipestress-preview-results-run-preview-linear-static-001 (3).json",
+      "copy_sha256": "ed9a5a36f18059fff8e43d2e91568f9d33c7e50f34bf13e823538077f990cd94",
+      "copy_bytes": 3890214,
+      "copy_exact": true
+    },
+    {
+      "kind": "stress",
+      "native_action_receipt_filename": "openpipestress-preview-stress-neutral-result-envelope-run-preview-linear-static-001.json",
+      "receipt_byte_count": 2650163,
+      "original_path": "/Users/ryan/Downloads/openpipestress-preview-stress-neutral-result-envelope-run-preview-linear-static-001.json",
+      "original_inode_read": true,
+      "original_inode": 96368290,
+      "original_sha256": "a6ed64c90ff67135c98b58c8bcdc4c53fa21400024c503a4336d49dfd70e95bf",
+      "evidence_copy": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/delivery/sparse/openpipestress-preview-stress-neutral-result-envelope-run-preview-linear-static-001.json",
+      "copy_sha256": "a6ed64c90ff67135c98b58c8bcdc4c53fa21400024c503a4336d49dfd70e95bf",
+      "copy_bytes": 2650163,
+      "copy_exact": true
+    },
+    {
+      "kind": "stress_csv_materialized_from_actual_native_delivered_json",
+      "product_suggested_name": "openpipestress-preview-stress-neutral-result-envelope-run-preview-linear-static-001.csv",
+      "original_inode_read": false,
+      "source_json": "openpipestress-preview-stress-neutral-result-envelope-run-preview-linear-static-001.json",
+      "source_field": "csv_text",
+      "evidence_copy": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/delivery/sparse/stress_neutral_results.from_delivered_json.csv",
+      "sha256": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a",
+      "bytes": 172162
+    }
+  ]
+}

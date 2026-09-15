@@ -1,0 +1,73 @@
+{
+  "created_utc": "2026-09-15T06:10:29.304301+00:00",
+  "candidate_commit": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "results": [
+    {
+      "name": "agent_instructions",
+      "args": [
+        "tools/validation/validate_agent_instructions.py",
+        "--json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "workflow_metadata",
+      "args": [
+        "tools/validation/validate_workflow_metadata.py",
+        "--json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "conflict_markers",
+      "args": [
+        "tools/validation/validate_conflict_markers.py",
+        "--base",
+        "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+        "--head",
+        "HEAD"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "G0",
+      "args": [
+        "tools/validation/validate_root_materialization_fence.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "G1",
+      "args": [
+        "tools/validation/validate_root_harness_adapter.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "G2",
+      "args": [
+        "tools/validation/validate_root_surface_ownership.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "G3",
+      "args": [
+        "tools/validation/validate_root_work_graph_dispatch.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "G4",
+      "args": [
+        "tools/validation/validate_instruction_tranche_manifest.py",
+        "--base",
+        "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+        "--head",
+        "HEAD",
+        "--added-manifests-only"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

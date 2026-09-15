@@ -1,0 +1,13 @@
+{
+  "schema": "final-native-v4-process-scan-v1",
+  "boundary": "final500_after_historical_unchanged_save_normal_quit",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "patterns": [
+    "org.openpipestress.foundation-v4-20260915",
+    "OpenPipeStress Foundation V4 20260915",
+    "piping-foundation-native-v4-20260915"
+  ],
+  "matches": [],
+  "owned_app_process_absent": true,
+  "raw_ps_scope": "ps -ax -o pid=,ppid=,state=,etime=,command="
+}

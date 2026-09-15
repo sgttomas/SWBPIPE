@@ -1,0 +1,62 @@
+{
+  "schema": "final-native-v4-failure-ledger-v1",
+  "candidate": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "acceptance_blockers": [],
+  "preserved_nonblocking_failures": [
+    {
+      "id": "runner_reuse_precheck_extra_file",
+      "evidence": "_run_records/execution/RUNNER_REUSE_PRECHECK_V4.json",
+      "observation": "126 observed versus 125 expected aggregate inputs because an ignored Python __pycache__ file was included by the coarse inventory. Maintained 125 input paths matched; reuse remained denied and a conservative fresh runner build became authority.",
+      "resolution": "fresh build bound in _run_records/execution/FRESH_BUILD_BINDING_V4_V2.json"
+    },
+    {
+      "id": "producer_missing_private_intent",
+      "evidence": "_run_records/execution/commands/producer_combination_modulus.record.json",
+      "observation": "Initial exact runner invocation intentionally omitted --explicit-local-private-intent and exited 1.",
+      "resolution": "Preserved denial; successful authority is producer_combination_modulus_v2.record.json and the other v2 producer records with explicit intent."
+    },
+    {
+      "id": "consumer_incomplete_load_basis",
+      "evidence": "_run_records/execution/commands/final_consumers_v4.stderr.txt",
+      "observation": "Initial V3 case map lacked complete load-case basis and failed INPUT-MANIFEST-LOAD-BASIS-INCOMPLETE.",
+      "resolution": "Corrected exact request binding in CASE_MAP_BOUND_V4.json; final_consumers_v4_v2 exit 0 and consumer verification index PASS."
+    },
+    {
+      "id": "dense_cantilever_setting_difference",
+      "evidence": "_run_records/lifecycle/350_dense_observed/mechanics_result_json.json",
+      "observation": "Inherited dense_scrutiny mode emitted one additional sparse/dense parity diagnostic row (68 total).",
+      "resolution": "Preserved dense evidence; canonical authored lifecycle used frozen sparse_interactive and 67 rows without model edits."
+    },
+    {
+      "id": "agent_batch_missing_source",
+      "evidence": "_run_records/lifecycle/agent500/agent_human_model_parity.json",
+      "observation": "Initial evidence-local agent request lacked the complete source object and was rejected before application. Raw UI tool observation remains in execution history.",
+      "resolution": "Corrected request supplied offline synthetic source metadata; reviewed application matched human and H500 oracle exactly."
+    },
+    {
+      "id": "array_process_scan_self_match",
+      "evidence": "_run_records/malformed/gui/array.process_scan_self_match_preserved.json",
+      "observation": "A command-line process scan matched its own shell command because the argument text contained the app-path literal.",
+      "resolution": "Corrected comm-only scan in malformed/gui/array.json shows the app absent."
+    },
+    {
+      "id": "legacy_external_seed_insertion_order",
+      "evidence": "_run_records/legacy/verification/legacy_desktop_v1_normalization_observation.json",
+      "observation": "Externally seeded insertion-order JSON was normalized by first native Save; semantic objects stayed exact but four serialized strings changed key order.",
+      "resolution": "V2 helper seeded native-normalized canonical strings; desktop and Python unchanged-save reports PASS. No arbitrary external-serialization byte-preservation claim."
+    },
+    {
+      "id": "closeout_wrong_table_query",
+      "evidence": "tool command output only",
+      "observation": "First baseline restoration summary queried nonexistent table projects after the byte-exact copy completed.",
+      "resolution": "Corrected query used local_projects; seven-carrier summary PASS and SQLite integrity ok."
+    },
+    {
+      "id": "guard_title_parameterization",
+      "evidence": "_run_records/validation/MAINTAINED_GUARD_ATTRIBUTION_V4_V1_PRESERVED.json",
+      "observation": "V1 source attribution searched for expanded it.each titles rather than the literal parameterized title.",
+      "resolution": "MAINTAINED_GUARD_ATTRIBUTION_V4.json V2 binds the literal title and apply/validate cases; PASS_SOURCE_ATTRIBUTION."
+    }
+  ],
+  "product_defects_observed": []
+}
