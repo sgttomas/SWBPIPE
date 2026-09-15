@@ -201,21 +201,63 @@ def test_run_contract_status_uses_sca_003_local_project_store():
 
 
 def test_analysis_run_schema_binds_physical_container_to_sca_003_profile():
-    schema = json.loads(ANALYSIS_RUN_SCHEMA_PATH.read_text(encoding="utf-8"))
-    defs = schema["$defs"]
-    contract = defs["RunContractStatus"]["properties"]
-    physical = defs["PhysicalProjectContainer"]["properties"]
+    schema = analysis_run_schema()
+    envelope = build_run()
 
-    assert (
-        contract["physical_project_container"]["$ref"]
-        == "#/$defs/PhysicalProjectContainer"
-    )
-    assert physical["profile"]["const"] == "sqlite_local_project_store"
-    assert physical["decision_ref"]["const"] == "SCA-003"
-    assert "sorted_compact_json_payload" in physical["canonical_truth"]["enum"]
-    assert "backward compatibility" in physical["canonical_truth"]["description"]
-    assert physical["sql_public_contract"]["const"] is False
-    assert physical["direct_sql_access_allowed"]["const"] is False
+    try:
+        assert validate_schema_document(schema, schema_label=str(ANALYSIS_RUN_SCHEMA_PATH))
+
+        for canonical_truth in (
+            "sorted_compact_json_payload",
+            "canonical_json_jcs_payload",
+        ):
+            accepted = deepcopy(envelope)
+            accepted["run_contract_status"]["physical_project_container"][
+                "canonical_truth"
+            ] = canonical_truth
+            assert validate_instance(
+                schema,
+                accepted,
+                schema_label=str(ANALYSIS_RUN_SCHEMA_PATH),
+                instance_label=f"SCA-003 container using {canonical_truth}",
+            )
+
+        invalid_containers = {}
+        for field, value in (
+            ("profile", "hosted_database_project_store"),
+            ("decision_ref", "SCA-999"),
+            ("storage_role", "canonical_sql_database"),
+            ("canonical_truth", "sqlite_rows"),
+            ("sql_public_contract", True),
+            ("direct_sql_access_allowed", True),
+            ("hosted_db_allowed", True),
+            ("network_required", True),
+            ("sidecars_rebuildable", False),
+        ):
+            physical = deepcopy(PHYSICAL_PROJECT_CONTAINER)
+            physical[field] = value
+            invalid_containers[f"invalid {field}"] = physical
+
+        missing_profile = deepcopy(PHYSICAL_PROJECT_CONTAINER)
+        del missing_profile["profile"]
+        invalid_containers["missing profile"] = missing_profile
+        invalid_containers["non-object container"] = []
+
+        for label, physical in invalid_containers.items():
+            rejected = deepcopy(envelope)
+            rejected["run_contract_status"]["physical_project_container"] = physical
+            try:
+                validate_instance(
+                    schema,
+                    rejected,
+                    schema_label=str(ANALYSIS_RUN_SCHEMA_PATH),
+                    instance_label=f"{label} SCA-003 container",
+                )
+            except AssertionError:
+                continue
+            raise AssertionError(f"dispatcher schema accepted {label} SCA-003 container")
+    except JsonSchemaDependencyMissing as exc:
+        _skip_or_note_missing_jsonschema(exc)
 
 
 def test_result_refs_bind_computed_result_ids_to_hashes():

@@ -1,0 +1,118 @@
+{
+  "schema": "piping-bounded-test-repair-evidence-v1",
+  "sealed_utc": "2026-09-15T08:18:56Z",
+  "status": "TEST_ONLY_REPAIR_READY",
+  "role": "TASK / Type 2",
+  "actual_model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "parent": "HELP_HUMAN / Agent 0",
+  "delegation": {
+    "mechanism": "Codex delegated-harness-native descendant",
+    "child_delegation_performed": false
+  },
+  "checkout": {
+    "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-foundation-schema-test-20260915",
+    "working_root": "/Users/ryan/.codex/worktrees/8728/chirality-foundation-schema-test-20260915/projects/chirality-piping",
+    "branch": "codex/piping-foundation-schema-test-20260915",
+    "source_basis_commit": "7945fa29be9033a746f0a6cd8dff56c7591b6d55",
+    "initial_worktree_clean": true
+  },
+  "brief": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/F12_SCHEMA_CONTAINER_TEST_REPAIR_V1.md",
+    "sha256": "598f5d4157ef9ef0a8763fc3374dde6c349b892a22980a0c83f65ea5b1ae6a34"
+  },
+  "diagnosis": "The failed test indexed top-level $defs in analysis_run.schema.json. That file is now an exact-version dispatcher; the Python 0.1 definitions remain in analysis_run.v0.1.schema.json. The generated Python 0.1 record already passed dispatcher validation, so this was a stale test-layout assumption and not a product/schema defect.",
+  "repair": {
+    "source_path": "tests/test_analysis_run_records.py",
+    "before_sha256": "32b84518b856c4ebc7f5960d3b40dbe4cbd8d2eaa6f019f19898a6a4aa56616d",
+    "after_sha256": "b40df20cceac6ebcf85ec7111b005fd57cfcad64b46947897ddcabaa91c15a04",
+    "behavior": {
+      "accepted_through_dispatcher": [
+        "generated Python 0.1 record with sorted_compact_json_payload",
+        "generated Python 0.1 record with retained canonical_json_jcs_payload compatibility label"
+      ],
+      "rejected_through_dispatcher": [
+        "invalid profile",
+        "invalid decision_ref",
+        "invalid storage_role",
+        "invalid canonical_truth",
+        "sql_public_contract=true",
+        "direct_sql_access_allowed=true",
+        "hosted_db_allowed=true",
+        "network_required=true",
+        "sidecars_rebuildable=false",
+        "missing required profile",
+        "non-object physical_project_container"
+      ]
+    },
+    "exact_diff": {
+      "path": "exact_source.diff",
+      "sha256": "2757c8caa1f9ad51c45d98c1d3a7b787d7b19e8ec2a8d01c30a5e9cdb71cbb54",
+      "bytes": 3649
+    }
+  },
+  "pre_repair_evidence": {
+    "summary_path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/DEC025_V1/summaries/SWEEP_20260915T080502Z_7945fa29be90.json",
+    "summary_sha256": "6a6b88a4f975d02370ec150ec38e7d3a6fa99b0cc1ce01b21409132732052d46",
+    "log_path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/DEC025_V1/full_sweep.log",
+    "log_sha256": "167ab31a188a93b7351aa306f2281d6e3a019bb4a9c408f7cd32ae546dc9e7c1",
+    "result": "1 failed, 1104 passed; KeyError: '$defs' at tests/test_analysis_run_records.py:205"
+  },
+  "commands": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson /private/tmp/piping-foundation-20260914-venv/bin/python -m pytest -q tests/test_analysis_run_records.py tests/test_analysis_run_compatibility.py",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-foundation-schema-test-20260915/projects/chirality-piping",
+      "exit_code": 0,
+      "result": "24 passed, 110 warnings in 8.06s",
+      "raw_log": {
+        "path": "focused_pytest.log",
+        "sha256": "418a8128debe1430ac828cc103aa34e25db52c7ba75b8578dd8df41cb490be7a",
+        "bytes": 944
+      }
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-foundation-schema-test-20260915",
+      "exit_code": 0,
+      "result": "pass",
+      "raw_log": {
+        "path": "diff_check.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  ],
+  "runtime_inputs": {
+    "python_path": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "python_version": "3.13.14",
+    "python_sha256": "1a2e543a5426f665b9f321d391995b46e985fbea8df2a5bea86d7210c603460a",
+    "checked_json_path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson",
+    "checked_json_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9"
+  },
+  "read_hashes": {
+    "AGENTS.md": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+    "projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "schemas/analysis_run.schema.json": "b787444e0a421c995fac4d393c16c28e4e3e84496196d5c2914a7bb082e43e86",
+    "schemas/analysis_run.v0.1.schema.json": "112d18290dd168d33293fad5597a08fbb45fa022105eb0d490ccd8cd0b89cab8",
+    "tests/schema_validation.py": "c15fe440720c3fbb54d4098b4c83478a900b4b0e538adc19d354a77fb6314085",
+    "tests/test_analysis_run_compatibility.py": "d8e7aade831b38671926d189bbd9c0db24a96fe3e70e6454123ddecf3bc96a5a",
+    "docs/_ScopeChange/SCA-003_2026-05-17_1658/Authority.md": "8b90511d30ab363a6339b5de1714f0dcfb91cf4262138a3d4a464bb699a3ab94"
+  },
+  "scope_calibration": {
+    "source_writes": [
+      "projects/chirality-piping/tests/test_analysis_run_records.py"
+    ],
+    "evidence_writes": [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SCHEMA_TEST_F12/**"
+    ],
+    "production_or_schema_writes": false,
+    "git_mutation": false,
+    "cargo_or_build": false,
+    "native_or_browser": false,
+    "network": false,
+    "delegation": false,
+    "broad_suite_rerun": false
+  },
+  "handoff": "Root owns independent review, integration, and the complete DEC-025 rerun."
+}

@@ -1,0 +1,111 @@
+{
+  "schema": "root-captured-additive-review-return-v1",
+  "capture_utc": "2026-09-15T08:16:31.214863+00:00",
+  "attribution": "Root-authored structured capture of the actual foundation_final_review message; child did not write this file. Candidate cleanliness is the reviewer\u2019s completed cut, before Root imported the failed sweep.",
+  "candidate": "7945fa29be9033a746f0a6cd8dff56c7591b6d55",
+  "source_basis": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "base": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "agent": "/root/foundation_final_review",
+  "parent": "/root",
+  "role": "TASK / Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "execution": "Read-only static inspection; no writes, runtime execution, tests, builds, GUI, network or delegation.",
+  "verdict": "REVIEW_COMPLETE_WITH_DRAFT_FINDING",
+  "native_source_evidence_verdict": "PASS",
+  "findings": [
+    {
+      "priority": "P2",
+      "paths": [
+        "instances/CLOSEOUT/CANDIDATE_PREPARATION_V5/METADATA_PATCH_PLAN.md:80",
+        "instances/CLOSEOUT/CANDIDATE_PREPARATION_V5/PR_DRAFT.md:7"
+      ],
+      "title": "Scope historical-byte preservation to native-normalized records",
+      "detail": "The drafts promise historical-byte preservation without its native-normalized boundary. The preserved external insertion-order seed changes four serialized fields on first native save. Successor text must distinguish native-normalized unchanged-save byte preservation from external first-save normalization while retaining advertised claims and profile-specific verification limits. Preserve V5 unchanged.",
+      "root_disposition": "Accepted; repair successor actual metadata/PR, not product or immutable V5."
+    }
+  ],
+  "coverage": {
+    "committed_paths": 1792,
+    "covered_paths": 1792,
+    "maintained_unchanged_v6_paths": 76,
+    "changed_paths_since_v6": 458,
+    "ordered_lf_terminated_path_list_sha256": "1969b75b2423f8eff79e3d4beb680aecb6cd2f72aa915e90e05e02c0a31f50db"
+  },
+  "verified_exact": {
+    "native_entries": 406,
+    "native_result_bindings": 35,
+    "source_bindings": 76,
+    "v6_contexts": 58,
+    "prior_component_cut_files": 154,
+    "policy_additions": 24,
+    "v5_draft_manifest_entries": 5,
+    "metadata_before_hashes": 13
+  },
+  "checks": [
+    "All final500 original delivered files/inodes and all nine materialized members agree, including CSV bytes.",
+    "All15strict cantilever comparisons pass at5.001e-7; maximum error4.351331034102568e-7.",
+    "Load-only model delta, undo/redo/agent hashes and four recovered payloads match.",
+    "Seven malformed carriers, both legacy profiles, build/failure-lineage/cleanup evidence are consistently qualified.",
+    "No wildcard or active-control policy exemption; only24exact completed EVIDENCE additions.",
+    "Mutable handoff advanced from the V5 context observation; sealed drafts did not drift."
+  ],
+  "calibration": [
+    "GUI actions are native-agent observations. Early lifecycle transcription has no contemporaneously persisted AX/screenshot/process files; stored bytes do not independently prove actions.",
+    "Guard attribution is source evidence pending registered execution.",
+    "Standalone CSV control is withheld; successful evidence concerns extraction/materialization from delivered JSON."
+  ],
+  "outside_cut": [
+    "complete DEC025",
+    "combined acceptance",
+    "successor metadata/receipt/readiness/PR text",
+    "hosted CI",
+    "merge"
+  ],
+  "input_bindings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_NATIVE_EVIDENCE_REVIEW_V1.md",
+      "sha256": "cea45b3b0e2d862014c97424762778fbca80ab262673da5f504d122ca07bd9a9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/FINAL_NATIVE_RESULT_V4.json",
+      "sha256": "1d3ec53caaa003d820c5291080d84c465d1baa9e03905c6591e5078adcbdd600"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/EVIDENCE_MANIFEST_V4.json",
+      "sha256": "e04ba928e8163197b74f00d76ccc6c64816fbacfcd13248093cb8d6b121039a2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/LEASE_RELEASE_V4.json",
+      "sha256": "9518e28d0d8242f50c24b3973c20b3fb549e7970cb8d39936c2e562711ee7593"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json",
+      "sha256": "03ee5f8aa7065454746840579cd6dd610a5934875cadb0f58c659c4712a38dbd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V6.json",
+      "sha256": "ad18bceaa8e6d958a9182d94f5f6095619fe197eb227c1234edae1abea56dc72"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/COMPLETED_NATIVE_COMPONENT_REVIEW_CUT_V1.json",
+      "sha256": "69d68aecdca259ff14699c8298000a0aa479905dc03a2b0742f6ec86d080a3a1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/NATIVE_CANTILEVER_BACKCHECK_V1.json",
+      "sha256": "5b8d849fe75fa6086dcfdda0381703006b5f7bc5f69265fe1efe53afa0de443e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/NATIVE_FULL60_BACKCHECK_V1.json",
+      "sha256": "ecf93c09e189e89a819e3ad6177e69abd83c6b020d839f624547dd40f522d002"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/UI_INTERFACE_SOURCE_BINDING_V1.json",
+      "sha256": "d6e40b7e497b4123e8fd64258a3535f01d7277ffa55c4b7e907aa57313b012aa"
+    },
+    {
+      "path": "projects/chirality-piping/validation/portability_policy.json",
+      "sha256": "d1c20889e3a866139707799e610e47828b62a53c1ae4d41385262ee9a66ef5c4"
+    }
+  ]
+}

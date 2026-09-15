@@ -1,0 +1,39 @@
+{
+  "schema": "root-f12-test-integration-v1",
+  "created_utc": "2026-09-15T08:22:06.199733+00:00",
+  "status": "INTEGRATED_TEST_REPAIR_PENDING_INDEPENDENT_REVIEW",
+  "source_base": "7945fa29be9033a746f0a6cd8dff56c7591b6d55",
+  "test_file": "projects/chirality-piping/tests/test_analysis_run_records.py",
+  "before_sha256": "32b84518b856c4ebc7f5960d3b40dbe4cbd8d2eaa6f019f19898a6a4aa56616d",
+  "after_sha256": "b40df20cceac6ebcf85ec7111b005fd57cfcad64b46947897ddcabaa91c15a04",
+  "original_76_source_files_unchanged": true,
+  "total_changed_maintained_files_against_planning_base": 77,
+  "child_evidence_imported": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SCHEMA_TEST_F12/RETURN.md",
+      "sha256": "1055306cb11ab5fd3c89b31bda49c423012db48532aa4de1dc7618a21e527445"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SCHEMA_TEST_F12/_run_records/F12_V1/EXECUTION_RESULT_V1.json",
+      "sha256": "1b1daae61895ce83c4df7cff87881f9362290767b16abe0b42f4857b267c5db6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SCHEMA_TEST_F12/_run_records/F12_V1/diff_check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SCHEMA_TEST_F12/_run_records/F12_V1/focused_pytest.log",
+      "sha256": "418a8128debe1430ac828cc103aa34e25db52c7ba75b8578dd8df41cb490be7a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SCHEMA_TEST_F12/_run_records/F12_V1/exact_source.diff",
+      "sha256": "2757c8caa1f9ad51c45d98c1d3a7b787d7b19e8ec2a8d01c30a5e9cdb71cbb54"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SCHEMA_TEST_F12/_run_records/F12_V1/git_status.log",
+      "sha256": "6fc01190e7fef28d86e6386e6ebdfc7a120e42a9d2b91f711d45bee6e48ba089"
+    }
+  ],
+  "native_reuse": "The only new maintained delta is this regression test. All76V6sources and native build inputs remain unchanged; native V4 acceptance is retained.",
+  "root_disposition": "The obsolete schema-layout assertion is replaced with actual dispatcher acceptance/rejection under the existing SCA003 contract. No schema/product change or new criteria. Independent review and complete sweep rerun required before publication."
+}

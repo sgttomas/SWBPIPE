@@ -1,0 +1,42 @@
+{
+  "schema": "root-complete-dec025-execution-v1",
+  "started_utc": "2026-09-15T08:04:54.950667+00:00",
+  "finished_utc": "2026-09-15T08:08:18.320114+00:00",
+  "candidate_commit": "7945fa29be9033a746f0a6cd8dff56c7591b6d55",
+  "working_tree_clean_before": true,
+  "source_review_commit": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+  "source_files_before_exact": 76,
+  "explicit_setup_command": [
+    "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "tools/serialization/build_checked_json.py"
+  ],
+  "explicit_setup_exit_code": 0,
+  "checked_cli": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson",
+    "sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9"
+  },
+  "command": [
+    "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "tools/release/run_evidence_sweep.py",
+    "--execute",
+    "--require-capability",
+    "host",
+    "--output-dir",
+    "/private/tmp/piping-foundation-dec025-20260915-v1/summaries"
+  ],
+  "exit_code": 1,
+  "head_after": "7945fa29be9033a746f0a6cd8dff56c7591b6d55",
+  "status_after": "",
+  "source_mismatches_after": [],
+  "summaries": [
+    {
+      "path": "/private/tmp/piping-foundation-dec025-20260915-v1/summaries/SWEEP_20260915T080502Z_7945fa29be90.json",
+      "sha256": "6a6b88a4f975d02370ec150ec38e7d3a6fa99b0cc1ce01b21409132732052d46"
+    }
+  ],
+  "logs": {
+    "checked_json_setup.log": "5f47d837885360379b833807d64ca79613079abc2a2d0122a4dc158de3071f86",
+    "full_sweep.log": "167ab31a188a93b7351aa306f2281d6e3a019bb4a9c408f7cd32ae546dc9e7c1"
+  },
+  "status": "FAIL_OR_REQUIRES_ADJUDICATION"
+}

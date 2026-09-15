@@ -1,0 +1,63 @@
+{
+  "schema": "root-captured-f12-review-return-v1",
+  "capture_utc": "2026-09-15T08:29:45.256529+00:00",
+  "attribution": "Root-authored structured capture of the actual collaboration final return; reviewer did not write this file.",
+  "verdict": "PASS_SOURCE_REVIEW",
+  "reviewer": "/root/foundation_final_review",
+  "parent": "/root",
+  "role": "TASK / Type 2",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "no_delegation": true,
+  "candidate": "7945fa29be9033a746f0a6cd8dff56c7591b6d55",
+  "candidate_state": "Explicitly supplied uncommitted test delta and coordination/evidence additions",
+  "coverage": {
+    "f12_delta_percent": 100,
+    "maintained_paths_cumulative": 77,
+    "unchanged_v6_paths": 76
+  },
+  "findings": [],
+  "test": {
+    "path": "projects/chirality-piping/tests/test_analysis_run_records.py",
+    "before_sha256": "32b84518b856c4ebc7f5960d3b40dbe4cbd8d2eaa6f019f19898a6a4aa56616d",
+    "after_sha256": "b40df20cceac6ebcf85ec7111b005fd57cfcad64b46947897ddcabaa91c15a04"
+  },
+  "input_bindings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/F12_SCHEMA_TEST_REVIEW_V1.md",
+      "sha256": "8a80940abefe2345477e8dc3f8b295f6479138774dcfc191a3eb6306a00dc9bb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SCHEMA_TEST_F12/RETURN.md",
+      "sha256": "1055306cb11ab5fd3c89b31bda49c423012db48532aa4de1dc7618a21e527445"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SCHEMA_TEST_F12/_run_records/F12_V1/EXECUTION_RESULT_V1.json",
+      "sha256": "1b1daae61895ce83c4df7cff87881f9362290767b16abe0b42f4857b267c5db6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SCHEMA_TEST_F12/_run_records/F12_V1/exact_source.diff",
+      "sha256": "2757c8caa1f9ad51c45d98c1d3a7b787d7b19e8ec2a8d01c30a5e9cdb71cbb54"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/F12_INTEGRATION_V1.json",
+      "sha256": "d2c1fa71b61e2ffc164fa4236b2a202447852472b6aca40b08f5951444e72852"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/DEC025_V1/summaries/SWEEP_20260915T080502Z_7945fa29be90.json",
+      "sha256": "6a6b88a4f975d02370ec150ec38e7d3a6fa99b0cc1ce01b21409132732052d46"
+    }
+  ],
+  "conclusions": [
+    "Both accepted canonical-truth labels and 11 invalid field/shape cases exercise the public dispatcher; no private top-level $defs or descriptive-wording dependency.",
+    "Valid cases establish the schema/dependency path before rejection checks; unexpected non-validation exceptions propagate.",
+    "Missing-dependency handling retains the explicit skip convention; recorded focused execution has 24 passes and zero skips.",
+    "Read-context hashes, focused logs, configured Python and checked-JSON executable hashes match. Working diff equals sealed diff.",
+    "No production or schema change; native V4 remains reusable."
+  ],
+  "execution_limits": "Read-only review; no tests, builds, writes, runtime actions or delegation.",
+  "remaining": [
+    "Complete DEC-025 rerun",
+    "Separate earlier P2 draft wording finding must close in successor metadata/PR review"
+  ]
+}
