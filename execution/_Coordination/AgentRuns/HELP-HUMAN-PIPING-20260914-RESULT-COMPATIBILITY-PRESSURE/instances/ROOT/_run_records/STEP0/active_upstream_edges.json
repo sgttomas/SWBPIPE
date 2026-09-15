@@ -1,0 +1,274 @@
+[
+  {
+    "DependencyID": "DAG-002-E0140",
+    "FromDeliverableID": "DEL-05-03",
+    "TargetDeliverableID": "DEL-00-01",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0141",
+    "FromDeliverableID": "DEL-05-03",
+    "TargetDeliverableID": "DEL-00-02",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0142",
+    "FromDeliverableID": "DEL-05-03",
+    "TargetDeliverableID": "DEL-00-03",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0143",
+    "FromDeliverableID": "DEL-05-03",
+    "TargetDeliverableID": "DEL-00-06",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0144",
+    "FromDeliverableID": "DEL-05-03",
+    "TargetDeliverableID": "DEL-00-08",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0454",
+    "FromDeliverableID": "DEL-05-03",
+    "TargetDeliverableID": "DEL-04-02",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_STATUS.md; core/loads/stress_recovery/src/lib.rs"
+  },
+  {
+    "DependencyID": "DAG-002-E0455",
+    "FromDeliverableID": "DEL-05-03",
+    "TargetDeliverableID": "DEL-03-08",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_STATUS.md; core/loads/stress_recovery/src/lib.rs"
+  },
+  {
+    "DependencyID": "DAG-002-E0456",
+    "FromDeliverableID": "DEL-05-03",
+    "TargetDeliverableID": "DEL-05-01",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_STATUS.md; core/loads/stress_recovery/src/lib.rs"
+  },
+  {
+    "DependencyID": "DAG-002-E0457",
+    "FromDeliverableID": "DEL-05-03",
+    "TargetDeliverableID": "DEL-02-02",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "core/loads/stress_recovery/src/lib.rs; core/loads/primitive_loads/src/lib.rs; core/loads/stress_recovery/README.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0458",
+    "FromDeliverableID": "DEL-05-03",
+    "TargetDeliverableID": "DEL-05-04",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/_STATUS.md; schemas/analysis_status.schema.yaml"
+  },
+  {
+    "DependencyID": "DAG-002-E0674",
+    "FromDeliverableID": "DEL-14-02",
+    "TargetDeliverableID": "DEL-00-01",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/_Decomposition/SOFTWARE_DECOMP.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0675",
+    "FromDeliverableID": "DEL-14-02",
+    "TargetDeliverableID": "DEL-00-02",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/_Decomposition/SOFTWARE_DECOMP.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0676",
+    "FromDeliverableID": "DEL-14-02",
+    "TargetDeliverableID": "DEL-00-03",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/_Decomposition/SOFTWARE_DECOMP.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0677",
+    "FromDeliverableID": "DEL-14-02",
+    "TargetDeliverableID": "DEL-00-04",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/_Decomposition/SOFTWARE_DECOMP.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0678",
+    "FromDeliverableID": "DEL-14-02",
+    "TargetDeliverableID": "DEL-00-06",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/_Decomposition/SOFTWARE_DECOMP.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0679",
+    "FromDeliverableID": "DEL-14-02",
+    "TargetDeliverableID": "DEL-00-07",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/_Decomposition/SOFTWARE_DECOMP.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0680",
+    "FromDeliverableID": "DEL-14-02",
+    "TargetDeliverableID": "DEL-00-08",
+    "SatisfactionStatus": "SATISFIED",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/_Decomposition/SOFTWARE_DECOMP.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0783",
+    "FromDeliverableID": "DEL-14-02",
+    "TargetDeliverableID": "DEL-14-01",
+    "SatisfactionStatus": "TBD",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0784",
+    "FromDeliverableID": "DEL-14-02",
+    "TargetDeliverableID": "DEL-05-04",
+    "SatisfactionStatus": "TBD",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0785",
+    "FromDeliverableID": "DEL-14-02",
+    "TargetDeliverableID": "DEL-08-02",
+    "SatisfactionStatus": "TBD",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0786",
+    "FromDeliverableID": "DEL-14-02",
+    "TargetDeliverableID": "DEL-08-04",
+    "SatisfactionStatus": "TBD",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md"
+  },
+  {
+    "DependencyID": "DAG-002-E0787",
+    "FromDeliverableID": "DEL-14-02",
+    "TargetDeliverableID": "DEL-02-05",
+    "SatisfactionStatus": "TBD",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md"
+  },
+  {
+    "DependencyID": "DEL-17-06-D001",
+    "FromDeliverableID": "DEL-17-06",
+    "TargetDeliverableID": "DEL-17-01",
+    "SatisfactionStatus": "TBD",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "Procedure.md"
+  },
+  {
+    "DependencyID": "DEL-17-06-D002",
+    "FromDeliverableID": "DEL-17-06",
+    "TargetDeliverableID": "DEL-17-02",
+    "SatisfactionStatus": "TBD",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "_DEPENDENCIES.md"
+  },
+  {
+    "DependencyID": "DEL-17-06-D003",
+    "FromDeliverableID": "DEL-17-06",
+    "TargetDeliverableID": "DEL-08-04",
+    "SatisfactionStatus": "TBD",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "_DEPENDENCIES.md"
+  },
+  {
+    "DependencyID": "DEL-17-06-D004",
+    "FromDeliverableID": "DEL-17-06",
+    "TargetDeliverableID": "DEL-14-02",
+    "SatisfactionStatus": "TBD",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "_DEPENDENCIES.md"
+  },
+  {
+    "DependencyID": "DEL-17-06-D005",
+    "FromDeliverableID": "DEL-17-06",
+    "TargetDeliverableID": "DEL-14-05",
+    "SatisfactionStatus": "TBD",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "_DEPENDENCIES.md"
+  },
+  {
+    "DependencyID": "DEL-17-06-AB-01",
+    "FromDeliverableID": "DEL-17-06",
+    "TargetDeliverableID": "DEL-00-01",
+    "SatisfactionStatus": "PENDING",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "_CONTEXT.md"
+  },
+  {
+    "DependencyID": "DEL-17-06-AB-02",
+    "FromDeliverableID": "DEL-17-06",
+    "TargetDeliverableID": "DEL-00-02",
+    "SatisfactionStatus": "PENDING",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "_CONTEXT.md"
+  },
+  {
+    "DependencyID": "DEL-17-06-AB-03",
+    "FromDeliverableID": "DEL-17-06",
+    "TargetDeliverableID": "DEL-00-03",
+    "SatisfactionStatus": "PENDING",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "_CONTEXT.md"
+  },
+  {
+    "DependencyID": "DEL-17-06-AB-04",
+    "FromDeliverableID": "DEL-17-06",
+    "TargetDeliverableID": "DEL-00-04",
+    "SatisfactionStatus": "PENDING",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "_CONTEXT.md"
+  },
+  {
+    "DependencyID": "DEL-17-06-AB-06",
+    "FromDeliverableID": "DEL-17-06",
+    "TargetDeliverableID": "DEL-00-06",
+    "SatisfactionStatus": "PENDING",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "_CONTEXT.md"
+  },
+  {
+    "DependencyID": "DEL-17-06-AB-07",
+    "FromDeliverableID": "DEL-17-06",
+    "TargetDeliverableID": "DEL-00-07",
+    "SatisfactionStatus": "PENDING",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "_CONTEXT.md"
+  },
+  {
+    "DependencyID": "DEL-17-06-AB-08",
+    "FromDeliverableID": "DEL-17-06",
+    "TargetDeliverableID": "DEL-00-08",
+    "SatisfactionStatus": "PENDING",
+    "RequiredMaturity": "SEMANTIC_READY",
+    "EvidenceFile": "_CONTEXT.md"
+  }
+]

@@ -1,0 +1,47 @@
+{
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+  "root_resolution": "explicit integration checkout from sealed brief; no Git command performed",
+  "parent": "/root",
+  "instance": "/root/foundation_setup",
+  "role": "TASK / Type 2",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "medium",
+  "actual_model_verification": "Model configuration supplied by dispatch/brief; backend model identity and reasoning are not independently exposed by available local tools. No substitution asserted.",
+  "files": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+      "read": true
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "read": true
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "read": true
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/SETUP.md",
+      "sha256": "f7b51cd10bb8a1019bb35210b24b6e86eeaed922e5d556b5bcd931fa6a21cdc4",
+      "read": true
+    }
+  ],
+  "owner_message": {
+    "origin": "full forked user message containing PLEASE IMPLEMENT THIS PLAN",
+    "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SETUP/_run_records/OWNER_MESSAGE.md",
+    "sha256": "1927b09d3ce84f403c68a745e579e3b21457fa10954aebd2d91af137734a87e0",
+    "transcription": "complete message text manually transcribed from supplied context; terminal newline included; original transport bytes not available"
+  },
+  "additional_supplied_context": "Fork included older Root AGENTS text anchored at original checkout, broader conversation and bundled skill catalogs; not adopted as a substitute for read integration-checkout instruction bytes. Full fork context transport hash unavailable.",
+  "baseline_claim": "supplied, not independently revalidated",
+  "mechanism": "delegated-harness-native",
+  "enforcement": "role, scopes and non-delegation instruction-asserted; danger-full-access host does not mechanically contain this child scope",
+  "tools_used": [
+    "exec_command for scoped file inspection and evidence writes",
+    "apply_patch for canonical approval copy"
+  ],
+  "excluded_actions_performed": false
+}

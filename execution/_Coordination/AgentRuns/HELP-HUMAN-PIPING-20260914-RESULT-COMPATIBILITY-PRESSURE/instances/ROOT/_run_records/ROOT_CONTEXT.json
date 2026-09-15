@@ -1,0 +1,55 @@
+{
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "root_requested_allocation": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "high"
+  },
+  "runtime_identity_limit": "Agent 0 allocation is user-specified; no separate exact host model attestation is exposed by these tools.",
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64"
+    },
+    {
+      "path": "agents/AGENT_HELP_HUMAN.md",
+      "sha256": "0c2fe7a3097ad26c93c0267e4da6aaf90c9264489df8dc368fad657bcac69183"
+    },
+    {
+      "path": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "a1ad58ec66928331f25ab36b6829c431fefc6421aa1ec8ccf6ff1ac1ee23989e"
+    },
+    {
+      "path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+      "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "sha256": "1010ee8745a332b9b124609645a59edf395b04f583471f700e356f65b59eed86"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/_LATEST.md",
+      "sha256": "9491c6a5b5663e12d00805e2360e623ad79ca65d2ebfdb1ea99f2affa5974f87"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_LATEST.md",
+      "sha256": "bec89d13b8c56b77f803eaf6be7c188e3a1d478b927468811f05dab2c00aa30c"
+    }
+  ],
+  "original_local_handoff": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md",
+    "sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+    "preserved": true
+  }
+}

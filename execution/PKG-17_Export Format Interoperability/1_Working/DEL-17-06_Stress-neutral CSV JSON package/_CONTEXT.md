@@ -53,3 +53,7 @@ Define and implement stress-neutral CSV/JSON exports for review, regression comp
 ## SCA-004 Control-Surface Note
 - This control surface was created by PREPARATION-style scaffolding on 2026-05-18 from SOFTWARE_DECOMP revision 0.7 and companion registers.
 - This pass does not produce production four-document content, implementation artifacts, lifecycle promotion beyond OPEN, release claims, professional claims, or DAG-005 approval.
+
+## D-67 bounded versioned compatibility adoption — 2026-09-14
+
+The existing Python sorted-compact JSON requirement above remains the 0.1 profile. The owner-approved 0.2 successor uses the checked shared Rust `openpipestress_jcs_ijson_v1` profile, preserves received checksum evidence separately, and retains the separately labeled CSV contract. See `ScopeOfWork.md` CLM-042 and `execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md`. This bounded contract amendment does not change decomposition, lifecycle or dependency satisfaction.

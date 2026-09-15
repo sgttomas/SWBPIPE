@@ -522,8 +522,16 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > Do not describe `canonical_json` as JCS. Preserve exact sorted-key compact Python JSON bytes and the precise `deterministic_sorted_compact_json_payload_hash` label unless a later governed change introduces and proves an RFC 8785 implementation.
 
+### CLM-042 — Versioned 0.2 JSON hash successor (D-67; 2026-09-14)
+
+The owner-approved bounded foundation plan adopts a strict stress-neutral 0.2.0 successor. CLM-018 and CLM-041 continue to govern the 0.1 family unchanged. The 0.2 family uses the shared Rust canonicalization authority with the checked `openpipestress_jcs_ijson_v1` input profile for JSON member, manifest-seed and package hashes. CSV retains its separately labeled normalized ASCII/LF text contract.
+
+Received source checksum metadata is preserved separately from newly computed package checksums. Exact versioned payload projections bind each checksum; the complete package checksum excludes only its own carrier. This is a versioned contract change and supplies no relabeling or verification of historical Python bytes. Complete emitted-payload schema validation, byte/hash parity, source preservation and declared-member materialization are required by the adopted plan.
+
+Authority: `execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md`. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-046 SOW-074 OBJ-007 OBJ-017 OBJ-018 | CLM-010 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-001 | SOW-046 SOW-074 OBJ-007 OBJ-017 OBJ-018 | CLM-010, CLM-042 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |

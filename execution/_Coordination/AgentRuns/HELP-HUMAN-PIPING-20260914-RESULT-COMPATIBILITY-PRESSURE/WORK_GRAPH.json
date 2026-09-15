@@ -1,0 +1,107 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE",
+  "mechanism": "delegated-harness-native",
+  "active_limit": 6,
+  "root_is_active": true,
+  "status_calibration": "Planned nodes are not evidence of launched instances. Agent 0 records actual launches, substitutions, settings, scopes and returns.",
+  "constraints": [
+    "Type 2 does not delegate",
+    "one product writer per workstream",
+    "disjoint writer scopes",
+    "serialize native builds, GUI/browser witnesses and final Git integration",
+    "after two unsuccessful repair cycles without new evidence, assign fresh Astra diagnosis"
+  ],
+  "nodes": [
+    {
+      "id": "root",
+      "parent": null,
+      "role": "HELP_HUMAN",
+      "type": 0,
+      "requested_model": "gpt-6-astra",
+      "requested_reasoning": "high",
+      "scope": "scope, contract decisions, integration and acceptance",
+      "status": "planned; launch not witnessed by SETUP"
+    },
+    {
+      "id": "compatibility",
+      "parent": "root",
+      "role": "WORKING_ITEMS",
+      "type": 1,
+      "requested_model": "gpt-5.6-sol",
+      "requested_reasoning": "high",
+      "scope": "DEL-14-02 analysis and explicit consumers / DEL-17-06 package ownership",
+      "status": "planned; launch not witnessed by SETUP"
+    },
+    {
+      "id": "compatibility_writer",
+      "parent": "compatibility",
+      "role": "TASK",
+      "type": 2,
+      "requested_model": "gpt-5.6-sol",
+      "requested_reasoning": "high",
+      "scope": "one compatibility product writer and focused tests",
+      "status": "planned; launch not witnessed by SETUP"
+    },
+    {
+      "id": "pressure_writer",
+      "parent": "root",
+      "role": "TASK",
+      "type": 2,
+      "requested_model": "gpt-5.6-sol",
+      "requested_reasoning": "high",
+      "scope": "DEL-05-03 private module, declaration and focused tests",
+      "status": "planned; launch not witnessed by SETUP"
+    },
+    {
+      "id": "pressure_oracle",
+      "parent": "root",
+      "role": "TASK",
+      "type": 2,
+      "requested_model": "gpt-6-astra",
+      "requested_reasoning": "xhigh",
+      "scope": "independent pressure expectations and refutation; no implementation imports",
+      "status": "planned; launch not witnessed by SETUP"
+    },
+    {
+      "id": "integrated_review",
+      "parent": "root",
+      "role": "TASK",
+      "type": 2,
+      "requested_model": "gpt-6-astra",
+      "requested_reasoning": "high",
+      "scope": "fresh read-only software-code-review of complete frozen diff",
+      "status": "planned; launch not witnessed by SETUP"
+    },
+    {
+      "id": "native_witness",
+      "parent": "root",
+      "role": "TASK",
+      "type": 2,
+      "requested_model": "gpt-5.6-sol",
+      "requested_reasoning": "high",
+      "scope": "serialized native lifecycle verification",
+      "status": "planned; launch not witnessed by SETUP"
+    },
+    {
+      "id": "git_evidence",
+      "parent": "root",
+      "role": "TASK",
+      "type": 2,
+      "requested_model": "gpt-5.6-sol",
+      "requested_reasoning": "medium",
+      "scope": "serialized scoped Git closeout and evidence packaging",
+      "status": "planned; launch not witnessed by SETUP"
+    }
+  ],
+  "temporary_setup": {
+    "id": "foundation_setup",
+    "parent": "root",
+    "role": "TASK",
+    "type": 2,
+    "configured_model": "gpt-5.6-sol",
+    "configured_reasoning": "medium",
+    "status": "executed setup scope; return emitted separately",
+    "no_delegation": true,
+    "enforcement": "instruction-asserted; host permissions broader than sealed write scope"
+  }
+}

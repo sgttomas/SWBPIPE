@@ -1,0 +1,6 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 tools/practitioner_harness/harness.py self-check",
+  "exit_code": 2,
+  "output": "ERROR: PyYAML is required to read domain-engine profiles but is not importable in this interpreter (operational error, exit 2).\n",
+  "recovery": "Task-local Python 3.13 venv provisioned with the registered requirements; subsequent Step 0 passes."
+}

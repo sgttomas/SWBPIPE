@@ -1,0 +1,54 @@
+{
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "python": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+  "python_version": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "checks": [
+    {
+      "name": "receipt_validation",
+      "argv": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "exit_code": 0,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/STEP0/receipt_validation.txt",
+      "sha256": "6d9e68656876c5256e15d52b56bb4b0ee6b5a88b6372d2fe4d4333c16143e8a5"
+    },
+    {
+      "name": "self_check",
+      "argv": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ],
+      "exit_code": 0,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/STEP0/self_check.txt",
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+    },
+    {
+      "name": "deliverable_status",
+      "argv": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "projects/chirality-piping/tools/coordination/list_deliverable_status.py",
+        "--dag",
+        "DAG-010",
+        "--format",
+        "table",
+        "--summary"
+      ],
+      "exit_code": 0,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/STEP0/deliverable_status.txt",
+      "sha256": "59f483e0f008ba547936477a598dcd03488c03f5419c9cdf0ca5b7e05a77faa9"
+    }
+  ],
+  "initial_environment_failure": "System python3 could not import PyYAML; isolated task Python provisioned from requirements-dev.txt plus pytest/numpy. Failed first attempt preserved separately.",
+  "receipt": "Receipt-140",
+  "formal_basis": {
+    "decomposition": "0.12",
+    "scope_change": "SCA-009",
+    "DAG": "DAG-010",
+    "stage": "R5"
+  },
+  "upstream_edge_policy": "PENDING formal rows remain unchanged. Explicit user-approved bounded implementation consumes existing source/design contracts; no dependency satisfaction or whole-deliverable selection is inferred."
+}

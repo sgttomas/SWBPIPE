@@ -1,0 +1,50 @@
+[
+  {
+    "agent": "/root/foundation_setup",
+    "parent": "/root",
+    "role": "TASK",
+    "model": "gpt-5.6-sol",
+    "reasoning": "medium",
+    "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/SETUP.md",
+    "status": "returned",
+    "brief_sha256": "f7b51cd10bb8a1019bb35210b24b6e86eeaed922e5d556b5bcd931fa6a21cdc4",
+    "mechanism": "delegated-harness-native",
+    "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host"
+  },
+  {
+    "agent": "/root/foundation_compatibility",
+    "parent": "/root",
+    "role": "WORKING_ITEMS",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_MANAGER.md",
+    "status": "running_contract_freeze",
+    "brief_sha256": "6ac6f48e3d69d363fbfb20698f3c10bb6512d23e983e148a77b3b8b51431b4d2",
+    "mechanism": "delegated-harness-native",
+    "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host"
+  },
+  {
+    "agent": "/root/foundation_pressure_oracle",
+    "parent": "/root",
+    "role": "TASK",
+    "model": "gpt-6-astra",
+    "reasoning": "xhigh",
+    "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_ORACLE.md",
+    "status": "running_independent_expectations",
+    "brief_sha256": "a8a7698db46115949cef72a47ae5467554dec7a0183b168116df504f0440d25a",
+    "mechanism": "delegated-harness-native",
+    "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host"
+  },
+  {
+    "agent": "/root/foundation_pressure",
+    "parent": "/root",
+    "role": "TASK",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_IMPLEMENTATION.md",
+    "status": "running_readonly_intake_pending_oracle",
+    "brief_sha256": "4740a6cdb7ef8490a0fee48a5c1a8cd65e1ff43665397cb7a306d824628e4423",
+    "mechanism": "delegated-harness-native",
+    "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host"
+  }
+]

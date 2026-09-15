@@ -1,0 +1,22 @@
+{
+  "status": "PASS setup scope; integration acceptance remains pending",
+  "outputs": {
+    "APPROVED_PLAN.md": "8dc764d047439756ae788c12dd2f19e5e827f5dd3429a857faeade620e3c121d",
+    "OWNER_DIRECTION.md": "02726e30d98c8a9a79188a45b31800d1a1c69a4f05fc4e4acf8f475d4f82f249",
+    "WORK_GRAPH.json": "e082c683bb08464d9d680ea159d6e3c49e2b6de73f234746fd631cd909a55f3e",
+    "instances/SETUP/_run_records/OWNER_MESSAGE.md": "1927b09d3ce84f403c68a745e579e3b21457fa10954aebd2d91af137734a87e0",
+    "instances/SETUP/_run_records/CONTEXT.json": "79b12799b22087e29799b536e3d7b087689585f4bfc41bcf6ed5e4e15a128ef6"
+  },
+  "acceptance": [
+    "canonical full supplied owner message preserved",
+    "source-bound instruction and brief hashes recorded",
+    "planned graph preserves six-active limit and serialization",
+    "no product edits, builds, app/network actions, Git actions or delegation"
+  ],
+  "limitations": [
+    "original user transport bytes and complete fork-context hash unavailable",
+    "configured backend model identity not independently verified",
+    "Step 0 and current formal basis verification reserved to Agent 0",
+    "portable historical pressure anchor not inspected"
+  ]
+}
