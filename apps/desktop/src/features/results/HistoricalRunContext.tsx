@@ -122,8 +122,20 @@ function isExactLegacyDesktopEnvelope(record: AnalysisRunEnvelope): boolean {
     && Array.isArray(reproducibility.input_manifest_refs) && reproducibility.input_manifest_refs.length === 1 && reproducibility.input_manifest_refs.every(isRef) && Array.isArray(reproducibility.input_manifest_hashes) && reproducibility.input_manifest_hashes.length === 1 && isHash(reproducibility.input_manifest_hashes[0], "input_manifest") && Array.isArray(reproducibility.determinism_notes) && reproducibility.determinism_notes.every((item: unknown) => typeof item === "string") && Array.isArray(reproducibility.unresolved_tbd) && reproducibility.unresolved_tbd.every((item: unknown) => typeof item === "string")
     && exactKeys(immutable, ["run_record_is_read_only", "mutation_policy", "new_run_required_for_change", "hash_invalidates_external_acceptance"])
     && immutable.run_record_is_read_only === true && immutable.mutation_policy === "changes_create_new_analysis_run" && immutable.new_run_required_for_change === true && immutable.hash_invalidates_external_acceptance === true
-    && exactKeys(boundary, ["human_review_required", "software_makes_compliance_claim", "software_makes_certification_claim", "software_makes_sealing_claim", "software_makes_approval_claim", "software_makes_authentication_claim"])
-    && boundary.human_review_required === true && boundary.software_makes_compliance_claim === false && boundary.software_makes_certification_claim === false && boundary.software_makes_sealing_claim === false && boundary.software_makes_approval_claim === false && boundary.software_makes_authentication_claim === false;
+    && exactKeys(boundary, [
+      "human_review_required",
+      "software_makes_compliance_claim",
+      "software_makes_certification_claim",
+      "software_makes_sealing_claim",
+      "software_makes_approval_claim",
+      "software_makes_authentication_claim"
+    ])
+    && boundary.human_review_required === true
+    && boundary.software_makes_compliance_claim === false
+    && boundary.software_makes_certification_claim === false
+    && boundary.software_makes_sealing_claim === false
+    && boundary.software_makes_approval_claim === false
+    && boundary.software_makes_authentication_claim === false;
 }
 
 function isExactLegacyPythonEnvelope(record: AnalysisRunEnvelope): boolean {
@@ -152,7 +164,20 @@ function isExactLegacyPythonEnvelope(record: AnalysisRunEnvelope): boolean {
     && exactKeys(run.solver_version, ["solver_name", "solver_version", "build_ref", "provenance"]) && typeof run.solver_version.solver_name === "string" && run.solver_version.solver_name.length > 0 && typeof run.solver_version.solver_version === "string" && run.solver_version.solver_version.length > 0 && isRef(run.solver_version.build_ref) && isProvenance(run.solver_version.provenance) && isProvenance(run.provenance)
     && exactKeys(reproducibility, ["input_manifest_refs", "input_manifest_hashes", "environment_refs", "determinism_notes", "unresolved_tbd"]) && Array.isArray(reproducibility.input_manifest_refs) && reproducibility.input_manifest_refs.every(isRef) && Array.isArray(reproducibility.input_manifest_hashes) && reproducibility.input_manifest_hashes.every((item: any) => exactKeys(item, ["algorithm", "canonicalization", "payload_ref", "payload_scope", "value"]) && item.algorithm === "sha256" && item.canonicalization === "JCS" && isRef(item.payload_ref) && item.payload_scope === "input_manifest" && /^[0-9a-f]{64}$/.test(item.value)) && Array.isArray(reproducibility.environment_refs) && reproducibility.environment_refs.every(isRef) && Array.isArray(reproducibility.determinism_notes) && reproducibility.determinism_notes.every((item: unknown) => typeof item === "string") && Array.isArray(reproducibility.unresolved_tbd) && reproducibility.unresolved_tbd.every((item: unknown) => typeof item === "string")
     && exactKeys(immutable, ["run_record_is_read_only", "mutation_policy", "new_run_required_for_change", "hash_invalidates_external_acceptance"]) && immutable.run_record_is_read_only === true && immutable.mutation_policy === "changes_create_new_analysis_run" && immutable.new_run_required_for_change === true && immutable.hash_invalidates_external_acceptance === true
-    && exactKeys(boundary, ["human_review_required", "software_makes_compliance_claim", "software_makes_certification_claim", "software_makes_sealing_claim", "software_makes_approval_claim", "software_makes_authentication_claim"]) && boundary.human_review_required === true && boundary.software_makes_compliance_claim === false && boundary.software_makes_certification_claim === false && boundary.software_makes_sealing_claim === false && boundary.software_makes_approval_claim === false && boundary.software_makes_authentication_claim === false;
+    && exactKeys(boundary, [
+      "human_review_required",
+      "software_makes_compliance_claim",
+      "software_makes_certification_claim",
+      "software_makes_sealing_claim",
+      "software_makes_approval_claim",
+      "software_makes_authentication_claim"
+    ])
+    && boundary.human_review_required === true
+    && boundary.software_makes_compliance_claim === false
+    && boundary.software_makes_certification_claim === false
+    && boundary.software_makes_sealing_claim === false
+    && boundary.software_makes_approval_claim === false
+    && boundary.software_makes_authentication_claim === false;
 }
 
 async function verifyLegacyDesktopAnalysis(record: AnalysisRunEnvelope, received: MechanicsResult): Promise<LegacyDesktopVerification> {

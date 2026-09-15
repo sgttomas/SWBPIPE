@@ -1,0 +1,94 @@
+{
+  "schema": "root-f11-source-integration-v1",
+  "created_utc": "2026-09-15T06:04:31.423935+00:00",
+  "checkpoint": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/TASK_WRITER/SOURCE_CHECKPOINT_V16.json",
+    "sha256": "06c045e318fb1af44cab19d4f30607db43ae9e9a6c167d181db47446b3e1e9f5"
+  },
+  "compatibility_source_verified": 74,
+  "integrated_source_delta": [
+    {
+      "after_bytes": 18398,
+      "after_sha256": "1a778fb7b7c3f424cbf0394c0b3b3cc8dd174ecaae5863392236d92bb2cc6404",
+      "before_bytes": 15651,
+      "before_sha256": "79cf87307740379a9f3056a5bbbbae710d5f82b62a5231b3f19142e8deaf7af7",
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts"
+    },
+    {
+      "after_bytes": 29433,
+      "after_sha256": "65992bea9d927f4bfff80572190c344dc1d26882c019eb41e1b7c0f2ee78318e",
+      "before_bytes": 29156,
+      "before_sha256": "9660a2fa3d9730906e2c1eb610b54b832d666a10a5d2d6aa7588d18fe89e8fcf",
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts"
+    },
+    {
+      "after_bytes": 32573,
+      "after_sha256": "a433e7df1e8e942bd90eae12c478ac2143d9dd630409a0a37142858fa83d1dcd",
+      "before_bytes": 32445,
+      "before_sha256": "03b3400909b1d2b980bdff5835c3ae58a47d404a24186803f66843c163c5bf0e",
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx"
+    },
+    {
+      "after_bytes": 48157,
+      "after_sha256": "eda9fa6a22c71b95e43025653e56894750fd3a993231e863bca7678f74dd749c",
+      "before_bytes": 48045,
+      "before_sha256": "e2701ecef9b2f83128174d2c835b1fa4ee98b0df3743e6bc1118c7efa5bc9ec3",
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
+    },
+    {
+      "after_bytes": 8775,
+      "after_sha256": "8acfdd9844480a0f895a7c4d893b4ec8aeb56ecd8eacd8f11c829423047615f3",
+      "before_bytes": 8721,
+      "before_sha256": "0a4b55db37470511359169207c41b0892e7afaf58f41a86a14ecdad6c92da2a1",
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts"
+    }
+  ],
+  "unchanged_prior_maintained_files": 71,
+  "other_source_effects": false,
+  "qualification": {
+    "claims_language": {
+      "project_shim_bound": "1 passed",
+      "root_validator": "PASS; 307 files"
+    },
+    "f11_pre_repair": {
+      "status": "EXPECTED_FAIL_PRESERVED",
+      "tests": "12 passed, 1 failed; fully rehashed contradiction resolved"
+    },
+    "focused_adapter": {
+      "status": "PASS",
+      "tests": 14
+    },
+    "formatting_token_equivalence": {
+      "analysis_run": "1472/1472",
+      "historical": "5941/5941",
+      "status": "PASS",
+      "stress": "7451/7451"
+    },
+    "relevant_focused": {
+      "files": 3,
+      "status": "PASS",
+      "tests": 31
+    },
+    "typescript": {
+      "status": "PASS"
+    },
+    "v15_reuse": {
+      "genuine_captured_pairs": 7,
+      "maintained_fixture_cases": 1,
+      "member_files": 72,
+      "observed_rows_and_witnesses": {
+        "original_830": {
+          "members": 9,
+          "rows": 830,
+          "witnesses": 828
+        }
+      },
+      "python_schema_runtime_write9": 8,
+      "status": "PASS",
+      "ts_current_to_stress": 8
+    }
+  },
+  "manager_final_return": "pending at this source-import cut",
+  "review": "V6 pending",
+  "deviation": "Writer checkpoint contains an overly broad no-build claim; actual unleased Cargo setup invocation is disclosed in its execution_deviation. Manager final return will calibrate artifact-reuse limits. No native/build owner was active."
+}

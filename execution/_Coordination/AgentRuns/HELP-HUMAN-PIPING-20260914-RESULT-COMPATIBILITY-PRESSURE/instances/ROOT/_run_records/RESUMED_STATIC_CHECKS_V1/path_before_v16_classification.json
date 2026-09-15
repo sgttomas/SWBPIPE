@@ -1,0 +1,31 @@
+{
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+  "checked_file_count": 7415,
+  "finding_count": 3,
+  "findings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/FINAL_MANAGER_RETURN_V16.json",
+      "line": 104,
+      "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914",
+      "text": "\"working_checkout\": \"/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914\""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/TASK_WRITER/SOURCE_CHECKPOINT_V16.json",
+      "line": 397,
+      "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914",
+      "text": "\"cwd_binding\": \"/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/TASK_WRITER/SOURCE_CHECKPOINT_V16.json",
+      "line": 616,
+      "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914",
+      "text": "\"working_checkout\": \"/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914\""
+    }
+  ],
+  "semantic_invariants": {
+    "unacknowledged_control": 0,
+    "active_unclassified": 2,
+    "policy_issues": 0,
+    "acknowledged_control": 41
+  }
+}

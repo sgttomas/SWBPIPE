@@ -1,0 +1,83 @@
+{
+  "schema": "root-persisted-independent-review-v5",
+  "persistence": "Structured parent transcription of actual final collaboration return; not a byte-identical tool transcript.",
+  "verdict": "CHANGES_REQUIRED",
+  "reviewer": {
+    "agent": "/root/foundation_final_review",
+    "parent": "/root",
+    "role": "TASK",
+    "type": 2,
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "execution": "Read-only; no writes, delegation, product execution, builds, UI, network or Git mutations."
+  },
+  "base_commit": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "candidate_commit": "61d6c677a0f3388b3c11478709c2a837a29d1c7f",
+  "brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_CANDIDATE_REVIEW_V5.md",
+    "sha256": "83252076f5fc77014d1a256bccea40086e51ab9005e7cc030661aef24e4d3ee9"
+  },
+  "release": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V5.json",
+    "sha256": "f13eb41933d3d7a7b45bab5fab033c1488f1e86bd0653d1a90b175530b1a5ac2"
+  },
+  "complete_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FULL_CHANGED_PATHS_V5.json",
+    "sha256": "018e4aedfb4a9538727b19e8a7f15d2fd78fb79a75173af6b2b620dea9c7e8ac"
+  },
+  "coverage": {
+    "cumulative_maintained_percent": 100,
+    "maintained_paths": 76,
+    "reviewed_delta": 4,
+    "unchanged_retaining_v4": 72,
+    "context_hashes": 50,
+    "manifest_entries": 1214,
+    "before_after_hash_mismatches": 0,
+    "git_diff_path_set_exact": true,
+    "context_identity": "Complete 50-entry context array in the hash-bound V5 release"
+  },
+  "findings": [
+    {
+      "id": "F11",
+      "priority": "P2",
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "line": 152,
+      "title": "Restore explicit carrier-dimension validation at the Current export boundary",
+      "trigger": "Start from valid all-dimension Current arguments; change a known physical row dimension (for example displacement to stress), then recompute row, received-result and analysis-record checksums.",
+      "impact": "The 0.2 branch skips the legacy binder and no remaining guard checks the observed dimension, so contradictory source evidence is accepted and labelled received_current_qualified_legacy_enriched.",
+      "evidence": "Static tracing, not an executed reviewer reproduction. Normal buildAnalysisRunV02 rejects the mismatch, but this boundary accepts separately supplied records. The existing wrong-dimension test does not recompute hashes.",
+      "remedy": "Non-mutating check against the accepted signature legacy_declared_dimension only when an explicit source declaration exists. Keep absent dimensions admissible and raw bytes intact; do not reinstate obsolete enrichment. Add a rehashed regression."
+    }
+  ],
+  "dispositions": {
+    "F09": "Resolved: raw 0.2 basis/discrete/diagnostic rows avoid legacy enrichment; established 0.1 binding and serialization retained; unsupported versions rejected.",
+    "F10": "Resolved: exact N/force and N*m/moment reaction pairs admitted; contradictory cross-pairs rejected including rehashed witnesses; diagnostic work withheld separately.",
+    "other": "No other actionable finding emerged."
+  },
+  "evidence_assessment": {
+    "independent_static_checks": [
+      "Three successor requests contain exactly the two authorized additions and match recorded successful command input/output pairs.",
+      "Four other cases retain original pairs.",
+      "All seven preserve raw dimension absence, metadata, values and units; requests match Current manifest model payloads.",
+      "Each packet matches its nine saved members including original CSV bytes."
+    ],
+    "supplemental_signatures": 52,
+    "includes_059": true,
+    "full_60_claim": false,
+    "owner_tests": "Inspected owner results: 80 Python passes without skips, 12 adapter passes, TypeScript success, seven plus original validated nine-member writes. Reviewer did not execute these tests.",
+    "bindings": {
+      "checkpoint": "36000289af72cd19c815d2ef08b57eeb164e01768374c515c7ac6fdd3826c736",
+      "composition": "dc572a8cecb3d8e394c569e77c4d77f4bfafc5c128a6c3c1327747a90b5c0d16",
+      "verification_index": "5a76377d5c9812be3589175149c95b5ec9de9376f4a3aad21e2d486ff29c85da",
+      "manager_backcheck": "43459cd5eab551b77facd20e35ab3c87635268310fb4caa936464f115c32b016",
+      "prior_v4_review": "31f93cfeea1b196409cf3ab98160cb7aba531327c23fea10c4dedff6dd648e8e"
+    }
+  },
+  "remaining": [
+    "F11 repair and re-review",
+    "Final native qualification",
+    "Full registered DEC-025",
+    "Additive closeout review",
+    "Actual candidate CI and merge"
+  ]
+}

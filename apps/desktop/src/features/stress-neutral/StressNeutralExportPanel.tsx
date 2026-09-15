@@ -485,7 +485,20 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
     diagnostics,
     privacy: { classification: legacy.privacy.privacy_classification, commercial_tool_payload_embedded: false, local_only: true, private_payload_embedded: false, protected_payload_embedded: false, redaction_refs: [], telemetry_allowed: false },
     provenance: previewProvenance(),
-    professional_boundary: { human_review_required: true, supports_review: true, supports_regression_comparison_input: true, supports_downstream_tooling: true, software_makes_release_claim: false, software_makes_external_compatibility_claim: false, software_makes_solver_validation_claim: false, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_creates_professional_reliance_record: false },
+    professional_boundary: {
+      human_review_required: true,
+      supports_review: true,
+      supports_regression_comparison_input: true,
+      supports_downstream_tooling: true,
+      software_makes_release_claim: false,
+      software_makes_external_compatibility_claim: false,
+      software_makes_solver_validation_claim: false,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_creates_professional_reliance_record: false
+    },
   };
   const payloads: Record<string, unknown> = {
     "stress_neutral_results.csv": packet.csv_text, "result_rows.json": packet.result_rows, "unit_system_disclosure.json": packet.unit_system_disclosure,
@@ -583,7 +596,16 @@ export async function validateStressNeutralExportPacket(packet: any): Promise<vo
   if (!privacy || privacy.local_only !== true || privacy.commercial_tool_payload_embedded !== false || privacy.private_payload_embedded !== false
     || privacy.protected_payload_embedded !== false || privacy.telemetry_allowed !== false) throw new Error("SN-PRIVACY-BOUNDARY-VIOLATION");
   const boundary = packet.professional_boundary;
-  if (!boundary || boundary.human_review_required !== true || ["software_makes_release_claim", "software_makes_external_compatibility_claim", "software_makes_solver_validation_claim", "software_makes_compliance_claim", "software_makes_certification_claim", "software_makes_sealing_claim", "software_makes_approval_claim", "software_creates_professional_reliance_record"].some((key) => boundary[key] !== false)) throw new Error("SN-PROFESSIONAL-BOUNDARY-VIOLATION");
+  if (!boundary || boundary.human_review_required !== true || [
+    "software_makes_release_claim",
+    "software_makes_external_compatibility_claim",
+    "software_makes_solver_validation_claim",
+    "software_makes_compliance_claim",
+    "software_makes_certification_claim",
+    "software_makes_sealing_claim",
+    "software_makes_approval_claim",
+    "software_creates_professional_reliance_record"
+  ].some((key) => boundary[key] !== false)) throw new Error("SN-PROFESSIONAL-BOUNDARY-VIOLATION");
   const projection = structuredClone(packet); delete projection.package_checksum;
   if (packet.package_checksum.value !== await canonicalSha256HexCheckedV1(projection)) throw new Error("SN-PACKAGE-CHECKSUM-MISMATCH");
 }

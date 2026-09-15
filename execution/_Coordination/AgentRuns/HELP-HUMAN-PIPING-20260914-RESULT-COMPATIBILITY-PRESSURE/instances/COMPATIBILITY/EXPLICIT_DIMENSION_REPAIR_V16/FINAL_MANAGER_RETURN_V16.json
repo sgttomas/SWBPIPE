@@ -1,0 +1,239 @@
+{
+  "acceptance": {
+    "checks": {
+      "project_claims_shim_explicitly_bound": "1/1 PASS",
+      "python_schema_runtime_write9": "8/8 PASS; 72 member files",
+      "relevant_Historical_Stress_Analysis_Vitest": "31/31 PASS",
+      "root_claims_validator": "VALID; 307 files scanned",
+      "typescript": "PASS",
+      "v15_current_to_stress_reuse": "8/8 PASS"
+    },
+    "f11": {
+      "manager_targeted": "1/1 PASS with 13 skipped",
+      "pre_repair": "Expected fully rehashed explicit known-dimension contradiction acceptance failure preserved: 12 passed, 1 failed.",
+      "raw_preservation_tested": true,
+      "repair": "Explicit present dimensions are compared without mutation to accepted-inventory legacy_declared_dimension; absent dimensions and the four frozen legacy mismatches remain admissible; 0.1 behavior is preserved.",
+      "writer_focused": "14/14 PASS"
+    },
+    "formatting": {
+      "classification": "token-equivalent formatting only",
+      "initial_manager_attempt": "Preserved zero-byte redirected log; the command failed on an incorrect local baseline path. The successor command compared against exact integration commit 61d6c677a0f3388b3c11478709c2a837a29d1c7f and passed.",
+      "manager_ast_leaf_token_backcheck": {
+        "HistoricalRunContext.tsx": "5941/5941 PASS",
+        "StressNeutralExportPanel.tsx": "7451/7451 PASS",
+        "analysisRunCompatibility.ts": "1472/1472 PASS"
+      },
+      "writer_ast_tokens": {
+        "HistoricalRunContext.tsx": "5941/5941 PASS",
+        "StressNeutralExportPanel.tsx": "7451/7451 PASS",
+        "analysisRunCompatibility.ts": "1472/1472 PASS"
+      }
+    },
+    "v15_reuse_claim_boundary": {
+      "genuine_captured_request_output_pairs": 7,
+      "json_value_equal": true,
+      "maintained_fixture_cases": 1,
+      "maintained_fixture_sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c",
+      "native_v2_carrier_sha256": "c5d2f56bb4c30e9a0ff90ac1cb3412f480ab37d2134be576698c8578c62ac923",
+      "qualification": "The eighth/original830 case is maintained-fixture value-parity replay only. It is neither fresh native Current nor original-byte replay. Root-owned Native V4 retains original native save/delivery/current-basis qualification.",
+      "raw_bytes_equal": false
+    }
+  },
+  "authority": {
+    "brief": {
+      "bytes": 3736,
+      "path": "integration RUN/briefs/COMPATIBILITY_EXPLICIT_DIMENSION_REPAIR_V16.md",
+      "sha256": "82cb281ed71cf802e8b2afafa26ee51289873705d0db31ebd17923809df8256a"
+    },
+    "formatting_addendum": {
+      "bytes": 1561,
+      "path": "integration RUN/briefs/V16_SCHEMA_FIELD_FORMATTING_ADDENDUM.md",
+      "sha256": "13c2a3fe28ca489c5da0523ca118e761bc288da5b1efa2d65e51a0c954bd648c"
+    },
+    "preserved_claims_failure": {
+      "path": "integration RUN/instances/ROOT/_run_records/RESUMED_STATIC_CHECKS_V1/claims_before.stdout.txt",
+      "sha256": "5bb13a4841137f4bd37f6b80d66267a2bf56c7bf56d9cc357c24dc4fa5f0f759"
+    },
+    "review_v5": {
+      "bytes": 4945,
+      "path": "integration RUN/instances/ROOT/_run_records/FINAL_REVIEW_V5/REVIEW_RETURN_V5.json",
+      "sha256": "d1435ae41f6e337c759be10287b007c62f22f60c37ef8213bd24d32b9ecc24c6"
+    }
+  },
+  "closure": "V16 manager fan-in is complete. The authoritative source candidate is the frozen 74-file checkpoint; this return is derivative qualification evidence and does not replace source truth.",
+  "created_utc": "2026-09-15T06:05:45.344176+00:00",
+  "execution_boundary_deviation": {
+    "artifact_byte_equality_to_pre_v16_binding": true,
+    "bound_rerun_result": "1/1 PASS with OPENPIPESTRESS_CHECKED_JSON_BIN explicitly set; conftest returned before the build helper.",
+    "classification": "EXECUTED_UNLEASED_CARGO_SETUP_BUILD_BOUNDARY_DEVIATION_NO_COLLISION",
+    "detail": "The first project claims-shim invocation omitted OPENPIPESTRESS_CHECKED_JSON_BIN. tests/conftest.py invoked cargo build --locked --release --features checked-cli --bin openpipestress_jcs_ijson --target-dir core/serialization/canonical_json/target/checked-json; Cargo printed Finished release profile [optimized] target(s) in 0.06s.",
+    "explicitly_bound_rerun": {
+      "bytes": 98,
+      "path": "instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/TASK_WRITER/_run_records/CLAIMS_LANGUAGE_PROJECT_SHIM_BOUND_V16.log",
+      "sha256": "364fae48cbe8f4ef8e995f8fb3224d43792e784eb9919ceefea2fe0106918edf"
+    },
+    "further_cargo_or_build_execution": false,
+    "inference_limit": "Cargo was invoked. Its brief output does not establish that no build work occurred, so V16 is not classified as build-free.",
+    "lease_context": "No native/browser/build lease was active and Root confirmed no resource collision.",
+    "maintained_source_effect": false,
+    "pre_v16_binding": {
+      "bytes": 1028,
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/_run_records/PYTHON_BINDING_V1.json",
+      "sha256": "4fe58c427332a3d3df80e8de472bcb9eb27d54b1a583c955dfdb31af165e2c12"
+    },
+    "pre_v16_bound_cli_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+    "raw_log": {
+      "bytes": 160,
+      "path": "instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/TASK_WRITER/_run_records/CLAIMS_LANGUAGE_PROJECT_SHIM_V16.log",
+      "sha256": "833d22e23ad66cd9b20ab4a33ad528c8d0e66b8ef3e77345837ba9eed443245f"
+    },
+    "resulting_cli": {
+      "bytes": 621296,
+      "path": "core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson",
+      "sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9"
+    },
+    "wasm_execution": false
+  },
+  "git_actions": false,
+  "manager": {
+    "integration_checkout_mode": "read_only",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "role": "WORKING_ITEMS_TYPE_1",
+    "task": "/root/foundation_compatibility",
+    "working_checkout": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914"
+  },
+  "manager_independent_evidence": {
+    "f11_rehashed_backcheck": {
+      "bytes": 308,
+      "path": "instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/MANAGER_F11_REHASHED_BACKCHECK.log",
+      "sha256": "2942f6a2587dcd955554d3a5107effe3860c42bc7069c51b7d0d5b2b23471965"
+    },
+    "formatting_token_backcheck_initial_failed_location_record": {
+      "bytes": 0,
+      "path": "instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/MANAGER_FORMATTING_TOKEN_BACKCHECK.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "formatting_token_backcheck_successor": {
+      "bytes": 357,
+      "path": "instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/MANAGER_FORMATTING_TOKEN_BACKCHECK_SUCCESSOR.log",
+      "sha256": "1c61f12d1e1515db3b77b709ff62e68da65b11d4c991c011b0c2a9c78304de30"
+    },
+    "v15_reuse_backcheck": {
+      "bytes": 280,
+      "path": "instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/MANAGER_V15_REUSE_BACKCHECK.log",
+      "sha256": "9c1a9c98da8f3a3c6e9602889742764dd96b4adcb9b78f716440da91c26d5751"
+    }
+  },
+  "preserved_failures": {
+    "f11_pre_repair": {
+      "bytes": 1085762,
+      "path": "instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/TASK_WRITER/_run_records/F11_PRE_REPAIR_REHASHED_REGRESSION.log",
+      "sha256": "8f0fdc5c8aaf192001d9c57446d04f80b910bae9b2500b19d86a528f822546fd"
+    },
+    "manager_token_check_wrong_local_baseline_path": {
+      "bytes": 0,
+      "path": "instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/MANAGER_FORMATTING_TOKEN_BACKCHECK.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "root_pre_repair_claims_failure": {
+      "path": "integration RUN/instances/ROOT/_run_records/RESUMED_STATIC_CHECKS_V1/claims_before.stdout.txt",
+      "sha256": "5bb13a4841137f4bd37f6b80d66267a2bf56c7bf56d9cc357c24dc4fa5f0f759"
+    },
+    "v15_helper_wrong_model_wrapper": {
+      "bytes": 2020,
+      "path": "instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/TASK_WRITER/_run_records/REUSE_V15_CURRENT_CONSTRUCTOR.log",
+      "sha256": "2a2e63775f3bfac94f5989b6bb0716fba201242721d1d12631b00cf7c0099126"
+    }
+  },
+  "remaining_root_owned": [
+    "verify/import the exact frozen five-file delta",
+    "independent V6 review",
+    "fresh Native V4 save/delivery/current-basis qualification",
+    "full registered sweep and CI",
+    "Git closeout"
+  ],
+  "resource_release": {
+    "build_browser_native_lease_held": false,
+    "owned_process_scan": "No COMPAT Vitest, Vite, Playwright, Cargo, checked-CLI, TypeScript, browser, server, or native process remained; only the process scanner and rg appeared.",
+    "owned_processes_remaining": 0,
+    "resources_released": true
+  },
+  "schema": "compatibility-v16-final-manager-return-v1",
+  "source_release": {
+    "checkpoint": {
+      "bytes": 27596,
+      "path": "instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/TASK_WRITER/SOURCE_CHECKPOINT_V16.json",
+      "sha256": "06c045e318fb1af44cab19d4f30607db43ae9e9a6c167d181db47446b3e1e9f5"
+    },
+    "delta": [
+      {
+        "after_bytes": 18398,
+        "after_sha256": "1a778fb7b7c3f424cbf0394c0b3b3cc8dd174ecaae5863392236d92bb2cc6404",
+        "before_bytes": 15651,
+        "before_sha256": "79cf87307740379a9f3056a5bbbbae710d5f82b62a5231b3f19142e8deaf7af7",
+        "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts"
+      },
+      {
+        "after_bytes": 29433,
+        "after_sha256": "65992bea9d927f4bfff80572190c344dc1d26882c019eb41e1b7c0f2ee78318e",
+        "before_bytes": 29156,
+        "before_sha256": "9660a2fa3d9730906e2c1eb610b54b832d666a10a5d2d6aa7588d18fe89e8fcf",
+        "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts"
+      },
+      {
+        "after_bytes": 32573,
+        "after_sha256": "a433e7df1e8e942bd90eae12c478ac2143d9dd630409a0a37142858fa83d1dcd",
+        "before_bytes": 32445,
+        "before_sha256": "03b3400909b1d2b980bdff5835c3ae58a47d404a24186803f66843c163c5bf0e",
+        "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx"
+      },
+      {
+        "after_bytes": 48157,
+        "after_sha256": "eda9fa6a22c71b95e43025653e56894750fd3a993231e863bca7678f74dd749c",
+        "before_bytes": 48045,
+        "before_sha256": "e2701ecef9b2f83128174d2c835b1fa4ee98b0df3743e6bc1118c7efa5bc9ec3",
+        "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
+      },
+      {
+        "after_bytes": 8775,
+        "after_sha256": "8acfdd9844480a0f895a7c4d893b4ec8aeb56ecd8eacd8f11c829423047615f3",
+        "before_bytes": 8721,
+        "before_sha256": "0a4b55db37470511359169207c41b0892e7afaf58f41a86a14ecdad6c92da2a1",
+        "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts"
+      }
+    ],
+    "delta_classification": {
+      "f11_logic_and_tests": [
+        "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+        "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts"
+      ],
+      "token_equivalent_formatting_only": [
+        "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+        "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+        "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts"
+      ]
+    },
+    "delta_count": 5,
+    "further_source_edits_authorized": false,
+    "source_file_count": 74,
+    "source_frozen": true,
+    "source_hash_mismatches": 0,
+    "source_hashes_revalidated_by_manager": 74,
+    "writer_evidence_items_revalidated_by_manager": 14,
+    "writer_evidence_mismatches": 0
+  },
+  "status": "QUALIFIED_SOURCE_FROZEN_READY_FOR_ROOT_INTEGRATION_REVIEW_AND_NATIVE",
+  "writer": {
+    "delegation": false,
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "return": {
+      "bytes": 2551,
+      "path": "instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/TASK_WRITER/RETURN.md",
+      "sha256": "7bf153f0abaa4349501dfe3d96f68d956212d0ba0a92af21908ceab95b7ee0b1"
+    },
+    "role": "TASK_TYPE_2",
+    "task": "/root/foundation_compatibility/compatibility_writer"
+  }
+}

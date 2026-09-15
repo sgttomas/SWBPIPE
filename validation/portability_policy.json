@@ -777,6 +777,22 @@
       "role": "EVIDENCE",
       "reason": "Completed immutable V15 manager return records the observed historical V14 parent-checkpoint location. Root accepted scoped fan-in; this final return is evidence and gives no executable host-path direction.",
       "authority": "HELP_HUMAN under standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_FINAL_V15/DISPOSITION_V2.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/FINAL_MANAGER_RETURN_V16.json",
+      "sha256": "c494f317f931a1b2247f314718871d426f4b187f7ba47ce8278b8d8625f52154",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and frozen V16 source/manager evidence records the actual compatibility checkout. Exact bytes and source assertions are preserved; this is a completed execution record, not an active instruction or future path exemption.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_COMPATIBILITY_FANIN_V4.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/EXPLICIT_DIMENSION_REPAIR_V16/TASK_WRITER/SOURCE_CHECKPOINT_V16.json",
+      "sha256": "06c045e318fb1af44cab19d4f30607db43ae9e9a6c167d181db47446b3e1e9f5",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed and frozen V16 source/manager evidence records the actual compatibility checkout. Exact bytes and source assertions are preserved; this is a completed execution record, not an active instruction or future path exemption.",
+      "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_COMPATIBILITY_FANIN_V4.json"
     }
   ],
   "control_path_exceptions": [

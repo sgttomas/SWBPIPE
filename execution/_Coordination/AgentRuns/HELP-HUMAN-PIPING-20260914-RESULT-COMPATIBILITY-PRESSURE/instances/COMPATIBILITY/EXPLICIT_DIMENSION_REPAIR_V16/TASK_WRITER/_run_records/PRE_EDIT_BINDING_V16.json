@@ -1,0 +1,25 @@
+{
+  "authority": {
+    "brief_sha256": "82cb281ed71cf802e8b2afafa26ee51289873705d0db31ebd17923809df8256a",
+    "review_v5_sha256": "d1435ae41f6e337c759be10287b007c62f22f60c37ef8213bd24d32b9ecc24c6"
+  },
+  "created_utc": "2026-09-15T05:47:58.935175+00:00",
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914",
+  "delegation": false,
+  "git_actions": false,
+  "integration_checkout_mode": "read_only",
+  "schema": "compatibility-v16-pre-edit-binding-v1",
+  "source_files": [
+    {
+      "bytes": 29156,
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "9660a2fa3d9730906e2c1eb610b54b832d666a10a5d2d6aa7588d18fe89e8fcf"
+    },
+    {
+      "bytes": 15651,
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "79cf87307740379a9f3056a5bbbbae710d5f82b62a5231b3f19142e8deaf7af7"
+    }
+  ],
+  "write_checkout": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914"
+}

@@ -1,0 +1,28 @@
+{
+  "authority": {
+    "addendum_path": "integration RUN/briefs/V16_SCHEMA_FIELD_FORMATTING_ADDENDUM.md",
+    "addendum_sha256": "13c2a3fe28ca489c5da0523ca118e761bc288da5b1efa2d65e51a0c954bd648c",
+    "preserved_failure_path": "integration RUN/instances/ROOT/_run_records/RESUMED_STATIC_CHECKS_V1/claims_before.stdout.txt",
+    "preserved_failure_sha256": "5bb13a4841137f4bd37f6b80d66267a2bf56c7bf56d9cc357c24dc4fa5f0f759"
+  },
+  "created_utc": "2026-09-15T05:51:00.968727+00:00",
+  "maintained_change_limit": "whitespace and line formatting only; token sequence preserved",
+  "schema": "compatibility-v16-formatting-addendum-pre-edit-binding-v1",
+  "source_files": [
+    {
+      "bytes": 32445,
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "03b3400909b1d2b980bdff5835c3ae58a47d404a24186803f66843c163c5bf0e"
+    },
+    {
+      "bytes": 48045,
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "e2701ecef9b2f83128174d2c835b1fa4ee98b0df3743e6bc1118c7efa5bc9ec3"
+    },
+    {
+      "bytes": 8721,
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "0a4b55db37470511359169207c41b0892e7afaf58f41a86a14ecdad6c92da2a1"
+    }
+  ]
+}

@@ -1,0 +1,424 @@
+{
+  "case_count": 8,
+  "cases": [
+    {
+      "case": "combination_modulus",
+      "members": [
+        {
+          "bytes": 5883,
+          "filename": "manifest.json",
+          "sha256": "92856f576606d692750c3364c7bdb8a5df4eb5625fb3145eaa51863982dcbebe"
+        },
+        {
+          "bytes": 117168,
+          "filename": "stress_neutral_results.csv",
+          "sha256": "03073f5fc2f6ff8bbbd1f33fed3b31071239f6d24eda5560fbbfac10b261fd0d"
+        },
+        {
+          "bytes": 603268,
+          "filename": "result_rows.json",
+          "sha256": "c1a8f8e79bb146905c333b4ab1abd6c04831094fa415f5f3f25a26ff178612a5"
+        },
+        {
+          "bytes": 1370,
+          "filename": "unit_system_disclosure.json",
+          "sha256": "20c66972ae08452fb87bbc53b17dd0db1ab58a21806bbdebd27e3c21d9b4c7de"
+        },
+        {
+          "bytes": 217269,
+          "filename": "unit_preservation_witnesses.json",
+          "sha256": "c32f35d6201605831579ad37bd0947f4fcfdd156917f6aa287609fb6384f3405"
+        },
+        {
+          "bytes": 429579,
+          "filename": "stable_id_map.json",
+          "sha256": "bbaa4fad4cb136f60d99a349272a97a334c627b6d01efa6763483012ddc49d0e"
+        },
+        {
+          "bytes": 3445,
+          "filename": "loss_report.json",
+          "sha256": "380a176e0e0fc5e48f45e95d20a6becb2542cfc31217871ae2cd6153839f3ce7"
+        },
+        {
+          "bytes": 4709,
+          "filename": "validation_report.json",
+          "sha256": "9bbfd1e8f1ddf0cc75a21c7f4fcebe27b5abc9f495e407b75381a9e1200a9ff8"
+        },
+        {
+          "bytes": 967,
+          "filename": "diagnostics.json",
+          "sha256": "c5a3b1dbc720d9b0a1f3dbc84999de086684c46055463ab745b413f48a9c6f04"
+        }
+      ],
+      "rows": 534,
+      "witnesses": 534
+    },
+    {
+      "case": "curved",
+      "members": [
+        {
+          "bytes": 5883,
+          "filename": "manifest.json",
+          "sha256": "0a4abd366eddcdaea27d9a36b2f11ed1c6a60db1348d8c0d9fd26fda540c5d07"
+        },
+        {
+          "bytes": 11551,
+          "filename": "stress_neutral_results.csv",
+          "sha256": "fed722da24c763b289c4368317c3f018d0fc883320a7f6b7a0288bfdb0b69a32"
+        },
+        {
+          "bytes": 72307,
+          "filename": "result_rows.json",
+          "sha256": "ee21c261c69432b5f1be8cb4658e1a3852a87e00f25d8c5734fc076aaef6f560"
+        },
+        {
+          "bytes": 1372,
+          "filename": "unit_system_disclosure.json",
+          "sha256": "5d8b256ed7f0a079d5ce1934d3a24a618e62f20870cdbd124f0bdb2d53143fda"
+        },
+        {
+          "bytes": 25069,
+          "filename": "unit_preservation_witnesses.json",
+          "sha256": "a73bbe26d1aabef92a48274fc36a20a06db5927cf8bca8d4da01b978ae379a2c"
+        },
+        {
+          "bytes": 51928,
+          "filename": "stable_id_map.json",
+          "sha256": "47314f19102e75228ab5772a12ac7e316000dde0faaa8464005899ab9fc707f9"
+        },
+        {
+          "bytes": 3443,
+          "filename": "loss_report.json",
+          "sha256": "2005952f81bfc5c91abbd51875ab9ba9a1418feb14fc2cf9582aadf4c9a8889e"
+        },
+        {
+          "bytes": 4709,
+          "filename": "validation_report.json",
+          "sha256": "9bbfd1e8f1ddf0cc75a21c7f4fcebe27b5abc9f495e407b75381a9e1200a9ff8"
+        },
+        {
+          "bytes": 967,
+          "filename": "diagnostics.json",
+          "sha256": "c5a3b1dbc720d9b0a1f3dbc84999de086684c46055463ab745b413f48a9c6f04"
+        }
+      ],
+      "rows": 69,
+      "witnesses": 69
+    },
+    {
+      "case": "friction",
+      "members": [
+        {
+          "bytes": 5883,
+          "filename": "manifest.json",
+          "sha256": "c6dd6dffe282aa9884a258c65471ecd59e851c7acf017fa35a76ae5993b125ec"
+        },
+        {
+          "bytes": 13690,
+          "filename": "stress_neutral_results.csv",
+          "sha256": "799a8ebf9c3bbda4d58953300f62ac3c272680963cea7dbb49b2e92c026b4fae"
+        },
+        {
+          "bytes": 86055,
+          "filename": "result_rows.json",
+          "sha256": "c3336c91fc3e938113e0d82be80f87b6811adeb905cb6cac4ddcb034f8abfeff"
+        },
+        {
+          "bytes": 1392,
+          "filename": "unit_system_disclosure.json",
+          "sha256": "92db8ab018f823081d9376ba62162498ad4ccf1a67b044d331f1590bdc122add"
+        },
+        {
+          "bytes": 28921,
+          "filename": "unit_preservation_witnesses.json",
+          "sha256": "559b77aa89a70f4d109abbd348221916dced4e40c9f6a71321f4b14041d7f747"
+        },
+        {
+          "bytes": 61909,
+          "filename": "stable_id_map.json",
+          "sha256": "c5152a6c61462f074287b5261d389ed134975915fcdcd54eab44da9835ac3d9e"
+        },
+        {
+          "bytes": 3443,
+          "filename": "loss_report.json",
+          "sha256": "163491adcb625b80954addfefda985f586113f638cad000abecf54e0d2632264"
+        },
+        {
+          "bytes": 4714,
+          "filename": "validation_report.json",
+          "sha256": "b47c7e0658829ff86c3a4e3ac1c64d8e9e90e7be5dbea75789af3e223e2fd6c7"
+        },
+        {
+          "bytes": 2964,
+          "filename": "diagnostics.json",
+          "sha256": "a6a90fd2e164aa56ebe8aa49caa517db39de6516ee682a7a378a67593b55660f"
+        }
+      ],
+      "rows": 82,
+      "witnesses": 81
+    },
+    {
+      "case": "hanger_constant_effort",
+      "members": [
+        {
+          "bytes": 5883,
+          "filename": "manifest.json",
+          "sha256": "6a23118f931c8b20007ec7bb7484c9374b9986ba972709fa721eea391c4697cf"
+        },
+        {
+          "bytes": 13358,
+          "filename": "stress_neutral_results.csv",
+          "sha256": "60749952f3c2bf6ac1fcdda23a41e096c80b4505b59095388d420935656ee7fc"
+        },
+        {
+          "bytes": 82899,
+          "filename": "result_rows.json",
+          "sha256": "dbc454d8e4d2d493396c6ed4cf039860889c0719ec0c01dee6013eef065c4ccb"
+        },
+        {
+          "bytes": 1384,
+          "filename": "unit_system_disclosure.json",
+          "sha256": "de59077f4dd07779733f08725376d70dd271a23b694354985996059cecd562f4"
+        },
+        {
+          "bytes": 28019,
+          "filename": "unit_preservation_witnesses.json",
+          "sha256": "d2eab88230e6e293b1105cad5d444a0b1a3441fd4b80afc101222c37de5d9881"
+        },
+        {
+          "bytes": 59388,
+          "filename": "stable_id_map.json",
+          "sha256": "52787cae0e1f87a28ed12eebc46d0d9be13eafc81cb085d0c942494bf65d6e33"
+        },
+        {
+          "bytes": 3443,
+          "filename": "loss_report.json",
+          "sha256": "e5cfb998ce22939addedc84bab2da1a397947701f3cac34b4edd7cf4d083f969"
+        },
+        {
+          "bytes": 4709,
+          "filename": "validation_report.json",
+          "sha256": "9bbfd1e8f1ddf0cc75a21c7f4fcebe27b5abc9f495e407b75381a9e1200a9ff8"
+        },
+        {
+          "bytes": 967,
+          "filename": "diagnostics.json",
+          "sha256": "c5a3b1dbc720d9b0a1f3dbc84999de086684c46055463ab745b413f48a9c6f04"
+        }
+      ],
+      "rows": 79,
+      "witnesses": 79
+    },
+    {
+      "case": "modulus",
+      "members": [
+        {
+          "bytes": 5883,
+          "filename": "manifest.json",
+          "sha256": "9c19832858e01c85b4be956f758dec321487b39c91b4b391e469fa1e396f61e7"
+        },
+        {
+          "bytes": 10939,
+          "filename": "stress_neutral_results.csv",
+          "sha256": "41cc43f28a506283e31e0ead7d9e8e868f9286261a0d2c6beab029506bb1238b"
+        },
+        {
+          "bytes": 70758,
+          "filename": "result_rows.json",
+          "sha256": "1b7dcb5f9340306b3180a293d1881fe4d23d53e7d5b96884d028676fe5634f85"
+        },
+        {
+          "bytes": 1370,
+          "filename": "unit_system_disclosure.json",
+          "sha256": "20c66972ae08452fb87bbc53b17dd0db1ab58a21806bbdebd27e3c21d9b4c7de"
+        },
+        {
+          "bytes": 24001,
+          "filename": "unit_preservation_witnesses.json",
+          "sha256": "2d40dc9257cf9c84dc3b28a8f3ba346d5bb2df911b3189417f13236f6da1db35"
+        },
+        {
+          "bytes": 51059,
+          "filename": "stable_id_map.json",
+          "sha256": "7534204dc1d74b4ae6e8a93c8176b58554b07ca0a1f09b0873f380f1c02f2af6"
+        },
+        {
+          "bytes": 3443,
+          "filename": "loss_report.json",
+          "sha256": "647bc2ea8327031c84657d47b57f3534b03c02daa133e04cf56588e4dda78a5f"
+        },
+        {
+          "bytes": 4709,
+          "filename": "validation_report.json",
+          "sha256": "9bbfd1e8f1ddf0cc75a21c7f4fcebe27b5abc9f495e407b75381a9e1200a9ff8"
+        },
+        {
+          "bytes": 967,
+          "filename": "diagnostics.json",
+          "sha256": "c5a3b1dbc720d9b0a1f3dbc84999de086684c46055463ab745b413f48a9c6f04"
+        }
+      ],
+      "rows": 68,
+      "witnesses": 68
+    },
+    {
+      "case": "original_830",
+      "members": [
+        {
+          "bytes": 5883,
+          "filename": "manifest.json",
+          "sha256": "882d7125954e2ec86584811c3223bff4f147a9886983b1c5e3176f8bf2000c12"
+        },
+        {
+          "bytes": 172162,
+          "filename": "stress_neutral_results.csv",
+          "sha256": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a"
+        },
+        {
+          "bytes": 921611,
+          "filename": "result_rows.json",
+          "sha256": "ba25be81b87f967b98c9aa54faa080c5e9ddbc9a0d28a7638f5136bec2e7e37b"
+        },
+        {
+          "bytes": 1412,
+          "filename": "unit_system_disclosure.json",
+          "sha256": "7712a1cfbccdab82aae026c5338008bb2f3a052509d78ee8ffd544315588f450"
+        },
+        {
+          "bytes": 331939,
+          "filename": "unit_preservation_witnesses.json",
+          "sha256": "99842c4c3f8127613a6209ab9417b270447fe0fbccf67f68eaf9833b0e5ca83d"
+        },
+        {
+          "bytes": 656807,
+          "filename": "stable_id_map.json",
+          "sha256": "77d3c026581b27c5ea1da857f88aa9dec068e821700910ffba39316c5a83b942"
+        },
+        {
+          "bytes": 3445,
+          "filename": "loss_report.json",
+          "sha256": "1fe0f79404af94666387378658ac9bc6b69563bf0c910ad468d5ecad82748bfd"
+        },
+        {
+          "bytes": 4714,
+          "filename": "validation_report.json",
+          "sha256": "9bb0b9311fddc7f66adae6d9e573791d181a873382de351bbb729bce3f42de35"
+        },
+        {
+          "bytes": 3961,
+          "filename": "diagnostics.json",
+          "sha256": "53ff8c1f59dcbd0de6e7f75086c264652f0b49fc9ff303de5e1883ae46cf2f8e"
+        }
+      ],
+      "rows": 830,
+      "witnesses": 828
+    },
+    {
+      "case": "rotational_nonlinear",
+      "members": [
+        {
+          "bytes": 5883,
+          "filename": "manifest.json",
+          "sha256": "f7161b748dd6e5eb4f8076bd15807fc74bac33a681a70d4cfd0f1fffd12a5543"
+        },
+        {
+          "bytes": 12203,
+          "filename": "stress_neutral_results.csv",
+          "sha256": "27c46e3202757278f43ea974a95007fa0047a967615834efe386aba989bb1b3a"
+        },
+        {
+          "bytes": 79932,
+          "filename": "result_rows.json",
+          "sha256": "74b0252e7f4d4c0395e9444709646b2421a5e2077b8373c12707b01625a79be5"
+        },
+        {
+          "bytes": 1399,
+          "filename": "unit_system_disclosure.json",
+          "sha256": "93475683197df2dbcecd8410c0c5886cc97b12e36f7f138f76d5c48520ba8956"
+        },
+        {
+          "bytes": 26611,
+          "filename": "unit_preservation_witnesses.json",
+          "sha256": "7a4299c481d1f829cd2ca5a25a8b3acea708afe00a1c77e6e8964a3a28e23879"
+        },
+        {
+          "bytes": 57736,
+          "filename": "stable_id_map.json",
+          "sha256": "94ab28dd7de71a43d5c11113a6ccbf22ba2bbb1ca9b8faa510d533ebd8428811"
+        },
+        {
+          "bytes": 3443,
+          "filename": "loss_report.json",
+          "sha256": "03e165d9b185f94b4a02d0da108d29f191cf65e96851cfa0c211de60d24a9f04"
+        },
+        {
+          "bytes": 4714,
+          "filename": "validation_report.json",
+          "sha256": "b47c7e0658829ff86c3a4e3ac1c64d8e9e90e7be5dbea75789af3e223e2fd6c7"
+        },
+        {
+          "bytes": 2964,
+          "filename": "diagnostics.json",
+          "sha256": "5bb5b2ebccfe10f18bebaa4d4b28401b3fdc721f02a3fcf9d9f5ff92f5fa69fd"
+        }
+      ],
+      "rows": 77,
+      "witnesses": 76
+    },
+    {
+      "case": "zero_pressure_longitudinal",
+      "members": [
+        {
+          "bytes": 5883,
+          "filename": "manifest.json",
+          "sha256": "38f688bef1c93bd02c253b875460fca5be6325b32500673aeb0629cd55fb9922"
+        },
+        {
+          "bytes": 12042,
+          "filename": "stress_neutral_results.csv",
+          "sha256": "cff5d952819fa9f02f549623efbec78b86306391891369c69e782297b9616a53"
+        },
+        {
+          "bytes": 79771,
+          "filename": "result_rows.json",
+          "sha256": "86e3bc160c838b68f38ed735c228821aa948af15fdebc62172c2b1cc3ce3c864"
+        },
+        {
+          "bytes": 1374,
+          "filename": "unit_system_disclosure.json",
+          "sha256": "162bf72f3cd1ea3e1cc49fc3eee5e1a96be8ed63181d5e85cc965a1e62033a37"
+        },
+        {
+          "bytes": 26921,
+          "filename": "unit_preservation_witnesses.json",
+          "sha256": "21b32aea35f471ce5b765f26ef4f9e44abd936dc62c358c61822041291f5d7b4"
+        },
+        {
+          "bytes": 57752,
+          "filename": "stable_id_map.json",
+          "sha256": "174a03d97dd4acec5ec26f658956d374785f9b5320c62e0bdadb0ce0e97fe1b4"
+        },
+        {
+          "bytes": 3443,
+          "filename": "loss_report.json",
+          "sha256": "bbe014604713027c13b45d41abade5b012866c9aca246ee0e4dbede5275caf1c"
+        },
+        {
+          "bytes": 4709,
+          "filename": "validation_report.json",
+          "sha256": "9bbfd1e8f1ddf0cc75a21c7f4fcebe27b5abc9f495e407b75381a9e1200a9ff8"
+        },
+        {
+          "bytes": 967,
+          "filename": "diagnostics.json",
+          "sha256": "c5a3b1dbc720d9b0a1f3dbc84999de086684c46055463ab745b413f48a9c6f04"
+        }
+      ],
+      "rows": 77,
+      "witnesses": 77
+    }
+  ],
+  "schema": "compatibility-v16-v15-reuse-validation-v1",
+  "schema_runtime_write9_pass": 8,
+  "status": "PASS"
+}

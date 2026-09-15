@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  23:58:56
+   Duration  2.09s (transform 136ms, setup 70ms, import 159ms, tests 1.59s, environment 190ms)
+

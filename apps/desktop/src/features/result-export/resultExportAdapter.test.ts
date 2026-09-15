@@ -9,8 +9,8 @@ import type {PreviewModel,MechanicsResult} from '../../types';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import {buildAnalysisRunPreview,bindSourceResultDimensions} from '../../services/previewService';
 import {buildCurrentResultExport,validateResultDocument,guardResultJson,resultDigest,resultSchemaVersion,deriveResultDocument,ref,derivativeProvenance,type JsonObject} from './resultExportAdapter';
-import {canonicalJsonString} from '../../services/hashService';
-import {verifyAnalysisRunRecord} from '../../services/analysisRunCompatibility';
+import {canonicalJsonString,canonicalSha256HexCheckedV1} from '../../services/hashService';
+import {analysisRecordProjection,verifyAnalysisRunRecord} from '../../services/analysisRunCompatibility';
 async function legacyDigest(value:unknown){
  const sort=(item:any):any=>Array.isArray(item)?item.map(sort):item&&typeof item==='object'?Object.fromEntries(Object.entries(item).sort(([a],[b])=>a.localeCompare(b)).map(([key,child])=>[key,sort(child)])):item;
  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(sort(value))));return [...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,'0')).join('');
@@ -35,6 +35,12 @@ async function legacyCurrent(){
  run.reproducibility.input_manifest_hashes[0].canonicalization='rfc8785_jcs';
  return args;
 }
+async function rehashV02ResultClaims(args:Awaited<ReturnType<typeof current>>){
+ const run=args.analysisRun.analysis_run;
+ for(const row of args.result.results){const resultRef=run.result_refs.find(item=>item.result_ref.ref===row.id)!;resultRef.hash_refs[0].value=await canonicalSha256HexCheckedV1(row);}
+ run.hashes.find(hash=>hash.payload_scope==='received_result')!.value=await canonicalSha256HexCheckedV1(args.result);
+ run.hashes.find(hash=>hash.payload_scope==='analysis_run_record')!.value=await canonicalSha256HexCheckedV1(analysisRecordProjection(args.analysisRun));
+}
 describe('qualified Current derivative export',()=>{
  it('binds current payload/carrier and preserves old hashes and observed declarations',async()=>{
   const args=await current(),before=JSON.stringify(args);const doc=await buildCurrentResultExport(args);expect(doc.schema_version).toBe('0.2.0');if(process.env.RESULTS_CONTRACT_OUTPUT_DIR){const dir=process.env.RESULTS_CONTRACT_OUTPUT_DIR;mkdirSync(dir,{recursive:true});writeFileSync(path.join(dir,'current-enriched.document.json'),JSON.stringify(doc,null,2));writeFileSync(path.join(dir,'current-enriched.received.json'),JSON.stringify(args.result,null,2));writeFileSync(path.join(dir,'current-enriched.model.json'),JSON.stringify(args.model,null,2));writeFileSync(path.join(dir,'current-enriched.analysis-run.json'),JSON.stringify(args.analysisRun,null,2));}expect(doc.result_envelope.row_accounting).toHaveLength(args.result.results.length);expect(JSON.stringify(args)).toBe(before);
@@ -51,6 +57,14 @@ describe('qualified Current derivative export',()=>{
   expect(await verifyAnalysisRunRecord(args.analysisRun)).toBe('match');expect(args.result.results.every(row=>!Object.hasOwn(row,'dimension'))).toBe(true);const doc=await buildCurrentResultExport(args);expect(JSON.stringify(args.result)).toBe(before);expect(doc.result_envelope.row_accounting).toHaveLength(3);expect(doc.result_envelope.row_accounting.map((row:any)=>row.source_result_id)).toEqual(args.result.results.map(row=>row.id));expect(doc.result_envelope.row_accounting.every((row:any)=>row.disposition==='disclosed')).toBe(true);expect(doc.result_envelope.unit_preservation_witnesses).toHaveLength(0);
   const received=args.analysisRun.analysis_run.hashes.find(hash=>hash.payload_scope==='received_result')!;expect(received.value).toBe(await resultDigest(args.result));for(const [index,row] of args.result.results.entries()){expect(args.analysisRun.analysis_run.result_refs.find(item=>item.result_ref.ref===row.id)!.hash_refs[0].value).toBe(await resultDigest(row));expect(doc.result_envelope.source_annotations[index].observed_carrier_dimension).toEqual({present:false,value:null});}
  });
+ it('admits the four accepted explicit legacy dimensions without replacing them with interpreted target dimensions',async()=>{
+  const args=await current(),accepted=[
+   {kind:'nonlinear_support_free_dof_work_residual',unit:'N*m',component:'free_dof_work_residual',dimension:'moment'},
+   {kind:'nonlinear_support_final_displacement',unit:'rad',component:'nonlinear_support_final_displacement',dimension:'length'},
+   {kind:'nonlinear_support_final_reaction',unit:'N*m',component:'nonlinear_support_final_reaction',dimension:'force'},
+   {kind:'spring_hanger_user_input_review',unit:'N*m/rad',component:'variable_spring_hanger_stiffness',dimension:'linear_stiffness'},
+  ];args.result.results=accepted.map(item=>{const fixture=metadataFixtures.fixtures.find(candidate=>candidate.input_row.kind===item.kind&&candidate.input_row.unit===item.unit&&candidate.input_row.metadata?.component===item.component)!;return {...structuredClone(fixture.input_row),dimension:item.dimension};}) as MechanicsResult['results'];args.analysisRun=await buildAnalysisRunPreview(args.result,{inputManifest:args.inputManifest});const before=JSON.stringify(args.result),doc=await buildCurrentResultExport(args);expect(JSON.stringify(args.result)).toBe(before);expect(doc.result_envelope.source_annotations.map((annotation:any)=>annotation.observed_carrier_dimension.value)).toEqual(accepted.map(item=>item.dimension));expect(doc.result_envelope.source_annotations.map((annotation:any)=>annotation.derivative_target_dimension)).toEqual([null,'angle','moment','rotational_stiffness']);
+ });
  it('preserves established 0.1 legacy enrichment and hash verification',async()=>{
   const args=await legacyCurrent(),before=JSON.stringify(args),claims=JSON.stringify(args.analysisRun.analysis_run.hashes);const doc=await buildCurrentResultExport(args);expect(doc.schema_version).toBe('0.2.0');expect(JSON.stringify(args)).toBe(before);expect(JSON.stringify(args.analysisRun.analysis_run.hashes)).toBe(claims);expect(doc.result_envelope.row_accounting).toHaveLength(args.result.results.length);
  });
@@ -61,6 +75,9 @@ describe('qualified Current derivative export',()=>{
   const value=structuredClone(args);value.result.results[0].value+=1;await expect(buildCurrentResultExport(value)).rejects.toThrow('RESULT_BINDING');
   for(const dimension of [null,'',7,'wrong']){const bad=structuredClone(args);(bad.result.results[0] as any).dimension=dimension;await expect(buildCurrentResultExport(bad)).rejects.toThrow();}
   const mixed=structuredClone(args);delete mixed.result.results[0].dimension;await expect(buildCurrentResultExport(mixed)).rejects.toThrow('MIXED');
+ });
+ it('rejects a rehashed 0.2 known explicit carrier dimension contradiction without mutating evidence',async()=>{
+  const args=await current(),row=args.result.results.find(item=>item.kind==='displacement_magnitude')!;(row as any).dimension='stress';await rehashV02ResultClaims(args);expect(await verifyAnalysisRunRecord(args.analysisRun)).toBe('match');const before=JSON.stringify(args.result);await expect(buildCurrentResultExport(args)).rejects.toThrow('CURRENT_CARRIER_DIMENSION_CONTRADICTION');expect(JSON.stringify(args.result)).toBe(before);
  });
  it('rejects checksum scope/type/algorithm/canonicalization/ref tampering',async()=>{
   const args=await current();const edits:Array<(a:typeof args)=>void>=[a=>{(a.analysisRun.analysis_run.hashes[0] as any).algorithm='TBD'},a=>{a.analysisRun.analysis_run.hashes[0].payload_ref.object_type='Wrong'},a=>{a.analysisRun.analysis_run.hashes[1].canonicalization='wrong'},a=>{a.analysisRun.analysis_run.result_refs[0].hash_refs[0].payload_scope='wrong'},a=>{a.analysisRun.analysis_run.result_refs[0].hash_refs[0].payload_ref.ref='wrong'},a=>{(a.analysisRun.analysis_run.reproducibility.input_manifest_hashes[0] as any).payload_scope='wrong'},a=>{a.analysisRun.analysis_run.reproducibility.input_manifest_refs[0].object_type='Wrong'}];

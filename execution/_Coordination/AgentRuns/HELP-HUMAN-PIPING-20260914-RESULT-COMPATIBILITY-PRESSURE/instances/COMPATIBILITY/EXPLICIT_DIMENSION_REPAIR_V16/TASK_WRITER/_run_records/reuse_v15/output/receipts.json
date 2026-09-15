@@ -1,0 +1,42 @@
+[
+  {
+    "name": "combination_modulus",
+    "rows": 534,
+    "explicit_dimensions": 0
+  },
+  {
+    "name": "curved",
+    "rows": 69,
+    "explicit_dimensions": 0
+  },
+  {
+    "name": "friction",
+    "rows": 82,
+    "explicit_dimensions": 0
+  },
+  {
+    "name": "hanger_constant_effort",
+    "rows": 79,
+    "explicit_dimensions": 0
+  },
+  {
+    "name": "modulus",
+    "rows": 68,
+    "explicit_dimensions": 0
+  },
+  {
+    "name": "rotational_nonlinear",
+    "rows": 77,
+    "explicit_dimensions": 0
+  },
+  {
+    "name": "zero_pressure_longitudinal",
+    "rows": 77,
+    "explicit_dimensions": 0
+  },
+  {
+    "name": "original_830",
+    "rows": 830,
+    "explicit_dimensions": 0
+  }
+]

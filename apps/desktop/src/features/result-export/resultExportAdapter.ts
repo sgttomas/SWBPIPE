@@ -149,6 +149,11 @@ export async function buildCurrentResultExport({model,result,analysisRun,inputMa
   if(hashes.length!==1||refs.length!==1||refs[0].object_type!=='InputManifest'||!proofChecksum(hashes[0],'input_manifest','InputManifest',inputManifest.manifest_ref.ref)||hashes[0].value!==inputManifest.manifest_sha256||hashes[0].payload_ref.ref!==inputManifest.manifest_ref.ref||refs[0].ref!==inputManifest.manifest_ref.ref)throw new Error('CURRENT_MANIFEST_BINDING_MISMATCH');
   const presence=result.results.map(x=>Object.hasOwn(x,'dimension'));if(presence.some(Boolean)&&!presence.every(Boolean))throw new Error('MIXED_CARRIER_DIMENSIONS');
   if(presence.some(Boolean)&&result.results.some(row=>typeof row.dimension!=="string"||!row.dimension))throw new Error("INVALID_CARRIER_DIMENSION_DECLARATION");
+  if(isV2)for(const row of result.results){
+    if(!Object.hasOwn(row,'dimension'))continue;
+    const semantic=resultSemantics(row);
+    if(semantic&&row.dimension!==semantic.legacy_declared_dimension)throw new Error(`CURRENT_CARRIER_DIMENSION_CONTRADICTION: ${row.id}`);
+  }
   const legacy=isV2?null:bindSourceResultDimensions(result); // 0.1 verification only; 0.2 binds the raw received carrier
   if(run.hashes.length!==2)throw new Error('CURRENT_HASH_INVENTORY_MISMATCH');
   const envelopeScope=isV2?'received_result':'result_envelope', profile=isV2?canonicalization:'rfc8785_jcs';

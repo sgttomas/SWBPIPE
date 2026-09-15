@@ -1,0 +1,42 @@
+{
+  "schema": "root-resumed-static-observations-v1",
+  "created_utc": "2026-09-15T05:52:27.028852+00:00",
+  "candidate_commit": "61d6c677a0f3388b3c11478709c2a837a29d1c7f",
+  "origin_main": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "source_modified_by_root": false,
+  "checks": [
+    {
+      "command": "python -m pytest -q tools/practitioner_harness",
+      "exit_code": 0,
+      "observed_result": "379 passed in 54.27s",
+      "evidence_kind": "Observed terminal result; complete raw stdout not persisted. Final closeout will retain its own raw gate output."
+    },
+    {
+      "command": "python tools/practitioner_harness/harness.py self-check",
+      "exit_code": 0,
+      "severities": {
+        "BLOCK": 0,
+        "REVIEW": 4,
+        "WARN": 113,
+        "INFO": 14,
+        "NOT_APPLICABLE": 1
+      },
+      "qualification": "New claims-language warning routed to V16 formatting repair; existing external-loop findings remain outside this tranche. Terminal output was truncated; do not treat this record as complete raw self-check evidence."
+    },
+    {
+      "command": "python tools/validation/validate_piping_loop_receipts.py --repo-root . --validation-commit HEAD",
+      "exit_code": 0,
+      "observed_result": "VALID; versioned receipt contract satisfied"
+    },
+    {
+      "command": "python tools/validation/validate_claims_language.py --repo-root .",
+      "exit_code": 1,
+      "findings": 6,
+      "raw_stdout": "claims_before.stdout.txt",
+      "raw_stdout_sha256": "5bb13a4841137f4bd37f6b80d66267a2bf56c7bf56d9cc357c24dc4fa5f0f759",
+      "disposition": "Same compatibility writer, three source paths, formatting only under V16_SCHEMA_FIELD_FORMATTING_ADDENDUM.md"
+    }
+  ],
+  "original_local_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+  "final_tranche_acceptance": false
+}
