@@ -1,0 +1,54 @@
+{
+  "status": "PRESSURE_SOURCE_RELEASED",
+  "actor": "HELP_HUMAN /root",
+  "basis": "User-approved foundation plan; independent pre-effect oracle accepted for pure-kernel implementation only.",
+  "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_IMPLEMENTATION.md",
+  "oracle_files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/ORACLE_BASIS.md",
+      "sha256": "99397bacc85ea36b4bd3deb94c9e403b9bda69ad4f9f3b685ce46eab24c9b205"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/FROZEN_EXPECTATIONS.json",
+      "sha256": "b1277ee86ced3dc28ca14d9e79e2187d98e6dd2c55fa5c8b238a475c41804a72"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/INVALID_INPUT_EXPECTATIONS.json",
+      "sha256": "04068adda661390f76a996ae5ae6e6e77c28fdfee49a23f353e53968e2b95ab3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/independent_oracle.py",
+      "sha256": "48f04f9b02cc6a3d94509e4acb300cd56770f601f307662b9ae8cfc3ee16c24b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/FREEZE_MANIFEST.json",
+      "sha256": "e99fe63c540f189d0f10154e32896571a126ad19e5463b4abbf18715fddc474e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/ORACLE_SELF_CHECK.json",
+      "sha256": "170cc4462affe77e0c7ef48c568d72a7a417794228ee590f79f3b7c5ddd1555d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/SOURCE_MANIFEST.json",
+      "sha256": "04cf6a75ff01e6c5f0f2973a8063358392a426f7c304120dad389002a9bf9753"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/RETURN.md",
+      "sha256": "7966b1ab6b6996c1f091c5ea96236a98c22bae7e5ebfa1fb9f2cfbfbf969094e"
+    }
+  ],
+  "api_decisions": {
+    "validated_input_fields": "private with checked constructors",
+    "eigenload_pair": "annulus, material, pressure, thermal_strain",
+    "cap_pair": "annulus, pressure"
+  },
+  "required_clarification": "eigenload_pair returns external equivalent RHS; distinguish it from recovered node-on-element wall actions. Preserve the accepted numeric pair signs.",
+  "numeric_decisions": [
+    "Use frozen per-scalar comparator; no geometry/thin-wall cutoff.",
+    "Pressure-scale radial traction checks at exact boundaries.",
+    "Evaluate equivalent identities with numerically stable operations; in particular do not lose a representable eigen force through an avoidable epsilon0 underflow and rescaling.",
+    "No new blanket rejection of nonzero force/stress rounding to subnormal/zero; apply frozen representability and comparison predicates."
+  ],
+  "scope": "Exactly private pressure_exact.rs, private lib.rs module declaration, co-located tests, and writer evidence. No live call, DTO, model migration or native action.",
+  "review_remaining": "Independent implementation refutation and integrated full-diff review/DEC025 remain required."
+}

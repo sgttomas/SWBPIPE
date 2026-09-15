@@ -1,0 +1,11 @@
+# TASK pressure implementation refutation V3
+
+Continue TASK / Type 2 foundation_pressure_oracle, configured gpt-6-astra/xhigh, with no delegation. Use the same integration REPO_ROOT and original oracle/refutation permissions. Write only new RUN/instances/PRESSURE_ORACLE/REFUTATION_V3/**; temporary isolated build files may use /private/tmp/piping-pressure-refutation-20260914. Earlier oracle/refutation freezes are immutable. No product-source edits, native/browser/WASM/network/Git actions or runtime activation.
+
+Read the original oracle basis; all V1 and V2 findings, frozen diagnostic/additional expectations and returns; root PRESSURE_SCALED_ARITHMETIC_REPAIR_V3.md; and PRESSURE/SOURCE_FREEZE_V3.json and IMPLEMENTATION_RETURN_V3.md. Verify integrated pressure_exact.rs SHA256 baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0 and lib.rs aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15 before and after checking. Rejected V1/V2 source is preserved once under ROOT/_run_records/REJECTED_PRESSURE_SOURCE_V1 and V2.
+
+Run all original valid/invalid expectations, every frozen V1/V2 counterexample, the independently corrected opposed-strain case and prior signed/nearby variants under unchanged tolerances. Recheck required actual implementation mutation classes against this revised source; earlier mutation counts are historical, not V3 qualification.
+
+Refute the general scaled-arithmetic method, especially constructor admission versus getter precision, normalized exponent-range calculations, final normal/subnormal conversion and signed zero, scaled cancellation, pressure ratio/area identities, and independent final-output representability. Freeze any new expectations before invoking the candidate on them. The allowed domain and floating-point allowance are unchanged; do not widen a tolerance or reject valid cases to produce a pass.
+
+Return PASS only if all required cases and mutations pass and no actionable flaw remains. Otherwise promptly report the smallest reproducible independently derived counterexample and a repair direction with failed evidence. This is private dormant-kernel qualification, not runtime solver acceptance. Root owns final source integration and complete fresh diff review.

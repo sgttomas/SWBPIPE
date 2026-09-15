@@ -1,0 +1,58 @@
+PRESSURE V2 retained pre-repair failures
+Date: 2026-09-14
+
+These failures were reproduced against the immutable V1 formulas before the
+V2 repair. They are retained as acceptance inputs; they were not regenerated
+after repair.
+
+Command:
+CARGO_TARGET_DIR=/tmp/chirality-pressure-cargo-target-20260914 cargo test --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --locked representable_stress -- --nocapture
+
+Result: exit 101; 0 passed, 2 failed.
+- subnormal_area_intermediates_do_not_erase_representable_stress:
+  radial actual -0, expected -1.367799715041726.
+- underflowed_fluid_force_does_not_erase_representable_stress:
+  inner hoop actual 3.8725919148493183e-121, expected
+  6.454319858082197e-121.
+
+Command:
+CARGO_TARGET_DIR=/tmp/chirality-pressure-cargo-target-20260914 cargo test --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --locked balanced_product -- --nocapture
+
+Result: exit 101; 0 passed, 2 failed.
+- wall force magnitude actual 2.0501330894674953e-143, expected
+  1.2076280723910805e-143.
+- applied eigen RHS magnitude actual 2.0501330894674953e-143, expected
+  1.2076280723910805e-143.
+
+Command:
+CARGO_TARGET_DIR=/tmp/chirality-pressure-cargo-target-20260914 cargo test --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --locked overflowing_force_terms -- --nocapture
+
+Result: exit 101; 0 passed, 2 failed.
+- axial_state unwrap returned Err(NonRepresentableLoad).
+- eigenload_pair unwrap returned Err(NonRepresentableLoad).
+
+Later routed finite-strain case, reproduced before its repair:
+
+Command:
+CARGO_TARGET_DIR=/tmp/chirality-pressure-cargo-target-20260914 cargo test --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --locked opposed_finite_strains -- --nocapture
+
+Result: exit 101; 0 passed, 1 failed.
+- opposed_finite_strains_do_not_overflow_before_stress_scaling:
+  axial_state unwrap returned Err(NonRepresentableStress) because the direct
+  epsilon_z-thermal_strain subtraction overflowed.
+
+Root corrected a transcription error in the routed expected eigen pair before
+repair acceptance. For epsilon_z=+2^1023 and thermal_strain=-2^1023, the
+unchanged applied-RHS identity gives eigen_i=+3*pi*2^23 and
+eigen_j=-3*pi*2^23. No sign or contract change was made.
+
+Repair-authoring failure retained:
+- The first apply_patch invocation failed its context check because the
+  interrupted source contained one thermal_strain argument where the prepared
+  patch context expected two. apply_patch made no changes. The repair was then
+  applied as two smaller context-verified patches.
+- The first final-output capture wrapper used `status` for its exit-code
+  variable. zsh reserves that name read-only, so the wrapper exited 1 after the
+  format check and focused tests had run and written their record. The wrapper
+  was rerun with `command_status`; the canonical final record is the successful
+  second run.

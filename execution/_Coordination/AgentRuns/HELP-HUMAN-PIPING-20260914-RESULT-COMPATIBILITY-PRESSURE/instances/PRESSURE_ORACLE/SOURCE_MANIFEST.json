@@ -1,0 +1,68 @@
+[
+  {
+    "path": "AGENTS.md",
+    "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/AGENTS.md",
+    "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+    "bytes": 12834
+  },
+  {
+    "path": "agents/AGENT_TASK.md",
+    "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "bytes": 1499
+  },
+  {
+    "path": "projects/chirality-piping/AGENTS.md",
+    "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/AGENTS.md",
+    "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "bytes": 10615
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_ORACLE.md",
+    "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_ORACLE.md",
+    "sha256": "a8a7698db46115949cef72a47ae5467554dec7a0183b168116df504f0440d25a",
+    "bytes": 3301
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/briefs/PRIVATE_PRESSURE_KERNEL_V1.md",
+    "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/briefs/PRIVATE_PRESSURE_KERNEL_V1.md",
+    "sha256": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34",
+    "bytes": 4244
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/PRESSURE_CONTRACT_V1.md",
+    "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/PRESSURE_CONTRACT_V1.md",
+    "sha256": "044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710",
+    "bytes": 15601
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/verification/ANALYTICAL_ORACLES_V1.json",
+    "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/verification/ANALYTICAL_ORACLES_V1.json",
+    "sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+    "bytes": 14268
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md",
+    "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md",
+    "sha256": "7dd4cdec050215540756cd6590076ee02b16b5b341f95b66e3c5801f020526f9",
+    "bytes": 2997
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/ScopeOfWork.md",
+    "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/ScopeOfWork.md",
+    "sha256": "ac00bcf4d2985eec1bb47792de5aa47c17742e8b1973c8be831f81dc97677f28",
+    "bytes": 24840
+  },
+  {
+    "path": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+    "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/docs/_Registers/Deliverables.csv",
+    "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+    "bytes": 36628
+  },
+  {
+    "path": "projects/chirality-piping/docs/CONTRACT.md",
+    "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/docs/CONTRACT.md",
+    "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+    "bytes": 6912
+  }
+]

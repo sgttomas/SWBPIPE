@@ -1,0 +1,77 @@
+[
+  {
+    "path": "AGENTS.md",
+    "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+    "bytes": 12834
+  },
+  {
+    "path": "agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "bytes": 1499
+  },
+  {
+    "path": "projects/chirality-piping/AGENTS.md",
+    "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "bytes": 10615
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_ORACLE.md",
+    "sha256": "a8a7698db46115949cef72a47ae5467554dec7a0183b168116df504f0440d25a",
+    "bytes": 3301
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_IMPLEMENTATION_REFUTATION_V1.md",
+    "sha256": "5e6816bbebc8b6422aeda96182d7b222caf43a816ba566d728ea6abe1b647b5c",
+    "bytes": 3108
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PRESSURE_SOURCE_RELEASE.json",
+    "sha256": "b487c97b9fa6dfa55871ea6ba282b11a4b2218ea8dd80d14232bbd06350777d6",
+    "bytes": 3766
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/SOURCE_FREEZE_V1.json",
+    "sha256": "b1b9117c2976ce091208cce8ded021e8408c21280448f20f31caeef9fe3e8f70",
+    "bytes": 2628
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/IMPLEMENTATION_RETURN_V1.md",
+    "sha256": "00ebfd3d6858714230d82f830c096ceea41de1b7a8b31a0efb19be194e1e4b88",
+    "bytes": 3548
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+    "sha256": "855144bf880370b5e40b57ecfc5e08fe3dec5929fc6d4a0d824ef0c9487bcd32",
+    "bytes": 26904
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+    "bytes": 710426
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/ORACLE_BASIS.md",
+    "sha256": "99397bacc85ea36b4bd3deb94c9e403b9bda69ad4f9f3b685ce46eab24c9b205",
+    "bytes": 10738
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/FROZEN_EXPECTATIONS.json",
+    "sha256": "b1277ee86ced3dc28ca14d9e79e2187d98e6dd2c55fa5c8b238a475c41804a72",
+    "bytes": 1022134
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/INVALID_INPUT_EXPECTATIONS.json",
+    "sha256": "04068adda661390f76a996ae5ae6e6e77c28fdfee49a23f353e53968e2b95ab3",
+    "bytes": 18440
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/independent_oracle.py",
+    "sha256": "48f04f9b02cc6a3d94509e4acb300cd56770f601f307662b9ae8cfc3ee16c24b",
+    "bytes": 15418
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/FREEZE_MANIFEST.json",
+    "sha256": "e99fe63c540f189d0f10154e32896571a126ad19e5463b4abbf18715fddc474e",
+    "bytes": 1715
+  }
+]

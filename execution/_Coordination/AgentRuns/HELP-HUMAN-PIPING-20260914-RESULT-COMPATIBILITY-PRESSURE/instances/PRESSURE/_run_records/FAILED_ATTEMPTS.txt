@@ -1,0 +1,42 @@
+Failure 1 — release hash verification wrapper
+
+Command used a loop variable named `path`, which is a zsh-special variable tied to command lookup.
+
+Observed output:
+zsh:3: command not found: sha256sum
+zsh:3: command not found: awk
+
+Resolution: reran the same read-only verification with loop variable `file_path`; all eight hashes matched. No file changed.
+
+Failure 2 — initial format check
+
+Command:
+cargo fmt --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --check
+
+Exit: 1
+
+Output:
+Diff in /Users/ryan/.codex/worktrees/8728/chirality-pressure-kernel-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs:187:
+         return Err(ExactPressureError::NonRepresentableStress);
+     }
+ 
+-    Ok(RadialHoopStressPa {
+-        radial_pa,
+-        hoop_pa,
+-    })
++    Ok(RadialHoopStressPa { radial_pa, hoop_pa })
+ }
+
+Additional rustfmt-only differences were reported at lines 349, 423, 577, 655, 663, and 763: tuple-return wrapping, compact `assert_scalar`, wrapping the eigen expected pair, compact `axial_state` calls, and compact adjacent-annulus construction.
+
+Resolution: `cargo fmt --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml` exited 0 with no output. Final `--check` exited 0 with no output. No semantic source repair was made.
+
+Failure 3 — isolated-target cleanup command rejected before execution
+
+The combined verification command began with an exact-path recursive removal of the generated isolated Cargo target. Automatic command policy rejected the command before any subprocess ran: `rm -f style commands are not permitted. Use a safer approach`.
+
+Resolution: moved the generated target directory intact to `/tmp/chirality-pressure-cargo-target-20260914`, then ran JSON, formatting, diff, and source-hash checks separately; all exited 0. No evidence or product source was removed or changed.
+
+Freeze-race note — reverted before handoff
+
+While root's source-freeze message was in transit, the implementer briefly applied an unreported algebraically equivalent radial-factor refactor after writing `SOURCE_FREEZE_V1.json`. On receipt of root's instruction, the edit was reversed byte-for-byte before any new test or handoff. Rechecked hashes are exactly the frozen values: `lib.rs` `aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15`; `pressure_exact.rs` `855144bf880370b5e40b57ecfc5e08fe3dec5929fc6d4a0d824ef0c9487bcd32`. The refactor is not part of the source freeze and no further source effect is authorized absent a routed finding.

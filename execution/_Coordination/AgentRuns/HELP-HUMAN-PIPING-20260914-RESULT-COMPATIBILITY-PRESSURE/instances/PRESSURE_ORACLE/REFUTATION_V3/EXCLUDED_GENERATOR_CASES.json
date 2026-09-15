@@ -1,0 +1,674 @@
+[
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_0",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_1",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_1",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_1",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_2",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_2",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_2",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_3",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_3",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_3",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_4",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_4",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_4",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_5",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_5",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_5",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_6",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_6",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_6",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_7",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_7",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_7",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_8",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_8",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_8",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_9",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_9",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_9",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_10",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_10",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_10",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_11",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_11",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_11",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_12",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_12",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_12",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_13",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_13",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_13",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_14",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_14",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_14",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_15",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_15",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_15",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_16",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_16",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_16",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_17",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_17",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_17",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_18",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_18",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_18",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_19",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_19",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_19",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "WALL_AREA_OVERFLOW_NEAR_20",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "FLUID_AREA_OVERFLOW_NEAR_20",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "CAP_OVERFLOW_NEAR_20",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_000",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_005",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_006",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_008",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_010",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_011",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_015",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_017",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_020",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_026",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_034",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_039",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_045",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_051",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_052",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_056",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_060",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_063",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_068",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_073",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_074",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_075",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_077",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_078",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_079",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_090",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_093",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_100",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_105",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_106",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_107",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_108",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_113",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_114",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_118",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_126",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_133",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_134",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_135",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_136",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_149",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_153",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_162",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_163",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_167",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_169",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_170",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_174",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_176",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_180",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_186",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_187",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_193",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_194",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_197",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_198",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_199",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_201",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_208",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_209",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_218",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_250",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_252",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_254",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_255",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_256",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_262",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_263",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_269",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_274",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_275",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_286",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_287",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_294",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_295",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_296",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_297",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_299",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_306",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_310",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_311",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_316",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_318",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_319",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_322",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_330",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_331",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_332",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_335",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_336",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_338",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_339",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_340",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_343",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_351",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_352",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_356",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_358",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_361",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_362",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_363",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_366",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_372",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_375",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_376",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_378",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  },
+  {
+    "id": "EXPONENT_GRID_381",
+    "reason": "independent required final output is nonfinite, or positive area/G rounds to zero"
+  }
+]

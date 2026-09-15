@@ -1,0 +1,110 @@
+[
+  {
+    "mutation": "OMIT_2NUP",
+    "class": "actual V3 implementation mutation in evidence-local copy",
+    "killed": true,
+    "scalar_failure_count": 525,
+    "first_failure": {
+      "id": "P1_FREE_TRANSFER",
+      "quantity": "wall_force_n",
+      "actual": 4.71238898038469,
+      "expected": {
+        "expected_decimal": "9.4247779607693796499903958121766605373557412370070829006724886576489454111314200395917420286720587785013861637",
+        "expected_f64": 9.42477796076938,
+        "scale_decimal": "9.4247779607693796499903958121766605373557412370070829006724886576489454111314200395917420286720587785013861637",
+        "absolute_limit_decimal": "2.6786830064706292802129598306284664594601682770778219550813016262648447454726636009331008462686607965967443089E-13"
+      }
+    },
+    "source_sha256": "e10e1c6c4e8c0d68c22058856bb92c6e245c6f213daeea287d28bb52cabfbb06"
+  },
+  {
+    "mutation": "DOUBLE_2NUP",
+    "class": "actual V3 implementation mutation in evidence-local copy",
+    "killed": true,
+    "scalar_failure_count": 525,
+    "first_failure": {
+      "id": "P1_FREE_TRANSFER",
+      "quantity": "wall_force_n",
+      "actual": 14.137166941154069,
+      "expected": {
+        "expected_decimal": "9.4247779607693796499903958121766605373557412370070829006724886576489454111314200395917420286720587785013861637",
+        "expected_f64": 9.42477796076938,
+        "scale_decimal": "9.4247779607693796499903958121766605373557412370070829006724886576489454111314200395917420286720587785013861637",
+        "absolute_limit_decimal": "2.6786830064706292802129598306284664594601682770778219550813016262648447454726636009331008462686607965967443089E-13"
+      }
+    },
+    "source_sha256": "c64f813661cde5a6018745b4d8f88b7c0cf3b344cea532307dfab370c1be8ef5"
+  },
+  {
+    "mutation": "REVERSE_2NUP",
+    "class": "actual V3 implementation mutation in evidence-local copy",
+    "killed": true,
+    "scalar_failure_count": 525,
+    "first_failure": {
+      "id": "P1_FREE_TRANSFER",
+      "quantity": "wall_force_n",
+      "actual": -6.539753433766185e-17,
+      "expected": {
+        "expected_decimal": "9.4247779607693796499903958121766605373557412370070829006724886576489454111314200395917420286720587785013861637",
+        "expected_f64": 9.42477796076938,
+        "scale_decimal": "9.4247779607693796499903958121766605373557412370070829006724886576489454111314200395917420286720587785013861637",
+        "absolute_limit_decimal": "2.6786830064706292802129598306284664594601682770778219550813016262648447454726636009331008462686607965967443089E-13"
+      }
+    },
+    "source_sha256": "aeb1a16621157bfb10fc55b0609f1c33edf555d0402e943cbfddbc70adbdaf88"
+  },
+  {
+    "mutation": "SUBTRACT_CAP_FROM_WALL",
+    "class": "actual V3 implementation mutation in evidence-local copy",
+    "killed": true,
+    "scalar_failure_count": 218,
+    "first_failure": {
+      "id": "P1_FREE_TRANSFER",
+      "quantity": "wall_force_n",
+      "actual": 0.0,
+      "expected": {
+        "expected_decimal": "9.4247779607693796499903958121766605373557412370070829006724886576489454111314200395917420286720587785013861637",
+        "expected_f64": 9.42477796076938,
+        "scale_decimal": "9.4247779607693796499903958121766605373557412370070829006724886576489454111314200395917420286720587785013861637",
+        "absolute_limit_decimal": "2.6786830064706292802129598306284664594601682770778219550813016262648447454726636009331008462686607965967443089E-13"
+      }
+    },
+    "source_sha256": "ae3d3397300d7a1b946d6522096169c0b112158b26d9625b75b90294b29c13b3"
+  },
+  {
+    "mutation": "MEAN_RADIUS_FLUID_AREA",
+    "class": "actual V3 implementation mutation in evidence-local copy",
+    "killed": true,
+    "scalar_failure_count": 1150,
+    "first_failure": {
+      "id": "P1_FREE_TRANSFER",
+      "quantity": "wall_force_n",
+      "actual": 15.315264186250241,
+      "expected": {
+        "expected_decimal": "9.4247779607693796499903958121766605373557412370070829006724886576489454111314200395917420286720587785013861637",
+        "expected_f64": 9.42477796076938,
+        "scale_decimal": "9.4247779607693796499903958121766605373557412370070829006724886576489454111314200395917420286720587785013861637",
+        "absolute_limit_decimal": "2.6786830064706292802129598306284664594601682770778219550813016262648447454726636009331008462686607965967443089E-13"
+      }
+    },
+    "source_sha256": "8a5debb28d0f69d7fa1f01b6bcd68158433619b119fc9030474c764a0398202c"
+  },
+  {
+    "mutation": "OMIT_FLUID_EFFECTIVE_TERM",
+    "class": "actual V3 implementation mutation in evidence-local copy",
+    "killed": true,
+    "scalar_failure_count": 109,
+    "first_failure": {
+      "id": "P1_FREE_TRANSFER",
+      "quantity": "effective_force_n",
+      "actual": 9.42477796076938,
+      "expected": {
+        "expected_decimal": "-6.53975343376618481152357669611182345622523451192745038077272069562923624473542924254450580958E-17",
+        "expected_f64": -6.539753433766185e-17,
+        "scale_decimal": "18.849555921538759365378325962015169189947249435132400363597322434572394629990047035475846504698409982447830423",
+        "absolute_limit_decimal": "5.3573660129412585790130168453558693471300243331633056310458080231945799113162954186793304258737890627480255782E-13"
+      }
+    },
+    "source_sha256": "0bfd4291f0f522dab3e4834870088efd15db0391da701e50efec3aac9cbc7a76"
+  }
+]

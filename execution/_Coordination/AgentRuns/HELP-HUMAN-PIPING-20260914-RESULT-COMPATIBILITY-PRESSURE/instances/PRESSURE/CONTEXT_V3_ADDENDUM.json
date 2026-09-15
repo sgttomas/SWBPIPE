@@ -1,0 +1,30 @@
+{
+  "schema": "pressure-context-v3-addendum",
+  "date": "2026-09-14",
+  "repair_brief": {
+    "path": "briefs/PRESSURE_SCALED_ARITHMETIC_REPAIR_V3.md",
+    "sha256": "13a8e51d87efe1c31b34c9b09e5bbe598d48e9550c666db1924a35bc0ec10109"
+  },
+  "accepted_additional_expectations": {
+    "path_owned_by_root": "instances/PRESSURE_ORACLE/REFUTATION_V2 additional expectation packet",
+    "sha256_supplied_by_root": "829340f1d0207394b351254658166b3824afd8f44b35400d7820ec5d7e2e72cb",
+    "availability_in_pressure_lane": "precise fields, expected quantities, and final findings routed by root; root-owned refutation files not copied into this lane"
+  },
+  "accepted_v2_refutation": {
+    "original_valid_cases": 114,
+    "original_invalid_cases": 44,
+    "prior_diagnostics": 5,
+    "opposed_strain_case": "PASS",
+    "additional_cases": 151,
+    "verdict": "FAIL on the two V3 inputs reproduced in V3_PRE_REPAIR_FAILURES.txt"
+  },
+  "immutable_upstream": [
+    "SOURCE_FREEZE_V1.json",
+    "SOURCE_FREEZE_V2.json",
+    "root-owned PRESSURE_ORACLE/REFUTATION_V2"
+  ],
+  "product_write_fence": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/pressure_exact.rs"
+  ]
+}

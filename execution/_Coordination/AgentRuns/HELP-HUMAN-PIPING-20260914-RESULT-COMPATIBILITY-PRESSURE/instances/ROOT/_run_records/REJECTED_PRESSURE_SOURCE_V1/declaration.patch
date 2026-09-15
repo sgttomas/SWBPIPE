@@ -1,0 +1,14 @@
+diff --git a/projects/chirality-piping/core/product_physics/src/lib.rs b/projects/chirality-piping/core/product_physics/src/lib.rs
+index 781195a9d..8e8cbf838 100644
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -59,6 +59,9 @@ use std::f64::consts::PI;
+ mod validation;
+ use validation::validate_model_inputs;
+ 
++#[allow(dead_code)]
++mod pressure_exact;
++
+ const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_POLICY_REF: &str =
+     "DEC-046-CV-B-product-preview-active-set-count-v1";
+ const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_ITERATIONS: usize = 4;

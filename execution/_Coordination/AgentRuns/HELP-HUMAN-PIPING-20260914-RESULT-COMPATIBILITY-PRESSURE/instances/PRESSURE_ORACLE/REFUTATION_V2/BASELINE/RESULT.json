@@ -1,0 +1,80 @@
+{
+  "actual_source": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+  "actual_source_sha256": "8533622eaa7d87c102791d60bc9eb3607d6daf119a2da41cbfe866e89e4d283f",
+  "cases_checked": 114,
+  "scalar_comparisons": 1990,
+  "invalid_fixture_count": 44,
+  "invalid_operation_count": 47,
+  "invalid_results": {
+    "GEOMETRY_ri_m_NaN/ExactAnnulus::from_radii": "InvalidGeometry",
+    "GEOMETRY_ri_m_+Infinity/ExactAnnulus::from_radii": "InvalidGeometry",
+    "GEOMETRY_ri_m_-Infinity/ExactAnnulus::from_radii": "InvalidGeometry",
+    "GEOMETRY_ro_m_NaN/ExactAnnulus::from_radii": "InvalidGeometry",
+    "GEOMETRY_ro_m_+Infinity/ExactAnnulus::from_radii": "InvalidGeometry",
+    "GEOMETRY_ro_m_-Infinity/ExactAnnulus::from_radii": "InvalidGeometry",
+    "ZERO_INNER/ExactAnnulus::from_radii": "InvalidGeometry",
+    "NEGATIVE_INNER/ExactAnnulus::from_radii": "InvalidGeometry",
+    "REVERSED/ExactAnnulus::from_radii": "InvalidGeometry",
+    "ZERO_WALL/ExactAnnulus::from_radii": "InvalidGeometry",
+    "AREA_UNDERFLOW/ExactAnnulus::from_radii": "NonRepresentableGeometry",
+    "AREA_OVERFLOW/ExactAnnulus::from_radii": "NonRepresentableGeometry",
+    "MATERIAL_E_pa_NaN/IsotropicENu::new": "InvalidMaterial",
+    "MATERIAL_E_pa_+Infinity/IsotropicENu::new": "InvalidMaterial",
+    "MATERIAL_E_pa_-Infinity/IsotropicENu::new": "InvalidMaterial",
+    "MATERIAL_nu_NaN/IsotropicENu::new": "InvalidMaterial",
+    "MATERIAL_nu_+Infinity/IsotropicENu::new": "InvalidMaterial",
+    "MATERIAL_nu_-Infinity/IsotropicENu::new": "InvalidMaterial",
+    "ZERO_E/IsotropicENu::new": "InvalidMaterial",
+    "NEGATIVE_E/IsotropicENu::new": "InvalidMaterial",
+    "NU_MINUS_ONE/IsotropicENu::new": "InvalidMaterial",
+    "NU_HALF/IsotropicENu::new": "InvalidMaterial",
+    "NU_BELOW/IsotropicENu::new": "InvalidMaterial",
+    "NU_ABOVE/IsotropicENu::new": "InvalidMaterial",
+    "G_OVERFLOW/IsotropicENu::new": "NonRepresentableMaterial",
+    "G_UNDERFLOW/IsotropicENu::new": "NonRepresentableMaterial",
+    "PRESSURE_NaN/InternalDifferentialPressure::new": "InvalidPressure",
+    "PRESSURE_+Infinity/InternalDifferentialPressure::new": "InvalidPressure",
+    "PRESSURE_-Infinity/InternalDifferentialPressure::new": "InvalidPressure",
+    "RADIUS_NaN/lame_at_radius": "RadiusOutsideWall",
+    "RADIUS_+Infinity/lame_at_radius": "RadiusOutsideWall",
+    "RADIUS_-Infinity/lame_at_radius": "RadiusOutsideWall",
+    "RADIUS_0.9999999999999999/lame_at_radius": "RadiusOutsideWall",
+    "RADIUS_2.0000000000000004/lame_at_radius": "RadiusOutsideWall",
+    "STRAIN_thermal_strain_NaN/axial_state": "InvalidStrain",
+    "STRAIN_thermal_strain_NaN/eigenload_pair": "InvalidStrain",
+    "STRAIN_thermal_strain_+Infinity/axial_state": "InvalidStrain",
+    "STRAIN_thermal_strain_+Infinity/eigenload_pair": "InvalidStrain",
+    "STRAIN_thermal_strain_-Infinity/axial_state": "InvalidStrain",
+    "STRAIN_thermal_strain_-Infinity/eigenload_pair": "InvalidStrain",
+    "STRAIN_epsilon_z_NaN/axial_state": "InvalidStrain",
+    "STRAIN_epsilon_z_+Infinity/axial_state": "InvalidStrain",
+    "STRAIN_epsilon_z_-Infinity/axial_state": "InvalidStrain",
+    "LAME_STRESS_OVERFLOW/lame_at_radius": "NonRepresentableStress",
+    "CAP_OVERFLOW/cap_pair": "NonRepresentableLoad",
+    "AXIAL_FORCE_OVERFLOW/axial_state": "NonRepresentableLoad",
+    "EIGEN_FORCE_OVERFLOW/eigenload_pair": "NonRepresentableLoad"
+  },
+  "invalid_failures": {},
+  "api_errors": [],
+  "comparison_failures": [],
+  "commands": [
+    {
+      "argv": [
+        "rustc",
+        "--edition=2021",
+        "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/BASELINE/adapter.rs",
+        "-o",
+        "/private/tmp/piping-pressure-refutation-20260914/V2-BASELINE-adapter"
+      ],
+      "exit_code": 0,
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/BASELINE"
+    },
+    {
+      "argv": [
+        "/private/tmp/piping-pressure-refutation-20260914/V2-BASELINE-adapter"
+      ],
+      "exit_code": 0,
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/BASELINE"
+    }
+  ]
+}

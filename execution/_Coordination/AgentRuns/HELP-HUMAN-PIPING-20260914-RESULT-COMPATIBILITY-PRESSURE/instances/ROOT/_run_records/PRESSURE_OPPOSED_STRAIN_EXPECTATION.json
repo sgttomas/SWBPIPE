@@ -1,0 +1,24 @@
+{
+  "status": "ADDITIONAL_DIAGNOSTIC_EXPECTATION_FOR_INDEPENDENT_V2_CHECK",
+  "case_id": "FINITE_OUTPUT_AFTER_OPPOSED_STRAIN_DIFFERENCE",
+  "inputs": {
+    "ri_m": 1,
+    "ro_m": 2,
+    "E_Pa": "2^-1000",
+    "nu": 0.25,
+    "p_Pa": 0,
+    "epsilon_z": "2^1023",
+    "thermal_strain": "-2^1023"
+  },
+  "independent_reduction": {
+    "wall_area": "3*pi",
+    "elastic_stress": "2^-1000 * (2^1023 - (-2^1023)) = 2^24",
+    "Nw": "3*pi*2^24",
+    "S": "3*pi*2^24",
+    "eigen_i": "-E*As*thermal = +3*pi*2^23",
+    "eigen_j": "-3*pi*2^23"
+  },
+  "reason": "Finite admitted strain inputs have an overflowing direct difference; every requested final stress/force is finite. Avoid premature intermediate rejection.",
+  "correction": "The initial root message mistakenly stated a negative eigen-i entry. The pressure writer correctly challenged it; root confirmed positive i / negative j under the unchanged applied-RHS identity. Inputs and physical contract were never changed.",
+  "acceptance": "Requires separate derivation and actual V2 execution by the independent pressure oracle using the existing tolerance policy."
+}

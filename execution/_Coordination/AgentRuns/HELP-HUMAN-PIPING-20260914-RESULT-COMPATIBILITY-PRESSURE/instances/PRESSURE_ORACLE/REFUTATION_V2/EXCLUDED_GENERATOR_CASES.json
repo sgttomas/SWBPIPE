@@ -1,0 +1,106 @@
+[
+  {
+    "id": "TINY_AREA_s-1.0_r-538_ratio1.0625_p0",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s-1.0_r-538_ratio1.0625_p200",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s-1.0_r-538_ratio1.0625_p500",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s-1.0_r-538_ratio1.0625_p900",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s-1.0_r-538_ratio1.125_p0",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s-1.0_r-538_ratio1.125_p200",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s-1.0_r-538_ratio1.125_p500",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s-1.0_r-538_ratio1.125_p900",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s-1.0_r-537_ratio1.0625_p0",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s-1.0_r-537_ratio1.0625_p200",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s-1.0_r-537_ratio1.0625_p500",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s-1.0_r-537_ratio1.0625_p900",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s1.0_r-538_ratio1.0625_p0",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s1.0_r-538_ratio1.0625_p200",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s1.0_r-538_ratio1.0625_p500",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s1.0_r-538_ratio1.0625_p900",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s1.0_r-538_ratio1.125_p0",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s1.0_r-538_ratio1.125_p200",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s1.0_r-538_ratio1.125_p500",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s1.0_r-538_ratio1.125_p900",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s1.0_r-537_ratio1.0625_p0",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s1.0_r-537_ratio1.0625_p200",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s1.0_r-537_ratio1.0625_p500",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "TINY_AREA_s1.0_r-537_ratio1.0625_p900",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "OVERFLOWING_FORCE_CANCELLATION_THERMAL_near_s-1.0_k1",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  },
+  {
+    "id": "OVERFLOWING_FORCE_CANCELLATION_THERMAL_near_s1.0_k1",
+    "reason": "at least one required ideal output nonfinite or positive area/G rounds to zero"
+  }
+]

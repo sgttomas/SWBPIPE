@@ -1,0 +1,672 @@
+{
+  "scope": "pure constructors and functions only",
+  "special_number_encoding": "NaN/+Infinity/-Infinity strings must be decoded to the corresponding binary64 value by the test adapter; they are not valid public DTO payload examples",
+  "cases": [
+    {
+      "id": "GEOMETRY_ri_m_NaN",
+      "operation": "ExactAnnulus::from_radii",
+      "inputs": {
+        "ri_m": "NaN",
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite radii required"
+    },
+    {
+      "id": "GEOMETRY_ri_m_+Infinity",
+      "operation": "ExactAnnulus::from_radii",
+      "inputs": {
+        "ri_m": "+Infinity",
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite radii required"
+    },
+    {
+      "id": "GEOMETRY_ri_m_-Infinity",
+      "operation": "ExactAnnulus::from_radii",
+      "inputs": {
+        "ri_m": "-Infinity",
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite radii required"
+    },
+    {
+      "id": "GEOMETRY_ro_m_NaN",
+      "operation": "ExactAnnulus::from_radii",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": "NaN",
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite radii required"
+    },
+    {
+      "id": "GEOMETRY_ro_m_+Infinity",
+      "operation": "ExactAnnulus::from_radii",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": "+Infinity",
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite radii required"
+    },
+    {
+      "id": "GEOMETRY_ro_m_-Infinity",
+      "operation": "ExactAnnulus::from_radii",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": "-Infinity",
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite radii required"
+    },
+    {
+      "id": "ZERO_INNER",
+      "operation": "ExactAnnulus::from_radii",
+      "inputs": {
+        "ri_m": 0.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "0 < ri < ro and finite strictly positive Ai, As required"
+    },
+    {
+      "id": "NEGATIVE_INNER",
+      "operation": "ExactAnnulus::from_radii",
+      "inputs": {
+        "ri_m": -1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "0 < ri < ro and finite strictly positive Ai, As required"
+    },
+    {
+      "id": "REVERSED",
+      "operation": "ExactAnnulus::from_radii",
+      "inputs": {
+        "ri_m": 2.0,
+        "ro_m": 1.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "0 < ri < ro and finite strictly positive Ai, As required"
+    },
+    {
+      "id": "ZERO_WALL",
+      "operation": "ExactAnnulus::from_radii",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 1.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "0 < ri < ro and finite strictly positive Ai, As required"
+    },
+    {
+      "id": "AREA_UNDERFLOW",
+      "operation": "ExactAnnulus::from_radii",
+      "inputs": {
+        "ri_m": 1e-200,
+        "ro_m": 2e-200,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "0 < ri < ro and finite strictly positive Ai, As required"
+    },
+    {
+      "id": "AREA_OVERFLOW",
+      "operation": "ExactAnnulus::from_radii",
+      "inputs": {
+        "ri_m": 1e+200,
+        "ro_m": 2e+200,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "0 < ri < ro and finite strictly positive Ai, As required"
+    },
+    {
+      "id": "MATERIAL_E_pa_NaN",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": "NaN",
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite E/nu required"
+    },
+    {
+      "id": "MATERIAL_E_pa_+Infinity",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": "+Infinity",
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite E/nu required"
+    },
+    {
+      "id": "MATERIAL_E_pa_-Infinity",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": "-Infinity",
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite E/nu required"
+    },
+    {
+      "id": "MATERIAL_nu_NaN",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": "NaN",
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite E/nu required"
+    },
+    {
+      "id": "MATERIAL_nu_+Infinity",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": "+Infinity",
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite E/nu required"
+    },
+    {
+      "id": "MATERIAL_nu_-Infinity",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": "-Infinity",
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite E/nu required"
+    },
+    {
+      "id": "ZERO_E",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 0.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "E>0, -1<nu<0.5 and finite strictly positive derived G required"
+    },
+    {
+      "id": "NEGATIVE_E",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": -1.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "E>0, -1<nu<0.5 and finite strictly positive derived G required"
+    },
+    {
+      "id": "NU_MINUS_ONE",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": -1.0,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "E>0, -1<nu<0.5 and finite strictly positive derived G required"
+    },
+    {
+      "id": "NU_HALF",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.5,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "E>0, -1<nu<0.5 and finite strictly positive derived G required"
+    },
+    {
+      "id": "NU_BELOW",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": -2.0,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "E>0, -1<nu<0.5 and finite strictly positive derived G required"
+    },
+    {
+      "id": "NU_ABOVE",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 1.0,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "E>0, -1<nu<0.5 and finite strictly positive derived G required"
+    },
+    {
+      "id": "G_OVERFLOW",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 1.7976931348623157e+308,
+        "nu": -0.9999999999999999,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "E>0, -1<nu<0.5 and finite strictly positive derived G required"
+    },
+    {
+      "id": "G_UNDERFLOW",
+      "operation": "IsotropicENu::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 5e-324,
+        "nu": 0.49,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "E>0, -1<nu<0.5 and finite strictly positive derived G required"
+    },
+    {
+      "id": "PRESSURE_NaN",
+      "operation": "InternalDifferentialPressure::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": "NaN",
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "pressure may have either sign but must be finite"
+    },
+    {
+      "id": "PRESSURE_+Infinity",
+      "operation": "InternalDifferentialPressure::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": "+Infinity",
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "pressure may have either sign but must be finite"
+    },
+    {
+      "id": "PRESSURE_-Infinity",
+      "operation": "InternalDifferentialPressure::new",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": "-Infinity",
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "pressure may have either sign but must be finite"
+    },
+    {
+      "id": "RADIUS_NaN",
+      "operation": "lame_at_radius",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0,
+        "r_m": "NaN"
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite radius within closed wall interval required; no radius clamping"
+    },
+    {
+      "id": "RADIUS_+Infinity",
+      "operation": "lame_at_radius",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0,
+        "r_m": "+Infinity"
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite radius within closed wall interval required; no radius clamping"
+    },
+    {
+      "id": "RADIUS_-Infinity",
+      "operation": "lame_at_radius",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0,
+        "r_m": "-Infinity"
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite radius within closed wall interval required; no radius clamping"
+    },
+    {
+      "id": "RADIUS_0.9999999999999999",
+      "operation": "lame_at_radius",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0,
+        "r_m": 0.9999999999999999
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite radius within closed wall interval required; no radius clamping"
+    },
+    {
+      "id": "RADIUS_2.0000000000000004",
+      "operation": "lame_at_radius",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0,
+        "r_m": 2.0000000000000004
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite radius within closed wall interval required; no radius clamping"
+    },
+    {
+      "id": "STRAIN_thermal_strain_NaN",
+      "operation": "axial_state and eigenload_pair",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": "NaN",
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite strains required"
+    },
+    {
+      "id": "STRAIN_thermal_strain_+Infinity",
+      "operation": "axial_state and eigenload_pair",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": "+Infinity",
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite strains required"
+    },
+    {
+      "id": "STRAIN_thermal_strain_-Infinity",
+      "operation": "axial_state and eigenload_pair",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": "-Infinity",
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite strains required"
+    },
+    {
+      "id": "STRAIN_epsilon_z_NaN",
+      "operation": "axial_state",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": "NaN"
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite strains required"
+    },
+    {
+      "id": "STRAIN_epsilon_z_+Infinity",
+      "operation": "axial_state",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": "+Infinity"
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite strains required"
+    },
+    {
+      "id": "STRAIN_epsilon_z_-Infinity",
+      "operation": "axial_state",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 3.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": "-Infinity"
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "finite strains required"
+    },
+    {
+      "id": "LAME_STRESS_OVERFLOW",
+      "operation": "lame_at_radius",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 1.0000000000000002,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 1.7976931348623157e+308,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0,
+        "r_m": 1.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "true hoop stress cannot be represented as finite binary64"
+    },
+    {
+      "id": "CAP_OVERFLOW",
+      "operation": "cap_pair",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 120.0,
+        "nu": 0.25,
+        "p_pa": 1.7976931348623157e+308,
+        "thermal_strain": 0.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "true pAi cannot be represented as finite binary64"
+    },
+    {
+      "id": "AXIAL_FORCE_OVERFLOW",
+      "operation": "axial_state",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 4.4942328371557893e+307,
+        "nu": 0.25,
+        "p_pa": 0.0,
+        "thermal_strain": 0.0,
+        "epsilon_z": 2.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "true wall force cannot be represented as finite binary64"
+    },
+    {
+      "id": "EIGEN_FORCE_OVERFLOW",
+      "operation": "eigenload_pair",
+      "inputs": {
+        "ri_m": 1.0,
+        "ro_m": 2.0,
+        "E_pa": 4.4942328371557893e+307,
+        "nu": 0.25,
+        "p_pa": 0.0,
+        "thermal_strain": 2.0,
+        "epsilon_z": 0.0
+      },
+      "expected": "Err; no finite-looking substituted result",
+      "reason": "true eigenload force cannot be represented as finite binary64"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "status": "V2_COPIED_FOR_INDEPENDENT_BACKCHECK",
+  "recorded_utc": "2026-09-15T00:48:55.276054+00:00",
+  "source_files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "role": "unchanged V1 private dormant module declaration"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "8533622eaa7d87c102791d60bc9eb3607d6daf119a2da41cbfe866e89e4d283f",
+      "role": "private exact pressure kernel and 24 co-located tests"
+    }
+  ],
+  "owning_source_freeze": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/SOURCE_FREEZE_V2.json",
+  "source_freeze_sha256": "0ab04e60c03c8482569468c71baea5ec03854ab0fda110d36b5e3f214f1dc14f",
+  "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_IMPLEMENTATION_REFUTATION_V2.md",
+  "brief_sha256": "b1e8d6cab0f39b63f85b80b400a38874f9cf8811458e1eac66c7787754782257",
+  "acceptance": "pending independent V2 backcheck; V1 failure evidence unchanged"
+}

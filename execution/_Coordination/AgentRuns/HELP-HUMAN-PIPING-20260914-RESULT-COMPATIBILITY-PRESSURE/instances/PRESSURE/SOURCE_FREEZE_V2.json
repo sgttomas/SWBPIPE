@@ -1,0 +1,49 @@
+{
+  "schema": "pressure-source-freeze-v2",
+  "date": "2026-09-14",
+  "status": "SOURCE_FROZEN_FOCUSED_TESTS_PASS",
+  "accepted_upstream": {
+    "repair_brief_sha256": "776af854301b19da0c2ca3a98c6aa01f97787672714271fb5ba4cd3fb93cfa26",
+    "diagnostic_expectations_sha256_supplied_by_root": "668236c4783e8213a3a30b7898823a4e105e44e06eadb3942d1ca432fd5e6222",
+    "v1_freeze_immutable": true
+  },
+  "source_files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "role": "unchanged V1 private dormant module declaration"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "8533622eaa7d87c102791d60bc9eb3607d6daf119a2da41cbfe866e89e4d283f",
+      "role": "private exact pressure kernel and 24 co-located tests"
+    }
+  ],
+  "focused_validation": {
+    "format_command": "rustfmt --edition 2021 --check projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+    "test_command": "CARGO_TARGET_DIR=/tmp/chirality-pressure-cargo-target-20260914 cargo test --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --locked pressure_exact -- --nocapture",
+    "result": "24 passed; 0 failed; 0 ignored; 149 filtered out",
+    "output_path": "instances/PRESSURE/_run_records/V2_FINAL_FOCUSED_TEST_OUTPUT.txt",
+    "output_sha256": "930282e145d478a8ee7956baffa0b61569cff34f15a27347698866434e95a93b"
+  },
+  "v2_regression_tests": [
+    "subnormal_area_intermediates_do_not_erase_representable_stress",
+    "underflowed_fluid_force_does_not_erase_representable_stress",
+    "balanced_product_preserves_wall_force_from_subnormal_partial_product",
+    "balanced_product_preserves_applied_eigen_rhs_from_subnormal_partial_product",
+    "overflowing_force_terms_cancel_to_representable_axial_state",
+    "overflowing_force_terms_cancel_to_representable_applied_eigen_rhs",
+    "opposed_finite_strains_do_not_overflow_before_stress_scaling"
+  ],
+  "retained_failures": {
+    "path": "instances/PRESSURE/_run_records/V2_PRE_REPAIR_FAILURES.txt",
+    "sha256": "64e01a9a1b8bbd331adb955268277938ddd0ed4ea3a8c4e01477de32ab2448a5"
+  },
+  "scope_checks": {
+    "only_product_reference": "src/lib.rs private mod pressure_exact declaration",
+    "runtime_calls_added": 0,
+    "dto_or_schema_changes": 0,
+    "native_browser_network_git_actions": 0,
+    "cargo_target": "/tmp/chirality-pressure-cargo-target-20260914"
+  }
+}

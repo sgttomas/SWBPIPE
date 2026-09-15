@@ -1,0 +1,15 @@
+# TASK pressure implementation refutation V1
+
+Role: TASK / Type 2, reporting directly to HELP_HUMAN. Continue foundation_pressure_oracle with its configured gpt-6-astra / xhigh. Do not delegate. Refute actual implementation against your already frozen independent expectations; do not derive expectations from implementation.
+
+Resolve REPO_ROOT from the integration checkout and WORKING_ROOT from it. Integration checkout: /Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914. RUN: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE.
+
+Read root/project/TASK instructions, original oracle brief, frozen ORACLE_BASIS.md and expectation/invalid-input manifests, root PRESSURE_SOURCE_RELEASE.json, instances/PRESSURE/SOURCE_FREEZE_V1.json and implementation return. Verify actual source hashes before running and at return: pressure_exact.rs SHA256 855144bf880370b5e40b57ecfc5e08fe3dec5929fc6d4a0d824ef0c9487bcd32; private lib.rs declaration SHA256 aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15. Root stopped an initial integration copy when a transient writer refactor disagreed with these hashes. The writer restored exact frozen bytes; both files now reverify. No refutation ran on the transient source.
+
+Connect an evidence-local Rust adapter to the actual frozen private API. Importing implementation for observed values is allowed now; independent expectations and comparison calculations must never import or reuse it. Exercise every frozen valid case/quantity and required invalid class. Keep pre-frozen allowances unchanged, including pressure-scale endpoint traction checks and no blanket nonzero-underflow rejection. Diagnose mismatches rather than adjust the oracle. Retain adapter source, raw actuals, failures, exact argv/tool/source identities and a compact return referencing owning evidence.
+
+Demonstrate detection of omitted/doubled/reversed 2nuP, incorrect cap subtraction, wrong pressure area and missing fluid-force term. Mutation copies inside the evidence scope are permitted; do not mutate product files. Distinguish analytical mutations from actual implementation mutations. Examine cancellation/overflow/underflow and adjacent-radius handling for a concrete counterexample beyond maintained tests when warranted.
+
+Write only RUN/instances/PRESSURE_ORACLE/REFUTATION_V1/**. Existing frozen oracle files remain immutable. Use that scope or /private/tmp/piping-pressure-refutation-20260914 for build artifacts. Local read/exec and isolated pure Rust/Python checks allowed. No product edits, native/browser/WASM build, app control, network, Git mutation, delegation, lifecycle/DAG/decomposition or runtime activation.
+
+Return PASS only when the complete valid/invalid expectation set and required mutation classes are checked with no actionable finding. Otherwise promptly return smallest reproducible input, expected/actual/error, source location and repair direction. Root retains combined acceptance/full review. Dormant kernel checks cannot qualify live solver pressure.

@@ -1,0 +1,40 @@
+{
+  "role": "TASK / Type 2",
+  "parent": "HELP_HUMAN /root",
+  "instance": "/root/foundation_pressure_oracle",
+  "configured_model": "gpt-6-astra",
+  "reasoning_effort": "xhigh",
+  "attribution_basis": "Parent dispatch and sealed brief; no independent runtime introspection claim",
+  "delegation_class": "delegated-harness-native",
+  "nondelegation": "instruction-asserted; no child dispatched",
+  "write_scope": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3",
+  "build_scope": "/private/tmp/piping-pressure-refutation-20260914 (V3-prefixed executables)",
+  "status": "PASS_WITH_QUALIFIED_OVERFLOW_ADMISSION_BOUNDARY",
+  "run_argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/run_refutation.py"
+  ],
+  "strict_probe_argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/probe_admission.py"
+  ],
+  "both_execution_exit_codes": 0,
+  "source_hashes_verified_before_after": true,
+  "all_earlier_freezes_reverified": true,
+  "new_expectation_hashes_reverified": true,
+  "source_or_prior_oracle_mutations": false,
+  "scalar_tolerance_or_cutoff_change": false,
+  "preserved_exploratory_prediction_failure": "WALL_AREA_OVERFLOW_NEAR_0",
+  "boundary_ruling_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PRESSURE_OVERFLOW_BOUNDARY_INTERPRETATION_V1.json",
+  "final_summary": "ADJUDICATED_SUMMARY.json",
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "scope_limit": "Private dormant kernel only; root retains final acceptance/full review/runtime gates.",
+  "tools_excluded": [
+    "product edits/build",
+    "native/browser/WASM",
+    "network",
+    "Git action",
+    "delegation",
+    "runtime activation"
+  ]
+}

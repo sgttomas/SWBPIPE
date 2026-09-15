@@ -1,0 +1,9 @@
+{
+  "status": "REJECTED_SOURCE_PRESERVED",
+  "reason": "V1 independent refutation F1/F2/F3; not an accepted product candidate",
+  "private_source_sha256": "855144bf880370b5e40b57ecfc5e08fe3dec5929fc6d4a0d824ef0c9487bcd32",
+  "declaration_patch_sha256": "a5264aa7ea5cba45378890ec114818279362ea5819715a7982c35bfffdfea72e",
+  "canonical_refutation": "instances/PRESSURE_ORACLE/REFUTATION_V1/RETURN.md",
+  "canonical_diagnostic_expectations_sha256": "668236c4783e8213a3a30b7898823a4e105e44e06eadb3942d1ca432fd5e6222",
+  "reproduction_note": "This preserves the exact uncommitted V1 implementation preimage before integration replaces it with V2. Existing raw adapter paths name the then-current integration path; reproduce only after supplying these exact pinned bytes to an isolated adapter. Original raw outputs and frozen oracle remain unchanged."
+}

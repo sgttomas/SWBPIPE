@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/independent_oracle.py",
+    "--emit"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+  "exit_code": 0,
+  "at_utc": "2026-09-15T00:10:19.312392+00:00",
+  "prior_attempts": [
+    {
+      "command": "python3 independent_oracle.py --emit",
+      "exit_code": 0,
+      "description": "initial oracle passed; then strengthened constant precision and added 1,648 load-superposition checks before freeze"
+    },
+    {
+      "command": "rg selected refs at execution/_Registers/Deliverables.csv and project-root CONTRACT.md",
+      "exit_code": 2,
+      "description": "paths absent; corrected to project docs/_Registers and docs/CONTRACT.md; no inference from absent files"
+    }
+  ]
+}

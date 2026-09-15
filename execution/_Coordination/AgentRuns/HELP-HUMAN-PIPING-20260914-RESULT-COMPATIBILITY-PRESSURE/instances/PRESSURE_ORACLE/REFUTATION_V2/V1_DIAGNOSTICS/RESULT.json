@@ -1,0 +1,32 @@
+{
+  "actual_source": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+  "actual_source_sha256": "8533622eaa7d87c102791d60bc9eb3607d6daf119a2da41cbfe866e89e4d283f",
+  "cases_checked": 5,
+  "scalar_comparisons": 74,
+  "invalid_fixture_count": 0,
+  "invalid_operation_count": 0,
+  "invalid_results": {},
+  "invalid_failures": {},
+  "api_errors": [],
+  "comparison_failures": [],
+  "commands": [
+    {
+      "argv": [
+        "rustc",
+        "--edition=2021",
+        "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/V1_DIAGNOSTICS/adapter.rs",
+        "-o",
+        "/private/tmp/piping-pressure-refutation-20260914/V2-V1_DIAGNOSTICS-adapter"
+      ],
+      "exit_code": 0,
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/V1_DIAGNOSTICS"
+    },
+    {
+      "argv": [
+        "/private/tmp/piping-pressure-refutation-20260914/V2-V1_DIAGNOSTICS-adapter"
+      ],
+      "exit_code": 0,
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/V1_DIAGNOSTICS"
+    }
+  ]
+}

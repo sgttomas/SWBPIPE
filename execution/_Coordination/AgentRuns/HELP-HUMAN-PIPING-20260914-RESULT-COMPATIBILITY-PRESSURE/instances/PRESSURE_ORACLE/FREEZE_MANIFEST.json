@@ -1,0 +1,54 @@
+{
+  "freeze_id": "PRESSURE_ORACLE_BASIS_V1",
+  "at_utc": "2026-09-15T00:10:19.314520+00:00",
+  "immutable_after_root_handoff": true,
+  "basis_sha256": "99397bacc85ea36b4bd3deb94c9e403b9bda69ad4f9f3b685ce46eab24c9b205",
+  "sources": "SOURCE_MANIFEST.json",
+  "artifacts": [
+    {
+      "path": "FROZEN_EXPECTATIONS.json",
+      "sha256": "b1277ee86ced3dc28ca14d9e79e2187d98e6dd2c55fa5c8b238a475c41804a72",
+      "bytes": 1022134
+    },
+    {
+      "path": "INVALID_INPUT_EXPECTATIONS.json",
+      "sha256": "04068adda661390f76a996ae5ae6e6e77c28fdfee49a23f353e53968e2b95ab3",
+      "bytes": 18440
+    },
+    {
+      "path": "ORACLE_BASIS.md",
+      "sha256": "99397bacc85ea36b4bd3deb94c9e403b9bda69ad4f9f3b685ce46eab24c9b205",
+      "bytes": 10738
+    },
+    {
+      "path": "ORACLE_SELF_CHECK.json",
+      "sha256": "170cc4462affe77e0c7ef48c568d72a7a417794228ee590f79f3b7c5ddd1555d",
+      "bytes": 2572
+    },
+    {
+      "path": "RUN_MANIFEST.json",
+      "sha256": "7691ba5ffb5cd463b0433fbcb6c62ff2c734453dd21bc775ce6f73ade648f768",
+      "bytes": 2580
+    },
+    {
+      "path": "SOURCE_MANIFEST.json",
+      "sha256": "04cf6a75ff01e6c5f0f2973a8063358392a426f7c304120dad389002a9bf9753",
+      "bytes": 4812
+    },
+    {
+      "path": "_run_records/EXECUTION.json",
+      "sha256": "f57ff6d14873f138bb7e1b20f9490d7ee9d56531ef5443a901fb7f48ecdd6417",
+      "bytes": 1044
+    },
+    {
+      "path": "_run_records/independent_oracle.raw.txt",
+      "sha256": "170cc4462affe77e0c7ef48c568d72a7a417794228ee590f79f3b7c5ddd1555d",
+      "bytes": 2572
+    },
+    {
+      "path": "independent_oracle.py",
+      "sha256": "48f04f9b02cc6a3d94509e4acb300cd56770f601f307662b9ae8cfc3ee16c24b",
+      "bytes": 15418
+    }
+  ]
+}

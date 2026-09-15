@@ -1,0 +1,14 @@
+{
+  "status": "FAIL_ACTIONABLE_NUMERIC_FINDINGS",
+  "baseline_valid_cases": 114,
+  "baseline_scalar_comparisons": 1990,
+  "baseline_invalid_fixtures": 44,
+  "baseline_invalid_operations": 47,
+  "baseline_comparison_failures": 0,
+  "baseline_invalid_failures": 0,
+  "v1_diagnostic_cases": 5,
+  "v1_diagnostic_failures": 0,
+  "additional_case_count": 151,
+  "additional_failure_count": 492,
+  "actual_v2_mutations_killed": 6
+}

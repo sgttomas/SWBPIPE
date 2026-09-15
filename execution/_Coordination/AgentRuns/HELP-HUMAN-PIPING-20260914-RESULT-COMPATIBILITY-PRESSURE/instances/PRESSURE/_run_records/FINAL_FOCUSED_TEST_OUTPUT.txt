@@ -1,0 +1,30 @@
+Command:
+CARGO_TARGET_DIR=$PWD/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/_run_records/cargo-target cargo test --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --locked pressure_exact::tests:: -- --nocapture
+
+Exit: 0
+
+Output:
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-pressure-kernel-20260914/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.87s
+     Running unittests src/lib.rs (projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/_run_records/cargo-target/debug/deps/open_pipe_stress_product_physics-0057d7d873d595a5)
+
+running 17 tests
+test pressure_exact::tests::annulus_accepts_reference_and_adjacent_representable_radii ... ok
+test pressure_exact::tests::annulus_rejects_invalid_and_nonrepresentable_geometry ... ok
+test pressure_exact::tests::pressure_accepts_finite_signed_values_only ... ok
+test pressure_exact::tests::lame_uses_pressure_scale_for_adjacent_radius_boundary_tractions ... ok
+test pressure_exact::tests::reductions_auxetic_behavior_and_superposition_hold ... ok
+test pressure_exact::tests::wall_effective_and_membrane_identities_remain_independent ... ok
+test pressure_exact::tests::cap_and_applied_eigen_rhs_have_frozen_local_signs ... ok
+test pressure_exact::tests::lame_matches_boundaries_interior_and_constant_sum ... ok
+test pressure_exact::tests::four_rational_pi_states_match_frozen_oracle ... ok
+test pressure_exact::tests::lame_rejects_radii_outside_closed_wall_interval ... ok
+test pressure_exact::tests::material_rejects_invalid_bounds_and_nonrepresentable_g ... ok
+test pressure_exact::tests::eigen_rhs_avoids_underflowing_eigenstrain_intermediate ... ok
+test pressure_exact::tests::material_derives_single_shear_modulus_authority ... ok
+test pressure_exact::tests::subnormal_pressure_rounding_is_accepted_without_blanket_rejection ... ok
+test pressure_exact::tests::numeric_edge_cases_preserve_frozen_outputs ... ok
+test pressure_exact::tests::lame_zero_and_signed_pressure_scale_linearly ... ok
+test pressure_exact::tests::nonfinite_strains_and_true_output_overflow_return_errors ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 149 filtered out; finished in 0.00s

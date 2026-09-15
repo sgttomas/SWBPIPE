@@ -1,0 +1,10 @@
+warning: unused variable: `fluid_force_n`
+   --> /Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/OMIT_FLUID_EFFECTIVE_TERM/pressure_exact_mutant.rs:238:9
+    |
+238 |     let fluid_force_n = fluid_force(annulus, pressure)?;
+    |         ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_fluid_force_n`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: 1 warning emitted
+

@@ -1,0 +1,45 @@
+{
+  "schema": "agent0-private-pressure-integration-acceptance-v1",
+  "created_utc": "2026-09-15T01:22:29.841102+00:00",
+  "status": "ACCEPTED_PRIVATE_KERNEL_FOR_INTEGRATION_WITH_QUALIFIED_OVERFLOW_BOUNDARY",
+  "accepted_basis": "User-approved result compatibility and private pressure plan, accepted PRIVATE_PRESSURE_KERNEL_V1 and unchanged original oracle policy",
+  "source": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15"
+    }
+  ],
+  "writer_freeze": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/SOURCE_FREEZE_V3.json",
+    "sha256": "2deb6d5bcb2446cc52f3ec8489321caa4369795f08525884aaf245740192bb8c"
+  },
+  "independent_refutation": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/ADJUDICATED_SUMMARY.json",
+    "sha256": "80b513905c0dc737f16ec91d7a01afda1fc61d263b6898774291c6ee0617c75a",
+    "freeze_sha256": "06ff65053dbb0d3bf27efcf5acc73ed90632e2815f1f5da61b5b5b91378ec8a8",
+    "all_frozen_artifact_hashes_checked_by_root": true
+  },
+  "boundary_ruling": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PRESSURE_OVERFLOW_BOUNDARY_INTERPRETATION_V1.json",
+    "sha256": "56070efd3aa53fef86e7966cbda7ac56e65d1e1dca2e06e7d18d1a0d2d4e9805",
+    "limitation": "Conservative rejection remains permitted for the recorded ideal-area-above-MAX case which would ideally round to MAX; no promise of correctly rounded exact-real admission across the overflow rounding interval."
+  },
+  "preserved_failures": "V1/V2 findings, rejected source locators and V3 raw exploratory failure remain immutable; the adjudicated V3 summary owns the final qualified disposition.",
+  "scope": "One new private module plus its private lib declaration; product runtime has no invocation and all existing mechanics behavior remains unchanged.",
+  "pending": [
+    "Fresh review of complete integrated candidate",
+    "Complete registered DEC-025 and project checks",
+    "Compatibility/native combined acceptance",
+    "One scoped PR, actual candidate CI and merge",
+    "Deliverable metadata and handoff updates"
+  ],
+  "not_claimed": [
+    "Runtime pressure qualification",
+    "All binary64 inputs proved",
+    "Whole-project or release completion"
+  ]
+}

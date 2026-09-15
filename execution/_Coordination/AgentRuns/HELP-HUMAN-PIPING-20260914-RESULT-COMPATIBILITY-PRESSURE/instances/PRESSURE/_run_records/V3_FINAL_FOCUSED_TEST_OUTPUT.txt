@@ -1,0 +1,34 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/tmp/chirality-pressure-cargo-target-20260914/debug/deps/open_pipe_stress_product_physics-0057d7d873d595a5)
+
+running 27 tests
+test pressure_exact::tests::annulus_accepts_reference_and_adjacent_representable_radii ... ok
+test pressure_exact::tests::annulus_rejects_invalid_and_nonrepresentable_geometry ... ok
+test pressure_exact::tests::balanced_product_preserves_applied_eigen_rhs_from_subnormal_partial_product ... ok
+test pressure_exact::tests::balanced_product_preserves_wall_force_from_subnormal_partial_product ... ok
+test pressure_exact::tests::eigen_rhs_avoids_underflowing_eigenstrain_intermediate ... ok
+test pressure_exact::tests::final_force_conversion_preserves_gradual_underflow_and_signed_zero ... ok
+test pressure_exact::tests::cap_and_applied_eigen_rhs_have_frozen_local_signs ... ok
+test pressure_exact::tests::four_rational_pi_states_match_frozen_oracle ... ok
+test pressure_exact::tests::lame_matches_boundaries_interior_and_constant_sum ... ok
+test pressure_exact::tests::lame_rejects_radii_outside_closed_wall_interval ... ok
+test pressure_exact::tests::lame_uses_pressure_scale_for_adjacent_radius_boundary_tractions ... ok
+test pressure_exact::tests::lame_zero_and_signed_pressure_scale_linearly ... ok
+test pressure_exact::tests::material_derives_single_shear_modulus_authority ... ok
+test pressure_exact::tests::material_rejects_invalid_bounds_and_nonrepresentable_g ... ok
+test pressure_exact::tests::numeric_edge_cases_preserve_frozen_outputs ... ok
+test pressure_exact::tests::nonfinite_strains_and_true_output_overflow_return_errors ... ok
+test pressure_exact::tests::opposed_finite_strains_do_not_overflow_before_stress_scaling ... ok
+test pressure_exact::tests::overflowing_force_terms_cancel_to_representable_applied_eigen_rhs ... ok
+test pressure_exact::tests::overflowing_force_terms_cancel_to_representable_axial_state ... ok
+test pressure_exact::tests::pressure_accepts_finite_signed_values_only ... ok
+test pressure_exact::tests::reductions_auxetic_behavior_and_superposition_hold ... ok
+test pressure_exact::tests::rounded_subnormal_area_does_not_control_normal_force_outputs ... ok
+test pressure_exact::tests::squared_radius_ratio_stays_scaled_until_final_stress ... ok
+test pressure_exact::tests::subnormal_area_intermediates_do_not_erase_representable_stress ... ok
+test pressure_exact::tests::underflowed_fluid_force_does_not_erase_representable_stress ... ok
+test pressure_exact::tests::subnormal_pressure_rounding_is_accepted_without_blanket_rejection ... ok
+test pressure_exact::tests::wall_effective_and_membrane_identities_remain_independent ... ok
+
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 149 filtered out; finished in 0.00s
+

@@ -1,0 +1,43 @@
+{
+  "role": "TASK / Type 2",
+  "parent_role": "HELP_HUMAN",
+  "agent_task_name": "/root/foundation_pressure_oracle",
+  "delegation_class": "delegated-harness-native",
+  "nondelegation": "instruction-asserted; no child dispatched",
+  "configured_model": "gpt-6-astra",
+  "configured_reasoning_effort": "xhigh",
+  "model_evidence": "Parent dispatch and sealed brief; no independent runtime introspection tool used",
+  "integration_checkout": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+  "baseline_as_supplied": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/**",
+  "read_scope": "Selected doctrine, sealed brief, accepted pressure design and DEL-05-03 scope/basis; see SOURCE_MANIFEST.json",
+  "tools_used": [
+    "functions.exec",
+    "exec_command",
+    "apply_patch",
+    "collaboration.send_message to parent only"
+  ],
+  "tools_not_used": [
+    "delegation",
+    "network",
+    "Git",
+    "app/native/browser",
+    "product build/test"
+  ],
+  "source_read_before_freeze": false,
+  "limitations": [
+    "Parent-provided instruction context includes an older AGENTS excerpt; current checkout doctrine was additionally read and hashed. Supplied transcript metadata has no separately retrievable canonical file hash.",
+    "The supplied analytical JSON contains connector data; its complete file was initially displayed with pressure data. Connector content was not used in derivation or checks.",
+    "Initial multi-file tool results were truncated; focused reads recovered selected pressure clauses. Full file hashes cover original bytes; hashing is not a claim every byte was semantically consulted.",
+    "Inherited/source design status and formal accepted snapshot identifiers are parent-supplied; this derivative child does not authenticate new governing acceptance."
+  ],
+  "status": "PASS_ANALYTICAL_ORACLE_FROZEN",
+  "acceptance_pending": "Root acceptance and separately dispatched implementation refutation",
+  "retained_hypotheses": [
+    "Long straight annulus, homogeneous isotropic small-strain linear material",
+    "Uniform signed incremental internal pressure, external reference zero",
+    "Input thermal strain is already selected alpha-times-deltaT; no temperature/material selection inside this kernel",
+    "Reference wall geometry and exact local sign contract",
+    "No collapse, buckling, curvature, pressure stiffening or code acceptability claim"
+  ]
+}

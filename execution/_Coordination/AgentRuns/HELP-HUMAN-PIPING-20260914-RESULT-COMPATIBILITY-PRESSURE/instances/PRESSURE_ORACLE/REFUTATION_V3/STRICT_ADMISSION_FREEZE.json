@@ -1,0 +1,7 @@
+{
+  "status": "FROZEN_BEFORE_INVOKING_CANDIDATE_ON_THESE_INPUTS",
+  "cases": 1103,
+  "input_domain": "Exact high-precision Ai and As <= f64::MAX; excludes rounding-to-MAX ambiguity",
+  "expectations_sha256": "7232620a9942397c3c30e6339c33a5b0cd599bb4d93944bfa4ef3e6818e14eb2",
+  "source_sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0"
+}

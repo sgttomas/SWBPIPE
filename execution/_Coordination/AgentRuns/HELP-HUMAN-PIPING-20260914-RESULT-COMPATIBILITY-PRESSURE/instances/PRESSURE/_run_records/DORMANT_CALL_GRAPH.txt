@@ -1,0 +1,9 @@
+Command:
+rg -n "pressure_exact|ExactAnnulus|IsotropicENu|InternalDifferentialPressure|lame_at_radius|axial_state|eigenload_pair|cap_pair" projects/chirality-piping/core/product_physics/src
+
+Result summary:
+- `projects/chirality-piping/core/product_physics/src/lib.rs:63:mod pressure_exact;`
+- Every `ExactAnnulus`, `IsotropicENu`, `InternalDifferentialPressure`, `lame_at_radius`, `axial_state`, `eigenload_pair`, and `cap_pair` match is inside `pressure_exact.rs`, either the implementation or its co-located tests.
+- No match exists in preview execution, validation, normalization, load assembly, solver dispatch, or recovery code.
+
+Verdict: PASS — private module is compiled but dormant; runtime call count is zero.

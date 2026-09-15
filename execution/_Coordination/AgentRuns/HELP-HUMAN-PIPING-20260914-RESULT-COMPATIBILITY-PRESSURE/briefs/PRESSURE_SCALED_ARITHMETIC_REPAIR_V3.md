@@ -1,0 +1,18 @@
+# TASK private pressure scaled-arithmetic repair V3
+
+Continue TASK / Type2 foundation_pressure, configured Sol/high, no delegation, in the pressure worktree. Root routes the independently reproduced V2 residuals and selects one general arithmetic method. Same two-file product fence: pressure_exact.rs and the unchanged private module declaration in lib.rs. V1/V2 source/evidence remain immutable. The integration checkout retains V2 for the independent reviewer's final evidence; make V3 changes only in your lane.
+
+Confirmed new pre-invocation-frozen examples:
+
+- ri=2^-537, ro=2^-536, E120, nu.25, p=2^200, strains0. P should be pi*2^-874 (about2.4942137116196084e-263), while V2 returns about2.381798647991063e-263. Wall/eigen-i should be half P. Rounded subnormal Ai/As still corrupt now-normal force outputs.
+- ri=2^-300, ro=2^300, p=2^900, E120, nu.25, strains0, r=2^299. V2 squares ri/r to zero before applying pressure; mid radial should be about-1.472728039589318e-90 and hoop about2.4545467326488633e-90. Both pressure signs fail.
+
+The independent additional expectation packet has SHA256829340f1d0207394b351254658166b3824afd8f44b35400d7820ec5d7e2e72cb under PRESSURE_ORACLE/REFUTATION_V2; consume the reviewer's exact packet and subsequent findings, never fit expected values to source. Retain a direct pre-repair reproduction before changing formulas.
+
+Engineering direction: use a private signed normalized mantissa/binary-exponent representation for geometry-derived quantities, products, ratios and affine sums. Retain significand information until each requested final output is converted to f64. Rounded positive area getters establish representability/admission, but must not be reused as the precision authority for later normal forces or stresses. Products of tiny ratios, very large terms and cancellation must stay scaled throughout; replace the local maximum/association heuristic rather than layer more special cases onto it. Keep the implementation compact and private, with no dependency, public API or general numerical-policy expansion.
+
+Evaluate Lamé and axial/eigen/cap identities from validated primary data and the shared scaled quantities. Preserve the physical identities and applied-RHS signs. A final finite stress/force must not disappear or be rejected because an intermediate force, area, strain difference or squared ratio under/overflows. Convert and validate all actual output fields independently; required positive geometry/material quantities must still be positive representable f64. The final conversion must handle gradual subnormal rounding (including a result that rounds up to the smallest subnormal), rather than an early power-of-two factor becoming zero. All originally frozen invalid classes and tolerance meaning remain unchanged. Return any true policy conflict to root; do not invent a cutoff or widen tolerance.
+
+Retain all existing reference/negative/representability regressions. Add maintained regressions for these two newly found behaviors and meaningful nearby sign/exponent variants. Validate the scaling helper through actual kernel outputs and clear edge checks, not duplicate implementation logic in expected calculations. Run focused locked Rust tests/format checks in an isolated target, and return new SOURCE_FREEZE_V3 plus a concise method/limitations/failed-evidence record. Do not copy into integration, run native/WASM/browser/network/Git, delegate, activate runtime pressure, alter DTOs/models/material migrations, or touch the accepted oracle.
+
+This is the second bounded repair with substantial new independent evidence, not an unproductive repetition. Root will independently refute V3 and invoke a fresh diagnosis if the method still fails without new evidence.

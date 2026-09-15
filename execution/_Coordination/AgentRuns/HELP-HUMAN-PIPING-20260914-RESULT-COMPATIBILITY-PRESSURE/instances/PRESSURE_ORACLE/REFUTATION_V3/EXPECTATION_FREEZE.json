@@ -1,0 +1,9 @@
+{
+  "status": "FROZEN_BEFORE_V3_INVOCATION",
+  "source_sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+  "additional_expectations_sha256": "b64d41aea038b61aa5131575cac662dd1e1d084246596e93c651d0567781d35d",
+  "final_conversion_expectations_sha256": "1e598cbbbc5dd3e4c90fbea06429ff474bce7aae2f25f67b73249c2a112fbd48",
+  "additional_cases": 420,
+  "excluded_before_observation": 168,
+  "policy": "unchanged scalar limits; final cap rounding/zero bits separately check the explicit V3 gradual-underflow requirement"
+}

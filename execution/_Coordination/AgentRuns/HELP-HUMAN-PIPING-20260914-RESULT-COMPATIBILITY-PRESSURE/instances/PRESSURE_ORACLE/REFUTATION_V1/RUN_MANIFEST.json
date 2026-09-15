@@ -1,0 +1,43 @@
+{
+  "role": "TASK / Type 2",
+  "parent": "HELP_HUMAN /root",
+  "instance": "/root/foundation_pressure_oracle",
+  "configured_model": "gpt-6-astra",
+  "reasoning_effort": "xhigh",
+  "attribution_basis": "Parent task dispatch and sealed brief; no runtime introspection claim",
+  "mechanism": "delegated-harness-native",
+  "nondelegation": "instruction-asserted; no child dispatched",
+  "write_scope": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1",
+  "build_scope": "/private/tmp/piping-pressure-refutation-20260914",
+  "status": "FAIL_ACTIONABLE_NUMERIC_FINDINGS",
+  "source_and_original_oracle_hashes_verified_before_and_after": true,
+  "v2_source_read": false,
+  "original_expectations_changed": false,
+  "engineering_tolerance_changed": false,
+  "baseline_valid_cases": 114,
+  "baseline_scalar_comparisons": 1990,
+  "baseline_invalid_fixtures": 44,
+  "baseline_invalid_operations": 47,
+  "diagnostic_cases": 5,
+  "diagnostic_missing_or_wrong_outputs": 22,
+  "actual_mutations_killed": 6,
+  "root_followup": "Root has routed V2 repair; V1 remains fixed failure evidence. Separate source-frozen follow-up required before this child reads V2.",
+  "exclusions": [
+    "product edits",
+    "product/native/browser/WASM build",
+    "network",
+    "Git actions",
+    "delegation",
+    "governed lifecycle or runtime activation"
+  ],
+  "run_command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/run_refutation.py"
+  ],
+  "run_exit_code": 0,
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "limitations": [
+    "Baseline scalar success does not establish topology, solver assembly/recovery, migration, public result contracts, dense/sparse parity, native behavior or release readiness.",
+    "Publicly impossible geometry/material magnitudes are deliberate arithmetic probes of the explicitly admitted kernel domain; no physical-fit or engineering reliance claim is introduced."
+  ]
+}

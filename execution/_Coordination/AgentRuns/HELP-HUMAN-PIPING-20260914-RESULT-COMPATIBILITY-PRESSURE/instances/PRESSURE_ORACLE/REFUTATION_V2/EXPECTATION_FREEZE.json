@@ -1,0 +1,10 @@
+{
+  "status": "FROZEN_BEFORE_V2_INVOCATION",
+  "source_sha256": "8533622eaa7d87c102791d60bc9eb3607d6daf119a2da41cbfe866e89e4d283f",
+  "original_oracle_sha256": "48f04f9b02cc6a3d94509e4acb300cd56770f601f307662b9ae8cfc3ee16c24b",
+  "v1_diagnostics_sha256": "668236c4783e8213a3a30b7898823a4e105e44e06eadb3942d1ca432fd5e6222",
+  "additional_expectations_sha256": "829340f1d0207394b351254658166b3824afd8f44b35400d7820ec5d7e2e72cb",
+  "additional_cases": 151,
+  "excluded_cases": 26,
+  "root_reduction": "sigma=E(epsilon-thermal)=2^24; Nw=S=3*pi*2^24; eigen_i=-EAs*thermal=+3*pi*2^23; eigen_j=-3*pi*2^23"
+}

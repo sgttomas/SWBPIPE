@@ -1,0 +1,22 @@
+{
+  "schema": "pressure-context-v2-addendum",
+  "date": "2026-09-14",
+  "repair_brief": {
+    "path": "briefs/PRESSURE_REPRESENTABILITY_REPAIR_V2.md",
+    "sha256": "776af854301b19da0c2ca3a98c6aa01f97787672714271fb5ba4cd3fb93cfa26"
+  },
+  "accepted_diagnostic_expectations": {
+    "path_owned_by_root": "instances/PRESSURE_ORACLE/REFUTATION_V1/DIAGNOSTIC_EXPECTATIONS.json",
+    "sha256_supplied_by_root": "668236c4783e8213a3a30b7898823a4e105e44e06eadb3942d1ca432fd5e6222",
+    "availability_in_pressure_lane": "precise fields and expected quantities routed by root; root-owned file not copied into this lane"
+  },
+  "immutable_upstream": [
+    "SOURCE_FREEZE_V1.json",
+    "SOURCE_FREEZE_ADDENDUM_V1.md",
+    "instances/PRESSURE_ORACLE frozen package"
+  ],
+  "product_write_fence": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/pressure_exact.rs"
+  ]
+}

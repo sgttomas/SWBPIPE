@@ -1,0 +1,68 @@
+{
+  "schema": "pressure-source-freeze-v3",
+  "date": "2026-09-14",
+  "status": "SOURCE_FROZEN_FOCUSED_TESTS_PASS",
+  "accepted_upstream": {
+    "repair_brief_sha256": "13a8e51d87efe1c31b34c9b09e5bbe598d48e9550c666db1924a35bc0ec10109",
+    "additional_expectations_sha256_supplied_by_root": "829340f1d0207394b351254658166b3824afd8f44b35400d7820ec5d7e2e72cb",
+    "v1_and_v2_freezes_immutable": true
+  },
+  "source_files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "role": "unchanged V1/V2 private dormant module declaration"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+      "role": "private exact pressure kernel, private scaled arithmetic, and 27 co-located tests"
+    }
+  ],
+  "method": {
+    "representation": "signed normalized binary64 mantissa plus i32 binary exponent",
+    "normalization": "exact binary64 decomposition for normal/subnormal inputs; normalized after each mantissa operation",
+    "operations": [
+      "scaled geometry area derivation",
+      "multiplication and division",
+      "exponent-aligned affine addition and subtraction",
+      "exponent-aligned fused multiply-add",
+      "single final binary64 conversion with gradual underflow"
+    ],
+    "precision_authority": "scaled ai/as derived from validated radii; rounded positive area getters remain admission/output values only",
+    "final_validation": "each requested stress/force converts independently; nonfinite output returns the existing operation error"
+  },
+  "focused_validation": {
+    "format_command": "rustfmt --edition 2021 --check projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+    "test_command": "CARGO_TARGET_DIR=/tmp/chirality-pressure-cargo-target-20260914 cargo test --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --locked pressure_exact -- --nocapture",
+    "result": "27 passed; 0 failed; 0 ignored; 149 filtered out",
+    "output_path": "instances/PRESSURE/_run_records/V3_FINAL_FOCUSED_TEST_OUTPUT.txt",
+    "output_sha256": "0db411ee6393e628888283a7e2787da0a7ca72d59bcc21198cee8c7cdf58cfeb"
+  },
+  "v3_regression_tests": [
+    {
+      "name": "rounded_subnormal_area_does_not_control_normal_force_outputs",
+      "coverage": "frozen p=2^200 case, both pressure signs, and pressure exponents 199/200/201"
+    },
+    {
+      "name": "squared_radius_ratio_stays_scaled_until_final_stress",
+      "coverage": "frozen p=2^900 case, both pressure signs, and pressure exponents 899/900/901"
+    },
+    {
+      "name": "final_force_conversion_preserves_gradual_underflow_and_signed_zero",
+      "coverage": "final cap force rounds upward to minimum subnormal or to signed zero at the binary64 boundary"
+    }
+  ],
+  "retained_failures": {
+    "path": "instances/PRESSURE/_run_records/V3_PRE_REPAIR_FAILURES.txt",
+    "sha256": "d1d20ba3cd6abe842779c3f5fc7bc0593ed8984c0401c36c47a37adb264c335a"
+  },
+  "scope_checks": {
+    "only_product_reference": "src/lib.rs private mod pressure_exact declaration",
+    "runtime_calls_added": 0,
+    "dto_or_schema_changes": 0,
+    "dependencies_added": 0,
+    "native_wasm_browser_network_git_actions": 0,
+    "cargo_target": "/tmp/chirality-pressure-cargo-target-20260914"
+  }
+}

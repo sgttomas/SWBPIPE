@@ -1,0 +1,81 @@
+{
+  "record_kind": "delegated-task-context-manifest",
+  "status": "PRE_ORACLE_READ_COMPLETE",
+  "role": "TASK / Type 2",
+  "parent": "HELP_HUMAN (root session)",
+  "delegation_mechanism": "delegated-harness-native",
+  "role_enforcement": "instruction-asserted",
+  "non_delegation_enforcement": "instruction-asserted",
+  "delegation_used": false,
+  "checkout": "/Users/ryan/.codex/worktrees/8728/chirality-pressure-kernel-20260914",
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-pressure-kernel-20260914",
+  "working_root": "/Users/ryan/.codex/worktrees/8728/chirality-pressure-kernel-20260914/projects/chirality-piping",
+  "baseline_head": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "baseline_matches_sealed_brief": true,
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning_effort": "high",
+  "model_attribution_basis": "sealed launch brief; the runtime exposes no independent model/effort introspection endpoint to this child",
+  "scope": {
+    "deliverable_id": "DEL-05-03",
+    "package_id": "PKG-05",
+    "scope_item": "SOW-015",
+    "objective": "OBJ-003",
+    "current_phase": "read and source/test design only",
+    "future_product_write_fence_after_release": [
+      "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "projects/chirality-piping/core/product_physics/src/lib.rs (one private module declaration only)"
+    ],
+    "current_write_fence": [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/**"
+    ]
+  },
+  "declared_returns": [
+    "pre-oracle source/test design inventory",
+    "post-release implementation and co-located focused tests",
+    "focused locked Cargo evidence with isolated target",
+    "dormant-call-graph evidence",
+    "frozen patch and hashes"
+  ],
+  "limitations": [
+    "The independent oracle verifies pure scalar mechanics only; full oracle-to-product refutation remains root-owned after this source freeze.",
+    "The source release authorizes only the dormant private module; no product runtime, DTO, schema, migration, solver, normalizer, or recovery integration is in scope.",
+    "The historical four-document kit is consolidated in ScopeOfWork.md in this checkout; no separate Datasheet.md, Specification.md, Guidance.md, or Procedure.md files are present in the selected deliverable folder.",
+    "No runtime, DTO, schema, solver, normalizer, load/recovery, native, browser, network, or Git action is authorized."
+  ],
+  "source_release": {
+    "status": "PRESSURE_SOURCE_RELEASED",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PRESSURE_SOURCE_RELEASE.json",
+    "sha256": "b487c97b9fa6dfa55871ea6ba282b11a4b2218ea8dd80d14232bbd06350777d6",
+    "oracle_hash_verification": "PASS; all eight release-manifest hashes matched copied bytes before source effect and again at source freeze"
+  },
+  "context": [
+    {"origin":"repository doctrine","path":"AGENTS.md","sha256":"6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64"},
+    {"origin":"actual role package","path":"agents/AGENT_TASK.md","sha256":"1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"},
+    {"origin":"project doctrine","path":"projects/chirality-piping/AGENTS.md","sha256":"33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"},
+    {"origin":"owner direction","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/OWNER_DIRECTION.md","sha256":"02726e30d98c8a9a79188a45b31800d1a1c69a4f05fc4e4acf8f475d4f82f249"},
+    {"origin":"approved plan anchor","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/APPROVED_PLAN.md","sha256":"8dc764d047439756ae788c12dd2f19e5e827f5dd3429a857faeade620e3c121d"},
+    {"origin":"sealed child brief","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_IMPLEMENTATION.md","sha256":"4740a6cdb7ef8490a0fee48a5c1a8cd65e1ff43665397cb7a306d824628e4423"},
+    {"origin":"selected intake status","path":"projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_STATUS.md","sha256":"0bde752dbb3ae9a943bc7ff9ada3bdf41672011c9c9c37b0e8a38c75725fa1c2"},
+    {"origin":"selected intake memory","path":"projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md","sha256":"57f29e71ea6319a64bae10429f07713e33477ea1133a01f2bfbbf7ff45de6e63"},
+    {"origin":"selected intake context","path":"projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md","sha256":"7dd4cdec050215540756cd6590076ee02b16b5b341f95b66e3c5801f020526f9"},
+    {"origin":"selected intake references","path":"projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_REFERENCES.md","sha256":"ec49d94487b07b767e25763f2640632ab5885062f2da4512f77b37f215b007ef"},
+    {"origin":"selected consolidated four-document kit and scope","path":"projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/ScopeOfWork.md","sha256":"ac00bcf4d2985eec1bb47792de5aa47c17742e8b1973c8be831f81dc97677f28"},
+    {"origin":"selected dependency register","path":"projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/Dependencies.csv","sha256":"36577cf71e5d25ab4746900b11c75dfc9872f2757c5f019ddefdb265788ba49f"},
+    {"origin":"selected dependency summary","path":"projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_DEPENDENCIES.md","sha256":"f43f747be2d869bf0823184663e18d7e3e265e8eda98126d2d1def012eb811de"},
+    {"origin":"superseded-caller pressure brief retained as technical input","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/briefs/PRIVATE_PRESSURE_KERNEL_V1.md","sha256":"26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34"},
+    {"origin":"accepted pressure contract","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/PRESSURE_CONTRACT_V1.md","sha256":"044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710"},
+    {"origin":"accepted candidate analytical specification; not the pending independent oracle","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/verification/ANALYTICAL_ORACLES_V1.json","sha256":"6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c"},
+    {"origin":"live product module/style and dormant-call boundary","path":"projects/chirality-piping/core/product_physics/src/lib.rs","sha256":"399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b"},
+    {"origin":"live validation style","path":"projects/chirality-piping/core/product_physics/src/validation.rs","sha256":"cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7"},
+    {"origin":"crate dependency/test configuration","path":"projects/chirality-piping/core/product_physics/Cargo.toml","sha256":"2d04ed98254a98a1f24235ed09ba9538e96e63924ca2a2802b9cd3218d7c5035"},
+    {"origin":"legacy pressure helper inspected for non-effect boundary","path":"projects/chirality-piping/core/loads/stress_recovery/src/lib.rs","sha256":"0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2"},
+    {"origin":"root-accepted frozen independent oracle basis","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/ORACLE_BASIS.md","sha256":"99397bacc85ea36b4bd3deb94c9e403b9bda69ad4f9f3b685ce46eab24c9b205"},
+    {"origin":"root-accepted frozen valid expectations","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/FROZEN_EXPECTATIONS.json","sha256":"b1277ee86ced3dc28ca14d9e79e2187d98e6dd2c55fa5c8b238a475c41804a72"},
+    {"origin":"root-accepted frozen invalid expectations","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/INVALID_INPUT_EXPECTATIONS.json","sha256":"04068adda661390f76a996ae5ae6e6e77c28fdfee49a23f353e53968e2b95ab3"},
+    {"origin":"independent standard-library oracle implementation","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/independent_oracle.py","sha256":"48f04f9b02cc6a3d94509e4acb300cd56770f601f307662b9ae8cfc3ee16c24b"},
+    {"origin":"oracle freeze manifest","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/FREEZE_MANIFEST.json","sha256":"e99fe63c540f189d0f10154e32896571a126ad19e5463b4abbf18715fddc474e"},
+    {"origin":"oracle self-check","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/ORACLE_SELF_CHECK.json","sha256":"170cc4462affe77e0c7ef48c568d72a7a417794228ee590f79f3b7c5ddd1555d"},
+    {"origin":"oracle source manifest","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/SOURCE_MANIFEST.json","sha256":"04cf6a75ff01e6c5f0f2973a8063358392a426f7c304120dad389002a9bf9753"},
+    {"origin":"oracle return","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/RETURN.md","sha256":"7966b1ab6b6996c1f091c5ea96236a98c22bae7e5ebfa1fb9f2cfbfbf969094e"}
+  ]
+}

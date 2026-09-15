@@ -1,0 +1,58 @@
+{
+  "record_kind": "private-pressure-kernel-source-freeze",
+  "status": "IMPLEMENTED_FOCUSED_TESTS_PASS",
+  "baseline_head": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "source_release_sha256": "b487c97b9fa6dfa55871ea6ba282b11a4b2218ea8dd80d14232bbd06350777d6",
+  "oracle_hashes_reverified": true,
+  "product_files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "change": "three-line private dormant module declaration"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "855144bf880370b5e40b57ecfc5e08fe3dec5929fc6d4a0d824ef0c9487bcd32",
+      "lines": 776,
+      "change": "new private exact-annulus kernel with 17 co-located tests"
+    }
+  ],
+  "unchanged_manifest": {
+    "path": "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "sha256": "2d04ed98254a98a1f24235ed09ba9538e96e63924ca2a2802b9cd3218d7c5035"
+  },
+  "focused_validation": {
+    "command": "CARGO_TARGET_DIR=$PWD/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/_run_records/cargo-target cargo test --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --locked pressure_exact::tests:: -- --nocapture",
+    "exit": 0,
+    "result": "17 passed; 0 failed; 0 ignored; 149 filtered out",
+    "raw_output": "_run_records/FINAL_FOCUSED_TEST_OUTPUT.txt"
+  },
+  "format_validation": {
+    "command": "cargo fmt --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --check",
+    "exit": 0
+  },
+  "diff_check": {
+    "command": "git diff --check",
+    "exit": 0
+  },
+  "dormant_call_graph": {
+    "status": "PASS",
+    "evidence": "_run_records/DORMANT_CALL_GRAPH.txt",
+    "finding": "The only lib.rs reference is the private module declaration. Every other exact-kernel symbol reference is inside pressure_exact.rs implementation or its co-located tests."
+  },
+  "scope_result": {
+    "product_files_changed": 2,
+    "runtime_calls_added": 0,
+    "dto_or_schema_changes": 0,
+    "legacy_helper_changes": 0,
+    "native_browser_network_git_actions": 0,
+    "delegations": 0
+  },
+  "remaining_gates": [
+    "root-owned independent full oracle-to-product refutation",
+    "fresh read-only 100% frozen-diff review",
+    "root-owned full product checks, native witnesses and DEC-025 sweep",
+    "root integration, receipt, publication and Git closeout",
+    "later explicit runtime/DTO/schema/topology/material/version activation"
+  ]
+}

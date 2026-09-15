@@ -1,0 +1,7 @@
+{
+  "status": "V2_SOURCE_WITH_CONFIRMED_REMAINING_DEFECTS",
+  "source_sha256": "8533622eaa7d87c102791d60bc9eb3607d6daf119a2da41cbfe866e89e4d283f",
+  "owning_refutation": "instances/PRESSURE_ORACLE/REFUTATION_V2",
+  "lib_declaration": "unchanged; same declaration.patch as REJECTED_PRESSURE_SOURCE_V1",
+  "reason": "Preserve exact uncommitted V2 preimage before subsequent integration. No accepted runtime pressure claim."
+}

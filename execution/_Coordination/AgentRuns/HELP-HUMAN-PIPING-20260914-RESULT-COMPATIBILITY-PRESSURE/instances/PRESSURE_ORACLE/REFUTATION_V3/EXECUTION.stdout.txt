@@ -1,0 +1,21 @@
+BASELINE 0 0
+V1/V2 0 0
+ADDITIONAL 420 15
+{
+  "status": "FAIL_ACTIONABLE_NUMERIC_FINDINGS",
+  "baseline_valid_cases": 114,
+  "baseline_scalar_comparisons": 1990,
+  "baseline_invalid_fixtures": 44,
+  "baseline_invalid_operations": 47,
+  "baseline_failures": 0,
+  "v1_cases": 5,
+  "v1_failures": 0,
+  "v2_cases": 151,
+  "v2_failures": 0,
+  "additional_cases": 420,
+  "additional_scalar_comparisons": 7114,
+  "additional_failures": 15,
+  "final_conversion_bit_checks": 36,
+  "final_conversion_bit_failures": 0,
+  "actual_v3_mutations_killed": 6
+}

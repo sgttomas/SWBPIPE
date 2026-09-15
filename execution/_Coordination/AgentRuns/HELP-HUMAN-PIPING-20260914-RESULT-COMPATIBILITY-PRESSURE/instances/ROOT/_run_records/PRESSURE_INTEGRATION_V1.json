@@ -1,0 +1,26 @@
+{
+  "status": "PRESSURE_SOURCE_COPIED_FOR_INDEPENDENT_REFUTATION",
+  "recorded_utc": "2026-09-15T00:26:54.210423+00:00",
+  "product_files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "change": "three-line private dormant module declaration"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "855144bf880370b5e40b57ecfc5e08fe3dec5929fc6d4a0d824ef0c9487bcd32",
+      "lines": 776,
+      "change": "new private exact-annulus kernel with 17 co-located tests"
+    }
+  ],
+  "source_freeze_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/SOURCE_FREEZE_V1.json",
+  "source_freeze_sha256": "b1b9117c2976ce091208cce8ded021e8408c21280448f20f31caeef9fe3e8f70",
+  "refutation_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_IMPLEMENTATION_REFUTATION_V1.md",
+  "refutation_brief_sha256": "5e6816bbebc8b6422aeda96182d7b222caf43a816ba566d728ea6abe1b647b5c",
+  "runtime_activation": false,
+  "initial_copy_attempt": {
+    "exit": 1,
+    "reason": "Pre-effect source hash assertion failed during unreported writer refactor. Writer restored exact frozen bytes; root reverified both before successful copy. No refutation ran on transient source."
+  }
+}

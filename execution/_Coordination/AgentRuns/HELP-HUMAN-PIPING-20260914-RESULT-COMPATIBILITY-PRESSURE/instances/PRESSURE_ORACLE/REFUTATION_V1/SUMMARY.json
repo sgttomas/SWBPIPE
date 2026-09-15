@@ -1,0 +1,7 @@
+{
+  "status": "FAIL_ACTIONABLE_NUMERIC_FINDINGS",
+  "baseline_comparison_failures": 0,
+  "baseline_invalid_failures": 0,
+  "diagnostic_comparison_failures": 22,
+  "actual_implementation_mutations_killed": 6
+}

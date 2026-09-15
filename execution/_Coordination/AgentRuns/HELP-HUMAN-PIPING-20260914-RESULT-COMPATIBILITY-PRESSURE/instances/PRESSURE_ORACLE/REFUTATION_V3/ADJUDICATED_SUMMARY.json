@@ -1,0 +1,52 @@
+{
+  "status": "PASS_WITH_QUALIFIED_OVERFLOW_ADMISSION_BOUNDARY",
+  "unresolved_actionable_findings": 0,
+  "source_sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+  "original_cases": {
+    "valid_cases": 114,
+    "scalar_comparisons": 1990,
+    "invalid_fixtures": 44,
+    "invalid_operations": 47,
+    "status": "PASS"
+  },
+  "v1_frozen_diagnostics": {
+    "cases": 5,
+    "scalar_comparisons": 74,
+    "status": "PASS"
+  },
+  "v2_frozen_diagnostics": {
+    "cases": 151,
+    "scalar_comparisons": 2370,
+    "status": "PASS"
+  },
+  "v3_exploratory_suite": {
+    "cases": 420,
+    "scalar_comparisons_requested": 7114,
+    "accepted_output_cases_passed": 419,
+    "qualified_constructor_rejections": 1,
+    "raw_failed_comparison_entries_preserved": 15
+  },
+  "strict_additional_admission_suite": {
+    "cases": 1103,
+    "scalar_comparisons": 15442,
+    "ideal_area_bound": "Ai and As <= f64::MAX",
+    "status": "PASS"
+  },
+  "final_conversion": {
+    "exact_bit_checks": 36,
+    "status": "PASS"
+  },
+  "actual_v3_mutations": {
+    "classes": 6,
+    "status": "ALL_DETECTED"
+  },
+  "qualified_case": "WALL_AREA_OVERFLOW_NEAR_0",
+  "qualification_ruling_sha256": "56070efd3aa53fef86e7966cbda7ac56e65d1e1dca2e06e7d18d1a0d2d4e9805",
+  "raw_summary_preserved": "SUMMARY.json predates the Agent 0 disposition and retains its generic FAIL_ACTIONABLE_NUMERIC_FINDINGS status; this adjudicated record is the final child verdict.",
+  "prohibited_claims": [
+    "All exploratory predictions passed",
+    "Correctly rounded exact-real admission across the overflow rounding interval",
+    "All possible floating-point inputs proved",
+    "Runtime pressure/solver qualification"
+  ]
+}

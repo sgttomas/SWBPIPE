@@ -1,0 +1,28 @@
+{
+  "schema": "agent0-pressure-overflow-boundary-interpretation-v1",
+  "created_utc": "2026-09-15T01:18:01.629387+00:00",
+  "authority": "User-approved plan and standing engineering judgment; private kernel scope anchored in DEL-05-03 / D-67",
+  "accepted_brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/briefs/PRIVATE_PRESSURE_KERNEL_V1.md",
+    "sha256": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34",
+    "text": "Require finite0<ri<ro, finitepositive areas; compute As with (ro-ri)*(ro+ri) to reduce cancellation without a physical thin-wall threshold. Reject nonrepresentable derived geometry/material/load/stress."
+  },
+  "source_sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+  "reported_probe": {
+    "ri_hex": "0x1.4d8d7a58fa311p+510",
+    "ro_hex": "0x1.4d8d7a58fa311p+511",
+    "ideal_wall_area": "f64::MAX + 0.015008786701717676 ULP",
+    "ideal_final_nearest_binary64": "f64::MAX (below MAX+0.5ULP round-to-infinity boundary)",
+    "implementation": "Err(NonRepresentableGeometry) after ordinary finite-precision area arithmetic rounds to infinity"
+  },
+  "ruling": "Conservative constructor rejection of this above-exact-finite-range probe is acceptable under the existing positive-finite binary64 derived-area predicate. The private contract does not promise correctly rounded exact-real admission across the overflow rounding interval.",
+  "calibration": [
+    "This is a qualified boundary interpretation, not a claim that the original exploratory prediction passed.",
+    "Preserve the pre-invocation frozen expectation, actual failure and exact Decimal comparison without replacement.",
+    "Do not introduce clamping/saturation, new source effects, changed scalar tolerances or a physical thin-wall cutoff.",
+    "The additional 1103 independently pre-frozen annuli whose ideal Ai and As are <= f64::MAX passed; any genuinely below-MAX rejection remains a finding to investigate.",
+    "Kernel admission/rounding qualification is separate from future runtime pressure acceptance."
+  ],
+  "evidence_owner": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3",
+  "next": "Oracle seals its own final report with this explicit qualification; root combined acceptance must preserve the limitation."
+}

@@ -1,0 +1,33 @@
+PRESSURE V3 retained pre-repair failures
+Date: 2026-09-14
+
+The two independently frozen V2 residuals were added as maintained tests and
+run against the V2 implementation before scaled-arithmetic source repair.
+
+Command:
+CARGO_TARGET_DIR=/tmp/chirality-pressure-cargo-target-20260914 cargo test --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --locked rounded_subnormal_area -- --nocapture
+
+Result: exit 101; 0 passed, 1 failed.
+- For ri=2^-537, ro=2^-536, p=2^200, the first cap-pair scalar was
+  -2.381798647991063e-263 rather than -2.4942137116196084e-263.
+- Residual: 1.124150636285454e-264.
+- Frozen limit: 7.0889817368982e-278.
+- Cause confirmed by the independent review and reproduction: V2 multiplied
+  pressure by the already rounded subnormal area getter (three minimum
+  subnormal ULPs) rather than the retained geometry significand.
+
+Command:
+CARGO_TARGET_DIR=/tmp/chirality-pressure-cargo-target-20260914 cargo test --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --locked squared_radius_ratio -- --nocapture
+
+Result: exit 101; 0 passed, 1 failed.
+- For ri=2^-300, ro=2^300, r=2^299, p=2^900, radial stress was -0
+  rather than -1.472728039589318e-90.
+- Residual: 1.472728039589318e-90.
+- Frozen limit: 4.1857448411216125e-104.
+- Cause confirmed by the independent review and reproduction: V2 rounded the
+  squared ri/r ratio to zero before applying the large pressure.
+
+The maintained V3 tests also cover negative pressure and pressure exponents
+one step below and above both frozen cases. Those nearby variants were added
+after the direct frozen-input reproductions and are not presented as new
+independent oracle fixtures.

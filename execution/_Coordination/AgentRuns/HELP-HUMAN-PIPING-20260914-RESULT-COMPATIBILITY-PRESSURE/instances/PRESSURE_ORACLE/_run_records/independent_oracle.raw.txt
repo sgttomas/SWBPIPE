@@ -1,0 +1,93 @@
+{
+  "status": "PASS",
+  "scope": "independent oracle self-verification; no production execution",
+  "scalar_case_count": 114,
+  "rational_state_count": 5,
+  "metamorphic_scalar_checks": 6592,
+  "mutations": [
+    {
+      "mutation": "omit_2nuP",
+      "case": "P2_RESTRAINED_TRANSFER",
+      "field": "wall_force_n",
+      "mutant_value": 0.0,
+      "killed": true
+    },
+    {
+      "mutation": "double_2nuP",
+      "case": "P2_RESTRAINED_TRANSFER",
+      "field": "wall_force_n",
+      "mutant_value": 9.42477796076938,
+      "killed": true
+    },
+    {
+      "mutation": "flip_Poisson_sign",
+      "case": "P2_RESTRAINED_TRANSFER",
+      "field": "wall_force_n",
+      "mutant_value": -4.71238898038469,
+      "killed": true
+    },
+    {
+      "mutation": "subtract_cap_from_wall",
+      "case": "P2_RESTRAINED_TRANSFER",
+      "field": "wall_force_n",
+      "mutant_value": -4.71238898038469,
+      "killed": true
+    },
+    {
+      "mutation": "mean_radius_fluid_area",
+      "case": "P2_RESTRAINED_TRANSFER",
+      "field": "cap_j_n",
+      "mutant_value": 21.205750411731103,
+      "killed": true
+    },
+    {
+      "mutation": "double_longitudinal_stress",
+      "case": "P2_RESTRAINED_TRANSFER",
+      "field": "axial_membrane_pa",
+      "mutant_value": 1.5,
+      "killed": true
+    },
+    {
+      "mutation": "omit_fluid_effective_term",
+      "case": "P2_RESTRAINED_TRANSFER",
+      "field": "effective_force_n",
+      "mutant_value": 4.71238898038469,
+      "killed": true
+    },
+    {
+      "mutation": "double_cap",
+      "case": "P2_RESTRAINED_TRANSFER",
+      "field": "cap_j_n",
+      "mutant_value": 18.84955592153876,
+      "killed": true
+    },
+    {
+      "mutation": "flip_eigen_sign",
+      "case": "P2_RESTRAINED_TRANSFER",
+      "field": "eigen_i_n",
+      "mutant_value": -4.71238898038469,
+      "killed": true
+    },
+    {
+      "mutation": "independent_G_interpolation",
+      "selected_pair": [
+        180.0,
+        0.2916666666666667
+      ],
+      "exact_G": "2160/31",
+      "mutant_value": 69.0,
+      "killed": true,
+      "qualification": "selected pure material pair only; interpolation dispatch deferred"
+    },
+    {
+      "mutation": "thin_wall_boundary_cancellation_to_zero",
+      "case": "ADJACENT_RADII",
+      "field": "inner_radial_pa",
+      "mutant_value": 0.0,
+      "killed": true
+    }
+  ],
+  "superposition_scalar_checks": 1648,
+  "python_version": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "oracle_sha256": "48f04f9b02cc6a3d94509e4acb300cd56770f601f307662b9ae8cfc3ee16c24b"
+}

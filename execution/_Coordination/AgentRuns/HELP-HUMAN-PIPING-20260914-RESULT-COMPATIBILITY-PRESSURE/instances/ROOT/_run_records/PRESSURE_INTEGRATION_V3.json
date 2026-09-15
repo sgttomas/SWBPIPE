@@ -1,0 +1,44 @@
+{
+  "schema": "pressure-root-integration-v3",
+  "created_utc": "2026-09-15T01:09:26.612830+00:00",
+  "status": "COPIED_FOR_INDEPENDENT_REFUTATION_NOT_ACCEPTED",
+  "source_worktree": "/Users/ryan/.codex/worktrees/8728/chirality-pressure-kernel-20260914",
+  "source_freeze_sha256": "2deb6d5bcb2446cc52f3ec8489321caa4369795f08525884aaf245740192bb8c",
+  "source_files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "role": "unchanged V1/V2 private dormant module declaration"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+      "role": "private exact pressure kernel, private scaled arithmetic, and 27 co-located tests"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/SOURCE_FREEZE_V3.json",
+      "sha256": "2deb6d5bcb2446cc52f3ec8489321caa4369795f08525884aaf245740192bb8c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/IMPLEMENTATION_RETURN_V3.md",
+      "sha256": "25e34f51441acd735cf9646a2090bd98613430008dd5b75f6ae7938da0f57999"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/CONTEXT_V3_ADDENDUM.json",
+      "sha256": "b1fb12db8144bcf6c0e25605ff6d90f0ea667991759397c3912fc7a0d5f4d23b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/_run_records/V3_PRE_REPAIR_FAILURES.txt",
+      "sha256": "d1d20ba3cd6abe842779c3f5fc7bc0593ed8984c0401c36c47a37adb264c335a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/_run_records/V3_FINAL_FOCUSED_TEST_OUTPUT.txt",
+      "sha256": "0db411ee6393e628888283a7e2787da0a7ca72d59bcc21198cee8c7cdf58cfeb"
+    }
+  ],
+  "prior_v2_source_locator": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/REJECTED_PRESSURE_SOURCE_V2/LOCATOR.json",
+  "prior_freezes": "V1/V2 evidence unchanged; exact rejected source copies retained once",
+  "required_next": "Independent V3 pressure refutation under unchanged analytical expectations and tolerances"
+}
