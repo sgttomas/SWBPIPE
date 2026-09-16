@@ -238,19 +238,42 @@ function domLifecycleProxies(events, feedbackMarker) {
   const marker = feedbackMarker.event;
   const frame = marker.args?.data?.frame;
   if (typeof frame !== "string" || !frame) fail("DOM_DOCUMENT_FRAME_UNAVAILABLE", "DOM marker requires native Blink document frame identity");
-  const complete = (event) => event.ph === "X" && typeof event.dur === "number" && event.dur >= 0;
-  return events.filter((proxy) => proxy.name === "ProxyMain::BeginMainFrame" && complete(proxy) &&
-    proxy.pid === marker.pid && proxy.tid === marker.tid && proxy.ts + proxy.dur >= marker.ts).filter((proxy) => {
-    const inside = events.filter((event) => complete(event) && event.pid === proxy.pid && event.tid === proxy.tid && intervalContains(proxy, event));
-    const styles = inside.filter((e) => e.name === "LocalFrameView::RunStyleAndLayoutLifecyclePhases" && e.ts >= marker.ts);
+  const complete = (event) => event.ph === "X" && typeof event.dur === "number" && Number.isFinite(event.dur) && event.dur >= 0;
+  const recognized = [];
+  for (const proxy of events.filter((e) => e.name === "ProxyMain::BeginMainFrame" && complete(e) &&
+    e.pid === marker.pid && e.tid === marker.tid && e.ts + e.dur >= marker.ts)) {
+    // Keep malformed named stages in the population: they must not disappear merely
+    // because another complete stage could supply a convenient terminal chain.
+    const inside = events.filter((e) => e.pid === proxy.pid && e.tid === proxy.tid &&
+      e.ts >= proxy.ts && e.ts <= proxy.ts + proxy.dur);
+    const styles = inside.filter((e) => e.name === "LocalFrameView::RunStyleAndLayoutLifecyclePhases");
     const prepaints = inside.filter((e) => e.name === "PrePaint" && e.args?.data?.frame === frame);
     const paints = inside.filter((e) => e.name === "LocalFrameView::RunPaintLifecyclePhase");
     const layerizes = inside.filter((e) => e.name === "Layerize" && e.args?.data?.frame === frame);
     const updates = inside.filter((e) => e.name === "LayerTreeHost::DoUpdateLayers");
-    return styles.length === 1 && prepaints.length === 1 && paints.length === 1 && layerizes.length === 1 && updates.length === 1 &&
-      styles[0].ts + styles[0].dur <= prepaints[0].ts && prepaints[0].ts + prepaints[0].dur <= paints[0].ts &&
-      intervalContains(paints[0], layerizes[0]) && paints[0].ts + paints[0].dur <= updates[0].ts;
-  }).sort((a, b) => a.ts - b.ts || a.__index - b.__index);
+    if (!styles.length || styles.length !== prepaints.length || paints.length !== 1 || layerizes.length !== 1 || updates.length !== 1) continue;
+    if (![...styles, ...prepaints, ...paints, ...updates].every((e) => complete(e) && intervalContains(proxy, e))) continue;
+    // Each pass is accounted for in trace order. Duplicate/overlapping/reversed
+    // passes cannot be discarded to select a last-looking timestamp.
+    // Trace array order cannot resolve equal reported starts. Require strict
+    // cross-kind start order as well as nonoverlapping completed intervals;
+    // adjoining positive-duration spans remain allowed, tied zero spans do not.
+    if (!styles.every((style, i) => style.ts < prepaints[i].ts && style.ts + style.dur <= prepaints[i].ts &&
+      (i === 0 || (prepaints[i - 1].ts < style.ts && prepaints[i - 1].ts + prepaints[i - 1].dur <= style.ts)))) continue;
+    const terminal = styles.length - 1, paint = paints[0], layerize = layerizes[0], update = updates[0];
+    if (styles[terminal].ts < marker.ts || prepaints[terminal].ts + prepaints[terminal].dur > paint.ts ||
+      paint.ts + paint.dur > update.ts) continue;
+    const instant = layerize.ph === "I" && layerize.s === "t" && !Object.hasOwn(layerize, "dur") &&
+      layerize.cat === "devtools.timeline";
+    if (layerize.cat !== "devtools.timeline" || !(complete(layerize) || instant) || layerize.ts < paint.ts ||
+      (instant ? layerize.ts : layerize.ts + layerize.dur) > paint.ts + paint.dur) continue;
+    recognized.push({ proxy, lifecycle: styles.length > 1 || instant ? {
+      passes: styles.map((style, i) => ({ styleEventIndex: style.__index, prePaintEventIndex: prepaints[i].__index,
+        terminal: i === terminal })), paintEventIndex: paint.__index, updateEventIndex: update.__index,
+      layerizeEventIndex: layerize.__index, layerizeSemantics: instant ? "thread-instant-checkpoint-enclosed-by-complete-paint" : "complete-X-span"
+    } : null });
+  }
+  return recognized.sort((a, b) => a.proxy.ts - b.proxy.ts || a.proxy.__index - b.proxy.__index);
 }
 
 function extractByActionClass(events, markers, action, feedback, occurrences, evidence, byName) {
@@ -262,10 +285,10 @@ function extractByActionClass(events, markers, action, feedback, occurrences, ev
   const examined = [];
   // The first eligible lifecycle owns the endpoint. A failed exact tail must
   // never be rescued by a later unrelated presentation.
-  for (const proxy of candidates.slice(0, 1)) {
+  for (const { proxy, lifecycle } of candidates.slice(0, 1)) {
     try {
       const result = extractOne(events, markers, action, feedback, occurrences, evidence, proxy, byName);
-      return { ...result, domDocumentFrame: f.event.args.data.frame,
+      return { ...result, ...(lifecycle ? { domLifecycleEvidence: lifecycle } : {}), domDocumentFrame: f.event.args.data.frame,
         domLifecycleProxyEventIndex: proxy.__index, examinedDomMainFrames: [...examined, { eventIndex: proxy.__index, status: "PASS" }] };
     } catch (error) {
       if (!(error instanceof CausalPresentationExtractionError)) throw error;

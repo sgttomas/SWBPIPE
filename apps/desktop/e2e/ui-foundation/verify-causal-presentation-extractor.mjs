@@ -40,7 +40,7 @@ const actionToken = "synthetic.orbit";
 const actionIdentity = { gesture: "frozen-orbit-pointer-path", warmupMs: 500, measuredMs: 2_000 };
 
 const clone = (value) => structuredClone(value);
-const event = (name, ts, ph, tid, args = {}, extra = {}) => ({ name, ts, ph, pid: rendererPid, tid, args, ...extra });
+const event = (name, ts, ph, tid, args = {}, extra = {}) => ({ name, ts, ph, pid: rendererPid, tid, args, ...(name === "Layerize" ? { cat: "devtools.timeline" } : {}), ...extra });
 
 function buildLineage(index, presentationTs) {
   const feedbackTs = presentationTs - 80_000;
@@ -493,6 +493,80 @@ rejectNonPointer("DOM earlier eligible lifecycle with missing origin cannot use 
     ["LayerTreeHost::DoUpdateLayers", 1_020_025, 1, { source_frame_number: 999 }]
   ]) f.events.push(event(name, ts, "X", mainTid, args, { dur }));
 });
+
+// Equal reported starts do not establish distinct ordered lifecycle occurrences.
+for (const order of ["paired-duplicates", "reversed-ties", "interleaved-ties"]) {
+  const f=clone(dom),style=clone(f.events.find(e=>e.name==="LocalFrameView::RunStyleAndLayoutLifecyclePhases")),prepaint=clone(f.events.find(e=>e.name==="PrePaint"));
+  style.ts=prepaint.ts=1_020_100;style.dur=prepaint.dur=0;
+  f.events=f.events.filter(e=>![style.name,prepaint.name].includes(e.name));
+  const stages=order==="paired-duplicates"?[style,prepaint,clone(style),clone(prepaint)]
+    :order==="reversed-ties"?[prepaint,style,clone(prepaint),clone(style)]:[style,clone(style),prepaint,clone(prepaint)];
+  f.events.push(...stages);
+  expectError("NO_COMPLETE_DOM_LIFECYCLE_PRESENTATION",()=>currentExtract(f.events,REQUIRED_CHROMIUM_BINDING,f.markerEvidence));
+  cases.push({name:`ambiguous tied DOM ${order}`,status:"PASS_EXPECTED_REJECTION"});
+}
+
+// Self-contained source-backed DOM shapes; no archived run paths or learned endpoints.
+const multipass = clone(dom);
+const firstStyle = multipass.events.find(e => e.name === "LocalFrameView::RunStyleAndLayoutLifecyclePhases");
+const firstPrepaint = multipass.events.find(e => e.name === "PrePaint");
+firstStyle.ts = 1_020_100; firstStyle.dur = 40; firstPrepaint.ts = 1_020_150; firstPrepaint.dur = 40;
+multipass.events.push(event(firstStyle.name, 1_020_220, "X", mainTid, {}, { dur: 40 }));
+multipass.events.push(event("PrePaint", 1_020_270, "X", mainTid, { data: { frame: "document-A" } }, { dur: 40 }));
+const instantDom = clone(dom);
+const instantLayer = instantDom.events.find(e => e.name === "Layerize");
+instantLayer.ph = "I"; instantLayer.s = "t"; delete instantLayer.dur;
+for (const [name, fixture] of [["ordered two-pass DOM", multipass], ["enclosed thread instant Layerize", instantDom]]) {
+  const result = currentExtract(fixture.events, REQUIRED_CHROMIUM_BINDING, fixture.markerEvidence).results[0];
+  assert.equal(result.presentationTraceTimestamp, 1_100_000);
+  assert.equal(result.domLifecycleEvidence.passes.length, name === "ordered two-pass DOM" ? 2 : 1);
+  cases.push({ name, status: "PASS" });
+}
+for (const [name, template, mutate] of [
+  ["duplicate terminal PrePaint", multipass, f => f.events.push(clone(f.events.filter(e=>e.name==="PrePaint").at(-1)))],
+  ["overlapping passes", multipass, f => { f.events.filter(e=>e.name==="PrePaint")[0].dur=100; }],
+  ["reversed pass", multipass, f => { f.events.filter(e=>e.name==="PrePaint")[1].ts=1_020_210; }],
+  ["missing terminal PrePaint", multipass, f => { f.events.splice(f.events.findLastIndex(e=>e.name==="PrePaint"),1); }],
+  ["terminal style before final marker", multipass, f => { for(const e of f.events.filter(e=>e.name==="LocalFrameView::RunStyleAndLayoutLifecyclePhases"))e.ts=1_019_000; }],
+  ["mixed instant and complete Layerize", instantDom, f => { const e=clone(instantLayer);e.ph="X";e.dur=0;f.events.push(e); }],
+  ["instant wrong frame", instantDom, f => { f.events.find(e=>e.name==="Layerize").args.data.frame="other"; }],
+  ["instant wrong PID", instantDom, f => { f.events.find(e=>e.name==="Layerize").pid++; }],
+  ["instant wrong TID", instantDom, f => { f.events.find(e=>e.name==="Layerize").tid++; }],
+  ["instant wrong category", instantDom, f => { f.events.find(e=>e.name==="Layerize").cat="other"; }],
+  ["instant wrong scope", instantDom, f => { f.events.find(e=>e.name==="Layerize").s="g"; }],
+  ["instant duration invented", instantDom, f => { f.events.find(e=>e.name==="Layerize").dur=0; }],
+  ["instant outside complete paint", instantDom, f => { f.events.find(e=>e.name==="Layerize").ts=1_020_700; }],
+  ["absent paint duration", instantDom, f => { delete f.events.find(e=>e.name==="LocalFrameView::RunPaintLifecyclePhase").dur; }],
+  ["malformed paint duration", instantDom, f => { f.events.find(e=>e.name==="LocalFrameView::RunPaintLifecyclePhase").dur="200"; }],
+  ["missing complete paint parent", instantDom, f => { f.events=f.events.filter(e=>e.name!=="LocalFrameView::RunPaintLifecyclePhase"); }],
+  ["negative paint duration", instantDom, f => { f.events.find(e=>e.name==="LocalFrameView::RunPaintLifecyclePhase").dur=-1; }],
+  ["missing instant scope", instantDom, f => { delete f.events.find(e=>e.name==="Layerize").s; }],
+  ["complete Layerize wrong category", dom, f => { f.events.find(e=>e.name==="Layerize").cat="other"; }],
+  ["absent proxy duration", instantDom, f => { delete f.events.find(e=>e.name==="ProxyMain::BeginMainFrame").dur; }],
+]) {
+  const f=clone(template);mutate(f);
+  expectError("NO_COMPLETE_DOM_LIFECYCLE_PRESENTATION",()=>currentExtract(f.events,REQUIRED_CHROMIUM_BINDING,f.markerEvidence));
+  cases.push({name,status:"PASS_EXPECTED_REJECTION"});
+}
+
+for (const [name, mutate] of [
+  ["missing", f => { f.events=f.events.filter(e=>e.name!=="SendBeginMainFrame"); }],
+  ["partial", f => { f.events.find(e=>e.name==="PipelineReporter"&&e.ph==="b").args.frame_reporter.state="STATE_PRESENTED_PARTIAL"; }],
+  ["aborted", f => { const proxy=f.events.find(e=>e.name==="ProxyMain::BeginMainFrame");f.events.push(event("MainFrameAborted",1_020_800,"I",mainTid,{main_frame_pipeline:{main_frame_id:proxy.args.main_frame_pipeline.main_frame_id}})); }],
+  ["ambiguous", f => { f.events.push(clone(f.events.find(e=>e.name==="ProxyImpl::Commit"))); }],
+]) {
+  const f=clone(instantDom);mutate(f);
+  const later=buildLineage(99,1_200_000).events.filter(e=>e.name!=="TimeStamp");
+  for(const name of ["LocalFrameView::RunStyleAndLayoutLifecyclePhases","PrePaint","LocalFrameView::RunPaintLifecyclePhase","Layerize"]){
+    const stage=clone(dom.events.find(e=>e.name===name));stage.ts+=100_000;later.push(stage);
+  }
+  // Independently prove the later candidate is valid, then ensure it cannot rescue first failure.
+  const onlyLater=clone(dom);onlyLater.events=[...dom.events.filter(e=>e.name==="TimeStamp"),...later];
+  assert.equal(currentExtract(onlyLater.events,REQUIRED_CHROMIUM_BINDING,onlyLater.markerEvidence).results[0].presentationTraceTimestamp,1_200_000);
+  f.events.push(...later);
+  expectError("NO_COMPLETE_DOM_LIFECYCLE_PRESENTATION",()=>currentExtract(f.events,REQUIRED_CHROMIUM_BINDING,f.markerEvidence));
+  cases.push({name:`first ${name} DOM tail cannot use proven later valid frame`,status:"PASS_EXPECTED_REJECTION"});
+}
 
 // Each existing extraction/fault above also compares both public APIs when --reference is supplied.
 for (const [name, mutate] of [
