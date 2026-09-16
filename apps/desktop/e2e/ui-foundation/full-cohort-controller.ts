@@ -183,6 +183,32 @@ export function frozenTreeExpectation(model: any, query: string) {
   const mountedCount = rows.length < 100 ? rows.length : Math.min(rows.length, Math.ceil(420 / 34) + 16);
   return { query, totalCount, visibleCount, rows, mountedCount };
 }
+export function constructOrbitEvidence(results: readonly any[], actionAt: number, mode: OrbitEvidence["mode"]): OrbitEvidence {
+  // Absolute page windows are prescribed from the captured action, not from
+  // IPC receipt times or the actual loop completion (which may overshoot).
+  const warmup = { startMs: actionAt, endMs: actionAt + 2000 }, measured = { startMs: actionAt + 2000, endMs: actionAt + 12000 };
+  const presentationIntervals = results.map((r: any) => ({ lower: nextFloat(actionAt + r.actionToPresentationIntervalMs.lower, false),
+    upper: nextFloat(actionAt + r.actionToPresentationIntervalMs.upper, true), traceMs: r.presentationTraceTimestamp / 1000 }));
+  const offsetMin = Math.max(...results.map((r: any) => r.pageToTraceOffsetIntervalMs.minimum));
+  const offsetMax = Math.min(...results.map((r: any) => r.pageToTraceOffsetIntervalMs.maximum));
+  if (offsetMin > offsetMax) throw new Error("orbit has no common source-bound clock mapping");
+  const first = presentationIntervals.reduce((found: number, p: any, i: number) => p.upper < measured.startMs ? i : found, -1);
+  const last = presentationIntervals.findIndex((p: any) => p.lower > measured.endMs);
+  if (first < 0 || last <= first + 1) throw new Error("orbit lacks conservative bracketing coverage");
+  const endpoints = presentationIntervals.map((p: any, sourceIndex: number) => ({ sourceIndex,
+    reportedTimestamp: results[sourceIndex].presentationTraceTimestamp, coordinateMs: p.traceMs - offsetMin,
+    intervalMs: { lower: p.lower, upper: p.upper } }));
+  const mapped = presentationIntervals.slice(first, last + 1);
+  const shift = offsetMin; // A bound for coordinates only; no fitted/averaged clock or cost subtraction.
+  const gaps = mapped.slice(1).map((p: any, i: number) => ({ sampleId: i + 1,
+    fromMs: mapped[i].traceMs - shift, toMs: p.traceMs - shift, fromSourceIndex: first + i, toSourceIndex: first + i + 1,
+    qualification: "PASS_QUALIFIED_CAUSAL_EVIDENCE" as const,
+    durationIntervalMs: conservativePresentedGap(mapped[i], p) }));
+  return { mode, qualification: "PASS_QUALIFIED_CAUSAL_EVIDENCE", coverageStatus: "PASS_COMPLETE_BRACKETED_PRESENTATIONS",
+    labelsOn: true, warmup, measured, traceToPageOffsetMs: offsetMin, endpoints, envelope: { first, last }, gaps,
+    ...(mode === "actual-od" ? { odConversion: { status: "PASS_CURRENT_CONVERSION" as const, cache: "warm" as const } } : {}) };
+}
+
 export function selectedEpochEvidence(evidence: any) {
   const active = evidence?.active;
   if (!active || !Array.isArray(active.feedbackMarkers)) throw new Error("missing complete stopped observations");
@@ -609,27 +635,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
         return { ...stopped, mode, moves, conversion: { before: cold.viewport.geometry, ready: before.viewport.geometry, after: after.viewport.geometry },
           productObservationRaf: after.viewport.mainRender.nextPaintOpportunity };
       });
-      const results = segment.extraction.presentations;
-      const actionAt = segment.window.start;
-      // Absolute page windows are prescribed from the captured action, not from
-      // IPC receipt times or the actual loop completion (which may overshoot).
-      const warmup = { startMs: actionAt, endMs: actionAt + 2000 }, measured = { startMs: actionAt + 2000, endMs: actionAt + 12000 };
-      const presentationIntervals = results.map((r: any) => ({ lower: nextFloat(actionAt + r.actionToPresentationIntervalMs.lower, false),
-        upper: nextFloat(actionAt + r.actionToPresentationIntervalMs.upper, true), traceMs: r.presentationTraceTimestamp / 1000 }));
-      const offsetMin = Math.max(...results.map((r: any) => r.pageToTraceOffsetIntervalMs.minimum));
-      const offsetMax = Math.min(...results.map((r: any) => r.pageToTraceOffsetIntervalMs.maximum));
-      if (offsetMin > offsetMax) throw new Error("orbit has no common source-bound clock mapping");
-      const first = presentationIntervals.findLastIndex((p: any) => p.upper < measured.startMs);
-      const last = presentationIntervals.findIndex((p: any) => p.lower > measured.endMs);
-      if (first < 0 || last <= first + 1) throw new Error("orbit lacks conservative bracketing coverage");
-      const mapped = presentationIntervals.slice(first, last + 1);
-      const shift = offsetMin; // A bound for coordinates only; no fitted/averaged clock or cost subtraction.
-      const gaps = mapped.slice(1).map((p: any, i: number) => ({ sampleId: i + 1,
-        fromMs: mapped[i].traceMs - shift, toMs: p.traceMs - shift,
-        qualification: "PASS_QUALIFIED_CAUSAL_EVIDENCE" as const,
-        durationIntervalMs: conservativePresentedGap(mapped[i], p) }));
-      orbitResults[mode] = { mode, qualification: "PASS_QUALIFIED_CAUSAL_EVIDENCE", coverageStatus: "PASS_COMPLETE_BRACKETED_PRESENTATIONS",
-        labelsOn: true, warmup, measured, gaps, ...(mode === "actual-od" ? { odConversion: { status: "PASS_CURRENT_CONVERSION" as const, cache: "warm" as const } } : {}) };
+      orbitResults[mode] = constructOrbitEvidence(segment.extraction.presentations, segment.window.start, mode);
     }
     const settleStart = nodePerformance.now();
     do {

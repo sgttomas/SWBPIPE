@@ -5,7 +5,7 @@ import { createContext, runInContext } from "node:vm";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { loadFixture, validateCandidateOracleBinding, validatedPriorBoxBaseline, persistBoxPostcondition, boxCallbackMatchesSnapshot, expectedBoxInspectorHeading, pairedWinnerCueWitness, winnerCuePairs, validateWinnerCuePlan, cueActionBindingsStable, cueCameraGeometryMatches, cueCaptureHasNoDrift, pointCaptureMatchesMarker, captureWinnerCue, installInstrumentation, CUE_GEOMETRY_SOURCE_SHA256, CUE_SOURCE_SHA256 } from "./benchmark-harness";
 import { expect, test } from "@playwright/test";
-import { conservativePresentedGap, expectedModelIdentity, frozenTreeExpectation, selectedEpochEvidence,
+import { constructOrbitEvidence, conservativePresentedGap, expectedModelIdentity, frozenTreeExpectation, selectedEpochEvidence,
   segmentObserverRequirements, FULL_COHORT_RECIPE } from "./full-cohort-controller";
 
 test("frozen controller recipe retains prescribed workload and bounded independent segments", () => {
@@ -625,4 +625,23 @@ test("runtime geometry pin checks self-contained manifests and actual disk sourc
     if (priorDir === undefined) delete process.env.UI_FOUNDATION_CANDIDATE_ORACLE_DIR; else process.env.UI_FOUNDATION_CANDIDATE_ORACLE_DIR = priorDir;
     if (priorHash === undefined) delete process.env.UI_FOUNDATION_CANDIDATE_ORACLE_MANIFEST_SHA256; else process.env.UI_FOUNDATION_CANDIDATE_ORACLE_MANIFEST_SHA256 = priorHash;
   }
+});
+
+test("orbit constructor preserves full qualified sequence and unchanged interval gaps", () => {
+  const actionAt = 1000, times = [2990,2999,3000.0625,5000,9000,13000.0625,13001,13010];
+  const results = times.map(t => ({ presentationTraceTimestamp: t * 1000,
+    pageToTraceOffsetIntervalMs: { minimum: 0, maximum: 0 },
+    actionToPresentationIntervalMs: { lower: t - .125 - actionAt, upper: t + .125 - actionAt } }));
+  const before = structuredClone(results), evidence = constructOrbitEvidence(results, actionAt, "centerline");
+  expect(evidence.envelope).toEqual({ first: 1, last: 6 });
+  expect(evidence.endpoints.map(p=>p.sourceIndex)).toEqual([0,1,2,3,4,5,6,7]);
+  expect(evidence.endpoints.map(p=>p.reportedTimestamp)).toEqual(times.map(t=>t*1000));
+  expect(evidence.gaps).toHaveLength(5);
+  evidence.gaps.forEach((g,i)=> {
+    expect(g.fromSourceIndex).toBe(i+1);expect(g.toSourceIndex).toBe(i+2);
+    expect(g.durationIntervalMs).toEqual(conservativePresentedGap(evidence.endpoints[i+1].intervalMs,evidence.endpoints[i+2].intervalMs));
+  });
+  expect(evidence.warmup).toEqual({startMs:1000,endMs:3000});
+  expect(evidence.measured).toEqual({startMs:3000,endMs:13000});expect(results).toEqual(before);
+  expect(()=>constructOrbitEvidence(results.map(r=>({...r,pageToTraceOffsetIntervalMs:{minimum:1,maximum:0}})),actionAt,"centerline")).toThrow("no common source-bound clock mapping");
 });

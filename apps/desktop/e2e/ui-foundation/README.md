@@ -204,3 +204,7 @@ real model-open path, invoke Fit, compare screen geometry/picks within the
 frozen tolerance, and measure the frozen authored-node pairs. Fit and any local
 render origin must not change model bytes or hashes; captured route points stay
 in authored project coordinates.
+
+### Conservative orbit window populations
+
+Orbit windows remain 2 s warm-up and 10 s measured from the captured action. All qualified consecutive presentations in the conservative strict-outside-bracket envelope are retained, with their source occurrence indexes, endpoint intervals and reported timestamp groups. Where endpoint uncertainty permits multiple contiguous window populations, acceptance uses the largest nearest-rank p95 of the unchanged gap upper bounds across every admitted population; every cut and count is recorded. Equal reported timestamps retain distinct qualified occurrences and cannot be split at a boundary. Local boundary conditions conservatively over-approximate shared-clock feasibility. This is a bound for the qualified instrumented Chromium-reported metric, not an exact percentile, physical scan-out timing or uninstrumented performance claim. Targets, clock allowances, waits and observer-cost limitations are unchanged.

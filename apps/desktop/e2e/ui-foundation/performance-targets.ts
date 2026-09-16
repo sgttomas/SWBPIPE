@@ -16,6 +16,8 @@ export type RunExpectation = Readonly<{
   fixtureSize: FixtureSize; runNumber: number; runId: string; sessionId: string;
   bindings: PerformanceBindings;
 }>;
+export type OrbitEndpoint = Readonly<{ sourceIndex: number; reportedTimestamp: number; coordinateMs: number; intervalMs: DurationInterval }>;
+export type OrbitPopulation = Readonly<{ left: number; right: number; gapCount: number }>;
 export type OrbitEvidence = Readonly<{
   mode: "centerline" | "actual-od";
   qualification: "PASS_QUALIFIED_CAUSAL_EVIDENCE";
@@ -23,8 +25,12 @@ export type OrbitEvidence = Readonly<{
   labelsOn: true;
   warmup: Readonly<{ startMs: number; endMs: number }>;
   measured: Readonly<{ startMs: number; endMs: number }>;
+  // Full caller-qualified source sequence plus exact conservative enclosing slice.
+  traceToPageOffsetMs: number;
+  endpoints: readonly OrbitEndpoint[];
+  envelope: Readonly<{ first: number; last: number }>;
   // Consecutive qualified presentation gaps, including both window brackets.
-  gaps: readonly (QualifiedDuration & Readonly<{ sampleId: number; fromMs: number; toMs: number }>)[];
+  gaps: readonly (QualifiedDuration & Readonly<{ sampleId: number; fromMs: number; toMs: number; fromSourceIndex: number; toSourceIndex: number }>)[];
   odConversion?: Readonly<{ status: "PASS_CURRENT_CONVERSION"; cache: "cold" | "warm" }>;
 }>;
 export type PerformanceRun = RunExpectation & Readonly<{
@@ -54,6 +60,40 @@ const p95 = (values: readonly number[]) => [...values].sort((a, b) => a - b)[Mat
 const identityValid = (e: RunExpectation | undefined) => (e?.fixtureSize === 1000 || e?.fixtureSize === 10000) &&
   Number.isSafeInteger(e.runNumber) && e.runNumber >= 1 && e.runNumber <= 5 && text(e.runId) && text(e.sessionId);
 
+// Necessary local cut conditions conservatively over-approximate shared-clock feasibility.
+// Callers authenticate observations; this validates the complete carried source/slice linkage.
+export function orbitBoundaryPopulations(e: OrbitEvidence): OrbitPopulation[] {
+  const points = e?.endpoints, envelope = e?.envelope, m = e?.measured;
+  if (!finite(e?.traceToPageOffsetMs) || !m || !finite(m.startMs) || !finite(m.endMs) || m.startMs >= m.endMs || !Array.isArray(points) || points.length < 3 ||
+      Array.from(points).some((p, i) => !p || p.sourceIndex !== i || !finite(p.reportedTimestamp) || !finite(p.coordinateMs) ||
+        p.coordinateMs !== p.reportedTimestamp / 1000 - e.traceToPageOffsetMs || !finite(p.intervalMs?.lower) || !finite(p.intervalMs?.upper) || p.intervalMs.lower > p.intervalMs.upper ||
+        p.coordinateMs < p.intervalMs.lower || p.coordinateMs > p.intervalMs.upper ||
+        (i > 0 && (p.reportedTimestamp < points[i - 1].reportedTimestamp || p.coordinateMs < points[i - 1].coordinateMs ||
+          (p.reportedTimestamp === points[i - 1].reportedTimestamp) !== (p.coordinateMs === points[i - 1].coordinateMs))))) throw new Error("invalid orbit endpoint population");
+  const first = points.reduce((found: number, p: OrbitEndpoint, i: number) => p.intervalMs.upper < m.startMs ? i : found, -1);
+  const last = points.findIndex(p => p.intervalMs.lower > m.endMs);
+  if (first < 0 || last <= first + 1 || envelope?.first !== first || envelope?.last !== last ||
+      !Array.isArray(e.gaps) || e.gaps.length !== last - first) throw new Error("incomplete orbit envelope");
+  if (Array.from(e.gaps).some((g, i) => {
+    const a = points[first + i], b = points[first + i + 1];
+    return !g || g.sampleId !== i + 1 || g.fromSourceIndex !== a.sourceIndex || g.toSourceIndex !== b.sourceIndex ||
+      !qualified(g) || g.fromMs !== a.coordinateMs || g.toMs !== b.coordinateMs || g.fromMs < 0 || g.toMs < g.fromMs ||
+      g.durationIntervalMs.lower > g.toMs - g.fromMs || g.durationIntervalMs.upper < g.toMs - g.fromMs ||
+      g.durationIntervalMs.lower > Math.max(0, b.intervalMs.lower - a.intervalMs.upper) ||
+      g.durationIntervalMs.upper < b.intervalMs.upper - a.intervalMs.lower;
+  })) throw new Error("invalid orbit gap association");
+  const left: number[] = [], right: number[] = [];
+  for (let i = first; i < last; i++) {
+    const a = points[i], b = points[i + 1];
+    if (a.reportedTimestamp >= b.reportedTimestamp) continue; // Never split an exact timestamp group.
+    if (a.intervalMs.lower < m.startMs && b.intervalMs.upper >= m.startMs) left.push(i);
+    if (b.intervalMs.upper > m.endMs && a.intervalMs.lower <= m.endMs) right.push(i + 1);
+  }
+  const populations = left.flatMap(a => right.filter(b => a < b).map(b => ({ left: a, right: b, gapCount: b - a })));
+  if (!populations.length) throw new Error("no admissible orbit boundary population");
+  return populations;
+}
+
 export function scorePerformanceRun(run: PerformanceRun, expected: RunExpectation) {
   const validityFailures: string[] = [];
   const targetFailures: string[] = [];
@@ -79,6 +119,7 @@ export function scorePerformanceRun(run: PerformanceRun, expected: RunExpectatio
   scores.pointP95 = actions(run?.points, 200, "POINTS");
   scores.boxP95 = actions(run?.boxes, 20, "BOXES");
   scores.filterP95 = actions(run?.filters, 20, "FILTERS");
+  const orbitPopulations: Partial<Record<OrbitEvidence["mode"], (OrbitPopulation & { p95UpperMs: number })[]>> = {};
   const orbit = (e: OrbitEvidence | undefined, mode: OrbitEvidence["mode"]): number | null => {
     const w = e?.warmup, m = e?.measured, gaps = e?.gaps;
     const windowValid = w && m && [w.startMs, w.endMs, m.startMs, m.endMs].every(finite) &&
@@ -87,18 +128,18 @@ export function scorePerformanceRun(run: PerformanceRun, expected: RunExpectatio
         e?.coverageStatus !== "PASS_COMPLETE_BRACKETED_PRESENTATIONS" || e?.labelsOn !== true || !windowValid ||
         (mode === "actual-od" && (e.odConversion?.status !== "PASS_CURRENT_CONVERSION" ||
           (e.odConversion?.cache !== "cold" && e.odConversion?.cache !== "warm"))) ||
-        !Array.isArray(gaps) || gaps.length < 2 || Array.from(gaps).some((gap, index) =>
-          gap?.sampleId !== index + 1 || !qualified(gap) || !finite(gap.fromMs) || !finite(gap.toMs) ||
-          // Distinct caller-qualified occurrences may share a reported timestamp; retain every uncertainty interval.
-          gap.fromMs < 0 || gap.toMs < gap.fromMs ||
-          gap.durationIntervalMs.lower > gap.toMs - gap.fromMs || gap.durationIntervalMs.upper < gap.toMs - gap.fromMs ||
-          (index > 0 && gaps[index - 1]?.toMs !== gap.fromMs)) ||
-        gaps[0].fromMs >= m!.startMs || gaps[0].toMs < m!.startMs ||
-        gaps.at(-1)!.fromMs > m!.endMs || gaps.at(-1)!.toMs <= m!.endMs ||
-        gaps.slice(1, -1).some((gap) => gap.fromMs < m!.startMs || gap.toMs > m!.endMs)) {
+        !Array.isArray(gaps)) {
       validityFailures.push(`INCOMPLETE_OR_INVALID_ORBIT:${mode}`); return null;
     }
-    return p95(gaps.map((gap) => gap.durationIntervalMs.upper));
+    try {
+      const populations = orbitBoundaryPopulations(e!);
+      const candidates = populations.map(cut => ({ ...cut, p95UpperMs: p95(gaps.slice(cut.left - e!.envelope.first,
+        cut.right - e!.envelope.first).map(g => g.durationIntervalMs.upper)) }));
+      orbitPopulations[mode] = candidates;
+      return Math.max(...candidates.map(c => c.p95UpperMs));
+    } catch {
+      validityFailures.push(`INCOMPLETE_OR_INVALID_ORBIT:${mode}`); return null;
+    }
   };
   scores.centerlineP95 = orbit(run?.centerline, "centerline");
   scores.actualOdP95 = orbit(run?.actualOd, "actual-od");
@@ -108,7 +149,7 @@ export function scorePerformanceRun(run: PerformanceRun, expected: RunExpectatio
     if (scores[key] !== null && scores[key]! > PERFORMANCE_TARGETS_MS[key]) targetFailures.push(`TARGET_EXCEEDED:${key}`);
   }
   return { status: validityFailures.length ? "FAIL_INVALID_EVIDENCE" : targetFailures.length ? "FAIL_TARGETS" : "PASS_METRIC_ACCEPTANCE",
-    validityFailures, targetFailures, scores, runId: run?.runId, fixtureSize: run?.fixtureSize,
+    validityFailures, targetFailures, scores, orbitPopulations, runId: run?.runId, fixtureSize: run?.fixtureSize,
     bindings: run?.bindings, observerDiagnostics: run?.observerDiagnostics, rawObserverReferences: RAW_OBSERVER_REFERENCES,
     scope: "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure." } as const;
 }

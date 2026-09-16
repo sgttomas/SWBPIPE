@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { scorePerformanceRun, scorePerformanceCohort, type PerformanceRun, type RunExpectation,
+import { scorePerformanceRun, scorePerformanceCohort, orbitBoundaryPopulations, type PerformanceRun, type RunExpectation,
   type FixtureSize, type OrbitEvidence, type PerformanceBindings } from "./performance-targets";
+
+import { constructOrbitEvidence } from "./full-cohort-controller";
 
 const bindings = (size: FixtureSize): PerformanceBindings => ({ validationStatus: "PASS_CALLER_VALIDATED_BINDINGS",
   sourceSha256: "a".repeat(64), buildSha256: "b".repeat(64), fixtureSha256: (size === 1000 ? "c" : "d").repeat(64),
@@ -10,7 +12,15 @@ const expectation = (size: FixtureSize = 1000, number = 1): RunExpectation => ({
 const duration = (upper: number, lower = 0) => ({ qualification: "PASS_QUALIFIED_CAUSAL_EVIDENCE" as const,
   durationIntervalMs: { lower, upper } });
 const actions = (count: number, upper: number) => Array.from({ length: count }, (_, i) => ({ sampleId: i + 1, ...duration(upper) }));
-const orbit = (mode: OrbitEvidence["mode"], upper: number): OrbitEvidence => ({ mode,
+function withEndpoints(e: any): OrbitEvidence {
+  // Synthetic reported coordinates use the same binary64 microsecond-to-ms mapping as the caller.
+  const times = [e.gaps[0].fromMs, ...e.gaps.map((g: any) => g.toMs)].map((t: number) => (t * 1000) / 1000);
+  return { ...e, traceToPageOffsetMs: 0, endpoints: times.map((coordinateMs: number, sourceIndex: number) => ({ sourceIndex,
+    coordinateMs, reportedTimestamp: coordinateMs * 1000, intervalMs: { lower: coordinateMs, upper: coordinateMs } })),
+    envelope: { first: 0, last: times.length - 1 },
+    gaps: e.gaps.map((g: any, i: number) => ({ ...g, fromMs: times[i], toMs: times[i + 1], fromSourceIndex: i, toSourceIndex: i + 1 })) };
+}
+const orbit = (mode: OrbitEvidence["mode"], upper: number): OrbitEvidence => withEndpoints({ mode,
   qualification: "PASS_QUALIFIED_CAUSAL_EVIDENCE", coverageStatus: "PASS_COMPLETE_BRACKETED_PRESENTATIONS", labelsOn: true,
   warmup: { startMs: 0, endMs: 2000 }, measured: { startMs: 2000, endMs: 12000 },
   gaps: Array.from({ length: 1001 }, (_, i) => ({ sampleId: i + 1, fromMs: 1990 + i * 10, toMs: 2000 + i * 10,
@@ -18,7 +28,7 @@ const orbit = (mode: OrbitEvidence["mode"], upper: number): OrbitEvidence => ({ 
 // First endpoint is strictly before the measured start; last strictly after.
 const validOrbit = (mode: OrbitEvidence["mode"], upper: number): OrbitEvidence => {
   const e = orbit(mode, upper);
-  return { ...e, gaps: e.gaps.map((gap) => ({ ...gap, fromMs: gap.fromMs + 1, toMs: gap.toMs + 1 })) };
+  return withEndpoints({ ...e, gaps: e.gaps.map((gap) => ({ ...gap, fromMs: gap.fromMs + 1, toMs: gap.toMs + 1 })) });
 };
 const fixture = (expected = expectation()): PerformanceRun => ({ ...expected, freshSession: true,
   qualification: "PASS_QUALIFIED_RUN", assignment: duration(2000), points: actions(200, 100), boxes: actions(20, 200),
@@ -155,7 +165,7 @@ for (const mode of ["centerline", "actual-od"] as const) {
       const gaps = times.slice(1).map((toMs, i) => ({ sampleId: i + 1, fromMs: times[i], toMs,
         ...duration(toMs - times[i], toMs - times[i]) }));
       const key = mode === "centerline" ? "centerline" : "actualOd";
-      const e = { ...validOrbit(mode, 10), gaps };
+      const e = withEndpoints({ ...validOrbit(mode, 10), gaps });
       const result = score({ ...fixture(), [key]: e });
       expect(result.status).toBe("PASS_METRIC_ACCEPTANCE");
       expect(result.scores[mode === "centerline" ? "centerlineP95" : "actualOdP95"]).toBe(10);
@@ -179,8 +189,8 @@ function tiedOrbit(mode: OrbitEvidence["mode"], origin: number, ties: number): O
   const start = origin + 2000, end = start + 10000, interior = 1199 - ties;
   const times = [start - 1, start, ...Array(ties).fill(start),
     ...Array.from({ length: interior }, (_, i) => start + 10000 * (i + 1) / interior), end + 1];
-  return { ...validOrbit(mode, 10), warmup: { startMs: origin, endMs: start }, measured: { startMs: start, endMs: end },
-    gaps: times.slice(1).map((toMs, i) => ({ sampleId: i + 1, fromMs: times[i], toMs, ...duration(10, 0) })) };
+  return withEndpoints({ ...validOrbit(mode, 10), warmup: { startMs: origin, endMs: start }, measured: { startMs: start, endMs: end },
+    gaps: times.slice(1).map((toMs, i) => ({ sampleId: i + 1, fromMs: times[i], toMs, ...duration(10, 0) })) });
 }
 for (const [mode, origin, ties, target] of [["centerline", 9635.5, 30, 16.7], ["actual-od", 42020.800000190735, 46, 33.3]] as const) {
   const key = mode === "centerline" ? "centerline" : "actualOd", metric = mode === "centerline" ? "centerlineP95" : "actualOdP95";
@@ -235,3 +245,65 @@ for (const [mode, origin, ties, target] of [["centerline", 9635.5, 30, 16.7], ["
     }
   });
 }
+
+function constructed(times: number[], radius = .125, actionAt = 1000, mode: OrbitEvidence["mode"] = "centerline") {
+  return constructOrbitEvidence(times.map(time => ({ presentationTraceTimestamp: time * 1000,
+    actionToPresentationIntervalMs: { lower: time - radius - actionAt, upper: time + radius - actionAt },
+    pageToTraceOffsetIntervalMs: { minimum: 0, maximum: 0 } })), actionAt, mode);
+}
+test("uncertain right boundary is qualified rather than nominally rejected", () => {
+  const times = [2999, ...Array.from({ length: 1000 }, (_, i) => 3009 + i * 10), 13000.0625, 13009];
+  const e = constructed(times);
+  const result = score({ ...fixture(), centerline: e });
+  expect(result.validityFailures).toEqual([]);
+  expect(result.orbitPopulations.centerline?.map(c => c.gapCount)).toEqual([1001, 1002]);
+});
+test("independent dyadic1199 versus1200 dilution must fail using maximum population p95", () => {
+  const times = [2999.21875];
+  for (let i = 0; i < 1199; i++) times.push(times.at(-1)! + (i >= 500 && i < 560 ? 16.59375 : 7.90625));
+  expect(times.at(-1)).toBe(13000.0625); times.push(times.at(-1)! + 7.90625);
+  const e = constructed(times), before = structuredClone(e);
+  const result = score({ ...fixture(), centerline: e });
+  expect(result.validityFailures).toEqual([]); expect(result.status).toBe("FAIL_TARGETS");
+  expect(result.targetFailures).toEqual(["TARGET_EXCEEDED:centerlineP95"]);
+  expect(result.orbitPopulations.centerline?.map(c => c.gapCount)).toEqual([1199,1200]);
+  expect(result.orbitPopulations.centerline![0].p95UpperMs).toBeGreaterThan(16.84375);
+  expect(result.orbitPopulations.centerline![1].p95UpperMs).toBeLessThan(8.1562500001);
+  expect(result.scores.centerlineP95).toBe(result.orbitPopulations.centerline![0].p95UpperMs);
+  expect(result.scores.assignment).toBe(2000); expect(result.scores.pointP95).toBe(100);
+  expect(e).toEqual(before);
+});
+test("all left right both-edge cuts retain ties and no omitted candidates", () => {
+  for (const [times, expected] of [
+    [[2999,3000.0625,5000,9000,13001], [[0,4],[1,4]]],
+    [[2999,5000,9000,13000.0625,13001], [[0,3],[0,4]]],
+    [[2999,3000.0625,5000,9000,13000.0625,13001], [[0,4],[0,5],[1,4],[1,5]]],
+    [[2999,3000.0625,3000.0625,3000.125,5000,9000,13000,13000,13000.0625,13001], [[0,6],[0,8],[0,9],[2,6],[2,8],[2,9],[3,6],[3,8],[3,9]]]
+  ] as [number[], number[][]][]) {
+    const e = constructed(times, .25);
+    expect(orbitBoundaryPopulations(e).map(c => [c.left,c.right])).toEqual(expected);
+    const cuts = orbitBoundaryPopulations(e), upper = (cut: typeof cuts[number]) => {
+      const values=e.gaps.slice(cut.left,cut.right).map(g=>g.durationIntervalMs.upper).sort((a,b)=>a-b);
+      return values[Math.ceil(.95*values.length)-1];
+    };
+    expect(Math.max(...cuts.map(upper))).toBe(Math.max(...[...cuts].reverse().map(upper)));
+    expect(Math.max(...cuts.map(upper))).toBeGreaterThanOrEqual(upper(cuts[0]));
+  }
+});
+test("endpoint and envelope defects never become a favorable boundary population", () => {
+  const e=constructed([2999,3000.0625,5000,9000,13000.0625,13001]);
+  for(const mutate of [
+    (v:any)=>{delete v.endpoints;}, (v:any)=>{delete v.endpoints[2].intervalMs;},
+    (v:any)=>{delete v.endpoints[2].sourceIndex;}, (v:any)=>{v.endpoints[2].reportedTimestamp=NaN;},
+    (v:any)=>{[v.endpoints[1],v.endpoints[2]]=[v.endpoints[2],v.endpoints[1]];}, (v:any)=>{v.traceToPageOffsetMs+=1;},
+    (v:any)=>{v.endpoints[2].reportedTimestamp+=1;}, (v:any)=>{v.endpoints[2].intervalMs.lower=Infinity;},
+    (v:any)=>{v.endpoints[2].intervalMs.lower=v.endpoints[2].intervalMs.upper+1;},
+    (v:any)=>{v.endpoints[2].sourceIndex++;}, (v:any)=>{v.endpoints.splice(2,1);},
+    (v:any)=>{v.endpoints[2]=v.endpoints[1];}, (v:any)=>{v.endpoints[2].reportedTimestamp=v.endpoints[1].reportedTimestamp;},
+    (v:any)=>{v.gaps[1].fromSourceIndex=0;},(v:any)=>{v.gaps[1].toMs++;},
+    (v:any)=>{v.envelope.first++;},(v:any)=>{v.envelope.last--;},
+    (v:any)=>{v.endpoints[0].intervalMs.upper=v.measured.startMs;},
+    (v:any)=>{v.endpoints.at(-1).intervalMs.lower=v.measured.endMs;},
+    (v:any)=>{v.gaps.splice(1,1);},(v:any)=>{v.endpoints.forEach((p:any)=>p.reportedTimestamp=1);}
+  ]) {const bad=structuredClone(e);mutate(bad);expect(()=>orbitBoundaryPopulations(bad)).toThrow();}
+});
