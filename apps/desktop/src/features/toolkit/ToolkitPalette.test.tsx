@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { ToolkitPalette } from "./ToolkitPalette";
 import { capabilityAvailability, capabilityRoute, toolkitCapabilities, type ToolkitContext } from "./capabilityCatalog";
 
-const context: ToolkitContext = { selection: { type: "project", id: "project:test" }, canUndo: false, canRedo: false, busy: false };
+const context: ToolkitContext = { selection: { type: "project", id: "project:test" }, selectionCardinality: 1, canUndo: false, canRedo: false, busy: false };
 describe("human toolkit", () => {
   it("represents all accepted vocabulary rows and only grants executable routes", () => {
     expect([...new Set(toolkitCapabilities.flatMap((entry) => entry.vocabularyRows))].sort((a, b) => a - b)).toEqual(Array.from({ length: 24 }, (_, i) => i + 1));
@@ -16,7 +16,7 @@ describe("human toolkit", () => {
   it("searches descriptions and explains a missing selection without dispatch", () => {
     const onChoose = vi.fn();
     render(<ToolkitPalette context={context} onChoose={onChoose} />);
-    fireEvent.click(screen.getByRole("button", { name: "Toolkit" }));
+    fireEvent.click(screen.getByRole("button", { name: "Find modeling commands" }));
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "temperature table" } });
     const command = screen.getByRole("button", { name: "Material temperature table" });
     expect(command).toBeDisabled();
@@ -24,12 +24,12 @@ describe("human toolkit", () => {
     fireEvent.click(command);
     expect(onChoose).not.toHaveBeenCalled();
     fireEvent.keyDown(screen.getByRole("searchbox"), { key: "Escape" });
-    expect(screen.getByRole("button", { name: "Toolkit" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Find modeling commands" })).toHaveFocus();
     expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
   });
   it("contains keyboard focus in discovery and dismisses to its trigger", () => {
     render(<ToolkitPalette context={context} onChoose={vi.fn()} />);
-    fireEvent.click(screen.getByRole("button", { name: "Toolkit" }));
+    fireEvent.click(screen.getByRole("button", { name: "Find modeling commands" }));
     const search = screen.getByRole("searchbox");
     expect(search).toHaveFocus();
     fireEvent.keyDown(search, { key: "Tab", shiftKey: true });
@@ -38,25 +38,82 @@ describe("human toolkit", () => {
     expect(search).toHaveFocus();
     fireEvent.pointerDown(document.body);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Toolkit" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Find modeling commands" })).toHaveFocus();
   });
   it("requires appropriate selection and available history before dispatch", () => {
     const remove = toolkitCapabilities.find((entry) => entry.id === "edit.remove")!;
     expect(capabilityAvailability(remove, context).enabled).toBe(false);
-    expect(capabilityRoute(remove, { ...context, selection: { type: "pipe", id: "pipe:chosen" } })).toEqual({ surface: "inspector", focusTestId: "queue-delete-pipe-intent" });
+    expect(capabilityRoute(remove, { ...context, selection: { type: "pipe", id: "pipe:chosen" } })).toEqual({ surface: "inspector", inspectorView: "properties", focusTestId: "queue-delete-pipe-intent" });
     for (const action of ["undo", "redo"] as const) {
       const command = toolkitCapabilities.find((entry) => entry.history === action)!;
       expect(capabilityAvailability(command, context).enabled).toBe(false);
       expect(capabilityAvailability(command, { ...context, canUndo: true, canRedo: true, busy: true }).enabled).toBe(false);
     }
   });
+  it("binds the Undo catalogue command to undo and dispatches that exact capability", () => {
+    const onChoose = vi.fn();
+    const undo = toolkitCapabilities.find((entry) => entry.id === "edit.undo")!;
+    const redo = toolkitCapabilities.find((entry) => entry.id === "edit.redo")!;
+    expect(undo.history).toBe("undo");
+    expect(redo.history).toBe("redo");
+
+    render(<ToolkitPalette context={{ ...context, canUndo: true }} onChoose={onChoose} />);
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(onChoose).toHaveBeenCalledOnce();
+    expect(onChoose).toHaveBeenLastCalledWith(expect.objectContaining({ id: "edit.undo", history: "undo" }));
+  });
+  it("blocks single-target mutation routes for an ordered multi-selection", () => {
+    const multiSelection = {
+      ...context,
+      selection: { type: "pipe", id: "pipe:chosen" } as const,
+      selectionCardinality: 2,
+      canUndo: true,
+      canRedo: true
+    };
+    const singleTargetIds = [
+      "build.node", "build.pipe", "build.component", "build.split",
+      "supports.restraint", "supports.hanger", "supports.nonlinear", "supports.boundary",
+      "properties.material", "properties.temperature", "properties.section", "properties.assign-section", "properties.hanger-library",
+      "loads.cases", "loads.primitive", "loads.wind", "loads.wind-exposure", "loads.seismic", "loads.combinations", "edit.remove"
+    ];
+    for (const id of singleTargetIds) {
+      const command = toolkitCapabilities.find((entry) => entry.id === id)!;
+      expect(capabilityAvailability(command, multiSelection)).toEqual({
+        enabled: false,
+        reason: "This command changes one typed target. Reduce the selection to one item before starting it."
+      });
+      expect(capabilityRoute(command, multiSelection)).toBeUndefined();
+    }
+    expect(capabilityAvailability(toolkitCapabilities.find((entry) => entry.id === "loads.self-weight")!, multiSelection).enabled).toBe(true);
+    expect(capabilityAvailability(toolkitCapabilities.find((entry) => entry.id === "edit.undo")!, multiSelection).enabled).toBe(true);
+  });
   it("dispatches the stable command once and closes the palette", () => {
     const onChoose = vi.fn();
     render(<ToolkitPalette context={context} onChoose={onChoose} />);
-    fireEvent.click(screen.getByRole("button", { name: "Toolkit" }));
+    fireEvent.click(screen.getByRole("button", { name: "Find modeling commands" }));
     fireEvent.click(screen.getByTestId("toolkit-properties.material"));
     expect(onChoose).toHaveBeenCalledOnce();
     expect(onChoose.mock.calls[0][0].id).toBe("properties.material");
     expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
+  });
+  it("opens grouped command search from the visible platform shortcut", () => {
+    render(<ToolkitPalette context={context} onChoose={vi.fn()} />);
+    expect(screen.getByText("⌘K")).toBeVisible();
+    fireEvent.keyDown(window, { key: "k", metaKey: true });
+    expect(screen.getByRole("dialog", { name: "Find a modeling tool" })).toBeVisible();
+    for (const group of ["Build", "Supports", "Properties", "Loads", "Edit", "Select and View", "Review"]) {
+      expect(screen.getByRole("heading", { name: group })).toBeVisible();
+    }
+  });
+  it("exposes every command group in the visible compact band and filters the palette", () => {
+    render(<ToolkitPalette context={context} onChoose={vi.fn()} />);
+    for (const label of ["Build", "Supports", "Properties", "Loads", "Edit", "Select/View", "Review"]) {
+      expect(screen.getByRole("button", { name: label })).toBeVisible();
+    }
+    fireEvent.click(screen.getByRole("button", { name: "Supports" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Showing Supports commands");
+    expect(screen.getByRole("heading", { name: "Supports" })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "Build" })).not.toBeInTheDocument();
   });
 });

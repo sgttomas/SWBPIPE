@@ -5,6 +5,7 @@ import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
 import type { PreviewModel, EditorOperationIntent } from "../../types";
 import { canonicalJsonString } from "../../services/hashService";
+import { chooseVirtualTarget, removeVirtualMultiTarget } from "../../test-support/workspaceTestControls";
 vi.mock("../../services/hashService", () => ({ canonicalJsonString: vi.fn(async (value: unknown) => JSON.stringify(value)) }));
 afterEach(() => {
   cleanup();
@@ -172,9 +173,9 @@ describe("rich authoring structured forms", () => {
       selection={{ type: "load", id: "load:a" }}
       onQueueIntent={queue}
     />);
-    fireEvent.click(screen.getByLabelText("Whole pipe pipe:a"));
+    removeVirtualMultiTarget("wind-whole-pipes", "pipe:a");
     fireEvent.click(screen.getByText("Add exposure span"));
-    enter("Span 1 pipe", "pipe:a");
+    chooseVirtualTarget("wind-span-1-pipe", "pipe:a");
     quantity("Span 1 start fraction", "0", "1");
     quantity("Span 1 end fraction", "0.75", "none");
     fireEvent.click(screen.getByText("Queue wind exposure"));
@@ -198,10 +199,10 @@ describe("rich authoring structured forms", () => {
       selection={{ type: "load", id: "load:a" }}
       onQueueIntent={queue}
     />);
-    fireEvent.click(screen.getByLabelText("Whole pipe pipe:a"));
+    removeVirtualMultiTarget("wind-whole-pipes", "pipe:a");
     for (let i = 1; i <= 2; i++) {
       fireEvent.click(screen.getByText("Add exposure span"));
-      enter(`Span ${i} pipe`, "pipe:a");
+      chooseVirtualTarget(`wind-span-${i}-pipe`, "pipe:a");
       quantity(`Span ${i} start fraction`, "0", "1");
       quantity(`Span ${i} end fraction`, "0.5", "1");
     }
@@ -287,7 +288,7 @@ describe("rich authoring structured forms", () => {
     enter("Initial state", "sticking");
     quantity("friction coefficient", "0.2", "1");
     fireEvent.click(screen.getByLabelText("Derive normal reaction from a support"));
-    enter("Reaction source support", "support:a");
+    chooseVirtualTarget("reaction-source-support-picker", "support:a");
     enter("Reaction source DOF", "UY");
     fireEvent.click(screen.getByText("Queue support creation"));
     await waitFor(() => expect(queue).toHaveBeenCalledOnce());

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PreviewModel } from "../../types";
-import { buildModelIndex, modelIndexFor } from "./modelIndex";
+import { buildModelIndex, convertedSectionEnvelopeIsConsistent, modelIndexFor } from "./modelIndex";
 import { entityKey } from "./selectionState";
 
 function fixture(): PreviewModel {
@@ -70,6 +70,24 @@ describe("shared model index", () => {
     expect(index.invalidGeometry.get(entityKey({ type: "node", id: "bad" }))).toContain("non-finite");
   });
 
+  it("defers mixed-unit shared/inline physical consistency until converted values are available", () => {
+    const model = fixture();
+    model.sections![0].properties = {
+      outside_diameter: { value: 114.3, unit: "mm" },
+      wall_thickness: { value: 5.08, unit: "mm" }
+    };
+    model.pipe_segments[0].section = {
+      outside_diameter: { value: 4.5, unit: "in" },
+      wall_thickness: { value: 0.2, unit: "in" }
+    };
+    const index = buildModelIndex(model, 1, 3);
+    const pipeKey = entityKey({ type: "pipe", id: "same" });
+
+    expect(index.sectionBindings.get(pipeKey)?.issue).toBeNull();
+    expect(convertedSectionEnvelopeIsConsistent(0.1143, 0.00508, 0.1143, 0.00508)).toBe(true);
+    expect(convertedSectionEnvelopeIsConsistent(0.1143, 0.00508, 0.11684, 0.00508)).toBe(false);
+  });
+
   it("retains duplicate same-type node records but excludes ambiguous geometry and dependants", () => {
     const model = fixture();
     model.nodes.push({
@@ -85,5 +103,27 @@ describe("shared model index", () => {
     expect(index.invalidGeometry.get(entityKey({ type: "pipe", id: "same" }))).toContain("ambiguous duplicate");
     expect(index.invalidGeometry.get(entityKey({ type: "support", id: "support:duplicate" }))).toContain("ambiguous duplicate");
     expect(index.visibilityEligibleKeys.has(entityKey({ type: "node", id: "same" }))).toBe(false);
+  });
+
+  it("excludes every same-type duplicate pipe, support, and component from geometry while retaining typed inspection", () => {
+    const model = fixture();
+    model.supports = [
+      { id: "same-support", label: "Support A", node: "same", restraints: [], provenance: "test" },
+      { id: "same-support", label: "Support B", node: "end", restraints: [], provenance: "test" }
+    ];
+    model.components = [
+      { id: "same-component", label: "Component A", node: "same", kind: "generic", provenance: "test" },
+      { id: "same-component", label: "Component B", node: "end", kind: "generic", provenance: "test" }
+    ];
+    model.pipe_segments.push({ ...model.pipe_segments[0], label: "Duplicate pipe" });
+    const index = buildModelIndex(model, 1, 4);
+    for (const [type, id] of [
+      ["pipe", "same"], ["support", "same-support"], ["component", "same-component"]
+    ] as const) {
+      const key = entityKey({ type, id });
+      expect(index.entities.has(key)).toBe(true);
+      expect(index.invalidGeometry.get(key)).toContain("duplicate same-type");
+      expect(index.visibilityEligibleKeys.has(key)).toBe(false);
+    }
   });
 });

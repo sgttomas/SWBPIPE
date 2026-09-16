@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
+import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 const DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
 const FAMILIES = [
   { value: "anchor", label: "Anchor" },
@@ -94,8 +95,10 @@ function SupportEditor(props: RichFormProps & {
   const setN = (key: string, value: unknown) => set("nonlinear", setMember(nonlinear, key, value));
   const restraints = Array.isArray(draft.restraints) ? draft.restraints as string[] : [];
   const source = record(nonlinear.normal_reaction_source);
-  const eligible = props.model.supports.filter(s => s.id !== (create ? id : support?.id) && !record(s).nonlinear && s.restraints.some(d => ["UX", "UY", "UZ"].includes(d.toUpperCase())));
+  const eligible = useMemo(() => props.model.supports.filter(s => s.id !== (create ? id : support?.id) && !record(s).nonlinear && s.restraints.some(d => ["UX", "UY", "UZ"].includes(d.toUpperCase()))), [create, id, props.model.supports, support?.id]);
   const selectedSource = eligible.find(s => s.id === source.support_ref);
+  const nodeOptions = useMemo(() => props.model.nodes.map((candidate) => ({ value: candidate.id, label: candidate.label || candidate.id })), [props.model.nodes]);
+  const eligibleSupportOptions = useMemo(() => eligible.map((candidate) => ({ value: candidate.id, label: candidate.label || candidate.id, keywords: [candidate.node] })), [eligible]);
   const collisions = [props.model.nodes, props.model.pipe_segments, props.model.supports, props.model.components, props.model.materials ?? [], props.model.sections ?? [], props.model.load_cases, props.model.combinations ?? []].flat().some(e => e.id === id) || Boolean(props.queuedIntents?.some(i => i.target.ref === id && i.operation_kind === "create"));
   async function submit() {
     try {
@@ -187,12 +190,7 @@ function SupportEditor(props: RichFormProps & {
           value={label}
           onChange={setLabel}
         />
-        <TextField
-          label="Support node"
-          value={node}
-          choices={props.model.nodes.map(n => n.id)}
-          onChange={setNode}
-        />
+        <VirtualTargetPicker label="Support node" value={node} options={nodeOptions} onChange={setNode} testId="support-node-picker" />
       </> : <p>{support?.label} — {support?.id}, node {support?.node}</p>}
       <FamilyField value={draft.family} onChange={value => set("family", value)} />
       <fieldset>
@@ -292,11 +290,12 @@ function SupportEditor(props: RichFormProps & {
             checked={nonlinear.normal_reaction_source !== undefined}
             onChange={e => setN("normal_reaction_source", e.target.checked ? {} : undefined)}
           />Derive normal reaction from a support</label>{nonlinear.normal_reaction_source !== undefined && <>
-            <TextField
+            <VirtualTargetPicker
               label="Reaction source support"
-              value={source.support_ref}
-              choices={eligible.map(s => s.id)}
+              value={String(source.support_ref ?? "")}
+              options={eligibleSupportOptions}
               onChange={v => setN("normal_reaction_source", setMember(setMember(source, "dof", undefined), "support_ref", v))}
+              testId="reaction-source-support-picker"
             />
             <TextField
               label="Reaction source DOF"

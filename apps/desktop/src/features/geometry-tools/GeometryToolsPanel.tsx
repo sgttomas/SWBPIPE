@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { TextField } from "../rich-authoring/formSupport";
+import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
+import { VirtualList } from "../workspace/VirtualList";
 import { batchId, issue, useBatchQueue, type BatchFormProps } from "./batchFormSupport";
 import { buildGeometryBatch, emptyGeometryDraft, emptyIdentity, geometryPayload, selectedGeometry, type GeometryDraft, type NewIdentity } from "./geometryDraft";
 export { buildGeometryBatch, geometryPayload } from "./geometryDraft";
@@ -16,20 +18,37 @@ function IdentityFields({ label, value, onChange }: { label: string; value: NewI
     />)}
   </fieldset>;
 }
-export function GeometryToolsPanel(props: BatchFormProps) {
+export function GeometryToolsPanel(props: BatchFormProps & { selectedPipeRefs?: readonly string[] }) {
   const [draft, setDraft] = useState(emptyGeometryDraft);
+  const [focusedCopyKey, setFocusedCopyKey] = useState<string | null>(null);
   const state = useBatchQueue(props, draft);
-  const invalid = issue(() => geometryPayload(props.model, draft));
+  const invalid = useMemo(() => issue(() => geometryPayload(props.model, draft)), [draft, props.model]);
+  const pipeOptions = useMemo(() => props.model.pipe_segments.map((pipe) => ({
+    value: pipe.id,
+    label: pipe.label || pipe.id,
+    keywords: [pipe.from, pipe.to]
+  })), [props.model.pipe_segments]);
+  const copyRows = useMemo(() => [
+    ...draft.copyNodes.map((value) => ({ kind: "copyNodes" as const, value })),
+    ...draft.copyPipes.map((value) => ({ kind: "copyPipes" as const, value }))
+  ], [draft.copyNodes, draft.copyPipes]);
+  const focusedCopyIndex = focusedCopyKey === null
+    ? null
+    : copyRows.findIndex((row) => `${row.kind}:${row.value.source_ref}` === focusedCopyKey);
   const set = <K extends keyof GeometryDraft>(key: K, value: GeometryDraft[K]) => setDraft(previous => ({ ...previous, [key]: value }));
   function selectPipes(refs: string[]) {
     // Populate source identities only. New IDs, labels and provenance stay blank.
     let selected: ReturnType<typeof selectedGeometry> = { nodes: [], pipe_segments: [] };
     try { if (refs.length) selected = selectedGeometry(props.model, refs); }
     catch { /* Retain selected IDs; the visible draft validation explains missing source records. */ }
-    setDraft(previous => ({ ...previous, pipeRefs: refs,
-      copyNodes: selected.nodes.map(n => previous.copyNodes.find(row => row.source_ref === n.id) ?? { source_ref: n.id, ...emptyIdentity() }),
-      copyPipes: selected.pipe_segments.map(p => previous.copyPipes.find(row => row.source_ref === p.id) ?? { source_ref: p.id, ...emptyIdentity() })
-    }));
+    setDraft(previous => {
+      const priorNodes = new Map(previous.copyNodes.map((row) => [row.source_ref, row]));
+      const priorPipes = new Map(previous.copyPipes.map((row) => [row.source_ref, row]));
+      return { ...previous, pipeRefs: refs,
+        copyNodes: selected.nodes.map(n => priorNodes.get(n.id) ?? { source_ref: n.id, ...emptyIdentity() }),
+        copyPipes: selected.pipe_segments.map(p => priorPipes.get(p.id) ?? { source_ref: p.id, ...emptyIdentity() })
+      };
+    });
   }
   return <section id="geometry-tools" tabIndex={-1} aria-labelledby="geometry-tools-title">
     <h2 id="geometry-tools-title">Geometry tools</h2>
@@ -40,12 +59,22 @@ export function GeometryToolsPanel(props: BatchFormProps) {
       <TextField label="Geometry tool" value={draft.action} choices={["split", "translate", "rotate", "mirror"]} onChange={value => { state.cancel(); setDraft({ ...emptyGeometryDraft(), action: value as GeometryDraft["action"] }); }} />
       <fieldset>
         <legend>Source pipe runs</legend>
-        {props.model.pipe_segments.map(pipe => <label key={pipe.id}>
-          <input type="checkbox" checked={draft.pipeRefs.includes(pipe.id)}
-            onChange={event => selectPipes(event.target.checked ? [...draft.pipeRefs, pipe.id] : draft.pipeRefs.filter(id => id !== pipe.id))} />
-          {pipe.label || pipe.id} ({pipe.id})
-        </label>)}
-        {props.selection.type === "pipe" && <p>Current selection: {props.selection.id}. Mark its checkbox to include it.</p>}
+        <VirtualMultiTargetPicker
+          label="Source pipe runs"
+          onChange={(values) => selectPipes([...values])}
+          options={pipeOptions}
+          testId="geometry-source-pipes"
+          values={draft.pipeRefs}
+        />
+        <button
+          disabled={!props.selectedPipeRefs?.length}
+          title={props.selectedPipeRefs?.length ? "Freeze the current selected pipes into this geometry draft." : "Select one or more pipes first."}
+          onClick={() => selectPipes([...(props.selectedPipeRefs ?? [])])}
+          type="button"
+        >Use selected pipes</button>
+        <p>{draft.pipeRefs.length > 0
+          ? `Frozen source snapshot: ${draft.pipeRefs.length} pipe${draft.pipeRefs.length === 1 ? "" : "s"}.`
+          : "Select one or more pipes, then freeze them into this draft."}</p>
       </fieldset>
       {draft.action === "split" ? <>
         <TextField label="Split fraction" value={draft.fraction} onChange={value => set("fraction", value)} />
@@ -70,11 +99,25 @@ export function GeometryToolsPanel(props: BatchFormProps) {
           <TextField label="Rotation angle" value={draft.angle.value} onChange={value => set("angle", { ...draft.angle, value })} />
           <TextField label="Rotation angle unit" value={draft.angle.unit} onChange={unit => set("angle", { ...draft.angle, unit })} />
         </>}
-        {draft.mode === "copy" && (["copyNodes", "copyPipes"] as const).map(key => <div key={key}>
-          {draft[key].map((row, index) => <IdentityFields key={row.source_ref}
-            label={`${key === "copyNodes" ? "Copied node" : "Copied pipe"} ${row.source_ref}`} value={row}
-            onChange={value => set(key, draft[key].map((old, i) => i === index ? { ...value, source_ref: old.source_ref } : old))} />)}
-        </div>)}
+        {draft.mode === "copy" && copyRows.length > 0 ? <section aria-label="Copied entity identities">
+          <p>{copyRows.length} copied entity identities. Edit only the focused virtual row.</p>
+          <VirtualList
+            height={360}
+            itemKey={(row) => `${row.kind}:${row.value.source_ref}`}
+            items={copyRows}
+            pinIndex={focusedCopyIndex === -1 ? null : focusedCopyIndex}
+            renderItem={(row) => <div
+              onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocusedCopyKey(null); }}
+              onFocusCapture={() => setFocusedCopyKey(`${row.kind}:${row.value.source_ref}`)}
+            ><IdentityFields
+              label={`${row.kind === "copyNodes" ? "Copied node" : "Copied pipe"} ${row.value.source_ref}`}
+              value={row.value}
+              onChange={(value) => set(row.kind, draft[row.kind].map((old) => old.source_ref === row.value.source_ref ? { ...value, source_ref: old.source_ref } : old))}
+            /></div>}
+            rowHeight={180}
+            testId="geometry-copy-identities"
+          />
+        </section> : null}
       </>}
     </fieldset>
     {invalid && <p id="geometry-draft-reason" role="status">{invalid}</p>}

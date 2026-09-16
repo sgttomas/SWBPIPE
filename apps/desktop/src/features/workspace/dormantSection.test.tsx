@@ -8,20 +8,20 @@ describe("DormantSection", () => {
     let renders = 0;
     let publishCompletion: (() => void) | null = null;
 
-    function Probe({ modelRevision, sessionGeneration }: { modelRevision: number; sessionGeneration: number }) {
+    function Probe({ modelRevision, sessionGeneration, guardGeneration }: { modelRevision: number; sessionGeneration: number; guardGeneration: number }) {
       renders += 1;
       const [draft, setDraft] = useState("");
       const [completion, setCompletion] = useState("none");
       useEffect(() => {
         let current = true;
         publishCompletion = () => {
-          if (current) setCompletion(`session:${sessionGeneration}`);
+          if (current) setCompletion(`session:${sessionGeneration}:guard:${guardGeneration}`);
         };
         setDraft("");
         return () => {
           current = false;
         };
-      }, [sessionGeneration]);
+      }, [guardGeneration, sessionGeneration]);
       return <>
         <output data-testid="revision">{modelRevision}</output>
         <output data-testid="completion">{completion}</output>
@@ -29,9 +29,9 @@ describe("DormantSection", () => {
       </>;
     }
 
-    const section = (active: boolean, sessionGeneration: number, modelRevision: number) => (
-      <DormantSection active={active} sessionGeneration={sessionGeneration}>
-        <Probe modelRevision={modelRevision} sessionGeneration={sessionGeneration} />
+    const section = (active: boolean, sessionGeneration: number, modelRevision: number, guardGeneration = 1) => (
+      <DormantSection active={active} guardGeneration={guardGeneration} sessionGeneration={sessionGeneration}>
+        <Probe guardGeneration={guardGeneration} modelRevision={modelRevision} sessionGeneration={sessionGeneration} />
       </DormantSection>
     );
     const view = render(section(true, 1, 1));
@@ -49,11 +49,54 @@ describe("DormantSection", () => {
     expect(screen.getByTestId("revision")).toHaveTextContent("3");
     expect(screen.getByLabelText("Retained draft")).toHaveValue("keep me");
 
-    view.rerender(section(false, 2, 4));
-    expect(screen.getByLabelText("Retained draft")).toHaveValue("");
-    act(() => firstSessionCompletion());
+    const preGuardCompletion = publishCompletion!;
+    view.rerender(section(false, 1, 4, 2));
+    act(() => preGuardCompletion());
     expect(screen.getByTestId("completion")).toHaveTextContent("none");
     act(() => publishCompletion!());
-    expect(screen.getByTestId("completion")).toHaveTextContent("session:2");
+    expect(screen.getByTestId("completion")).toHaveTextContent("session:1:guard:2");
+
+    view.rerender(section(false, 2, 5, 3));
+    expect(screen.getByLabelText("Retained draft")).toHaveValue("");
+    act(() => firstSessionCompletion());
+    expect(screen.getByTestId("completion")).toHaveTextContent("session:1:guard:2");
+    act(() => publishCompletion!());
+    expect(screen.getByTestId("completion")).toHaveTextContent("session:2:guard:3");
+  });
+
+  it("keeps inactive report computation dormant while its owner rejects an obsolete completion", async () => {
+    let renders = 0;
+    let ownerGeneration = 1;
+    let resolveRequest!: () => void;
+    const request = new Promise<void>((resolve) => {
+      resolveRequest = resolve;
+    });
+
+    function ReportProbe({ modelRevision }: { modelRevision: number }) {
+      renders += 1;
+      const [completion, setCompletion] = useState("none");
+      useEffect(() => {
+        const capturedGeneration = ownerGeneration;
+        void request.then(() => {
+          if (capturedGeneration === ownerGeneration) setCompletion(`revision:${modelRevision}`);
+        });
+      }, [modelRevision]);
+      return <output data-testid="report-completion">{completion}</output>;
+    }
+
+    const section = (active: boolean, modelRevision: number) => (
+      <DormantSection active={active} sessionGeneration={1}>
+        <ReportProbe modelRevision={modelRevision} />
+      </DormantSection>
+    );
+    const view = render(section(true, 1));
+    const activeRenderCount = renders;
+    view.rerender(section(false, 2));
+    ownerGeneration = 2;
+    view.rerender(section(false, 3));
+    expect(renders).toBe(activeRenderCount);
+
+    await act(async () => resolveRequest());
+    expect(screen.getByTestId("report-completion")).toHaveTextContent("none");
   });
 });

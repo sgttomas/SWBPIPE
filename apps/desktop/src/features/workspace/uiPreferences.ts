@@ -28,9 +28,10 @@ export function defaultUiPreferences(): UiPreferences {
   return DEFAULTS;
 }
 
-export function readUiPreferences(storage: Pick<Storage, "getItem"> = window.localStorage): UiPreferences {
+export function readUiPreferences(storage?: Pick<Storage, "getItem">): UiPreferences {
   try {
-    const text = storage.getItem(UI_PREFERENCES_STORAGE_KEY);
+    const target = storage ?? window.localStorage;
+    const text = target.getItem(UI_PREFERENCES_STORAGE_KEY);
     if (!text) return DEFAULTS;
     const value: unknown = JSON.parse(text);
     if (!isRecord(value) || value.version !== UI_PREFERENCES_VERSION) return DEFAULTS;
@@ -50,9 +51,14 @@ export function readUiPreferences(storage: Pick<Storage, "getItem"> = window.loc
 
 export function writeUiPreferences(
   preferences: UiPreferences,
-  storage: Pick<Storage, "setItem"> = window.localStorage
+  storage?: Pick<Storage, "setItem">
 ): void {
-  storage.setItem(UI_PREFERENCES_STORAGE_KEY, JSON.stringify(preferences));
+  try {
+    const target = storage ?? window.localStorage;
+    target.setItem(UI_PREFERENCES_STORAGE_KEY, JSON.stringify(preferences));
+  } catch {
+    // UI preferences are best-effort; storage denial must not interrupt authoring.
+  }
 }
 
 export function updateUiPreferences(

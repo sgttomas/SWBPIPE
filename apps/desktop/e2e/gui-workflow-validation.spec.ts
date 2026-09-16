@@ -1,6 +1,12 @@
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import {
+  closeWorkspacePanels,
+  expectTreeEntity,
+  openWorkspaceSection,
+  startPropertyTaskFromTreeEntity,
+} from "./workspace-driver";
 
 type WorkflowModelFixture = {
   project: { id: string };
@@ -36,19 +42,6 @@ const resultFixture = JSON.parse(readFileSync(resultFixturePath, "utf8")) as Wor
 const editedLoadCase = modelFixture.load_cases.find((item) => item.id === "load:L-100");
 
 if (!editedLoadCase) throw new Error(`GUI workflow fixture is missing load:L-100: ${modelFixturePath}`);
-
-async function openWorkspaceSection(page: Page, sectionId: string): Promise<void> {
-  const section = page.getByTestId(`workspace-section-${sectionId}`);
-  if (!await section.isVisible()) {
-    await page.getByTestId("menu-view").click();
-    await page.getByTestId(`menu-item-view.section.${sectionId}`).click();
-  }
-  await expect(section).toBeVisible();
-  if (sectionId === "operations") {
-    const review = page.getByTestId("operation-tab-review");
-    if (await review.getAttribute("aria-pressed") !== "true") await review.click();
-  }
-}
 
 // Disclosures are opened through their visible summary, never by DOM mutation.
 async function setDisclosure(details: Locator, open = true): Promise<void> {
@@ -88,7 +81,7 @@ async function ensureEngineReady(page: Page): Promise<void> {
   await openReviewTab(page, "review");
   await expect(page.getByTestId("operation-engine-chip")).toBeVisible();
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
-  await page.getByTestId("workspace-task-model").click();
+  await closeWorkspacePanels(page);
 }
 
 async function ensureRailExpanded(page: Page, testId: "toggle-tree" | "toggle-inspector"): Promise<void> {
@@ -113,7 +106,7 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await ensureRailExpanded(page, "toggle-inspector");
 
   // Bind the documented pre-solve state directly to the repository fixture.
-  await expect(page.getByTestId(`tree-row-${modelFixture.project.id}`)).toBeVisible();
+  await expectTreeEntity(page, "project", modelFixture.project.id);
   await expectRecordedStatus(page, "status-pill-mechanics", modelFixture.analysis_status.mechanics);
   await expectRecordedStatus(page, "status-pill-rule-check", "RULE_INPUTS_INCOMPLETE");
   await expectRecordedStatus(page, "status-pill-professional", "HUMAN_REVIEW_REQUIRED");
@@ -192,8 +185,7 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
 
   // Edit explicit invented load data through the visible inspector and apply it
   // through the product's local WASM operation engine.
-  await page.getByTestId(`tree-row-${editedLoadCase.id}`).click();
-  const editor = page.getByTestId("editor-intent-panel");
+  const editor = await startPropertyTaskFromTreeEntity(page, "load", editedLoadCase.id);
   await editor.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
   await expect(editor.getByTestId("editor-intent-value")).toHaveValue(
     String(editedLoadCase.primitive_loads[0].magnitude.value)
@@ -268,7 +260,7 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await setDisclosure(page.getByLabel("Project summary"), false);
 
   // The edited unit-bearing value is still the current value after reopen.
-  await page.getByTestId(`tree-row-${editedLoadCase.id}`).click();
+  await startPropertyTaskFromTreeEntity(page, "load", editedLoadCase.id);
   await editor.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
   await expect(editor.getByTestId("editor-intent-value")).toHaveValue("-225");
   await expect(editor.getByTestId("editor-intent-unit")).toHaveValue("N/m");

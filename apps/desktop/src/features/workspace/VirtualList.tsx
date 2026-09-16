@@ -16,12 +16,14 @@ type Props<T> = Readonly<{
   height: number;
   rowHeight: number;
   activeIndex?: number | null;
+  revealActiveRequest?: number;
   pinIndex?: number | null;
   overscan?: number;
   threshold?: number;
   ariaLabel?: string;
   ariaActiveDescendant?: string;
   ariaMultiselectable?: boolean;
+  id?: string;
   className?: string;
   role?: AriaRole;
   testId?: string;
@@ -36,12 +38,14 @@ export function VirtualList<T>({
   height,
   rowHeight,
   activeIndex = null,
+  revealActiveRequest,
   pinIndex = null,
   overscan = 8,
   threshold = 100,
   ariaLabel,
   ariaActiveDescendant,
   ariaMultiselectable,
+  id,
   className,
   role,
   testId,
@@ -49,12 +53,14 @@ export function VirtualList<T>({
   onKeyDown
 }: Props<T>) {
   const hostRef = useRef<HTMLDivElement | null>(null);
+  const lastRevealRequestRef = useRef(revealActiveRequest);
   const [scrollTop, setScrollTop] = useState(0);
   const virtual = items.length >= threshold;
   const window = useMemo(() => {
     if (!virtual) return { start: 0, end: items.length };
-    const start = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
     const count = Math.ceil(height / rowHeight) + overscan * 2;
+    const requestedStart = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
+    const start = Math.min(requestedStart, Math.max(0, items.length - count));
     return { start, end: Math.min(items.length, start + count) };
   }, [height, items.length, overscan, rowHeight, scrollTop, virtual]);
   const indexes = useMemo(() => {
@@ -67,17 +73,42 @@ export function VirtualList<T>({
   }, [items.length, pinIndex, window.end, window.start]);
 
   useLayoutEffect(() => {
-    if (!virtual || activeIndex === null || activeIndex < 0 || activeIndex >= items.length) return;
+    if (activeIndex === null || activeIndex < 0 || activeIndex >= items.length) return;
     const host = hostRef.current;
     if (!host) return;
     const top = activeIndex * rowHeight;
     const bottom = top + rowHeight;
     if (top < host.scrollTop) host.scrollTop = top;
     else if (bottom > host.scrollTop + height) host.scrollTop = bottom - height;
-    if (host.scrollTop !== scrollTop) setScrollTop(host.scrollTop);
-  }, [activeIndex, height, items.length, rowHeight, scrollTop, virtual]);
+    setScrollTop(host.scrollTop);
+  }, [activeIndex, height, items.length, rowHeight]);
 
-  const hostStyle: CSSProperties = { height, overflowY: virtual ? "auto" : "visible" };
+  useLayoutEffect(() => {
+    if (revealActiveRequest === undefined || revealActiveRequest === lastRevealRequestRef.current) return;
+    if (activeIndex === null || activeIndex < 0 || activeIndex >= items.length) {
+      lastRevealRequestRef.current = revealActiveRequest;
+      return;
+    }
+    const host = hostRef.current;
+    const activeRow = host?.querySelector<HTMLElement>(`[data-virtual-index="${activeIndex}"]`);
+    // A virtual row may mount only after the inner scroll updates the window.
+    // Leave the request pending until that row exists, then reveal it through
+    // every clipping scroll ancestor without moving keyboard focus.
+    if (!activeRow) return;
+    activeRow.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+    lastRevealRequestRef.current = revealActiveRequest;
+  }, [activeIndex, indexes, items.length, revealActiveRequest]);
+
+  useLayoutEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    const maximum = Math.max(0, items.length * rowHeight - height);
+    if (host.scrollTop <= maximum) return;
+    host.scrollTop = maximum;
+    setScrollTop(maximum);
+  }, [height, items.length, rowHeight]);
+
+  const hostStyle: CSSProperties = { height, overflowY: items.length * rowHeight > height ? "auto" : "hidden" };
   return (
     <div
       aria-label={ariaLabel}
@@ -85,6 +116,7 @@ export function VirtualList<T>({
       aria-multiselectable={ariaMultiselectable}
       className={className}
       data-testid={testId}
+      id={id}
       onKeyDown={onKeyDown}
       onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
       ref={hostRef}
@@ -103,7 +135,7 @@ export function VirtualList<T>({
               position: "absolute",
               right: 0,
               top: index * rowHeight
-            } : { minHeight: rowHeight }}
+            } : { boxSizing: "border-box", height: rowHeight, overflow: "hidden" }}
           >
             {renderItem(items[index], index)}
           </div>

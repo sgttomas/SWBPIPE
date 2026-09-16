@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { clone, parseQuantities, QueueFeedback, QuantityField, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
+import { useEffect, useMemo, useState } from "react";
+import { clone, parseQuantities, QueueFeedback, QuantityField, requireText, setMember, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
+import { VirtualMultiTargetPicker, VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 type Wind = {
   exposed_pipe_refs?: string[];
   exposed_spans?: DraftRecord[];
@@ -30,7 +31,13 @@ function ExposureEditor(props: RichFormProps & {
     setNextKey((wind.exposed_spans ?? []).length);
   }, [wind]);
   const state = useRichQueue(props);
-  const pipeIds = props.model.pipe_segments.map(p => p.id);
+  const pipeOptions = useMemo(() => props.model.pipe_segments.map((pipe) => ({
+    value: pipe.id,
+    label: pipe.label || pipe.id,
+    keywords: [pipe.from, pipe.to]
+  })), [props.model.pipe_segments]);
+  const pipeIds = useMemo(() => pipeOptions.map((option) => option.value), [pipeOptions]);
+  const pipeIdSet = useMemo(() => new Set(pipeIds), [pipeIds]);
   function update(index: number, key: string, value: unknown) {
     setSpans(current => current.map((s, i) => i === index ? setMember(s, key, value) : s));
   }
@@ -56,7 +63,7 @@ function ExposureEditor(props: RichFormProps & {
       ]>>();
       for (const span of after.exposed_spans) {
         requireText(span.pipe_ref, "Span pipe");
-        if (!pipeIds.includes(span.pipe_ref))
+        if (!pipeIdSet.has(span.pipe_ref))
           throw new Error("Every exposure span must reference an existing pipe.");
         if (whole.includes(span.pipe_ref))
           throw new Error("Choose either whole-pipe or partial exposure for each pipe.");
@@ -91,24 +98,12 @@ function ExposureEditor(props: RichFormProps & {
     <fieldset disabled={state.busy}>
       <legend>Exposed pipes and spans</legend>
       <fieldset>
-        <legend>Whole pipes</legend>{pipeIds.map(id => <label key={id}>
-          <input
-            type="checkbox"
-            aria-label={`Whole pipe ${id}`}
-            checked={whole.includes(id)}
-            onChange={e => setWhole(e.target.checked ? [...whole, id] : whole.filter(p => p !== id))}
-          />
-          {id}</label>)}
-        {whole.filter(id => !pipeIds.includes(id)).map(id => <p key={id} role="alert">Missing pipe {id} <button type="button" onClick={() => setWhole(whole.filter(p => p !== id))}>Remove missing pipe {id}</button>
+        <legend>Whole pipes</legend><VirtualMultiTargetPicker label="Whole exposed pipes" options={pipeOptions} testId="wind-whole-pipes" values={whole} onChange={(values) => setWhole([...values])} />
+        {whole.filter(id => !pipeIdSet.has(id)).map(id => <p key={id} role="alert">Missing pipe {id} <button type="button" onClick={() => setWhole(whole.filter(p => p !== id))}>Remove missing pipe {id}</button>
         </p>)}</fieldset>
       {spans.map((span, index) => <fieldset key={keys[index]}>
         <legend>Span {index + 1}</legend>
-        <TextField
-          label={`Span ${index + 1} pipe`}
-          value={span.pipe_ref}
-          choices={pipeIds}
-          onChange={value => update(index, "pipe_ref", value)}
-        />
+        <VirtualTargetPicker label={`Span ${index + 1} pipe`} value={String(span.pipe_ref ?? "")} options={pipeOptions} onChange={value => update(index, "pipe_ref", value)} testId={`wind-span-${index + 1}-pipe`} />
         <QuantityField
           dimension="dimensionless fraction"
           label={`Span ${index + 1} start fraction`}

@@ -31,6 +31,11 @@ export function AccessibilityBaselinePanel({ model }: { model: PreviewModel }) {
       </div>
       <div className="report-list" data-testid="accessibility-baseline-body">
         <AccessibilityLine
+          label="Current workspace target"
+          value="owner-selected WCAG 2.2 Level AA for touched workspace controls; implementation target only; independent usability and conformance are not proved"
+          testId="accessibility-current-workspace-target"
+        />
+        <AccessibilityLine
           label="Core evidence"
           value={`pass=${packet.summary.pass_count}; fail=${packet.summary.fail_count}; blocking=${packet.summary.blocking_count}; runtime=${packet.summary.desktop_runtime_evaluation}`}
           testId="accessibility-baseline-evidence"
@@ -62,9 +67,9 @@ export function AccessibilityBaselinePanel({ model }: { model: PreviewModel }) {
         />
       </div>
       <small className="report-note">
-        Accessibility baseline review is deterministic evidence from invented GUI contract records. It does not select a
-        final conformance target, run a full desktop accessibility tree audit, or mutate engineering data; acceptance and
-        professional judgment remain with the responsible engineer.
+        The exported packet above is static historical evidence from invented GUI contract records and retains its original
+        TBD target and counts. The current owner-selected target applies to touched workspace controls only. No independent
+        practitioner usability review, conformance audit, or full desktop accessibility-tree run has been completed.
       </small>
     </section>
   );

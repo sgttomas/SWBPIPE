@@ -11,6 +11,7 @@ import { loadPreviewModel } from "../../services/previewService";
 import { applyOperationBatch } from "../../services/operationBatchService";
 import { computeModelHash, canonicalJsonString } from "../../services/hashService";
 import type { PreviewModel } from "../../types";
+import { chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 async function massModel() {
@@ -21,7 +22,7 @@ async function massModel() {
 function fill(model: PreviewModel) {
   enter("Self-weight case ID", "load:self-weight-invented"); enter("Self-weight case label", "Invented self-weight");
   enter("Gravity value", "-9.8"); enter("Gravity unit", "m/s^2"); enter("Gravity direction", "global_y");
-  enter("Self-weight provenance", "Invented test only"); fireEvent.click(screen.getByLabelText(model.pipe_segments[0].id));
+  enter("Self-weight provenance", "Invented test only"); chooseVirtualMultiTarget("self-weight-pipes", model.pipe_segments[0].id);
 }
 describe("bounded workflow actual engine tests", () => {
   it("replaces old support stiffness, retains complete selected provenance and rejects stale before state", async () => {

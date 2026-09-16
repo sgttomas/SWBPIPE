@@ -1,16 +1,28 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { PreviewModel } from "../../types";
 import { buildModelIndex } from "../workspace/modelIndex";
 import { entityKey } from "../workspace/selectionState";
 import {
   authoredToLocal,
+  fittedViewportDistance,
+  applyMeasurementTargetCommand,
   broadPhaseEntityKeys,
+  claimBoxSelectionPointerDown,
+  boxGestureContextIsCurrent,
+  composedVisibilityHiddenKeys,
   createRenderTransform,
+  displayedBoundsForEntityKeys,
+  effectiveHiddenEntityKeys,
+  formatMeasurementDisplayValue,
+  hideSelectionVisibility,
+  isolateSelectionVisibility,
   localPointIsFloat32Representable,
   localToAuthored,
   pickPointPrimitive,
   pointPickPrimitives,
-  prioritizedLabelKeys
+  prioritizedLabelKeys,
+  spatialEntityKeyGroups,
+  visibilityEligibleSelectionKeys
 } from "./viewportSelection";
 import * as THREE from "three";
 
@@ -45,6 +57,68 @@ function largeModel(pipeCount = 2): PreviewModel {
 }
 
 describe("viewport coordinates and broad phase", () => {
+  it("claims only an active primary left canvas pointer for Box Select", () => {
+    const preventDefault = vi.fn();
+    const stopPropagation = vi.fn();
+    const event = { button: 0, isPrimary: true, canvasTarget: true, preventDefault, stopPropagation };
+
+    expect(claimBoxSelectionPointerDown(event, { active: true, authoringActive: false })).toBe(true);
+    expect(preventDefault).toHaveBeenCalledOnce();
+    expect(stopPropagation).toHaveBeenCalledOnce();
+
+    for (const rejected of [
+      { ...event, button: 2 },
+      { ...event, isPrimary: false },
+      { ...event, canvasTarget: false }
+    ]) {
+      preventDefault.mockClear();
+      stopPropagation.mockClear();
+      expect(claimBoxSelectionPointerDown(rejected, { active: true, authoringActive: false })).toBe(false);
+      expect(preventDefault).not.toHaveBeenCalled();
+      expect(stopPropagation).not.toHaveBeenCalled();
+    }
+    expect(claimBoxSelectionPointerDown(event, { active: false, authoringActive: false })).toBe(false);
+    expect(claimBoxSelectionPointerDown(event, { active: true, authoringActive: true })).toBe(false);
+  });
+
+  it("formats viewport measurements within the six-decimal publication allowance", () => {
+    const ordinaryCases = [
+      [0.0067800000000000002, "0.006780"],
+      [0.10025736528056192, "0.100257"],
+      [1234.123456789, "1234.123457"],
+      [-9876.123456789, "-9876.123457"]
+    ] as const;
+    const publicationAllowance = 0.5e-6 + 1e-10;
+
+    for (const [value, expected] of ordinaryCases) {
+      const formatted = formatMeasurementDisplayValue(value);
+      expect(formatted).toBe(expected);
+      expect(Math.abs(Number(formatted) - value)).toBeLessThanOrEqual(publicationAllowance);
+    }
+    expect(formatMeasurementDisplayValue(-0)).toBe("0.000000");
+    expect(formatMeasurementDisplayValue(-4.32198765e-9)).toBe("-4.321988e-9");
+    expect(Math.abs(Number(formatMeasurementDisplayValue(-4.32198765e-9)) + 4.32198765e-9))
+      .toBeLessThanOrEqual(publicationAllowance);
+  });
+
+  it("uses one typed measurement-target command for keyboard labels and canvas picks", () => {
+    const index = buildModelIndex(largeModel(1), 1, 1);
+    const first = applyMeasurementTargetCommand(index, null, { type: "node", id: "n:0" });
+    const second = applyMeasurementTargetCommand(index, first.source, { type: "node", id: "n:1" });
+    const pipe = applyMeasurementTargetCommand(index, null, { type: "pipe", id: "pipe:0" });
+
+    expect(first).toMatchObject({ accepted: true, source: { kind: "nodes", keys: [entityKey({ type: "node", id: "n:0" })] } });
+    expect(second).toMatchObject({
+      accepted: true,
+      source: { kind: "nodes", keys: [entityKey({ type: "node", id: "n:0" }), entityKey({ type: "node", id: "n:1" })] }
+    });
+    expect(pipe).toMatchObject({ accepted: true, source: { kind: "pipe", key: entityKey({ type: "pipe", id: "pipe:0" }) } });
+    expect(applyMeasurementTargetCommand(index, second.source, { type: "support", id: "missing" })).toMatchObject({
+      accepted: false,
+      source: second.source
+    });
+  });
+
   it("centres industrial offsets and maps local picks back exactly", () => {
     const index = buildModelIndex(largeModel(), 4, 9);
     const transform = createRenderTransform(index.geometryBounds);
@@ -60,6 +134,19 @@ describe("viewport coordinates and broad phase", () => {
     );
   });
 
+  it("keeps valid geometry renderable while excluding a finite Float32-range outlier", () => {
+    const model = largeModel(1);
+    model.nodes.push({ id: "outlier", label: "Outlier", position: { x: 1e308, y: 0, z: 0 }, provenance: "test" });
+    const index = buildModelIndex(model, 4, 10);
+    expect(index.invalidGeometry.get(entityKey({ type: "node", id: "outlier" }))).toContain("Float32");
+    expect(index.geometryBounds?.max.x).toBeLessThan(1e12);
+    expect(() => createRenderTransform(index.geometryBounds)).not.toThrow();
+    expect(() => createRenderTransform({
+      min: { x: -1e308, y: 0, z: 0 },
+      max: { x: 1e308, y: 0, z: 0 }
+    })).toThrow("Float32 presentation range");
+  });
+
   it("uses chunk bounds before entity bounds", () => {
     const index = buildModelIndex(largeModel(300), 1, 1);
     const keys = broadPhaseEntityKeys(index, {
@@ -68,6 +155,81 @@ describe("viewport coordinates and broad phase", () => {
     });
     expect(keys).toContain(entityKey({ type: "pipe", id: "pipe:0" }));
     expect(keys).not.toContain(entityKey({ type: "pipe", id: "pipe:299" }));
+  });
+
+  it("partitions typed repeated geometry by stable spatial chunks", () => {
+    const index = buildModelIndex(largeModel(300), 1, 1);
+    const pipeGroups = spatialEntityKeyGroups(index, "pipe");
+    expect(pipeGroups.length).toBeGreaterThan(1);
+    expect(pipeGroups.every((group) => group.length <= 128)).toBe(true);
+    expect(new Set(pipeGroups.flat()).size).toBe(300);
+  });
+
+  it("keeps the generic component render cube aligned with its analytic half diagonal", () => {
+    const model = largeModel(0);
+    model.nodes = [{ id: "anchor", label: "Anchor", position: { x: 0, y: 0, z: 0 }, provenance: "test" }];
+    model.components = [{ id: "generic", label: "Generic", node: "anchor", kind: "generic", provenance: "test" }];
+    const index = buildModelIndex(model, 1, 1);
+    const primitive = pointPickPrimitives(index, model, { x: 0, y: 0, z: 0 })
+      .find((candidate) => candidate.ref.type === "component");
+    expect(primitive?.radius).toBeCloseTo(Math.hypot(0.12, 0.12, 0.12), 12);
+  });
+
+  it("shares one effective attachment mask while preserving explicit hide and bounded isolate context", () => {
+    const model = largeModel(2);
+    model.supports.push({ id: "support:0", label: "Support", node: "n:0", restraints: [], provenance: "test" });
+    model.components.push({ id: "component:0", label: "Valve", node: "n:0", kind: "valve", provenance: "test" });
+    const index = buildModelIndex(model, 2, 1);
+    const nodeKey = entityKey({ type: "node", id: "n:0" });
+    const supportKey = entityKey({ type: "support", id: "support:0" });
+    const componentKey = entityKey({ type: "component", id: "component:0" });
+    const adjacentPipe = entityKey({ type: "pipe", id: "pipe:0" });
+    const unrelatedPipe = entityKey({ type: "pipe", id: "pipe:1" });
+
+    const explicit = hideSelectionVisibility(new Set(), [nodeKey]);
+    const effective = effectiveHiddenEntityKeys(index, explicit);
+    expect(explicit).toEqual(new Set([nodeKey]));
+    expect(effective).toEqual(new Set([nodeKey, supportKey, componentKey]));
+
+    const isolate = isolateSelectionVisibility(index, [nodeKey]);
+    expect(isolate.has(nodeKey)).toBe(false);
+    expect(isolate.has(supportKey)).toBe(false);
+    expect(isolate.has(componentKey)).toBe(false);
+    expect(isolate.has(adjacentPipe)).toBe(true);
+    expect(isolate.has(unrelatedPipe)).toBe(true);
+  });
+
+  it("composes explicit hide and isolate masks without expanding non-geometry selections", () => {
+    const index = buildModelIndex(largeModel(2), 2, 1);
+    const first = entityKey({ type: "pipe", id: "pipe:0" });
+    const second = entityKey({ type: "pipe", id: "pipe:1" });
+    const isolate = isolateSelectionVisibility(index, [first, second]);
+    const composed = composedVisibilityHiddenKeys(index, new Set([first]), isolate);
+    expect(composed.has(first)).toBe(true);
+    expect(composed.has(second)).toBe(false);
+    expect(visibilityEligibleSelectionKeys(index, [entityKey({ type: "project", id: "p" }), second])).toEqual([second]);
+  });
+
+  it("fits only visible selected rendered envelopes including large OD and marker-only entities", () => {
+    const model = largeModel(1);
+    model.supports.push({ id: "support:0", label: "Support", node: "n:0", restraints: [], provenance: "test" });
+    model.components.push({ id: "component:0", label: "Component", node: "n:1", kind: "generic", provenance: "test" });
+    const index = buildModelIndex(model, 1, 2);
+    const pipeKey = entityKey({ type: "pipe", id: "pipe:0" });
+    const supportKey = entityKey({ type: "support", id: "support:0" });
+    const componentKey = entityKey({ type: "component", id: "component:0" });
+    const pipeBounds = displayedBoundsForEntityKeys(index, [pipeKey], new Set(), new Map([[pipeKey, 8]]));
+    expect(pipeBounds!.max.y - pipeBounds!.min.y).toBe(16);
+
+    const visible = displayedBoundsForEntityKeys(
+      index,
+      [pipeKey, supportKey, componentKey],
+      new Set([pipeKey, componentKey]),
+      new Map([[pipeKey, 8]])
+    );
+    expect(visible).not.toBeNull();
+    expect(visible!.max.x - visible!.min.x).toBeCloseTo(0.86);
+    expect(displayedBoundsForEntityKeys(index, [pipeKey], new Set([pipeKey]), new Map([[pipeKey, 8]]))).toBeNull();
   });
 
   it("structurally caps labels with primary, hover, selected, and diagnostics first", () => {
@@ -84,6 +246,12 @@ describe("viewport coordinates and broad phase", () => {
     });
     expect(keys).toHaveLength(80);
     expect(keys.slice(0, 4)).toEqual([primary, hover, selected, diagnostic]);
+    expect(prioritizedLabelKeys(index, {
+      primaryKey: primary,
+      hoverKey: hover,
+      selectedKeys: [selected],
+      hiddenKeys: new Set([hover])
+    })).not.toContain(hover);
   });
 
   it("uses physical axial near and far planes for an off-axis unit ray", () => {
@@ -156,5 +324,109 @@ describe("viewport coordinates and broad phase", () => {
       clientX: 50,
       clientY: 50
     })).toEqual({ type: "node", id: "offset" });
+  });
+
+  it("keeps a large Actual-OD pipe eligible outside its centerline chunk bounds", () => {
+    const model = largeModel(0);
+    model.nodes = [
+      { id: "a", label: "a", position: { x: 5, y: -1, z: -100 }, provenance: "test" },
+      { id: "b", label: "b", position: { x: 5, y: 1, z: -100 }, provenance: "test" },
+      { id: "balance", label: "balance", position: { x: -5, y: 0, z: 100 }, provenance: "test" }
+    ];
+    model.pipe_segments = [{ id: "large-od", label: "large", from: "a", to: "b", section: {}, material: "m", provenance: "test" }];
+    const index = buildModelIndex(model, 1, 1);
+    const transform = createRenderTransform(index.geometryBounds);
+    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 200);
+    camera.position.set(0, 0, 0);
+    camera.lookAt(0, 0, -1);
+    camera.updateProjectionMatrix();
+    camera.updateMatrixWorld();
+    const canvas = document.createElement("canvas");
+    Object.defineProperty(canvas, "clientWidth", { value: 100 });
+    Object.defineProperty(canvas, "clientHeight", { value: 100 });
+    canvas.getBoundingClientRect = () => ({
+      x: 0, y: 0, left: 0, top: 0, right: 100, bottom: 100, width: 100, height: 100,
+      toJSON: () => ({})
+    });
+    const pipeKey = entityKey({ type: "pipe", id: "large-od" });
+    expect(pickPointPrimitive(pointPickPrimitives(index, model, transform.origin), {
+      index,
+      renderOrigin: transform.origin,
+      camera,
+      canvas,
+      clientX: 50,
+      clientY: 50,
+      actualOdRadiusByPipe: new Map([[pipeKey, 6]])
+    })).toEqual({ type: "pipe", id: "large-od" });
+  });
+
+  it.each([
+    [[1, 0, 1], [-1, 0, -3]],
+    [[-1, 0, -3], [1, 0, 1]]
+  ] as const)("uses the visible closest segment point for near-plane depth in either endpoint order", (from, to) => {
+    const model = largeModel(0);
+    model.nodes = [
+      { id: "from", label: "From", position: { x: from[0], y: from[1], z: from[2] }, provenance: "test" },
+      { id: "to", label: "To", position: { x: to[0], y: to[1], z: to[2] }, provenance: "test" }
+    ];
+    model.pipe_segments = [{ id: "crossing", label: "Crossing", from: "from", to: "to", section: {}, material: "m", provenance: "test" }];
+    const index = buildModelIndex(model, 1, 1);
+    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
+    camera.position.set(0, 0, 0);
+    camera.lookAt(0, 0, -1);
+    camera.updateProjectionMatrix();
+    camera.updateMatrixWorld();
+    const canvas = document.createElement("canvas");
+    Object.defineProperty(canvas, "clientWidth", { value: 100 });
+    Object.defineProperty(canvas, "clientHeight", { value: 100 });
+    canvas.getBoundingClientRect = () => ({
+      x: 0, y: 0, left: 0, top: 0, right: 100, bottom: 100, width: 100, height: 100,
+      toJSON: () => ({})
+    });
+
+    expect(pickPointPrimitive(pointPickPrimitives(index, model, { x: 0, y: 0, z: 0 }), {
+      index,
+      renderOrigin: { x: 0, y: 0, z: 0 },
+      camera,
+      canvas,
+      clientX: 50,
+      clientY: 50
+    })).toEqual({ type: "pipe", id: "crossing" });
+  });
+});
+
+describe("envelope camera fitting", () => {
+  it.each(["front", "top", "iso"] as const)("contains width, height and depth in %s at narrow and ordinary aspects", (preset) => {
+    for (const aspect of [0.25, 0.5, 1, 2]) for (const fov of [30, 42, 65]) {
+      const bounds = { min: { x: -20, y: -3, z: -11 }, max: { x: 20, y: 3, z: 11 } };
+      const distance = fittedViewportDistance(bounds, preset, fov, aspect);
+      const camera = new THREE.PerspectiveCamera(fov, aspect, 0.001, 10000);
+      if (preset === "front") camera.position.set(0, 0, distance);
+      else if (preset === "top") camera.position.set(0, distance, 0);
+      else camera.position.setScalar(distance / Math.sqrt(3));
+      camera.lookAt(0, 0, 0); camera.updateMatrixWorld();
+      for (const x of [-20, 20]) for (const y of [-3, 3]) for (const z of [-11, 11]) {
+        const point = new THREE.Vector3(x, y, z).project(camera);
+        expect(Math.abs(point.x)).toBeLessThanOrEqual(0.900001);
+        expect(Math.abs(point.y)).toBeLessThanOrEqual(0.900001);
+        expect(Math.abs(point.z)).toBeLessThan(1);
+      }
+    }
+  });
+  it("preserves the legacy ordinary-aspect pose when it already fits", () => {
+    const bounds = { min: { x: -10, y: -1, z: -1 }, max: { x: 10, y: 1, z: 1 } };
+    for (const preset of ["front", "top", "iso"] as const) expect(fittedViewportDistance(bounds, preset, 42, 2)).toBe(36);
+  });
+});
+
+
+describe("captured Box model/session admission", () => {
+  it("accepts its exact context and rejects same-ID model, index and session replacements", () => {
+    const model = largeModel();
+    const context = { model, indexGeneration: "2:7", sessionGeneration: 2 };
+    expect(boxGestureContextIsCurrent(context, { ...context })).toBe(true);
+    expect(boxGestureContextIsCurrent(context, { ...context, model: structuredClone(model) })).toBe(false);
+    expect(boxGestureContextIsCurrent(context, { ...context, indexGeneration: "2:8" })).toBe(false);
+    expect(boxGestureContextIsCurrent(context, { ...context, sessionGeneration: 3 })).toBe(false);
   });
 });

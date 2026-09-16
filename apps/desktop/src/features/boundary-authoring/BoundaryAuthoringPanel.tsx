@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { TextField } from "../rich-authoring/formSupport";
+import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { batchId, issue, useBatchQueue, type BatchFormProps } from "../geometry-tools/batchFormSupport";
 import { boundaryMembers, buildBoundaryBatch, DOFS, emptyBoundaryDraft, type BoundaryAssociation, type BoundaryDraft } from "./boundaryDraft";
 export { boundaryMembers, buildBoundaryBatch } from "./boundaryDraft";
@@ -12,6 +13,11 @@ export function BoundaryAuthoringPanel(props: BatchFormProps) {
   const set = <K extends keyof BoundaryDraft>(key: K, value: BoundaryDraft[K]) => setDraft(previous => ({ ...previous, [key]: value }));
   const members = props.model.supports.filter(s => Boolean((s as { boundary_association?: BoundaryAssociation }).boundary_association));
   const node = props.model.nodes.find(n => n.id === draft.node);
+  const nodeOptions = useMemo(() => props.model.nodes.map((candidate) => ({
+    value: candidate.id,
+    label: candidate.label || candidate.id,
+    keywords: [String(candidate.position.x), String(candidate.position.y), String(candidate.position.z)]
+  })), [props.model.nodes]);
   return <section id="boundary-authoring" tabIndex={-1} aria-labelledby="boundary-authoring-title">
     <h2 id="boundary-authoring-title">Equipment and nozzle boundaries</h2>
     <p>Enter an equipment reference and explicit global DOF mechanics at an existing node. A single batch creates ordinary rigid and spring support members. No equipment flexibility or nozzle allowable checks are implied.</p>
@@ -22,7 +28,7 @@ export function BoundaryAuthoringPanel(props: BatchFormProps) {
       <TextField label="Boundary kind" value={draft.kind} choices={["equipment", "equipment_nozzle"]} onChange={value => set("kind", value as BoundaryDraft["kind"])} />
       <TextField label="Equipment reference" value={draft.equipmentReference} onChange={value => set("equipmentReference", value)} />
       {draft.kind === "equipment_nozzle" && <TextField label="Nozzle reference" value={draft.nozzleReference} onChange={value => set("nozzleReference", value)} />}
-      <TextField label="Boundary node" value={draft.node} choices={props.model.nodes.map(n => n.id)} onChange={value => set("node", value)} />
+      <VirtualTargetPicker label="Boundary node" value={draft.node} options={nodeOptions} onChange={value => set("node", value)} testId="boundary-node-picker" />
       {node && <p>Node {node.id}: X {node.position.x}, Y {node.position.y}, Z {node.position.z} {props.model.project.units.length} (entered global coordinates).</p>}
       <TextField label="Boundary provenance" value={draft.provenance} onChange={value => set("provenance", value)} />
       <TextField label="Boundary coordinate system" value={draft.coordinateSystem} choices={["global"]} onChange={value => set("coordinateSystem", value)} />

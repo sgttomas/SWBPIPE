@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { listLocalLibraries, openLocalLibrary, saveLocalLibrary, validateLibraryImport, type LocalLibraryIndexEntry } from "../../services/libraryImportService";
 import type { OperationBatch } from "../../services/operationBatchService";
 import { buildHangerSelectionBatch, type HangerDocument } from "./hangerSelection";
 import { usePreparation, type WorkflowProps } from "../offline-proposal-intake/workflowSupport";
+import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 
 export function HangerSelectionPanel(props: WorkflowProps) {
   const [libraries, setLibraries] = useState<LocalLibraryIndexEntry[]>([]);
@@ -16,6 +17,27 @@ export function HangerSelectionPanel(props: WorkflowProps) {
   const current = review && review.revision === state.revision && review.inputs === input && review.model === props.model &&
     review.selection === `${props.selection.type}:${props.selection.id}` && review.epoch === props.requestEpoch && !props.busy;
   const selected = document?.hanger_records.find(record => record.hanger_id === input.recordId);
+  const libraryOptions = useMemo(() => {
+    const options = libraries.map((library) => ({ value: library.library_id, label: library.library_name }));
+    if (document && !libraries.some((library) => library.library_id === document.hanger_library.library_id)) {
+      options.push({ value: document.hanger_library.library_id, label: document.hanger_library.name });
+    }
+    return options;
+  }, [document, libraries]);
+  const recordOptions = useMemo(() => document?.hanger_records.map((record) => ({
+    value: record.hanger_id,
+    label: record.name,
+    keywords: [record.hanger.hanger_type, record.hanger.source_reference]
+  })) ?? [], [document]);
+  const nodeOptions = useMemo(() => props.model.nodes.map((node) => ({
+    value: node.id,
+    label: node.label || node.id
+  })), [props.model.nodes]);
+  const supportOptions = useMemo(() => props.model.supports.map((support) => ({
+    value: support.id,
+    label: support.label || support.id,
+    keywords: [support.node]
+  })), [props.model.supports]);
   async function refresh() {
     await state.run(async () => {
       const result = await listLocalLibraries(props.model.project.id);
@@ -84,16 +106,8 @@ export function HangerSelectionPanel(props: WorkflowProps) {
       <label>Import hanger library<input type="file" accept=".json,application/json" onChange={event => {
         const file = event.target.files?.[0]; if (file) void importFile(file); event.target.value = "";
       }} /></label>
-      <label>Hanger library<select value={input.libraryId} onChange={event => void open(event.target.value)}>
-        <option value="">Choose a library</option>
-        {libraries.map(lib => <option key={lib.library_id} value={lib.library_id}>{lib.library_name} ({lib.library_id})</option>)}
-        {document && !libraries.some(lib => lib.library_id === document.hanger_library.library_id) &&
-          <option value={document.hanger_library.library_id}>{document.hanger_library.name}</option>}
-      </select></label>
-      <label>Hanger record<select value={input.recordId} onChange={event => setInput({ ...input, recordId: event.target.value })}>
-        <option value="">Choose a record</option>{document?.hanger_records.map(record =>
-          <option key={record.hanger_id} value={record.hanger_id}>{record.name} ({record.hanger_id})</option>)}
-      </select></label>
+      <VirtualTargetPicker label="Hanger library" options={libraryOptions} testId="hanger-library-picker" value={input.libraryId} onChange={(value) => { if (value) void open(value); else setInput({ ...input, libraryId: "", recordId: "" }); }} />
+      <VirtualTargetPicker label="Hanger record" options={recordOptions} testId="hanger-record-picker" value={input.recordId} onChange={(value) => setInput({ ...input, recordId: value })} />
     </fieldset>
     {selected && <div><p>{selected.name}: {selected.hanger.hanger_type.replaceAll("_", " ")}</p>
       <p>Source: {selected.hanger.source_reference}</p>
@@ -105,12 +119,8 @@ export function HangerSelectionPanel(props: WorkflowProps) {
       {input.create ? <>
         <label>New hanger support ID<input value={input.supportId} onChange={event => setInput({ ...input, supportId: event.target.value })} /></label>
         <label>New hanger support label<input value={input.label} onChange={event => setInput({ ...input, label: event.target.value })} /></label>
-        <label>Hanger support node<select value={input.node} onChange={event => setInput({ ...input, node: event.target.value })}>
-          <option value="">Choose a node</option>{props.model.nodes.map(node => <option key={node.id}>{node.id}</option>)}
-        </select></label>
-      </> : <label>Existing hanger support<select value={input.supportId} onChange={event => setInput({ ...input, supportId: event.target.value })}>
-        <option value="">Choose a support</option>{props.model.supports.map(support => <option key={support.id} value={support.id}>{support.label} ({support.id})</option>)}
-      </select></label>}
+        <VirtualTargetPicker label="Hanger support node" options={nodeOptions} testId="hanger-node-picker" value={input.node} onChange={(value) => setInput({ ...input, node: value })} />
+      </> : <VirtualTargetPicker label="Existing hanger support" options={supportOptions} testId="hanger-support-picker" value={input.supportId} onChange={(value) => setInput({ ...input, supportId: value })} />}
       <fieldset><legend>Confirmed translational restraints</legend>{["UX", "UY", "UZ"].map(dof => <label key={dof}>
         <input type="checkbox" checked={input.restraints.includes(dof)} onChange={event => setInput({ ...input,
           restraints: event.target.checked ? [...input.restraints, dof] : input.restraints.filter(value => value !== dof) })} />{dof}

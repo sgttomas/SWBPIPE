@@ -1,12 +1,21 @@
 import { expect, test, type Page } from "@playwright/test";
+import {
+  chooseVirtualTarget,
+  closeWorkspacePanels,
+  expectTreeEntity,
+  expectTreeEntityMissing,
+  expectVirtualTarget,
+  openWorkspaceSection,
+  selectTreeEntity,
+  startPropertyTaskFromCurrentSelection,
+  startPropertyTaskFromTreeEntity,
+} from "./workspace-driver";
 
 async function currentModelHash(page: Page): Promise<string> {
+  await openWorkspaceSection(page, "project");
   const intent = page.getByTestId("project-validation-export-link-local-private-intent");
   if (!await intent.isChecked()) {
-    await page.getByTestId("menu-view").click();
-    await page.getByTestId("menu-item-view.section.project").click();
     await intent.check();
-    await page.getByTestId("workspace-task-model").click();
   }
   const link = page.getByTestId("project-validation-export-link");
   await expect.poll(async () => {
@@ -14,15 +23,18 @@ async function currentModelHash(page: Page): Promise<string> {
     return href ? JSON.parse(decodeURIComponent(href.split(",").slice(1).join(","))).model_hash?.value ?? "" : "";
   }).toMatch(/^sha256:[0-9a-f]{64}$/);
   const href = (await link.getAttribute("href"))!;
-  return JSON.parse(decodeURIComponent(href.split(",").slice(1).join(","))).model_hash.value;
+  const hash = JSON.parse(decodeURIComponent(href.split(",").slice(1).join(","))).model_hash.value;
+  await closeWorkspacePanels(page);
+  return hash;
 }
 
 async function applyQueued(page: Page) {
-  await page.getByTestId("workspace-review").click();
+  await openWorkspaceSection(page, "operations");
   const apply = page.locator('[data-testid^="apply-intent-"]').first();
   await expect(apply).toBeEnabled();
   await apply.click();
   await expect(page.getByTestId("operation-apply-message")).toContainText("Applied");
+  await closeWorkspacePanels(page);
 }
 
 async function assertPersistentCompactCanvas(page: Page) {
@@ -44,7 +56,9 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.setViewportSize({ width: 1024, height: 768 });
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await openWorkspaceSection(page, "operations");
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+  await closeWorkspacePanels(page);
   await page.getByRole("button", { name: "New blank" }).click();
   await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
 
@@ -59,10 +73,10 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("queue-explicit-node-intent").click();
   await expect(page.getByTestId("viewport-draft-review-preview")).toContainText("Single operation");
   await page.getByTestId("apply-reviewed-draft").click();
-  await expect(page.getByTestId("tree-row-node:UI-A-100")).toBeAttached();
+  await expectTreeEntity(page, "node", "node:UI-A-100");
   await page.getByRole("button", { name: "Save local" }).click();
   await page.getByRole("button", { name: "Open local" }).click();
-  await expect(page.getByTestId("tree-row-node:UI-A-100")).toBeAttached();
+  await expectTreeEntity(page, "node", "node:UI-A-100");
   await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
 
   if (await page.getByTestId("toggle-inspector").getAttribute("aria-expanded") !== "true") await page.getByTestId("toggle-inspector").click();
@@ -89,7 +103,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("command-pipe").click();
   await page.getByTestId("viewport-create-pipe-id").fill("pipe:UI-A-100");
   await page.getByTestId("viewport-create-pipe-label").fill("Straight run");
-  await page.getByTestId("viewport-create-pipe-from").selectOption("node:UI-A-100");
+  await chooseVirtualTarget(page, "viewport-create-pipe-from", "node:UI-A-100");
   await page.getByRole("radio", { name: "New node", exact: true }).check();
   await expect(page.getByTestId("viewport-construction-plane")).toContainText("XZ · Y=2.4 m · through node:UI-A-100");
   await page.getByRole("radio", { name: "X", exact: true }).check();
@@ -124,7 +138,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("viewport-route-end-z").fill("0");
   await expect(page.getByTestId("viewport-route-ghost-status")).toContainText("No route ghost is visible");
   await page.getByTestId("viewport-route-end-provenance").fill("invented_synthetic_ui_acceptance_input");
-  await page.getByTestId("viewport-create-pipe-material").selectOption("material:ui-phase-a-invented");
+  await chooseVirtualTarget(page, "viewport-create-pipe-material", "material:ui-phase-a-invented");
   await page.getByTestId("viewport-create-pipe-od").fill("0.168");
   await page.getByTestId("viewport-create-pipe-wall").fill("0.007");
   await page.getByTestId("viewport-create-pipe-yref-x").fill("0");
@@ -139,11 +153,13 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await expect(review).toContainText("op:viewport-connect-pipe-pipe:UI-A-100");
   await assertPersistentCompactCanvas(page);
   await page.getByTestId("apply-reviewed-draft").click();
-  await expect(page.getByTestId("tree-row-node:UI-A-110")).toBeAttached();
-  await expect(page.getByTestId("tree-row-pipe:UI-A-100")).toBeAttached();
+  await expectTreeEntity(page, "node", "node:UI-A-110");
+  await expectTreeEntity(page, "pipe", "pipe:UI-A-100");
   await expect(page.getByTestId("session-history-chip")).toContainText("3 undo / 0 redo");
+  await openWorkspaceSection(page, "operations");
   await expect(page.getByTestId("operation-applied-ledger")).toContainText("Applied through local_wasm_engine");
-  await expect(page.getByTestId("viewport-create-pipe-from")).toHaveValue("node:UI-A-110");
+  await closeWorkspacePanels(page);
+  await expectVirtualTarget(page, "viewport-create-pipe-from", "node:UI-A-110");
   await expect(page.getByRole("radio", { name: "New node", exact: true })).toBeChecked();
   await expect(page.getByTestId("viewport-routing-plane")).toHaveValue("XZ");
   await expect(page.getByRole("radio", { name: "X", exact: true })).toBeChecked();
@@ -151,22 +167,22 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await expect(page.getByTestId("viewport-construction-plane")).toContainText("XZ · Y=2.4 m · through node:UI-A-110");
 
   await page.getByRole("radio", { name: "Existing node", exact: true }).check();
-  await page.getByTestId("viewport-create-pipe-to").selectOption("node:UI-A-100");
+  await chooseVirtualTarget(page, "viewport-create-pipe-to", "node:UI-A-100");
   await expect(page.getByTestId("viewport-route-ghost-status")).toContainText("existing route ghost");
   await expect(page.getByTestId("viewport-routing-aids")).toHaveAttribute("disabled", "");
   await page.getByRole("radio", { name: "New node", exact: true }).check();
   await expect(page.getByTestId("viewport-route-ghost-status")).toContainText("No route ghost is visible");
   await assertPersistentCompactCanvas(page);
 
-  await page.getByTestId("workspace-review").click();
+  await openWorkspaceSection(page, "operations");
   await page.getByTestId("undo-session-model-edit").click();
-  await expect(page.getByTestId("tree-row-node:UI-A-110")).toHaveCount(0);
-  await expect(page.getByTestId("tree-row-pipe:UI-A-100")).toHaveCount(0);
+  await expectTreeEntityMissing(page, "node", "node:UI-A-110");
+  await expectTreeEntityMissing(page, "pipe", "pipe:UI-A-100");
+  await openWorkspaceSection(page, "operations");
   await page.getByTestId("redo-session-model-edit").click();
-  await expect(page.getByTestId("tree-row-node:UI-A-110")).toBeAttached();
+  await expectTreeEntity(page, "node", "node:UI-A-110");
 
-  if (await page.getByTestId("toggle-tree").getAttribute("aria-expanded") !== "true") await page.getByTestId("toggle-tree").click();
-  await page.getByTestId("tree-row-pipe:UI-A-100").click();
+  await selectTreeEntity(page, "pipe", "pipe:UI-A-100");
   await page.getByTestId("toolkit-entry").click();
   await page.getByTestId("toolkit-properties.assign-section").click();
   await page.getByLabel("Shared section").selectOption("section:ui-phase-a-straight");
@@ -176,13 +192,13 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("command-support").click();
   await page.getByTestId("create-support-id").fill("support:UI-A-100");
   await page.getByTestId("create-support-label").fill("Anchor support");
-  await page.getByTestId("create-support-node").selectOption("node:UI-A-100");
+  await chooseVirtualTarget(page, "create-support-node", "node:UI-A-100");
   for (const restraint of ["RX", "RY", "RZ"]) await page.getByTestId(`create-support-restraint-${restraint}`).check();
   await page.getByTestId("create-support-provenance").fill("invented_synthetic_ui_acceptance_input");
   await page.getByTestId("queue-create-support-intent").click();
   await applyQueued(page);
 
-  await page.getByTestId("workspace-task-loads").click();
+  await openWorkspaceSection(page, "loads");
   await page.getByTestId("load-manager-create-load-id").fill("load:UI-A");
   await page.getByTestId("load-manager-create-load-label").fill("Invented Phase A force");
   await page.getByTestId("load-manager-create-load-kind").fill("primitive_user_load");
@@ -190,11 +206,11 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("load-manager-create-load-provenance").fill("invented_synthetic_ui_acceptance_input");
   await page.getByTestId("queue-create-load-case-intent").click();
   await applyQueued(page);
-  await page.getByTestId("workspace-task-loads").click();
-  await page.getByTestId("load-manager-create-primitive-load-case").selectOption("load:UI-A");
+  await openWorkspaceSection(page, "loads");
+  await chooseVirtualTarget(page, "load-manager-create-primitive-load-case", "load:UI-A");
   await page.getByTestId("load-manager-create-primitive-category").selectOption("concentrated_force");
   await page.getByTestId("load-manager-create-primitive-id").fill("load:UI-A-FY");
-  await page.getByTestId("load-manager-create-primitive-node").selectOption("node:UI-A-110");
+  await chooseVirtualTarget(page, "load-manager-create-primitive-node", "node:UI-A-110");
   await page.getByTestId("load-manager-create-primitive-direction").selectOption("global_y");
   await page.getByTestId("load-manager-create-primitive-magnitude").fill("350");
   await page.getByTestId("load-manager-create-primitive-provenance").fill("invented_synthetic_ui_acceptance_input");
@@ -202,48 +218,66 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await applyQueued(page);
 
   const baseline350Hash = await currentModelHash(page);
-  await page.getByTestId("workspace-task-solve").click();
+  await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await page.getByTestId("issues-drawer-toggle").click();
   await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
   await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
   await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
+  await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
+  await expect(page.getByTestId("viewport-deformation-summary")).toBeVisible();
   await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("blocked; mechanics=model incomplete; rows=0");
   await expect(page.getByTestId("viewport-deformation-boundary")).toHaveText("scale=not_generated; professional_claim=false");
+  await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
+  await expect(page.getByTestId("viewport-deformation-summary")).toBeHidden();
+  await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("rule-check-run")).toBeDisabled();
   await page.getByRole("button", { name: "Save local" }).click();
   await page.getByRole("button", { name: "Open local" }).click();
+  await openWorkspaceSection(page, "results");
+  await expect(page.getByTestId("historical-run-context")).toBeVisible();
   await expect(page.getByTestId("historical-run-context")).toContainText("HISTORICAL_INPUT_MANIFEST_MISSING");
   await expect(page.getByTestId("historical-run-context")).toContainText("MODEL_INCOMPLETE");
   expect(await currentModelHash(page)).toBe(baseline350Hash);
+  await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
+  await expect(page.getByTestId("viewport-deformation-summary")).toBeVisible();
   await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("not started; result rows=0");
   await expect(page.getByTestId("viewport-deformation-boundary")).toHaveText("scale=not_generated; professional_claim=false");
 
-  await page.getByTestId("tree-row-load:UI-A").click();
-  const inspector = page.getByLabel("Property inspector");
+  await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
+  await expect(page.getByTestId("viewport-deformation-summary")).toBeHidden();
+
+  // Fresh-task helpers require the separately sealed workspace-driver patch.
+  const inspector = await startPropertyTaskFromTreeEntity(page, "load", "load:UI-A");
   await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
   await inspector.getByTestId("editor-intent-value").fill("500");
   await inspector.getByTestId("apply-editor-intent-inline").click();
-  await expect(page.getByTestId("operation-apply-message")).toContainText("Applied op:editor-intent-load:UI-A-primitive_loads.0.magnitude.value");
+  await openWorkspaceSection(page, "operations");
+  await expect(page.getByTestId("operation-apply-message")).toContainText("Applied op:editor-intent-load-load:UI-A-primitive_loads.0.magnitude.value");
+  await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
   await expect.poll(() => currentModelHash(page)).not.toBe(baseline350Hash);
   const edited500Hash = await currentModelHash(page);
-  await page.getByTestId("workspace-review").click();
+  await openWorkspaceSection(page, "operations");
   await page.getByTestId("undo-session-model-edit").click();
+  await startPropertyTaskFromCurrentSelection(page, "load", "load:UI-A");
   await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("350");
   await expect.poll(() => currentModelHash(page)).toBe(baseline350Hash);
+  await openWorkspaceSection(page, "operations");
   await page.getByTestId("redo-session-model-edit").click();
+  await startPropertyTaskFromCurrentSelection(page, "load", "load:UI-A");
   await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("500");
   await expect.poll(() => currentModelHash(page)).toBe(edited500Hash);
   await page.getByRole("button", { name: "Save local" }).click();
   await page.getByRole("button", { name: "Open local" }).click();
-  await expect(page.getByTestId("tree-row-pipe:UI-A-100")).toBeAttached();
-  await page.getByTestId("tree-row-load:UI-A").click();
+  await expectTreeEntity(page, "pipe", "pipe:UI-A-100");
+  await startPropertyTaskFromTreeEntity(page, "load", "load:UI-A");
   await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("500");
   expect(await currentModelHash(page)).toBe(edited500Hash);
+  await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
 });

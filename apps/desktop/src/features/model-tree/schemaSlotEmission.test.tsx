@@ -35,6 +35,7 @@ import { loadPreviewModel } from "../../services/previewService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { selectedProperties } from "../model-workspace/modelView";
 import { PropertyInspector } from "./PropertyInspector";
+import { startInspectorTask } from "../../test-support/workspaceTestControls";
 
 const SLOT_KEYS = [
   "bend_pipe_ref",
@@ -71,6 +72,7 @@ function renderInspector(model: PreviewModel, selection: EntityRef): EditorOpera
       selection={selection}
     />
   );
+  startInspectorTask();
   return queued;
 }
 

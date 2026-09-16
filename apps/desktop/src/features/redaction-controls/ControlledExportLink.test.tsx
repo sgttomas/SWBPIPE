@@ -169,6 +169,28 @@ describe("ControlledExportLink", () => {
     expect(blockedDecisions.compareDocumentPosition(blockedControl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(blockedFindings.compareDocumentPosition(blockedControl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
+
+  it("keeps technical evidence in a bounded keyboard disclosure outside the export action", () => {
+    render(
+      <ControlledExportLink
+        data-testid="native-package-link"
+        download="native.json"
+        href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify({ opaque_leaf: "Invented" }))}`}
+      >
+        Native package
+      </ControlledExportLink>
+    );
+
+    const details = screen.getByTestId("native-package-link-redaction-details") as HTMLDetailsElement;
+    const summary = screen.getByText("Details");
+    const action = screen.getByRole("link", { name: "Native package" });
+    expect(details.open).toBe(false);
+    expect(details.contains(action)).toBe(false);
+    expect(summary).toHaveAttribute("tabindex", "0");
+    expect(screen.getByTestId("native-package-link-redaction-decisions")).toHaveTextContent("classification=unknown");
+    fireEvent.click(summary);
+    expect(details.open).toBe(true);
+  });
 });
 
 describe("strict stress-neutral JSON delivery", () => {

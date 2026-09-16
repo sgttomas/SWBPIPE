@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { openWorkspaceSection } from "./workspace-driver";
 
 test("production dist exposes the report-package File route and fails honestly in browser mode", async ({ page }) => {
   await page.goto("/");
@@ -8,13 +9,11 @@ test("production dist exposes the report-package File route and fails honestly i
   await expect(page.getByTestId("menu-item-file.save-report-package")).toBeDisabled();
   await page.getByTestId("app-menu-backdrop").click();
 
-  await page.getByTestId("menu-view").click();
-  await page.getByTestId("menu-item-view.section.solve").click();
+  await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("readiness-mechanics")).toContainText("computed result rows");
 
-  await page.getByTestId("menu-view").click();
-  await page.getByTestId("menu-item-view.section.report").click();
+  await openWorkspaceSection(page, "report");
   await page.getByTestId("report-package-private-intent").check();
   await page.getByTestId("menu-file").click();
   await page.getByTestId("menu-item-file.save-report-package").click();

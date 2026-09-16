@@ -1,5 +1,5 @@
 import { QuantityReadout, useDisplayQuantity } from "../display-units";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ListChecks, Play, ShieldAlert } from "lucide-react";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import {
@@ -64,6 +64,32 @@ type UnitOption = {
   symbol: string;
   label: string;
 };
+
+export type RuleCheckRunBasis = Readonly<{
+  projectSessionGeneration: number;
+  modelRevision: number;
+  resultSequence: number;
+}>;
+
+type RunPresentation = Readonly<{
+  basisKey: string;
+  result: RuleCheckRunResult;
+}>;
+
+type ScopedRequest = Readonly<{
+  basisKey: string;
+  generation: number;
+}>;
+
+const NO_CURRENT_BASIS_RUN = "No rule-check run for the current model and solved-result basis.";
+
+function ruleCheckRunBasisKey(basis: RuleCheckRunBasis): string {
+  return JSON.stringify([
+    basis.projectSessionGeneration,
+    basis.modelRevision,
+    basis.resultSequence
+  ]);
+}
 
 function parsePack(text: string): ParsedPack | null {
   const trimmed = text.trim();
@@ -320,11 +346,13 @@ function renderSolverPreview(
 }
 
 export function RuleCheckRunPanel({
+  basis,
   model,
   result,
   onAggregateChange,
   onR3JourneyEvent
 }: {
+  basis?: RuleCheckRunBasis;
   model: PreviewModel | null;
   result: MechanicsResult | null;
   // Lifts the worst-of rule-check aggregate to the app so it can be wired into
@@ -334,23 +362,78 @@ export function RuleCheckRunPanel({
   onAggregateChange?: (aggregate: RuleCheckStatus | null) => void;
   onR3JourneyEvent?: (event: "rule_check_pack_loaded" | "rule_check_run_requested") => void;
 }) {
+  const effectiveBasis = basis ?? {
+    projectSessionGeneration: 0,
+    modelRevision: 0,
+    resultSequence: result ? 1 : 0
+  };
+  const basisKey = ruleCheckRunBasisKey(effectiveBasis);
+  const currentBasisKeyRef = useRef(basisKey);
+  currentBasisKeyRef.current = basisKey;
+  const previousBasisKeyRef = useRef(basisKey);
+  const runRequestGenerationRef = useRef(0);
+  const runBusyGenerationRef = useRef<number | null>(null);
+  const scopedRequestGenerationRef = useRef(0);
+  const scopedBusyGenerationRef = useRef<number | null>(null);
+  const onAggregateChangeRef = useRef(onAggregateChange);
+  onAggregateChangeRef.current = onAggregateChange;
   const [packText, setPackText] = useState("");
   const [actionStatus, setActionStatus] = useState("No rule-check run in this session.");
   const [listStatus, setListStatus] = useState("Saved rule-pack list not refreshed yet.");
   const [entries, setEntries] = useState<LocalRulePackIndexEntry[]>([]);
   const [solverSelections, setSolverSelections] = useState<Record<string, string>>({});
   const [valueBindings, setValueBindings] = useState<Record<string, { value: string; unit: string }>>({});
-  const [runResult, setRunResult] = useState<RuleCheckRunResult | null>(null);
+  const [runPresentation, setRunPresentation] = useState<RunPresentation | null>(null);
   const [libraryPreviews, setLibraryPreviews] = useState<Record<string, LibraryPreviewState>>({});
   const [solverPreviews, setSolverPreviews] = useState<Record<string, SolverPreviewState>>({});
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const [inFlight, setInFlight] = useState(false);
+  const runResult = runPresentation?.basisKey === basisKey ? runPresentation.result : null;
 
   const projectId = model?.project.id ?? null;
   const parsed = useMemo(() => parsePack(packText), [packText]);
   const plan: RuleCheckBindingPlan | null = parsed?.ok ? deriveRuleCheckBindingPlan(parsed.document) : null;
   const resultRows = result?.results ?? [];
   const hasRuntimeUnitBindings = Boolean(plan && (plan.valueInputs.length > 0 || plan.valueSlots.length > 0));
+
+  useLayoutEffect(() => {
+    if (previousBasisKeyRef.current === basisKey) return;
+    previousBasisKeyRef.current = basisKey;
+    runRequestGenerationRef.current += 1;
+    runBusyGenerationRef.current = null;
+    scopedRequestGenerationRef.current += 1;
+    scopedBusyGenerationRef.current = null;
+    setInFlight(false);
+    setRunPresentation(null);
+    setActionStatus(NO_CURRENT_BASIS_RUN);
+    setLibraryPreviews({});
+    setSolverPreviews({});
+    // A real session/model/result transition retires the previously published
+    // aggregate exactly once. Initial mount and hide/show keep the same basis.
+    onAggregateChangeRef.current?.(null);
+  }, [basisKey]);
+
+  function beginScopedRequest(): ScopedRequest {
+    const request = {
+      basisKey,
+      generation: ++scopedRequestGenerationRef.current
+    };
+    scopedBusyGenerationRef.current = request.generation;
+    setInFlight(true);
+    return request;
+  }
+
+  function isScopedRequestCurrent(request: ScopedRequest): boolean {
+    return currentBasisKeyRef.current === request.basisKey &&
+      scopedRequestGenerationRef.current === request.generation &&
+      scopedBusyGenerationRef.current === request.generation;
+  }
+
+  function finishScopedRequest(request: ScopedRequest): void {
+    if (!isScopedRequestCurrent(request)) return;
+    scopedBusyGenerationRef.current = null;
+    setInFlight(false);
+  }
 
   useEffect(() => {
     if (!hasRuntimeUnitBindings) {
@@ -375,10 +458,12 @@ export function RuleCheckRunPanel({
   }, [hasRuntimeUnitBindings]);
 
   function resetForNewPack(text: string) {
+    runRequestGenerationRef.current += 1;
+    runBusyGenerationRef.current = null;
     setPackText(text);
     setSolverSelections({});
     setValueBindings({});
-    setRunResult(null);
+    setRunPresentation(null);
     setLibraryPreviews({});
     setSolverPreviews({});
     // A new pack invalidates any prior run's aggregate held by the app.
@@ -402,9 +487,10 @@ export function RuleCheckRunPanel({
       }));
       return;
     }
-    setInFlight(true);
+    const request = beginScopedRequest();
     try {
       const listRoute = await listLocalLibraries(projectId);
+      if (!isScopedRequestCurrent(request)) return;
       if (listRoute.route === "unavailable_browser_preview") {
         setLibraryPreviews((current) => ({
           ...current,
@@ -426,6 +512,7 @@ export function RuleCheckRunPanel({
         return;
       }
       const openRoute = await openLocalLibrary(matched.project_id, kind, ref.library_id);
+      if (!isScopedRequestCurrent(request)) return;
       if (openRoute.route === "unavailable_browser_preview") {
         setLibraryPreviews((current) => ({
           ...current,
@@ -447,12 +534,13 @@ export function RuleCheckRunPanel({
         [input.input_id]: { kind: "ok", status, availableLibraries, records }
       }));
     } catch (error) {
+      if (!isScopedRequestCurrent(request)) return;
       setLibraryPreviews((current) => ({
         ...current,
         [input.input_id]: { kind: "error", message: String(error) }
       }));
     } finally {
-      setInFlight(false);
+      finishScopedRequest(request);
     }
   }
 
@@ -470,9 +558,10 @@ export function RuleCheckRunPanel({
   }
 
   async function handleLoadDemo() {
-    setInFlight(true);
+    const request = beginScopedRequest();
     try {
       const demo = await loadDemoRuleCheckPack();
+      if (!isScopedRequestCurrent(request)) return;
       resetForNewPack(JSON.stringify(demo, null, 2));
       onR3JourneyEvent?.("rule_check_pack_loaded");
       setActionStatus(
@@ -480,16 +569,18 @@ export function RuleCheckRunPanel({
           "not an engineering design basis). Bind its inputs below, then run checks."
       );
     } catch (error) {
+      if (!isScopedRequestCurrent(request)) return;
       setActionStatus(`RULE-CHECK-DEMO-LOAD-ERROR: ${String(error)}`);
     } finally {
-      setInFlight(false);
+      finishScopedRequest(request);
     }
   }
 
   async function handleRefreshList() {
-    setInFlight(true);
+    const request = beginScopedRequest();
     try {
       const route = await listLocalRulePacks(projectId);
+      if (!isScopedRequestCurrent(request)) return;
       if (route.route === "unavailable_browser_preview") {
         setListStatus(route.diagnostic);
         setEntries([]);
@@ -501,17 +592,19 @@ export function RuleCheckRunPanel({
           (projectId ? ` for ${projectId}.` : " across all local projects.")
       );
     } catch (error) {
+      if (!isScopedRequestCurrent(request)) return;
       setEntries([]);
       setListStatus(`RULE-CHECK-BACKEND-ERROR (list): ${String(error)}`);
     } finally {
-      setInFlight(false);
+      finishScopedRequest(request);
     }
   }
 
   async function handleOpen(entry: LocalRulePackIndexEntry) {
-    setInFlight(true);
+    const request = beginScopedRequest();
     try {
       const route = await openLocalRulePack(entry.project_id, entry.rule_pack_id);
+      if (!isScopedRequestCurrent(request)) return;
       if (route.route === "unavailable_browser_preview") {
         setActionStatus(route.diagnostic);
         return;
@@ -524,9 +617,10 @@ export function RuleCheckRunPanel({
       onR3JourneyEvent?.("rule_check_pack_loaded");
       setActionStatus(`Loaded saved rule pack ${entry.rule_pack_id} for run. Bind its inputs below, then run checks.`);
     } catch (error) {
+      if (!isScopedRequestCurrent(request)) return;
       setActionStatus(`RULE-CHECK-BACKEND-ERROR (open): ${String(error)}`);
     } finally {
-      setInFlight(false);
+      finishScopedRequest(request);
     }
   }
 
@@ -556,8 +650,18 @@ export function RuleCheckRunPanel({
       setActionStatus(NO_PACK_REASON);
       return;
     }
+    const requestGeneration = ++runRequestGenerationRef.current;
+    const requestBasisKey = basisKey;
+    const isCurrent = () =>
+      runRequestGenerationRef.current === requestGeneration &&
+      runBusyGenerationRef.current === requestGeneration &&
+      currentBasisKeyRef.current === requestBasisKey;
+    runBusyGenerationRef.current = requestGeneration;
     onR3JourneyEvent?.("rule_check_run_requested");
     setInFlight(true);
+    setRunPresentation(null);
+    onAggregateChange?.(null);
+    setActionStatus("Rule-check backend request in progress.");
     try {
       const route = await runRuleChecks({
         rulePackDocument: parsed.document,
@@ -567,13 +671,14 @@ export function RuleCheckRunPanel({
         suppliedValueBindings: buildSuppliedBindings(plan),
         projectId
       });
+      if (!isCurrent()) return;
       if (route.route === "unavailable_browser_preview") {
-        setRunResult(null);
+        setRunPresentation(null);
         onAggregateChange?.(null);
         setActionStatus(route.diagnostic);
         return;
       }
-      setRunResult(route.result);
+      setRunPresentation({ basisKey: requestBasisKey, result: route.result });
       // Lift the worst-of aggregate so the app can record it in the app-held
       // analysis-run envelope (TP-C4-APPAGG-001).
       onAggregateChange?.(route.result.aggregate_status);
@@ -582,11 +687,15 @@ export function RuleCheckRunPanel({
           `(grammar ${route.result.grammar_version}).`
       );
     } catch (error) {
-      setRunResult(null);
+      if (!isCurrent()) return;
+      setRunPresentation(null);
       onAggregateChange?.(null);
       setActionStatus(`RULE-CHECK-BACKEND-ERROR (run): ${String(error)}`);
     } finally {
-      setInFlight(false);
+      if (isCurrent()) {
+        runBusyGenerationRef.current = null;
+        setInFlight(false);
+      }
     }
   }
 

@@ -6,6 +6,7 @@ import { applyOperationBatch, validateOperationBatch } from "../../services/oper
 import { GeometryToolsPanel } from "./GeometryToolsPanel";
 import { buildGeometryBatch, emptyGeometryDraft, type GeometryDraft } from "./geometryDraft";
 import type { PreviewModel } from "../../types";
+import { chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 async function bareModel(): Promise<PreviewModel> {
@@ -27,7 +28,7 @@ function splitDraft(model: PreviewModel): GeometryDraft {
 }
 function fillSplit(model: PreviewModel) {
   enter("Geometry tool", "split");
-  fireEvent.click(screen.getByRole("checkbox"));
+  chooseVirtualMultiTarget("geometry-source-pipes", model.pipe_segments[0].id);
   enter("Split fraction", "0.25");
   for (const [kind, id] of [["node", "node:split-test"], ["pipe", "pipe:split-test"]]) {
     enter(`New ${kind} ID`, id); enter(`New ${kind} label`, "Invented test"); enter(`New ${kind} provenance`, "invented UI test");
@@ -84,7 +85,7 @@ describe("geometry tools exact engine batches", () => {
   it("requires every explicit copy identity in the human transform form", async () => {
     const model = await bareModel(); const onQueueBatch = vi.fn();
     render(<GeometryToolsPanel model={model} selection={{ type: "project", id: model.project.id }} onQueueBatch={onQueueBatch} />);
-    enter("Geometry tool", "translate"); fireEvent.click(screen.getByRole("checkbox"));
+    enter("Geometry tool", "translate"); chooseVirtualMultiTarget("geometry-source-pipes", model.pipe_segments[0].id);
     enter("Transform mode", "copy"); enter("Geometry coordinate system", "global");
     enter("Geometry X", "1"); enter("Geometry Y", "0"); enter("Geometry Z", "0"); enter("Geometry length unit", "m");
     expect(screen.getByRole("button", { name: "Queue geometry batch" })).toBeDisabled();

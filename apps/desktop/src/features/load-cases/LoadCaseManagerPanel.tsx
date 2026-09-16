@@ -8,6 +8,8 @@ import {
   unitEntryMatchesDimension,
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
+import { VirtualMultiTargetPicker, VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
+import { VirtualList } from "../workspace/VirtualList";
 
 type LoadCase = PreviewModel["load_cases"][number];
 type Combination = NonNullable<PreviewModel["combinations"]>[number];
@@ -103,6 +105,11 @@ export function LoadCaseManagerPanel({
 }) {
   const primitiveLoads = useMemo(() => primitiveLoadViews(model), [model]);
   const combinationTerms = useMemo(() => combinationTermViews(model), [model]);
+  const loadCaseOptions = useMemo(() => model.load_cases.map((loadCase) => ({ value: loadCase.id, label: loadCase.label || loadCase.id })), [model.load_cases]);
+  const supportOptions = useMemo(() => model.supports.map((support) => ({ value: support.id, label: support.label || support.id, keywords: [support.node] })), [model.supports]);
+  const pipeOptions = useMemo(() => model.pipe_segments.map((pipe) => ({ value: pipe.id, label: pipe.label || pipe.id, keywords: [pipe.from, pipe.to] })), [model.pipe_segments]);
+  const nodeOptions = useMemo(() => model.nodes.map((node) => ({ value: node.id, label: node.label || node.id })), [model.nodes]);
+  const combinationOptions = useMemo(() => (model.combinations ?? []).map((combination) => ({ value: combination.id, label: combination.label || combination.id })), [model.combinations]);
   const [selectedPrimitiveKey, setSelectedPrimitiveKey] = useState(primitiveLoads[0] ? primitiveKey(primitiveLoads[0]) : "");
   const [selectedCombinationTermKey, setSelectedCombinationTermKey] = useState(
     combinationTerms[0] ? combinationTermKey(combinationTerms[0]) : ""
@@ -554,22 +561,7 @@ export function LoadCaseManagerPanel({
               <option value="imposed_displacement">imposed_displacement</option>
             </select>
           </label>
-          <label>
-            <span>Case</span>
-            <select
-              aria-label="Primitive load case"
-              data-testid="load-manager-create-primitive-load-case"
-              onChange={(event) => updatePrimitiveLoadDraft("loadCaseId", event.target.value)}
-              value={primitiveLoadDraft.loadCaseId}
-            >
-              <option value="">Select load case</option>
-              {model.load_cases.map((loadCase) => (
-                <option key={loadCase.id} value={loadCase.id}>
-                  {loadCase.id}
-                </option>
-              ))}
-            </select>
-          </label>
+          <VirtualTargetPicker label="Primitive load case" testId="load-manager-create-primitive-load-case" options={loadCaseOptions} value={primitiveLoadDraft.loadCaseId} onChange={(value) => updatePrimitiveLoadDraft("loadCaseId", value)} />
           <label>
             <span>ID</span>
             <input
@@ -580,56 +572,11 @@ export function LoadCaseManagerPanel({
             />
           </label>
           {primitiveLoadUsesSupportTarget(primitiveLoadDraft.category) ? (
-            <label>
-              <span>Support</span>
-              <select
-                aria-label="Primitive support target"
-                data-testid="load-manager-create-primitive-support"
-                onChange={(event) => updatePrimitiveLoadDraft("targetSupport", event.target.value)}
-                value={primitiveLoadDraft.targetSupport}
-              >
-                <option value="">Select support</option>
-                {model.supports.map((support) => (
-                  <option key={support.id} value={support.id}>
-                    {support.id}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <VirtualTargetPicker label="Primitive support target" testId="load-manager-create-primitive-support" options={supportOptions} value={primitiveLoadDraft.targetSupport} onChange={(value) => updatePrimitiveLoadDraft("targetSupport", value)} />
           ) : primitiveLoadUsesPipeTarget(primitiveLoadDraft.category) ? (
-            <label>
-              <span>Pipe</span>
-              <select
-                aria-label="Primitive element target pipe"
-                data-testid="load-manager-create-primitive-pipe"
-                onChange={(event) => updatePrimitiveLoadDraft("targetPipe", event.target.value)}
-                value={primitiveLoadDraft.targetPipe}
-              >
-                <option value="">Select pipe</option>
-                {model.pipe_segments.map((pipe) => (
-                  <option key={pipe.id} value={pipe.id}>
-                    {pipe.id}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <VirtualTargetPicker label="Primitive element target pipe" testId="load-manager-create-primitive-pipe" options={pipeOptions} value={primitiveLoadDraft.targetPipe} onChange={(value) => updatePrimitiveLoadDraft("targetPipe", value)} />
           ) : (
-            <label>
-              <span>Node</span>
-              <select
-                aria-label="Concentrated force target node"
-                data-testid="load-manager-create-primitive-node"
-                onChange={(event) => updatePrimitiveLoadDraft("targetNode", event.target.value)}
-                value={primitiveLoadDraft.targetNode}
-              >
-                <option value="">Select node</option>
-                {model.nodes.map((node) => (
-                  <option key={node.id} value={node.id}>
-                    {node.id}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <VirtualTargetPicker label="Concentrated force target node" testId="load-manager-create-primitive-node" options={nodeOptions} value={primitiveLoadDraft.targetNode} onChange={(value) => updatePrimitiveLoadDraft("targetNode", value)} />
           )}
           <label>
             <span>Dir</span>
@@ -741,60 +688,12 @@ export function LoadCaseManagerPanel({
           </label>
           {combinationDraft.basis === "result_state_subtraction" ? (
             <>
-              <label>
-                <span>Minuend</span>
-                <select
-                  aria-label="Subtraction minuend load case"
-                  data-testid="load-manager-create-combination-minuend"
-                  onChange={(event) => updateCombinationDraft("minuendId", event.target.value)}
-                  value={combinationDraft.minuendId}
-                >
-                  {model.load_cases.map((loadCase) => (
-                    <option key={loadCase.id} value={loadCase.id}>
-                      {loadCase.id}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <span>Subtrahend</span>
-                <select
-                  aria-label="Subtraction subtrahend load case"
-                  data-testid="load-manager-create-combination-subtrahend"
-                  onChange={(event) => updateCombinationDraft("subtrahendId", event.target.value)}
-                  value={combinationDraft.subtrahendId}
-                >
-                  <option value="">select load case</option>
-                  {model.load_cases.map((loadCase) => (
-                    <option key={loadCase.id} value={loadCase.id}>
-                      {loadCase.id}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <VirtualTargetPicker label="Subtraction minuend load case" testId="load-manager-create-combination-minuend" options={loadCaseOptions} value={combinationDraft.minuendId} onChange={(value) => updateCombinationDraft("minuendId", value)} />
+              <VirtualTargetPicker label="Subtraction subtrahend load case" testId="load-manager-create-combination-subtrahend" options={loadCaseOptions} value={combinationDraft.subtrahendId} onChange={(value) => updateCombinationDraft("subtrahendId", value)} />
             </>
           ) : combinationDraft.basis === "range_envelope" ? (
             <>
-              <label>
-                <span>Operands</span>
-                <select
-                  aria-label="Range envelope operand load cases"
-                  data-testid="load-manager-create-combination-operands"
-                  multiple
-                  onChange={(event) =>
-                    updateCombinationDraftOperands(
-                      Array.from(event.target.selectedOptions, (option) => option.value)
-                    )
-                  }
-                  value={combinationDraft.operandIds}
-                >
-                  {model.load_cases.map((loadCase) => (
-                    <option key={loadCase.id} value={loadCase.id}>
-                      {loadCase.id}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <VirtualMultiTargetPicker label="Range envelope operand load cases" testId="load-manager-create-combination-operands" options={loadCaseOptions} values={combinationDraft.operandIds} onChange={(values) => updateCombinationDraftOperands([...values])} />
               <label>
                 <span>Mode</span>
                 <select
@@ -813,21 +712,7 @@ export function LoadCaseManagerPanel({
             </>
           ) : (
             <>
-              <label>
-                <span>Load</span>
-                <select
-                  aria-label="New combination initial load case"
-                  data-testid="load-manager-create-combination-load-case"
-                  onChange={(event) => updateCombinationDraft("loadCaseId", event.target.value)}
-                  value={combinationDraft.loadCaseId}
-                >
-                  {model.load_cases.map((loadCase) => (
-                    <option key={loadCase.id} value={loadCase.id}>
-                      {loadCase.id}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <VirtualTargetPicker label="New combination initial load case" testId="load-manager-create-combination-load-case" options={loadCaseOptions} value={combinationDraft.loadCaseId} onChange={(value) => updateCombinationDraft("loadCaseId", value)} />
               <label>
                 <span>Factor</span>
                 <input
@@ -878,8 +763,13 @@ export function LoadCaseManagerPanel({
         </p>
       </section>
 
-      <div className="load-case-list" data-testid="load-case-manager-cases">
-        {model.load_cases.map((loadCase) => (
+      <VirtualList
+        ariaLabel="Load cases"
+        className="load-case-list"
+        height={Math.min(360, Math.max(56, model.load_cases.length * 56))}
+        itemKey={(loadCase) => loadCase.id}
+        items={model.load_cases}
+        renderItem={(loadCase) => (
           <button
             className={selection.type === "load" && selection.id === loadCase.id ? "load-case-row active" : "load-case-row"}
             data-testid={`load-manager-case-${loadCase.id}`}
@@ -893,8 +783,11 @@ export function LoadCaseManagerPanel({
             </small>
             <small>{loadCase.provenance}</small>
           </button>
-        ))}
-      </div>
+        )}
+        role="list"
+        rowHeight={56}
+        testId="load-case-manager-cases"
+      />
 
       {selectedLoadCase ? (
         <section className="load-metadata-editor" aria-label="Load case metadata editor">
@@ -990,6 +883,7 @@ export function LoadCaseManagerPanel({
       <div className="load-primitive-list" data-testid="load-case-manager-primitives">
         {primitiveLoads.map((primitive) => (
           <button
+            aria-pressed={Boolean(selectedPrimitive && primitiveKey(primitive) === primitiveKey(selectedPrimitive))}
             className={selectedPrimitive && primitiveKey(primitive) === primitiveKey(selectedPrimitive) ? "primitive-load-row active" : "primitive-load-row"}
             data-testid={`load-manager-primitive-${primitiveId(primitive.load)}`}
             key={primitiveKey(primitive)}
@@ -1106,6 +1000,7 @@ export function LoadCaseManagerPanel({
             return (
               <article className="load-combination-row" data-testid={`load-manager-combination-${combination.id}`} key={combination.id}>
                 <button
+                  aria-pressed={selectedCombination?.id === combination.id}
                   className={
                     selectedCombination?.id === combination.id ? "combination-summary-row active" : "combination-summary-row"
                   }
@@ -1153,36 +1048,8 @@ export function LoadCaseManagerPanel({
             </span>
           </div>
           <div className="combination-term-create-controls">
-            <label>
-              <span>Combination</span>
-              <select
-                aria-label="Combination term target combination"
-                data-testid="load-manager-create-combination-term-combination"
-                onChange={(event) => updateCombinationTermDraft("combinationId", event.target.value)}
-                value={combinationTermDraft.combinationId}
-              >
-                {(model.combinations ?? []).map((combination) => (
-                  <option key={combination.id} value={combination.id}>
-                    {combination.id}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <span>Load</span>
-              <select
-                aria-label="Combination term load case"
-                data-testid="load-manager-create-combination-term-load-case"
-                onChange={(event) => updateCombinationTermDraft("loadCaseId", event.target.value)}
-                value={combinationTermDraft.loadCaseId}
-              >
-                {model.load_cases.map((loadCase) => (
-                  <option key={loadCase.id} value={loadCase.id}>
-                    {loadCase.id}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <VirtualTargetPicker label="Combination term target combination" testId="load-manager-create-combination-term-combination" options={combinationOptions} value={combinationTermDraft.combinationId} onChange={(value) => updateCombinationTermDraft("combinationId", value)} />
+            <VirtualTargetPicker label="Combination term load case" testId="load-manager-create-combination-term-load-case" options={loadCaseOptions} value={combinationTermDraft.loadCaseId} onChange={(value) => updateCombinationTermDraft("loadCaseId", value)} />
             <label>
               <span>Factor</span>
               <input

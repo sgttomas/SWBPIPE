@@ -149,14 +149,13 @@ export function buildModelIndex(
   const duplicateSupportIds = duplicateIds(model.supports);
   const duplicateComponentIds = duplicateIds(model.components);
   const nodesById = new Map(
-    model.nodes.filter((node) => !duplicateNodeIds.has(node.id)).map((node) => [node.id, node] as const)
+    model.nodes.filter((node) => !duplicateNodeIds.has(node.id) && authoredPointDisplayIssue(node.position) === null)
+      .map((node) => [node.id, node] as const)
   );
   for (const node of model.nodes) {
     const issue = duplicateNodeIds.has(node.id)
       ? `Node ${node.id} has a duplicate same-type identifier; its authored geometry is ambiguous.`
-      : finiteVec(node.position)
-        ? null
-        : `Node ${node.id} has a non-finite authored coordinate.`;
+      : authoredPointDisplayIssue(node.position);
     const bounds = issue ? null : pointBounds(node.position);
     add({ type: "node", id: node.id }, node.label || node.id, node, bounds, issue ? null : node.position, issue);
   }
@@ -169,7 +168,7 @@ export function buildModelIndex(
       issue = `Pipe ${pipe.id} has a duplicate same-type identifier; its authored geometry is ambiguous.`;
     } else if (duplicateNodeIds.has(pipe.from) || duplicateNodeIds.has(pipe.to)) {
       issue = `Pipe ${pipe.id} references an ambiguous duplicate node endpoint.`;
-    } else if (!from || !to) issue = `Pipe ${pipe.id} references a missing endpoint.`;
+    } else if (!from || !to) issue = `Pipe ${pipe.id} references a missing or viewport-unrepresentable endpoint.`;
     else if (!finiteVec(from) || !finiteVec(to)) issue = `Pipe ${pipe.id} has a non-finite endpoint.`;
     else if (!finiteNumber(distanceSquared(from, to)) || distanceSquared(from, to) <= 0) {
       issue = `Pipe ${pipe.id} has an unrepresentable or zero authored span.`;
@@ -364,9 +363,9 @@ function duplicateIds<T extends { id: string }>(items: readonly T[]): ReadonlySe
 
 function boundsCenter(bounds: Bounds3): Vec3 {
   return {
-    x: (bounds.min.x + bounds.max.x) / 2,
-    y: (bounds.min.y + bounds.max.y) / 2,
-    z: (bounds.min.z + bounds.max.z) / 2
+    x: safeMidpoint(bounds.min.x, bounds.max.x),
+    y: safeMidpoint(bounds.min.y, bounds.max.y),
+    z: safeMidpoint(bounds.min.z, bounds.max.z)
   };
 }
 
@@ -385,8 +384,8 @@ function sharedSectionBindingIssue(
   }
   const inlineOutside = pipe.section.outside_diameter;
   const inlineWall = pipe.section.wall_thickness;
-  if (!sameQuantity(inlineOutside, outside) || !sameQuantity(inlineWall, wall)) {
-    return `Pipe ${pipe.id} inline OD/wall values are inconsistent with shared section ${section.id}.`;
+  if (!validPositiveQuantity(inlineOutside) || !validPositiveQuantity(inlineWall)) {
+    return `Pipe ${pipe.id} has no explicit valid inline OD/wall values to verify against shared section ${section.id}.`;
   }
   return null;
 }
@@ -395,11 +394,29 @@ function validPositiveQuantity(value: { value: number; unit: string } | undefine
   return Boolean(value && Number.isFinite(value.value) && value.value > 0 && value.unit.trim());
 }
 
-function sameQuantity(
-  left: { value: number; unit: string } | undefined,
-  right: { value: number; unit: string } | undefined
+/**
+ * Checks a shared-section envelope after every quantity has been converted to
+ * one model length unit. The tolerance is 1e-9 relative with a 1e-12 absolute
+ * floor in that unit, tight enough to admit ordinary decimal unit round trips
+ * without treating materially different authored dimensions as equivalent.
+ */
+export function convertedSectionEnvelopeIsConsistent(
+  sharedOutside: number,
+  sharedWall: number,
+  inlineOutside: number,
+  inlineWall: number
 ): boolean {
-  return Boolean(left && right && left.value === right.value && left.unit === right.unit);
+  if (![sharedOutside, sharedWall, inlineOutside, inlineWall].every((value) => Number.isFinite(value) && value > 0)) {
+    return false;
+  }
+  if (!(sharedWall < sharedOutside / 2) || !(inlineWall < inlineOutside / 2)) return false;
+  return convertedLengthNearlyEqual(sharedOutside, inlineOutside) &&
+    convertedLengthNearlyEqual(sharedWall, inlineWall);
+}
+
+function convertedLengthNearlyEqual(left: number, right: number): boolean {
+  const tolerance = Math.max(1e-12, Math.max(Math.abs(left), Math.abs(right)) * 1e-9);
+  return Math.abs(left - right) <= tolerance;
 }
 
 function unionBounds(bounds: readonly Bounds3[]): Bounds3 | null {
@@ -431,5 +448,17 @@ function distanceSquared(a: Vec3, b: Vec3): number {
 }
 
 function midpoint(a: Vec3, b: Vec3): Vec3 {
-  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, z: (a.z + b.z) / 2 };
+  return { x: safeMidpoint(a.x, b.x), y: safeMidpoint(a.y, b.y), z: safeMidpoint(a.z, b.z) };
+}
+
+function safeMidpoint(left: number, right: number): number {
+  return left / 2 + right / 2;
+}
+
+function authoredPointDisplayIssue(point: Readonly<Vec3>): string | null {
+  if (!finiteVec(point)) return "Authored node has a non-finite coordinate.";
+  if (![point.x, point.y, point.z].every((value) => Number.isFinite(Math.fround(value)))) {
+    return "Authored node coordinate exceeds the viewport Float32 presentation range.";
+  }
+  return null;
 }

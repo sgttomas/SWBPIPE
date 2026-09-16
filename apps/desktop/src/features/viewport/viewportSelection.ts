@@ -2,7 +2,7 @@ import * as THREE from "three";
 import type { EntityRef, PreviewComponent, PreviewModel, Vec3 } from "../../types";
 import type { Bounds3, ModelIndex } from "../workspace/modelIndex";
 import { boundsIntersect } from "../workspace/modelIndex";
-import type { EntityKey } from "../workspace/selectionState";
+import { entityKey, entityRefFromKey, type EntityKey } from "../workspace/selectionState";
 
 export type RenderTransform = Readonly<{
   origin: Readonly<Vec3>;
@@ -22,6 +22,276 @@ export type LabelPriorityInput = Readonly<{
 export type BoxSelectionFilter = "all" | "pipes" | "nodes" | "supports" | "components";
 export type BoxSelectionDirection = "left-to-right" | "right-to-left";
 export type BoxSelectionRect = Readonly<{ left: number; top: number; right: number; bottom: number }>;
+
+export type BoxSelectionPointerDown = Readonly<{
+  button: number | undefined;
+  isPrimary: boolean | undefined;
+  canvasTarget: boolean;
+  preventDefault: () => void;
+  stopPropagation: () => void;
+}>;
+
+/**
+ * Claims the active Box Select left pointer during ancestor capture, before
+ * OrbitControls receives the canvas-target pointerdown. Other buttons and
+ * authoring tools retain their existing canvas ownership.
+ */
+export function claimBoxSelectionPointerDown(
+  event: BoxSelectionPointerDown,
+  options: Readonly<{ active: boolean; authoringActive: boolean }>
+): boolean {
+  if (!options.active || options.authoringActive || !event.canvasTarget) return false;
+  if (event.button !== 0 && event.button !== undefined) return false;
+  if (event.isPrimary === false) return false;
+  event.preventDefault();
+  event.stopPropagation();
+  return true;
+}
+
+export type BoxGestureContext = Readonly<{
+  model: PreviewModel;
+  indexGeneration: string;
+  sessionGeneration: number;
+}>;
+
+/** A captured rectangle belongs only to the model/session that admitted pointer-down. */
+export function boxGestureContextIsCurrent(candidate: BoxGestureContext, current: BoxGestureContext): boolean {
+  return candidate.model === current.model && candidate.indexGeneration === current.indexGeneration &&
+    candidate.sessionGeneration === current.sessionGeneration;
+}
+
+export type ViewportViewCommand =
+  | Readonly<{ type: "retire-box-gesture" }>
+  | Readonly<{ type: "cancel-box-selection" }>
+  | Readonly<{ type: "set-box-select"; active: boolean }>
+  | Readonly<{ type: "set-selection-filter"; filter: BoxSelectionFilter }>
+  | Readonly<{ type: "set-geometry-mode"; mode: "schematic" | "actual-od" }>
+  | Readonly<{ type: "set-measurement"; active: boolean }>
+  | Readonly<{ type: "apply-measurement-target"; ref: EntityRef }>
+  | Readonly<{ type: "hide-selection" }>
+  | Readonly<{ type: "isolate-selection" }>
+  | Readonly<{ type: "show-all" }>
+  | Readonly<{ type: "fit-model" | "fit-visible" | "fit-selection" }>;
+
+export type MeasurementSource =
+  | Readonly<{ kind: "nodes"; keys: readonly EntityKey[] }>
+  | Readonly<{ kind: "pipe"; key: EntityKey }>;
+
+export type MeasurementTargetResult = Readonly<{
+  source: MeasurementSource | null;
+  accepted: boolean;
+  message: string;
+}>;
+
+const MEASUREMENT_DISPLAY_DECIMAL_PLACES = 6;
+const MEASUREMENT_SMALL_VALUE_SIGNIFICANT_DIGITS = 7;
+
+/**
+ * Formats only the compact viewport measurement presentation. The converted
+ * numeric value remains available separately for evidence and calculations.
+ */
+export function formatMeasurementDisplayValue(value: number): string {
+  if (!Number.isFinite(value)) return String(value);
+  const normalized = Object.is(value, -0) ? 0 : value;
+  if (normalized !== 0 && Math.abs(normalized) < 1e-6) {
+    return normalized.toExponential(MEASUREMENT_SMALL_VALUE_SIGNIFICANT_DIGITS - 1);
+  }
+  return normalized.toFixed(MEASUREMENT_DISPLAY_DECIMAL_PLACES);
+}
+
+/**
+ * Applies one typed authored target to the measurement state. Canvas picks and
+ * keyboard-activated viewport labels both dispatch this same command path.
+ */
+export function applyMeasurementTargetCommand(
+  index: ModelIndex,
+  current: MeasurementSource | null,
+  ref: EntityRef
+): MeasurementTargetResult {
+  const key = entityKey(ref);
+  const indexed = index.entities.get(key);
+  if (ref.type === "node" && indexed?.ref.type === "node" && indexed.anchor) {
+    const keys = current?.kind === "nodes" && current.keys.length === 1 && current.keys[0] !== key
+      ? Object.freeze([current.keys[0], key])
+      : Object.freeze([key]);
+    return Object.freeze({
+      source: Object.freeze({ kind: "nodes", keys }),
+      accepted: true,
+      message: "Measurement uses authored node coordinates and does not change the model."
+    });
+  }
+  if (ref.type === "pipe" && indexed?.ref.type === "pipe") {
+    const pipe = indexed.record as PreviewModel["pipe_segments"][number];
+    const from = index.entities.get(entityKey({ type: "node", id: pipe.from }));
+    const to = index.entities.get(entityKey({ type: "node", id: pipe.to }));
+    if (from?.anchor && to?.anchor) {
+      return Object.freeze({
+        source: Object.freeze({ kind: "pipe", key }),
+        accepted: true,
+        message: "Measurement uses the authored pipe endpoints and does not change the model."
+      });
+    }
+  }
+  return Object.freeze({
+    source: current,
+    accepted: false,
+    message: "Measurement accepts two authored nodes or one authored pipe."
+  });
+}
+
+/**
+ * Bounds the geometry as displayed, including schematic or converted OD pipe
+ * radius and the actual marker envelopes used by the renderer.
+ */
+export function displayedBoundsForEntityKeys(
+  index: ModelIndex,
+  keys: Iterable<EntityKey>,
+  hiddenKeys: ReadonlySet<EntityKey>,
+  actualOdRadii: ReadonlyMap<EntityKey, number>
+): Bounds3 | null {
+  let result: Bounds3 | null = null;
+  for (const key of keys) {
+    if (hiddenKeys.has(key) || index.invalidGeometry.has(key)) continue;
+    const indexed = index.entities.get(key);
+    if (!indexed?.geometryBounds) continue;
+    const extent = indexed.ref.type === "pipe"
+      ? actualOdRadii.get(key) ?? 0.052
+      : indexed.ref.type === "node"
+        ? 0.095
+        : indexed.ref.type === "support"
+          ? 0.43
+          : indexed.ref.type === "component"
+            ? 0.3
+            : 0;
+    if (!Number.isFinite(extent) || extent < 0) continue;
+    const expanded = {
+      min: {
+        x: indexed.geometryBounds.min.x - extent,
+        y: indexed.geometryBounds.min.y - extent,
+        z: indexed.geometryBounds.min.z - extent
+      },
+      max: {
+        x: indexed.geometryBounds.max.x + extent,
+        y: indexed.geometryBounds.max.y + extent,
+        z: indexed.geometryBounds.max.z + extent
+      }
+    };
+    result = result ? {
+      min: {
+        x: Math.min(result.min.x, expanded.min.x),
+        y: Math.min(result.min.y, expanded.min.y),
+        z: Math.min(result.min.z, expanded.min.z)
+      },
+      max: {
+        x: Math.max(result.max.x, expanded.max.x),
+        y: Math.max(result.max.y, expanded.max.y),
+        z: Math.max(result.max.z, expanded.max.z)
+      }
+    } : expanded;
+  }
+  return result;
+}
+
+/**
+ * Expands explicit hidden state into the one effective visibility mask shared by
+ * rendering, picking, fitting, labels, box selection, and the model tree.
+ */
+export function effectiveHiddenEntityKeys(
+  index: ModelIndex,
+  explicitHiddenKeys: ReadonlySet<EntityKey>
+): ReadonlySet<EntityKey> {
+  const effective = new Set(explicitHiddenKeys);
+  const hiddenNodeIds = new Set<string>();
+  for (const key of explicitHiddenKeys) {
+    const ref = entityRefFromKey(key);
+    if (ref?.type === "node") hiddenNodeIds.add(ref.id);
+  }
+  if (hiddenNodeIds.size === 0) return effective;
+  for (const key of index.treeOrder) {
+    const indexed = index.entities.get(key);
+    if (!indexed || (indexed.ref.type !== "support" && indexed.ref.type !== "component")) continue;
+    const record = indexed.record as { node?: unknown };
+    if (typeof record.node === "string" && hiddenNodeIds.has(record.node)) effective.add(key);
+  }
+  return effective;
+}
+
+export function composedVisibilityHiddenKeys(
+  index: ModelIndex,
+  explicitHiddenKeys: ReadonlySet<EntityKey>,
+  isolateHiddenKeys: ReadonlySet<EntityKey>
+): ReadonlySet<EntityKey> {
+  return effectiveHiddenEntityKeys(index, new Set([...explicitHiddenKeys, ...isolateHiddenKeys]));
+}
+
+export function visibilityEligibleSelectionKeys(
+  index: ModelIndex,
+  selectedKeys: readonly EntityKey[]
+): readonly EntityKey[] {
+  return selectedKeys.filter((key) => index.visibilityEligibleKeys.has(key) && !index.invalidGeometry.has(key));
+}
+
+/** Adds selected refs to the explicit hidden state in one atomic publication. */
+export function hideSelectionVisibility(
+  explicitHiddenKeys: ReadonlySet<EntityKey>,
+  selectedKeys: readonly EntityKey[]
+): ReadonlySet<EntityKey> {
+  return new Set([...explicitHiddenKeys, ...selectedKeys]);
+}
+
+/**
+ * Returns the explicit isolate mask. Context expansion is linear in the shared
+ * index and never follows neighbouring pipes through a selected node.
+ */
+export function isolateSelectionVisibility(
+  index: ModelIndex,
+  selectedKeys: readonly EntityKey[]
+): ReadonlySet<EntityKey> {
+  const context = new Set<EntityKey>(selectedKeys);
+  const anchorNodeIds = new Set<string>();
+  for (const key of selectedKeys) {
+    const indexed = index.entities.get(key);
+    if (!indexed) continue;
+    if (indexed.ref.type === "node") anchorNodeIds.add(indexed.ref.id);
+    if (indexed.ref.type === "pipe") {
+      const pipe = indexed.record as PreviewModel["pipe_segments"][number];
+      anchorNodeIds.add(pipe.from);
+      anchorNodeIds.add(pipe.to);
+    }
+    if (indexed.ref.type === "support" || indexed.ref.type === "component") {
+      const attachment = indexed.record as { node?: unknown };
+      if (typeof attachment.node === "string") anchorNodeIds.add(attachment.node);
+    }
+  }
+  for (const nodeId of anchorNodeIds) context.add(entityKey({ type: "node", id: nodeId }));
+  if (anchorNodeIds.size > 0) {
+    for (const key of index.treeOrder) {
+      const indexed = index.entities.get(key);
+      if (!indexed || (indexed.ref.type !== "support" && indexed.ref.type !== "component")) continue;
+      const attachment = indexed.record as { node?: unknown };
+      if (typeof attachment.node === "string" && anchorNodeIds.has(attachment.node)) context.add(key);
+    }
+  }
+  return new Set([...index.visibilityEligibleKeys].filter((key) => !context.has(key)));
+}
+
+export function showAllVisibility(): ReadonlySet<EntityKey> {
+  return new Set();
+}
+
+/** Stable per-spatial-chunk typed groups used by every repeated render layer. */
+export function spatialEntityKeyGroups(
+  index: ModelIndex,
+  type: "pipe" | "node" | "support" | "component"
+): readonly (readonly EntityKey[])[] {
+  return Object.freeze(index.spatialChunks.flatMap((chunk) => {
+    const keys = chunk.entityKeys.filter((key) => {
+      const indexed = index.entities.get(key);
+      return indexed?.ref.type === type && !indexed.geometryIssue;
+    });
+    return keys.length > 0 ? [Object.freeze(keys)] : [];
+  }));
+}
 
 export function boxSelectEntityKeys(
   index: ModelIndex,
@@ -129,6 +399,9 @@ export function createRenderTransform(bounds: Bounds3 | null): RenderTransform {
   const localMax = authoredToLocal(bounds.max, origin);
   if (!finiteVec(localMin) || !finiteVec(localMax)) {
     throw new Error("Viewport bounds cannot be represented relative to their render origin.");
+  }
+  if (!localPointIsFloat32Representable(localMin) || !localPointIsFloat32Representable(localMax)) {
+    throw new Error("Viewport bounds exceed Float32 presentation range after render-origin centering.");
   }
   return Object.freeze({
     origin,
@@ -408,7 +681,7 @@ function boundsCenter(bounds: Bounds3 | null): Vec3 {
 }
 
 function safeMidpoint(min: number, max: number): number {
-  return min + (max - min) / 2;
+  return min / 2 + max / 2;
 }
 
 function distanceSquared(a: Readonly<Vec3>, b: Readonly<Vec3>): number {
@@ -613,7 +886,7 @@ function closestPointOnSegmentToRay(
   const segmentStart = segment.dot(fromStart);
   const denominator = lengthSquared - raySegment * raySegment;
   const fraction = denominator > Number.EPSILON
-    ? THREE.MathUtils.clamp((raySegment * rayStart - segmentStart) / denominator, 0, 1)
+    ? THREE.MathUtils.clamp((segmentStart - raySegment * rayStart) / denominator, 0, 1)
     : 0;
   return a.addScaledVector(segment, fraction);
 }
@@ -789,4 +1062,23 @@ function segmentIntersectsClosedRect(a: ScreenPoint, b: ScreenPoint, rect: BoxSe
     if (enter > exit) return false;
   }
   return true;
+}
+
+/** Fits every envelope corner with 10% frame margin, retaining the legacy pose when sufficient. */
+export function fittedViewportDistance(bounds: Bounds3 | null, preset: "front" | "top" | "iso", fovDegrees: number, aspect: number): number {
+  const extent = bounds ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z, 1) : 4;
+  let distance = Math.max(4, extent * 1.8);
+  if (!bounds) return distance;
+  const orientation = new THREE.PerspectiveCamera();
+  orientation.position.set(...(preset === "front" ? [0, 0, 1] : preset === "top" ? [0, 1, 0] : [1, 1, 1]) as [number, number, number]);
+  orientation.lookAt(0, 0, 0);
+  const inverseRotation = orientation.quaternion.clone().invert();
+  const center = new THREE.Vector3(bounds.min.x / 2 + bounds.max.x / 2, bounds.min.y / 2 + bounds.max.y / 2, bounds.min.z / 2 + bounds.max.z / 2);
+  const verticalSlope = Math.tan(THREE.MathUtils.degToRad(fovDegrees) / 2) * 0.9;
+  const horizontalSlope = verticalSlope * aspect;
+  for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y]) for (const z of [bounds.min.z, bounds.max.z]) {
+    const corner = new THREE.Vector3(x, y, z).sub(center).applyQuaternion(inverseRotation);
+    distance = Math.max(distance, corner.z + Math.abs(corner.x) / horizontalSlope, corner.z + Math.abs(corner.y) / verticalSlope);
+  }
+  return distance;
 }

@@ -5,6 +5,7 @@ import { computeModelHash } from "../../services/hashService";
 import { applyOperationBatch, validateOperationBatch } from "../../services/operationBatchService";
 import { BoundaryAuthoringPanel } from "./BoundaryAuthoringPanel";
 import { boundaryMembers, buildBoundaryBatch, DOFS, emptyBoundaryDraft, type BoundaryDraft } from "./boundaryDraft";
+import { chooseVirtualTarget } from "../../test-support/workspaceTestControls";
 afterEach(cleanup);
 const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 function draft(node: string): BoundaryDraft {
@@ -27,7 +28,8 @@ describe("boundary authoring canonical members", () => {
     const model = await loadPreviewModel(); const original = JSON.stringify(model); const onQueueBatch = vi.fn();
     render(<BoundaryAuthoringPanel model={model} selection={{ type: "node", id: model.nodes[0].id }} onQueueBatch={onQueueBatch} />);
     expect(screen.getByRole("button", { name: "Queue boundary batch" })).toBeDisabled();
-    for (const [label, value] of [["Boundary ID", "boundary:test"], ["Boundary label", "Invented boundary"], ["Boundary kind", "equipment_nozzle"], ["Equipment reference", "invented equipment"], ["Nozzle reference", "invented nozzle"], ["Boundary node", model.nodes[0].id], ["Boundary provenance", "invented UI test"], ["Boundary coordinate system", "global"]]) enter(label, value);
+    for (const [label, value] of [["Boundary ID", "boundary:test"], ["Boundary label", "Invented boundary"], ["Boundary kind", "equipment_nozzle"], ["Equipment reference", "invented equipment"], ["Nozzle reference", "invented nozzle"], ["Boundary provenance", "invented UI test"], ["Boundary coordinate system", "global"]]) enter(label, value);
+    chooseVirtualTarget("boundary-node-picker", model.nodes[0].id);
     for (const dof of DOFS) enter(`${dof} mode`, "free");
     expect(screen.getByText(/All DOFs are free/)).toBeInTheDocument();
     enter("UX mode", "rigid"); enter("RZ mode", "rigid"); enter("UY mode", "spring");

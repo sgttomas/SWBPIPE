@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import { canonicalJsonString } from "../../services/hashService";
 export type RichFormProps = {
+  getPreparationEpoch?: () => number;
   model: PreviewModel;
+  preparationEpoch?: number;
   selection: EntityRef;
   queuedIntents?: EditorOperationIntent[];
   onQueueIntent: (intent: EditorOperationIntent) => void;
@@ -143,6 +145,33 @@ export function useRichQueue(props: RichFormProps) {
   const [notice, setNotice] = useState("");
   const latest = useRef(props);
   latest.current = props;
+  const fallbackEpoch = useRef(0);
+  const fallbackContext = useRef<{
+    model: PreviewModel;
+    operationBusy: boolean;
+    preparationEpoch: number | undefined;
+    queuedIntents: EditorOperationIntent[] | undefined;
+    selectionId: string;
+    selectionType: EntityRef["type"];
+  } | null>(null);
+  const previousContext = fallbackContext.current;
+  const nextContext = {
+    model: props.model,
+    operationBusy: Boolean(props.operationBusy),
+    preparationEpoch: props.preparationEpoch,
+    queuedIntents: props.queuedIntents,
+    selectionId: props.selection.id,
+    selectionType: props.selection.type
+  };
+  if (previousContext && (
+    previousContext.model !== nextContext.model ||
+    previousContext.operationBusy !== nextContext.operationBusy ||
+    previousContext.preparationEpoch !== nextContext.preparationEpoch ||
+    previousContext.queuedIntents !== nextContext.queuedIntents ||
+    previousContext.selectionId !== nextContext.selectionId ||
+    previousContext.selectionType !== nextContext.selectionType
+  )) fallbackEpoch.current += 1;
+  fallbackContext.current = nextContext;
   const live = useRef(false);
   const pending = useRef(false);
   useEffect(() => {
@@ -151,10 +180,13 @@ export function useRichQueue(props: RichFormProps) {
       live.current = false;
     };
   }, []);
+  const readPreparationEpoch = (current: RichFormProps) =>
+    current.getPreparationEpoch?.() ?? current.preparationEpoch ?? fallbackEpoch.current;
   const queue = async (target: EditorOperationIntent["target"], kind: EditorOperationIntent["change"]["change_kind"], path: string, before: unknown, after: unknown, label: string, absent = false) => {
     if (pending.current || props.operationBusy)
       return;
     const captured = props;
+    const capturedPreparationEpoch = readPreparationEpoch(captured);
     const snapshot = clone(after);
     const old = before === undefined ? undefined : clone(before);
     pending.current = true;
@@ -168,7 +200,7 @@ export function useRichQueue(props: RichFormProps) {
       const current = latest.current;
       if (!live.current)
         return;
-      if (current.model !== captured.model || current.selection.id !== captured.selection.id || current.selection.type !== captured.selection.type || current.operationBusy || current.queuedIntents !== captured.queuedIntents)
+      if (readPreparationEpoch(current) !== capturedPreparationEpoch || current.model !== captured.model || current.selection.id !== captured.selection.id || current.selection.type !== captured.selection.type || current.operationBusy || current.queuedIntents !== captured.queuedIntents)
         throw new Error("The selection, model or pending changes changed. Review this draft and queue it again.");
       current.onQueueIntent(makeRichIntent(target, kind, path, canonical, snapshot, label));
       setNotice(`${label} queued for validation and review.`);

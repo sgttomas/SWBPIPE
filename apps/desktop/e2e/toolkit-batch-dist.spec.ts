@@ -1,4 +1,11 @@
 import { expect, test } from "@playwright/test";
+import {
+  expectTreeEntity,
+  expectTreeEntityMissing,
+  openWorkspaceSection,
+  selectTreeEntity,
+  startPropertyTaskFromCurrentSelection,
+} from "./workspace-driver";
 
 // Exercise both published Wasm artifacts through actual browser imports and the
 // built application. Input values here are explicit invented test data.
@@ -10,11 +17,12 @@ test("dist self-weight plan previews, applies atomically and restores one batch 
     if (response.url().endsWith(".wasm") && response.ok()) artifacts.push(response.url());
   });
   await page.goto("/");
+  await openWorkspaceSection(page, "operations");
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
   await page.getByTestId("toolkit-entry").click();
   await page.getByTestId("toolkit-view.select").click();
-  await page.getByTestId("tree-row-pipe:P-100").click();
-  if (await page.getByTestId("toggle-inspector").getAttribute("aria-expanded") === "false") await page.getByTestId("toggle-inspector").click();
+  await selectTreeEntity(page, "pipe", "pipe:P-100");
+  await startPropertyTaskFromCurrentSelection(page, "pipe", "pipe:P-100");
   await page.getByTestId("editor-intent-field").selectOption("section.material_density.value");
   await page.getByTestId("editor-intent-value").fill("7800");
   await page.getByTestId("editor-intent-unit").fill("kg/m^3");
@@ -32,7 +40,8 @@ test("dist self-weight plan previews, applies atomically and restores one batch 
     ["Gravity value", "-9.81"], ["Gravity unit", "m/s^2"], ["Self-weight provenance", "invented browser regression"]
   ]) await panel.getByLabel(label, { exact: true }).fill(value);
   await panel.getByLabel("Gravity direction").selectOption("global_y");
-  await panel.getByLabel("pipe:P-100", { exact: true }).check();
+  await panel.getByRole("button", { name: "Use selected pipes" }).click();
+  await expect(panel.getByText("Frozen selected-pipe snapshot: pipe:P-100", { exact: true })).toBeVisible();
   await panel.getByRole("button", { name: "Generate self-weight plan" }).click();
   await expect(panel.getByText("2 proposed changes for 1 selected pipes.")).toBeVisible();
   await panel.getByRole("button", { name: "Queue complete self-weight plan" }).click();
@@ -41,10 +50,16 @@ test("dist self-weight plan previews, applies atomically and restores one batch 
   await expect(page.getByTestId("batch-review-summary")).toContainText("0 batches applied");
   await page.getByTestId("apply-batch-operation-batch-1").click();
   await expect(page.getByTestId("batch-review-summary")).toContainText("1 batches applied");
-  await expect(page.getByTestId("tree-row-load:dist-weight")).toBeVisible();
+  await expectTreeEntity(page, "load", "load:dist-weight");
   await page.getByTestId("undo-session-model-edit").click();
-  await expect(page.getByTestId("tree-row-load:dist-weight")).toHaveCount(0);
-  await page.getByTestId("tree-row-pipe:P-100").click();
+  await expectTreeEntityMissing(page, "load", "load:dist-weight");
+  await selectTreeEntity(page, "pipe", "pipe:P-100");
+  // End the retained draft and inspect a fresh task's model basis after Undo.
+  const inspector = page.getByTestId("property-inspector");
+  await inspector.getByRole("tab", { name: "Task", exact: true }).click();
+  await expect(inspector.getByTestId("inspector-frozen-task-target")).toContainText("Draft target: pipe: pipe:P-100");
+  await inspector.getByRole("button", { name: "Cancel", exact: true }).click();
+  await startPropertyTaskFromCurrentSelection(page, "pipe", "pipe:P-100");
   await page.getByTestId("editor-intent-field").selectOption("section.material_density.value");
   await expect(page.getByTestId("editor-intent-value")).toHaveValue("7800");
   expect(artifacts.some(url => url.includes("open_pipe_stress_operation_applier_bg.wasm"))).toBe(true);

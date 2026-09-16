@@ -54,6 +54,14 @@ describe("ordered typed selection", () => {
     expect(ranged.primaryKey).toBe(entityKey(refs[3]));
   });
 
+  it("keeps Project exclusive when a Project anchor shifts to an entity", () => {
+    const project = { type: "project" as const, id: "p" };
+    const node = { type: "node" as const, id: "n" };
+    const ranged = applyDisplayedRange(projectSelection(project), node, [entityKey(project), entityKey(node)]);
+    expect(ranged.orderedKeys).toEqual([entityKey(node)]);
+    expect(ranged.primaryKey).toBe(entityKey(node));
+  });
+
   it("publishes one selection revision for a full displayed range", () => {
     const refs = Array.from({ length: 10_000 }, (_, index) => ({
       type: "node" as const,

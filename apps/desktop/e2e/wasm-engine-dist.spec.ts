@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { closeWorkspacePanels, openWorkspaceSection } from "./workspace-driver";
 
 // TP-APP-R2-WASMPKG-001 regression: the production bundle must ship the wasm
 // operation engine under /wasm-engine/ and the loader must reach ready from
@@ -12,7 +13,10 @@ test("production dist serves the wasm engine and New blank succeeds", async ({ p
   // Engine-ready guard (DEC-020 / ADR-0001): browser mode answers operations
   // through the wasm32 operation_applier build; ready proves the glue and
   // _bg.wasm both resolved from the dist asset layout.
+  await openWorkspaceSection(page, "operations");
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+
+  await closeWorkspacePanels(page);
 
   // First wasm-dependent authoring action — the step that failed in the
   // packaged app.
@@ -20,6 +24,7 @@ test("production dist serves the wasm engine and New blank succeeds", async ({ p
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Created blank local model document without fixture entities or external file copies."
   );
+  await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "0 load cases; 0 primitive loads; 0 combinations"
   );

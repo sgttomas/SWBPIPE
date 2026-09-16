@@ -1,13 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-
-async function openSection(page: Page, id: string) {
-  const section = page.getByTestId(`workspace-section-${id}`);
-  if (!await section.isVisible()) {
-    await page.getByTestId("menu-view").click();
-    await page.getByTestId(`menu-item-view.section.${id}`).click();
-  }
-  await expect(section).toBeVisible();
-}
+import { openWorkspaceSection as openSection } from "./workspace-driver";
 
 function dataJson(href: string) {
   return JSON.parse(decodeURIComponent(href.slice(href.indexOf(",") + 1)));

@@ -82,6 +82,14 @@ export type UiDiagnosticsSnapshot = Readonly<{
       generation: number;
       reason: string;
       submittedAt: number | null;
+      selectionPresentation?: Readonly<{
+        resourceGeneration: number;
+        modelGeneration: number;
+        revision: number;
+        appliedAfterSubmissionSequence: number;
+        renderedSubmissionSequence: number;
+        orderedRefs: readonly FrozenRef[];
+      }> | null;
       nextPaintOpportunity: Readonly<{
         submissionSequence: number;
         generation: number;
@@ -109,6 +117,8 @@ export type UiDiagnosticsSnapshot = Readonly<{
       generation: number;
       query: string;
       visibleCount: number;
+      inputAt: number | null;
+      inputEventTimeStamp: number | null;
       publishedAt: number;
       renderSubmissionSequence: number;
     }> | Unavailable;
@@ -191,34 +201,22 @@ export type UiDiagnosticsGlobal = Readonly<{
   projectAuthoredPoint(request: ProjectionRequest): ProjectionResult;
 }>;
 
-let demanded = false;
 let snapshotSequence = 0;
 let currentSnapshot: UiDiagnosticsSnapshot = idleSnapshot();
 let currentProjection: UiProjectionContext | null = null;
 let latestSnapshotFactory: (() => UiDiagnosticsPublication) | null = null;
 let latestProjectionFactory: (() => UiProjectionContext) | null = null;
 let projectionAvailable = false;
-
-export function hasUiDiagnosticsObserver(): boolean {
-  return demanded;
-}
+let pendingAssignment: UiDiagnosticsSnapshot["model"]["assignment"] | null = null;
+let lastAcceptedModelGeneration: number | null = null;
 
 /** Publish assignment entry without exposing the pending model or changing projection. */
 export function publishUiModelAssignmentStarted(generation: number, startedAt: number): void {
-  if (!demanded) return;
-  currentSnapshot = deepFreeze({
-    ...currentSnapshot,
-    snapshotSequence: ++snapshotSequence,
-    capturedAt: performance.now(),
-    model: {
-      ...currentSnapshot.model,
-      assignment: {
-        status: "started",
-        generation,
-        startedAt,
-        committedAt: null
-      }
-    }
+  pendingAssignment = deepFreeze({
+    status: "started",
+    generation,
+    startedAt,
+    committedAt: null
   });
 }
 
@@ -230,13 +228,11 @@ export function publishUiDiagnostics(
   latestSnapshotFactory = snapshotFactory;
   latestProjectionFactory = projectionFactory ?? null;
   projectionAvailable = Boolean(projectionFactory);
-  if (!demanded) return;
-  materializeCurrentPublisher();
 }
 
-export function refreshUiDiagnostics(includeProjection = true): void {
+export function refreshUiDiagnostics(includeProjection = true, modelGeneration?: number | null): void {
   projectionAvailable = includeProjection;
-  if (demanded) materializeCurrentPublisher();
+  if (modelGeneration !== undefined) lastAcceptedModelGeneration = modelGeneration;
 }
 
 /** Clears only the current product-owned read publisher during viewport teardown. */
@@ -245,33 +241,54 @@ export function clearUiDiagnosticsPublisher(): void {
   latestProjectionFactory = null;
   projectionAvailable = false;
   currentProjection = null;
+  pendingAssignment = null;
+  lastAcceptedModelGeneration = null;
   const idle = idleSnapshot();
   currentSnapshot = deepFreeze({ ...idle, snapshotSequence: ++snapshotSequence, capturedAt: performance.now() });
 }
 
-function materializeCurrentPublisher(): void {
-  if (!latestSnapshotFactory) return;
+function materializeCurrentPublisher(): UiDiagnosticsSnapshot {
+  const publication = latestSnapshotFactory?.();
+  const basis = publication ?? currentSnapshot;
+  if (pendingAssignment && publication?.model.assignment.status === "committed" &&
+      publication.model.assignment.generation === pendingAssignment.generation) {
+    pendingAssignment = null;
+  }
   currentSnapshot = deepFreeze({
-    ...latestSnapshotFactory(),
+    ...basis,
     schema: UI_DIAGNOSTICS_SCHEMA,
     snapshotSequence: ++snapshotSequence,
-    capturedAt: performance.now()
+    capturedAt: performance.now(),
+    model: pendingAssignment
+      ? { ...basis.model, assignment: pendingAssignment }
+      : basis.model
   });
-  currentProjection = projectionAvailable && latestProjectionFactory ? deepFreeze(latestProjectionFactory()) : null;
+  lastAcceptedModelGeneration = currentSnapshot.model.generation;
+  return currentSnapshot;
 }
 
 function readCurrent(): UiDiagnosticsSnapshot {
-  demanded = true;
-  materializeCurrentPublisher();
-  return deepFreeze(structuredClone(currentSnapshot));
+  // The factory builds an owned, recursively frozen snapshot only for this
+  // explicit pull. No publication/render callback performs this work.
+  return materializeCurrentPublisher();
 }
 
 function projectAuthoredPoint(request: ProjectionRequest): ProjectionResult {
-  demanded = true;
-  const modelGeneration = currentSnapshot.model.generation;
-  if (modelGeneration === null) return invalid("NO_CURRENT_MODEL");
+  // Projection is its own explicit pull. It never pays to materialize the
+  // larger snapshot and never depends on a preceding readCurrent() call.
+  if (!projectionAvailable || !latestProjectionFactory) {
+    return invalid(lastAcceptedModelGeneration === null ? "NO_CURRENT_MODEL" : "NO_CURRENT_CAMERA");
+  }
+  try {
+    currentProjection = deepFreeze(latestProjectionFactory());
+    lastAcceptedModelGeneration = currentProjection.modelGeneration;
+  } catch {
+    currentProjection = null;
+  }
   const projection = currentProjection;
-  if (!projection) return invalid("NO_CURRENT_CAMERA");
+  if (!projection) {
+    return invalid(lastAcceptedModelGeneration === null ? "NO_CURRENT_MODEL" : "NO_CURRENT_CAMERA");
+  }
   if (request.modelGeneration !== projection.modelGeneration || request.cameraSequence !== projection.cameraSequence) {
     return deepFreeze({
       status: "stale",

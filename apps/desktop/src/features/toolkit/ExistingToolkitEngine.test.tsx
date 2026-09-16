@@ -10,6 +10,7 @@ import { makeRichIntent } from "../rich-authoring/formSupport";
 import { loadPreviewModel } from "../../services/previewService";
 import { applyModelOperation } from "../../services/operationService";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
+import { chooseVirtualTarget, startInspectorTask } from "../../test-support/workspaceTestControls";
 const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 async function applied(model: PreviewModel, intent: EditorOperationIntent) {
   const result = await applyModelOperation(model, intent, null);
@@ -73,7 +74,7 @@ describe("existing toolkit shared engine", () => {
     await waitFor(() => expect(queue).toHaveBeenCalledOnce()); model = await applied(model, queue.mock.calls[0][0]); expect(model.materials![0].temperature_points![0].temperature).toEqual({ value: 20, unit: "degC" }); cleanup();
     model.load_cases[0].equivalent_static = { wind: {} }; queue = vi.fn();
     render(<WindExposureForm model={model} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} />);
-    fireEvent.click(screen.getByRole("button", { name: "Add exposure span" })); enter("Span 1 pipe", model.pipe_segments[0].id);
+    fireEvent.click(screen.getByRole("button", { name: "Add exposure span" })); chooseVirtualTarget("wind-span-1-pipe", model.pipe_segments[0].id);
     enter("Span 1 start fraction value", "0.1"); enter("Span 1 start fraction unit", "1"); enter("Span 1 end fraction value", "0.5"); enter("Span 1 end fraction unit", "1");
     fireEvent.click(screen.getByRole("button", { name: "Queue wind exposure" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
     model = await applied(model, queue.mock.calls[0][0]); expect(model.load_cases[0].equivalent_static!.wind!.exposed_spans![0].end_fraction).toEqual({ value: 0.5, unit: "1" });
@@ -81,6 +82,7 @@ describe("existing toolkit shared engine", () => {
   it("queues explicit mass quantities including zero, retaining missing insulation as a warning", async () => {
     let model = await loadPreviewModel(); const queue = vi.fn();
     const view = render(<PropertyInspector model={model} selection={{ type: "pipe", id: model.pipe_segments[0].id }} onQueueIntent={queue} />);
+    startInspectorTask();
     for (const [key, value, unit, dimension] of [["material_density", "7800", "kg/m^3", "density"], ["contents_density", "0", "kg/m^3", "density"], ["insulation_thickness", "0", "mm", "length"]]) {
       fireEvent.change(screen.getByTestId("editor-intent-field"), { target: { value: `section.${key}.value` } });
       expect(screen.getByTestId("editor-intent-unit")).toHaveValue("");

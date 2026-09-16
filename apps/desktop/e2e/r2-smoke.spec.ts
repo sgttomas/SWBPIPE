@@ -1,6 +1,18 @@
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { inflateSync } from "node:zlib";
+import {
+  chooseVirtualTarget,
+  closeWorkspacePanels,
+  ensureInspectorExpanded,
+  ensureTreeExpanded,
+  expectTreeEntity,
+  expectVirtualTarget,
+  openWorkspaceSection,
+  selectTreeEntity,
+  startPropertyTaskFromTreeEntity,
+  type TreeEntityType,
+} from "./workspace-driver";
 
 type RehearsalStep = {
   change_kind: string;
@@ -17,25 +29,6 @@ type RehearsalFixture = {
 const rehearsal = JSON.parse(
   readFileSync(new URL("../../../fixtures/product_preview/r2_from_blank_rehearsal.json", import.meta.url), "utf8")
 ) as RehearsalFixture;
-
-// TP-R3UX-CADSHELL: the shell keeps the spatial core (model tree | viewport |
-// property inspector) persistent and dominant, with the remaining panels
-// collapsed by default and summoned from the in-DOM View menu (which the native
-// macOS menu mirrors in the Tauri shell). The specs drive that menu exactly as
-// a human following SMOKE.md TP-MAC-189 would. Idempotent: if the requested
-// section is already open, do nothing (re-selecting it would toggle it shut).
-async function openWorkspaceSection(page: Page, sectionId: string): Promise<void> {
-  const section = page.getByTestId(`workspace-section-${sectionId}`);
-  if (!await section.isVisible()) {
-    await page.getByTestId("menu-view").click();
-    await page.getByTestId(`menu-item-view.section.${sectionId}`).click();
-  }
-  await expect(section).toBeVisible();
-  if (sectionId === "operations") {
-    const review = page.getByTestId("operation-tab-review");
-    if (await review.getAttribute("aria-pressed") !== "true") await review.click();
-  }
-}
 
 // Disclosures are opened through their visible summary, never by DOM mutation.
 async function setDisclosure(details: Locator, open = true): Promise<void> {
@@ -75,23 +68,7 @@ async function ensureEngineReady(page: Page): Promise<void> {
   await openReviewTab(page, "review");
   await expect(page.getByTestId("operation-engine-chip")).toBeVisible();
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
-  await page.getByTestId("workspace-task-model").click();
-}
-
-async function ensureTreeExpanded(page: Page): Promise<void> {
-  const toggle = page.getByTestId("toggle-tree");
-  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
-    await toggle.click();
-  }
-  await expect(toggle).toHaveAttribute("aria-expanded", "true");
-}
-
-async function ensureInspectorExpanded(page: Page): Promise<void> {
-  const toggle = page.getByTestId("toggle-inspector");
-  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
-    await toggle.click();
-  }
-  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await closeWorkspacePanels(page);
 }
 
 async function chooseToolkit(page: Page, commandId: string, targetTestId: string): Promise<void> {
@@ -175,7 +152,7 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   // The model stays visible; the browser default responds to window width,
   // properties start open, and the agent workbench is an explicit review tab.
   await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
-  await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", String(page.viewportSize()!.width > 1100));
+  await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", String(page.viewportSize()!.width >= 1280));
   await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByTestId("viewport-canvas")).toBeVisible();
   await expect(page.getByTestId("agent-workbench-panel")).toBeHidden();
@@ -190,7 +167,7 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await page.getByTestId("layout-mode-grid").click();
   await expect(page.getByTestId("entity-grid")).toBeVisible();
   await expect(page.getByTestId("entity-grid-table-nodes")).toBeVisible();
-  await page.getByTestId("entity-grid-row-node:N-100").click();
+  await page.getByTestId("entity-grid-row-node-node:N-100").click();
   await expect(page.getByTestId("agent-focus-selection")).toContainText("node:N-100");
   await openNamedDisclosure(page.getByLabel("Property inspector"), "All properties");
   await expect(page.getByLabel("Property inspector")).toContainText("node:N-100");
@@ -240,7 +217,7 @@ test("DEC-077 solve temperature queues an explicit unit-bearing operation", asyn
   await page.goto("/");
   await ensureTreeExpanded(page);
   await ensureInspectorExpanded(page);
-  await page.getByTestId("tree-row-load:L-100").click();
+  await startPropertyTaskFromTreeEntity(page, "load", "load:L-100");
 
   const editorIntentPanel = page.getByTestId("editor-intent-panel");
   await editorIntentPanel
@@ -279,7 +256,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("Pa, model metadata");
   await ensureTreeExpanded(page);
   await ensureInspectorExpanded(page);
-  await page.getByTestId("tree-row-support:S-120").click();
+  await selectTreeEntity(page, "support", "support:S-120");
   await expect(page.getByTestId("delete-support-intent-panel")).toContainText("delete_support");
   await expect(page.getByTestId("delete-support-intent-panel")).toContainText("not_required_dimensionless");
   await expect(page.getByTestId("app-menu-bar")).toContainText("View");
@@ -318,7 +295,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   expect(compactJourneyGeometry.itemOverflow).toBe(0);
   expect(compactJourneyGeometry.dockBodyHeight).toBeGreaterThan(64);
   expect(compactJourneyGeometry.menuBarHeight).toBeGreaterThan(0);
-  await page.getByTestId("tree-row-node:N-110").click();
+  await startPropertyTaskFromTreeEntity(page, "node", "node:N-110");
   const editorIntentPanel = page.getByTestId("editor-intent-panel");
   await editorIntentPanel.getByTestId("editor-intent-field").selectOption("position.y");
   await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveValue("m");
@@ -336,7 +313,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
-  await page.getByTestId("tree-row-load:L-100").click();
+  await startPropertyTaskFromTreeEntity(page, "load", "load:L-100");
   await editorIntentPanel.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
   await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveValue("N/m");
   await expect(editorIntentPanel.getByLabel("New first primitive magnitude", { exact: true })).toBeVisible();
@@ -371,7 +348,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(page.getByTestId("load-manager-create-load-preview")).toContainText("primitive_loads=0");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-F300");
-  await expect(page.getByTestId("load-manager-create-primitive-load-case")).toHaveValue("load:L-100");
+  await expectVirtualTarget(page, "load-manager-create-primitive-load-case", "load:L-100");
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
     "op:load-manager-load:L-100-load:L-100-F300-primitive"
   );
@@ -383,7 +360,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await page.getByTestId("load-manager-create-primitive-category").selectOption("distributed_force");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-D300");
-  await expect(page.getByTestId("load-manager-create-primitive-pipe")).toHaveValue("pipe:P-100");
+  await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
     "op:load-manager-load:L-100-load:L-100-D300-primitive"
   );
@@ -392,7 +369,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await page.getByTestId("load-manager-create-primitive-category").selectOption("concentrated_moment");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-M300");
-  await expect(page.getByTestId("load-manager-create-primitive-node")).toHaveValue("node:N-100");
+  await expectVirtualTarget(page, "load-manager-create-primitive-node", "node:N-100");
   await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("rotation_z");
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
     "op:load-manager-load:L-100-load:L-100-M300-primitive"
@@ -402,7 +379,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await page.getByTestId("load-manager-create-primitive-category").selectOption("pressure");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-P300");
-  await expect(page.getByTestId("load-manager-create-primitive-pipe")).toHaveValue("pipe:P-100");
+  await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
   await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_x");
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
     "op:load-manager-load:L-100-load:L-100-P300-primitive"
@@ -412,7 +389,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await page.getByTestId("load-manager-create-primitive-category").selectOption("thermal");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-T300");
-  await expect(page.getByTestId("load-manager-create-primitive-pipe")).toHaveValue("pipe:P-100");
+  await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
   await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_z");
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
     "op:load-manager-load:L-100-load:L-100-T300-primitive"
@@ -422,7 +399,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await page.getByTestId("load-manager-create-primitive-category").selectOption("imposed_displacement");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-I300");
-  await expect(page.getByTestId("load-manager-create-primitive-support")).toHaveValue("support:S-100");
+  await expectVirtualTarget(page, "load-manager-create-primitive-support", "support:S-100");
   await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("UZ");
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
     "op:load-manager-load:L-100-load:L-100-I300-primitive"
@@ -518,13 +495,13 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-combination-delete-preview")).toContainText(
     "before=load:L-200 x 0.5; after=not_present; unit=none; dimensionless"
   );
-  await page.getByTestId("tree-row-node:N-120").click();
+  await selectTreeEntity(page, "node", "node:N-120");
   await expect(page.getByTestId("delete-node-intent-panel")).toContainText("delete_node");
   await expect(page.getByTestId("delete-node-intent-panel")).toContainText(
     "before=Riser elbow; x=3.2; y=2.4; z=0"
   );
   await expect(page.getByTestId("delete-node-intent-panel")).toContainText("after=not_present");
-  await page.getByTestId("tree-row-pipe:P-130").click();
+  await selectTreeEntity(page, "pipe", "pipe:P-130");
   await expect(page.getByTestId("delete-pipe-intent-panel")).toContainText("delete_pipe_run");
   await expect(page.getByTestId("delete-pipe-intent-panel")).toContainText(
     "before=Tie-in rise; node:N-130->node:N-140; material=material:invented-carbon-steel"
@@ -561,10 +538,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
 
   await ensurePipeEndpointPick(page, "viewport-pick-pipe-from");
   await page.getByTestId("viewport-select-node:N-100").click();
-  await expect(page.getByTestId("viewport-create-pipe-from")).toHaveValue("node:N-100");
+  await expectVirtualTarget(page, "viewport-create-pipe-from", "node:N-100");
   await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "true");
   await page.getByTestId("viewport-select-node:N-140").click();
-  await expect(page.getByTestId("viewport-create-pipe-to")).toHaveValue("node:N-140");
+  await expectVirtualTarget(page, "viewport-create-pipe-to", "node:N-140");
   await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "false");
 
   const before = await canvas.screenshot();
@@ -786,7 +763,8 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     diff: "node:V-001 nodes: not_present",
     reviewSequence: 1,
     appliedSequence: 1,
-    publishedTestId: "tree-row-node:V-001",
+    publishedType: "node",
+    publishedId: "node:V-001",
     publishedText: "Viewport node V-001"
   });
   await openWorkspaceSection(page, "solve");
@@ -797,8 +775,8 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   // engine in browser mode.
   await openWorkspaceSection(page, "loads");
   await page.getByTestId("load-manager-create-combination-basis").selectOption("result_state_subtraction");
-  await expect(page.getByTestId("load-manager-create-combination-minuend")).toHaveValue("load:L-100");
-  await page.getByTestId("load-manager-create-combination-subtrahend").selectOption("load:L-200");
+  await expectVirtualTarget(page, "load-manager-create-combination-minuend", "load:L-100");
+  await chooseVirtualTarget(page, "load-manager-create-combination-subtrahend", "load:L-200");
   await page.getByTestId("load-manager-create-combination-label").fill("Operating minus alternate subtraction");
   await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
     "before=not_present; after=combination:C-300; minuend=load:L-100; subtrahend=load:L-200; unit=none; dimensionless"
@@ -893,7 +871,8 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
     diff: "node:R2-100 nodes: not_present",
     reviewSequence: 1,
     appliedSequence: 1,
-    publishedTestId: "tree-row-node:R2-100",
+    publishedType: "node",
+    publishedId: "node:R2-100",
     publishedText: startNode.label
   });
 
@@ -906,7 +885,8 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
     diff: "node:R2-110 nodes: not_present",
     reviewSequence: 2,
     appliedSequence: 2,
-    publishedTestId: "tree-row-node:R2-110",
+    publishedType: "node",
+    publishedId: "node:R2-110",
     publishedText: loadedNode.label
   });
 
@@ -934,9 +914,9 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
   await page.getByTestId("viewport-create-pipe-id").fill(pipe.id);
   await page.getByTestId("viewport-create-pipe-label").fill(pipe.label);
-  await page.getByTestId("viewport-create-pipe-from").selectOption(pipe.from);
-  await page.getByTestId("viewport-create-pipe-to").selectOption(pipe.to);
-  await page.getByTestId("viewport-create-pipe-material").selectOption(pipe.material);
+  await chooseVirtualTarget(page, "viewport-create-pipe-from", pipe.from);
+  await chooseVirtualTarget(page, "viewport-create-pipe-to", pipe.to);
+  await chooseVirtualTarget(page, "viewport-create-pipe-material", pipe.material);
   await page.getByTestId("viewport-create-pipe-od").fill(String(pipe.section.outside_diameter.value));
   await page.getByTestId("viewport-create-pipe-wall").fill(String(pipe.section.wall_thickness.value));
   await page.getByTestId("viewport-create-pipe-yref-x").fill(String(pipe.y_reference.x));
@@ -950,7 +930,8 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
     diff: "pipe:R2-100 pipe_segments: not_present",
     reviewSequence: 3,
     appliedSequence: 5,
-    publishedTestId: "tree-row-pipe:R2-100",
+    publishedType: "pipe",
+    publishedId: "pipe:R2-100",
     publishedText: pipe.label
   });
 
@@ -960,7 +941,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("create-support-id")).toBeVisible();
   await page.getByTestId("create-support-id").fill(support.id);
   await page.getByTestId("create-support-label").fill(support.label);
-  await page.getByTestId("create-support-node").selectOption(support.node);
+  await chooseVirtualTarget(page, "create-support-node", support.node);
   for (const restraint of ["RX", "RY", "RZ"]) {
     await page.getByTestId(`create-support-restraint-${restraint}`).setChecked(true);
   }
@@ -980,10 +961,10 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
 
   const primitive = stepPayload("create_primitive_load", "load:R2-L-100-FY");
   await openWorkspaceSection(page, "loads");
-  await page.getByTestId("load-manager-create-primitive-load-case").selectOption(loadCase.id);
+  await chooseVirtualTarget(page, "load-manager-create-primitive-load-case", loadCase.id);
   await page.getByTestId("load-manager-create-primitive-category").selectOption(primitive.category);
   await page.getByTestId("load-manager-create-primitive-id").fill(primitive.id);
-  await page.getByTestId("load-manager-create-primitive-node").selectOption(primitive.target.node);
+  await chooseVirtualTarget(page, "load-manager-create-primitive-node", primitive.target.node);
   await page.getByTestId("load-manager-create-primitive-direction").selectOption(primitive.direction);
   await page.getByTestId("load-manager-create-primitive-magnitude").fill(String(primitive.magnitude.value));
   await page.getByTestId("load-manager-create-primitive-provenance").fill(primitive.provenance);
@@ -994,7 +975,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await openWorkspaceSection(page, "loads");
   await page.getByTestId("load-manager-create-combination-id").fill(combination.id);
   await page.getByTestId("load-manager-create-combination-label").fill(combination.label);
-  await page.getByTestId("load-manager-create-combination-load-case").selectOption(combination.terms[0].load_case);
+  await chooseVirtualTarget(page, "load-manager-create-combination-load-case", combination.terms[0].load_case);
   await page.getByTestId("load-manager-create-combination-factor").fill(String(combination.terms[0].factor));
   await page.getByTestId("load-manager-create-combination-provenance").fill(combination.provenance);
   await page.getByTestId("load-manager-create-combination-rationale").fill("A8 GUI replay of the A12 invented rehearsal.");
@@ -1690,7 +1671,8 @@ async function applyReviewedDraft(
     diff: string;
     reviewSequence: number;
     appliedSequence: number;
-    publishedTestId: string;
+    publishedType: TreeEntityType;
+    publishedId: string;
     publishedText: string;
   }
 ): Promise<void> {
@@ -1716,7 +1698,7 @@ async function applyReviewedDraft(
   await expect(applyPanel.getByTestId("operation-apply-message")).toContainText(
     `Applied reviewed ${expectation.operationId}`
   );
-  await expect(page.getByTestId(expectation.publishedTestId)).toContainText(expectation.publishedText);
+  await expectTreeEntity(page, expectation.publishedType, expectation.publishedId, expectation.publishedText);
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText(
     `0 queued; ${expectation.appliedSequence} applied`
   );

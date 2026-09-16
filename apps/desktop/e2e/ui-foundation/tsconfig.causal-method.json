@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": false,
+    "types": ["node"]
+  },
+  "files": [
+    "benchmark-harness.ts",
+    "candidate-server-response.ts",
+    "chromium-compositor-trace.ts",
+    "causal-method-contract.ts",
+    "causal-method-contract.spec.ts",
+    "causal-phase-journal.ts",
+    "causal-presentation-preflight.benchmark.ts",
+    "playwright.causal-method-contract.config.ts",
+    "causal-presentation-extractor.d.mts",
+    "lossless-trace-json.d.mts"
+  ]
+}

@@ -5,7 +5,7 @@ import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
 import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type {
   EditorOperationIntent,
   EditorOperationObjectType,
@@ -24,6 +24,7 @@ import {
 } from "../../services/unitCatalogService";
 import { entityLabel, selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
+import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import {
   buildCreateComponentIntent,
   componentDraftForKind,
@@ -36,6 +37,7 @@ import {
 } from "../component-creation/componentIntent";
 
 export function PropertyInspector({
+  getPreparationEpoch,
   model,
   onQueueIntent,
   onValidateIntent,
@@ -43,21 +45,31 @@ export function PropertyInspector({
   operationBusy = false,
   operationOutcomes = {},
   queuedIntents = [],
+  projectSessionGeneration = 0,
   selection,
-  selectionState
+  selectionState,
+  taskRequest
 }: {
+  getPreparationEpoch?: () => number;
   model: PreviewModel;
   onQueueIntent: (intent: EditorOperationIntent) => void;
   onValidateIntent?: (intent: EditorOperationIntent) => void;
-  onApplyIntent?: (intent: EditorOperationIntent) => void;
+  onApplyIntent?: (intent: EditorOperationIntent) => Promise<boolean>;
   operationBusy?: boolean;
   operationOutcomes?: Record<string, OperationOutcome>;
   queuedIntents?: EditorOperationIntent[];
+  projectSessionGeneration?: number;
   selection: EntityRef;
   selectionState?: OrderedSelectionState;
+  taskRequest?: Readonly<{ sequence: number; target: EntityRef; view: "properties" | "task"; focusTestId: string; elementId?: string }> | null;
 }) {
-  const properties = selectedProperties(model, selection);
-  const editableFields = useMemo(() => editorFieldOptions(model, selection), [model, selection]);
+  const [inspectorView, setInspectorView] = useState<"properties" | "task">("properties");
+  const [taskActive, setTaskActive] = useState(false);
+  const taskGenerationRef = useRef(0);
+  const [propertiesTarget, setPropertiesTarget] = useState<EntityRef>(() => ({ ...selection }));
+  const [draftTarget, setDraftTarget] = useState<EntityRef>(() => ({ ...selection }));
+  const properties = selectedProperties(model, propertiesTarget);
+  const editableFields = useMemo(() => editorFieldOptions(model, draftTarget), [draftTarget, model]);
   const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
   const [proposedValue, setProposedValue] = useState(editableFields[0]?.before ?? "");
   const [proposedUnit, setProposedUnit] = useState(editableFields[0]?.unit ?? "");
@@ -68,11 +80,23 @@ export function PropertyInspector({
   const [componentDraft, setComponentDraft] = useState(() =>
     defaultComponentDraft(model, selection, queuedIntents)
   );
+  const aggregateRefs = selectionState?.orderedKeys.flatMap((key) => {
+    const ref = entityRefFromKey(key);
+    return ref ? [ref] : [];
+  }) ?? [selection];
+  const multiSelection = aggregateRefs.length > 1;
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
-  const selectedNode = selection.type === "node" ? model.nodes.find((node) => node.id === selection.id) : null;
-  const selectedPipe = selection.type === "pipe" ? model.pipe_segments.find((pipe) => pipe.id === selection.id) : null;
-  const selectedSupport =
-    selection.type === "support" ? model.supports.find((support) => support.id === selection.id) : null;
+  const selectedPipe = propertiesTarget.type === "pipe" ? model.pipe_segments.find((pipe) => pipe.id === propertiesTarget.id) : null;
+  // Rich Properties controls follow their own explicit command/live-selection
+  // target. Inline Task mutations remain bound to the frozen Task target until
+  // that task is added, cancelled, or successfully applied.
+  const mutationTarget = inspectorView === "task" && taskActive ? draftTarget : propertiesTarget;
+  const mutationNode =
+    mutationTarget.type === "node" ? model.nodes.find((node) => node.id === mutationTarget.id) : null;
+  const mutationPipe =
+    mutationTarget.type === "pipe" ? model.pipe_segments.find((pipe) => pipe.id === mutationTarget.id) : null;
+  const mutationSupport =
+    mutationTarget.type === "support" ? model.supports.find((support) => support.id === mutationTarget.id) : null;
   const lengthBasis = describeUnitBasis(unitCatalogRoute, sectionDraft.lengthUnit, "length");
   const stressBasis = describeUnitBasis(unitCatalogRoute, materialDraft.stressUnit, "stress");
   const supportStiffnessBasis = describeUnitBasis(
@@ -111,9 +135,14 @@ export function PropertyInspector({
     "rotational_stiffness",
     "N*m/rad"
   );
+  const nodeTargetOptions = useMemo(() => model.nodes.map((node) => ({ value: node.id, label: node.label || node.id })), [model.nodes]);
+  const connectedPipeTargetOptions = useMemo(() => model.pipe_segments
+    .filter((pipe) => pipe.from === componentDraft.node || pipe.to === componentDraft.node)
+    .map((pipe) => ({ value: pipe.id, label: pipe.label || pipe.id, keywords: [pipe.from, pipe.to] })),
+  [componentDraft.node, model.pipe_segments]);
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
   const selectedFieldLabel = selectedField ? propertyLabel(selectedField) : "Property";
-  const requiredFlags = requiredFlagsForSelection(model, selection, properties);
+  const requiredFlags = requiredFlagsForSelection(model, propertiesTarget, properties);
   const selectedFieldUnitOptions = selectedField
     ? unitOptions(unitCatalogRoute, selectedField.dimension, selectedField.unit)
     : [];
@@ -127,7 +156,7 @@ export function PropertyInspector({
         proposedValue,
         proposedUnit,
         rationale,
-        selection,
+        selection: draftTarget,
         unitCatalogRoute
       })
     : null;
@@ -148,9 +177,9 @@ export function PropertyInspector({
         unitValidation: componentUnitValidation(componentDraft, unitCatalogRoute)
       })
     : null;
-  const nodeDeleteIntent = selectedNode ? buildDeleteNodeIntent(selectedNode, model) : null;
-  const pipeDeleteIntent = selectedPipe ? buildDeletePipeIntent(selectedPipe, model) : null;
-  const supportDeleteIntent = selectedSupport ? buildDeleteSupportIntent(selectedSupport, model) : null;
+  const nodeDeleteIntent = mutationNode ? buildDeleteNodeIntent(mutationNode, model) : null;
+  const pipeDeleteIntent = mutationPipe ? buildDeletePipeIntent(mutationPipe, model) : null;
+  const supportDeleteIntent = mutationSupport ? buildDeleteSupportIntent(mutationSupport, model) : null;
   const inlineValidationOutcome = operationIntent
     ? matchingInlineValidationOutcome(operationOutcomes[operationIntentKey(operationIntent)], operationIntent)
     : null;
@@ -162,29 +191,62 @@ export function PropertyInspector({
   );
   const currentIntentComplete = Boolean(operationIntent && fieldChanged && operationIntentIsComplete(operationIntent));
 
-  useEffect(() => {
-    const firstField = editableFields[0];
+  useLayoutEffect(() => {
+    taskGenerationRef.current += 1;
+    const nextTarget = { ...selection };
+    const firstField = editorFieldOptions(model, nextTarget)[0];
+    setDraftTarget(nextTarget);
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(firstField?.before ?? "");
     setProposedUnit(firstField?.unit ?? "");
     setRationale("user_entered_preview_change");
-  }, [editableFields, selection.id]);
-
-  useEffect(() => {
     setSupportDraft(defaultSupportDraft(model, selection, queuedIntents));
-  }, [model.project.id, model.nodes.length, model.supports.length, selection.id]);
-
-  useEffect(() => {
     setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
-  }, [model.project.id, model.nodes.length, model.pipe_segments.length, model.components.length, selection.id]);
-
-  useEffect(() => {
     setMaterialDraft(defaultMaterialDraft(model, queuedIntents));
-  }, [model.project.id, model.materials?.length]);
-
-  useEffect(() => {
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
-  }, [model.project.id]);
+    setInspectorView("properties");
+    setTaskActive(false);
+  }, [projectSessionGeneration]);
+
+  useLayoutEffect(() => {
+    if (!multiSelection) setPropertiesTarget({ ...selection });
+  }, [multiSelection, selection.id, selection.type]);
+
+  useLayoutEffect(() => {
+    if (!taskRequest) return;
+    if (taskRequest.view === "task") {
+      taskGenerationRef.current += 1;
+      const nextTarget = { ...taskRequest.target };
+      const firstField = editorFieldOptions(model, nextTarget)[0];
+      setDraftTarget(nextTarget);
+      setSelectedFieldPath(firstField?.fieldPath ?? "");
+      setProposedValue(firstField?.before ?? "");
+      setProposedUnit(firstField?.unit ?? "");
+      setRationale("user_entered_preview_change");
+      setTaskActive(true);
+    } else if (!multiSelection) {
+      setPropertiesTarget({ ...taskRequest.target });
+    }
+    setInspectorView(taskRequest.view);
+  }, [taskRequest?.sequence]);
+
+  useLayoutEffect(() => {
+    if (!taskRequest || inspectorView !== taskRequest.view) return;
+    if (taskRequest.view === "task" &&
+        (!taskActive || draftTarget.type !== taskRequest.target.type || draftTarget.id !== taskRequest.target.id)) return;
+    if (taskRequest.view === "properties" &&
+        (propertiesTarget.type !== taskRequest.target.type || propertiesTarget.id !== taskRequest.target.id)) return;
+    const target = taskRequest.elementId
+      ? document.getElementById(taskRequest.elementId)
+      : taskRequest.focusTestId
+        ? document.querySelector<HTMLElement>(`[data-testid="${taskRequest.focusTestId}"]`)
+        : null;
+    for (let parent = target?.parentElement; parent; parent = parent.parentElement) {
+      if (parent instanceof HTMLDetailsElement) parent.open = true;
+    }
+    target?.focus();
+    target?.scrollIntoView?.({ block: "nearest" });
+  }, [draftTarget.id, draftTarget.type, inspectorView, propertiesTarget.id, propertiesTarget.type, taskActive, taskRequest?.sequence]);
 
   useEffect(() => {
     let active = true;
@@ -205,54 +267,89 @@ export function PropertyInspector({
   }, []);
 
   function handleFieldChange(fieldPath: string) {
+    taskGenerationRef.current += 1;
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
     setSelectedFieldPath(fieldPath);
     setProposedValue(nextField?.before ?? "");
     setProposedUnit(nextField?.unit ?? "");
   }
 
+  function beginPropertyTaskFromSelection() {
+    taskGenerationRef.current += 1;
+    const nextTarget = { ...selection };
+    const firstField = editorFieldOptions(model, nextTarget)[0];
+    setDraftTarget(nextTarget);
+    setSelectedFieldPath(firstField?.fieldPath ?? "");
+    setProposedValue(firstField?.before ?? "");
+    setProposedUnit(firstField?.unit ?? "");
+    setRationale("user_entered_preview_change");
+    setInspectorView("task");
+    setTaskActive(true);
+  }
+
+  function cancelPropertyTask() {
+    taskGenerationRef.current += 1;
+    const firstField = editorFieldOptions(model, draftTarget)[0];
+    setSelectedFieldPath(firstField?.fieldPath ?? "");
+    setProposedValue(firstField?.before ?? "");
+    setProposedUnit(firstField?.unit ?? "");
+    setRationale("user_entered_preview_change");
+    setTaskActive(false);
+  }
+
   function handleQueueIntent() {
-    if (!operationIntent || !fieldChanged) return;
-    onQueueIntent(operationIntent);
+    if (multiSelection || !operationIntent || !fieldChanged) return;
+    onQueueIntent(deepFreezeIntent(structuredClone(operationIntent)));
+  }
+
+  async function handleApplyCurrentIntent() {
+    if (multiSelection || !operationIntent || !onApplyIntent) return;
+    const taskGeneration = taskGenerationRef.current;
+    try {
+      if (await onApplyIntent(operationIntent) && taskGenerationRef.current === taskGeneration) setTaskActive(false);
+    } catch {
+      // The App publishes operation failure detail. Keep this exact frozen
+      // draft active so the user can inspect, revise, or retry it.
+    }
   }
 
   function handleQueueSupportIntent() {
-    if (!supportCreateIntent) return;
+    if (multiSelection || !supportCreateIntent) return;
     onQueueIntent(supportCreateIntent);
-    setSupportDraft(defaultSupportDraftWithReserved(model, selection, [...queuedIntents, supportCreateIntent]));
+    setSupportDraft(defaultSupportDraftWithReserved(model, propertiesTarget, [...queuedIntents, supportCreateIntent]));
   }
 
   function handleQueueComponentIntent() {
-    if (!componentCreateIntent) return;
+    if (multiSelection || !componentCreateIntent) return;
     onQueueIntent(componentCreateIntent);
     setComponentDraft(
-      defaultComponentDraft(model, selection, [...queuedIntents, componentCreateIntent], componentDraft.kind)
+      defaultComponentDraft(model, propertiesTarget, [...queuedIntents, componentCreateIntent], componentDraft.kind)
     );
   }
 
   function handleQueueDeleteSupportIntent() {
-    if (!supportDeleteIntent) return;
+    if (multiSelection || !supportDeleteIntent) return;
     onQueueIntent(supportDeleteIntent);
   }
 
   function handleQueueDeleteNodeIntent() {
-    if (!nodeDeleteIntent) return;
+    if (multiSelection || !nodeDeleteIntent) return;
     onQueueIntent(nodeDeleteIntent);
   }
 
   function handleQueueDeletePipeIntent() {
-    if (!pipeDeleteIntent) return;
+    if (multiSelection || !pipeDeleteIntent) return;
     onQueueIntent(pipeDeleteIntent);
   }
 
   function handleQueueMaterialIntent() {
-    if (!materialCreateIntent) return;
+    if (multiSelection || !materialCreateIntent) return;
     onQueueIntent(materialCreateIntent);
     setMaterialDraft(defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent]));
   }
 
   function handleQueueSectionIntent() {
-    if (!sectionCreateIntent) return;
+    if (multiSelection || !sectionCreateIntent) return;
     onQueueIntent(sectionCreateIntent);
     setSectionDraft(defaultSectionDraftWithReserved(model, [...queuedIntents, sectionCreateIntent]));
   }
@@ -285,32 +382,32 @@ export function PropertyInspector({
     });
   }
 
-  const aggregateRefs = selectionState?.orderedKeys.flatMap((key) => {
-    const ref = entityRefFromKey(key);
-    return ref ? [ref] : [];
-  }) ?? [selection];
-  if (aggregateRefs.length > 1) {
-    const counts = new Map<EntityRef["type"], number>();
-    for (const ref of aggregateRefs) counts.set(ref.type, (counts.get(ref.type) ?? 0) + 1);
-    return (
-      <div className="panel inspector aggregate-inspector" data-testid="property-inspector" role="region" aria-label="Property inspector">
-        <h2>{aggregateRefs.length} selected items</h2>
-        <p role="status">Aggregate inspection is read-only. Choose one primary item to edit its engineering properties.</p>
-        <dl>
-          {[...counts].map(([type, count]) => <div key={type}><dt>{type}</dt><dd>{count}</dd></div>)}
-          <div><dt>Primary</dt><dd>{selection.type}: {selection.id}</dd></div>
-        </dl>
-      </div>
-    );
-  }
+  const aggregateCounts = new Map<EntityRef["type"], number>();
+  for (const ref of aggregateRefs) aggregateCounts.set(ref.type, (aggregateCounts.get(ref.type) ?? 0) + 1);
+  const aggregateProperties = multiSelection && inspectorView === "properties";
+  const inspectorTarget = inspectorView === "task" && taskActive ? draftTarget : propertiesTarget;
 
   return (
     <div className="panel inspector" data-testid="property-inspector" role="region" aria-label="Property inspector">
-      <h2>{entityLabel(model, selection)}</h2>
+      <h2>{aggregateProperties ? `${aggregateRefs.length} selected items` : <>{entityLabel(model, inspectorTarget)} <span className="typed-identity">— {inspectorTarget.type}: {inspectorTarget.id}</span></>}</h2>
+      <div className="inspector-view-tabs" role="tablist" aria-label="Inspector views">
+        <button aria-controls="inspector-properties-view" aria-selected={inspectorView === "properties"} onClick={() => setInspectorView("properties")} role="tab" type="button">Properties</button>
+        <button aria-controls="inspector-task-view" aria-selected={inspectorView === "task"} onClick={() => setInspectorView("task")} role="tab" type="button">Task</button>
+      </div>
+      <div hidden={inspectorView !== "properties"} id="inspector-properties-view" role="tabpanel" tabIndex={0}>
+      {aggregateProperties ? <div className="aggregate-inspector" data-testid="aggregate-property-inspector">
+        <p role="status">Aggregate inspection is read-only. Existing Properties drafts remain attached to their typed target.</p>
+        <button disabled type="button" aria-describedby="aggregate-property-task-reason">Start property task</button>
+        <p id="aggregate-property-task-reason">Property mutation is unavailable for multi-selection. Reduce the selection to one typed entity.</p>
+        <dl>
+          {[...aggregateCounts].map(([type, count]) => <div key={type}><dt>{type}</dt><dd>{count}</dd></div>)}
+          <div><dt>Primary</dt><dd>{selection.type}: {selection.id}</dd></div>
+        </dl>
+      </div> : <>
       <details className="inspector-details">
         <summary>All properties</summary>
         <dl>
-        {selectedPropertyRows(model, selection).map(([label, value]) => (
+        {selectedPropertyRows(model, propertiesTarget).map(([label, value]) => (
           <div key={label}>
             <dt>{label}</dt>
             <dd>{value.quantities ? value.quantities.map((quantity, index) => <span key={index}>{quantity.label ? `${quantity.label}=` : ""}<QuantityReadout quantity={quantity} />{index < value.quantities!.length - 1 ? ", " : ""}</span>) : value.text}</dd>
@@ -325,7 +422,18 @@ export function PropertyInspector({
           <RequiredFlagList flags={requiredFlags} />
         </section>
       ) : null}
-      <section className="editor-intent" aria-label="Editor operation intent" data-testid="editor-intent-panel">
+      </>}
+      </div>
+      <section className="editor-intent" aria-label="Editor operation intent" data-testid="editor-intent-panel" hidden={inspectorView !== "task"} id="inspector-task-view" role="tabpanel" tabIndex={0}>
+        {!taskActive ? <div className="inspector-task-empty" data-testid="inspector-task-empty">
+          <p>Current selection: <strong>{selection.type}: {selection.id}</strong></p>
+          <button type="button" data-testid="inspector-start-task" disabled={multiSelection} aria-describedby={multiSelection ? "multi-selection-task-reason" : undefined} onClick={beginPropertyTaskFromSelection}>Start task from current selection</button>
+          {multiSelection ? <p id="multi-selection-task-reason" role="status">Property mutation is unavailable for multi-selection. Reduce the selection to one typed entity before starting a task.</p> : null}
+        </div> : <>
+        <div className="inspector-task-target">
+          <span data-testid="inspector-frozen-task-target">Draft target: {draftTarget.type}: {draftTarget.id}</span>
+        </div>
+        {multiSelection ? <p id="multi-selection-task-reason" role="status">Property mutation is unavailable for multi-selection. The existing frozen draft is retained; reduce the selection to one typed entity before adding, reviewing, or applying it.</p> : null}
         {operationIntent ? <h3><Pencil size={14} aria-hidden="true" /> Edit {selectedFieldLabel.toLowerCase()}</h3> : null}
         {operationIntent ? (
           <>
@@ -355,7 +463,10 @@ export function PropertyInspector({
                   aria-label={`New ${selectedFieldLabel.toLowerCase()}`}
                   data-testid="editor-intent-value"
                   inputMode={selectedField?.valueKind === "quantity" ? "decimal" : "text"}
-                  onChange={(event) => setProposedValue(event.target.value)}
+                  onChange={(event) => {
+                    taskGenerationRef.current += 1;
+                    setProposedValue(event.target.value);
+                  }}
                   value={proposedValue}
                 />
               </label>
@@ -364,11 +475,17 @@ export function PropertyInspector({
                   <span>Unit</span>
                   {selectedField.fieldPath.match(/^section\.(material_density|contents_density|insulation_thickness|insulation_density)\.value$/) ? <input
                     aria-label="Proposed editor unit" data-testid="editor-intent-unit" list="mass-unit-options" placeholder="Enter a unit"
-                    value={proposedUnit} onChange={(event) => setProposedUnit(event.target.value)}
+                    value={proposedUnit} onChange={(event) => {
+                      taskGenerationRef.current += 1;
+                      setProposedUnit(event.target.value);
+                    }}
                   /> : <select
                     aria-label="Proposed editor unit"
                     data-testid="editor-intent-unit"
-                    onChange={(event) => setProposedUnit(event.target.value)}
+                    onChange={(event) => {
+                      taskGenerationRef.current += 1;
+                      setProposedUnit(event.target.value);
+                    }}
                     value={proposedUnit || selectedField.unit}
                   >
                     {selectedFieldUnitOptions.map((option) => (
@@ -380,36 +497,39 @@ export function PropertyInspector({
                   <datalist id="mass-unit-options">{selectedFieldUnitOptions.filter((option) => option.symbol && option.symbol !== "TBD").map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}</datalist>
                 </label>
               ) : null}
-              <button
-                data-testid="queue-editor-intent"
-                disabled={!fieldChanged}
-                onClick={handleQueueIntent}
-                title="Add this change to the review queue"
-                type="button"
-              >
-                <ListPlus size={14} aria-hidden="true" />
-                Queue change
-              </button>
-              <button
-                data-testid="validate-editor-intent-inline"
-                disabled={!fieldChanged || operationBusy || !onValidateIntent}
-                onClick={() => operationIntent && onValidateIntent?.(operationIntent)}
-                title="Validate without applying"
-                type="button"
-              >
-                <SearchCheck size={14} aria-hidden="true" />
-                Validate
-              </button>
-              <button
-                data-testid="apply-editor-intent-inline"
-                disabled={!currentIntentComplete || operationBusy || !onApplyIntent}
-                onClick={() => operationIntent && onApplyIntent?.(operationIntent)}
-                title="Apply this exact displayed intent through the operation service"
-                type="button"
-              >
-                <PlayCircle size={14} aria-hidden="true" />
-                Apply
-              </button>
+              <footer className="task-action-footer" aria-label="Task actions" data-testid="task-action-footer">
+                <button
+                  data-testid="queue-editor-intent"
+                  disabled={multiSelection || !fieldChanged}
+                  onClick={handleQueueIntent}
+                  title="Add this change to the review queue"
+                  type="button"
+                >
+                  <ListPlus size={14} aria-hidden="true" />
+                  Add
+                </button>
+                <button data-testid="cancel-editor-intent" onClick={cancelPropertyTask} type="button">Cancel</button>
+                <button
+                  data-testid="validate-editor-intent-inline"
+                  disabled={multiSelection || !fieldChanged || operationBusy || !onValidateIntent}
+                  onClick={() => operationIntent && onValidateIntent?.(operationIntent)}
+                  title="Validate without applying"
+                  type="button"
+                >
+                  <SearchCheck size={14} aria-hidden="true" />
+                  Review
+                </button>
+                <button
+                  data-testid="apply-editor-intent-inline"
+                  disabled={multiSelection || !currentIntentComplete || operationBusy || !onApplyIntent}
+                  onClick={() => { void handleApplyCurrentIntent(); }}
+                  title="Apply this exact displayed intent through the operation service"
+                  type="button"
+                >
+                  <PlayCircle size={14} aria-hidden="true" />
+                  Apply
+                </button>
+              </footer>
             </div>
             <details className="inspector-details">
               <summary>Operation details</summary>
@@ -418,7 +538,10 @@ export function PropertyInspector({
                 <input
                   aria-label="Editor intent rationale"
                   data-testid="editor-intent-rationale"
-                  onChange={(event) => setRationale(event.target.value)}
+                  onChange={(event) => {
+                    taskGenerationRef.current += 1;
+                    setRationale(event.target.value);
+                  }}
                   value={rationale}
                 />
               </label>
@@ -432,25 +555,27 @@ export function PropertyInspector({
             Select a model entity to edit its properties.
           </p>
         )}
+        </>}
       </section>
+      <div key={`rich-properties-session:${projectSessionGeneration}`} hidden={inspectorView !== "properties" || multiSelection}>
       <details className="inspector-details">
         <summary>Sources and units</summary>
-        <ProvenanceBlock rows={entityProvenanceRows(model, selection)} />
+        <ProvenanceBlock rows={entityProvenanceRows(model, propertiesTarget)} />
         <UnitCatalogPanel
           route={unitCatalogRoute}
           bases={[lengthBasis, stressBasis, supportStiffnessBasis, thermalExpansionBasis]}
         />
       </details>
-      {["support", "node", "project"].includes(selection.type) ? (
-        <details className="inspector-details" open={selection.type === "support"}>
-          <summary>{selection.type === "support" ? "Support configuration" : "New support configuration"}</summary>
-          <SupportConfigurationForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+      {["support", "node", "project"].includes(propertiesTarget.type) ? (
+        <details className="inspector-details" open={propertiesTarget.type === "support"}>
+          <summary>{propertiesTarget.type === "support" ? "Support configuration" : "New support configuration"}</summary>
+          <SupportConfigurationForm getPreparationEpoch={getPreparationEpoch} key={`support-properties:${projectSessionGeneration}`} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
         </details>
       ) : null}
-      <MaterialTemperatureForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
-      <WindExposureForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
-      <SectionAssignment model={model} selection={selection} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
-      <GuardedRemoval model={model} selection={selection} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+      <MaterialTemperatureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <WindExposureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <SectionAssignment model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <GuardedRemoval model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <details className="inspector-details">
         <summary>New section</summary>
         <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
@@ -530,7 +655,7 @@ export function PropertyInspector({
           </label>
           <button
             data-testid="queue-create-section-intent"
-            disabled={!sectionCreateIntent}
+            disabled={multiSelection || !sectionCreateIntent}
             onClick={handleQueueSectionIntent}
             title="Queue section create intent"
             type="button"
@@ -635,7 +760,7 @@ export function PropertyInspector({
           </label>
           <button
             data-testid="queue-create-material-intent"
-            disabled={!materialCreateIntent}
+            disabled={multiSelection || !materialCreateIntent}
             onClick={handleQueueMaterialIntent}
             title="Queue material create intent"
             type="button"
@@ -669,21 +794,7 @@ export function PropertyInspector({
               value={supportDraft.label}
             />
           </label>
-          <label>
-            <span>Node</span>
-            <select
-              aria-label="New support node"
-              data-testid="create-support-node"
-              onChange={(event) => updateSupportDraft("node", event.target.value)}
-              value={supportDraft.node}
-            >
-              {model.nodes.map((node) => (
-                <option key={node.id} value={node.id}>
-                  {node.label} ({node.id})
-                </option>
-              ))}
-            </select>
-          </label>
+          <VirtualTargetPicker label="New support node" testId="create-support-node" options={nodeTargetOptions} value={supportDraft.node} onChange={(value) => updateSupportDraft("node", value)} />
           <div className="editor-intent-checkbox-grid" aria-label="New support restraints">
             {RESTRAINT_OPTIONS.map((restraint) => (
               <label key={restraint}>
@@ -733,7 +844,7 @@ export function PropertyInspector({
           </label>
           <button
             data-testid="queue-create-support-intent"
-            disabled={!supportCreateIntent}
+            disabled={multiSelection || !supportCreateIntent}
             onClick={handleQueueSupportIntent}
             title="Queue support create intent"
             type="button"
@@ -782,48 +893,10 @@ export function PropertyInspector({
               {creatableComponentKinds.map((kind) => <option key={kind} value={kind}>{kind}</option>)}
             </select>
           </label>
-          <label>
-            <span>Node</span>
-            <select
-              aria-label="New component node"
-              data-testid="create-component-node"
-              onChange={(event) =>
-                setComponentDraft((current) => componentDraftForNode(model, current, event.target.value))
-              }
-              value={componentDraft.node}
-            >
-              {model.nodes.map((node) => <option key={node.id} value={node.id}>{node.label} ({node.id})</option>)}
-            </select>
-          </label>
-          <label>
-            <span>{componentDraft.kind === "tee" ? "Header pipe" : "Realized pipe"}</span>
-            <select
-              aria-label={componentDraft.kind === "tee" ? "New tee header pipe" : "New component realized pipe"}
-              data-testid="create-component-pipe"
-              onChange={(event) => updateComponentDraft("primaryPipeRef", event.target.value)}
-              value={componentDraft.primaryPipeRef}
-            >
-              <option value="">Select connected pipe</option>
-              {model.pipe_segments
-                .filter((pipe) => pipe.from === componentDraft.node || pipe.to === componentDraft.node)
-                .map((pipe) => <option key={pipe.id} value={pipe.id}>{pipe.label} ({pipe.id})</option>)}
-            </select>
-          </label>
+          <VirtualTargetPicker label="New component node" testId="create-component-node" options={nodeTargetOptions} value={componentDraft.node} onChange={(value) => setComponentDraft((current) => componentDraftForNode(model, current, value))} />
+          <VirtualTargetPicker label={componentDraft.kind === "tee" ? "New tee header pipe" : "New component realized pipe"} testId="create-component-pipe" options={connectedPipeTargetOptions} value={componentDraft.primaryPipeRef} onChange={(value) => updateComponentDraft("primaryPipeRef", value)} />
           {componentDraft.kind === "tee" ? (
-            <label>
-              <span>Branch pipe</span>
-              <select
-                aria-label="New tee branch pipe"
-                data-testid="create-component-secondary-pipe"
-                onChange={(event) => updateComponentDraft("secondaryPipeRef", event.target.value)}
-                value={componentDraft.secondaryPipeRef}
-              >
-                <option value="">Select connected branch pipe</option>
-                {model.pipe_segments
-                  .filter((pipe) => pipe.from === componentDraft.node || pipe.to === componentDraft.node)
-                  .map((pipe) => <option key={pipe.id} value={pipe.id}>{pipe.label} ({pipe.id})</option>)}
-              </select>
-            </label>
+            <VirtualTargetPicker label="New tee branch pipe" testId="create-component-secondary-pipe" options={connectedPipeTargetOptions} value={componentDraft.secondaryPipeRef} onChange={(value) => updateComponentDraft("secondaryPipeRef", value)} />
           ) : null}
           {componentDraft.kind === "bend" ? (
             <>
@@ -899,7 +972,7 @@ export function PropertyInspector({
           </label>
           <button
             data-testid="queue-create-component-intent"
-            disabled={!componentCreateIntent}
+            disabled={multiSelection || !componentCreateIntent}
             onClick={handleQueueComponentIntent}
             title={`Queue explicit ${componentDraft.kind} component creation intent`}
             type="button"
@@ -917,6 +990,7 @@ export function PropertyInspector({
           <div className="editor-intent-controls">
             <button
               data-testid="queue-delete-node-intent"
+              disabled={multiSelection}
               onClick={handleQueueDeleteNodeIntent}
               title="Queue node delete intent"
               type="button"
@@ -934,6 +1008,7 @@ export function PropertyInspector({
           <div className="editor-intent-controls">
             <button
               data-testid="queue-delete-pipe-intent"
+              disabled={multiSelection}
               onClick={handleQueueDeletePipeIntent}
               title="Queue pipe delete intent"
               type="button"
@@ -951,6 +1026,7 @@ export function PropertyInspector({
           <div className="editor-intent-controls">
             <button
               data-testid="queue-delete-support-intent"
+              disabled={multiSelection}
               onClick={handleQueueDeleteSupportIntent}
               title="Queue support delete intent"
               type="button"
@@ -962,6 +1038,7 @@ export function PropertyInspector({
           <OperationIntentPreview intent={supportDeleteIntent} />
         </section>
       ) : null}
+      </div>
     </div>
   );
 }
@@ -1512,7 +1589,7 @@ function unitCatalogStatus(route: UnitCatalogRoute | null): string {
 }
 
 function editorFieldOptions(model: PreviewModel, selection: EntityRef): EditableField[] {
-  const material = model.materials?.find((item) => item.id === selection.id);
+  const material = selection.type === "material" ? model.materials?.find((item) => item.id === selection.id) : undefined;
   if (material) {
     return [
       scalarField("Label", "label", material.label, "Material", "dimensionless", "none", "material label only"),
@@ -1558,7 +1635,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
     ];
   }
 
-  const node = model.nodes.find((item) => item.id === selection.id);
+  const node = selection.type === "node" ? model.nodes.find((item) => item.id === selection.id) : undefined;
   if (node) {
     return [
       scalarField("Label", "label", node.label, "Node", "dimensionless", "none", "node label only"),
@@ -1604,7 +1681,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
     ];
   }
 
-  const pipe = model.pipe_segments.find((item) => item.id === selection.id);
+  const pipe = selection.type === "pipe" ? model.pipe_segments.find((item) => item.id === selection.id) : undefined;
   if (pipe) {
     return [
       scalarField("Label", "label", pipe.label, "Element", "dimensionless", "none", "pipe segment label only"),
@@ -1657,7 +1734,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
     ].filter((field) => !pipe.section_ref || !["section.outside_diameter.value", "section.wall_thickness.value"].includes(field.fieldPath));
   }
 
-  const support = model.supports.find((item) => item.id === selection.id);
+  const support = selection.type === "support" ? model.supports.find((item) => item.id === selection.id) : undefined;
   if (support) {
     return [
       scalarField(
@@ -1703,7 +1780,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
     ];
   }
 
-  const component = model.components.find((item) => item.id === selection.id);
+  const component = selection.type === "component" ? model.components.find((item) => item.id === selection.id) : undefined;
   if (component) {
     const fields: EditableField[] = [
       scalarField("Label", "label", component.label, "Component", "dimensionless", "none", "component label only"),
@@ -2079,7 +2156,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
     return fields;
   }
 
-  const loadCase = model.load_cases.find((item) => item.id === selection.id);
+  const loadCase = selection.type === "load" ? model.load_cases.find((item) => item.id === selection.id) : undefined;
   if (loadCase) {
     const firstLoad = loadCase.primitive_loads?.[0] ?? {};
     const firstMagnitude = firstLoad.magnitude as { value?: unknown; unit?: unknown } | undefined;
@@ -2230,7 +2307,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
     ];
   }
 
-  const combination = model.combinations?.find((item) => item.id === selection.id);
+  const combination = selection.type === "combination" ? model.combinations?.find((item) => item.id === selection.id) : undefined;
   if (combination) {
     return [
       scalarField(
@@ -2358,7 +2435,7 @@ function buildOperationIntent({
   selection: EntityRef;
   unitCatalogRoute: UnitCatalogRoute | null;
 }): EditorOperationIntent {
-  const operationToken = `${safeToken(selection.id)}-${safeToken(field.fieldPath)}`;
+  const operationToken = `${selection.type}-${safeToken(selection.id)}-${safeToken(field.fieldPath)}`;
   const intentUnit = field.unitEditable ? proposedUnit.trim() || field.unit : field.unit;
   const changeAfter = field.unitEditable
     ? JSON.stringify({
@@ -3080,4 +3157,13 @@ function shortEntityToken(value: string): string {
 
 function safeToken(value: string): string {
   return value.replace(/[^A-Za-z0-9_.:-]+/g, "-");
+}
+
+function deepFreezeIntent(intent: EditorOperationIntent): EditorOperationIntent {
+  const visit = (value: unknown): unknown => {
+    if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
+    for (const child of Object.values(value as Record<string, unknown>)) visit(child);
+    return Object.freeze(value);
+  };
+  return visit(intent) as EditorOperationIntent;
 }

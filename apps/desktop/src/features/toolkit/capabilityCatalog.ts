@@ -5,6 +5,7 @@ export type ToolkitRoute = {
   focusTestId: string;
   elementId?: string;
   tool?: "node" | "pipe" | "component";
+  inspectorView?: "properties" | "task";
 };
 export type ToolkitCapability = {
   id: string;
@@ -55,6 +56,7 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     description: "Choose bend, tee, reducer, valve, flange or expansion joint, then enter geometry and provenance.",
     route: {
       surface: "inspector",
+      inspectorView: "properties",
       focusTestId: "create-component-kind"
     }
   },
@@ -77,6 +79,7 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     requires: "support-context",
     route: {
       surface: "inspector",
+      inspectorView: "properties",
       focusTestId: "",
       elementId: "rich-support-form"
     }
@@ -91,6 +94,7 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     requires: "support-context",
     route: {
       surface: "inspector",
+      inspectorView: "properties",
       focusTestId: "",
       elementId: "rich-support-form"
     }
@@ -105,6 +109,7 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     requires: "support-context",
     route: {
       surface: "inspector",
+      inspectorView: "properties",
       focusTestId: "",
       elementId: "rich-support-form"
     }
@@ -127,6 +132,7 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     description: "Create explicit elastic, shear and thermal properties with provenance.",
     route: {
       surface: "inspector",
+      inspectorView: "properties",
       focusTestId: "create-material-id"
     }
   },
@@ -140,6 +146,7 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     requires: "material",
     route: {
       surface: "inspector",
+      inspectorView: "properties",
       focusTestId: "",
       elementId: "temperature-table"
     }
@@ -153,6 +160,7 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     description: "Create a section; use the model tree grid to edit the shared record.",
     route: {
       surface: "inspector",
+      inspectorView: "properties",
       focusTestId: "create-section-id"
     }
   },
@@ -166,6 +174,7 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     requires: "pipe",
     route: {
       surface: "inspector",
+      inspectorView: "properties",
       focusTestId: "",
       elementId: "section-assignment"
     }
@@ -225,6 +234,7 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     requires: "load",
     route: {
       surface: "inspector",
+      inspectorView: "task",
       focusTestId: "editor-intent-field"
     }
   },
@@ -238,6 +248,7 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     requires: "wind",
     route: {
       surface: "inspector",
+      inspectorView: "properties",
       focusTestId: "",
       elementId: "wind-exposure-form"
     }
@@ -252,6 +263,7 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     requires: "load",
     route: {
       surface: "inspector",
+      inspectorView: "task",
       focusTestId: "editor-intent-field"
     }
   },
@@ -286,6 +298,7 @@ export const toolkitCapabilities: readonly ToolkitCapability[] = [
     requires: "removable",
     route: {
       surface: "inspector",
+      inspectorView: "properties",
       focusTestId: ""
     }
   },
@@ -363,11 +376,36 @@ export const toolkitRoadmap = ["Node renumbering", "Snubbers", "Cold spring"] as
 export const toolkitGroups: readonly ToolkitGroup[] = ["Build", "Supports", "Properties", "Loads", "Edit", "Select and View", "Review"];
 export type ToolkitContext = {
   selection: EntityRef;
+  selectionCardinality: number;
   canUndo: boolean;
   canRedo: boolean;
   busy: boolean;
   windConfigured?: boolean;
 };
+
+const singleTargetMutationIds = new Set([
+  "build.node",
+  "build.pipe",
+  "build.component",
+  "build.split",
+  "supports.restraint",
+  "supports.hanger",
+  "supports.nonlinear",
+  "supports.boundary",
+  "properties.material",
+  "properties.temperature",
+  "properties.section",
+  "properties.assign-section",
+  "properties.hanger-library",
+  "loads.cases",
+  "loads.primitive",
+  "loads.wind",
+  "loads.wind-exposure",
+  "loads.seismic",
+  "loads.combinations",
+  "edit.remove"
+]);
+
 export function capabilityAvailability(capability: ToolkitCapability, context: ToolkitContext): {
   enabled: boolean;
   reason: string;
@@ -377,6 +415,10 @@ export function capabilityAvailability(capability: ToolkitCapability, context: T
       enabled: false,
     reason: capability.description
     };
+  if (context.selectionCardinality > 1 && singleTargetMutationIds.has(capability.id)) return {
+    enabled: false,
+    reason: "This command changes one typed target. Reduce the selection to one item before starting it."
+  };
   if (capability.history && context.busy)
     return {
       enabled: false,
@@ -432,6 +474,7 @@ export function capabilityRoute(capability: ToolkitCapability, context: ToolkitC
     return undefined;
   return capability.requires === "removable" ? {
     surface: "inspector",
+    inspectorView: "properties",
     focusTestId: ["material", "section", "component"].includes(context.selection.type) ? "guarded-removal-panel" : `queue-delete-${context.selection.type}-intent`
   } : capability.route;
 }

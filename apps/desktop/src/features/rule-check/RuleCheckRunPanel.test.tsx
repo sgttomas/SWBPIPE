@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import { RuleCheckRunPanel } from "./RuleCheckRunPanel";
@@ -92,6 +92,16 @@ function mockCatalogAndRuleRun(result: unknown) {
     if (command === "run_rule_checks") return Promise.resolve(result);
     return Promise.resolve(null);
   });
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, reject, resolve };
 }
 
 beforeEach(() => {
@@ -442,6 +452,184 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
     );
     expect(onAggregateChange).toHaveBeenCalledWith(null);
   });
+
+  it("retires a completed same-ID result basis before paint while retaining pack and binding drafts", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    mockCatalogAndRuleRun(passingRun);
+    const onAggregateChange = vi.fn();
+    const basisA = { projectSessionGeneration: 4, modelRevision: 8, resultSequence: 2 };
+    const view = render(<RuleCheckRunPanel
+      basis={basisA}
+      model={modelStub}
+      result={resultStub}
+      onAggregateChange={onAggregateChange}
+    />);
+    fireEvent.click(screen.getByTestId("rule-check-load-demo"));
+    await screen.findByTestId("rule-check-binding-plan");
+    fireEvent.change(screen.getByTestId("rule-check-solver-select-demo_actual_quantity"), {
+      target: { value: "result:stress:demo" }
+    });
+    fireEvent.change(screen.getByTestId("rule-check-value-input-demo_limit_quantity"), {
+      target: { value: "73" }
+    });
+    fireEvent.click(screen.getByTestId("rule-check-run"));
+    await screen.findByTestId("rule-check-run-result");
+    onAggregateChange.mockClear();
+
+    const nextResult = { ...resultStub };
+    view.rerender(<RuleCheckRunPanel
+      basis={{ ...basisA, resultSequence: 3 }}
+      model={modelStub}
+      result={nextResult}
+      onAggregateChange={onAggregateChange}
+    />);
+
+    expect(screen.queryByTestId("rule-check-run-result")).not.toBeInTheDocument();
+    expect(screen.getByTestId("rule-check-run-status")).toHaveTextContent(
+      "No rule-check run for the current model and solved-result basis."
+    );
+    expect((screen.getByTestId("rule-check-pack-json") as HTMLTextAreaElement).value).toContain("invented_demo_rule_pack");
+    expect(screen.getByTestId("rule-check-solver-select-demo_actual_quantity")).toHaveValue("result:stress:demo");
+    expect(screen.getByTestId("rule-check-value-input-demo_limit_quantity")).toHaveValue(73);
+    expect(onAggregateChange).toHaveBeenCalledTimes(1);
+    expect(onAggregateChange).toHaveBeenCalledWith(null);
+  });
+
+  it("lets a new-basis run publish while a late old run cannot publish or clear its busy state", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const runA = deferred<unknown>();
+    const runB = deferred<unknown>();
+    let runCount = 0;
+    invokeMock.mockImplementation((command) => {
+      if (command === "get_unit_catalog") return Promise.resolve(unitCatalogStub);
+      if (command === "run_rule_checks") return ++runCount === 1 ? runA.promise : runB.promise;
+      return Promise.resolve(null);
+    });
+    const onAggregateChange = vi.fn();
+    const basisA = { projectSessionGeneration: 7, modelRevision: 11, resultSequence: 5 };
+    const view = render(<RuleCheckRunPanel
+      basis={basisA}
+      model={modelStub}
+      result={resultStub}
+      onAggregateChange={onAggregateChange}
+    />);
+    fireEvent.click(screen.getByTestId("rule-check-load-demo"));
+    await screen.findByTestId("rule-check-binding-plan");
+    fireEvent.click(screen.getByTestId("rule-check-run"));
+    await waitFor(() => expect(runCount).toBe(1));
+
+    view.rerender(<RuleCheckRunPanel
+      basis={{ ...basisA, resultSequence: 6 }}
+      model={modelStub}
+      result={{ ...resultStub, run_id: "run:c4-test-b" }}
+      onAggregateChange={onAggregateChange}
+    />);
+    fireEvent.click(screen.getByTestId("rule-check-run"));
+    await waitFor(() => expect(runCount).toBe(2));
+    expect(screen.getByTestId("rule-check-run")).toBeDisabled();
+
+    await act(async () => runA.resolve({ ...passingRun, aggregate_status: "USER_RULE_CHECKED" }));
+    expect(screen.getByTestId("rule-check-run")).toBeDisabled();
+    expect(screen.queryByTestId("rule-check-run-result")).not.toBeInTheDocument();
+    expect(onAggregateChange).not.toHaveBeenCalledWith("USER_RULE_CHECKED");
+
+    await act(async () => runB.resolve(passingRun));
+    await screen.findByTestId("rule-check-run-result");
+    expect(screen.getByTestId("rule-check-run")).not.toBeDisabled();
+    expect(onAggregateChange).toHaveBeenCalledWith("USER_RULE_FAILED");
+  });
+
+  it("prevents an old-pack request from reviving findings after a reset to a new pack", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const oldRun = deferred<unknown>();
+    invokeMock.mockImplementation((command) => {
+      if (command === "get_unit_catalog") return Promise.resolve(unitCatalogStub);
+      if (command === "run_rule_checks") return oldRun.promise;
+      return Promise.resolve(null);
+    });
+    const onAggregateChange = vi.fn();
+    const basisA = { projectSessionGeneration: 9, modelRevision: 14, resultSequence: 4 };
+    const view = render(<RuleCheckRunPanel
+      basis={basisA}
+      model={modelStub}
+      result={resultStub}
+      onAggregateChange={onAggregateChange}
+    />);
+    fireEvent.click(screen.getByTestId("rule-check-load-demo"));
+    await screen.findByTestId("rule-check-binding-plan");
+    fireEvent.change(screen.getByTestId("rule-check-value-input-demo_limit_quantity"), {
+      target: { value: "19" }
+    });
+    fireEvent.click(screen.getByTestId("rule-check-run"));
+
+    view.rerender(<RuleCheckRunPanel
+      basis={{ ...basisA, modelRevision: 15 }}
+      model={{ ...modelStub }}
+      result={resultStub}
+      onAggregateChange={onAggregateChange}
+    />);
+    const newPack = JSON.stringify({ metadata: { rule_pack_id: "replacement-pack" }, required_inputs: [] });
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), { target: { value: newPack } });
+    onAggregateChange.mockClear();
+
+    await act(async () => oldRun.resolve(passingRun));
+    expect(screen.getByTestId("rule-check-pack-json")).toHaveValue(newPack);
+    expect(screen.queryByTestId("rule-check-run-result")).not.toBeInTheDocument();
+    expect(screen.getByTestId("rule-check-run-status")).not.toHaveTextContent("aggregate=USER_RULE_FAILED");
+    expect(onAggregateChange).not.toHaveBeenCalledWith("USER_RULE_FAILED");
+  });
+});
+
+describe("RuleCheckRunPanel scoped non-run requests", () => {
+  it("rejects an old-basis saved-pack open without overwriting drafts or clearing the newer request", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const openA = deferred<unknown>();
+    const openB = deferred<unknown>();
+    let openCount = 0;
+    const entry = {
+      project_id: "project:c4-run-test",
+      rule_pack_id: "saved-pack",
+      rule_pack_name: "Saved pack",
+      rule_pack_version: "1",
+      lifecycle_status: "draft",
+      privacy_class: "private_user_data",
+      storage_mode: "local_sqlite",
+      created_at_unix: 1,
+      updated_at_unix: 1
+    };
+    invokeMock.mockImplementation((command) => {
+      if (command === "list_local_rule_packs") return Promise.resolve([entry]);
+      if (command === "open_local_rule_pack") return ++openCount === 1 ? openA.promise : openB.promise;
+      return Promise.resolve(null);
+    });
+    const basisA = { projectSessionGeneration: 2, modelRevision: 5, resultSequence: 1 };
+    const view = render(<RuleCheckRunPanel basis={basisA} model={modelStub} result={resultStub} />);
+    const retainedPack = JSON.stringify({ metadata: { rule_pack_id: "retained-draft" }, required_inputs: [] });
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), { target: { value: retainedPack } });
+    fireEvent.click(screen.getByTestId("rule-check-refresh-list"));
+    await screen.findByTestId("rule-check-open-saved-pack");
+    fireEvent.click(screen.getByTestId("rule-check-open-saved-pack"));
+    await waitFor(() => expect(openCount).toBe(1));
+
+    view.rerender(<RuleCheckRunPanel
+      basis={{ ...basisA, projectSessionGeneration: 3, modelRevision: 1 }}
+      model={{ ...modelStub }}
+      result={resultStub}
+    />);
+    fireEvent.click(screen.getByTestId("rule-check-open-saved-pack"));
+    await waitFor(() => expect(openCount).toBe(2));
+
+    await act(async () => openA.resolve({ document: { metadata: { rule_pack_id: "stale-pack-a" } } }));
+    expect(screen.getByTestId("rule-check-open-saved-pack")).toBeDisabled();
+    expect(screen.getByTestId("rule-check-pack-json")).toHaveValue(retainedPack);
+
+    await act(async () => openB.resolve({ document: { metadata: { rule_pack_id: "current-pack-b" } } }));
+    await waitFor(() => expect(screen.getByTestId("rule-check-open-saved-pack")).not.toBeDisabled());
+    expect((screen.getByTestId("rule-check-pack-json") as HTMLTextAreaElement).value).toContain(
+      "current-pack-b"
+    );
+    expect(screen.getByTestId("rule-check-run-status")).not.toHaveTextContent("stale-pack-a");
+  });
 });
 
 // Phase C3 resolution-preview/browse picker (TP-C3-LIBREFPICKER-001). The panel
@@ -480,11 +668,14 @@ describe("RuleCheckRunPanel library reference preview", () => {
     updated_at_unix: 1
   };
 
-  function renderWithLibraryPack() {
-    render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
+  function renderWithLibraryPack(
+    basis?: { projectSessionGeneration: number; modelRevision: number; resultSequence: number }
+  ) {
+    const view = render(<RuleCheckRunPanel basis={basis} model={modelStub} result={resultStub} />);
     fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
       target: { value: JSON.stringify(libraryPack) }
     });
+    return view;
   }
 
   it("offers a Preview resolution button for a library input that carries a reference", () => {
@@ -570,5 +761,38 @@ describe("RuleCheckRunPanel library reference preview", () => {
     const resolution = await screen.findByTestId("rule-check-library-resolution-lib_allow");
     expect(resolution).toHaveAttribute("data-status", "unavailable");
     expect(resolution.textContent).toContain("LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY");
+  });
+
+  it("rejects an old-basis library preview without publishing or clearing the newer request", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const previewA = deferred<unknown>();
+    const previewB = deferred<unknown>();
+    let listCount = 0;
+    invokeMock.mockImplementation((command) => {
+      if (command === "list_local_libraries") return ++listCount === 1 ? previewA.promise : previewB.promise;
+      return Promise.resolve(null);
+    });
+    const basisA = { projectSessionGeneration: 5, modelRevision: 8, resultSequence: 3 };
+    const view = renderWithLibraryPack(basisA);
+    fireEvent.click(screen.getByTestId("rule-check-library-preview-lib_allow"));
+    await waitFor(() => expect(listCount).toBe(1));
+
+    view.rerender(<RuleCheckRunPanel
+      basis={{ ...basisA, resultSequence: 4 }}
+      model={modelStub}
+      result={{ ...resultStub, run_id: "run:c4-preview-b" }}
+    />);
+    fireEvent.click(screen.getByTestId("rule-check-library-preview-lib_allow"));
+    await waitFor(() => expect(listCount).toBe(2));
+
+    await act(async () => previewA.resolve([{ ...steelEntry, library_id: "lib:stale" }]));
+    expect(screen.getByTestId("rule-check-library-preview-lib_allow")).toBeDisabled();
+    expect(screen.queryByTestId("rule-check-library-resolution-lib_allow")).not.toBeInTheDocument();
+
+    await act(async () => previewB.resolve([]));
+    const resolution = await screen.findByTestId("rule-check-library-resolution-lib_allow");
+    expect(resolution).toHaveAttribute("data-status", "library_missing");
+    expect(screen.getByTestId("rule-check-library-preview-lib_allow")).not.toBeDisabled();
+    expect(screen.getByTestId("rule-check-pack-json")).toHaveValue(JSON.stringify(libraryPack));
   });
 });

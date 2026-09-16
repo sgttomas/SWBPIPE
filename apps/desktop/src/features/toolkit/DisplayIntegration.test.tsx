@@ -7,6 +7,7 @@ import { PipeViewport, buildDeformationOverlay } from "../viewport/PipeViewport"
 import { selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
 import { loadPreviewModel } from "../../services/previewService";
 import { computeModelHash } from "../../services/hashService";
+import { startInspectorTask } from "../../test-support/workspaceTestControls";
 
 describe("typed model display integration", () => {
   it("keeps typed node coordinate source units and the legacy property text aligned", async () => {
@@ -26,6 +27,7 @@ describe("typed model display integration", () => {
     const hash = await computeModelHash(model);
     const selection = { type: "node" as const, id: model.nodes[0].id };
     render(<DisplayUnitsProvider><DisplayUnitSelector /><PropertyInspector model={model} selection={selection} onQueueIntent={vi.fn()} /><ModelTree model={model} selection={selection} onQueueIntent={vi.fn()} onSelect={vi.fn()} /></DisplayUnitsProvider>);
+    startInspectorTask();
     fireEvent.change(screen.getByTestId("editor-intent-field"), { target: { value: "position.x" } });
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     const draft = screen.getByTestId(`entity-grid-input-${model.nodes[0].id}-x`);

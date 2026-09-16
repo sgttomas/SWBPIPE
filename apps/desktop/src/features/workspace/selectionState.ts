@@ -116,6 +116,7 @@ export function applyDisplayedRange(
   const orderedKeys = current.orderedKeys.filter((key) => entityRefFromKey(key)?.type !== "project");
   const membership = new Set(orderedKeys);
   for (const key of displayedOrder.slice(start, end + 1)) {
+    if (entityRefFromKey(key)?.type === "project") continue;
     if (membership.has(key)) continue;
     membership.add(key);
     orderedKeys.push(key);
@@ -143,19 +144,17 @@ export function applyBoxSelection(
     ? current.primaryKey
     : orderedKeys.at(-1) ?? null;
 
+  if (modifiers.toggle) {
+    const hitMembership = new Set(hits);
+    const retained = orderedKeys.filter((key) => !hitMembership.has(key));
+    const additions = hits.filter((key) => !membership.has(key));
+    const next = [...retained, ...additions];
+    const nextMembership = new Set(next);
+    primaryKey = additions.at(-1) ?? (primaryKey && nextMembership.has(primaryKey) ? primaryKey : next.at(-1) ?? null);
+    return replaceSelection(current, next, primaryKey, hits.at(-1) ?? current.rangeAnchorKey);
+  }
+
   for (const key of hits) {
-    if (modifiers.toggle) {
-      if (membership.delete(key)) {
-        const index = orderedKeys.indexOf(key);
-        if (index >= 0) orderedKeys.splice(index, 1);
-        if (primaryKey === key) primaryKey = orderedKeys.at(-1) ?? null;
-      } else {
-        membership.add(key);
-        orderedKeys.push(key);
-        primaryKey = key;
-      }
-      continue;
-    }
     if (!membership.has(key)) {
       membership.add(key);
       orderedKeys.push(key);

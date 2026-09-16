@@ -56,4 +56,13 @@ describe("UI preferences", () => {
     expect(resolvedUiTheme("light", true)).toBe("light");
     expect(resolvedUiTheme("dark", false)).toBe("dark");
   });
+
+  it("treats storage access and write denial as a nonfatal UI preference failure", () => {
+    const denied = {
+      getItem: () => { throw new DOMException("denied"); },
+      setItem: () => { throw new DOMException("quota"); }
+    };
+    expect(readUiPreferences(denied)).toBe(defaultUiPreferences());
+    expect(() => writeUiPreferences(defaultUiPreferences(), denied)).not.toThrow();
+  });
 });

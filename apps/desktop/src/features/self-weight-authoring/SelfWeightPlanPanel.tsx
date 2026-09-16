@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { OperationBatch } from "../../services/operationBatchService";
 import { computeModelHash } from "../../services/hashService";
 import { generateSelfWeightPlan, type SelfWeightOperationPlan } from "../../services/selfWeightPlanService";
 import { draftIntent, usePreparation, type WorkflowProps } from "../offline-proposal-intake/workflowSupport";
+import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
 
 export function selfWeightPlanBatch(plan: SelfWeightOperationPlan, sourceHash: string): OperationBatch {
   if (plan.source_model_hash !== sourceHash || plan.scope_label !== "selected_pipe_mass_only" || !plan.changes.length)
@@ -27,13 +28,18 @@ export function selfWeightPlanBatch(plan: SelfWeightOperationPlan, sourceHash: s
     })
   };
 }
-export function SelfWeightPlanPanel(props: WorkflowProps) {
+export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: readonly string[] }) {
   const [input, setInput] = useState({ caseId: "", label: "", value: "", unit: "", axis: "", provenance: "", pipes: [] as string[] });
   const [review, setReview] = useState<{
     plan: SelfWeightOperationPlan; model: WorkflowProps["model"]; inputs: typeof input;
     selectionId: string; selectionType: string; requestEpoch?: number; revision: number;
   } | null>(null);
   const state = usePreparation(props, input);
+  const pipeOptions = useMemo(() => props.model.pipe_segments.map((pipe) => ({
+    value: pipe.id,
+    label: pipe.label || pipe.id,
+    keywords: [pipe.from, pipe.to]
+  })), [props.model.pipe_segments]);
   const disabledReason = props.busy ? "Wait for the current operation to finish before changing this draft."
     : state.pending ? "Preparing the self-weight plan or its review batch. Wait for it to finish." : undefined;
   const current = review && review.revision === state.revision && review.model === props.model && review.inputs === input &&
@@ -79,9 +85,23 @@ export function SelfWeightPlanPanel(props: WorkflowProps) {
         <option value="">Choose an axis</option>{["global_x", "global_y", "global_z"].map(axis => <option key={axis} value={axis}>{axis.replace("global_", "Global ").toUpperCase()}</option>)}
       </select></label>
       <p>Enter a signed acceleration and a compatible acceleration unit, such as m/s^2.</p>
-      <fieldset><legend>Pipes to include</legend>{props.model.pipe_segments.map(pipe =>
-        <label key={pipe.id}><input type="checkbox" checked={input.pipes.includes(pipe.id)} onChange={event => setInput({ ...input,
-          pipes: event.target.checked ? [...input.pipes, pipe.id] : input.pipes.filter(id => id !== pipe.id) })} />{pipe.id}</label>)}</fieldset>
+      <fieldset><legend>Pipes to include</legend><VirtualMultiTargetPicker
+        label="Self-weight pipes"
+        onChange={(pipes) => setInput({ ...input, pipes: [...pipes] })}
+        options={pipeOptions}
+        testId="self-weight-pipes"
+        values={input.pipes}
+      />
+      <button
+        disabled={!props.selectedPipeRefs?.length}
+        title={props.selectedPipeRefs?.length ? "Freeze the current selected pipes into this self-weight draft." : "Select one or more pipes first."}
+        onClick={() => setInput({ ...input, pipes: [...(props.selectedPipeRefs ?? [])] })}
+        type="button"
+      >Use selected pipes</button>
+      <p>{input.pipes.length > 0
+        ? `Frozen selected-pipe snapshot: ${input.pipes.join(", ")}`
+        : "Select one or more pipes, then freeze them into this draft."}</p>
+      </fieldset>
       <button type="button" onClick={() => void generate()}>Generate self-weight plan</button>
     </fieldset>
     {state.error && <p role="alert">{state.error}</p>}

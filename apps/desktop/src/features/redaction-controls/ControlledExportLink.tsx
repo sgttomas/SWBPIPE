@@ -200,7 +200,7 @@ export function ControlledExportLink({ href, children, nativeCurrentBinding, val
   };
 
   return (
-    <span
+    <div
       className="controlled-export-control"
       data-local-first-blocked={String(binding.exactCanonicalPayload ? exposureBlocked : controlled.summary.local_first?.blocked ?? true)}
       data-local-first-reason={binding.exactCanonicalPayload && exposureReason ? exposureReason : controlled.summary.local_first?.reason_code ?? "LOCAL_FIRST_EVIDENCE_MISSING"}
@@ -222,22 +222,27 @@ export function ControlledExportLink({ href, children, nativeCurrentBinding, val
         {String(exposureBlocked)}
       </span>
       {binding.exactCanonicalPayload && exposureReason ? <span data-testid={`${testId}-canonical-block-reason`}>{exposureReason}</span> : null}
-      <pre aria-label={`${testId} redaction decisions`} data-testid={`${testId}-redaction-decisions`}>
-        {controlled.decisions
-          .map(
-            (decision) =>
-              `path=${decision.path}; classification=${decision.privacy_classification}; action=${decision.action}; reason=${decision.reason_code}`
-          )
-          .join("\n")}
-      </pre>
-      <pre aria-label={`${testId} redaction findings`} data-testid={`${testId}-redaction-findings`}>
-        {controlled.findings
-          .map(
-            (finding) =>
-              `path=${finding.path}; class=${finding.class}; severity=${finding.severity}; reason=${finding.code}`
-          )
-          .join("\n")}
-      </pre>
+      <details className="controlled-export-details" data-testid={`${testId}-redaction-details`}>
+        <summary tabIndex={0}>Details</summary>
+        <div className="controlled-export-technical-details">
+          <pre aria-label={`${testId} redaction decisions`} data-testid={`${testId}-redaction-decisions`}>
+            {controlled.decisions
+              .map(
+                (decision) =>
+                  `path=${decision.path}; classification=${decision.privacy_classification}; action=${decision.action}; reason=${decision.reason_code}`
+              )
+              .join("\n")}
+          </pre>
+          <pre aria-label={`${testId} redaction findings`} data-testid={`${testId}-redaction-findings`}>
+            {controlled.findings
+              .map(
+                (finding) =>
+                  `path=${finding.path}; class=${finding.class}; severity=${finding.severity}; reason=${finding.code}`
+              )
+              .join("\n")}
+          </pre>
+        </div>
+      </details>
       {nativeCanonical ? (
         <>
           <button
@@ -265,7 +270,7 @@ export function ControlledExportLink({ href, children, nativeCurrentBinding, val
           {children}
         </span>
       )}
-    </span>
+    </div>
   );
 }
 

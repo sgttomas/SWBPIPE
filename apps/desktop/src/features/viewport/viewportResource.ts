@@ -11,6 +11,8 @@ import {
   type PointPickPrimitive
 } from "./viewportSelection";
 
+import { ViewportSelectionPresentation } from "./viewportSelectionPresentation";
+
 export type FrameRequest = (callback: FrameRequestCallback) => number;
 export type FrameCancel = (handle: number) => void;
 
@@ -181,6 +183,29 @@ export class ViewportOwnershipLedger {
 
 export type ViewportContextStatus = "ready" | "lost" | "restoring";
 export type ViewportThemePresentation = "light" | "dark";
+
+export const GIZMO_THEME_PALETTES = Object.freeze({
+  light: Object.freeze({ canvas: 0xdfe5e8, badge: 0xffffff, axes: Object.freeze([0x8b1e1e, 0x146b32, 0x1e4f9a] as const) }),
+  dark: Object.freeze({ canvas: 0x0c1114, badge: 0x0c1114, axes: Object.freeze([0xff8a80, 0x6ee7a1, 0x8ab4ff] as const) })
+});
+
+export const GIZMO_MAX_CSS_SIZE = 96;
+export const GIZMO_CAMERA_DISTANCE = 5;
+export const GIZMO_AXIS_LABEL_WORLD_SIZE = 0.72;
+export const GIZMO_AXIS_LABEL_FONT_PX = 46;
+
+export function relativeContrastRatio(first: number, second: number): number {
+  const luminance = (hex: number) => {
+    const channel = (shift: number) => {
+      const value = ((hex >> shift) & 0xff) / 255;
+      return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * channel(16) + 0.7152 * channel(8) + 0.0722 * channel(0);
+  };
+  const a = luminance(first);
+  const b = luminance(second);
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+}
 export type ViewportRendererInfo = Readonly<{
   geometries: number;
   textures: number;
@@ -190,8 +215,8 @@ export type ViewportRendererInfo = Readonly<{
   lines: number;
 }>;
 
-const SELECTED_COLOR = 0xf08c22;
-const SELECTED_EMISSIVE = 0x4c2500;
+const SELECTED_COLOR_LIGHT = 0xa34400;
+const SELECTED_COLOR_DARK = 0xf08c22;
 
 export function registerSelectionPresentation(object: THREE.Object3D, key: EntityKey): void {
   const ownershipKind = ownershipKindFromKey(key);
@@ -225,19 +250,25 @@ export function registerInstancedSelectionPresentation(
     baseMatrices.push(matrix.clone());
   }
   mesh.userData.instanceBaseMatrices = Object.freeze(baseMatrices);
+  // Cache conservative full-geometry bounds before any visibility mask can
+  // zero instance matrices. Restoring a distant chunk must not retain masked bounds.
+  mesh.computeBoundingBox();
+  mesh.computeBoundingSphere();
   const ownershipKind = keys[0] ? ownershipKindFromKey(keys[0]) : null;
   if (ownershipKind) mesh.userData.viewportOwnershipKind = ownershipKind;
-  applyInstancedSelection(mesh, new Set());
+  applyInstancedSelection(mesh, new Set(), SELECTED_COLOR_DARK);
 }
 
 export function applySelectionPresentation(
   roots: readonly THREE.Object3D[],
-  selectedKeys: ReadonlySet<EntityKey>
+  selectedKeys: ReadonlySet<EntityKey>,
+  theme: ViewportThemePresentation = "dark"
 ): void {
+  const selectedColor = theme === "dark" ? SELECTED_COLOR_DARK : SELECTED_COLOR_LIGHT;
   for (const root of roots) {
     root.traverse((object) => {
       if (object instanceof THREE.InstancedMesh && Array.isArray(object.userData.instanceEntityKeys)) {
-        applyInstancedSelection(object, selectedKeys);
+        applyInstancedSelection(object, selectedKeys, selectedColor);
         return;
       }
       const key = object.userData.selectionEntityKey as EntityKey | undefined;
@@ -246,11 +277,11 @@ export function applySelectionPresentation(
       for (const material of objectMaterials(object)) {
         if ("color" in material && material.color instanceof THREE.Color &&
             typeof material.userData.viewportBaseColor === "number") {
-          material.color.setHex(selected ? SELECTED_COLOR : material.userData.viewportBaseColor);
+          material.color.setHex(selected ? selectedColor : material.userData.viewportBaseColor);
         }
         if ("emissive" in material && material.emissive instanceof THREE.Color &&
             typeof material.userData.viewportBaseEmissive === "number") {
-          material.emissive.setHex(selected ? SELECTED_EMISSIVE : material.userData.viewportBaseEmissive);
+          material.emissive.setHex(material.userData.viewportBaseEmissive);
         }
         material.needsUpdate = true;
       }
@@ -259,7 +290,33 @@ export function applySelectionPresentation(
 }
 
 export function applyThemePresentation(scene: THREE.Scene, theme: ViewportThemePresentation): void {
-  scene.background = new THREE.Color(theme === "dark" ? 0x111820 : 0xf6f7f4);
+  scene.background = new THREE.Color(theme === "dark" ? 0x0c1114 : 0xdfe5e8);
+}
+
+export function applyGizmoThemePresentation(scene: THREE.Scene, theme: ViewportThemePresentation): void {
+  const palette = GIZMO_THEME_PALETTES[theme];
+  scene.traverse((object) => {
+    if (object.userData.gizmoAxes && object instanceof THREE.AxesHelper) {
+      const colors = object.geometry.getAttribute("color") as THREE.BufferAttribute;
+      palette.axes.forEach((hex, axis) => {
+        const color = new THREE.Color(hex);
+        colors.setXYZ(axis * 2, color.r, color.g, color.b);
+        colors.setXYZ(axis * 2 + 1, color.r, color.g, color.b);
+      });
+      colors.needsUpdate = true;
+    }
+    if (object.userData.gizmoAxisLabel && object instanceof THREE.Sprite) {
+      paintGizmoAxisLabel(
+        object.userData.gizmoCanvas as HTMLCanvasElement,
+        object.userData.gizmoAxisLabel as "X" | "Y" | "Z",
+        palette.axes[object.userData.gizmoAxisIndex as 0 | 1 | 2],
+        palette.badge
+      );
+      const material = object.material as THREE.SpriteMaterial;
+      if (material.map) material.map.needsUpdate = true;
+      material.needsUpdate = true;
+    }
+  });
 }
 
 export function applyVisibilityPresentation(
@@ -294,7 +351,6 @@ export type ViewportResourceOptions = {
   onNextPaintOpportunity?: (resource: ViewportResource, opportunityAt: number, submissionSequence: number) => void;
   onOwnedRafCountChange?: (resource: ViewportResource, pendingCount: number) => void;
   onResourceStateChange?: (resource: ViewportResource, retired: boolean) => void;
-  shouldObservePaintOpportunity?: () => boolean;
   onCameraChange?: (resource: ViewportResource) => void;
   onRestore?: () => void;
 };
@@ -321,8 +377,13 @@ export class ViewportResource {
   private readonly raycaster = new THREE.Raycaster();
   private pickables: THREE.Object3D[] = [];
   private pointPrimitives: readonly PointPickPrimitive[] = [];
+  private selectionPresentation: ViewportSelectionPresentation | null = null;
   private modelIndex: ModelIndex | null = null;
   private hiddenKeys: ReadonlySet<EntityKey> = new Set();
+  private selectedKeys: ReadonlySet<EntityKey> = new Set();
+  private themePresentation: ViewportThemePresentation = "light";
+  private gridVisible = true;
+  private authoredLoadsVisible = true;
   private actualOdRadiusByPipe: ReadonlyMap<EntityKey, number> = new Map();
   private renderOrigin: Readonly<Vec3> = Object.freeze({ x: 0, y: 0, z: 0 });
   private labelUpdater: (() => void) | null = null;
@@ -332,13 +393,15 @@ export class ViewportResource {
   private contextRestoredCount = 0;
   private frameSubmissionSequence = 0;
   private cameraChangeSequence = ++nextViewportCameraSequence;
+  private navigationAdvancing = false;
+  private suppressControlsChange = false;
   private readonly ownership = new ViewportOwnershipLedger(this.resourceGeneration);
 
   constructor(
     readonly host: HTMLDivElement,
     private readonly options: ViewportResourceOptions = {}
   ) {
-    this.scene.background = new THREE.Color(0xf6f7f4);
+    this.scene.background = new THREE.Color(0xdfe5e8);
     this.camera = new THREE.PerspectiveCamera(42, safeAspect(host), 0.1, 10_000);
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -353,7 +416,15 @@ export class ViewportResource {
     const key = new THREE.DirectionalLight(0xffffff, 1.2);
     key.position.set(4, 9, 7);
     this.scene.add(key);
-    this.gizmoScene.add(new THREE.AxesHelper(1.25));
+    const gizmoAxes = new THREE.AxesHelper(1.25);
+    gizmoAxes.userData.gizmoAxes = true;
+    this.gizmoScene.add(gizmoAxes);
+    this.gizmoScene.add(
+      gizmoAxisLabel("X", 0, new THREE.Vector3(1.48, 0, 0)),
+      gizmoAxisLabel("Y", 1, new THREE.Vector3(0, 1.48, 0)),
+      gizmoAxisLabel("Z", 2, new THREE.Vector3(0, 0, 1.48))
+    );
+    applyGizmoThemePresentation(this.gizmoScene, "light");
     this.ownership.createObjects(this.gizmoScene.children);
 
     this.scheduler = new ViewportInvalidationScheduler(
@@ -363,8 +434,8 @@ export class ViewportResource {
       (pendingCount) => this.options.onOwnedRafCountChange?.(this, pendingCount)
     );
     this.controls.addEventListener("change", this.handleControlsChange);
-    this.controls.addEventListener("start", this.invalidate);
-    this.controls.addEventListener("end", this.invalidate);
+    this.controls.addEventListener("start", this.handleControlsStart);
+    this.controls.addEventListener("end", this.handleControlsEnd);
     this.renderer.domElement.addEventListener("webglcontextlost", this.handleContextLost);
     this.renderer.domElement.addEventListener("webglcontextrestored", this.handleContextRestored);
     window.addEventListener("resize", this.resize);
@@ -416,10 +487,15 @@ export class ViewportResource {
     });
   }
 
+  get projectionAvailable(): boolean {
+    return !this.disposed && this.contextStatus === "ready" && this.renderer.domElement.isConnected;
+  }
+
   setOrigin(origin: Readonly<Vec3>): void {
     if (![origin.x, origin.y, origin.z].every(Number.isFinite)) {
       throw new Error("Viewport render origin must be finite.");
     }
+    this.cancelNavigation();
     const localShift = new THREE.Vector3(
       this.renderOrigin.x - origin.x,
       this.renderOrigin.y - origin.y,
@@ -428,6 +504,8 @@ export class ViewportResource {
     this.camera.position.add(localShift);
     this.controls.target.add(localShift);
     this.renderOrigin = Object.freeze({ x: origin.x, y: origin.y, z: origin.z });
+    // The next primitive inventory replaces this temporary origin translation.
+    this.selectionPresentation?.group.position.add(localShift);
     this.camera.updateMatrixWorld();
     this.markCameraProjectionChanged();
     this.invalidate();
@@ -440,6 +518,17 @@ export class ViewportResource {
   setPointPrimitives(index: ModelIndex, primitives: readonly PointPickPrimitive[]): void {
     this.modelIndex = index;
     this.pointPrimitives = primitives;
+    if (this.selectionPresentation) {
+      this.ownership.disposeObjects([this.selectionPresentation.group]);
+      disposeObjectChildren(this.selectionPresentation.group);
+      this.scene.remove(this.selectionPresentation.group);
+    }
+    this.selectionPresentation = new ViewportSelectionPresentation(primitives);
+    this.scene.add(this.selectionPresentation.group);
+    this.ownership.createObjects([this.selectionPresentation.group]);
+    this.updateSelectionCue();
+    this.notifyResourceStateChange(false);
+    this.invalidate();
   }
 
   setActualOdRadiusByPipe(radii: ReadonlyMap<EntityKey, number>): void {
@@ -451,15 +540,33 @@ export class ViewportResource {
   }
 
   setSelectionPresentation(selectedKeys: readonly EntityKey[]): void {
+    this.selectedKeys = new Set(selectedKeys);
     applySelectionPresentation(
       [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
-      new Set(selectedKeys)
+      this.selectedKeys,
+      this.themePresentation
     );
+    this.updateSelectionCue();
     this.invalidate();
   }
 
   setThemePresentation(theme: ViewportThemePresentation): void {
+    this.themePresentation = theme;
     applyThemePresentation(this.scene, theme);
+    applyGizmoThemePresentation(this.gizmoScene, theme);
+    applySelectionPresentation(
+      [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
+      this.selectedKeys,
+      this.themePresentation
+    );
+    this.updateSelectionCue();
+    this.invalidate();
+  }
+
+  setAuxiliaryVisibility(gridVisible: boolean, authoredLoadsVisible: boolean): void {
+    this.gridVisible = gridVisible;
+    this.authoredLoadsVisible = authoredLoadsVisible;
+    this.applyAuxiliaryVisibility();
     this.invalidate();
   }
 
@@ -469,6 +576,7 @@ export class ViewportResource {
       [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
       this.hiddenKeys
     );
+    this.updateSelectionCue();
     this.invalidate();
   }
 
@@ -483,8 +591,34 @@ export class ViewportResource {
     layer.clear();
     layer.add(...objects);
     this.ownership.createObjects(objects);
+    applyThemePresentation(this.scene, this.themePresentation);
+    applySelectionPresentation(
+      [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
+      this.selectedKeys,
+      this.themePresentation
+    );
+    applyVisibilityPresentation(
+      [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
+      this.hiddenKeys
+    );
+    this.applyAuxiliaryVisibility();
     this.notifyResourceStateChange(false);
     this.invalidate();
+  }
+
+  private updateSelectionCue(): void {
+    this.selectionPresentation?.update(
+      this.selectedKeys, this.hiddenKeys,
+      this.themePresentation === "dark" ? SELECTED_COLOR_DARK : SELECTED_COLOR_LIGHT,
+      this.themePresentation === "dark" ? 0x0c1114 : 0xffffff,
+      this.renderer.getPixelRatio()
+    );
+  }
+
+  private applyAuxiliaryVisibility(): void {
+    const ground = this.modelLayer.getObjectByName("viewport-reference-ground");
+    if (ground) ground.visible = this.gridVisible;
+    this.authoredLoadLayer.visible = this.authoredLoadsVisible;
   }
 
   pick(event: { clientX: number; clientY: number }): EntityRef | null {
@@ -539,6 +673,44 @@ export class ViewportResource {
     this.scheduler.invalidate();
   };
 
+  /**
+   * Clear OrbitControls' retained damping offsets without moving the visible
+   * camera. OrbitControls has no public stop-inertia method, but disabling
+   * damping for one supported update clears its pending rotation/pan state.
+   * The exact public camera/target pose is restored before returning.
+   */
+  cancelNavigation(): void {
+    if (this.disposed || !this.navigationAdvancing) return;
+    // The local Three addon declaration intentionally exposes only the
+    // controls surface used by the app. OrbitControls' runtime API includes
+    // autoRotate, which must be suspended alongside damping while its retained
+    // deltas are consumed.
+    const navigationControls = this.controls as typeof this.controls & { autoRotate: boolean };
+    const position = this.camera.position.clone();
+    const quaternion = this.camera.quaternion.clone();
+    const target = navigationControls.target.clone();
+    const zoom = this.camera.zoom;
+    const dampingEnabled = navigationControls.enableDamping;
+    const autoRotateEnabled = navigationControls.autoRotate;
+    this.suppressControlsChange = true;
+    try {
+      navigationControls.enableDamping = false;
+      navigationControls.autoRotate = false;
+      navigationControls.update();
+    } finally {
+      navigationControls.enableDamping = dampingEnabled;
+      navigationControls.autoRotate = autoRotateEnabled;
+      navigationControls.target.copy(target);
+      this.camera.position.copy(position);
+      this.camera.quaternion.copy(quaternion);
+      this.camera.zoom = zoom;
+      this.camera.updateProjectionMatrix();
+      this.camera.updateMatrixWorld(true);
+      this.navigationAdvancing = false;
+      this.suppressControlsChange = false;
+    }
+  }
+
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
@@ -547,8 +719,8 @@ export class ViewportResource {
     window.removeEventListener("resize", this.resize);
     document.removeEventListener("visibilitychange", this.handleVisibilityChange);
     this.controls.removeEventListener("change", this.handleControlsChange);
-    this.controls.removeEventListener("start", this.invalidate);
-    this.controls.removeEventListener("end", this.invalidate);
+    this.controls.removeEventListener("start", this.handleControlsStart);
+    this.controls.removeEventListener("end", this.handleControlsEnd);
     this.renderer.domElement.removeEventListener("webglcontextlost", this.handleContextLost);
     this.renderer.domElement.removeEventListener("webglcontextrestored", this.handleContextRestored);
     this.ownership.disposeObjects(this.scene.children);
@@ -567,6 +739,7 @@ export class ViewportResource {
     this.pickables = [];
     this.pointPrimitives = [];
     this.modelIndex = null;
+    this.selectionPresentation = null;
     this.hiddenKeys = new Set();
     this.actualOdRadiusByPipe = new Map();
     this.labelUpdater = null;
@@ -576,41 +749,73 @@ export class ViewportResource {
 
   private render(_time: number): boolean {
     if (this.disposed || this.contextStatus !== "ready") return false;
-    const dampingActive = this.controls.update();
+    let navigationContinues = false;
+    if (this.navigationAdvancing) {
+      const position = this.camera.position.clone();
+      const quaternion = this.camera.quaternion.clone();
+      const target = this.controls.target.clone();
+      const zoom = this.camera.zoom;
+      this.suppressControlsChange = true;
+      try {
+        navigationContinues = this.controls.update();
+      } finally {
+        this.suppressControlsChange = false;
+      }
+      const cameraChanged = !position.equals(this.camera.position) ||
+        !quaternion.equals(this.camera.quaternion) ||
+        !target.equals(this.controls.target) ||
+        zoom !== this.camera.zoom;
+      if (cameraChanged) this.markCameraProjectionChanged();
+      // OrbitControls retains a sub-EPS damping tail when update() returns
+      // false. Clear it now so a later presentation-only frame cannot revive
+      // the old gesture.
+      if (!navigationContinues) this.cancelNavigation();
+    }
     this.renderer.setScissorTest(false);
     this.renderer.setViewport(0, 0, Math.max(1, this.host.clientWidth), Math.max(1, this.host.clientHeight));
     this.renderer.render(this.scene, this.camera);
     const submittedAt = performance.now();
     const submissionSequence = ++this.frameSubmissionSequence;
+    // Keep this bounded six-scalar record as ordinary render bookkeeping so a
+    // later diagnostics read never has to cause another frame.
     const rendererInfo = copyRendererInfo(this.renderer.info);
     this.renderGizmo();
     this.labelUpdater?.();
-    if (this.options.shouldObservePaintOpportunity?.()) {
-      this.scheduler.schedulePaintOpportunity((opportunityAt) => {
-        if (!this.disposed && this.contextStatus === "ready" && this.frameSubmissionSequence === submissionSequence) {
-          this.options.onNextPaintOpportunity?.(this, opportunityAt, submissionSequence);
-        }
-      });
-    }
+    // Renderer diagnostics are captured in the actual main-render completion
+    // path above. Presentation timing comes from the external compositor
+    // witness; diagnostics must not schedule an additional app-owned RAF.
     this.options.onAfterMainFrame?.(this, submittedAt, submissionSequence, rendererInfo);
-    return dampingActive;
+    return navigationContinues;
   }
 
   private renderGizmo(): void {
     const width = Math.max(1, this.host.clientWidth);
-    const size = Math.min(96, Math.max(48, Math.floor(Math.min(width, this.host.clientHeight) * 0.18)));
+    const height = Math.max(1, this.host.clientHeight);
+    const size = Math.min(GIZMO_MAX_CSS_SIZE, Math.floor(Math.min(width, height)));
+    const insetX = Math.min(8, Math.max(0, width - size));
+    const insetY = Math.min(8, Math.max(0, height - size));
     const offset = this.camera.position.clone().sub(this.controls.target);
     if (offset.lengthSq() === 0) offset.set(0, 0, 1);
-    this.gizmoCamera.position.copy(offset.normalize().multiplyScalar(3.2));
+    // Fit the full enlarged axis-label sprite envelope inside the square
+    // scissor across the accepted orbit envelope while projecting legible
+    // XYZ glyphs.
+    this.gizmoCamera.position.copy(offset.normalize().multiplyScalar(GIZMO_CAMERA_DISTANCE));
     this.gizmoCamera.up.copy(this.camera.up);
     this.gizmoCamera.lookAt(0, 0, 0);
-    this.renderer.clearDepth();
+    const previousViewport = this.renderer.getViewport(new THREE.Vector4());
+    const previousScissor = this.renderer.getScissor(new THREE.Vector4());
+    const previousScissorTest = this.renderer.getScissorTest();
+    const previousAutoClear = this.renderer.autoClear;
     this.renderer.setScissorTest(true);
-    this.renderer.setScissor(8, 8, size, size);
-    this.renderer.setViewport(8, 8, size, size);
+    this.renderer.setScissor(insetX, insetY, size, size);
+    this.renderer.setViewport(insetX, insetY, size, size);
+    this.renderer.clearDepth();
+    this.renderer.autoClear = false;
     this.renderer.render(this.gizmoScene, this.gizmoCamera);
-    this.renderer.setScissorTest(false);
-    this.renderer.setViewport(0, 0, width, Math.max(1, this.host.clientHeight));
+    this.renderer.autoClear = previousAutoClear;
+    this.renderer.setScissor(previousScissor);
+    this.renderer.setViewport(previousViewport);
+    this.renderer.setScissorTest(previousScissorTest);
   }
 
   private resize = (): void => {
@@ -628,8 +833,10 @@ export class ViewportResource {
     event.preventDefault();
     this.contextLostCount += 1;
     this.contextStatus = "lost";
+    this.cancelNavigation();
     this.scheduler.pause();
     this.options.onContextStatus?.("lost");
+    this.notifyResourceStateChange(false);
   };
 
   private handleContextRestored = (): void => {
@@ -639,12 +846,14 @@ export class ViewportResource {
     this.options.onRestore?.();
     this.contextStatus = "ready";
     this.options.onContextStatus?.("ready");
+    this.notifyResourceStateChange(false);
     if (document.visibilityState === "hidden") this.scheduler.pause();
     else this.scheduler.resume();
   };
 
   private handleVisibilityChange = (): void => {
     if (document.visibilityState === "hidden") {
+      this.cancelNavigation();
       this.scheduler.pause();
       return;
     }
@@ -652,15 +861,25 @@ export class ViewportResource {
   };
 
   private handleControlsChange = (): void => {
+    if (this.suppressControlsChange) return;
+    this.navigationAdvancing = true;
     this.markCameraProjectionChanged();
+    this.invalidate();
+  };
+
+  private handleControlsStart = (): void => {
+    this.navigationAdvancing = true;
+    this.invalidate();
+  };
+
+  private handleControlsEnd = (): void => {
+    this.navigationAdvancing = true;
     this.invalidate();
   };
 
   private notifyResourceStateChange(retired: boolean): void {
     this.recordOwnedResourceSnapshot();
-    if (this.options.shouldObservePaintOpportunity?.()) {
-      this.options.onResourceStateChange?.(this, retired);
-    }
+    this.options.onResourceStateChange?.(this, retired);
   }
 
   private recordOwnedResourceSnapshot(): void {
@@ -673,6 +892,38 @@ export class ViewportResource {
         snapshot.context.generation >= latestOwnedViewportResourceSnapshot.context.generation) {
       latestOwnedViewportResourceSnapshot = snapshot;
     }
+  }
+}
+
+function gizmoAxisLabel(label: "X" | "Y" | "Z", axisIndex: 0 | 1 | 2, position: THREE.Vector3): THREE.Sprite {
+  const canvas = document.createElement("canvas");
+  canvas.width = 64;
+  canvas.height = 64;
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false, transparent: true }));
+  sprite.userData.gizmoAxisLabel = label;
+  sprite.userData.gizmoAxisIndex = axisIndex;
+  sprite.userData.gizmoCanvas = canvas;
+  sprite.position.copy(position);
+  sprite.scale.setScalar(GIZMO_AXIS_LABEL_WORLD_SIZE);
+  return sprite;
+}
+
+function paintGizmoAxisLabel(canvas: HTMLCanvasElement, label: "X" | "Y" | "Z", color: number, badge: number): void {
+  const context = canvas.getContext("2d");
+  if (context) {
+    context.clearRect(0, 0, 64, 64);
+    context.fillStyle = `#${badge.toString(16).padStart(6, "0")}`;
+    context.beginPath();
+    context.arc(32, 32, 28, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = `#${color.toString(16).padStart(6, "0")}`;
+    context.font = `700 ${GIZMO_AXIS_LABEL_FONT_PX}px sans-serif`;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(label, 32, 34);
   }
 }
 
@@ -721,11 +972,15 @@ function objectMaterials(object: THREE.Object3D): THREE.Material[] {
   return Array.isArray(material) ? material : material ? [material] : [];
 }
 
-function applyInstancedSelection(mesh: THREE.InstancedMesh, selectedKeys: ReadonlySet<EntityKey>): void {
+function applyInstancedSelection(
+  mesh: THREE.InstancedMesh,
+  selectedKeys: ReadonlySet<EntityKey>,
+  selectedColor: number
+): void {
   const keys = mesh.userData.instanceEntityKeys as readonly EntityKey[];
   const baseColor = mesh.userData.viewportBaseColor as number;
   for (let index = 0; index < keys.length; index += 1) {
-    mesh.setColorAt(index, new THREE.Color(selectedKeys.has(keys[index]) ? SELECTED_COLOR : baseColor));
+    mesh.setColorAt(index, new THREE.Color(selectedKeys.has(keys[index]) ? selectedColor : baseColor));
   }
   if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
 }

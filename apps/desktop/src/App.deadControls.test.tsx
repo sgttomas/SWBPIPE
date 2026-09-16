@@ -53,7 +53,26 @@ function normalizeKey(element: HTMLButtonElement): ControlClass {
 }
 
 function enumerateButtons(container: HTMLElement): HTMLButtonElement[] {
-  return Array.from(container.querySelectorAll<HTMLButtonElement>("button, [role='button']"));
+  // Separators have independent pointer/keyboard/bounds coverage in App.test.
+  // A click is not one of their supported interactions.
+  return Array.from(container.querySelectorAll<HTMLButtonElement>("button, [role='button']"))
+    .filter((element) => element.getAttribute("role") !== "separator")
+    .filter((element) => {
+      for (let current: HTMLElement | null = element; current; current = current.parentElement) {
+        if (current.hidden || current.getAttribute("aria-hidden") === "true") return false;
+        const style = window.getComputedStyle(current);
+        if (style.display === "none" || style.visibility === "hidden") return false;
+      }
+      return true;
+    });
+}
+
+function openWorkspaceSection(section: "loads" | "solve"): HTMLElement {
+  fireEvent.click(screen.getByTestId("menu-view"));
+  fireEvent.click(screen.getByTestId(`menu-item-view.section.${section}`));
+  const workspaceSection = screen.getByTestId(`workspace-section-${section}`);
+  expect(workspaceSection).not.toHaveClass("inactive");
+  return workspaceSection;
 }
 
 function isDisabled(element: HTMLButtonElement): boolean {
@@ -80,6 +99,7 @@ function disabledReason(element: HTMLButtonElement): string | null {
 async function renderReadyShell(): Promise<HTMLElement> {
   const { container } = render(<App />);
   await screen.findByTestId("desktop-preview-shell");
+  fireEvent.click(screen.getByTestId("workspace-review"));
   // Engine warmup is async; wait for a terminal engine state so click
   // observations are not confused with warmup re-renders.
   await waitFor(
@@ -100,6 +120,7 @@ async function prepareScenario(scenario: string, container: HTMLElement): Promis
     // Queue one structured edit through the load-case manager (the same
     // visible path the unit suites use) so the apply/validate row controls
     // exist for the audit.
+    openWorkspaceSection("loads");
     fireEvent.click(screen.getByTestId("load-manager-primitive-load:L-100-P"));
     fireEvent.change(screen.getByTestId("load-manager-magnitude-value"), { target: { value: "1500000" } });
     fireEvent.click(screen.getByTestId("queue-load-magnitude-intent"));
@@ -107,6 +128,7 @@ async function prepareScenario(scenario: string, container: HTMLElement): Promis
     return;
   }
   if (scenario === "solved") {
+    openWorkspaceSection("solve");
     fireEvent.click(screen.getByTestId("run-mechanics-preview"));
     await waitFor(
       () => {
@@ -170,8 +192,8 @@ async function auditScenario(
       continue;
     }
 
-    if (element.getAttribute("aria-pressed") === "true") {
-      // Documented exemption: already-active toggle/filter.
+    if (element.getAttribute("aria-pressed") === "true" || element.getAttribute("aria-selected") === "true") {
+      // Documented exemption: already-active toggle/filter/tab/tree choice.
       cleanup();
       continue;
     }
@@ -197,7 +219,45 @@ async function auditScenario(
 }
 
 describe("dead-control audit (TP-APP-R2-UXSHELL-001)", () => {
-  afterEach(() => cleanup());
+  const initialInnerWidth = window.innerWidth;
+
+  afterEach(() => {
+    cleanup();
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: initialInnerWidth });
+  });
+
+  it("exposes narrow viewport interactions without stealing focus or cancelling their controls", async () => {
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 1024 });
+    await renderReadyShell();
+
+    const inspectorToggle = screen.getByTestId("toggle-inspector");
+    fireEvent.click(inspectorToggle);
+    expect(inspectorToggle).toHaveAttribute("aria-expanded", "true");
+    const measure = screen.getByRole("button", { name: "Measure" });
+    measure.focus();
+    fireEvent.click(measure);
+    expect(inspectorToggle).toHaveAttribute("aria-expanded", "false");
+    expect(measure).toHaveFocus();
+    expect(measure).toHaveAttribute("aria-pressed", "true");
+
+    const treeToggle = screen.getByTestId("toggle-tree");
+    fireEvent.click(treeToggle);
+    expect(treeToggle).toHaveAttribute("aria-expanded", "true");
+    const boxSelect = screen.getByTestId("viewport-box-select");
+    boxSelect.focus();
+    fireEvent.click(boxSelect);
+    expect(treeToggle).toHaveAttribute("aria-expanded", "false");
+    expect(boxSelect).toHaveFocus();
+    expect(boxSelect).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(inspectorToggle);
+    const nodeAuthoring = screen.getByTestId("command-node");
+    nodeAuthoring.focus();
+    fireEvent.click(nodeAuthoring);
+    expect(inspectorToggle).toHaveAttribute("aria-expanded", "false");
+    expect(nodeAuthoring).toHaveFocus();
+    expect(screen.getByTestId("viewport-create-node-id")).toBeInTheDocument();
+  });
 
   it(
     "every button is either responsive or disabled with a stated reason",
