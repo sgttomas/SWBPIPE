@@ -1,4 +1,4 @@
-import { REQUIRED_CHROMIUM_BINDING, PAGE_CLOCK_SOURCE } from "./causal-presentation-extractor.mjs";
+import { REQUIRED_CHROMIUM_BINDING, PAGE_CLOCK_SOURCE, extractCausalPresentations } from "./causal-presentation-extractor.mjs";
 import { beginChromiumCompositorTrace, endChromiumCompositorTrace, CHROMIUM_TRACE_RAW_BYTE_LIMIT } from "./chromium-compositor-trace";
 import { createHash } from "node:crypto";
 import { deflateSync } from "node:zlib";
@@ -653,12 +653,12 @@ function syntheticTraceInput(rows: any[], actionAt=1000) {
   const feedbackMarkers:any[]=[];
   const presentations=rows.map((r,i)=>{
     const markerIdentity=`${token}.${i}`;events.push({name:"TimeStamp",pid:41,tid:7,ts:1000100+i,args:{data:{message:`UIF_CAUSAL_V1:FEEDBACK:${markerIdentity}`,frame}}});
-    const reporterBeginEventIndex=events.length;events.push({name:"PipelineReporter",ph:"b",pid:41,tid:9,ts:r.presentationTraceTimestamp-1});
-    const reporterEndEventIndex=events.length;events.push({name:"PipelineReporter",ph:"e",pid:41,tid:9,ts:r.presentationTraceTimestamp});
+    const reporterBeginEventIndex=events.length;events.push({name:"PipelineReporter",ph:"b",pid:41,tid:9,ts:r.presentationTraceTimestamp-1,cat:"cc,benchmark",scope:"renderer",id2:{local:"0x8"}});
+    const reporterEndEventIndex=events.length;events.push({name:"PipelineReporter",ph:"e",pid:41,tid:9,ts:r.presentationTraceTimestamp,cat:"cc,benchmark",scope:"renderer",id2:{local:"0x8"}});
     feedbackMarkers.push({markerIdentity,canvasEpoch:1,contextEpoch:2});
     return {...r,status:"PASS_EXACT_CAUSAL_CHROMIUM_REPORTED_PRESENTATION",feedbackKind:"orbit",token,markerIdentity,actionTraceTimestamp:1000000,
       canvasEpoch:1,contextEpoch:2,modelGeneration:3,rendererProcessId:41,rendererMainThreadId:7,rendererCompositorThreadId:9,layerTreeId:23,
-      pageClockSource:{...PAGE_CLOCK_SOURCE,crossOriginIsolated:false},pipelineReporterOccurrence:`reporter-${i}`,reporterBeginEventIndex,reporterEndEventIndex};
+      pageClockSource:{...PAGE_CLOCK_SOURCE,crossOriginIsolated:false},pipelineReporterOccurrence:'[41,9,"id2.local","0x8","cc,benchmark","renderer","PipelineReporter"]',reporterBeginEventIndex,reporterEndEventIndex};
   });
   const rawBytes=Buffer.from(JSON.stringify({metadata:{"clock-domain":"MAC_MACH_ABSOLUTE_TIME"},traceEvents:events}));
   const rawSha256=createHash("sha256").update(rawBytes).digest("hex");
@@ -693,4 +693,211 @@ test("same-trace boundary rejects mixed raw clock source document action epoch p
     (v:any)=>{v.extraction.presentations[1].reporterEndEventIndex=999;},(v:any)=>{v.stopped.active.feedbackMarkers.pop();},
     (v:any)=>{v.capture.rawTraceComplete=false;},(v:any)=>{v.trace.traceDataLossOccurred=true;}
   ]){const bad=make();mutate(bad);expect(()=>bindSameTraceDurationBasis(bad)).toThrow();}
+});
+
+// Source-shaped builder mirrors the maintained extractor controls, confined to this test.
+function sourceOccurrenceFixture(): any {
+const schema = "openpipestress.ui-foundation.causal-feedback-marker/v1";
+const rendererPid = 41;
+const mainTid = 7;
+const compositorTid = 9;
+const actionToken = "synthetic.orbit";
+const actionIdentity = { gesture: "frozen-orbit-pointer-path", warmupMs: 500, measuredMs: 2_000 };
+
+
+const event = (name: string, ts: number, ph: string, tid: number, args: any = {}, extra: any = {}) => ({ name, ts, ph, pid: rendererPid, tid, args, ...(name === "Layerize" ? { cat: "devtools.timeline" } : {}), ...extra });
+
+function buildLineage(index: number, presentationTs: number) {
+  const feedbackTs = presentationTs - 80_000;
+  const mainFrameId = String(9_100_000_000_000_000n + BigInt(index));
+  const surfaceFrameTraceId = String(2_576_121_716_840_409_000n + BigInt(index));
+  const displayTraceId = String(7_576_121_716_840_409_000n + BigInt(index));
+  const reporterLocal = String(8_576_121_716_840_409_000n + BigInt(index));
+  const sourceFrameNumber = 100 + index;
+  const layerTreeId = 23;
+  const frameSequence = 700 + index;
+  const markerIdentity = `${actionToken}.${index}`;
+  const events = [
+    event("SendBeginMainFrame", feedbackTs - 4_000, "I", compositorTid,
+      { main_frame_pipeline: { step: "SEND_BEGIN_MAIN_FRAME", main_frame_id: mainFrameId,
+        begin_frame_id: { source_id: 4294967296, sequence_number: frameSequence } } }),
+    event("ProxyMain::BeginMainFrame", feedbackTs - 3_000, "X", mainTid,
+      { begin_frame_id: frameSequence, main_frame_pipeline: { step: "BEGIN_MAIN_FRAME", main_frame_id: mainFrameId } }, { dur: 6_000 }),
+    event("BeginMainThreadFrame", feedbackTs - 2_000, "X", mainTid,
+      { data: { frameId: sourceFrameNumber }, layerTreeId }, { dur: 500 }),
+    event("TimeStamp", feedbackTs, "I", mainTid, { data: { message: `UIF_CAUSAL_V1:FEEDBACK:${markerIdentity}` } }),
+    event("LayerTreeHost::DoUpdateLayers", feedbackTs + 1_000, "X", mainTid,
+      { source_frame_number: sourceFrameNumber }, { dur: 500 }),
+    event("ProxyMain::BeginMainFrame::commit", feedbackTs + 4_000, "X", mainTid,
+      { main_frame_pipeline: { step: "COMMIT_ON_MAIN", main_frame_id: mainFrameId } }, { dur: 500 }),
+    event("ProxyImpl::Commit", feedbackTs + 8_000, "X", compositorTid,
+      { main_frame_pipeline: { step: "COMMIT_ON_IMPL", main_frame_id: mainFrameId } }, { dur: 500 }),
+    event("LayerTreeHostImpl::ActivateSyncTree", feedbackTs + 12_000, "X", compositorTid,
+      { main_frame_pipeline: { step: "ACTIVATE", main_frame_id: mainFrameId } }, { dur: 2_000 }),
+    event("ActivateLayerTree", feedbackTs + 12_500, "X", compositorTid,
+      { frameId: sourceFrameNumber, layerTreeId }, { dur: 500 }),
+    event("MainFrame.Draw", feedbackTs + 20_000, "X", compositorTid,
+      { main_frame_pipeline: { step: "DRAW", main_frame_id: mainFrameId,
+        last_begin_frame_id_during_first_draw: { source_id: 4294967296, sequence_number: frameSequence } } }, { dur: 40_000 }),
+    event("PipelineReporter", feedbackTs + 20_000, "b", compositorTid, {
+      frame_reporter: {
+        state: "STATE_PRESENTED_ALL",
+        has_missing_content: false,
+        checkerboarded_needs_raster: false,
+        checkerboarded_needs_record: false,
+        layer_tree_host_id: layerTreeId,
+        surface_frame_trace_id: surfaceFrameTraceId,
+        display_trace_id: displayTraceId,
+        frame_source: 4294967296,
+        frame_sequence: frameSequence
+      }
+    }, { cat: "cc,benchmark", scope: "renderer", id2: { local: reporterLocal } }),
+    event("Graphics.Pipeline", feedbackTs + 22_000, "X", compositorTid,
+      { chrome_graphics_pipeline: { step: "STEP_GENERATE_COMPOSITOR_FRAME", surface_frame_trace_id: surfaceFrameTraceId } },
+      { dur: 30_000 }),
+    event("LayerTreeHostImpl::PrepareToDraw", feedbackTs + 23_000, "X", compositorTid,
+      { SourceFrameNumber: sourceFrameNumber }, { dur: 500 }),
+    event("DrawFrame", feedbackTs + 24_000, "X", compositorTid,
+      { layerTreeId, frameSeqId: frameSequence }, { dur: 500 }),
+    event("Graphics.Pipeline", feedbackTs + 26_000, "X", compositorTid,
+      { chrome_graphics_pipeline: { step: "STEP_SUBMIT_COMPOSITOR_FRAME", surface_frame_trace_id: surfaceFrameTraceId } },
+      { dur: 500 }),
+    event("SubmitCompositorFrameToPresentationCompositorFrame", feedbackTs + 27_000, "b", compositorTid, {},
+      { cat: "cc,benchmark", scope: "renderer", id2: { local: reporterLocal } }),
+    event("SubmitCompositorFrameToPresentationCompositorFrame", presentationTs - 100, "e", compositorTid, {},
+      { cat: "cc,benchmark", scope: "renderer", id2: { local: reporterLocal } }),
+    event("PipelineReporter", presentationTs, "e", compositorTid, {},
+      { cat: "cc,benchmark", scope: "renderer", id2: { local: reporterLocal } })
+  ];
+  const evidence = {
+    schema,
+    kind: "FEEDBACK",
+    markerIdentity,
+    token: actionToken,
+    phase: "candidate",
+    feedbackKind: "orbit",
+    invocationId: index,
+    registrationId: index,
+    parentInvocationId: null,
+    canvasEpoch: 1,
+    contextEpoch: 1,
+    callbackEntryAt: feedbackTs / 1000 - 900.2,
+    callbackCompletedAt: feedbackTs / 1000 - 900,
+    mainContextColorClearObserved: true,
+    observed: { modelGeneration: 1, mainRenderSubmissionSequence: index, cameraSequence: index },
+    traceClock: { source: PAGE_CLOCK_SOURCE, crossOriginIsolated: false, before: feedbackTs / 1000 - 900.1, after: feedbackTs / 1000 - 899.9 }
+  };
+  return { events, evidence };
+}
+
+function buildFixture(presentationTimes = [1_100_000]): any {
+  const actionTraceTs = 1_000_000;
+  const actionMarker = {
+    schema,
+    kind: "ACTION",
+    token: actionToken,
+    phase: "candidate",
+    feedbackKind: "orbit",
+    eventKind: "pointerdown",
+    testId: "viewport-canvas",
+    browserEventTimeStamp: 100,
+    listenerObservedAt: 100,
+    pointerId: 1,
+    clientX: 400,
+    clientY: 300,
+    actionIdentity,
+    traceClock: { source: PAGE_CLOCK_SOURCE, crossOriginIsolated: false, before: 99.9, after: 100.1 }
+  };
+  const pointerTransaction = {
+    down: {
+      eventKind: "pointerdown", browserEventTimeStamp: 100, listenerObservedAt: 100,
+      pointerId: 1, clientX: 400, clientY: 300, testId: "viewport-canvas", targetTag: "CANVAS", actionIdentity
+    },
+    up: {
+      eventKind: "pointerup", browserEventTimeStamp: 2_900, listenerObservedAt: 2_900,
+      pointerId: 1, clientX: 410, clientY: 300, testId: "viewport-canvas", targetTag: "CANVAS", actionIdentity
+    }
+  };
+  const lineages = presentationTimes.map((timestamp, index) => buildLineage(index + 1, timestamp));
+  return {
+    events: [
+      event("PipelineReporter", 900_000, "e", compositorTid, {},
+        { cat: "unrelated", scope: "other", id2: { local: "9900000000000000001" } }),
+      event("TimeStamp", actionTraceTs, "I", mainTid, { data: { message: `UIF_CAUSAL_V1:ACTION:${actionToken}` } }),
+      ...lineages.flatMap((lineage) => lineage.events),
+      event("PipelineReporter", 1_400_000, "b", compositorTid, {},
+        { cat: "unrelated", scope: "other", id2: { local: "9900000000000000002" } })
+    ],
+    markerEvidence: {
+      active: {
+        token: actionToken,
+        phase: "candidate",
+        feedbackKind: "orbit",
+        actionStartEvent: "pointerdown",
+        expectedActionTargetTestId: "viewport-canvas",
+        actionIdentity,
+        actionMarker,
+        pointerTransaction,
+        feedbackMarkers: lineages.map((lineage) => lineage.evidence),
+        observerCostsMs: [0.1],
+        stopped: true,
+        stopReason: "EXPLICIT_STOP"
+      }
+    }
+  };
+}
+
+  const f=buildFixture([1_100_000,1_300_000,1_500_000]);
+  // First two nonoverlapping occurrences reuse one local track. A third distinct
+  // track ends at the second timestamp but starts later, preserving exact lineage.
+  for(const e of f.events) {
+    if(e.name==="TimeStamp")e.args.data.frame="document-A";
+    if(e.id2 && e.cat==="cc,benchmark") {
+      const third=e.id2.local==="8576121716840409003";
+      e.id2.local=third?"0x2":"0x8";
+    }
+  }
+  for(const e of f.events.slice(38,56)) {e.ts-=150000;if(e.ph==="e")e.ts-=50000;}
+  // Move the third lineage's non-async timestamps uniformly earlier; its end
+  // remains1300000 and begin1290000, after the second main frame's draw.
+  const third=f.markerEvidence.active.feedbackMarkers[2];
+  for(const k of ["callbackEntryAt","callbackCompletedAt"])third[k]-=150;
+  third.traceClock.before-=150;third.traceClock.after-=150;
+  Object.assign(f.markerEvidence.active,{documentTimeOrigin:10000,evidenceEpoch:0,armedCanvasEpoch:1,armedContextEpoch:1});
+  f.events.reverse(); // Raw indexes address storage, not chronology.
+  return f;
+}
+function extractedOccurrenceInput(f:any) {
+  const extraction=extractCausalPresentations(f.events,REQUIRED_CHROMIUM_BINDING,f.markerEvidence);
+  const rawBytes=Buffer.from(JSON.stringify({metadata:{"clock-domain":"MAC_MACH_ABSOLUTE_TIME"},traceEvents:f.events}));
+  const rawSha256=createHash("sha256").update(rawBytes).digest("hex");
+  return {rawBytes,capture:{events:f.events,rawTraceComplete:true,rawTraceSha256:rawSha256},
+    trace:{traceDataLossOccurred:false,rawTraceTransport:{rawCompleteThroughEof:true,rawSha256}},extraction,stopped:f.markerEvidence};
+}
+test("actual extractor and binder retain reusable tracks distinct raw pairs and tied timestamps",()=>{
+  const f=sourceOccurrenceFixture(),input=extractedOccurrenceInput(f),basis=bindSameTraceDurationBasis(input);
+  expect(basis.references).toHaveLength(3);
+  expect(basis.references.map(r=>r.markerIdentity)).toEqual(["synthetic.orbit.1","synthetic.orbit.2","synthetic.orbit.3"]);
+  expect(basis.references.map(r=>r.reportedTimestamp)).toEqual([1100000,1300000,1300000]);
+  expect(basis.references[0].reporterOccurrence).toBe(basis.references[1].reporterOccurrence);
+  expect(basis.references.map(r=>[r.reporterBeginEventIndex,r.reporterEndEventIndex])).toEqual([[44,37],[26,19],[8,1]]);
+  expect(basis.references.every(r=>r.reporterBeginEventIndex>r.reporterEndEventIndex)).toBe(true);
+  expect(new Set(basis.references.flatMap(r=>[r.reporterBeginEventIndex,r.reporterEndEventIndex])).size).toBe(6);
+  for(const [i,r] of basis.references.entries()) {
+    expect(r.reporterBeginEventIndex).toBe(input.extraction.presentations[i].reporterBeginEventIndex);
+    expect(f.events[r.reporterEndEventIndex].ts).toBe(r.reportedTimestamp);
+  }
+  expect(sameTracePresentedGap(1300000,1300000)).toEqual({lower:0,upper:.0010000000000000002});
+  for(const mutate of [
+    (b:any)=>{b.references[0].reporterBeginEventIndex=999;},(b:any)=>{b.references[0].reporterEndEventIndex=998;},
+    (b:any)=>{b.references[0].reporterOccurrence="wrong-key";},(b:any)=>{b.references[0].reportedTimestamp++;},
+    (b:any)=>{b.contextEpoch++;}
+  ]){const bad=structuredClone(basis);mutate(bad);expect(()=>constructOrbitEvidence(input.extraction.presentations,100,"centerline",bad)).toThrow("orbit requires bound same-trace endpoint context");}
+});
+test("source-shaped extractor still rejects overlap missing pair and mismatched track endpoints",()=>{
+  for(const mutate of [
+    (f:any)=>{const b=f.events.find((e:any)=>e.name==="PipelineReporter"&&e.ph==="b"&&e.id2.local==="0x8");f.events.push({...structuredClone(b),ts:b.ts+1});},
+    (f:any)=>{f.events.splice(f.events.findIndex((e:any)=>e.name==="PipelineReporter"&&e.ph==="e"&&e.id2.local==="0x8"),1);},
+    ...["pid","tid","scope"].map(k=>(f:any)=>{const e=f.events.find((e:any)=>e.name==="PipelineReporter"&&e.ph==="e"&&e.id2.local==="0x8");e[k]=k==="scope"?"wrong":99;})
+  ]){const f=sourceOccurrenceFixture();mutate(f);expect(()=>extractedOccurrenceInput(f)).toThrow();}
 });

@@ -30,6 +30,7 @@ export type SameTraceDurationBasis = Readonly<{
   canvasEpoch: number; contextEpoch: number; modelGeneration: number;
   rendererProcessId: number; rendererMainThreadId: number; rendererCompositorThreadId: number; layerTreeId: string;
   references: readonly Readonly<{ rawCaptureSha256: string; markerIdentity: string; reportedTimestamp: number;
+    // Reusable async track key; occurrence identity is capture SHA plus both raw indexes.
     reporterOccurrence: string; reporterBeginEventIndex: number; reporterEndEventIndex: number }>[];
 }>;
 export type OrbitEndpoint = Readonly<{ sourceIndex: number; reportedTimestamp: number; coordinateMs: number; intervalMs: DurationInterval }>;
@@ -98,7 +99,7 @@ export function validSameTraceBasis(b: SameTraceDurationBasis | undefined, count
     Array.isArray(b.references) && b.references.length===count && Array.from(b.references).every(r=>r && r.rawCaptureSha256===b.rawCaptureSha256 && text(r.markerIdentity) && text(r.reporterOccurrence) &&
       Number.isSafeInteger(r.reportedTimestamp) && r.reportedTimestamp>=0 && Number.isSafeInteger(r.reporterBeginEventIndex) && r.reporterBeginEventIndex>=0 &&
       Number.isSafeInteger(r.reporterEndEventIndex) && r.reporterEndEventIndex>=0 && r.reporterEndEventIndex!==r.reporterBeginEventIndex) &&
-    new Set(b.references.map(r=>r.reporterOccurrence)).size===count;
+    new Set(b.references.flatMap(r=>[r.reporterBeginEventIndex,r.reporterEndEventIndex])).size===2*count;
 }
 
 // Necessary local cut conditions conservatively over-approximate shared-clock feasibility.

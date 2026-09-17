@@ -317,7 +317,7 @@ test("endpoint and envelope defects never become a favorable boundary population
 // bounds below are frozen rational/binary64 values, not this implementation's output.
 function sameTraceConstructed(times: number[], mode: OrbitEvidence["mode"] = "centerline") {
   const refs=times.map((t,i)=>({rawCaptureSha256:"a".repeat(64),markerIdentity:`m-${i}`,reportedTimestamp:Math.round(t*1000),
-    reporterOccurrence:`r-${i}`,reporterBeginEventIndex:2*i,reporterEndEventIndex:2*i+1}));
+    reporterOccurrence:'[41,9,"id2.local","0x8","cc,benchmark","renderer","PipelineReporter"]',reporterBeginEventIndex:2*i,reporterEndEventIndex:2*i+1}));
   const basis:any={kind:"same-trace-integer-us/v1",qualification:"PASS_CALLER_BOUND_SAME_TRACE",rawCaptureSha256:"a".repeat(64),
     profile:SAME_TRACE_EXPORT_PROFILE,documentFrame:"document",documentTimeOrigin:10000,documentEvidenceEpoch:0,actionListenerObservedAt:1000,
     crossOriginIsolated:false,actionToken:"orbit",actionTraceTimestamp:1000000,canvasEpoch:1,contextEpoch:2,modelGeneration:3,
@@ -343,7 +343,7 @@ test("same-trace scorer independently rejects narrow bounds and false carried co
     (v:any)=>{v.durationBasis.references[0].rawCaptureSha256="b".repeat(64);},
     (v:any)=>{v.durationBasis.profile={...v.durationBasis.profile,exporterSha256:"0".repeat(64)};},
     (v:any)=>{v.durationBasis.references.pop();},(v:any)=>{v.durationBasis.references[1].reportedTimestamp++;},
-    (v:any)=>{v.durationBasis.references[1].reporterOccurrence=v.durationBasis.references[0].reporterOccurrence;}
+    (v:any)=>{v.durationBasis.references[1].reporterBeginEventIndex=v.durationBasis.references[0].reporterBeginEventIndex;}
   ]){const bad=structuredClone(e);mutate(bad);expect(score({...fixture(),centerline:bad}).status).toBe("FAIL_INVALID_EVIDENCE");}
 });
 test("same-trace complete populations retain ties and prevent boundary dilution",()=>{
@@ -362,4 +362,18 @@ test("same-trace complete populations retain ties and prevent boundary dilution"
   expect(tied.gaps.find(g=>g.fromMs===g.toMs)!.durationIntervalMs).toEqual({lower:0,upper:.0010000000000000002});
   expect(orbitBoundaryPopulations(tied).map(c=>[c.left,c.right])).toEqual([[0,5],[0,6],[2,5],[2,6]]);
   expect(result.scores.assignment).toBe(2000);expect(result.scores.pointP95).toBe(100);
+});
+
+test("same capture forbids every raw event reuse while tracks and raw index order may repeat",()=>{
+  const e=sameTraceConstructed([2999,3000.062,5000,9000,13000.062,13001]);
+  const basis:any=e.durationBasis;
+  expect(new Set(basis.references.map((r:any)=>r.reporterOccurrence)).size).toBe(1);
+  expect(orbitBoundaryPopulations(e)).toHaveLength(4);
+  const reversed=structuredClone(e);(reversed.durationBasis as any).references.forEach((r:any)=>{[r.reporterBeginEventIndex,r.reporterEndEventIndex]=[r.reporterEndEventIndex,r.reporterBeginEventIndex];});
+  expect(orbitBoundaryPopulations(reversed)).toEqual(orbitBoundaryPopulations(e));
+  for(const [begin,end] of [[0,1],[0,3],[2,1],[1,3],[2,2]]) {
+    const bad=structuredClone(e),refs=(bad.durationBasis as any).references;
+    refs[1].reporterOccurrence="different-track";refs[1].reporterBeginEventIndex=begin;refs[1].reporterEndEventIndex=end;
+    expect(()=>orbitBoundaryPopulations(bad)).toThrow("invalid orbit duration basis");
+  }
 });
