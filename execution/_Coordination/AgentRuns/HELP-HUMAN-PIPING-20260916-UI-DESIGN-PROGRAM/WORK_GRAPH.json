@@ -1,0 +1,131 @@
+{
+  "schema": "chirality.agentruns.work_graph/lite-1",
+  "run_id": "HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM",
+  "basis": {
+    "research_revision": "28ad73cc3f936872f8de1d5116c617db1290331b",
+    "current_revision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+    "sequencing_ruling": "../../_DECISIONS/D-70_RULING_2026-09-17.md",
+    "activation": "ACTIVATION.md"
+  },
+  "delegation": "Claude Code Agent tool subagents launched by ROOT in the same host session; harness-native descendants, not Chirality-managed delegate_agent sessions. Write targets instruction-asserted, not sandbox-enforced. Type 2 does not delegate.",
+  "max_active_including_root": 5,
+  "nodes": [
+    {
+      "id": "ROOT",
+      "role": "HELP_HUMAN",
+      "model": "claude-fable-5-1",
+      "host": "Claude Code",
+      "status": "active"
+    },
+    {
+      "id": "RESEARCH-A",
+      "role": "TASK",
+      "purpose": "Heuristic UX audit of the current app",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose",
+      "brief": "briefs/RESEARCH-A_ux_audit.md",
+      "return": "instances/RESEARCH/A_ux_audit.md",
+      "source_revision": "28ad73cc3f936872f8de1d5116c617db1290331b",
+      "status": "complete"
+    },
+    {
+      "id": "RESEARCH-B",
+      "role": "TASK",
+      "purpose": "Quantitative UI inventory",
+      "model_requested": "opus",
+      "mechanism": "Agent tool, general-purpose",
+      "brief": "briefs/RESEARCH-B_ui_inventory.md",
+      "return": "instances/RESEARCH/B_ui_inventory.md",
+      "source_revision": "28ad73cc3f936872f8de1d5116c617db1290331b",
+      "status": "complete"
+    },
+    {
+      "id": "RESEARCH-C",
+      "role": "TASK",
+      "purpose": "UI governance constraints sheet",
+      "model_requested": "opus",
+      "mechanism": "Agent tool, general-purpose",
+      "brief": "briefs/RESEARCH-C_ui_constraints.md",
+      "return": "instances/RESEARCH/C_ui_constraints.md",
+      "source_revision": "28ad73cc3f936872f8de1d5116c617db1290331b",
+      "status": "complete"
+    },
+    {
+      "id": "RESEARCH-D",
+      "role": "TASK",
+      "purpose": "Domain and competitor UX research",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose",
+      "brief": "briefs/RESEARCH-D_domain_ux_research.md",
+      "return": "instances/RESEARCH/D_domain_ux_research.md",
+      "source_revision": "28ad73cc3f936872f8de1d5116c617db1290331b",
+      "status": "complete"
+    },
+    {
+      "id": "OWNER-QA",
+      "role": "HUMAN",
+      "purpose": "Owner answers the seven opening questions",
+      "status": "pending"
+    },
+    {
+      "id": "DESIGN-BRIEF",
+      "role": "HELP_HUMAN",
+      "purpose": "Design brief consuming the research and the owner's answers; owner checkpoint",
+      "status": "pending"
+    },
+    {
+      "id": "CONCEPTS",
+      "role": "HELPS_HUMANS",
+      "purpose": "Two or three north-star concept directions with storyboards; owner chooses",
+      "status": "pending"
+    },
+    {
+      "id": "DESIGN-SYSTEM",
+      "role": "HELPS_HUMANS",
+      "purpose": "Tokens, type, colour with dark mode, iconography, density, states; 3D presentation language",
+      "status": "pending"
+    },
+    {
+      "id": "MOCKS",
+      "role": "HELPS_HUMANS",
+      "purpose": "Mock drafts of the workflow states enumerated in the brief; owner reviews",
+      "status": "pending"
+    },
+    {
+      "id": "UX-SPEC",
+      "role": "HELPS_HUMANS",
+      "purpose": "UX specification mapped to typed interfaces and the constraints sheet",
+      "status": "pending"
+    },
+    {
+      "id": "RENDERING-BRIEF",
+      "role": "HELP_HUMAN",
+      "purpose": "Rendering brief for the piping session's overlay and deformation observations (D-70 effect 4)",
+      "status": "pending"
+    },
+    {
+      "id": "ACCEPTANCE-PROPOSAL",
+      "role": "HELP_HUMAN",
+      "purpose": "Proposed acceptance criteria for the redesigned product, for owner ruling (D-70 effect 6)",
+      "status": "pending"
+    }
+  ],
+  "edges": [
+    ["ROOT", "RESEARCH-A"],
+    ["ROOT", "RESEARCH-B"],
+    ["ROOT", "RESEARCH-C"],
+    ["ROOT", "RESEARCH-D"],
+    ["RESEARCH-A", "DESIGN-BRIEF"],
+    ["RESEARCH-B", "DESIGN-BRIEF"],
+    ["RESEARCH-C", "DESIGN-BRIEF"],
+    ["RESEARCH-D", "DESIGN-BRIEF"],
+    ["OWNER-QA", "DESIGN-BRIEF"],
+    ["DESIGN-BRIEF", "CONCEPTS"],
+    ["CONCEPTS", "DESIGN-SYSTEM"],
+    ["CONCEPTS", "RENDERING-BRIEF"],
+    ["DESIGN-SYSTEM", "MOCKS"],
+    ["MOCKS", "UX-SPEC"],
+    ["UX-SPEC", "ACCEPTANCE-PROPOSAL"]
+  ],
+  "current_frontier": "OWNER-QA"
+}
