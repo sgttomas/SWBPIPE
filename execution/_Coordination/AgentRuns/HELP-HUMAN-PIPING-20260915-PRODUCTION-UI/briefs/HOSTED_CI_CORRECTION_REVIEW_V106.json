@@ -1,0 +1,32 @@
+{
+  "role": "TASK + software-code-review Type2",
+  "parent": "/root HELP_HUMAN",
+  "model": "gpt-6-astra",
+  "effort": "high (retained existing fresh reviewer)",
+  "checkout": "Resolve REPO_ROOT from supplied existing ROOT checkout; paths below are repo-relative",
+  "scope": "Read-only independent review of complete new hosted CI corrective increment against 211bd7e; prior V105 complete candidate coverage retains exact attribution. One test-file change; no product/physics/performance change.",
+  "basis": "211bd7e11f47601f3d83fe4d6c9bb80d018647fd",
+  "read_scope": [
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/HOSTED_CI_DIAGNOSIS_V106.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/WORK_GRAPH.json",
+    "Installed Three OrbitControls/Vector3 corresponding to locked dependency; root/piping instructions and prior V105 review as needed"
+  ],
+  "frozen_source": {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+    "sha256": "226e16184f6697d41fc0521c68446bc4dc6ee88bcbe1f13735c1a24096ae98d6",
+    "check_copy_exact": true
+  },
+  "writes": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/REVIEW.json"
+  ],
+  "acceptance": [
+    "Review full one-file Git diff, numerical bound and raw failure/diagnosis calibration; no weak workaround or unintended changed expectation.",
+    "Verify original Box/idle invariants, distance decrease and trusted pointer checks remain; targets/D69 hold intact.",
+    "Review new brief/capture/diagnosis/repair record and work graph attribution, preserve raw logs/zip outside Git as canonical local evidence.",
+    "Root owns focused runtime concurrently; read its runtime RESULT once complete and include qualification, or return source review with explicit runtime pending.",
+    "No actionable findings required before push. Single concise report with exact hashes and limits; no duplicated raw evidence."
+  ],
+  "tools": "Read only files/Git/zip/analytical calculations; write report only. No tests/build/browser/native/Git mutation or delegation."
+}

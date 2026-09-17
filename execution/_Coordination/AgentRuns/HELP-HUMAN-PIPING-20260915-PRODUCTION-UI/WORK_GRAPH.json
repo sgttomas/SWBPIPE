@@ -379,6 +379,20 @@
       "context_manifest_sha256": "94368ff10132924e9b79b6325fff3ad6b451d5198c22fc513536395ec3d56381",
       "scope": "Read-only complete143 source diff; writes FINAL_REVIEW/COMPLETE_SOURCE_V1 only; no runtime",
       "utc": "2026-09-16T18:36:13.844349+00:00"
+    },
+    {
+      "id": "HOSTED_CI_DIAGNOSIS_V106",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "status": "complete_diagnosis_return_accepted_for_test_only_correction",
+      "agent_name": "/root/ui_hosted_ci_diagnosis_v106",
+      "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/HOSTED_CI_DIAGNOSIS_V106.json",
+      "brief_sha256": "7fb0eaa47c0c42fc78bf6fed3efe78754fc04836f3ed58bb87aa072d447e0484",
+      "delegation": "delegated-harness-native; role not mechanically enforced; instruction-asserted non-delegation",
+      "scope": "Read-only diagnosis of exact-head hosted wheel-zoom target assertion; single bounded report. No runtime lease.",
+      "return_sha256": "54228cf5ba3d161a814604162eb2f071f0d329b9e33d3aa3ffa5ba2f11a2b01c"
     }
   ],
   "edges": [
@@ -825,5 +839,25 @@
       "sha256": "34027cb70396ccbd99e4592756aa3f2523f2c70b0bddf62044dc8a81ab3f00fb",
       "bytes": 6938
     }
+  },
+  "hosted_ci_v106": {
+    "head": "211bd7e11f47601f3d83fe4d6c9bb80d018647fd",
+    "run": 35235097946,
+    "state": "test_only_correction_accepted_review_and_focused_pass_actual_head_CI_pending",
+    "dependencies": [
+      "preserved_failed_CI -> diagnosis",
+      "diagnosis -> Root correction decision",
+      "any changed test -> independent review -> focused/local governance checks -> candidate CI"
+    ],
+    "merge_hold": "D69 remains unruled; no accepted performance cohort",
+    "review": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/REVIEW.json",
+      "sha256": "a4bf9f43e0efed8437e926f1ab9243019b55343f660aad24da8ea588a769283d",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "agent": "/root/ui_fresh_integrated_review",
+      "status": "complete_read_only_no_actionable_findings"
+    },
+    "runtime": "Root sole browser lease released; both focused cases passed once; source frozen"
   }
 }

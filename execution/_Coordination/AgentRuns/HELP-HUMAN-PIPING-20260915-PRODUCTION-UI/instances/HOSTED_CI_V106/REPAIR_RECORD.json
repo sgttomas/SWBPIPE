@@ -1,0 +1,45 @@
+{
+  "status": "TEST_ONLY_CORRECTION_FROZEN_RUNTIME_AND_REVIEW_PENDING",
+  "parent": "HELP_HUMAN Agent0",
+  "scope": "PKG07 DEL07-01 UI foundation active wheel target arithmetic only",
+  "basis": "211bd7e11f47601f3d83fe4d6c9bb80d018647fd",
+  "product_source": "b6a1ab8378481adbb46d65847cb7eaf9a2864461 unchanged",
+  "diagnosis": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/DIAGNOSIS.json",
+    "sha256": "54228cf5ba3d161a814604162eb2f071f0d329b9e33d3aa3ffa5ba2f11a2b01c"
+  },
+  "change": {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+    "sha256": "226e16184f6697d41fc0521c68446bc4dc6ee88bcbe1f13735c1a24096ae98d6",
+    "check_copy_exact": true
+  },
+  "decision": "A tight finite per-axis 16*EPS*max(1, authored target, render origin) bound is appropriate during intentional navigation. It covers the handful of normalize/rescale/translate operations without decimal rounding. Exact non-navigation/Box invariants and all performance thresholds stay unchanged. No product repair justified by retained evidence.",
+  "frozen_expectations": {
+    "observed_error": 6.938893903907228e-18,
+    "allowed_at_observed_fixture": 4.309908329155928e-15,
+    "finite_required": true,
+    "explicit_translation_1e_10_must_fail": true,
+    "runtime": "Both desktop and compact decorative overlay gesture tests must pass with all subsequent preset/fit/pointer assertions reached. No retries."
+  },
+  "runtime_lease": {
+    "holder": "ROOT",
+    "scope": "One focused source-mode Playwright run on CHECK; no parallel browsers/build/native work",
+    "command": [
+      "../../node_modules/.bin/playwright",
+      "test",
+      "e2e/ui-foundation.spec.ts",
+      "--project=chromium-desktop",
+      "--project=chromium-compact",
+      "--grep",
+      "decorative viewport overlays pass real canvas gestures while view controls stay interactive",
+      "--reporter=list,json"
+    ],
+    "env": {
+      "PLAYWRIGHT_WORKERS": "1",
+      "CI": "true",
+      "PLAYWRIGHT_HTML_OPEN": "never"
+    },
+    "status": "AUTHORIZED_PENDING"
+  },
+  "boundaries": "D69 unruled; no merge/performance exception; original hosted 340-pass/2-fail preserved."
+}

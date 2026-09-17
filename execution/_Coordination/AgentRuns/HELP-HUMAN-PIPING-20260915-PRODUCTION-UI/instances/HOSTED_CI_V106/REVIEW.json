@@ -1,0 +1,222 @@
+{
+  "status": "PASS_NO_ACTIONABLE_FINDINGS",
+  "at_utc": "2026-09-17T15:19:33.239226+00:00",
+  "parent": "/root HELP_HUMAN",
+  "executor": "/root/ui_fresh_integrated_review",
+  "role": "TASK Type2 software-code-review",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "delegation": false,
+  "enforcement": "instruction/config asserted; read-only review, own single report only",
+  "basis": "211bd7e11f47601f3d83fe4d6c9bb80d018647fd",
+  "scope": "Complete one-test-file increment, actual scoped briefs/capture/diagnosis/repair record and WORK_GRAPH delta; retained hosted failures and focused successor runtime. Prior V105/V105 final-tail coverage remains attributed to unchanged bytes.",
+  "source": {
+    "postimage": {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "226e16184f6697d41fc0521c68446bc4dc6ee88bcbe1f13735c1a24096ae98d6",
+      "bytes": 137015
+    },
+    "preimage_sha256": "ebcdcc3a37f6928f95601a08f0543df8e052c93fdb427d8b1b23b5166ce53bc2",
+    "diff_sha256": "a5726ef8cb79da79222ba80902fcdb5c42fbb713787a37e7b2773bc1d68c83af",
+    "unchanged_source_paths_verified": 144,
+    "unchanged_source_manifest": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
+      "sha256": "99077f9883a51421b874292ecc6ab51f62fc4bba9c5918413e7d6024b7e98145",
+      "bytes": 33601
+    },
+    "other_product_delta": false
+  },
+  "assessment": [
+    "Only the wheel-after-pan target equality assertion changes. It now requires finite measured target coordinates and an absolute per-axis allowance of16*EPS*max(1, prior authored target magnitudes, render-origin magnitudes). No product or physics change.",
+    "Locked and installed Three0.181.2 OrbitControls unconditionally subtracts cursor, clamps target length and adds cursor. Vector3.clampLength normalizes/rescales even with default0/Infinity radius bounds. Source cancelNavigation consumes retained offsets and restores exact pose; it does not justify treating later intentional wheel arithmetic as bitwise identity.",
+    "Both original hosted trace.zip hashes and decoded before/after states match the diagnosis. The compatible local vector arithmetic reproduces the reported authored z exactly. This is a concrete sufficient mechanism; traces do not expose all private control intermediates, so no stronger unique-cause claim is made.",
+    "The allowance uses vector/origin scale to cover local-to-authored cancellation and a small number of binary64 operations, not a decimal visual or performance tolerance. It is appropriate for this fixed intentional-navigation check. Exact Box camera/canvas invariance, other idle/presentation checks, required zoom-distance decrease, front-view transition and trusted canvas wheel/pointer assertions remain.",
+    "Both projects reached the end-of-test gesture attachment. Their runtime states retain exact Box camera/canvas equality and trusted main-canvas wheel events; no subsequent assertion was bypassed. Metadata preserves original340-pass/2-fail hosted outcome, limited local qualification and D69/performance/merge hold."
+  ],
+  "numerical_backcheck": {
+    "hosted_delta": -6.938893903907228e-18,
+    "ulp_at_expected_z": 3.469446951953614e-18,
+    "ulp_distance": 2,
+    "allowance_at_hosted_fixture": 4.309908329155928e-15,
+    "observed_drift_passes": true,
+    "translation_1e_minus10_rejected": true,
+    "finite_measured_coordinates_required": true
+  },
+  "runtime": {
+    "result": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/runtime/RESULT.json",
+      "sha256": "fd09031abc9e8e89da5e98ee6bfb536de9843e40f4f48fa5f5109b0620c0173e",
+      "bytes": 2811
+    },
+    "report_sha256": "d4fb987ce0e8347e2e75fe38e9e0d17ce40fdc379762d6d79874511a4653b09b",
+    "projects": [
+      "chromium-desktop",
+      "chromium-compact"
+    ],
+    "passed": 2,
+    "attempts_each": 1,
+    "retry_each": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "report_errors": 0,
+    "duration_ms": 13723.229,
+    "attribution": "Focused source-mode local run only. Current local wheel target happened to be exactly unchanged; independent retained hosted trace/numerical check establishes the two-ULP correction, not this local execution alone.",
+    "all_five_result_member_hashes": "exact",
+    "port_release": "Root RESULT reports released; reviewer did not perform a live process/port probe"
+  },
+  "findings": [],
+  "entry_exit": "Frozen test postimage exact; all144 other maintained paths exact integrated V20. Both library hashes,11 capture members and5 runtime members exact. No silent drift.",
+  "input_bindings": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "226e16184f6697d41fc0521c68446bc4dc6ee88bcbe1f13735c1a24096ae98d6",
+      "bytes": 137015
+    },
+    {
+      "path": "projects/chirality-piping/package-lock.json",
+      "sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+      "bytes": 127558
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts",
+      "sha256": "01972b482750ce05bb8a848635911c3e3c2197a850d05d11763836a4c6613b3b",
+      "bytes": 41388
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "fb3b9dc1c75b309ab2057a4b87de4dc93154994563bf916202a16d504180e542",
+      "bytes": 202496
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/WORK_GRAPH.json",
+      "sha256": "76ee317850e0947efe32b65a5b639f557a8355a8982c9ef82f87f0b7bb1e20e7",
+      "bytes": 40966
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/HOSTED_CI_CORRECTION_REVIEW_V106.json",
+      "sha256": "631f3b23e0d09f487dee50024d9c8d2aa4fb6c4ae497a660c9e97debe0f49710",
+      "bytes": 2446
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/HOSTED_CI_DIAGNOSIS_V106.json",
+      "sha256": "7fb0eaa47c0c42fc78bf6fed3efe78754fc04836f3ed58bb87aa072d447e0484",
+      "bytes": 4218
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/CAPTURE.json",
+      "sha256": "a200845d25ff528e6da83d6f8796a0e6d49c6dca22f212be4cab3652339b29bf",
+      "bytes": 3755
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/DIAGNOSIS.json",
+      "sha256": "54228cf5ba3d161a814604162eb2f071f0d329b9e33d3aa3ffa5ba2f11a2b01c",
+      "bytes": 9624
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/REPAIR_RECORD.json",
+      "sha256": "759e19a2cca6a5fa023c498d5af69adc294173c9d5285df65788b82d371576a8",
+      "bytes": 2255
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/runtime/RESULT.json",
+      "sha256": "fd09031abc9e8e89da5e98ee6bfb536de9843e40f4f48fa5f5109b0620c0173e",
+      "bytes": 2811
+    },
+    {
+      "path": "projects/chirality-piping/node_modules/three/examples/jsm/controls/OrbitControls.js",
+      "sha256": "e1cdf5833c6e0aa095bd1a4f67dffe68f35677a992e1fb26fe374b5b759ce267",
+      "bytes": 38697
+    },
+    {
+      "path": "projects/chirality-piping/node_modules/three/src/math/Vector3.js",
+      "sha256": "1bed22d35a17a240ecfdc2682f36b458db30d04b99041699868eb58e47b2b5ca",
+      "bytes": 28220
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/artifact-download.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/artifact-inventory.json",
+      "sha256": "0d605b2fdd0eb6f6e9a21573bbdb1408384c17c4ad6a25fa98ea1acde617cd08",
+      "bytes": 41698
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/artifacts.json",
+      "sha256": "32aba0b4dfc835d22f4fad06477ad931f93194cde728bf1464278a261ca7e6a6",
+      "bytes": 769
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/artifacts.json.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/desktop-run.json",
+      "sha256": "4c589f68ef3a9ec78769db91a808cc37660991c023d96594ee050ec8a38b128d",
+      "bytes": 4569
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/desktop-run.json.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/desktop.log",
+      "sha256": "935f28ae9e1fcaf6f918c9fe79c551d077e64ced4f06316d1c414dca7d132c2b",
+      "bytes": 365859
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/desktop.log.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/failure-artifact.zip",
+      "sha256": "c3c3e46cd4e31db459aa4bc27f3b497148f226b4e113c10e484add647863cfad",
+      "bytes": 44255214
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/pr.json",
+      "sha256": "b64e9801171505092312c4f927cb42bbb3dbee9d03a1b66762a16bcf8c83411c",
+      "bytes": 819
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/pr.json.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/runtime/report.json",
+      "sha256": "d4fb987ce0e8347e2e75fe38e9e0d17ce40fdc379762d6d79874511a4653b09b",
+      "bytes": 96414
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/runtime/stdout.log",
+      "sha256": "95dd5cb1a7d636abc103bd42cd219c42f55775c5f3ee03e88460beebf15afeb5",
+      "bytes": 1233
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/runtime/test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/runtime/test-results/ui-foundation-decorative-v-edf02-w-controls-stay-interactive-chromium-compact/decorative-overlays-and-view-controls.png",
+      "sha256": "4f2df9b84d91a234ef564da41dabb2c7d8b08bfbba180fe8687c7e8c68ea73e7",
+      "bytes": 184008
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/runtime/test-results/ui-foundation-decorative-v-edf02-w-controls-stay-interactive-chromium-desktop/decorative-overlays-and-view-controls.png",
+      "sha256": "4f2df9b84d91a234ef564da41dabb2c7d8b08bfbba180fe8687c7e8c68ea73e7",
+      "bytes": 184008
+    }
+  ],
+  "raw_preservation": "Original hosted log/zip and local runtime outputs retained in canonical local packet; no duplicated raw files or new evidence packet.",
+  "remaining": [
+    "Obtain successful hosted CI on the corrected published head and required applicable local governance checks.",
+    "D69 remains UNRULED; performance qualification and merge remain held under existing owner gates."
+  ],
+  "boundaries": "No tests/build/browser/native/Git/product mutation or delegation. Numerical calculations and bounded retained trace parsing only. This review does not amend performance targets or infer full-plan/merge acceptance."
+}

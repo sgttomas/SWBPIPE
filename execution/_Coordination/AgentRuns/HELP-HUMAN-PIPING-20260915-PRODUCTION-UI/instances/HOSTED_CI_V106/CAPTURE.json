@@ -1,0 +1,66 @@
+{
+  "role": "HELP_HUMAN Agent0",
+  "kind": "immutable hosted CI raw capture",
+  "derivative_package": true,
+  "accepted_upstream": "211bd7e11f47601f3d83fe4d6c9bb80d018647fd; functional acceptance 1ff013da86e97e0662824d18526cab7a902a9afdfb559e3d1b2ce55d7f721450 remains attributed to local/native checks",
+  "run_url": "https://github.com/sgttomas/chirality/actions/runs/35235097946",
+  "summary": "340 passed, two failed instances of the same decorative overlay wheel target equality assertion; no retries or skipped executed cases reported. Hosted failure not erased by prior local passes.",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/artifact-download.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/artifact-inventory.json",
+      "bytes": 41698,
+      "sha256": "0d605b2fdd0eb6f6e9a21573bbdb1408384c17c4ad6a25fa98ea1acde617cd08"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/artifacts.json",
+      "bytes": 769,
+      "sha256": "32aba0b4dfc835d22f4fad06477ad931f93194cde728bf1464278a261ca7e6a6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/artifacts.json.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/desktop-run.json",
+      "bytes": 4569,
+      "sha256": "4c589f68ef3a9ec78769db91a808cc37660991c023d96594ee050ec8a38b128d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/desktop-run.json.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/desktop.log",
+      "bytes": 365859,
+      "sha256": "935f28ae9e1fcaf6f918c9fe79c551d077e64ced4f06316d1c414dca7d132c2b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/desktop.log.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/failure-artifact.zip",
+      "bytes": 44255214,
+      "sha256": "c3c3e46cd4e31db459aa4bc27f3b497148f226b4e113c10e484add647863cfad"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/pr.json",
+      "bytes": 819,
+      "sha256": "b64e9801171505092312c4f927cb42bbb3dbee9d03a1b66762a16bcf8c83411c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/pr.json.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "status": "failure preserved; read-only diagnosis active; no acceptance or merge change"
+}

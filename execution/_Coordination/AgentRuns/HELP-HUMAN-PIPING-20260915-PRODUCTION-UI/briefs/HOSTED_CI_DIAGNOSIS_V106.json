@@ -1,0 +1,75 @@
+{
+  "schema": "piping-bounded-task/v1",
+  "role": "TASK Type2 ephemeral diagnosis",
+  "parent": "/root HELP_HUMAN Agent0",
+  "configured_model": "gpt-6-astra",
+  "configured_reasoning": "low",
+  "delegation": "delegated-harness-native; role and non-delegation instruction-asserted",
+  "purpose": "Diagnose the two hosted CI failures at ui-foundation.spec.ts:2001 on published 211bd7e11f47601f3d83fe4d6c9bb80d018647fd. Distinguish product motion from numerical method error and recommend the narrowest justified correction; no implementation.",
+  "scope": "PKG07 DEL07-01 bounded UI foundation verification; D68/R5 tranche continues. Performance targets and D69 merge hold unchanged.",
+  "repo_root": "Resolve git rev-parse --show-toplevel in the supplied checkout; WORKING_ROOT={REPO_ROOT}/projects/chirality-piping.",
+  "declared_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+      "bytes": 12834
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "ebcdcc3a37f6928f95601a08f0543df8e052c93fdb427d8b1b23b5166ce53bc2",
+      "bytes": 136461
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts",
+      "sha256": "01972b482750ce05bb8a848635911c3e3c2197a850d05d11763836a4c6613b3b",
+      "bytes": 41388
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "fb3b9dc1c75b309ab2057a4b87de4dc93154994563bf916202a16d504180e542",
+      "bytes": 202496
+    },
+    {
+      "path": "projects/chirality-piping/package-lock.json",
+      "sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+      "bytes": 127558
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/desktop.log",
+      "sha256": "935f28ae9e1fcaf6f918c9fe79c551d077e64ced4f06316d1c414dca7d132c2b",
+      "bytes": 365859
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/failure-artifact.zip",
+      "sha256": "c3c3e46cd4e31db459aa4bc27f3b497148f226b4e113c10e484add647863cfad",
+      "bytes": 44255214
+    }
+  ],
+  "additional_read_scope": [
+    "Installed Three OrbitControls.js and Vector3.js corresponding to lockfile",
+    "Source-mode Playwright config",
+    "Hosted CI nested failure traces and error-context files directly from the retained zip",
+    "Relevant existing numerical/camera assertions in the named source test"
+  ],
+  "write_scope": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/DIAGNOSIS.json"
+  ],
+  "tools": "Read files/Git status, parse JSON/ZIP, bounded analytical Node/Python computations allowed. No product writes, browsers, servers, builds, full tests, Git mutations, remote writes or delegation.",
+  "acceptance": [
+    "Bind exact source/log/trace inputs and identify the failing two assertions; preserve 340-pass/2-fail attribution.",
+    "Identify causal library operations if evidence supports it; compare observed drift to binary64 rounding. Do not assume harmlessness based only on small size.",
+    "Recommend either product repair or narrow test expectation amendment with independent numerical justification. Existing exact no-navigation presentation/Box assertions must remain exact. No benchmark/performance relaxation.",
+    "Return substantive report in the single output with input hashes, status and remaining runtime needs. This is diagnosis, not acceptance."
+  ],
+  "limits": "Product on main source is frozen while you diagnose; another Root read-only analysis/evidence activity may run. No runtime lease."
+}

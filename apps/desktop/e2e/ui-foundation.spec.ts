@@ -1998,7 +1998,15 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   await page.mouse.move(scalePoint.x, scalePoint.y); await page.mouse.wheel(0, -120);
   await expect.poll(async () => distance(await read())).toBeLessThan(distance(panAfter));
   const wheelAfter = await settled();
-  expect(wheelAfter.camera.target).toEqual(panAfter.camera.target);
+  // Active OrbitControls updates normalize/rescale the target even without a
+  // target-radius constraint. Allow binary64 roundoff from that arithmetic and
+  // the local/authored translation; idle and Box invariants stay exact above.
+  const targetScale = Math.max(1, ...panAfter.camera.target.map(Math.abs), ...panAfter.camera.localRenderOrigin.map(Math.abs));
+  const targetRoundoff = 16 * Number.EPSILON * targetScale;
+  wheelAfter.camera.target.forEach((value, i) => {
+    expect(Number.isFinite(value)).toBe(true);
+    expect(Math.abs(value - panAfter.camera.target[i])).toBeLessThanOrEqual(targetRoundoff);
+  });
   const front = page.getByRole("button", { name: "Front", exact: true });
   await front.click(); await expect(front).toHaveAttribute("aria-pressed", "true");
   const frontAfter = await settled(); expect(frontAfter.camera.position).not.toEqual(wheelAfter.camera.position);

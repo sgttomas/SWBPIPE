@@ -1,0 +1,254 @@
+{
+  "schema": "piping-bounded-diagnosis/v1",
+  "status": "DIAGNOSIS_COMPLETE_NOT_ACCEPTANCE",
+  "role": "TASK Type2; no delegation",
+  "brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/HOSTED_CI_DIAGNOSIS_V106.json",
+    "sha256": "7fb0eaa47c0c42fc78bf6fed3efe78754fc04836f3ed58bb87aa072d447e0484"
+  },
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+      "matches_brief": true
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "matches_brief": true
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "matches_brief": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "ebcdcc3a37f6928f95601a08f0543df8e052c93fdb427d8b1b23b5166ce53bc2",
+      "matches_brief": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts",
+      "sha256": "01972b482750ce05bb8a848635911c3e3c2197a850d05d11763836a4c6613b3b",
+      "matches_brief": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "fb3b9dc1c75b309ab2057a4b87de4dc93154994563bf916202a16d504180e542",
+      "matches_brief": true
+    },
+    {
+      "path": "projects/chirality-piping/package-lock.json",
+      "sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+      "matches_brief": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/desktop.log",
+      "sha256": "935f28ae9e1fcaf6f918c9fe79c551d077e64ced4f06316d1c414dca7d132c2b",
+      "matches_brief": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/failure-artifact.zip",
+      "sha256": "c3c3e46cd4e31db459aa4bc27f3b497148f226b4e113c10e484add647863cfad",
+      "matches_brief": true
+    }
+  ],
+  "library_inputs": [
+    {
+      "path": "projects/chirality-piping/node_modules/three/examples/jsm/controls/OrbitControls.js",
+      "sha256": "e1cdf5833c6e0aa095bd1a4f67dffe68f35677a992e1fb26fe374b5b759ce267"
+    },
+    {
+      "path": "projects/chirality-piping/node_modules/three/src/math/Vector3.js",
+      "sha256": "1bed22d35a17a240ecfdc2682f36b458db30d04b99041699868eb58e47b2b5ca"
+    }
+  ],
+  "hosted_result": {
+    "published_commit": "211bd7e11f47601f3d83fe4d6c9bb80d018647fd",
+    "passed": 340,
+    "failed": 2,
+    "projects": [
+      "chromium-desktop",
+      "chromium-compact"
+    ],
+    "assertion": "ui-foundation.spec.ts:2001 wheelAfter.camera.target deep equals panAfter.camera.target"
+  },
+  "trace_evidence": [
+    {
+      "path": "test-results/ui-foundation-decorative-v-edf02-w-controls-stay-interactive-chromium-compact/trace.zip",
+      "sha256": "f86cd3b51a8a8cc6016d5c08ab7844f96fb5656e645955356ed506844ddc2622",
+      "relevant_states": [
+        {
+          "camera": {
+            "sequence": 130,
+            "kind": "perspective",
+            "position": [
+              2.39316853648909,
+              1.06110198758929,
+              3.6052108628689696
+            ],
+            "target": [
+              1.213131346574227,
+              -0.1257679375467106,
+              -0.027811571857446475
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fovDegrees": 42,
+            "near": 0.001,
+            "far": 1000,
+            "aspect": 1.4254937163375225,
+            "localRenderOrigin": [
+              1,
+              0.00038350000000000016,
+              0.00020300000000000006
+            ]
+          },
+          "ownedPendingRafCount": 0
+        },
+        {
+          "camera": {
+            "sequence": 132,
+            "kind": "perspective",
+            "position": [
+              2.32272514567449,
+              0.9902507104456583,
+              3.3883342920330057
+            ],
+            "target": [
+              1.213131346574227,
+              -0.1257679375467106,
+              -0.027811571857446482
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fovDegrees": 42,
+            "near": 0.001,
+            "far": 1000,
+            "aspect": 1.4254937163375225,
+            "localRenderOrigin": [
+              1,
+              0.00038350000000000016,
+              0.00020300000000000006
+            ]
+          },
+          "ownedPendingRafCount": 0
+        }
+      ]
+    },
+    {
+      "path": "test-results/ui-foundation-decorative-v-edf02-w-controls-stay-interactive-chromium-desktop/trace.zip",
+      "sha256": "aa9ca8ed99b784697b2c644f5f4c2877851d57ee08c6279f0ea49cd28cbb95f6",
+      "relevant_states": [
+        {
+          "camera": {
+            "sequence": 130,
+            "kind": "perspective",
+            "position": [
+              2.39316853648909,
+              1.06110198758929,
+              3.6052108628689696
+            ],
+            "target": [
+              1.213131346574227,
+              -0.1257679375467106,
+              -0.027811571857446475
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fovDegrees": 42,
+            "near": 0.001,
+            "far": 1000,
+            "aspect": 1.4254937163375225,
+            "localRenderOrigin": [
+              1,
+              0.00038350000000000016,
+              0.00020300000000000006
+            ]
+          },
+          "ownedPendingRafCount": 0
+        },
+        {
+          "camera": {
+            "sequence": 132,
+            "kind": "perspective",
+            "position": [
+              2.32272514567449,
+              0.9902507104456583,
+              3.3883342920330057
+            ],
+            "target": [
+              1.213131346574227,
+              -0.1257679375467106,
+              -0.027811571857446482
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fovDegrees": 42,
+            "near": 0.001,
+            "far": 1000,
+            "aspect": 1.4254937163375225,
+            "localRenderOrigin": [
+              1,
+              0.00038350000000000016,
+              0.00020300000000000006
+            ]
+          },
+          "ownedPendingRafCount": 0
+        }
+      ]
+    }
+  ],
+  "numerics": {
+    "expected_z": -0.027811571857446475,
+    "actual_z": -0.027811571857446482,
+    "delta": -6.938893903907228e-18,
+    "ulp_at_expected": 3.469446951953614e-18,
+    "ulp_distance": 2.0,
+    "compatible_local_target": [
+      0.213131346574227,
+      -0.1261514375467106,
+      -0.028014571857446477
+    ],
+    "origin": [
+      1,
+      0.00038350000000000016,
+      0.00020300000000000006
+    ],
+    "reproduction": "Normalize by reciprocal sqrt(x*x+y*y+z*z), rescale by that length, then add origin. Compatible local vector produces exactly observed authored target; authored diagnostic x cannot uniquely reconstruct local x."
+  },
+  "causal_assessment": {
+    "supported": "OrbitControls.update always applies target.sub(cursor).clampLength(minTargetRadius,maxTargetRadius).add(cursor), even with default radius [0,Infinity]. Vector3.clampLength always normalizes and rescales; finite-precision identity can change components. Product enables damping, but cancelNavigation consumes retained deltas with damping disabled and restores exact pose, making an old pan tail an unsupported explanation for this 2-ULP observation. Wheel is genuine navigation and runs update; presentation and Box must not.",
+    "qualification": "Trace contains authored coordinates, not raw controls target or private pan offset. Compatible binary64 reproduction establishes a concrete sufficient numerical mechanism, not direct observation of every private intermediate. No evidence here supports intended target translation or requires product repair."
+  },
+  "recommendation": {
+    "type": "narrow_test_expectation_amendment",
+    "scope": "Only wheel target invariant at line 2001. Use explicit finite-value per-axis roundoff bound scaled to target/local origin magnitude (for example a documented small multiple of Number.EPSILON), retaining strict distance decrease and trusted canvas wheel evidence. Prefer a tight binary64-scale assertion over decimal toBeCloseTo defaults.",
+    "preserve": [
+      "Exact before/after Box camera and canvas assertions",
+      "Exact no-navigation presentation invariance",
+      "Performance targets and performance acceptance hold",
+      "D69 merge hold"
+    ],
+    "reason": "Exact arithmetic identity is not guaranteed during intentional OrbitControls navigation; a tight numerical assertion checks no meaningful target translation without treating the library roundoff as a regression."
+  },
+  "remaining_runtime_needs": [
+    "Parent independent review of proposed assertion bound and correction",
+    "Run both source-mode viewport projects through the corrected gesture test and required broader checks",
+    "Obtain successful hosted CI evidence; 340/2 historical failure stays immutable",
+    "Performance acceptance and merge remain held under existing owner gates"
+  ],
+  "write_scope_compliance": "Only this DIAGNOSIS.json written; no product/build/test/browser/Git mutation."
+}

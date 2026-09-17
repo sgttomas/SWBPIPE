@@ -1,0 +1,74 @@
+{
+  "status": "BOUNDED_TEST_CORRECTION_ACCEPTED_HOSTED_CI_PENDING",
+  "role": "HELP_HUMAN Agent0",
+  "recorded_at_utc": "2026-09-17T15:21:09.870778+00:00",
+  "derivative_package": true,
+  "basis": "211bd7e11f47601f3d83fe4d6c9bb80d018647fd",
+  "accepted_upstream": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json",
+      "sha256": "1ff013da86e97e0662824d18526cab7a902a9afdfb559e3d1b2ce55d7f721450"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105_FINAL_TAIL/RETURN.json",
+      "sha256": "3b29fe8293e95837a4673aafa1c952c1dedb4859ada90fccda209f13f37ee88b"
+    }
+  ],
+  "correction": {
+    "postimage": {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "226e16184f6697d41fc0521c68446bc4dc6ee88bcbe1f13735c1a24096ae98d6",
+      "bytes": 137015
+    },
+    "preimage_sha256": "ebcdcc3a37f6928f95601a08f0543df8e052c93fdb427d8b1b23b5166ce53bc2",
+    "diff_sha256": "a5726ef8cb79da79222ba80902fcdb5c42fbb713787a37e7b2773bc1d68c83af",
+    "unchanged_source_paths_verified": 144,
+    "unchanged_source_manifest": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
+      "sha256": "99077f9883a51421b874292ecc6ab51f62fc4bba9c5918413e7d6024b7e98145",
+      "bytes": 33601
+    },
+    "other_product_delta": false
+  },
+  "evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/CAPTURE.json",
+      "sha256": "a200845d25ff528e6da83d6f8796a0e6d49c6dca22f212be4cab3652339b29bf",
+      "bytes": 3755
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/DIAGNOSIS.json",
+      "sha256": "54228cf5ba3d161a814604162eb2f071f0d329b9e33d3aa3ffa5ba2f11a2b01c",
+      "bytes": 9624
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/REPAIR_RECORD.json",
+      "sha256": "759e19a2cca6a5fa023c498d5af69adc294173c9d5285df65788b82d371576a8",
+      "bytes": 2255
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/REVIEW.json",
+      "sha256": "a4bf9f43e0efed8437e926f1ab9243019b55343f660aad24da8ea588a769283d",
+      "bytes": 13270
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/runtime/RESULT.json",
+      "sha256": "fd09031abc9e8e89da5e98ee6bfb536de9843e40f4f48fa5f5109b0620c0173e",
+      "bytes": 2811
+    }
+  ],
+  "root_verification": "All review inputs and five focused runtime members rehashed; failed artifact ZIP CRC and both trace hashes verified. Two focused passes, zero retries/skips/flaky/errors. Predicate accepts retained binary64 rounding and rejects1e-10 translation, Infinity and NaN.",
+  "terminal_metadata": "WORK_GRAPH terminal state advanced from frozen review/runtime-pending to reviewed/tested and hosted-CI-pending; substantive reviewed scope and source unchanged. This acceptance is the terminal Root return, not self-review.",
+  "raw_preservation": "Hosted log, original failure artifact and focused runtime files remain canonical local raw evidence in HOSTED_CI_V106, indexed by CAPTURE and runtime RESULT. They are not clean-clone test/build dependencies and are not copied into Git. Hosted run URL remains in CAPTURE; archive SHA preserves exact failed evidence after hosted retention expires.",
+  "verification_attribution": "V104 complete registered sweep and V103 native checks retain b6 product-source attribution. Product and144 other maintained source/test paths unchanged; fresh focused two-case runtime qualifies this test-only increment. No numerical/native/build rerun justified by this correction. Required new full source-browser hosted CI remains pending.",
+  "rerun_requirements": [
+    "Run applicable local self-check, receipt and full-range guards on actual committed candidate from clean indexed CHECK.",
+    "Require actual-candidate hosted governance and desktop CI before conditional merge consideration."
+  ],
+  "closure": "Test correction accepted; product functional acceptance preserved; full D68/performance and publication CI remain open.",
+  "blockers": [
+    "D69 UNRULED; original combined performance merge gate remains.",
+    "Required corrected-head hosted CI pending."
+  ],
+  "preserved": "Original local handoff, all prior accepted and failed evidence, unselected DEL07-03 status and performance targets unchanged."
+}
