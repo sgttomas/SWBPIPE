@@ -1,0 +1,91 @@
+{
+  "status": "PROPOSED_PROSPECTIVE_CONTRACT_NOT_IMPLEMENTED_OR_RUN",
+  "collectionTailMs": 250,
+  "tailClasses": [
+    "assignment",
+    "point-selection",
+    "box-selection"
+  ],
+  "unchangedClasses": [
+    "tree-filter",
+    "orbit"
+  ],
+  "tailStart": "After existing action work and exact stopped evidence persistence, before TRACE_END/Tracing.end. Existing point/box post-stop proof/capture steps remain unchanged; the added tail itself performs only a host timer wait.",
+  "invariants": [
+    "Persist and hash stopped measurement evidence once; do not stop/read/reconcile again to replace it.",
+    "No new browser reads/actions/render markers/RAF or render scheduling during added tail.",
+    "No reset/navigation/next sample until trace completion and successful exact derivation/drain.",
+    "Keep original ACTION and first eligible final-epoch FEEDBACK, exact containing main-frame/source-frame/origin/layer/current generate-submit and unique full reporter occurrence.",
+    "Do not choose a different draw or later presented frame if original is missing/dropped/partial/ambiguous.",
+    "Original targets, clock uncertainty, categories, raw cap, EOF/loss guards, IO deadlines and orbit windows remain unchanged. No subtraction of collection time.",
+    "Fixed tail is not adaptive, not a retry, not a presentation guarantee. Missing or late evidence at its end remains failure.",
+    "Finalize bounded capture and persist original errors even if action/tail fails; do not mask failure or leak trace ownership."
+  ],
+  "proposedWritePaths": [
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md"
+  ],
+  "noRequiredChanges": [
+    "product source",
+    "causal-presentation-extractor.mjs admission predicates",
+    "chromium-compositor-trace.ts transport",
+    "scorer/types",
+    "benchmark-harness.ts observation behavior",
+    "native/resource lifecycle"
+  ],
+  "regressions": [
+    {
+      "case": "complete transport with target reporter not yet emitted",
+      "expected": "Full prior lineage plus only older complete reporter pairs, zero unmatched pairs and EOF/noLoss still rejects missing exact reporter."
+    },
+    {
+      "case": "same delayed serialized source occurrence",
+      "expected": "A separately frozen complete fixture adds both begin/end and complete submit-child pair for the original origin and draw; unchanged extractor selects that exact pair. Its source timestamps and metric result equal the pre-existing full fixture; tail receipt time cannot become endpoint."
+    },
+    {
+      "case": "genuine drop/partial/content failure",
+      "expected": "Correct-origin STATE_DROPPED or STATE_PRESENTED_PARTIAL, frame_type, missing/checkerboard flags, missing/ambiguous child, wrong namespace/origin/layer/surface join continue failing."
+    },
+    {
+      "case": "convenient later reporter",
+      "expected": "A later STATE_PRESENTED_ALL different draw/origin/submission never rescues missing/dropped original anchor."
+    },
+    {
+      "case": "capture boundary shapes",
+      "expected": "Missing whole retrospective pair, begin-only, end-only and incomplete relevant child are separately rejected; unrelated old/boundary occurrences do not invalidate a complete exact target."
+    },
+    {
+      "case": "tail lifecycle ordering",
+      "expected": "Independent fake clock and call log prove persist stopped/hash then one250ms wait then trace end for each of three classes; no browser/RAF/observer calls in wait, no second stop, no next action before completion."
+    },
+    {
+      "case": "unchanged classes",
+      "expected": "Tree-filter receives no added tail and retains first eligible lifecycle; orbit receives no added tail and retains original warmup/measured/trailing/population."
+    },
+    {
+      "case": "failure preservation",
+      "expected": "Work failure, stop/persist failure, missing reporter after250ms, transport loss/overflow/deadline fail closed, retain evidence/original error and finish trace cleanup; no adaptive extension or retry."
+    },
+    {
+      "case": "integer/source identity",
+      "expected": "Keep existing lossless identifiers, actual occurrence uniqueness, same-track reuse, timestamp ties, clock checks and source manifest bindings."
+    }
+  ],
+  "focusedQualificationProposal": {
+    "plannedSessions": 10,
+    "perFixtureSize": 5,
+    "fixtureSizes": [
+      1000,
+      10000
+    ],
+    "sessionMode": "Fresh independently bound sessions under unchanged AC/foreground launch, product/browser/viewport/DPR/fixtures. Retain original assignment timing and required same-model responsive-tree witness.",
+    "failFast": true,
+    "retries": 0,
+    "selection": "Freeze all planned sessions before execution. Preserve every attempt; unrun sessions stay unrun after failure.",
+    "scope": "ASSIGNMENT_COLLECTION_QUALIFICATION_ONLY_INCOMPLETE_WORKLOAD",
+    "cohortContribution": 0,
+    "limits": "Does not qualify point/box/filter/orbit or demonstrate universal tail sufficiency. If three-class change adopted, existing bounded focused discrete proof must cover point and box before a full cohort. No run authorized by this diagnosis."
+  }
+}

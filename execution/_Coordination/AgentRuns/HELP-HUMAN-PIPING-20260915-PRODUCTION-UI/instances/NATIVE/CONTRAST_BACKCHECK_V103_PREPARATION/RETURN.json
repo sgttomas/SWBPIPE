@@ -1,0 +1,20 @@
+{
+  "status": "SOURCE_READY_HELD_FINAL_BINDINGS_AND_RUNTIME",
+  "role": "TASK Type2",
+  "parent": "/root",
+  "instance": "/root/ui_native_successor",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "enforcement": "instruction/config asserted",
+  "delegated": false,
+  "derivative_package": true,
+  "basis": "INPUT_BINDINGS.json",
+  "recipe": "PLAN.md",
+  "command": "BUILD_COMMAND.json",
+  "source_candidate": "V101 prospective only; integrated commit/review not adopted",
+  "runtime_used": false,
+  "seed_sha256": "74c5d708a1c68b94b5f684e64def8fc35acbc506db240aaa148b82d38604c932",
+  "reuse": "Accepted V83 lifecycle and Root9-table-equal final cleanup",
+  "remaining": "Final source/review/browser hashes and explicit runtime lease; affected witness and final cleanup thereafter",
+  "clarification": "350N\u2192500N original lifecycle; no35N case"
+}

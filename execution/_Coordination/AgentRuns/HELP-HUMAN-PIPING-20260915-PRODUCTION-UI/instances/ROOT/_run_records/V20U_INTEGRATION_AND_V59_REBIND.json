@@ -1,0 +1,24 @@
+{
+  "status": "TWO_FILES_INTEGRATED_PENDING_REVIEW",
+  "utc": "2026-09-16T22:43:43.261486+00:00",
+  "source_sha256": "1ad256f83a7ff34adde05f392f7b1acb7c5947f80db921b09aea93b974358f2c",
+  "method_sha256": "d54e65b155d34fc3f71340d96ca36f91381cd5e07d3c8aa34fb42c74f2809909",
+  "author_output_manifest_sha256": "11107998609edf88d771bf7054e6090cd7dcf15f6596add3e0781f5c419bdeb6",
+  "verified_packet_members": 20,
+  "verified_method_files": 29,
+  "changes": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+      "before_sha256": "575b772d4848237a076400b31edc30b0288579e9f6f39b08f3abeb47f01e8d4a",
+      "sha256": "aa2bdd9d2a9301093a071a01e734a12d611d0527c4febf364e0d1e7ccc8b70d3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+      "before_sha256": "fc9e00da4fe832b815b8092e50425166f1c8c55ef3a9aa7378f74111c0abba09",
+      "sha256": "594f9cd24b5bf520404c00cb807baf6718200446cb0b3e7a363a6b7ec9723e11"
+    }
+  ],
+  "launch_bindings_sha256": "f3ecd8f35c7c3868c9b9fcf68453a726362717439ce1dd5cd4c2177efbe05dba",
+  "review_brief_sha256": "199295dc234ab3742ceafd0e06aed587728a6af61d088b9b77034b2a3db43e81",
+  "remaining_gate": "Independent review, source commit, fresh focused qualification, separately accepted full cohort"
+}

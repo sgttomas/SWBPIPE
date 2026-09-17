@@ -1,0 +1,16 @@
+{
+  "status": "PASS_BOUNDED_REVIEWED_DELTA_PENDING_FINAL_ASSEMBLY_APPLICATION",
+  "source_commit": "11d51c16404b229ab505d1db9eef5758fbe249e6",
+  "proposal_manifest_sha256": "b52bc90b11e386d3b4e4005986531776445446ae923fc0e67acbf16cbb5896dd",
+  "initial_review_return_sha256": "e31a78c6cde7491fbd20f741738f5d68ba6fed13afe4b7c0668a69f4735e34ed",
+  "repair": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V12_R1_SOURCE_METADATA_REPAIR.json",
+    "sha256": "7133784c499ce4e35c44e609be0d4e61af93e2e38fe72eeae45064c986603e8f"
+  },
+  "backcheck_return_sha256": "2503581b20e5dc867111e4830bf33fe790ec8bc85b855997fb01b5182a04d1a0",
+  "backcheck_manifest_sha256": "e653bf3be1469f1ccec3efe597249a0b785617fa6088085ebf2daf61923e64b5",
+  "preserved_current_policy_sha256": "0ff3144575d039763972938561cee15fe30263855179230757f1e19ef4643967",
+  "disposition": "Accept20 metadata additions and canonical flatV11 refresh of143 source hash/size/attribution records; accept7 policy proposals. Preserve original V11/V12 and PD12-R1 finding. Actual final selection must recompute delivered totals and undergo required final validation.",
+  "application": "Deferred until final candidate assembly; current runtime inputs untouched.",
+  "limits": "Full V3 still active. No complete performance/cohort, registered sweep, governance validation, actual-head CI or merge claim."
+}

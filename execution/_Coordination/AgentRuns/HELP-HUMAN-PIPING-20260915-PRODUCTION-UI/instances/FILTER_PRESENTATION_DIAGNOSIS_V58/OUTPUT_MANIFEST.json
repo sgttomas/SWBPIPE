@@ -1,0 +1,21 @@
+{
+  "schema": "diagnosis-output-manifest/v1",
+  "members": [
+    {
+      "path": "REPORT.md",
+      "sha256": "213d752b3c01fef56c71e3592d3777aabded598589fcc9a62b49bff1eeaae035",
+      "bytes": 8881
+    },
+    {
+      "path": "INPUTS.json",
+      "sha256": "0a434568da372f26b369e01d3d025eed4e30f3a24da3137d09d8adb79264990c",
+      "bytes": 7328
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "4f71f8f342333d17dc63a9a8d1de7455ed8c1a4e10d39a7f85cdbd1a2cf906ac",
+      "bytes": 1549
+    }
+  ],
+  "inputRehash": "19/19 stable"
+}

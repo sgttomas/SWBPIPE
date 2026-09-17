@@ -1,0 +1,61 @@
+{
+  "status": "REQUEST_CHANGES",
+  "findings": [
+    {
+      "id": "F1",
+      "priority": 2,
+      "title": "Escape must retire the captured Box gesture",
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "line_start": 2511,
+      "line_end": 2517,
+      "trigger": "Arm Box, press the primary pointer on the canvas and drag, press Escape while holding the pointer, then release it.",
+      "mechanism": "The shell Escape handler disarms only creation tools. Box state and boxGestureRef live in PipeViewport and receive no Escape cancellation. The candidate at PipeViewport.tsx:1683\u20131695 remains captured; pointer-up at 1781\u20131801 applies and publishes it. Workspace Select likewise only calls handleArmCreationTool(null), so its apparent return to selection does not cancel Box.",
+      "impact": "A gesture the user cancelled still replaces or modifies ordered selection on release; the rectangle and Box mode can remain active after Escape.",
+      "remediation": "Route the shared cancel/select command to a Box cancellation primitive that clears the candidate before releasing capture, removes the rectangle, and disarms the mode. Retain separate ordinary pointer/orbit handling.",
+      "verification_required": "Real held-pointer Escape and Select cancellation controls must prove no delayed move/up revival, no selection/action publication, and unchanged camera; retain positive Box selection controls.",
+      "confidence": "high; independently source-confirmed"
+    },
+    {
+      "id": "F2",
+      "priority": 2,
+      "title": "Reject a Box candidate after its model or project session is replaced",
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "line_start": 1372,
+      "line_end": 1378,
+      "trigger": "Begin a Box drag, then replace the project (including same-ID Open) before pointer-up. An ordinary model replacement while the pointer remains held has the same missing generation admission.",
+      "mechanism": "The session effect clears boxSelectActive and boxRect but leaves boxGestureRef and native capture alive. Model/selection invalidation uses clearPointerPlacement (1632\u20131636), which only retires the separate placement candidate. Box stores neither model/session generation nor interaction epoch at 1683\u20131693. Delayed move at 1699\u20131706 recreates the rectangle; up at 1781\u20131799 selects against the current model/index/camera with the old rectangle.",
+      "impact": "A stale interaction can overwrite the new project selection after New/Open, violating transient session reset and potentially acting on unrelated same-ID entities.",
+      "remediation": "Bind the candidate to an explicit model/session or interaction generation, cancel capture synchronously on invalidating transitions, and validate that binding on both move and up. Use the central cancellation route for mode/context invalidation as well.",
+      "verification_required": "Held-pointer same-ID Open/New and ordinary model-replacement controls must show no rectangle revival or late selection publication; verify ordinary current-generation Box still works.",
+      "confidence": "high; independently source-confirmed"
+    },
+    {
+      "id": "F3",
+      "priority": 2,
+      "title": "Preserve the existing model-tree search fields",
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "line_start": 377,
+      "line_end": 385,
+      "trigger": "Filter a support by a restraint such as UX, a pipe by its material, or an entity by provenance/component geometry/reference fields that are absent from its ID and label.",
+      "mechanism": "indexedTreeItem replaces the former type-specific keyword lists with a short list of scalar fields. The base included support.restraints.join(\" \"), hanger type/source/consumption, pipe.material, provenance, and componentKeyword geometry/reference terms. None is included in the new list; matchesTreeItem at 420\u2013425 reads only that reduced list and display labels.",
+      "impact": "Existing useful searches silently return no matching entity after this virtualization rewrite. For {id:\"s\",label:\"Anchor\",node:\"n\",restraints:[\"UX\"],provenance:\"source\"}, UX matched the support in the base and does not match it now.",
+      "remediation": "Restore the previous per-type search vocabulary in the indexed representation, adding the new diagnostic/geometry fields without removing existing terms. Preserve virtual rendering and current typed ordering.",
+      "verification_required": "Focused tests with terms appearing only in restraints, hanger/source, pipe material, provenance and component reference/geometry should retain the old matches; do not derive the expectations from the new keyword builder.",
+      "confidence": "high; direct base/postimage regression"
+    },
+    {
+      "id": "F4",
+      "priority": 3,
+      "title": "Update the maintained current benchmark recipe and freezer arguments",
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "line_start": 106,
+      "line_end": 123,
+      "trigger": "Use the maintained README to understand or execute the current candidate qualification.",
+      "mechanism": "Lines 36\u201338 and 106\u2013108 claim the candidate global RAF is not wrapped, but the current causal/full-cohort instrumented method wraps the genuine callback path. The documented freeze-candidate-point-oracle.mjs command provides only preflight/output directories although the current script also requires --visual-tokens, --cue-source and --geometry-source.",
+      "impact": "The method description misstates the observation boundary and the published freezer command fails immediately, preventing reproducible use of the documented workflow.",
+      "remediation": "Describe the current instrumented qualification and its causal/observer limits, clearly label historical contracts, and provide the complete current bound-input argument pattern. Preserve explicitly historical observer/baseline records.",
+      "verification_required": "File-only check that the runnable parameter pattern matches the script parser and that current-method claims match the harness/controller.",
+      "confidence": "high; source/parser mismatch"
+    }
+  ]
+}

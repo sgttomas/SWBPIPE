@@ -1,0 +1,42 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-16T22:21:03.044698+00:00",
+  "role": "TASK Type2",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "enforcement": "instruction/config asserted; no delegation",
+  "derivative_package": true,
+  "brief_sha256": "ecc1d10b469309a874a25d4365bca97bd95f9ae15ce73923b394ae73e2183162",
+  "prior_derivative": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V17/RETURN.json",
+    "sha256": "5b577102a39b25034d95045e5b9a8b845b0c76f46c9c356f1cbe07c942ea0840"
+  },
+  "inputs_sha256": "edcbdb67b63c453b75043b2dd3e8576958ffc678fce9d6660446c01db74e0296",
+  "map_sha256": "dede16cbac6aab4c6e351350eb3c0c4a1618e99a9eeb5dfa7591d87162712d5f",
+  "closed_manifests": 4,
+  "explicit_single_inputs": 1,
+  "verified_aliases": 164,
+  "verified_unique_objects": 141,
+  "created_unique_objects": 129,
+  "reused_verified_objects": 12,
+  "verified_unique_bytes": 245808840,
+  "historical_extractor": {
+    "sha256": "6fbef3d327347a34e69d49ca226db9fb6f78c5042a36ea08f5a7a2427ebb7963",
+    "bytes": 40466,
+    "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/6fbef3d327347a34e69d49ca226db9fb6f78c5042a36ea08f5a7a2427ebb7963",
+    "status": "CREATED_VERIFIED",
+    "alias_indexes_in_INPUTS": [
+      163
+    ]
+  },
+  "exceptions": [],
+  "verification": "Every listed original SHA/size/containment verified; every canonical SHA/size/readonly mode readback verified. Exclusive fsync0444 temporary creation and renamex_np RENAME_EXCL; directory fsync. Existing exact objects reused.",
+  "preservation": "All originals, measured values, outcomes, aliases and prior archive objects retained. Original failures unchanged; focused method qualification is not target/full-cohort acceptance.",
+  "exclusions": [
+    "active V58",
+    "unlisted raw trees",
+    "current source and metadata"
+  ],
+  "archive_io": "COMPLETE_RELEASED; no background work",
+  "claims": "Derivative preservation only; not WORM, portable storage, whole historical preservation or acceptance. No Git/source/metadata/test/build/browser/native/runtime/deletion work."
+}

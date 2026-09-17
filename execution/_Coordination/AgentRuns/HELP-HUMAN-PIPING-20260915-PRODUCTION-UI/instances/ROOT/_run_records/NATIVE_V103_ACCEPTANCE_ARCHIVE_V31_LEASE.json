@@ -1,0 +1,102 @@
+{
+  "schema": "chirality-ui-foundation-root-native-acceptance/v1",
+  "recorded_at_utc": "2026-09-17T14:09:44.981382+00:00",
+  "role": "HELP_HUMAN Agent0",
+  "derivative_package": true,
+  "source_commit": "b6a1ab8378481adbb46d65847cb7eaf9a2864461",
+  "accepted_upstream": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
+      "sha256": "99077f9883a51421b874292ecc6ab51f62fc4bba9c5918413e7d6024b7e98145",
+      "bytes": 33601
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CONTRAST_V102/RETURN.json",
+      "sha256": "6de237c082e31562e3d346d3c6d0555ab1410c6f54517517c29c86910b07ce33",
+      "bytes": 2632
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V104_ACCEPTANCE_NATIVE_V103_RUNTIME_LEASE.json",
+      "sha256": "aea25460382aa60207d073171c9784b5aab19d1039be15b45f8e985d96aa0e4f",
+      "bytes": 4879
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_FUNCTIONAL_FANIN_AND_FINAL_CLEANUP.json",
+      "sha256": "7919cc0722a708db4602f18dc2ce02d69c66785d25e1c225c95cf454e3206db0",
+      "bytes": 5953
+    }
+  ],
+  "native_return": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/CONTRAST_BACKCHECK_V103/RETURN.json",
+    "sha256": "46d8d6fbe4f63978b7055d6f4d20520ca93fcec057e764bc43531f002f8e9995",
+    "bytes": 3285
+  },
+  "native_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/CONTRAST_BACKCHECK_V103/OUTPUT_MANIFEST.json",
+    "sha256": "cbdb738c36f0cb4a2bb7a2c3e25abda6fa78c3a98d399622c41363a726287c50",
+    "bytes": 10571
+  },
+  "root_checks": {
+    "raw_members": "67 members / 7541202 bytes exact; all contained regular files",
+    "bindings": "814 source,29 local frontend and3 app files rehashed exact",
+    "model_and_results": "Final model JSON and all stable result rows independently equal accepted Root V83 seed; five scalar allowances confirmed from owning analytical record",
+    "store": "All nine final SQLite tables independently equal SOLVED_SAVED; snapshot bytes unchanged",
+    "process": "PID22292 independently absent; child release owns port cleanup",
+    "visual_inspection": [
+      "DARK_INSPECTOR_COLLAPSED.jpg",
+      "DARK_SOLVED_LOWER.jpg",
+      "LIGHT_SOLVED_LOWER.jpg",
+      "DARK_MEASUREMENT_DOCK.jpg",
+      "VISIBLE_MODE_RUN.jpg",
+      "PALETTE_CLOSE_RETAINED.jpg",
+      "SOLVED_SAVED.png"
+    ],
+    "visual_result": "Affected controls/readiness text readable in Light/Dark; complete Dark measurement with nonblank viewport and dock; actual mode/Run buttons visible; frozen draft and Current identity visible. SOLVED_SAVED contains intended app only."
+  },
+  "method_note": "Root readonly URI SQLite open failed without mutating files; existing snapshot paths with PRAGMA query_only succeeded, with byte hashes unchanged. This is a local verification-method limitation, not a native product failure.",
+  "acceptance": "ACCEPT_BOUNDED_NATIVE_BACKCHECK_WITH_RECORDED_LIMITS",
+  "limits": [
+    "Native qualitative observations; CSS geometry/contrast arithmetic/preference equality retain browser attribution.",
+    "Pre-solve lower rule text not separately native-captured in both themes; exact browser coverage owns those states.",
+    "Original transient inspector AX omission remains unexplained; fresh V103 controls exposed. No independent macOS audit pass.",
+    "V83 and V12\u2013V17 retain original lifecycle/engineering execution attribution; no full replay claimed.",
+    "No complete performance cohort, D69 ruling, publication, lifecycle or release acceptance."
+  ],
+  "resource_applicability": "V20 changes from accepted V19 resource basis are color-only CSS and focused tests; they add no resource owner/lifetime. Retain FINAL_RESOURCE_APPLICABILITY limits and V56 earlier-bundle attribution without an invented broad replay.",
+  "runtime_release": "Accepted; no native/browser/build runtime owned",
+  "archive_lease": {
+    "status": "GRANTED",
+    "owner": "/root/ui_full_method_qualification",
+    "model": "gpt-6-astra",
+    "reasoning": "low",
+    "preparation": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V31_PREPARATION/OUTPUT_MANIFEST.json",
+      "sha256": "09276e24d18a84a2d535f41d35cf2839e6d55512e185c98638c627ae8a168f97",
+      "bytes": 621
+    },
+    "selection": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V31_PREPARATION/PROSPECTIVE_INPUTS.json",
+      "sha256": "248f926fe94b7983cee91eaff70b5340e0b26896eafef6f4d022456ce70f7101",
+      "bytes": 1626537
+    },
+    "additional_owning_manifests": [
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/CONTRAST_BACKCHECK_V103/OUTPUT_MANIFEST.json",
+        "sha256": "cbdb738c36f0cb4a2bb7a2c3e25abda6fa78c3a98d399622c41363a726287c50",
+        "bytes": 10571
+      }
+    ],
+    "additional_standalones": [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_V103_ACCEPTANCE_ARCHIVE_V31_LEASE.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/CONTRAST_BACKCHECK_V103/OUTPUT_MANIFEST.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V31_PREPARATION/OUTPUT_MANIFEST.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V31_PREPARATION/RETURN.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/RESUMPTION_V101_FANIN.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V101_R1_FOCUSED_RUNTIME_LEASE.json"
+    ],
+    "output": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V31",
+    "allowed": "One additive verified CAS increment using sealed V31 method, exact listed selections, originals and failed evidence preserved; no source/Git/policy or mutable draft writes",
+    "exclusions": "No native/browser/build/test runtime; no mutable V16/V105/WORK_GRAPH/handoff/maps, no recursive reference expansion; no raw deletion."
+  },
+  "remaining": "Final selected metadata/Remaining, practitioner/self-check/receipt, actual PR/CI; merge held D69 or original performance acceptance."
+}

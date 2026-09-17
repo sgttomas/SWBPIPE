@@ -1,0 +1,40 @@
+{
+  "schema": "immutable-diagnosis-output-manifest/v1",
+  "status": "SEALED",
+  "memberCount": 6,
+  "members": [
+    {
+      "path": "ATTEMPT.json",
+      "sha256": "a9bc751d127631ed202235e80a19970c298fcfe90788c9f8d0de2612e9d7b1b3",
+      "bytes": 1367
+    },
+    {
+      "path": "DIAGNOSE.mjs",
+      "sha256": "854c9e6c0027f5ab0531e1e49689c9b35f7c89a8946b02c2ed54aa06ecba0a03",
+      "bytes": 14111
+    },
+    {
+      "path": "INPUTS.json",
+      "sha256": "cdfc5a7317a17e502478f8059fcfecfb3e58e16474cad3eb9e45d5dceecfbcc1",
+      "bytes": 8364
+    },
+    {
+      "path": "PREDICATES.json",
+      "sha256": "a072f678217e610a699ada1d0964e45052a927c4a9658788fb3dfc48a5c4dfd7",
+      "bytes": 19603
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "9987223e56658f868430dcecdba5c0c1829886e98433deee3eeccced376196d2",
+      "bytes": 8299
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "81a38f6808da507c69ed4ad2f80f4bbe5b6d0078f13720d3235ca4df95529753",
+      "bytes": 4202
+    }
+  ],
+  "excludesSelf": true,
+  "rawCopies": 0,
+  "smallInputExitHashesStable": true
+}

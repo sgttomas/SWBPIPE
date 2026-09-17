@@ -1,0 +1,11 @@
+{
+  "status": "NATIVE_V32_ACCEPTED_V56_ACTIVE",
+  "native_return_sha256": "c41ed1b1b244e18e27a63f718951c7452ed9211ffba01862fdf5adad7d570843",
+  "native_manifest_sha256": "1bed97ebdaff4db76637f94a0262c3970d35686828f99de42fad02314a875d99",
+  "members_rehashed": 49,
+  "exact_full_seed_row_sha256": "f24ac2a446c666f02ee31010f3e08aec5070b48833c5e885e63bd450980eb773",
+  "source_sha256": "13260d4a03b792454d68e97259a15c53a79f9b3c6f4f60da6cb65093d783d5f8",
+  "runtime_owner": "/root/ui_full_method_qualification",
+  "brief_sha256": "ae9555809d436c6e90e0f4640b3e8399b83114ddd90710e4743d1eaeceb62843",
+  "whole_tranche": "OPEN"
+}

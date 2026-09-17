@@ -1,0 +1,44 @@
+{
+  "status": "PP11_R1_TWO_AUTHORITY_STRINGS_AND_ONE_SELECTION_ADDITION_PENDING_BACKCHECK",
+  "utc": "2026-09-17T03:46:20.293248+00:00",
+  "review_return_sha256": "31c435717db48c50e4b39cc3524ec202a4329ac058a0cb788faf5d074fd51cba",
+  "review_manifest_sha256": "f6c18d65d6403b4029ddf4a729be3c702424105eca0794d664527d4ab2fe6c7b",
+  "root_verified_review_members": 2,
+  "original_proposal": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_V11/POLICY_ADDITIONS.json",
+    "sha256": "e2d39018cf0402631558a329a11c66c0ccdee706bfbf4b2f7fb84cf7b774e963"
+  },
+  "changes": [
+    {
+      "index": 8,
+      "subject": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_METHOD_INTEGRATION_V20W/SOURCE_MANIFEST.json",
+      "subject_sha256": "fcb57840eda19a4d622f15fa317850f2e5a8b79f9e149a6ec83300a362fe22e3",
+      "old_authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V67_R1_DOCUMENTATION_REPAIR.json",
+      "new_authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V20W_INTEGRATION.json",
+      "new_authority_sha256": "b10ab925b90da601b1669a9250f59c5de5ec4d959df857551614484cc8046a77"
+    },
+    {
+      "index": 9,
+      "subject": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_METHOD_INTEGRATION_V20W/SOURCE_MANIFEST_R1.json",
+      "subject_sha256": "b95c7c3adc5a111687be78dcbf8b55a8df327f7150878597b750b4d2a04ebe26",
+      "old_authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V67_R1_DOCUMENTATION_REPAIR.json",
+      "new_authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V68_R1_MANIFEST_REPAIR.json",
+      "new_authority_sha256": "79ddef3342ca1607cec32d5884eaf8d37825f40adbe766aa8a0ea72ef72da71b"
+    }
+  ],
+  "publication_selection_addition": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V20W_INTEGRATION.json",
+    "sha256": "b10ab925b90da601b1669a9250f59c5de5ec4d959df857551614484cc8046a77",
+    "bytes": 2792,
+    "role": "Completed source integration record directly binding original method manifest; no executable command"
+  },
+  "unchanged": "All18 subject hashes/roles/reasons/other fields, all240 existing policy entries, all369 selected paths and7 live deferrals. No source or runtime changes.",
+  "proposed_applied_policy": {
+    "preimage_sha256": "0c92e550afa532e91194cded282be9c0872685cd924178bcadc06b576a7032bf",
+    "sha256": "0ff3144575d039763972938561cee15fe30263855179230757f1e19ef4643967",
+    "bytes": 205966,
+    "historical": 215,
+    "control": 43
+  },
+  "application": "NOT_APPLIED"
+}

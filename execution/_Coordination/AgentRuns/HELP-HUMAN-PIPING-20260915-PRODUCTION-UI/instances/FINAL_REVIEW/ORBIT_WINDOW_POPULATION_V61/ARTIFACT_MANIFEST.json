@@ -1,0 +1,14 @@
+{
+  "members": [
+    {
+      "path": "RETURN.json",
+      "sha256": "ed32d1ec76190f4d5d45e8e7b109b9527f0ee4b7021c1ca432a317fc0cf14093",
+      "bytes": 6118
+    },
+    {
+      "path": "COVERAGE.json",
+      "sha256": "3b1109d44c20712a8341de4b45ad59f1e00e2257ca04c7f08f964a87d88d4e14",
+      "bytes": 8784
+    }
+  ]
+}

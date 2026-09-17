@@ -1,0 +1,10 @@
+{
+  "members": [
+    {
+      "path": "EXECUTION_BRIEF_R1_CLOSURE.json",
+      "sha256": "eb52bd28238ff7739320c4aaa94e01736ff4689e03d09649043b7879d58d29df",
+      "bytes": 1586
+    }
+  ],
+  "priorAddendumManifestSha256": "2cb6dd76ea6f759085c2fd7e5b6682ffc327d1677db48a6311c964bcc13ee489"
+}

@@ -1,0 +1,35 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-16T14:46:00.864677+00:00",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "mechanism": "delegated-harness-native; no delegation",
+  "enforcement": "instruction/config asserted",
+  "brief": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/SEALED_RAW_ARCHIVE_INCREMENT_V9.md",
+    "sha256": "fc63e0d3b9e58de077e418de1c6bbc3aac249a2f2db19acfac684bc0dcf223d9"
+  },
+  "inputs_sha256": "b7341bbc9b3357282c75be900b019191715d83b803044ee6403954656c300bea",
+  "map_sha256": "148dfff0149f6e6207b09023987f638d7ea4d01ea5d4b43e4f64e2951bc6d740",
+  "closed_manifests": 5,
+  "verified_aliases": 673,
+  "verified_unique_objects": 409,
+  "created_unique_objects": 357,
+  "reused_verified_objects": 52,
+  "verified_unique_bytes": 269474391,
+  "exceptions": [],
+  "historical_status": "V34 remains partial with zero-test collection failure. V35 remains partial with component visual failure and independent source-correct oracle repair pending. Earlier passes do not imply component/support acceptance. Exact original status and attribution bytes retained.",
+  "retrieval": "MAP.json canonical SHA/size/path; aliases resolve through INPUTS.json to original paths and exact supplied source-manifest hashes. Manifest bytes also preserved.",
+  "method": "All supplied manifest/member hashes verified before copying. New exclusive temp copy fsync/mode0444/renamex_np RENAME_EXCL/readback; existing exact objects verified/reused. No overwrite or WORM claim.",
+  "exclusions": [
+    "active V20L",
+    "headed preparation",
+    "later work",
+    "undeclared members"
+  ],
+  "preservation": "All originals, prior maps and checkpoint history unchanged. No deletion, symlink replacement, maintained source edits, Git/index mutations, tests/build/browser/native/runtime actions.",
+  "claim_limit": "Derivative preservation only; no product/method/performance/tranche acceptance."
+}

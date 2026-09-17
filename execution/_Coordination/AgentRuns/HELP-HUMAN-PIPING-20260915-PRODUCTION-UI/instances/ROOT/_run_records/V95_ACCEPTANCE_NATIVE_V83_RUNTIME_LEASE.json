@@ -1,0 +1,89 @@
+{
+  "status": "V95_ACCEPTED_NATIVE_V83_V93_EXCLUSIVE_RUNTIME_GRANTED",
+  "at": "2026-09-17T11:50:13.699312+00:00",
+  "parent": "/root",
+  "owner": "/root/ui_native_successor",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "enforcement": "instruction/config asserted; no delegation",
+  "source_commit": "45ede19f2b2373dc451e146fdc7f29264f67c370",
+  "source_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V19/SOURCE_MANIFEST.json",
+    "sha256": "b5ed976cd86b1e90b5b83f1ba712a0d1ec1efb53bb7559d3c3baa090fd576e36",
+    "bytes": 33472
+  },
+  "independent_review": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/OPERATION_DOCK_V97/RETURN.json",
+    "sha256": "ec365fb918cec51f6e3652cdb7c4344cf2bd6560b72612666b9ee5b416eb68f2",
+    "bytes": 2450
+  },
+  "independent_review_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/OPERATION_DOCK_V97/ARTIFACT_MANIFEST.json",
+    "sha256": "e65fe4c15e86274e53012b92ed267094351751d166fe1b209dafe559949495c4",
+    "bytes": 997
+  },
+  "registered_sweep": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/RETURN.json",
+    "sha256": "68c5f6f747328ebb260e9247280aca712bc8cd429aee7ff29068f87a39c4d030",
+    "bytes": 4821
+  },
+  "registered_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/OUTPUT_MANIFEST.json",
+    "sha256": "d26f2e8eee8b3cfc26e360ccc413502dc5d3f046672d4c33cad5191e1d0867fe",
+    "bytes": 98268
+  },
+  "canonical_sweep": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/sweep/SWEEP_20260917T112650Z_45ede19f2b23.json",
+    "sha256": "dd07cddf49c5c28c479738fe9c1c0f7a20b26c4e709784cc0019c821d90f56f9",
+    "bytes": 3784
+  },
+  "root_verification": {
+    "members": 316,
+    "bytes": 44292282,
+    "complete_surfaces": 5,
+    "commands": 7,
+    "source_files": 145,
+    "root_check_working_and_committed_exact": true,
+    "check_clean": true,
+    "prior_pid_absent": true
+  },
+  "native_brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/POST_SOLVE_NATIVE_PREPARATION_V83.md",
+    "sha256": "bc415ffc1ab5cda683ea31aafeebb711436096f7bcfe988942018994f5b825b4",
+    "bytes": 3733
+  },
+  "native_preparation": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_PREPARATION/OUTPUT_MANIFEST.json",
+    "sha256": "09893d0e3ab5641527998a4127c1a1ff845985635bef9f97d5446b73be91ae6c",
+    "bytes": 1084
+  },
+  "build_command": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_PREPARATION/BUILD_COMMAND.json",
+    "sha256": "2f3eb0a109151a9fe90bcda91b94d82cc4f3198d4516b44386e89132de581690",
+    "bytes": 1440
+  },
+  "supplement_brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_V83_CANVAS_PALETTE_SUPPLEMENT_V93.md",
+    "sha256": "09007521015a95bc04e8d6eb506d8a9367f1b0f95e0acd55d9f40f58b1453009",
+    "bytes": 2751
+  },
+  "native_supplement": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_SUPPLEMENT_V93/OUTPUT_MANIFEST.json",
+    "sha256": "183b41fd490565bd703ba4e52fac3a87bf9b49529c147e4a0354bca3226f4515",
+    "bytes": 316
+  },
+  "execution": "One exact prepared offline Tauri build and isolated V83 app/store. Execute original V83 lifecycle plus V93 measurement/palette observations. Refresh CUA documentation before GUI. Source/generated/build/seed/actual binary/store bindings and normal quit/fresh-process reopen required. Stop and preserve failure; no automatic retry, source repair, broad benchmark, unsupported injection or follow-on.",
+  "additional_affected_observation": "Through ordinary Operations navigation, reach Geometry, focus and inspect the real Geometry selector, then return to Review without editing/applying model data. Record scrolling and actual dimensions. This checks the V96 normal-flow tabs repair; exact CSS containment remains browser evidence if native tools cannot measure it faithfully.",
+  "allowed_writes": [
+    "Ignored build outputs required by the prepared command",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime",
+    "Only the new app bundle and new isolated store specified by BUILD_COMMAND.json"
+  ],
+  "held": [
+    "All other runtime/build/browser/performance activity",
+    "Heavy raw archival I/O",
+    "Product edits and Git integration"
+  ],
+  "remaining": "Native, final evidence applicability/metadata/review, practitioner/self-check/receipt and actual-head CI pending. D69 unruled; original performance merge gate remains. No full-plan or release closure."
+}

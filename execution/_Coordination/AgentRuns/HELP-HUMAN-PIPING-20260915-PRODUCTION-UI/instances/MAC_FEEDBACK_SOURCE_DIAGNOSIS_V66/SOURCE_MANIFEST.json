@@ -1,0 +1,198 @@
+{
+  "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+  "limitBlobs": 20,
+  "limitBytes": 10485760,
+  "attempts": [
+    {
+      "path": "components/viz/service/display_embedder/skia_output_surface_impl_on_gpu.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/components/viz/service/display_embedder/skia_output_surface_impl_on_gpu.cc",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 110649,
+      "sha256": "db4168da75efd86300413efdc06b90374b34339a6b6a4b22e18b8d1a9080ccd3",
+      "localPath": "primary_sources/components/viz/service/display_embedder/skia_output_surface_impl_on_gpu.cc"
+    },
+    {
+      "path": "ui/gl/ca_layer_tree_coordinator.mm",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/ui/gl/ca_layer_tree_coordinator.mm",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "status": "FAILED",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "path": "components/viz/service/display_embedder/output_presenter_gl.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/components/viz/service/display_embedder/output_presenter_gl.cc",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 8626,
+      "sha256": "98092458f36f7f75da7130631f40661fc0d080bc4482081f381775017d5d1189",
+      "localPath": "primary_sources/components/viz/service/display_embedder/output_presenter_gl.cc"
+    },
+    {
+      "path": "components/viz/service/display_embedder/skia_output_surface_dependency_impl.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/components/viz/service/display_embedder/skia_output_surface_dependency_impl.cc",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 6977,
+      "sha256": "7bc0711f54cd098a1da0b71d20d81114198cbb782e93b9d030a23c159ab0a6eb",
+      "localPath": "primary_sources/components/viz/service/display_embedder/skia_output_surface_dependency_impl.cc"
+    },
+    {
+      "path": "gpu/ipc/service/image_transport_surface_overlay_mac.mm",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/gpu/ipc/service/image_transport_surface_overlay_mac.mm",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 14152,
+      "sha256": "f84c29ce2ee83241c9a65cf8ee5b2d9be919a7190789b162cc8781d79aae1fc9",
+      "localPath": "primary_sources/gpu/ipc/service/image_transport_surface_overlay_mac.mm"
+    },
+    {
+      "path": "ui/accelerated_widget_mac/ca_layer_tree_coordinator.mm",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/ui/accelerated_widget_mac/ca_layer_tree_coordinator.mm",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 12321,
+      "sha256": "6348284c0a217cd9b71f47ba3f810b00f0d7e616943c17e99b11d455a0abe642",
+      "localPath": "primary_sources/ui/accelerated_widget_mac/ca_layer_tree_coordinator.mm"
+    },
+    {
+      "path": "ui/accelerated_widget_mac/ca_layer_tree_coordinator.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/ui/accelerated_widget_mac/ca_layer_tree_coordinator.h",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 5793,
+      "sha256": "4dfc28121c3bac799087b20a7a8eff791d63c37d4f93a9314799f71ef09b6692",
+      "localPath": "primary_sources/ui/accelerated_widget_mac/ca_layer_tree_coordinator.h"
+    },
+    {
+      "path": "gpu/ipc/service/image_transport_surface_mac.mm",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/gpu/ipc/service/image_transport_surface_mac.mm",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 1453,
+      "sha256": "5036e281f0fb84ec9a1ef334e1cbddbb8aa2c572724e0037416266f3ff871096",
+      "localPath": "primary_sources/gpu/ipc/service/image_transport_surface_mac.mm"
+    },
+    {
+      "path": "components/viz/service/display_embedder/skia_output_device_buffer_queue.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/components/viz/service/display_embedder/skia_output_device_buffer_queue.cc",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 19368,
+      "sha256": "3d515992211bab9a94134742a73f1c7d0223d93362f6c4716e000c8a458d3f82",
+      "localPath": "primary_sources/components/viz/service/display_embedder/skia_output_device_buffer_queue.cc"
+    },
+    {
+      "path": "gpu/config/gpu_finch_features.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/gpu/config/gpu_finch_features.cc",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 35517,
+      "sha256": "9f52f49ed2581f49cbd54141b5685f601def0067ba5ff122f161246d2d58d9d2",
+      "localPath": "primary_sources/gpu/config/gpu_finch_features.cc"
+    },
+    {
+      "path": "ui/base/ui_base_features.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/ui/base/ui_base_features.cc",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 20470,
+      "sha256": "4d61df3ef0ee838cfb5ffc74205214058b1534d8c456f96a04ecd24cf73269fe",
+      "localPath": "primary_sources/ui/base/ui_base_features.cc"
+    },
+    {
+      "path": "components/viz/common/features.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/components/viz/common/features.cc",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 21538,
+      "sha256": "2f321544dcbc96e3e770693326e8067b33052bf8c0569969ae6de3d79d3b4d3a",
+      "localPath": "primary_sources/components/viz/common/features.cc"
+    },
+    {
+      "path": "ui/display/mac/display_link_mac.mm",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/ui/display/mac/display_link_mac.mm",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 5351,
+      "sha256": "ce43d1de27a9bd48fd0a63942007af72b24e1cfb13ef4e09a18556e97cbda879",
+      "localPath": "primary_sources/ui/display/mac/display_link_mac.mm"
+    },
+    {
+      "path": "components/viz/service/display_embedder/skia_output_device.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/components/viz/service/display_embedder/skia_output_device.cc",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 14734,
+      "sha256": "bbef2958bec49c377385e12710dc59efd521cb14d3e939d453e42bbc4c4a850e",
+      "localPath": "primary_sources/components/viz/service/display_embedder/skia_output_device.cc"
+    },
+    {
+      "path": "ui/display/display_features.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/ui/display/display_features.cc",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 5542,
+      "sha256": "cf06614fd3f8e33f8cc621b2ef648c024ba74b693c99a3d8bdd78b79810b10d0",
+      "localPath": "primary_sources/ui/display/display_features.cc"
+    },
+    {
+      "path": "gpu/ipc/service/image_transport_surface_overlay_mac.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/gpu/ipc/service/image_transport_surface_overlay_mac.h",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 4080,
+      "sha256": "340baaaa300b67e1c8b361967bafc35f5bc12c6b57233c10e4d9456b6ba28c80",
+      "localPath": "primary_sources/gpu/ipc/service/image_transport_surface_overlay_mac.h"
+    },
+    {
+      "path": "components/viz/service/display_embedder/skia_output_surface_impl.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/components/viz/service/display_embedder/skia_output_surface_impl.cc",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 71447,
+      "sha256": "006b9c73d1ec61a4b4ab209012682ab8b4219c861306eced23bfd73d847cf940",
+      "localPath": "primary_sources/components/viz/service/display_embedder/skia_output_surface_impl.cc"
+    },
+    {
+      "path": "ui/display/mac/cv_display_link_mac.mm",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/ui/display/mac/cv_display_link_mac.mm",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 15417,
+      "sha256": "22aa2991dbfe4c2b555e87799fe72fb906c3c618d68cf17a21833c0d5dd9e0fb",
+      "localPath": "primary_sources/ui/display/mac/cv_display_link_mac.mm"
+    },
+    {
+      "path": "ui/display/mac/external_display_link_mac.mm",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c/ui/display/mac/external_display_link_mac.mm",
+      "revision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "bytes": 4677,
+      "sha256": "ae41cef12a7e127666c425142b59be91d7708f6e7f40b6c370e7ed8466918984",
+      "localPath": "primary_sources/ui/display/mac/external_display_link_mac.mm"
+    }
+  ],
+  "successfulBlobs": 18,
+  "fetchedBytes": 378112,
+  "sealed": true,
+  "interpretation": "Pinned Chromium producer source only; no supplier build or dynamic state manipulation."
+}

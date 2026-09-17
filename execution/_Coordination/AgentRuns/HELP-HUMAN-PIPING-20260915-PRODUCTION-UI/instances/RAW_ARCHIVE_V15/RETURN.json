@@ -1,0 +1,40 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-16T20:41:44.577025+00:00",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "mechanism": "delegated-harness-native; no delegation",
+  "enforcement": "instruction/config asserted",
+  "brief": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/RAW_ARCHIVE_INCREMENT_V15.md",
+    "sha256": "0feb6ba4a1b6b5c0919c7997a3dbcf90b1e6804d53495a40d77f8e25e9dd99be"
+  },
+  "prior_derivative": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V14/RETURN.json",
+    "sha256": "72ca4d4de316fd51311912e04cb4665f8da89e8021654c29fe82804c2f2803cd"
+  },
+  "inputs_sha256": "8301e0003c9448e67421edf0e51f9802675c58a27933ca8d8f0c00c8a8482ba5",
+  "map_sha256": "f30b6e8c071c1f1354ae08922005dd2c00aec62af7bc1555af3e9ebcdabb52c2",
+  "closed_manifests": 6,
+  "verified_aliases": 196,
+  "verified_unique_objects": 164,
+  "created_unique_objects": 158,
+  "reused_verified_objects": 6,
+  "verified_unique_bytes": 18634843,
+  "exceptions": [],
+  "historical_status": "Initial repaired cases passed, BC1/BC2 subsequently added; final source review passes. Query20 membership-change hypothesis refuted; all40 workload expectations unchanged. Exact failures/corrections/statuses preserved, not native/performance/tranche acceptance.",
+  "retrieval": "MAP canonical SHA/bytes/path; alias indexes resolve through INPUTS to original paths/owning manifest hashes; owning manifest bytes preserved.",
+  "verification_coverage": "All explicitly declared durable members verified before copies; every unique canonical object SHA/size readback checked. Missing declared sizes recorded from matching bytes.",
+  "method": "Exclusive fsync0444 temporary new objects and renamex_np RENAME_EXCL, canonical readback, exact verified reuse; no overwrite/WORM claim.",
+  "exclusions": [
+    "original review scratch array and read-*.txt",
+    "active nativeV30 outputs",
+    "unlisted directories/active records"
+  ],
+  "preservation": "Originals/prior archive objects/maps/checkpoints unchanged. No product/method/metadata/Git/test/build/browser/native/process/publication staging/deletion actions.",
+  "archive_io": "COMPLETE_RELEASED; no background work",
+  "claim_limit": "Derivative preservation only; no acceptance reinterpretation."
+}

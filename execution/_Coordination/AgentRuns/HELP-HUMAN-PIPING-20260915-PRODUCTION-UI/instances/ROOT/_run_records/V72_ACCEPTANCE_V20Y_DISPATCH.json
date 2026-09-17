@@ -1,0 +1,43 @@
+{
+  "status": "PASS_DIAGNOSIS_ACCEPTED_PROSPECTIVE_COLLECTION_REPAIR",
+  "at": "2026-09-17T05:50:01.456695+00:00",
+  "source_commit": "11d51c16404b229ab505d1db9eef5758fbe249e6",
+  "v72": {
+    "return_sha256": "d378a6faf4b369a6606b75aea61ae67e66ae9cc3dedf61c4301a12bb62ece619",
+    "output_manifest_sha256": "306bca93f9d6a50c6387df4cc6c0bce24b04b2296b27494ca69abab91f2af33d",
+    "report_sha256": "1e66064c9e40436a9a30ee63f26b5acff4fe526e3a14ec407ae0e84c41d589fe",
+    "prospective_contract_sha256": "3be111d2d4924204dcb542532454573028a59fadca105501842abfa621832b60",
+    "verified_members": 10,
+    "verified_bytes": 222201
+  },
+  "decision": "Accept correct rejection and retrospective producer serialization. Implement fixed250ms collection-only host tail for assignment/point/box after immutable stopped evidence and existing work. Filter/orbit unchanged; exact extractor/scorer/targets unchanged. Eventual failed V3 reporter state remains unknown.",
+  "scope_extension": "ui-foundation-performance.benchmark.ts may expose an explicit diagnostic-only assignment mode with distinct output/designation, five fresh sessions per size, zero cohort contribution, no ability to pass full cohort. Other four paths match independent proposal.",
+  "write_preimages": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "18903d93521216a1ad47fb302c28cb501f9d3639260bf0adb425bcf06c8f5c12",
+      "bytes": 61849
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "97a9936c564ebe7ad0182ea167e5e2e5ecb117288f6770fb30500d1438becea6",
+      "bytes": 74348
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+      "sha256": "2a7d60c2009d26c7737081fe7f48c5639a2e7c08007ad18a79d287fce9654cb8",
+      "bytes": 42807
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+      "sha256": "2f2deb8d2771b03a10f4f67b564c5cade7b4a1eaeb8f17c4375e55851047103c",
+      "bytes": 16900
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "sha256": "fd70a87407aa55ec82140cf74e9ceae3c7d6bd04b696ae8fd9ca45b6ff6ad274",
+      "bytes": 14702
+    }
+  ],
+  "limits": "No live qualification authorized; author pure controls only. V3 remains failed7/1/2. Root integrates only after fresh review."
+}

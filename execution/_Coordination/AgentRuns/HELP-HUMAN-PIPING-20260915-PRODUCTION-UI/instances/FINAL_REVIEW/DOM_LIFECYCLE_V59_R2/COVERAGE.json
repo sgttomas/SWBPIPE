@@ -1,0 +1,100 @@
+{
+  "schema": "bounded-independent-review-coverage/v1",
+  "entry": {
+    "sourceCount": 143,
+    "mismatches": [],
+    "changedCount": 2,
+    "unchangedPriorCoverage": 141
+  },
+  "exit": [
+    {
+      "inventory": "source143",
+      "count": 143,
+      "mismatches": []
+    },
+    {
+      "inventory": "author15",
+      "count": 15,
+      "mismatches": []
+    },
+    {
+      "inventory": "method29ROOT",
+      "count": 29,
+      "mismatches": []
+    },
+    {
+      "inventory": "method29VERIFY",
+      "count": 29,
+      "mismatches": []
+    },
+    {
+      "inventory": "commands4",
+      "count": 4,
+      "mismatches": []
+    },
+    {
+      "inventory": "wrappers6",
+      "count": 6,
+      "mismatches": []
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/DOM_LIFECYCLE_BACKCHECK_V59_R2.md",
+      "sha256": "a69334597b8f6de934f4d2e4bd05d8a6b6f21738da11eee5deaad3644d0c756e"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V8/SOURCE_MANIFEST.json",
+      "sha256": "deff170bd0a1b9343066105726f6f1ca660f233e0d35ad3010b4cebaa21df6c5"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V7/SOURCE_MANIFEST.json",
+      "sha256": "1ad256f83a7ff34adde05f392f7b1acb7c5947f80db921b09aea93b974358f2c"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/DOM_LIFECYCLE_V59/RETURN.json",
+      "sha256": "acbe0b7830a8b540a6c02d4e7316be92ebb4dea68c2ded537a1516f39da1167f"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U_R2/OUTPUT_MANIFEST.json",
+      "sha256": "ca2c96c5b9f243ddd00b8861f33a9c86af9adb6f1cf31c48c6b98c52085adcd2"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U_R2/RETURN.json",
+      "sha256": "4ae6d7f9c6fe6f625c17e54531a9519bd8d7dfa6ba83697e27bbbd378401c102"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U_R2/PATCH.diff",
+      "sha256": "7f821c58a594e593ea9803859a8f66e7dc726468ebbe82ff658ebab15ae1065c"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U_R2/SOURCE_MANIFEST_V20U_R2.json",
+      "sha256": "69fa2f893e9b86ce45ac99c3ecebee5719089f37c0146270117589c604cd0539"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U_R2/preimage.log",
+      "sha256": "fe731a36b3182203e94ff9c3034b3e306f09fc2138935dbd313ccf05ea223774"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U_R2/controls.log",
+      "sha256": "a7d4bf4e0530bd664ef8e14704b2bd64f1a49c25a3e959aa60807c4a29dd5cb1"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U_R2/unrelated.log",
+      "sha256": "5640206831d624da02bd2d97c0905209d8e786d1c4759b13664d501e22634149"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U_R2/ARCHIVED_REGRESSION.json",
+      "sha256": "cfaba2d797a289c956a77daf2b42ea9a4b4ab27faff396e45f0487379c1ac3e7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FOREGROUND_QUALIFICATION_LAUNCH_V59/BOUND_EXECUTION_V20U_R2/BINDINGS.json",
+      "sha256": "85a160bb7f390a0b34351656ab1c79e305fec217838c4de0c3a376f6756558c0"
+    }
+  ],
+  "delta": "Exact R2 two-file patch reconstructed from V7 preimages. Both complete changed predicates and all three new controls reviewed, with cumulative V20U lifecycle/caller and first-tail contract carried from prior review.",
+  "controls": "Author preimage rejects expected rejection because duplicate-zero extraction passed; recorded98 current controls include allthree tied duplicate/reversed/interleaved negatives. Retained69-case/67-call/two-API differential pass. No reviewer test execution.",
+  "archived": "Entire two-entry archived output is structurally identical to V20U output, including before canonical extraction and after proxy/endpoints. Both original V57 intervals and zero cohort contribution remain unchanged.",
+  "launch": "All four command hashes and actual source/method/browser/bundle/oracle hashes verified. Six wrapper/config/package pins exact. Cwd/argv, populations, targets, waits, timeouts, profile and evidence destinations unchanged from prior V59; all four destinations currently absent. Only method/source identities and governance text changed.",
+  "remainingBoundaries": "Tied cross-kind stage starts are conservatively unavailable; no invented ordering or duration, universal equivalence or fresh runtime claim."
+}

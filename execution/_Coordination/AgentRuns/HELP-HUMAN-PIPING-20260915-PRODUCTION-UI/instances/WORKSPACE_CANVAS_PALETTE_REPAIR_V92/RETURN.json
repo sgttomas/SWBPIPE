@@ -1,0 +1,26 @@
+{
+  "status": "DIST_COLLECTION_FAILED_DEPENDENT_RUNTIME_NOT_RUN",
+  "derivative_package": true,
+  "upstream": "frozen candidateV17; sealed V92 PREPARATION/PREPARATION_R1 and V89/V91",
+  "results": {
+    "guarded_vite_build": "PASS",
+    "dist_collection": "FAIL exit1;0 tests; static defaultPreviewModel JSON import requires Node ESM import attribute type:json",
+    "dist_cases": "NOT_RUN",
+    "source_menu": "NOT_RUN",
+    "source_workspace": "NOT_RUN",
+    "prior_units": "15 PASS retained preparation",
+    "prior_typescript": "PASS retained preparation",
+    "deliberate_preimage": "Expected focus failure retained preparation"
+  },
+  "diagnosis_limit": "Collection loader failure only, before browser tests; no layout or focus runtime verdict",
+  "source": "All9 declared source hashes unchanged from PREPARATION_R1",
+  "closure_verdict": "Not accepted; collection correction and entire browser validation remain",
+  "remaining": [
+    "Root-authorized JSON fixture loading correction",
+    "51dist/4menu/17source checks and success/failure attachment capture",
+    "independent review/integration/qualification"
+  ],
+  "rerun_requirements": "No automatic edit/rerun while frozen independent review; Root authorization required",
+  "runtime": "RELEASED",
+  "git_index_mutation": false
+}

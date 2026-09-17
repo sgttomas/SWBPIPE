@@ -1,0 +1,35 @@
+{
+  "self_excluding": true,
+  "members": [
+    {
+      "path": "PATH_DELTA.json",
+      "sha256": "f467f3e1d8f5748b77f66ea82ace8616bcf505c26eb72b8ae6cdb1e29ae8b16c",
+      "bytes": 14117
+    },
+    {
+      "path": "POLICY_ADDITIONS.json",
+      "sha256": "e643f9e2547e8ca9e6ad0473878151c69736ea4791dc297920d8d9253d8a7028",
+      "bytes": 5862
+    },
+    {
+      "path": "REVIEW_NOTES.md",
+      "sha256": "0e6a2df96ffa06fd5fa6f2df9b7300dcae028d993e0ce4943aa8274c94e41167",
+      "bytes": 1831
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "8785e4264544fe4f2a0ee77d954b8fc700fb52890f2da0ad6010c513dce12ea4",
+      "bytes": 11493
+    },
+    {
+      "path": "EVIDENCE/V71_RETURN_V71_FOCUSED.json",
+      "sha256": "3cd5ece3147de44ec0e237c8562bbfad461b180fddf9cd8d27eb86447935faaa",
+      "bytes": 1125
+    },
+    {
+      "path": "EVIDENCE/V71_OUTPUT_MANIFEST.json",
+      "sha256": "2c3db6846e4251215099eb3bcf0f2966005f21a7ab2bad6067e2882b89724b5e",
+      "bytes": 20056
+    }
+  ]
+}

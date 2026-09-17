@@ -1,0 +1,30 @@
+{
+  "status": "PASS_REVIEWED_V11_R1_POLICY_APPLICATION_AND_EXISTING_LOADER",
+  "utc": "2026-09-17T03:50:22.771700+00:00",
+  "derivative_package": true,
+  "policy": {
+    "path": "projects/chirality-piping/validation/portability_policy.json",
+    "before_sha256": "0c92e550afa532e91194cded282be9c0872685cd924178bcadc06b576a7032bf",
+    "sha256": "0ff3144575d039763972938561cee15fe30263855179230757f1e19ef4643967",
+    "bytes": 205966
+  },
+  "review": {
+    "return_sha256": "edc2666b57e36f4467292a2d1e55c01b296cd88d16e7a1059b524f82eea0c6c3",
+    "manifest_sha256": "49300fd314127ec821589ff25a3bf5089a760d53e5c09fc252b50f96d3072dde",
+    "root_verified_members": 1
+  },
+  "repair_sha256": "05a3ffcc1e88619a9db3a52b4b3357a40645a8e37f589f75d7cec8c2c2717de0",
+  "selection_addition": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V20W_INTEGRATION.json",
+    "sha256": "b10ab925b90da601b1669a9250f59c5de5ec4d959df857551614484cc8046a77",
+    "bytes": 2792,
+    "role": "Completed source integration record directly binding original method manifest; no executable command"
+  },
+  "changes": "Append18 reviewed historical entries with two exact authority corrections; original197 historical/43 control entries and all subject bytes unchanged. No classifier or source change.",
+  "loader": {
+    "entries": 258,
+    "issues": [],
+    "added_effective_roles_exact": 18
+  },
+  "limits": "Actual selected final publication, complete practitioner/self-check/receipt and performance remain pending."
+}

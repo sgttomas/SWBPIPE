@@ -1,0 +1,103 @@
+{
+  "status": "FOCUSED_DIST_FAILED_SOURCE_LANES_NOT_RUN",
+  "role": "TASK Type2 Astra/low; no delegation",
+  "derivative_package": true,
+  "upstream": "1e4f7dfb06bc6fe5ce011efda7efd3dd6ee4b66d / integratedV15; sealedV88; preservedV86 failures",
+  "results": {
+    "typescript": "PASS",
+    "candidate_production_build": "PASS",
+    "dist_collection": 47,
+    "dist": {
+      "startTime": "2026-09-17T09:40:39.962Z",
+      "duration": 158672.974,
+      "expected": 43,
+      "skipped": 0,
+      "unexpected": 4,
+      "flaky": 0
+    },
+    "source_menu": "NOT_RUN dependency stop",
+    "source_workspace": "NOT_RUN dependency stop",
+    "attempts": "47 one attempt each; retry0"
+  },
+  "failures": [
+    {
+      "title": "[visual-clarification] measurement and real pipe task remain unobscured as narrow drawers close",
+      "status": "failed",
+      "retry": 0,
+      "error": {
+        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m200\u001b[39m\nReceived:    \u001b[31m189\u001b[39m",
+        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m200\u001b[39m\nReceived:    \u001b[31m189\u001b[39m\n    at /Users/ryan/.codex/worktrees/8728/chirality-ui-workflow-repair-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts:187:39",
+        "location": {
+          "file": "/Users/ryan/.codex/worktrees/8728/chirality-ui-workflow-repair-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+          "column": 39,
+          "line": 187
+        },
+        "snippet": "  185 |     const orientation = await expectPassiveOrientationFrame(page, testInfo, `narrow-measurement-dock-${dockState}`);\n  186 |     expect(orientation.canvas.width).toBeGreaterThanOrEqual(200);\n> 187 |     expect(orientation.canvas.height).toBeGreaterThanOrEqual(200);\n      |                                       ^\n  188 |     await expect(page.getByTestId(\"workspace-dock\")).toHaveClass(dockState === \"closed\" ? /collapsed/ : /^(?!.*collapsed)/);\n  189 |     expect(await readSavedPanelSizes()).toEqual(savedPanels);\n  190 |     await expect(inspector.getByTestId(\"editor-intent-value\")).toHaveValue(\"Retained through measurement drawer close\");"
+      }
+    },
+    {
+      "title": "outer overlays own actual workspace intersections and restore controls 1024",
+      "status": "failed",
+      "retry": 0,
+      "error": {
+        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('toolkit-entry')\nExpected: focused\nReceived: inactive\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('toolkit-entry')\u001b[22m\n\u001b[2m    24 \u00d7 locator resolved to <button type=\"button\" aria-expanded=\"false\" data-testid=\"toolkit-entry\" aria-controls=\"toolkit-commands\" aria-label=\"Find modeling commands\" title=\"Search Build, Supports, Properties, Loads, Edit, Select and View, and Review commands\">\u2026</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n",
+        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('toolkit-entry')\nExpected: focused\nReceived: inactive\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('toolkit-entry')\u001b[22m\n\u001b[2m    24 \u00d7 locator resolved to <button type=\"button\" aria-expanded=\"false\" data-testid=\"toolkit-entry\" aria-controls=\"toolkit-commands\" aria-label=\"Find modeling commands\" title=\"Search Build, Supports, Properties, Loads, Edit, Select and View, and Review commands\">\u2026</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n\n    at /Users/ryan/.codex/worktrees/8728/chirality-ui-workflow-repair-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts:359:57",
+        "location": {
+          "file": "/Users/ryan/.codex/worktrees/8728/chirality-ui-workflow-repair-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+          "column": 57,
+          "line": 359
+        },
+        "snippet": "  357 |         await page.mouse.click(palettePoint.point!.x, palettePoint.point!.y);\n  358 |         await expect(dialog).toHaveCount(0);\n> 359 |         await expect(page.getByTestId(\"toolkit-entry\")).toBeFocused();\n      |                                                         ^\n  360 |         await expect(drawer).toBeVisible();\n  361 |         await page.getByTestId(\"toolkit-entry\").click();\n  362 |         const selectCommand = page.getByTestId(\"toolkit-view.select\");"
+      }
+    },
+    {
+      "title": "outer overlays own actual workspace intersections and restore controls 1440",
+      "status": "failed",
+      "retry": 0,
+      "error": {
+        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('toolkit-entry')\nExpected: focused\nReceived: inactive\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('toolkit-entry')\u001b[22m\n\u001b[2m    24 \u00d7 locator resolved to <button type=\"button\" aria-expanded=\"false\" data-testid=\"toolkit-entry\" aria-controls=\"toolkit-commands\" aria-label=\"Find modeling commands\" title=\"Search Build, Supports, Properties, Loads, Edit, Select and View, and Review commands\">\u2026</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n",
+        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('toolkit-entry')\nExpected: focused\nReceived: inactive\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('toolkit-entry')\u001b[22m\n\u001b[2m    24 \u00d7 locator resolved to <button type=\"button\" aria-expanded=\"false\" data-testid=\"toolkit-entry\" aria-controls=\"toolkit-commands\" aria-label=\"Find modeling commands\" title=\"Search Build, Supports, Properties, Loads, Edit, Select and View, and Review commands\">\u2026</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n\n    at /Users/ryan/.codex/worktrees/8728/chirality-ui-workflow-repair-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts:359:57",
+        "location": {
+          "file": "/Users/ryan/.codex/worktrees/8728/chirality-ui-workflow-repair-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+          "column": 57,
+          "line": 359
+        },
+        "snippet": "  357 |         await page.mouse.click(palettePoint.point!.x, palettePoint.point!.y);\n  358 |         await expect(dialog).toHaveCount(0);\n> 359 |         await expect(page.getByTestId(\"toolkit-entry\")).toBeFocused();\n      |                                                         ^\n  360 |         await expect(drawer).toBeVisible();\n  361 |         await page.getByTestId(\"toolkit-entry\").click();\n  362 |         const selectCommand = page.getByTestId(\"toolkit-view.select\");"
+      }
+    },
+    {
+      "title": "palette Node and Select cannot revive a captured Box through a mode ABA",
+      "status": "failed",
+      "retry": 0,
+      "error": {
+        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('viewport-create-node-id')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('viewport-create-node-id')\u001b[22m\n\u001b[2m    23 \u00d7 locator resolved to <input value=\"\" placeholder=\"node:N-3\" aria-label=\"New node ID\" data-testid=\"viewport-create-node-id\"/>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('viewport-create-node-id')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('viewport-create-node-id')\u001b[22m\n\u001b[2m    23 \u00d7 locator resolved to <input value=\"\" placeholder=\"node:N-3\" aria-label=\"New node ID\" data-testid=\"viewport-create-node-id\"/>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at /Users/ryan/.codex/worktrees/8728/chirality-ui-workflow-repair-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts:1378:63",
+        "location": {
+          "file": "/Users/ryan/.codex/worktrees/8728/chirality-ui-workflow-repair-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+          "column": 63,
+          "line": 1378
+        },
+        "snippet": "  1376 |     await page.getByTestId(\"toolkit-entry\").focus(); await page.keyboard.press(\"Enter\");\n  1377 |     await page.getByTestId(\"toolkit-build.node\").focus(); await page.keyboard.press(\"Enter\");\n> 1378 |     await expect(page.getByTestId(\"viewport-create-node-id\")).toBeVisible();\n       |                                                               ^\n  1379 |     await page.getByTestId(\"toolkit-entry\").focus(); await page.keyboard.press(\"Enter\");\n  1380 |     await page.getByTestId(\"toolkit-view.select\").focus(); await page.keyboard.press(\"Enter\");\n  1381 |   }"
+      }
+    }
+  ],
+  "appearance": "All12 appearance cases PASS; V86 eight splitter/four rail failures no longer reproduced in this candidate. Independent visual acceptance not supplied.",
+  "attachments": {
+    "total": 201,
+    "orientation_crops": 14,
+    "orientation_contexts": 14,
+    "orientation_json": 14,
+    "binding": "CYCLE1/ATTACHMENT_BINDINGS.json maps canonical report to decoded body or preserved path attachment"
+  },
+  "closure_verdict": "Not accepted; four failures require Root diagnosis/disposition. No edits or rerun after failure.",
+  "remaining_blockers": [
+    "189px narrow open-dock canvas below200floor",
+    "palette backdrop pointer-dismiss focus expectation fails in both new layer cases",
+    "existing palette Node/Select captured-Box ABA node form hidden",
+    "dependent20source cases not executed",
+    "independent orientation visual verdict and complete review/integration/qualification"
+  ],
+  "rerun_requirements": "No automatic follow-on; Root must authorize diagnosis/repair/runtime",
+  "runtime": "RELEASED",
+  "git_index_mutation": false
+}

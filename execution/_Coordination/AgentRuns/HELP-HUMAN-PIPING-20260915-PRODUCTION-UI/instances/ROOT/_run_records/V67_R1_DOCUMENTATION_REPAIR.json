@@ -1,0 +1,16 @@
+{
+  "status": "DOC_ONLY_V67_R1_REPAIRED_PENDING_BACKCHECK",
+  "utc": "2026-09-17T03:17:47.280384+00:00",
+  "review_return_sha256": "94154810f8deb7ee30287e43fb277fa014031fbda253d2c35e4ef395a597cde0",
+  "review_manifest_sha256": "a3d0eb15593b0d35a3106197db1439b06ff894932e578a299d8250d391915883",
+  "root_verified_members": 3,
+  "finding": "V67-R1",
+  "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+  "before_sha256": "76fa3a902e39dfd0c68a6a6058ff219e5d86e45a674ec5df19eb12a4782404c1",
+  "sha256": "fd70a87407aa55ec82140cf74e9ceae3c7d6bd04b696ae8fd9ca45b6ff6ad274",
+  "bytes": 14702,
+  "change": "Only definite pinned Graphite/Dawn Metal Mac EGL estimate semantics, user-space ready/latch and HWCompletion limit; no metric, target, source algorithm or test change.",
+  "basis": "Accepted V66 report c66318ec13f9b0a223518df0313a818932f04b90fed3737232f8cc41a0d7f2bd",
+  "evidence": "Original V20W author packet and V67 review preserved; offline51 results carry for identical four implementation/test files.",
+  "backcheck_scope": "Original five-file review exact source with only this README paragraph correction; writes reviewer BACKCHECK only, no tests/runtime or delegation."
+}

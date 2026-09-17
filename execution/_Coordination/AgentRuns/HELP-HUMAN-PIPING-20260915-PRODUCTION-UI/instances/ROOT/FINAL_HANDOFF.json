@@ -1,0 +1,104 @@
+{
+  "status": "FUNCTIONAL_TECHNICAL_ACCEPTED_PUBLICATION_PENDING_D69_UNRULED",
+  "derivative_package": true,
+  "basis": {
+    "owner_direction": "D-68_RULING_2026-09-15.md and this run's APPROVED_PLAN.md",
+    "planning_commit": "28ad73cc3f936872f8de1d5116c617db1290331b",
+    "accepted_authority": "Decomposition 0.12 / SCA-009 / DAG-010 / R5, unchanged; original handoff and accepted engineering history preserved."
+  },
+  "source": {
+    "overlay": "instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
+    "sha256": "99077f9883a51421b874292ecc6ab51f62fc4bba9c5918413e7d6024b7e98145",
+    "maintained_paths": 145,
+    "product": "V101 contrast repair and R1 legitimate blocking test route integrated after independent V102 review. All145 ROOT/CHECK working and committed source hashes exact at b6a1ab837; final registered V104 qualification is running.",
+    "method": "V20Y fixed250ms post-stop collection for assignment/point/box and retained stopped evidence; explicit zero-cohort assignment diagnostic. V20X raw occurrence identity and V20W same-trace interval bounds unchanged; product/filter/orbit/extractor/scorer/targets unchanged.",
+    "oracle": "V20S checked geometry source pin; frozen400point/40box geometry identical to accepted V46.",
+    "source_commit": "b6a1ab8378481adbb46d65847cb7eaf9a2864461"
+  },
+  "implemented_workflows": [
+    "Persistent modelling workspace with command search, capability groups, model tree/grid, contextual properties and frozen active-task targets, resizable review/results dock, responsive drawers, System/Light/Dark appearances and Comfortable/Compact density.",
+    "Typed ordered multi-selection and primary identity; tree range/focus semantics; explicit directional Box Select through visible valid frustum geometry; every membership change advances preparation epoch without invalidating solved results.",
+    "Presentation-only hide/isolate/show-all and visible/selected fitting, with entity-owned attachments and graphics; authored-coordinate distance/components measurement; validated straight-span Actual OD with explicit schematic fallback.",
+    "Explicit selected-pipe target snapshots in existing transform and self-weight routes; virtualized tree/grid/large selectors, drafts retained outside mounted rows, focused editing-row pinning, filtered queueing that clears only submitted drafts.",
+    "Persistent renderer, camera and controls; shared geometry/materials and chunked instancing; demand-driven drawing, bounded labels, context/resource lifecycle handling and idle owned RAF zero.",
+    "Engineering author/edit/review/apply remains on existing typed intents and Rust application. Native failures, busy history, stale/cancelled/late responses and Current/Historical result boundaries remain explicit."
+  ],
+  "interface_handoff": {
+    "selection": "apps/desktop/src/features/workspace/selectionState.ts \u2014 EntityKey and OrderedSelectionState; typed key collisions and membership epochs are part of the contract.",
+    "model_index": "apps/desktop/src/features/workspace/modelIndex.ts \u2014 read-only ModelIndex per revision with bounds, connectivity and section binding.",
+    "view_commands": "apps/desktop/src/features/viewport/viewportSelection.ts \u2014 ViewportViewCommand; named view actions used by PipeViewport. Future harness transport is not implemented.",
+    "preferences": "apps/desktop/src/features/workspace/uiPreferences.ts \u2014 versioned UI-only preference record; project storage and operation wires are unchanged.",
+    "lifetime": "Project replacement, including same-ID reopen, clears transient view state; ordinary edits preserve/prune it. Undo/redo restores the primary checkpoint as a singleton selection."
+  },
+  "verification": {
+    "source_review": "V102 PASS with no actionable findings; complete two-file cumulative contrast/test delta reviewed,143 exact inherited source paths. Root verified eight sealed review members and474input bindings. Twelve original appearance passes and two R1 readiness passes remain separately attributed; original intended preimage and failed-route evidence preserved. V97/prior cumulative review owns inherited paths; final selected metadata review remains pending.",
+    "native": "V103 bounded affected native PASS accepted by Root in NATIVE_V103_ACCEPTANCE_ARCHIVE_V31_LEASE.json. It verifies current contrast/readability, complete Dark measurement, retained draft/palette Close, visible pointer mode/Run, exact seed model/results and normal Quit. Prior V83 owns full later save/reopen lifecycle; original V12\u2013V17 own authoring/history/semantic-equivalence. Old transient AX omission remains unexplained; no independent audit pass.",
+    "resources": "Root accepts resource evidence applicability with explicit limits in FINAL_RESOURCE_APPLICABILITY.json. V56 owns the earlier-bundle resource baseline; its resource implementation is unchanged, while the new DOM observer lifetime has independent source review and passed unit coverage. No final-binary resource-cohort replay is claimed.",
+    "performance": "V79 diagnosis sealed and Root verified. All1204 exact producer joins support future-estimate contribution without long recorded serialized GPU wait; no product/scorer patch justified. V76 diagnostic orbit33.334ms both FAIL/zero cohort. No complete accepted performance cohort. D-69 proposal would defer performance prerequisite for one functional merge; no ruling yet.",
+    "registered_sweep": "V104 complete registered sweep PASS on clean actual-source b6a1ab8378481adbb46d65847cb7eaf9a2864461. Root verified the owning output manifest and exact ROOT/CHECK working and committed source equality. Canonical summary and return own numerical counts. V95 retains attribution to prior45ede source.",
+    "practitioner_and_receipt": "PENDING final checks",
+    "publication": "V17 Remaining/policy application complete and frozen selection consumed by Root. V31 preservation accepted. V105 actual-candidate review, clean-checkout practitioner/self-check/receipt and hosted PR/CI remain pending. D69 UNRULED; merge held. This is the pre-publication checkpoint; later review/check/PR records own their actual outcomes."
+  },
+  "performance_interpretation": {
+    "profile": "Instrumented foreground Chromium-reported presentation on current M5 Max/128GiB host, 1440x920,DPR2. Conservative upper bounds; no cost subtraction or physical scanout claim.",
+    "targets_ms": {
+      "assignment": 2000,
+      "point_p95": 100,
+      "box_filter_p95": 200,
+      "centerline_orbit_p95": 16.7,
+      "actual_od_orbit_p95": 33.3
+    },
+    "population": "Five fresh contexts per size, each200point/20box/20filter actions and2orbit modes after prescribed warmup. Every qualifying tied reported timestamp remains in the metric population.",
+    "baseline": "Historical baseline used a different browser/method and includes10k availability failures. No comparable numerical speedup is claimed.",
+    "memory_startup": "Browser heap/Chrome RSS, owned renderer resources, worker memory, host read/parse and native main-PID RSS are separate. Native startup/reopen observations include declared tool timing limits; cold-cache startup and total WebKit memory are unavailable."
+  },
+  "remaining": [
+    "Broader routing gestures, attached engineering transforms and finite component insert-in-run remain beyond this workspace foundation.",
+    "Modulus-basis entry, broader units and authoring widgets retain their deliverable-local residuals.",
+    "Independent usability/security validation remains held. Touched-control WCAG2.2AA verification does not establish whole-product conformance; untouched report/export target gaps remain.",
+    "Pressure runtime activation, connector mechanics, numerical robustness and end-to-end sparse execution remain separately scoped engineering work.",
+    "CAEPIPE export and harness integration remain deferred. Future harness controls should consume shared operation/view semantics.",
+    "Formal dependency statuses, decomposition, stage and lifecycle do not advance through tranche Git closeout."
+  ],
+  "next_phase": [
+    "Final archive/Remaining/policy/candidate review and practitioner/self-check/receipt",
+    "Scoped PR and actual CI",
+    "Owner D69 decision or original performance acceptance before merge"
+  ],
+  "original_handoff": {
+    "path": "{ORIGINAL_WORKTREE}/projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md",
+    "sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+    "policy": "Preserve local original; do not stage or rewrite it.",
+    "path_resolution": "ORIGINAL_WORKTREE is the original chirality checkout named by the owner at session entry, distinct from this isolated implementation checkout. This local preservation reference is not a clone/build dependency."
+  },
+  "evidence_policy": "Canonical originals plus Root-verified host-local CAS throughV31, including final nativeV103 and registeredV104. Host-local non-WORM/non-clone-portable; original local handoff unchanged.",
+  "closure_verdict": "Functional technical scope accepted; full approved tranche and publication remain open. This record narrows only expressly accepted functional Remaining entries and does not waive any acceptance gate.",
+  "next_action": "Complete archive and final selected publication candidate; independent metadata review, clean-checkout practitioner/self-check/receipt, then scoped PR and actual CI. Merge held by D69/original performance gate.",
+  "test_evidence_calibration": "Original V20Y reports57initial pure checks, final1diagnostic-agreement backcheck and noEmit. Extractor result contains98evaluated cases plus6unrequested differential placeholders, not104executed checks; preserve original output and corrected interpretation.",
+  "current_focused_status": {
+    "status": "V96_R1_AND_V97_ACCEPTED_INTEGRATED",
+    "source": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V19/SOURCE_MANIFEST.json",
+      "sha256": "b5ed976cd86b1e90b5b83f1ba712a0d1ec1efb53bb7559d3c3baa090fd576e36",
+      "bytes": 33472
+    },
+    "review": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/OPERATION_DOCK_V97/RETURN.json",
+      "sha256": "ec365fb918cec51f6e3652cdb7c4344cf2bd6560b72612666b9ee5b416eb68f2",
+      "bytes": 2450
+    },
+    "limits": "Focused 68 fresh / four inherited menu checks accepted; V95 supplies the later full registered sweep pass. Native, practitioner and performance acceptance remain separate. Short-panel label/control scrolling remains an explicit usability limitation."
+  },
+  "current_repair": {
+    "status": "V101_R1_ACCEPTED_INTEGRATED",
+    "source_commit": "b6a1ab8378481adbb46d65847cb7eaf9a2864461",
+    "review": "instances/FINAL_REVIEW/CONTRAST_V102/RETURN.json",
+    "review_sha256": "6de237c082e31562e3d346d3c6d0555ab1410c6f54517517c29c86910b07ce33"
+  },
+  "source_commit": "b6a1ab8378481adbb46d65847cb7eaf9a2864461",
+  "functional_acceptance": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json",
+    "sha256": "1ff013da86e97e0662824d18526cab7a902a9afdfb559e3d1b2ce55d7f721450",
+    "bytes": 11581
+  }
+}

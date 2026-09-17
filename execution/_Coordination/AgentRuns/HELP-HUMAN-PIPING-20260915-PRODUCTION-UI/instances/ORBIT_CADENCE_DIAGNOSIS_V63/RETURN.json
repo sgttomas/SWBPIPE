@@ -1,0 +1,35 @@
+{
+  "schema": "task-return/v1",
+  "task": "ORBIT_CADENCE_DIAGNOSIS_V63",
+  "parent": "/root",
+  "status": "COMPLETE_EXPLICIT_UPSTREAM_THROTTLE_DIAGNOSIS",
+  "proven": "V61 renderer receives33333us BeginFrames from8333us unthrottled source with3frames explicitly throttled; sequence steps4.",
+  "policyAttribution": "Strong inference consistent with pinned default battery-saver30Hz policy and12% discharging; exact active browser preference/provider not captured.",
+  "productRepairJustified": false,
+  "methodRepairJustified": false,
+  "recommendation": "One prospectively frozen ordinary headed AC reference qualification if owner can provide stable AC; same source/method/flags/workload/targets, preserve every outcome.",
+  "noAutomaticRuntime": true,
+  "held": "Full cohort and further performance runtime remain ROOT decisions.",
+  "preserved": [
+    "V61 valid focused battery-condition target failure",
+    "V59 failed historical window validity",
+    "original raw/canonical evidence",
+    "targets16.7/33.3ms",
+    "conservative clock and population method",
+    "zero full-cohort contribution"
+  ],
+  "rawTraceInputs": 3,
+  "explicitInputs": "14/14 verified",
+  "sourceFiles": "4/4 match adopted manifests",
+  "sourceChanges": false,
+  "runtimeOrTestsExecuted": false,
+  "settingsChanged": false,
+  "delegated": false,
+  "derivativePackage": true,
+  "limits": [
+    "Requested throttle is proven; exact battery-policy activation inferred",
+    "No continuous physical foreground/power/VRR or hardware scan-out claim",
+    "No uninstrumented/true-observer-cost claim",
+    "Product universal capacity not established"
+  ]
+}

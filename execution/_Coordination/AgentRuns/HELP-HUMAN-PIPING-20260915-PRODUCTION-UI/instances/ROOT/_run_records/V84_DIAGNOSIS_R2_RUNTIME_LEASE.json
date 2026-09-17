@@ -1,0 +1,22 @@
+{
+  "status": "DIAGNOSIS_ACCEPTED_BOUNDED_MATRIX_RUNTIME_GRANTED",
+  "at": "2026-09-17T08:39:30.147876+00:00",
+  "owner": "/root/ui_workflow_regression_repair_v77",
+  "verified": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/POST_SOLVE_CONTROL_REACHABILITY_DIAGNOSIS_V84/OUTPUT_MANIFEST.json",
+      "sha256": "1587172729e90ff45b3a374abc18549cc6943f9fba6af1818f46a5471640b8cb",
+      "members": 3
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/POST_SOLVE_DOCK_REPAIR_V81_R2/PREPARATION_V1/OUTPUT_MANIFEST.json",
+      "sha256": "58785228eef26028f6150934568378cb5b269eae2cde713b8d65fb943abc8454",
+      "members": 7
+    }
+  ],
+  "command_sha256": "f3572be116d1619e9c2aaa9aebd88680da14410ec80a2a06bf547fb6bc0d5b5a",
+  "scope": "Exact12collection then12matrix on frozenR2 usingordinaryconfig one workerzero retries andJSONcapture. No units/build/native/performance/archive concurrent.",
+  "method": "One gated ordinary upward wheel; exact finalcontainment/focus/hit preserved. No rounding or keyboard-only full-border claim.",
+  "coordination_correction": "Root authorized R2 source preparation while V84 sealed; V84 truthfully binds immutableR1source and records liveR2drift. Diagnosis is not R2 review.",
+  "remaining": "Independent finalsource backcheck, integration/native/registeredverification and pending D69owneract"
+}

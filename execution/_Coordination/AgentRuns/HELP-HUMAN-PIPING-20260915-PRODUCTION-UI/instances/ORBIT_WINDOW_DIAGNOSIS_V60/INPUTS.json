@@ -1,0 +1,102 @@
+{
+  "status": "DIAGNOSIS_INPUTS_FROZEN",
+  "source_commit": "325e46f3910a774c935b8743c7187732bca9a9ff",
+  "files": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/OUTPUT_MANIFEST.json",
+      "sha256": "9530ed78131ed61d957011a6dd132f84658e95e631c83d9ae806151eacbb617d",
+      "bytes": 19152
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/FOCUSED_CHECKPOINT.json",
+      "sha256": "3554016ccc1f0e4b9f99d4782661380bf3bfc549e2a7d5639e9cada8baf30c7e",
+      "bytes": 9274
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/RETURN_V59_FOCUSED.json",
+      "sha256": "646cfc26b256a9ec2fa666cce221151bb18f5a9c2cc52800d44f29c0285967d7",
+      "bytes": 427
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/RELEASE.json",
+      "sha256": "8a5786ecd5a24b4bed08b172274ad7e55ba036074c642643fac09a745244d61c",
+      "bytes": 227
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/focused/runtime/focused-full-v20/result.json",
+      "sha256": "500948dfbd9189652738fcd1c18684e33295cee4ce1e6e647f4c735d223a8a6e",
+      "bytes": 764984
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/focused/runtime/focused-full-v20/orbit-001/derived.json",
+      "sha256": "593fc614dd12f25e328af4aa04998fe2f713af8969031e5cb88995c35df8845a",
+      "bytes": 13873211
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/focused/runtime/focused-full-v20/orbit-001/action-stopped.json",
+      "sha256": "6229e1f0583a3010b7254dd657eebb4a333c978fad3b7de9f6d0246df8d0a721",
+      "bytes": 4783410
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/focused/runtime/focused-full-v20/orbit-001/prepared.json",
+      "sha256": "b911f0a04de95c4b0cf9d2e1a7a6be8f89e91611f6dc3729b124677ab8a15fd0",
+      "bytes": 2005
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/focused/runtime/focused-full-v20/orbit-001/trace-finalized.json",
+      "sha256": "c52723fd618683c366ab7bbdde023ff380e3c3b6b50473fe1ecb662c48723515",
+      "bytes": 299160
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "0d1cdf6e2602b0e5b8c57b8521056c6b2e2a6b9be03d4343441189e7360ed5fd",
+      "bytes": 54316
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "96b72394fa1363595625b16a24efe13de75299ba363329ee258bca8badc624c2",
+      "bytes": 55764
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.ts",
+      "sha256": "769aab9e6085c61939236b561c6c81c692940923a56101ae79ecf1d3f86c78dc",
+      "bytes": 10238
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+      "sha256": "e60d81965e1fc2bb6145180ab3e496ddc5e27ee881f1a1e7b9cf798e6ce68aae",
+      "bytes": 15536
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/benchmark-harness.ts",
+      "sha256": "0588824257de2c8a9d12631916938e46fd1f0119b49ecb98f0279b58638d90bf",
+      "bytes": 182447
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-method-contract.ts",
+      "sha256": "06979207212a2317a0d1a7e6883839f8502383d1e94928dd885e16f35f622944",
+      "bytes": 21317
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+      "sha256": "732a234efeeda61d1eb83a3df49833a335ccbb202f357e6cdc2459d34ebcd241",
+      "bytes": 43181
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/lossless-trace-json.mjs",
+      "sha256": "de7e87219debfaf750b6bf707adc68c60a2c1d316bea53850c26742dbec97175",
+      "bytes": 2149
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V8/SOURCE_MANIFEST.json",
+      "sha256": "deff170bd0a1b9343066105726f6f1ca660f233e0d35ad3010b4cebaa21df6c5",
+      "bytes": 33771
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U_R2/SOURCE_MANIFEST_V20U_R2.json",
+      "sha256": "69fa2f893e9b86ce45ac99c3ecebee5719089f37c0146270117589c604cd0539",
+      "bytes": 7409
+    }
+  ],
+  "optional_bounded_context": "Prior V53 orbit scorer diagnosis and V57 focused result/derived orbit records may be compared with their owning manifests; record any additional input hashes. Raw trace read only if derived data cannot resolve the boundary."
+}

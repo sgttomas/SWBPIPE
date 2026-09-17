@@ -15,6 +15,12 @@ This Scope of Work defines `DEL-07-06` in service of project scope [SOW-036] and
 
 - **OUT-001** — An accessibility and engineering-review usability baseline covering keyboard access, labels, readability, large-model navigation, unit and diagnostic visibility, warning separation, and report-facing review boundaries is produced without asserting an unapproved conformance level.
 
+## Current bounded target — D-68, 2026-09-15
+
+The owner-approved professional modelling workspace foundation plan and `execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md` select WCAG 2.2 AA criteria for controls touched by that tranche. The selected checks include visible focus, keyboard alternatives, 4.5:1 ordinary-text contrast, 3:1 required graphical contrast and applicable minimum target sizes. Their applicability covers the changed interactive desktop workspace, including its changed review/results controls; it does not select a target for untouched report/export surfaces or generated report files.
+
+For this bounded scope, target-selection wording below that remains `TBD_by_human_project_authority` records the earlier setup and PDU history and is superseded by D-68. It remains applicable outside the selected scope. Target selection supplies an acceptance criterion, not runtime evidence or a conformance verdict. Tranche verification must cite the actual tested candidate and retain failures. PDU-045 and PDU-046 remain `VERIFIED_NOT_VALIDATED`; the separately held independent-usability work is not closed by project-owned testing. The original packets and their recorded target-unavailable findings remain unchanged.
+
 ## Deliverable Definition — Ontology
 
 ### CLM-001 — Datasheet: DEL-07-06 Accessibility and usability baseline

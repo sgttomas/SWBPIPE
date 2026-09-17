@@ -1,0 +1,92 @@
+{
+  "schema": "piping-native-wasm-provenance-return/v1",
+  "status": "DIAGNOSIS_COMPLETE_CONTINUATION_RECOMMENDED",
+  "sealed_at": "2026-09-17T12:17:05.987892+00:00",
+  "role": {
+    "role": "TASK Type2 ephemeral generalist",
+    "parent": "/root HELP_HUMAN",
+    "instance": "/root/ui_dist_overlay_diagnosis",
+    "dispatch_model": "gpt-6-astra",
+    "dispatch_reasoning_effort": "xhigh",
+    "model_evidence": "Parent-dispatched existing allocation; not independent runtime model attestation",
+    "delegation_class": "delegated-harness-native",
+    "enforcement": "instruction/config asserted, not mechanically proven",
+    "delegated": false
+  },
+  "source_commit": "45ede19f2b2373dc451e146fdc7f29264f67c370",
+  "verdict": "Existing R1 app has adequate current-source/build provenance to begin the planned native qualification; no concrete build prerequisite missing.",
+  "owner_action_required": "Root supersedes its added CHECK/V95 all-dist byte-equality condition in a new disposition and owns any runtime continuation. Preserve original holds/failure packets.",
+  "rebuild_recommended": false,
+  "cross_checkout_wasm_equivalence_claimed": false,
+  "native_witness_status": "NOT_RUN",
+  "product_defect_established": false,
+  "evidence": {
+    "source_fixture_unique": 814,
+    "integrated_source_paths": 145,
+    "local_frontend_exact": 29,
+    "CHECK_dist_exact_to_V95": 21,
+    "cross_checkout_dist_equal": 19,
+    "cross_checkout_dist_different": 2,
+    "native_dependency_dist_members": 21,
+    "current_app_members_exact": 3,
+    "direct_inputs_stable": 161,
+    "nonarchive_runtime_members_independently_verified": 21
+  },
+  "remaining_assertions": [
+    "Exact existing R1 app and local frontend hashes at launch",
+    "No source/asset drift",
+    "Planned isolated-store identity and seed",
+    "Original V83 lifecycle and V93 supplement observations",
+    "Independent final owner acceptance"
+  ],
+  "limits": [
+    "No semantic equivalence proof between distinct WASMs",
+    "No hermetic toolchain or installed-dependency-tree attestation",
+    "No independent embedded-asset extraction",
+    "V95 browser PASS remains CHECK-byte-attributed",
+    "No native, engineering, D69 or performance acceptance implied"
+  ],
+  "upstream_snapshots": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V19/SOURCE_MANIFEST.json",
+      "sha256": "b5ed976cd86b1e90b5b83f1ba712a0d1ec1efb53bb7559d3c3baa090fd576e36",
+      "status": "Accepted integrated-source attribution"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/RETURN.json",
+      "sha256": "68c5f6f747328ebb260e9247280aca712bc8cd429aee7ff29068f87a39c4d030",
+      "status": "Registered qualification PASS, retained scope"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/RETURN_R1.json",
+      "sha256": "23bdddd247c720bac6105ca5b7bae14b3437de315d3cbee10d3f7ba9566b2257",
+      "status": "Preserved prelaunch failure; never relabelled PASS"
+    }
+  ],
+  "derivative_package": true,
+  "closure": "Bounded diagnosis closed; Root disposition and native qualification open",
+  "rerun_requirements": "Execute the existing planned native witness only after Root admits the bound app; no speculative rebuild or browser rerun prescribed.",
+  "activity": {
+    "runtime_started": false,
+    "builds_or_tests_run": false,
+    "modules_executed": false,
+    "network_used": false,
+    "git_mutation": false,
+    "product_writes": false,
+    "owned_resources": [],
+    "released": true,
+    "writes": "Only four new packet files"
+  },
+  "outputs": [
+    {
+      "path": "INPUT_BINDINGS.json",
+      "sha256": "d5b2bc39c533f80d646d188a4c9ee9f95039aa535a1a4d90363f9c1dc4e753a7",
+      "bytes": 117105
+    },
+    {
+      "path": "DIAGNOSIS.md",
+      "sha256": "a8b4490582337ba5fb65dadc4766a36ee23b9b64d637b3e7173b271019c52683",
+      "bytes": 6096
+    }
+  ]
+}

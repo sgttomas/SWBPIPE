@@ -1,0 +1,54 @@
+{
+  "schema": "piping-bounded-diagnosis-return/v1",
+  "task": "DIST_LAYER_GIZMO_DIAGNOSIS_V88",
+  "status": "DIAGNOSIS_COMPLETE_REPAIR_AND_QUALIFICATION_REQUIRED",
+  "parent": "/root HELP_HUMAN",
+  "instance": "/root/ui_dist_overlay_diagnosis",
+  "role": "ephemeral TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "xhigh",
+  "configurationCalibration": "Parent-assigned native descendant configuration; not independently provider-attested by this child.",
+  "mechanism": "delegated-harness-native; instruction/config asserted",
+  "delegation": "none",
+  "derivativePackage": true,
+  "sourceCommit": "1e4f7dfb06bc6fe5ce011efda7efd3dd6ee4b66d",
+  "acceptedUpstreamBindings": "INPUT_BINDINGS.json",
+  "briefSha256": "17509b16d90f13952fee4cd02bbbfff92930c664f4c77363c545e05e4b8876fa",
+  "diagnosis": {
+    "path": "DIAGNOSIS.md",
+    "sha256": "ec5cb378c5bb74b86a4a0dfd90d5afa2c095c73f3db74f25c8b2e4b1774db2f1"
+  },
+  "failureClasses": {
+    "desktopInspectorSplitterAboveDrawer": 8,
+    "narrowCollapsedInspectorRailAboveDrawer": 4,
+    "passiveGizmoInteractiveOwnershipMismatch": 1
+  },
+  "recommendedProductRepair": "Create one stacking context on .workspace (e.g. isolation:isolate), preserving local and outer layer ordering.",
+  "recommendedMethodRepair": "Use actual shared-canvas scissor bounds, main-canvas ownership, and retained independent XYZ crop review for the passive gizmo; preserve interactive ownership/minimum-target helper semantics.",
+  "recommendedRepairFiles": [
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts"
+  ],
+  "metadataCorrection": "V86 RETURN.otherFailures says all12 are splitters; raw traces establish8splitters and4narrowrailhandles. Preserve original and correct downstream summary.",
+  "limitations": [
+    "Actual original gizmo center hit element is not retained; empty-string diagnostic does not prove canvas identity.",
+    "No new runtime evidence; proposed isolation has not been exercised.",
+    "Source342pass versus distribution failures does not establish bundle divergence.",
+    "Full V86 failure and final-build NOT_RUN remain."
+  ],
+  "verification": {
+    "sourceManifestMatches": 143,
+    "sourceMembers": 143,
+    "inputDrift": [],
+    "sourceDrift": [],
+    "rawFailingTracesRead": 13,
+    "originalGizmoFullPngViewed": true,
+    "representativeOverlayScreencastsViewed": 2
+  },
+  "runtime": "NONE; no tests/build/server/browser/native run; no retry",
+  "mutations": "Only new files in own diagnostic instance; no source/test/Git/policy edits.",
+  "closureVerdict": "Assigned diagnosis complete; product repair, independent review and qualification open.",
+  "handoff": "Root owns repair authorization and scope, focused runtime lease/test selection, complete-candidate independent review, integration and fresh registered sweep.",
+  "sealedAt": "2026-09-17T09:26:16.624409+00:00"
+}

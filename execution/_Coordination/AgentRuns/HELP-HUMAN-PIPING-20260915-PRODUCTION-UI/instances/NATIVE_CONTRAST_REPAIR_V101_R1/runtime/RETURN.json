@@ -1,0 +1,20 @@
+{
+  "status": "FOCUSED_READINESS_PASS_REVIEW_PENDING",
+  "derivative_package": true,
+  "preparation_manifest_sha256": "0af8d5b015dae1e1d735dd743fe6367294307e77ad7a0a7cc1e532f05e9fa131",
+  "source_manifest_sha256": "d9479460b7e24e28dede838f7ba6faebcb156097e0c7be3da9b70eeeb6237634",
+  "results": {
+    "startTime": "2026-09-17T13:22:04.379Z",
+    "duration": 9639.276,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "attempts": "2cases, eachsinglepassedattempt/retry0; no skips/flaky/errors",
+  "evidence": "41attachments retained andcanonicalbodybytes/pathhashesverified. SixphasecontrastJSONs,24rowcrops,2namedblockingdiagnosticJSON/crop pairs; allfourtones.",
+  "history": "OriginalV101preimage2intendedfail andcandidate12PASS/2routeFAIL preserved; inherited12appearancePASS not rerun. Productdist21unchanged/no build.",
+  "closure": "Bounded routefix qualificationcomplete; independentV102/currentimage review, integration/fullregisteredsweep and nativeappearancebackcheck remain Rootgates. No AX/performance/finalproductacceptance.",
+  "runtime": "RELEASED; ports5173-5177clear and ownedprocessesabsent; all145source and21dist hashesexact.",
+  "follow_on": "None automatic."
+}

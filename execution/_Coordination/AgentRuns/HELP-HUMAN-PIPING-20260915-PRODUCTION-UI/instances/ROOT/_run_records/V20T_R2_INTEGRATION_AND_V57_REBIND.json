@@ -1,0 +1,21 @@
+{
+  "status": "TWO_FILE_METHOD_DELTA_INTEGRATED_PENDING_REVIEW",
+  "source_manifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V6/SOURCE_MANIFEST.json",
+    "sha256": "97d118522657b3e9ac9c344ca396bd1619c6449178a4d322021f29b25bbfee98"
+  },
+  "method_manifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/RUNTIME_ORACLE_PIN_V20T_R2/SOURCE_MANIFEST_V20T_R2.json",
+    "sha256": "0dfc5eb61d22d9bac9575278f2fcc5af2211a92fffaf4ba08ef6d577ff10d418"
+  },
+  "bound_execution": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FOREGROUND_QUALIFICATION_LAUNCH_V57/BOUND_EXECUTION_V20T_R2/BINDINGS.json",
+    "sha256": "b5f1d122d86f4c8a8484703d2f48c4782ee6be1e38c55ccde8ef5b4a48ad3e38"
+  },
+  "source_count": 143,
+  "delta_count": 2,
+  "product_bundle_unchanged": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+  "actual_oracle_unchanged": "50b86d1fd13a85c9c910d6fbaffacb4752fbfeeca2a00ec05b469c27fd4e45c8",
+  "runtime": "not started",
+  "utc": "2026-09-16T22:03:12.090115+00:00"
+}

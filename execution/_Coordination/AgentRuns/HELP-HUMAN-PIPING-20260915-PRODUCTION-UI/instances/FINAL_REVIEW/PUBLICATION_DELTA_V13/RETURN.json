@@ -1,0 +1,31 @@
+{
+  "status": "PASS_BOUNDED_METADATA_DELTA",
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "enforcement": "instruction/config asserted",
+  "delegation": "none",
+  "derivativePackage": true,
+  "brief_sha256": "a32e18a0a0974cdc1d6fad1dd614f5df97160dab5c26f5746c288f29a9cb058b",
+  "author_manifest_sha256": "e4988c682e7f9ce87cbd9e5e277689a05f08683af70cbe863a3b1396e5b6b620",
+  "path_delta_sha256": "e99a90ce9d3cbccfcefb4f1779ca925b4782146e7946e0e8024d6731d63d50a0",
+  "policy_delta_sha256": "c0d4bdcf36b038a593d8cba5d5e9b67b85f49a9dbfe30f495372f1e8e635870d",
+  "findings": [],
+  "coverage": "Complete23 selected additions,12 exact historical policy proposals and4 content-identical evidence copies. Eight author members/78715bytes exact. All38 input bindings stable. Existing258 policy entries and seven V12 proposals retained.",
+  "prospective_combined_policy": {
+    "sha256": "b6d4232b765470fac1c68ba4e8e206e0f74ddb3783e5886131588805200a5891",
+    "bytes": 220389,
+    "historical": 234,
+    "control": 43
+  },
+  "disposition": "No actionable findings. Authorities and classifications fit actual completed evidence; full V3 failure and bounded V72 recommendation remain calibrated. Combined policy was reconstructed only in memory; no policy applied.",
+  "limits": "Metadata read/hash/parse/calculation only. No active V20Y source/output reads, source implementation reread, tests/build/runtime/browser/native/OS/network/Git operations, raw-capture/CAS-object reads, archive writes, policy/source mutation or delegation. Alias consistency does not independently reverify raw contents or establish clone-portable availability. No complete performance/cohort, final publication or tranche acceptance.",
+  "handoff": "Bounded review complete and released. Root owns exact delta/policy application during assembly, later accepted V20Y source refresh, final delivered totals and whole-selected-candidate checks. All prospective qualification, final metadata, registered/practitioner/self-check, CI and merge gates remain separate.",
+  "coverage_sha256": "9e1f1204c4eac85dca43a859213f0dc545b13212fc6ea1ec7d1929b63128a3c1",
+  "entry_exit": {
+    "bindings": 38,
+    "drift": []
+  }
+}

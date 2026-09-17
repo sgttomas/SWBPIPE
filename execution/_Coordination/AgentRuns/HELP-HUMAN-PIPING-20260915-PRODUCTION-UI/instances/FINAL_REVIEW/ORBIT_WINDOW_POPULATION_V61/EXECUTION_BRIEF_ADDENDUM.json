@@ -1,0 +1,24 @@
+{
+  "status": "SOURCE_PASS_UNCHANGED_EXECUTION_SETUP_CLARIFICATION_REQUIRED",
+  "priorSealedReturnSha256": "ed32d1ec76190f4d5d45e8e7b109b9527f0ee4b7021c1ca432a317fc0cf14093",
+  "scope": "Late-supplied prospective execution brief only; no reopening of maintained source or four reviewed structured commands",
+  "input": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/FOREGROUND_QUALIFICATION_AND_COHORT_V61_EXECUTION.md",
+    "sha256": "e5601baf58e8d4277b2cd5b815c82380c3fd7cd7ef67143622a17b4f0c616b12"
+  },
+  "config": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FULL_COHORT_METHOD_IMPLEMENTATION_V20/playwright.pure-full-method.config.ts",
+    "sha256": "b4fd2addf7041cc4f2b03d1131999a672a676802103c7f56a2cbc6a5c9ef1e7f"
+  },
+  "finding": {
+    "id": "V61-EXEC-1",
+    "priority": "P2",
+    "description": "Complete offline47 is a sound additional prerequisite, but its command does not explicitly declare the candidate-source-root override needed by the self-contained runtime geometry test in the split VERIFY checkout. The pure config contains no environment setup, VERIFY apps/desktop/src/features/viewport/viewportSelection.ts is absent, and full-cohort-controller.spec.ts defaults to that project root when the override is missing. Clearing inherited prefixes without reapplying the override makes the complete pair fail with missing product source before qualification. Prior V20T_R2 correctly recorded this override.",
+    "requiredEnvironment": {
+      "UI_FOUNDATION_CANDIDATE_SOURCE_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping"
+    },
+    "repair": "Declare this exact environment for the offline47 command after prefix cleanup, or explicitly bind reuse of this field from the already-reviewed structured command environment. No maintained-source, wrapper or four-command mutation needed."
+  },
+  "consistentGates": "47 offline before exact1+10 collection, fresh8 focus once, then separate ROOT full-cohort authorization; no retries or promotion; failed prior evidence unchanged.",
+  "limits": "No command/test/runtime executed. Source/launch RETURN remains PASS; this addendum only qualifies the later execution recipe."
+}

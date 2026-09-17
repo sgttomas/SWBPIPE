@@ -1,0 +1,43 @@
+{
+  "status": "PASS_EXACT_THREE_FILE_INTEGRATION_PENDING_COMMIT_RUNTIME",
+  "preimage_commit": "3f9a2c5143bd527441b0ac06d0d0d532bcd503cc",
+  "method_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/REPORTER_OCCURRENCE_METHOD_INTEGRATION_V20X/SOURCE_MANIFEST.json",
+    "sha256": "e6e145213e357a80464637bf08741875609ed06a8e9b8d5d21d31c425e0bad83"
+  },
+  "source_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V11/SOURCE_MANIFEST.json",
+    "sha256": "0cb106e56058889bd2016e351fef35137f9ec7f0dc94f50a2a9ea1adb77c0e95"
+  },
+  "review_return": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/REPORTER_OCCURRENCE_V70/RETURN.json",
+    "sha256": "9d35bccb9b3d3fd51666851dc99a9909f9fa9fe127cf36012c8f22da5cf1d5c5"
+  },
+  "review_artifact_manifest_sha256": "63a4142be693103892a6573dd2a9194cc01c66a06e2d6f3b9f2b695e31750158",
+  "changed_files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.ts",
+      "beforeSha256": "8da9f693e5aabf33b62a1ff46149d78d91be764711998972e1603afa4aabbf5e",
+      "sha256": "cd76e8e9979d23cf460c5117aa4ce55fccd3639def6de4b132074e2f0e9e4a13",
+      "bytes": 17796
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+      "beforeSha256": "4fd67d8ac1ecda21f041835937ec528bf163cb260ef09e3f9a29b83a4a74c731",
+      "sha256": "e645adbc092a8f432e7f69c3b955944f31eff7bae485e6ab5b7a5349aaeebe18",
+      "bytes": 26829
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "beforeSha256": "f7bac18d2097676f84690a708dcc60d08ecd9a2e63cae39b390a0f42e0a84aa5",
+      "sha256": "97a9936c564ebe7ad0182ea167e5e2e5ecb117288f6770fb30500d1438becea6",
+      "bytes": 74348
+    }
+  ],
+  "total_source_files": 143,
+  "limits": [
+    "Three complete method/test deltas reviewed;140 exact prior-reviewed paths.",
+    "54 initial author controls passed, then one strengthened fixture and final semantic check passed; no final combined rerun claimed.",
+    "V68 failed; no historical rescoring. Fresh focused and full-cohort acceptance remain pending."
+  ]
+}

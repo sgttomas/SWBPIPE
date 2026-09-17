@@ -1,0 +1,32 @@
+{
+  "schema": "piping-root-evidence-intake/v1",
+  "derivativePackage": true,
+  "recorded_at": "2026-09-17T05:35:37.177686+00:00",
+  "source_commit": "11d51c16404b229ab505d1db9eef5758fbe249e6",
+  "packet": "{VERIFY_WORKTREE}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3",
+  "bindings": {
+    "RETURN_FULL_COHORT_V3.json": "f7bc3fd4dc16e6b0740c21bdbf8ded25004c6375d600bde507d45feb199d8c83",
+    "OUTPUT_MANIFEST.json": "83ef5537dc25f9fabe40fb00106bbc187a2a0e17d6da081cf16802c9954ff53a",
+    "COHORT_CHECKPOINT.json": "9ea00381c11f6a84a46dc86d1118324fa52c96795f9b7a0eb3750bd9421c5ba0",
+    "RELEASE.json": "bba2d0317558f2f10c5ab5bd04992ebbf5a33afe240578b1334a50f6ad703421",
+    "runtime/candidate-cohort-result.json": "f83ec223b8aff2f80ae9a4b5a29f977e2e865bcfa855b38816e395313e29e614",
+    "FAILED_CAPTURE_POINTERS.json": "0cac84b75aaf69a98969df4cbee9f51e0b9b6ec871bd0e417bfd7f8f62369e8f"
+  },
+  "verification": {
+    "status": "PASS_ALL_SEALED_OUTPUT_MEMBERS",
+    "members": 25009,
+    "bytes": 5186977420,
+    "containment": "all packet-local",
+    "duplicates": 0,
+    "bytes_and_sha256": "all exact",
+    "elapsed_seconds": 7.046
+  },
+  "outcome": {
+    "cohort": "FAIL_COHORT_7_PASS_1_FAILED_2_NOT_RUN",
+    "qualification": "NOT_ACCEPTED",
+    "runtime": "RELEASED",
+    "retry_authorized": false,
+    "diagnosis_pending": true
+  },
+  "handoff": "Source unchanged. Independent diagnosis consumes only exact failed raw capture and frozen method metadata. Seven passes retain their original attribution; no rescore or full-cohort acceptance."
+}

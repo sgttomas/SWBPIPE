@@ -1,0 +1,14 @@
+{
+  "status": "ROOT_READBACK_PASS",
+  "at": "2026-09-17T06:27:24.149400+00:00",
+  "derivative_package": true,
+  "inputs_sha256": "e02d4871f439e8d9add56648e859097e1f8660aa703fb0545541805745f241cf",
+  "map_sha256": "0b01a85c94657923d12b1dd9b35fe219db3d202d5774f9f5fe21226d3f5b5cd7",
+  "return_sha256": "ad6f7464218c132abd14d48b39640e3eac08bfca1af8b8f242dd70e4c46f6570",
+  "objects": 139,
+  "unique_bytes": 367066522,
+  "aliases": 283,
+  "validation": "All object SHA/size/readonly0444 and containment verified; all alias indices exactly once with matching hash/bytes.",
+  "archive_io": "RELEASED",
+  "limits": "Host-local preservation; originals retained. No production or performance acceptance."
+}

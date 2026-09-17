@@ -1,0 +1,74 @@
+{
+  "members": [
+    {
+      "path": "COMMAND.json",
+      "sha256": "00092d1466388be02cc467137fe8ab33be6df1a1cb4bc0f1158304ce277d3a0f",
+      "bytes": 473
+    },
+    {
+      "path": "GUARD_CONTROLS.json",
+      "sha256": "26451a507b2e5815ea3b73195d20b95743017b831b4cdbe697f441b2745c3d1a",
+      "bytes": 2943
+    },
+    {
+      "path": "INPUTS.json",
+      "sha256": "0e391d3ce8755dbfaabb8c2a7dde922eba5f618a1119137c850b36250e341f9d",
+      "bytes": 2405
+    },
+    {
+      "path": "RELEASE.json",
+      "sha256": "c261af2bae05a7caa8b534d08ecffc64ee48beb0febd1bad2e2618ddfd641f09",
+      "bytes": 188
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "001f73a354b9773e884265dbe6fb79dd9a6724bd34b521d279b6f3e4c88f079d",
+      "bytes": 5212
+    },
+    {
+      "path": "WRAPPER_DELTA.patch",
+      "sha256": "5035eba2e23fad86023a11ed2d8e175518f41a99934cd405777f67ebaa5e6dd6",
+      "bytes": 9031
+    },
+    {
+      "path": "ac-power-guard.mjs",
+      "sha256": "fe8e76740b381826b1e9f74760d958a0995c90bdcbe41fc8574a7f895c29d930",
+      "bytes": 1847
+    },
+    {
+      "path": "cohort/foreground.config.ts",
+      "sha256": "679f291761c5836fa8b59235881b4b81559e62d50fa2145cf56e95774a8dc864",
+      "bytes": 747
+    },
+    {
+      "path": "cohort/foreground.spec.ts",
+      "sha256": "edec191dfb2dcf5866796bc4e9672e613adbf7a06fa08bfb2633b1b6a996dd83",
+      "bytes": 9675
+    },
+    {
+      "path": "cohort/package.json",
+      "sha256": "1239d4d885dcad42201a27ed9324f8f0f760b78700d8db9ced39a511cffe7eae",
+      "bytes": 18
+    },
+    {
+      "path": "focused/headed.config.ts",
+      "sha256": "787eaef395679b345fc5818d93dd70788b94d3c2735a3426f8cbd82c9ef01597",
+      "bytes": 762
+    },
+    {
+      "path": "focused/headed.spec.ts",
+      "sha256": "dda1cb45d84bd46575a1d678e2244e728cd84437c670b22c91eb6b7dcc8a9229",
+      "bytes": 8969
+    },
+    {
+      "path": "focused/package.json",
+      "sha256": "609158e6c5fbc237939fa3ddf7faab80ab690bdc0c8d584414a885130103c4e8",
+      "bytes": 42
+    },
+    {
+      "path": "guard-controls.mjs",
+      "sha256": "49cbe9f6bf57c5eaf4976a9813aa31465a4d2bb81b247a441b0a18f759e86eba",
+      "bytes": 2508
+    }
+  ]
+}

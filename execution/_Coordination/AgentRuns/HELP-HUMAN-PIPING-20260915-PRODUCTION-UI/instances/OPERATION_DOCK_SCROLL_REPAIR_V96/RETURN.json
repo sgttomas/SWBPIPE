@@ -1,0 +1,19 @@
+{
+  "status": "STOPPED_PREIMAGE_COLLECTION_FAILURE",
+  "derivative_package": true,
+  "upstream": "V18 SOURCE_MANIFEST 88158c7acc123beef07456c2728773218926b75df0aae48481c62e899f86edbe; V94 finding R1; V96 exclusive lease",
+  "results": {
+    "preimage_command_exit": 1,
+    "browser_cases": 0,
+    "error": "No tests found",
+    "CSS_repair": "NOT_RUN",
+    "build": "NOT_RUN",
+    "dist51": "NOT_RUN",
+    "source17": "NOT_RUN"
+  },
+  "diagnosis": "Leading ^ in grep incorrectly assumes title-only matching; Playwright grep includes project/file. No product defect demonstrated by this invocation. Prior V94 finding and V92 R2 72PASS retain original attribution.",
+  "source": "Only strengthened dist test changed; styles untouched; SOURCE_EXIT binds145.",
+  "proposed_next": "Command-only amendment remove leading ^ (retain terminal $), collect exact1 then one preimage attempt only under new Root authorization. No automatic rerun.",
+  "closure": "Bounded attempted phase sealed; task incomplete pending Root decision. Independent review/integration and D69 performance gates remain.",
+  "runtime": "Released; RELEASE.json"
+}

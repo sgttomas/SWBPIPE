@@ -1,0 +1,50 @@
+{
+  "status": "GRANTED_ONE_FOCUSED_QUALIFICATION_AND_COLLECTION_ONLY",
+  "utc": "2026-09-17T03:29:02.273742+00:00",
+  "owner": "/root/ui_native_successor",
+  "parent": "/root HELP_HUMAN",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "enforcement": "instruction/config asserted; no delegation",
+  "source_head": "3f9a2c5143bd527441b0ac06d0d0d532bcd503cc",
+  "source_manifest_sha256": "fb3c54d457341e05fbb64ca6609a820fd93044cf0c3ba63d4341d8089b0f97ce",
+  "bindings_sha256": "736fb2cb28a0b8e8deb6c55ca5d5e203f2fc124589a52d8dfa36ed66bbc56f37",
+  "execution_briefs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/SAME_TRACE_QUALIFICATION_V68_EXECUTION.md",
+      "sha256": "8ce063265848e5319fc012449414c2117f80c0f4db49f8708179ab7bee97d26c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/SAME_TRACE_QUALIFICATION_V68_EXECUTION_R1.md",
+      "sha256": "43f3d5230bc8b0d897937f0303380262f1666de2a569733e0644ae91129c0346"
+    }
+  ],
+  "accepted_review": "0c387a098aa2001e5e5c136fe97b65de3552a98f2666f9700a9a26f8da472b65",
+  "root_verification": [
+    {
+      "manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/SAME_TRACE_DURATION_V67/LAUNCH_V68/BACKCHECK/ARTIFACT_MANIFEST.json",
+      "sha256": "7cc0a4b6550e1ce7f0492a7c71ea521ef21f81b305d597a025d71b25d432b4d0",
+      "root_verified_members": 1
+    },
+    {
+      "manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/SAME_TRACE_QUALIFICATION_V68/preparation/OUTPUT_MANIFEST.json",
+      "sha256": "4c8b4f54d5f15f65bfa7c8e523403617a50d085fe94ce67f61c3a71b46ebba7b",
+      "root_verified_members": 2
+    }
+  ],
+  "power": {
+    "exit": 0,
+    "stdout": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=35717219)\t90%; AC attached; not charging present: true\n",
+    "stderr": "",
+    "meaning": "Entry boundary only, child must revalidate at runtime entry and guards"
+  },
+  "ports": {
+    "exit": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "grant": "One focused collection, one full collection, then one8-segment fresh focus under R1 structured commands. No retry, full cohort or method/source/profile/settings change.",
+  "other_work": "ArchiveV23 and review released; Root and any other work file-light. No concurrent build/browser/native/performance/Git/heavy archive IO.",
+  "history": "Preserve V64 failed scores; new method does not rescore historical evidence."
+}

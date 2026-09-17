@@ -1,0 +1,27 @@
+{
+  "status": "DIAGNOSIS_ACCEPTED_AC_REFERENCE_PREPARATION_ONLY",
+  "parent": "/root HELP_HUMAN",
+  "authority": "Approved professional UI tranche and standing routine engineering/orchestration authority",
+  "diagnosis": {
+    "reportSha256": "30ff216df207d9aa5a16702914ce366d893cef17f95db83980db54d7995c24d2",
+    "returnSha256": "ed7c2da26311660528f8ec7094e80d8011fc81bc69502376139f7ceacbfc3de6",
+    "outputManifestSha256": "bbc70666a7291ecbbfbef801552118a3deec1f75d6e0c8d8c69ff7767e0f799c"
+  },
+  "finding": "V61 renderer BeginFrames explicitly33333us with8333us unthrottled source and3 throttled frames; V59 source8333/throttled0. Upstream requested cap proven; product bottleneck not established. Below20% battery saver policy is strong inference, exact activation unavailable.",
+  "decision": "Prepare one new ordinary headed AC reference qualification and a separately gated full five-by-two AC cohort. Preserve all V61 battery-condition failures; no replacement attribution, repeated sampling until pass, settings/flags/targets/workload/waits/clock/method/product changes.",
+  "candidate": {
+    "sourceHead": "135a94cea310129ebbf53e678159b7016c3701d5",
+    "sourceSha256": "e8c242965e15619cebc2a8872da6349531eae122206e4ccd0a6d51ffdc3265f1",
+    "methodSha256": "2fb1f2fa0d0002d704aab7b8298224ae94d315e051304c710ba23f99d40b37b7"
+  },
+  "profile": "piping-ordinary-headed-ac-reference-v1",
+  "powerGate": "Require successful ordinary pmset capture declaring AC Power before each test and after each completed test, using existing outside-driver snapshots. Missing/error/battery fails; abort later scheduling via unchanged max-failures1. Boundary observations do not prove continuous physical power. No settings mutation.",
+  "predeclaredInterpretation": [
+    "AC removes requested30Hz cap: supports host power-policy explanation; apply unchanged target scoring and retain outcome.",
+    "AC retains throttle: stop and inspect recorded policy/host evidence before any new trial.",
+    "Throttle removed but slow gaps persist: investigate actual work/queue/missed-frame evidence before product repair."
+  ],
+  "runtime": "NOT_AUTHORIZED. Physical AC availability is pending; new wrapper guard/source and launch review, exact bindings and explicit Root lease required. Offline47 accepted; no rerun without source change.",
+  "fullCohort": "Original foreground-cohort-v2 remains unexecuted; new separately identified foreground-ac-cohort-v1 remains prospective and needs fresh AC-focused acceptance.",
+  "claimLimits": "Reference AC instrumented Chromium presentation only; no battery/native10k/hardware scanout/uninstrumented latency claim."
+}

@@ -1,0 +1,42 @@
+{
+  "status": "SEALED_DERIVATIVE_DIAGNOSIS",
+  "members": [
+    {
+      "path": "ANALYSIS.json",
+      "sha256": "9ba0a513be3f5c9e436ec4e359df760431c0c5c841228fac79b135e0a26b5d80",
+      "bytes": 23156
+    },
+    {
+      "path": "ANALYSIS.py",
+      "sha256": "9203540549b8b4c05b64ff54647711a7e89160333e87a6594c2360a1d213b5c1",
+      "bytes": 8286
+    },
+    {
+      "path": "ANALYSIS_INPUTS.json",
+      "sha256": "d29ba959a22295d8012f48ed2596f126250ed60f643a5fe0c45a406e48371f01",
+      "bytes": 2320
+    },
+    {
+      "path": "ARITHMETIC_EXPECTATIONS.json",
+      "sha256": "304fa6e29171df22ae77df3642c7be65c213ead512e7ec27bf72d6388a683c26",
+      "bytes": 2943
+    },
+    {
+      "path": "INPUTS.json",
+      "sha256": "ad82ca803b204afa2aeb3e1647cff73293b60de93f7388e1d8aefc6da36a4161",
+      "bytes": 21166
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "0ce53af963becf31cf9e422f0c12edda7be1da0a879bbccbfe6baa22b778ff4e",
+      "bytes": 16319
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "aeb8614b6b959c5593a0f5ece3a6c049226d78f0c6d4b08304b080c80a5eaf21",
+      "bytes": 3824
+    }
+  ],
+  "excludesSelf": true,
+  "upstreamRawCopied": false
+}

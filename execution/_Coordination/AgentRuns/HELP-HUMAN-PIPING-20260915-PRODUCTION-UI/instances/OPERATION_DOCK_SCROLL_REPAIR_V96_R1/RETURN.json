@@ -1,0 +1,39 @@
+{
+  "status": "BOUNDED_REPAIR_AND_FOCUSED_QUALIFICATION_PASS_REVIEW_PENDING",
+  "derivative_package": true,
+  "accepted_upstream": "V18 88158c7acc123beef07456c2728773218926b75df0aae48481c62e899f86edbe plus V94-R1 and V96/R1 leases; input pointers retained in prior packet and PREPARATION/AMENDMENT.json",
+  "change": "Operation tabs now participate in ordinary scroll flow. Dist tests separately prove navigation reachability and actual enabled Geometry-page selector full containment, focus and ownership, then return to Review. Two paths only, 143 unchanged.",
+  "results": {
+    "original_V96": "Preserved collection failure; zero browser cases",
+    "R1_collection": 1,
+    "R1_preimage": "One intended actual-page obstruction failure at regular Operations180; no retry. Not a wrapped-state preimage claim.",
+    "build": "PASS one guarded Vite build",
+    "dist_collection": 51,
+    "dist": "51 PASS one attempt retry0",
+    "source_workspace_collection": 17,
+    "source_workspace": "17 PASS one attempt retry0",
+    "inherited_menu": "4 PASS attributed to V92_R2; not rerun",
+    "inherited_units": "V92 15 unit PASS and prior noEmit attribution unchanged; not rerun"
+  },
+  "evidence": {
+    "source_manifest": "SOURCE_FREEZE/SOURCE_MANIFEST.json",
+    "source_sha256": "e035d443165e987265b57797b4459cf59d911b49b9ed9d93f888f70df23e5a75",
+    "delta": "SOURCE_FREEZE/DELTA.patch",
+    "delta_sha256": "97e182d2e7c472f430178c76b71404bd93d850e5064ed8582b068bccd24dc810",
+    "control_witnesses": 24,
+    "operation_navigation_returns": 16,
+    "budget_states": 48,
+    "control_wheels_used": 0,
+    "attachments": {
+      "preimage": 7,
+      "dist": 511,
+      "source_workspace": 103
+    },
+    "built_files": 21,
+    "built_bytes": 4413925
+  },
+  "finding_backcheck": "All four comfortable wrapped open-operation states retain42px body client height and now expose32px actual Geometry selector completely, focused and center-owned; tabs scroll above viewport. Source geometry assertions unchanged.",
+  "closure": "Scoped repair/qualification complete. Independent source and image review remains Root gate; no integration/full sweep/native/practitioner/CI/product acceptance claim. D69 performance disposition unresolved.",
+  "rerun_requirements": "No automatic rerun or follow-on; Root owns remaining review/integration/full qualification.",
+  "runtime": "RELEASED; ports5173-5177 and owned processes absent; exact145source and21dist exit verified."
+}

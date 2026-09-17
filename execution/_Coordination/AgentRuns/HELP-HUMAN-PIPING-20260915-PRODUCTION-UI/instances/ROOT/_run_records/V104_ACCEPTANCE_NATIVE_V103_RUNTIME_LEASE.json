@@ -1,0 +1,67 @@
+{
+  "status": "V104_ACCEPTED_NATIVE_V103_EXCLUSIVE_RUNTIME_GRANTED",
+  "at": "2026-09-17T13:52:53.478554+00:00",
+  "owner": "/root/ui_native_successor",
+  "parent": "/root HELP_HUMAN",
+  "role": "TASK Type 2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "enforcement": "instruction/config asserted; no delegation",
+  "source_commit": "b6a1ab8378481adbb46d65847cb7eaf9a2864461",
+  "source": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
+    "sha256": "99077f9883a51421b874292ecc6ab51f62fc4bba9c5918413e7d6024b7e98145",
+    "bytes": 33601
+  },
+  "review": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CONTRAST_V102/RETURN.json",
+    "sha256": "6de237c082e31562e3d346d3c6d0555ab1410c6f54517517c29c86910b07ce33",
+    "bytes": 2632
+  },
+  "registered": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V104/RETURN.json",
+    "sha256": "df4a3d8905de4ca085d665b902db23ab8e79fd2f09c788202e181637cedb2a08",
+    "bytes": 4834
+  },
+  "registered_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V104/OUTPUT_MANIFEST.json",
+    "sha256": "c3a51a93af5015ae41bfb95cd44866addd77219e8be5b7b421fe6406d91c9b05",
+    "bytes": 148932
+  },
+  "root_acceptance": {
+    "registered_members_verified": 476,
+    "registered_bytes": 47431585,
+    "canonical_five_surfaces_seven_commands": "all pass; no not-run or retries",
+    "root_check145_working_and_committed": "all exact",
+    "CHECK": "fully clean",
+    "sweep_release": "owned PID absent; ports5173-5177 clear",
+    "native_new_app_and_store": "absent",
+    "accepted_seed": "exact"
+  },
+  "native_preparation": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/CONTRAST_BACKCHECK_V103_PREPARATION/OUTPUT_MANIFEST.json",
+    "sha256": "02f6f92813b23418e5dee966823ec85cdbc8c0ed47387dfa96f14aaa225586ad",
+    "bytes": 780
+  },
+  "native_command": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/CONTRAST_BACKCHECK_V103_PREPARATION/BUILD_COMMAND.json",
+    "sha256": "c401c2ff235b595926534803ed8c456dd8248d96ac91a8a5886baaad448916c3",
+    "bytes": 1455
+  },
+  "native_plan": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/CONTRAST_BACKCHECK_V103_PREPARATION/PLAN.md",
+    "sha256": "f0a9fcac3abe6e6ebfbc1cfce51c434bc327ac167fea6422c810f87ec0425d5c",
+    "bytes": 3827
+  },
+  "authorization": "Activate prepared V103 once on integrated Root source. Fresh runtime evidence RUN/instances/NATIVE/CONTRAST_BACKCHECK_V103. Preserve pre-build local frontend, execute exactly one prepared offline Tauri app build, seed only unique V103 store, bind actual local regenerated frontend/app/source. Do not require CHECK/Root WASM byte equivalence. Reuse accepted V83 numerical/persistence/authoring history; execute only prepared affected native controls/contrast/measurement/Run-button solve and final cleanup.",
+  "write_scope": [
+    "Own new V103 evidence",
+    "Generated desktop public/dist and Cargo build targets/bundle",
+    "Unique prepared V103 test store/app runtime state; preserve original seed"
+  ],
+  "mandatory": "Use CUA for UI; refresh docs/current AX and screenshots, current hit coordinates and actual native menu-item click. Verify Light/Dark rail hover/readiness, complete Dark 3.2m authored measurement/canvas/dock, retained unapplied draft across palette Close/dock, actually visible mode and Run controls, completed67-row same-basis solve and analytical values, fresh inspector AX observation, normal cancel/Quit with PID absence and final store/source hashes.",
+  "limits": "Screenshots may be scaled; exact CSS dimensions/contrast arithmetic and preference equality remain browser-attributed. Preserve old AX omission uncertainty; no independent macOS audit pass, no full numerical lifecycle repeat, no physical performance inference.",
+  "stop": "Unexpected failure: preserve exact output/state, stop dependent steps and report. No source repair, rebuild, retry or broader test expansion without Root disposition. No automatic follow-on.",
+  "concurrency": "Exclusive native/build/UI lease. Only file-light Root/metadata work concurrently. No browser/tests/benchmarks/Git integration/heavy archive IO.",
+  "remaining": "Final metadata/archive/Remaining/review/practitioner/receipt/actual CI/PR. D69 unruled and original performance gate unchanged."
+}

@@ -1,0 +1,35 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-16T23:56:44.497024+00:00",
+  "role": "TASK Type2",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "enforcement": "instruction/config asserted; no delegation",
+  "derivative_package": true,
+  "brief_sha256": "600858e777722e6e49e99ae536c7eadaed16cdbd10dcb063191e7fc97b27f4e4",
+  "accepted_prior_derivative": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V21/RETURN.json",
+    "sha256": "9509c83366d7d0cfd3acd398ac98007f2e9ab5a458cfae3577057d5e8a1ca4f1"
+  },
+  "inputs_sha256": "33041b39d560544172332541077fddf302621992f4465918a4a68d026358b64e",
+  "map_sha256": "203b02e5f96059b3a9f5f71ee12cfc78155586bc3ef0ca7cd03fe99df02eb8ee",
+  "closed_manifests": 4,
+  "verified_aliases": 209,
+  "verified_unique_objects": 162,
+  "created_unique_objects": 112,
+  "reused_verified_objects": 50,
+  "verified_unique_bytes": 419146034,
+  "exceptions": [],
+  "verification": "All declared members/manifests SHA/size/containment verified; canonical SHA/size/readonly readback verified. Exclusive temporary creation, fsync,0444,renamex_np RENAME_EXCL,directory fsync; exact existing objects reused.",
+  "preservation": "Failed execution-brief finding and subsequent closure preserved separately. V61 method PASS and both orbit target FAIL retained exactly. No cohort ran. All originals and prior objects unchanged; no acceptance or correction of originals.",
+  "exclusions": [
+    "active V63 diagnosis",
+    "unlisted referenced inputs",
+    "publication inventory",
+    "current source and metadata"
+  ],
+  "archive_io": "COMPLETE_RELEASED; no background or further automatic work",
+  "claims": "Derivative host-local preservation only, not WORM or portable clone raw availability. No source/status/Git/network/test/build/browser/native/runtime/settings/deletion or acceptance change."
+}

@@ -1,0 +1,40 @@
+{
+  "status": "HELD_PREPARATION_READY_FINAL_CANDIDATE_REVIEW_AND_LEASE_PENDING",
+  "derivativePackage": true,
+  "seed": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/ESCAPE_REPAIR_V32/runtime/FINAL_QUIT.sqlite3",
+    "sha256": "16ba0a67e9cdfcf2e78dc3ae0452f840453eb9fb637c948f8c313ada823c4ff7",
+    "projectId": "project:blank-local-20260916t052010z",
+    "projectName": "Blank Local Model",
+    "columnUtf8Hashes": {
+      "project_id": "a92f2ef8f6dc068a2b596a46321082fdade613afd4409d4683ecff12f65405d6",
+      "project_name": "955f97ae41c86e1e96636913f300541041d5e8d7b7e87c3d7ac8cc2e6b2ae08a",
+      "model_json": "1da13f5d5ec33a5b05f3fa0d7abf44125242365fb8e2269d63bf9a637695b97a",
+      "created_at_unix": "63c34868a070c8b06e9747626385f4bfe72c714aefc68eb4786d61cd1333c587",
+      "updated_at_unix": "a7b335019e86599434272ed17d322804127adffd897714c249c4091d1b466418",
+      "editor_intents_json": "a8cbf0a56849295ad5a12073f3e4ada3df5e5165b79b2a8360a646a7afcbfbd0",
+      "proposal_json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "selected_review_target_json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "mechanics_result_json": "61b4e67574b3239940fade94e0aa3f5becd097996884f877cd6490a953dc1442",
+      "analysis_run_json": "74fe9299bf8e139be7f19da3c42b9d997e48ed1283f65916cbdf11071b71efa3",
+      "model_hash_json": "98e663d527df253547d107c9495a06ea16085566aec9a67595a16fdcc922312f",
+      "project_envelope_hash_json": "7c8dfe0d91d94ab327cb73bf4d1f0532d610b148584af76eec857b520e80a28b",
+      "model_migration_ledger_json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hashMethod": "sha256(str(SQLite column value).encode UTF8), JSON columns are exact retained strings",
+    "basis": "V32 final snapshot full row matched V31 seed; original model/results/attachments unchanged. Copy only after execution lease; immutable readonly inspection here."
+  },
+  "buildCommand": "BUILD_COMMAND.json",
+  "plan": "PLAN.md",
+  "expectations": "EXPECTATIONS.json",
+  "sourceBinding": null,
+  "reviewBinding": null,
+  "executionOccurred": false,
+  "remaining": [
+    "Final integrated source/flat/generated/dist bindings",
+    "Independent review PASS and accepted browser matrix",
+    "Exclusive build/native runtime lease"
+  ],
+  "writeScope": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_PREPARATION",
+  "role": "TASK Type2 Astra/low parent/root; instruction/config asserted; no delegation"
+}

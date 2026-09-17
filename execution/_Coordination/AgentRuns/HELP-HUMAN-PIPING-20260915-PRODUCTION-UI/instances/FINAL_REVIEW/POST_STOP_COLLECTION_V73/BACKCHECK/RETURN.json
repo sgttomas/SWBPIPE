@@ -1,0 +1,49 @@
+{
+  "status": "PASS_BOUNDED_SOURCE_BACKCHECK",
+  "review": "POST_STOP_COLLECTION_V73_R1",
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root",
+  "configuration": "gpt-6-astra/high; no delegation; instruction/config asserted",
+  "derivativePackage": true,
+  "briefSha256": "668acf92826d3b2785c133794527b3e9322c9f8e8eabedda248d31715096dde7",
+  "authorReturnSha256": "4f2a03ce6de481ffe1a4b73c1c8b4632a92027c5296caa837effee693b1ca66c",
+  "authorOutputManifestSha256": "2c25475e506faeed45982ba0e12defb5c9b8a31590770f350268313559254429",
+  "authorSourceManifestSha256": "367a06a50740f1979a8680d7eec19a5886e93ec6c3c94c042f216c6495f3ac22",
+  "originalReviewPreservedSha256": "4e1c3cb97a5452a389c06007472579f6973db9afc8e93fe6a36162bd26517ccd",
+  "findingDisposition": {
+    "PSC73-R1": "RESOLVED"
+  },
+  "findings": [],
+  "coverage": {
+    "r1Changed": 2,
+    "compositeChanged": 5,
+    "priorReviewedUnchanged": 138,
+    "completeSource": 143,
+    "stableBindings": 230,
+    "drift": 0
+  },
+  "evidence": [
+    {
+      "path": "BINDINGS.json",
+      "sha256": "9dacac4972f13d63d3de1b73c6370874752666022b32da4e60e3f273f2b2402e",
+      "bytes": 71350
+    },
+    {
+      "path": "COVERAGE.json",
+      "sha256": "c63f0772d50093daa7cae4182cdaa007ed5ccf27a7528278a27d0ed5e136e28a",
+      "bytes": 5684
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "6b488b1ca668e2072bcba6bfe05267b2128f36f95e96f7a03867dab58c2199ae",
+      "bytes": 1475
+    }
+  ],
+  "handoff": {
+    "sourceClosure": "PASS for exact reviewed composite only",
+    "nextOwner": "ROOT",
+    "required": "Exact integration and new source/method/launch bindings; separately authorized10 assignment diagnostics then focused8. No live lease granted by this review.",
+    "remaining": "Fixed-tail sufficiency, runtime correctness/cost, resource/native/full-performance and final metadata gates remain separate. No historical rescoring."
+  },
+  "release": "Complete and released; no runtime or delegated work."
+}

@@ -1,0 +1,642 @@
+{
+  "self_excluding": true,
+  "files": [
+    {
+      "path": "COMBINED_FROM_85D.patch",
+      "sha256": "d0b777e2a9316fc07202d369e3bd0b990c30bd5ca60a201486ec5a3cf3e5068b",
+      "bytes": 33383
+    },
+    {
+      "path": "CYCLE1/ATTACHMENT_BINDINGS.json",
+      "sha256": "5b2476ad85c8e77db837e9353b16e53e19e09a41d29dbea6a5b032fa91b41b5c",
+      "bytes": 71087
+    },
+    {
+      "path": "CYCLE1/INPUTS.json",
+      "sha256": "8fd464fca0affc49d26aa3ae6d4a23ebc531dcf0451c083abc4a397a057c365d",
+      "bytes": 1445
+    },
+    {
+      "path": "CYCLE1/RESULTS.json",
+      "sha256": "f4eda6d599eff3cde51aaa4981202b19ece5fddb1e7ea7feb270b485f656f07a",
+      "bytes": 1283
+    },
+    {
+      "path": "CYCLE1/WHEEL_WITNESSES.json",
+      "sha256": "598d224cfe2bd87f909f567671f626168580e6690b57e1e339639a17093b7801",
+      "bytes": 3240
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-solved controls after proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "b1b38f79c62588743dca8ecc221f8f7188d584299d4d44aa30e5696008eba73f",
+      "bytes": 1288
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-solved controls after proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "76b3feee1ebe1d0a791d8840ee5f0d7370efe7cf9599e19734ff49befe3e63f5",
+      "bytes": 1300
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-solved controls after proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "c0baaea880cf3cc06a4ebc60c915321431040d5bda5d011e7d76d019d9cf8d43",
+      "bytes": 1293
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-solved controls before proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "7f58bd2d4b79bda2da9cb958e22122f41de2ef8ddf62bab93c2bbcb6d5d42137",
+      "bytes": 1289
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-solved controls before proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "8133ef3da9d5cb74d1b1aaf45422a9f8e3f73fbd5b2b66f667e87f3535838a19",
+      "bytes": 1301
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-solved controls before proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "89f7a1f9384d1e92130cb3a0554697d9bcc86596d76c722ec59f10acd8d0d36c",
+      "bytes": 1294
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-solved-task-dock.png",
+      "sha256": "8f2794f5f4c2af81d5bc176ace155717e812bf50d6f1b5ba851881c4a8819599",
+      "bytes": 158824
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-task-dock-layout.json",
+      "sha256": "ab7a3f750091ef0413c50ce001b39bbeeaad1c83f8955bf619093a2eb2bd91ba",
+      "bytes": 33340
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-solved controls after proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "a9c4f4360a188ddde025622b9601f1507d7c0755366536661126f947be288c70",
+      "bytes": 1308
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-solved controls after proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "fb940c6841603009126b825ac4d782c3a6ea4ea685480ad2ae6997c75cc16d2a",
+      "bytes": 1332
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-solved controls after proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "f81eb0639a97e3f5cde98f4e6c00312ac6c9c486a14ced81ee91b5b23ebd43ad",
+      "bytes": 1301
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-solved controls before proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "944e98ec57ba03f21dadfc50a02e34ecac8c8b05c01d1967a524c1a0430c9cad",
+      "bytes": 1309
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-solved controls before proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "545cc154e5f2870a06fc093ee266fe3a8d60be5ab1976da5e4bc8407a3e88b46",
+      "bytes": 1333
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-solved controls before proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "8f470823c3c9d450306d80d677015c4254b310afc2cb1bbd59767695d4b988d4",
+      "bytes": 1302
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-solved-task-dock.png",
+      "sha256": "94c912c645ef62cf909de19bbb2087c03a9e2d523ceb6c68fc8e47e18ad15f5c",
+      "bytes": 178273
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-task-dock-layout.json",
+      "sha256": "7c11ad44e48d7d3935949784467f775f9b9b94c8211459d9f8ee4f9d6892b5d7",
+      "bytes": 33298
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-solved controls after proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "21a468430f1a83e8b0d9e92ecb2a7210aa53df8319ad1e246c3eda3ae3491125",
+      "bytes": 1292
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-solved controls after proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "0f7c328650a6a9fc8a763122d12a8ad49254f8b87097fb6c9fdf473ba3559a7d",
+      "bytes": 1322
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-solved controls after proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "d623980f1a9fe18328b36441f0ae3327ad545873eac8f9eaf300931b65a7d2e5",
+      "bytes": 1293
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-solved controls before proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "efd6b389cc19756c5db7feac4f871f7df4eef95eaeb446d46d1365214f60a5b9",
+      "bytes": 1293
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-solved controls before proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "e79cb4bd67504d82db83fe234b9c805552ae465826794d5d82027753be1c39db",
+      "bytes": 1323
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-solved controls before proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "164aa2e7d0e7a88122a81fb8985e2bd195a02006f81a6e3cea66411313aafc02",
+      "bytes": 1294
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-solved-task-dock.png",
+      "sha256": "6a81217a7f6a5cf3e857759c363a289c8b305272085e431c44b82d2c9f72a9a3",
+      "bytes": 217833
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-task-dock-layout.json",
+      "sha256": "e0a4cf5e9e2999514136bf050cc0c26957b136e9ce8b96c3bb12fd618725e09e",
+      "bytes": 33153
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1024x768-solved controls after proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "8a8b81a5d9d5ab88a6518191f65b2714e9251f67af4510cbb8671bae0a165904",
+      "bytes": 1272
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1024x768-solved controls after proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "e26909eec3a797750bef0a847d250639cce1ce66799bc4bd2ec98ae7972a6af3",
+      "bytes": 1310
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1024x768-solved controls after proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "f87e42c3f190440d75d9d3861c46bacd8f391fa66e17dfaad741ef645cbb36cf",
+      "bytes": 1303
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1024x768-solved controls before proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "818d4452ed746c3f09e4c8064fd3024c1a20cafb6016131073f450e1100c1dc2",
+      "bytes": 1273
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1024x768-solved controls before proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "e96b2b8da43334967b0b3271906a3bf230bd3d42e03a6941241024bb90f4cd04",
+      "bytes": 1311
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1024x768-solved controls before proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "f43eb807aa0359c8a0ea43c6147efa8a52c6b5c143ed4df88337b0d89a738931",
+      "bytes": 1391
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1024x768-solved-task-dock.png",
+      "sha256": "38029b32738811ee328889c38db31f86ead1393d89cadcb8b0581f5830c866e0",
+      "bytes": 158171
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1024x768-task-dock-layout.json",
+      "sha256": "8d692f81e8d02a7631c05e75fb33abe95fafbb5d41c46e58549491cfd161fb9c",
+      "bytes": 33466
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-solved controls after proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "86e7f90e18c3f744a47c7fb7ae2ffbe56902c98f82736c047d9b1661b246f97e",
+      "bytes": 1320
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-solved controls after proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "71c2ae3f87eaec68257dfeee14e0af213454d8d93754b9194fb974e4db881479",
+      "bytes": 1354
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-solved controls after proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "4dfbc52dc7b7afc931eb3ef5e0798ed4c2e03a594a8714fb6f45b6bb4d991155",
+      "bytes": 1323
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-solved controls before proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "4015fe5e5d5995016e6586a7a15680c076b89450e2d8f627f8019c7275b1b9ed",
+      "bytes": 1321
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-solved controls before proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "79f1e7988c9bee28b4c0fccd0249d170d28a1568f44b759350da94215165bfb8",
+      "bytes": 1355
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-solved controls before proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "2af82a028c6b665c76c9f0e38bb6e5b9583ecb6393f191abee2472d3e7b0cc06",
+      "bytes": 1324
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-solved-task-dock.png",
+      "sha256": "958cb7bbfa23388b8e6ee6909f1c730d78104d723e9512b33f177201e0532f53",
+      "bytes": 176837
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-task-dock-layout.json",
+      "sha256": "bd72882195d3451025a015d8ad986e14b54e0386ed5da10e0b4fa8abdfc80299",
+      "bytes": 33410
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-solved controls after proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "3df331f671892b0e605182f14ff7c40a1b528394feeeab035682be6a36a289e6",
+      "bytes": 1286
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-solved controls after proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "640d4f502e1ec1c7fea051bee233cff657397a81a7e26452dda722b71914d6f7",
+      "bytes": 1334
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-solved controls after proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "63eaf214261288eeed21f8796b236bb2894d8b52db74650dc7176b06825b251d",
+      "bytes": 1305
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-solved controls before proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "b6b07ccd27d5e87627dfade556811e3d8a70af1195334bdce1b657109beae6ce",
+      "bytes": 1287
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-solved controls before proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "1338baab8ef4b7b7570e9a68d6e174a5b74ee99b0d6539dc939a00b14746cc11",
+      "bytes": 1335
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-solved controls before proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "f7d8103460411ad2f68fda2ec63834e6625675b4ed42007f589076f929399d60",
+      "bytes": 1306
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-solved-task-dock.png",
+      "sha256": "ba95f3598419a8386ab598e407a80b157713201da0be3eabf3fe99bcfaa043ca",
+      "bytes": 217724
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-task-dock-layout.json",
+      "sha256": "a1c9df987a59d14f8531a00d6533647b82f0ad88618db84da175c47f2895ff5b",
+      "bytes": 33189
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-browser-identity.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "bytes": 552
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-solved controls after proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "b1b38f79c62588743dca8ecc221f8f7188d584299d4d44aa30e5696008eba73f",
+      "bytes": 1288
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-solved controls after proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "76b3feee1ebe1d0a791d8840ee5f0d7370efe7cf9599e19734ff49befe3e63f5",
+      "bytes": 1300
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-solved controls after proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "c0baaea880cf3cc06a4ebc60c915321431040d5bda5d011e7d76d019d9cf8d43",
+      "bytes": 1293
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-solved controls before proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "7f58bd2d4b79bda2da9cb958e22122f41de2ef8ddf62bab93c2bbcb6d5d42137",
+      "bytes": 1289
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-solved controls before proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "8133ef3da9d5cb74d1b1aaf45422a9f8e3f73fbd5b2b66f667e87f3535838a19",
+      "bytes": 1301
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-solved controls before proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "89f7a1f9384d1e92130cb3a0554697d9bcc86596d76c722ec59f10acd8d0d36c",
+      "bytes": 1294
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-solved-task-dock.png",
+      "sha256": "e20aad62bc78c33ec6a67695f114ba7cdc4f112e25e0b157b0f8889487698b21",
+      "bytes": 158914
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-task-dock-layout.json",
+      "sha256": "ab7a3f750091ef0413c50ce001b39bbeeaad1c83f8955bf619093a2eb2bd91ba",
+      "bytes": 33340
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-solved controls after proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "a9c4f4360a188ddde025622b9601f1507d7c0755366536661126f947be288c70",
+      "bytes": 1308
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-solved controls after proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "fb940c6841603009126b825ac4d782c3a6ea4ea685480ad2ae6997c75cc16d2a",
+      "bytes": 1332
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-solved controls after proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "f81eb0639a97e3f5cde98f4e6c00312ac6c9c486a14ced81ee91b5b23ebd43ad",
+      "bytes": 1301
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-solved controls before proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "944e98ec57ba03f21dadfc50a02e34ecac8c8b05c01d1967a524c1a0430c9cad",
+      "bytes": 1309
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-solved controls before proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "545cc154e5f2870a06fc093ee266fe3a8d60be5ab1976da5e4bc8407a3e88b46",
+      "bytes": 1333
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-solved controls before proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "8f470823c3c9d450306d80d677015c4254b310afc2cb1bbd59767695d4b988d4",
+      "bytes": 1302
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-solved-task-dock.png",
+      "sha256": "5b8fced0aa3f8ba558c8cd70da3ab57a5cf2c12022b973cbf7638b4f1313df41",
+      "bytes": 178309
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-task-dock-layout.json",
+      "sha256": "7c11ad44e48d7d3935949784467f775f9b9b94c8211459d9f8ee4f9d6892b5d7",
+      "bytes": 33298
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-solved controls after proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "21a468430f1a83e8b0d9e92ecb2a7210aa53df8319ad1e246c3eda3ae3491125",
+      "bytes": 1292
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-solved controls after proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "0f7c328650a6a9fc8a763122d12a8ad49254f8b87097fb6c9fdf473ba3559a7d",
+      "bytes": 1322
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-solved controls after proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "d623980f1a9fe18328b36441f0ae3327ad545873eac8f9eaf300931b65a7d2e5",
+      "bytes": 1293
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-solved controls before proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "efd6b389cc19756c5db7feac4f871f7df4eef95eaeb446d46d1365214f60a5b9",
+      "bytes": 1293
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-solved controls before proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "e79cb4bd67504d82db83fe234b9c805552ae465826794d5d82027753be1c39db",
+      "bytes": 1323
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-solved controls before proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "164aa2e7d0e7a88122a81fb8985e2bd195a02006f81a6e3cea66411313aafc02",
+      "bytes": 1294
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-solved-task-dock.png",
+      "sha256": "08af23765e2b60543b6e3383e0f63273ae70471317e5cae45ea5d406206dbf9c",
+      "bytes": 219389
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-task-dock-layout.json",
+      "sha256": "e0a4cf5e9e2999514136bf050cc0c26957b136e9ce8b96c3bb12fd618725e09e",
+      "bytes": 33153
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1024x768-solved controls after proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "8a8b81a5d9d5ab88a6518191f65b2714e9251f67af4510cbb8671bae0a165904",
+      "bytes": 1272
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1024x768-solved controls after proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "e26909eec3a797750bef0a847d250639cce1ce66799bc4bd2ec98ae7972a6af3",
+      "bytes": 1310
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1024x768-solved controls after proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "f87e42c3f190440d75d9d3861c46bacd8f391fa66e17dfaad741ef645cbb36cf",
+      "bytes": 1303
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1024x768-solved controls before proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "818d4452ed746c3f09e4c8064fd3024c1a20cafb6016131073f450e1100c1dc2",
+      "bytes": 1273
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1024x768-solved controls before proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "e96b2b8da43334967b0b3271906a3bf230bd3d42e03a6941241024bb90f4cd04",
+      "bytes": 1311
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1024x768-solved controls before proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "f43eb807aa0359c8a0ea43c6147efa8a52c6b5c143ed4df88337b0d89a738931",
+      "bytes": 1391
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1024x768-solved-task-dock.png",
+      "sha256": "e3af6c821b60a2ac36414664e6025aa19246f26d35db36bfed4c186c3ee0d78c",
+      "bytes": 159279
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1024x768-task-dock-layout.json",
+      "sha256": "8d692f81e8d02a7631c05e75fb33abe95fafbb5d41c46e58549491cfd161fb9c",
+      "bytes": 33466
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-solved controls after proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "86e7f90e18c3f744a47c7fb7ae2ffbe56902c98f82736c047d9b1661b246f97e",
+      "bytes": 1320
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-solved controls after proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "71c2ae3f87eaec68257dfeee14e0af213454d8d93754b9194fb974e4db881479",
+      "bytes": 1354
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-solved controls after proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "4dfbc52dc7b7afc931eb3ef5e0798ed4c2e03a594a8714fb6f45b6bb4d991155",
+      "bytes": 1323
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-solved controls before proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "4015fe5e5d5995016e6586a7a15680c076b89450e2d8f627f8019c7275b1b9ed",
+      "bytes": 1321
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-solved controls before proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "79f1e7988c9bee28b4c0fccd0249d170d28a1568f44b759350da94215165bfb8",
+      "bytes": 1355
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-solved controls before proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "2af82a028c6b665c76c9f0e38bb6e5b9583ecb6393f191abee2472d3e7b0cc06",
+      "bytes": 1324
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-solved-task-dock.png",
+      "sha256": "ca52b542cb8bc4b3a5d25186552b936d9a1e6aa664dbbe764405fbd09cbf8574",
+      "bytes": 177390
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-task-dock-layout.json",
+      "sha256": "bd72882195d3451025a015d8ad986e14b54e0386ed5da10e0b4fa8abdfc80299",
+      "bytes": 33410
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-solved controls after proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "3df331f671892b0e605182f14ff7c40a1b528394feeeab035682be6a36a289e6",
+      "bytes": 1286
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-solved controls after proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "640d4f502e1ec1c7fea051bee233cff657397a81a7e26452dda722b71914d6f7",
+      "bytes": 1334
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-solved controls after proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "63eaf214261288eeed21f8796b236bb2894d8b52db74650dc7176b06825b251d",
+      "bytes": 1305
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-solved controls before proof disclosure-run-mechanics-preview-reachability.json",
+      "sha256": "b6b07ccd27d5e87627dfade556811e3d8a70af1195334bdce1b657109beae6ce",
+      "bytes": 1287
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-solved controls before proof disclosure-solver-mode-dense-reachability.json",
+      "sha256": "1338baab8ef4b7b7570e9a68d6e174a5b74ee99b0d6539dc939a00b14746cc11",
+      "bytes": 1335
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-solved controls before proof disclosure-solver-mode-sparse-reachability.json",
+      "sha256": "f7d8103460411ad2f68fda2ec63834e6625675b4ed42007f589076f929399d60",
+      "bytes": 1306
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-solved-task-dock.png",
+      "sha256": "283e57e1a971cb0b8b5e972963d9b175571856a975194c8be1db0d51b4ea8558",
+      "bytes": 219840
+    },
+    {
+      "path": "CYCLE1/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-task-dock-layout.json",
+      "sha256": "a1c9df987a59d14f8531a00d6533647b82f0ad88618db84da175c47f2895ff5b",
+      "bytes": 33189
+    },
+    {
+      "path": "CYCLE1/matrix-command.json",
+      "sha256": "32d8718288d65faaad037278e97ac66f7098b4facbfbea8466237017d3412c56",
+      "bytes": 851
+    },
+    {
+      "path": "CYCLE1/matrix-report.json",
+      "sha256": "1fa8968124612050f99aeff0e0e242d28753000cb8cde63784d499326c82f9bb",
+      "bytes": 3658565
+    },
+    {
+      "path": "CYCLE1/matrix-result.json",
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "bytes": 17
+    },
+    {
+      "path": "CYCLE1/matrix.log",
+      "sha256": "d5e9eb712de6ed85057f56b8de869849674d5f36587cb283259ad0627ea833a5",
+      "bytes": 594
+    },
+    {
+      "path": "CYCLE1/matrix_collection-command.json",
+      "sha256": "c524b6b4a7b827fc8c666a9134f739abf3c7839d2794165af4a550a419599819",
+      "bytes": 570
+    },
+    {
+      "path": "CYCLE1/matrix_collection-result.json",
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "bytes": 17
+    },
+    {
+      "path": "CYCLE1/matrix_collection.log",
+      "sha256": "62a1d779175ebce5a3e49c9e4f9c40bf5d005c1ae6374e873315a65258af5717",
+      "bytes": 1571
+    },
+    {
+      "path": "CYCLE1/test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "FINAL_SOURCE/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "da0187d4208cb944025e60938a180078d73a9af9a6c8cac7ed8ec0631c659245",
+      "bytes": 103553
+    },
+    {
+      "path": "FINAL_SOURCE/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "acbc040a873d478b35b6d5509e342aa4b7a4faf64106e51ab191e28af8bafa40",
+      "bytes": 136789
+    },
+    {
+      "path": "FINAL_SOURCE/apps/desktop/src/App.test.tsx",
+      "sha256": "c004b86c9e2ae33548f8679404b38eaf837d17f4ad1674cc48f09a525429cf8d",
+      "bytes": 792526
+    },
+    {
+      "path": "FINAL_SOURCE/apps/desktop/src/App.tsx",
+      "sha256": "ff5ce2d4c3e1e27d25fdb5cc4a84adf312abd66114ce03e890688f94b54dcd1f",
+      "bytes": 182147
+    },
+    {
+      "path": "FINAL_SOURCE/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "fb3b9dc1c75b309ab2057a4b87de4dc93154994563bf916202a16d504180e542",
+      "bytes": 202496
+    },
+    {
+      "path": "FINAL_SOURCE/apps/desktop/src/styles.css",
+      "sha256": "95c89c38c27c7aba3225ea1d33fb004dac8e0fe9f26728ab2647e8af5797dfcf",
+      "bytes": 96644
+    },
+    {
+      "path": "PREPARATION_V1/CONTEXT_BINDINGS.json",
+      "sha256": "168f2a18422e6a7597743cd8513bca1889493abd0ab3e9e1b6f656fe4a029124",
+      "bytes": 1162
+    },
+    {
+      "path": "PREPARATION_V1/INCREMENTAL_FROM_R1.patch",
+      "sha256": "643c2f2d68f6e483860d1daecb23c009d602d7cefd33c7cade611545eb04b340",
+      "bytes": 3657
+    },
+    {
+      "path": "PREPARATION_V1/OUTPUT_MANIFEST.json",
+      "sha256": "58785228eef26028f6150934568378cb5b269eae2cde713b8d65fb943abc8454",
+      "bytes": 1176
+    },
+    {
+      "path": "PREPARATION_V1/PROPOSED_COMMANDS.json",
+      "sha256": "f3572be116d1619e9c2aaa9aebd88680da14410ec80a2a06bf547fb6bc0d5b5a",
+      "bytes": 1768
+    },
+    {
+      "path": "PREPARATION_V1/RETURN.json",
+      "sha256": "b1135214f6c71e8b201040b1c249e9267efa75fff56aba93a52e40014b3966b6",
+      "bytes": 943
+    },
+    {
+      "path": "PREPARATION_V1/SOURCE_MANIFEST.json",
+      "sha256": "102b1b219e5dd18e408ff10f347a525dc7f518275a39b3e87abb4fbb9e2e43f9",
+      "bytes": 966
+    },
+    {
+      "path": "PREPARATION_V1/ui-foundation.preimage.spec.ts",
+      "sha256": "6592438b06a786f6194142e074d86ae2084968870f1424c884a01afb797ee49f",
+      "bytes": 134515
+    },
+    {
+      "path": "PREPARATION_V1/ui-foundation.spec.ts",
+      "sha256": "acbc040a873d478b35b6d5509e342aa4b7a4faf64106e51ab191e28af8bafa40",
+      "bytes": 136789
+    },
+    {
+      "path": "RELEASE.json",
+      "sha256": "cc7f70c2b938af38de2297ce0f69ce8a7fc0c3d530de3508b522a9cbdae244dd",
+      "bytes": 476
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "6286e89c20089e867be5b51e2bf1c362db41660332f6a10724c7584c39222e6d",
+      "bytes": 1826
+    },
+    {
+      "path": "SOURCE_MANIFEST.json",
+      "sha256": "102b1b219e5dd18e408ff10f347a525dc7f518275a39b3e87abb4fbb9e2e43f9",
+      "bytes": 966
+    }
+  ],
+  "count": 127,
+  "bytes": 8286468
+}

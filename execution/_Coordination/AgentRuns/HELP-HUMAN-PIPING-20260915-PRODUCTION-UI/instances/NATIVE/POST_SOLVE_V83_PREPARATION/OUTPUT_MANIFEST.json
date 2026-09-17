@@ -1,0 +1,39 @@
+{
+  "members": [
+    {
+      "path": "BUILD_COMMAND.json",
+      "sha256": "2f3eb0a109151a9fe90bcda91b94d82cc4f3198d4516b44386e89132de581690",
+      "bytes": 1440
+    },
+    {
+      "path": "EXPECTATIONS.json",
+      "sha256": "f380d22f1b8ccb0c1a745ab26c48e0b06722741e73879776b91f4d7e265edb58",
+      "bytes": 2653
+    },
+    {
+      "path": "INPUT_BINDINGS.json",
+      "sha256": "a818c8d430a55d615398ccdaeb00adc2fed7b4cf34217fa2465432511c7f85d6",
+      "bytes": 4503
+    },
+    {
+      "path": "PLAN.md",
+      "sha256": "b9c29d32ab3f72f229990b5d5f61959ce67b253c97567dff3ff286731b26b80b",
+      "bytes": 3524
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "432459536fa2c878ca69b034b19b6e0b7bf140cc0b6d0f6ae892396d5e129844",
+      "bytes": 2793
+    },
+    {
+      "path": "SEED_BINDING.json",
+      "sha256": "68661d8fed733502bceac95abd004c514f1a5cd42fb5503a3d56492589f1679b",
+      "bytes": 1942
+    },
+    {
+      "path": "tauri.native-v83.overlay.json",
+      "sha256": "0d7e3b775af72b1123dd5b11244af17ab07867cfe2351e00c56d15f5d9e58c32",
+      "bytes": 365
+    }
+  ]
+}

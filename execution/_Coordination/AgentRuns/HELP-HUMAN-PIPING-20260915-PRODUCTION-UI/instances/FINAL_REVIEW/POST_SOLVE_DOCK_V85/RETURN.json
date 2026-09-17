@@ -1,0 +1,41 @@
+{
+  "status": "PASS_NO_ACTIONABLE_FINDINGS_SOURCE_SUITABILITY_ONLY",
+  "parent": "/root HELP_HUMAN",
+  "instance": "/root/ui_fresh_integrated_review",
+  "role": "TASK Type2 + software-code-review",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "mechanism": "delegated-harness-native; instruction/config asserted",
+  "delegation": "none",
+  "derivativePackage": true,
+  "brief_sha256": "7e851e5cfbc199c180e3a8c5df84b6aada5c8cbcafa5a5c8c7121ce26415a9d5",
+  "source_manifest_sha256": "a7a48c056dbba800603077fc0fcdee8ec1c00235cdcf229d650d20f3c76dfd88",
+  "patch_sha256": "d0b777e2a9316fc07202d369e3bd0b990c30bd5ca60a201486ec5a3cf3e5068b",
+  "source_coverage": {
+    "complete": 143,
+    "changed": 6,
+    "inherited_exact": 137,
+    "bytes": 12647281
+  },
+  "findings": [],
+  "resolved": [
+    "V80-R1"
+  ],
+  "bound_inputs": 310,
+  "source_entry_exit_drift": 0,
+  "input_entry_exit_drift": 0,
+  "visuals": 12,
+  "canonical_attachment_bodies": 97,
+  "exact_control_witnesses": 72,
+  "wheel_assisted_controls": 2,
+  "minimum_solved_body_css_px": 97,
+  "closure_verdict": "Complete boundedsource/evidencebackcheck; exactcandidate suitable forRootintegration and remainingqualification. No adoption, merge or performanceacceptance.",
+  "remaining": [
+    "Actualcandidateintegration/rebuild/native/fullregisteredsweep",
+    "Resource/performancegates and D-69ownerdisposition",
+    "Finalmetadata/CI/closeout"
+  ],
+  "runtime": "NONE; reviewer released",
+  "handoff": "Preserve currentfreeze/failedhistory; Rootowns allnextactions andrequired derivative/qualificationrefresh.",
+  "sealed_at": "2026-09-17T08:48:43.909205+00:00"
+}

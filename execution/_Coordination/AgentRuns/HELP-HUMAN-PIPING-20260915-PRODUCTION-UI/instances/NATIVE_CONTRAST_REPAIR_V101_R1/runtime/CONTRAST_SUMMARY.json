@@ -1,0 +1,68 @@
+[
+  {
+    "name": "readiness-contrast-light-before-solve",
+    "tones": [
+      "info",
+      "warning"
+    ],
+    "count": 12,
+    "minimum_ratio": 10.255397800858244,
+    "path": "readiness/derived/0005.json"
+  },
+  {
+    "name": "readiness-contrast-light-solved",
+    "tones": [
+      "info",
+      "warning",
+      "ok"
+    ],
+    "count": 12,
+    "minimum_ratio": 10.471974183659555,
+    "path": "readiness/derived/0011.json"
+  },
+  {
+    "name": "readiness-contrast-light-blocked",
+    "tones": [
+      "info",
+      "warning",
+      "ok",
+      "blocking"
+    ],
+    "count": 12,
+    "minimum_ratio": 10.471974183659555,
+    "path": "readiness/derived/0017.json"
+  },
+  {
+    "name": "readiness-contrast-dark-before-solve",
+    "tones": [
+      "info",
+      "warning"
+    ],
+    "count": 12,
+    "minimum_ratio": 10.953406946089883,
+    "path": "readiness/derived/0025.json"
+  },
+  {
+    "name": "readiness-contrast-dark-solved",
+    "tones": [
+      "info",
+      "warning",
+      "ok"
+    ],
+    "count": 12,
+    "minimum_ratio": 10.953406946089883,
+    "path": "readiness/derived/0031.json"
+  },
+  {
+    "name": "readiness-contrast-dark-blocked",
+    "tones": [
+      "info",
+      "warning",
+      "ok",
+      "blocking"
+    ],
+    "count": 12,
+    "minimum_ratio": 10.953406946089883,
+    "path": "readiness/derived/0037.json"
+  }
+]

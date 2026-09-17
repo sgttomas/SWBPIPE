@@ -1,0 +1,36 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-16T18:54:40.626244+00:00",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "mechanism": "delegated-harness-native; no delegation",
+  "enforcement": "instruction/config asserted",
+  "brief": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/RAW_ARCHIVE_INCREMENT_V14.md",
+    "sha256": "72e1a0033ed23d2f5543e206aad292918e3ef83d1c81c29edcabf1045ec4c216"
+  },
+  "prior_derivative": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V13/RETURN.json",
+    "sha256": "2728bebd9ec30785bc7bc0028707494d6b9861914a93d4a5b366c6a628bdf08d"
+  },
+  "inputs_sha256": "bfc6482b183a776684ce3190cd45b5703173c41f771cfa9ea1e5ae8809b31d6d",
+  "map_sha256": "cebbeb0a1caf32057f62f9f0a2aabfb6fba0c0ea57a5cd6e49562be461931068",
+  "closed_manifests": 3,
+  "verified_aliases": 106,
+  "verified_unique_objects": 98,
+  "created_unique_objects": 91,
+  "reused_verified_objects": 7,
+  "verified_unique_bytes": 15172229,
+  "exceptions": [],
+  "historical_status": "AuthorV29 and nativeV19 pointer checks retain PASS at their original bytes/bindings. ReproductionV30 preserves expected cancellation/session failures. No complete-candidate or performance acceptance inferred.",
+  "retrieval": "MAP canonical SHA/bytes/path; alias indexes resolve in INPUTS to exact originals and owning manifest hashes. Manifest bytes also preserved.",
+  "verification_coverage": "Every declared member SHA/size checked before copying; each unique canonical object readback/hash/size verified. Direct mappings supply SHA only; sizes recorded from matching bytes.",
+  "method": "Exclusive new copies, fsync0444, renamex_np RENAME_EXCL, canonical readback; matching existing objects verified/reused; no overwrite/WORM claim.",
+  "scope_limit": "Exactly three sealed owning inventories; active source review and later work excluded.",
+  "preservation": "All originals/prior maps/checkpoints unchanged. No product/method/metadata/Git/build/test/browser/native/CUA/deletion/cleanup.",
+  "archive_io": "COMPLETE_RELEASED; no background work",
+  "claim_limit": "Derivative preservation only; no acceptance reinterpretation."
+}

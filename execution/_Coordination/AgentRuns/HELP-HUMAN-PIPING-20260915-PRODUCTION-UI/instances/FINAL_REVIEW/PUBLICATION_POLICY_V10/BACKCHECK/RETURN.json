@@ -1,0 +1,65 @@
+{
+  "status": "PASS_PP10_R1_RESOLVED",
+  "role": "TASK Type2 software-code-review",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "parent": "/root HELP_HUMAN",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "delegation": "none",
+  "enforcement": "instruction/config asserted",
+  "derivativePackage": true,
+  "scope": "Narrow three-authority-string backcheck; prior complete75+1 semantic review retained.",
+  "prior_review_sha256": "d5b038f35f2f196c65a467808ce8e64da3b64430e7aaa9b2760c919562a434c2",
+  "repair_record_sha256": "9b67bbe6828ca01538b73a65597070067c4c444be6f15e52ab0be6ab2a90dcf5",
+  "resolved": [
+    "PP10-R1"
+  ],
+  "findings": [],
+  "changes": [
+    [
+      "historical_role_overrides",
+      51,
+      "authority"
+    ],
+    [
+      "historical_role_overrides",
+      52,
+      "authority"
+    ],
+    [
+      "historical_role_overrides",
+      53,
+      "authority"
+    ]
+  ],
+  "checks": [
+    "Exactly three original proposal authority leaves replaced; every other field and all75 subject identities unchanged.",
+    "Existing124 historical and41 control entries remain identical as prefixes; corrected73 historical and2 control entries appended in original order.",
+    "Both normalized repo-relative authority manifests are selected, have exact prior hashes, and contain the three subject/hash entries.",
+    "Original proposal, working policy, prior review and manifest remained exact at entry/exit. Final policy reconstructed only in memory."
+  ],
+  "expected_candidate": {
+    "sha256": "0c92e550afa532e91194cded282be9c0872685cd924178bcadc06b576a7032bf",
+    "bytes": 192400,
+    "historical_entries": 197,
+    "control_entries": 43,
+    "additions": 75
+  },
+  "input_bindings": {
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/POLICY_AUTHORITY_REPAIR_V10_R1.json": "9b67bbe6828ca01538b73a65597070067c4c444be6f15e52ab0be6ab2a90dcf5",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_POLICY_V10/RETURN.json": "d5b038f35f2f196c65a467808ce8e64da3b64430e7aaa9b2760c919562a434c2",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_V10/PORTABILITY_PROPOSAL.json": "3a6aeeade90fa30197cae4b445bd82c75e25a5846f354445b03c4e7bdf462c58",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/validation/portability_policy.json": "472ec8527c0f974ccaef1836e884a420bd68a050ed4caa352e21ca23470a8266",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_POLICY_V10/ARTIFACT_MANIFEST.json": "81752b938f69f7eac1d5f3e566c0a86db40c794e0463206c44ee11d55c084e5b",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_POLICY_V10/COVERAGE.json": "15ef674d3b9f038c061890b077fa402179f899062f55aa3837adbbf75bc6f990",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_V10/PUBLICATION_PATHS.json": "10c0a36ee9c66cd110e8df52039c96c2eb1ef34c02752c7b01eb55c659e7880f",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FILTER_PRESENTATION_DIAGNOSIS_V58/INPUTS.json": "0a434568da372f26b369e01d3d025eed4e30f3a24da3137d09d8adb79264990c",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FILTER_PRESENTATION_DIAGNOSIS_V58/OUTPUT_MANIFEST.json": "d80cc05272eddc06368b6606794dd7190eb0552d0eeeb98f1820592c48b74f06",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/INPUTS.json": "21b3b81bfa702696e077d3ef2cff467c51675db7d6810ca3277c18ac9ebb5054",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/OUTPUT_MANIFEST.json": "8a80006166ad34be87c3d38422d498aeb1d6eb08d9c954c0a9fea2b6014c0104",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/EVIDENCE.json": "64e8b462b61955a25d3be09bed5cd59db517e4429f1d5a68452acc8649be2326"
+  },
+  "entry_exit_drift": [],
+  "limits": "No policy application, tests/loader/build/runtime/Git/source/raw/CAS/binary operations or delegation. No final selected-publication, performance, lifecycle or tranche acceptance.",
+  "handoff": "Narrow correction closed. Root may apply only the exact192400-byte candidate with SHA0c92e550afa532e91194cded282be9c0872685cd924178bcadc06b576a7032bf; actual selected-publication validation and final metadata review remain separate. Review released."
+}

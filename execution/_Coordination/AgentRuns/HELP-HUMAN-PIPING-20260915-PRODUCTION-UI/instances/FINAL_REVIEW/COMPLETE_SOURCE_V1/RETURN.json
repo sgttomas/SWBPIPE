@@ -1,0 +1,44 @@
+{
+  "schema": "complete-source-review-return/v1",
+  "instance": "/root/ui_final_source_review",
+  "parent": "/root",
+  "status": "COMPLETE_REVIEW_REQUEST_CHANGES",
+  "reviewed_paths": 143,
+  "coverage_percent": 100,
+  "base_commit": "28ad73cc3f936872f8de1d5116c617db1290331b",
+  "source_manifest_sha256": "94368ff10132924e9b79b6325fff3ad6b451d5198c22fc513536395ec3d56381",
+  "source_drift": false,
+  "finding_counts": {
+    "P2": 3,
+    "P3": 1
+  },
+  "findings": [
+    "F1",
+    "F2",
+    "F3",
+    "F4"
+  ],
+  "runtime_tests_performed": false,
+  "derivative_package": true,
+  "closure": "Not suitable for no-findings publication fan-in; repair and independent backcheck required.",
+  "pending_gates": [
+    "repair review",
+    "native/runtime and functional qualification",
+    "complete performance cohort",
+    "registered project sweep",
+    "final metadata/publication review"
+  ],
+  "durable_artifacts": [
+    "CONFIGURATION.json",
+    "ENTRY_MANIFEST.json",
+    "EXIT_MANIFEST.json",
+    "COVERAGE.csv",
+    "GENERATED_DATA_REVIEW.json",
+    "TEST_DUPLICATE_COVERAGE.json",
+    "FINDINGS.json",
+    "REVIEW.md",
+    "RETURN.json",
+    "ARTIFACT_MANIFEST.json"
+  ],
+  "scratch": "read-*.txt files are local review aids, not durable return evidence or acceptance artifacts."
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "piping-independent-review-return/v1",
+  "parent": "/root",
+  "agent": "/root/ui_fresh_integrated_review",
+  "role": "TASK Type2 + software-code-review",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "high",
+  "enforcement": "instruction/config asserted; no delegation",
+  "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/PUBLICATION_REMAINING_REVIEW_V87.md",
+  "brief_sha256": "05474c1d80d69d8fcb525c3f523a17200b78b656ea39c9c03059e7ba3885af4f",
+  "derivative_package": true,
+  "verdict": "PASS_NO_ACTIONABLE_FINDINGS_PROPOSAL_SUITABILITY_ONLY",
+  "findings": 0,
+  "coverage": "469 composed rows including 143 exact integrated-source metadata rows, 286 unchanged inherited non-source rows and 40 new rows; all eight proposed historical overrides; all seven V9 patch/postimage deltas.",
+  "upstream": {
+    "publication_paths_sha256": "cf34a5f6d765edeea2f294e1eaf42f5e58b373976bf118e07d589f2d42c9689c",
+    "policy_additions_sha256": "8d66663c7c9d7d5d56d5e8fece6c1e208f849bb30d12040ede4bd84f7ffad626",
+    "remaining_patch_sha256": "a530fd6670123236b220e6e8bf007b4c1eed71ed142174d9d70589d67d251e06"
+  },
+  "input_count": 80,
+  "entry_exit_drift": 0,
+  "remaining": "Root application requires exact preimage recheck and actual final acceptance record; D-69 remains unruled and performance failed/open. Final runtime/native/resource/live metadata/receipt/CI and additive archival debt remain separate. Preserve V85 and original failed history.",
+  "runtime_owned": [],
+  "status": "SEALED_SCOPE_RELEASED_NO_FOLLOW_ON",
+  "sealed_at": "2026-09-17T09:18:18.105146+00:00"
+}

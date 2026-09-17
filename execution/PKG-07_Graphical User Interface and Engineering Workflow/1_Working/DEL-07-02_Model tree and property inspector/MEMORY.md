@@ -1,5 +1,13 @@
 # DEL-07-02 Memory
 
+## 2026-09-17 — bounded UI foundation, functional technical acceptance
+
+- Implemented bounded scope: virtualized model-tree/grid and target pickers; shared typed selection and view semantics; frozen task targets, retained form drafts and UI-only preferences; and contextual properties using existing structured intents/Rust application. Existing typed engineering intents and Rust application/persistence remain the semantic boundary; future harness transport and new engineering operations are not implied.
+- The [final ROOT acceptance record](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json) accepts the bounded functional technical scope using V20 source, V104 registered verification, V83 numerical/persistence lifecycle and V103 affected native evidence with their exact execution attribution. Resource acceptance retains prior V56 renderer/lifetime and later observer source/unit applicability limits; no final-binary resource cohort is claimed. Final publication metadata review, deterministic practitioner/self-check, receipt and actual-candidate CI remain pending.
+- Performance qualification remains OPEN under unchanged targets; no qualifying complete cohort is accepted. D-69 remains UNRULED, and merge is held until an owner ruling permits functional landing or original performance acceptance succeeds. Bounded functional technical acceptance does not close the full approved tranche.
+- Short panels can require scrolling between a label and its fully visible control. The original transient inspector AX omission remains unexplained although fresh processes expose controls; no independent macOS audit or whole-product WCAG conformance is claimed. Independent practitioner usability/security remain separate held work, not extra publication gates.
+- Model-level modulus_basis_records GUI, broader unit entry/pickers, complete property widgets and residual test/factoring work remain open. Lifecycle and formal dependencies remain unchanged. Broader independent usability/security, CAEPIPE/harness, pressure runtime/connectors, numerical/sparse, report/export and professional/release limitations retain their existing scopes and owners. Original historical entries below remain unchanged.
+
 ## 2026-07-20 - R14-W2-XREPAIR-01 wind schema-mirror test repair
 
 - Cross-package repair under disposition `R14-W2-XREPAIR-01`: R14-W2 T4

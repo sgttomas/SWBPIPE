@@ -1,0 +1,31 @@
+{
+  "status": "INPUTS_VERIFIED_REPAIR_PREPARATION_GRANTED",
+  "recorded_utc": "2026-09-17T08:07:53.796659+00:00",
+  "owner": "/root HELP_HUMAN",
+  "manifests": [
+    {
+      "path": "instances/FINAL_REVIEW/WORKSPACE_LAYOUT_V80/ARTIFACT_MANIFEST.json",
+      "sha256": "62393fce346ec00f0e15e70612b0569831ee7206b0c56b9b9e5a0da29178e08e",
+      "members": 4,
+      "bytes": 132669,
+      "verification": "PASS"
+    },
+    {
+      "path": "instances/GPU_ORBIT_BOUNDARY_DIAGNOSIS_V79/OUTPUT_MANIFEST.json",
+      "sha256": "e6eae7421a4996129297a2c040849e8b67345af4351d323a6b34561fbb0046f5",
+      "members": 9,
+      "bytes": 3563067,
+      "verification": "PASS"
+    }
+  ],
+  "finding": "V80-R1 accepted for bounded presentation repair; not product acceptance",
+  "performance": "V79 diagnosis accepted as derivative evidence only. Original orbit failures remain. Full cohort held; owner disposition required for any changed acceptance/profile. No further runtime diagnosis authorized.",
+  "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/POST_SOLVE_DOCK_REPAIR_V81.md",
+  "brief_sha256": "86b01d88049e7c26b2a90459e22c921f4ff09dbe51ee76c804764abc5a0ae714",
+  "repair_write_scope": [
+    "apps/desktop/src/App.tsx",
+    "apps/desktop/e2e/ui-foundation.spec.ts"
+  ],
+  "runtime": "NONE granted yet; all previous leases released",
+  "sealed_inputs_preserved": true
+}

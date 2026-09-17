@@ -1,0 +1,29 @@
+{
+  "status": "FOCUSED_MATRIX_PASS_PENDING_INDEPENDENT_REVIEW",
+  "role": "Type2 ephemeral generalist; Astra/low; no delegation",
+  "derivative_package": true,
+  "accepted_upstream": "85d142407bf4d288810f0e3a9a996c043ca163e6",
+  "candidate_upstream": [
+    "sealed V78",
+    "sealed original V81 and V81_R1",
+    "sealed V84 diagnosis; no rounding/product-defect finding"
+  ],
+  "validation": {
+    "R2_matrix": "12 PASS; 0 failed/skipped/flaky; one attempt/retry0",
+    "retained": "12 solved PNG,12 layout JSON,72 initial/final control JSON,1 browser identity; canonical report base64 bodies decoded and hash/pointer bound",
+    "wheel_assisted": "Exactly Light/Dark Compact1024 solver-mode-sparse before proof disclosure: one -24px ordinary wheel, scrollTop920\u2192896, exact final containment/focus/hit pass",
+    "minimum_solved_usable_dock_body_css_px": 97,
+    "typescript": "Original V81 PASS carried, not rerun",
+    "units": "R1 corrected candidate7 PASS carried, not rerun; baseline7PASS inconclusive re earlier race"
+  },
+  "visual_inspection": "Directly viewed Light Comfortable1024 and Dark Compact1024 final screenshots; visible Analyze mode/Run controls and concise proof summary. Other10 captured and programmatically bound, not individually visually reviewed here.",
+  "source_scope": "R2 only UI matrix local witness; App presentation, R1 App.test readiness query and other V78 source remain exact",
+  "closure_verdict": "Bounded focused validation complete; source acceptance and integration remain Root gates",
+  "remaining_blockers": [
+    "independent complete-candidate source backcheck",
+    "Root integration/rebuild/native/registered qualification and acceptance"
+  ],
+  "rerun_requirements": "None automatic; Root authorizes further work",
+  "runtime": "RELEASED",
+  "git_index_mutation": false
+}

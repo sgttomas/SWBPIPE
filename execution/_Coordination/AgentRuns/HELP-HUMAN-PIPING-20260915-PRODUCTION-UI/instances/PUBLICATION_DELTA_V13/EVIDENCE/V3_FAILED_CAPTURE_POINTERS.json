@@ -1,0 +1,66 @@
+{
+  "action": "foreground-ac-same-trace-cohort-v3.10000.3.assignment.1",
+  "phase": "derivation",
+  "error": {
+    "errors": [
+      {
+        "phase": "foreground-ac-same-trace-cohort-v3.10000.3.assignment.1:derivation",
+        "error": "CausalPresentationExtractionError: AMBIGUOUS_OR_MISSING_PRESENTED_PIPELINE_REPORTER_OCCURRENCE: expected exactly one event, observed 0"
+      }
+    ],
+    "stoppedSha256": "ce6257847f32617cc3aa93c4fbf6ac1de7e5ca8c1ac58eacfe36ef9bef8da0f7",
+    "rawSha256": "a89bb1da9495044d439194ba595efc6dbffe4275dd61985ea8ef2317cdc953f1"
+  },
+  "raw": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/runtime/raw/run-03/10000/assignment-001/trace-events.raw.json",
+    "sha256": "a89bb1da9495044d439194ba595efc6dbffe4275dd61985ea8ef2317cdc953f1",
+    "bytes": 1426838
+  },
+  "traceTransport": "PASS_TRACING_COMPLETE_AND_NO_REPORTED_DATA_LOSS",
+  "markerValidation": {
+    "status": "PASS_REQUIRED_MARKERS_PRESENT_ONCE_WITH_FINITE_ORDERED_TIMESTAMPS",
+    "requiredMarkerMessages": [
+      "foreground-ac-same-trace-cohort-v3.10000.3.assignment.1:TRACE_STARTED",
+      "foreground-ac-same-trace-cohort-v3.10000.3.assignment.1:TRACE_END"
+    ],
+    "countByMessage": {
+      "foreground-ac-same-trace-cohort-v3.10000.3.assignment.1:TRACE_STARTED": 1,
+      "foreground-ac-same-trace-cohort-v3.10000.3.assignment.1:TRACE_END": 1
+    },
+    "firstTimestampByMessage": {
+      "foreground-ac-same-trace-cohort-v3.10000.3.assignment.1:TRACE_STARTED": 2295460799183,
+      "foreground-ac-same-trace-cohort-v3.10000.3.assignment.1:TRACE_END": 2295461545797
+    },
+    "missingMarkers": [],
+    "exactlyOneEach": true,
+    "finiteTimestamps": true,
+    "ordered": true
+  },
+  "pointers": {
+    "prepared.json": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/runtime/raw/run-03/10000/assignment-001/prepared.json",
+      "sha256": "a96a990623129c2f7a17d0396876f8e5a64baafeea70abbef753162cb6e9fc7a"
+    },
+    "action-stopped.json": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/runtime/raw/run-03/10000/assignment-001/action-stopped.json",
+      "sha256": "ce6257847f32617cc3aa93c4fbf6ac1de7e5ca8c1ac58eacfe36ef9bef8da0f7"
+    },
+    "trace-finalized.json": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/runtime/raw/run-03/10000/assignment-001/trace-finalized.json",
+      "sha256": "42ab67c094fdff9996bfbeae3b279462744ecbf2a2d9628ba2332e15610e9780"
+    },
+    "failed.json": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/runtime/raw/run-03/10000/assignment-001/failed.json",
+      "sha256": "4d248c67ac6990d6144642d0118f2c869c01bad4ed202a0fb0900d2e2cf9d01e"
+    }
+  },
+  "canonicalRun": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/runtime/raw/run-03/10000/result.json",
+    "sha256": "eb75ec0257d84df3e08e64db375229999425912a95cf99ec9614d9e12e40c580"
+  },
+  "environment": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/runtime/raw/run-03/10000/chromium-environment.json",
+    "status": "ABSENT_NOT_RECONSTRUCTED"
+  },
+  "limits": "No raw diagnostic scan, reconstructed lineage, cause inference or rescore."
+}

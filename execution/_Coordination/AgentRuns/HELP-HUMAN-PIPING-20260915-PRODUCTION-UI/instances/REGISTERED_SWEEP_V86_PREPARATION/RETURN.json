@@ -1,0 +1,25 @@
+{
+  "status": "PREPARED_HELD",
+  "derivativePackage": true,
+  "upstream": "CONTEXT.json",
+  "command": "PREPARED_COMMAND.json",
+  "candidateSourceCount": 143,
+  "changedPathsAgainst85d": [
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "projects/chirality-piping/apps/desktop/src/styles.css"
+  ],
+  "blockers": [
+    "Independent V85 review acceptance pending",
+    "Root integration and actual final commit/flat manifest pending",
+    "CHECK remains 85d; actual-candidate identity and clean-index binding pending",
+    "Exclusive runtime grant pending"
+  ],
+  "closure": "File-only preparation complete; execution not authorized or attempted",
+  "runtimeProcessesOwned": [],
+  "priorV62": "FAIL preserved; focused R2 evidence is not a complete registered pass",
+  "rerunRequirements": "Fresh complete five-surface sweep only after Root fills held bindings and grants serial runtime; no automatic follow-on"
+}

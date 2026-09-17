@@ -1,0 +1,441 @@
+{
+  "files": [
+    {
+      "path": "CONTRAST_SUMMARY.json",
+      "sha256": "48c8f481146541604c0115362f8697aa5996a3dc28d491bb7da08494e548cc63",
+      "bytes": 1346
+    },
+    {
+      "path": "ENTRY.json",
+      "sha256": "f20a06576dcfd9a93f1ee8418035d93d1217ded057ec20749a3aa1bd090d9d56",
+      "bytes": 377
+    },
+    {
+      "path": "PREPARATION/PROPOSED_COMMANDS.json",
+      "sha256": "4eac864a37b116a9bcf4a74cfade206f271d1d3d2c385854fbcbfcad2dfcf5db",
+      "bytes": 1533
+    },
+    {
+      "path": "RELEASE.json",
+      "sha256": "1347a3becd911aedfc6204b3c72e833c2a37aabc19be50180864df533bc90269",
+      "bytes": 970
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "d579395461c6cec731e1630986dcbacb38a2829b2d701c337cd5979971e8e996",
+      "bytes": 1214
+    },
+    {
+      "path": "collection/execution.json",
+      "sha256": "7411e1320c039790890949aabc3950d69a866a08ef3c9a5cb8b282fb7832abd1",
+      "bytes": 1083
+    },
+    {
+      "path": "collection/output.log",
+      "sha256": "1b82f33afb8853673802d0b7333e940aa8092e056e94e9e6d784cdfc1eb38ec8",
+      "bytes": 283
+    },
+    {
+      "path": "readiness/ATTACHMENT_BINDINGS.json",
+      "sha256": "7a4688963a4d8d072f70d59baa3d5bb6e4c9e75abbe5d25197ee5b90b771fafb",
+      "bytes": 25282
+    },
+    {
+      "path": "readiness/CASE_STATUS.json",
+      "sha256": "948fc320e4754ab4c82181c254e4eafdfc0473d629264a85d5cbb7a33bc852f2",
+      "bytes": 669
+    },
+    {
+      "path": "readiness/derived/0000.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "bytes": 552
+    },
+    {
+      "path": "readiness/derived/0005.json",
+      "sha256": "2a4a787888376ae9acdcdb39860ebfc4171032f6e36702777be9fce208df8661",
+      "bytes": 7607
+    },
+    {
+      "path": "readiness/derived/0011.json",
+      "sha256": "b8aa98cc9af935e9c4c65c43d65c3e6506a2ce8e9b2e3813aefe66f7a92aabfb",
+      "bytes": 7512
+    },
+    {
+      "path": "readiness/derived/0017.json",
+      "sha256": "8980e139b97e9ae0469b4392cc0c9898148969cbbf30c792c5e21e80c4829924",
+      "bytes": 7536
+    },
+    {
+      "path": "readiness/derived/0019.json",
+      "sha256": "20e5cac41e725bbfa25e1565a8aa73e478dcd398622d8474d4974c4099dcb6b1",
+      "bytes": 278
+    },
+    {
+      "path": "readiness/derived/0025.json",
+      "sha256": "1cb4bc398bdaab10b31b9b4668422c7fe506f165152f9e9f3eef17a4a5fdcb83",
+      "bytes": 7436
+    },
+    {
+      "path": "readiness/derived/0031.json",
+      "sha256": "475a78c2c811f4c64a0c5c9e25cd6e695eff5f5e6c094a6569107fe608c904a6",
+      "bytes": 7341
+    },
+    {
+      "path": "readiness/derived/0037.json",
+      "sha256": "e8081975e724bc44520e4405bd4eba71c099e05091f1f90989fed17fd193052b",
+      "bytes": 7362
+    },
+    {
+      "path": "readiness/derived/0039.json",
+      "sha256": "20e5cac41e725bbfa25e1565a8aa73e478dcd398622d8474d4974c4099dcb6b1",
+      "bytes": 278
+    },
+    {
+      "path": "readiness/execution.json",
+      "sha256": "e59978250b9c0762e892dfb3a46f5d596b37b7cff4dfaf71786c74003a2b05d6",
+      "bytes": 1090
+    },
+    {
+      "path": "readiness/output.log",
+      "sha256": "f31716917bf929025755cee216495c2f512314f764b124df870f99c2d807fcaf",
+      "bytes": 571
+    },
+    {
+      "path": "readiness/report.json",
+      "sha256": "eda5064c77bd12d3438f180c395b06bc83faa49b229d08f2882aed1352ac1b94",
+      "bytes": 83794
+    },
+    {
+      "path": "readiness/test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-blocked-diagnostic-dark-d897b44faf70fdc6ec9f39e0d45697c171eaa350.png",
+      "sha256": "7f48312a4783e9aaf8ae4c10a26762cd66ed26527656d651c77bf76c6f3bde43",
+      "bytes": 13771
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-c91d006035192e074677335e5d7496dfccf3040b.png",
+      "sha256": "d10bde5c4bd8dc827c02d129c2d59e14f34ba24fa85cdd12634a82df0cdfef2c",
+      "bytes": 227277
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-diagnostics-warning-3bf0d985f4006b68d69d2b811ce7860aec632935.png",
+      "sha256": "4958b3a8300fb006b8703361b10d7254046e18b9313d4281c6ddd693d51598b2",
+      "bytes": 4833
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-mechanics-info-8d868ac3c3c57459cb513a4a77233a3a13928815.png",
+      "sha256": "3c78bdd038c165b08ffdfd18413645285a6a9f6cba95da085dc402b4fb1fc95f",
+      "bytes": 5860
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-professional-warning-042fb2abe2bd22e72a355fb0e5183d5fa3cfa5ed.png",
+      "sha256": "c124d991ad48a7fab2812278dc9cbab3113c2cecdd63b94ea31e2f950c1fc019",
+      "bytes": 9603
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-rule-warning-694913deb8c422ed8b307822c08e150ceb36a7d9.png",
+      "sha256": "031d3d9186c714d2fc006c5d09d68b610e65aa997d0eaa6a365a3f21cac90a54",
+      "bytes": 8575
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-blocked-1ffe7c6adfcf39001bb6062f5230cec76f13ad2a.png",
+      "sha256": "cf44b4c484300af3cf512fc38d3d4a663ed381cfa0e4343344873f9e4a60c9d1",
+      "bytes": 195907
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-blocked-readiness-diagnostics-blocking-39bea4619a177f5157d3ab8fb6571346a5282116.png",
+      "sha256": "3133c23cda3e8d26b0b43aca65ec7e5fed0b9cf6bbfa83fb14ee15ce046eb8ed",
+      "bytes": 4673
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-blocked-readiness-mechanics-ok-e760f1cd34870dce7a1c6b0d5408bee03f137632.png",
+      "sha256": "0e4616de6be02e72a3d0649a532dca8a6ea9b6dd55a7a093ddd68558d63d5af7",
+      "bytes": 4924
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-blocked-readiness-professional-warning-039e48fa93d3e3c3d85533ca31ebdf2d9421e1aa.png",
+      "sha256": "a9cd7e89a33549776c29e2c6c596dea77936776d6778fbd155e189a28d876163",
+      "bytes": 9603
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-blocked-readiness-rule-warning-acf8671b246d7e85c98fb7db5ff3015f3c8b8943.png",
+      "sha256": "ed2a8c7f061006645012b23d0b9652f8026a89b483f8b6f65ee92b66b83211dc",
+      "bytes": 7441
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-e662f697489135400e48adb304391abbef34efb8.png",
+      "sha256": "37f10b7e55999fc9ac17a2ec43a292b471376b14b25b6a1cec3ce619656e7245",
+      "bytes": 220547
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-diagnostics-warning-7ae5a87cd51fcb515cb9afed73bbe05a0e546ab2.png",
+      "sha256": "90d767e718ec95ac49d31c1a068089c9aadafd440441e4dae39ee2679b47d755",
+      "bytes": 5542
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-mechanics-ok-e80028396180f48c026271410faa7df3f5e5a36d.png",
+      "sha256": "6719858708d8bed7f116e8080c75ada864e30f5f7aac1c409f9c6728ce8966aa",
+      "bytes": 5459
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-professional-warning-6c7b6102757696a82f27c8c3a3f1afe9a7320560.png",
+      "sha256": "a9cd7e89a33549776c29e2c6c596dea77936776d6778fbd155e189a28d876163",
+      "bytes": 9603
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-rule-warning-651c4dad65fa49f2f3550d6d58c5801f2cf58f09.png",
+      "sha256": "ed2a8c7f061006645012b23d0b9652f8026a89b483f8b6f65ee92b66b83211dc",
+      "bytes": 7441
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-blocked-diagnostic-dark.png",
+      "sha256": "7f48312a4783e9aaf8ae4c10a26762cd66ed26527656d651c77bf76c6f3bde43",
+      "bytes": 13771
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-diagnostics-warning.png",
+      "sha256": "4958b3a8300fb006b8703361b10d7254046e18b9313d4281c6ddd693d51598b2",
+      "bytes": 4833
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-mechanics-info.png",
+      "sha256": "3c78bdd038c165b08ffdfd18413645285a6a9f6cba95da085dc402b4fb1fc95f",
+      "bytes": 5860
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-professional-warning.png",
+      "sha256": "c124d991ad48a7fab2812278dc9cbab3113c2cecdd63b94ea31e2f950c1fc019",
+      "bytes": 9603
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-rule-warning.png",
+      "sha256": "031d3d9186c714d2fc006c5d09d68b610e65aa997d0eaa6a365a3f21cac90a54",
+      "bytes": 8575
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve.png",
+      "sha256": "d10bde5c4bd8dc827c02d129c2d59e14f34ba24fa85cdd12634a82df0cdfef2c",
+      "bytes": 227277
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-blocked-readiness-diagnostics-blocking.png",
+      "sha256": "3133c23cda3e8d26b0b43aca65ec7e5fed0b9cf6bbfa83fb14ee15ce046eb8ed",
+      "bytes": 4673
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-blocked-readiness-mechanics-ok.png",
+      "sha256": "0e4616de6be02e72a3d0649a532dca8a6ea9b6dd55a7a093ddd68558d63d5af7",
+      "bytes": 4924
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-blocked-readiness-professional-warning.png",
+      "sha256": "a9cd7e89a33549776c29e2c6c596dea77936776d6778fbd155e189a28d876163",
+      "bytes": 9603
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-blocked-readiness-rule-warning.png",
+      "sha256": "ed2a8c7f061006645012b23d0b9652f8026a89b483f8b6f65ee92b66b83211dc",
+      "bytes": 7441
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-blocked.png",
+      "sha256": "cf44b4c484300af3cf512fc38d3d4a663ed381cfa0e4343344873f9e4a60c9d1",
+      "bytes": 195907
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved-readiness-diagnostics-warning.png",
+      "sha256": "90d767e718ec95ac49d31c1a068089c9aadafd440441e4dae39ee2679b47d755",
+      "bytes": 5542
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved-readiness-mechanics-ok.png",
+      "sha256": "6719858708d8bed7f116e8080c75ada864e30f5f7aac1c409f9c6728ce8966aa",
+      "bytes": 5459
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved-readiness-professional-warning.png",
+      "sha256": "a9cd7e89a33549776c29e2c6c596dea77936776d6778fbd155e189a28d876163",
+      "bytes": 9603
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved-readiness-rule-warning.png",
+      "sha256": "ed2a8c7f061006645012b23d0b9652f8026a89b483f8b6f65ee92b66b83211dc",
+      "bytes": 7441
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved.png",
+      "sha256": "37f10b7e55999fc9ac17a2ec43a292b471376b14b25b6a1cec3ce619656e7245",
+      "bytes": 220547
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-blocked-diagnostic-light-7b6ded2a02513e2d3d873b7b14006af33606f716.png",
+      "sha256": "ba3035f9d6c6dca8933382c12fb60fbc2cf14309b5f203e81774b1770bffce3f",
+      "bytes": 14348
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-d6f5ada0d72a999af519e0ed9b572dca1bbb5e52.png",
+      "sha256": "2ae0e129afada8a3b389abe6b433cf9d87b8b4a29f04d561b80f4c2f58bed5e0",
+      "bytes": 227478
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-diagnostics-warning-0f26405bd3dfd982a4786efe9b3717a605aec944.png",
+      "sha256": "a1a1a50a9f3862ff0a8be8f81a0a703add38573b4e532c6421e03dcc56cb024e",
+      "bytes": 4883
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-mechanics-info-6151e168b179f07b3cc555a24407e9ea502026e0.png",
+      "sha256": "f94b9ef13f640e23aa3ddb6d39616ca91135103d9cb1bd5a69e8c35141868235",
+      "bytes": 6198
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-professional-warning-eb98d2be86b76aec1a408b76ed5c5ecd5f1f283e.png",
+      "sha256": "e9db57fdbba8d6c4b4e28118ea0ad2a74d85263c70f7ebbce28742555ae94b5e",
+      "bytes": 9762
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-rule-warning-65783568ec8d03ff60ad10a6722a4d767d0796e7.png",
+      "sha256": "ad286ef1e9695abae1f5e123a31d5ccafc5119b2c688ac3a95f930569e7e4fff",
+      "bytes": 9073
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-blocked-8a8559563bc72f87cf7eab3e4b3d0316ce5a41e2.png",
+      "sha256": "6faabf0185409c9094bf425fb55e23ce2f7e97944b56e32e20dbdf9205252850",
+      "bytes": 196536
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-blocked-readiness-diagnostics-blocking-5e7c477ad533cb092176ba22052cc629fb552172.png",
+      "sha256": "d21240873ae9ee349af4f7a706273a83ca1daf660790a937bfb4363510c9a542",
+      "bytes": 4966
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-blocked-readiness-mechanics-ok-dec6e52a6421c8f7af1ffccb5f32f8e8915ff243.png",
+      "sha256": "23e42eb2080cf93ba332a6f91d8dc52daef1104ddf4cadb7b1df2b18eb8c94ba",
+      "bytes": 4785
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-blocked-readiness-professional-warning-2ce417518614fe3a324e883a74f8252c2a032726.png",
+      "sha256": "8915179e1615b3d209f688e5b81aa85d0c0fe04e77321b07fd652a26df94923a",
+      "bytes": 9770
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-blocked-readiness-rule-warning-2aee03e4a5413b71f8322cba17fa3754a5b46c42.png",
+      "sha256": "1d93c98c534df49ea17fe522c66fda14724e26fd34e90817e714a51f85e390ff",
+      "bytes": 7830
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-45438d763e7f054dd7632923feaa0d2d4d0ee6f0.png",
+      "sha256": "5f4c26b239355cc8df227ff5873112e24c07a6dc9b9c01067453005a892520d0",
+      "bytes": 221017
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-diagnostics-warning-c03a8c8bb2e571efb8fcabfaae35d71db7e7382a.png",
+      "sha256": "eb222620322e2232b916ff8f9faf596a6425deaf1bb672003a294cb130dce72f",
+      "bytes": 5485
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-mechanics-ok-be99021e145d1b14179bb0ef7c8a3364310f3ae1.png",
+      "sha256": "bf1465724c53640b5ba6f0f43613806ba1cd22342cbe95b4946b4e02a4af8949",
+      "bytes": 5434
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-professional-warning-8988167cb6f440ce1a17782db8990cb442ff1de2.png",
+      "sha256": "8915179e1615b3d209f688e5b81aa85d0c0fe04e77321b07fd652a26df94923a",
+      "bytes": 9770
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-rule-warning-b0f83dc40d613cc427ad3f5f9e6a72e907312b9e.png",
+      "sha256": "1d93c98c534df49ea17fe522c66fda14724e26fd34e90817e714a51f85e390ff",
+      "bytes": 7830
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-blocked-diagnostic-light.png",
+      "sha256": "ba3035f9d6c6dca8933382c12fb60fbc2cf14309b5f203e81774b1770bffce3f",
+      "bytes": 14348
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve-readiness-diagnostics-warning.png",
+      "sha256": "a1a1a50a9f3862ff0a8be8f81a0a703add38573b4e532c6421e03dcc56cb024e",
+      "bytes": 4883
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve-readiness-mechanics-info.png",
+      "sha256": "f94b9ef13f640e23aa3ddb6d39616ca91135103d9cb1bd5a69e8c35141868235",
+      "bytes": 6198
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve-readiness-professional-warning.png",
+      "sha256": "e9db57fdbba8d6c4b4e28118ea0ad2a74d85263c70f7ebbce28742555ae94b5e",
+      "bytes": 9762
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve-readiness-rule-warning.png",
+      "sha256": "ad286ef1e9695abae1f5e123a31d5ccafc5119b2c688ac3a95f930569e7e4fff",
+      "bytes": 9073
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve.png",
+      "sha256": "2ae0e129afada8a3b389abe6b433cf9d87b8b4a29f04d561b80f4c2f58bed5e0",
+      "bytes": 227478
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-blocked-readiness-diagnostics-blocking.png",
+      "sha256": "d21240873ae9ee349af4f7a706273a83ca1daf660790a937bfb4363510c9a542",
+      "bytes": 4966
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-blocked-readiness-mechanics-ok.png",
+      "sha256": "23e42eb2080cf93ba332a6f91d8dc52daef1104ddf4cadb7b1df2b18eb8c94ba",
+      "bytes": 4785
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-blocked-readiness-professional-warning.png",
+      "sha256": "8915179e1615b3d209f688e5b81aa85d0c0fe04e77321b07fd652a26df94923a",
+      "bytes": 9770
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-blocked-readiness-rule-warning.png",
+      "sha256": "1d93c98c534df49ea17fe522c66fda14724e26fd34e90817e714a51f85e390ff",
+      "bytes": 7830
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-blocked.png",
+      "sha256": "6faabf0185409c9094bf425fb55e23ce2f7e97944b56e32e20dbdf9205252850",
+      "bytes": 196536
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved-readiness-diagnostics-warning.png",
+      "sha256": "eb222620322e2232b916ff8f9faf596a6425deaf1bb672003a294cb130dce72f",
+      "bytes": 5485
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved-readiness-mechanics-ok.png",
+      "sha256": "bf1465724c53640b5ba6f0f43613806ba1cd22342cbe95b4946b4e02a4af8949",
+      "bytes": 5434
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved-readiness-professional-warning.png",
+      "sha256": "8915179e1615b3d209f688e5b81aa85d0c0fe04e77321b07fd652a26df94923a",
+      "bytes": 9770
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved-readiness-rule-warning.png",
+      "sha256": "1d93c98c534df49ea17fe522c66fda14724e26fd34e90817e714a51f85e390ff",
+      "bytes": 7830
+    },
+    {
+      "path": "readiness/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved.png",
+      "sha256": "5f4c26b239355cc8df227ff5873112e24c07a6dc9b9c01067453005a892520d0",
+      "bytes": 221017
+    },
+    {
+      "path": "run_lane.py",
+      "sha256": "efe223808b849602b4acd41cf15ed36e4fbcd63beb46ffcb4175ad93bcbcbae8",
+      "bytes": 2914
+    }
+  ],
+  "count": 87,
+  "bytes": 3139521
+}

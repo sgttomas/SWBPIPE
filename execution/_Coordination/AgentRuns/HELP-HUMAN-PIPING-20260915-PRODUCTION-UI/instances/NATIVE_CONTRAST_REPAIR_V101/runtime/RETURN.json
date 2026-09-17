@@ -1,0 +1,30 @@
+{
+  "status": "STOPPED_UNEXPECTED_BLOCKED_ROUTE_STATUS_FAILURE",
+  "derivative_package": true,
+  "preparation_manifest_sha256": "992e2750a91d41d830c134a088503759df6e82bba70fcafeffe98c595cae9797",
+  "results": {
+    "preimage": {
+      "startTime": "2026-09-17T13:09:18.209Z",
+      "duration": 4321.963,
+      "expected": 0,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 0
+    },
+    "candidate": {
+      "startTime": "2026-09-17T13:10:02.023Z",
+      "duration": 66979.747,
+      "expected": 12,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 0
+    }
+  },
+  "preimage_classification": "Both intended contrast failures: rail label1.171889799; readiness value1.027061783 against4.5. Exactly2 single attempts;11attachments.",
+  "build": "PASS one guardedbuild;21artifacts retained byhash",
+  "candidate": "12appearancePASS;2readinessFAIL in blocked phase, expected state=completed but got state=failed/events3/result_rows0. Default before-solve and solved contrast phases completed in both themes; blocking contrast not reached. No relaxation/retry/sourceedit.",
+  "captures": "198candidateattachments and11preimageattachments allcanonicalbodybytes/pathhashesverified; canonicalstatusunmodified. CONTRAST_SUMMARY holds completed witness minima.",
+  "closure": "Runtime phase sealed, qualification incomplete. Root diagnosis/method disposition and independent review needed; no product/nativeAX acceptance claim. Preparation and source immutable.",
+  "runtime": "RELEASED; ports5173-5177clear; all145candidate source hashes exact.",
+  "remaining": "Determine legitimate blocking route/status from retained trace and source before any changed driver/newlease; no automaticfollow-on."
+}

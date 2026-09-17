@@ -1,0 +1,24 @@
+{
+  "status": "CONTINUING_AUTHORIZED_TRANCHE",
+  "at": "2026-09-17T05:44:44.291385+00:00",
+  "owner_request": "You were interrupted during compaction. I am not sure your status, please resume.",
+  "source_commit": "11d51c16404b229ab505d1db9eef5758fbe249e6",
+  "fresh_origin_main": "28ad73cc3f936872f8de1d5116c617db1290331b",
+  "upstream_changes": "None since approved28ad73cc basis; fetched this resume.",
+  "clean_check_checkout": "Tracked worktree clean at11d51c164; production source unchanged.",
+  "runtime": "RELEASED",
+  "independent_diagnosis": {
+    "role": "TASK Type2",
+    "model": "gpt-6-astra",
+    "effort": "xhigh",
+    "agent": "/root/ui_causal_runtime_diagnosis",
+    "brief_sha256": "6c0354c54636b7004b93c44db77558dadd6910190891ab80459ca371aa3a81c2",
+    "context_extension": "Read already-downloaded pinned reporter/controller sources referenced by frozen extractor Chromium manifest under BENCHMARK_DIAGNOSIS/causal_presentation_v2 and ROOT/CHROMIUM_SOURCE_507c6ee; bind exact consumed files. No network.",
+    "extension_authorization": "Root message in this resume; interpretation limited to emission timing, no alternate-frame scoring."
+  },
+  "preservation": {
+    "failure_intake_sha256": "71b6b5bd68ee7a3c2840eb635efc287d865d2109692f5ea42fc7bdbd6b68fd80",
+    "archive_v25_acceptance_sha256": "d1d317bc1173471333225411bda906a74778d9285999cb96478a7b24f33be009"
+  },
+  "remaining": "Evidence-supported method decision and qualification; complete performance; registered sweep; final metadata/review/practitioner/selfcheck/receipt; actual-headCI and scoped PR merge."
+}

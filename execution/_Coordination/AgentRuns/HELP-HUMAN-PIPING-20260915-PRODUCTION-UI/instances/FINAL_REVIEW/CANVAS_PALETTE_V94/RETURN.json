@@ -1,0 +1,28 @@
+{
+  "status": "REVIEW_COMPLETE_ACTIONABLE_P2_NOT_ACCEPTED",
+  "role": "TASK Type2 software-code-review gpt-6-astra/high; no delegation; instruction/config asserted",
+  "derivative_package": true,
+  "at": "2026-09-17T10:53:24.117924+00:00",
+  "candidate": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/CANDIDATE_SOURCE_V18/SOURCE_MANIFEST.json",
+    "sha256": "88158c7acc123beef07456c2728773218926b75df0aae48481c62e899f86edbe"
+  },
+  "coverage": "145 paths: full nine-path delta including two new files; 136 exact inherited paths; explicit V17\u2192V18 loader amendment; zero unexplained drift",
+  "findings": [
+    "V94-R1 P2: constrained sticky operation tabs leave at most 11.421875 px for 32 px page controls; the new driver checks only a navigation tab."
+  ],
+  "focused_runtime": "51 dist + 4 source menu + 17 source workspace PASS, one attempt each, zero skips/flaky/errors; author attribution retained",
+  "visual": "All 56 unique orientation images directly viewed and mapped to 63 triples; orientation PASS. All 48 budget states and 24 selected-control witnesses reviewed; functional dock acceptance withheld.",
+  "history": "V89 43 PASS/4 FAIL and unrun source lanes preserved; V92 original build PASS/collection FAIL had zero browser outcomes; loader-only V18 collection51 PASS preserved; final focused runtime owns its 72 PASS. Preparation 15 units/noEmit and expected preimage failure retain original attribution.",
+  "closure_verdict": "Complete bounded review; candidate requires V94-R1 repair/backcheck before functional acceptance. No reviewer runtime or source edits.",
+  "remaining": [
+    "V94-R1 product/method repair and backcheck",
+    "Integration and full registered sweep",
+    "Native/practitioner/CI/PR/final metadata acceptance",
+    "D69 owner ruling or original performance gates; no performance waiver"
+  ],
+  "handoff": "Return to Root; no automatic repair, integration, runtime, waiver, or follow-on authorized by this review.",
+  "input_count": 539,
+  "explicit_original_supersessions": 1,
+  "unexplained_drift": 0
+}

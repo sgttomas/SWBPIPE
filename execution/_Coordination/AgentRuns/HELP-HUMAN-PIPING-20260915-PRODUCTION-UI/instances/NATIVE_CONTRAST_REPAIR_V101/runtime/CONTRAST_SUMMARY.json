@@ -1,0 +1,98 @@
+[
+  {
+    "name": "rail-hover-contrast-light-comfortable-1024",
+    "path": "candidate/derived/0005.json",
+    "count": 12,
+    "minimum_ratio": 13.980413090539733
+  },
+  {
+    "name": "rail-hover-contrast-light-comfortable-1280",
+    "path": "candidate/derived/0019.json",
+    "count": 12,
+    "minimum_ratio": 13.980413090539733
+  },
+  {
+    "name": "rail-hover-contrast-light-comfortable-1440",
+    "path": "candidate/derived/0033.json",
+    "count": 12,
+    "minimum_ratio": 13.980413090539733
+  },
+  {
+    "name": "rail-hover-contrast-light-compact-1024",
+    "path": "candidate/derived/0047.json",
+    "count": 12,
+    "minimum_ratio": 13.980413090539733
+  },
+  {
+    "name": "rail-hover-contrast-light-compact-1280",
+    "path": "candidate/derived/0061.json",
+    "count": 12,
+    "minimum_ratio": 13.980413090539733
+  },
+  {
+    "name": "rail-hover-contrast-light-compact-1440",
+    "path": "candidate/derived/0075.json",
+    "count": 12,
+    "minimum_ratio": 13.980413090539733
+  },
+  {
+    "name": "rail-hover-contrast-dark-comfortable-1024",
+    "path": "candidate/derived/0089.json",
+    "count": 12,
+    "minimum_ratio": 12.444926817170543
+  },
+  {
+    "name": "rail-hover-contrast-dark-comfortable-1280",
+    "path": "candidate/derived/0103.json",
+    "count": 12,
+    "minimum_ratio": 12.444926817170543
+  },
+  {
+    "name": "rail-hover-contrast-dark-comfortable-1440",
+    "path": "candidate/derived/0117.json",
+    "count": 12,
+    "minimum_ratio": 12.444926817170543
+  },
+  {
+    "name": "rail-hover-contrast-dark-compact-1024",
+    "path": "candidate/derived/0131.json",
+    "count": 12,
+    "minimum_ratio": 12.444926817170543
+  },
+  {
+    "name": "rail-hover-contrast-dark-compact-1280",
+    "path": "candidate/derived/0145.json",
+    "count": 12,
+    "minimum_ratio": 12.444926817170543
+  },
+  {
+    "name": "rail-hover-contrast-dark-compact-1440",
+    "path": "candidate/derived/0159.json",
+    "count": 12,
+    "minimum_ratio": 12.444926817170543
+  },
+  {
+    "name": "readiness-contrast-light-before-solve",
+    "path": "candidate/derived/0173.json",
+    "count": 12,
+    "minimum_ratio": 10.255397800858244
+  },
+  {
+    "name": "readiness-contrast-light-solved",
+    "path": "candidate/derived/0179.json",
+    "count": 12,
+    "minimum_ratio": 10.471974183659555
+  },
+  {
+    "name": "readiness-contrast-dark-before-solve",
+    "path": "candidate/derived/0188.json",
+    "count": 12,
+    "minimum_ratio": 10.953406946089883
+  },
+  {
+    "name": "readiness-contrast-dark-solved",
+    "path": "candidate/derived/0194.json",
+    "count": 12,
+    "minimum_ratio": 10.953406946089883
+  }
+]

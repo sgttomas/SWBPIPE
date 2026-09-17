@@ -1,0 +1,1711 @@
+{
+  "files": [
+    {
+      "path": "BUILT_DIST_MANIFEST.json",
+      "sha256": "8d1abc275806b239b97ebe7b23793619175901b969de2207f24029ee83decc37",
+      "bytes": 5951
+    },
+    {
+      "path": "CONTRAST_SUMMARY.json",
+      "sha256": "78a76120250d46ff50f294de9dc60375df15ba6ac9d9cc7a17586c2eaddb8952",
+      "bytes": 2611
+    },
+    {
+      "path": "ENTRY.json",
+      "sha256": "db4fe5234e8c9262374abc50a567c6e3102ba1022d75e1c0363c2de14e3e8cf7",
+      "bytes": 142
+    },
+    {
+      "path": "PREPARATION/PROPOSED_COMMANDS.json",
+      "sha256": "9da20c44f803a8c52fd9fcafe63d51efa151571929681c42b05fd042372d5de2",
+      "bytes": 3336
+    },
+    {
+      "path": "RELEASE.json",
+      "sha256": "8c1c24f5fe78c9d5e92fb2c2d51dc3f78d560a1e40c04df997e40cc8c8d3493a",
+      "bytes": 589
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "75562cff1b94c5e11d2efe7acac83b7f7af445d0464cebeb9b9574f130c1abd5",
+      "bytes": 1705
+    },
+    {
+      "path": "build/execution.json",
+      "sha256": "e2023d7ab01cde31c2203496733def0e98fb3125cd4a1aab9b9771e6e3bfb050",
+      "bytes": 831
+    },
+    {
+      "path": "build/output.log",
+      "sha256": "8cb81919225239cc7130dfe7a5f701553daba2f3cdcb0c6251ce7d26b941c275",
+      "bytes": 1577
+    },
+    {
+      "path": "candidate/ATTACHMENT_BINDINGS.json",
+      "sha256": "41252db930fdd4d0ff7c7975d0f429e6552a6da70da7077d95f7ca7557007734",
+      "bytes": 113035
+    },
+    {
+      "path": "candidate/CASE_STATUS.json",
+      "sha256": "9c6e6e8ceac4390982145842cd32c9d6b5fd9228c6b6cec4d78bba1f4c3fc374",
+      "bytes": 7467
+    },
+    {
+      "path": "candidate/derived/0000.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "bytes": 552
+    },
+    {
+      "path": "candidate/derived/0005.json",
+      "sha256": "dc6f5f5228187b2f32b48bb887effb345babe2a1f817b4913f6d7c73d39c05fb",
+      "bytes": 5697
+    },
+    {
+      "path": "candidate/derived/0006.json",
+      "sha256": "bc682922414b8753751e3e80c7030d69d328d7a5697dd355247389918425bc08",
+      "bytes": 17767
+    },
+    {
+      "path": "candidate/derived/0007.json",
+      "sha256": "d2412eec492313548be7a1274d91f4aaf23dc7211373fafc83ef7c93cecf8c54",
+      "bytes": 349
+    },
+    {
+      "path": "candidate/derived/0010.json",
+      "sha256": "43a846b0595dd8d93d0314d4636dfbf43927b933a1c9e7ae90e07263ea1282fe",
+      "bytes": 4034
+    },
+    {
+      "path": "candidate/derived/0012.json",
+      "sha256": "5a28a9aa000aaa51e681adef797a2b4cbf360904173d75c516e514808c44b403",
+      "bytes": 2486
+    },
+    {
+      "path": "candidate/derived/0013.png",
+      "sha256": "fbc26a812c15d8efd5f84fcc965dc80922cc5ad7a194270f8ddeb85a5fc54664",
+      "bytes": 95219
+    },
+    {
+      "path": "candidate/derived/0014.png",
+      "sha256": "54f2790a77ea25fe7b3acf3c81b073b0e80f9e53a3848c7a5d5c93cd641c43e8",
+      "bytes": 2802
+    },
+    {
+      "path": "candidate/derived/0019.json",
+      "sha256": "868058a1bc7ce536e36871c88fc36b7cf6c82315cc6d914040ebc7286484dce0",
+      "bytes": 5700
+    },
+    {
+      "path": "candidate/derived/0020.json",
+      "sha256": "1c243d2dc2ba1fae5e8523930f5a9733d4e8cf4f4a83099d451ff213a54ed49d",
+      "bytes": 18035
+    },
+    {
+      "path": "candidate/derived/0021.json",
+      "sha256": "e667f360102450ffaed9ee1b9997e2a11262b103573df22a6b4b25aeeff4747f",
+      "bytes": 349
+    },
+    {
+      "path": "candidate/derived/0024.json",
+      "sha256": "6eccd001f6998757f9fe21038c6cca2ae8747c33777aa6dfa9028f1f1413aa7b",
+      "bytes": 4034
+    },
+    {
+      "path": "candidate/derived/0026.json",
+      "sha256": "c0a08cda235aee9bbe4c5252a70bea091841fa37564ccadb6c2e2117b078898e",
+      "bytes": 2494
+    },
+    {
+      "path": "candidate/derived/0027.png",
+      "sha256": "8f3849785bf69f23fdf8a58a566cfd432c0acedfcce30ff80120694576bfc49f",
+      "bytes": 145382
+    },
+    {
+      "path": "candidate/derived/0028.png",
+      "sha256": "9783fcf5f891a59d8bf88eb571abdd4a5ce1f20b0c2a112270174683e7140f47",
+      "bytes": 2807
+    },
+    {
+      "path": "candidate/derived/0033.json",
+      "sha256": "ae7d4fc6cd428facbe09192265b18f276e50701dd51fcc514564f7fb3001538b",
+      "bytes": 5702
+    },
+    {
+      "path": "candidate/derived/0034.json",
+      "sha256": "39c4bf3d81805841ba8113d4433591a59c7e740764395304ae47a273988314b5",
+      "bytes": 18010
+    },
+    {
+      "path": "candidate/derived/0035.json",
+      "sha256": "ea83c31e288dd1e7abb0cb0d55fe078659972c07af28b9c0273c622cfc913eb0",
+      "bytes": 349
+    },
+    {
+      "path": "candidate/derived/0038.json",
+      "sha256": "4fcc1553003f590651194503acb9a45f16c9ba11250915207f9e4e31b4068555",
+      "bytes": 4034
+    },
+    {
+      "path": "candidate/derived/0040.json",
+      "sha256": "e2d78610a9b98b6747b36a98af600a2c6a8795989eb637ee6782c0478cd6f29c",
+      "bytes": 2496
+    },
+    {
+      "path": "candidate/derived/0041.png",
+      "sha256": "161ad2a06cda28af05a887b4c8bdbb04213ee19c202a67bad54ee85b560ee143",
+      "bytes": 158111
+    },
+    {
+      "path": "candidate/derived/0042.png",
+      "sha256": "54f2790a77ea25fe7b3acf3c81b073b0e80f9e53a3848c7a5d5c93cd641c43e8",
+      "bytes": 2802
+    },
+    {
+      "path": "candidate/derived/0047.json",
+      "sha256": "95884e2797005cda382f774ad4458eda3ee4693d472116b7ba7db6d1fccfb420",
+      "bytes": 5697
+    },
+    {
+      "path": "candidate/derived/0048.json",
+      "sha256": "642f6b7af10987a9304f61aa7809ee32d78bfbefe3854d35b6f439d4c9c3ce22",
+      "bytes": 17751
+    },
+    {
+      "path": "candidate/derived/0049.json",
+      "sha256": "16410441ff62f9a972747c8455279790ea65874a8fa573778e6d3f459cc3bc76",
+      "bytes": 341
+    },
+    {
+      "path": "candidate/derived/0052.json",
+      "sha256": "684bd9df979012249b65a3ceb6a9676ec5334cc59d55ef9e2e669e10ebc414aa",
+      "bytes": 4032
+    },
+    {
+      "path": "candidate/derived/0054.json",
+      "sha256": "035f263b70e742acbe361b2802e6a8f42439dfd845c1f0420fcd2e3073c03759",
+      "bytes": 2486
+    },
+    {
+      "path": "candidate/derived/0055.png",
+      "sha256": "db9d66be5c5df499b9a689957ec8359e7535b483da51a0b1cec29899038c65b8",
+      "bytes": 96076
+    },
+    {
+      "path": "candidate/derived/0056.png",
+      "sha256": "54f2790a77ea25fe7b3acf3c81b073b0e80f9e53a3848c7a5d5c93cd641c43e8",
+      "bytes": 2802
+    },
+    {
+      "path": "candidate/derived/0061.json",
+      "sha256": "1165b2a8ff20f4ebddd490b765f25376c0674e188da27507da3352dbfe1b5997",
+      "bytes": 5700
+    },
+    {
+      "path": "candidate/derived/0062.json",
+      "sha256": "1512f13480e5f161402dd2cd6498f98ef4b3aef3df04b64056239cc9110e59e0",
+      "bytes": 18025
+    },
+    {
+      "path": "candidate/derived/0063.json",
+      "sha256": "d757bb7d2379d554252c5d47fdea4ac2164ed391959a1721cac6243c4859d632",
+      "bytes": 341
+    },
+    {
+      "path": "candidate/derived/0066.json",
+      "sha256": "ff9e0fd755f226d5f8be740b389687e1cd32a127b6e5de2bcb246ac7a254bf13",
+      "bytes": 4034
+    },
+    {
+      "path": "candidate/derived/0068.json",
+      "sha256": "1417ced7445ad2c04a44c469d5b5134dc781677cbf10fedf6a05a93c1f8b2c87",
+      "bytes": 2494
+    },
+    {
+      "path": "candidate/derived/0069.png",
+      "sha256": "a239095026bcbcc938ca81bed3fd81af4664b7ab996d90d85e33fe4aae64ba6e",
+      "bytes": 146398
+    },
+    {
+      "path": "candidate/derived/0070.png",
+      "sha256": "656185dab20f348cbc45ffd920ed7c20f62cfcc6b17dc72691c30ce7896f7b16",
+      "bytes": 2818
+    },
+    {
+      "path": "candidate/derived/0075.json",
+      "sha256": "afa5f8555ed9cfac57513b2ded72ea505663ffe38c6183436066fa7d914b92d1",
+      "bytes": 5702
+    },
+    {
+      "path": "candidate/derived/0076.json",
+      "sha256": "053475bd6bf5860616891b7feb03f2bec8bd27e903ae520edf7f49d9f8889823",
+      "bytes": 18000
+    },
+    {
+      "path": "candidate/derived/0077.json",
+      "sha256": "7c72c86e1f2c6aa5fd76ab465387bb976809ec1abf54b67e11de3a50534ffbbf",
+      "bytes": 341
+    },
+    {
+      "path": "candidate/derived/0080.json",
+      "sha256": "590e0f5f1b5cc67c5fd8353e0cf092b1f622885122fb11c0a032972ba26e6aa0",
+      "bytes": 4034
+    },
+    {
+      "path": "candidate/derived/0082.json",
+      "sha256": "e9904dd7c275058ffd3621913cf840228b40b86cdfc20f45d282599a1dccb9e0",
+      "bytes": 2496
+    },
+    {
+      "path": "candidate/derived/0083.png",
+      "sha256": "63cc89eb9e56d4466cae9f27fcd5e24462b9ce21bb0bf19ce371deb96a1817a5",
+      "bytes": 159395
+    },
+    {
+      "path": "candidate/derived/0084.png",
+      "sha256": "54f2790a77ea25fe7b3acf3c81b073b0e80f9e53a3848c7a5d5c93cd641c43e8",
+      "bytes": 2802
+    },
+    {
+      "path": "candidate/derived/0089.json",
+      "sha256": "075fd86e541684463e05bbd48989223cee9676e557d0a7862ba69c0cea215632",
+      "bytes": 5589
+    },
+    {
+      "path": "candidate/derived/0090.json",
+      "sha256": "dbab605b1fea93f5d6fecff601f31577a0b66e8eb096592fa1cf416554c73ffc",
+      "bytes": 17571
+    },
+    {
+      "path": "candidate/derived/0091.json",
+      "sha256": "11110d144e4b9102973b9cfbe038119b372eb859794508410212b2f5941e1b68",
+      "bytes": 347
+    },
+    {
+      "path": "candidate/derived/0094.json",
+      "sha256": "76a441064919f15c27bcd6ca740734e90a8be3ad231ea6774d0ec02f8e8e8da0",
+      "bytes": 3981
+    },
+    {
+      "path": "candidate/derived/0096.json",
+      "sha256": "5a28a9aa000aaa51e681adef797a2b4cbf360904173d75c516e514808c44b403",
+      "bytes": 2486
+    },
+    {
+      "path": "candidate/derived/0097.png",
+      "sha256": "c8f12ed8af0b9096a2df26ec4ca957f0eaabb86784b8c6d82468f2f2d6c0d2b3",
+      "bytes": 94409
+    },
+    {
+      "path": "candidate/derived/0098.png",
+      "sha256": "6362d1ab1e8e16a0000d533fd8d115168ce9a62d311ea204319afe17917ec5e3",
+      "bytes": 2458
+    },
+    {
+      "path": "candidate/derived/0103.json",
+      "sha256": "c31cd48f556e5f9d08f161b3941cbbc66f7433a50dd59a5339a6c6adb68d511d",
+      "bytes": 5592
+    },
+    {
+      "path": "candidate/derived/0104.json",
+      "sha256": "77778cc678133e14c4110fc1a32b8aae13e8f444525caf0f83cab0810b2c8106",
+      "bytes": 17839
+    },
+    {
+      "path": "candidate/derived/0105.json",
+      "sha256": "e803eafca0f66c68e5ffb1ccfb8403046daa4fc6d98bc19462d42d8af7c930f4",
+      "bytes": 347
+    },
+    {
+      "path": "candidate/derived/0108.json",
+      "sha256": "ad655c5662396df5ddb9e8644fa2dd7c5bad3eb1c9287d699ad934d614909410",
+      "bytes": 3981
+    },
+    {
+      "path": "candidate/derived/0110.json",
+      "sha256": "c0a08cda235aee9bbe4c5252a70bea091841fa37564ccadb6c2e2117b078898e",
+      "bytes": 2494
+    },
+    {
+      "path": "candidate/derived/0111.png",
+      "sha256": "75b75f10e774d323a57591feb39f24c33c32601653bfdb7071531bd7e0e52e32",
+      "bytes": 143690
+    },
+    {
+      "path": "candidate/derived/0112.png",
+      "sha256": "a162326cdbe5abb2387634ecc39c55709fa2a3f91cdd89318d18c60177e303c5",
+      "bytes": 2462
+    },
+    {
+      "path": "candidate/derived/0117.json",
+      "sha256": "a3d6d81ae70c27a4b4dace25b6a408f7cb17ddfaafad0f3cdf550c0c89b92ee8",
+      "bytes": 5594
+    },
+    {
+      "path": "candidate/derived/0118.json",
+      "sha256": "a4ae9458447227d9952faff2e8166985652333eb4ac99609d3e3c7a36566e40d",
+      "bytes": 17814
+    },
+    {
+      "path": "candidate/derived/0119.json",
+      "sha256": "36fb4f63bded5e075ef3fea5e48fcb5baec2a42040c68745a5f14d14fae3eab9",
+      "bytes": 347
+    },
+    {
+      "path": "candidate/derived/0122.json",
+      "sha256": "54744b3c97c9e86d6628e1a64cd1496fff1eec1bb43fa3481e8c93ac05e40ab7",
+      "bytes": 3981
+    },
+    {
+      "path": "candidate/derived/0124.json",
+      "sha256": "e2d78610a9b98b6747b36a98af600a2c6a8795989eb637ee6782c0478cd6f29c",
+      "bytes": 2496
+    },
+    {
+      "path": "candidate/derived/0125.png",
+      "sha256": "f02916d2abb25bf4b30abc4746716ef50c82623b650dacbcdb7270e44e5a340c",
+      "bytes": 156140
+    },
+    {
+      "path": "candidate/derived/0126.png",
+      "sha256": "6362d1ab1e8e16a0000d533fd8d115168ce9a62d311ea204319afe17917ec5e3",
+      "bytes": 2458
+    },
+    {
+      "path": "candidate/derived/0131.json",
+      "sha256": "f471326b19080aef2677ae83295971004dbba6f6855fa172936319e6aac2bd81",
+      "bytes": 5589
+    },
+    {
+      "path": "candidate/derived/0132.json",
+      "sha256": "d7523f3fb39128606606ab628ca78592b07b8297caaf294c0671a4fbd606db55",
+      "bytes": 17555
+    },
+    {
+      "path": "candidate/derived/0133.json",
+      "sha256": "f695721d8392070a7ee8f1b726d19a00009bd0560dc7cf07ea804f97601f2ebf",
+      "bytes": 339
+    },
+    {
+      "path": "candidate/derived/0136.json",
+      "sha256": "05c127b80e3bd5e38106002fa2edeb5ccb92e29db61e6fbd5a0423bc6b96a53f",
+      "bytes": 3979
+    },
+    {
+      "path": "candidate/derived/0138.json",
+      "sha256": "035f263b70e742acbe361b2802e6a8f42439dfd845c1f0420fcd2e3073c03759",
+      "bytes": 2486
+    },
+    {
+      "path": "candidate/derived/0139.png",
+      "sha256": "dcb39adc14497b68097257f3939a5c85423d745f46dff9ab09d00b0b3a44cf94",
+      "bytes": 95660
+    },
+    {
+      "path": "candidate/derived/0140.png",
+      "sha256": "6362d1ab1e8e16a0000d533fd8d115168ce9a62d311ea204319afe17917ec5e3",
+      "bytes": 2458
+    },
+    {
+      "path": "candidate/derived/0145.json",
+      "sha256": "4256e2ed965fb2a50606a6b7b819914d56b9299a6cb13ed7f0319fb750a7dac5",
+      "bytes": 5592
+    },
+    {
+      "path": "candidate/derived/0146.json",
+      "sha256": "37ae6b0a53025ea5f8bfdfb7d3734992144d4ad5bfb9643e101c6a61704436bb",
+      "bytes": 17829
+    },
+    {
+      "path": "candidate/derived/0147.json",
+      "sha256": "f70fb3cc9ebb13832618f8d2956f3c42cd464c652b23cb6da4596d1c73ce6f76",
+      "bytes": 339
+    },
+    {
+      "path": "candidate/derived/0150.json",
+      "sha256": "7cb2c3f6986451281b50f8384ed1d92f00e64914c5ad10063be46abf28f150ed",
+      "bytes": 3981
+    },
+    {
+      "path": "candidate/derived/0152.json",
+      "sha256": "1417ced7445ad2c04a44c469d5b5134dc781677cbf10fedf6a05a93c1f8b2c87",
+      "bytes": 2494
+    },
+    {
+      "path": "candidate/derived/0153.png",
+      "sha256": "6e072a2543904eca1101295e47e58ffde91d2c5068fced6c97a4d9eed2b74e73",
+      "bytes": 144530
+    },
+    {
+      "path": "candidate/derived/0154.png",
+      "sha256": "795259aa8045fa88af600d6aa9bd59cbc80dbe34e6c222704b0218efd4bdc301",
+      "bytes": 2472
+    },
+    {
+      "path": "candidate/derived/0159.json",
+      "sha256": "c514b65a0d8df8532cf557d25b564e52fec0c4e0aed9d68034ba59a4d79ed457",
+      "bytes": 5594
+    },
+    {
+      "path": "candidate/derived/0160.json",
+      "sha256": "27f34a4b72185394222c667848223d77a203cf9d2b1010a91a35abb7b9be77bd",
+      "bytes": 17804
+    },
+    {
+      "path": "candidate/derived/0161.json",
+      "sha256": "01de6656a3d923ec3a4a6000a3e0824ed79db58a9a61ece9277d910c233f1a9c",
+      "bytes": 339
+    },
+    {
+      "path": "candidate/derived/0164.json",
+      "sha256": "f2c1001a251a1769b10a895e36772ad840a8349502908d2a9770675dc83380e1",
+      "bytes": 3981
+    },
+    {
+      "path": "candidate/derived/0166.json",
+      "sha256": "e9904dd7c275058ffd3621913cf840228b40b86cdfc20f45d282599a1dccb9e0",
+      "bytes": 2496
+    },
+    {
+      "path": "candidate/derived/0167.png",
+      "sha256": "535a2ad89eeb17af7e58b7b8a2cde6a43a278e99b86f465935410f493546a1df",
+      "bytes": 157278
+    },
+    {
+      "path": "candidate/derived/0168.png",
+      "sha256": "6362d1ab1e8e16a0000d533fd8d115168ce9a62d311ea204319afe17917ec5e3",
+      "bytes": 2458
+    },
+    {
+      "path": "candidate/derived/0173.json",
+      "sha256": "2a4a787888376ae9acdcdb39860ebfc4171032f6e36702777be9fce208df8661",
+      "bytes": 7607
+    },
+    {
+      "path": "candidate/derived/0179.json",
+      "sha256": "b8aa98cc9af935e9c4c65c43d65c3e6506a2ce8e9b2e3813aefe66f7a92aabfb",
+      "bytes": 7512
+    },
+    {
+      "path": "candidate/derived/0183.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "bytes": 552
+    },
+    {
+      "path": "candidate/derived/0188.json",
+      "sha256": "1cb4bc398bdaab10b31b9b4668422c7fe506f165152f9e9f3eef17a4a5fdcb83",
+      "bytes": 7436
+    },
+    {
+      "path": "candidate/derived/0194.json",
+      "sha256": "475a78c2c811f4c64a0c5c9e25cd6e695eff5f5e6c094a6569107fe608c904a6",
+      "bytes": 7341
+    },
+    {
+      "path": "candidate/execution.json",
+      "sha256": "9c3992b48f54d96f655a03d74f11d057569e482a51365db11b53791d8a0ae20f",
+      "bytes": 1130
+    },
+    {
+      "path": "candidate/output.log",
+      "sha256": "1b4131e23d5342afca1bb60fc7fc394671fdd30abdab130ca5d8c2b94bc2c6d3",
+      "bytes": 19222
+    },
+    {
+      "path": "candidate/report.json",
+      "sha256": "30bc5205bc1bada77f87cfd6ea22511834b606a1b82b1ac052386cffa2bcbf4d",
+      "bytes": 2794842
+    },
+    {
+      "path": "candidate/test-results/.last-run.json",
+      "sha256": "87b0b77a563471ef4396585f2efa18f6d3b21e0c3415152e4f88e454aa28635e",
+      "bytes": 145
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-c91d006035192e074677335e5d7496dfccf3040b.png",
+      "sha256": "d10bde5c4bd8dc827c02d129c2d59e14f34ba24fa85cdd12634a82df0cdfef2c",
+      "bytes": 227277
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-diagnostics-warning-3bf0d985f4006b68d69d2b811ce7860aec632935.png",
+      "sha256": "4958b3a8300fb006b8703361b10d7254046e18b9313d4281c6ddd693d51598b2",
+      "bytes": 4833
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-mechanics-info-8d868ac3c3c57459cb513a4a77233a3a13928815.png",
+      "sha256": "3c78bdd038c165b08ffdfd18413645285a6a9f6cba95da085dc402b4fb1fc95f",
+      "bytes": 5860
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-professional-warning-042fb2abe2bd22e72a355fb0e5183d5fa3cfa5ed.png",
+      "sha256": "c124d991ad48a7fab2812278dc9cbab3113c2cecdd63b94ea31e2f950c1fc019",
+      "bytes": 9603
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-rule-warning-694913deb8c422ed8b307822c08e150ceb36a7d9.png",
+      "sha256": "031d3d9186c714d2fc006c5d09d68b610e65aa997d0eaa6a365a3f21cac90a54",
+      "bytes": 8575
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-e662f697489135400e48adb304391abbef34efb8.png",
+      "sha256": "37f10b7e55999fc9ac17a2ec43a292b471376b14b25b6a1cec3ce619656e7245",
+      "bytes": 220547
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-diagnostics-warning-7ae5a87cd51fcb515cb9afed73bbe05a0e546ab2.png",
+      "sha256": "90d767e718ec95ac49d31c1a068089c9aadafd440441e4dae39ee2679b47d755",
+      "bytes": 5542
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-mechanics-ok-e80028396180f48c026271410faa7df3f5e5a36d.png",
+      "sha256": "6719858708d8bed7f116e8080c75ada864e30f5f7aac1c409f9c6728ce8966aa",
+      "bytes": 5459
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-professional-warning-6c7b6102757696a82f27c8c3a3f1afe9a7320560.png",
+      "sha256": "a9cd7e89a33549776c29e2c6c596dea77936776d6778fbd155e189a28d876163",
+      "bytes": 9603
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-rule-warning-651c4dad65fa49f2f3550d6d58c5801f2cf58f09.png",
+      "sha256": "ed2a8c7f061006645012b23d0b9652f8026a89b483f8b6f65ee92b66b83211dc",
+      "bytes": 7441
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/error-context.md",
+      "sha256": "cb9d82e52b353e74904e7a301b1f17526f174779f9046e01d2131e0f62b264cb",
+      "bytes": 15568
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-diagnostics-warning.png",
+      "sha256": "4958b3a8300fb006b8703361b10d7254046e18b9313d4281c6ddd693d51598b2",
+      "bytes": 4833
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-mechanics-info.png",
+      "sha256": "3c78bdd038c165b08ffdfd18413645285a6a9f6cba95da085dc402b4fb1fc95f",
+      "bytes": 5860
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-professional-warning.png",
+      "sha256": "c124d991ad48a7fab2812278dc9cbab3113c2cecdd63b94ea31e2f950c1fc019",
+      "bytes": 9603
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-rule-warning.png",
+      "sha256": "031d3d9186c714d2fc006c5d09d68b610e65aa997d0eaa6a365a3f21cac90a54",
+      "bytes": 8575
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve.png",
+      "sha256": "d10bde5c4bd8dc827c02d129c2d59e14f34ba24fa85cdd12634a82df0cdfef2c",
+      "bytes": 227277
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved-readiness-diagnostics-warning.png",
+      "sha256": "90d767e718ec95ac49d31c1a068089c9aadafd440441e4dae39ee2679b47d755",
+      "bytes": 5542
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved-readiness-mechanics-ok.png",
+      "sha256": "6719858708d8bed7f116e8080c75ada864e30f5f7aac1c409f9c6728ce8966aa",
+      "bytes": 5459
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved-readiness-professional-warning.png",
+      "sha256": "a9cd7e89a33549776c29e2c6c596dea77936776d6778fbd155e189a28d876163",
+      "bytes": 9603
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved-readiness-rule-warning.png",
+      "sha256": "ed2a8c7f061006645012b23d0b9652f8026a89b483f8b6f65ee92b66b83211dc",
+      "bytes": 7441
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved.png",
+      "sha256": "37f10b7e55999fc9ac17a2ec43a292b471376b14b25b6a1cec3ce619656e7245",
+      "bytes": 220547
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/trace.zip",
+      "sha256": "6e71efe8c59943054cc9bf402ac40066bc6320e9d3fec0da42e9d73c368e9ff2",
+      "bytes": 4309564
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-d6f5ada0d72a999af519e0ed9b572dca1bbb5e52.png",
+      "sha256": "2ae0e129afada8a3b389abe6b433cf9d87b8b4a29f04d561b80f4c2f58bed5e0",
+      "bytes": 227478
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-diagnostics-warning-0f26405bd3dfd982a4786efe9b3717a605aec944.png",
+      "sha256": "a1a1a50a9f3862ff0a8be8f81a0a703add38573b4e532c6421e03dcc56cb024e",
+      "bytes": 4883
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-mechanics-info-6151e168b179f07b3cc555a24407e9ea502026e0.png",
+      "sha256": "f94b9ef13f640e23aa3ddb6d39616ca91135103d9cb1bd5a69e8c35141868235",
+      "bytes": 6198
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-professional-warning-eb98d2be86b76aec1a408b76ed5c5ecd5f1f283e.png",
+      "sha256": "e9db57fdbba8d6c4b4e28118ea0ad2a74d85263c70f7ebbce28742555ae94b5e",
+      "bytes": 9762
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-rule-warning-65783568ec8d03ff60ad10a6722a4d767d0796e7.png",
+      "sha256": "ad286ef1e9695abae1f5e123a31d5ccafc5119b2c688ac3a95f930569e7e4fff",
+      "bytes": 9073
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-45438d763e7f054dd7632923feaa0d2d4d0ee6f0.png",
+      "sha256": "5f4c26b239355cc8df227ff5873112e24c07a6dc9b9c01067453005a892520d0",
+      "bytes": 221017
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-diagnostics-warning-c03a8c8bb2e571efb8fcabfaae35d71db7e7382a.png",
+      "sha256": "eb222620322e2232b916ff8f9faf596a6425deaf1bb672003a294cb130dce72f",
+      "bytes": 5485
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-mechanics-ok-be99021e145d1b14179bb0ef7c8a3364310f3ae1.png",
+      "sha256": "bf1465724c53640b5ba6f0f43613806ba1cd22342cbe95b4946b4e02a4af8949",
+      "bytes": 5434
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-professional-warning-8988167cb6f440ce1a17782db8990cb442ff1de2.png",
+      "sha256": "8915179e1615b3d209f688e5b81aa85d0c0fe04e77321b07fd652a26df94923a",
+      "bytes": 9770
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-rule-warning-b0f83dc40d613cc427ad3f5f9e6a72e907312b9e.png",
+      "sha256": "1d93c98c534df49ea17fe522c66fda14724e26fd34e90817e714a51f85e390ff",
+      "bytes": 7830
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/error-context.md",
+      "sha256": "a552caf33cefb8627ab24d3eb2fd529765def262055dfaaa68de264fc8561752",
+      "bytes": 15400
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve-readiness-diagnostics-warning.png",
+      "sha256": "a1a1a50a9f3862ff0a8be8f81a0a703add38573b4e532c6421e03dcc56cb024e",
+      "bytes": 4883
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve-readiness-mechanics-info.png",
+      "sha256": "f94b9ef13f640e23aa3ddb6d39616ca91135103d9cb1bd5a69e8c35141868235",
+      "bytes": 6198
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve-readiness-professional-warning.png",
+      "sha256": "e9db57fdbba8d6c4b4e28118ea0ad2a74d85263c70f7ebbce28742555ae94b5e",
+      "bytes": 9762
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve-readiness-rule-warning.png",
+      "sha256": "ad286ef1e9695abae1f5e123a31d5ccafc5119b2c688ac3a95f930569e7e4fff",
+      "bytes": 9073
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve.png",
+      "sha256": "2ae0e129afada8a3b389abe6b433cf9d87b8b4a29f04d561b80f4c2f58bed5e0",
+      "bytes": 227478
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved-readiness-diagnostics-warning.png",
+      "sha256": "eb222620322e2232b916ff8f9faf596a6425deaf1bb672003a294cb130dce72f",
+      "bytes": 5485
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved-readiness-mechanics-ok.png",
+      "sha256": "bf1465724c53640b5ba6f0f43613806ba1cd22342cbe95b4946b4e02a4af8949",
+      "bytes": 5434
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved-readiness-professional-warning.png",
+      "sha256": "8915179e1615b3d209f688e5b81aa85d0c0fe04e77321b07fd652a26df94923a",
+      "bytes": 9770
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved-readiness-rule-warning.png",
+      "sha256": "1d93c98c534df49ea17fe522c66fda14724e26fd34e90817e714a51f85e390ff",
+      "bytes": 7830
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved.png",
+      "sha256": "5f4c26b239355cc8df227ff5873112e24c07a6dc9b9c01067453005a892520d0",
+      "bytes": 221017
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/trace.zip",
+      "sha256": "37ff53cf3112fb4ea862e1f2be4e87650d6abf394b2ecefa67e51903b0a9a39c",
+      "bytes": 4100989
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/expanded-deformation-dark-compact-1440x920-830a05a3aad91a5760c080659755f12590d393e8.png",
+      "sha256": "f3d0a0f1bcd6ec629d543cc327eb29001e4d054ad1dc73bc8478ca6f02afa26a",
+      "bytes": 157646
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/normal-authoring-dark-compact-1440x920-aa0d528501a28b95ff07dbeb8c8af199e927f709.png",
+      "sha256": "730f32436f81d8d38576e00f5cf6e51fd488241374a6d7ea5e7c7a2f9b839ccf",
+      "bytes": 199790
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-compact-1440-inspector-false-d51f0a32fc6d5b11e33ae24f0384388c7ff81d52.png",
+      "sha256": "10f48b2d16e3141677257c25e3e71ff1c93655b6fc6f37073b0b6a7843118011",
+      "bytes": 2155
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-compact-1440-inspector-true-ed8043dfbc6d754a969585903785ee82a448587b.png",
+      "sha256": "6b701b3ebe9fd018070700d30ae92ea0bf261eea96a080bf07230b8d81df8f7e",
+      "bytes": 1782
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-compact-1440-tree-false-749dd7d3d6d40a02c381fbd429ed39180ebeefee.png",
+      "sha256": "164e5c44a46b574cf46a7ae246a23281b0132ee9b2b03a6bbf39dab077abfc20",
+      "bytes": 1627
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-compact-1440-tree-true-7119ab3a11b27ad6ce94b4353ee9c705244ce959.png",
+      "sha256": "6735a078bc529e65e6e04ed58ce6ea59b7040bf0983e5a65799a04ed0d00dda4",
+      "bytes": 1285
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/unobscured-authoring-dark-compact-1440x920-282ba2e38c1cfa6991bd5780467b0ae972eac786.png",
+      "sha256": "535a2ad89eeb17af7e58b7b8a2cde6a43a278e99b86f465935410f493546a1df",
+      "bytes": 157278
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/expanded-deformation-dark-compact-1440x920.png",
+      "sha256": "f3d0a0f1bcd6ec629d543cc327eb29001e4d054ad1dc73bc8478ca6f02afa26a",
+      "bytes": 157646
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/normal-authoring-dark-compact-1440x920.png",
+      "sha256": "730f32436f81d8d38576e00f5cf6e51fd488241374a6d7ea5e7c7a2f9b839ccf",
+      "bytes": 199790
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/rail-hover-dark-compact-1440-inspector-false.png",
+      "sha256": "10f48b2d16e3141677257c25e3e71ff1c93655b6fc6f37073b0b6a7843118011",
+      "bytes": 2155
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/rail-hover-dark-compact-1440-inspector-true.png",
+      "sha256": "6b701b3ebe9fd018070700d30ae92ea0bf261eea96a080bf07230b8d81df8f7e",
+      "bytes": 1782
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/rail-hover-dark-compact-1440-tree-false.png",
+      "sha256": "164e5c44a46b574cf46a7ae246a23281b0132ee9b2b03a6bbf39dab077abfc20",
+      "bytes": 1627
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/rail-hover-dark-compact-1440-tree-true.png",
+      "sha256": "6735a078bc529e65e6e04ed58ce6ea59b7040bf0983e5a65799a04ed0d00dda4",
+      "bytes": 1285
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/unobscured-authoring-dark-compact-1440x920.png",
+      "sha256": "535a2ad89eeb17af7e58b7b8a2cde6a43a278e99b86f465935410f493546a1df",
+      "bytes": 157278
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/expanded-deformation-light-comfortable-1440x920-72758de44acf1e70a5757fbb54070979fbc11453.png",
+      "sha256": "edcfd8ccac970c8dbfda9bd973a50335c38d1eca60577db19d484f428c305056",
+      "bytes": 159547
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/normal-authoring-light-comfortable-1440x920-4164a314917f3945c7a65dad68272c3e2213c144.png",
+      "sha256": "1f2f98941db85da6b33c3f6f66d4f9ad37044491195da08b211408c83e219d3e",
+      "bytes": 203963
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1440-inspector-false-487e58c802bf6b530a5d6400d5cd7e4967a6d00a.png",
+      "sha256": "2c429d85b17b5bf99ed330fe641dff3fe40f3945b3d0b31ccb4ea782611ed37a",
+      "bytes": 2112
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1440-inspector-true-dfc234467f99ade7ffb25e9170e6f510b2159f12.png",
+      "sha256": "b182ff401d3ca6bc9ba7dcb87bc5d18e6640aaaaf648b334e755ff1be2667a58",
+      "bytes": 1738
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1440-tree-false-4ecfb478d0d6d65d17dc4f80bdc530a46e64d24a.png",
+      "sha256": "dbd12887dda666364cf716b7b1e14cd347b6f500232bd0048eb626f741059149",
+      "bytes": 1576
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1440-tree-true-4a5e2314dc9367d3f3f28fe0ad447c790dacfe64.png",
+      "sha256": "c6ab841a612bc6cac59e0a6bfd61acb32daddd50b14aa7660c80fc7ef669325c",
+      "bytes": 1290
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/unobscured-authoring-light-comfortable-1440x920-cc95caaaac6fbc1503b844abd5f31e8943bb9170.png",
+      "sha256": "161ad2a06cda28af05a887b4c8bdbb04213ee19c202a67bad54ee85b560ee143",
+      "bytes": 158111
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/expanded-deformation-light-comfortable-1440x920.png",
+      "sha256": "edcfd8ccac970c8dbfda9bd973a50335c38d1eca60577db19d484f428c305056",
+      "bytes": 159547
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/normal-authoring-light-comfortable-1440x920.png",
+      "sha256": "1f2f98941db85da6b33c3f6f66d4f9ad37044491195da08b211408c83e219d3e",
+      "bytes": 203963
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/rail-hover-light-comfortable-1440-inspector-false.png",
+      "sha256": "2c429d85b17b5bf99ed330fe641dff3fe40f3945b3d0b31ccb4ea782611ed37a",
+      "bytes": 2112
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/rail-hover-light-comfortable-1440-inspector-true.png",
+      "sha256": "b182ff401d3ca6bc9ba7dcb87bc5d18e6640aaaaf648b334e755ff1be2667a58",
+      "bytes": 1738
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/rail-hover-light-comfortable-1440-tree-false.png",
+      "sha256": "dbd12887dda666364cf716b7b1e14cd347b6f500232bd0048eb626f741059149",
+      "bytes": 1576
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/rail-hover-light-comfortable-1440-tree-true.png",
+      "sha256": "c6ab841a612bc6cac59e0a6bfd61acb32daddd50b14aa7660c80fc7ef669325c",
+      "bytes": 1290
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/unobscured-authoring-light-comfortable-1440x920.png",
+      "sha256": "161ad2a06cda28af05a887b4c8bdbb04213ee19c202a67bad54ee85b560ee143",
+      "bytes": 158111
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/expanded-deformation-light-compact-1024x768-0725774c84f34aa48af09c54fef5efcb6327ea55.png",
+      "sha256": "d82aea7c38b1d473e6bb47e25a4397258435c66eb9715830c4d72b8527087720",
+      "bytes": 96923
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/normal-authoring-light-compact-1024x768-34e78287be464fd411027694694d9911806b3871.png",
+      "sha256": "1b709ebff64525ba8b542fe31a40048251c0cc9befff318eca3b2790a4242bf5",
+      "bytes": 145043
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-inspector-false-2fe7690978d43c6bccca48271b2f9f7f62f582ed.png",
+      "sha256": "541f6547b7c20fd70fddce40b89950ab6ba4a1221364330cc3627a3eec3e6362",
+      "bytes": 2046
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-inspector-true-a87bc08418e5c7560af2389e1004cf34f1cdb1a1.png",
+      "sha256": "480120e000668dfaeb4a0ea0e115fa262640c3e9f130bf35be600479c8159de0",
+      "bytes": 1728
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-tree-false-a9a42f9f4fc90956cd8f61235a13eebd0485f272.png",
+      "sha256": "7cbc9b509053a19e0a1107249059908b9b239a09bfbcbb98d794d78c2b016705",
+      "bytes": 1683
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-tree-true-c94f8e1445806da826c6284f746a9382b310e64b.png",
+      "sha256": "cfc06e1ce1798ae1a6962664272090159eaf5e53414e5da346fa73272db995ae",
+      "bytes": 1299
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/unobscured-authoring-light-compact-1024x768-625f5bd1110e50fd8543df8b724476edae221052.png",
+      "sha256": "db9d66be5c5df499b9a689957ec8359e7535b483da51a0b1cec29899038c65b8",
+      "bytes": 96076
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/expanded-deformation-light-compact-1024x768.png",
+      "sha256": "d82aea7c38b1d473e6bb47e25a4397258435c66eb9715830c4d72b8527087720",
+      "bytes": 96923
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/normal-authoring-light-compact-1024x768.png",
+      "sha256": "1b709ebff64525ba8b542fe31a40048251c0cc9befff318eca3b2790a4242bf5",
+      "bytes": 145043
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/rail-hover-light-compact-1024-inspector-false.png",
+      "sha256": "541f6547b7c20fd70fddce40b89950ab6ba4a1221364330cc3627a3eec3e6362",
+      "bytes": 2046
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/rail-hover-light-compact-1024-inspector-true.png",
+      "sha256": "480120e000668dfaeb4a0ea0e115fa262640c3e9f130bf35be600479c8159de0",
+      "bytes": 1728
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/rail-hover-light-compact-1024-tree-false.png",
+      "sha256": "7cbc9b509053a19e0a1107249059908b9b239a09bfbcbb98d794d78c2b016705",
+      "bytes": 1683
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/rail-hover-light-compact-1024-tree-true.png",
+      "sha256": "cfc06e1ce1798ae1a6962664272090159eaf5e53414e5da346fa73272db995ae",
+      "bytes": 1299
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/unobscured-authoring-light-compact-1024x768.png",
+      "sha256": "db9d66be5c5df499b9a689957ec8359e7535b483da51a0b1cec29899038c65b8",
+      "bytes": 96076
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/expanded-deformation-dark-compact-1024x768-eb77c8c7e62568f895a7249487e9419d868a7ca0.png",
+      "sha256": "12c3e4b24dc5d4d7405d7c37e1e44933ce8d0f6b3df5c0ea937a65c6ee0ee120",
+      "bytes": 96015
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/normal-authoring-dark-compact-1024x768-10383f81e708616f8ca552cd73e7d3a4c1b13b5d.png",
+      "sha256": "331d7ea556d81d99d1e9c6105cd05ffaa2f72708278c7de46540615e055a369b",
+      "bytes": 141846
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-inspector-false-df92ef5dc9251bd008cf8e0b6df046fe0d093295.png",
+      "sha256": "b5f42309678881d17a2ff5021b521a8c44aed70c8fd4217348b50170a33b457a",
+      "bytes": 2102
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-inspector-true-cdaa21f4ab818d286942a91aa8975b604f6207f5.png",
+      "sha256": "59b5fdc3bdf1efa1add1b7acb7b98deac2173b3c30ff565e31b88e653159e609",
+      "bytes": 1804
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-tree-false-d4fdaec76a29388b2f3552db17fd5d837582b957.png",
+      "sha256": "78beeeec1d28b2feb3566db581cec2dba64c17cdea120e2ec0f404d1d4937a68",
+      "bytes": 1720
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-tree-true-1e8f5d770de694d060f7b6ac164baf58a8895cee.png",
+      "sha256": "4a9f01a5186402db756c93259939f753a781de8e6ba07a8e1447025d692c7f86",
+      "bytes": 1316
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/unobscured-authoring-dark-compact-1024x768-985bd91828dc2ca595c8c0b30f2b0f8ea7b414ba.png",
+      "sha256": "dcb39adc14497b68097257f3939a5c85423d745f46dff9ab09d00b0b3a44cf94",
+      "bytes": 95660
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/expanded-deformation-dark-compact-1024x768.png",
+      "sha256": "12c3e4b24dc5d4d7405d7c37e1e44933ce8d0f6b3df5c0ea937a65c6ee0ee120",
+      "bytes": 96015
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/normal-authoring-dark-compact-1024x768.png",
+      "sha256": "331d7ea556d81d99d1e9c6105cd05ffaa2f72708278c7de46540615e055a369b",
+      "bytes": 141846
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/rail-hover-dark-compact-1024-inspector-false.png",
+      "sha256": "b5f42309678881d17a2ff5021b521a8c44aed70c8fd4217348b50170a33b457a",
+      "bytes": 2102
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/rail-hover-dark-compact-1024-inspector-true.png",
+      "sha256": "59b5fdc3bdf1efa1add1b7acb7b98deac2173b3c30ff565e31b88e653159e609",
+      "bytes": 1804
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/rail-hover-dark-compact-1024-tree-false.png",
+      "sha256": "78beeeec1d28b2feb3566db581cec2dba64c17cdea120e2ec0f404d1d4937a68",
+      "bytes": 1720
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/rail-hover-dark-compact-1024-tree-true.png",
+      "sha256": "4a9f01a5186402db756c93259939f753a781de8e6ba07a8e1447025d692c7f86",
+      "bytes": 1316
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/unobscured-authoring-dark-compact-1024x768.png",
+      "sha256": "dcb39adc14497b68097257f3939a5c85423d745f46dff9ab09d00b0b3a44cf94",
+      "bytes": 95660
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/expanded-deformation-dark-comfortable-1024x768-a69a5f491c7021be8dc1cfb63d62a67acf2aa69e.png",
+      "sha256": "da6f1f0a292563eace15a7990d73e299e2ca418867b30a39f22eafd6f7288203",
+      "bytes": 95697
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/normal-authoring-dark-comfortable-1024x768-d8de75d13b581447cfadc959334a0addd169e5af.png",
+      "sha256": "9951134512933cc8d76b5ab922e113f0ad163710bd2a56f291a5b57a6d9ac42c",
+      "bytes": 143502
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-inspector-false-602c6b1087cb6275333e9c62b8386a5f1814b76f.png",
+      "sha256": "db6d6c8a1aa222c579c69ae8ca717ba93b10c4445e21db7054adee564440c459",
+      "bytes": 2709
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-inspector-true-e28125bc19e8c1b33fc93a5553d13b5b9ba4bd9c.png",
+      "sha256": "398e1226a6be811204731b25e9e85712aa96a079a1138d88c57265a5d5a77840",
+      "bytes": 1826
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-tree-false-8d687bd128842198793376e058c35264c1e449f3.png",
+      "sha256": "6f892f19746f739a53da3995ee79c88fadb7f539178b75e9f83a63db9ad6b048",
+      "bytes": 2015
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-tree-true-47042c0eb97eb941068033a7592a894b113d96e1.png",
+      "sha256": "e0256f6859d544059994d3415474f760242800b802f34b40d6c4e98ef4dd0330",
+      "bytes": 1337
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/unobscured-authoring-dark-comfortable-1024x768-d93d1b2a3378a3f2846aa980969e3c29e412453b.png",
+      "sha256": "c8f12ed8af0b9096a2df26ec4ca957f0eaabb86784b8c6d82468f2f2d6c0d2b3",
+      "bytes": 94409
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/expanded-deformation-dark-comfortable-1024x768.png",
+      "sha256": "da6f1f0a292563eace15a7990d73e299e2ca418867b30a39f22eafd6f7288203",
+      "bytes": 95697
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/normal-authoring-dark-comfortable-1024x768.png",
+      "sha256": "9951134512933cc8d76b5ab922e113f0ad163710bd2a56f291a5b57a6d9ac42c",
+      "bytes": 143502
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-inspector-false.png",
+      "sha256": "db6d6c8a1aa222c579c69ae8ca717ba93b10c4445e21db7054adee564440c459",
+      "bytes": 2709
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-inspector-true.png",
+      "sha256": "398e1226a6be811204731b25e9e85712aa96a079a1138d88c57265a5d5a77840",
+      "bytes": 1826
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-tree-false.png",
+      "sha256": "6f892f19746f739a53da3995ee79c88fadb7f539178b75e9f83a63db9ad6b048",
+      "bytes": 2015
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-tree-true.png",
+      "sha256": "e0256f6859d544059994d3415474f760242800b802f34b40d6c4e98ef4dd0330",
+      "bytes": 1337
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/unobscured-authoring-dark-comfortable-1024x768.png",
+      "sha256": "c8f12ed8af0b9096a2df26ec4ca957f0eaabb86784b8c6d82468f2f2d6c0d2b3",
+      "bytes": 94409
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/expanded-deformation-light-compact-1440x920-b06d62e4db2fbcbf00914e438458e311b794a7aa.png",
+      "sha256": "80d9ed8dbb9e7d4f0689ee9034b97ed86759a91bab212c545f1faf442bdf1273",
+      "bytes": 160250
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/normal-authoring-light-compact-1440x920-467f6e02f473c8531f334b8f3a2c5115b03d091e.png",
+      "sha256": "336a027812181e2b2248562be697c5e00d57e4183d965ccf6d9a7367b63db0f2",
+      "bytes": 203959
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-light-compact-1440-inspector-false-9c740f8a5f17cfdf8ce18644d9aa7c0843a6f52c.png",
+      "sha256": "ad800b8a4debd6fd64506cafe1dc283a5e97891573a4cc49ebe93c35fcb355fe",
+      "bytes": 2114
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-light-compact-1440-inspector-true-7a0c995cd6a5df05465bbb283edc3bb436d23ada.png",
+      "sha256": "23a676a31645a663ce7861174545b99821d61ce75c34d9c162af2f9b24db8659",
+      "bytes": 1711
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-light-compact-1440-tree-false-7eb936c584ab7f927abf7d19e3d8b652d2c23cbd.png",
+      "sha256": "4385e1ee48828a172cb454d117422a5c0a117d652ae63045edffb1990fc9d345",
+      "bytes": 1578
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-light-compact-1440-tree-true-e40419cd239f9fccc555318a108d267031fcab87.png",
+      "sha256": "3e7d9d23b9a546fcb7dcb5bd688e7331dfb148af45e63a52372a12a82379d64c",
+      "bytes": 1277
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/unobscured-authoring-light-compact-1440x920-23509a3a1a121c3331748d280577e98740203c1a.png",
+      "sha256": "63cc89eb9e56d4466cae9f27fcd5e24462b9ce21bb0bf19ce371deb96a1817a5",
+      "bytes": 159395
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/expanded-deformation-light-compact-1440x920.png",
+      "sha256": "80d9ed8dbb9e7d4f0689ee9034b97ed86759a91bab212c545f1faf442bdf1273",
+      "bytes": 160250
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/normal-authoring-light-compact-1440x920.png",
+      "sha256": "336a027812181e2b2248562be697c5e00d57e4183d965ccf6d9a7367b63db0f2",
+      "bytes": 203959
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/rail-hover-light-compact-1440-inspector-false.png",
+      "sha256": "ad800b8a4debd6fd64506cafe1dc283a5e97891573a4cc49ebe93c35fcb355fe",
+      "bytes": 2114
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/rail-hover-light-compact-1440-inspector-true.png",
+      "sha256": "23a676a31645a663ce7861174545b99821d61ce75c34d9c162af2f9b24db8659",
+      "bytes": 1711
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/rail-hover-light-compact-1440-tree-false.png",
+      "sha256": "4385e1ee48828a172cb454d117422a5c0a117d652ae63045edffb1990fc9d345",
+      "bytes": 1578
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/rail-hover-light-compact-1440-tree-true.png",
+      "sha256": "3e7d9d23b9a546fcb7dcb5bd688e7331dfb148af45e63a52372a12a82379d64c",
+      "bytes": 1277
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/unobscured-authoring-light-compact-1440x920.png",
+      "sha256": "63cc89eb9e56d4466cae9f27fcd5e24462b9ce21bb0bf19ce371deb96a1817a5",
+      "bytes": 159395
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/expanded-deformation-light-comfortable-1280x800-756f4bb25d6d9ea457c90154747d43794aeb7b1e.png",
+      "sha256": "1ec8b2a4a860b687005fe995d3d79fdf9f6152547acb72d4fd8017809d3f89a7",
+      "bytes": 145911
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/normal-authoring-light-comfortable-1280x800-5d524effbb9cbc4958761413918e631f1d76d688.png",
+      "sha256": "7c8f4ce9268cff7bb818d2b002834e6c55b9816240f219dcc1533ae629ddf56f",
+      "bytes": 177727
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1280-inspector-false-ae48b0aee28f6e95d72f6fa906477e9f0a4c290b.png",
+      "sha256": "8b7ceb42d7f7964293076dcefdd3c7cd8024ada8bd47427bb0b4128c54891c2e",
+      "bytes": 2084
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1280-inspector-true-f103286bc91e4710f64c9248049b95abde08e933.png",
+      "sha256": "34d3b1b8669e8f43b03abfda366d1dcef67b8acc9012d2a6017b623fc57dd3f6",
+      "bytes": 1738
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1280-tree-false-0a75f36dab00002ed5c782f0eb266ea4ea9cc0f2.png",
+      "sha256": "c664997115b7b0e2d7bb0600299d2e1bb98e17ce3ab2cdbe03ea3d12de4bda17",
+      "bytes": 1530
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1280-tree-true-ec210316e87749200cc9b7bb64b98b736b1c7ddb.png",
+      "sha256": "5f5f6cf0d4a44e87191a88d5b5a76ae8de4b9ee2ad9a47c9bae572f971327d00",
+      "bytes": 1278
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/unobscured-authoring-light-comfortable-1280x800-d43143b387493809fb759d7e03b31d8fca8a7801.png",
+      "sha256": "8f3849785bf69f23fdf8a58a566cfd432c0acedfcce30ff80120694576bfc49f",
+      "bytes": 145382
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/expanded-deformation-light-comfortable-1280x800.png",
+      "sha256": "1ec8b2a4a860b687005fe995d3d79fdf9f6152547acb72d4fd8017809d3f89a7",
+      "bytes": 145911
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/normal-authoring-light-comfortable-1280x800.png",
+      "sha256": "7c8f4ce9268cff7bb818d2b002834e6c55b9816240f219dcc1533ae629ddf56f",
+      "bytes": 177727
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/rail-hover-light-comfortable-1280-inspector-false.png",
+      "sha256": "8b7ceb42d7f7964293076dcefdd3c7cd8024ada8bd47427bb0b4128c54891c2e",
+      "bytes": 2084
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/rail-hover-light-comfortable-1280-inspector-true.png",
+      "sha256": "34d3b1b8669e8f43b03abfda366d1dcef67b8acc9012d2a6017b623fc57dd3f6",
+      "bytes": 1738
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/rail-hover-light-comfortable-1280-tree-false.png",
+      "sha256": "c664997115b7b0e2d7bb0600299d2e1bb98e17ce3ab2cdbe03ea3d12de4bda17",
+      "bytes": 1530
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/rail-hover-light-comfortable-1280-tree-true.png",
+      "sha256": "5f5f6cf0d4a44e87191a88d5b5a76ae8de4b9ee2ad9a47c9bae572f971327d00",
+      "bytes": 1278
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/unobscured-authoring-light-comfortable-1280x800.png",
+      "sha256": "8f3849785bf69f23fdf8a58a566cfd432c0acedfcce30ff80120694576bfc49f",
+      "bytes": 145382
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/expanded-deformation-dark-comfortable-1280x800-3a379788a9da35c39e6658a7362ccb873f7f98a2.png",
+      "sha256": "19ba5286431947f59b20e671f164d08dfe0dc31855b88214f9ac8c72c9884889",
+      "bytes": 143684
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/normal-authoring-dark-comfortable-1280x800-c72265026ec292a37ce3a101123b405a727e7afd.png",
+      "sha256": "04a48cc2910ab8c66aff1b2a868b3fa774a3d2c49f8d6f3cb4c358f2da3e8d87",
+      "bytes": 174419
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1280-inspector-false-0b763c17cf00ac41557f589be5f11301d5c40451.png",
+      "sha256": "de302d1388276f19b3944e4ec8e3fe0e7f929289f4c7efa13a4b9758b7966dda",
+      "bytes": 2127
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1280-inspector-true-141509e164cb83d0de5a05196781ec7004e05b93.png",
+      "sha256": "e60501385bd1f3937f57c3b87ca2752239c7e922517f606372da1e208791a6a0",
+      "bytes": 1815
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1280-tree-false-978379a19aa8d0675f7ef0fc238fa5874410bfcd.png",
+      "sha256": "162ebf2cd7aca0d589d1062750dcf91339f58452d580a19926735693850b1599",
+      "bytes": 1579
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1280-tree-true-b13ea45ded37b0d56cdfcfdb92609ebcea1b555a.png",
+      "sha256": "513ea894def0be782e756836b4df5157c258a8c9ce3ace2ae23939ca4afb4d78",
+      "bytes": 1292
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/unobscured-authoring-dark-comfortable-1280x800-3bc8bdcaad331a3a8244edb4802a869fec8d98d3.png",
+      "sha256": "75b75f10e774d323a57591feb39f24c33c32601653bfdb7071531bd7e0e52e32",
+      "bytes": 143690
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/expanded-deformation-dark-comfortable-1280x800.png",
+      "sha256": "19ba5286431947f59b20e671f164d08dfe0dc31855b88214f9ac8c72c9884889",
+      "bytes": 143684
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/normal-authoring-dark-comfortable-1280x800.png",
+      "sha256": "04a48cc2910ab8c66aff1b2a868b3fa774a3d2c49f8d6f3cb4c358f2da3e8d87",
+      "bytes": 174419
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/rail-hover-dark-comfortable-1280-inspector-false.png",
+      "sha256": "de302d1388276f19b3944e4ec8e3fe0e7f929289f4c7efa13a4b9758b7966dda",
+      "bytes": 2127
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/rail-hover-dark-comfortable-1280-inspector-true.png",
+      "sha256": "e60501385bd1f3937f57c3b87ca2752239c7e922517f606372da1e208791a6a0",
+      "bytes": 1815
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/rail-hover-dark-comfortable-1280-tree-false.png",
+      "sha256": "162ebf2cd7aca0d589d1062750dcf91339f58452d580a19926735693850b1599",
+      "bytes": 1579
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/rail-hover-dark-comfortable-1280-tree-true.png",
+      "sha256": "513ea894def0be782e756836b4df5157c258a8c9ce3ace2ae23939ca4afb4d78",
+      "bytes": 1292
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/unobscured-authoring-dark-comfortable-1280x800.png",
+      "sha256": "75b75f10e774d323a57591feb39f24c33c32601653bfdb7071531bd7e0e52e32",
+      "bytes": 143690
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/expanded-deformation-light-comfortable-1024x768-92bae69fd34023962b13e49cc47da6c52bdaef1e.png",
+      "sha256": "8f3dddaef74f1ab5c0880d86bd3ffd18c2d79c0e60984b719f2fc93e2534f85d",
+      "bytes": 96447
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/normal-authoring-light-comfortable-1024x768-74d22d841868aa315ed17ba917303b7cbf5ba2b1.png",
+      "sha256": "43da4ceb259550b25eb9370d7781ebb5f4dc2e1dde1fa5d05c92227253853bf5",
+      "bytes": 146959
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-inspector-false-ca0d2f29bdcc9dd1f74b61cd0e0df7e4fd7db70c.png",
+      "sha256": "977ef46854d6dc2627282750eb37f5a594602ef64466889cf8b50a9203992913",
+      "bytes": 2649
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-inspector-true-c70e9e83ebe711fcd61e4513f96621755953be87.png",
+      "sha256": "b0c30e19fc33a641db698de1da23699502520aabb53000529d23245a3748c85e",
+      "bytes": 1755
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-tree-false-1cb05b73fd8a43d5314cd38d9806ee85e8e06b0d.png",
+      "sha256": "aaf9f6f00734750df458da8a914598d7fd452f13dab8686962d2b14d1a7ebdd2",
+      "bytes": 1951
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-tree-true-6182a540b514e40f3985c7cd29f1e75c3f30002d.png",
+      "sha256": "7d7c0ea56c857edc0553b7688da04061f2d01208d5b12039377ec3884309604e",
+      "bytes": 1317
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/unobscured-authoring-light-comfortable-1024x768-6dec55ca5c480efc86aadfe919fd51cc7dd60eb5.png",
+      "sha256": "fbc26a812c15d8efd5f84fcc965dc80922cc5ad7a194270f8ddeb85a5fc54664",
+      "bytes": 95219
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/expanded-deformation-light-comfortable-1024x768.png",
+      "sha256": "8f3dddaef74f1ab5c0880d86bd3ffd18c2d79c0e60984b719f2fc93e2534f85d",
+      "bytes": 96447
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/normal-authoring-light-comfortable-1024x768.png",
+      "sha256": "43da4ceb259550b25eb9370d7781ebb5f4dc2e1dde1fa5d05c92227253853bf5",
+      "bytes": 146959
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/rail-hover-light-comfortable-1024-inspector-false.png",
+      "sha256": "977ef46854d6dc2627282750eb37f5a594602ef64466889cf8b50a9203992913",
+      "bytes": 2649
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/rail-hover-light-comfortable-1024-inspector-true.png",
+      "sha256": "b0c30e19fc33a641db698de1da23699502520aabb53000529d23245a3748c85e",
+      "bytes": 1755
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/rail-hover-light-comfortable-1024-tree-false.png",
+      "sha256": "aaf9f6f00734750df458da8a914598d7fd452f13dab8686962d2b14d1a7ebdd2",
+      "bytes": 1951
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/rail-hover-light-comfortable-1024-tree-true.png",
+      "sha256": "7d7c0ea56c857edc0553b7688da04061f2d01208d5b12039377ec3884309604e",
+      "bytes": 1317
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/unobscured-authoring-light-comfortable-1024x768.png",
+      "sha256": "fbc26a812c15d8efd5f84fcc965dc80922cc5ad7a194270f8ddeb85a5fc54664",
+      "bytes": 95219
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/expanded-deformation-dark-compact-1280x800-07a32aefce1c64c71ac16f63faf89fda2a442450.png",
+      "sha256": "7ad641534e24c8aca3d37dc8c25def464122eb078e47fedaf3f0b33db3118c30",
+      "bytes": 143829
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/normal-authoring-dark-compact-1280x800-4799c3457456d562db200a6e7ec7f1a5f9e00ac1.png",
+      "sha256": "6cfdb1de67ab7476a2d03543632e37759327c1c8452e7b577323bf0a5164b163",
+      "bytes": 175161
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-compact-1280-inspector-false-42168f3023a763a59576f987d4e4f091ca7f6431.png",
+      "sha256": "2b1198a810996e1c1159e7980efab0292855fe41daefc7dd3dc2ca317a8491a9",
+      "bytes": 2122
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-compact-1280-inspector-true-2ca97fd28940f95a8efadefe0ec4c1777075d0b8.png",
+      "sha256": "5e9eaefffeb73229158555682ed291c37c52ca3e2ebf74817d103769f1c19814",
+      "bytes": 1782
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-compact-1280-tree-false-2a6ebd43a726cdf4c0f03ae544dec5148447a318.png",
+      "sha256": "558c1ad73740f2c8d75017f61ac6283b8ea67324ecd0afd82213413a119751ea",
+      "bytes": 1580
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-compact-1280-tree-true-2f4668ad6260912bd446f5a43e853d47454050ab.png",
+      "sha256": "9b84dd7f4eefe3ad8c50fc7fec79db6937327cbad839d7f88afb4547b6c6e29f",
+      "bytes": 1275
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/unobscured-authoring-dark-compact-1280x800-df4642ba0ba0e2b03f5461fc4a791759926d8161.png",
+      "sha256": "6e072a2543904eca1101295e47e58ffde91d2c5068fced6c97a4d9eed2b74e73",
+      "bytes": 144530
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/expanded-deformation-dark-compact-1280x800.png",
+      "sha256": "7ad641534e24c8aca3d37dc8c25def464122eb078e47fedaf3f0b33db3118c30",
+      "bytes": 143829
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/normal-authoring-dark-compact-1280x800.png",
+      "sha256": "6cfdb1de67ab7476a2d03543632e37759327c1c8452e7b577323bf0a5164b163",
+      "bytes": 175161
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/rail-hover-dark-compact-1280-inspector-false.png",
+      "sha256": "2b1198a810996e1c1159e7980efab0292855fe41daefc7dd3dc2ca317a8491a9",
+      "bytes": 2122
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/rail-hover-dark-compact-1280-inspector-true.png",
+      "sha256": "5e9eaefffeb73229158555682ed291c37c52ca3e2ebf74817d103769f1c19814",
+      "bytes": 1782
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/rail-hover-dark-compact-1280-tree-false.png",
+      "sha256": "558c1ad73740f2c8d75017f61ac6283b8ea67324ecd0afd82213413a119751ea",
+      "bytes": 1580
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/rail-hover-dark-compact-1280-tree-true.png",
+      "sha256": "9b84dd7f4eefe3ad8c50fc7fec79db6937327cbad839d7f88afb4547b6c6e29f",
+      "bytes": 1275
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/unobscured-authoring-dark-compact-1280x800.png",
+      "sha256": "6e072a2543904eca1101295e47e58ffde91d2c5068fced6c97a4d9eed2b74e73",
+      "bytes": 144530
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/expanded-deformation-dark-comfortable-1440x920-a9d0e3543515629b1e473064c225e6beb0ebdc7d.png",
+      "sha256": "e2a63f3c542db4dc05ba3a5dafeef45d688f13b67dcfc7b7c8005d98832c3c1f",
+      "bytes": 156895
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/normal-authoring-dark-comfortable-1440x920-b637b92540e62e3da79d2f953b3ef05aefec89e2.png",
+      "sha256": "94afcc2684094bbae121f272a3a81df4898badaf9e741d2a1f3aacd5494987b9",
+      "bytes": 199560
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1440-inspector-false-3bbdaaea51ad1150c47efa903a5ce95f77eb01dd.png",
+      "sha256": "c2413228b3a6f6c8148d246d6b3bcd35df9ad5ec0c88f84362b8f2955c26af15",
+      "bytes": 2154
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1440-inspector-true-9fd26a1de8b8bff5be1331776bdd0e8790bf10a5.png",
+      "sha256": "171510c003e28968cac6d6fca45b966fbf32355a51d40ed283ea26aa98423d32",
+      "bytes": 1815
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1440-tree-false-2373765f6202a1c1ebcb96f427640d3ad043a3f2.png",
+      "sha256": "a1de0bb59aafad7e0730a8dac0433e2bb97cfd9a4b41aacfcded49ba56cccf03",
+      "bytes": 1626
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1440-tree-true-95c2a619101289808baf07ec8049268e025875c3.png",
+      "sha256": "c4dc2d1dda777079a4db211c72148730ceb5edaaf401ac9656a19b230f4e2fef",
+      "bytes": 1300
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/unobscured-authoring-dark-comfortable-1440x920-bef6781b5e00c0303c289e42b0871ffab4afdccb.png",
+      "sha256": "f02916d2abb25bf4b30abc4746716ef50c82623b650dacbcdb7270e44e5a340c",
+      "bytes": 156140
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/expanded-deformation-dark-comfortable-1440x920.png",
+      "sha256": "e2a63f3c542db4dc05ba3a5dafeef45d688f13b67dcfc7b7c8005d98832c3c1f",
+      "bytes": 156895
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/normal-authoring-dark-comfortable-1440x920.png",
+      "sha256": "94afcc2684094bbae121f272a3a81df4898badaf9e741d2a1f3aacd5494987b9",
+      "bytes": 199560
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/rail-hover-dark-comfortable-1440-inspector-false.png",
+      "sha256": "c2413228b3a6f6c8148d246d6b3bcd35df9ad5ec0c88f84362b8f2955c26af15",
+      "bytes": 2154
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/rail-hover-dark-comfortable-1440-inspector-true.png",
+      "sha256": "171510c003e28968cac6d6fca45b966fbf32355a51d40ed283ea26aa98423d32",
+      "bytes": 1815
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/rail-hover-dark-comfortable-1440-tree-false.png",
+      "sha256": "a1de0bb59aafad7e0730a8dac0433e2bb97cfd9a4b41aacfcded49ba56cccf03",
+      "bytes": 1626
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/rail-hover-dark-comfortable-1440-tree-true.png",
+      "sha256": "c4dc2d1dda777079a4db211c72148730ceb5edaaf401ac9656a19b230f4e2fef",
+      "bytes": 1300
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/unobscured-authoring-dark-comfortable-1440x920.png",
+      "sha256": "f02916d2abb25bf4b30abc4746716ef50c82623b650dacbcdb7270e44e5a340c",
+      "bytes": 156140
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/expanded-deformation-light-compact-1280x800-27bc40d4cccff85c4cb17379a2a30779f315a835.png",
+      "sha256": "797baa3f5fa104c563c72b6a3c2b415ce1b218e222f233aa864c4e83993d01ba",
+      "bytes": 146327
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/normal-authoring-light-compact-1280x800-d42e2323c48400f4c2e89a541e89b5060c2b7c80.png",
+      "sha256": "ce84efc4700bc42be4ccec17f2c4d2a3a788d68e3f0370a04e5833896908aea5",
+      "bytes": 178068
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-light-compact-1280-inspector-false-a66fe20e7456f3e1b0566272ae651fcb9c079dcd.png",
+      "sha256": "63a42cf4fde2ec5a4378c90acb1bafb4121afac98b7bd2ae4168b1849ff98001",
+      "bytes": 2083
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-light-compact-1280-inspector-true-f68af7a8608683e3eca40fcd00ecfd4465096a4e.png",
+      "sha256": "b7035c3f030047928e62a5a4eb8fe9e35c976c9d7b17454f6d7c0861a8311e05",
+      "bytes": 1712
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-light-compact-1280-tree-false-3b7d5c603d565a1e40c3c2e794efb5fab74cf9e9.png",
+      "sha256": "b0eed80e563caa1b365fb456c765514487358b67f354df889ac7928c5724f7c6",
+      "bytes": 1531
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-light-compact-1280-tree-true-fc667be328b4cf3a8f78ae1bdbd3d8eb370205b2.png",
+      "sha256": "25861da736e5aff9005f95d87c22796b55fe2dd5ba40b5a8c1b47315c5d49828",
+      "bytes": 1261
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/unobscured-authoring-light-compact-1280x800-4f4cd5c205536bbf9a2995750e0aaa86fca23ed9.png",
+      "sha256": "a239095026bcbcc938ca81bed3fd81af4664b7ab996d90d85e33fe4aae64ba6e",
+      "bytes": 146398
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/expanded-deformation-light-compact-1280x800.png",
+      "sha256": "797baa3f5fa104c563c72b6a3c2b415ce1b218e222f233aa864c4e83993d01ba",
+      "bytes": 146327
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/normal-authoring-light-compact-1280x800.png",
+      "sha256": "ce84efc4700bc42be4ccec17f2c4d2a3a788d68e3f0370a04e5833896908aea5",
+      "bytes": 178068
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/rail-hover-light-compact-1280-inspector-false.png",
+      "sha256": "63a42cf4fde2ec5a4378c90acb1bafb4121afac98b7bd2ae4168b1849ff98001",
+      "bytes": 2083
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/rail-hover-light-compact-1280-inspector-true.png",
+      "sha256": "b7035c3f030047928e62a5a4eb8fe9e35c976c9d7b17454f6d7c0861a8311e05",
+      "bytes": 1712
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/rail-hover-light-compact-1280-tree-false.png",
+      "sha256": "b0eed80e563caa1b365fb456c765514487358b67f354df889ac7928c5724f7c6",
+      "bytes": 1531
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/rail-hover-light-compact-1280-tree-true.png",
+      "sha256": "25861da736e5aff9005f95d87c22796b55fe2dd5ba40b5a8c1b47315c5d49828",
+      "bytes": 1261
+    },
+    {
+      "path": "candidate/test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/unobscured-authoring-light-compact-1280x800.png",
+      "sha256": "a239095026bcbcc938ca81bed3fd81af4664b7ab996d90d85e33fe4aae64ba6e",
+      "bytes": 146398
+    },
+    {
+      "path": "candidate_collection/execution.json",
+      "sha256": "8015b387695712f9ab55bfd83397d2417b1082aaad5bcb81eba010f01f89bb96",
+      "bytes": 1152
+    },
+    {
+      "path": "candidate_collection/output.log",
+      "sha256": "50f891b052c0468f58d2c64a31948c37aa2fdb32e4d0a01dd316b406a9f8b0a3",
+      "bytes": 1646
+    },
+    {
+      "path": "preimage/ATTACHMENT_BINDINGS.json",
+      "sha256": "f543f2bca6c80e8e07e1c46fd895fc0625a39abe2814af4ba70b5607bf901647",
+      "bytes": 5916
+    },
+    {
+      "path": "preimage/CASE_STATUS.json",
+      "sha256": "c7cad4e193938c7a92c5893fbee9d9fe74c16450cd2cda0f82745a2636a87a46",
+      "bytes": 3647
+    },
+    {
+      "path": "preimage/derived/0000.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "bytes": 552
+    },
+    {
+      "path": "preimage/derived/0002.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "preimage/derived/0005.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "bytes": 552
+    },
+    {
+      "path": "preimage/derived/0007.json",
+      "sha256": "8412c650d3c470090f5ac5e570a6e39821e3064880cc971b34b543193917183f",
+      "bytes": 33
+    },
+    {
+      "path": "preimage/execution.json",
+      "sha256": "2c47621421a5d770b89ed5470125ec3826ba006cdfa5e04a3fb632c04b8d4ac3",
+      "bytes": 1206
+    },
+    {
+      "path": "preimage/output.log",
+      "sha256": "3202d613b4be26bc87c93fb6b4719b739a96b456421a5625e48c33c99514ef2b",
+      "bytes": 7371
+    },
+    {
+      "path": "preimage/report.json",
+      "sha256": "dbe62d92d0174123bc461184e8e0bc811b3680d37216db34780bf5dd25425883",
+      "bytes": 17266
+    },
+    {
+      "path": "preimage/test-results/.last-run.json",
+      "sha256": "648e0c243ac65e1b206542c79669614263e2fc9fcc3832c8856f9b868be0e91f",
+      "bytes": 145
+    },
+    {
+      "path": "preimage/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-c91d006035192e074677335e5d7496dfccf3040b.png",
+      "sha256": "71f0b0d7aa33a1bf61231f3b0eeb67c41ead2f3611ef020dc07e7775c96ca56f",
+      "bytes": 212095
+    },
+    {
+      "path": "preimage/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-mechanics-info-8d868ac3c3c57459cb513a4a77233a3a13928815.png",
+      "sha256": "db58faa9abd18747b0d53f07f219a087aebf14b48da6c6e310f54c1d1b173926",
+      "bytes": 3954
+    },
+    {
+      "path": "preimage/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/error-context.md",
+      "sha256": "25e151fb777d8a81cdfde2b9e8cce888a325cc5cae703be6a78526517d7b8c4b",
+      "bytes": 42865
+    },
+    {
+      "path": "preimage/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-mechanics-info.png",
+      "sha256": "db58faa9abd18747b0d53f07f219a087aebf14b48da6c6e310f54c1d1b173926",
+      "bytes": 3954
+    },
+    {
+      "path": "preimage/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve.png",
+      "sha256": "71f0b0d7aa33a1bf61231f3b0eeb67c41ead2f3611ef020dc07e7775c96ca56f",
+      "bytes": 212095
+    },
+    {
+      "path": "preimage/test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/trace.zip",
+      "sha256": "9886ceaa19a991c00837b4bc40e27c80d3a2d0baed845315e402e62069ea8450",
+      "bytes": 1471839
+    },
+    {
+      "path": "preimage/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-tree-false-8d687bd128842198793376e058c35264c1e449f3.png",
+      "sha256": "998617b9f65ea739d161ba4ca3327f0c32fdd9d1be042de5ac3071fc0e0373f2",
+      "bytes": 1608
+    },
+    {
+      "path": "preimage/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/error-context.md",
+      "sha256": "ae551d4d899adeca9c15f7ed98c72401cc688c4569b155fe0f737a049cb71983",
+      "bytes": 19891
+    },
+    {
+      "path": "preimage/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-tree-false.png",
+      "sha256": "998617b9f65ea739d161ba4ca3327f0c32fdd9d1be042de5ac3071fc0e0373f2",
+      "bytes": 1608
+    },
+    {
+      "path": "preimage/test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/trace.zip",
+      "sha256": "5fceb2b0962f17558d4d51531074633e94241cef464c59c2f48853cd67081480",
+      "bytes": 766479
+    },
+    {
+      "path": "preimage_collection/execution.json",
+      "sha256": "557321341facc42014ed8c4c2365d4ef5a07e16c7558b927480bf38a900bd4e7",
+      "bytes": 1180
+    },
+    {
+      "path": "preimage_collection/output.log",
+      "sha256": "8eeba0d4e168ca0410398f05895570f6fee51ac51315bd670ae035350e8ae87e",
+      "bytes": 276
+    },
+    {
+      "path": "run_lane.py",
+      "sha256": "efe223808b849602b4acd41cf15ed36e4fbcd63beb46ffcb4175ad93bcbcbae8",
+      "bytes": 2914
+    }
+  ],
+  "count": 341,
+  "bytes": 28945727
+}

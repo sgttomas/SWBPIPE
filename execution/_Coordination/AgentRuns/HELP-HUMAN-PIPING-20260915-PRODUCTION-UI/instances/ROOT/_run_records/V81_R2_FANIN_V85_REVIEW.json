@@ -1,0 +1,21 @@
+{
+  "status": "FOCUSED_MATRIX_VERIFIED_PENDING_SOURCE_REVIEW",
+  "at": "2026-09-17T08:43:31.984297+00:00",
+  "matrix": "12PASS_zeroRetries",
+  "manifest_sha256": "88cd391072534ef7f59425fb623486c25916c2f9de2c2f65db9f5283fe93bfec",
+  "members": 127,
+  "source_manifest_sha256": "a7a48c056dbba800603077fc0fcdee8ec1c00235cdcf229d650d20f3c76dfd88",
+  "maintained_sources_verified": 143,
+  "screenshot_pairs": 12,
+  "control_witnesses": 72,
+  "wheel_assisted_cases": 2,
+  "wheel_delta_css_px": -24,
+  "observed_scroll_top": [
+    920,
+    896
+  ],
+  "minimum_solved_usable_dock_body_css_px": 97,
+  "limits": "V81/R1 failures retained; full-border visibility after ordinary scroll is proved only for sampled controls. No rounding/keyboard-only/performance claim.",
+  "runtime": "RELEASED",
+  "source_review": "V85 active; no integration/source edits until return"
+}

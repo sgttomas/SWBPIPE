@@ -1,0 +1,56 @@
+{
+  "schema": "bounded-independent-source-review-return/v1",
+  "status": "FINDING_LAUNCH_NOT_READY",
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "delegation": "none",
+  "enforcement": "instruction/config asserted",
+  "derivativePackage": true,
+  "acceptedUpstream": {
+    "flatV4Sha256": "13260d4a03b792454d68e97259a15c53a79f9b3c6f4f60da6cb65093d783d5f8",
+    "priorReviewSha256": "fc0c76a669e081e711d49eb1aff375053d8c9a149935ab8340483574bb875971",
+    "flatV5Sha256": "0d2435e4b71adc2d4ba8070be5f2cc444a8ba2f0c774a2f77897ce09e9efda24"
+  },
+  "coverage": "All one-file maintained delta and affected callers reviewed; 142 unchanged paths carry accepted prior coverage. 143 entry/exit exact. 16 author artifacts, 29 method files in both lanes, six wrapper/config/package pins and four final commands exact.",
+  "findings": [
+    {
+      "id": "V57-R1",
+      "priority": "P1",
+      "title": "Update the runtime geometry pin before admitting the new oracle",
+      "changedLocation": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/freeze-candidate-point-oracle.mjs",
+        "line": 39
+      },
+      "runtimeLocation": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/benchmark-harness.ts",
+        "line": 263
+      },
+      "description": "The generator now writes c0c09e... into the oracle manifest and every visual plan, but the unchanged runtime CUE_GEOMETRY_SOURCE_SHA256 remains 97b18c.... validateCandidateOracleBinding compares declared and on-disk geometry to that constant at lines 472-474 and throws winner product geometry/cue source drift. validateWinnerCuePlan independently rejects the same new plans at line 270. The focused candidate setup invokes this validator at causal-presentation-preflight.benchmark.ts:155; cohort setup invokes it at ui-foundation-performance.benchmark.ts:72 and full-cohort-controller.ts:256. Thus both final commands fail admission before the intended measured workload. This is a runtime consumer, separate from the intentionally historical offline helper.",
+      "requiredRepair": "Refresh the shared runtime geometry pin to the independently accepted source, preserving strict rejection, then validate the actual consumer with the generated oracle and old/mutated negative controls. Rebind changed method/source manifests and launch records; independently backcheck the bounded delta before focused runtime. No tolerance, geometry, target, or workload changes are needed.",
+      "evidence": "Read-only inspection plus actual source/oracle hash comparison; no test/runtime was executed by reviewer."
+    }
+  ],
+  "positiveResults": [
+    "Geometry source preimage SHA97b18c... and complete diff independently verified: only gesture context type/helper and retire/cancel command alternatives added; primitive geometry unchanged. Generator pre/post byte diff exact.",
+    "Strict generator guard remains before output creation. Recorded old-source and appended-comment mutation failures both stop at the expected strict hash assertion; accepted V56 generation is recorded exit0. Reviewer did not rerun controls.",
+    "Independent full JSON leaf comparison finds only checked provenance changes across all 400 points and 40 boxes. All 800 old/new visual-plan selfhashes recomputed exact; no coordinate/membership/mask/threshold changes.",
+    "Method closure stays 28 runtime/method inventory files plus one offline helper, one generator changed and no dependencies added.",
+    "Four launch records preserve V54 cwd/argv/profile/populations/deadlines and use real current hashes/new evidence and cohort ID. All six inherited wrapper/config/package hashes unchanged."
+  ],
+  "historicalHelperBoundary": "verify-winner-cue-plan.mjs is unchanged, uninvoked, and still pinned97b18c. It also asserts that component/support visual geometry changes relative to a historical oracle, so it is not the appropriate identical-geometry control for this supplement. Current evidence is the separately inspected exact comparison against accepted V46 plus verified provenance/selfhashes; do not claim the old helper passed. This does not excuse the runtime validator mismatch R1.",
+  "reuse": "V56 pure40/resource20 with five mounts each/camera2 plus480 DOM results remain only under original V20R attribution; this offline generator change does not invalidate those observations or require rebuilding unchanged NativeV32 product. V56 original generator failure remains failed. They do not prove admission of the newly generated oracle. A subsequent runtime-validator repair needs its own bounded impact assessment and checks.",
+  "handoff": "Hold V57 runtime. ROOT owns bounded repair dispatch, exact rebind, independent backcheck and later focused PASS acceptance before any full cohort. Preserve all failed/historical evidence.",
+  "remainingGates": [
+    "R1 runtime pin repair and actual-consumer positive/negative controls",
+    "updated source/method/launch binding backcheck",
+    "exact collection and exclusive runtime authorization",
+    "focused eight-segment qualification",
+    "full fresh ten-test performance cohort",
+    "registered sweep",
+    "final metadata and CI"
+  ],
+  "limits": "No tests, runtime, build, browser, native, Git, archives, source mutations or delegation. Only own immutable review evidence written; no performance acceptance."
+}

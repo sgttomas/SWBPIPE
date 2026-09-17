@@ -1,0 +1,43 @@
+{
+  "status": "REVIEW_COMPLETE_CHANGES_REQUESTED",
+  "parent": "/root HELP_HUMAN",
+  "instance": "/root/ui_fresh_integrated_review",
+  "role": "TASK Type2 + software-code-review",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "delegation": "none",
+  "mechanism": "delegated-harness-native; instruction/config asserted",
+  "brief_sha256": "89e6d4b252ee6aa8a5ac60c96d6086f801772b246a81b82704e25c473aeb0f2e",
+  "source_manifest_sha256": "efbcd3cda8abb0f9af78d61d10bfaaec2805607ab76827e00d6bc34d0a5deb3b",
+  "patch_sha256": "3c9ac56b1972d4b207bef0aea08a5d265c359caca5c15f66ee59c4307028d435",
+  "source_coverage": {
+    "total": 143,
+    "changed_complete": 4,
+    "inherited_exact": 139,
+    "bytes": 12640542
+  },
+  "findings": [
+    "V80-R1"
+  ],
+  "source_drift": 0,
+  "input_drift": 0,
+  "bound_inputs": 347,
+  "derivative_package": true,
+  "closure_verdict": "Bounded review complete; source suitability/functional layout acceptance withheld pending V80-R1 repair and backcheck.",
+  "upstream": "Accepted85d/flatV12; frozen proposedV13 and sealedV77/V78 packet; complete prior source review carried by exact hashes.",
+  "remaining": [
+    "V80-R1 narrow post-solve dock usability",
+    "Root-authorized repair/backcheck and integration",
+    "build/native/registered/resource/performance/finalmetadata gates"
+  ],
+  "rerun_requirements": "Only Root authorizes follow-on; fresh affected post-solve dock control/geometry evidence needed. No runtime started here.",
+  "runtime": "NONE; reviewer released after sealing",
+  "outputs": [
+    "FINDINGS.json",
+    "COVERAGE.json",
+    "INPUT_BINDINGS.json",
+    "RETURN.json",
+    "ARTIFACT_MANIFEST.json"
+  ],
+  "sealed_at": "2026-09-17T08:04:18.439365+00:00"
+}

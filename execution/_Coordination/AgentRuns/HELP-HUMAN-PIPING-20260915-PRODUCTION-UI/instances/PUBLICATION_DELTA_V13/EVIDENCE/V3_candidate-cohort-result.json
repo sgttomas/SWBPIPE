@@ -1,0 +1,454 @@
+{
+  "status": "FAIL_COHORT",
+  "validityFailures": [
+    "COHORT_REQUIRES_TEN_RUNS",
+    "INVALID_OR_REPEATED_ACTUAL_RUNS"
+  ],
+  "outcomes": [
+    {
+      "status": "PASS_METRIC_ACCEPTANCE",
+      "validityFailures": [],
+      "targetFailures": [],
+      "scores": {
+        "assignment": 228.83000144958507,
+        "pointP95": 28.5100012779818,
+        "boxP95": 27.449001884518665,
+        "filterP95": 28.550002193509144,
+        "centerlineP95": 8.335000000000003,
+        "actualOdP95": 8.335000000000003
+      },
+      "orbitPopulations": {
+        "centerline": [
+          {
+            "left": 234,
+            "right": 1435,
+            "gapCount": 1201,
+            "p95UpperMs": 8.335000000000003
+          }
+        ],
+        "actual-od": [
+          {
+            "left": 235,
+            "right": 1435,
+            "gapCount": 1200,
+            "p95UpperMs": 8.335000000000003
+          }
+        ]
+      },
+      "runId": "foreground-ac-same-trace-cohort-v3.1000.1",
+      "fixtureSize": 1000,
+      "bindings": {
+        "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+        "sourceSha256": "442bcb2ef7c709a9405e57589e3a4be3b8103a46cb5a57cc478a71fcf277b941",
+        "buildSha256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+        "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+        "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+        "oracleSha256": "da1baede431125a5d919909974158cbdd8110edcd891d4369dd460bf51084040",
+        "methodSha256": "e6e145213e357a80464637bf08741875609ed06a8e9b8d5d21d31c425e0bad83",
+        "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+      },
+      "observerDiagnostics": {
+        "evidenceRef": "observer-accounting.json",
+        "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+      },
+      "rawObserverReferences": {
+        "p95Ms": 0.5,
+        "maximumMs": 2,
+        "totalPercent": 3
+      },
+      "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+    },
+    {
+      "status": "PASS_METRIC_ACCEPTANCE",
+      "validityFailures": [],
+      "targetFailures": [],
+      "scores": {
+        "assignment": 228.3370023727418,
+        "pointP95": 47.34800205236535,
+        "boxP95": 48.55900201803308,
+        "filterP95": 44.61900148397546,
+        "centerlineP95": 16.668000000000003,
+        "actualOdP95": 16.668000000000003
+      },
+      "orbitPopulations": {
+        "centerline": [
+          {
+            "left": 118,
+            "right": 719,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          }
+        ],
+        "actual-od": [
+          {
+            "left": 117,
+            "right": 718,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          }
+        ]
+      },
+      "runId": "foreground-ac-same-trace-cohort-v3.1000.2",
+      "fixtureSize": 1000,
+      "bindings": {
+        "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+        "sourceSha256": "442bcb2ef7c709a9405e57589e3a4be3b8103a46cb5a57cc478a71fcf277b941",
+        "buildSha256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+        "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+        "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+        "oracleSha256": "da1baede431125a5d919909974158cbdd8110edcd891d4369dd460bf51084040",
+        "methodSha256": "e6e145213e357a80464637bf08741875609ed06a8e9b8d5d21d31c425e0bad83",
+        "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+      },
+      "observerDiagnostics": {
+        "evidenceRef": "observer-accounting.json",
+        "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+      },
+      "rawObserverReferences": {
+        "p95Ms": 0.5,
+        "maximumMs": 2,
+        "totalPercent": 3
+      },
+      "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+    },
+    {
+      "status": "PASS_METRIC_ACCEPTANCE",
+      "validityFailures": [],
+      "targetFailures": [],
+      "scores": {
+        "assignment": 231.90000162124645,
+        "pointP95": 47.25700197220578,
+        "boxP95": 49.59500179296594,
+        "filterP95": 56.18300113683801,
+        "centerlineP95": 16.668000000000003,
+        "actualOdP95": 16.668000000000003
+      },
+      "orbitPopulations": {
+        "centerline": [
+          {
+            "left": 117,
+            "right": 718,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          }
+        ],
+        "actual-od": [
+          {
+            "left": 117,
+            "right": 718,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          }
+        ]
+      },
+      "runId": "foreground-ac-same-trace-cohort-v3.1000.3",
+      "fixtureSize": 1000,
+      "bindings": {
+        "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+        "sourceSha256": "442bcb2ef7c709a9405e57589e3a4be3b8103a46cb5a57cc478a71fcf277b941",
+        "buildSha256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+        "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+        "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+        "oracleSha256": "da1baede431125a5d919909974158cbdd8110edcd891d4369dd460bf51084040",
+        "methodSha256": "e6e145213e357a80464637bf08741875609ed06a8e9b8d5d21d31c425e0bad83",
+        "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+      },
+      "observerDiagnostics": {
+        "evidenceRef": "observer-accounting.json",
+        "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+      },
+      "rawObserverReferences": {
+        "p95Ms": 0.5,
+        "maximumMs": 2,
+        "totalPercent": 3
+      },
+      "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+    },
+    {
+      "status": "PASS_METRIC_ACCEPTANCE",
+      "validityFailures": [],
+      "targetFailures": [],
+      "scores": {
+        "assignment": 225.06200180053722,
+        "pointP95": 47.63200149541955,
+        "boxP95": 49.07200202947717,
+        "filterP95": 40.19000205999475,
+        "centerlineP95": 16.668000000000003,
+        "actualOdP95": 16.668000000000003
+      },
+      "orbitPopulations": {
+        "centerline": [
+          {
+            "left": 117,
+            "right": 718,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          }
+        ],
+        "actual-od": [
+          {
+            "left": 116,
+            "right": 717,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          }
+        ]
+      },
+      "runId": "foreground-ac-same-trace-cohort-v3.1000.4",
+      "fixtureSize": 1000,
+      "bindings": {
+        "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+        "sourceSha256": "442bcb2ef7c709a9405e57589e3a4be3b8103a46cb5a57cc478a71fcf277b941",
+        "buildSha256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+        "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+        "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+        "oracleSha256": "da1baede431125a5d919909974158cbdd8110edcd891d4369dd460bf51084040",
+        "methodSha256": "e6e145213e357a80464637bf08741875609ed06a8e9b8d5d21d31c425e0bad83",
+        "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+      },
+      "observerDiagnostics": {
+        "evidenceRef": "observer-accounting.json",
+        "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+      },
+      "rawObserverReferences": {
+        "p95Ms": 0.5,
+        "maximumMs": 2,
+        "totalPercent": 3
+      },
+      "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+    },
+    {
+      "status": "PASS_METRIC_ACCEPTANCE",
+      "validityFailures": [],
+      "targetFailures": [],
+      "scores": {
+        "assignment": 220.66500148773204,
+        "pointP95": 46.92100200653805,
+        "boxP95": 49.08900175100427,
+        "filterP95": 42.65600214010339,
+        "centerlineP95": 16.668000000000003,
+        "actualOdP95": 16.668000000000003
+      },
+      "orbitPopulations": {
+        "centerline": [
+          {
+            "left": 118,
+            "right": 719,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          }
+        ],
+        "actual-od": [
+          {
+            "left": 118,
+            "right": 719,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          }
+        ]
+      },
+      "runId": "foreground-ac-same-trace-cohort-v3.1000.5",
+      "fixtureSize": 1000,
+      "bindings": {
+        "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+        "sourceSha256": "442bcb2ef7c709a9405e57589e3a4be3b8103a46cb5a57cc478a71fcf277b941",
+        "buildSha256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+        "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+        "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+        "oracleSha256": "da1baede431125a5d919909974158cbdd8110edcd891d4369dd460bf51084040",
+        "methodSha256": "e6e145213e357a80464637bf08741875609ed06a8e9b8d5d21d31c425e0bad83",
+        "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+      },
+      "observerDiagnostics": {
+        "evidenceRef": "observer-accounting.json",
+        "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+      },
+      "rawObserverReferences": {
+        "p95Ms": 0.5,
+        "maximumMs": 2,
+        "totalPercent": 3
+      },
+      "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+    },
+    {
+      "status": "PASS_METRIC_ACCEPTANCE",
+      "validityFailures": [],
+      "targetFailures": [],
+      "scores": {
+        "assignment": 580.0290013313297,
+        "pointP95": 58.43000183111291,
+        "boxP95": 48.97100172048669,
+        "filterP95": 63.616001701413204,
+        "centerlineP95": 16.668000000000003,
+        "actualOdP95": 16.668000000000003
+      },
+      "orbitPopulations": {
+        "centerline": [
+          {
+            "left": 117,
+            "right": 718,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          }
+        ],
+        "actual-od": [
+          {
+            "left": 117,
+            "right": 718,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          }
+        ]
+      },
+      "runId": "foreground-ac-same-trace-cohort-v3.10000.1",
+      "fixtureSize": 10000,
+      "bindings": {
+        "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+        "sourceSha256": "442bcb2ef7c709a9405e57589e3a4be3b8103a46cb5a57cc478a71fcf277b941",
+        "buildSha256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+        "fixtureSha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+        "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+        "oracleSha256": "dde6ff55adfed2c959bcc9ca980cb747ea25c0e61b72a4e29563aa10ade38496",
+        "methodSha256": "e6e145213e357a80464637bf08741875609ed06a8e9b8d5d21d31c425e0bad83",
+        "samplesSha256": "590fc0c7a0ab50f1f255150ce522a4a6626393d0ba8469ac62bdae2afdce29da"
+      },
+      "observerDiagnostics": {
+        "evidenceRef": "observer-accounting.json",
+        "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+      },
+      "rawObserverReferences": {
+        "p95Ms": 0.5,
+        "maximumMs": 2,
+        "totalPercent": 3
+      },
+      "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+    },
+    {
+      "status": "PASS_METRIC_ACCEPTANCE",
+      "validityFailures": [],
+      "targetFailures": [],
+      "scores": {
+        "assignment": 583.5080018997196,
+        "pointP95": 57.768001651793035,
+        "boxP95": 49.677002048550655,
+        "filterP95": 64.97600183492762,
+        "centerlineP95": 16.668000000000003,
+        "actualOdP95": 16.668000000000003
+      },
+      "orbitPopulations": {
+        "centerline": [
+          {
+            "left": 116,
+            "right": 717,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          },
+          {
+            "left": 116,
+            "right": 718,
+            "gapCount": 602,
+            "p95UpperMs": 16.668000000000003
+          },
+          {
+            "left": 117,
+            "right": 717,
+            "gapCount": 600,
+            "p95UpperMs": 16.668000000000003
+          },
+          {
+            "left": 117,
+            "right": 718,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          }
+        ],
+        "actual-od": [
+          {
+            "left": 118,
+            "right": 719,
+            "gapCount": 601,
+            "p95UpperMs": 16.668000000000003
+          }
+        ]
+      },
+      "runId": "foreground-ac-same-trace-cohort-v3.10000.2",
+      "fixtureSize": 10000,
+      "bindings": {
+        "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+        "sourceSha256": "442bcb2ef7c709a9405e57589e3a4be3b8103a46cb5a57cc478a71fcf277b941",
+        "buildSha256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+        "fixtureSha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+        "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+        "oracleSha256": "dde6ff55adfed2c959bcc9ca980cb747ea25c0e61b72a4e29563aa10ade38496",
+        "methodSha256": "e6e145213e357a80464637bf08741875609ed06a8e9b8d5d21d31c425e0bad83",
+        "samplesSha256": "590fc0c7a0ab50f1f255150ce522a4a6626393d0ba8469ac62bdae2afdce29da"
+      },
+      "observerDiagnostics": {
+        "evidenceRef": "observer-accounting.json",
+        "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+      },
+      "rawObserverReferences": {
+        "p95Ms": 0.5,
+        "maximumMs": 2,
+        "totalPercent": 3
+      },
+      "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+    },
+    {
+      "status": "FAIL_INVALID_EVIDENCE",
+      "validityFailures": [
+        "RUN_NOT_FRESH_AND_QUALIFIED",
+        "INVALID_ASSIGNMENT_EVIDENCE",
+        "INCOMPLETE_OR_INVALID_POINTS",
+        "INCOMPLETE_OR_INVALID_BOXES",
+        "INCOMPLETE_OR_INVALID_FILTERS",
+        "INCOMPLETE_OR_INVALID_ORBIT:centerline",
+        "INCOMPLETE_OR_INVALID_ORBIT:actual-od",
+        "SETTLED_OWNED_RAF_NOT_EXACT_ZERO"
+      ],
+      "targetFailures": [],
+      "scores": {
+        "assignment": null,
+        "pointP95": null,
+        "boxP95": null,
+        "filterP95": null,
+        "centerlineP95": null,
+        "actualOdP95": null
+      },
+      "orbitPopulations": {},
+      "runId": "foreground-ac-same-trace-cohort-v3.10000.3",
+      "fixtureSize": 10000,
+      "bindings": {
+        "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+        "sourceSha256": "442bcb2ef7c709a9405e57589e3a4be3b8103a46cb5a57cc478a71fcf277b941",
+        "buildSha256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+        "fixtureSha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+        "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+        "oracleSha256": "dde6ff55adfed2c959bcc9ca980cb747ea25c0e61b72a4e29563aa10ade38496",
+        "methodSha256": "e6e145213e357a80464637bf08741875609ed06a8e9b8d5d21d31c425e0bad83",
+        "samplesSha256": "590fc0c7a0ab50f1f255150ce522a4a6626393d0ba8469ac62bdae2afdce29da"
+      },
+      "observerDiagnostics": {
+        "evidenceRef": "observer-accounting.json",
+        "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+      },
+      "rawObserverReferences": {
+        "p95Ms": 0.5,
+        "maximumMs": 2,
+        "totalPercent": 3
+      },
+      "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+    }
+  ],
+  "scope": "Five fresh runs per fixture; every outcome retained, no size/mode pooling. Resource/native acceptance remains separate.",
+  "missing": [
+    {
+      "runId": "foreground-ac-same-trace-cohort-v3.10000.4",
+      "error": "Error: ENOENT: no such file or directory, open '/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/runtime/raw/run-04/10000/result.json'"
+    },
+    {
+      "runId": "foreground-ac-same-trace-cohort-v3.10000.5",
+      "error": "Error: ENOENT: no such file or directory, open '/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/runtime/raw/run-05/10000/result.json'"
+    }
+  ]
+}

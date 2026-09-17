@@ -1,0 +1,75 @@
+{
+  "schema": "piping-bounded-diagnosis-return/v1",
+  "task": "WORKSPACE_PALETTE_DIAGNOSIS_V91",
+  "status": "DIAGNOSIS_COMPLETE_PRODUCT_REPAIR_REQUIRED",
+  "parent": "/root HELP_HUMAN",
+  "instance": "/root/ui_dist_overlay_diagnosis",
+  "role": "ephemeral TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "xhigh",
+  "mechanism": "delegated-harness-native; instruction/config asserted",
+  "delegation": "none",
+  "derivativePackage": true,
+  "upstreamIntegratedCommit": "1e4f7dfb06bc6fe5ce011efda7efd3dd6ee4b66d",
+  "upstreamCandidateManifestSha256": "9facbc0248c6a493808ca71730104df8c067f6e5a3b9831dc198ae20d3a47360",
+  "briefSha256": "184b02dff8e446133df86b741fbc6a3d6750040d5e72862eba2e9f2952b951a6",
+  "inputBindings": "INPUT_BINDINGS.json",
+  "diagnosis": {
+    "path": "DIAGNOSIS.md",
+    "sha256": "4a0a9583767cc7b4bb79aec02c8e7c3c03a681bf9e0e9de7564cb6399795af20"
+  },
+  "findings": [
+    {
+      "id": "V91-LAYOUT",
+      "certainty": "Observed189px canvas; high-confidence source/layout cause",
+      "cause": "Fixed344px modeling reserve omits the variable measurement row; observed state yields344-2-43-80-30=189.",
+      "repair": "Derive reserve from actual noncanvas chrome plus200px canvas; retain saved dockPx and bounded scrolling."
+    },
+    {
+      "id": "V91-DISMISS",
+      "certainty": "Wrong invoker focus observed at1024/1440; high-confidence source-supported pointer-default explanation; full event ordering not retained",
+      "cause": "Backdrop closes/restores focus during pointerdown without preventing later pointer/mouse focus default; duplicate outside-dismiss paths exist but double invocation unproved.",
+      "repair": "One consumed owned-backdrop dismissal path; prevent default before restoration; preserve Escape and command destination focus."
+    },
+    {
+      "id": "V91-NODE",
+      "certainty": "Command nonactivation and final search focus observed; medium-high confidence duplicate-open-focus race; exact callback/key target not recorded",
+      "cause": "Enabled Node was focused then Enter left palette open and Node inactive; search focus outline returned. Open effect and untracked entry RAF both focus search.",
+      "repair": "One deterministic initial focus boundary; remove stale opener work. Strengthen key-recipient evidence without timing relaxation."
+    }
+  ],
+  "recommendedProductFiles": [
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx"
+  ],
+  "recommendedTestOwnership": [
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+    "Bounded workspace sizing helper test only if implementation is factored."
+  ],
+  "noJustifiedScope": [
+    "renderer/resource/camera",
+    "model/engineering contracts",
+    "Box state cancellation",
+    "capability routes",
+    "acceptance floor/timeout/retry relaxation"
+  ],
+  "decisiveChecks": [
+    "Controlled old-opener RAF preimage must demonstrate focus theft; repaired lifecycle preserves explicitly moved focus.",
+    "Trusted backdrop full click restores correct invoker without underlying click-through; synthetic pointerdown-only evidence insufficient.",
+    "Captured-pointer Node/Select completes original ABA/delayed-up assertions with key targets and command destination focus observed.",
+    "Wrapped measurement + open operations/results dock preserve200canvas, full readout, saved sizes, draft, accessible dock scrolling/controls."
+  ],
+  "verification": {
+    "sourceEntryExitExact": 143,
+    "inputEntryExitExact": 47,
+    "failedTracesRead": 4,
+    "newRuntime": "NONE",
+    "sourceChanges": "NONE"
+  },
+  "closureVerdict": "Assigned diagnosis complete; product repair, independent review, source lanes and fresh registered qualification remain open.",
+  "handoff": "Root owns grant and repair. Preserve V86/V89 failures. No automatic rerun. Source skipped lanes stay NOT_RUN. Performance disposition remains separate.",
+  "sealedAt": "2026-09-17T10:03:36.668058+00:00"
+}

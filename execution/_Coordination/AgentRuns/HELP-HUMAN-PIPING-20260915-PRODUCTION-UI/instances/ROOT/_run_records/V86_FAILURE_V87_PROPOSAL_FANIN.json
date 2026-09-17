@@ -1,0 +1,30 @@
+{
+  "at": "2026-09-17T09:20:18.560210+00:00",
+  "status": "ROOT_ACCEPTED_V87_PROPOSAL_AND_V86_FAILURE_FANIN",
+  "source_commit": "1e4f7dfb06bc6fe5ce011efda7efd3dd6ee4b66d",
+  "V86": {
+    "return_sha256": "9db708bee410b75a9348733bb279d786ed6f4713079345a3de228b7423f0e90b",
+    "manifest_sha256": "0e76cdd7253fc1a44b82f08cb331e8eaac61787a5cbc4605dbcac55987eaf49a",
+    "verified_members": 126,
+    "verified_bytes": 43585053,
+    "verdict": "REGISTERED_FAIL; owning result retained, no retry, runtime released, V88 diagnosis dispatched"
+  },
+  "V87": {
+    "return_sha256": "e18e445a0cba3c8d3c14b7925fcecc163ac19f00a9adffe6cacdf8ceabf2d6c9",
+    "manifest_sha256": "f83f680828d083d20f18ab55f4b9a63b73c59b3e69880528799d8ee6ba8de6e5",
+    "verified_members": 4,
+    "verdict": "PASS_PROPOSAL_SUITABILITY_ONLY"
+  },
+  "policy": {
+    "before_sha256": "27d0dcbd663faeb2ec3f25fc7843ff5a1bce678ca274e80bb047f4ea9ea1ca34",
+    "after_sha256": "287f1f85c0ced4edc2b4783c404de48d5996c8fe6e0891bb30150925b27a63e0",
+    "entries": 288,
+    "new_exact_historical_entries": 8,
+    "all_prior280_preserved": true,
+    "loader_issues": []
+  },
+  "remaining_metadata": "V9 independently suitable conditional proposal remains unapplied; actual final record needed. No future passes supplied.",
+  "V28_alias_refinement": "All242 aliases match their214 assigned object hashes/bytes and exact once-only index coverage; no object I/O or immutable-record changes.",
+  "D69": "UNRULED; original performance/merge gate unchanged",
+  "publication": "V15 partial selected inventory accepted for its frozen source1e; no staging. V86/V88/new source/native/final outcomes and all closeout gates remain."
+}

@@ -1,0 +1,47 @@
+{
+  "self_excluding": true,
+  "files": [
+    {
+      "path": "COVERAGE.json",
+      "sha256": "3e9f1ea0a4bbb468da38a7e7e45674e36f6ee4db2704a161c695e6f26d15430b",
+      "bytes": 2105
+    },
+    {
+      "path": "FINDINGS.json",
+      "sha256": "cd446f728cd326545e8f1fb9ec22a290750df43b80c9c7663036fb1b5fef56cc",
+      "bytes": 204
+    },
+    {
+      "path": "INPUT_BINDINGS.json",
+      "sha256": "703b660820131e8f81ede72aa6ff26a32699a4165d342ad5a85d3b1d253a35cb",
+      "bytes": 189624
+    },
+    {
+      "path": "PREPARATION_INPUT_BINDINGS.json",
+      "sha256": "c66af321e31bd5b1ff6adf9a5b5fe4aeef4f137a479e1b5a0b17e19d141e58b2",
+      "bytes": 50898
+    },
+    {
+      "path": "R1_CANONICAL_REVIEW_INDEX.json",
+      "sha256": "3dfc7cb6f2a35a970e45a00a2c659ce4e7abd8a823f9b324b1d85059189f31cd",
+      "bytes": 670801
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "6de237c082e31562e3d346d3c6d0555ab1410c6f54517517c29c86910b07ce33",
+      "bytes": 2632
+    },
+    {
+      "path": "SOURCE_REVIEW_PREPARATION.json",
+      "sha256": "f437c1469fe1fd64eee13fcfc4eead45a2c76cf1804334d0b967fefd1f4d6b54",
+      "bytes": 4534
+    },
+    {
+      "path": "VISUAL_REVIEW.json",
+      "sha256": "dd3049f147886722775b4361896885e93db22782b20e3024cc28be4d154cd34c",
+      "bytes": 64445
+    }
+  ],
+  "count": 8,
+  "bytes": 985243
+}

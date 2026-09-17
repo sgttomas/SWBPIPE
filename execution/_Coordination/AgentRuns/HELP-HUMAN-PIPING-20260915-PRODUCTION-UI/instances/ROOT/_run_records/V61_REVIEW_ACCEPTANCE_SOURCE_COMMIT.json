@@ -1,0 +1,15 @@
+{
+  "status": "SOURCE_REVIEW_ACCEPTED_COMMITTED",
+  "reviewReturnSha256": "ed32d1ec76190f4d5d45e8e7b109b9527f0ee4b7021c1ca432a317fc0cf14093",
+  "reviewArtifactManifestSha256": "6a6902162ad566d06e0e48204c0ed03dd1b55700a7d13a5212781e1d8997270d",
+  "sourceManifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V9/SOURCE_MANIFEST_R1.json",
+  "sourceManifestSha256": "e8c242965e15619cebc2a8872da6349531eae122206e4ccd0a6d51ffdc3265f1",
+  "head": "135a94cea310129ebbf53e678159b7016c3701d5",
+  "sourceCount": 143,
+  "changedReviewed": 5,
+  "unchangedPriorReviewed": 138,
+  "committedBlobsVerified": 143,
+  "cleanCheckout": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-final-check-20260916",
+  "cleanCheckoutHashesVerified": 143,
+  "limits": "Source readiness only. Execution brief correction and fresh V61 acceptance remain required before separately authorized full cohort."
+}

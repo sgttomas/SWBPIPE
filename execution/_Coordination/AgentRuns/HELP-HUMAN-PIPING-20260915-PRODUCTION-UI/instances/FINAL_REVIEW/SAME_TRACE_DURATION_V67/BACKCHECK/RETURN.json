@@ -1,0 +1,33 @@
+{
+  "status": "PASS_V67_R1_RESOLVED",
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "enforcement": "instruction/config asserted",
+  "delegation": "none",
+  "derivativePackage": true,
+  "repair_record_sha256": "84eda6eaa02db6d88bcec4a3fa980398e3ab5da11479d9b76b8740dc2193d881",
+  "prior_review_sha256": "94154810f8deb7ee30287e43fb277fa014031fbda253d2c35e4ef395a597cde0",
+  "prior_review_manifest_sha256": "a3d0eb15593b0d35a3106197db1439b06ff894932e578a299d8250d391915883",
+  "resolved": [
+    "V67-R1"
+  ],
+  "findings": [],
+  "readme": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+    "before_sha256": "76fa3a902e39dfd0c68a6a6058ff219e5d86e45a674ec5df19eb12a4782404c1",
+    "sha256": "fd70a87407aa55ec82140cf74e9ceae3c7d6bd04b696ae8fd9ca45b6ff6ad274",
+    "bytes": 14702
+  },
+  "checks": [
+    "Reversing exactly one paragraph replacement reconstructs the complete original reviewed README hash. No other README bytes changed.",
+    "New wording states definite future-estimate-before-CA-commit semantics for the bound Mac Graphite/Dawn Metal -> OutputPresenterGL -> ImageTransportSurfaceOverlayMacEGL path; ready/latch user-space and HWCompletion limits agree with accepted V66.",
+    "Four reviewed implementation/test postimages and all138 carried ROOT paths remain exact. Original author packet and review/manifest unchanged.",
+    "All205 prior input bindings rechecked with only the authorized README successor substitution; zero unexpected drift. Prior full five-file/143-composite coverage retained."
+  ],
+  "evidence_reuse": "Original51 offline pure controls and semantic noEmit retain attribution to unchanged implementation/test bytes. No tests rerun for documentation-only correction.",
+  "limits": "No runtime, tests, Git, source mutation or delegation. Added post-window allocation/scanning cost and live qualification remain unqualified; original V64 target failures unchanged.",
+  "handoff": "Source supplement suitable for Root integration at these exact bytes. Root must seal successor complete source/method/launch bindings before any separately authorized prospective qualification. No full-cohort or tranche acceptance."
+}

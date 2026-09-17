@@ -1,0 +1,77 @@
+{
+  "status": "BOUNDED_BROWSER_VALIDATION_PASS_PENDING_INDEPENDENT_REVIEW",
+  "role": "TASK Type2 Astra/low; no delegation; instruction/config asserted",
+  "derivative_package": true,
+  "accepted_upstream": "1e4f7dfb06bc6fe5ce011efda7efd3dd6ee4b66d",
+  "candidate_upstream": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/CANDIDATE_SOURCE_V18/SOURCE_MANIFEST.json",
+    "sha256": "88158c7acc123beef07456c2728773218926b75df0aae48481c62e899f86edbe",
+    "bytes": 34780
+  },
+  "results": {
+    "lanes": [
+      {
+        "lane": "dist",
+        "stats": {
+          "startTime": "2026-09-17T10:32:02.336Z",
+          "duration": 150110.791,
+          "expected": 51,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      {
+        "lane": "source_menu",
+        "stats": {
+          "startTime": "2026-09-17T10:34:33.262Z",
+          "duration": 12132.363000000001,
+          "expected": 4,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      {
+        "lane": "source_workspace",
+        "stats": {
+          "startTime": "2026-09-17T10:34:46.353Z",
+          "duration": 65371.780000000006,
+          "expected": 17,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      }
+    ],
+    "cases": 72,
+    "attachments": 590,
+    "orientation_crops": 63,
+    "orientation_contexts": 63,
+    "orientation_witnesses": 63,
+    "budget_geometries": 48,
+    "minimum_budget_canvas_height": 200,
+    "minimum_budget_canvas_width": 930,
+    "saved_size_equal_all": true
+  },
+  "attribution": {
+    "product_build": "V92 CYCLE1 guarded Vite PASS; all21files4413960bytes reused exactly under Root lease",
+    "typescript": "V92 PREPARATION PASS, not rerun",
+    "component_lifecycle_units": "V92 PREPARATION final15PASS, not rerun",
+    "deliberate_preimage": "Original expected opener focus failure remains sealed",
+    "collection_failure": "Original V92 static JSON import failure remains sealed; R2 import-only collection51PASS",
+    "browser": "This CYCLE2 owns51dist+4menu+17workspace PASS; no retry"
+  },
+  "claims": "Content-aware case geometry/control/draft/saved-preference and palette pointer/keyboard focus assertions passed. This is not engineering or product acceptance; automated geometry/ownership does not certify XYZ glyph legibility.",
+  "visual_review": "63 current orientation crops/context/witnesses retained for independent Root/V94 visual verdict; no independent verdict supplied by writer",
+  "source_scope": "145 exact V18 members verified; no source edit during browser runtime; complete relevant nine-path diff attached",
+  "closure_verdict": "Bounded preparation/repair/focused validation complete; independent review/integration/qualification remain Root gates",
+  "remaining": [
+    "Independent complete-source and current image review",
+    "Root integration and unchanged full registered sweep",
+    "nativeV83 and final closeout; D69/performance remain separate"
+  ],
+  "rerun_requirements": "No automatic follow-on; Root owns further work",
+  "runtime": "RELEASED",
+  "git_index_mutation": false
+}

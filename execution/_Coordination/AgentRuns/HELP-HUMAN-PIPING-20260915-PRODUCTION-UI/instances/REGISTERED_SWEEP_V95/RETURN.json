@@ -1,0 +1,187 @@
+{
+  "task": "REGISTERED_SWEEP_V95",
+  "status": "PASS_COMPLETE_REGISTERED_SWEEP",
+  "derivativePackage": true,
+  "sourceCommit": "45ede19f2b2373dc451e146fdc7f29264f67c370",
+  "acceptedUpstreamBindings": "CONTEXT.json",
+  "canonicalSummary": {
+    "path": "sweep/SWEEP_20260917T112650Z_45ede19f2b23.json",
+    "sha256": "dd07cddf49c5c28c479738fe9c1c0f7a20b26c4e709784cc0019c821d90f56f9",
+    "bytes": 3784
+  },
+  "resultAudit": "RESULT_AUDIT.json",
+  "surfaces": [
+    {
+      "order": 1,
+      "surface_id": "cargo_crate_sweep",
+      "description": "Rust crate tests across all discovered crate manifests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/private/tmp/piping-foundation-20260914-venv/bin/python",
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "cargo",
+            "--execute"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 23.549
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 2,
+      "surface_id": "python_pytest",
+      "description": "Repository Python contract, governance, and validation tests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/private/tmp/piping-foundation-20260914-venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "tests"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 59.611
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 3,
+      "surface_id": "desktop_vitest",
+      "description": "Desktop unit/contract tests; wasm engine built first.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:wasm:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.607
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 107.867
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 4,
+      "surface_id": "desktop_playwright_e2e",
+      "description": "Playwright end-to-end smoke in a real Chrome browser: dev-server lane, then production-dist lane via vite preview (TP-APP-R2-WASMPKG-001).",
+      "execution_capability": "host",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 565.856
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:dist:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 382.238
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 5,
+      "surface_id": "desktop_production_build",
+      "description": "Desktop production build (tsc -b && vite build).",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 6.461
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "counts": {
+    "pythonPassed": 1105,
+    "vitestFilesPassed": 72,
+    "vitestTestsPassed": 1125,
+    "sourceE2EPassed": 342,
+    "distE2EPassed": 51,
+    "failed": 0
+  },
+  "notRun": [],
+  "rawEvidence": [
+    "sweep.stdout.log",
+    "sweep.stderr.log",
+    "playwright-test-results"
+  ],
+  "retainedFinalTestResultFiles": 298,
+  "buildIdentity": "BUILT_DIST_IDENTITY.json",
+  "inputExitEquality": {
+    "sourceFiles": 145,
+    "rootAndCheckWorkingAndCommittedBlobsUnchanged": true,
+    "checkGitStateUnchanged": true,
+    "checkTrackedAndIndexClean": true
+  },
+  "runtimeRelease": {
+    "released": true,
+    "ownedSweepPid": 99484,
+    "ownedSweepPidPresent": false,
+    "newRuntimeProcessCandidates": [],
+    "ports": [
+      {
+        "port": 5173,
+        "exit": 1,
+        "stdout": ""
+      },
+      {
+        "port": 5174,
+        "exit": 1,
+        "stdout": ""
+      },
+      {
+        "port": 5175,
+        "exit": 1,
+        "stdout": ""
+      },
+      {
+        "port": 5176,
+        "exit": 1,
+        "stdout": ""
+      },
+      {
+        "port": 5177,
+        "exit": 1,
+        "stdout": ""
+      }
+    ]
+  },
+  "closure": "Bounded registered verification complete and runtime released; Root fan-in pending",
+  "remaining": "No performance, native, practitioner, tranche or merge acceptance is delegated or inferred; D69 remains owner matter",
+  "rerun": "No retry performed; no automatic follow-on",
+  "priorFailures": "V62/V86 evidence preserved unchanged",
+  "sealedAt": "2026-09-17T11:48:17.406956+00:00"
+}

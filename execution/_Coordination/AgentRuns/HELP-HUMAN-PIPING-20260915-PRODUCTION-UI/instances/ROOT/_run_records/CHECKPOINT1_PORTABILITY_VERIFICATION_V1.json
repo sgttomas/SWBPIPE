@@ -1,0 +1,8 @@
+{
+  "status": "PASS_EXISTING_POLICY_LOADER_AND_EXACT_SUBJECT_ROLE",
+  "issues": [],
+  "subject": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT1/README.md",
+  "effectiveRole": "EVIDENCE",
+  "policySha256": "472ec8527c0f974ccaef1836e884a420bd68a050ed4caa352e21ca23470a8266",
+  "scope": "Existing hash-bound policy validates all entries and exact preserved README is EVIDENCE. No full practitioner re-run or tranche acceptance inferred."
+}

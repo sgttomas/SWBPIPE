@@ -1,0 +1,58 @@
+{
+  "schema": "chirality.sealed-raw-archive/v5",
+  "status": "VERIFIED_COMPLETE_FROZEN_INVENTORY",
+  "started_at": "2026-09-16T09:20:11.414751+00:00",
+  "completed_at": "2026-09-16T09:20:12.961633+00:00",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "mechanism": "delegated-harness-native; no delegation",
+  "enforcement": "instruction/config asserted",
+  "basis": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/SEALED_RAW_ARCHIVE_V5.md",
+      "sha256": "8903c2523fd0e21009c8acc8b66a6e5a294f43e47322eca190364330900cfbf5"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_PREPARATION_V3/OUTPUT_MANIFEST.json",
+      "sha256": "34c2596425d43afa064830e36681e7a6a40d22b48dca56bcc1b91d4909be66d1"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_PREPARATION_V3/MANIFEST.md",
+      "sha256": "8519689f0d3d936fb3b3e35573ff37cc49b8f450b369fd7932d2f4cc02f489ea"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_PREPARATION_V3/CONTEXT.json",
+      "sha256": "1d16a07e3253895f7bbc42e49a5510b680864f3868dcc27e01c5037c5ffd4345"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_PREPARATION_V3/RAW_CANONICAL_MAP.json",
+      "sha256": "eb0dcfbf25f1ee21b6d63d2fa8d61dfa7a79d4183a5659858334e9c5dfe868c4"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_PREPARATION_V3/TRACKED_CHECKPOINT_RAW.json",
+      "sha256": "9403cc51c4b3eabd73bfe3c4e3ca2e667d8e544a2574e56b9ac947afb3af724a"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/MAINTAINED_INTEGRATION_PREPARATION_V4/INTEGRATION_MAP.md",
+      "sha256": "e127c44cfb9e6e833947a47c387031d6b9f132b39b5e209caf0e9d21eb243579"
+    }
+  ],
+  "canonical_root": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives",
+  "retrieval": "For each member in bound V3 RAW_CANONICAL_MAP.json, resolve canonical_root / canonical_member; verify SHA256 and common alias byte size. All original lane/path aliases and semantic ownership remain in the immutable V3 map.",
+  "outcome_rule": "Every frozen member except exceptions has been re-read from its canonical object and verified against exact frozen SHA256 and byte size. No other inventory is claimed.",
+  "frozen_unique_members": 1805,
+  "verified_members": 1805,
+  "created_members": 1805,
+  "retained_existing_matching_members": 0,
+  "verified_unique_bytes": 502283920,
+  "verified_sorted_sha256_size_digest": "b83c7e5b751e21db2f699cb045c17c8153658b0bbd257d4b09260c18625b62d1",
+  "exceptions": [],
+  "unmatched_aliases_inspected": [],
+  "alias_check_limit": "Aliases inspected in frozen order until first exact match; uninspected aliases not asserted available. Existing matching canonical objects do not require source alias reads.",
+  "atomicity": "same-directory exclusive temporary file, fsync, read-only mode 0444, macOS renamex_np RENAME_EXCL; existing objects never overwritten; archived bytes re-read/hash/size verified",
+  "preservation": "No original source deleted, moved, normalized or replaced; no symlink replacement; no tracked cleanup; no Git mutation; no source edits; no tests/build/browser/server or active-evidence rescan. Newly created copies are read-only, not claimed hardware/WORM immutable.",
+  "claim_limit": "Historical derivative evidence preservation only; no final qualification, acceptance, release or tranche closure."
+}

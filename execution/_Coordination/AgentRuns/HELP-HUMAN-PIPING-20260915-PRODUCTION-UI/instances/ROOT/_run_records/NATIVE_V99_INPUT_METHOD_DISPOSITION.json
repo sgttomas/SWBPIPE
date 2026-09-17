@@ -1,0 +1,81 @@
+{
+  "at": "2026-09-17T12:42:20.640000+00:00",
+  "owner": "HELP_HUMAN /root",
+  "status": "INPUT_METHOD_CORRECTED_FUNCTIONAL_NATIVE_CONTINUATION_GRANTED_WITH_OPEN_APPEARANCE_AX_FINDINGS",
+  "source": "45ede19f2b2373dc451e146fdc7f29264f67c370",
+  "pid": 9656,
+  "observations": [
+    "Root refreshed CUA documentation and selected exact V83 app. Native View menu click at observed AX index exposed Inspector; click of actual Inspector menu item opened pane visibly. Earlier i/Return was not a proved menu activation.",
+    "Root used visible screenshot positions to click Task, Start task from current selection, name input and enter Cantilever retained draft. Tab visibly focused Add; no Add/Review/Apply activation and no model edit.",
+    "Root resized from observed1024x768 corner by256x32 to the larger layout, retaining pipe:CANTILEVER and draft. Screenshot is resized by CUA to1229x768; do not infer raw physical pixels or exact CSS bounds from that image.",
+    "Root clicked actual Analyze > Run Mechanics Preview native menu item. Completion shows67 result rows, MECHANICS_SOLVED, Run identity matches, displacement2.375817mm. Current results still need complete analytical/store acceptance.",
+    "Full CUA AX omits the inspector even while visible and keyboard focus is shown. V100 is investigating; no underlying product accessibility cause or pass is inferred.",
+    "Root returned to the narrow layout via current screenshot corner1227,766 to981,735; screenshot now1024x768. Task pane and Analyze dock remain open.",
+    "One rejected intermediate resize used coordinates beyond the resized screenshot and returned windowNotFoundAtPosition without changing visible window state; preserved as an input-method failure.",
+    "An attempted PNG header read was invalid because screenshot bytes use another image format; its printed numbers are discarded. sips correctly reported retained image dimensions. Original bytes remain unchanged."
+  ],
+  "confirmed_concern": "Dark hover rail uses pale legacy background against near-white text; V100 independent diagnosis confirms contrast defect. Additional visible readiness-card contrast concern is being diagnosed. These are open repair findings, not a reason to lose independent lifecycle evidence.",
+  "current_ui": {
+    "selection": "pipe:CANTILEVER",
+    "draft_target": "pipe:CANTILEVER",
+    "draft_new_name": "Cantilever retained draft",
+    "draft_applied": false,
+    "theme": "System rendering Dark",
+    "density": "Comfortable",
+    "dock": "Analyze",
+    "run": "completed67 rows",
+    "save": "not yet performed by Root"
+  },
+  "evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/V99_HANDOFF.json",
+      "sha256": "a1293a069a01bb8c477d3f6b1c6784599043b7473b710cff8b9a8bf61d74c9aa",
+      "bytes": 1452
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_INSPECTOR_TASK.png",
+      "sha256": "41f5cacc199baa41cdd24e0229b6839ec93379626fa0ba1bd7117af5d5953c4e",
+      "bytes": 135822
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_INSPECTOR_TASK_AX.txt",
+      "sha256": "38912d0f0c51958e723e134a929c7f1cccb40c7e2077fff98ad24f071b317df9",
+      "bytes": 6813
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_TASK_DRAFT_KEYBOARD.png",
+      "sha256": "c16a40954224a4278edc4ab8169698cea94e245e16a625c582addfbc87453e6d",
+      "bytes": 155714
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_TASK_LARGE.jpg",
+      "sha256": "83a0d75e2216e0400c4ad2148a72ce47a5473dd8fd9e74f4bb56dd3e232e76d8",
+      "bytes": 170478
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_TASK_LARGE_AX.txt",
+      "sha256": "bd387c21e955e1739110d8ac717e6472fcb9ff689e34195d52ccddf98d5fad7f",
+      "bytes": 6702
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_CURRENT_SOLVE_LARGE.jpg",
+      "sha256": "b9ffd7deada9957c2dda0c3128375367ce6d4e0f8fa32dcb02f988559a9639a0",
+      "bytes": 195816
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_CURRENT_SOLVE_LARGE_AX.txt",
+      "sha256": "62bfbe031ac2fcf9740b76a8cfcb6f7a5a06398c18b4c8955d322e2ff3021403",
+      "bytes": 14069
+    }
+  ],
+  "continuation": {
+    "executor": "/root/ui_native_successor",
+    "model": "gpt-6-astra",
+    "reasoning": "low",
+    "scope": "Complete original V83/V93 functional observations and save/normal Quit/fresh-process Open Historical/unchanged Save/fresh Current re-solve. Preserve appearance/AX findings separately, no overall native appearance/accessibility pass.",
+    "method": "Use actual observed AX menu item click after fetching menu state. Screenshot coordinate controls are usable; coordinates must match the CURRENT rendered screenshot, which may be resized when the window grows. Use fresh screenshots after resize, and capture exact evidence. No hidden injection or external UI technology.",
+    "restrictions": "No build/product/test/Git/asset mutations or delegation. Existing isolated app/store only. No engineering draft application. Root no longer operates GUI until release.",
+    "return": "Additive final functional return/manifest and findings, exact app/source/store binds, analytical comparison, normal cleanup. Retain all failed method observations and unresolved contrast/AX issues."
+  },
+  "limits": "No D69/performance waiver; no source change; no whole-native/a11y qualification claimed."
+}

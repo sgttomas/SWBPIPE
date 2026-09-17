@@ -1,0 +1,35 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-16T13:30:04.196629+00:00",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "mechanism": "delegated-harness-native; no delegation",
+  "enforcement": "instruction/config asserted",
+  "brief": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/SEALED_RAW_ARCHIVE_INCREMENT_V8.md",
+    "sha256": "7c8b77dfed528f6fbaf8c67e5c21ad8dccaaced6058860dc8551991e731c9882"
+  },
+  "inputs_sha256": "3e1b3468913079846939cd5b75b52ef001b4eb2c80e4691bb7db29da8f9a7e49",
+  "map_sha256": "796e6e762955fa5c42aee97c4d4bac4a9cb72bc9b0944e6b59811c6071d30565",
+  "closed_manifests": 5,
+  "verified_aliases": 291,
+  "verified_unique_objects": 146,
+  "created_unique_objects": 101,
+  "reused_verified_objects": 45,
+  "verified_unique_bytes": 27436473,
+  "exceptions": [],
+  "historical_status": "V31 checks passed; V32 live proof failed. This preservation preserves exact bytes/attribution and does not change either result.",
+  "retrieval": "MAP.json identifies canonical SHA/size/path; alias indexes resolve through INPUTS.json to original path and supplied source-manifest SHA. Manifest bytes also preserved.",
+  "method": "All manifests and members verified before copying; new exclusive temp copy fsync/mode0444/renamex_np RENAME_EXCL/readback; existing matching objects verified and reused. No overwrite or WORM claim.",
+  "exclusions": [
+    "active V20J",
+    "headedV2",
+    "later work",
+    "undeclared members"
+  ],
+  "preservation": "Original files, prior maps and checkpoint history unchanged. No deletion, symlink replacement, maintained source edits, Git/index mutations, tests/build/browser/native/runtime actions.",
+  "claim_limit": "Derivative preservation only, not product/method/performance/tranche acceptance."
+}

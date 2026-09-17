@@ -1,0 +1,69 @@
+{
+  "status": "FOCUSED_CHECKS_PASS_WITH_EXPLICIT_REVIEW_LIMITATION",
+  "parent": "/root HELP_HUMAN",
+  "instance": "/root/ui_workflow_regression_repair_v77",
+  "role": "Type2 ephemeral generalist",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "delegation": "none",
+  "mechanism": "delegated-harness-native; instruction/config asserted",
+  "scope": "PKG07 DEL-07-01/06 simultaneous task/dock layout repair",
+  "accepted_upstream": "85d142407bf4d288810f0e3a9a996c043ca163e6",
+  "candidate_upstream": "immutable WORKFLOW_REPAIR_V77",
+  "derivative_package": true,
+  "source_paths": [
+    "apps/desktop/src/styles.css",
+    "apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "apps/desktop/e2e/ui-foundation.spec.ts",
+    "apps/desktop/e2e/r2-smoke.spec.ts"
+  ],
+  "results": {
+    "CYCLE1": {
+      "matrix_passed": 2,
+      "matrix_failed": 12,
+      "original_passed": 7,
+      "original_failed": 1
+    },
+    "CYCLE2": {
+      "matrix_passed": 2,
+      "matrix_failed": 12,
+      "original_passed": 8,
+      "original_failed": 0
+    },
+    "CYCLE3": {
+      "matrix_passed": 12,
+      "matrix_failed": 0,
+      "durable_success_attachments": 0
+    },
+    "CYCLE4": {
+      "matrix_passed": 12,
+      "matrix_failed": 0,
+      "retries": 0,
+      "png_bodies": 12,
+      "layout_json_bodies": 12
+    }
+  },
+  "final_attributed_checks": {
+    "unique_cases": 22,
+    "passed": 22,
+    "owners": [
+      "CYCLE2 two existing stability/splitter + eight original workflows",
+      "CYCLE4 twelve matrix; same product as CYCLE2 and same source/assertions as CYCLE3"
+    ]
+  },
+  "observed_canvas_css_minimum": {
+    "width": 369,
+    "height": 206
+  },
+  "runtime": "RELEASED",
+  "closure_verdict": "NOT_ACCEPTED; independent review and integration pending",
+  "remaining_blockers": [
+    "Independent four-file patch review",
+    "Review1024post-solve shallow dockbody; post-solve dock-control reachability not separately exercised",
+    "Root integration and full candidate qualification with refreshed benchmark/profile bindings"
+  ],
+  "rerun_requirement": "No automatic rerun. Root disposes review finding and authorizes any additional witness/change.",
+  "no_product_changes_after_cycle2": true,
+  "no_source_changes_after_cycle3": true,
+  "git_index_mutation": false
+}

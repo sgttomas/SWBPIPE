@@ -1,0 +1,41 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-17T03:14:59.352104+00:00",
+  "role": "TASK Type2",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "enforcement": "instruction/config asserted; no delegation",
+  "derivative_package": true,
+  "brief_sha256": "76dc426df639d954e324267b233e97083bd2d8de148af856e740671137c0f875",
+  "accepted_prior_derivative": {
+    "MAP.json": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V22/MAP.json",
+      "sha256": "203b02e5f96059b3a9f5f71ee12cfc78155586bc3ef0ca7cd03fe99df02eb8ee"
+    },
+    "RETURN.json": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V22/RETURN.json",
+      "sha256": "bfe507c1648db474b71b79b82bce71e3734016263e7d2c41982b71305850a8b7"
+    }
+  },
+  "inputs_sha256": "5f26b83c5355ddf99c9d5dbcae18fb4a7eaab381aae16af2e309fd82e6f4f022",
+  "map_sha256": "60d4298807bde5b51fb7c2ae9d3ad03eba9ffb9fa58c8a11dad35d8113d8b4a9",
+  "closed_manifests": 11,
+  "standalone_records": 14,
+  "verified_aliases": 222,
+  "verified_unique_objects": 207,
+  "created_unique_objects": 197,
+  "reused_verified_objects": 10,
+  "verified_unique_bytes": 135044922,
+  "exceptions": [],
+  "verification": "All declared direct members, nine explicit external collection artifact aliases, manifests and standalone SHA/size verified; actual sizes recorded where omitted. Containment checked; no symlinks or context traversal. Canonical SHA/size/readonly readback verified. Exclusive fsync0444 temp, renamex_np RENAME_EXCL, directory fsync; exact objects reused.",
+  "preservation": "V64 failed orbit targets and zero full-cohort runs retained. V65 interpretation and V66 refinement remain separate. V20W offline controls do not imply live acceptance. Original policy/review/practitioner failures and all original bytes preserved.",
+  "exclusions": [
+    "active V67 review outputs",
+    "unlisted referenced inputs",
+    "current source/policy/status"
+  ],
+  "archive_io": "COMPLETE_RELEASED; no background or automatic follow-on",
+  "claims": "Derivative host-local preservation only, not WORM or clone-portable raw availability. No source/policy/Git/network/test/build/browser/native/runtime/settings/deletion or acceptance change."
+}

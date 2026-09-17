@@ -1,0 +1,45 @@
+{
+  "status": "COMPLETE_BOUNDED_FIVE_FILE_REVIEW",
+  "composite": {
+    "paths": 143,
+    "changed_VERIFY": 5,
+    "unchanged_ROOT_carried": 138,
+    "entry_exit_mismatches": 0,
+    "entry_sha256": "d46862787340fee2dec85c8dceefe2e3256aa957a0bb2f64057c5df2903975d7"
+  },
+  "author_evidence": {
+    "members": 16,
+    "declared_total_bytes": 223454,
+    "pure_tests_reported_pass": 51,
+    "controller": 26,
+    "scorer": 25,
+    "semantic_noEmit_reported_exit": 0,
+    "reviewer_execution": false
+  },
+  "assessment": [
+    "Exact five-file unified patch reconstructed independently from current ROOT preimages and VERIFY postimages; all143 ROOT preimages match prior flatV9_R1. Composite uses five VERIFY successors plus138 exact ROOT paths. Full changed code/spec/README scope reviewed; prior complete coverage retained.",
+    "Safe nonnegative integer timestamps are validated before BigInt subtraction; reversal rejects. Delta ranges0..2^53-1, so delta-1 and delta+1 convert exactly (largest upper integer2^53 is representable). Division gets one directed adjacent-float expansion. Inclusive1us residual and nonnegative reported ties preserved. Seven independent Fraction/binary64 comparisons match all frozen V65 literal expectations, including near-safe-limit translation. Generic independent interval helper unchanged.",
+    "Live call route finalizes ReturnAsStream, verifies EOF/hash/no loss, asserts stopped evidence, and extracts from lossless capture.events before binder. Reread raw bytes must match both finalized SHA fields; JSON.parse contributes only top-level clock-domain. Its lossy event numbers are discarded and never used as timing/ID authority. Actual event indices match extractor original __index and exact reporter begin/end; actual stopped fields supply document origin/evidence epoch/action time/canvas/context. Binding remains caller-qualified; it is not a general authenticator of arbitrary forged JS object graphs.",
+    "Binder enforces source revision, clock profile, matching action token/trace timestamp/frame/process/thread, epochs, model/layer and exact qualified reporter endpoint references. Result fields align with maintained extractor/harness producers. Missing or false qualification and incompatible context fail; constructor rechecks carried references and context. Failure enters derivation failure evidence and throws before qualified result publication.",
+    "New durationBasis is serialized in derived segment and final OrbitEvidence; maintained callers updated. Local Segment array projection omits the property statically but actual action return is inferred with it and caller supplies it. Scorer consumes basis explicitly and independently recomputes integer-pair enclosure. Frozen wrong/narrow bounds and invalid basis/references reject. No output consumer silently drops validation.",
+    "Wide absolute page intervals and offset intersection stay unchanged. No change to measured/warmup waits, envelope, strict outside brackets, source indexes, reported tie groups, admissible cut enumeration or maximum p95 selection. Tests retain independent-interval populations and add same-trace uncertain cuts/ties and1199-vs1200 anti-dilution. Hard targets and other metrics unchanged.",
+    "Actual pure config matches precisely two maintained VERIFY specs; their relative imports select VERIFY successors. Explicit ROOT source environment supplies product-only fixtures, not an old controller/scorer. No browser fixture/webServer in this config. Author51-pass log and semantic exit0 are corroborating recorded evidence, not reviewer reruns. Default Playwright scratch output deviation is disclosed and not confused with canonical evidence.",
+    "V66 identifies the bound Graphite/Dawn Metal Mac EGL presenter timestamp as a computed future estimate before CA commit. Ready/latch are user-space observations; flags do not establish hardware scanout. README currently weakens this known fact to generic possibility: V67-R1. No producer profile, categories, hardware correction, historical rescore or target change is adopted."
+  ],
+  "complexity_limits": {
+    "post_window_cpu": "For E raw events, P presentations and F feedback markers, binder performs an initial E scan and per-presentation full E filter plus F find: O(E+P*(E+F)). References and basis validation are O(P); existing scorer population cost unchanged. Not measured in this review.",
+    "allocation": "Full raw buffer, UTF-8 string and a second parsed event-object graph can coexist with retained lossless events.256MiB raw cap is not a heap cap; unreachable temporary graph is not guaranteed immediate reclamation. Parser work is after trace finalization/measured window but can consume overall deadline and influence later runtime state.",
+    "disposition": "Prospective allocation/latency/observer qualification remains open. No evidence here proves a live timeout/OOM or authorizes performance acceptance."
+  },
+  "unchanged_history": "Original V64 method/AC and failed17.0670039177021/33.62800378801331ms scores preserved; ActualOD33.332ms descriptive p95 still exceeds33.3 without shared allowance. No replacement score computed.",
+  "exclusions": [
+    "runtime",
+    "tests",
+    "build",
+    "Git",
+    "browser/native/network",
+    "raw trace/CAS/binary reads",
+    "source mutations",
+    "delegation"
+  ]
+}

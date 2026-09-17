@@ -1,0 +1,147 @@
+{
+  "status": "COMPLETE_BOUNDED_DIAGNOSIS_NO_ACCEPTANCE",
+  "sealedAt": "2026-09-17T07:55:42.671158+00:00",
+  "role": "TASK Type2",
+  "parent": "/root HELP_HUMAN",
+  "agent": "/root/ui_causal_runtime_diagnosis",
+  "model": "gpt-6-astra",
+  "reasoningEffort": "xhigh",
+  "enforcement": "instruction/config asserted; no delegation",
+  "derivativePackage": true,
+  "authoritativeSubstitute": false,
+  "briefSha256": "dbad94fed0c2489560a1be964fdeb4c3d2dd9fa7ea6954583243e61b8712685a",
+  "acceptedUpstream": {
+    "v76Manifest": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/PRIVATE_GPU_DIAGNOSTIC_V76_R1/OUTPUT_MANIFEST.json",
+      "sha256": "d4c51e2e989165a01d16cbc26f8136733fee70da626e2635ebe66c7467041509"
+    },
+    "rootAcceptanceSha256": "6dc80284d89cf0e4044e364fa1afdb1d11a79029606221e1cd139db4052f32c8",
+    "inputSelectionSha256": "ecc300727039d965be7345bf8dfdc998c414960baafa53fb93184cc3854878fa",
+    "sourceCommit": "85d142407bf4d288810f0e3a9a996c043ca163e6",
+    "productBuild": "V31",
+    "method": "V20Y",
+    "browser": "CfT153.0.8010.36",
+    "chromiumRevision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c"
+  },
+  "scope": {
+    "writeRoot": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/GPU_ORBIT_BOUNDARY_DIAGNOSIS_V79",
+    "rawFiles": 2,
+    "rawBytes": 131481182,
+    "selectedInputsVerified": 32,
+    "allBoundInputsVerified": 49,
+    "sourceWrites": 0,
+    "runtime": false,
+    "tests": false,
+    "builds": false,
+    "hostProbes": false,
+    "git": false,
+    "network": false,
+    "delegation": false,
+    "rescoring": false,
+    "rawCopies": 0
+  },
+  "findings": {
+    "exactProducerJoins": 1204,
+    "originalGapCounts": [
+      601,
+      601
+    ],
+    "originalCuts": [
+      [
+        118,
+        719
+      ],
+      [
+        117,
+        718
+      ]
+    ],
+    "longGapCounts": [
+      56,
+      64
+    ],
+    "longFollowedByZeroOrOneUs": [
+      46,
+      55
+    ],
+    "presentMaxUs": [
+      293,
+      290
+    ],
+    "backpressureKnownMaxUs": [
+      12,
+      7
+    ],
+    "backpressureOmittedDurations": 1,
+    "commitMaxUs": [
+      288,
+      283
+    ],
+    "mainBeginToFinishMaxUs": [
+      6158,
+      6368
+    ],
+    "allReporterMinusCommitPlusLeadWithinUs": 1,
+    "longGapCommitSpacingRangesUs": [
+      [
+        16862,
+        20617
+      ],
+      [
+        17021,
+        20988
+      ]
+    ],
+    "longGapEstimateLeadGrowthRangesUs": [
+      [
+        12716,
+        16472
+      ],
+      [
+        12345,
+        16312
+      ]
+    ],
+    "rendererSourceIntervalUs": [
+      16666,
+      16666
+    ],
+    "sourceFramesThrottled": 0,
+    "supportedMechanism": "Future estimated display-time transitions amplify modest commit-phase variation into a reported extra period; no observed extra16ms serialized GPU fence/commit wait. Exact private predictor branch and physical scanout remain unproved.",
+    "productInfluenceLimit": "Short observed work is not proof that product/scheduling phase never affects predictor deadlines. No particular product optimization is established.",
+    "callbackLimit": "Only same-thread chronological context, no callback/presenter/frame join.",
+    "profileLimit": "Boundary geometry fully overlaps display5/60Hz, consistent with trace cadence; does not prove continuous OS foreground/occlusion/provider/VRR/scanout. Added gpu may perturb phase."
+  },
+  "preservedAcceptance": {
+    "centerlineUpperP95Ms": 33.33400000000001,
+    "actualOdUpperP95Ms": 33.33400000000001,
+    "targetsMs": [
+      16.7,
+      33.3
+    ],
+    "both": "FAIL_UNCHANGED",
+    "cohortContribution": 0,
+    "acceptanceEligible": false,
+    "historicalFailures": "UNCHANGED"
+  },
+  "recommendation": "Retain full-cohort hold and explicitly carry current-profile orbit acceptance as NOT ACCEPTED. Route the remaining acceptance/profile meaning to the owner; no product/scorer patch or further automatic diagnostic retry is supported.",
+  "prospectiveAmendmentCondition": "Only a separately authorized engineering rationale for the intended deployment/profile/presentation concept can motivate a frozen prospective amendment; same conditions for fresh baseline and candidate, no favorable display selection or retrospective rescue. No amendment proposed or executed here.",
+  "handoff": {
+    "diagnosisClosure": "COMPLETE",
+    "productPerformanceTrancheClosure": "NOT_GRANTED",
+    "fullCohort": "HELD",
+    "rerunRequiredForThisDiagnosis": false,
+    "automaticRunAuthorized": false,
+    "remainingBlockers": [
+      "Unchanged orbit target failure under current accepted metric/profile",
+      "No physical scanout or complete private predictor-state proof",
+      "Owner disposition required if a different acceptance concept is intended"
+    ]
+  },
+  "outputs": {
+    "reportSha256": "ace3939d620489882e29e8fd10097135c3425e1d6b52aa2aa6e46fdd4e1561ca",
+    "factsSha256": "cbcf3dfcb6aaea250792df2d8c18d79a6336a739858b33fa8be834bc2652aab9",
+    "inputBindingsSha256": "7a4d496dc634f611162b45380482c6d71402b93e597982a8fc3e94f856c50336",
+    "outputManifest": "OUTPUT_MANIFEST.json"
+  }
+}

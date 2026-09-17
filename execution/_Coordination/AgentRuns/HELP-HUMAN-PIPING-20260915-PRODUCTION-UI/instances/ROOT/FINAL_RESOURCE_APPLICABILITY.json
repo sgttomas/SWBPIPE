@@ -1,0 +1,101 @@
+{
+  "status": "ACCEPTED_RESOURCE_EVIDENCE_APPLICABILITY_WITH_LIMITS",
+  "derivative_package": true,
+  "at": "2026-09-17T11:53:26.847981+00:00",
+  "owner": "HELP_HUMAN /root",
+  "source_commit": "45ede19f2b2373dc451e146fdc7f29264f67c370",
+  "source_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V19/SOURCE_MANIFEST.json",
+    "sha256": "b5ed976cd86b1e90b5b83f1ba712a0d1ec1efb53bb7559d3c3baa090fd576e36",
+    "bytes": 33472
+  },
+  "upstream_runtime": {
+    "return_sha256": "20817f2d5da71a990a5eb886a2eb033edd4761db3f350c33f97217fcc345ea61",
+    "original_locator": "External VERIFY worktree, run-relative instances/VERIFY/FINAL_QUALIFICATION_V56/runtime/RETURN.json; exact alias retained in RAW_ARCHIVE_V17/INPUTS.json",
+    "archive_map": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V17/MAP.json",
+      "sha256": "7c06687335ce9a9792ed41c8989708d9353ed1e92699de25efa1124548e643bc",
+      "bytes": 64490
+    },
+    "bound_candidate_manifest_sha256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+    "result": "V56 passed its replacement, mount/unmount, strict resource, camera and stability checks, then stopped on the separate unchanged-oracle source pin. Its runtime return is partial qualification, not a complete performance pass. Root accepted the passed resource subset; V20S owns the subsequent generator pin correction."
+  },
+  "comparison": {
+    "previous_source_files": 141,
+    "unchanged": 137,
+    "changed": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+        "v56_sha256": "e29e1dc8c6f74d57b77f9b582cba87b8926c9402b2c2f9db112c1588f5d27940",
+        "candidate_sha256": "f3d143f77715306a698c9c19ad46ec65a8c849fba4d8e0e3aa06f1478b2ab2d3"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+        "v56_sha256": "4183a63cd227c6b0908ae202680ff68628ca76362aa3c0021c398de1009aee9a",
+        "candidate_sha256": "f0485b76428f68fac7ee81c83c5013f9cc38bea665694c765c494283967c17b0"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+        "v56_sha256": "6d16343611048605816b15362286925f51cd5c5f3c1adbb648fee3cb29066c96",
+        "candidate_sha256": "fb3b9dc1c75b309ab2057a4b87de4dc93154994563bf916202a16d504180e542"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+        "v56_sha256": "640b560d44b1877a06602cd4f8bb0c5eae6552af41f2b9502aeb7fec27708b2c",
+        "candidate_sha256": "8166b04e99826cb1620bb3be0ce285651f28973e87b00f5f3ff488c0c5cfe795"
+      }
+    ],
+    "new_resource_relevant_module": "apps/desktop/src/features/workspace/workspaceCanvasBudget.ts",
+    "unchanged_resource_implementation": {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts",
+      "sha256": "01972b482750ce05bb8a848635911c3e3c2197a850d05d11763836a4c6613b3b",
+      "bytes": 41388
+    },
+    "comparison_basis_commit": "5e22bd14a0b609aa0a1113ab4d7a1c2b2785a233",
+    "delta_paths": [
+      "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "projects/chirality-piping/apps/desktop/src/styles.css",
+      "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceCanvasBudget.ts",
+      "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceCanvasBudget.test.ts"
+    ],
+    "delta_sha256": "bbbc1e4e51e438d8049a8730ad1c3dd97b1bb4785151e09da1e7f4b2510a0ab7"
+  },
+  "source_assessment": [
+    "PipeViewport delta adds only the accessible toolbar wrapper; renderer creation, scene resources, demand scheduler, controls and disposal are unchanged.",
+    "App changes are responsive layout, concise proof display, palette destination handling and the new owned canvas-budget subscription. No renderer ownership is added.",
+    "Canvas-budget subscription owns one MutationObserver and one optional ResizeObserver. Its effect returns cleanup; cleanup disconnects both, removes its property and ignores queued callbacks after disposal. It schedules no animation frame or timer and avoids observing flexible canvas/dock allocations.",
+    "ToolkitPalette removes the untracked opener animation frame and document outside-pointer listener; the owned backdrop handles dismissal and focus. Styles alter layout and stacking rather than GPU ownership."
+  ],
+  "new_module_checks": {
+    "implementation": {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceCanvasBudget.ts",
+      "sha256": "a0e3cf902b4e8d956885930802bacec5b284ba47a6de350d15fa5e8041c8cf2f",
+      "bytes": 3025
+    },
+    "tests": {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceCanvasBudget.test.ts",
+      "sha256": "9fb6ad227e512b9337cd28219afe95a0072fa172900b322c32458e9c512cac26",
+      "bytes": 4423
+    },
+    "coverage": "Late mount, measurement insertion/removal and wrapping; bounded observation targets and no redundant style writes; both observer disconnections, queued-callback disposal, remount and no RAF scheduling.",
+    "registered_selection": "Unchanged vite.config.ts includes src/**/*.test.{ts,tsx}; complete V95 desktop unit surface passed, along with all other registered surfaces."
+  },
+  "independent_review": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/OPERATION_DOCK_V97/RETURN.json",
+    "sha256": "ec365fb918cec51f6e3652cdb7c4344cf2bd6560b72612666b9ee5b416eb68f2",
+    "bytes": 2450
+  },
+  "registered_result": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/RETURN.json",
+    "sha256": "68c5f6f747328ebb260e9247280aca712bc8cd429aee7ff29068f87a39c4d030",
+    "bytes": 4821
+  },
+  "decision": "Retain the verified V56 owned-renderer baseline under exact unchanged resource implementation, plus reviewed and unit-tested lifetime guards for the added DOM observer. No new resource-sensitive defect or changed GPU ownership justifies repeating the broad resource cohort.",
+  "limits": [
+    "No claim that the V56 binary is the final candidate or that its runtime was replayed.",
+    "Heap, browser RSS, renderer resources and native process RSS remain distinct measurements.",
+    "Constrained panel usability and complete performance qualification remain open; this applicability decision changes no timing threshold or owner gate."
+  ]
+}

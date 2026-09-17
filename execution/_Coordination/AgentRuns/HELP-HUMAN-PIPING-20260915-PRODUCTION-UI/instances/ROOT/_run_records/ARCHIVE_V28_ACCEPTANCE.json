@@ -1,0 +1,15 @@
+{
+  "status": "ROOT_INDEPENDENT_READBACK_PASS",
+  "at": "2026-09-17T08:25:11.173420+00:00",
+  "archive": "instances/RAW_ARCHIVE_V28",
+  "inputs_sha256": "4eb24d605f2a6b528d0d8ce04ee9b894fc5fee2d9447433a40f0ff85521d5361",
+  "map_sha256": "d3e516d88a908c30f596033101f151034cdc865894f4e5b35f7abd1fb5c20c0b",
+  "return_sha256": "5f3af4219de7cbcb7c1454b619b6a1b9e679d5e1d2f919206c2cbfd1941f0dfc",
+  "unique_objects": 214,
+  "unique_bytes": 106665461,
+  "exact_alias_coverage": 242,
+  "mode_containment_hash_size": "PASS",
+  "exceptions": 0,
+  "scope": "Derivative host-local preservation only; active R1 excluded. Not WORM or clone-portable.",
+  "io": "RELEASED"
+}

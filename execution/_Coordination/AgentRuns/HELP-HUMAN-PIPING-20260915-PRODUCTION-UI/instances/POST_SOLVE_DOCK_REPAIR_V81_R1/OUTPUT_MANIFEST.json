@@ -1,0 +1,292 @@
+{
+  "self_excluding": true,
+  "files": [
+    {
+      "path": "ATTACHMENT_BINDINGS.json",
+      "sha256": "f967ab9f50185905a177437e2f42cd0719e0ffe8e50ea68a67b3fbce843cb91a",
+      "bytes": 14142
+    },
+    {
+      "path": "App.test.preimage.tsx",
+      "sha256": "ead13ada0be7d0557fdaf725c6f60a2a9523da4853ca4a388018be4c57d20bea",
+      "bytes": 792517
+    },
+    {
+      "path": "BASELINE_COMMAND.json",
+      "sha256": "cf2fa1aebb93468caa2097125fd530227a9092d3da84fbcf12f8074a5ca93c0f",
+      "bytes": 933
+    },
+    {
+      "path": "BASELINE_RESULT.json",
+      "sha256": "23f6daccb3dbbd47fb5530d8c99e9e19a5171d99d04eddd76c306b084321fb1a",
+      "bytes": 103
+    },
+    {
+      "path": "CASES.json",
+      "sha256": "ff7944e7470524315da9dbff3d53ce9cfe28d4fb2339d823ca6a8e86deaed128",
+      "bytes": 5005
+    },
+    {
+      "path": "CHECK_PREIMAGE.json",
+      "sha256": "dfaa902abcb279cc362c82d8351b70f859e160290e750c9d4c7164a2965c66d4",
+      "bytes": 1163
+    },
+    {
+      "path": "COMBINED_FROM_85D.patch",
+      "sha256": "9ad9affd6d208ea57a07719a41f7ef7b7288e19c9e8c7b1aa60beb2cfc7c2aa3",
+      "bytes": 31072
+    },
+    {
+      "path": "RELEASE.json",
+      "sha256": "cc7f70c2b938af38de2297ce0f69ce8a7fc0c3d530de3508b522a9cbdae244dd",
+      "bytes": 476
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "c915da2613bcf9ad2cf04872c02947021cab330220cfcc9cdb0baaa668fd9d4c",
+      "bytes": 1469
+    },
+    {
+      "path": "SOURCE/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "da0187d4208cb944025e60938a180078d73a9af9a6c8cac7ed8ec0631c659245",
+      "bytes": 103553
+    },
+    {
+      "path": "SOURCE/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "6592438b06a786f6194142e074d86ae2084968870f1424c884a01afb797ee49f",
+      "bytes": 134515
+    },
+    {
+      "path": "SOURCE/apps/desktop/src/App.test.tsx",
+      "sha256": "c004b86c9e2ae33548f8679404b38eaf837d17f4ad1674cc48f09a525429cf8d",
+      "bytes": 792526
+    },
+    {
+      "path": "SOURCE/apps/desktop/src/App.tsx",
+      "sha256": "ff5ce2d4c3e1e27d25fdb5cc4a84adf312abd66114ce03e890688f94b54dcd1f",
+      "bytes": 182147
+    },
+    {
+      "path": "SOURCE/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "fb3b9dc1c75b309ab2057a4b87de4dc93154994563bf916202a16d504180e542",
+      "bytes": 202496
+    },
+    {
+      "path": "SOURCE/apps/desktop/src/styles.css",
+      "sha256": "95c89c38c27c7aba3225ea1d33fb004dac8e0fe9f26728ab2647e8af5797dfcf",
+      "bytes": 96644
+    },
+    {
+      "path": "SOURCE_MANIFEST.json",
+      "sha256": "3c6688b21677d00475c0ebab7c4318a2daca641de01529ffbbc7adc2a8c77bab",
+      "bytes": 966
+    },
+    {
+      "path": "TEST_CHANGE.json",
+      "sha256": "f8181d449767953202618a81727a7b3f012951bc98a605a70cdee4cd38fe623c",
+      "bytes": 274
+    },
+    {
+      "path": "TEST_ONLY.patch",
+      "sha256": "43bd7cd10bd3da6542c7b73db9c7538318701b205b6f90f96eefd4a47e2b320a",
+      "bytes": 612
+    },
+    {
+      "path": "baseline.log",
+      "sha256": "f9d54df99982fff88af992b0e3b626e147b77873ed14c5a266cf740a6f25a4f0",
+      "bytes": 25559
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-solved-task-dock.png",
+      "sha256": "4ea982ef91078fa4d4cd36e55486e12a2381224897338253eedff369762be5f7",
+      "bytes": 158830
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-task-dock-layout.json",
+      "sha256": "7dd1a30a8210e41d8bc77edf47e47074686bfbb11fb8f858ef4f53f38e71be92",
+      "bytes": 28984
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-solved-task-dock.png",
+      "sha256": "94c912c645ef62cf909de19bbb2087c03a9e2d523ceb6c68fc8e47e18ad15f5c",
+      "bytes": 178273
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-task-dock-layout.json",
+      "sha256": "98d68e04918da20bb1cb007198f689c686451618e6e288e4a023e01bcef665df",
+      "bytes": 28882
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-solved-task-dock.png",
+      "sha256": "6a81217a7f6a5cf3e857759c363a289c8b305272085e431c44b82d2c9f72a9a3",
+      "bytes": 217833
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-task-dock-layout.json",
+      "sha256": "5eaeb657e586946fbf230ba8ea8fcb54f9fef3a3914f9fcd20b9ddd0cefb1a21",
+      "bytes": 28771
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-browser-identity.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "bytes": 552
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-solved-task-dock.png",
+      "sha256": "94596e9ff11e24ba8ee9c3e5336766ba27f77f4fe5b6bf8122ab2c4ffde0b932",
+      "bytes": 176840
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-task-dock-layout.json",
+      "sha256": "17d8b50c7c5ce85ed1020b9d4b01bc8ebd703dc9508c2ae7ba5a0227d7b316d2",
+      "bytes": 28938
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-solved-task-dock.png",
+      "sha256": "ba95f3598419a8386ab598e407a80b157713201da0be3eabf3fe99bcfaa043ca",
+      "bytes": 217724
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-task-dock-layout.json",
+      "sha256": "7962727312a31d581322a94424cdcef1703c40fcb4292f63adfe40387250d454",
+      "bytes": 28789
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-browser-identity.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "bytes": 552
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-solved-task-dock.png",
+      "sha256": "e20aad62bc78c33ec6a67695f114ba7cdc4f112e25e0b157b0f8889487698b21",
+      "bytes": 158914
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-task-dock-layout.json",
+      "sha256": "7dd1a30a8210e41d8bc77edf47e47074686bfbb11fb8f858ef4f53f38e71be92",
+      "bytes": 28984
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-solved-task-dock.png",
+      "sha256": "5b8fced0aa3f8ba558c8cd70da3ab57a5cf2c12022b973cbf7638b4f1313df41",
+      "bytes": 178309
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-task-dock-layout.json",
+      "sha256": "98d68e04918da20bb1cb007198f689c686451618e6e288e4a023e01bcef665df",
+      "bytes": 28882
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-solved-task-dock.png",
+      "sha256": "a2580a44b1784bd0777966e0ce77cc5f47d752c2e363594a9e479bccf209d678",
+      "bytes": 219435
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-task-dock-layout.json",
+      "sha256": "5eaeb657e586946fbf230ba8ea8fcb54f9fef3a3914f9fcd20b9ddd0cefb1a21",
+      "bytes": 28771
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-browser-identity.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "bytes": 552
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-solved-task-dock.png",
+      "sha256": "eb3429a6fa5e3a2070892eb69d884e0375908314be4951f3ea2712a9067d4f1f",
+      "bytes": 177391
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-task-dock-layout.json",
+      "sha256": "17d8b50c7c5ce85ed1020b9d4b01bc8ebd703dc9508c2ae7ba5a0227d7b316d2",
+      "bytes": 28938
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-solved-task-dock.png",
+      "sha256": "283e57e1a971cb0b8b5e972963d9b175571856a975194c8be1db0d51b4ea8558",
+      "bytes": 219840
+    },
+    {
+      "path": "derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-task-dock-layout.json",
+      "sha256": "7962727312a31d581322a94424cdcef1703c40fcb4292f63adfe40387250d454",
+      "bytes": 28789
+    },
+    {
+      "path": "existing_unit_proof-command.json",
+      "sha256": "493cfd1afbab967a0e66212b406331863b4844ee150d95d2e908e742cbe6f47f",
+      "bytes": 963
+    },
+    {
+      "path": "existing_unit_proof-result.json",
+      "sha256": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2",
+      "bytes": 21
+    },
+    {
+      "path": "existing_unit_proof.log",
+      "sha256": "deee09ad9a5f0e0e39ef7fc7533874bb818a539748cc346bf0cb6070ada73883",
+      "bytes": 25384
+    },
+    {
+      "path": "matrix-command.json",
+      "sha256": "809588c005e6dec93e433393f97205cdbd0ff849e694263556a3ebbf657779f6",
+      "bytes": 888
+    },
+    {
+      "path": "matrix-report.json",
+      "sha256": "035390c4a163a008c023ec9d210e571995980377e5b170c08fe08d5ff6b102de",
+      "bytes": 2953818
+    },
+    {
+      "path": "matrix-result.json",
+      "sha256": "56296949d3a02e635b050fd6b4762f0f0b52c23d05b925203095f7daf8e19027",
+      "bytes": 21
+    },
+    {
+      "path": "matrix.log",
+      "sha256": "46eb72b1a7b76669eb15a498fbd6104062a4b994f23712e0ab9ca8bbf49dfdc7",
+      "bytes": 5547
+    },
+    {
+      "path": "matrix_collection-command.json",
+      "sha256": "e0822af9073d515288acc31b6779d577127d9ba063256fb8e0cd77f5145061bb",
+      "bytes": 614
+    },
+    {
+      "path": "matrix_collection-result.json",
+      "sha256": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2",
+      "bytes": 21
+    },
+    {
+      "path": "matrix_collection.log",
+      "sha256": "62a1d779175ebce5a3e49c9e4f9c40bf5d005c1ae6374e873315a65258af5717",
+      "bytes": 1571
+    },
+    {
+      "path": "test-results/.last-run.json",
+      "sha256": "fb1f7beae6dd2d9e3e179aaf843eaaff2191552126f8311c6098f0be14e546f5",
+      "bytes": 145
+    },
+    {
+      "path": "test-results/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-desktop/error-context.md",
+      "sha256": "69dda8fdd40a4ee861f8afc34783913cdcbc07b341132570ce9c26c6120d86d3",
+      "bytes": 48375
+    },
+    {
+      "path": "test-results/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-desktop/trace.zip",
+      "sha256": "6fc8edfb8dc01dc55665cdcfd350dee7de4aea08186e3e8b93641c91f2fe6724",
+      "bytes": 5645937
+    },
+    {
+      "path": "test-results/ui-foundation-task-and-ana-e5cbc-nvas-light-compact-1024x768-chromium-desktop/error-context.md",
+      "sha256": "663a1f70b0af193db9761008b9453e1eea4cc5494520bbfc8affe28eed0df5b3",
+      "bytes": 48376
+    },
+    {
+      "path": "test-results/ui-foundation-task-and-ana-e5cbc-nvas-light-compact-1024x768-chromium-desktop/trace.zip",
+      "sha256": "ed06fde68744697fe0f98b0c047867c22fbafc01ef1ab2ad2380cf4ad5eef2fc",
+      "bytes": 5173441
+    }
+  ],
+  "count": 57,
+  "bytes": 18485067
+}

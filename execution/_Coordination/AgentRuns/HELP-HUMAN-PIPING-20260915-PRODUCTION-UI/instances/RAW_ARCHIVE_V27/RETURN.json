@@ -1,0 +1,45 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-17T07:47:11.257934+00:00",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "enforcement": "instruction/config asserted; no delegation",
+  "derivative_package": true,
+  "brief_sha256": "b2f699d248f8ed98c38d6cbeba5e3702a44de3123e11d183b7e53ed5ac1cd9c7",
+  "selection_sha256": "8562d9bdc94583d8c36c717d4bb5433f25acf0838943b71b83de541511761ba6",
+  "inputs_sha256": "d5baace0b27d2ff50394d3ccb4bd9b462345a68149dac64b269ce1460a8fe330",
+  "map_sha256": "fd7d6418e96f8aeb1ce8c1eeee2176ea7e01b78f0031be3a2f3483d9d83c859d",
+  "closed_manifests": 14,
+  "standalone_records": 24,
+  "additional_brief_selection_records": 2,
+  "verified_aliases": 915,
+  "verified_alias_bytes": 1044444054,
+  "verified_unique_objects": 694,
+  "created_unique_objects": 606,
+  "reused_verified_objects": 88,
+  "verified_unique_bytes": 704500185,
+  "declared_symlink_exceptions": [
+    {
+      "alias": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRIVATE_GPU_DIAGNOSTIC_PREPARATION_V76/lossless-trace-json.mjs",
+      "resolved_target": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/lossless-trace-json.mjs",
+      "sha256": "de7e87219debfaf750b6bf707adc68c60a2c1d316bea53850c26742dbec97175",
+      "owning_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRIVATE_GPU_DIAGNOSTIC_PREPARATION_V76/OUTPUT_MANIFEST.json",
+      "preservation": "Bytes only; symlink and original target unchanged"
+    },
+    {
+      "alias": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRIVATE_GPU_DIAGNOSTIC_PREPARATION_V76_R1/lossless-trace-json.mjs",
+      "resolved_target": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/lossless-trace-json.mjs",
+      "sha256": "de7e87219debfaf750b6bf707adc68c60a2c1d316bea53850c26742dbec97175",
+      "owning_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRIVATE_GPU_DIAGNOSTIC_PREPARATION_V76_R1/OUTPUT_MANIFEST.json",
+      "preservation": "Bytes only; symlink and original target unchanged"
+    }
+  ],
+  "exceptions": [],
+  "verification": "All original SHA/size and owning containment checked; only exact selection-pinned parser symlink targets allowed. All CAS SHA/size/readonly readback checked. Exclusive fsync0444 copies and renamex_np RENAME_EXCL; directory fsync; verified exact reuse.",
+  "preservation": "Complete raw failures, original preparations/review findings and corrections retained; no rescoring or zero-cohort promotion. V26 indices treated as standalone metadata only. Originals, symlinks and targets unchanged.",
+  "archive_io": "COMPLETE_RELEASED; no background or automatic follow-on",
+  "limits": "Host-local derivative preservation only, not WORM/clone-portable/acceptance. Active V78 cycles/V79 output excluded; only declared sealed V78 PREPARATION_V1 read. No source/policy/Git/runtime/test/build/browser/native/network/settings/deletion work."
+}

@@ -1,0 +1,49 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-16T17:04:52.753557+00:00",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "mechanism": "delegated-harness-native; no delegation",
+  "enforcement": "instruction/config asserted",
+  "brief": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/SEALED_RAW_ARCHIVE_INCREMENT_V11.md",
+    "sha256": "5bf8e5d7038d3a21b10fe640c790d9619b8b946fcf9ed7301f40d10a7229d495"
+  },
+  "instruction_context": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/.agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    }
+  ],
+  "inputs_sha256": "687703930e344256e660c0df0e1a4d6a6e7e493a83494fdec79ef7dbdaf32a72",
+  "map_sha256": "d4f61dc8edfa98b18eac3b3df146f42dfb02b447602a97ad1321e2e33d60205a",
+  "closed_manifests": 2,
+  "verified_aliases": 113,
+  "verified_unique_objects": 109,
+  "created_unique_objects": 96,
+  "reused_verified_objects": 13,
+  "verified_unique_bytes": 578710415,
+  "exceptions": [],
+  "historical_status": "V20O controls/trace allocation retains original bounded status; V50 timeout history remains failed/partial despite all8 closed extractions, with no canonical final score/overall PASS/cohort. Source-binding JSON retained as historical bytes, not current source-hash requirements.",
+  "retrieval": "MAP canonical SHA/size/path; alias indexes resolve in INPUTS to originals and supplied manifest hashes; manifest bytes included.",
+  "method": "All supplied manifest/member hashes verified before copies; exclusive fsync0444 temporary objects, renamex_np RENAME_EXCL, readback; existing exact objects verified/reused. No overwrite or hardware WORM claim.",
+  "preservation": "Originals/checkpoints/prior maps unchanged. No source/Git/runtime/browser/native/build/test/deletion/normalization actions.",
+  "scope_limit": "Only two exact closed manifests and declared members; active V20P excluded.",
+  "archive_io": "COMPLETE_RELEASED; no background work or pending archive task",
+  "claim_limit": "Derivative preservation only; no acceptance claim."
+}

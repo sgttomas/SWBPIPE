@@ -1,0 +1,89 @@
+{
+  "status": "COMPLETE_BOUNDED_REVIEW_ONE_FINDING",
+  "sourceCount": 143,
+  "fullChangedDeltaCount": 5,
+  "unchangedPriorReviewedCount": 138,
+  "acceptedRootCheckpoint": "11d51c16404b229ab505d1db9eef5758fbe249e6",
+  "rootFlatManifestSha256": "0cb106e56058889bd2016e351fef35137f9ec7f0dc94f50a2a9ea1adb77c0e95",
+  "priorCoverageSha256": "81e461580840dba5741dd45daa60ed8bf935b210b022bf24f6a6865f927042b9",
+  "priorReturnSha256": "9d35bccb9b3d3fd51666851dc99a9909f9fa9fe127cf36012c8f22da5cf1d5c5",
+  "changedFiles": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "beforeSha256": "18903d93521216a1ad47fb302c28cb501f9d3639260bf0adb425bcf06c8f5c12",
+      "sha256": "7ae7742cf4f7c49d20c8ea7c395e66fdff7fade16f46e589435115c693217e1d",
+      "bytes": 66288
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "beforeSha256": "97a9936c564ebe7ad0182ea167e5e2e5ecb117288f6770fb30500d1438becea6",
+      "sha256": "0e4f616ed81aec85d3c8d3fc2330cc1ec73317c8391332fea94a4ce51ef496a8",
+      "bytes": 78361
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+      "beforeSha256": "2a7d60c2009d26c7737081fe7f48c5639a2e7c08007ad18a79d287fce9654cb8",
+      "sha256": "08dead09a3674515127ab5ac4296571857220fa1133591f1740b3045d67bf8f9",
+      "bytes": 45406
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+      "beforeSha256": "2f2deb8d2771b03a10f4f67b564c5cade7b4a1eaeb8f17c4375e55851047103c",
+      "sha256": "c19d16d00fc2cce9297f42b1fcf2baefa58c5427aedde5fd46f02ce068ef8bf7",
+      "bytes": 18108
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/README.md",
+      "beforeSha256": "fd70a87407aa55ec82140cf74e9ceae3c7d6bd04b696ae8fd9ca45b6ff6ad274",
+      "sha256": "68676b676d3dc015390e549a41695ff8824e62cf0df1054626318753bf396d9a",
+      "bytes": 16284
+    }
+  ],
+  "patchReconstructedExactly": true,
+  "patchSha256": "4b1fcb7deecf24f3d548b87ae7ba358f4e91ed9d86ae1fe670a9f7070d9e6865",
+  "methodSubsets": {
+    "files": 28,
+    "changedAmongFiles": 4,
+    "unchangedAmongFiles": 24,
+    "offlineControlFiles": 1,
+    "documentationFiles": 1,
+    "totalDistinctPhysicalFiles": 30,
+    "completeMaintainedClosureCountExcludesDocumentation": 29
+  },
+  "reviews": [
+    "Complete five-file unified delta and actual ROOT preimages/VERIFY postimages. All143 ROOT flat rows match exact hash and byte count.138 unchanged rows retain earlier complete review; no claim of rereading their implementations.",
+    "Controller action/stop/recovery/finalization/derivation/drain/restoration/observer and pre/post binding callers. The added helper performs only one host wait for assignment/point/box with persisted hash; zero wait for filter/orbit. Normal-path measurement endpoints, stopped evidence, point/box proof operations, trace guards and extractor/scorer remain unchanged. Required actual-caller lifecycle controls are missing: PSC73-R1.",
+    "Benchmark mode/option admission, frozen five-by-two expectations, fresh page/context entry, identical assignment path, responsive witness, exact browser/source/bundle/oracle bindings, observer/restoration and2000ms upper metric. Separate diagnostic plan/result/summary, exact identity/population checks, zero-cohort scope, strict default and focused conflict rejection. Full and baseline branches preserved.",
+    "Diagnostic scope is assignment collection only. It does not establish resource/native/settled-RAF acceptance; full scorer retains exact-zero settled-RAF admission. No resource acceptance inferred from diagnostic PASS.",
+    "Complete new fixture semantics: only whole target outer/child pair removed while old complete pairs remain; original-only restoration preserves source timestamp/interval/identity fields; later full frame and incomplete boundary shapes reject. Existing extractor admission implementation unchanged. No historical V3 rescue.",
+    "Author commands/config/import roots, pure/extractor/noEmit summaries, final focused control chronology and release. README correctly states fixed budget is not a guarantee, original future-estimate metric limits and diagnostic-only acceptance."
+  ],
+  "evidenceChronology": {
+    "initialPure": {
+      "passed": 57,
+      "controller": 31,
+      "scorer": 26
+    },
+    "initialExtractor": {
+      "caseRecords": 104,
+      "evaluatedCases": 98,
+      "referenceNotRequestedCases": 6,
+      "differentialCalls": 0,
+      "statuses": {
+        "PASS_ALL_CAUSAL_PRESENTATIONS_EXACT_AND_UNAMBIGUOUS": 1,
+        "PASS": 10,
+        "PASS_EXPECTED_REJECTION": 86,
+        "PASS_COMPLETE_MEASURED_WINDOW_CAUSAL_PRESENTATION_COVERAGE": 1,
+        "REFERENCE_NOT_REQUESTED": 6
+      }
+    },
+    "initialNoEmitExit": 0,
+    "finalChange": "diagnostic env/option agreement and missing errors-array fail-closed guard",
+    "finalFocusedDiagnosticTestsPassed": 1,
+    "finalNoEmitExit": 0,
+    "limits": "No claim all57 were rerun on final bytes. All exit records0. No reviewer tests, runtime or Git calls."
+  },
+  "entryExitBindings": 209,
+  "driftCount": 0,
+  "gitAttribution": "Parent reports actual11d committed preimages; reviewer independently compared current ROOT files to accepted flat manifest and author preimage copies without running Git."
+}

@@ -1,0 +1,134 @@
+{
+  "schema": "bounded-independent-review-coverage/v1",
+  "sourceEntry": {
+    "count": 143,
+    "mismatches": [],
+    "changed": 2,
+    "unchanged": 141
+  },
+  "sourceExitAndEvidence": [
+    {
+      "inventory": "source143",
+      "count": 143,
+      "mismatches": []
+    },
+    {
+      "inventory": "V20T25",
+      "count": 25,
+      "mismatches": []
+    },
+    {
+      "inventory": "V20T_R2_35",
+      "count": 35,
+      "mismatches": []
+    },
+    {
+      "inventory": "method29ROOT",
+      "count": 29,
+      "mismatches": []
+    },
+    {
+      "inventory": "method29VERIFY",
+      "count": 29,
+      "mismatches": []
+    },
+    {
+      "inventory": "wrappers6",
+      "count": 6,
+      "mismatches": []
+    },
+    {
+      "inventory": "commands4",
+      "count": 4,
+      "mismatches": []
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/RUNTIME_ORACLE_PIN_V57_BACKCHECK.md",
+      "sha256": "bff20a067abd33d5105a4165d75ec785fb211cc353b877cdccfd400ea6c0f31b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V6/SOURCE_MANIFEST.json",
+      "sha256": "97d118522657b3e9ac9c344ca396bd1619c6449178a4d322021f29b25bbfee98"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V5/SOURCE_MANIFEST.json",
+      "sha256": "0d2435e4b71adc2d4ba8070be5f2cc444a8ba2f0c774a2f77897ce09e9efda24"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/ORACLE_PIN_AND_LAUNCH_V57/RETURN.json",
+      "sha256": "c43939df01af803e1ca1515bb386c3b93c24c9d7263909d409a9214e02b44822"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/RUNTIME_ORACLE_PIN_V20T/RETURN.json",
+      "sha256": "00cd69857f0cd87bd551aedc1206c157a92323f7ca5ea64a30b04cc4a49ad8cd"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/RUNTIME_ORACLE_PIN_V20T/OUTPUT_MANIFEST.json",
+      "sha256": "7473358ab7b9baf3712ced0e2bb53a0b919acc47f3dce7ee6b2810d471825bd7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/RUNTIME_ORACLE_PIN_V20T/PATCH.diff",
+      "sha256": "81361ce187643d93bfaaa927cf137c10c193cbf9d0dbced96c4c72a29201f5ff"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/RUNTIME_ORACLE_PIN_V20T/preimage.log",
+      "sha256": "3f6737db348c1375eed48342f416539b766f44195225d2b95a0f08ff75c02bff"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/RUNTIME_ORACLE_PIN_V20T/focused.log",
+      "sha256": "82d000721300907c3630f93650b04c8fe3eb9b4f1b9f1e6f7abcc3d9a4b5f368"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/RUNTIME_ORACLE_PIN_V20T_R2/RETURN.json",
+      "sha256": "ca4684e413229e1172dd3db9177cdca6265f450b3f287976637f8a456c24a01a"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/RUNTIME_ORACLE_PIN_V20T_R2/OUTPUT_MANIFEST.json",
+      "sha256": "d7763b4c1585f0c300087b0dc78aeac999ef0084934e8a1c8bfe1014d70304fb"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/RUNTIME_ORACLE_PIN_V20T_R2/PATCH.diff",
+      "sha256": "1db5d4b11282ba72d9bfcc265f5cefe00a8a01e4a6d8dad05fc756ba3fd2da6a"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/RUNTIME_ORACLE_PIN_V20T_R2/SOURCE_MANIFEST_V20T_R2.json",
+      "sha256": "0dfc5eb61d22d9bac9575278f2fcc5af2211a92fffaf4ba08ef6d577ff10d418"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/RUNTIME_ORACLE_PIN_V20T_R2/focused.log",
+      "sha256": "f8c06309d2c1bc0931bb1a5847ee5e34fd2bc2444a289a2bf5182627e3458e23"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FOREGROUND_QUALIFICATION_LAUNCH_V57/BOUND_EXECUTION_V20T_R2/BINDINGS.json",
+      "sha256": "b5f1d122d86f4c8a8484703d2f48c4782ee6be1e38c55ccde8ef5b4a48ad3e38"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FOREGROUND_QUALIFICATION_LAUNCH_V57/BOUND_EXECUTION_V20T_R2/BINDING_DELTA.json",
+      "sha256": "fb62f62063ea02f8caf5dde00a540a216035043b7be82d0afec156c2165a2a48"
+    }
+  ],
+  "delta": "100% combined two-file patch matched to V5 preimages. Shared pin/comment only runtime change; appended self-contained controls and three new imports in spec. All affected runtime consumers read.",
+  "changedFiles": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/benchmark-harness.ts",
+      "sha256": "0588824257de2c8a9d12631916938e46fd1f0119b49ecb98f0279b58638d90bf",
+      "bytes": 182447
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "96b72394fa1363595625b16a24efe13de75299ba363329ee258bca8badc624c2",
+      "bytes": 55764
+    }
+  ],
+  "closure": {
+    "runtimeMethod": 28,
+    "offlineHistoricalHelper": 1,
+    "newDependencies": []
+  },
+  "launchDelta": "All four final command objects exactly equal previously reviewed command objects after only the four recorded source/method path/hash substitutions. Other fields, argv, profile, deadlines, targets, populations and evidence destinations identical.",
+  "defaultSourceRoot": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping",
+  "retainedOracleReview": "V20S generator and complete 400-point/40-Box comparison plus 800 selfhash checks unchanged; carried from prior review.",
+  "execution": "Read/hash/diff/parse only; reviewer ran no tests or application runtime."
+}

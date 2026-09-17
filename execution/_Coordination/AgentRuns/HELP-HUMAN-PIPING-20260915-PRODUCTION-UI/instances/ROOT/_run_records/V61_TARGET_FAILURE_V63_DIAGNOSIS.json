@@ -1,0 +1,82 @@
+{
+  "status": "FOCUSED_METHOD_PASS_ORBIT_TARGETS_FAILED_FULL_HELD",
+  "sourceHead": "135a94cea310129ebbf53e678159b7016c3701d5",
+  "all201MembersVerified": 419449794,
+  "checkpointSha256": "aa2146aa0739728d7e409af879d43d051244d71de330607d79632dedbc52ab4a",
+  "returnSha256": "53b372a5a684aee8729c8fd1c72591398a4cb6838a6342daa238c48a4f220886",
+  "hypothesis": "V59 reported23% battery and V61 reported12%; unchanged display120Hz and browser/product pins. Possible battery saving frame cadence; cause not yet established.",
+  "physicalConstraintQuestion": "Owner asked whether AC is available; no dependent benchmark until diagnosis and power basis settled.",
+  "runtime": "Released; no retry/full cohort",
+  "diagnosisInputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/FOCUSED_CHECKPOINT.json",
+      "sha256": "3554016ccc1f0e4b9f99d4782661380bf3bfc549e2a7d5639e9cada8baf30c7e",
+      "bytes": 9274
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/OUTPUT_MANIFEST.json",
+      "sha256": "9530ed78131ed61d957011a6dd132f84658e95e631c83d9ae806151eacbb617d",
+      "bytes": 19152
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/focused/runtime/foreground-companion.json",
+      "sha256": "1873b6f3ae9f913d84b00c69d44e9b1cb57f70b10732004ed24d2059471f4343",
+      "bytes": 14386
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/focused/runtime/focused-full-v20/result.json",
+      "sha256": "500948dfbd9189652738fcd1c18684e33295cee4ce1e6e647f4c735d223a8a6e",
+      "bytes": 764984
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/focused/runtime/focused-full-v20/chromium-environment.json",
+      "sha256": "b4c9a633673eed7a4fbe674130c6caeac5ec7b6d750415e0ee473d2c826fde22",
+      "bytes": 11815
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/focused/runtime/focused-full-v20/orbit-001/derived.json",
+      "sha256": "593fc614dd12f25e328af4aa04998fe2f713af8969031e5cb88995c35df8845a",
+      "bytes": 13873211
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V59/focused/runtime/focused-full-v20/orbit-002/derived.json",
+      "sha256": "1d31a34657a411ec845ca840a87c3f85241eaac922e1ae11e43fdf05837fa555",
+      "bytes": 13873029
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V61/FOCUSED_CHECKPOINT.json",
+      "sha256": "aa2146aa0739728d7e409af879d43d051244d71de330607d79632dedbc52ab4a",
+      "bytes": 9404
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V61/OUTPUT_MANIFEST.json",
+      "sha256": "607d0a711cbafb1969d4dcad65c53932121507c553f27dbab83a42935e7d0f76",
+      "bytes": 43331
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V61/focused/runtime/foreground-companion.json",
+      "sha256": "7346dab8d9c89dce938be4aee4d483d450d0d075fb15fb086de7d0e8f789f109",
+      "bytes": 10663
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V61/focused/runtime/focused-full-v20/result.json",
+      "sha256": "f5beabfa9afde1cbcef5cfbe6c30d359d10cc7e91a8a35e165e4bae86b9b7808",
+      "bytes": 441511
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V61/focused/runtime/focused-full-v20/chromium-environment.json",
+      "sha256": "2fcbb57e996bac6e9a8377e6b0fd63109755341d043aa2ae6cf4170ffbd84393",
+      "bytes": 11816
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V61/focused/runtime/focused-full-v20/orbit-001/derived.json",
+      "sha256": "eff772bb3b548cd071491dbe3be533e665c5ff341b560385f09982ed0ac6e2c4",
+      "bytes": 3476400
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_QUALIFICATION_V61/focused/runtime/focused-full-v20/orbit-002/derived.json",
+      "sha256": "3137381e692950bc35c81efe8316d46b1e407082f7776718b448ede479712330",
+      "bytes": 3464039
+    }
+  ]
+}

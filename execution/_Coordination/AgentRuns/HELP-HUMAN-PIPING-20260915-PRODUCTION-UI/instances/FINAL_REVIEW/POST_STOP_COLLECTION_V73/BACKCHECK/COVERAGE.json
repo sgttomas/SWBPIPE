@@ -1,0 +1,101 @@
+{
+  "status": "PASS_BOUNDED_SOURCE_BACKCHECK",
+  "findingDisposition": {
+    "PSC73-R1": "RESOLVED"
+  },
+  "r1ChangedFiles": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "beforeSha256": "7ae7742cf4f7c49d20c8ea7c395e66fdff7fade16f46e589435115c693217e1d",
+      "sha256": "ac189e2bb7d3628e46f10ff499bcea7e737e721593eef9fc78ed837ac3b3cced",
+      "bytes": 67442
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "beforeSha256": "0e4f616ed81aec85d3c8d3fc2330cc1ec73317c8391332fea94a4ce51ef496a8",
+      "sha256": "409a6444c200cf19fcd3417ff422f4ff234d2a41684a5b79d7b97a5cbee30717",
+      "bytes": 81057
+    }
+  ],
+  "completeCompositeChangedFiles": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "beforeSha256": "18903d93521216a1ad47fb302c28cb501f9d3639260bf0adb425bcf06c8f5c12",
+      "sha256": "ac189e2bb7d3628e46f10ff499bcea7e737e721593eef9fc78ed837ac3b3cced",
+      "bytes": 67442
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "beforeSha256": "97a9936c564ebe7ad0182ea167e5e2e5ecb117288f6770fb30500d1438becea6",
+      "sha256": "409a6444c200cf19fcd3417ff422f4ff234d2a41684a5b79d7b97a5cbee30717",
+      "bytes": 81057
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+      "beforeSha256": "2a7d60c2009d26c7737081fe7f48c5639a2e7c08007ad18a79d287fce9654cb8",
+      "sha256": "08dead09a3674515127ab5ac4296571857220fa1133591f1740b3045d67bf8f9",
+      "bytes": 45406
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+      "beforeSha256": "2f2deb8d2771b03a10f4f67b564c5cade7b4a1eaeb8f17c4375e55851047103c",
+      "sha256": "c19d16d00fc2cce9297f42b1fcf2baefa58c5427aedde5fd46f02ce068ef8bf7",
+      "bytes": 18108
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/README.md",
+      "beforeSha256": "fd70a87407aa55ec82140cf74e9ceae3c7d6bd04b696ae8fd9ca45b6ff6ad274",
+      "sha256": "68676b676d3dc015390e549a41695ff8824e62cf0df1054626318753bf396d9a",
+      "bytes": 16284
+    }
+  ],
+  "fullSourceCoverage": {
+    "total": 143,
+    "compositeChanged": 5,
+    "unchangedInherited": 138,
+    "r1Changed": 2,
+    "priorV20YSuccessorsUnchanged": 3,
+    "rootFlatSha256": "0cb106e56058889bd2016e351fef35137f9ec7f0dc94f50a2a9ea1adb77c0e95",
+    "originalReviewReturnSha256": "4e1c3cb97a5452a389c06007472579f6973db9afc8e93fe6a36162bd26517ccd",
+    "rootCheckpoint": "11d51c16404b229ab505d1db9eef5758fbe249e6",
+    "gitAttribution": "No reviewer Git operation. Current ROOT bytes, prior flat manifest, original preimage copies and prior accepted coverage establish exact preimages."
+  },
+  "methodSubsets": {
+    "files": 28,
+    "offlineControlFiles": 1,
+    "documentationFiles": 1,
+    "totalDistinct": 30
+  },
+  "exactPatchReconstruction": {
+    "r1": "27c103a3d481de7c1ccad255d1b95ffc6c7a1fae2e4c951ca258e9f9d3bf6107",
+    "composite": "9396022126b2bf5cd4ebd3a21a137ee28be1dc692ab76e3464b04acc6a946b6e"
+  },
+  "semanticChecks": [
+    "Entire two-file R1 delta reviewed. Actual action wrapper calls runStoppedActionLifecycle; assignment, point, box, filter and orbit use its stopAction. No separate recovery stop/read can replace first evidence.",
+    "First stop promise persists across rejection and repeated calls. Snapshot is retained before immutable persistence; failure leaves empty hash and explicit stop-persist error. Failure output now includes original snapshot/hash. Work-before-stop cleanup obtains evidence once; work-after-stop/proof failure reuses the first attempt.",
+    "Begin is awaited before work or cleanup eligibility. Rejected begin records failure without invoking work/stop/finalize; actual callback assigns capture only when unchanged transport begin returns. Existing transport partial-start semantics are unchanged and no stronger transport guarantee is inferred.",
+    "For begun capture, cleanup awaits the single stop/persistence promise, then fixed host tail and exactly one finalization attempt. Original work/stop/persist, tail and finalizer errors accumulate. No browser/marker/observer operation is introduced into added wait. Successful work/proof completes before tail.",
+    "Empty-log callback controls use the same lifecycle as production. Controllable wait and finalization promises establish ordering and prevent caller resolution before completion. All three250ms classes and unchanged filter/orbit are exercised. Individual six-point failures and combined persistence/work/finalization failures preserve errors and prevent replacement stop/persist.",
+    "Point/box post-stop proof paths remain before tail; filter lifecycle eligibility and orbit windows/populations remain unchanged. Extraction, original timestamp/identity joins, strict guards, transport caps/deadlines and scoring targets remain unchanged.",
+    "Diagnostic/full/focused admission and separate zero-cohort outputs are unchanged from reviewed V20Y. Prior complete three-file review and138 source-path coverage carried through exact hashes."
+  ],
+  "evidence": {
+    "R1PurePassed": 57,
+    "controller": 31,
+    "scorer": 26,
+    "R1NoEmitExit": 0,
+    "R1FailedCyclesReported": 0,
+    "originalV20YChronology": "Initial57 pure and noEmit, then final1 focused diagnostic and noEmit; preserved as original attribution.",
+    "extractor": {
+      "originalRecords": 104,
+      "evaluated": 98,
+      "referenceNotRequested": 6,
+      "R1Rerun": false
+    },
+    "reviewerTestsRun": false,
+    "reviewerRuntimeRun": false
+  },
+  "stableBindings": 230,
+  "driftCount": 0,
+  "findings": []
+}

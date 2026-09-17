@@ -1,0 +1,39 @@
+{
+  "status": "PREPARED_REQUIRES_REVIEW_AND_ROOT_LEASE",
+  "source_head": "3f9a2c5143bd527441b0ac06d0d0d532bcd503cc",
+  "source_manifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V10/SOURCE_MANIFEST.json",
+    "sha256": "bbd6e13e1e22d7814d2a9e26ed6c34fbc40ee4c1451461c01bff860ed39acf0d"
+  },
+  "method_manifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_METHOD_INTEGRATION_V20W/SOURCE_MANIFEST.json",
+    "sha256": "fcb57840eda19a4d622f15fa317850f2e5a8b79f9e149a6ec83300a362fe22e3"
+  },
+  "prior_binding": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/AC_QUALIFICATION_LAUNCH_V64/BINDINGS.json",
+    "sha256": "a02cc2e3477bdad8297fd307b3ef8207f2c66743e831f19d0755e4099061196f"
+  },
+  "commands": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_QUALIFICATION_LAUNCH_V68/FOCUSED_COMMAND.json",
+      "sha256": "bd76efd158d4939ab43ae321e9b80fe8b7f6c2d3ead5089e27523216933a1f8f"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_QUALIFICATION_LAUNCH_V68/FOCUSED_COLLECTION_COMMAND.json",
+      "sha256": "b018db04f52429d0d5b9ddd2f3a92e0b0f819546cd20f3e8189b669b2bc7bd99"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_QUALIFICATION_LAUNCH_V68/COHORT_COMMAND.json",
+      "sha256": "c802d42fd02f9da71479a6907971b36e1fb5a65bd6ae3768233f4b66849441ef"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_QUALIFICATION_LAUNCH_V68/COHORT_COLLECTION_COMMAND.json",
+      "sha256": "0117ae2c5ea082a42ac685d7dd87d17496b48a030449c70f69743982e1bdcc91"
+    }
+  ],
+  "review_backcheck_sha256": "5628172a0312ad06d0d43a510d8b60abc726dff5ef54481baad417005af9da0a",
+  "guard_manifest_sha256": "54897cc35d491323b0c4e4417ae6ae769bcdcde97164da27785203e508971a2e",
+  "product_bundle_sha256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+  "oracle_sha256": "50b86d1fd13a85c9c910d6fbaffacb4752fbfeeca2a00ec05b469c27fd4e45c8",
+  "changes": "All argv exact prior; environment changes limited to two method bindings, fresh output and full cohort ID. No measured runtime authorized by preparation."
+}

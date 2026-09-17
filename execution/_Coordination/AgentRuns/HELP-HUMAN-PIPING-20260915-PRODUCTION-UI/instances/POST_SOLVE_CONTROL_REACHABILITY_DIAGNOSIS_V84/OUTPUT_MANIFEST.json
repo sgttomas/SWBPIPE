@@ -1,0 +1,25 @@
+{
+  "status": "SEALED",
+  "selfExcluding": true,
+  "derivativePackage": true,
+  "members": [
+    {
+      "path": "INPUTS.json",
+      "sha256": "8bed7691f58e32673b1db7bc15313b3babfcd66475aed36806fa3695c3a83bf6",
+      "bytes": 24997
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "9931ca1e1cd915617bdf1d2934dee021a715c47165a2b7991afb1a3861426edd",
+      "bytes": 8032
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "9ae60c2ea1a6a1e61f74365326f80000d14e2e4370c10a0481b81045a40a356f",
+      "bytes": 4380
+    }
+  ],
+  "count": 3,
+  "historicalInputExitHashesStable": true,
+  "authorizedLiveDriftCount": 1
+}

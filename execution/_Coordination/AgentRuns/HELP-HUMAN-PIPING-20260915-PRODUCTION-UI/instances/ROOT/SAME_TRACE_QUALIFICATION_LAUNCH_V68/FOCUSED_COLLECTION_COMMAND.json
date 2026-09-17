@@ -1,0 +1,92 @@
+{
+  "status": "PREPARED_REQUIRES_ROOT_LAUNCH_ACCEPTANCE_AND_EXPLICIT_LEASE",
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping",
+  "argv": [
+    "node_modules/.bin/playwright",
+    "test",
+    "--config",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/AC_REFERENCE_PREPARATION_V64/focused/headed.config.ts",
+    "--grep",
+    "focused complete successor assignment box DOM filter and both orbit entries",
+    "--headed",
+    "--workers=1",
+    "--retries=0",
+    "--max-failures=1",
+    "--list"
+  ],
+  "environment": {
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/chrome-for-testing/153.0.8010.36/mac-arm64/1f701ef60757c63c6ccf98afaf28291dd0c8d1457d3d738e81fd62201c230ad0/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_SHA256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+    "UI_FOUNDATION_METHOD_MANIFEST_PATH": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_METHOD_INTEGRATION_V20W/SOURCE_MANIFEST.json",
+    "UI_FOUNDATION_METHOD_MANIFEST_SHA256": "fcb57840eda19a4d622f15fa317850f2e5a8b79f9e149a6ec83300a362fe22e3",
+    "UI_FOUNDATION_CANDIDATE_SOURCE_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping",
+    "UI_FOUNDATION_CANDIDATE_OUTPUT_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/dist",
+    "UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FINAL_CANDIDATE_V31/candidate-bundle-manifest.json",
+    "UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST_SHA256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+    "UI_FOUNDATION_CANDIDATE_SOURCE_STAGE": "final",
+    "UI_FOUNDATION_MANIFEST_SHA256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+    "PLAYWRIGHT_WORKERS": "1",
+    "CI": "1",
+    "UI_FOUNDATION_PHASE": "candidate",
+    "UI_FOUNDATION_CANDIDATE_ORACLE_DIR": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORACLE_GEOMETRY_PIN_V20S/oracle",
+    "UI_FOUNDATION_CANDIDATE_ORACLE_MANIFEST_SHA256": "50b86d1fd13a85c9c910d6fbaffacb4752fbfeeca2a00ec05b469c27fd4e45c8",
+    "UI_FOUNDATION_CAUSAL_PIPE_COUNT": "1000",
+    "UI_FOUNDATION_EVIDENCE_DIR": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/SAME_TRACE_QUALIFICATION_V68/focused/collection",
+    "UI_FOUNDATION_CAUSAL_POINT_SAMPLE": "2",
+    "UI_FOUNDATION_PREFLIGHT_STAGE_TIMEOUT_MS": "60000",
+    "UI_FOUNDATION_CANDIDATE_VALIDATE_ONLY": "0"
+  },
+  "expectedTests": 1,
+  "sourceHead": "3f9a2c5143bd527441b0ac06d0d0d532bcd503cc",
+  "sourceOverlay": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V10/SOURCE_MANIFEST.json",
+    "sha256": "bbd6e13e1e22d7814d2a9e26ed6c34fbc40ee4c1451461c01bff860ed39acf0d"
+  },
+  "powerProfile": {
+    "id": "piping-ordinary-headed-ac-reference-v1",
+    "decisionPath": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V63_ACCEPTANCE_AC_REFERENCE_DECISION_V1.json",
+    "decisionSha256": "a584b3e967765ddf00d455691efe34f53f495879ac5bf83bc07575dbe59520b3",
+    "wrapperManifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/AC_REFERENCE_PREPARATION_V64/OUTPUT_MANIFEST.json",
+    "wrapperManifestSha256": "54897cc35d491323b0c4e4417ae6ae769bcdcde97164da27785203e508971a2e",
+    "condition": "Existing ordinary pmset captures must identify AC before and after every test; missing/error/nonAC fails; boundary observations only."
+  },
+  "executionEnvironmentPolicy": {
+    "clearInheritedPrefixes": [
+      "UI_FOUNDATION_",
+      "PLAYWRIGHT_"
+    ],
+    "applyOnlyDeclaredEnvironment": true,
+    "rejectNullOrPendingRequiredSHA": true,
+    "requiredSHAEnvironmentKeys": [
+      "PLAYWRIGHT_CHROMIUM_EXECUTABLE_SHA256",
+      "UI_FOUNDATION_METHOD_MANIFEST_SHA256",
+      "UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST_SHA256",
+      "UI_FOUNDATION_CANDIDATE_ORACLE_MANIFEST_SHA256",
+      "UI_FOUNDATION_MANIFEST_SHA256"
+    ]
+  },
+  "preconditions": [
+    "V67-R1 source review accepted; exact V20W source/method bindings and unchanged product bundle/oracle/browser/AC wrappers",
+    "Root launch review/lease; clear inherited UI_FOUNDATION_/PLAYWRIGHT_ variables, apply only declared environment",
+    "Collection only; exact one focused/ten cohort tests, no measured workload or prerequisite output from this command"
+  ],
+  "qualificationBasis": "V20W51 pure controls and semantic check PASS; V67 full review+R1 doc backcheck PASS. Product/nativeV32/resourceV56/oracle evidence carry unchanged. Live allocation/latency remains unqualified.",
+  "metric": "Instrumented Chromium-reported timestamps; pinned Mac backend reports computed future estimates, not physical scanout. Same-trace duration bounds preserve absolute window uncertainty, all ties/cuts and original targets.",
+  "changes": "Method manifest/source manifest, fresh output/cohort ID and prospective context only. Runtime argv, executable, flags, AC wrappers, workload, waits and targets unchanged.",
+  "historical": "V64 original failed scores remain immutable; no historical rescore, zero accepted complete runs.",
+  "priorCommand": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/AC_QUALIFICATION_LAUNCH_V64/FOCUSED_COLLECTION_COMMAND.json",
+    "sha256": "5cafbed5fd11650bd0646360000649735827a8295252aabe586542f7d5c004a8"
+  },
+  "segments": 8,
+  "orbitPair": {
+    "warmupMs": 2000,
+    "measuredMs": 10000,
+    "trailingMs": 250,
+    "labels": "ON",
+    "targetsMs": [
+      16.7,
+      33.3
+    ]
+  }
+}

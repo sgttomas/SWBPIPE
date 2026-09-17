@@ -1,0 +1,402 @@
+[
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/environment.stderr.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/environment.stdout.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 60,
+    "sha256": "b8a297a362b3c9bcbf80e7871991cfacdd9e5f11d6192a3dfdf43d3b4212d11f"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/git.stderr.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/git.stdout.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 325,
+    "sha256": "19d54bde71e4afdf31f270a8a53d9e7c55df33e4ea8d94b49222163b0a6b238c"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/receipt.stderr.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/receipt.stdout.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 186,
+    "sha256": "1b9d43dcbf28a7f47220ef7d88e5f0fd053876a1ac4e0776d5382e65aa02e9cd"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/selfcheck.stderr.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/selfcheck.stdout.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 41362,
+    "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/status.stderr.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 103,
+    "sha256": "a66fdfbed683677daf113c1cabe303561dab8e936b2f6fe0ef7118c405ea6563"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/status.stdout.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 26312,
+    "sha256": "8a410e63c7df84e2e5aeb8a27037a0275eb9b520ead17e9f9fe07f1d6acfe5f4"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT1/RUNTIME_RESULTS.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 4739,
+    "sha256": "36223174830a7e8db1be56105e70272fb1eade1f91c2504ffdef0f7e4c6da5b9"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT1/vitest.checkpoint1.config.ts",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 175,
+    "sha256": "eff88375e7301e6dea89641535f5a84b726a7d0389786c68294119e7e344204d"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT2/01-wasm-build.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 860,
+    "sha256": "92c5d4718c4f920c696cdee59053d696d5522c7f95741eca7256294c42135c06"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT2/02-tsc-initial-exit-1.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 411,
+    "sha256": "75fb57d8172ce8ff40a05b217b7ac066881b555397ecd68b66b233da7475053c"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT2/03-tsc-retry1-exit-0.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT2/04-focused-path-attempt-exit-1.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 603,
+    "sha256": "c672a63331f54b062fac6c9738b6edc8aec297f479bcd0f370fa0e8ef920d833"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT2/05-focused-test-attempt-exit-1.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 1496,
+    "sha256": "86a93e3b84a7269f185aafa828c4398b8ff4141659e826b9b57919cb9f3fd8b7"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT2/06-tsc-retry2-exit-0.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT2/07-focused-retry2-exit-0.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 295,
+    "sha256": "e4cfc8756ca34718877d89bd6cf4ce572e61a9642e721ca43de7ab31d406b345"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT2/08-app-guards-initial-exit-1.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 89600,
+    "sha256": "4cfd33016a722f855115a4d871e0f4378a751b267b356d636f014e6cba804be8"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT2/09-app-guards-retry1-exit-0.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 80013,
+    "sha256": "3507844295a043873a536e64b4ea8ae6b582cbbc0025cf36f5b9b841ec6fdc61"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT2/10-tsc-final-exit-0.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT2/11-focused-final-exit-0.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 294,
+    "sha256": "0a0ddb2367e363d3ece501af204a0e59cd0fb5ee8522f7272194ce26f512561d"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT3/01-build-wasm.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 872,
+    "sha256": "0497cf1410cc56dee82be8f042447573114c3614f1a27403704e359796e0edf2"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT3/02-tsc-attempt1.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 12,
+    "sha256": "1ca4a13146b2891c0e462123ac0cb848f92e6221f18b870a1b78c232d1956c35"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT3/03-focused-attempt1.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 8743,
+    "sha256": "8758d8dbfc928f521c7388ca9231be11e6c6b6c0b73ba0b9fba5cc06063a42b5"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT3/04-focused-attempt2.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 309,
+    "sha256": "908ce4e89f1cc2ecd07b92c7e92f079642ea836fab182636a570e88b5ed2a436"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT3/05-tsc-final.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 12,
+    "sha256": "1ca4a13146b2891c0e462123ac0cb848f92e6221f18b870a1b78c232d1956c35"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT3/OWNED_PROCESS_CHECK.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 92,
+    "sha256": "d4c0c0e745c88542117c7536ea83ac723dcf493140b874240a17458b97594133"
+  },
+  {
+    "lane": "ROOT",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT3/VITEST_CONFIG_SNAPSHOT.ts",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 3317,
+    "sha256": "9e59361cfb4e89b53d2ce1acfe7a9b000b6d87c38fd7cae283019efc13d04bf9"
+  },
+  {
+    "lane": "VERIFY",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/environment.stderr.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "lane": "VERIFY",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/environment.stdout.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 60,
+    "sha256": "b8a297a362b3c9bcbf80e7871991cfacdd9e5f11d6192a3dfdf43d3b4212d11f"
+  },
+  {
+    "lane": "VERIFY",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/git.stderr.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "lane": "VERIFY",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/git.stdout.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 325,
+    "sha256": "19d54bde71e4afdf31f270a8a53d9e7c55df33e4ea8d94b49222163b0a6b238c"
+  },
+  {
+    "lane": "VERIFY",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/receipt.stderr.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "lane": "VERIFY",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/receipt.stdout.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 186,
+    "sha256": "1b9d43dcbf28a7f47220ef7d88e5f0fd053876a1ac4e0776d5382e65aa02e9cd"
+  },
+  {
+    "lane": "VERIFY",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/selfcheck.stderr.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "lane": "VERIFY",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/selfcheck.stdout.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 41362,
+    "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+  },
+  {
+    "lane": "VERIFY",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/status.stderr.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 103,
+    "sha256": "a66fdfbed683677daf113c1cabe303561dab8e936b2f6fe0ef7118c405ea6563"
+  },
+  {
+    "lane": "VERIFY",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/STEP0_V1/status.stdout.txt",
+    "category": "raw_evidence",
+    "tracked": true,
+    "checkpoint_diff": true,
+    "untracked": false,
+    "bytes": 26312,
+    "sha256": "8a410e63c7df84e2e5aeb8a27037a0275eb9b520ead17e9f9fe07f1d6acfe5f4"
+  }
+]

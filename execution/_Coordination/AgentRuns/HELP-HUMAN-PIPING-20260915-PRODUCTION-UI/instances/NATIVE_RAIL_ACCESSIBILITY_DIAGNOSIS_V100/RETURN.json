@@ -1,0 +1,92 @@
+{
+  "schema": "piping-native-rail-accessibility-return/v1",
+  "status": "DIAGNOSIS_COMPLETE_TWO_CONTRAST_DEFECTS_AX_CAUSE_UNRESOLVED",
+  "at": "2026-09-17T12:43:52.865764+00:00",
+  "role": {
+    "role": "TASK Type 2 ephemeral bounded diagnosis",
+    "parent": "/root HELP_HUMAN",
+    "instance": "/root/ui_dist_overlay_diagnosis",
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh",
+    "allocation_evidence": "Parent-dispatched existing configuration; no independent model attestation",
+    "execution_class": "delegated-harness-native",
+    "enforcement": "instruction/config asserted, not mechanically proven",
+    "delegated": false
+  },
+  "source_commit": "45ede19f2b2373dc451e146fdc7f29264f67c370",
+  "findings": [
+    {
+      "id": "RAIL_HOVER_CONTRAST",
+      "confidence": "confirmed source cascade; supplied screenshot corroborates",
+      "cause": "Fixed pale hover background outranks generic themed button background; Dark text stays near-white",
+      "minimal_repair": "Replace legacy rail hover background with existing --ui-raised"
+    },
+    {
+      "id": "SOLVE_READINESS_CONTRAST",
+      "confidence": "confirmed source cascade; supplied screenshot and AX identify affected values",
+      "cause": "Pale readiness tone surfaces remain while later strong selector forces near-white Dark text",
+      "minimal_repair": "Pair readiness surface/text/border using existing tokens and inherit that paired foreground for labels/values/icons; remove blanket strong override for these rows"
+    },
+    {
+      "id": "INSPECTOR_AX_OMISSION",
+      "confidence": "confirmed supplied CUA AX observation; exact cause unresolved",
+      "cause": null,
+      "minimal_repair": null,
+      "next_check": "One independent macOS accessibility observation of the visibly focused Task control and rail opener in the same native app; compare with CUA snapshot"
+    }
+  ],
+  "proposed_repair_write_scope": [
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts"
+  ],
+  "affected_checks": [
+    "Real hover on both rail toggles, expanded/collapsed, using existing Light/Dark cases and resolved-contrast helper",
+    "Readiness labels/values in pre-solve and solved states across info/ok/warning/blocking, Light/Dark; scroll to actual controls",
+    "Preserve keyboard activation/focus and independently inspect affected native appearance after authorized repair"
+  ],
+  "no_speculative_change": [
+    "No App or PropertyInspector behavior/ARIA change justified",
+    "No SolvePanel logic change justified",
+    "No speculative rebuild to investigate AX",
+    "No broad new campaign"
+  ],
+  "input_count": 18,
+  "input_stability": "Exact at actual exit capture",
+  "derivative_package": true,
+  "upstream": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V19/SOURCE_MANIFEST.json",
+      "sha256": "b5ed976cd86b1e90b5b83f1ba712a0d1ec1efb53bb7559d3c3baa090fd576e36",
+      "role": "Integrated source attribution; not replaced"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_RAIL_ACCESSIBILITY_DIAGNOSIS_V100.json",
+      "sha256": "c8547526f1cd1be98afd99c330f715aec0f7bf8aec842e499dc84f0a76cd82ab",
+      "role": "Sealed bounded task authority; additive Root observation recorded in INPUT_BINDINGS"
+    }
+  ],
+  "closure": "Bounded diagnosis complete; two appearance repairs and verification pending, AX cause and final native acceptance unresolved",
+  "activity": {
+    "source_or_test_writes": false,
+    "runtime_used": false,
+    "build_or_tests_run": false,
+    "network_used": false,
+    "git_mutation": false,
+    "owned_resources": [],
+    "analysis_released": true,
+    "root_native_runtime": "Root exclusively retains ownership; not stopped or controlled by TASK",
+    "writes": "Only this four-file evidence packet"
+  },
+  "outputs": [
+    {
+      "path": "INPUT_BINDINGS.json",
+      "sha256": "1bfc1f28c0b7ec5b3bd4605cfaf183e5792fa74b114c2b84f5136a5b80c9b277",
+      "bytes": 10991
+    },
+    {
+      "path": "DIAGNOSIS.md",
+      "sha256": "5a68aed3bf0a67233f64b67ffa2e0926eb8c0602f7d5afd982bb98a187348974",
+      "bytes": 7072
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "status": "PASS_COMMITTED_SOURCE_AND_CLEAN_CHECKOUT",
+  "commit": "11d51c16404b229ab505d1db9eef5758fbe249e6",
+  "parent": "3f9a2c5143bd527441b0ac06d0d0d532bcd503cc",
+  "source_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V11/SOURCE_MANIFEST.json",
+    "sha256": "0cb106e56058889bd2016e351fef35137f9ec7f0dc94f50a2a9ea1adb77c0e95"
+  },
+  "changed_files": [
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts"
+  ],
+  "all_source_files": 143,
+  "root_committed_check_hash_equality": true,
+  "check_worktree": "{CHECK_WORKTREE}",
+  "check_tracked_status": "clean",
+  "limits": "Only three reviewed method/test files committed. Metadata/publication remains pending; no runtime/performance acceptance."
+}

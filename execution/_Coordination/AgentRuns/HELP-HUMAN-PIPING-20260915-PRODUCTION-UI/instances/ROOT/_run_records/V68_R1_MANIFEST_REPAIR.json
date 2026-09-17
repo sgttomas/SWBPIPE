@@ -1,0 +1,25 @@
+{
+  "status": "V68_R1_METADATA_ONLY_REPAIR_PENDING_BACKCHECK",
+  "utc": "2026-09-17T03:26:10.852843+00:00",
+  "review_return_sha256": "d17cc91300b3ed51cacd6f09c07afd911a7f9130cc3aee9c4d279b9996acc269",
+  "root_verified_review_members": 2,
+  "fixes": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/performance-targets.ts",
+      "before": "f20ea79f2675a50de6613c7c9bf1fe9deb83f8c1eb9fa0675742e710769f2dff",
+      "corrected": "f27a99bb346386d84fcbf28af6a421b53935ab0750cc6b881ed706cfbd46ba6c"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+      "before": "2d397aa2b84f62ca55e06d72830bab9964ebccf53ead32208676a1df95484050",
+      "corrected": "b69be586a0fca324943560612e1b9c7c90a290e5f9798c5bf5219b99956b853b"
+    }
+  ],
+  "source_manifest_sha256": "fb3c54d457341e05fbb64ca6609a820fd93044cf0c3ba63d4341d8089b0f97ce",
+  "method_manifest_sha256": "b95c7c3adc5a111687be78dcbf8b55a8df327f7150878597b750b4d2a04ebe26",
+  "bindings_sha256": "736fb2cb28a0b8e8deb6c55ca5d5e203f2fc124589a52d8dfa36ed66bbc56f37",
+  "execution_addendum": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/SAME_TRACE_QUALIFICATION_V68_EXECUTION_R1.md",
+  "execution_addendum_sha256": "43f3d5230bc8b0d897937f0303380262f1666de2a569733e0644ae91129c0346",
+  "source_commit": "3f9a2c5143bd527441b0ac06d0d0d532bcd503cc",
+  "checks": "No source/test/runtime change; original records preserved. Pure/source review carry."
+}

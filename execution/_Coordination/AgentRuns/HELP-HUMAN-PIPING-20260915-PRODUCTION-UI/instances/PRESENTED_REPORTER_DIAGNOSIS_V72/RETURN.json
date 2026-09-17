@@ -1,0 +1,103 @@
+{
+  "schema": "bounded-task-return/v1",
+  "status": "COMPLETE_CORRECT_REJECTION_COLLECTION_TAIL_DISCRIMINATOR_JUSTIFIED",
+  "parent": "/root HELP_HUMAN",
+  "instance": "/root/ui_causal_runtime_diagnosis",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "xhigh",
+  "nonDelegation": "instruction/config asserted; no delegation",
+  "briefSha256": "6c0354c54636b7004b93c44db77558dadd6910190891ab80459ca371aa3a81c2",
+  "sourceCommitDeclared": "11d51c16404b229ab505d1db9eef5758fbe249e6",
+  "derivativePackage": true,
+  "upstream": "Exact V3 raw/metadata and11d frozen source; immutable paths/hashes in INPUT_BINDINGS.json",
+  "causeEstablished": "No complete reporter occurrence for exact origin103/current130/source-frame4/target surface. Existing prior lineage succeeds; every recorded complete reporter ends before required submit.",
+  "producerDiscriminator": "Complete reporter/stage trace serialization happens during reporter termination; absence of entire not-yet-emitted occurrence causes no unmatched boundary. Early capture closure is supported; eventual target state/feedback/lifetime remain unknown.",
+  "rejectedMatches": 0,
+  "completeReporterPairs": 20,
+  "exactProcessThreadPairs": 6,
+  "otherwiseEligiblePresentedPairs": 2,
+  "requiredOriginPairs": 0,
+  "traceEndMinusSubmitUs": 7937,
+  "proposedFixedCollectionTailMs": 250,
+  "proposedClasses": [
+    "assignment",
+    "point-selection",
+    "box-selection"
+  ],
+  "unchangedClasses": [
+    "tree-filter",
+    "orbit"
+  ],
+  "repairPaths": [
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md"
+  ],
+  "predicateRelaxation": false,
+  "scoringPerformed": false,
+  "rawParses": 1,
+  "instrumentedExtractorInvocations": 1,
+  "testsOrRuntimeExecuted": false,
+  "qualificationProposal": {
+    "plannedSessions": 10,
+    "perFixtureSize": 5,
+    "fixtureSizes": [
+      1000,
+      10000
+    ],
+    "sessionMode": "Fresh independently bound sessions under unchanged AC/foreground launch, product/browser/viewport/DPR/fixtures. Retain original assignment timing and required same-model responsive-tree witness.",
+    "failFast": true,
+    "retries": 0,
+    "selection": "Freeze all planned sessions before execution. Preserve every attempt; unrun sessions stay unrun after failure.",
+    "scope": "ASSIGNMENT_COLLECTION_QUALIFICATION_ONLY_INCOMPLETE_WORKLOAD",
+    "cohortContribution": 0,
+    "limits": "Does not qualify point/box/filter/orbit or demonstrate universal tail sufficiency. If three-class change adopted, existing bounded focused discrete proof must cover point and box before a full cohort. No run authorized by this diagnosis."
+  },
+  "closure": "Diagnosis sealed. Root must authorize/implement/review/check collection-only change; fresh focused qualification required. No cohort authorization.",
+  "remainingUncertainty": [
+    "Eventual exact target reporter state and emission/delivery cause unavailable in this capture",
+    "250ms budget sufficiency unproved until fresh bounded qualification; never a universal timing guarantee"
+  ],
+  "historicalDisposition": "Original V3 7pass/1fail/2notrun remains unqualified; no reconstructed acceptance or sample replacement.",
+  "release": "No live browser/native/server/trace owned or launched by this task; only offline process completed. Frozen maintained read scope released.",
+  "outputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRESENTED_REPORTER_DIAGNOSIS_V72/REPORT.md",
+      "sha256": "1e66064c9e40436a9a30ee63f26b5acff4fe526e3a14ec407ae0e84c41d589fe"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRESENTED_REPORTER_DIAGNOSIS_V72/PROSPECTIVE_CONTRACT.json",
+      "sha256": "3be111d2d4924204dcb542532454573028a59fadca105501842abfa621832b60"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRESENTED_REPORTER_DIAGNOSIS_V72/PREDICATES.json",
+      "sha256": "c0e556de7d08adc9ca2238bd0bd07d51230e879d96cdc4aaec83c29d0b571de9"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRESENTED_REPORTER_DIAGNOSIS_V72/TIMING.json",
+      "sha256": "708b297dc162052a8ae7c1c89f0345e5e6b3f35df26b194fd2901cc6ba5bf8d8"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRESENTED_REPORTER_DIAGNOSIS_V72/DIAGNOSE.mjs",
+      "sha256": "0facc346cda256d63f636eddfe78667d019b3654a82a75d19d1d4eb9639570ac"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRESENTED_REPORTER_DIAGNOSIS_V72/extractor.instrumented.mjs",
+      "sha256": "8e96a79df66858641f5a2ef21712ae8ae136ee25193f6f7c53f7de404948b92d"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRESENTED_REPORTER_DIAGNOSIS_V72/INSTRUMENTATION.json",
+      "sha256": "dcea0d962ca53a9dc012c847ca100645af4006bfaf40c2d4d0d40cb081be1709"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRESENTED_REPORTER_DIAGNOSIS_V72/ATTEMPT.json",
+      "sha256": "a039d4eb63185037e9edf2ea7e5ed072fb4a2a94c9c8ca4b8e8369aa152661b7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRESENTED_REPORTER_DIAGNOSIS_V72/INPUT_BINDINGS.json",
+      "sha256": "b1fbfa5620b9804f35150706a0674d3425f40a1281796cb35e5387d845460a2e"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "started_at": "2026-09-16T10:58:07.971723+00:00",
+  "completed_at": "2026-09-16T10:58:08.540650+00:00",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "role": "TASK Type2",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "delegation": "none; delegated-harness-native parentage",
+  "enforcement": "instruction/config asserted",
+  "scope": "Only the eight named closed packets and explicit members of their nine manifests. Historical failures/aborted results preserved byte-for-byte; no reinterpretation.",
+  "input_map": {
+    "path": "INPUT_MAP.json",
+    "sha256": "7716103d1298c7a6ae85cd550422587a20280d6d67232dfc36a56b8399c345e4"
+  },
+  "canonical_reference_map": {
+    "path": "CANONICAL_REFERENCE_MAP.json",
+    "sha256": "d2ea1c6ff2cb2efa74e44273485d18d1a029c3bb234f78ecc4ae2b30ca26be36"
+  },
+  "verified_aliases": 1272,
+  "verified_unique_objects": 945,
+  "created_unique_objects": 920,
+  "reused_matching_objects": 25,
+  "verified_unique_bytes": 241553660,
+  "exceptions": [],
+  "archive_root": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives",
+  "retrieval": "Use CANONICAL_REFERENCE_MAP canonical_path; verify SHA/bytes. Its alias indexes resolve to INPUT_MAP original paths and exact source-manifest hashes. V5 mappings remain unchanged.",
+  "atomicity": "New same-directory exclusive temporary copy, fsync, chmod 0444, renamex_np RENAME_EXCL, canonical hash/size readback; matching existing objects rehashed once for this increment and not recopied. No overwrite.",
+  "preserved": "All originals, checkpoint files and earlier archive records retained; no deletion, source edits, Git mutations, builds/tests/browser/native/server actions.",
+  "exclusions": [
+    "active NATIVE V17 runtime",
+    "V27A diagnosis",
+    "prospective work",
+    "undeclared directory members",
+    "maintained source referenced by source-binding reports",
+    "downloaded browser bytes"
+  ],
+  "limitations": "References within preserved reports do not imply their current external targets were archived. This increment covers explicit manifest members, including nested raw members already enumerated; no directory-wide inclusion. Historical preservation only, not final tranche qualification/acceptance or WORM storage."
+}

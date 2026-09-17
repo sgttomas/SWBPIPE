@@ -1,0 +1,38 @@
+{
+  "status": "FINDING_METADATA_PROVENANCE_REBIND_REQUIRED",
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "delegation": "none",
+  "enforcement": "instruction/config asserted",
+  "derivativePackage": true,
+  "findings": [
+    {
+      "id": "V68-R1",
+      "priority": 2,
+      "title": "Correct two inherited method-manifest preimage hashes",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_METHOD_INTEGRATION_V20W/SOURCE_MANIFEST.json",
+      "locations": [
+        128,
+        135
+      ],
+      "trigger": "Audit/reconstruct the V20W transition from the governing method manifest files[] rather than its contradictory changedFiles[] list.",
+      "impact": "performance-targets.ts and performance-targets.spec.ts advertise old f20ea79f... / 2d397aa2... preimages instead of the actual reviewed135a94cea preimages f27a99bb... / b69be586.... changedFiles[] already carries the correct hashes. Thus runtime postimages are exact, but the new governing manifest does not unambiguously bind the accepted source transition.",
+      "repair": "Emit a successor that corrects exactly those two files[].beforeSha256 values to changedFiles[]/accepted V20V Root postimage values; preserve original and rebind flat-source provenance, four commands, BINDINGS and execution recipe consistently. No source/test/runtime change."
+    }
+  ],
+  "source_manifest_sha256": "bbd6e13e1e22d7814d2a9e26ed6c34fbc40ee4c1451461c01bff860ed39acf0d",
+  "method_manifest_sha256": "fcb57840eda19a4d622f15fa317850f2e5a8b79f9e149a6ec83300a362fe22e3",
+  "launch_bindings_sha256": "29cc95e0e99d72a5fb4811c7e888523d3c15b335195b47cfca851c7a1c54a50f",
+  "execution_brief_sha256": "8ce063265848e5319fc012449414c2117f80c0f4db49f8708179ab7bee97d26c",
+  "coverage_sha256": "6871b518ff32b3c278a0785cd570aa118d524438d22fe272eb48b091cd591ed4",
+  "positive": "All143 integrated ROOT paths exactly match reviewed composite with accepted R1 README. All30 method/control/documentation entries exact both lanes. Four argv/cwd pairs unchanged from V64; environment deltas only method path/hash, fresh output and future cohort ID. Non-circular1+10 collection, exact8 focus and separately gated full cohort are consistent with execution brief. No other actionable findings.",
+  "input_integrity": {
+    "unique_bindings": 204,
+    "entry_exit_mismatches": 0
+  },
+  "limits": "Read/hash/JSON comparison only; no source rereview, tests, runtime, Git or source/policy edits. Root supplied commit/CHECK attribution not independently Git-queried. Prior source PASS remains; no prospective runtime or acceptance implied.",
+  "handoff": "Released. Root owns two-field metadata repair and exact successor rebindings, followed by narrow backcheck before any runtime lease."
+}

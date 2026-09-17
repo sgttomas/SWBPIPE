@@ -1,0 +1,41 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-16T21:27:13.154657+00:00",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "mechanism": "delegated-harness-native; no delegation",
+  "enforcement": "instruction/config asserted",
+  "brief": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/RAW_ARCHIVE_INCREMENT_V16.md",
+    "sha256": "95bc72d95a8e6ef1ee11a419ab752720e2a3d6b428aac398b3dcace9ed3066d7"
+  },
+  "prior_derivative": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V15/RETURN.json",
+    "sha256": "bd0a41de406f4cae785bca613761c776468fc3d2119768779fca87de64f3fdb1"
+  },
+  "inputs_sha256": "e264e0340eb1c0de965e27aa059a2bd566bc4a0006e3746257e145692c8ef0e6",
+  "map_sha256": "bda1b794d46ea57df6b85114484d2e93fdadfca3d50dd45abe85115227879011",
+  "closed_manifests": 8,
+  "verified_aliases": 148,
+  "verified_unique_objects": 124,
+  "created_unique_objects": 115,
+  "reused_verified_objects": 9,
+  "verified_unique_bytes": 14308273,
+  "exceptions": [],
+  "historical_status": "Native failure and product preimage failures remain unchanged. Passing source repair/review and preparation status do not establish native/performance acceptance.",
+  "retrieval": "MAP canonical SHA/bytes/path; aliases resolve through INPUTS to exact originals/owning manifest hashes. Owning manifests included.",
+  "verification_coverage": "Every declared durable member SHA/size verified; every unique canonical object hash+size readback checked. Actual size recorded where absent.",
+  "method": "Exclusive new fsync0444 temporary objects, renamex_np RENAME_EXCL and readback; exact existing objects verified/reused. No overwrite/WORM claim.",
+  "exclusions": [
+    "active nativeV32 outputs",
+    "live source",
+    "review scratch/read-*.txt",
+    "unlisted packages"
+  ],
+  "preservation": "All originals/prior objects/maps/history retained. No product/method/metadata/Git/build/test/browser/native/process/publication/receipt/deletion work.",
+  "archive_io": "COMPLETE_RELEASED; no background work",
+  "claim_limit": "Derivative preservation only; no acceptance reinterpretation."
+}

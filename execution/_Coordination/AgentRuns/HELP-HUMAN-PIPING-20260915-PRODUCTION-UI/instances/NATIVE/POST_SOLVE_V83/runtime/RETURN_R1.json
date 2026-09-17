@@ -1,0 +1,26 @@
+{
+  "status": "STOPPED_BEFORE_GUI_QUALIFIED_ASSET_MISMATCH",
+  "builds": 2,
+  "second_build_exit": 0,
+  "native_witness": "NOT_RUN",
+  "source_inputs_exact": 814,
+  "qualified_dist_matches": 19,
+  "qualified_dist_total": 21,
+  "failed_assets": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "expected": "740b9c2975e67ab77a2074f94bc4360d127fec29287666ea669c22b520da96ff",
+      "actual": "b86247f1dffa3cc92cff2ab50dfd851abaf7a33fd62651dccb58ef688395e522",
+      "bytes": 683818
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "expected": "faee33abfd24f770a6dd5e995caa1f2798e9ba1da0c003d5873f6102937537ff",
+      "actual": "1a3c9359157d1e3fd0efc79d41f15be765fb18281cb533950541f0d9527d6c0c",
+      "bytes": 1000441
+    }
+  ],
+  "first_app_preserved": "FIRST_APP_TREE",
+  "release": "R1_RELEASE.json",
+  "next": "Root disposition required; no third build authorized."
+}

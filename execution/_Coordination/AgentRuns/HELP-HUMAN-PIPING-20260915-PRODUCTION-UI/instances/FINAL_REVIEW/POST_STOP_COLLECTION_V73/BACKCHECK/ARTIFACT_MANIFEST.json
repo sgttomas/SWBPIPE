@@ -1,0 +1,26 @@
+{
+  "schema": "immutable-review-artifacts/v1",
+  "selfExcluded": true,
+  "files": [
+    {
+      "path": "BINDINGS.json",
+      "sha256": "9dacac4972f13d63d3de1b73c6370874752666022b32da4e60e3f273f2b2402e",
+      "bytes": 71350
+    },
+    {
+      "path": "COVERAGE.json",
+      "sha256": "c63f0772d50093daa7cae4182cdaa007ed5ccf27a7528278a27d0ed5e136e28a",
+      "bytes": 5684
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "6b488b1ca668e2072bcba6bfe05267b2128f36f95e96f7a03867dab58c2199ae",
+      "bytes": 1475
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "00d33a962c5478668cf7af2658cf2b96d3ee0bbfcf713eb153d97630d4a2f1f6",
+      "bytes": 1980
+    }
+  ]
+}

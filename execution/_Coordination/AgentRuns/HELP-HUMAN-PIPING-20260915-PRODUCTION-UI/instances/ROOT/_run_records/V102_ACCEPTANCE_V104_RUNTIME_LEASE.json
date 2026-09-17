@@ -1,0 +1,45 @@
+{
+  "status": "GRANTED_COMPLETE_REGISTERED_SWEEP_ONLY",
+  "at": "2026-09-17T13:31:27.461222+00:00",
+  "owner": "/root/ui_full_method_qualification",
+  "parent": "/root HELP_HUMAN",
+  "role": "TASK Type 2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "enforcement": "instruction/config asserted; no delegation",
+  "source_commit": "b6a1ab8378481adbb46d65847cb7eaf9a2864461",
+  "source": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
+    "sha256": "99077f9883a51421b874292ecc6ab51f62fc4bba9c5918413e7d6024b7e98145",
+    "bytes": 33601
+  },
+  "independent_review": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CONTRAST_V102/RETURN.json",
+    "sha256": "6de237c082e31562e3d346d3c6d0555ab1410c6f54517517c29c86910b07ce33",
+    "bytes": 2632
+  },
+  "prepared_command": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V104_PREPARATION/PREPARED_COMMAND.json",
+    "sha256": "f3392b0f9e6840fae6ebe233af0f2f124f93b00f1e4faef959bfd3ad8e405411",
+    "bytes": 3767
+  },
+  "prepared_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V104_PREPARATION/OUTPUT_MANIFEST.json",
+    "sha256": "741b733fe59c334d162130ae1153ab9f49b1895895cd4e452ddeae313020b36f",
+    "bytes": 624
+  },
+  "preflight": {
+    "source145_root_check_working_and_committed": "ALL_EXACT",
+    "CHECK_status": "clean tracked/untracked",
+    "ports5173to5177": "clear",
+    "review_members_verified": 8,
+    "review_bytes": 985243,
+    "review_inputs_verified": 474,
+    "review_actionable_findings": 0,
+    "focused": "12 original appearance passes plus2 R1 readiness passes; original failures preserved"
+  },
+  "authorization": "Execute exactly the unchanged prepared complete registered five-surface/seven-command sweep once on clean CHECK actual candidate. Output RUN/instances/REGISTERED_SWEEP_V104; preserve canonical outputs and explicit unrun states on failure. No retry, skip, source repair, dependency install or acceptance change.",
+  "concurrency": "Only file-light Root coordination/review/closeout drafting may run. No other test/build/browser/native/benchmark/heavy archive IO.",
+  "stop": "First command failure: preserve outputs and report; no automatic repair or rerun. Freeze complete exit source/commit identities and process/port release.",
+  "remaining": "V103 native appearance/missed controls after release, metadata/practitioner/receipt/CI. D69 remains unruled; this grants no performance exception or merge."
+}

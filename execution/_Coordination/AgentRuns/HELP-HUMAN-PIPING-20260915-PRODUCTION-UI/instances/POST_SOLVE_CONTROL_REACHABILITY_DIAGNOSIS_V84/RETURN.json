@@ -1,0 +1,88 @@
+{
+  "status": "COMPLETE_BOUNDED_DIAGNOSIS_PROSPECTIVE_DRIVER_CORRECTION_RECOMMENDED",
+  "sealedAt": "2026-09-17T08:38:41.694581+00:00",
+  "parent": "/root HELP_HUMAN",
+  "agent": "/root/ui_causal_runtime_diagnosis",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoningEffort": "xhigh",
+  "enforcement": "delegated-harness-native; instruction/config asserted; no delegation",
+  "derivativePackage": true,
+  "acceptedUpstream": {
+    "v84BriefSha256": "4fb58b90951fb2308c58a8d97d3d578d0154e631cc79015da0b7589394a98619",
+    "r1ManifestSha256": "983e92747b4135894a59ed1d9480e0893a993aac1d62eec2200989af47531b63",
+    "r1ReturnSha256": "c915da2613bcf9ad2cf04872c02947021cab330220cfcc9cdb0baaa668fd9d4c"
+  },
+  "roots": {
+    "implementation": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915",
+    "repair": "/Users/ryan/.codex/worktrees/8728/chirality-ui-workflow-repair-20260917"
+  },
+  "sourceBinding": "Preserved R1 matrix snapshot exactly matches original live entry read; one Root-authorized R2 live exit drift explicitly recorded. No R2 review. Other inputs match entry.",
+  "findings": {
+    "originalMatrix": {
+      "passed": 10,
+      "failed": 2,
+      "retry": 0,
+      "unchanged": true
+    },
+    "failure": "First solver-mode-sparse before proof disclosure, both Compact1024x768",
+    "targetTop": 583.828125,
+    "clipTop": 584.171875,
+    "topClipCssPx": 0.34375,
+    "earlierSolvedGeometry": {
+      "dockBodyHeight": 106.234375,
+      "clientAndUsableHeight": 106,
+      "scrollHeight": 3283,
+      "scrollTop": 922,
+      "canvasWidth": 582,
+      "canvasHeight": 223,
+      "shellOverflowX": 0,
+      "shellOverflowY": 0
+    },
+    "laterFocusSnapshotScrollTop": 920,
+    "completeFinalContainmentWitness": "NOT_RETAINED",
+    "earlierEnabledFocusedCenterChecks": "PASSED_BEFORE_FAILURE; not proof of missing final witness fields",
+    "wheelInEitherFailedTrace": 0,
+    "independentSuccessfulBodies": {
+      "count": 10,
+      "exactControlWitnesses": 60,
+      "allContainedFocusedOwned": true,
+      "minimumSolvedUsableHeight": 97
+    },
+    "productDefect": "NOT_ESTABLISHED",
+    "roundingCause": "NOT_ESTABLISHED; integer clientHeight changes bottom comparison and does not explain top clip",
+    "interpretation": "Existing driver tests one auto-scroll/focus placement, not whether the intended ordinary wheel route can reach an exact interior position."
+  },
+  "recommendation": {
+    "scope": "Only repair projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts solved-control helper and evidence persistence",
+    "change": "Retain all initial enabled/focus/center guards. Record initial witness, then for a qualified fitting edge control allow one ordinary verified in-dock wheel adjustment (proposed fixed16CSS delta, sign toward interior). Require actual dock scroll change and fresh exact final containment/focus/hit witness; no source DOM scrolling or forced actions, no loop/tolerance/timeouts expansion. Persist witnesses even on failure.",
+    "nextCheck": "Root-reviewed amendment followed by one unchanged12-case matrix, all before/after proof controls, canvas200x200/body>64 floors and draft/raw-proof assertions. No run authorized here.",
+    "claimLimit": "Wheel-assisted reachability only; not keyboard-only automatic full-border reveal or universal accessibility."
+  },
+  "handoff": {
+    "diagnosisClosure": "COMPLETE",
+    "productFunctionalAcceptance": "NOT_GRANTED",
+    "historicalV81AndR1": "PRESERVED",
+    "remainingBlocker": "Fresh exact before/wheel/after witness for both compact cases plus remaining complete matrix checks; independent source integration and qualification remain separate.",
+    "automaticRuntime": false,
+    "productPatchJustified": false,
+    "r2Disposition": "Preparation authorized independently by Root during sealing; not reviewed or accepted by this diagnosis."
+  },
+  "actions": {
+    "ownSourceEdits": 0,
+    "runtime": 0,
+    "tests": 0,
+    "builds": 0,
+    "browserGui": 0,
+    "hostProbes": 0,
+    "network": 0,
+    "git": 0,
+    "delegation": 0,
+    "performanceContinuation": 0
+  },
+  "inputCount": 44,
+  "historicalInputExitHashesStable": true,
+  "authorizedLiveDriftCount": 1,
+  "reportSha256": "9931ca1e1cd915617bdf1d2934dee021a715c47165a2b7991afb1a3861426edd",
+  "inputsSha256": "8bed7691f58e32673b1db7bc15313b3babfcd66475aed36806fa3695c3a83bf6"
+}

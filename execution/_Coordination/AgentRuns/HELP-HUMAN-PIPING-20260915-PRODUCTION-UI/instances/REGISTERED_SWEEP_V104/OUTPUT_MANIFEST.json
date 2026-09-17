@@ -1,0 +1,2384 @@
+{
+  "members": [
+    {
+      "path": "BUILT_DIST_IDENTITY.json",
+      "sha256": "d925e90ca785598e7b6d5bacc53c5eae10aa2f79be64bf062a0a787d5cd3ff35",
+      "bytes": 4951
+    },
+    {
+      "path": "COMMAND.json",
+      "sha256": "1a42835ca3ec99f6db179027bd26ae784accdc6527a19b2ffabc2356f719a0fc",
+      "bytes": 641
+    },
+    {
+      "path": "CONTEXT.json",
+      "sha256": "927415481cb93ed29e70f05132bd15e2f450ac038ce5ce4b2b14618b65ab5551",
+      "bytes": 1674
+    },
+    {
+      "path": "ENTRY_GIT.json",
+      "sha256": "3b7568e86abdd9ee468f1aea34ed47d107a8954c45724f0ff505f282ad3dce21",
+      "bytes": 88
+    },
+    {
+      "path": "ENTRY_PORTS.json",
+      "sha256": "8d9c68c7768bfb8d8bcdaf08124c6a2c41ccedfd06d1ab3c9c43313a47b542d8",
+      "bytes": 298
+    },
+    {
+      "path": "ENTRY_PROCESSES.log",
+      "sha256": "00559d93aac0692d9701c291aebda3b54bd46b57060482e6a7216a5c94e9a1d2",
+      "bytes": 198276
+    },
+    {
+      "path": "ENTRY_SOURCE.json",
+      "sha256": "bb47faa630163d048adf4b7b0dc0cb30a4024ef14bf2d38aaf52aeadd0c52405",
+      "bytes": 30754
+    },
+    {
+      "path": "EXIT.json",
+      "sha256": "8806f7d6b56111823352d999545a729afa6c722130c745738462624940618d14",
+      "bytes": 69
+    },
+    {
+      "path": "EXIT_GIT.json",
+      "sha256": "3b7568e86abdd9ee468f1aea34ed47d107a8954c45724f0ff505f282ad3dce21",
+      "bytes": 88
+    },
+    {
+      "path": "EXIT_PROCESSES.log",
+      "sha256": "95b3287e9b7894bba9f19f56450e98b4720e71140c4b46582e3538778e135522",
+      "bytes": 198076
+    },
+    {
+      "path": "EXIT_SOURCE.json",
+      "sha256": "bb47faa630163d048adf4b7b0dc0cb30a4024ef14bf2d38aaf52aeadd0c52405",
+      "bytes": 30754
+    },
+    {
+      "path": "PROCESS.json",
+      "sha256": "3a95e31cac17a5a943424abd2a5f95eb887660493724c9711bffe285cc6da0ce",
+      "bytes": 19
+    },
+    {
+      "path": "RESULT_AUDIT.json",
+      "sha256": "156bb52c0b618d3196c87a9aa7f363bce204aeabec3e9fa6ee7b364b54f68049",
+      "bytes": 1134
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "df4a3d8905de4ca085d665b902db23ab8e79fd2f09c788202e181637cedb2a08",
+      "bytes": 4834
+    },
+    {
+      "path": "RUNTIME_RELEASE.json",
+      "sha256": "252a8c2fded7ec942803617606b596f928dae55171baf9812c87efaca3437861",
+      "bytes": 481
+    },
+    {
+      "path": "playwright-test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--prefli-cfa44-ps-and-keyboard-measurement-chromium-desktop-dist/attachments/normal-authoring-preflight-light-compact-1024x768-keyboard-measurement-043b7a1ceb77b60b90d00ed19a3c75c8ecb3c82a.png",
+      "sha256": "dfcad03853058b75c6e65deb9a1554c5288404599da29a4e0b305ed32a21e715",
+      "bytes": 104356
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--prefli-cfa44-ps-and-keyboard-measurement-chromium-desktop-dist/normal-authoring-preflight-light-compact-1024x768-keyboard-measurement.png",
+      "sha256": "dfcad03853058b75c6e65deb9a1554c5288404599da29a4e0b305ed32a21e715",
+      "bytes": 104356
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/attachments/visual-clarification-1024x768-inspector-only-measurement-pipe-task-footer-19c219b42ceb0923a085f081053d938238ce9cb2.png",
+      "sha256": "16faab6023b57b43edf76798cb689b889a1bea6bc72941b8d84d380f30b608e4",
+      "bytes": 124778
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/attachments/visual-clarification-1024x768-rails-closed-measurement-36b2648859f0cd80288d9b06432ba7ff19173661.png",
+      "sha256": "02079104e32c7a0a42327ed2c253dbd830e76a1963a376058d4ba912115a5f4f",
+      "bytes": 102659
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/attachments/visual-clarification-1440x920-both-rails-default-deb2b0a0283940dd07203eb5f0d55b6ead96f376.png",
+      "sha256": "b37eee756138156ab26313bcf251e5f62c252454fad0064640696f94358f84fd",
+      "bytes": 187394
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/attachments/visual-clarification-1440x920-both-rails-measurement-pipe-task-footer-6f07c69440ece4cfcc711fd521f9878b8dc91289.png",
+      "sha256": "1e9d97ab58d985ce8e522c6d6f300ab48c4a3f81d7b0b75320dbba6598c29298",
+      "bytes": 212495
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/visual-clarification-1024x768-inspector-only-measurement-pipe-task-footer.png",
+      "sha256": "16faab6023b57b43edf76798cb689b889a1bea6bc72941b8d84d380f30b608e4",
+      "bytes": 124778
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/visual-clarification-1024x768-rails-closed-measurement.png",
+      "sha256": "02079104e32c7a0a42327ed2c253dbd830e76a1963a376058d4ba912115a5f4f",
+      "bytes": 102659
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/visual-clarification-1440x920-both-rails-default.png",
+      "sha256": "b37eee756138156ab26313bcf251e5f62c252454fad0064640696f94358f84fd",
+      "bytes": 187394
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/visual-clarification-1440x920-both-rails-measurement-pipe-task-footer.png",
+      "sha256": "1e9d97ab58d985ce8e522c6d6f300ab48c4a3f81d7b0b75320dbba6598c29298",
+      "bytes": 212495
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-blocked-diagnostic-dark-398d4a15bf7cb301301d5ad24a90c1a6680e3b9c.png",
+      "sha256": "7f48312a4783e9aaf8ae4c10a26762cd66ed26527656d651c77bf76c6f3bde43",
+      "bytes": 13771
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-c7d3aa5adaaa8ac383ca6a1a6fa8ce2de809649d.png",
+      "sha256": "d10bde5c4bd8dc827c02d129c2d59e14f34ba24fa85cdd12634a82df0cdfef2c",
+      "bytes": 227277
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-diagnostics-warning-9721a153f34af929b1d66e1b2eec809703bc782e.png",
+      "sha256": "4958b3a8300fb006b8703361b10d7254046e18b9313d4281c6ddd693d51598b2",
+      "bytes": 4833
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-mechanics-info-8795f47cc3a377e0aef6917b9c301914f3661598.png",
+      "sha256": "3c78bdd038c165b08ffdfd18413645285a6a9f6cba95da085dc402b4fb1fc95f",
+      "bytes": 5860
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-professional-warning-3447b623da9183cf44c89ab2b2ff6bf1eca24b57.png",
+      "sha256": "c124d991ad48a7fab2812278dc9cbab3113c2cecdd63b94ea31e2f950c1fc019",
+      "bytes": 9603
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-rule-warning-f82a5bf4174cc08d33a934200c8a7ce8c3f6ce33.png",
+      "sha256": "031d3d9186c714d2fc006c5d09d68b610e65aa997d0eaa6a365a3f21cac90a54",
+      "bytes": 8575
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-blocked-868b7d2b2f118f1500cc645ef1e3608e2a785a35.png",
+      "sha256": "cf44b4c484300af3cf512fc38d3d4a663ed381cfa0e4343344873f9e4a60c9d1",
+      "bytes": 195907
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-blocked-readiness-diagnostics-blocking-ae38fd7c6021f49af4083ba4f082a4c795961ac7.png",
+      "sha256": "3133c23cda3e8d26b0b43aca65ec7e5fed0b9cf6bbfa83fb14ee15ce046eb8ed",
+      "bytes": 4673
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-blocked-readiness-mechanics-ok-a9332d83fccab9b61510688e62c96e6313703529.png",
+      "sha256": "0e4616de6be02e72a3d0649a532dca8a6ea9b6dd55a7a093ddd68558d63d5af7",
+      "bytes": 4924
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-blocked-readiness-professional-warning-89849392f7110beb8296c59d46fe4c9e6dbb9764.png",
+      "sha256": "a9cd7e89a33549776c29e2c6c596dea77936776d6778fbd155e189a28d876163",
+      "bytes": 9603
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-blocked-readiness-rule-warning-bc65bbedc95180e233140dfbe8849b0d5a9847df.png",
+      "sha256": "ed2a8c7f061006645012b23d0b9652f8026a89b483f8b6f65ee92b66b83211dc",
+      "bytes": 7441
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-1df6429254ab1482e61b6555d7d7d101da2286a1.png",
+      "sha256": "37f10b7e55999fc9ac17a2ec43a292b471376b14b25b6a1cec3ce619656e7245",
+      "bytes": 220547
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-diagnostics-warning-003c06792fb9c07e4cb8c27fdb1023f3fc7f9939.png",
+      "sha256": "90d767e718ec95ac49d31c1a068089c9aadafd440441e4dae39ee2679b47d755",
+      "bytes": 5542
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-mechanics-ok-9ee583173ce0a724bbe9526a63df0126680235d1.png",
+      "sha256": "6719858708d8bed7f116e8080c75ada864e30f5f7aac1c409f9c6728ce8966aa",
+      "bytes": 5459
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-professional-warning-48363b83a2aa9ec3ee805439dbc071b12dddcca3.png",
+      "sha256": "a9cd7e89a33549776c29e2c6c596dea77936776d6778fbd155e189a28d876163",
+      "bytes": 9603
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-rule-warning-36760d338b70b083fa9722ab064e69a1ec57ce38.png",
+      "sha256": "ed2a8c7f061006645012b23d0b9652f8026a89b483f8b6f65ee92b66b83211dc",
+      "bytes": 7441
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-blocked-diagnostic-dark.png",
+      "sha256": "7f48312a4783e9aaf8ae4c10a26762cd66ed26527656d651c77bf76c6f3bde43",
+      "bytes": 13771
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-diagnostics-warning.png",
+      "sha256": "4958b3a8300fb006b8703361b10d7254046e18b9313d4281c6ddd693d51598b2",
+      "bytes": 4833
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-mechanics-info.png",
+      "sha256": "3c78bdd038c165b08ffdfd18413645285a6a9f6cba95da085dc402b4fb1fc95f",
+      "bytes": 5860
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-professional-warning.png",
+      "sha256": "c124d991ad48a7fab2812278dc9cbab3113c2cecdd63b94ea31e2f950c1fc019",
+      "bytes": 9603
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve-readiness-rule-warning.png",
+      "sha256": "031d3d9186c714d2fc006c5d09d68b610e65aa997d0eaa6a365a3f21cac90a54",
+      "bytes": 8575
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-before-solve.png",
+      "sha256": "d10bde5c4bd8dc827c02d129c2d59e14f34ba24fa85cdd12634a82df0cdfef2c",
+      "bytes": 227277
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-blocked-readiness-diagnostics-blocking.png",
+      "sha256": "3133c23cda3e8d26b0b43aca65ec7e5fed0b9cf6bbfa83fb14ee15ce046eb8ed",
+      "bytes": 4673
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-blocked-readiness-mechanics-ok.png",
+      "sha256": "0e4616de6be02e72a3d0649a532dca8a6ea9b6dd55a7a093ddd68558d63d5af7",
+      "bytes": 4924
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-blocked-readiness-professional-warning.png",
+      "sha256": "a9cd7e89a33549776c29e2c6c596dea77936776d6778fbd155e189a28d876163",
+      "bytes": 9603
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-blocked-readiness-rule-warning.png",
+      "sha256": "ed2a8c7f061006645012b23d0b9652f8026a89b483f8b6f65ee92b66b83211dc",
+      "bytes": 7441
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-blocked.png",
+      "sha256": "cf44b4c484300af3cf512fc38d3d4a663ed381cfa0e4343344873f9e4a60c9d1",
+      "bytes": 195907
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved-readiness-diagnostics-warning.png",
+      "sha256": "90d767e718ec95ac49d31c1a068089c9aadafd440441e4dae39ee2679b47d755",
+      "bytes": 5542
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved-readiness-mechanics-ok.png",
+      "sha256": "6719858708d8bed7f116e8080c75ada864e30f5f7aac1c409f9c6728ce8966aa",
+      "bytes": 5459
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved-readiness-professional-warning.png",
+      "sha256": "a9cd7e89a33549776c29e2c6c596dea77936776d6778fbd155e189a28d876163",
+      "bytes": 9603
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved-readiness-rule-warning.png",
+      "sha256": "ed2a8c7f061006645012b23d0b9652f8026a89b483f8b6f65ee92b66b83211dc",
+      "bytes": 7441
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/readiness-dark-solved.png",
+      "sha256": "37f10b7e55999fc9ac17a2ec43a292b471376b14b25b6a1cec3ce619656e7245",
+      "bytes": 220547
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-blocked-diagnostic-light-7e2e0299be28eafee09aa3f48238812ebe0b89ac.png",
+      "sha256": "ba3035f9d6c6dca8933382c12fb60fbc2cf14309b5f203e81774b1770bffce3f",
+      "bytes": 14348
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-c046bdeb3c40cd840e598e8b12e98fc35ec8050e.png",
+      "sha256": "2ae0e129afada8a3b389abe6b433cf9d87b8b4a29f04d561b80f4c2f58bed5e0",
+      "bytes": 227478
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-diagnostics-warning-484802fe3f3279214fc4b77657af9913ea12b4c3.png",
+      "sha256": "a1a1a50a9f3862ff0a8be8f81a0a703add38573b4e532c6421e03dcc56cb024e",
+      "bytes": 4883
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-mechanics-info-bde7f8225b359673a2ed786350d95f28cf596907.png",
+      "sha256": "f94b9ef13f640e23aa3ddb6d39616ca91135103d9cb1bd5a69e8c35141868235",
+      "bytes": 6198
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-professional-warning-ba7f75adfc19084eaae2b9402eb9cc47c677c4a5.png",
+      "sha256": "e9db57fdbba8d6c4b4e28118ea0ad2a74d85263c70f7ebbce28742555ae94b5e",
+      "bytes": 9762
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-rule-warning-b0101cfd727140bcfe1e7dfa420a487f8268c21c.png",
+      "sha256": "ad286ef1e9695abae1f5e123a31d5ccafc5119b2c688ac3a95f930569e7e4fff",
+      "bytes": 9073
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-blocked-e50829b3a9b96c7265705bd555e014057f191ef2.png",
+      "sha256": "6faabf0185409c9094bf425fb55e23ce2f7e97944b56e32e20dbdf9205252850",
+      "bytes": 196536
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-blocked-readiness-diagnostics-blocking-3fdfceb5a7235b6a6c5a8b328cd8edd60394849b.png",
+      "sha256": "d21240873ae9ee349af4f7a706273a83ca1daf660790a937bfb4363510c9a542",
+      "bytes": 4966
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-blocked-readiness-mechanics-ok-1391d575b6b7e303ae9bc12fb8f2d1bd312a35b4.png",
+      "sha256": "23e42eb2080cf93ba332a6f91d8dc52daef1104ddf4cadb7b1df2b18eb8c94ba",
+      "bytes": 4785
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-blocked-readiness-professional-warning-dfb1ec1ef9e5a84ecb0a1fe8d9cba8d048dd6751.png",
+      "sha256": "8915179e1615b3d209f688e5b81aa85d0c0fe04e77321b07fd652a26df94923a",
+      "bytes": 9770
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-blocked-readiness-rule-warning-3cb7bada3ce39f796933324c0a2fd6c90d726a28.png",
+      "sha256": "1d93c98c534df49ea17fe522c66fda14724e26fd34e90817e714a51f85e390ff",
+      "bytes": 7830
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-f2ab25e38e8d5190319b6f74dc287011ec287c96.png",
+      "sha256": "5f4c26b239355cc8df227ff5873112e24c07a6dc9b9c01067453005a892520d0",
+      "bytes": 221017
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-diagnostics-warning-d4da9dbba602d414bd3d34dfe6d3e6bf497bc839.png",
+      "sha256": "eb222620322e2232b916ff8f9faf596a6425deaf1bb672003a294cb130dce72f",
+      "bytes": 5485
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-mechanics-ok-c412adc1d2f1f64d56174625ee344b985bd123e5.png",
+      "sha256": "bf1465724c53640b5ba6f0f43613806ba1cd22342cbe95b4946b4e02a4af8949",
+      "bytes": 5434
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-professional-warning-823fa9d50fcacab4b8308c8d1ff5e818c898c35d.png",
+      "sha256": "8915179e1615b3d209f688e5b81aa85d0c0fe04e77321b07fd652a26df94923a",
+      "bytes": 9770
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-rule-warning-1ea428c23d210c0db4c815a3064bd91dcdd77ac0.png",
+      "sha256": "1d93c98c534df49ea17fe522c66fda14724e26fd34e90817e714a51f85e390ff",
+      "bytes": 7830
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-blocked-diagnostic-light.png",
+      "sha256": "ba3035f9d6c6dca8933382c12fb60fbc2cf14309b5f203e81774b1770bffce3f",
+      "bytes": 14348
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve-readiness-diagnostics-warning.png",
+      "sha256": "a1a1a50a9f3862ff0a8be8f81a0a703add38573b4e532c6421e03dcc56cb024e",
+      "bytes": 4883
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve-readiness-mechanics-info.png",
+      "sha256": "f94b9ef13f640e23aa3ddb6d39616ca91135103d9cb1bd5a69e8c35141868235",
+      "bytes": 6198
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve-readiness-professional-warning.png",
+      "sha256": "e9db57fdbba8d6c4b4e28118ea0ad2a74d85263c70f7ebbce28742555ae94b5e",
+      "bytes": 9762
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve-readiness-rule-warning.png",
+      "sha256": "ad286ef1e9695abae1f5e123a31d5ccafc5119b2c688ac3a95f930569e7e4fff",
+      "bytes": 9073
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-before-solve.png",
+      "sha256": "2ae0e129afada8a3b389abe6b433cf9d87b8b4a29f04d561b80f4c2f58bed5e0",
+      "bytes": 227478
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-blocked-readiness-diagnostics-blocking.png",
+      "sha256": "d21240873ae9ee349af4f7a706273a83ca1daf660790a937bfb4363510c9a542",
+      "bytes": 4966
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-blocked-readiness-mechanics-ok.png",
+      "sha256": "23e42eb2080cf93ba332a6f91d8dc52daef1104ddf4cadb7b1df2b18eb8c94ba",
+      "bytes": 4785
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-blocked-readiness-professional-warning.png",
+      "sha256": "8915179e1615b3d209f688e5b81aa85d0c0fe04e77321b07fd652a26df94923a",
+      "bytes": 9770
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-blocked-readiness-rule-warning.png",
+      "sha256": "1d93c98c534df49ea17fe522c66fda14724e26fd34e90817e714a51f85e390ff",
+      "bytes": 7830
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-blocked.png",
+      "sha256": "6faabf0185409c9094bf425fb55e23ce2f7e97944b56e32e20dbdf9205252850",
+      "bytes": 196536
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved-readiness-diagnostics-warning.png",
+      "sha256": "eb222620322e2232b916ff8f9faf596a6425deaf1bb672003a294cb130dce72f",
+      "bytes": 5485
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved-readiness-mechanics-ok.png",
+      "sha256": "bf1465724c53640b5ba6f0f43613806ba1cd22342cbe95b4946b4e02a4af8949",
+      "bytes": 5434
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved-readiness-professional-warning.png",
+      "sha256": "8915179e1615b3d209f688e5b81aa85d0c0fe04e77321b07fd652a26df94923a",
+      "bytes": 9770
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved-readiness-rule-warning.png",
+      "sha256": "1d93c98c534df49ea17fe522c66fda14724e26fd34e90817e714a51f85e390ff",
+      "bytes": 7830
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/readiness-light-solved.png",
+      "sha256": "5f4c26b239355cc8df227ff5873112e24c07a6dc9b9c01067453005a892520d0",
+      "bytes": 221017
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Support-4bd31-operty-Task-through-toolbar-chromium-desktop-dist/attachments/support-route-retained-task-toolbar-5989eacba44e9e6e1c22cf4d06750f90c7011b00.png",
+      "sha256": "d34f63c5e630d307a1a083c1c62fd16a6c81783ec6db7108b326b9a66e5fecb1",
+      "bytes": 159600
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Support-4bd31-operty-Task-through-toolbar-chromium-desktop-dist/support-route-retained-task-toolbar.png",
+      "sha256": "d34f63c5e630d307a1a083c1c62fd16a6c81783ec6db7108b326b9a66e5fecb1",
+      "bytes": 159600
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Support-4e11c-ty-Task-through-Insert-menu-chromium-desktop-dist/attachments/support-route-retained-task-Insert-menu-bc5eea6190ec4325cb0627b028e7ebde74bc1ee3.png",
+      "sha256": "45b5bfd164e3c623d1acdbaa92439f960ad47928ed382cecefdca3fa8aca4485",
+      "bytes": 159576
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Support-4e11c-ty-Task-through-Insert-menu-chromium-desktop-dist/support-route-retained-task-insert-menu.png",
+      "sha256": "45b5bfd164e3c623d1acdbaa92439f960ad47928ed382cecefdca3fa8aca4485",
+      "bytes": 159576
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-capture-5d2d5-x-before-delayed-pointer-up-chromium-desktop-dist/after-delayed-up.png",
+      "sha256": "21d0c59530aa6f8444cf76ef4f4d81d166024b3aa84b5c16f2697567f17c333d",
+      "bytes": 182278
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-capture-5d2d5-x-before-delayed-pointer-up-chromium-desktop-dist/after-escape-before-up.png",
+      "sha256": "21d0c59530aa6f8444cf76ef4f4d81d166024b3aa84b5c16f2697567f17c333d",
+      "bytes": 182278
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-capture-ac6ba-x-before-delayed-pointer-up-chromium-desktop-dist/replacement-after-delayed-up.png",
+      "sha256": "79fd67d2de039f61e33210029cb3210ff4ac5266c07c9e64a794b177cca274e5",
+      "bytes": 156718
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-capture-ac6ba-x-before-delayed-pointer-up-chromium-desktop-dist/replacement-delayed-move-before-up.png",
+      "sha256": "79fd67d2de039f61e33210029cb3210ff4ac5266c07c9e64a794b177cca274e5",
+      "bytes": 156718
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-closed-eb41eb1446f2b25a32f1754a8c47e24afc62da1f.png",
+      "sha256": "f437c45d54773e339cae38110281f7a2f0d040aaa45c1290d7ec8aca6ac30c13",
+      "bytes": 126583
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-open-actual-page-control-403927a762a4c159134c43cd4af5b5ddbc325a62.png",
+      "sha256": "220db2fcefbec56a19720e5d9a035578ebac138f941be13c1d33ad9c5cfaf682",
+      "bytes": 121985
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-open-c609d27242301454efa2061812dc484497c686a2.png",
+      "sha256": "8ff332803be056afcff98a8634bb32da8e380509904485f4a6caaa5b476e44e3",
+      "bytes": 125344
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-600-closed-0dac51339c1fd4df98bc1d4f9a0e11f197376da9.png",
+      "sha256": "f437c45d54773e339cae38110281f7a2f0d040aaa45c1290d7ec8aca6ac30c13",
+      "bytes": 126583
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-600-open-actual-page-control-ee54aac72114dcbb0134aa7d82a071db48b625e6.png",
+      "sha256": "dbf2d92a0c943c95509ea9ff96ab368bfdc56e083fc62c7f3b0e294c86196ed0",
+      "bytes": 121950
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-600-open-cd9fc68c07073fdfc4ab3afe9843dff16654b998.png",
+      "sha256": "8ff332803be056afcff98a8634bb32da8e380509904485f4a6caaa5b476e44e3",
+      "bytes": 125344
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-180-closed-bf37a9f29c4c4e3008903fc48fd4c4ac1bc74b08.png",
+      "sha256": "f437c45d54773e339cae38110281f7a2f0d040aaa45c1290d7ec8aca6ac30c13",
+      "bytes": 126583
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-180-open-9637a28877e30b034ba37b67f009870f66100e08.png",
+      "sha256": "3290695fda9f6969d78dc936de58d2fc806c7b30c0e778eb4ed837095303d7c1",
+      "bytes": 128899
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-180-open-actual-page-control-e272839aa9db12e0278019d3b428d3e307a6d0f3.png",
+      "sha256": "678741ba703561718da9982aaaf3cdc604435e28da6c09e8ed77aff65f76961c",
+      "bytes": 128894
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-600-closed-9c0c493dcacb4885d6df0b25c8af4ab8c544a2e8.png",
+      "sha256": "f437c45d54773e339cae38110281f7a2f0d040aaa45c1290d7ec8aca6ac30c13",
+      "bytes": 126583
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-600-open-5200ef7585bba69fd6d92dc441320ccd0df868ce.png",
+      "sha256": "3290695fda9f6969d78dc936de58d2fc806c7b30c0e778eb4ed837095303d7c1",
+      "bytes": 128899
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-600-open-actual-page-control-b6a3f3243b75cff269c19623f60e0473ad811692.png",
+      "sha256": "678741ba703561718da9982aaaf3cdc604435e28da6c09e8ed77aff65f76961c",
+      "bytes": 128894
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-180-closed-08f6af361b4f420305263f1a0f351530f9b76c0c.png",
+      "sha256": "e0455ee3d7261d1994480518bd5020896f8c764366bcd373809a10cd11fbffb4",
+      "bytes": 112545
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-180-open-28a338c5b52bfcf8b593ddb8cd672a275db3b670.png",
+      "sha256": "26ef29f78a9db0df93ddb376410304b2301a6afb47bad9df01c2059d9a41404c",
+      "bytes": 115226
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-180-open-actual-page-control-70febb3bf8e36a937e32b30e7b6a0efad543d84f.png",
+      "sha256": "a63aa9cc02bf03831edabfea2c345b5b3932fed0d8f28ba79fa26bb19b01dfdf",
+      "bytes": 110287
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-600-closed-ea57fc03c64604054cfad26bbc636b41ed703a8e.png",
+      "sha256": "e0455ee3d7261d1994480518bd5020896f8c764366bcd373809a10cd11fbffb4",
+      "bytes": 112545
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-600-open-actual-page-control-baa136947d51f893c2f05502962ee3dd38c94888.png",
+      "sha256": "9e6f5cb9690f963c0f4d1058d01fe4206ccaabdbaba6fa6e199a9a657e117074",
+      "bytes": 110226
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-600-open-c09a5f6834a0412ce49049a9c15078f6918c2826.png",
+      "sha256": "26ef29f78a9db0df93ddb376410304b2301a6afb47bad9df01c2059d9a41404c",
+      "bytes": 115226
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-180-closed.png",
+      "sha256": "f437c45d54773e339cae38110281f7a2f0d040aaa45c1290d7ec8aca6ac30c13",
+      "bytes": 126583
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-180-open-actual-page-control.png",
+      "sha256": "220db2fcefbec56a19720e5d9a035578ebac138f941be13c1d33ad9c5cfaf682",
+      "bytes": 121985
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-180-open.png",
+      "sha256": "8ff332803be056afcff98a8634bb32da8e380509904485f4a6caaa5b476e44e3",
+      "bytes": 125344
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-600-closed.png",
+      "sha256": "f437c45d54773e339cae38110281f7a2f0d040aaa45c1290d7ec8aca6ac30c13",
+      "bytes": 126583
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-600-open-actual-page-control.png",
+      "sha256": "dbf2d92a0c943c95509ea9ff96ab368bfdc56e083fc62c7f3b0e294c86196ed0",
+      "bytes": 121950
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-600-open.png",
+      "sha256": "8ff332803be056afcff98a8634bb32da8e380509904485f4a6caaa5b476e44e3",
+      "bytes": 125344
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-results-180-closed.png",
+      "sha256": "f437c45d54773e339cae38110281f7a2f0d040aaa45c1290d7ec8aca6ac30c13",
+      "bytes": 126583
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-results-180-open-actual-page-control.png",
+      "sha256": "678741ba703561718da9982aaaf3cdc604435e28da6c09e8ed77aff65f76961c",
+      "bytes": 128894
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-results-180-open.png",
+      "sha256": "3290695fda9f6969d78dc936de58d2fc806c7b30c0e778eb4ed837095303d7c1",
+      "bytes": 128899
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-results-600-closed.png",
+      "sha256": "f437c45d54773e339cae38110281f7a2f0d040aaa45c1290d7ec8aca6ac30c13",
+      "bytes": 126583
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-results-600-open-actual-page-control.png",
+      "sha256": "678741ba703561718da9982aaaf3cdc604435e28da6c09e8ed77aff65f76961c",
+      "bytes": 128894
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-results-600-open.png",
+      "sha256": "3290695fda9f6969d78dc936de58d2fc806c7b30c0e778eb4ed837095303d7c1",
+      "bytes": 128899
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-wrapped-operations-180-closed.png",
+      "sha256": "e0455ee3d7261d1994480518bd5020896f8c764366bcd373809a10cd11fbffb4",
+      "bytes": 112545
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-wrapped-operations-180-open-actual-page-control.png",
+      "sha256": "a63aa9cc02bf03831edabfea2c345b5b3932fed0d8f28ba79fa26bb19b01dfdf",
+      "bytes": 110287
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-wrapped-operations-180-open.png",
+      "sha256": "26ef29f78a9db0df93ddb376410304b2301a6afb47bad9df01c2059d9a41404c",
+      "bytes": 115226
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-wrapped-operations-600-closed.png",
+      "sha256": "e0455ee3d7261d1994480518bd5020896f8c764366bcd373809a10cd11fbffb4",
+      "bytes": 112545
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-wrapped-operations-600-open-actual-page-control.png",
+      "sha256": "9e6f5cb9690f963c0f4d1058d01fe4206ccaabdbaba6fa6e199a9a657e117074",
+      "bytes": 110226
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-wrapped-operations-600-open.png",
+      "sha256": "26ef29f78a9db0df93ddb376410304b2301a6afb47bad9df01c2059d9a41404c",
+      "bytes": 115226
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-closed-2c253310065f8c3c6db31fafaa6f878dd827322c.png",
+      "sha256": "29731cd9c5a636a758ed62cc3908f92d00bc4029c9f6ae9d731264e391a0b8d9",
+      "bytes": 128264
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-open-83c13925e7e98eac4589a354b7717b239db5eca2.png",
+      "sha256": "fbe2f87dae65a82ca3b69cf035439f66d265b5d7c9f8c00d8dfc0cc86ebdfb88",
+      "bytes": 129850
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-open-actual-page-control-745d861c0a19fb8fd7f06beeec61246c2e955607.png",
+      "sha256": "cdf75e7a49a64de8f6da6d95c158f4e081c4e98adb8fd7efd454cf1ecabe5ac3",
+      "bytes": 122030
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-600-closed-b50e8f0eef65e9e1ca0e8b741bd22cd3f815ca00.png",
+      "sha256": "29731cd9c5a636a758ed62cc3908f92d00bc4029c9f6ae9d731264e391a0b8d9",
+      "bytes": 128264
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-600-open-35905a4fdc01a762d2b6efd6fbfc0c91566a9150.png",
+      "sha256": "fbe2f87dae65a82ca3b69cf035439f66d265b5d7c9f8c00d8dfc0cc86ebdfb88",
+      "bytes": 129850
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-600-open-actual-page-control-138758767ee98f487a22457ffe1d54cff034514f.png",
+      "sha256": "62e5d2f87bf3c9b829323ec3e7435a0f26d21c52ffc5ca5233686f6b8b3a23e6",
+      "bytes": 121989
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-180-closed-42b6ab346320f18614bfdff1178bbc34a3270f9f.png",
+      "sha256": "29731cd9c5a636a758ed62cc3908f92d00bc4029c9f6ae9d731264e391a0b8d9",
+      "bytes": 128264
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-180-open-1414fca30c61d9a507e0fda3c412d7d5d245587a.png",
+      "sha256": "8a445072e11bcfbab6f9343b3b8ccace1822f5674ddb79e364905b5318a00167",
+      "bytes": 131405
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-180-open-actual-page-control-b175fc564400dcce8217cd90ada937b62bdf20fc.png",
+      "sha256": "8a445072e11bcfbab6f9343b3b8ccace1822f5674ddb79e364905b5318a00167",
+      "bytes": 131405
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-600-closed-744d7283347878724e7088cbcaef02a50dc3b62f.png",
+      "sha256": "29731cd9c5a636a758ed62cc3908f92d00bc4029c9f6ae9d731264e391a0b8d9",
+      "bytes": 128264
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-600-open-2b6857086a393e925814f6c1a41a603308f9540a.png",
+      "sha256": "8a445072e11bcfbab6f9343b3b8ccace1822f5674ddb79e364905b5318a00167",
+      "bytes": 131405
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-600-open-actual-page-control-a3de7845564f63ced04cd81fec62d2e948ab08a5.png",
+      "sha256": "8a445072e11bcfbab6f9343b3b8ccace1822f5674ddb79e364905b5318a00167",
+      "bytes": 131405
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-180-closed-a3566ddb76fee8f42e58592c3493a2d784edcfbf.png",
+      "sha256": "5ae4b09a83e086d822cbeb5f04f9e30dbe401168de3d7fa345feb8518fa1e352",
+      "bytes": 113207
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-180-open-a906968304f5148bfda86fd394e2ecefd00b832d.png",
+      "sha256": "b320b03424209b6e857ba2aa2e3d53b93c0a75c4946ea6214a49c540c08e731b",
+      "bytes": 115002
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-180-open-actual-page-control-6561e7d6a36f8e65a39d316caf66a4ee2a4ec86f.png",
+      "sha256": "e6febf1a53f71f95a8621556811076ca6681bd5d49e05265f4b0183869649fab",
+      "bytes": 111869
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-600-closed-14d17803f2c4c28a6f97ff7cbf20e94155a8803e.png",
+      "sha256": "5ae4b09a83e086d822cbeb5f04f9e30dbe401168de3d7fa345feb8518fa1e352",
+      "bytes": 113207
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-600-open-958d62672a95c146ca77cbd6a9939dbef86f4373.png",
+      "sha256": "b320b03424209b6e857ba2aa2e3d53b93c0a75c4946ea6214a49c540c08e731b",
+      "bytes": 115002
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-600-open-actual-page-control-cbe99658d753e3dd6eff343b72d476a9831fd557.png",
+      "sha256": "e6febf1a53f71f95a8621556811076ca6681bd5d49e05265f4b0183869649fab",
+      "bytes": 111869
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-180-closed.png",
+      "sha256": "29731cd9c5a636a758ed62cc3908f92d00bc4029c9f6ae9d731264e391a0b8d9",
+      "bytes": 128264
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-180-open-actual-page-control.png",
+      "sha256": "cdf75e7a49a64de8f6da6d95c158f4e081c4e98adb8fd7efd454cf1ecabe5ac3",
+      "bytes": 122030
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-180-open.png",
+      "sha256": "fbe2f87dae65a82ca3b69cf035439f66d265b5d7c9f8c00d8dfc0cc86ebdfb88",
+      "bytes": 129850
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-600-closed.png",
+      "sha256": "29731cd9c5a636a758ed62cc3908f92d00bc4029c9f6ae9d731264e391a0b8d9",
+      "bytes": 128264
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-600-open-actual-page-control.png",
+      "sha256": "62e5d2f87bf3c9b829323ec3e7435a0f26d21c52ffc5ca5233686f6b8b3a23e6",
+      "bytes": 121989
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-600-open.png",
+      "sha256": "fbe2f87dae65a82ca3b69cf035439f66d265b5d7c9f8c00d8dfc0cc86ebdfb88",
+      "bytes": 129850
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-results-180-closed.png",
+      "sha256": "29731cd9c5a636a758ed62cc3908f92d00bc4029c9f6ae9d731264e391a0b8d9",
+      "bytes": 128264
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-results-180-open-actual-page-control.png",
+      "sha256": "8a445072e11bcfbab6f9343b3b8ccace1822f5674ddb79e364905b5318a00167",
+      "bytes": 131405
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-results-180-open.png",
+      "sha256": "8a445072e11bcfbab6f9343b3b8ccace1822f5674ddb79e364905b5318a00167",
+      "bytes": 131405
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-results-600-closed.png",
+      "sha256": "29731cd9c5a636a758ed62cc3908f92d00bc4029c9f6ae9d731264e391a0b8d9",
+      "bytes": 128264
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-results-600-open-actual-page-control.png",
+      "sha256": "8a445072e11bcfbab6f9343b3b8ccace1822f5674ddb79e364905b5318a00167",
+      "bytes": 131405
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-results-600-open.png",
+      "sha256": "8a445072e11bcfbab6f9343b3b8ccace1822f5674ddb79e364905b5318a00167",
+      "bytes": 131405
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-wrapped-operations-180-closed.png",
+      "sha256": "5ae4b09a83e086d822cbeb5f04f9e30dbe401168de3d7fa345feb8518fa1e352",
+      "bytes": 113207
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-wrapped-operations-180-open-actual-page-control.png",
+      "sha256": "e6febf1a53f71f95a8621556811076ca6681bd5d49e05265f4b0183869649fab",
+      "bytes": 111869
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-wrapped-operations-180-open.png",
+      "sha256": "b320b03424209b6e857ba2aa2e3d53b93c0a75c4946ea6214a49c540c08e731b",
+      "bytes": 115002
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-wrapped-operations-600-closed.png",
+      "sha256": "5ae4b09a83e086d822cbeb5f04f9e30dbe401168de3d7fa345feb8518fa1e352",
+      "bytes": 113207
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-wrapped-operations-600-open-actual-page-control.png",
+      "sha256": "e6febf1a53f71f95a8621556811076ca6681bd5d49e05265f4b0183869649fab",
+      "bytes": 111869
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-wrapped-operations-600-open.png",
+      "sha256": "b320b03424209b6e857ba2aa2e3d53b93c0a75c4946ea6214a49c540c08e731b",
+      "bytes": 115002
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-closed-46e18bf28091f3d87b8aa379c8e41b0e08ad5cd4.png",
+      "sha256": "c09f0969c6a53e2aa84f95e1a283b8519fc19567504441b3506c3ba509cad741",
+      "bytes": 129014
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-open-4e7ea6258f6da629476542adac8a29b7f8acb0d2.png",
+      "sha256": "43a815a1aacb73d6d18cf3323514603cc2384c040ad18ccb813531137d365af1",
+      "bytes": 130174
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-open-actual-page-control-345c2bfa4a30e77ca2e91628c54799a41404095e.png",
+      "sha256": "77cab714ab4be38a4e68b2ca5de4f507331c638426f535c4724e25c2eba53b86",
+      "bytes": 122358
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-600-closed-43ccd6ee1869358e1766951302e9bb67bed6e4a8.png",
+      "sha256": "c09f0969c6a53e2aa84f95e1a283b8519fc19567504441b3506c3ba509cad741",
+      "bytes": 129014
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-600-open-3cd81904fab98344155ee8112e6117d5858cb73e.png",
+      "sha256": "43a815a1aacb73d6d18cf3323514603cc2384c040ad18ccb813531137d365af1",
+      "bytes": 130174
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-600-open-actual-page-control-9ee5bb04af058eeb9d8d97a9544d2442c39a762d.png",
+      "sha256": "056bbbd922113766a63089df651b679a34553b0ade5693bfc60035de3da90e33",
+      "bytes": 122268
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-180-closed-b97fc0b8ddbc1b5a8f7a63468cb2947bafaa076c.png",
+      "sha256": "c09f0969c6a53e2aa84f95e1a283b8519fc19567504441b3506c3ba509cad741",
+      "bytes": 129014
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-180-open-282f9d72f6e1925f593eb704f3d6295b26603c57.png",
+      "sha256": "495caa1a0ba96a564e5d5f97c68b56db8f41eeddfc2407711324ce21ae96c6cf",
+      "bytes": 131725
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-180-open-actual-page-control-42f76758ba276b8bfbdf3131e63074a3a50e3298.png",
+      "sha256": "495caa1a0ba96a564e5d5f97c68b56db8f41eeddfc2407711324ce21ae96c6cf",
+      "bytes": 131725
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-600-closed-fa7ef68e17d93d076b980792d708330ab588f4af.png",
+      "sha256": "c09f0969c6a53e2aa84f95e1a283b8519fc19567504441b3506c3ba509cad741",
+      "bytes": 129014
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-600-open-86ae9993f1be4f5107e19279ee3f91ece25aa802.png",
+      "sha256": "495caa1a0ba96a564e5d5f97c68b56db8f41eeddfc2407711324ce21ae96c6cf",
+      "bytes": 131725
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-600-open-actual-page-control-b6e42979fae2d5413dc3a876af5319e1a0289541.png",
+      "sha256": "495caa1a0ba96a564e5d5f97c68b56db8f41eeddfc2407711324ce21ae96c6cf",
+      "bytes": 131725
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-180-closed-ca513482281c31ea379361f3c9347413c2ad2ed2.png",
+      "sha256": "c51d784ac2d237373640c32d89fedb8ef8315be0bbe5fb6cf488094580d3fd76",
+      "bytes": 114611
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-180-open-actual-page-control-7246efffec05320f103250b1e23684162baa1a25.png",
+      "sha256": "bed61b2c04d81966974dcb55ca83274b7ff0d31bd7559be7d3456349d1cdded6",
+      "bytes": 112696
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-180-open-b86cacda9e6cb8d141102e0d0f4f735a90c32c3a.png",
+      "sha256": "9534b35a6d9e6cdd8ab32d0c880f6c07696f11b986c4457da81f21c0620202b1",
+      "bytes": 115882
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-600-closed-f096a4ccaefc31fe7ee3165ac4de809a8af21a62.png",
+      "sha256": "c51d784ac2d237373640c32d89fedb8ef8315be0bbe5fb6cf488094580d3fd76",
+      "bytes": 114611
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-600-open-actual-page-control-a7c7f43605884a39685c23d8a00387cf75de6071.png",
+      "sha256": "9c031d35cf85434b3adf656abcf265c464e1f3073ee85be5e6e0d933de2c0024",
+      "bytes": 112633
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-600-open-bafc1fb5feba64f86e8d07df1637ac5bd7d5c95d.png",
+      "sha256": "9534b35a6d9e6cdd8ab32d0c880f6c07696f11b986c4457da81f21c0620202b1",
+      "bytes": 115882
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-180-closed.png",
+      "sha256": "c09f0969c6a53e2aa84f95e1a283b8519fc19567504441b3506c3ba509cad741",
+      "bytes": 129014
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-180-open-actual-page-control.png",
+      "sha256": "77cab714ab4be38a4e68b2ca5de4f507331c638426f535c4724e25c2eba53b86",
+      "bytes": 122358
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-180-open.png",
+      "sha256": "43a815a1aacb73d6d18cf3323514603cc2384c040ad18ccb813531137d365af1",
+      "bytes": 130174
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-600-closed.png",
+      "sha256": "c09f0969c6a53e2aa84f95e1a283b8519fc19567504441b3506c3ba509cad741",
+      "bytes": 129014
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-600-open-actual-page-control.png",
+      "sha256": "056bbbd922113766a63089df651b679a34553b0ade5693bfc60035de3da90e33",
+      "bytes": 122268
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-600-open.png",
+      "sha256": "43a815a1aacb73d6d18cf3323514603cc2384c040ad18ccb813531137d365af1",
+      "bytes": 130174
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-results-180-closed.png",
+      "sha256": "c09f0969c6a53e2aa84f95e1a283b8519fc19567504441b3506c3ba509cad741",
+      "bytes": 129014
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-results-180-open-actual-page-control.png",
+      "sha256": "495caa1a0ba96a564e5d5f97c68b56db8f41eeddfc2407711324ce21ae96c6cf",
+      "bytes": 131725
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-results-180-open.png",
+      "sha256": "495caa1a0ba96a564e5d5f97c68b56db8f41eeddfc2407711324ce21ae96c6cf",
+      "bytes": 131725
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-results-600-closed.png",
+      "sha256": "c09f0969c6a53e2aa84f95e1a283b8519fc19567504441b3506c3ba509cad741",
+      "bytes": 129014
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-results-600-open-actual-page-control.png",
+      "sha256": "495caa1a0ba96a564e5d5f97c68b56db8f41eeddfc2407711324ce21ae96c6cf",
+      "bytes": 131725
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-results-600-open.png",
+      "sha256": "495caa1a0ba96a564e5d5f97c68b56db8f41eeddfc2407711324ce21ae96c6cf",
+      "bytes": 131725
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-wrapped-operations-180-closed.png",
+      "sha256": "c51d784ac2d237373640c32d89fedb8ef8315be0bbe5fb6cf488094580d3fd76",
+      "bytes": 114611
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-wrapped-operations-180-open-actual-page-control.png",
+      "sha256": "bed61b2c04d81966974dcb55ca83274b7ff0d31bd7559be7d3456349d1cdded6",
+      "bytes": 112696
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-wrapped-operations-180-open.png",
+      "sha256": "9534b35a6d9e6cdd8ab32d0c880f6c07696f11b986c4457da81f21c0620202b1",
+      "bytes": 115882
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-wrapped-operations-600-closed.png",
+      "sha256": "c51d784ac2d237373640c32d89fedb8ef8315be0bbe5fb6cf488094580d3fd76",
+      "bytes": 114611
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-wrapped-operations-600-open-actual-page-control.png",
+      "sha256": "9c031d35cf85434b3adf656abcf265c464e1f3073ee85be5e6e0d933de2c0024",
+      "bytes": 112633
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-wrapped-operations-600-open.png",
+      "sha256": "9534b35a6d9e6cdd8ab32d0c880f6c07696f11b986c4457da81f21c0620202b1",
+      "bytes": 115882
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-closed-17ccf3087c01d0e091b0333ab7b0c2aaf043476d.png",
+      "sha256": "51e7ad06921087b3dca4d984e4e2c4d603f7fc7b3bb3d48f9837d798b3e17622",
+      "bytes": 126077
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-open-6b69bdba331ee3d364073e4d91fbfeec4ccdd8b1.png",
+      "sha256": "c6598ec262c6379bbe08c9ad86da534891eb630a60a090300f79e55b9a98cfa3",
+      "bytes": 124392
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-open-actual-page-control-2c6451e1a4465d1426c7010eade89b7b634a2904.png",
+      "sha256": "34ba694d5c9c49b69430d8d09b545d57a4185aa01a3e7adc59a0af09961b8b05",
+      "bytes": 120961
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-600-closed-037b1e64f97da48059432a4bb48cb7f9acda544d.png",
+      "sha256": "51e7ad06921087b3dca4d984e4e2c4d603f7fc7b3bb3d48f9837d798b3e17622",
+      "bytes": 126077
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-600-open-actual-page-control-de922e8a33dbcc1f3919abe0333986245d93b4b0.png",
+      "sha256": "a99665d84f35f46009c5b221b9342edff64ef50a1b854e8c5a8157db578a5782",
+      "bytes": 120964
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-600-open-b128c6d2c6dc95cb68b99010def22f4be0899e96.png",
+      "sha256": "c6598ec262c6379bbe08c9ad86da534891eb630a60a090300f79e55b9a98cfa3",
+      "bytes": 124392
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-180-closed-0cb5a326c83c8ef575adab32761440af381d67cc.png",
+      "sha256": "51e7ad06921087b3dca4d984e4e2c4d603f7fc7b3bb3d48f9837d798b3e17622",
+      "bytes": 126077
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-180-open-035730dba940ccc2fd1dd8f261c729939ecc7f19.png",
+      "sha256": "68b841c6a4d50a7c4d169a267e697c7a5e3ce1f96f73cb6deb320369d794ac10",
+      "bytes": 127939
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-180-open-actual-page-control-82525949c966f52af3fe594875bb445fef423fce.png",
+      "sha256": "17047debff125768a07b6ef41ad376d64dec05a6a8bbb951b11c5df11b7849ed",
+      "bytes": 127940
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-600-closed-127a697f4510c008b3fc6d91d23be3128ae7899a.png",
+      "sha256": "51e7ad06921087b3dca4d984e4e2c4d603f7fc7b3bb3d48f9837d798b3e17622",
+      "bytes": 126077
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-600-open-actual-page-control-b59b0947917da9911635a64f5c9ed969f479b0ae.png",
+      "sha256": "17047debff125768a07b6ef41ad376d64dec05a6a8bbb951b11c5df11b7849ed",
+      "bytes": 127940
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-600-open-fe0420ba27643139d1143e07afab2434d0acb897.png",
+      "sha256": "68b841c6a4d50a7c4d169a267e697c7a5e3ce1f96f73cb6deb320369d794ac10",
+      "bytes": 127939
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-180-closed-bb8ae2a00fbf6a748784071cc92a20f9851a7303.png",
+      "sha256": "a61f0d4532c671f160add0cc4fbc7e3b3bee8bd4c2f2136ed75839bc899a4bd6",
+      "bytes": 111096
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-180-open-4682f5fb0f0c56620927b6c1d3f59a91c8408666.png",
+      "sha256": "8e3ce25dd475a1547757a076b0b58c94457d5c7cca2f8ab06d457ca384bbd755",
+      "bytes": 114040
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-180-open-actual-page-control-ffa953fa33a9d491e059bdd0dc99e560b87be967.png",
+      "sha256": "5ef4cf267cdfe373b6817ee6d5248b7fae1a7801201d82aa0d7283375d76a355",
+      "bytes": 109052
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-600-closed-c51bbaa37be2ffb2a42db5090e542f7f25568fcc.png",
+      "sha256": "a61f0d4532c671f160add0cc4fbc7e3b3bee8bd4c2f2136ed75839bc899a4bd6",
+      "bytes": 111096
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-600-open-actual-page-control-4409822b1fefaa9189b522f71c487bd37d34ab5f.png",
+      "sha256": "96bf4d89d7a08e0a37ff282e4e325d142c6a19e8c8fe8683e6c43aa7a37ceee1",
+      "bytes": 109068
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-600-open-b983e8c6dd5e2f9306fc850f4be67dba7b52d20e.png",
+      "sha256": "8e3ce25dd475a1547757a076b0b58c94457d5c7cca2f8ab06d457ca384bbd755",
+      "bytes": 114040
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-180-closed.png",
+      "sha256": "51e7ad06921087b3dca4d984e4e2c4d603f7fc7b3bb3d48f9837d798b3e17622",
+      "bytes": 126077
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-180-open-actual-page-control.png",
+      "sha256": "34ba694d5c9c49b69430d8d09b545d57a4185aa01a3e7adc59a0af09961b8b05",
+      "bytes": 120961
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-180-open.png",
+      "sha256": "c6598ec262c6379bbe08c9ad86da534891eb630a60a090300f79e55b9a98cfa3",
+      "bytes": 124392
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-600-closed.png",
+      "sha256": "51e7ad06921087b3dca4d984e4e2c4d603f7fc7b3bb3d48f9837d798b3e17622",
+      "bytes": 126077
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-600-open-actual-page-control.png",
+      "sha256": "a99665d84f35f46009c5b221b9342edff64ef50a1b854e8c5a8157db578a5782",
+      "bytes": 120964
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-600-open.png",
+      "sha256": "c6598ec262c6379bbe08c9ad86da534891eb630a60a090300f79e55b9a98cfa3",
+      "bytes": 124392
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-results-180-closed.png",
+      "sha256": "51e7ad06921087b3dca4d984e4e2c4d603f7fc7b3bb3d48f9837d798b3e17622",
+      "bytes": 126077
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-results-180-open-actual-page-control.png",
+      "sha256": "17047debff125768a07b6ef41ad376d64dec05a6a8bbb951b11c5df11b7849ed",
+      "bytes": 127940
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-results-180-open.png",
+      "sha256": "68b841c6a4d50a7c4d169a267e697c7a5e3ce1f96f73cb6deb320369d794ac10",
+      "bytes": 127939
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-results-600-closed.png",
+      "sha256": "51e7ad06921087b3dca4d984e4e2c4d603f7fc7b3bb3d48f9837d798b3e17622",
+      "bytes": 126077
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-results-600-open-actual-page-control.png",
+      "sha256": "17047debff125768a07b6ef41ad376d64dec05a6a8bbb951b11c5df11b7849ed",
+      "bytes": 127940
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-results-600-open.png",
+      "sha256": "68b841c6a4d50a7c4d169a267e697c7a5e3ce1f96f73cb6deb320369d794ac10",
+      "bytes": 127939
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-wrapped-operations-180-closed.png",
+      "sha256": "a61f0d4532c671f160add0cc4fbc7e3b3bee8bd4c2f2136ed75839bc899a4bd6",
+      "bytes": 111096
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-wrapped-operations-180-open-actual-page-control.png",
+      "sha256": "5ef4cf267cdfe373b6817ee6d5248b7fae1a7801201d82aa0d7283375d76a355",
+      "bytes": 109052
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-wrapped-operations-180-open.png",
+      "sha256": "8e3ce25dd475a1547757a076b0b58c94457d5c7cca2f8ab06d457ca384bbd755",
+      "bytes": 114040
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-wrapped-operations-600-closed.png",
+      "sha256": "a61f0d4532c671f160add0cc4fbc7e3b3bee8bd4c2f2136ed75839bc899a4bd6",
+      "bytes": 111096
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-wrapped-operations-600-open-actual-page-control.png",
+      "sha256": "96bf4d89d7a08e0a37ff282e4e325d142c6a19e8c8fe8683e6c43aa7a37ceee1",
+      "bytes": 109068
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-wrapped-operations-600-open.png",
+      "sha256": "8e3ce25dd475a1547757a076b0b58c94457d5c7cca2f8ab06d457ca384bbd755",
+      "bytes": 114040
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-decorat-2824e-w-controls-stay-interactive-chromium-desktop-dist/decorative-overlays-and-view-controls.png",
+      "sha256": "1edbac3cbc845d65f6d57a38f4723a763308c06e90376b1f13d0e92d48f16772",
+      "bytes": 183941
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-empty-o-1cd7d-ntly-from-project-inspector-chromium-desktop-dist/empty-after-node-presentation.png",
+      "sha256": "b949c234166ddc008ab170fc43449de41d1e1d50b5e21aa58ec26bbcaa876053",
+      "bytes": 37595
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-empty-o-1cd7d-ntly-from-project-inspector-chromium-desktop-dist/hidden-selected-node-presentation.png",
+      "sha256": "0fe97a34f9c398416fbe6082cedf2ec7e3a11a670b5b205ca116776d9b802190",
+      "bytes": 37754
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-empty-o-1cd7d-ntly-from-project-inspector-chromium-desktop-dist/project-after-empty.png",
+      "sha256": "4f496d9c34cf8eff937f2b2617d53830a6d3adef083da19344bb0762cc381e86",
+      "bytes": 162557
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-empty-o-1cd7d-ntly-from-project-inspector-chromium-desktop-dist/selected-node-presentation.png",
+      "sha256": "daf9e1510f2b8702bf2c25da2d3eb6c31684438484417cc84b7780f4819632e9",
+      "bytes": 37904
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-current-gap-ledger-dark-1d62155e5492fdf6768bdf8daad17a8758e4d522.png",
+      "sha256": "f4724a3253091a72b4f162fc71181e15d6a978be073d998a76cd9ac15c828cda",
+      "bytes": 106273
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-historical-gap-ledger-dark-10bb40eda5c8071f54b21ba0725e75701b65c367.png",
+      "sha256": "570985a8f818c380fbe407040964bf6a642a85efa2f690fcdf2879a5dd931685",
+      "bytes": 98303
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-current-dark-1024-96f9bd4e648f77ae83544233979ffc8a377eaf45.png",
+      "sha256": "c7780ae8903f0261f145e56bc231561404011ea33b75be0d7c75e8a97f632831",
+      "bytes": 135515
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-current-dark-1280-ea3b77215006a2e1ffb5aa23748db5ef2087f45c.png",
+      "sha256": "81509446e00ade3cf476b45e705b04b26023aebff4ab39df158b5679de2fcd81",
+      "bytes": 185872
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-dark-09ad80e7b970d71ea95dfb66639e68d78ff5292c.png",
+      "sha256": "448fb26a9412bc793ea00ebc4a264d76f42b6a0421fb5eda7a4b141f57fd2c68",
+      "bytes": 187597
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-historical-dark-1024-5025bbd0a6d18a74ed43fa402a289b30a0dec032.png",
+      "sha256": "70664b28ae27996f783a63c4b025e23e75b9d8acf0b50d04994e7ac4d2d48eae",
+      "bytes": 141459
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-historical-dark-1280-bf56382e61f06cd69d1454ae26165e191362586b.png",
+      "sha256": "097dfaa5eb6e7b47ad82c36887ffad9cdfc4df532917368b10843d2ec5189da0",
+      "bytes": 175057
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-selected-dark-8a505ab7dee4653bde454e36d4e05a94a5bba5d3.png",
+      "sha256": "40d26da5d0d833ea807f49e08466a7f8418f5a2dd65819839a923a7d3d9160e7",
+      "bytes": 196322
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-current-gap-ledger-dark.png",
+      "sha256": "f4724a3253091a72b4f162fc71181e15d6a978be073d998a76cd9ac15c828cda",
+      "bytes": 106273
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-historical-gap-ledger-dark.png",
+      "sha256": "570985a8f818c380fbe407040964bf6a642a85efa2f690fcdf2879a5dd931685",
+      "bytes": 98303
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-results-current-dark-1024.png",
+      "sha256": "c7780ae8903f0261f145e56bc231561404011ea33b75be0d7c75e8a97f632831",
+      "bytes": 135515
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-results-current-dark-1280.png",
+      "sha256": "81509446e00ade3cf476b45e705b04b26023aebff4ab39df158b5679de2fcd81",
+      "bytes": 185872
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-results-dark.png",
+      "sha256": "448fb26a9412bc793ea00ebc4a264d76f42b6a0421fb5eda7a4b141f57fd2c68",
+      "bytes": 187597
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-results-historical-dark-1024.png",
+      "sha256": "70664b28ae27996f783a63c4b025e23e75b9d8acf0b50d04994e7ac4d2d48eae",
+      "bytes": 141459
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-results-historical-dark-1280.png",
+      "sha256": "097dfaa5eb6e7b47ad82c36887ffad9cdfc4df532917368b10843d2ec5189da0",
+      "bytes": 175057
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-results-selected-dark.png",
+      "sha256": "40d26da5d0d833ea807f49e08466a7f8418f5a2dd65819839a923a7d3d9160e7",
+      "bytes": 196322
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-current-gap-ledger-light-cd2c66aee3d0be41c763c5c0522c00cd41500c7f.png",
+      "sha256": "b24cfb4ee7af4a359f3c8605bbe2a0d3a82fb0e1f8071852472a5eacbd0c6a99",
+      "bytes": 107814
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-historical-gap-ledger-light-b3351735732faf2aca6823c2f69de2e8417bc1b3.png",
+      "sha256": "e715e7c62c908b7edf92cec90cb56e9f2b698a3bed910cc1e90a8a5bf410c1fe",
+      "bytes": 98983
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-current-light-1024-7ac26f2c0f694a4b3f4fe988bee0ec62ad580e7a.png",
+      "sha256": "4a71b6db7db1c9b706469324952acf0aa0b67ce362e1435767e4ba59fa8fec8e",
+      "bytes": 137094
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-current-light-1280-70432155360d93f9024467b487f8958e91cb2970.png",
+      "sha256": "28f9b333b94c159837a9f4dbe2e9564e31bc53ac6094d05113a7c6f5f07ec7c5",
+      "bytes": 188056
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-historical-light-1024-539322277397df3e145cab070451dac782c24fd9.png",
+      "sha256": "7e6cb3a3ef56ab778d1974a545ee88e29ba70149111d3567b0570406b990b98c",
+      "bytes": 142829
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-historical-light-1280-acb129aeed543da1d48874af23f45116d398024f.png",
+      "sha256": "14d354a521c4ef026435c106b3eb6e4f13f4c7b25e10376ad7d206bc85c8218e",
+      "bytes": 176425
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-light-65754a9bb52997ec87386bf9cc39dd276668fd2c.png",
+      "sha256": "e2677adac82586f1acdc9e385663fed3041aed2938f5a9cd03b2467e84b0c926",
+      "bytes": 188159
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-selected-light-e82360bc56eeeb83130ff12166e479de685dd3ca.png",
+      "sha256": "aa7bf0895df2151431e8a92b3f8c6ef9c3ef57f763a75e85d6e2c47e0b4468ab",
+      "bytes": 197912
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-current-gap-ledger-light.png",
+      "sha256": "b24cfb4ee7af4a359f3c8605bbe2a0d3a82fb0e1f8071852472a5eacbd0c6a99",
+      "bytes": 107814
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-historical-gap-ledger-light.png",
+      "sha256": "e715e7c62c908b7edf92cec90cb56e9f2b698a3bed910cc1e90a8a5bf410c1fe",
+      "bytes": 98983
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-results-current-light-1024.png",
+      "sha256": "4a71b6db7db1c9b706469324952acf0aa0b67ce362e1435767e4ba59fa8fec8e",
+      "bytes": 137094
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-results-current-light-1280.png",
+      "sha256": "28f9b333b94c159837a9f4dbe2e9564e31bc53ac6094d05113a7c6f5f07ec7c5",
+      "bytes": 188056
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-results-historical-light-1024.png",
+      "sha256": "7e6cb3a3ef56ab778d1974a545ee88e29ba70149111d3567b0570406b990b98c",
+      "bytes": 142829
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-results-historical-light-1280.png",
+      "sha256": "14d354a521c4ef026435c106b3eb6e4f13f4c7b25e10376ad7d206bc85c8218e",
+      "bytes": 176425
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-results-light.png",
+      "sha256": "e2677adac82586f1acdc9e385663fed3041aed2938f5a9cd03b2467e84b0c926",
+      "bytes": 188159
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-results-selected-light.png",
+      "sha256": "aa7bf0895df2151431e8a92b3f8c6ef9c3ef57f763a75e85d6e2c47e0b4468ab",
+      "bytes": 197912
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/expanded-deformation-dark-compact-1440x920-b00d20c5af9d8617384732c027b39aa5435cc949.png",
+      "sha256": "f3d0a0f1bcd6ec629d543cc327eb29001e4d054ad1dc73bc8478ca6f02afa26a",
+      "bytes": 157646
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/normal-authoring-dark-compact-1440x920-46e2f0803e43d2f889af349e876a2b8e83092615.png",
+      "sha256": "730f32436f81d8d38576e00f5cf6e51fd488241374a6d7ea5e7c7a2f9b839ccf",
+      "bytes": 199790
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-compact-1440-inspector-false-86c8f22489fa038c625d2e59aeea7f7d11181356.png",
+      "sha256": "10f48b2d16e3141677257c25e3e71ff1c93655b6fc6f37073b0b6a7843118011",
+      "bytes": 2155
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-compact-1440-inspector-true-cfbd83f2c5dd14e6b6c40bd1c08cd170347089d8.png",
+      "sha256": "6b701b3ebe9fd018070700d30ae92ea0bf261eea96a080bf07230b8d81df8f7e",
+      "bytes": 1782
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-compact-1440-tree-false-786266dd657085580cdf02d57a07986937d3a2b5.png",
+      "sha256": "164e5c44a46b574cf46a7ae246a23281b0132ee9b2b03a6bbf39dab077abfc20",
+      "bytes": 1627
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-compact-1440-tree-true-6ec5610021730129a8d33aa2672f30c036905bdd.png",
+      "sha256": "6735a078bc529e65e6e04ed58ce6ea59b7040bf0983e5a65799a04ed0d00dda4",
+      "bytes": 1285
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/unobscured-authoring-dark-compact-1440x920-d72413001d128904aed75b9ad41c8b441521343a.png",
+      "sha256": "535a2ad89eeb17af7e58b7b8a2cde6a43a278e99b86f465935410f493546a1df",
+      "bytes": 157278
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/expanded-deformation-dark-compact-1440x920.png",
+      "sha256": "f3d0a0f1bcd6ec629d543cc327eb29001e4d054ad1dc73bc8478ca6f02afa26a",
+      "bytes": 157646
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/normal-authoring-dark-compact-1440x920.png",
+      "sha256": "730f32436f81d8d38576e00f5cf6e51fd488241374a6d7ea5e7c7a2f9b839ccf",
+      "bytes": 199790
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/rail-hover-dark-compact-1440-inspector-false.png",
+      "sha256": "10f48b2d16e3141677257c25e3e71ff1c93655b6fc6f37073b0b6a7843118011",
+      "bytes": 2155
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/rail-hover-dark-compact-1440-inspector-true.png",
+      "sha256": "6b701b3ebe9fd018070700d30ae92ea0bf261eea96a080bf07230b8d81df8f7e",
+      "bytes": 1782
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/rail-hover-dark-compact-1440-tree-false.png",
+      "sha256": "164e5c44a46b574cf46a7ae246a23281b0132ee9b2b03a6bbf39dab077abfc20",
+      "bytes": 1627
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/rail-hover-dark-compact-1440-tree-true.png",
+      "sha256": "6735a078bc529e65e6e04ed58ce6ea59b7040bf0983e5a65799a04ed0d00dda4",
+      "bytes": 1285
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/unobscured-authoring-dark-compact-1440x920.png",
+      "sha256": "535a2ad89eeb17af7e58b7b8a2cde6a43a278e99b86f465935410f493546a1df",
+      "bytes": 157278
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/expanded-deformation-light-comfortable-1440x920-3dbe8799d83a58e78b4ca71c386c49cad0b2054d.png",
+      "sha256": "edcfd8ccac970c8dbfda9bd973a50335c38d1eca60577db19d484f428c305056",
+      "bytes": 159547
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/normal-authoring-light-comfortable-1440x920-f9bb328ad0f57a6ce36edbc7d4c10e592e5fe2d2.png",
+      "sha256": "1f2f98941db85da6b33c3f6f66d4f9ad37044491195da08b211408c83e219d3e",
+      "bytes": 203963
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1440-inspector-false-fc525f86997ffdbd16bd755a82d7d9fee56c3c2f.png",
+      "sha256": "2c429d85b17b5bf99ed330fe641dff3fe40f3945b3d0b31ccb4ea782611ed37a",
+      "bytes": 2112
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1440-inspector-true-59d2bf86b9738e3c3777652790485c802c487bc5.png",
+      "sha256": "b182ff401d3ca6bc9ba7dcb87bc5d18e6640aaaaf648b334e755ff1be2667a58",
+      "bytes": 1738
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1440-tree-false-a3b782f677b04d3bb7fcb5ae821640f57947c199.png",
+      "sha256": "dbd12887dda666364cf716b7b1e14cd347b6f500232bd0048eb626f741059149",
+      "bytes": 1576
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1440-tree-true-84ccb2129f00caafe2efb507258ea9d2d9c65bdf.png",
+      "sha256": "c6ab841a612bc6cac59e0a6bfd61acb32daddd50b14aa7660c80fc7ef669325c",
+      "bytes": 1290
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/unobscured-authoring-light-comfortable-1440x920-b724bdfef1379f978b6faf57c2512c601a627d5b.png",
+      "sha256": "161ad2a06cda28af05a887b4c8bdbb04213ee19c202a67bad54ee85b560ee143",
+      "bytes": 158111
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/expanded-deformation-light-comfortable-1440x920.png",
+      "sha256": "edcfd8ccac970c8dbfda9bd973a50335c38d1eca60577db19d484f428c305056",
+      "bytes": 159547
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/normal-authoring-light-comfortable-1440x920.png",
+      "sha256": "1f2f98941db85da6b33c3f6f66d4f9ad37044491195da08b211408c83e219d3e",
+      "bytes": 203963
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/rail-hover-light-comfortable-1440-inspector-false.png",
+      "sha256": "2c429d85b17b5bf99ed330fe641dff3fe40f3945b3d0b31ccb4ea782611ed37a",
+      "bytes": 2112
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/rail-hover-light-comfortable-1440-inspector-true.png",
+      "sha256": "b182ff401d3ca6bc9ba7dcb87bc5d18e6640aaaaf648b334e755ff1be2667a58",
+      "bytes": 1738
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/rail-hover-light-comfortable-1440-tree-false.png",
+      "sha256": "dbd12887dda666364cf716b7b1e14cd347b6f500232bd0048eb626f741059149",
+      "bytes": 1576
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/rail-hover-light-comfortable-1440-tree-true.png",
+      "sha256": "c6ab841a612bc6cac59e0a6bfd61acb32daddd50b14aa7660c80fc7ef669325c",
+      "bytes": 1290
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/unobscured-authoring-light-comfortable-1440x920.png",
+      "sha256": "161ad2a06cda28af05a887b4c8bdbb04213ee19c202a67bad54ee85b560ee143",
+      "bytes": 158111
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/expanded-deformation-light-compact-1024x768-677f2d33b202594281d17c8fb0b8ab47dbafa8fb.png",
+      "sha256": "dca3cbe6773987c0123c3df419c101f19522d2dc4363ac0ff150769a42dafc61",
+      "bytes": 96867
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/normal-authoring-light-compact-1024x768-0c42f9b469e7ad75503a6dbb825a61f7c2e3214a.png",
+      "sha256": "1b709ebff64525ba8b542fe31a40048251c0cc9befff318eca3b2790a4242bf5",
+      "bytes": 145043
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-inspector-false-6f48328e4fb1dedcb9d9dccefca9d1c7b9a1fbc1.png",
+      "sha256": "541f6547b7c20fd70fddce40b89950ab6ba4a1221364330cc3627a3eec3e6362",
+      "bytes": 2046
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-inspector-true-2b2404a57ff4444c0490f0f4a9602a595384644d.png",
+      "sha256": "480120e000668dfaeb4a0ea0e115fa262640c3e9f130bf35be600479c8159de0",
+      "bytes": 1728
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-tree-false-2d3952de2be839f93003dc2fa3a5ff2e9727b552.png",
+      "sha256": "7cbc9b509053a19e0a1107249059908b9b239a09bfbcbb98d794d78c2b016705",
+      "bytes": 1683
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-tree-true-80523c4544cafacc826077f068ac71adabacf379.png",
+      "sha256": "cfc06e1ce1798ae1a6962664272090159eaf5e53414e5da346fa73272db995ae",
+      "bytes": 1299
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/unobscured-authoring-light-compact-1024x768-a6ab6e72250cb83ec3c4e2b4e0fa12b80d855a1e.png",
+      "sha256": "db9d66be5c5df499b9a689957ec8359e7535b483da51a0b1cec29899038c65b8",
+      "bytes": 96076
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/expanded-deformation-light-compact-1024x768.png",
+      "sha256": "dca3cbe6773987c0123c3df419c101f19522d2dc4363ac0ff150769a42dafc61",
+      "bytes": 96867
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/normal-authoring-light-compact-1024x768.png",
+      "sha256": "1b709ebff64525ba8b542fe31a40048251c0cc9befff318eca3b2790a4242bf5",
+      "bytes": 145043
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/rail-hover-light-compact-1024-inspector-false.png",
+      "sha256": "541f6547b7c20fd70fddce40b89950ab6ba4a1221364330cc3627a3eec3e6362",
+      "bytes": 2046
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/rail-hover-light-compact-1024-inspector-true.png",
+      "sha256": "480120e000668dfaeb4a0ea0e115fa262640c3e9f130bf35be600479c8159de0",
+      "bytes": 1728
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/rail-hover-light-compact-1024-tree-false.png",
+      "sha256": "7cbc9b509053a19e0a1107249059908b9b239a09bfbcbb98d794d78c2b016705",
+      "bytes": 1683
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/rail-hover-light-compact-1024-tree-true.png",
+      "sha256": "cfc06e1ce1798ae1a6962664272090159eaf5e53414e5da346fa73272db995ae",
+      "bytes": 1299
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/unobscured-authoring-light-compact-1024x768.png",
+      "sha256": "db9d66be5c5df499b9a689957ec8359e7535b483da51a0b1cec29899038c65b8",
+      "bytes": 96076
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/expanded-deformation-dark-compact-1024x768-2a90c3897cfdda01aa0f58ce4dddcff6355e0035.png",
+      "sha256": "2be4f0fb8d75dca7bc7414cd09a41b06f696b064cc4b9a0f83048531b56ad47c",
+      "bytes": 95952
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/normal-authoring-dark-compact-1024x768-8396658f6ca73a333a1bbcb428ef8c7100057b67.png",
+      "sha256": "331d7ea556d81d99d1e9c6105cd05ffaa2f72708278c7de46540615e055a369b",
+      "bytes": 141846
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-inspector-false-cf950e5d626a95dae9e41f212e8c2962c32cca1b.png",
+      "sha256": "b5f42309678881d17a2ff5021b521a8c44aed70c8fd4217348b50170a33b457a",
+      "bytes": 2102
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-inspector-true-855d3f11997c798d94555b4e7e17bb3d5c4dbbb9.png",
+      "sha256": "59b5fdc3bdf1efa1add1b7acb7b98deac2173b3c30ff565e31b88e653159e609",
+      "bytes": 1804
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-tree-false-5aa403fa7384cf5024ae36f77260efb32afdfc56.png",
+      "sha256": "78beeeec1d28b2feb3566db581cec2dba64c17cdea120e2ec0f404d1d4937a68",
+      "bytes": 1720
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-tree-true-17ffd749efb92dfc2277a17774ebae301d12ed01.png",
+      "sha256": "4a9f01a5186402db756c93259939f753a781de8e6ba07a8e1447025d692c7f86",
+      "bytes": 1316
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/unobscured-authoring-dark-compact-1024x768-230e2b446293f3bf9712ccd70d08b9f4339c35b4.png",
+      "sha256": "dcb39adc14497b68097257f3939a5c85423d745f46dff9ab09d00b0b3a44cf94",
+      "bytes": 95660
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/expanded-deformation-dark-compact-1024x768.png",
+      "sha256": "2be4f0fb8d75dca7bc7414cd09a41b06f696b064cc4b9a0f83048531b56ad47c",
+      "bytes": 95952
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/normal-authoring-dark-compact-1024x768.png",
+      "sha256": "331d7ea556d81d99d1e9c6105cd05ffaa2f72708278c7de46540615e055a369b",
+      "bytes": 141846
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/rail-hover-dark-compact-1024-inspector-false.png",
+      "sha256": "b5f42309678881d17a2ff5021b521a8c44aed70c8fd4217348b50170a33b457a",
+      "bytes": 2102
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/rail-hover-dark-compact-1024-inspector-true.png",
+      "sha256": "59b5fdc3bdf1efa1add1b7acb7b98deac2173b3c30ff565e31b88e653159e609",
+      "bytes": 1804
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/rail-hover-dark-compact-1024-tree-false.png",
+      "sha256": "78beeeec1d28b2feb3566db581cec2dba64c17cdea120e2ec0f404d1d4937a68",
+      "bytes": 1720
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/rail-hover-dark-compact-1024-tree-true.png",
+      "sha256": "4a9f01a5186402db756c93259939f753a781de8e6ba07a8e1447025d692c7f86",
+      "bytes": 1316
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/unobscured-authoring-dark-compact-1024x768.png",
+      "sha256": "dcb39adc14497b68097257f3939a5c85423d745f46dff9ab09d00b0b3a44cf94",
+      "bytes": 95660
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/expanded-deformation-dark-comfortable-1024x768-c12de250cb7e77efb415575ac3c949797483688a.png",
+      "sha256": "da6f1f0a292563eace15a7990d73e299e2ca418867b30a39f22eafd6f7288203",
+      "bytes": 95697
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/normal-authoring-dark-comfortable-1024x768-49d88e7a4ff53321ef9358dd09f665438f6908f5.png",
+      "sha256": "9951134512933cc8d76b5ab922e113f0ad163710bd2a56f291a5b57a6d9ac42c",
+      "bytes": 143502
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-inspector-false-a1733f4c22b767afcddaf3c8db121b8d89dc6cd2.png",
+      "sha256": "db6d6c8a1aa222c579c69ae8ca717ba93b10c4445e21db7054adee564440c459",
+      "bytes": 2709
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-inspector-true-a59894a836b6fd96b0193fe143f4cf8a1311f67d.png",
+      "sha256": "398e1226a6be811204731b25e9e85712aa96a079a1138d88c57265a5d5a77840",
+      "bytes": 1826
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-tree-false-cf321ec145add5e3efc1c9e323a9c32c7723b008.png",
+      "sha256": "6f892f19746f739a53da3995ee79c88fadb7f539178b75e9f83a63db9ad6b048",
+      "bytes": 2015
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-tree-true-c1b7b72c85e3915b421457c35bb230ebd8040dd9.png",
+      "sha256": "e0256f6859d544059994d3415474f760242800b802f34b40d6c4e98ef4dd0330",
+      "bytes": 1337
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/unobscured-authoring-dark-comfortable-1024x768-58564c2c6aab01fa9467996a2d87e3b60863ec48.png",
+      "sha256": "c8f12ed8af0b9096a2df26ec4ca957f0eaabb86784b8c6d82468f2f2d6c0d2b3",
+      "bytes": 94409
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/expanded-deformation-dark-comfortable-1024x768.png",
+      "sha256": "da6f1f0a292563eace15a7990d73e299e2ca418867b30a39f22eafd6f7288203",
+      "bytes": 95697
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/normal-authoring-dark-comfortable-1024x768.png",
+      "sha256": "9951134512933cc8d76b5ab922e113f0ad163710bd2a56f291a5b57a6d9ac42c",
+      "bytes": 143502
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-inspector-false.png",
+      "sha256": "db6d6c8a1aa222c579c69ae8ca717ba93b10c4445e21db7054adee564440c459",
+      "bytes": 2709
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-inspector-true.png",
+      "sha256": "398e1226a6be811204731b25e9e85712aa96a079a1138d88c57265a5d5a77840",
+      "bytes": 1826
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-tree-false.png",
+      "sha256": "6f892f19746f739a53da3995ee79c88fadb7f539178b75e9f83a63db9ad6b048",
+      "bytes": 2015
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-tree-true.png",
+      "sha256": "e0256f6859d544059994d3415474f760242800b802f34b40d6c4e98ef4dd0330",
+      "bytes": 1337
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/unobscured-authoring-dark-comfortable-1024x768.png",
+      "sha256": "c8f12ed8af0b9096a2df26ec4ca957f0eaabb86784b8c6d82468f2f2d6c0d2b3",
+      "bytes": 94409
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/expanded-deformation-light-compact-1440x920-3669fdc2cf400a67fcd60171d94b1d38e3eef6ae.png",
+      "sha256": "80d9ed8dbb9e7d4f0689ee9034b97ed86759a91bab212c545f1faf442bdf1273",
+      "bytes": 160250
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/normal-authoring-light-compact-1440x920-e5bc7d1adcbfa8eebd6a7c81cb57e627eb97a2e2.png",
+      "sha256": "49d5f3996ccf34e050153844e20c6943be5df9841f819b360cba2c409f51c1a3",
+      "bytes": 203957
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-light-compact-1440-inspector-false-2ba3ce0af1c606af908b70f6c8009e9a732812f0.png",
+      "sha256": "ad800b8a4debd6fd64506cafe1dc283a5e97891573a4cc49ebe93c35fcb355fe",
+      "bytes": 2114
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-light-compact-1440-inspector-true-5693b4f14080e80f4a7af36a9aaee736d21e244c.png",
+      "sha256": "23a676a31645a663ce7861174545b99821d61ce75c34d9c162af2f9b24db8659",
+      "bytes": 1711
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-light-compact-1440-tree-false-5c7ecef3cb1cd243277f1e86f25055a42134b908.png",
+      "sha256": "4385e1ee48828a172cb454d117422a5c0a117d652ae63045edffb1990fc9d345",
+      "bytes": 1578
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-light-compact-1440-tree-true-b140b019d988e1ca7946a16678cbbf35fdd96923.png",
+      "sha256": "3e7d9d23b9a546fcb7dcb5bd688e7331dfb148af45e63a52372a12a82379d64c",
+      "bytes": 1277
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/unobscured-authoring-light-compact-1440x920-06ce84502dd006fd34909269a06bbcf33cda6bf3.png",
+      "sha256": "63cc89eb9e56d4466cae9f27fcd5e24462b9ce21bb0bf19ce371deb96a1817a5",
+      "bytes": 159395
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/expanded-deformation-light-compact-1440x920.png",
+      "sha256": "80d9ed8dbb9e7d4f0689ee9034b97ed86759a91bab212c545f1faf442bdf1273",
+      "bytes": 160250
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/normal-authoring-light-compact-1440x920.png",
+      "sha256": "49d5f3996ccf34e050153844e20c6943be5df9841f819b360cba2c409f51c1a3",
+      "bytes": 203957
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/rail-hover-light-compact-1440-inspector-false.png",
+      "sha256": "ad800b8a4debd6fd64506cafe1dc283a5e97891573a4cc49ebe93c35fcb355fe",
+      "bytes": 2114
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/rail-hover-light-compact-1440-inspector-true.png",
+      "sha256": "23a676a31645a663ce7861174545b99821d61ce75c34d9c162af2f9b24db8659",
+      "bytes": 1711
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/rail-hover-light-compact-1440-tree-false.png",
+      "sha256": "4385e1ee48828a172cb454d117422a5c0a117d652ae63045edffb1990fc9d345",
+      "bytes": 1578
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/rail-hover-light-compact-1440-tree-true.png",
+      "sha256": "3e7d9d23b9a546fcb7dcb5bd688e7331dfb148af45e63a52372a12a82379d64c",
+      "bytes": 1277
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/unobscured-authoring-light-compact-1440x920.png",
+      "sha256": "63cc89eb9e56d4466cae9f27fcd5e24462b9ce21bb0bf19ce371deb96a1817a5",
+      "bytes": 159395
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/expanded-deformation-light-comfortable-1280x800-e430b74734fbaa12605b0769e226c06a31b35528.png",
+      "sha256": "5c865d22a6e5ab664b4d572f872f39f50a42dee0b3d6ea2da303bd03f5b3999b",
+      "bytes": 145946
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/normal-authoring-light-comfortable-1280x800-3b152b9ece12b2e31d9d048ebbfd89b058f5ed22.png",
+      "sha256": "7c8f4ce9268cff7bb818d2b002834e6c55b9816240f219dcc1533ae629ddf56f",
+      "bytes": 177727
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1280-inspector-false-35104700058e45cd563d010e73656217e519db8b.png",
+      "sha256": "8b7ceb42d7f7964293076dcefdd3c7cd8024ada8bd47427bb0b4128c54891c2e",
+      "bytes": 2084
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1280-inspector-true-df4bb2566380e2614b0786cd75845a5a91e5640c.png",
+      "sha256": "34d3b1b8669e8f43b03abfda366d1dcef67b8acc9012d2a6017b623fc57dd3f6",
+      "bytes": 1738
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1280-tree-false-f7667829bf34558b707d481b226a6e2c6077f92b.png",
+      "sha256": "c664997115b7b0e2d7bb0600299d2e1bb98e17ce3ab2cdbe03ea3d12de4bda17",
+      "bytes": 1530
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1280-tree-true-8133ca5225b2ee967d240fba3ccb8ecda29f8835.png",
+      "sha256": "5f5f6cf0d4a44e87191a88d5b5a76ae8de4b9ee2ad9a47c9bae572f971327d00",
+      "bytes": 1278
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/unobscured-authoring-light-comfortable-1280x800-28b6c8cf2471d8edbf0ed62ac44ad2e4a5a99880.png",
+      "sha256": "e9452979d7dcfc1607eaa740baa7ef4e75272015b412882e19d7d2cb92a580b1",
+      "bytes": 145416
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/expanded-deformation-light-comfortable-1280x800.png",
+      "sha256": "5c865d22a6e5ab664b4d572f872f39f50a42dee0b3d6ea2da303bd03f5b3999b",
+      "bytes": 145946
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/normal-authoring-light-comfortable-1280x800.png",
+      "sha256": "7c8f4ce9268cff7bb818d2b002834e6c55b9816240f219dcc1533ae629ddf56f",
+      "bytes": 177727
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/rail-hover-light-comfortable-1280-inspector-false.png",
+      "sha256": "8b7ceb42d7f7964293076dcefdd3c7cd8024ada8bd47427bb0b4128c54891c2e",
+      "bytes": 2084
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/rail-hover-light-comfortable-1280-inspector-true.png",
+      "sha256": "34d3b1b8669e8f43b03abfda366d1dcef67b8acc9012d2a6017b623fc57dd3f6",
+      "bytes": 1738
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/rail-hover-light-comfortable-1280-tree-false.png",
+      "sha256": "c664997115b7b0e2d7bb0600299d2e1bb98e17ce3ab2cdbe03ea3d12de4bda17",
+      "bytes": 1530
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/rail-hover-light-comfortable-1280-tree-true.png",
+      "sha256": "5f5f6cf0d4a44e87191a88d5b5a76ae8de4b9ee2ad9a47c9bae572f971327d00",
+      "bytes": 1278
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/unobscured-authoring-light-comfortable-1280x800.png",
+      "sha256": "e9452979d7dcfc1607eaa740baa7ef4e75272015b412882e19d7d2cb92a580b1",
+      "bytes": 145416
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/expanded-deformation-dark-comfortable-1280x800-e13d050fca49218b2d4f4e3bdb41d1850a916de0.png",
+      "sha256": "253266586bcf4fb93883b30f5a0b7ef914ae2b46fd097065c796758c0ff37293",
+      "bytes": 143663
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/normal-authoring-dark-comfortable-1280x800-e1236cf0dfd7f219cbe2c2d7205108653875e293.png",
+      "sha256": "04a48cc2910ab8c66aff1b2a868b3fa774a3d2c49f8d6f3cb4c358f2da3e8d87",
+      "bytes": 174419
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1280-inspector-false-a271a001e5026b9f83be30d9cb723ce315ff11d7.png",
+      "sha256": "de302d1388276f19b3944e4ec8e3fe0e7f929289f4c7efa13a4b9758b7966dda",
+      "bytes": 2127
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1280-inspector-true-e253d4c602fd1359ba233675c7e25a01b11ba604.png",
+      "sha256": "e60501385bd1f3937f57c3b87ca2752239c7e922517f606372da1e208791a6a0",
+      "bytes": 1815
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1280-tree-false-7a042deaf9dc4a68fa60e1a7c6189704a907cb64.png",
+      "sha256": "162ebf2cd7aca0d589d1062750dcf91339f58452d580a19926735693850b1599",
+      "bytes": 1579
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1280-tree-true-f96f4156f4e38f6b7613bdc02c01ae6c0edd6df1.png",
+      "sha256": "513ea894def0be782e756836b4df5157c258a8c9ce3ace2ae23939ca4afb4d78",
+      "bytes": 1292
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/unobscured-authoring-dark-comfortable-1280x800-120b411258c273fc7ff0654f985f7ef4be9bf78d.png",
+      "sha256": "fe3967f68e5a5c08738260b2fd1c1c1b18f1566bfbabe0469358da1ba71cdd6c",
+      "bytes": 143671
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/expanded-deformation-dark-comfortable-1280x800.png",
+      "sha256": "253266586bcf4fb93883b30f5a0b7ef914ae2b46fd097065c796758c0ff37293",
+      "bytes": 143663
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/normal-authoring-dark-comfortable-1280x800.png",
+      "sha256": "04a48cc2910ab8c66aff1b2a868b3fa774a3d2c49f8d6f3cb4c358f2da3e8d87",
+      "bytes": 174419
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/rail-hover-dark-comfortable-1280-inspector-false.png",
+      "sha256": "de302d1388276f19b3944e4ec8e3fe0e7f929289f4c7efa13a4b9758b7966dda",
+      "bytes": 2127
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/rail-hover-dark-comfortable-1280-inspector-true.png",
+      "sha256": "e60501385bd1f3937f57c3b87ca2752239c7e922517f606372da1e208791a6a0",
+      "bytes": 1815
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/rail-hover-dark-comfortable-1280-tree-false.png",
+      "sha256": "162ebf2cd7aca0d589d1062750dcf91339f58452d580a19926735693850b1599",
+      "bytes": 1579
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/rail-hover-dark-comfortable-1280-tree-true.png",
+      "sha256": "513ea894def0be782e756836b4df5157c258a8c9ce3ace2ae23939ca4afb4d78",
+      "bytes": 1292
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/unobscured-authoring-dark-comfortable-1280x800.png",
+      "sha256": "fe3967f68e5a5c08738260b2fd1c1c1b18f1566bfbabe0469358da1ba71cdd6c",
+      "bytes": 143671
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/expanded-deformation-light-comfortable-1024x768-bc921bdefd454f8cee132f0c5c451921af811374.png",
+      "sha256": "8f3dddaef74f1ab5c0880d86bd3ffd18c2d79c0e60984b719f2fc93e2534f85d",
+      "bytes": 96447
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/normal-authoring-light-comfortable-1024x768-c2f1a070fe80e70d2a7e6acd2c19cfc2e0f64712.png",
+      "sha256": "43da4ceb259550b25eb9370d7781ebb5f4dc2e1dde1fa5d05c92227253853bf5",
+      "bytes": 146959
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-inspector-false-b7d41ff8690850673997b6cbe7a3e126b09a69ea.png",
+      "sha256": "977ef46854d6dc2627282750eb37f5a594602ef64466889cf8b50a9203992913",
+      "bytes": 2649
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-inspector-true-c27ac3e36db48dd702033e1cbd40c24c1280101c.png",
+      "sha256": "b0c30e19fc33a641db698de1da23699502520aabb53000529d23245a3748c85e",
+      "bytes": 1755
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-tree-false-aa782c4ab30b06041dd7406221ffbb86884ed81d.png",
+      "sha256": "aaf9f6f00734750df458da8a914598d7fd452f13dab8686962d2b14d1a7ebdd2",
+      "bytes": 1951
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-tree-true-b73e3c5ea59f2f047ce24c12ed1d6d89eaa5f065.png",
+      "sha256": "7d7c0ea56c857edc0553b7688da04061f2d01208d5b12039377ec3884309604e",
+      "bytes": 1317
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/unobscured-authoring-light-comfortable-1024x768-36a0e8cd1d3d599518db7dd69a43ce303d734d78.png",
+      "sha256": "fbc26a812c15d8efd5f84fcc965dc80922cc5ad7a194270f8ddeb85a5fc54664",
+      "bytes": 95219
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/expanded-deformation-light-comfortable-1024x768.png",
+      "sha256": "8f3dddaef74f1ab5c0880d86bd3ffd18c2d79c0e60984b719f2fc93e2534f85d",
+      "bytes": 96447
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/normal-authoring-light-comfortable-1024x768.png",
+      "sha256": "43da4ceb259550b25eb9370d7781ebb5f4dc2e1dde1fa5d05c92227253853bf5",
+      "bytes": 146959
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/rail-hover-light-comfortable-1024-inspector-false.png",
+      "sha256": "977ef46854d6dc2627282750eb37f5a594602ef64466889cf8b50a9203992913",
+      "bytes": 2649
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/rail-hover-light-comfortable-1024-inspector-true.png",
+      "sha256": "b0c30e19fc33a641db698de1da23699502520aabb53000529d23245a3748c85e",
+      "bytes": 1755
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/rail-hover-light-comfortable-1024-tree-false.png",
+      "sha256": "aaf9f6f00734750df458da8a914598d7fd452f13dab8686962d2b14d1a7ebdd2",
+      "bytes": 1951
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/rail-hover-light-comfortable-1024-tree-true.png",
+      "sha256": "7d7c0ea56c857edc0553b7688da04061f2d01208d5b12039377ec3884309604e",
+      "bytes": 1317
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/unobscured-authoring-light-comfortable-1024x768.png",
+      "sha256": "fbc26a812c15d8efd5f84fcc965dc80922cc5ad7a194270f8ddeb85a5fc54664",
+      "bytes": 95219
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/expanded-deformation-dark-compact-1280x800-3bfbde65471d2dd0c88852922d8cbd728b584d12.png",
+      "sha256": "4a396d685fd983772d9a7c99972f8e5aec936ef48aa6d22ef3881808d4739785",
+      "bytes": 143830
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/normal-authoring-dark-compact-1280x800-8e3cda747444195c9391bdf528c759b577d23fa1.png",
+      "sha256": "6cfdb1de67ab7476a2d03543632e37759327c1c8452e7b577323bf0a5164b163",
+      "bytes": 175161
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-compact-1280-inspector-false-fd76c0c998ef316c09288efd4d16ff9ba72f0364.png",
+      "sha256": "2b1198a810996e1c1159e7980efab0292855fe41daefc7dd3dc2ca317a8491a9",
+      "bytes": 2122
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-compact-1280-inspector-true-7c08b8624fcfcbd6a076752ed785cb43ac2793c8.png",
+      "sha256": "5e9eaefffeb73229158555682ed291c37c52ca3e2ebf74817d103769f1c19814",
+      "bytes": 1782
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-compact-1280-tree-false-b3a890f83f3805ee0e9409f04f03fa2cad7869c5.png",
+      "sha256": "558c1ad73740f2c8d75017f61ac6283b8ea67324ecd0afd82213413a119751ea",
+      "bytes": 1580
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-compact-1280-tree-true-f059af8ddc4b6240e04acd1159a44b0e961255f8.png",
+      "sha256": "9b84dd7f4eefe3ad8c50fc7fec79db6937327cbad839d7f88afb4547b6c6e29f",
+      "bytes": 1275
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/unobscured-authoring-dark-compact-1280x800-8cd71936a01eb7e9eb8b896f7b37190d9af563cb.png",
+      "sha256": "bedf9f80a8629d7de9f33787b6e1df70247147c37a15c4b3732591d5e0f54d8f",
+      "bytes": 144530
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/expanded-deformation-dark-compact-1280x800.png",
+      "sha256": "4a396d685fd983772d9a7c99972f8e5aec936ef48aa6d22ef3881808d4739785",
+      "bytes": 143830
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/normal-authoring-dark-compact-1280x800.png",
+      "sha256": "6cfdb1de67ab7476a2d03543632e37759327c1c8452e7b577323bf0a5164b163",
+      "bytes": 175161
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/rail-hover-dark-compact-1280-inspector-false.png",
+      "sha256": "2b1198a810996e1c1159e7980efab0292855fe41daefc7dd3dc2ca317a8491a9",
+      "bytes": 2122
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/rail-hover-dark-compact-1280-inspector-true.png",
+      "sha256": "5e9eaefffeb73229158555682ed291c37c52ca3e2ebf74817d103769f1c19814",
+      "bytes": 1782
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/rail-hover-dark-compact-1280-tree-false.png",
+      "sha256": "558c1ad73740f2c8d75017f61ac6283b8ea67324ecd0afd82213413a119751ea",
+      "bytes": 1580
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/rail-hover-dark-compact-1280-tree-true.png",
+      "sha256": "9b84dd7f4eefe3ad8c50fc7fec79db6937327cbad839d7f88afb4547b6c6e29f",
+      "bytes": 1275
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/unobscured-authoring-dark-compact-1280x800.png",
+      "sha256": "bedf9f80a8629d7de9f33787b6e1df70247147c37a15c4b3732591d5e0f54d8f",
+      "bytes": 144530
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/expanded-deformation-dark-comfortable-1440x920-a12f035e037c132708c8e8d739e22c4672f55d40.png",
+      "sha256": "e2a63f3c542db4dc05ba3a5dafeef45d688f13b67dcfc7b7c8005d98832c3c1f",
+      "bytes": 156895
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/normal-authoring-dark-comfortable-1440x920-f0de30f1a576af29b67fe228d4d23e78392b7f4c.png",
+      "sha256": "94afcc2684094bbae121f272a3a81df4898badaf9e741d2a1f3aacd5494987b9",
+      "bytes": 199560
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1440-inspector-false-a670ea2205d8613399cd687f1b5fa040b0de1681.png",
+      "sha256": "c2413228b3a6f6c8148d246d6b3bcd35df9ad5ec0c88f84362b8f2955c26af15",
+      "bytes": 2154
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1440-inspector-true-399a4634ac2403ff7a9db1f86644947ea0a55ec9.png",
+      "sha256": "171510c003e28968cac6d6fca45b966fbf32355a51d40ed283ea26aa98423d32",
+      "bytes": 1815
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1440-tree-false-0e0436e069ca5cebdd50d8c5a4f7699d9976201a.png",
+      "sha256": "a1de0bb59aafad7e0730a8dac0433e2bb97cfd9a4b41aacfcded49ba56cccf03",
+      "bytes": 1626
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1440-tree-true-2b0430d49cac9cc6a6bfb032c26a1eb84e20fbec.png",
+      "sha256": "c4dc2d1dda777079a4db211c72148730ceb5edaaf401ac9656a19b230f4e2fef",
+      "bytes": 1300
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/unobscured-authoring-dark-comfortable-1440x920-ad2ef8f64f980f4ff963a38671787c1c21c04105.png",
+      "sha256": "f02916d2abb25bf4b30abc4746716ef50c82623b650dacbcdb7270e44e5a340c",
+      "bytes": 156140
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/expanded-deformation-dark-comfortable-1440x920.png",
+      "sha256": "e2a63f3c542db4dc05ba3a5dafeef45d688f13b67dcfc7b7c8005d98832c3c1f",
+      "bytes": 156895
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/normal-authoring-dark-comfortable-1440x920.png",
+      "sha256": "94afcc2684094bbae121f272a3a81df4898badaf9e741d2a1f3aacd5494987b9",
+      "bytes": 199560
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/rail-hover-dark-comfortable-1440-inspector-false.png",
+      "sha256": "c2413228b3a6f6c8148d246d6b3bcd35df9ad5ec0c88f84362b8f2955c26af15",
+      "bytes": 2154
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/rail-hover-dark-comfortable-1440-inspector-true.png",
+      "sha256": "171510c003e28968cac6d6fca45b966fbf32355a51d40ed283ea26aa98423d32",
+      "bytes": 1815
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/rail-hover-dark-comfortable-1440-tree-false.png",
+      "sha256": "a1de0bb59aafad7e0730a8dac0433e2bb97cfd9a4b41aacfcded49ba56cccf03",
+      "bytes": 1626
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/rail-hover-dark-comfortable-1440-tree-true.png",
+      "sha256": "c4dc2d1dda777079a4db211c72148730ceb5edaaf401ac9656a19b230f4e2fef",
+      "bytes": 1300
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/unobscured-authoring-dark-comfortable-1440x920.png",
+      "sha256": "f02916d2abb25bf4b30abc4746716ef50c82623b650dacbcdb7270e44e5a340c",
+      "bytes": 156140
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/expanded-deformation-light-compact-1280x800-de8f0dd13024681bb8b730dbce3788ac4c8c8ca8.png",
+      "sha256": "c868374d443c920ef0d82199ceebf39f83ff4631dfc08234f9fad1226b44093a",
+      "bytes": 146286
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/normal-authoring-light-compact-1280x800-07e81a477425529ae494dabb32c5fd22965435ac.png",
+      "sha256": "ce84efc4700bc42be4ccec17f2c4d2a3a788d68e3f0370a04e5833896908aea5",
+      "bytes": 178068
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-light-compact-1280-inspector-false-03f6bc6b6f21b0fcf25f7b8a30f3d32304914dfb.png",
+      "sha256": "63a42cf4fde2ec5a4378c90acb1bafb4121afac98b7bd2ae4168b1849ff98001",
+      "bytes": 2083
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-light-compact-1280-inspector-true-7513a3ee55086e63a20543ea599c7101c5e52d0e.png",
+      "sha256": "b7035c3f030047928e62a5a4eb8fe9e35c976c9d7b17454f6d7c0861a8311e05",
+      "bytes": 1712
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-light-compact-1280-tree-false-2241fc79f6acf29f8e144ad5eaaa24ed6e83335b.png",
+      "sha256": "b0eed80e563caa1b365fb456c765514487358b67f354df889ac7928c5724f7c6",
+      "bytes": 1531
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-light-compact-1280-tree-true-db2a9b2067f045dadb07e3e0a8986af6fff79e48.png",
+      "sha256": "25861da736e5aff9005f95d87c22796b55fe2dd5ba40b5a8c1b47315c5d49828",
+      "bytes": 1261
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/unobscured-authoring-light-compact-1280x800-7214f04d3aa66f3e50260db736308083afb52d79.png",
+      "sha256": "8f60d95609d0b9da2b7b41428b0c474fd3efc4c7ee1691c65b9678b9a03973d5",
+      "bytes": 146358
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/expanded-deformation-light-compact-1280x800.png",
+      "sha256": "c868374d443c920ef0d82199ceebf39f83ff4631dfc08234f9fad1226b44093a",
+      "bytes": 146286
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/normal-authoring-light-compact-1280x800.png",
+      "sha256": "ce84efc4700bc42be4ccec17f2c4d2a3a788d68e3f0370a04e5833896908aea5",
+      "bytes": 178068
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/rail-hover-light-compact-1280-inspector-false.png",
+      "sha256": "63a42cf4fde2ec5a4378c90acb1bafb4121afac98b7bd2ae4168b1849ff98001",
+      "bytes": 2083
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/rail-hover-light-compact-1280-inspector-true.png",
+      "sha256": "b7035c3f030047928e62a5a4eb8fe9e35c976c9d7b17454f6d7c0861a8311e05",
+      "bytes": 1712
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/rail-hover-light-compact-1280-tree-false.png",
+      "sha256": "b0eed80e563caa1b365fb456c765514487358b67f354df889ac7928c5724f7c6",
+      "bytes": 1531
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/rail-hover-light-compact-1280-tree-true.png",
+      "sha256": "25861da736e5aff9005f95d87c22796b55fe2dd5ba40b5a8c1b47315c5d49828",
+      "bytes": 1261
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/unobscured-authoring-light-compact-1280x800.png",
+      "sha256": "8f60d95609d0b9da2b7b41428b0c474fd3efc4c7ee1691c65b9678b9a03973d5",
+      "bytes": 146358
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-0c804-ontained-controls-dark-1280-chromium-desktop-dist/attachments/rail-dark-1280-both-pointer-max-75773fda70b8c73f0985c28078121399f4eb596a.png",
+      "sha256": "1f45951c46f86491e523dc8099eb5690b64bc6c4af740e430bec3ee40ac7fd83",
+      "bytes": 176505
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-0c804-ontained-controls-dark-1280-chromium-desktop-dist/attachments/rail-dark-1280-defaults-d42858b773d16a5e13cecd9163055894eadd8f74.png",
+      "sha256": "aa16e5964fa52e034416fc204ecc1c3c6cf962b745f4fed473069dcbc3695e4a",
+      "bytes": 191688
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-0c804-ontained-controls-dark-1280-chromium-desktop-dist/attachments/rail-dark-1280-pointer-lower-clamps-e7745fdd9431d445773f0aad9d3376f96f46a647.png",
+      "sha256": "38f8ac1dbd1c25fff2ac2ced14638fa019d62414ce4b0cbffd8fc51bd69198e6",
+      "bytes": 257562
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-0c804-ontained-controls-dark-1280-chromium-desktop-dist/rail-dark-1280-both-pointer-max.png",
+      "sha256": "1f45951c46f86491e523dc8099eb5690b64bc6c4af740e430bec3ee40ac7fd83",
+      "bytes": 176505
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-0c804-ontained-controls-dark-1280-chromium-desktop-dist/rail-dark-1280-defaults.png",
+      "sha256": "aa16e5964fa52e034416fc204ecc1c3c6cf962b745f4fed473069dcbc3695e4a",
+      "bytes": 191688
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-0c804-ontained-controls-dark-1280-chromium-desktop-dist/rail-dark-1280-pointer-lower-clamps.png",
+      "sha256": "38f8ac1dbd1c25fff2ac2ced14638fa019d62414ce4b0cbffd8fc51bd69198e6",
+      "bytes": 257562
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-55fe9-ntained-controls-light-1280-chromium-desktop-dist/attachments/rail-light-1280-both-pointer-max-4ef07e9d05d2b8f633ece255b4456f8638de782a.png",
+      "sha256": "61115aa89a26098c5957ff6e3a8fbded8e2459f2162b74d7bc203544a94b8ff1",
+      "bytes": 170999
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-55fe9-ntained-controls-light-1280-chromium-desktop-dist/attachments/rail-light-1280-defaults-c1082b67d8788861939054f045aa3152c8dcbf12.png",
+      "sha256": "e871ef1f85db8bffa878b6b59296f8636a4e1ce4b1470e75440853b0cae069e2",
+      "bytes": 184888
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-55fe9-ntained-controls-light-1280-chromium-desktop-dist/attachments/rail-light-1280-pointer-lower-clamps-c565189e74358f3f22a3e2ebdc821f3712151574.png",
+      "sha256": "97a0543d8e7f399b8c48e1e9ae8c908ddc9e1e45073bdf3a02f37106bcef6269",
+      "bytes": 251953
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-55fe9-ntained-controls-light-1280-chromium-desktop-dist/rail-light-1280-both-pointer-max.png",
+      "sha256": "61115aa89a26098c5957ff6e3a8fbded8e2459f2162b74d7bc203544a94b8ff1",
+      "bytes": 170999
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-55fe9-ntained-controls-light-1280-chromium-desktop-dist/rail-light-1280-defaults.png",
+      "sha256": "e871ef1f85db8bffa878b6b59296f8636a4e1ce4b1470e75440853b0cae069e2",
+      "bytes": 184888
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-55fe9-ntained-controls-light-1280-chromium-desktop-dist/rail-light-1280-pointer-lower-clamps.png",
+      "sha256": "97a0543d8e7f399b8c48e1e9ae8c908ddc9e1e45073bdf3a02f37106bcef6269",
+      "bytes": 251953
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-7ea36-ntained-controls-light-1440-chromium-desktop-dist/attachments/rail-light-1440-both-pointer-max-977041a0b1a82617ae1a028804750a303213a970.png",
+      "sha256": "7edbb5466072be2dadf4106bd7f2c9a6d5ba3b67d68923c74be78967afc5584b",
+      "bytes": 206401
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-7ea36-ntained-controls-light-1440-chromium-desktop-dist/attachments/rail-light-1440-defaults-9d50385b75d6ad65dd92452f2100c92af7c4902f.png",
+      "sha256": "6723f178edb2320b5f8c5228eccdca005522630b2f6758ef3a4bdaed0191f56d",
+      "bytes": 220276
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-7ea36-ntained-controls-light-1440-chromium-desktop-dist/attachments/rail-light-1440-pointer-lower-clamps-95432b6f40e1b49449cf691166bf7856c3eabc87.png",
+      "sha256": "d6d6ed104412de181a02a53132bf1201adf7e197d7d036e20395fbcbb7532f58",
+      "bytes": 316258
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-7ea36-ntained-controls-light-1440-chromium-desktop-dist/rail-light-1440-both-pointer-max.png",
+      "sha256": "7edbb5466072be2dadf4106bd7f2c9a6d5ba3b67d68923c74be78967afc5584b",
+      "bytes": 206401
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-7ea36-ntained-controls-light-1440-chromium-desktop-dist/rail-light-1440-defaults.png",
+      "sha256": "6723f178edb2320b5f8c5228eccdca005522630b2f6758ef3a4bdaed0191f56d",
+      "bytes": 220276
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-7ea36-ntained-controls-light-1440-chromium-desktop-dist/rail-light-1440-pointer-lower-clamps.png",
+      "sha256": "d6d6ed104412de181a02a53132bf1201adf7e197d7d036e20395fbcbb7532f58",
+      "bytes": 316258
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-e7e1e-ontained-controls-dark-1440-chromium-desktop-dist/attachments/rail-dark-1440-both-pointer-max-3cbae3e930729d998bc82248b2fa75d9f25cc1ae.png",
+      "sha256": "392e1232ba5800497b04262e22222dc1f2b338f54fc1c2997e4501fa5f5d9a4d",
+      "bytes": 214231
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-e7e1e-ontained-controls-dark-1440-chromium-desktop-dist/attachments/rail-dark-1440-defaults-2a857b8ca0fd03ab8cb737784a1a5d4b2ca628a4.png",
+      "sha256": "58848a8713a80ead51e28cd272971427251f58f62b43cc301cd4b4e66d4407ab",
+      "bytes": 225943
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-e7e1e-ontained-controls-dark-1440-chromium-desktop-dist/attachments/rail-dark-1440-pointer-lower-clamps-16b6364619b8373e758ca80587bfe71367ef0b0c.png",
+      "sha256": "e50cf52880a57a2e0716fc392fa19af91c2a513ef36e1230947c5aa1a5181a53",
+      "bytes": 317619
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-e7e1e-ontained-controls-dark-1440-chromium-desktop-dist/rail-dark-1440-both-pointer-max.png",
+      "sha256": "392e1232ba5800497b04262e22222dc1f2b338f54fc1c2997e4501fa5f5d9a4d",
+      "bytes": 214231
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-e7e1e-ontained-controls-dark-1440-chromium-desktop-dist/rail-dark-1440-defaults.png",
+      "sha256": "58848a8713a80ead51e28cd272971427251f58f62b43cc301cd4b4e66d4407ab",
+      "bytes": 225943
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-e7e1e-ontained-controls-dark-1440-chromium-desktop-dist/rail-dark-1440-pointer-lower-clamps.png",
+      "sha256": "e50cf52880a57a2e0716fc392fa19af91c2a513ef36e1230947c5aa1a5181a53",
+      "bytes": 317619
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-same-ra-bd9c0-intent-after-node-selection-chromium-desktop-dist/attachments/typed-collision-pipe-task-after-node-selection-8d55cf2544c98e79e8b0644992255426d7749bba.png",
+      "sha256": "27397355056234de25fb538eec733d0b9ed128b5a8643371967f59a9e844614f",
+      "bytes": 166057
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-same-ra-bd9c0-intent-after-node-selection-chromium-desktop-dist/typed-collision-pipe-task-after-node-selection.png",
+      "sha256": "27397355056234de25fb538eec733d0b9ed128b5a8643371967f59a9e844614f",
+      "bytes": 166057
+    },
+    {
+      "path": "sweep/SWEEP_20260917T133230Z_b6a1ab837848.json",
+      "sha256": "d17d595e39c8ce263c448569bc68916fc3f49270c214de1d84b8c58b584c427a",
+      "bytes": 3781
+    },
+    {
+      "path": "sweep.stderr.log",
+      "sha256": "f857683fee7356b76cfd791acd8d57374ef6bc036e2ff1b882521459cd5d161e",
+      "bytes": 1454660
+    },
+    {
+      "path": "sweep.stdout.log",
+      "sha256": "0d4853daec857780187a4c3aeeffa43254b63d969303cea6666c5a90a0e17ba7",
+      "bytes": 182897
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "status": "FOCUSED_BROWSER_PASS_ROOT_HASH_VERIFIED_REVIEW_PENDING",
+  "at": "2026-09-17T10:45:34.948501+00:00",
+  "derivative_package": true,
+  "upstream": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/CANDIDATE_SOURCE_V18/SOURCE_MANIFEST.json",
+    "sha256": "88158c7acc123beef07456c2728773218926b75df0aae48481c62e899f86edbe",
+    "bytes": 34780
+  },
+  "output_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_CANVAS_PALETTE_COLLECTION_REPAIR_V92_R2/OUTPUT_MANIFEST.json",
+    "sha256": "1342f3e3e9ff4f4bf1f186e2c91de1a5c39f181e55fac7b05d0ec6fbb96c500d",
+    "bytes": 167661
+  },
+  "return": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_CANVAS_PALETTE_COLLECTION_REPAIR_V92_R2/RETURN.json",
+    "sha256": "faba08d547e0280786ccdf53c9d62ebacfa373888f3e09cce71bf9f46d4b048b",
+    "bytes": 3292
+  },
+  "members_verified": 759,
+  "member_bytes": 90935713,
+  "canonical_report_counts": {
+    "dist": 51,
+    "source_menu": 4,
+    "source_workspace": 17
+  },
+  "attempts_per_case": 1,
+  "skips_flaky_errors": 0,
+  "attachments_verified": 590,
+  "attachment_binding_verification": {
+    "counts": {
+      "body": 470,
+      "path": 120
+    },
+    "body": "Exact decoded canonical-report bytes",
+    "path": "Exact retained packet hashes and canonical report path remapping; original ephemeral test-results paths may have been replaced by the next lane"
+  },
+  "built_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_CANVAS_PALETTE_REPAIR_V92/CYCLE1/BUILT_DIST_MANIFEST.json",
+    "sha256": "488b6fb6c1379ba18806845325febb26d2e4b1390bfe256bfc6dc647671a997f",
+    "bytes": 5951
+  },
+  "source_verified": 145,
+  "built_files_verified": 21,
+  "runtime": "RELEASED",
+  "remaining": [
+    "V94 current image and complete candidate review",
+    "integration and registered sweep",
+    "nativeV83+V93",
+    "D69 owner ruling or original performance acceptance",
+    "final evidence, metadata, practitioner checks, receipts, CI and PR"
+  ]
+}

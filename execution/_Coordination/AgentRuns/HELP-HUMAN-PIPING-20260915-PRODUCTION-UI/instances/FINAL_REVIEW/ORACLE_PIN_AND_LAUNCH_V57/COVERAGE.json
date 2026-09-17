@@ -1,0 +1,135 @@
+{
+  "schema": "bounded-independent-source-review-coverage/v1",
+  "entry": {
+    "sourceCount": 143,
+    "mismatches": [],
+    "changedCount": 1,
+    "unchangedCount": 142
+  },
+  "exit": [
+    {
+      "inventory": "source143",
+      "count": 143,
+      "mismatches": []
+    },
+    {
+      "inventory": "author16",
+      "count": 16,
+      "mismatches": []
+    },
+    {
+      "inventory": "method29_ROOT",
+      "count": 29,
+      "mismatches": []
+    },
+    {
+      "inventory": "method29_VERIFY",
+      "count": 29,
+      "mismatches": []
+    },
+    {
+      "inventory": "wrappers6",
+      "count": 6,
+      "mismatches": []
+    },
+    {
+      "inventory": "commands4",
+      "count": 4,
+      "mismatches": []
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/ORACLE_PIN_AND_FINAL_LAUNCH_V57_REVIEW.md",
+      "sha256": "fdba0ce4fe087887a6da9b83143cd4d3a65cc5447789475024468aacaea9ec01"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V5/SOURCE_MANIFEST.json",
+      "sha256": "0d2435e4b71adc2d4ba8070be5f2cc444a8ba2f0c774a2f77897ce09e9efda24"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V4/SOURCE_MANIFEST.json",
+      "sha256": "13260d4a03b792454d68e97259a15c53a79f9b3c6f4f60da6cb65093d783d5f8"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/ESCAPE_FOCUS_V31/RETURN.json",
+      "sha256": "fc0c76a669e081e711d49eb1aff375053d8c9a149935ab8340483574bb875971"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORACLE_GEOMETRY_PIN_V20S/OUTPUT_MANIFEST.json",
+      "sha256": "31cfca008e0cc69ce991328e4db4c12cf9d4c5f18c83bbaae54bddcadff10ce7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORACLE_GEOMETRY_PIN_V20S/RETURN.json",
+      "sha256": "7ab7cb5a0d8b1b7e874354ff76e09cdaae94a5b5022ffe7e8b9f81b8ee692460"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORACLE_GEOMETRY_PIN_V20S/PATCH.diff",
+      "sha256": "1a72cec2a3e885f55331355b00f3aa67c762fc9c3db12c8cf162a265fc47e55c"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORACLE_GEOMETRY_PIN_V20S/SOURCE_MANIFEST_V20S.json",
+      "sha256": "75accfcca8ec5c6373ea4e4f9813250eb8075a4601f3d1d908e8c1cbd749fc58"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORACLE_GEOMETRY_PIN_V20S/COMPARISON.json",
+      "sha256": "9397bc0f6d9b4e763f5eeee19291e8e4dbfd628b4c45154fafc76ab0b259ebe4"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORACLE_GEOMETRY_PIN_V20S/compare.cjs",
+      "sha256": "a5f21c2402450cf58ae60f41f6754d97c77a3538999f8d28f30492f2c594df88"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORACLE_GEOMETRY_PIN_V20S/oracle/CANDIDATE_POINT_ORACLE_MANIFEST.json",
+      "sha256": "50b86d1fd13a85c9c910d6fbaffacb4752fbfeeca2a00ec05b469c27fd4e45c8"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FOREGROUND_QUALIFICATION_LAUNCH_V57/BOUND_EXECUTION/BINDINGS.json",
+      "sha256": "ecba6206e58cfdce9b155c7b6cbb21071e919d1d012da3698a458825a0dda79c"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FOREGROUND_QUALIFICATION_LAUNCH_V57/BINDINGS.json",
+      "sha256": "c5cd8c2bcbaf0de83ed7def21018df9ac8e75158492e05a042ebd16bc12be742"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/ORACLE_GEOMETRY_PIN_V31_DIAGNOSIS/DIAGNOSIS.json",
+      "sha256": "9f9ce7c023862c9c3ddd7ca009cf9d85ddcb6f6ea04b25cb09f5903d1ca2ee9b"
+    }
+  ],
+  "changedFile": {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/freeze-candidate-point-oracle.mjs",
+    "beforeSha256": "1dbfff4d2a1695e902c106e32f8a3d9e2eb1805c4bdaffdc73282ff267506866",
+    "afterSha256": "d8c7a0cdb8a129a1d710df4d420d6437d76d44d8fcc34bb5132a601add599937",
+    "coverage": "100% exact patch and full generator read; relevant runtime consumers and historical offline helper read"
+  },
+  "oracleData": {
+    "points": 400,
+    "boxes": 40,
+    "planSelfhashes": 800,
+    "selfhashMismatches": 0,
+    "changedLeavesPerSize": 802,
+    "onlyChangedPaths": [
+      "candidate_preflight.preflightPath",
+      "candidate_preflight.preflightSha256",
+      "probes[*].candidate_runtime.visual_plan.source.geometrySourceSha256",
+      "probes[*].candidate_runtime.visual_plan.source.cameraPreflightSha256",
+      "probes[*].candidate_runtime.visual_plan.source.dependencies[0].sha256",
+      "probes[*].candidate_runtime.visual_plan.sha256"
+    ],
+    "allOtherCompleteJson": "exact, including camera/canvas, point/ray/NDC outcomes, ordered Box membership, authored centers, ROI, mask and pixel criteria",
+    "provenance": "Both old/new preflight bytes rehashed; source/dependency SHA checked; all old/new plan hashes recalculated using JSON.stringify semantics"
+  },
+  "launchChecks": {
+    "commands": 4,
+    "cwdAndArgvVsV54AndV57Preparation": "identical",
+    "collectionDelta": "--list plus separate evidence directory only",
+    "wrapperConfigPackagePins": 6,
+    "browserMethodBundleOraclePins": "all exact",
+    "requiredExecutionHashes": "all populated 64 hex",
+    "freshEvidenceDirectories": "all four absent at review",
+    "focused": "1 test / 8 segments; same targets/windows/deadlines",
+    "cohort": "10 tests, 5 per size 1000/10000, 243 segments per test; foreground-cohort-v2",
+    "policy": "prefix cleanup declared; exact collection and focused PASS require ROOT admission; no old launcher or V1 output reuse",
+    "limitation": "Runtime consumer incompatibility R1 prevents launch readiness despite correct command rebinding"
+  }
+}

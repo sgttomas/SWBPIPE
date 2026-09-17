@@ -1,0 +1,28 @@
+{
+  "status": "BOUNDED_COMPLETE_CANDIDATE_BACKCHECK_PASS",
+  "at": "2026-09-17T11:20:13.293216+00:00",
+  "role": "TASK Type2 software-code-review gpt-6-astra/high; instruction/config asserted; no delegation",
+  "derivative_package": true,
+  "upstream": {
+    "source_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/OPERATION_DOCK_SCROLL_REPAIR_V96_R1/SOURCE_FREEZE/SOURCE_MANIFEST.json",
+    "sha256": "e035d443165e987265b57797b4459cf59d911b49b9ed9d93f888f70df23e5a75",
+    "prior_complete_review": "FINAL_REVIEW/CANVAS_PALETTE_V94"
+  },
+  "coverage": "145 maintained paths: complete two-file delta,143 inherited exact; prior full nine-path/136-inherited coverage retained. Zero source/input drift.",
+  "resolved": [
+    "V94-R1 constrained sticky operation-tab obstruction"
+  ],
+  "new_findings": [],
+  "evidence": "One genuine intended old-product selector interception at regular Operations180;51 fresh dist and17 fresh source PASS with one attempt/retry0;4 menu PASS retained from V92 R2. Original zero-case V96 failure preserved.",
+  "visual": "All24 current control captures (20 unique),16 navigation returns,48 budget states and63 orientation triples covered.20 new orientation hashes directly viewed;106 image occurrences inherit exact V94 hashes.51 total unique images directly viewed including the preimage. No wheel used.",
+  "calibration": "The narrow wrapped screenshot scrolls the ordinary-flow visible Geometry tool label just above the body while showing the entire focused SELECT. Its accessible label and adjacent ordinary scroll position remain; closure proves removal of persistent occlusion, full control borders/ownership and return navigation. It does not certify simultaneous label/control visibility or professional/practitioner usability of the constrained panel.",
+  "closure_verdict": "Bounded source/repair/visual backcheck complete and suitable for Root fan-in. No overall product, professional usability, release, native, full-suite or performance acceptance.",
+  "remaining": [
+    "Root integration and full registered sweep",
+    "Native/practitioner usability checks and final metadata/CI/PR acceptance",
+    "D69 owner ruling or original performance gates; no performance waiver"
+  ],
+  "input_bindings": 555,
+  "drift": 0,
+  "runtime": "Reviewer executed no tests/build/browser/native; author runtime released; no automatic follow-on."
+}

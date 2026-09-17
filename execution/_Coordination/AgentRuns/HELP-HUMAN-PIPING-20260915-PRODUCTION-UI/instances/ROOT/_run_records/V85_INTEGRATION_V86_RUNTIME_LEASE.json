@@ -1,0 +1,52 @@
+{
+  "schema": "piping-root-integration-and-runtime-lease/v1",
+  "at": "2026-09-17T08:57:34.857410+00:00",
+  "parent": "/root",
+  "role": "HELP_HUMAN Agent0",
+  "integration": {
+    "commit": "1e4f7dfb06bc6fe5ce011efda7efd3dd6ee4b66d",
+    "changed_paths": [
+      "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "projects/chirality-piping/apps/desktop/src/styles.css"
+    ],
+    "patch_sha256": "d0b777e2a9316fc07202d369e3bd0b990c30bd5ca60a201486ec5a3cf3e5068b",
+    "root_and_check_all143_worktree_and_committed_blob_hashes_verified": true,
+    "root_index_empty_after_commit": true,
+    "check_clean": true,
+    "review_manifest_members_verified": 4,
+    "review": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/POST_SOLVE_DOCK_V85/RETURN.json",
+      "sha256": "4cdb7e50505b6733d0bd55413d53f526cc2e8f86c8d1b2a3741e5f7a855833fc",
+      "verdict": "PASS_NO_ACTIONABLE_FINDINGS_SOURCE_SUITABILITY_ONLY"
+    },
+    "flat_manifest": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V15/SOURCE_MANIFEST.json",
+      "sha256": "06390d1aadf8bcc2873d9400c6e91b05effe7c46bf0e3343665915ad4e350b3c"
+    }
+  },
+  "preparation": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V86_PREPARATION",
+    "manifest_sha256": "9c50957202b7820f38a92d5d705703e5b794cfdea595293d6ebbe50d0d4a2654",
+    "members_verified": 4
+  },
+  "lease": {
+    "status": "GRANTED",
+    "owner": "/root/ui_full_method_qualification",
+    "configured_model": "gpt-6-astra",
+    "configured_reasoning_effort": "low",
+    "mechanism": "delegated-harness-native",
+    "enforcement": "instruction/config asserted",
+    "delegation": false,
+    "scope": "V86 exact prepared five-surface registered sweep from clean CHECK; no product writes, no skips/retries, stop on first failure; preserve owning raw evidence and explicit NOT_RUN. Release processes/ports and source posthash before return.",
+    "command_sha256": "380ab8494537be0dab7d5c546bd238aa024873f395fc8e9df59cc7ae139d030c",
+    "prohibits": "Concurrent builds/browser/native/performance/archive IO; file-light read-only metadata preparation permitted."
+  },
+  "owner_disposition": {
+    "D-69": "PENDING; original performance prerequisite unchanged; no merge authorization inferred from Git standing authority"
+  },
+  "script_note": "First integration preflight exited on review manifest key mismatch before source mutation; corrected explicit files schema then verified four members before apply."
+}

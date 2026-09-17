@@ -1,0 +1,2482 @@
+{
+  "inputs_sha256": "17d8037bc441181ceed449e7bef6316351cf38d6cd36004722e07f2d22f5785f",
+  "objects": [
+    {
+      "sha256": "02079104e32c7a0a42327ed2c253dbd830e76a1963a376058d4ba912115a5f4f",
+      "bytes": 102659,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/02079104e32c7a0a42327ed2c253dbd830e76a1963a376058d4ba912115a5f4f",
+      "alias_indexes_in_INPUTS": [
+        220,
+        226
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "03452a9f55f288e6297f7ef1ebf69cccd98de092f14c191b7f7865b516446853",
+      "bytes": 88,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/03452a9f55f288e6297f7ef1ebf69cccd98de092f14c191b7f7865b516446853",
+      "alias_indexes_in_INPUTS": [
+        204,
+        209
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "035390c4a163a008c023ec9d210e571995980377e5b170c08fe08d5ff6b102de",
+      "bytes": 2953818,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/035390c4a163a008c023ec9d210e571995980377e5b170c08fe08d5ff6b102de",
+      "alias_indexes_in_INPUTS": [
+        47
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "0381d507bc5f2dfca3d431885b1cbc276f72d17cbe4ecf0f1f14fc9a5d724c3d",
+      "bytes": 3201,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/0381d507bc5f2dfca3d431885b1cbc276f72d17cbe4ecf0f1f14fc9a5d724c3d",
+      "alias_indexes_in_INPUTS": [
+        337
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "05474c1d80d69d8fcb525c3f523a17200b78b656ea39c9c03059e7ba3885af4f",
+      "bytes": 3621,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/05474c1d80d69d8fcb525c3f523a17200b78b656ea39c9c03059e7ba3885af4f",
+      "alias_indexes_in_INPUTS": [
+        370
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "05570082448113dbf4c66c2104c8142acbd79817e1bc5b7cd5ee1a95cafe301c",
+      "bytes": 24806,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/05570082448113dbf4c66c2104c8142acbd79817e1bc5b7cd5ee1a95cafe301c",
+      "alias_indexes_in_INPUTS": [
+        278
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "05c0f6ab9526532e8ee401a641c2af0c4a0bb10fdaacadc06710fad178fda8b7",
+      "bytes": 36657,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/05c0f6ab9526532e8ee401a641c2af0c4a0bb10fdaacadc06710fad178fda8b7",
+      "alias_indexes_in_INPUTS": [
+        345
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "06390d1aadf8bcc2873d9400c6e91b05effe7c46bf0e3343665915ad4e350b3c",
+      "bytes": 32834,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/06390d1aadf8bcc2873d9400c6e91b05effe7c46bf0e3343665915ad4e350b3c",
+      "alias_indexes_in_INPUTS": [
+        362
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "08af23765e2b60543b6e3383e0f63273ae70471317e5cae45ea5d406206dbf9c",
+      "bytes": 219389,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/08af23765e2b60543b6e3383e0f63273ae70471317e5cae45ea5d406206dbf9c",
+      "alias_indexes_in_INPUTS": [
+        135
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "097dfaa5eb6e7b47ad82c36887ffad9cdfc4df532917368b10843d2ec5189da0",
+      "bytes": 175057,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/097dfaa5eb6e7b47ad82c36887ffad9cdfc4df532917368b10843d2ec5189da0",
+      "alias_indexes_in_INPUTS": [
+        248,
+        256
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "0a68f83f80d43700ad1816dca95678e45b72bf1934fb70657d561784fdfee838",
+      "bytes": 1675,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/0a68f83f80d43700ad1816dca95678e45b72bf1934fb70657d561784fdfee838",
+      "alias_indexes_in_INPUTS": [
+        367
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "0e76cdd7253fc1a44b82f08cb331e8eaac61787a5cbc4605dbcac55987eaf49a",
+      "bytes": 34516,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/0e76cdd7253fc1a44b82f08cb331e8eaac61787a5cbc4605dbcac55987eaf49a",
+      "alias_indexes_in_INPUTS": [
+        200
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "0ee4d63ab33a7b623a88cdb511bbc8c7c268cedf403373086fcbc42dff3a588a",
+      "bytes": 1952,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/0ee4d63ab33a7b623a88cdb511bbc8c7c268cedf403373086fcbc42dff3a588a",
+      "alias_indexes_in_INPUTS": [
+        342
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "0f7c328650a6a9fc8a763122d12a8ad49254f8b87097fb6c9fdf473ba3559a7d",
+      "bytes": 1322,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/0f7c328650a6a9fc8a763122d12a8ad49254f8b87097fb6c9fdf473ba3559a7d",
+      "alias_indexes_in_INPUTS": [
+        81,
+        130
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "0fa52a483018266154128effaa4585474adb327f0ba73a88bcbd6400b2609cc9",
+      "bytes": 2387,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/0fa52a483018266154128effaa4585474adb327f0ba73a88bcbd6400b2609cc9",
+      "alias_indexes_in_INPUTS": [
+        327
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "0fe97a34f9c398416fbe6082cedf2ec7e3a11a670b5b205ca116776d9b802190",
+      "bytes": 37754,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/0fe97a34f9c398416fbe6082cedf2ec7e3a11a670b5b205ca116776d9b802190",
+      "alias_indexes_in_INPUTS": [
+        239
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "0fffe4f720656b80ca3d0a26f4c8f50adb1eb41c97344671f77fe6560d188a7d",
+      "bytes": 212091,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/0fffe4f720656b80ca3d0a26f4c8f50adb1eb41c97344671f77fe6560d188a7d",
+      "alias_indexes_in_INPUTS": [
+        326
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "102b1b219e5dd18e408ff10f347a525dc7f518275a39b3e87abb4fbb9e2e43f9",
+      "bytes": 966,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/102b1b219e5dd18e408ff10f347a525dc7f518275a39b3e87abb4fbb9e2e43f9",
+      "alias_indexes_in_INPUTS": [
+        180,
+        185
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "10931a80900877553645ad00db846f99c602d5c44e757d9326be3f36acc18c85",
+      "bytes": 3596,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/10931a80900877553645ad00db846f99c602d5c44e757d9326be3f36acc18c85",
+      "alias_indexes_in_INPUTS": [
+        324
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "1338baab8ef4b7b7570e9a68d6e174a5b74ee99b0d6539dc939a00b14746cc11",
+      "bytes": 1335,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/1338baab8ef4b7b7570e9a68d6e174a5b74ee99b0d6539dc939a00b14746cc11",
+      "alias_indexes_in_INPUTS": [
+        108,
+        157
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "14d354a521c4ef026435c106b3eb6e4f13f4c7b25e10376ad7d206bc85c8218e",
+      "bytes": 176425,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/14d354a521c4ef026435c106b3eb6e4f13f4c7b25e10376ad7d206bc85c8218e",
+      "alias_indexes_in_INPUTS": [
+        263,
+        271
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "1534a2b7ae03b3d331e0b4f550a21af44890e5e94a67848ad5e7b508a4099705",
+      "bytes": 11250,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/1534a2b7ae03b3d331e0b4f550a21af44890e5e94a67848ad5e7b508a4099705",
+      "alias_indexes_in_INPUTS": [
+        330
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "1587172729e90ff45b3a374abc18549cc6943f9fba6af1818f46a5471640b8cb",
+      "bytes": 625,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/1587172729e90ff45b3a374abc18549cc6943f9fba6af1818f46a5471640b8cb",
+      "alias_indexes_in_INPUTS": [
+        186
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "164aa2e7d0e7a88122a81fb8985e2bd195a02006f81a6e3cea66411313aafc02",
+      "bytes": 1294,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/164aa2e7d0e7a88122a81fb8985e2bd195a02006f81a6e3cea66411313aafc02",
+      "alias_indexes_in_INPUTS": [
+        85,
+        134
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "168f2a18422e6a7597743cd8513bca1889493abd0ab3e9e1b6f656fe4a029124",
+      "bytes": 1162,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/168f2a18422e6a7597743cd8513bca1889493abd0ab3e9e1b6f656fe4a029124",
+      "alias_indexes_in_INPUTS": [
+        175
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "17509b16d90f13952fee4cd02bbbfff92930c664f4c77363c545e05e4b8876fa",
+      "bytes": 4352,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/17509b16d90f13952fee4cd02bbbfff92930c664f4c77363c545e05e4b8876fa",
+      "alias_indexes_in_INPUTS": [
+        369
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "17d8b50c7c5ce85ed1020b9d4b01bc8ebd703dc9508c2ae7ba5a0227d7b316d2",
+      "bytes": 28938,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/17d8b50c7c5ce85ed1020b9d4b01bc8ebd703dc9508c2ae7ba5a0227d7b316d2",
+      "alias_indexes_in_INPUTS": [
+        28,
+        40
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "1ac3c04d016a7d6ba18ea1e05eaf65531994b4e56241fb0e8b7a39147d0f4cca",
+      "bytes": 31228,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/1ac3c04d016a7d6ba18ea1e05eaf65531994b4e56241fb0e8b7a39147d0f4cca",
+      "alias_indexes_in_INPUTS": [
+        212
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "1e9d97ab58d985ce8e522c6d6f300ab48c4a3f81d7b0b75320dbba6598c29298",
+      "bytes": 212495,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/1e9d97ab58d985ce8e522c6d6f300ab48c4a3f81d7b0b75320dbba6598c29298",
+      "alias_indexes_in_INPUTS": [
+        222,
+        228
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "1edbac3cbc845d65f6d57a38f4723a763308c06e90376b1f13d0e92d48f16772",
+      "bytes": 183941,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/1edbac3cbc845d65f6d57a38f4723a763308c06e90376b1f13d0e92d48f16772",
+      "alias_indexes_in_INPUTS": [
+        237
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "1efaebf56a8d12203630fc2011abb2b827e1335ce33b7994ad74868b15f30998",
+      "bytes": 806,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/1efaebf56a8d12203630fc2011abb2b827e1335ce33b7994ad74868b15f30998",
+      "alias_indexes_in_INPUTS": [
+        351
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "1f45951c46f86491e523dc8099eb5690b64bc6c4af740e430bec3ee40ac7fd83",
+      "bytes": 176505,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/1f45951c46f86491e523dc8099eb5690b64bc6c4af740e430bec3ee40ac7fd83",
+      "alias_indexes_in_INPUTS": [
+        298,
+        301
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "1fa8968124612050f99aeff0e0e242d28753000cb8cde63784d499326c82f9bb",
+      "bytes": 3658565,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/1fa8968124612050f99aeff0e0e242d28753000cb8cde63784d499326c82f9bb",
+      "alias_indexes_in_INPUTS": [
+        162
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "210eaeb373c40ebb5e19b1055da20127891ba83a07a3b83c2bed56b000f12b7a",
+      "bytes": 36094,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/210eaeb373c40ebb5e19b1055da20127891ba83a07a3b83c2bed56b000f12b7a",
+      "alias_indexes_in_INPUTS": [
+        349
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "21a468430f1a83e8b0d9e92ecb2a7210aa53df8319ad1e246c3eda3ae3491125",
+      "bytes": 1292,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/21a468430f1a83e8b0d9e92ecb2a7210aa53df8319ad1e246c3eda3ae3491125",
+      "alias_indexes_in_INPUTS": [
+        80,
+        129
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "21d0c59530aa6f8444cf76ef4f4d81d166024b3aa84b5c16f2697567f17c333d",
+      "bytes": 182278,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/21d0c59530aa6f8444cf76ef4f4d81d166024b3aa84b5c16f2697567f17c333d",
+      "alias_indexes_in_INPUTS": [
+        233,
+        234
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "23f6daccb3dbbd47fb5530d8c99e9e19a5171d99d04eddd76c306b084321fb1a",
+      "bytes": 103,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/23f6daccb3dbbd47fb5530d8c99e9e19a5171d99d04eddd76c306b084321fb1a",
+      "alias_indexes_in_INPUTS": [
+        4
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "24668e83c5b18152c5d779f7d40718640ab0108068c1d595dbe277e71aa8e70c",
+      "bytes": 3807234,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/24668e83c5b18152c5d779f7d40718640ab0108068c1d595dbe277e71aa8e70c",
+      "alias_indexes_in_INPUTS": [
+        224
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "27edb91fc944b1434598dc54e2d4b6c3a49c8793ead603e4886f296f711fb745",
+      "bytes": 159591,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/27edb91fc944b1434598dc54e2d4b6c3a49c8793ead603e4886f296f711fb745",
+      "alias_indexes_in_INPUTS": [
+        231,
+        232
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "283e57e1a971cb0b8b5e972963d9b175571856a975194c8be1db0d51b4ea8558",
+      "bytes": 219840,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/283e57e1a971cb0b8b5e972963d9b175571856a975194c8be1db0d51b4ea8558",
+      "alias_indexes_in_INPUTS": [
+        41,
+        159
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "28baea801eef1c2fd61b0668100560d07a95a365bb1de2119ca8e0b7039b9d4a",
+      "bytes": 104362,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/28baea801eef1c2fd61b0668100560d07a95a365bb1de2119ca8e0b7039b9d4a",
+      "alias_indexes_in_INPUTS": [
+        217,
+        218
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "28f9b333b94c159837a9f4dbe2e9564e31bc53ac6094d05113a7c6f5f07ec7c5",
+      "bytes": 188056,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/28f9b333b94c159837a9f4dbe2e9564e31bc53ac6094d05113a7c6f5f07ec7c5",
+      "alias_indexes_in_INPUTS": [
+        261,
+        269
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "2af82a028c6b665c76c9f0e38bb6e5b9583ecb6393f191abee2472d3e7b0cc06",
+      "bytes": 1324,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/2af82a028c6b665c76c9f0e38bb6e5b9583ecb6393f191abee2472d3e7b0cc06",
+      "alias_indexes_in_INPUTS": [
+        101,
+        150
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "2c1fbe55ce2bd7f0ec423db2cb4f1785f6fd6404b7b0e06d101d4a4bd2480d1a",
+      "bytes": 4952,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/2c1fbe55ce2bd7f0ec423db2cb4f1785f6fd6404b7b0e06d101d4a4bd2480d1a",
+      "alias_indexes_in_INPUTS": [
+        201
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "2c22c4e2be34dc56211af415d1ddaca6803827fa711d943c2c8c8888e6352067",
+      "bytes": 5780,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/2c22c4e2be34dc56211af415d1ddaca6803827fa711d943c2c8c8888e6352067",
+      "alias_indexes_in_INPUTS": [
+        348
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "2dd4b4285ea3f3be62c5c1e6d29b5bbd1ff2f5f2ca81b5e74b5fe12f0c3c997a",
+      "bytes": 303,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/2dd4b4285ea3f3be62c5c1e6d29b5bbd1ff2f5f2ca81b5e74b5fe12f0c3c997a",
+      "alias_indexes_in_INPUTS": [
+        360
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "2e7af1184428eacda563d4446b794dab7da1545506d5d1c3346150220f3192eb",
+      "bytes": 197534,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/2e7af1184428eacda563d4446b794dab7da1545506d5d1c3346150220f3192eb",
+      "alias_indexes_in_INPUTS": [
+        210
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "32d8718288d65faaad037278e97ac66f7098b4facbfbea8466237017d3412c56",
+      "bytes": 851,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/32d8718288d65faaad037278e97ac66f7098b4facbfbea8466237017d3412c56",
+      "alias_indexes_in_INPUTS": [
+        161
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "331df909ec7b190fd2001e61a14720a2139d74455fa71b1d8790f139f0be50c7",
+      "bytes": 2228505,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/331df909ec7b190fd2001e61a14720a2139d74455fa71b1d8790f139f0be50c7",
+      "alias_indexes_in_INPUTS": [
+        283
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "33749ca155e021c60ddedb362034ec59ae5e8cdc50f3dde30af86463d03e3943",
+      "bytes": 1817176,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/33749ca155e021c60ddedb362034ec59ae5e8cdc50f3dde30af86463d03e3943",
+      "alias_indexes_in_INPUTS": [
+        295
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "341443b0e9e8577c6f97ac267b4a54deed254e5b99158e5fb446af78a8371379",
+      "bytes": 90194,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/341443b0e9e8577c6f97ac267b4a54deed254e5b99158e5fb446af78a8371379",
+      "alias_indexes_in_INPUTS": [
+        259,
+        267
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "377b7f22fdc1c944915e12b179f69ffea954d9d0990d127caaaec9ab6c77e4ce",
+      "bytes": 142269,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/377b7f22fdc1c944915e12b179f69ffea954d9d0990d127caaaec9ab6c77e4ce",
+      "alias_indexes_in_INPUTS": [
+        244,
+        252
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "38029b32738811ee328889c38db31f86ead1393d89cadcb8b0581f5830c866e0",
+      "bytes": 158171,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/38029b32738811ee328889c38db31f86ead1393d89cadcb8b0581f5830c866e0",
+      "alias_indexes_in_INPUTS": [
+        94
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "380ab8494537be0dab7d5c546bd238aa024873f395fc8e9df59cc7ae139d030c",
+      "bytes": 2174,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/380ab8494537be0dab7d5c546bd238aa024873f395fc8e9df59cc7ae139d030c",
+      "alias_indexes_in_INPUTS": [
+        359
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "384087c072fc0a9b848bfef153a5cd2fcb5189ecbd85b540a5ff465b4535648e",
+      "bytes": 5863,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/384087c072fc0a9b848bfef153a5cd2fcb5189ecbd85b540a5ff465b4535648e",
+      "alias_indexes_in_INPUTS": [
+        368
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "38498c8e27a2f5d390e3c582f3b763b640e47895b717768cab046749ebab08e4",
+      "bytes": 28654,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/38498c8e27a2f5d390e3c582f3b763b640e47895b717768cab046749ebab08e4",
+      "alias_indexes_in_INPUTS": [
+        292
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "38f8ac1dbd1c25fff2ac2ced14638fa019d62414ce4b0cbffd8fc51bd69198e6",
+      "bytes": 257562,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/38f8ac1dbd1c25fff2ac2ced14638fa019d62414ce4b0cbffd8fc51bd69198e6",
+      "alias_indexes_in_INPUTS": [
+        300,
+        303
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "3c6688b21677d00475c0ebab7c4318a2daca641de01529ffbbc7adc2a8c77bab",
+      "bytes": 966,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/3c6688b21677d00475c0ebab7c4318a2daca641de01529ffbbc7adc2a8c77bab",
+      "alias_indexes_in_INPUTS": [
+        16
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "3df331f671892b0e605182f14ff7c40a1b528394feeeab035682be6a36a289e6",
+      "bytes": 1286,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/3df331f671892b0e605182f14ff7c40a1b528394feeeab035682be6a36a289e6",
+      "alias_indexes_in_INPUTS": [
+        104,
+        153
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "3f3486bc3d69e4f95a5b82e19d4e2de7cdb4a2f38759b2a0333f6dd16888a3d4",
+      "bytes": 28482,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/3f3486bc3d69e4f95a5b82e19d4e2de7cdb4a2f38759b2a0333f6dd16888a3d4",
+      "alias_indexes_in_INPUTS": [
+        288
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "4015fe5e5d5995016e6586a7a15680c076b89450e2d8f627f8019c7275b1b9ed",
+      "bytes": 1321,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/4015fe5e5d5995016e6586a7a15680c076b89450e2d8f627f8019c7275b1b9ed",
+      "alias_indexes_in_INPUTS": [
+        99,
+        148
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "40d26da5d0d833ea807f49e08466a7f8418f5a2dd65819839a923a7d3d9160e7",
+      "bytes": 196322,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/40d26da5d0d833ea807f49e08466a7f8418f5a2dd65819839a923a7d3d9160e7",
+      "alias_indexes_in_INPUTS": [
+        249,
+        257
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "bytes": 552,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "alias_indexes_in_INPUTS": [
+        26,
+        31,
+        38,
+        112
+      ],
+      "status": "REUSED_VERIFIED"
+    },
+    {
+      "sha256": "43bd7cd10bd3da6542c7b73db9c7538318701b205b6f90f96eefd4a47e2b320a",
+      "bytes": 612,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/43bd7cd10bd3da6542c7b73db9c7538318701b205b6f90f96eefd4a47e2b320a",
+      "alias_indexes_in_INPUTS": [
+        18
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "448fb26a9412bc793ea00ebc4a264d76f42b6a0421fb5eda7a4b141f57fd2c68",
+      "bytes": 187597,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/448fb26a9412bc793ea00ebc4a264d76f42b6a0421fb5eda7a4b141f57fd2c68",
+      "alias_indexes_in_INPUTS": [
+        246,
+        254
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "46eb72b1a7b76669eb15a498fbd6104062a4b994f23712e0ab9ca8bbf49dfdc7",
+      "bytes": 5547,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/46eb72b1a7b76669eb15a498fbd6104062a4b994f23712e0ab9ca8bbf49dfdc7",
+      "alias_indexes_in_INPUTS": [
+        49
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "493cfd1afbab967a0e66212b406331863b4844ee150d95d2e908e742cbe6f47f",
+      "bytes": 963,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/493cfd1afbab967a0e66212b406331863b4844ee150d95d2e908e742cbe6f47f",
+      "alias_indexes_in_INPUTS": [
+        43
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "4cdb7e50505b6733d0bd55413d53f526cc2e8f86c8d1b2a3741e5f7a855833fc",
+      "bytes": 1628,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/4cdb7e50505b6733d0bd55413d53f526cc2e8f86c8d1b2a3741e5f7a855833fc",
+      "alias_indexes_in_INPUTS": [
+        191
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "4dfbc52dc7b7afc931eb3ef5e0798ed4c2e03a594a8714fb6f45b6bb4d991155",
+      "bytes": 1323,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/4dfbc52dc7b7afc931eb3ef5e0798ed4c2e03a594a8714fb6f45b6bb4d991155",
+      "alias_indexes_in_INPUTS": [
+        98,
+        147
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "4e3977d27641d23410fe197df300ecebeed39a3580e6b46d02b804654ee904e2",
+      "bytes": 1895,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/4e3977d27641d23410fe197df300ecebeed39a3580e6b46d02b804654ee904e2",
+      "alias_indexes_in_INPUTS": [
+        364
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "4ea982ef91078fa4d4cd36e55486e12a2381224897338253eedff369762be5f7",
+      "bytes": 158830,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/4ea982ef91078fa4d4cd36e55486e12a2381224897338253eedff369762be5f7",
+      "alias_indexes_in_INPUTS": [
+        20
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "4f496d9c34cf8eff937f2b2617d53830a6d3adef083da19344bb0762cc381e86",
+      "bytes": 162557,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/4f496d9c34cf8eff937f2b2617d53830a6d3adef083da19344bb0762cc381e86",
+      "alias_indexes_in_INPUTS": [
+        240
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "545cc154e5f2870a06fc093ee266fe3a8d60be5ab1976da5e4bc8407a3e88b46",
+      "bytes": 1333,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/545cc154e5f2870a06fc093ee266fe3a8d60be5ab1976da5e4bc8407a3e88b46",
+      "alias_indexes_in_INPUTS": [
+        76,
+        125
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "5506d30b7a31b3facb185ba9d5aae71f1f1471d329f6b61dee0b8189e47663f8",
+      "bytes": 1721497,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/5506d30b7a31b3facb185ba9d5aae71f1f1471d329f6b61dee0b8189e47663f8",
+      "alias_indexes_in_INPUTS": [
+        285
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "56296949d3a02e635b050fd6b4762f0f0b52c23d05b925203095f7daf8e19027",
+      "bytes": 21,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/56296949d3a02e635b050fd6b4762f0f0b52c23d05b925203095f7daf8e19027",
+      "alias_indexes_in_INPUTS": [
+        48
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "56c1a38fa8a6662984aab7c149f3eacf54ff5f46d62aa7081a73b698ff200161",
+      "bytes": 3007,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/56c1a38fa8a6662984aab7c149f3eacf54ff5f46d62aa7081a73b698ff200161",
+      "alias_indexes_in_INPUTS": [
+        331
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "58785228eef26028f6150934568378cb5b269eae2cde713b8d65fb943abc8454",
+      "bytes": 1176,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/58785228eef26028f6150934568378cb5b269eae2cde713b8d65fb943abc8454",
+      "alias_indexes_in_INPUTS": [
+        177
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "58848a8713a80ead51e28cd272971427251f58f62b43cc301cd4b4e66d4407ab",
+      "bytes": 225943,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/58848a8713a80ead51e28cd272971427251f58f62b43cc301cd4b4e66d4407ab",
+      "alias_indexes_in_INPUTS": [
+        317,
+        320
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "598d224cfe2bd87f909f567671f626168580e6690b57e1e339639a17093b7801",
+      "bytes": 3240,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/598d224cfe2bd87f909f567671f626168580e6690b57e1e339639a17093b7801",
+      "alias_indexes_in_INPUTS": [
+        63
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "5b2476ad85c8e77db837e9353b16e53e19e09a41d29dbea6a5b032fa91b41b5c",
+      "bytes": 71087,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/5b2476ad85c8e77db837e9353b16e53e19e09a41d29dbea6a5b032fa91b41b5c",
+      "alias_indexes_in_INPUTS": [
+        60
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "5b8fced0aa3f8ba558c8cd70da3ab57a5cf2c12022b973cbf7638b4f1313df41",
+      "bytes": 178309,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/5b8fced0aa3f8ba558c8cd70da3ab57a5cf2c12022b973cbf7638b4f1313df41",
+      "alias_indexes_in_INPUTS": [
+        34,
+        127
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "5eaeb657e586946fbf230ba8ea8fcb54f9fef3a3914f9fcd20b9ddd0cefb1a21",
+      "bytes": 28771,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/5eaeb657e586946fbf230ba8ea8fcb54f9fef3a3914f9fcd20b9ddd0cefb1a21",
+      "alias_indexes_in_INPUTS": [
+        25,
+        37
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "5f775435afccad38a86e83e12d8388df73bb3448a14b94098b719c607b562bf7",
+      "bytes": 1748450,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/5f775435afccad38a86e83e12d8388df73bb3448a14b94098b719c607b562bf7",
+      "alias_indexes_in_INPUTS": [
+        297
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "61115aa89a26098c5957ff6e3a8fbded8e2459f2162b74d7bc203544a94b8ff1",
+      "bytes": 170999,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/61115aa89a26098c5957ff6e3a8fbded8e2459f2162b74d7bc203544a94b8ff1",
+      "alias_indexes_in_INPUTS": [
+        304,
+        307
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "6119fa8f949447c1c10167ba7d43404edb1b0e4373fa730644538bca053796bc",
+      "bytes": 85141,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/6119fa8f949447c1c10167ba7d43404edb1b0e4373fa730644538bca053796bc",
+      "alias_indexes_in_INPUTS": [
+        334
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "6286e89c20089e867be5b51e2bf1c362db41660332f6a10724c7584c39222e6d",
+      "bytes": 1826,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/6286e89c20089e867be5b51e2bf1c362db41660332f6a10724c7584c39222e6d",
+      "alias_indexes_in_INPUTS": [
+        184
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "62a1d779175ebce5a3e49c9e4f9c40bf5d005c1ae6374e873315a65258af5717",
+      "bytes": 1571,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/62a1d779175ebce5a3e49c9e4f9c40bf5d005c1ae6374e873315a65258af5717",
+      "alias_indexes_in_INPUTS": [
+        52,
+        167
+      ],
+      "status": "REUSED_VERIFIED"
+    },
+    {
+      "sha256": "63eaf214261288eeed21f8796b236bb2894d8b52db74650dc7176b06825b251d",
+      "bytes": 1305,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/63eaf214261288eeed21f8796b236bb2894d8b52db74650dc7176b06825b251d",
+      "alias_indexes_in_INPUTS": [
+        106,
+        155
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "63ff4521d634c679b879d96a4566abc3a5cba00d9344c3d567cec8e488f4d15e",
+      "bytes": 115355,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/63ff4521d634c679b879d96a4566abc3a5cba00d9344c3d567cec8e488f4d15e",
+      "alias_indexes_in_INPUTS": [
+        194
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "640d4f502e1ec1c7fea051bee233cff657397a81a7e26452dda722b71914d6f7",
+      "bytes": 1334,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/640d4f502e1ec1c7fea051bee233cff657397a81a7e26452dda722b71914d6f7",
+      "alias_indexes_in_INPUTS": [
+        105,
+        154
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "643c2f2d68f6e483860d1daecb23c009d602d7cefd33c7cade611545eb04b340",
+      "bytes": 3657,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/643c2f2d68f6e483860d1daecb23c009d602d7cefd33c7cade611545eb04b340",
+      "alias_indexes_in_INPUTS": [
+        176
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "6592438b06a786f6194142e074d86ae2084968870f1424c884a01afb797ee49f",
+      "bytes": 134515,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/6592438b06a786f6194142e074d86ae2084968870f1424c884a01afb797ee49f",
+      "alias_indexes_in_INPUTS": [
+        11,
+        181
+      ],
+      "status": "REUSED_VERIFIED"
+    },
+    {
+      "sha256": "663a1f70b0af193db9761008b9453e1eea4cc5494520bbfc8affe28eed0df5b3",
+      "bytes": 48376,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/663a1f70b0af193db9761008b9453e1eea4cc5494520bbfc8affe28eed0df5b3",
+      "alias_indexes_in_INPUTS": [
+        56
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "66df1ba8b43e3c306c8e97d07c32724d469135922d9fdd958140847b3b6e48fe",
+      "bytes": 416,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/66df1ba8b43e3c306c8e97d07c32724d469135922d9fdd958140847b3b6e48fe",
+      "alias_indexes_in_INPUTS": [
+        193
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "6723f178edb2320b5f8c5228eccdca005522630b2f6758ef3a4bdaed0191f56d",
+      "bytes": 220276,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/6723f178edb2320b5f8c5228eccdca005522630b2f6758ef3a4bdaed0191f56d",
+      "alias_indexes_in_INPUTS": [
+        311,
+        314
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "682a50686e466f0efca65b232311e755560ca7b6b39ebc0752d0bdc450060519",
+      "bytes": 1072,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/682a50686e466f0efca65b232311e755560ca7b6b39ebc0752d0bdc450060519",
+      "alias_indexes_in_INPUTS": [
+        356
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "6847ad7924bb7788ccf62981ca369d91b5b5ff5059b4d405bd5d46cdc8ba9e0b",
+      "bytes": 28660,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/6847ad7924bb7788ccf62981ca369d91b5b5ff5059b4d405bd5d46cdc8ba9e0b",
+      "alias_indexes_in_INPUTS": [
+        294
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "69dda8fdd40a4ee861f8afc34783913cdcbc07b341132570ce9c26c6120d86d3",
+      "bytes": 48375,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/69dda8fdd40a4ee861f8afc34783913cdcbc07b341132570ce9c26c6120d86d3",
+      "alias_indexes_in_INPUTS": [
+        54
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "6a81217a7f6a5cf3e857759c363a289c8b305272085e431c44b82d2c9f72a9a3",
+      "bytes": 217833,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/6a81217a7f6a5cf3e857759c363a289c8b305272085e431c44b82d2c9f72a9a3",
+      "alias_indexes_in_INPUTS": [
+        24,
+        86
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "6b12428da57d0cff4efb5a467b3b109cd9a7a290ab8cc3df5668668193eddf62",
+      "bytes": 1819,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/6b12428da57d0cff4efb5a467b3b109cd9a7a290ab8cc3df5668668193eddf62",
+      "alias_indexes_in_INPUTS": [
+        339
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "6b1f0fa5767a6495e96da147a4e227d9f904e9da54afcfe3d0078a13c87857d7",
+      "bytes": 2049494,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/6b1f0fa5767a6495e96da147a4e227d9f904e9da54afcfe3d0078a13c87857d7",
+      "alias_indexes_in_INPUTS": [
+        293
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "6b2b15e8947dac7eea2f82bfb88ef4b40116edc6cc7d04ed02b4a9e03ac78243",
+      "bytes": 28483,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/6b2b15e8947dac7eea2f82bfb88ef4b40116edc6cc7d04ed02b4a9e03ac78243",
+      "alias_indexes_in_INPUTS": [
+        286
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "6be85d767bd00ea856365b64f52d4fec17989130f9eb97ef86fa2494e22358bb",
+      "bytes": 1630,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/6be85d767bd00ea856365b64f52d4fec17989130f9eb97ef86fa2494e22358bb",
+      "alias_indexes_in_INPUTS": [
+        355
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "6fc8edfb8dc01dc55665cdcfd350dee7de4aea08186e3e8b93641c91f2fe6724",
+      "bytes": 5645937,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/6fc8edfb8dc01dc55665cdcfd350dee7de4aea08186e3e8b93641c91f2fe6724",
+      "alias_indexes_in_INPUTS": [
+        55
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "71c2ae3f87eaec68257dfeee14e0af213454d8d93754b9194fb974e4db881479",
+      "bytes": 1354,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/71c2ae3f87eaec68257dfeee14e0af213454d8d93754b9194fb974e4db881479",
+      "alias_indexes_in_INPUTS": [
+        97,
+        146
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "752daa8ee31ff0262c94fd02e7096babf1a8eeb6ca6a8aced9982d875d7ac8f4",
+      "bytes": 2202876,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/752daa8ee31ff0262c94fd02e7096babf1a8eeb6ca6a8aced9982d875d7ac8f4",
+      "alias_indexes_in_INPUTS": [
+        281
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "76b3feee1ebe1d0a791d8840ee5f0d7370efe7cf9599e19734ff49befe3e63f5",
+      "bytes": 1300,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/76b3feee1ebe1d0a791d8840ee5f0d7370efe7cf9599e19734ff49befe3e63f5",
+      "alias_indexes_in_INPUTS": [
+        65,
+        114
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "7962727312a31d581322a94424cdcef1703c40fcb4292f63adfe40387250d454",
+      "bytes": 28789,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/7962727312a31d581322a94424cdcef1703c40fcb4292f63adfe40387250d454",
+      "alias_indexes_in_INPUTS": [
+        30,
+        42
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "79f1e7988c9bee28b4c0fccd0249d170d28a1568f44b759350da94215165bfb8",
+      "bytes": 1355,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/79f1e7988c9bee28b4c0fccd0249d170d28a1568f44b759350da94215165bfb8",
+      "alias_indexes_in_INPUTS": [
+        100,
+        149
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "79fd67d2de039f61e33210029cb3210ff4ac5266c07c9e64a794b177cca274e5",
+      "bytes": 156718,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/79fd67d2de039f61e33210029cb3210ff4ac5266c07c9e64a794b177cca274e5",
+      "alias_indexes_in_INPUTS": [
+        235,
+        236
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "7c11ad44e48d7d3935949784467f775f9b9b94c8211459d9f8ee4f9d6892b5d7",
+      "bytes": 33298,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/7c11ad44e48d7d3935949784467f775f9b9b94c8211459d9f8ee4f9d6892b5d7",
+      "alias_indexes_in_INPUTS": [
+        79,
+        128
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "7dd1a30a8210e41d8bc77edf47e47074686bfbb11fb8f858ef4f53f38e71be92",
+      "bytes": 28984,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/7dd1a30a8210e41d8bc77edf47e47074686bfbb11fb8f858ef4f53f38e71be92",
+      "alias_indexes_in_INPUTS": [
+        21,
+        33
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "7ea5fbb39b778834a8c11c08dccdb360b345af0599ed83c7e6c2bbcf8bc4f586",
+      "bytes": 540,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/7ea5fbb39b778834a8c11c08dccdb360b345af0599ed83c7e6c2bbcf8bc4f586",
+      "alias_indexes_in_INPUTS": [
+        203
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "7edbb5466072be2dadf4106bd7f2c9a6d5ba3b67d68923c74be78967afc5584b",
+      "bytes": 206401,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/7edbb5466072be2dadf4106bd7f2c9a6d5ba3b67d68923c74be78967afc5584b",
+      "alias_indexes_in_INPUTS": [
+        310,
+        313
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "7f58bd2d4b79bda2da9cb958e22122f41de2ef8ddf62bab93c2bbcb6d5d42137",
+      "bytes": 1289,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/7f58bd2d4b79bda2da9cb958e22122f41de2ef8ddf62bab93c2bbcb6d5d42137",
+      "alias_indexes_in_INPUTS": [
+        67,
+        116
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "809588c005e6dec93e433393f97205cdbd0ff849e694263556a3ebbf657779f6",
+      "bytes": 888,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/809588c005e6dec93e433393f97205cdbd0ff849e694263556a3ebbf657779f6",
+      "alias_indexes_in_INPUTS": [
+        46
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "81134d85a7834a3622b03b47069878896fe49fc807e23570b847c25eabc014e1",
+      "bytes": 2846,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/81134d85a7834a3622b03b47069878896fe49fc807e23570b847c25eabc014e1",
+      "alias_indexes_in_INPUTS": [
+        336
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "8133ef3da9d5cb74d1b1aaf45422a9f8e3f73fbd5b2b66f667e87f3535838a19",
+      "bytes": 1301,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/8133ef3da9d5cb74d1b1aaf45422a9f8e3f73fbd5b2b66f667e87f3535838a19",
+      "alias_indexes_in_INPUTS": [
+        68,
+        117
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "81509446e00ade3cf476b45e705b04b26023aebff4ab39df158b5679de2fcd81",
+      "bytes": 185872,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/81509446e00ade3cf476b45e705b04b26023aebff4ab39df158b5679de2fcd81",
+      "alias_indexes_in_INPUTS": [
+        245,
+        253
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2",
+      "bytes": 21,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2",
+      "alias_indexes_in_INPUTS": [
+        44,
+        51
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "818d4452ed746c3f09e4c8064fd3024c1a20cafb6016131073f450e1100c1dc2",
+      "bytes": 1273,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/818d4452ed746c3f09e4c8064fd3024c1a20cafb6016131073f450e1100c1dc2",
+      "alias_indexes_in_INPUTS": [
+        91,
+        140
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "819869b5e9d4063f4ced36f332bd403d29f1f8a1cae8ba1b8aae1798f950c4cc",
+      "bytes": 69,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/819869b5e9d4063f4ced36f332bd403d29f1f8a1cae8ba1b8aae1798f950c4cc",
+      "alias_indexes_in_INPUTS": [
+        208
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "863c8dd72d1ecb7bc623d99b54626576321edbd0853aa9bf9a91f7ce2d6e7448",
+      "bytes": 7545,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/863c8dd72d1ecb7bc623d99b54626576321edbd0853aa9bf9a91f7ce2d6e7448",
+      "alias_indexes_in_INPUTS": [
+        341
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "86e7f90e18c3f744a47c7fb7ae2ffbe56902c98f82736c047d9b1661b246f97e",
+      "bytes": 1320,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/86e7f90e18c3f744a47c7fb7ae2ffbe56902c98f82736c047d9b1661b246f97e",
+      "alias_indexes_in_INPUTS": [
+        96,
+        145
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "88cd391072534ef7f59425fb623486c25916c2f9de2c2f65db9f5283fe93bfec",
+      "bytes": 33685,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/88cd391072534ef7f59425fb623486c25916c2f9de2c2f65db9f5283fe93bfec",
+      "alias_indexes_in_INPUTS": [
+        58
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "89f7a1f9384d1e92130cb3a0554697d9bcc86596d76c722ec59f10acd8d0d36c",
+      "bytes": 1294,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/89f7a1f9384d1e92130cb3a0554697d9bcc86596d76c722ec59f10acd8d0d36c",
+      "alias_indexes_in_INPUTS": [
+        69,
+        118
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "8a8b81a5d9d5ab88a6518191f65b2714e9251f67af4510cbb8671bae0a165904",
+      "bytes": 1272,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/8a8b81a5d9d5ab88a6518191f65b2714e9251f67af4510cbb8671bae0a165904",
+      "alias_indexes_in_INPUTS": [
+        88,
+        137
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "8b3be6ad39bbfbe2bc23dc11df5910901de0476150e92b6ff283a53c15282fc0",
+      "bytes": 19,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/8b3be6ad39bbfbe2bc23dc11df5910901de0476150e92b6ff283a53c15282fc0",
+      "alias_indexes_in_INPUTS": [
+        213
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "8bed7691f58e32673b1db7bc15313b3babfcd66475aed36806fa3695c3a83bf6",
+      "bytes": 24997,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/8bed7691f58e32673b1db7bc15313b3babfcd66475aed36806fa3695c3a83bf6",
+      "alias_indexes_in_INPUTS": [
+        187
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "8d66663c7c9d7d5d56d5e8fece6c1e208f849bb30d12040ede4bd84f7ffad626",
+      "bytes": 29181,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/8d66663c7c9d7d5d56d5e8fece6c1e208f849bb30d12040ede4bd84f7ffad626",
+      "alias_indexes_in_INPUTS": [
+        353
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "8d692f81e8d02a7631c05e75fb33abe95fafbb5d41c46e58549491cfd161fb9c",
+      "bytes": 33466,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/8d692f81e8d02a7631c05e75fb33abe95fafbb5d41c46e58549491cfd161fb9c",
+      "alias_indexes_in_INPUTS": [
+        95,
+        144
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "8d9c68c7768bfb8d8bcdaf08124c6a2c41ccedfd06d1ab3c9c43313a47b542d8",
+      "bytes": 298,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/8d9c68c7768bfb8d8bcdaf08124c6a2c41ccedfd06d1ab3c9c43313a47b542d8",
+      "alias_indexes_in_INPUTS": [
+        205
+      ],
+      "status": "REUSED_VERIFIED"
+    },
+    {
+      "sha256": "8f2794f5f4c2af81d5bc176ace155717e812bf50d6f1b5ba851881c4a8819599",
+      "bytes": 158824,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/8f2794f5f4c2af81d5bc176ace155717e812bf50d6f1b5ba851881c4a8819599",
+      "alias_indexes_in_INPUTS": [
+        70
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "8f470823c3c9d450306d80d677015c4254b310afc2cb1bbd59767695d4b988d4",
+      "bytes": 1302,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/8f470823c3c9d450306d80d677015c4254b310afc2cb1bbd59767695d4b988d4",
+      "alias_indexes_in_INPUTS": [
+        77,
+        126
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "8fbe3d3929282922a87bfae4eff8486ef1d2e093afc31d356237361a052968ba",
+      "bytes": 32195,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/8fbe3d3929282922a87bfae4eff8486ef1d2e093afc31d356237361a052968ba",
+      "alias_indexes_in_INPUTS": [
+        199
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "8fd464fca0affc49d26aa3ae6d4a23ebc531dcf0451c083abc4a397a057c365d",
+      "bytes": 1445,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/8fd464fca0affc49d26aa3ae6d4a23ebc531dcf0451c083abc4a397a057c365d",
+      "alias_indexes_in_INPUTS": [
+        61
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "910de3a953d42eed09a096ea84d7ccb985af6d4b3063b514b7ff0fda5e46ca04",
+      "bytes": 1716094,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/910de3a953d42eed09a096ea84d7ccb985af6d4b3063b514b7ff0fda5e46ca04",
+      "alias_indexes_in_INPUTS": [
+        277
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "alias_indexes_in_INPUTS": [
+        168
+      ],
+      "status": "REUSED_VERIFIED"
+    },
+    {
+      "sha256": "944e98ec57ba03f21dadfc50a02e34ecac8c8b05c01d1967a524c1a0430c9cad",
+      "bytes": 1309,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/944e98ec57ba03f21dadfc50a02e34ecac8c8b05c01d1967a524c1a0430c9cad",
+      "alias_indexes_in_INPUTS": [
+        75,
+        124
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "94596e9ff11e24ba8ee9c3e5336766ba27f77f4fe5b6bf8122ab2c4ffde0b932",
+      "bytes": 176840,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/94596e9ff11e24ba8ee9c3e5336766ba27f77f4fe5b6bf8122ab2c4ffde0b932",
+      "alias_indexes_in_INPUTS": [
+        27
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "945defeaec3c416a3a420596f5d9431fa5578ecbbcea69ad782750531a84dc97",
+      "bytes": 136473,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/945defeaec3c416a3a420596f5d9431fa5578ecbbcea69ad782750531a84dc97",
+      "alias_indexes_in_INPUTS": [
+        247,
+        255
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "94c912c645ef62cf909de19bbb2087c03a9e2d523ceb6c68fc8e47e18ad15f5c",
+      "bytes": 178273,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/94c912c645ef62cf909de19bbb2087c03a9e2d523ceb6c68fc8e47e18ad15f5c",
+      "alias_indexes_in_INPUTS": [
+        22,
+        78
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "958cb7bbfa23388b8e6ee6909f1c730d78104d723e9512b33f177201e0532f53",
+      "bytes": 176837,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/958cb7bbfa23388b8e6ee6909f1c730d78104d723e9512b33f177201e0532f53",
+      "alias_indexes_in_INPUTS": [
+        102
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "95c89c38c27c7aba3225ea1d33fb004dac8e0fe9f26728ab2647e8af5797dfcf",
+      "bytes": 96644,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/95c89c38c27c7aba3225ea1d33fb004dac8e0fe9f26728ab2647e8af5797dfcf",
+      "alias_indexes_in_INPUTS": [
+        15,
+        174
+      ],
+      "status": "REUSED_VERIFIED"
+    },
+    {
+      "sha256": "97a0543d8e7f399b8c48e1e9ae8c908ddc9e1e45073bdf3a02f37106bcef6269",
+      "bytes": 251953,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/97a0543d8e7f399b8c48e1e9ae8c908ddc9e1e45073bdf3a02f37106bcef6269",
+      "alias_indexes_in_INPUTS": [
+        306,
+        309
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "983e92747b4135894a59ed1d9480e0893a993aac1d62eec2200989af47531b63",
+      "bytes": 11517,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/983e92747b4135894a59ed1d9480e0893a993aac1d62eec2200989af47531b63",
+      "alias_indexes_in_INPUTS": [
+        0
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "98d68e04918da20bb1cb007198f689c686451618e6e288e4a023e01bcef665df",
+      "bytes": 28882,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/98d68e04918da20bb1cb007198f689c686451618e6e288e4a023e01bcef665df",
+      "alias_indexes_in_INPUTS": [
+        23,
+        35
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "9931ca1e1cd915617bdf1d2934dee021a715c47165a2b7991afb1a3861426edd",
+      "bytes": 8032,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/9931ca1e1cd915617bdf1d2934dee021a715c47165a2b7991afb1a3861426edd",
+      "alias_indexes_in_INPUTS": [
+        188
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "9ad9affd6d208ea57a07719a41f7ef7b7288e19c9e8c7b1aa60beb2cfc7c2aa3",
+      "bytes": 31072,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/9ad9affd6d208ea57a07719a41f7ef7b7288e19c9e8c7b1aa60beb2cfc7c2aa3",
+      "alias_indexes_in_INPUTS": [
+        7
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "9ae60c2ea1a6a1e61f74365326f80000d14e2e4370c10a0481b81045a40a356f",
+      "bytes": 4380,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/9ae60c2ea1a6a1e61f74365326f80000d14e2e4370c10a0481b81045a40a356f",
+      "alias_indexes_in_INPUTS": [
+        189
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "9c23d109752a4db22521f8dbab4f58f92608dfec8b3d3756c8bc524a532bf6fd",
+      "bytes": 124782,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/9c23d109752a4db22521f8dbab4f58f92608dfec8b3d3756c8bc524a532bf6fd",
+      "alias_indexes_in_INPUTS": [
+        219,
+        225
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "9c50957202b7820f38a92d5d705703e5b794cfdea595293d6ebbe50d0d4a2654",
+      "bytes": 625,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/9c50957202b7820f38a92d5d705703e5b794cfdea595293d6ebbe50d0d4a2654",
+      "alias_indexes_in_INPUTS": [
+        357
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "9db708bee410b75a9348733bb279d786ed6f4713079345a3de228b7423f0e90b",
+      "bytes": 6796,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/9db708bee410b75a9348733bb279d786ed6f4713079345a3de228b7423f0e90b",
+      "alias_indexes_in_INPUTS": [
+        214
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "9ec7fc331a769247d3d94396d2bd588a7c49d0384ea19583f61442caf607b77c",
+      "bytes": 2036265,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/9ec7fc331a769247d3d94396d2bd588a7c49d0384ea19583f61442caf607b77c",
+      "alias_indexes_in_INPUTS": [
+        279
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "a0c5840642ae7a17fa92cf12a6286c1f6c127da67e40e544afdef43baaa024a5",
+      "bytes": 1929757,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/a0c5840642ae7a17fa92cf12a6286c1f6c127da67e40e544afdef43baaa024a5",
+      "alias_indexes_in_INPUTS": [
+        289
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "a1c9df987a59d14f8531a00d6533647b82f0ad88618db84da175c47f2895ff5b",
+      "bytes": 33189,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/a1c9df987a59d14f8531a00d6533647b82f0ad88618db84da175c47f2895ff5b",
+      "alias_indexes_in_INPUTS": [
+        111,
+        160
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "a2580a44b1784bd0777966e0ce77cc5f47d752c2e363594a9e479bccf209d678",
+      "bytes": 219435,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/a2580a44b1784bd0777966e0ce77cc5f47d752c2e363594a9e479bccf209d678",
+      "alias_indexes_in_INPUTS": [
+        36
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "a361a96d60eb894add4ec485b0710394c39f35bf4fef55abe37a6afc3fce3dc1",
+      "bytes": 89131,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/a361a96d60eb894add4ec485b0710394c39f35bf4fef55abe37a6afc3fce3dc1",
+      "alias_indexes_in_INPUTS": [
+        243,
+        251
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "a50b24a72604d44d9a84356f18db297cfd58c7a444fd0467c86f8926b85db206",
+      "bytes": 16181,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/a50b24a72604d44d9a84356f18db297cfd58c7a444fd0467c86f8926b85db206",
+      "alias_indexes_in_INPUTS": [
+        192
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "a530fd6670123236b220e6e8bf007b4c1eed71ed142174d9d70589d67d251e06",
+      "bytes": 16100,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/a530fd6670123236b220e6e8bf007b4c1eed71ed142174d9d70589d67d251e06",
+      "alias_indexes_in_INPUTS": [
+        340
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "a56c9e979aeff950dcb09c81e8bcef2955c43d815b405ccf06d04addb365aebd",
+      "bytes": 24809,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/a56c9e979aeff950dcb09c81e8bcef2955c43d815b405ccf06d04addb365aebd",
+      "alias_indexes_in_INPUTS": [
+        282
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "a7a48c056dbba800603077fc0fcdee8ec1c00235cdcf229d650d20f3c76dfd88",
+      "bytes": 32915,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/a7a48c056dbba800603077fc0fcdee8ec1c00235cdcf229d650d20f3c76dfd88",
+      "alias_indexes_in_INPUTS": [
+        363
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "a9c4f4360a188ddde025622b9601f1507d7c0755366536661126f947be288c70",
+      "bytes": 1308,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/a9c4f4360a188ddde025622b9601f1507d7c0755366536661126f947be288c70",
+      "alias_indexes_in_INPUTS": [
+        72,
+        121
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "aa16e5964fa52e034416fc204ecc1c3c6cf962b745f4fed473069dcbc3695e4a",
+      "bytes": 191688,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/aa16e5964fa52e034416fc204ecc1c3c6cf962b745f4fed473069dcbc3695e4a",
+      "alias_indexes_in_INPUTS": [
+        299,
+        302
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "aa31fcaa782cfc5264bb6ea57e0fe2d6487b4f75bd46f687a9e8034bcdcd43a3",
+      "bytes": 32985,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/aa31fcaa782cfc5264bb6ea57e0fe2d6487b4f75bd46f687a9e8034bcdcd43a3",
+      "alias_indexes_in_INPUTS": [
+        329
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "aa7bf0895df2151431e8a92b3f8c6ef9c3ef57f763a75e85d6e2c47e0b4468ab",
+      "bytes": 197912,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/aa7bf0895df2151431e8a92b3f8c6ef9c3ef57f763a75e85d6e2c47e0b4468ab",
+      "alias_indexes_in_INPUTS": [
+        265,
+        273
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "ab417359a8be021c1cc4c958bd0a63a21f78ce3b247e1ef0d4e4546151df22ae",
+      "bytes": 2069825,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/ab417359a8be021c1cc4c958bd0a63a21f78ce3b247e1ef0d4e4546151df22ae",
+      "alias_indexes_in_INPUTS": [
+        291
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "ab7a3f750091ef0413c50ce001b39bbeeaad1c83f8955bf619093a2eb2bd91ba",
+      "bytes": 33340,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/ab7a3f750091ef0413c50ce001b39bbeeaad1c83f8955bf619093a2eb2bd91ba",
+      "alias_indexes_in_INPUTS": [
+        71,
+        120
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "acbc040a873d478b35b6d5509e342aa4b7a4faf64106e51ab191e28af8bafa40",
+      "bytes": 136789,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/acbc040a873d478b35b6d5509e342aa4b7a4faf64106e51ab191e28af8bafa40",
+      "alias_indexes_in_INPUTS": [
+        170,
+        182
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "ae4b411e8adac878d9bbc78bb367a4646ac1767f86868903d6410030f382b635",
+      "bytes": 28656,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/ae4b411e8adac878d9bbc78bb367a4646ac1767f86868903d6410030f382b635",
+      "alias_indexes_in_INPUTS": [
+        274
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "ae55ba5a009743e3139f2ed095a87e0542fa0b5fa97897dda0ef50bdaa770f69",
+      "bytes": 15659,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/ae55ba5a009743e3139f2ed095a87e0542fa0b5fa97897dda0ef50bdaa770f69",
+      "alias_indexes_in_INPUTS": [
+        197
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "b1135214f6c71e8b201040b1c249e9267efa75fff56aba93a52e40014b3966b6",
+      "bytes": 943,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/b1135214f6c71e8b201040b1c249e9267efa75fff56aba93a52e40014b3966b6",
+      "alias_indexes_in_INPUTS": [
+        179
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "b1b38f79c62588743dca8ecc221f8f7188d584299d4d44aa30e5696008eba73f",
+      "bytes": 1288,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/b1b38f79c62588743dca8ecc221f8f7188d584299d4d44aa30e5696008eba73f",
+      "alias_indexes_in_INPUTS": [
+        64,
+        113
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "b24cfb4ee7af4a359f3c8605bbe2a0d3a82fb0e1f8071852472a5eacbd0c6a99",
+      "bytes": 107814,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/b24cfb4ee7af4a359f3c8605bbe2a0d3a82fb0e1f8071852472a5eacbd0c6a99",
+      "alias_indexes_in_INPUTS": [
+        258,
+        266
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "b37eee756138156ab26313bcf251e5f62c252454fad0064640696f94358f84fd",
+      "bytes": 187394,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/b37eee756138156ab26313bcf251e5f62c252454fad0064640696f94358f84fd",
+      "alias_indexes_in_INPUTS": [
+        221,
+        227
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "b6b07ccd27d5e87627dfade556811e3d8a70af1195334bdce1b657109beae6ce",
+      "bytes": 1287,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/b6b07ccd27d5e87627dfade556811e3d8a70af1195334bdce1b657109beae6ce",
+      "alias_indexes_in_INPUTS": [
+        107,
+        156
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "b7d71fbad1b65f3217b3cf912519a529fc9095197366e509a9f58f05d1a3799c",
+      "bytes": 7473,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/b7d71fbad1b65f3217b3cf912519a529fc9095197366e509a9f58f05d1a3799c",
+      "alias_indexes_in_INPUTS": [
+        344
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "b8db5d0037be3d0e1ccc13d198589264635c4b5b5bcd2f83f42248e418610a26",
+      "bytes": 644,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/b8db5d0037be3d0e1ccc13d198589264635c4b5b5bcd2f83f42248e418610a26",
+      "alias_indexes_in_INPUTS": [
+        190
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "b949c234166ddc008ab170fc43449de41d1e1d50b5e21aa58ec26bbcaa876053",
+      "bytes": 37595,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/b949c234166ddc008ab170fc43449de41d1e1d50b5e21aa58ec26bbcaa876053",
+      "alias_indexes_in_INPUTS": [
+        238
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "ba95f3598419a8386ab598e407a80b157713201da0be3eabf3fe99bcfaa043ca",
+      "bytes": 217724,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/ba95f3598419a8386ab598e407a80b157713201da0be3eabf3fe99bcfaa043ca",
+      "alias_indexes_in_INPUTS": [
+        29,
+        110
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "bb2ad771475197724d37babc6ec23a11e9405f03afaa485aca80c69deafd4921",
+      "bytes": 1459228,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/bb2ad771475197724d37babc6ec23a11e9405f03afaa485aca80c69deafd4921",
+      "alias_indexes_in_INPUTS": [
+        325
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "bc5eec7c3efe53f719b8c288c3a40e0fbfb569ddf4ee8a5eab40aa90056f4eaa",
+      "bytes": 1848836,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/bc5eec7c3efe53f719b8c288c3a40e0fbfb569ddf4ee8a5eab40aa90056f4eaa",
+      "alias_indexes_in_INPUTS": [
+        287
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "bd72882195d3451025a015d8ad986e14b54e0386ed5da10e0b4fa8abdfc80299",
+      "bytes": 33410,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/bd72882195d3451025a015d8ad986e14b54e0386ed5da10e0b4fa8abdfc80299",
+      "alias_indexes_in_INPUTS": [
+        103,
+        152
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "bdca3dca062fedd16c9183daa0a88d42ed2ffaecc6ae84e6ac48c0742624762e",
+      "bytes": 1036,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/bdca3dca062fedd16c9183daa0a88d42ed2ffaecc6ae84e6ac48c0742624762e",
+      "alias_indexes_in_INPUTS": [
+        343
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "c004b86c9e2ae33548f8679404b38eaf837d17f4ad1674cc48f09a525429cf8d",
+      "bytes": 792526,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/c004b86c9e2ae33548f8679404b38eaf837d17f4ad1674cc48f09a525429cf8d",
+      "alias_indexes_in_INPUTS": [
+        12,
+        171
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "c0baaea880cf3cc06a4ebc60c915321431040d5bda5d011e7d76d019d9cf8d43",
+      "bytes": 1293,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/c0baaea880cf3cc06a4ebc60c915321431040d5bda5d011e7d76d019d9cf8d43",
+      "alias_indexes_in_INPUTS": [
+        66,
+        115
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "c524b6b4a7b827fc8c666a9134f739abf3c7839d2794165af4a550a419599819",
+      "bytes": 570,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/c524b6b4a7b827fc8c666a9134f739abf3c7839d2794165af4a550a419599819",
+      "alias_indexes_in_INPUTS": [
+        165
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "c915da2613bcf9ad2cf04872c02947021cab330220cfcc9cdb0baaa668fd9d4c",
+      "bytes": 1469,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/c915da2613bcf9ad2cf04872c02947021cab330220cfcc9cdb0baaa668fd9d4c",
+      "alias_indexes_in_INPUTS": [
+        9
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "ca52b542cb8bc4b3a5d25186552b936d9a1e6aa664dbbe764405fbd09cbf8574",
+      "bytes": 177390,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/ca52b542cb8bc4b3a5d25186552b936d9a1e6aa664dbbe764405fbd09cbf8574",
+      "alias_indexes_in_INPUTS": [
+        151
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "cadf36406762ad273b7475332a11682bfd790514d5e412de654bc3eb47a903b5",
+      "bytes": 16247,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/cadf36406762ad273b7475332a11682bfd790514d5e412de654bc3eb47a903b5",
+      "alias_indexes_in_INPUTS": [
+        354
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "cc5029fef90a94c52f90b51c01512e3187a9be45ac103e5899b9597793bc66a8",
+      "bytes": 138555,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/cc5029fef90a94c52f90b51c01512e3187a9be45ac103e5899b9597793bc66a8",
+      "alias_indexes_in_INPUTS": [
+        262,
+        270
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "cc7f70c2b938af38de2297ce0f69ce8a7fc0c3d530de3508b522a9cbdae244dd",
+      "bytes": 476,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/cc7f70c2b938af38de2297ce0f69ce8a7fc0c3d530de3508b522a9cbdae244dd",
+      "alias_indexes_in_INPUTS": [
+        8,
+        183
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "cf2fa1aebb93468caa2097125fd530227a9092d3da84fbcf12f8074a5ca93c0f",
+      "bytes": 933,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/cf2fa1aebb93468caa2097125fd530227a9092d3da84fbcf12f8074a5ca93c0f",
+      "alias_indexes_in_INPUTS": [
+        3
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "cf34a5f6d765edeea2f294e1eaf42f5e58b373976bf118e07d589f2d42c9689c",
+      "bytes": 326038,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/cf34a5f6d765edeea2f294e1eaf42f5e58b373976bf118e07d589f2d42c9689c",
+      "alias_indexes_in_INPUTS": [
+        352
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "cfce330786e28fd0e6a6bf9028448ee1dcf494eb48cc82dfe0723c77bd7e1389",
+      "bytes": 20810,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/cfce330786e28fd0e6a6bf9028448ee1dcf494eb48cc82dfe0723c77bd7e1389",
+      "alias_indexes_in_INPUTS": [
+        223
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "d0b777e2a9316fc07202d369e3bd0b990c30bd5ca60a201486ec5a3cf3e5068b",
+      "bytes": 33383,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/d0b777e2a9316fc07202d369e3bd0b990c30bd5ca60a201486ec5a3cf3e5068b",
+      "alias_indexes_in_INPUTS": [
+        59,
+        365
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "d1ab4fda855e0bf6d00d216e08040f03ef743cebfd19257b6c6d55cfe58da78b",
+      "bytes": 3138,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/d1ab4fda855e0bf6d00d216e08040f03ef743cebfd19257b6c6d55cfe58da78b",
+      "alias_indexes_in_INPUTS": [
+        338
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "d1b3cc904474a0b8c421a148fa46367daed7f1aa6f673d53979371ca56ea4ce6",
+      "bytes": 144252,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/d1b3cc904474a0b8c421a148fa46367daed7f1aa6f673d53979371ca56ea4ce6",
+      "alias_indexes_in_INPUTS": [
+        260,
+        268
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "d279a43ea73c2596f46d4a56ae933b9896ffa19a9143982144f2a1ff792a3358",
+      "bytes": 24805,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/d279a43ea73c2596f46d4a56ae933b9896ffa19a9143982144f2a1ff792a3358",
+      "alias_indexes_in_INPUTS": [
+        280
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "d34f63c5e630d307a1a083c1c62fd16a6c81783ec6db7108b326b9a66e5fecb1",
+      "bytes": 159600,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/d34f63c5e630d307a1a083c1c62fd16a6c81783ec6db7108b326b9a66e5fecb1",
+      "alias_indexes_in_INPUTS": [
+        229,
+        230
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "d5e9eb712de6ed85057f56b8de869849674d5f36587cb283259ad0627ea833a5",
+      "bytes": 594,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/d5e9eb712de6ed85057f56b8de869849674d5f36587cb283259ad0627ea833a5",
+      "alias_indexes_in_INPUTS": [
+        164
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "d623980f1a9fe18328b36441f0ae3327ad545873eac8f9eaf300931b65a7d2e5",
+      "bytes": 1293,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/d623980f1a9fe18328b36441f0ae3327ad545873eac8f9eaf300931b65a7d2e5",
+      "alias_indexes_in_INPUTS": [
+        82,
+        131
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "d66ce2586273c49e48c9b20057a30fa3598c6c66d1c2c592a192c1dd35212c61",
+      "bytes": 1942643,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/d66ce2586273c49e48c9b20057a30fa3598c6c66d1c2c592a192c1dd35212c61",
+      "alias_indexes_in_INPUTS": [
+        275
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "d6d6ed104412de181a02a53132bf1201adf7e197d7d036e20395fbcbb7532f58",
+      "bytes": 316258,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/d6d6ed104412de181a02a53132bf1201adf7e197d7d036e20395fbcbb7532f58",
+      "alias_indexes_in_INPUTS": [
+        312,
+        315
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "d7e6272aa34063a72212c60ffcac33e37b9de280cfc29d1e31a1c8e4be8859d2",
+      "bytes": 72984,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/d7e6272aa34063a72212c60ffcac33e37b9de280cfc29d1e31a1c8e4be8859d2",
+      "alias_indexes_in_INPUTS": [
+        333
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "da0187d4208cb944025e60938a180078d73a9af9a6c8cac7ed8ec0631c659245",
+      "bytes": 103553,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/da0187d4208cb944025e60938a180078d73a9af9a6c8cac7ed8ec0631c659245",
+      "alias_indexes_in_INPUTS": [
+        10,
+        169
+      ],
+      "status": "REUSED_VERIFIED"
+    },
+    {
+      "sha256": "daf9e1510f2b8702bf2c25da2d3eb6c31684438484417cc84b7780f4819632e9",
+      "bytes": 37904,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/daf9e1510f2b8702bf2c25da2d3eb6c31684438484417cc84b7780f4819632e9",
+      "alias_indexes_in_INPUTS": [
+        241
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "dafb6724578640c5d752f73d3803c7c0f8b1120a53ff83889170741e8188808e",
+      "bytes": 30325,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/dafb6724578640c5d752f73d3803c7c0f8b1120a53ff83889170741e8188808e",
+      "alias_indexes_in_INPUTS": [
+        207,
+        211
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "db90306b34979018ccf79a3439c34304dfdd5332b20dd0dd8e0ffa7e07ccca17",
+      "bytes": 28657,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/db90306b34979018ccf79a3439c34304dfdd5332b20dd0dd8e0ffa7e07ccca17",
+      "alias_indexes_in_INPUTS": [
+        284
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "dbe3615df3d36aeda83a3d9f533e3a74fb4a602d9b09c563123b949208a333cb",
+      "bytes": 4168,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/dbe3615df3d36aeda83a3d9f533e3a74fb4a602d9b09c563123b949208a333cb",
+      "alias_indexes_in_INPUTS": [
+        350
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "dd29b4b0b80c01b13276fb2b46acf8ef4ac6fd175f13919ab02108f0e113b715",
+      "bytes": 28655,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/dd29b4b0b80c01b13276fb2b46acf8ef4ac6fd175f13919ab02108f0e113b715",
+      "alias_indexes_in_INPUTS": [
+        296
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "dd61c8e2d4a442696b1a6a8d34dea10e88702c3428b91032ac9b146fc072425e",
+      "bytes": 481,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/dd61c8e2d4a442696b1a6a8d34dea10e88702c3428b91032ac9b146fc072425e",
+      "alias_indexes_in_INPUTS": [
+        215
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "decd9ec6edd38d41cae605c991d414145c7105eb6abf48a3e5b77a14281942c9",
+      "bytes": 214232,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/decd9ec6edd38d41cae605c991d414145c7105eb6abf48a3e5b77a14281942c9",
+      "alias_indexes_in_INPUTS": [
+        316,
+        319
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "deee09ad9a5f0e0e39ef7fc7533874bb818a539748cc346bf0cb6070ada73883",
+      "bytes": 25384,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/deee09ad9a5f0e0e39ef7fc7533874bb818a539748cc346bf0cb6070ada73883",
+      "alias_indexes_in_INPUTS": [
+        45
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "df19657fb8554eba600f02ef5a20094a36c86db2ef28f11f422a6e4147bad5d6",
+      "bytes": 229,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/df19657fb8554eba600f02ef5a20094a36c86db2ef28f11f422a6e4147bad5d6",
+      "alias_indexes_in_INPUTS": [
+        198
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "dfaa902abcb279cc362c82d8351b70f859e160290e750c9d4c7164a2965c66d4",
+      "bytes": 1163,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/dfaa902abcb279cc362c82d8351b70f859e160290e750c9d4c7164a2965c66d4",
+      "alias_indexes_in_INPUTS": [
+        6
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e0822af9073d515288acc31b6779d577127d9ba063256fb8e0cd77f5145061bb",
+      "bytes": 614,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e0822af9073d515288acc31b6779d577127d9ba063256fb8e0cd77f5145061bb",
+      "alias_indexes_in_INPUTS": [
+        50
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e0a4cf5e9e2999514136bf050cc0c26957b136e9ce8b96c3bb12fd618725e09e",
+      "bytes": 33153,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e0a4cf5e9e2999514136bf050cc0c26957b136e9ce8b96c3bb12fd618725e09e",
+      "alias_indexes_in_INPUTS": [
+        87,
+        136
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e18e445a0cba3c8d3c14b7925fcecc163ac19f00a9adffe6cacdf8ceabf2d6c9",
+      "bytes": 1653,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e18e445a0cba3c8d3c14b7925fcecc163ac19f00a9adffe6cacdf8ceabf2d6c9",
+      "alias_indexes_in_INPUTS": [
+        196
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e20aad62bc78c33ec6a67695f114ba7cdc4f112e25e0b157b0f8889487698b21",
+      "bytes": 158914,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e20aad62bc78c33ec6a67695f114ba7cdc4f112e25e0b157b0f8889487698b21",
+      "alias_indexes_in_INPUTS": [
+        32,
+        119
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e20e2a94200f52ab006dd225052d832ee2743c56015a6be83fc3590e025785b2",
+      "bytes": 2526,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e20e2a94200f52ab006dd225052d832ee2743c56015a6be83fc3590e025785b2",
+      "alias_indexes_in_INPUTS": [
+        358
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e23685e8d76f604669013e3acaa2c0718f7e882d1363e8f5fd3bc5ab1b072573",
+      "bytes": 3014,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e23685e8d76f604669013e3acaa2c0718f7e882d1363e8f5fd3bc5ab1b072573",
+      "alias_indexes_in_INPUTS": [
+        366
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e2677adac82586f1acdc9e385663fed3041aed2938f5a9cd03b2467e84b0c926",
+      "bytes": 188159,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e2677adac82586f1acdc9e385663fed3041aed2938f5a9cd03b2467e84b0c926",
+      "alias_indexes_in_INPUTS": [
+        264,
+        272
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e26909eec3a797750bef0a847d250639cce1ce66799bc4bd2ec98ae7972a6af3",
+      "bytes": 1310,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e26909eec3a797750bef0a847d250639cce1ce66799bc4bd2ec98ae7972a6af3",
+      "alias_indexes_in_INPUTS": [
+        89,
+        138
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e2f3d32e37aedd1d47ec362dd4702f4a8a0cd0f29dc6660f7014e20b38cb0fd7",
+      "bytes": 166029,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e2f3d32e37aedd1d47ec362dd4702f4a8a0cd0f29dc6660f7014e20b38cb0fd7",
+      "alias_indexes_in_INPUTS": [
+        322,
+        323
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e3af6c821b60a2ac36414664e6025aa19246f26d35db36bfed4c186c3ee0d78c",
+      "bytes": 159279,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e3af6c821b60a2ac36414664e6025aa19246f26d35db36bfed4c186c3ee0d78c",
+      "alias_indexes_in_INPUTS": [
+        143
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e4758e99b32ff6e397d1c3e430e4083dde24d021aa3bd3767352308ecf66fa59",
+      "bytes": 640,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e4758e99b32ff6e397d1c3e430e4083dde24d021aa3bd3767352308ecf66fa59",
+      "alias_indexes_in_INPUTS": [
+        202
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e50cf52880a57a2e0716fc392fa19af91c2a513ef36e1230947c5aa1a5181a53",
+      "bytes": 317619,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e50cf52880a57a2e0716fc392fa19af91c2a513ef36e1230947c5aa1a5181a53",
+      "alias_indexes_in_INPUTS": [
+        318,
+        321
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e54fb7f54a9a8e4c6b31854bea8a721475a8581a036354771a580189299d5cb3",
+      "bytes": 63327,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e54fb7f54a9a8e4c6b31854bea8a721475a8581a036354771a580189299d5cb3",
+      "alias_indexes_in_INPUTS": [
+        347
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e5e4006b7132f8bbc0043b386ccae4c5b8caa637f1b2b0edb86352626f0e8ad2",
+      "bytes": 684,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e5e4006b7132f8bbc0043b386ccae4c5b8caa637f1b2b0edb86352626f0e8ad2",
+      "alias_indexes_in_INPUTS": [
+        216
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e79cb4bd67504d82db83fe234b9c805552ae465826794d5d82027753be1c39db",
+      "bytes": 1323,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e79cb4bd67504d82db83fe234b9c805552ae465826794d5d82027753be1c39db",
+      "alias_indexes_in_INPUTS": [
+        84,
+        133
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e7e53fcf8beb60160d41cd4e46604b7bd08a28e6c58bb5498a06b12e2e58bc25",
+      "bytes": 90019,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e7e53fcf8beb60160d41cd4e46604b7bd08a28e6c58bb5498a06b12e2e58bc25",
+      "alias_indexes_in_INPUTS": [
+        335
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e871ef1f85db8bffa878b6b59296f8636a4e1ce4b1470e75440853b0cae069e2",
+      "bytes": 184888,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e871ef1f85db8bffa878b6b59296f8636a4e1ce4b1470e75440853b0cae069e2",
+      "alias_indexes_in_INPUTS": [
+        305,
+        308
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "bytes": 17,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "alias_indexes_in_INPUTS": [
+        163,
+        166
+      ],
+      "status": "REUSED_VERIFIED"
+    },
+    {
+      "sha256": "e96b2b8da43334967b0b3271906a3bf230bd3d42e03a6941241024bb90f4cd04",
+      "bytes": 1311,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/e96b2b8da43334967b0b3271906a3bf230bd3d42e03a6941241024bb90f4cd04",
+      "alias_indexes_in_INPUTS": [
+        92,
+        141
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "ead13ada0be7d0557fdaf725c6f60a2a9523da4853ca4a388018be4c57d20bea",
+      "bytes": 792517,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/ead13ada0be7d0557fdaf725c6f60a2a9523da4853ca4a388018be4c57d20bea",
+      "alias_indexes_in_INPUTS": [
+        2
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "eb3429a6fa5e3a2070892eb69d884e0375908314be4951f3ea2712a9067d4f1f",
+      "bytes": 177391,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/eb3429a6fa5e3a2070892eb69d884e0375908314be4951f3ea2712a9067d4f1f",
+      "alias_indexes_in_INPUTS": [
+        39
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "ec5cb378c5bb74b86a4a0dfd90d5afa2c095c73f3db74f25c8b2e4b1774db2f1",
+      "bytes": 12537,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/ec5cb378c5bb74b86a4a0dfd90d5afa2c095c73f3db74f25c8b2e4b1774db2f1",
+      "alias_indexes_in_INPUTS": [
+        328
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "ec9f673abb5cfc10c0c3c2d04ee59e36f3aa66f1b930e92054fefec44493f3e7",
+      "bytes": 8690,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/ec9f673abb5cfc10c0c3c2d04ee59e36f3aa66f1b930e92054fefec44493f3e7",
+      "alias_indexes_in_INPUTS": [
+        346
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "ed06fde68744697fe0f98b0c047867c22fbafc01ef1ab2ad2380cf4ad5eef2fc",
+      "bytes": 5173441,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/ed06fde68744697fe0f98b0c047867c22fbafc01ef1ab2ad2380cf4ad5eef2fc",
+      "alias_indexes_in_INPUTS": [
+        57
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "efd6b389cc19756c5db7feac4f871f7df4eef95eaeb446d46d1365214f60a5b9",
+      "bytes": 1293,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/efd6b389cc19756c5db7feac4f871f7df4eef95eaeb446d46d1365214f60a5b9",
+      "alias_indexes_in_INPUTS": [
+        83,
+        132
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f2ec1111e38a093fe54ee3139f0cfc7223fce7bbc55c3aea1fce9f47bce6010d",
+      "bytes": 44124,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f2ec1111e38a093fe54ee3139f0cfc7223fce7bbc55c3aea1fce9f47bce6010d",
+      "alias_indexes_in_INPUTS": [
+        332
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f3572be116d1619e9c2aaa9aebd88680da14410ec80a2a06bf547fb6bc0d5b5a",
+      "bytes": 1768,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f3572be116d1619e9c2aaa9aebd88680da14410ec80a2a06bf547fb6bc0d5b5a",
+      "alias_indexes_in_INPUTS": [
+        178
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f4082ddb9b8a8a8117c06383359fe1fec5a06ff85364f2a980c5c4f11e1d1920",
+      "bytes": 1212,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f4082ddb9b8a8a8117c06383359fe1fec5a06ff85364f2a980c5c4f11e1d1920",
+      "alias_indexes_in_INPUTS": [
+        361
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f43eb807aa0359c8a0ea43c6147efa8a52c6b5c143ed4df88337b0d89a738931",
+      "bytes": 1391,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f43eb807aa0359c8a0ea43c6147efa8a52c6b5c143ed4df88337b0d89a738931",
+      "alias_indexes_in_INPUTS": [
+        93,
+        142
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f4724a3253091a72b4f162fc71181e15d6a978be073d998a76cd9ac15c828cda",
+      "bytes": 106273,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f4724a3253091a72b4f162fc71181e15d6a978be073d998a76cd9ac15c828cda",
+      "alias_indexes_in_INPUTS": [
+        242,
+        250
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f4eda6d599eff3cde51aaa4981202b19ece5fddb1e7ea7feb270b485f656f07a",
+      "bytes": 1283,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f4eda6d599eff3cde51aaa4981202b19ece5fddb1e7ea7feb270b485f656f07a",
+      "alias_indexes_in_INPUTS": [
+        62
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f530179c283a2d1ce51209af7c0d1334e7cf87cb9a8741ab651f8f1c413f9d9d",
+      "bytes": 24810,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f530179c283a2d1ce51209af7c0d1334e7cf87cb9a8741ab651f8f1c413f9d9d",
+      "alias_indexes_in_INPUTS": [
+        290
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f53f5a0b95dab2800e31a2627b090ceef83e7b490a8b8f3bbf903fc7da94bc23",
+      "bytes": 197534,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f53f5a0b95dab2800e31a2627b090ceef83e7b490a8b8f3bbf903fc7da94bc23",
+      "alias_indexes_in_INPUTS": [
+        206
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f7d8103460411ad2f68fda2ec63834e6625675b4ed42007f589076f929399d60",
+      "bytes": 1306,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f7d8103460411ad2f68fda2ec63834e6625675b4ed42007f589076f929399d60",
+      "alias_indexes_in_INPUTS": [
+        109,
+        158
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f8181d449767953202618a81727a7b3f012951bc98a605a70cdee4cd38fe623c",
+      "bytes": 274,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f8181d449767953202618a81727a7b3f012951bc98a605a70cdee4cd38fe623c",
+      "alias_indexes_in_INPUTS": [
+        17
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f81eb0639a97e3f5cde98f4e6c00312ac6c9c486a14ced81ee91b5b23ebd43ad",
+      "bytes": 1301,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f81eb0639a97e3f5cde98f4e6c00312ac6c9c486a14ced81ee91b5b23ebd43ad",
+      "alias_indexes_in_INPUTS": [
+        74,
+        123
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f83f680828d083d20f18ab55f4b9a63b73c59b3e69880528799d8ee6ba8de6e5",
+      "bytes": 643,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f83f680828d083d20f18ab55f4b9a63b73c59b3e69880528799d8ee6ba8de6e5",
+      "alias_indexes_in_INPUTS": [
+        195
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f87e42c3f190440d75d9d3861c46bacd8f391fa66e17dfaad741ef645cbb36cf",
+      "bytes": 1303,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f87e42c3f190440d75d9d3861c46bacd8f391fa66e17dfaad741ef645cbb36cf",
+      "alias_indexes_in_INPUTS": [
+        90,
+        139
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f8eb7d38e4213ea9f08f33e82bde6027367fd595c7cc73673ef1c473d75f7859",
+      "bytes": 28661,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f8eb7d38e4213ea9f08f33e82bde6027367fd595c7cc73673ef1c473d75f7859",
+      "alias_indexes_in_INPUTS": [
+        276
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f967ab9f50185905a177437e2f42cd0719e0ffe8e50ea68a67b3fbce843cb91a",
+      "bytes": 14142,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f967ab9f50185905a177437e2f42cd0719e0ffe8e50ea68a67b3fbce843cb91a",
+      "alias_indexes_in_INPUTS": [
+        1
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "f9d54df99982fff88af992b0e3b626e147b77873ed14c5a266cf740a6f25a4f0",
+      "bytes": 25559,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/f9d54df99982fff88af992b0e3b626e147b77873ed14c5a266cf740a6f25a4f0",
+      "alias_indexes_in_INPUTS": [
+        19
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "fb1f7beae6dd2d9e3e179aaf843eaaff2191552126f8311c6098f0be14e546f5",
+      "bytes": 145,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/fb1f7beae6dd2d9e3e179aaf843eaaff2191552126f8311c6098f0be14e546f5",
+      "alias_indexes_in_INPUTS": [
+        53
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "fb3b9dc1c75b309ab2057a4b87de4dc93154994563bf916202a16d504180e542",
+      "bytes": 202496,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/fb3b9dc1c75b309ab2057a4b87de4dc93154994563bf916202a16d504180e542",
+      "alias_indexes_in_INPUTS": [
+        14,
+        173
+      ],
+      "status": "REUSED_VERIFIED"
+    },
+    {
+      "sha256": "fb940c6841603009126b825ac4d782c3a6ea4ea685480ad2ae6997c75cc16d2a",
+      "bytes": 1332,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/fb940c6841603009126b825ac4d782c3a6ea4ea685480ad2ae6997c75cc16d2a",
+      "alias_indexes_in_INPUTS": [
+        73,
+        122
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "fba0b21f041fc59291e9cd0f484aac72e7b6adccc111c940526c19448cc6c824",
+      "bytes": 3644,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/fba0b21f041fc59291e9cd0f484aac72e7b6adccc111c940526c19448cc6c824",
+      "alias_indexes_in_INPUTS": [
+        371
+      ],
+      "status": "CREATED_VERIFIED"
+    },
+    {
+      "sha256": "ff5ce2d4c3e1e27d25fdb5cc4a84adf312abd66114ce03e890688f94b54dcd1f",
+      "bytes": 182147,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/ff5ce2d4c3e1e27d25fdb5cc4a84adf312abd66114ce03e890688f94b54dcd1f",
+      "alias_indexes_in_INPUTS": [
+        13,
+        172
+      ],
+      "status": "REUSED_VERIFIED"
+    },
+    {
+      "sha256": "ff7944e7470524315da9dbff3d53ce9cfe28d4fb2339d823ca6a8e86deaed128",
+      "bytes": 5005,
+      "canonical_path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/evidence-archives/sha256/ff7944e7470524315da9dbff3d53ce9cfe28d4fb2339d823ca6a8e86deaed128",
+      "alias_indexes_in_INPUTS": [
+        5
+      ],
+      "status": "CREATED_VERIFIED"
+    }
+  ],
+  "every_alias_exactly_once": true
+}

@@ -1,0 +1,67 @@
+{
+  "schema": "piping-bounded-diagnosis-return/v1",
+  "status": "COMPLETE_DIAGNOSIS_PROSPECTIVE_REPAIR_JUSTIFIED_NO_ACCEPTANCE",
+  "task": "ORBIT_AC_DIAGNOSIS_V65",
+  "parent": "/root HELP_HUMAN",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoningEffort": "xhigh",
+  "derivativePackage": true,
+  "briefSha256": "5a405e3999e3591b22318992a6deff98aaabe4892c904580c3ba9b9977572ba4",
+  "upstream": {
+    "V64ReturnSha256": "13782a325e9be4dbf65ad6063cf016bc0f8dd60badfddffb1462afbf30722359",
+    "V64OutputManifestSha256": "079f071e59791a698c815294ebf5badb409204651833d369c297d2789453abb1",
+    "methodManifestSha256": "2fb1f2fa0d0002d704aab7b8298224ae94d315e051304c710ba23f99d40b37b7",
+    "flatSourceManifestSha256": "e8c242965e15619cebc2a8872da6349531eae122206e4ccd0a6d51ffdc3265f1"
+  },
+  "supported": [
+    "V64 source interval16666us, no requested throttle and no renderer BeginFrameDropped in the two diagnostic windows",
+    "Consecutive602 selected source frames with unique display IDs per mode; all distinct reported ties preserved",
+    "Reported33.332\u201333.333ms gaps29/601 centerline and32/601 ActualOD; nominal ranks16.667/33.332ms are descriptive only",
+    "Shared action and page-offset uncertainty unnecessarily widens same-trace durations; current arbitrary-interval arithmetic is correct",
+    "Longer delivery follows recorded ready/latch/swap stages; slower earlier work remains correlated and cannot be causally exonerated"
+  ],
+  "canonicalUpperP95MsUnchanged": {
+    "centerline": 17.0670039177021,
+    "actualOd": 33.62800378801331
+  },
+  "recommendedOrder": [
+    "Preserve canonical V64 failure and full-cohort hold",
+    "Separate next source-only scope: bind pinned Mac feedback producer semantics/branch using saved stage evidence before new runtime or product edits",
+    "Root may prepare coherent controller/scorer/focused-spec precision correction independently, plus README and exact primary-source binding",
+    "Fresh controls, independent backcheck and separately authorized qualification are required; precision alone cannot establish ActualOD acceptance"
+  ],
+  "minimalMaintainedProposal": [
+    "apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+    "apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "apps/desktop/e2e/ui-foundation/performance-targets.ts",
+    "apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+    "apps/desktop/e2e/ui-foundation/README.md"
+  ],
+  "unchanged": [
+    "product",
+    "workload",
+    "targets",
+    "quantum/isolation guards",
+    "conservative absolute endpoint intervals",
+    "all admissible contiguous-window populations and worst p95",
+    "identity/lineage/tie/coverage guards",
+    "observer-inclusive measurements",
+    "V64 artifacts/status"
+  ],
+  "remainingUnknowns": [
+    "Actual display/provider binding despite newly recorded external60Hz display and consistent window position",
+    "Mac feedback producer flags/estimate versus hardware semantics and exact platform deadline",
+    "Product/observer/GPU/OS contribution to observed later reported delivery",
+    "Fresh target acceptance under any frozen successor method"
+  ],
+  "runtimeAuthorized": false,
+  "historicalRescoreAuthorized": false,
+  "fullCohort": "HELD",
+  "productRepairJustified": false,
+  "closureVerdict": "Bounded source/raw diagnosis complete; no performance acceptance. New Mac producer and implementation scopes require separate Root assignment.",
+  "reportSha256": "0ce53af963becf31cf9e422f0c12edda7be1da0a879bbccbfe6baa22b778ff4e",
+  "inputsSha256": "ad82ca803b204afa2aeb3e1647cff73293b60de93f7388e1d8aefc6da36a4161",
+  "analysisSha256": "9ba0a513be3f5c9e436ec4e359df760431c0c5c841228fac79b135e0a26b5d80",
+  "arithmeticExpectationsSha256": "304fa6e29171df22ae77df3642c7be65c213ead512e7ec27bf72d6388a683c26"
+}

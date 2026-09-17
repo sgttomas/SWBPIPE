@@ -1,0 +1,91 @@
+{
+  "open": [
+    {
+      "id": "V94-R1",
+      "priority": "P2",
+      "status": "OPEN",
+      "title": "Preserve usable operation-page space beneath constrained sticky tabs",
+      "locations": [
+        {
+          "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+          "start": 3486,
+          "end": 3486,
+          "role": "Changed dock cap"
+        },
+        {
+          "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+          "start": 3496,
+          "end": 3496,
+          "role": "Interacting sticky navigation"
+        },
+        {
+          "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+          "start": 377,
+          "end": 380,
+          "role": "New regression selects navigation instead of a page control"
+        },
+        {
+          "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+          "start": 3619,
+          "end": 3620,
+          "role": "Comfortable controls retain32px minimum"
+        },
+        {
+          "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+          "start": 2828,
+          "end": 2833,
+          "role": "Sticky nav precedes operation tool pages"
+        },
+        {
+          "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+          "start": 2898,
+          "end": 2907,
+          "role": "Geometry page remains below sticky nav"
+        }
+      ],
+      "body": "At 1024 \u00d7 768 with comfortable density, the wrapped measurement and open operations dock leave a 42.421875 px body (clientHeight 42), for both light/dark themes and both 180/600 saved dock sizes. The new cap protects the canvas but retains `.operation-tabs { position: sticky; top: -8px; padding-bottom: 6px; border-bottom: 1px; z-index: 2 }`. Its 32 px button makes the navigation at least 39 px tall. Even granting the full negative 8 px offset, at most 42.421875 \u2212 (39 \u2212 8) = 11.421875 px remains unobscured for the actual page, below the 32 px minimum of its controls. Ordinary scrolling cannot expose a full page control beneath that persistent cover. The test passes because `.first()` selects the 32 px Review changes navigation button, which fits at y=655.984375\u2026687.984375 inside the y=647.984375\u2026689.984375 client clip; it never proves a control below the navigation can be fully displayed.",
+      "counterexample": {
+        "states": [
+          "budget-light-comfortable-wrapped-operations-180-open",
+          "budget-light-comfortable-wrapped-operations-600-open",
+          "budget-dark-comfortable-wrapped-operations-180-open",
+          "budget-dark-comfortable-wrapped-operations-600-open"
+        ],
+        "body": {
+          "y": 647.984375,
+          "height": 42.421875,
+          "clientHeight": 42,
+          "scrollHeight": 389,
+          "scrollTop": 0
+        },
+        "selectedTab": {
+          "top": 655.984375,
+          "bottom": 687.984375,
+          "height": 32
+        },
+        "clientClip": {
+          "top": 647.984375,
+          "bottom": 689.984375
+        },
+        "canvas": {
+          "width": 930,
+          "height": 201
+        },
+        "reserve": "393px",
+        "mostGenerousUncoveredPageHeight": 11.421875,
+        "pageControlMinimum": 32
+      },
+      "evidenceCalibration": "Existing raw screenshot/body/tab geometry is directly observed; the inability to display a32px page control is a source-backed geometric consequence of the sticky rule. Reviewer ran no browser. No claim that the author attempted and failed that missing interaction.",
+      "narrowRepair": "Let operation navigation scroll away when the dock is constrained, or equivalently release sufficient actual page space without lowering the200px canvas, measurement readability, pointer targets or preference invariants. The smallest direction is changing constrained sticky behavior, not redesigning the workspace.",
+      "requiredBackcheck": "Use ordinary navigation to an operation-tool page (for example Geometry), then ordinary scrolling/focus to an actual enabled page input/select/button. Preserve exact full-border containment and pointer ownership, account for sticky occlusion, and retain existing canvas/readout/draft/preferences/overflow checks. Verify that the frozen bad preimage fails the strengthened page-control witness. A navigation-tab witness or arbitrary replacement body floor is insufficient."
+    }
+  ],
+  "resolved": [
+    {
+      "id": "V94-COLLECTION-1",
+      "status": "RESOLVED_BY_V18_LOADER_COLLECTION_ONLY",
+      "kind": "test collection",
+      "detail": "V17 static JSON import lacked Node ESM attribute, failing before all browser tests. V18 uses node:fs readFileSync and node:url fileURLToPath relative to same spec URL; exact fixture SHA986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c,17,555bytes preserved. Author collected51 successfully; reviewer did not execute."
+    }
+  ]
+}

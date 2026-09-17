@@ -1,0 +1,57 @@
+{
+  "schema": "bounded-diagnosis-output-manifest/v1",
+  "status": "SEALED",
+  "derivativePackage": true,
+  "memberCount": 9,
+  "members": [
+    {
+      "path": "ANALYSIS.py",
+      "sha256": "91572b9759db1dfd5541380b022d206f35cc14a81ab09207af361771704d9f9c",
+      "bytes": 15114
+    },
+    {
+      "path": "ANALYSIS_INPUTS.json",
+      "sha256": "5323b1b0e438a9cc8468242a9e5a7628e839e252beee65187b8e58c6ae1015de",
+      "bytes": 3928
+    },
+    {
+      "path": "ENTRY_METADATA_BINDINGS.json",
+      "sha256": "1e02c75a64fabcedd84d87ca95fa70d947efb501ad4e19b0071f35a544dd3a5d",
+      "bytes": 11440
+    },
+    {
+      "path": "FACTS.json",
+      "sha256": "cbcf3dfcb6aaea250792df2d8c18d79a6336a739858b33fa8be834bc2652aab9",
+      "bytes": 176094
+    },
+    {
+      "path": "INPUT_BINDINGS.json",
+      "sha256": "7a4d496dc634f611162b45380482c6d71402b93e597982a8fc3e94f856c50336",
+      "bytes": 33147
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "ace3939d620489882e29e8fd10097135c3425e1d6b52aa2aa6e46fdd4e1561ca",
+      "bytes": 10331
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "a343d5ff76792771c8bc15372f259b1276c415c68e4b715b8858e0f0c75806c5",
+      "bytes": 5333
+    },
+    {
+      "path": "orbit-001-joins.json",
+      "sha256": "2ca457456f7dabd788c096519703eb1e5e2eddcef77efdc61c7ca0879789ae1c",
+      "bytes": 1653067
+    },
+    {
+      "path": "orbit-002-joins.json",
+      "sha256": "59538b248cd035ea336f87e2ee8c1660eeee24acb528e6f5967b75e9bcf918ac",
+      "bytes": 1654613
+    }
+  ],
+  "excludesSelf": true,
+  "rawCopies": 0,
+  "inputExitHashesStable": true,
+  "cohortContribution": 0
+}

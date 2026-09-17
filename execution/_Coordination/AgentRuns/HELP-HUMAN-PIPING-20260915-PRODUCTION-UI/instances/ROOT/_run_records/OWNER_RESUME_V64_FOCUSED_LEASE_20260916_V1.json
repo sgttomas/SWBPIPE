@@ -1,0 +1,70 @@
+{
+  "status": "RESUMED_V64_REVIEW_ACCEPTED_FOCUSED_RUNTIME_GRANTED",
+  "utc": "2026-09-17T02:19:07.741439+00:00",
+  "owner_direction": "You were interrupted during compaction. I am not sure your status, please resume.",
+  "prior_pause": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/OWNER_PAUSE_20260916_V2.json",
+    "sha256": "a23c5d0182f1963a54314d69306fedc29bb0b0a9e4704eecb4fb46e6ae9d7353",
+    "outcome": "All workers completed. Final bounded V64 review PASS, no actionable findings. Prior pause records preserved."
+  },
+  "derivative_package": true,
+  "source_head": "135a94cea310129ebbf53e678159b7016c3701d5",
+  "source_manifest_sha256": "e8c242965e15619cebc2a8872da6349531eae122206e4ccd0a6d51ffdc3265f1",
+  "exact_source_files_per_tree": 143,
+  "review": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/AC_REFERENCE_V64/ARTIFACT_MANIFEST.json",
+    "sha256": "44a545a374e83bc1cedc377f100a2c1d02b6c8692992f97a833904247766aa5a",
+    "members_verified": 3
+  },
+  "execution_brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/AC_REFERENCE_V64_EXECUTION.md",
+    "sha256": "9a6c265eda2eb5ab4e81c7665c1622c527f73339eecbdfa530692889dfb74024"
+  },
+  "launch_bindings": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/AC_QUALIFICATION_LAUNCH_V64/BINDINGS.json",
+    "sha256": "a02cc2e3477bdad8297fd307b3ef8207f2c66743e831f19d0755e4099061196f"
+  },
+  "root_index": "empty",
+  "root_diff_check": "PASS",
+  "clean_check": "same HEAD, clean; all143 exact",
+  "power": {
+    "argv": [
+      "pmset",
+      "-g",
+      "batt"
+    ],
+    "exitCode": 0,
+    "stdout": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=35717219)\t17%; charging; 1:38 remaining present: true\n",
+    "stderr": ""
+  },
+  "ports": {
+    "argv": [
+      "lsof",
+      "-nP",
+      "-iTCP:5173-5177",
+      "-sTCP:LISTEN"
+    ],
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "owned_processes": [],
+  "original_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+  "runtime_lease": {
+    "owner": "/root/ui_native_successor",
+    "role": "TASK Type2",
+    "configured_model": "gpt-6-astra",
+    "configured_reasoning_effort": "low",
+    "mechanism": "delegated-harness-native",
+    "enforcement": "instruction/config asserted; Type2 non-delegation",
+    "authorized": "One exact focused and ten-test cohort collection, followed by one fresh eight-segment V64 AC focus and bounded read-only analysis/sealed return. No full cohort until separate Root acceptance/grant.",
+    "exclusive": "No concurrent builds/browser/native/Git/heavy archive IO. Other work file-light only."
+  },
+  "instruction_basis": {
+    "root_file_sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+    "project_file_sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "role_sha256": "0c2fe7a3097ad26c93c0267e4da6aaf90c9264489df8dc368fad657bcac69183",
+    "owner_supplied_doctrine": "Current user-supplied AGENTS text retained in conversation; no instruction-file edits or migration in this tranche."
+  },
+  "remaining": "All runtime outcomes pending; prior V61 target failures preserved. Final registered checks, publication portability review and scoped PR/CI/merge remain pending."
+}

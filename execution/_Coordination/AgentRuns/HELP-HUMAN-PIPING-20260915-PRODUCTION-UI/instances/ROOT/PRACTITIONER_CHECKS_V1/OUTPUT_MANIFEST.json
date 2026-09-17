@@ -1,0 +1,25 @@
+{
+  "status": "FAIL_ONE_PORTABILITY_CLASSIFICATION",
+  "members": [
+    {
+      "path": "COMMAND.json",
+      "sha256": "9efc8d1d80e45714cf3df0abf888b69804783901fcd196ede34e058df82dddcb",
+      "bytes": 500
+    },
+    {
+      "path": "RESULT.json",
+      "sha256": "65af1c73d958d0256b026a9a5dd3475cfc0364513b3850aadf1c9aff60f98362",
+      "bytes": 126
+    },
+    {
+      "path": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "stdout.log",
+      "sha256": "8b149be84d8c6b0b7704b29f441ac6788b5ad8f4c1d2531993b451b21651183a",
+      "bytes": 1869
+    }
+  ]
+}

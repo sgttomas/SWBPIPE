@@ -1,0 +1,242 @@
+{
+  "status": "INTEGRATED_PENDING_INDEPENDENT_REVIEW_AND_FRESH_V61",
+  "upstreamManifestPath": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U_R2/SOURCE_MANIFEST_V20U_R2.json",
+  "upstreamManifestSha256": "69fa2f893e9b86ce45ac99c3ecebee5719089f37c0146270117589c604cd0539",
+  "patchSha256": "3f8a3b4f4bd5d64120af41a312f3b222be0f10a935b5bd4370a718b757b9bb26",
+  "fileCount": 28,
+  "changedCount": 4,
+  "unchangedCount": 24,
+  "completeMaintainedClosureCount": 29,
+  "offlineControlFiles": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/verify-winner-cue-plan.mjs",
+      "sha256": "c43489fff605c382aea6c4ffdc9495d0433225966e53d064a835dd06358c2abe",
+      "bytes": 7503,
+      "new": true,
+      "purpose": "Offline actual-generated-plan geometry/invariant/fault control; no runtime entry imports it."
+    }
+  ],
+  "newDependencies": [],
+  "files": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/benchmark-harness.ts",
+      "sha256": "0588824257de2c8a9d12631916938e46fd1f0119b49ecb98f0279b58638d90bf",
+      "bytes": 182447,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/candidate-server-response.ts",
+      "sha256": "3e687668fe8c21b22679de9fec010a7456594543a2b1734813a681a97837ab5c",
+      "bytes": 8541,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/chromium-compositor-trace.ts",
+      "sha256": "aa98659b9283bd490e180698ece87567ea301918e983782a62bf367ffe7ee460",
+      "bytes": 16319,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/lossless-trace-json.mjs",
+      "sha256": "de7e87219debfaf750b6bf707adc68c60a2c1d316bea53850c26742dbec97175",
+      "bytes": 2149,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/lossless-trace-json.d.mts",
+      "sha256": "79a19df1e2cabf9c67acb05cf8d25733b3f557da49c075933ae570df77dc5833",
+      "bytes": 129,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+      "sha256": "732a234efeeda61d1eb83a3df49833a335ccbb202f357e6cdc2459d34ebcd241",
+      "bytes": 43181,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-presentation-extractor.d.mts",
+      "sha256": "fd0b1dbfc36229248191560c84ca8a104353556c84fbcec4d40da412d4bf08e8",
+      "bytes": 780,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-presentation-preflight.benchmark.ts",
+      "sha256": "cd47c44deae1da5aab4ad77e737a7a95213fa5a473722cb530494131002b667c",
+      "bytes": 51252,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+      "sha256": "2a7d60c2009d26c7737081fe7f48c5639a2e7c08007ad18a79d287fce9654cb8",
+      "bytes": 42807,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.causal-presentation-preflight.config.ts",
+      "sha256": "a8d60bb10b9d6dddeaf2bc77ba27c1ee77d6468e136df6a6e250135d243a8bff",
+      "bytes": 1097,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.candidate-causal-presentation-preflight.config.ts",
+      "sha256": "2601abbcf5064aba023ee3104f36a0b5b362c2d5ae77ae568c235c3d19eb4714",
+      "bytes": 1405,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/fixture-manifest.json",
+      "sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+      "bytes": 14267,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-method-contract.ts",
+      "sha256": "06979207212a2317a0d1a7e6883839f8502383d1e94928dd885e16f35f622944",
+      "bytes": 21317,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-phase-journal.ts",
+      "sha256": "c2d66aa4f54434a0131a12ac49caa83d4ed0544c81e7ac573e7a2fc53597c053",
+      "bytes": 1267,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-method-contract.spec.ts",
+      "sha256": "572bf26e6185bf229f6d140308e6efede40f45b5b710c76dfbf138505e7b7807",
+      "bytes": 80282,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.causal-method-contract.config.ts",
+      "sha256": "0e78e16cfd53f88d2bed50bf8c1e9dee1d1d496f99e6c8a9efc6c0a643f04dd2",
+      "bytes": 1185,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/tsconfig.causal-method.json",
+      "sha256": "15376dbf50b04fae22683d2849e0a451eafc5d999ca9379a640905d09dbcc8a4",
+      "bytes": 527,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/performance-targets.ts",
+      "sha256": "f27a99bb346386d84fcbf28af6a421b53935ab0750cc6b881ed706cfbd46ba6c",
+      "bytes": 13434,
+      "changed": true,
+      "beforeSha256": "769aab9e6085c61939236b561c6c81c692940923a56101ae79ecf1d3f86c78dc"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+      "sha256": "b69be586a0fca324943560612e1b9c7c90a290e5f9798c5bf5219b99956b853b",
+      "bytes": 20681,
+      "changed": true,
+      "beforeSha256": "e60d81965e1fc2bb6145180ab3e496ddc5e27ee881f1a1e7b9cf798e6ce68aae"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+      "sha256": "2f2deb8d2771b03a10f4f67b564c5cade7b4a1eaeb8f17c4375e55851047103c",
+      "bytes": 16900,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts",
+      "sha256": "d2ccd61de9343400d0d80e06ae8e3b13341828eed26935b8b8e3379239f44e3b",
+      "bytes": 781,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "e84a760e14e6f8efa0b8590f22b960b2292d1357347e334d359f4df97ed43cdc",
+      "bytes": 54796,
+      "changed": true,
+      "beforeSha256": "0d1cdf6e2602b0e5b8c57b8521056c6b2e2a6b9be03d4343441189e7360ed5fd"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "95eff452fb9b65e7745e382ee185944ee6d859a1840d265b39cadc2438671d7d",
+      "bytes": 57189,
+      "changed": true,
+      "beforeSha256": "96b72394fa1363595625b16a24efe13de75299ba363329ee258bca8badc624c2"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.performance.config.ts",
+      "sha256": "5b587689281763f4524c376e201dbc93e1d7307160769d95ded7abcaf6a7f190",
+      "bytes": 1399,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/serve-bound-candidate-output.mjs",
+      "sha256": "1def765af80b49bf0cb35f5be16a20430862dde3fc7622d70b95805ea51599ab",
+      "bytes": 5406,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/freeze-candidate-point-oracle.mjs",
+      "sha256": "d8c7a0cdb8a129a1d710df4d420d6437d76d44d8fcc34bb5132a601add599937",
+      "bytes": 13276,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/point-hit-oracle.mjs",
+      "sha256": "d9f4e01f80b62c777b3b48645b3d2180e7327fb0e335358c5aba6b4f96b992b4",
+      "bytes": 19159,
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/box-selection-oracle.mjs",
+      "sha256": "74180e4c9d90bd2d7563afd8f70c5edd88d41c24c0d2aebba128746a064d5b49",
+      "bytes": 6478,
+      "changed": false
+    }
+  ],
+  "documentationFiles": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/README.md",
+      "sha256": "7975ba4a9681ab785e5a8648872dd1307e6e0ef2a05a15037999a4ab50598c6f",
+      "bytes": 12750,
+      "beforeSha256": "ce92127e49de68b0d6e0a9547d790e772574a0bd9382add63e597401a286b828",
+      "purpose": "Current population contract documentation, not runtime dependency"
+    }
+  ],
+  "derivativePackage": true,
+  "authorManifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/SOURCE_MANIFEST_V20V.json",
+    "sha256": "c215994fc8398480643c850d2ea45f40cf6d1d89cd6910ba8687c9a9282e2455"
+  },
+  "metadataCorrections": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/performance-targets.ts",
+      "advertisedBeforeSha256": "f20ea79f2675a50de6613c7c9bf1fe9deb83f8c1eb9fa0675742e710769f2dff",
+      "actualBeforeSha256": "769aab9e6085c61939236b561c6c81c692940923a56101ae79ecf1d3f86c78dc",
+      "reason": "Inherited stale preimage hash corrected against committed HEAD and flatV8"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+      "advertisedBeforeSha256": "2d397aa2b84f62ca55e06d72830bab9964ebccf53ead32208676a1df95484050",
+      "actualBeforeSha256": "e60d81965e1fc2bb6145180ab3e496ddc5e27ee881f1a1e7b9cf798e6ce68aae",
+      "reason": "Inherited stale preimage hash corrected against committed HEAD and flatV8"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "advertisedBeforeSha256": null,
+      "actualBeforeSha256": "0d1cdf6e2602b0e5b8c57b8521056c6b2e2a6b9be03d4343441189e7360ed5fd",
+      "reason": "Explicit preimage binding"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "advertisedBeforeSha256": null,
+      "actualBeforeSha256": "96b72394fa1363595625b16a24efe13de75299ba363329ee258bca8badc624c2",
+      "reason": "Explicit preimage binding"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/README.md",
+      "advertisedBeforeSha256": "ce92127e49de68b0d6e0a9547d790e772574a0bd9382add63e597401a286b828",
+      "actualBeforeSha256": "ce92127e49de68b0d6e0a9547d790e772574a0bd9382add63e597401a286b828",
+      "reason": "Explicit preimage binding"
+    }
+  ],
+  "preimageCommit": "325e46f3910a774c935b8743c7187732bca9a9ff",
+  "scope": "Identical author source bytes; correction of historical before-hash metadata only. Original author packet preserved."
+}

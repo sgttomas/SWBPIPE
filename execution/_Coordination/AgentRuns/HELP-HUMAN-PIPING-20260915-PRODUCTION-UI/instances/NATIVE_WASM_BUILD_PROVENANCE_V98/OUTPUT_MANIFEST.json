@@ -1,0 +1,25 @@
+{
+  "schema": "piping-evidence-output-manifest/v1",
+  "status": "SEALED",
+  "at": "2026-09-17T12:17:05.987892+00:00",
+  "members": [
+    {
+      "path": "INPUT_BINDINGS.json",
+      "sha256": "d5b2bc39c533f80d646d188a4c9ee9f95039aa535a1a4d90363f9c1dc4e753a7",
+      "bytes": 117105
+    },
+    {
+      "path": "DIAGNOSIS.md",
+      "sha256": "a8b4490582337ba5fb65dadc4766a36ee23b9b64d637b3e7173b271019c52683",
+      "bytes": 6096
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "d614edad35f6cd2bfb532446252ebe8ee617ac70df10490c861ca1246e080fa3",
+      "bytes": 4149
+    }
+  ],
+  "self_excluded": true,
+  "write_scope": "Four files only: INPUT_BINDINGS.json, DIAGNOSIS.md, RETURN.json, OUTPUT_MANIFEST.json",
+  "immutable": true
+}

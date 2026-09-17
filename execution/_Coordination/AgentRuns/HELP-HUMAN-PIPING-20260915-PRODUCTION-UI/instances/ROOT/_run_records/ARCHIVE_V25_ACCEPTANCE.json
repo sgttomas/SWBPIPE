@@ -1,0 +1,15 @@
+{
+  "status": "PASS_ALL_V25_CANONICAL_OBJECTS_AND_ALIAS_MAP",
+  "derivativePackage": true,
+  "at": "2026-09-17T05:42:25.870479+00:00",
+  "inputs_sha256": "e57c7453597ee1fd9e6cbcc6e2b117fe9e425b08186b23d5cb1bedbef4fac9da",
+  "map_sha256": "ce3042ac262047c7923326e7c1b1a785b2f64f100ed15434f6dd266f42b7cbd8",
+  "return_sha256": "4da4b6aadea12323c1a871633aa4038d6ca4a13ab2c8d95f98f366235b4a2344",
+  "objects": 22907,
+  "bytes": 5674047437,
+  "aliases": 25278,
+  "verification": "All canonical paths/digests/sizes/mode0444 exact; unique objects; complete disjoint alias-index coverage with exact bytes/hash. Originals retained.",
+  "elapsed_seconds": 4.02,
+  "archive_io": "RELEASED",
+  "limits": "Host-local preservation only, not WORM/clone-portable or acceptance. V3 remains failed7/1/2."
+}

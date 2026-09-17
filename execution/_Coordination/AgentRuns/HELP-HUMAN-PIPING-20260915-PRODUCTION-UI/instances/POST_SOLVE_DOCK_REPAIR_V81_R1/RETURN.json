@@ -1,0 +1,34 @@
+{
+  "status": "FOCUSED_MATRIX_CHANGES_REQUESTED",
+  "derivative_package": true,
+  "upstream": [
+    "85d142407bf4d288810f0e3a9a996c043ca163e6",
+    "sealed V78, V81 and V80-R1"
+  ],
+  "baseline": {
+    "units_passed": 7,
+    "interpretation": "inconclusive about prior timing failure; CHECK unchanged"
+  },
+  "candidate": {
+    "units_passed": 7,
+    "matrix_collected": 12,
+    "matrix_passed": 10,
+    "matrix_failed": 2,
+    "retries": 0,
+    "png_bodies": 10,
+    "geometry_bodies": 10,
+    "browser_identity_bodies": 3
+  },
+  "failure": "Light/Dark Compact 1024x768: target top 583.828125 < clip top 584.171875 by 0.34375 CSS px at new exact containment assertion; existing focus and center ownership checks and >64 dock-body floor passed before failure. No diagnosis asserting product defect or oracle correction.",
+  "source_change": "Only authorized App.test.tsx default findByTestId readiness query added; V81 product/matrix and V78 protected paths unchanged.",
+  "typescript": "V81 PASS carried forward per brief",
+  "runtime": "RELEASED",
+  "closure_verdict": "Not accepted; two retained matrix failures need Root disposition",
+  "remaining_blockers": [
+    "Root diagnosis/disposition of subpixel top containment",
+    "two missing successful screenshot/layout pairs",
+    "independent review and integration/qualification"
+  ],
+  "rerun_requirements": "No automatic follow-on or further amendment; Root authority required",
+  "git_index_mutation": false
+}

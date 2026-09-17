@@ -1,0 +1,49 @@
+{
+  "schema": "piping-ui-child-dispatch/v1",
+  "recordedAtUtc": "2026-09-15T16:53:07Z",
+  "mechanism": "delegated-harness-native",
+  "nativeTaskName": "/root/ui_workspace_manager/ui_foundation_writer",
+  "opaqueChildId": null,
+  "opaqueChildIdNote": "spawn result exposed the canonical native task name and no separate opaque id",
+  "role": "TASK",
+  "roleLayer": "Agent 2",
+  "parent": "/root/ui_workspace_manager",
+  "parentRole": "WORKING_ITEMS",
+  "rootParent": "/root",
+  "rootParentRole": "HELP_HUMAN",
+  "configuredModel": "gpt-5.6-sol",
+  "configuredReasoningEffort": "high",
+  "forkTurns": "none",
+  "enforcement": "role, exact source fence, model/effort, no-delegation rule, checkpoint contract, and runtime hold are instruction-asserted; host outer envelope is host-enforced",
+  "worktree": "/Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915",
+  "branch": "codex/piping-ui-workspace-20260915",
+  "activationCommit": "107911e35e7f26123ab283ed33b8bcfb936c026b",
+  "productBasis": "28ad73cc3f936872f8de1d5116c617db1290331b",
+  "releaseRecord": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/WRITER_RELEASE_V1.json",
+    "sha256": "100588b5362b9eceeb27c724da691953d69e491d0c58f2f6063d8305c99915d9"
+  },
+  "canonicalContext": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI/",
+    "manifest": "MANIFEST_V3.sha256",
+    "manifestSha256": "f591e1c66c27f4327687029104617d8d82f988d7eb44368e6d00d85de485ddc8",
+    "manifestCheckAtRelease": "14/14 PASS"
+  },
+  "transportPointer": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/SEALED_CONTEXT_POINTER_V1.md",
+    "sha256": "174789bfa7a59b0fad31d04f52037934778a418b8a21735cb58d67225272cec7",
+    "classification": "non-authoritative transport evidence"
+  },
+  "activeContextHashes": {
+    "writerBriefV1": "5ba99d2ab6ce54aaf41c798eef24f51a83b9a8074ea49ef314487d70db1ecafa",
+    "writerBriefSupplementV2": "d50cf3ac3652c7d0f3dedc8d662eba979922b0073828742c5525c88dae864b5b",
+    "implementationContractV2": "80a1687616b4f17a412912495f7b5252d9814f636379f11b4f9ed8d27aafb360",
+    "observabilitySupplementV1": "e6384cb4d08953e588f3bd67f79f6dbad08e3bcb74149cda73274c325b965884",
+    "visualTokensV2": "396748ce181b5d1cfbfdbe9904e2b9445217cf14c610c40993d3ef8893cf8dec",
+    "sourceBaselineV1": "e52008dd8e845b28a7f40a2fed5c43a66748504eaa3ffa85367260e9c47c0c99"
+  },
+  "sourceFenceCount": 39,
+  "firstCheckpoint": "persistent renderer/resource + shared index + tuple selection + local-origin inverse + observability, preserving native author-edit-review-apply",
+  "runtimePermissionAtDispatch": "source edits and static inspection only while VERIFY holds timed-baseline lease",
+  "status": "running"
+}

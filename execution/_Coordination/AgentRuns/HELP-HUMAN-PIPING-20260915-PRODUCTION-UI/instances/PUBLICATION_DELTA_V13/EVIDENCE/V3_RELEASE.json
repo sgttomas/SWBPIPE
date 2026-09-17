@@ -1,0 +1,50 @@
+{
+  "status": "RELEASED",
+  "ports": {
+    "argv": [
+      "/usr/sbin/lsof",
+      "-nP",
+      "-iTCP:5173-5177",
+      "-sTCP:LISTEN"
+    ],
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "owned_processes": [],
+  "git": {
+    "head": {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exitCode": 0,
+      "stdout": "11d51c16404b229ab505d1db9eef5758fbe249e6\n",
+      "stderr": ""
+    },
+    "index": {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "power": {
+    "argv": [
+      "/usr/bin/pmset",
+      "-g",
+      "batt"
+    ],
+    "exitCode": 0,
+    "stdout": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=35717219)\t90%; AC attached; not charging present: true\n",
+    "stderr": ""
+  },
+  "liveAttempts": 1,
+  "retries": 0
+}

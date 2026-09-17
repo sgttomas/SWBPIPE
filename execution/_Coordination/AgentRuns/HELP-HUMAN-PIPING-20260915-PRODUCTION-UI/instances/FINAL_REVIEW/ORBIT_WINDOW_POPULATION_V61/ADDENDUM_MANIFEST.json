@@ -1,0 +1,10 @@
+{
+  "members": [
+    {
+      "path": "EXECUTION_BRIEF_ADDENDUM.json",
+      "sha256": "29e2fb8f067ce4d2a764e10adfa39472cff6dea1c8a35c59797bf13a6a63a46d",
+      "bytes": 2494
+    }
+  ],
+  "priorArtifactManifestSha256": "6a6902162ad566d06e0e48204c0ed03dd1b55700a7d13a5212781e1d8997270d"
+}

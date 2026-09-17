@@ -1,0 +1,64 @@
+{
+  "schema": "bounded-task-return/v1",
+  "status": "COMPLETE_DIAGNOSIS_PROSPECTIVE_REPAIR_REQUIRED",
+  "parent": "/root HELP_HUMAN",
+  "instance": "/root/ui_causal_runtime_diagnosis",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "xhigh",
+  "delegation": "none; instruction/config asserted",
+  "briefSha256": "02e9ef271611d526c412ca7ffa5634cfebd6e3c7d8d7a4b8a81a7bd4cab66582",
+  "sourceCommitDeclared": "3f9a2c5143bd527441b0ac06d0d0d532bcd503cc",
+  "derivativePackage": true,
+  "authoritativeUpstream": "Immutable V68 packet plus V20W and flat source freezes; exact paths/hashes in INPUTS.json",
+  "finding": {
+    "name": "basis.global-unique-reporterOccurrence-string",
+    "pass": false,
+    "received": {
+      "uniqueReusableTrackKeys": 3,
+      "requiredCount": 750
+    }
+  },
+  "otherPredicateGroupsPassed": 44,
+  "qualifiedPresentations": 750,
+  "rawParses": 1,
+  "extractorInvocations": 1,
+  "sourceFilesStable": 7,
+  "sourceEventUniqueness": "Unique union of all begin/end raw indexes within the single exact raw capture; retain reusable track key; no raw-index chronology assumption.",
+  "proposedRequiredWritePaths": [
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.ts",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts"
+  ],
+  "callerHardening": "Optional and separate; not required to resolve observed defect. Existing strict extractor remains the raw occurrence authentication boundary.",
+  "checksExecuted": "Only authorized offline extraction/predicate calculation and input hash checks. No test suites/runtime/compiler/build/scoring/Git/network/delegation.",
+  "closureVerdict": "Diagnosis complete; method repair, independent backcheck, deterministic controls and prospective fresh qualification remain Root-owned.",
+  "historicalDisposition": "V68 remains failed and contributes no cohort acceptance; no historical scoring or acceptance reconstruction.",
+  "remainingBlockers": [
+    "Correct prospective same-trace admission and source-shaped controls",
+    "Fresh focused method/runtime qualification before any cohort decision",
+    "Performance targets remain unassessed for V68 orbits"
+  ],
+  "outputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/SAME_TRACE_BASIS_DIAGNOSIS_V69/REPORT.md",
+      "sha256": "9987223e56658f868430dcecdba5c0c1829886e98433deee3eeccced376196d2"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/SAME_TRACE_BASIS_DIAGNOSIS_V69/PREDICATES.json",
+      "sha256": "a072f678217e610a699ada1d0964e45052a927c4a9658788fb3dfc48a5c4dfd7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/SAME_TRACE_BASIS_DIAGNOSIS_V69/DIAGNOSE.mjs",
+      "sha256": "854c9e6c0027f5ab0531e1e49689c9b35f7c89a8946b02c2ed54aa06ecba0a03"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/SAME_TRACE_BASIS_DIAGNOSIS_V69/ATTEMPT.json",
+      "sha256": "a9bc751d127631ed202235e80a19970c298fcfe90788c9f8d0de2612e9d7b1b3"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/SAME_TRACE_BASIS_DIAGNOSIS_V69/INPUTS.json",
+      "sha256": "cdfc5a7317a17e502478f8059fcfecfb3e58e16474cad3eb9e45d5dceecfbcc1"
+    }
+  ]
+}

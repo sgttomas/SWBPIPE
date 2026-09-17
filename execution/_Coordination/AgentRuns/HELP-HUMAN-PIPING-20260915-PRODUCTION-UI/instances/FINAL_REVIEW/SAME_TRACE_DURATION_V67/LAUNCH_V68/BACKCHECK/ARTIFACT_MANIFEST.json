@@ -1,0 +1,11 @@
+{
+  "status": "SEALED",
+  "self_excluding": true,
+  "members": [
+    {
+      "path": "RETURN.json",
+      "sha256": "0c387a098aa2001e5e5c136fe97b65de3552a98f2666f9700a9a26f8da472b65",
+      "bytes": 55322
+    }
+  ]
+}

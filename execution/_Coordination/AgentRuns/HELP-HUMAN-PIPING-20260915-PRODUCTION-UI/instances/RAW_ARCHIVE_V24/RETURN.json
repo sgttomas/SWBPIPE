@@ -1,0 +1,38 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-17T03:54:19.316137+00:00",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "enforcement": "instruction/config asserted; no delegation",
+  "derivative_package": true,
+  "brief_sha256": "36f9c9da517f6220e0531db6f9399b4e99bcf377ce043f6c1f21755229723ffe",
+  "accepted_prior_derivative": {
+    "MAP.json": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V23/MAP.json",
+      "sha256": "60d4298807bde5b51fb7c2ae9d3ad03eba9ffb9fa58c8a11dad35d8113d8b4a9"
+    },
+    "RETURN.json": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V23/RETURN.json",
+      "sha256": "a379963e46904cbce9925ae638385c6b646dd8604e008ebed223a2f20ee9c247"
+    }
+  },
+  "inputs_sha256": "d6d1cb9d6fa735884089e3e58230827842333da40d5015471f821189dbde36c1",
+  "map_sha256": "84b232ec0817be065fb0371ff31d3aa3fbf8bbc0408ca7fe83d2ac47de217541",
+  "closed_manifests": 10,
+  "standalone_records": 31,
+  "verified_aliases": 161,
+  "verified_unique_objects": 154,
+  "created_unique_objects": 142,
+  "reused_verified_objects": 12,
+  "verified_unique_bytes": 67415142,
+  "external_collection_artifact_aliases": 9,
+  "exceptions": [],
+  "verification": "Every declared SHA/size checked, actual sizes where omitted. Ordinary members contained within owning packet; explicitly declared external collection aliases contained in ROOT/VERIFY run. No symlinks/context traversal. All CAS hash/size/readonly readback verified; exclusive fsync0444 temp, renamex_np RENAME_EXCL and directory fsync.",
+  "preflight_note": "Initial strict packet-directory check stopped before any write on declared external cohort collection alias; scope verified against manifest and brief, then authorized explicit alias convention used. No digest mismatch.",
+  "preservation": "V68 failure before orbit scoring, V69 track-key/occurrence diagnosis and metadata corrections preserved exactly; V11 policy remains loader-check attribution only. Originals/prior objects unchanged.",
+  "archive_io": "COMPLETE_RELEASED; no background or follow-on",
+  "limits": "Host-local derivative preservation, not WORM/clone-portable or acceptance. No active V20X output, current source/policy/Git/runtime/tests/build/browser/native/network/settings/deletion work."
+}

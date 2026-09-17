@@ -1,0 +1,19 @@
+{
+  "status": "PASS_BOUNDED_SOURCE_PROTOCOL_SUITABILITY",
+  "findings": [],
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "enforcement": "instruction/config asserted",
+  "delegation": "none",
+  "derivativePackage": true,
+  "brief_sha256": "065430f6e5e8863d17f92266103e0bb6c6ad1bb6c2c483394a6486118753d7cf",
+  "author_manifest_sha256": "54897cc35d491323b0c4e4417ae6ae769bcdcde97164da27785203e508971a2e",
+  "launch_bindings_sha256": "a02cc2e3477bdad8297fd307b3ef8207f2c66743e831f19d0755e4099061196f",
+  "execution_brief_sha256": "9a6c265eda2eb5ab4e81c7665c1622c527f73339eecbdfa530692889dfb74024",
+  "coverage_sha256": "b345db7ff3a1c56ad85cd850247b0cb92fa67295e2b0cd2c2b1b2560a9afb01d",
+  "conclusion": "No actionable findings in complete bounded V64 source/protocol/launch scope. All 143 maintained paths unchanged, 14 author members and six original inputs exact, 30 method/documentation entries exact in each lane, four commands bound; all 208 unique checked bindings stable at exit.",
+  "claim_limits": "Protocol suitability only. No physical AC confirmation, collection, focused runtime, full cohort, performance acceptance or tranche closure established. V61 battery target failure remains preserved; prior offline/native/resource evidence retains original attribution.",
+  "handoff": "Review complete and released for graceful pause. No runtime owned or launched. On continuation Root must revalidate pins and physical AC, explicitly lease exact collection/focus, accept fresh outcomes before separately authorizing full cohort. Publication/portability/final metadata remain separate."
+}

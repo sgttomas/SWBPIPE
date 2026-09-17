@@ -1,0 +1,14 @@
+{
+  "status": "ROOT_READBACK_PASS",
+  "at": "2026-09-17T07:50:21.759775+00:00",
+  "derivative_package": true,
+  "inputs_sha256": "d5baace0b27d2ff50394d3ccb4bd9b462345a68149dac64b269ce1460a8fe330",
+  "map_sha256": "fd7d6418e96f8aeb1ce8c1eeee2176ea7e01b78f0031be3a2f3483d9d83c859d",
+  "return_sha256": "877e11c8f33e9098640e6ccea7a3036a54b7ee8a9b8fdc87c1fe4f0d5430048d",
+  "objects": 694,
+  "unique_bytes": 704500185,
+  "aliases": 915,
+  "validation": "All object SHA/size/readonly0444/CAS containment verified; aliases exactlyonce with matching hash/bytes. Two declared parser symlink aliases preserved as bytes.",
+  "archive_io": "RELEASED",
+  "limits": "Host-local preservation; originals retained. No performance/product acceptance. ActiveV78/V79 excluded."
+}

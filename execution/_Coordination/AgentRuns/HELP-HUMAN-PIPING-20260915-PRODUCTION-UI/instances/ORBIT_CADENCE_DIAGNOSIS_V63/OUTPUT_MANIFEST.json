@@ -1,0 +1,77 @@
+{
+  "schema": "diagnosis-output-manifest/v1",
+  "members": [
+    {
+      "path": "BEGIN_FRAME_DECISIONS.json",
+      "sha256": "8c12d790687653510e4a70c7ce6718a45160cf134e9fe905ca8da15fff84a941",
+      "bytes": 1468
+    },
+    {
+      "path": "BOUND_COMPARISON.json",
+      "sha256": "893b148246b6f7d72dbb8db11767a3db7e7c148274800f7cad6148b099eb15c5",
+      "bytes": 9605
+    },
+    {
+      "path": "INPUTS.json",
+      "sha256": "79ba56617272eee1c3bd60fa5913f3b95b92c6e15dce31ffef168bb5bb77e706",
+      "bytes": 11088
+    },
+    {
+      "path": "PRIMARY_SOURCE_MANIFEST.json",
+      "sha256": "42b3c77fc652e6499c52c4532a959bf3f97c17177eb38a9d55d312c37dbed7ef",
+      "bytes": 5306
+    },
+    {
+      "path": "RAW_CADENCE_ANALYSIS.json",
+      "sha256": "c8dcf6a0ac60abe1ba5e92e56831bf6d3d996e331d56b0b713ce4f65239721ef",
+      "bytes": 6548
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "30ff216df207d9aa5a16702914ce366d893cef17f95db83980db54d7995c24d2",
+      "bytes": 9197
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "ed7c2da26311660528f8ec7094e80d8011fc81bc69502376139f7ceacbfc3de6",
+      "bytes": 1633
+    },
+    {
+      "path": "primary_sources/chrome/browser/performance_manager/public/user_tuning/battery_saver_mode_manager.h",
+      "sha256": "3d1f6141f7294e0a0114df80e86420b778fd948bbaec16691eac617a04eac693",
+      "bytes": 8668
+    },
+    {
+      "path": "primary_sources/chrome/browser/performance_manager/user_tuning/battery_saver_mode_manager.cc",
+      "sha256": "adf0694134bb03edd6f459d02749ee29dc5e7c6029c22ee7e368c398f5937144",
+      "bytes": 23590
+    },
+    {
+      "path": "primary_sources/components/performance_manager/public/user_tuning/prefs.h",
+      "sha256": "17ca9bc9721a2b266e68a7e314a477982c4720b3a525d00339745734de7f9943",
+      "bytes": 6366
+    },
+    {
+      "path": "primary_sources/components/performance_manager/user_tuning/prefs.cc",
+      "sha256": "8ba87b90dba1e7ba61f2d3d1e220dce4f6e19894e56bcd13f569913954685ea1",
+      "bytes": 9396
+    },
+    {
+      "path": "primary_sources/components/viz/service/frame_sinks/compositor_frame_sink_support.cc",
+      "sha256": "a6988e215c188862eb1f49a33236f02c7e3a14b3ac35c2ff134ffbc77c47b810",
+      "bytes": 72938
+    },
+    {
+      "path": "primary_sources/components/viz/service/frame_sinks/frame_sink_manager_impl.cc",
+      "sha256": "919df162ff5addf613a0308437abad541462035caf4c56fec5c9dc650ae543e1",
+      "bytes": 54582
+    },
+    {
+      "path": "primary_sources/components/viz/service/frame_sinks/frame_sink_throttler.cc",
+      "sha256": "ed3d2e2a6c1a07d66ec44da9ffda278ff75e044fbce1909f1e0d520b2f9e687f",
+      "bytes": 2561
+    }
+  ],
+  "boundedInputEntryExit": "All26 bounded input entries stable;14 explicit inputs and3 raw traces verified",
+  "primarySourceByteHashes": "7 successful pinned source files stable;2 unavailable lookups recorded"
+}

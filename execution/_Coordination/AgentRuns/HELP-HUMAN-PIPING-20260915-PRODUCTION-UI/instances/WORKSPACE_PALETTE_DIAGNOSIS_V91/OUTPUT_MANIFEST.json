@@ -1,0 +1,39 @@
+{
+  "schema": "piping-diagnostic-output-manifest/v1",
+  "derivativePackage": true,
+  "upstreamBindings": "INPUT_BINDINGS.json",
+  "sealedAt": "2026-09-17T10:03:36.668058+00:00",
+  "files": [
+    {
+      "path": "DIAGNOSIS.md",
+      "sha256": "4a0a9583767cc7b4bb79aec02c8e7c3c03a681bf9e0e9de7564cb6399795af20",
+      "bytes": 13805
+    },
+    {
+      "path": "ENTRY_SOURCE_BINDINGS.json",
+      "sha256": "f02c796d5749148fa3d31d155443c611343d409eb50dcef68c07cf731e6dfd82",
+      "bytes": 44251
+    },
+    {
+      "path": "EXIT_BINDINGS.json",
+      "sha256": "88d322a360a29d3177eca7a546c0f26915cb9fddeff319e268526b75e3de3735",
+      "bytes": 65813
+    },
+    {
+      "path": "INPUT_BINDINGS.json",
+      "sha256": "355a25acbea6f16a959872570cbfea96727f4bb34fc0d67630badcf46053043b",
+      "bytes": 17766
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "05c3755411edff4e83a1b3bf6b3c06bf83d277a5b799400498a46cfed6789370",
+      "bytes": 4243
+    },
+    {
+      "path": "TRACE_FINDINGS.json",
+      "sha256": "9bc33933741690b743a48e20e2ab25b8ed6c0fd9fd50190b061fc4c4bed170b8",
+      "bytes": 15462
+    }
+  ],
+  "excludesSelf": true
+}

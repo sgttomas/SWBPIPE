@@ -1,0 +1,24 @@
+{
+  "members": [
+    {
+      "path": "CONTEXT.json",
+      "sha256": "0057bdb94f032ef2a010d4d9a5aca1c1a96e58b263c1f3fa92ed995400d7b7d2",
+      "bytes": 2692
+    },
+    {
+      "path": "PREPARED_COMMAND.json",
+      "sha256": "52665f1e3c0310c0958b43462be2221574321bd8b66d2cdda791d16cb457ff3a",
+      "bytes": 2436
+    },
+    {
+      "path": "READ_ONLY_CHECK.json",
+      "sha256": "9752f5f6566959d9a9f6fe84c36cf38594f13927428fbd55bfe6539b938452f3",
+      "bytes": 352
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "2536122a0c1a2fcfc8a265d67142afb65ae8aa62f423898bf86090078af33778",
+      "bytes": 956
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-final-check-20260916",
+  "argv": [
+    "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tools/practitioner_harness"
+  ],
+  "head": "135a94cea310129ebbf53e678159b7016c3701d5",
+  "environment": "ordinary inherited environment with UI_FOUNDATION_/PLAYWRIGHT_ and OPENPIPESTRESS_CHECKED_JSON_BIN removed",
+  "scope": "Practitioner test suite; not final metadata self-check/receipt."
+}

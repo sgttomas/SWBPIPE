@@ -1,0 +1,109 @@
+{
+  "role": "TASK Type2",
+  "parent": "/root",
+  "instance": "/root/ui_closeout_successor",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "delegation": "forbidden",
+  "mechanism": "delegated-harness-native",
+  "enforcement": "instruction/config asserted; host unrestricted, no mechanical per-file scope enforcement",
+  "purpose": "Apply the bounded final functional Remaining wording and reviewed narrow policy proposals, then assemble the exact final selected publication candidate for independent V105 review. Product source is frozen.",
+  "basis": {
+    "AGENTS.md": {
+      "path": "AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+      "bytes": 12834
+    },
+    "projects/chirality-piping/AGENTS.md": {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    "agents/AGENT_TASK.md": {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    ".agents/skills/chirality-change/SKILL.md": {
+      "path": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba",
+      "bytes": 4573
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16/PATH_SELECTION.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16/PATH_SELECTION.json",
+      "sha256": "733a595fb62acc79d04406ebd3476d16b2dfc749ae37b1df87055ffe2e5c73f6",
+      "bytes": 83675
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16/POLICY_ADDITIONS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16/POLICY_ADDITIONS.json",
+      "sha256": "899d8a011c08e086fd117e370e4c44802a513fd9b787ccae3b8103534715cf29",
+      "bytes": 37019
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16/REMAINING_WORDING.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16/REMAINING_WORDING.json",
+      "sha256": "924c189c0e2241e83242887e988cfce323bc52f19e9aa33d1815829814b004f3",
+      "bytes": 6882
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16/STATUS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16/STATUS.json",
+      "sha256": "80e1924e1ba7bba361f8a23224645e1b9efd78e91e8e1cb4743fd4075193ca28",
+      "bytes": 25552
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json",
+      "sha256": "1ff013da86e97e0662824d18526cab7a902a9afdfb559e3d1b2ce55d7f721450",
+      "bytes": 11581
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_V103_ACCEPTANCE_ARCHIVE_V31_LEASE.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_V103_ACCEPTANCE_ARCHIVE_V31_LEASE.json",
+      "sha256": "594f93654b9d2424152d6c4bea1f95635ea989f49393a0c4038ba2c2dea22c65",
+      "bytes": 7225
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V31_ACCEPTANCE.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V31_ACCEPTANCE.json",
+      "sha256": "774ab4bc934076be918e8416f6bd5b485b656ec41bf558f7244bc20c2842e80c",
+      "bytes": 1456
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V31/RETURN.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V31/RETURN.json",
+      "sha256": "14dbc9e4c5dd60d2fd1588e91c5ec05773b59679ee164c3fac464e7873350f9e",
+      "bytes": 1570
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/PREPARATION_REVIEW.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/PREPARATION_REVIEW.json",
+      "sha256": "b649aaf63bbbe2fdbf3c9355ae630c05c18b004576f8033d9c90a5fab6253cd4",
+      "bytes": 48429
+    }
+  },
+  "path_resolution": "Resolve REPO_ROOT with git rev-parse --show-toplevel in the active implementation checkout. WORKING_ROOT={REPO_ROOT}/projects/chirality-piping. All supplied repository paths are relative to REPO_ROOT.",
+  "write_scope": [
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+    "projects/chirality-piping/validation/portability_policy.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL"
+  ],
+  "read_scope": "Declared basis, exact V15/V16 candidate and their selected evidence metadata, V103 sealed manifest/return, V31 archive indexes, current target preimages, current Root WORK_GRAPH/FINAL_HANDOFF/ACCEPTANCE_MAP/FINAL_ACCEPTANCE and source manifests. Use owning Root acceptance for raw evidence; no raw/CAS replay.",
+  "actions": [
+    "Recheck seven V9 Remaining preimages, applying only that bounded patch with final wording updated to actual Root functional acceptance/V104/V103. Preserve all prior history, lifecycle and other residuals. D69 remains unruled/performance OPEN; no full plan or project closure.",
+    "Apply the14 proposed exact policy additions only after their current hashes/semantic roles match; retain all existing288 entries. Classify new V103 and final records accurately. If genuinely required add only exact SHA-bound historical overrides with explicit artifact/accepting authority; never relabel live controls or create broad rules. Stop any unexplained current-preimage drift.",
+    "Compose one final PATHS.json from every prior V15 nonsource selected/deferred entry, V20 145 sources and exact V16 additions; resolve V31 archives without duplicate raw files. Add final Root acceptance, V103 return/manifest and Root acceptance, V31 INPUTS/MAP/RETURN/Root acceptance, this completed brief and current Root controls. Preserve tracked raw30 and original handoff unselected.",
+    "Keep output revisable until actual final review/check records arrive; explicitly identify pending generated review/local-check/Receipt142 slots without claiming results. Select maintained source and concise immutable indexes/returns, not entire raw trees, snapshot copies or your mutable intermediate drafts.",
+    "Report complete exact path/hash/size/category selection, all applied postimages/policy additions, portable-control preflight and unresolved slots. Do not stage, commit, push or run runtime/tests."
+  ],
+  "acceptance": [
+    "Seven bounded targets only, no DEL07-09 MEMORY; current lifecycle statuses preserved.",
+    "Every selected source exact V20; inherited metadata hash changes identified, never silent.",
+    "Actual final functional acceptance and performance/AX/resource limits stated honestly.",
+    "Exact portability policy only, no live-control host-path exception.",
+    "No source/raw/CAS/Git/runtime mutation; no delegation."
+  ],
+  "exclusions": "D69 adoption/waiver, Receipt writing, runtime, Root summaries, source, unrelated deliverables/governance, raw copies or deletion. Root owns final Git/checks and mutable summaries.",
+  "outputs": "instances/PUBLICATION_CANDIDATE_FINAL/{PATHS.json,APPLIED_METADATA.patch,POLICY_CHANGES.json,RETURN.json}; existing V16 may be revised for continuity. Final independent review remains pending.",
+  "created_at_utc": "2026-09-17T14:13:38.540649+00:00"
+}

@@ -1,0 +1,29 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-16T12:05:40.360118+00:00",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "mechanism": "delegated-harness-native; no delegation",
+  "enforcement": "instruction/config asserted",
+  "brief": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/SEALED_RAW_ARCHIVE_INCREMENT_V7.md",
+    "sha256": "e7efb981daa8908d217738486ee90cc8a33aa2f03002af621536bdb96d2f5bab"
+  },
+  "input_map_sha256": "fd453fbd086473a009d135466332c29e2f2eee86f6941982cc4381f4443c0f31",
+  "canonical_reference_map_sha256": "ffbf21e8ca256971b3feecb54bd88036a29044f6ea064d458c6a0c7f8ce00b40",
+  "closed_manifests": 8,
+  "verified_aliases": 580,
+  "verified_unique_objects": 473,
+  "created_unique_objects": 444,
+  "reused_verified_objects": 29,
+  "verified_unique_bytes": 205252882,
+  "exceptions": [],
+  "retrieval": "CANONICAL_REFERENCE_MAP.json maps SHA and bytes to canonical path; alias indexes resolve to INPUT_MAP original path and supplied manifest SHA. Manifest bytes themselves are preserved. Earlier V5/V6 maps remain unchanged.",
+  "method": "All supplied manifest hashes and declared members verified before copies. New copies fsync, mode0444, atomic renamex_np RENAME_EXCL, readback SHA/size check; existing exact objects reused with verification. No overwrite or WORM claim.",
+  "scope_limit": "Only explicit members and manifest bytes of eight closed packets; no active POINT_VISUAL_DIAGNOSIS_V30A or later work; no recursive directory inventory.",
+  "preservation": "Originals and checkpoint history retained; failed/aborted attribution preserved without reinterpretation. No deletion, symlink replacement, maintained source edit, Git/index mutation, tests/build/browser/native/server action.",
+  "acceptance": "Historical derivative preservation only; no product/method/performance/tranche acceptance or release claim."
+}

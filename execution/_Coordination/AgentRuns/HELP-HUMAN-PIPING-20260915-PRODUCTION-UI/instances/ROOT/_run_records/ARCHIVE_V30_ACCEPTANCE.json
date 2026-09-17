@@ -1,0 +1,17 @@
+{
+  "status": "PRESERVATION_ACCEPTED",
+  "at": "2026-09-17T10:50:46.133785+00:00",
+  "derivative_package": true,
+  "inputs_sha256": "add6ed7edd2636a5fd28ef450891fff9a306f9134ee5d43c590b104d148a873d",
+  "map_sha256": "ffe0d710d0c88c12627d1be26fc5b0b040e2fa983a630bed4185cce29f776999",
+  "return_sha256": "c0817ac3eb4bade125ef14ec5edf83f604d568f7e20ab3ed2a6540928aa03725",
+  "aliases_verified": 1176,
+  "objects_verified": 543,
+  "unique_bytes": 96695271,
+  "created": 475,
+  "reused": 68,
+  "all_aliases_exactly_once": true,
+  "originals_stable": true,
+  "runtime": "NO_RUNTIME; ARCHIVE_IO_RELEASED",
+  "limits": "Host-local non-WORM preservation only; no product acceptance"
+}

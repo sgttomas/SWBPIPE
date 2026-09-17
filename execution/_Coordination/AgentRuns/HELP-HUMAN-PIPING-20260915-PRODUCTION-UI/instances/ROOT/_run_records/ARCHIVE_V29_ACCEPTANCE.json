@@ -1,0 +1,16 @@
+{
+  "at": "2026-09-17T09:34:15.719646+00:00",
+  "status": "ROOT_VERIFIED_ARCHIVE_V29",
+  "inputs_sha256": "17d8037bc441181ceed449e7bef6316351cf38d6cd36004722e07f2d22f5785f",
+  "map_sha256": "fa52b3f31314888bd46cb57d3d47c9c1029ee94c0091444645bce65ba2bc6026",
+  "return_sha256": "78686fa7823cb65c544a6121a4b937d590a43ab7086a5da536e041f7e6d6d7dd",
+  "verified_objects": 263,
+  "verified_aliases": 372,
+  "verified_unique_bytes": 61698157,
+  "checks": [
+    "Every object path contained, hash/size/mode0444 readback",
+    "Every alias matches assigned object hash/bytes exactly once",
+    "Pinned INPUTS/MAP/RETURN verified"
+  ],
+  "limits": "Host-local, non-WORM, non-clone-portable canonical evidence; preservation not numerical or product acceptance. Originals retained."
+}

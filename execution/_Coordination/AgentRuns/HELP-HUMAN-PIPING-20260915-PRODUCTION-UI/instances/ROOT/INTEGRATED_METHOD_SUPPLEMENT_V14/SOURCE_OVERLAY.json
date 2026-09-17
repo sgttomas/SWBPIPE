@@ -1,0 +1,36 @@
+{
+  "schema": "piping-maintained-source-overlay/v1",
+  "basisManifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_METHOD_SUPPLEMENT_V13/SOURCE_OVERLAY.json",
+  "basisManifestSha256": "5f45c1246d67a4bb519f4f6863484ed36b1f1ecf85388057460d46a9285b8a8d",
+  "basisCount": 143,
+  "sourceFilesCount": 143,
+  "overrides": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+      "beforeSha256": "6fbef3d327347a34e69d49ca226db9fb6f78c5042a36ea08f5a7a2427ebb7963",
+      "sha256": "575b772d4848237a076400b31edc30b0288579e9f6f39b08f3abeb47f01e8d4a",
+      "bytes": 41292
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+      "beforeSha256": "d12a5b60f570de2fa25ad2020abc796e9f7f35184ddbe3468f67bb0763935d24",
+      "sha256": "fc9e00da4fe832b815b8092e50425166f1c8c55ef3a9aa7378f74111c0abba09",
+      "bytes": 36457
+    }
+  ],
+  "added": [],
+  "removed": [],
+  "patchPath": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/OFFLINE_EXTRACTOR_INDEX_REPAIR_V20P/SOURCE_DELTA_V20P.patch",
+  "patchSha256": "bd0de5f6a9a9d9e813d635797a3dd33a941e146147dc31289ccbfe580936b4c1",
+  "methodManifestPath": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/OFFLINE_EXTRACTOR_INDEX_REPAIR_V20P/SOURCE_MANIFEST_V20P.json",
+  "methodManifestSha256": "8401b3aa364738991eb67e936d85e9fa5324de4bb7593837e12a1502ad640cfb",
+  "authorReturnPath": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/OFFLINE_EXTRACTOR_INDEX_REPAIR_V20P/RETURN.json",
+  "authorReturnSha256": "a648627ba6644c58f3edc7513846802a2919acfc2814ddb8d75bcbac8d7cc6f8",
+  "immutableReference": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_METHOD_SUPPLEMENT_V14/ORIGINAL_EXTRACTOR.mjs",
+    "sha256": "6fbef3d327347a34e69d49ca226db9fb6f78c5042a36ea08f5a7a2427ebb7963",
+    "interpretation": "Exact original ROOT module preserved before authorized integration; resolves original differential command reference independently of mutable path."
+  },
+  "status": "EXACT_BYTES_INTEGRATED_PENDING_FRESH_REVIEW",
+  "interpretation": "Only per-call event-name index and differential controls. ProductV28/oracleV46/timings/thresholds/timeout and complete output semantics unchanged."
+}

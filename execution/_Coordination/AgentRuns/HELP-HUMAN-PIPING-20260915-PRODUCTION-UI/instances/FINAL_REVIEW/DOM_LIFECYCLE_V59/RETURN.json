@@ -1,0 +1,77 @@
+{
+  "schema": "bounded-independent-review-return/v1",
+  "status": "FINDINGS_HOLD_FRESH_RUNTIME",
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "delegation": "none",
+  "enforcement": "instruction/config asserted",
+  "derivativePackage": true,
+  "acceptedUpstream": {
+    "priorReviewSha256": "2b60e6dd3b295e74ac680f373b687e0a5b9b17698ed7613d20d2a2598fdc8003",
+    "flatV6Sha256": "97d118522657b3e9ac9c344ca396bd1619c6449178a4d322021f29b25bbfee98",
+    "flatV7Sha256": "1ad256f83a7ff34adde05f392f7b1acb7c5947f80db921b09aea93b974358f2c",
+    "V58ReportSha256": "213d752b3c01fef56c71e3592d3777aabded598589fcc9a62b49bff1eeaae035",
+    "methodV20USha256": "d54e65b155d34fc3f71340d96ca36f91381cd5e07d3c8aa34fb42c74f2809909",
+    "launchBindingsSha256": "f3ecd8f35c7c3868c9b9fcf68453a726362717439ce1dd5cd4c2177efbe05dba"
+  },
+  "findings": [
+    {
+      "id": "V59-R1",
+      "priority": "P2",
+      "title": "Reject ambiguous tied zero-duration lifecycle pairs",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+      "start": 258,
+      "end": 259,
+      "description": "The new multipass guard pairs separate style and PrePaint arrays using only non-strict timestamp comparisons. Two identical style records and two identical PrePaint records, all complete X with dur:0 and ts=1020100 after the final marker, pass equal cardinality, parent containment and every <= ordering check; they are then reported as two passes with a terminal pass. No distinct occurrence or interleaving is established. Reversing the tied PrePaint/style event order also passes because the arrays discard cross-kind order. This newly admits duplicated/ambiguous terminal evidence that the V58 contract requires to remain unavailable; the previous singleton cardinality rejected it.",
+      "counterexample": "See COUNTEREXAMPLE.md: exact mutation of maintained dom fixture plus complete local stage population and deductive branch evaluation. No test was run.",
+      "requiredRepair": "Reject duplicate/ambiguous paired evidence and require source-supported ordering across the combined pass sequence, including ties. Do not simply infer independent passes from equal counts or invented duration. Add controls for duplicated zero-duration pairs and tied reversed/interleaved ambiguity while preserving the observed positive lifecycles and first-tail rejection."
+    },
+    {
+      "id": "V59-R2",
+      "priority": "P2",
+      "title": "Bind cohort preconditions to the fresh V59 qualification",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FOREGROUND_QUALIFICATION_LAUNCH_V59/BOUND_EXECUTION_V20U/COHORT_COMMAND.json",
+      "start": 53,
+      "end": 53,
+      "related": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FOREGROUND_QUALIFICATION_LAUNCH_V59/BOUND_EXECUTION_V20U/COHORT_COLLECTION_COMMAND.json",
+        "line": 54
+      },
+      "description": "Both cohort command records still require FocusedV57 eight-segment PASS in their preconditions, although their pending text and the new brief require a fresh V59 focused result under V20U. V57 used the superseded recognizer and its original535/537ms evidence must not qualify the new method. The two conflicting gate declarations make the final launch contract ambiguous.",
+      "requiredRepair": "Update both precondition arrays to explicitly require ROOT acceptance of fresh V59 focused results under the current reviewed method; rehash the command/binding packet. Retain the correct pending text and full-cohort hold."
+    }
+  ],
+  "coverage": "Two complete deltas and relevant callers reviewed;141 prior paths carried.143entry/exit exact.20author members/29methods both lanes/6wrapper files/4commands exact.",
+  "positiveAssessment": [
+    "Pinned Chromium lifecycle loop supports repeated sequential style/PrePaint passes, then one final paint. Layerize is in synchronous Push called inside completed paint; I with absent dur is correctly treated as checkpoint and not converted into a duration.",
+    "Exact final feedback, native frame, same PID/TID, Layerize category/scope, completed proxy/paint/update, finite nonnegative stage durations and containment remain guarded. Malformed named stages beginning inside proxy are not silently discarded.",
+    "Earliest eligible proxy selection and slice(0,1) retain first-tail failure. Missing/partial/aborted/ambiguous tail cannot fall through to later valid presentation. extractOne stopped-content/model/epoch/identity/source/clock/upper-bound logic remains byte-identical.",
+    "Non-tree-filter dispatch remains unchanged. Additional DOM diagnostic fields do not break existing any-return declarations. Observed archived stage populations match pinned expectations; before canonical extractions retain exact original evidence."
+  ],
+  "evidenceCalibration": "Author95-case controls and69-case/67-call differential are recorded passes, not reviewer-run checks. Archived reproduction is diagnostic only, zero cohort contribution, not fresh qualification or replacement V57 score. Initial archived parser-object mistake remains recorded as TRACE_EVENTS_UNAVAILABLE.",
+  "historicalV57": {
+    "sample1IntervalMs": [
+      535.0779985427845,
+      535.4560023307812
+    ],
+    "empty0IntervalMs": [
+      537.271998310087,
+      537.6320019722006
+    ],
+    "cohortContribution": 0
+  },
+  "handoff": "Hold fresh runtime. ROOT should route bounded ambiguity repair and cohort-precondition correction, seal new source/method/launch hashes, obtain independent backcheck, then separately authorize fresh focused qualification before full cohort. No product/target/wait adjustment is warranted by this review.",
+  "remainingGates": [
+    "V59-R1 and V59-R2 repair/backcheck",
+    "exact collection and exclusive runtime authorization",
+    "fresh focused qualification under corrected method",
+    "ROOT acceptance before full ten-test cohort",
+    "registered checks/sweep",
+    "metadata review",
+    "actual-head CI and scoped merge"
+  ],
+  "exclusions": "No broad re-review of141 unchanged paths, no runtime/tests/build/browser/native/Git/archive or source changes. Prior product/native/resource observations retain original attribution. No performance acceptance."
+}

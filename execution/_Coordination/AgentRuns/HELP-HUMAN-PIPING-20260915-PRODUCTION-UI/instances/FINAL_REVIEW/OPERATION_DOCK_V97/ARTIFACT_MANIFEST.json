@@ -1,0 +1,37 @@
+{
+  "self_excluding": true,
+  "files": [
+    {
+      "path": "CANONICAL_REVIEW_INDEX.json",
+      "sha256": "5cde22b28da57fafe42798ee40b4688cabe3cd64907b4ff7564f1fcfbf850980",
+      "bytes": 971154
+    },
+    {
+      "path": "COVERAGE.json",
+      "sha256": "45795dfc1541d9e79bcf80ea16dd78bc2823eb0393af611c0fa56959d3367bf9",
+      "bytes": 3769
+    },
+    {
+      "path": "FINDINGS.json",
+      "sha256": "9a378e9aabf2a46b47ff644e314f4555bfd8986f36e2fbd7b7062ceba947fab1",
+      "bytes": 1838
+    },
+    {
+      "path": "INPUT_BINDINGS.json",
+      "sha256": "1cd87e2278987131f0c07608e768dbe508292a5b21ea1f1869af0d4afa01a8d2",
+      "bytes": 246736
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "ec365fb918cec51f6e3652cdb7c4344cf2bd6560b72612666b9ee5b416eb68f2",
+      "bytes": 2450
+    },
+    {
+      "path": "VISUAL_REVIEW.json",
+      "sha256": "778e15dbc8667e0e88181da9654b13fd11aa049f1186fbb674d4640fc6836bca",
+      "bytes": 173695
+    }
+  ],
+  "count": 6,
+  "bytes": 1399642
+}

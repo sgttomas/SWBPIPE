@@ -1,0 +1,9 @@
+{
+  "status": "V56_PASSED_RUNTIME_ACCEPTED_GENERATOR_FAILURE_PRESERVED",
+  "verified_members": 136,
+  "v56_return_sha256": "20817f2d5da71a990a5eb886a2eb033edd4761db3f350c33f97217fcc345ea61",
+  "bundle_sha256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+  "new_oracle": "PENDING",
+  "brief_sha256": "bcbc46c57ab194b0d72e74fbc2ad027b98ed41951faa508c80de51aa8db398aa",
+  "scope": "one offline generator pin refresh, product/measurement semantics unchanged; independent backcheck required"
+}

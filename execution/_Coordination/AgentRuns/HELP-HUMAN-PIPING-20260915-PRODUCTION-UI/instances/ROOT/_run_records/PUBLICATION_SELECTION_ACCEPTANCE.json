@@ -1,0 +1,86 @@
+{
+  "schema": "chirality-publication-selection-consumption/v1",
+  "status": "SELECTION_CONSUMED_FROZEN_HISTORY_ACTUAL_GIT_CANDIDATE_GOVERNS",
+  "recorded_at_utc": "2026-09-17T14:22:37.025552+00:00",
+  "role": "HELP_HUMAN Agent0",
+  "derivative_package": true,
+  "accepted_upstream": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json",
+    "sha256": "1ff013da86e97e0662824d18526cab7a902a9afdfb559e3d1b2ce55d7f721450",
+    "bytes": 11581
+  },
+  "consumed_selection": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL/PATHS.json",
+    "sha256": "4658420e28062278d045ca5977684a8c5a7be6615b62f8c0d7d34d05af07922b",
+    "bytes": 204433
+  },
+  "owning_return": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL/RETURN.json",
+    "sha256": "602c4d34575d28f8d9e12c3e0ed25fd23c57980ad0c13ad78b3257988d0843ff",
+    "bytes": 5869
+  },
+  "root_verification": "552 selected paths,65181662 bytes exact before named final overrides; unique contained regular paths. Source145 exact V20, original local handoff preserved. Seven target postimages and narrow policy application match owning return. All prior selected/deferred references retained.",
+  "explicit_post_consumption_overrides": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/WORK_GRAPH.json",
+      "selection_sha256": "9610a870c657647d7067401b10703f86c77720c4fe61ffbfc41d3216983a8b2e",
+      "actual_postimage": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/WORK_GRAPH.json",
+        "sha256": "817a0f40d86310de72fa39a0bc61730841738e740be11664c84b53917f27414a",
+        "bytes": 38665
+      },
+      "reason": "Explicit final Root checkpoint / completed-selection provenance policy; source unchanged"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_HANDOFF.json",
+      "selection_sha256": "316feb122cdf1c97db00b07be609134b2408f0f0cc1db2bcc092c384dd0153c5",
+      "actual_postimage": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_HANDOFF.json",
+        "sha256": "0eba2e37f7d8fa496acc129b3bcee984a8c7201cc5b6fed8417801335e9b4a3e",
+        "bytes": 11395
+      },
+      "reason": "Explicit final Root checkpoint / completed-selection provenance policy; source unchanged"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/ACCEPTANCE_MAP.md",
+      "selection_sha256": "6697d8ca7dd876b5c2e9f0f0bb270f41122bd766bc3bc56db9f7cdb5aaa193d8",
+      "actual_postimage": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/ACCEPTANCE_MAP.md",
+        "sha256": "06fdc8d7bce998a4bb07301800aee31cbbe167302fce532837833c89d1ab39be",
+        "bytes": 9040
+      },
+      "reason": "Explicit final Root checkpoint / completed-selection provenance policy; source unchanged"
+    },
+    {
+      "path": "projects/chirality-piping/validation/portability_policy.json",
+      "selection_sha256": "316dca67391f15dbed34794c622f85a344104322dcab3c301f3a004563c5213d",
+      "actual_postimage": {
+        "path": "projects/chirality-piping/validation/portability_policy.json",
+        "sha256": "2864b8591621b8732ad5e79dfa9e22f751fb661040530ed5ed40aba31ae4a042",
+        "bytes": 240861
+      },
+      "reason": "Explicit final Root checkpoint / completed-selection provenance policy; source unchanged"
+    }
+  ],
+  "publish_additions": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL/PATHS.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL/RETURN.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/PUBLICATION_SELECTION_ACCEPTANCE.json"
+  ],
+  "local_preparation_only": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL/APPLIED_METADATA.patch",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL/POLICY_CHANGES.json"
+  ],
+  "new_policy_entry": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL/PATHS.json",
+    "sha256": "4658420e28062278d045ca5977684a8c5a7be6615b62f8c0d7d34d05af07922b",
+    "entry_type": "historical_role_override",
+    "role": "EVIDENCE",
+    "reason": "Completed frozen publication-selection inventory consumed by Root. Historical external aliases preserve evidence identity; the actual Git candidate now governs publication. No future runtime/selection authority or general path exception.",
+    "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/PUBLICATION_SELECTION_ACCEPTANCE.json"
+  },
+  "policy_entry_total": 305,
+  "review_and_checks": "V105 and final clean-checkout checks pending; this accepts selection identity and its transition to history, not publication or merge.",
+  "later_evidence": "Review, local check results and Receipt142 are separately scoped closeout metadata; actual Git diff and named review/check returns bind them. No recursive self-checksum inventory is required.",
+  "holds": "D69 UNRULED; original performance condition remains the merge gate. Formal lifecycle/release unchanged."
+}

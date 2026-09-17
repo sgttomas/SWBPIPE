@@ -1,0 +1,70 @@
+{
+  "role": "TASK Type 2",
+  "parent": "/root",
+  "executor": "/root/ui_dist_overlay_diagnosis",
+  "model": "gpt-6-astra",
+  "reasoning": "xhigh",
+  "enforcement": "delegated-harness-native instruction/config asserted; no delegation",
+  "at": "2026-09-17T12:37:37.070076+00:00",
+  "objective": "Read-only bounded diagnosis of native rail hover contrast and missing inspector accessibility exposure; distinguish confirmed source defect from tool/platform limitation. Recommend minimal repair and decisive affected checks, not a new redesign.",
+  "basis": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V19/SOURCE_MANIFEST.json",
+      "sha256": "b5ed976cd86b1e90b5b83f1ba712a0d1ec1efb53bb7559d3c3baa090fd576e36",
+      "bytes": 33472
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "8166b04e99826cb1620bb3be0ce285651f28973e87b00f5f3ff488c0c5cfe795",
+      "bytes": 96750
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "f3d143f77715306a698c9c19ad46ec65a8c849fba4d8e0e3aa06f1478b2ab2d3",
+      "bytes": 182519
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "sha256": "dca007bbfff4130c0228b588b46bb75372bf825c1c999f5e27353d2472bcfc78",
+      "bytes": 128662
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/GUI_INSPECTOR_OBSTACLE.png",
+      "sha256": "00b58ee0513fdd72ace6aeaccd4e978ad7e3c50f174cc7390885873a970bf065",
+      "bytes": 366224
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_INSPECTOR_TASK.png",
+      "sha256": "41f5cacc199baa41cdd24e0229b6839ec93379626fa0ba1bd7117af5d5953c4e",
+      "bytes": 135822
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_INSPECTOR_TASK_AX.txt",
+      "sha256": "38912d0f0c51958e723e134a929c7f1cccb40c7e2077fff98ad24f071b317df9",
+      "bytes": 6813
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/V99_HANDOFF.json",
+      "sha256": "a1293a069a01bb8c477d3f6b1c6784599043b7473b710cff8b9a8bf61d74c9aa",
+      "bytes": 1452
+    }
+  ],
+  "observed_facts": [
+    "Root used actual native menu item via CUA click(index), which opened Inspector visibly at1024x768. Worker earlier keyboard i/Return did not establish menu activation.",
+    "Root clicked visible Task and Start task, entered an unapplied name draft, then Tab visibly focused Add. Full native AX still omits the entire inspector pane and its opener. This is an accessibility observation concern, not evidence of failed pointer/keyboard form behavior.",
+    "Original screenshot hovered rail has light background and dark-theme near-white text. Source .workspace-pane-toggle:hover background #dde6e1 outranks .app-shell button background token; verify actual applicable cascade and contrast."
+  ],
+  "reads": [
+    "Applicable Root/project AGENTS and agents/AGENT_TASK.md",
+    "Bound source, relevant caller/style/test evidence and preserved native screenshots/AX",
+    "Primary platform/browser documentation if useful; no speculative platform conclusion"
+  ],
+  "writes": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_RAIL_ACCESSIBILITY_DIAGNOSIS_V100 only; concise diagnosis, inputs/return and manifest"
+  ],
+  "exclusions": [
+    "No product/test/old evidence/Git mutation; no GUI/browser/runtime/build/tests or heavy archive IO; no delegation. Root exclusively owns native runtime.",
+    "No automatic repair or acceptance; distinguish functional input correction from AX omission, and confirmed contrast failure from unsupported causes."
+  ],
+  "return": "Concrete findings with source locations/evidence, minimal repair/test recommendation, remaining uncertainty and exact input hashes."
+}

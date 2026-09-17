@@ -1,0 +1,45 @@
+{
+  "schema": "bounded-independent-review-return/v1",
+  "status": "PASS_SOURCE_AND_LAUNCH_SUITABILITY",
+  "findings": [],
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "delegation": "none",
+  "enforcement": "instruction/config asserted",
+  "derivativePackage": true,
+  "acceptedUpstream": {
+    "priorReviewSha256": "24612b10d168fdfa6409be0fc38815d2ae5ea1321fcfd573af137ae32dc2a055",
+    "flatV8Sha256": "deff170bd0a1b9343066105726f6f1ca660f233e0d35ad3010b4cebaa21df6c5",
+    "V60ReportSha256": "77692e3befa86c5cd15ad9ba15673c50408aa3b9d868d9e1c3174b69112cae7f",
+    "governingFlatV9R1Sha256": "e8c242965e15619cebc2a8872da6349531eae122206e4ccd0a6d51ffdc3265f1",
+    "integratedMethodSha256": "2fb1f2fa0d0002d704aab7b8298224ae94d315e051304c710ba23f99d40b37b7",
+    "launchBindingsR1Sha256": "00c54245a0c8eed0446867911013c9f8d7c831789cf629b8353d79ad2630186b"
+  },
+  "coverage": "100% five-file delta and relevant constructor/scorer/driver/focused/cohort routes reviewed;138 identical source paths carry accepted prior complete coverage.143 entry/exit exact. All43 author members,29 method plus README in both lanes,4 R1 commands and6 wrappers rehashed with zero mismatches.",
+  "sourceAssessment": [
+    "Actual driver passes complete extraction.presentations and captured action time to the factored constructor. Existing outward endpoint addition and conservativePresentedGap arithmetic, source clock intersection, prescribed2s/10s windows and action route remain unchanged. Full source indexes/reported timestamps/coordinates/intervals are retained before exact envelope slicing.",
+    "Scorer checks finite ordered enclosures, exact coordinate-to-timestamp mapping, tie equivalence, contiguous source indexes, exact strict outside envelope and all consecutive gap/sample/source associations. Missing, sparse, reordered, deleted or inconsistent carried rows fail. Causal/source authentication remains the existing caller boundary.",
+    "Boundary candidates are derived internally from all necessary local predecessor/successor conditions, excluding cuts within identical timestamp groups. Every a<b pair yields an unbroken gap slice; no supplied candidate subset, interior omission or favorable survivor selection is accepted.",
+    "Each candidate uses unchanged qualified upper bounds at nearest rank ceil(.95*n). Maximum across every candidate is returned and all cut/count/p95 records retained. The real admissible cut is in the conservative superset; coordinatewise order-statistic monotonicity and the maximum preserve the stated upper-bound proof. Infeasible shared-clock combinations can only add conservatism.",
+    "The five-file change preserves numerical targets, qualified-duration rules, other metrics, identity/cohort checks, OD/mode guards and settled exactzero policy. Focused output allows only prescribed incomplete point/Box/filter populations; new orbit validation and all candidates survive into result and full-cohort outcomes. README states the qualified instrumented metric and uncertainty limits accurately."
+  ],
+  "independentEvidence": "Read-only independent arithmetic reproduces V59 envelope234..1436 and cuts1201/1202 and finds all1202 gap intervals/scalar coordinates exactly canonical. No replacement V59 percentile/score computed. Frozen1199/1200 dyadic population has identical rank1140 but1139 versus1140 low values; maximum correctly retains the high1199 bound rather than the diluted whole-envelope percentile.",
+  "testCalibration": "Recorded23 scorer controls retain19 prior cases and add actual-constructor boundary/dilution/tie/malformed coverage;1 constructor and1 archived diagnostic passed. Input immutability and unrelated scores checked. Author semantic pass is recorded; combined47 was not executed together. Reviewer performed source/data/hash/arithmetic review only, no tests/runtime.",
+  "metadataCorrections": "Original author manifest preserved. ROOT integrated derivative corrects two stale scorer before hashes and explicitly records controller preimages without changing any source bytes. Original flatV9 had stale inherited provenance; superseding SOURCE_MANIFEST_R1 corrects it and preserves all143 source records/five deltas. New four-command R1 packet changes only sourceOverlay references; no behavioral change.",
+  "launch": "All actual required pins bind corrected integrated method and flatV9_R1. Workloads/argv/profile/browser/targets/waits/deadlines/product bundle/oracle/configs/wrappers are unchanged. Focused one/eight-segment and full ten/five each size/243segments remain separately gated. Exact collection does not depend on its own output or focused success. Full cohort expressly requires ROOT acceptance of fresh V61 focus and exact ten-test collection. Current evidence directories are absent.",
+  "historicalEvidence": "V59 remains failed with original scores/intervals and zero cohort contribution. Archived diagnostic has replacementScore:null and does not establish fresh metric acceptance. Product/native/resource observations retain original attribution; true observer cost remains unproved.",
+  "handoff": "ROOT may accept bounded source/launch readiness, commit under its owning workflow and authorize exact collection/fresh V61 focus under exclusive lease. Full foreground-cohort-v2 remains held for separate acceptance of fresh focused results. No tranche closure inferred.",
+  "remainingGates": [
+    "ROOT source/launch acceptance and source commit",
+    "exact collection and exclusive runtime authorization",
+    "fresh V61 focused qualification",
+    "separate ROOT acceptance before full ten-test cohort",
+    "registered checks/sweep",
+    "final metadata",
+    "actual-head CI and scoped merge"
+  ],
+  "exclusions": "No reviewer tests/runtime/browser/native/build/network/archive/Git/product or method writes/delegation. Only own immutable review evidence written. No universal equivalence, exact physical percentile, hardware scan-out, uninstrumented latency or overall acceptance claim."
+}

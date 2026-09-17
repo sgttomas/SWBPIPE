@@ -1,0 +1,70 @@
+{
+  "status": "HELD_ADDITIVE_PREPARATION_NO_ACCEPTANCE",
+  "derivativePackage": true,
+  "role": "TASK Type2 gpt-6-astra/low, parent /root HELP_HUMAN; delegated-harness-native; instruction/config asserted; no delegation",
+  "scope": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_SUPPLEMENT_V93",
+  "inputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_V83_CANVAS_PALETTE_SUPPLEMENT_V93.md",
+      "sha256": "09007521015a95bc04e8d6eb506d8a9367f1b0f95e0acd55d9f40f58b1453009"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_PREPARATION/OUTPUT_MANIFEST.json",
+      "sha256": "09893d0e3ab5641527998a4127c1a1ff845985635bef9f97d5446b73be91ae6c"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_PREPARATION/PLAN.md",
+      "sha256": "b9c29d32ab3f72f229990b5d5f61959ce67b253c97567dff3ff286731b26b80b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_PREPARATION/BUILD_COMMAND.json",
+      "sha256": "2f3eb0a109151a9fe90bcda91b94d82cc4f3198d4516b44386e89132de581690"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_PREPARATION/EXPECTATIONS.json",
+      "sha256": "f380d22f1b8ccb0c1a745ab26c48e0b06722741e73879776b91f4d7e265edb58"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_PREPARATION/SEED_BINDING.json",
+      "sha256": "68661d8fed733502bceac95abd004c514f1a5cd42fb5503a3d56492589f1679b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_LAYER_GIZMO_REPAIR_V89/RETURN.json",
+      "sha256": "b7fb14a74c1af300808d4c1c67bdc7d772e25109d302db9ab8042e4a88460f16"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/WORKSPACE_LAYER_GIZMO_V90/RETURN.json",
+      "sha256": "b3a3ad1de32df5a0ba5b299477e9ce83047ae9c422b4524739431ca95b7e60fa"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_PALETTE_DIAGNOSIS_V91/DIAGNOSIS.md",
+      "sha256": "4a0a9583767cc7b4bb79aec02c8e7c3c03a681bf9e0e9de7564cb6399795af20"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/WORKSPACE_CANVAS_PALETTE_REPAIR_V92.md",
+      "sha256": "6087f1f8a6c01b2a1849328f2aebab65918574bb3bc9573b592f1d5c0c9f2b1c"
+    }
+  ],
+  "acceptedBasis": "Original V83 preparation retained byte-for-byte; existing M500 seed/build/store/analytical expectations unchanged. V89 failures/V90 bounded visual pass/V91 diagnosis are historical findings, not final repaired acceptance.",
+  "additions": [
+    "Actual3.2m measurement full readout with dock open/closed and retained Task",
+    "Nonmutating saved-size/view-clamp observation with explicit native observability limitation",
+    "Entry plus one group/shortcut dismissal and consumed Escape",
+    "Keyboard Node/Select destinations without engineering mutation"
+  ],
+  "executionOccurred": false,
+  "finalSourceBinding": null,
+  "independentReviewBinding": null,
+  "runtimeLease": null,
+  "pending": [
+    "Final reviewed integrated source and build/dist bindings",
+    "Explicit serial native lease",
+    "Actual native observations and Root acceptance"
+  ],
+  "limitations": [
+    "No held-pointer native claim",
+    "No DOM/WebView injection",
+    "No native10k performance or complete prior lifecycle replay"
+  ],
+  "handoff": "Prepared and stopped; no automatic follow-on. Root owns final source/lease/use."
+}

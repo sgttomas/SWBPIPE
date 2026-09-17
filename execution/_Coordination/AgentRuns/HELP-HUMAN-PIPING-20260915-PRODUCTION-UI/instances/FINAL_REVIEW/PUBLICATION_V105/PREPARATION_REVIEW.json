@@ -1,0 +1,853 @@
+{
+  "status": "PREPARATION_COMPLETE_NO_ACTIONABLE_FINDING_FINAL_CANDIDATE_PENDING",
+  "at": "2026-09-17T13:43:43.074166+00:00",
+  "role": "TASK Type2 software-code-review existing Astra/high; no delegation; instruction/config asserted",
+  "derivative_package": true,
+  "coverage": {
+    "proposal_files": 4,
+    "composed_path_slots": 542,
+    "exact_V87_inherited_non_source": 326,
+    "refreshed_source_metadata": 145,
+    "source_bytes": 12692719,
+    "new_metadata_slots": 71,
+    "directly_rehashed_new_metadata": 65,
+    "accepted_archive_references": 6,
+    "policy_existing_unchanged": 288,
+    "proposed_historical_evidence": 11,
+    "proposed_completed_control_exception": 1,
+    "remaining_preimages": 7,
+    "source_implementation_rereview": false
+  },
+  "selection": "Exact frozen V15/V87 base inherited. All145 source path/hash/byte rows equal integrated V20 and V102 reviewed R1 candidate. No overlap or duplicate paths among71 additions.542 is composed slots including inherited deferred entries, not a finalized delivered-file count. No final size claimed; six archive rows have acceptance-pinned hashes but not final byte bindings. Final assembly must recompute delivered sizes/counts and resolve deferred source/control/metadata slots.",
+  "policy": "Current245 historical+43control retained byte-for-byte conceptually; prospective append11+1 yields256historical+44control without duplicates. Seven ordinary historical subject files directly rehashed; four archive INPUTS/MAP subjects use owning accepted pins only. All12 authorities are selected; exact machine-path subjects match roles; no selected new machine-path artifact lacks proposed disposition.",
+  "control": "V101 has semantic execution CONTROL despite classifier UNCLASSIFIED. Exact exception correctly preserves CONTROL and acknowledges only immutable completed working_checkout identity; no broad exemption or live-control rewrite. V99/V100 selected controls have no machine paths. V104 lease is structural _run_records evidence for classification, an actual active authorization semantically, not a completed V104 outcome; no runtime outputs consumed.",
+  "remaining": "Seven actual preimages remain exact V87, so prior complete seven-file V9 delta review is inherited. V16 draft replacement paragraph retains IN_PROGRESS01/02/06 and OPEN09, broader residuals and D69UNRULED/performanceOPEN. Native67row numerical/persistence evidence stays V19; V102 browser evidence stays separately attributed. Independent usability/security remain held separate work, not invented publication prerequisites; deterministic harness/self-check remains required. V103/nativeAX/appearance and V104 final outcomes remain pending.",
+  "resource": "Root V19 V56 subset applicability record preserved with final V20 applicability still Root-owned; no broad resource replay invented.",
+  "findings": [],
+  "policy_review": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V86/RETURN.json",
+      "sha256": "9db708bee410b75a9348733bb279d786ed6f4713079345a3de228b7423f0e90b",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "base_role": "UNCLASSIFIED",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V86/OUTPUT_MANIFEST.json",
+      "authority_sha256": "0e76cdd7253fc1a44b82f08cb331e8eaac61787a5cbc4605dbcac55987eaf49a",
+      "authority_selected": true,
+      "direct_subject_hash_in_authority": true,
+      "authority_basis": "Owning exact archive acceptance or completed output/acceptance record"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_LAYER_GIZMO_REPAIR_V89/RETURN.json",
+      "sha256": "b7fb14a74c1af300808d4c1c67bdc7d772e25109d302db9ab8042e4a88460f16",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "base_role": "UNCLASSIFIED",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_LAYER_GIZMO_REPAIR_V89/OUTPUT_MANIFEST.json",
+      "authority_sha256": "8225bf5ea64f760eb822c60e2fb29d1fff6070fd6d59bcb2c7ca8033c30b52c4",
+      "authority_selected": true,
+      "direct_subject_hash_in_authority": true,
+      "authority_basis": "Owning exact archive acceptance or completed output/acceptance record"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_CANVAS_PALETTE_COLLECTION_REPAIR_V92_R2/RETURN.json",
+      "sha256": "faba08d547e0280786ccdf53c9d62ebacfa373888f3e09cce71bf9f46d4b048b",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "base_role": "UNCLASSIFIED",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_CANVAS_PALETTE_COLLECTION_REPAIR_V92_R2/OUTPUT_MANIFEST.json",
+      "authority_sha256": "1342f3e3e9ff4f4bf1f186e2c91de1a5c39f181e55fac7b05d0ec6fbb96c500d",
+      "authority_selected": true,
+      "direct_subject_hash_in_authority": true,
+      "authority_basis": "Owning exact archive acceptance or completed output/acceptance record"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_SUPPLEMENT_V93/RETURN.json",
+      "sha256": "56a5110961ab511fac70b359967bc0bbf4d7a5d46a133102a3cee0fbab83ed0d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "base_role": "UNCLASSIFIED",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_SUPPLEMENT_V93/OUTPUT_MANIFEST.json",
+      "authority_sha256": "183b41fd490565bd703ba4e52fac3a87bf9b49529c147e4a0354bca3226f4515",
+      "authority_selected": true,
+      "direct_subject_hash_in_authority": true,
+      "authority_basis": "Owning exact archive acceptance or completed output/acceptance record"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V29/INPUTS.json",
+      "sha256": "17d8037bc441181ceed449e7bef6316351cf38d6cd36004722e07f2d22f5785f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "base_role": "UNCLASSIFIED",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V29_ACCEPTANCE.json",
+      "authority_sha256": "9e54c3f9e78badcd8e9675e5c5150e6b011f14e44c71dc9b5b99af53288711b7",
+      "authority_selected": true,
+      "direct_subject_hash_in_authority": true,
+      "authority_basis": "Owning exact archive acceptance or completed output/acceptance record"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V29/MAP.json",
+      "sha256": "fa52b3f31314888bd46cb57d3d47c9c1029ee94c0091444645bce65ba2bc6026",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "base_role": "UNCLASSIFIED",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V29_ACCEPTANCE.json",
+      "authority_sha256": "9e54c3f9e78badcd8e9675e5c5150e6b011f14e44c71dc9b5b99af53288711b7",
+      "authority_selected": true,
+      "direct_subject_hash_in_authority": true,
+      "authority_basis": "Owning exact archive acceptance or completed output/acceptance record"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V30/INPUTS.json",
+      "sha256": "add6ed7edd2636a5fd28ef450891fff9a306f9134ee5d43c590b104d148a873d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "base_role": "UNCLASSIFIED",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V30_ACCEPTANCE.json",
+      "authority_sha256": "bad06c3978ce38b5efe9210eb2d5a89bac9169661b7df2aeea615fef80c13b0a",
+      "authority_selected": true,
+      "direct_subject_hash_in_authority": true,
+      "authority_basis": "Owning exact archive acceptance or completed output/acceptance record"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V30/MAP.json",
+      "sha256": "ffe0d710d0c88c12627d1be26fc5b0b040e2fa983a630bed4185cce29f776999",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "base_role": "UNCLASSIFIED",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V30_ACCEPTANCE.json",
+      "authority_sha256": "bad06c3978ce38b5efe9210eb2d5a89bac9169661b7df2aeea615fef80c13b0a",
+      "authority_selected": true,
+      "direct_subject_hash_in_authority": true,
+      "authority_basis": "Owning exact archive acceptance or completed output/acceptance record"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/RETURN.json",
+      "sha256": "68c5f6f747328ebb260e9247280aca712bc8cd429aee7ff29068f87a39c4d030",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "base_role": "UNCLASSIFIED",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V95_ACCEPTANCE_NATIVE_V83_RUNTIME_LEASE.json",
+      "authority_sha256": "ac6932f59f648e0648db65cdb07ee572f853a3c5f689c1335f19b2244d7cbcf6",
+      "authority_selected": true,
+      "direct_subject_hash_in_authority": true,
+      "authority_basis": "Owning exact archive acceptance or completed output/acceptance record"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/sweep/SWEEP_20260917T112650Z_45ede19f2b23.json",
+      "sha256": "dd07cddf49c5c28c479738fe9c1c0f7a20b26c4e709784cc0019c821d90f56f9",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "base_role": "UNCLASSIFIED",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V95_ACCEPTANCE_NATIVE_V83_RUNTIME_LEASE.json",
+      "authority_sha256": "ac6932f59f648e0648db65cdb07ee572f853a3c5f689c1335f19b2244d7cbcf6",
+      "authority_selected": true,
+      "direct_subject_hash_in_authority": true,
+      "authority_basis": "Owning exact archive acceptance or completed output/acceptance record"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CONTRAST_V102/RETURN.json",
+      "sha256": "6de237c082e31562e3d346d3c6d0555ab1410c6f54517517c29c86910b07ce33",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "base_role": "UNCLASSIFIED",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V102_ACCEPTANCE_V104_RUNTIME_LEASE.json",
+      "authority_sha256": "6d321dfe86d0984f712caf95560afa000339c8039d3e50ac22b0db34fc86d948",
+      "authority_selected": true,
+      "direct_subject_hash_in_authority": true,
+      "authority_basis": "Owning exact archive acceptance or completed output/acceptance record"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_CONTRAST_REPAIR_V101.json",
+      "sha256": "6a85e5389dd1ab7ef030c4ee31faef73b7f4dd690b2f59334fe2da73d88a2303",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "base_role": "UNCLASSIFIED",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CONTRAST_V102/RETURN.json",
+      "authority_sha256": "6de237c082e31562e3d346d3c6d0555ab1410c6f54517517c29c86910b07ce33",
+      "authority_selected": true,
+      "direct_subject_hash_in_authority": false,
+      "authority_basis": "Selected completed V102 review plus Root current sealed V105 instruction explicitly scopes completed V101 CONTROL exception; target bytes pinned separately. Not a future execution authority; no EVIDENCE reclassification."
+    }
+  ],
+  "selection_review": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V86/OUTPUT_MANIFEST.json",
+      "sha256": "0e76cdd7253fc1a44b82f08cb331e8eaac61787a5cbc4605dbcac55987eaf49a",
+      "bytes": 34516,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V86/RETURN.json",
+      "sha256": "9db708bee410b75a9348733bb279d786ed6f4713079345a3de228b7423f0e90b",
+      "bytes": 6796,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 2,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_REMAINING_V87/ARTIFACT_MANIFEST.json",
+      "sha256": "f83f680828d083d20f18ab55f4b9a63b73c59b3e69880528799d8ee6ba8de6e5",
+      "bytes": 643,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_REMAINING_V87/RETURN.json",
+      "sha256": "e18e445a0cba3c8d3c14b7925fcecc163ac19f00a9adffe6cacdf8ceabf2d6c9",
+      "bytes": 1653,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/DIST_LAYER_GIZMO_DIAGNOSIS_V88/OUTPUT_MANIFEST.json",
+      "sha256": "0fa52a483018266154128effaa4585474adb327f0ba73a88bcbd6400b2609cc9",
+      "bytes": 2387,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/DIST_LAYER_GIZMO_DIAGNOSIS_V88/RETURN.json",
+      "sha256": "56c1a38fa8a6662984aab7c149f3eacf54ff5f46d62aa7081a73b698ff200161",
+      "bytes": 3007,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_LAYER_GIZMO_REPAIR_V89/OUTPUT_MANIFEST.json",
+      "sha256": "8225bf5ea64f760eb822c60e2fb29d1fff6070fd6d59bcb2c7ca8033c30b52c4",
+      "bytes": 77148,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_LAYER_GIZMO_REPAIR_V89/RETURN.json",
+      "sha256": "b7fb14a74c1af300808d4c1c67bdc7d772e25109d302db9ab8042e4a88460f16",
+      "bytes": 11406,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 8,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/WORKSPACE_LAYER_GIZMO_V90/ARTIFACT_MANIFEST.json",
+      "sha256": "57ac8859c9118a554ac23c93b8beeeb47b8a17181e53d7b24bdc259463c5e711",
+      "bytes": 964,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/WORKSPACE_LAYER_GIZMO_V90/RETURN.json",
+      "sha256": "b3a3ad1de32df5a0ba5b299477e9ce83047ae9c422b4524739431ca95b7e60fa",
+      "bytes": 1409,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_PALETTE_DIAGNOSIS_V91/OUTPUT_MANIFEST.json",
+      "sha256": "46670070d58db523a29605bc3ffd1c47cab29e1800c6bef38a1daabb839b2ca8",
+      "bytes": 1140,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_PALETTE_DIAGNOSIS_V91/RETURN.json",
+      "sha256": "05c3755411edff4e83a1b3bf6b3c06bf83d277a5b799400498a46cfed6789370",
+      "bytes": 4243,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_CANVAS_PALETTE_REPAIR_V92/OUTPUT_MANIFEST.json",
+      "sha256": "a4551c284d26f55f64e528b7f59e71dd7367c8c5b1f4ccb4e90c403366068ba0",
+      "bytes": 8648,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_CANVAS_PALETTE_REPAIR_V92/RETURN.json",
+      "sha256": "b8e9b64401a9fd95af3f7a29564e2bd261ff4c6e1280b0c70cc3044890d4b70a",
+      "bytes": 1294,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_CANVAS_PALETTE_COLLECTION_REPAIR_V92_R2/OUTPUT_MANIFEST.json",
+      "sha256": "1342f3e3e9ff4f4bf1f186e2c91de1a5c39f181e55fac7b05d0ec6fbb96c500d",
+      "bytes": 167661,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_CANVAS_PALETTE_COLLECTION_REPAIR_V92_R2/RETURN.json",
+      "sha256": "faba08d547e0280786ccdf53c9d62ebacfa373888f3e09cce71bf9f46d4b048b",
+      "bytes": 3292,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 1,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_SUPPLEMENT_V93/OUTPUT_MANIFEST.json",
+      "sha256": "183b41fd490565bd703ba4e52fac3a87bf9b49529c147e4a0354bca3226f4515",
+      "bytes": 316,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_SUPPLEMENT_V93/RETURN.json",
+      "sha256": "56a5110961ab511fac70b359967bc0bbf4d7a5d46a133102a3cee0fbab83ed0d",
+      "bytes": 4982,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 11,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CANVAS_PALETTE_V94/ARTIFACT_MANIFEST.json",
+      "sha256": "b149ac87e43be4ad974e7a5db7a672ce41f6965d056cb962512fae51b92f0955",
+      "bytes": 997,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CANVAS_PALETTE_V94/RETURN.json",
+      "sha256": "d54b6ad8c92f80b095d4a5fcdaf020997d210d819d4d048f22e3b9e46d70e107",
+      "bytes": 2137,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CANVAS_PALETTE_V94/FINDINGS.json",
+      "sha256": "02ad6d979d09f9e9d724730fa32e281553202d1a1df46842dad73e3a91ec6355",
+      "bytes": 4935,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95_PREPARATION/OUTPUT_MANIFEST.json",
+      "sha256": "7219a969138199258d81ef75d0c2e4ea6405fa38e34cc69681b7fe040046eb48",
+      "bytes": 624,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95_PREPARATION/RETURN.json",
+      "sha256": "2536122a0c1a2fcfc8a265d67142afb65ae8aa62f423898bf86090078af33778",
+      "bytes": 956,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V29_ACCEPTANCE.json",
+      "sha256": "9e54c3f9e78badcd8e9675e5c5150e6b011f14e44c71dc9b5b99af53288711b7",
+      "bytes": 773,
+      "base_role": "EVIDENCE",
+      "machine_path_count": 0,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V30_ACCEPTANCE.json",
+      "sha256": "bad06c3978ce38b5efe9210eb2d5a89bac9169661b7df2aeea615fef80c13b0a",
+      "bytes": 677,
+      "base_role": "EVIDENCE",
+      "machine_path_count": 0,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V86_FAILURE_V87_PROPOSAL_FANIN.json",
+      "sha256": "0a68f83f80d43700ad1816dca95678e45b72bf1934fb70657d561784fdfee838",
+      "bytes": 1675,
+      "base_role": "EVIDENCE",
+      "machine_path_count": 0,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V92_R2_FOCUSED_FANIN.json",
+      "sha256": "22a2a9c3deeec2ccca7c0938a63427b18e1789c699f95d876b4f0a2e8680ac87",
+      "bytes": 2302,
+      "base_role": "EVIDENCE",
+      "machine_path_count": 0,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V19/SOURCE_MANIFEST.json",
+      "sha256": "b5ed976cd86b1e90b5b83f1ba712a0d1ec1efb53bb7559d3c3baa090fd576e36",
+      "bytes": 33472,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/OPERATION_DOCK_SCROLL_REPAIR_V96/OUTPUT_MANIFEST.json",
+      "sha256": "a558d8bd40b0c8ba569b8670fd713dde0710daee98f883ec73d3aee6d8133428",
+      "bytes": 2617,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/OPERATION_DOCK_SCROLL_REPAIR_V96/RETURN.json",
+      "sha256": "1a567a53d51b0dfc56b5b1c4e2a8d725efd58bb45abaf9c4e0048a741060b24b",
+      "bytes": 1128,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/OPERATION_DOCK_SCROLL_REPAIR_V96_R1/OUTPUT_MANIFEST.json",
+      "sha256": "2b436a84e2b4f6171da5b6bcb499e1d43f7d331ba86cd6473c99eaa916e0aa19",
+      "bytes": 177532,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/OPERATION_DOCK_SCROLL_REPAIR_V96_R1/RETURN.json",
+      "sha256": "5c21ed3e73a58eee683857ce9f3282507451a91d2f00bfb5d4c9993bde080b5f",
+      "bytes": 2461,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/OPERATION_DOCK_V97/ARTIFACT_MANIFEST.json",
+      "sha256": "e65fe4c15e86274e53012b92ed267094351751d166fe1b209dafe559949495c4",
+      "bytes": 997,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/OPERATION_DOCK_V97/RETURN.json",
+      "sha256": "ec365fb918cec51f6e3652cdb7c4344cf2bd6560b72612666b9ee5b416eb68f2",
+      "bytes": 2450,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/RETURN.json",
+      "sha256": "68c5f6f747328ebb260e9247280aca712bc8cd429aee7ff29068f87a39c4d030",
+      "bytes": 4821,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 2,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/OUTPUT_MANIFEST.json",
+      "sha256": "d26f2e8eee8b3cfc26e360ccc413502dc5d3f046672d4c33cad5191e1d0867fe",
+      "bytes": 98268,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/sweep/SWEEP_20260917T112650Z_45ede19f2b23.json",
+      "sha256": "dd07cddf49c5c28c479738fe9c1c0f7a20b26c4e709784cc0019c821d90f56f9",
+      "bytes": 3784,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 2,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_RESOURCE_APPLICABILITY.json",
+      "sha256": "00505ea5fc28dfb569dc7b7f8d9b2f4b5d3f41194731fc7d707b1bd00783a784",
+      "bytes": 6880,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V95_ACCEPTANCE_NATIVE_V83_RUNTIME_LEASE.json",
+      "sha256": "ac6932f59f648e0648db65cdb07ee572f853a3c5f689c1335f19b2244d7cbcf6",
+      "bytes": 5455,
+      "base_role": "EVIDENCE",
+      "machine_path_count": 0,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_WASM_BUILD_PROVENANCE_V98/RETURN.json",
+      "sha256": "d614edad35f6cd2bfb532446252ebe8ee617ac70df10490c861ca1246e080fa3",
+      "bytes": 4149,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_WASM_BUILD_PROVENANCE_V98/OUTPUT_MANIFEST.json",
+      "sha256": "3cab0c19b29cd9d4d22aa1befc0e0ffd0982f47ff359fbc8739d489a510d64b3",
+      "bytes": 739,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_RAIL_ACCESSIBILITY_DIAGNOSIS_V100/RETURN.json",
+      "sha256": "3ce2aad5924cf80700aee5e9233313c680704417b9ac7370a0bbefec9528409d",
+      "bytes": 4346,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_RAIL_ACCESSIBILITY_DIAGNOSIS_V100/OUTPUT_MANIFEST.json",
+      "sha256": "8053c2d1ec59594a1b40b1a0c125a9e3d5809a137cb4f78252869601002e0332",
+      "bytes": 733,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/RETURN_R1.json",
+      "sha256": "23bdddd247c720bac6105ca5b7bae14b3437de315d3cbee10d3f7ba9566b2257",
+      "bytes": 1042,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/OUTPUT_MANIFEST_R1.json",
+      "sha256": "8d6588801cde48b5dc5190c25052e64ab64a82c68856851984b906106a116233",
+      "bytes": 3482,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_V83_PROVENANCE_ACCEPTANCE_CONTINUATION.json",
+      "sha256": "71dae123387b4fb65717a5c7502cfb88adaa370f0b220c1a121ce1cc54799fae",
+      "bytes": 5079,
+      "base_role": "EVIDENCE",
+      "machine_path_count": 0,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_V99_INPUT_METHOD_DISPOSITION.json",
+      "sha256": "db977b1ea3b43d4d48e4db624c48db21bd9e07e067c549e3b0f645a48230946c",
+      "bytes": 6245,
+      "base_role": "EVIDENCE",
+      "machine_path_count": 0,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_INSPECTOR_OBSERVATION_V99.json",
+      "sha256": "c52f5c34201e081f16b578abcf358010742f704c69012d8c3a74c3ffee158ffa",
+      "bytes": 3708,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_RAIL_ACCESSIBILITY_DIAGNOSIS_V100.json",
+      "sha256": "c8547526f1cd1be98afd99c330f715aec0f7bf8aec842e499dc84f0a76cd82ab",
+      "bytes": 4351,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_CONTRAST_REPAIR_V101.json",
+      "sha256": "6a85e5389dd1ab7ef030c4ee31faef73b7f4dd690b2f59334fe2da73d88a2303",
+      "bytes": 4844,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 1,
+      "effective_proposal_role": "CONTROL",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/RETURN_FUNCTIONAL.json",
+      "sha256": "aa1a2cf6ba9c43864c7a9dbfe2584ac58b9a9035db19d8850b8f6b44812d44db",
+      "bytes": 4429,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/OUTPUT_MANIFEST_FUNCTIONAL.json",
+      "sha256": "724de89206650857736434ef9e01e553b89fb92fcfc32b93f4d70f26c41e0b2b",
+      "bytes": 13409,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_FUNCTIONAL_FANIN_AND_FINAL_CLEANUP.json",
+      "sha256": "7919cc0722a708db4602f18dc2ce02d69c66785d25e1c225c95cf454e3206db0",
+      "bytes": 5953,
+      "base_role": "EVIDENCE",
+      "machine_path_count": 0,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_CONTRAST_REPAIR_V101/runtime/OUTPUT_MANIFEST.json",
+      "sha256": "11ef4ac617a2f67c1f65b6ae72f63009aa0a20c8154086f6f4816058435e9bed",
+      "bytes": 88905,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_CONTRAST_REPAIR_V101/runtime/RETURN.json",
+      "sha256": "75562cff1b94c5e11d2efe7acac83b7f7af445d0464cebeb9b9574f130c1abd5",
+      "bytes": 1705,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_CONTRAST_REPAIR_V101/runtime/CONTRAST_SUMMARY.json",
+      "sha256": "78a76120250d46ff50f294de9dc60375df15ba6ac9d9cc7a17586c2eaddb8952",
+      "bytes": 2611,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/CONTRAST_BACKCHECK_V103_PREPARATION/OUTPUT_MANIFEST.json",
+      "sha256": "02f6f92813b23418e5dee966823ec85cdbc8c0ed47387dfa96f14aaa225586ad",
+      "bytes": 780,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/CONTRAST_BACKCHECK_V103_PREPARATION/RETURN.json",
+      "sha256": "36f325809351951f5aa408cf68521afddfe8f882e9db0049a2329fcd66cccdfa",
+      "bytes": 854,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
+      "sha256": "99077f9883a51421b874292ecc6ab51f62fc4bba9c5918413e7d6024b7e98145",
+      "bytes": 33601,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CONTRAST_V102/RETURN.json",
+      "sha256": "6de237c082e31562e3d346d3c6d0555ab1410c6f54517517c29c86910b07ce33",
+      "bytes": 2632,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 1,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CONTRAST_V102/ARTIFACT_MANIFEST.json",
+      "sha256": "ad487a2fc08fdcedf786a83b1429222ce3c7a08754f0bfcfab3007afa2e547c8",
+      "bytes": 1329,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_CONTRAST_REPAIR_V101_R1/runtime/OUTPUT_MANIFEST.json",
+      "sha256": "1e8b419cc4fdadaba2959b21f12164383b13d30bd54209456a0696c16da0480f",
+      "bytes": 23966,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_CONTRAST_REPAIR_V101_R1/runtime/RETURN.json",
+      "sha256": "d579395461c6cec731e1630986dcbacb38a2829b2d701c337cd5979971e8e996",
+      "bytes": 1214,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_CONTRAST_REPAIR_V101_R1/runtime/CONTRAST_SUMMARY.json",
+      "sha256": "48c8f481146541604c0115362f8697aa5996a3dc28d491bb7da08494e548cc63",
+      "bytes": 1346,
+      "base_role": "UNCLASSIFIED",
+      "machine_path_count": 0,
+      "effective_proposal_role": "UNCLASSIFIED",
+      "assessment_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V102_ACCEPTANCE_V104_RUNTIME_LEASE.json",
+      "sha256": "6d321dfe86d0984f712caf95560afa000339c8039d3e50ac22b0db34fc86d948",
+      "bytes": 2817,
+      "base_role": "EVIDENCE",
+      "machine_path_count": 0,
+      "effective_proposal_role": "EVIDENCE",
+      "assessment_matches": true
+    }
+  ],
+  "archive_reference_review": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V29/INPUTS.json",
+      "sha256": "17d8037bc441181ceed449e7bef6316351cf38d6cd36004722e07f2d22f5785f",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V29_ACCEPTANCE.json",
+      "mode": "Root accepted exact hash; no archive index/CAS/raw reread; final bytes and availability pending"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V29/MAP.json",
+      "sha256": "fa52b3f31314888bd46cb57d3d47c9c1029ee94c0091444645bce65ba2bc6026",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V29_ACCEPTANCE.json",
+      "mode": "Root accepted exact hash; no archive index/CAS/raw reread; final bytes and availability pending"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V29/RETURN.json",
+      "sha256": "78686fa7823cb65c544a6121a4b937d590a43ab7086a5da536e041f7e6d6d7dd",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V29_ACCEPTANCE.json",
+      "mode": "Root accepted exact hash; no archive index/CAS/raw reread; final bytes and availability pending"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V30/INPUTS.json",
+      "sha256": "add6ed7edd2636a5fd28ef450891fff9a306f9134ee5d43c590b104d148a873d",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V30_ACCEPTANCE.json",
+      "mode": "Root accepted exact hash; no archive index/CAS/raw reread; final bytes and availability pending"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V30/MAP.json",
+      "sha256": "ffe0d710d0c88c12627d1be26fc5b0b040e2fa983a630bed4185cce29f776999",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V30_ACCEPTANCE.json",
+      "mode": "Root accepted exact hash; no archive index/CAS/raw reread; final bytes and availability pending"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V30/RETURN.json",
+      "sha256": "c0817ac3eb4bade125ef14ec5edf83f604d568f7e20ab3ed2a6540928aa03725",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V30_ACCEPTANCE.json",
+      "mode": "Root accepted exact hash; no archive index/CAS/raw reread; final bytes and availability pending"
+    }
+  ],
+  "remaining_preimages": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "sha256": "21aa9911866df6add7d5edbb6bfd09c0a05ab6ca3cb7129f902a09aba54e1ac1",
+      "bytes": 6223,
+      "exact_V87_preimage": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "sha256": "174ac80ac2cee54eb6138b1824a7440e559b5ea432be4b47066b5caae0a03559",
+      "bytes": 34934,
+      "exact_V87_preimage": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "sha256": "144df1941918431296d82c80127828623cfd93c756a575adf288ca86d899d094",
+      "bytes": 7488,
+      "exact_V87_preimage": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+      "sha256": "a4fc2bf10d16a8911943a40d38c22f5c819d0de1720319af8bfc818241bfbc16",
+      "bytes": 61652,
+      "exact_V87_preimage": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
+      "sha256": "fbe1f24727a555e0e533a2910ee726ee2c6d6de71b284a7e06f3953bb535061e",
+      "bytes": 4566,
+      "exact_V87_preimage": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md",
+      "sha256": "49e19ab2f223b8e46c7826cd97243abfacf4237f9a5ddaff41a714879ad27f60",
+      "bytes": 34407,
+      "exact_V87_preimage": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "sha256": "0d8981850c7f4ca717e8f7070b69e5b37fef271b3785156a0d4a9354f63cba3e",
+      "bytes": 3062,
+      "exact_V87_preimage": true
+    }
+  ],
+  "pending": [
+    "Actual frozen complete final selected inventory and derived totals",
+    "V104 final registered outcome and V103 affected native observations; no live output read",
+    "Final acceptance/D69 owning disposition or unchanged performance gate satisfaction",
+    "Final Remaining postimages/preimages, handoff/receipt and source/resource applicability",
+    "Archive preservation/metadata byte bindings and availability; no CAS/index/raw readback here",
+    "Actual candidate policy application/classification, deterministic practitioner/self-check, CI/PR/publication review"
+  ],
+  "boundaries": "Preparation only; no publication/merge/acceptance PASS, policy/Remaining application, lifecycle change or new numerical/native/performance acceptance. No tests/build/runtime/Git/archive mutation; only own revisable review notes.",
+  "input_bindings": 89,
+  "entry_exit_drift": 0
+}

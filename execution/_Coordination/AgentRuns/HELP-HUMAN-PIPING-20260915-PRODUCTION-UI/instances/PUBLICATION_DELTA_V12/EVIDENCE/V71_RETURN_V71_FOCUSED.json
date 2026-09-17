@@ -1,0 +1,16 @@
+{
+  "status": "PASS_FOCUSED_METHOD_AND_REPORTED_ORBIT_TARGETS_ZERO_COHORT",
+  "derivativePackage": true,
+  "checkpoint": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/REPORTER_OCCURRENCE_QUALIFICATION_V71/FOCUSED_CHECKPOINT.json",
+    "sha256": "04434598798289b8d73f9fcbfbc25ed041de3245cf913b0b541b1b0778b99a40"
+  },
+  "release": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/REPORTER_OCCURRENCE_QUALIFICATION_V71/RELEASE.json",
+    "sha256": "06d9c4b724f4090fae6d8f5cddcd1d859b3611be311ddc8d8d3836ce03b6ba26"
+  },
+  "bindingsCount": 381,
+  "remaining": "Root acceptance and separate cohort grant; no runtime owned.",
+  "controls": "Accepted author54, strengthened full-path1, noEmit and guard31 carried without repeat.",
+  "role": "TASK Type2 Astra/low parent/root; instruction/config asserted; no delegation"
+}

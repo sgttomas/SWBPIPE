@@ -1,0 +1,25 @@
+{
+  "status": "FAIL_COHORT_7_PASS_1_FAILED_2_NOT_RUN",
+  "derivativePackage": true,
+  "checkpoint": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/COHORT_CHECKPOINT.json",
+    "sha256": "9ea00381c11f6a84a46dc86d1118324fa52c96795f9b7a0eb3750bd9421c5ba0"
+  },
+  "release": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/RELEASE.json",
+    "sha256": "bba2d0317558f2f10c5ab5bd04992ebbf5a33afe240578b1334a50f6ad703421"
+  },
+  "canonical": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/runtime/candidate-cohort-result.json",
+    "sha256": "f83ec223b8aff2f80ae9a4b5a29f977e2e865bcfa855b38816e395313e29e614"
+  },
+  "failurePointers": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FOREGROUND_AC_SAME_TRACE_COHORT_V3/FAILED_CAPTURE_POINTERS.json",
+    "sha256": "0cac84b75aaf69a98969df4cbee9f51e0b9b6ec871bd0e417bfd7f8f62369e8f"
+  },
+  "bindingsCount": 384,
+  "completedQualifiedSegments": 1701,
+  "rawTraces": 1702,
+  "role": "TASK Type2 Astra/low parent/root; instruction/config asserted; no delegation",
+  "handoff": "Seven independent passes retained, failed10000run3 assignment and two unrun sessions invalidate full cohort. No retry. Root owns independent diagnosis/acceptance. All runtime released."
+}

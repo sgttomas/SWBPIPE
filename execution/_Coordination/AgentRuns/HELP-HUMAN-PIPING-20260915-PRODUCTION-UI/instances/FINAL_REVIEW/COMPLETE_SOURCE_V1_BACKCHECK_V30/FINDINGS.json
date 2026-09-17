@@ -1,0 +1,43 @@
+{
+  "verdict": "PASS_NO_ACTIONABLE_FINDINGS",
+  "open_findings": [],
+  "resolved": [
+    {
+      "id": "F1",
+      "priority": 2,
+      "title": "Escape/Select captured Box cancellation",
+      "resolution": "Synchronous shell bridge and explicit cancellation null candidate before capture release, clear rectangle and disarm. Exact immutable probe passes after delayed up."
+    },
+    {
+      "id": "F2",
+      "priority": 2,
+      "title": "Model/session captured Box lifetime",
+      "resolution": "Candidate stores exact model/index/session context; pre-commit retirement, model/index layout retirement and session cancellation prevent old candidate reuse. Same-ID Open retains normal project singleton/action; ordinary model replacement retains Box mode."
+    },
+    {
+      "id": "F3",
+      "priority": 2,
+      "title": "Tree searchable vocabulary regression",
+      "resolution": "Prior type-specific project/provenance/section/material/support/component vocabulary restored in indexed construction with full legacy component helper. Focused source tests and independent method derivation reviewed."
+    },
+    {
+      "id": "F4",
+      "priority": 3,
+      "title": "Instrumentation/freezer documentation",
+      "resolution": "Current RAF wrapping, restoration, cost and qualification limits documented; executable argument pattern includes visual tokens, cue source and geometry source; historical contracts preserved."
+    },
+    {
+      "id": "BC1",
+      "priority": 2,
+      "title": "Tool-mode ABA revives old candidate",
+      "resolution": "Measure, palette and authoring/busy transitions retire candidate synchronously/layout before returning to Box. Trusted preimage two failures and repaired final source/dist controls reviewed."
+    },
+    {
+      "id": "BC2",
+      "priority": 2,
+      "title": "Ordinary edits disarm Box view tool",
+      "resolution": "Retire-only gesture operation preserves armed mode through ordinary accepted edit and changed save normalization. Model/index effect and stale admission preserve mode; explicit/session exits still disarm. Three preimage mode-retention failures then final focused passes."
+    }
+  ],
+  "runtime_limits": "No reviewer tests/runtime executed. Internal busy transition source-reviewed only; no new busy runtime claim. Native held-pointer interleaving remains browser-attributed."
+}

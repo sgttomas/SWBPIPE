@@ -1,0 +1,415 @@
+{
+  "brief_sha256": "c4e0417c3f15af39f6aa0671ba7740833a9acdbfa1c0bc4e41a585d3ae344320",
+  "accepted_prior_derivative": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V20/RETURN.json",
+    "sha256": "a71e7a2bc83c9c028d39be58a5b27b891bad6f669b31f38ae1cb9c98c1b5f3d4"
+  },
+  "source_manifests": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/OUTPUT_MANIFEST.json",
+      "sha256": "8a80006166ad34be87c3d38422d498aeb1d6eb08d9c954c0a9fea2b6014c0104",
+      "member_key": "members",
+      "declared_members": 4
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "member_key": "members",
+      "declared_members": 43
+    }
+  ],
+  "aliases": [
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/INPUTS.json",
+      "sha256": "21b3b81bfa702696e077d3ef2cff467c51675db7d6810ca3277c18ac9ebb5054",
+      "bytes": 6939,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "8a80006166ad34be87c3d38422d498aeb1d6eb08d9c954c0a9fea2b6014c0104",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/REPORT.md",
+      "sha256": "77692e3befa86c5cd15ad9ba15673c50408aa3b9d868d9e1c3174b69112cae7f",
+      "bytes": 11461,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "8a80006166ad34be87c3d38422d498aeb1d6eb08d9c954c0a9fea2b6014c0104",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/EVIDENCE.json",
+      "sha256": "64e8b462b61955a25d3be09bed5cd59db517e4429f1d5a68452acc8649be2326",
+      "bytes": 12015,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "8a80006166ad34be87c3d38422d498aeb1d6eb08d9c954c0a9fea2b6014c0104",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/RETURN.json",
+      "sha256": "db2fa6f94c2c1826106f07bdb4a1b3c597df741c0bbe21a829678320f3e47b8c",
+      "bytes": 1963,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "8a80006166ad34be87c3d38422d498aeb1d6eb08d9c954c0a9fea2b6014c0104",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/OUTPUT_MANIFEST.json",
+      "sha256": "8a80006166ad34be87c3d38422d498aeb1d6eb08d9c954c0a9fea2b6014c0104",
+      "bytes": 758,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "8a80006166ad34be87c3d38422d498aeb1d6eb08d9c954c0a9fea2b6014c0104",
+      "is_manifest": true
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/ARCHIVED_BOUNDARIES.json",
+      "sha256": "3f8890ac317c0271f9a7e2d21445e8b4a9c2609bf3b624efa9d2cf990ceaa02d",
+      "bytes": 429,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/ENTRY.json",
+      "sha256": "7d2a00f2386fb530af2719085fa03c26815017c6ffc25848afa34c876b92b13d",
+      "bytes": 395,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/INPUT_POSTCHECK.json",
+      "sha256": "1357701a440a2d3c3e2fd4ad7d725308b4ee6fdfcb54c7c1fbaae21ec66d6419",
+      "bytes": 5993,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/PATCH.diff",
+      "sha256": "3f8a3b4f4bd5d64120af41a312f3b222be0f10a935b5bd4370a718b757b9bb26",
+      "bytes": 26594,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/README.md.before",
+      "sha256": "ce92127e49de68b0d6e0a9547d790e772574a0bd9382add63e597401a286b828",
+      "bytes": 11793,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/RETURN.json",
+      "sha256": "eebcff37645791e97f7d0adf237c4d8a72e33e5f1439907511a5ed12826e2a5c",
+      "bytes": 5510,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/RUNTIME_RELEASE.json",
+      "sha256": "80ae2d48d755ebdaac0c6de6ab6791b9774c7fd10303ed120a42713452333fde",
+      "bytes": 165,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/SOURCE_MANIFEST_V20V.json",
+      "sha256": "c215994fc8398480643c850d2ea45f40cf6d1d89cd6910ba8687c9a9282e2455",
+      "bytes": 7795,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/archived-2-command.json",
+      "sha256": "a502492ee83ed6dcfd6736fcb5768457d6d33e23b0a57a23011305421f2c9905",
+      "bytes": 726,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/archived-2-output/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/archived-2.log",
+      "sha256": "95cd6c107e0ca850a42b55eae858ba5241f3669b7e26b3e372124b2df1f6bb72",
+      "bytes": 624,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/archived-boundaries.spec.ts",
+      "sha256": "9dc3b5abe552c37c59ce698c2c327bd59c3175f6d8d6c6801632eebe8a7f09d0",
+      "bytes": 2276,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/archived-command.json",
+      "sha256": "b25f864a95dae2242738539ed0f69b1a7e54c4c1406d9a6ee458d628b06d8762",
+      "bytes": 724,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/archived-output/.last-run.json",
+      "sha256": "e22df5d0991eb28c09093b1e678b3fa8cd1fab48185d38e67cf79fb6e63ad5ea",
+      "bytes": 45,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/archived.log",
+      "sha256": "fc1c8d1457e786d05b21d0f9afdf7ea29bfbca33502d79a53e446fd4d98f1f0c",
+      "bytes": 1155,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/constructor-command.json",
+      "sha256": "843bdfa27f268f7fd4bf983ba10924814840f801247db41e8371140090e4502f",
+      "bytes": 814,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/constructor-output/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/constructor.log",
+      "sha256": "afba3e1589c63366d7b529a372a1daa131a717c865e02d38eadc4efe70b72091",
+      "bytes": 548,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/full-cohort-controller.spec.ts.before",
+      "sha256": "96b72394fa1363595625b16a24efe13de75299ba363329ee258bca8badc624c2",
+      "bytes": 55764,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/full-cohort-controller.ts.before",
+      "sha256": "0d1cdf6e2602b0e5b8c57b8521056c6b2e2a6b9be03d4343441189e7360ed5fd",
+      "bytes": 54316,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/package.json",
+      "sha256": "1239d4d885dcad42201a27ed9324f8f0f760b78700d8db9ced39a511cffe7eae",
+      "bytes": 18,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/performance-targets.spec.ts.before",
+      "sha256": "e60d81965e1fc2bb6145180ab3e496ddc5e27ee881f1a1e7b9cf798e6ce68aae",
+      "bytes": 15536,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/performance-targets.ts.before",
+      "sha256": "769aab9e6085c61939236b561c6c81c692940923a56101ae79ecf1d3f86c78dc",
+      "bytes": 10238,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/playwright.archived.config.ts",
+      "sha256": "9e7fe07daeff97208f4a6229150b318bf28ef4bbcfc07c5cee86dddb701e7623",
+      "bytes": 442,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/preimage-command.json",
+      "sha256": "8424e255baa91c40d6179186de32e853ecc285391fff3a4299e22f54ff0ebfc4",
+      "bytes": 815,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/preimage-output/.last-run.json",
+      "sha256": "13b921112eff7bcc93f5a997d97ae11fa417bc707c94ef5c0a5237685e055b99",
+      "bytes": 96,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/preimage-output/performance-targets-uncert-8b43f-her-than-nominally-rejected/error-context.md",
+      "sha256": "10035453228a7993b2777a0ef27b24412c677d79c8a23c0a6d0ee9f72dd5be7e",
+      "bytes": 7850,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/preimage.log",
+      "sha256": "c734ebb316ed2d5a5388be7622fd986f7ac120f30579bc55ea5afd28c9eb9abe",
+      "bytes": 1881,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/scorer-1-command.json",
+      "sha256": "79a107c8b8c8b31f7b4b49a683aa45fc54ef607b11cd197e7622158460563a54",
+      "bytes": 769,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/scorer-1-output/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/scorer-1.log",
+      "sha256": "b89318aa1a0e203a348bad8951901508c970b87c8e6b9d6a7d53ae377c816b74",
+      "bytes": 4127,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/scorer-2-output/.last-run.json",
+      "sha256": "3237fa541a5136455e6f52897367bad2a021e37c7330e9669de5090dbfd910d8",
+      "bytes": 145,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/scorer-2-output/performance-targets-qualif-345bc--nearest-rank1141-actual-od/error-context.md",
+      "sha256": "71f1cf9648f8ba92468e0c156d266fb76a8ebeb025b28fc34758bd35ad60ae94",
+      "bytes": 15002,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/scorer-2-output/performance-targets-qualif-5be89-nearest-rank1141-centerline/error-context.md",
+      "sha256": "53651fc69ce9a28b699ac096282599d324feaa38029ca965f00bb7ee0462a705",
+      "bytes": 15003,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/scorer-2.log",
+      "sha256": "3d1f3bcbfde65ba835744dc3ad0fcaedb33e49166a8f6dc4cd5d0adbe594d653",
+      "bytes": 7800,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/scorer-3-output/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/scorer-3.log",
+      "sha256": "e324e6b9c32a7cff77e57cd7f67c03b8c3d7afe761a7d30976b5cb21a34ac8fd",
+      "bytes": 4127,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/scorer-final-command.json",
+      "sha256": "66d3c4d56b879aab31384bff2714938cbb7cc353082969abc819ac16e0a4b185",
+      "bytes": 773,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/scorer-final-output/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/scorer-final.log",
+      "sha256": "fa443bc831e41e331487927057f05a460d161729c81b4d8ce0f04a81555b4b3c",
+      "bytes": 4127,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/semantic-1.log",
+      "sha256": "ec043a893166a7782c5a7f1f117a653715a1bc0df0238efa2d9a4b401062adae",
+      "bytes": 645,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/semantic-final-command.json",
+      "sha256": "09cb673fa3ee1014424758e4fc3c707bc297c94c56245c67aba2395205a103e3",
+      "bytes": 451,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/semantic-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": false
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "bytes": 6964,
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/ORBIT_WINDOW_POPULATION_REPAIR_V20V/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "ba2ccd774ee2c16ae2d0f495a9aadde8c7ac936636977b60b6c5986ccab4ffa7",
+      "is_manifest": true
+    }
+  ]
+}

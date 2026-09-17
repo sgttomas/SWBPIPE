@@ -1,0 +1,38 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-16T21:58:43.882429+00:00",
+  "role": "TASK Type2",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "enforcement": "instruction/config asserted; no delegation",
+  "derivative_package": true,
+  "brief": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/RAW_ARCHIVE_INCREMENT_V17.md",
+    "sha256": "25ffd896d438589872b8a721beb0678fe3df1532ece920f1331a237b2b08c1bc"
+  },
+  "prior_derivative": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V16/RETURN.json",
+    "sha256": "e13e3267d0174ef70cad6e0abed773d9056ad9b3a5783258125dea48a951e026"
+  },
+  "inputs_sha256": "6b48448fd691571ef27c1c7f01659eea378744b55d1bc0364181d070ace8d3ee",
+  "map_sha256": "7c06687335ce9a9792ed41c8989708d9353ed1e92699de25efa1124548e643bc",
+  "closed_manifests": 4,
+  "verified_aliases": 207,
+  "verified_unique_objects": 161,
+  "created_unique_objects": 102,
+  "reused_verified_objects": 59,
+  "verified_unique_bytes": 350009863,
+  "exceptions": [],
+  "verification_coverage": "Every declared member and owning manifest hash/size/containment checked; every CAS object verified by readback hash/size/read-only mode.",
+  "method": "Exclusive temporary write; fsync; 0444; renamex_np RENAME_EXCL; directory fsync; existing exact CAS objects reused without overwrite. Not WORM.",
+  "historical_status": "Original failures, qualification and review outcomes retain their exact attribution. Preservation does not accept native/runtime/performance or reinterpret failed returns.",
+  "retrieval": "MAP canonical SHA/size/path and alias indexes resolve through INPUTS to exact original paths and owning manifests.",
+  "preservation": "All originals and prior objects/maps/history untouched. No Git, metadata, source, tests, builds, browser/native/runtime or deletion.",
+  "exclusions": [
+    "active V20T",
+    "unlisted packets",
+    "review scratch"
+  ],
+  "archive_io": "COMPLETE_RELEASED; no background work",
+  "claim_limit": "Derivative preservation only; no acceptance claim."
+}

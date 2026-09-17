@@ -1,0 +1,29 @@
+{
+  "members": [
+    {
+      "path": "BUILD_COMMAND.json",
+      "sha256": "c401c2ff235b595926534803ed8c456dd8248d96ac91a8a5886baaad448916c3",
+      "bytes": 1455
+    },
+    {
+      "path": "INPUT_BINDINGS.json",
+      "sha256": "a31c97ec3437a127647a8a5db20e80318cf9858c399dd86a5c48354769759a4b",
+      "bytes": 3492
+    },
+    {
+      "path": "PLAN.md",
+      "sha256": "f0a9fcac3abe6e6ebfbc1cfce51c434bc327ac167fea6422c810f87ec0425d5c",
+      "bytes": 3827
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "36f325809351951f5aa408cf68521afddfe8f882e9db0049a2329fcd66cccdfa",
+      "bytes": 854
+    },
+    {
+      "path": "tauri.native-v103.overlay.json",
+      "sha256": "e8b472e41a068f8212948960cb337a6d26c2f3e200ac75918db8791f987642f3",
+      "bytes": 368
+    }
+  ]
+}

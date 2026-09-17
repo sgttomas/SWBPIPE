@@ -1,0 +1,55 @@
+{
+  "status": "FINDING_NARROW_POLICY_REFERENCE_REPAIR_REQUIRED",
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "mechanism": "delegated-harness-native",
+  "enforcement": "instruction/config asserted",
+  "delegation": "none",
+  "derivativePackage": true,
+  "scope": "Complete 75 proposed additions plus one existing checkpoint README override; metadata/policy/publication dependency review only.",
+  "brief_sha256": "0e8efce46102aea3fc86c479a307ad33b8ebe623ddd8cfdbd01c9e9306122208",
+  "proposal_sha256": "3a6aeeade90fa30197cae4b445bd82c75e25a5846f354445b03c4e7bdf462c58",
+  "author_manifest_sha256": "2f0028b4b2630eec277030834adf74ef33fb7e4ec35077c211fc60e7f820a0e1",
+  "working_policy_sha256": "472ec8527c0f974ccaef1836e884a420bd68a050ed4caa352e21ca23470a8266",
+  "coverage_sha256": "15ef674d3b9f038c061890b077fa402179f899062f55aa3837adbbf75bc6f990",
+  "findings": [
+    {
+      "id": "PP10-R1",
+      "priority": 2,
+      "title": "Use repo-relative owning-authority references in the new active policy",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_V10/PORTABILITY_PROPOSAL.json",
+      "locations": [
+        421,
+        429,
+        437
+      ],
+      "indices": [
+        "historical_role_overrides[51]",
+        "historical_role_overrides[52]",
+        "historical_role_overrides[53]"
+      ],
+      "trigger": "Apply the proposed entries unchanged, then consume the policy from a checkout outside /Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915.",
+      "impact": "The three authority values point to the author checkout rather than the two manifests supplied by the selected publication. The authority cannot be followed directly in another clone, although the subject path/hash is valid. This newly authored active-policy provenance is not a preserved historical path inside the evidence subject.",
+      "source_evidence": "surface_roles.py validates authority only as a nonempty string and returns it unchanged. Thus loader success does not establish portable authority resolution. PUBLICATION_PATHS.json selects both corresponding OUTPUT_MANIFEST.json files under repo-relative paths.",
+      "repair": "Normalize only these three proposed authority values to projects/chirality-piping/.../instances/FILTER_PRESENTATION_DIAGNOSIS_V58/OUTPUT_MANIFEST.json and projects/chirality-piping/.../instances/ORBIT_WINDOW_DIAGNOSIS_V60/OUTPUT_MANIFEST.json. Preserve each historical subject, SHA, entry type, role and original V10 proposal. Seal the exact bounded successor and request affected backcheck."
+    }
+  ],
+  "positive_assessment": [
+    "All 76 exact target hashes match and their resolved owning authorities are present and selected. No generic allowance or classifier expansion.",
+    "73 proposed historical EVIDENCE overrides and two historical CONTROL exceptions are semantically appropriate; the additional checkpoint README recounts completed commands and does not authorize replay.",
+    "All inherited 65 entries remain identical. Removing the sole README override reconstructs the recorded policy preimage hash exactly.",
+    "Current pinned source/method manifests are evidence of immutable input identity, not reusable launch instructions. Live WORK_GRAPH, FINAL_HANDOFF and V64 launch/wrapper controls receive no historical exception.",
+    "Completed review findings, failed invocations, archived failed outcomes and superseded metadata retain original bytes/status. The practitioner suite remains failed; a policy-loader result does not replace a full rerun.",
+    "Archive maps and returns are completed preservation records. Host-local aliases/CAS are expressly not clone-portable or WORM. No raw availability inferred."
+  ],
+  "entry_exit": {
+    "hashed_inputs": 102,
+    "mismatches": 0,
+    "drift": []
+  },
+  "limits": "No runtime/tests/build/Git/policy application/raw trace/CAS/binary scan/delegation. Source143 not re-reviewed. No lifecycle, performance, selected-publication or tranche acceptance. Current V64 target failures remain unchanged; V65 and future final metadata are separate.",
+  "handoff": "Complete bounded review released. Root owns the three-string successor, narrow affected backcheck, actual selected policy application and subsequent registered checks/final metadata review. All other examined 75+1 role semantics require no repair."
+}

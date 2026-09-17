@@ -1,0 +1,32 @@
+{
+  "status": "FINDING_DOCUMENTATION_CALIBRATION_REQUIRED",
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "enforcement": "instruction/config asserted",
+  "delegation": "none",
+  "derivativePackage": true,
+  "brief_sha256": "1e5377bd981e0c75c56a1a4a7b9b17f863f9057774544fdc3208e4df9ce91b97",
+  "author_manifest_sha256": "e502f93af205617a30d73f37608290bdcfd96880c30d765d852f07b5f9da5316",
+  "method_manifest_sha256": "f35ddf312bc30572bab8344c29476f6c4b31bac0361e9b23d7615ad775742b14",
+  "coverage_sha256": "3f62f2b50892f51476019857b807bf93983cb1db79d45934f62cf4542fcc8745",
+  "findings": [
+    {
+      "id": "V67-R1",
+      "priority": 2,
+      "title": "State the established pinned Mac estimate semantics",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "start": 223,
+      "end": 224,
+      "trigger": "Read the maintained duration contract for the accepted pinned Chromium Mac Graphite/Dawn Metal \u2192 EGL presenter basis.",
+      "impact": "The wording \u201con Mac the feedback timestamp may be a pre-commit display-time estimate\u201d presents the bound producer semantics as an unresolved possibility. Accepted V66 established that this path computes GetDisplaytime(TimeTicks::Now()) before CA commit; ready/latch samples and assigned flags do not turn it into observed hardware presentation. The maintained source-profile contract therefore omits the now-known specific meaning of its reported endpoint.",
+      "repair": "Replace only this claim with the definite estimate semantics for the bound Graphite/Dawn Metal Mac EGL presenter path, preserving scope to that path and retaining no-hardware/scanout, unchanged metric/targets and no historical rescore limits. No implementation or test change needed.",
+      "basis_sha256": "c66318ec13f9b0a223518df0313a818932f04b90fed3737232f8cc41a0d7f2bd"
+    }
+  ],
+  "implementation_disposition": "No actionable implementation defect found in complete controller/scorer/test delta. Seven independent rational expectations match. Live finalized transport/extractor/stopped-context call compatibility source-reviewed. All143 composite paths exact;205 input bindings stable.",
+  "remaining": "Correct bound-path README claim, then narrow independent backcheck. ROOT owns integration, successor source/method/launch hashes and any separately authorized prospective qualification. Added post-window allocation/scanning cost unqualified. No V64 rescore, full cohort or acceptance.",
+  "handoff": "Bounded review complete and released; original five-file snapshot remains immutable. No tests/runtime/source changes performed."
+}

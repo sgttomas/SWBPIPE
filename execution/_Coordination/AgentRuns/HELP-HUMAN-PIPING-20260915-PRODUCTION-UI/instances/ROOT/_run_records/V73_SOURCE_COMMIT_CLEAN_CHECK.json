@@ -1,0 +1,17 @@
+{
+  "status": "PASS_ROOT_COMMITTED_CHECK_AND_VERIFY_METHOD_BYTES_EXACT",
+  "at": "2026-09-17T06:27:23.884700+00:00",
+  "head": "85d142407bf4d288810f0e3a9a996c043ca163e6",
+  "parent": "11d51c16404b229ab505d1db9eef5758fbe249e6",
+  "source_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V12/SOURCE_MANIFEST.json",
+  "source_manifest_sha256": "82dc19bd806b77e71a22a8a9ab4907f47bed8eaf633fc2e3baf8ccf6ab313be6",
+  "source_count": 143,
+  "source_bytes": 12626764,
+  "method_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/POST_STOP_COLLECTION_METHOD_INTEGRATION_V20Y/SOURCE_MANIFEST.json",
+  "method_manifest_sha256": "e3194fa6773f2b5d458d0d66f64eaf03f242e50fbe3ffe71781488ab3ce0c6d8",
+  "method_runtime_offline_documentation_count": 30,
+  "clean_check": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-final-check-20260916",
+  "verification_overlay_head": "107911e35e7f26123ab283ed33b8bcfb936c026b",
+  "review_return_sha256": "00d33a962c5478668cf7af2658cf2b96d3ee0bbfcf713eb153d97630d4a2f1f6",
+  "limits": "Source acceptance only. Manifest declared/checkpoint11d fields are preintegration provenance; exact committed source85d is separately verified here. Prospective runtime pending."
+}

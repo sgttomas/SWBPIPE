@@ -1,0 +1,12 @@
+{
+  "status": "ROOT_VERIFIED",
+  "utc": "2026-09-17T03:16:05.064580+00:00",
+  "derivative_package": true,
+  "owning_return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V23/RETURN.json",
+  "return_sha256": "a379963e46904cbce9925ae638385c6b646dd8604e008ebed223a2f20ee9c247",
+  "map_sha256": "60d4298807bde5b51fb7c2ae9d3ad03eba9ffb9fa58c8a11dad35d8113d8b4a9",
+  "objects": 207,
+  "bytes": 135044922,
+  "mode": "0444 exact for all objects",
+  "limits": "Host-local preservation, not WORM or clone-portable; original failures unchanged. No runtime acceptance."
+}

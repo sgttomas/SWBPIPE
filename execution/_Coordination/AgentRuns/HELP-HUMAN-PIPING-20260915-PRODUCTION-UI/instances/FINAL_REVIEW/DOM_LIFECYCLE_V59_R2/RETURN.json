@@ -1,0 +1,43 @@
+{
+  "schema": "bounded-independent-review-return/v1",
+  "status": "PASS_SOURCE_AND_LAUNCH_BACKCHECK",
+  "findings": [],
+  "resolved": [
+    "V59-R1",
+    "V59-R2"
+  ],
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "delegation": "none",
+  "enforcement": "instruction/config asserted",
+  "derivativePackage": true,
+  "acceptedUpstream": {
+    "priorFindingReturnSha256": "acbe0b7830a8b540a6c02d4e7316be92ebb4dea68c2ded537a1516f39da1167f",
+    "flatV7Sha256": "1ad256f83a7ff34adde05f392f7b1acb7c5947f80db921b09aea93b974358f2c",
+    "flatV8Sha256": "deff170bd0a1b9343066105726f6f1ca660f233e0d35ad3010b4cebaa21df6c5",
+    "methodV20UR2Sha256": "69fa2f893e9b86ce45ac99c3ecebee5719089f37c0146270117589c604cd0539",
+    "launchBindingsSha256": "85a160bb7f390a0b34351656ab1c79e305fec217838c4de0c3a376f6756558c0"
+  },
+  "coverage": "Complete small R2 delta and cumulative lifecycle contract checked. All143 source entry/exit hashes exact;141 unchanged retain prior full coverage.15 author members,29 methods both lanes,4 commands and6 wrapper files exact.",
+  "resolution": {
+    "V59-R1": "style.start < pairedPrePaint.start and previousPrePaint.start < nextStyle.start now require strictly alternating cross-kind start times in addition to completed nonoverlap. Duplicate zero-span pairs and reversed/interleaved tied populations cannot satisfy the guard. Positive-duration adjacent boundaries remain possible because end<=start is retained. Zero-duration events at separately ordered starts are not gratuitously prohibited. Tied starts remain unavailable rather than obtaining sequence from array index.",
+    "V59-R2": "Both cohort records explicitly bind fresh V59 focused results under reviewed V20U_R2. Full execution additionally requires exact ten-test collection and exclusive ROOT lease. Collection-only preconditions do not depend on their own output and expressly deny measured/full-execution authorization."
+  },
+  "preserved": "Unique completed paint/update, exact document/PID/TID/category/scope Layerize semantics, completed parent proof without fabricated instant duration, final-epoch content guards, earliest eligible first-tail failure, lossless lineage, clocks and conservative upper bounds remain unchanged from reviewed V20U. Public API declarations and non-tree-filter dispatch are unchanged.",
+  "evidence": "Author preimage reproduced the reviewer counterexample. Recorded98 controls, retained69-case/67-call/two-API differential and unchanged exact archived endpoints support the bounded repair. Archived sample1 proxy1450/2275669232577 and empty0 proxy1528/2275670490898 are diagnosis only; original535/537ms V57 results remain immutable with zero cohort contribution. No tests/runtime were executed by reviewer.",
+  "launch": "Same four workloads, pinned browser, final product bundle, oracle, wrappers, profile, waits, deadlines and numerical targets. Method/source hashes bind V20U_R2/flatV8 exactly. Focused1/eight segments and full10/five per size/243 segments remain separate; foreground-cohort-v2 remains fresh and held.",
+  "handoff": "ROOT may accept this bounded source/launch backcheck and authorize exact collection/fresh focused qualification under its own runtime lease. Full cohort requires separate ROOT acceptance of fresh V59 focused results. Preserve prior failed review/preimage and archived attribution. Reviewer released with no active runtime or further work.",
+  "remainingGates": [
+    "ROOT source/launch acceptance and exclusive runtime authorization",
+    "exact collection",
+    "fresh V59 focused qualification",
+    "separate ROOT fan-in before full ten-test cohort",
+    "registered checks/sweep",
+    "final metadata",
+    "actual-head CI and scoped merge"
+  ],
+  "exclusions": "No product/method writes, browser/native/server/build, tests, runtime, Git, archive or delegation. Only own immutable review evidence written. No performance or overall acceptance inferred; prior product/native/resource evidence retains original attribution."
+}

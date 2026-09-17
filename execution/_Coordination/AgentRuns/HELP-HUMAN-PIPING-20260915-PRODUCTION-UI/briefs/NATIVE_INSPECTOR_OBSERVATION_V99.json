@@ -1,0 +1,57 @@
+{
+  "status": "BOUNDED_NATIVE_OBSERVATION_AUTHORIZED",
+  "at": "2026-09-17T12:31:32.660951+00:00",
+  "role": "TASK / Type 2",
+  "parent": "HELP_HUMAN /root",
+  "executor": "/root/ui_native_successor",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "mechanism": "delegated-harness-native; scope/nondelegation instruction/config asserted",
+  "basis": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_V83_PROVENANCE_ACCEPTANCE_CONTINUATION.json",
+      "sha256": "71dae123387b4fb65717a5c7502cfb88adaa370f0b220c1a121ce1cc54799fae",
+      "bytes": 5079
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/GUI_OBSERVATIONS_CHECKPOINT.json",
+      "sha256": "78780e67d892653081b4039f8c7b23897377f0ee8d844d7c4abe0d388e6cd0d0",
+      "bytes": 1120
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+      "bytes": 12834
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    }
+  ],
+  "objective": "Determine whether the observed collapsed inspector is an ordinary-input method obstacle or an actual candidate native failure, then resume the existing V83/V93 witness only if controls become demonstrably usable.",
+  "source_commit": "45ede19f2b2373dc451e146fdc7f29264f67c370",
+  "permissions": [
+    "Exclusive existing native lease, current PID 9656; verify identity and state first.",
+    "Refresh CUA documentation. Inspect current full AX/window snapshot and exact coordinate-space documentation; do not assume screenshot scaling.",
+    "At 1024x768, use bounded ordinary keyboard navigation to the persistent Expand inspector control, or a verified native View menu action. Record actual focus/state transition. Do not repeat blind coordinates.",
+    "If still inaccessible, one ordinary resize to the already-approved 1280x800 witness may distinguish narrow-layout behavior. Preserve the 1024 obstacle as unresolved, rather than replacing its result.",
+    "Read source as needed to interpret observed control semantics, without product edits.",
+    "If a concrete input-method correction is established and original 1024 control requirements pass, continue the existing V83/V93 authorized lifecycle and observations. Otherwise retain the failure and return a concise diagnostic checkpoint; normal Quit and store snapshot are permitted to release runtime."
+  ],
+  "write_scope": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime new GUI observation files and final additive return/manifest only",
+    "Existing isolated V83 app store through ordinary UI; read-only snapshots permitted"
+  ],
+  "exclusions": [
+    "No build, product source edit, browser benchmark, asset transfer, hidden WebView/DOM injection, preference-file editing, engineering mutation for diagnosis, automatic retry, or delegation.",
+    "Do not overwrite sealed original/R1 packets or relabel previous failure as a pass.",
+    "No acceptance or D69 change."
+  ],
+  "return": "Evidence-bound input sequence, coordinates/focus/AX and image observations, disposition/cause confidence, actual PID/store cleanup status. Existing lifecycle return if fully completed."
+}

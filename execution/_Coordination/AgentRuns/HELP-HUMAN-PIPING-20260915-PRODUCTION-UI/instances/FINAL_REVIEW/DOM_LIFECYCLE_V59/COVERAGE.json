@@ -1,0 +1,109 @@
+{
+  "schema": "bounded-independent-review-coverage/v1",
+  "entry": {
+    "paths": 143,
+    "mismatches": [],
+    "changed": 2,
+    "unchangedCarried": 141
+  },
+  "exit": [
+    {
+      "inventory": "source143",
+      "count": 143,
+      "mismatches": []
+    },
+    {
+      "inventory": "author20",
+      "count": 20,
+      "mismatches": []
+    },
+    {
+      "inventory": "method29ROOT",
+      "count": 29,
+      "mismatches": []
+    },
+    {
+      "inventory": "method29VERIFY",
+      "count": 29,
+      "mismatches": []
+    },
+    {
+      "inventory": "commands4",
+      "count": 4,
+      "mismatches": []
+    },
+    {
+      "inventory": "wrappers6",
+      "count": 6,
+      "mismatches": []
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/DOM_LIFECYCLE_METHOD_REVIEW_V59.md",
+      "sha256": "199295dc234ab3742ceafd0e06aed587728a6af61d088b9b77034b2a3db43e81"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/DOM_LIFECYCLE_METHOD_REPAIR_V20U.md",
+      "sha256": "355aa9efc3fe04c6a2825b86b8e9db841ff5c70e9bef6b8bac977a95b9b45d01"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V7/SOURCE_MANIFEST.json",
+      "sha256": "1ad256f83a7ff34adde05f392f7b1acb7c5947f80db921b09aea93b974358f2c"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V6/SOURCE_MANIFEST.json",
+      "sha256": "97d118522657b3e9ac9c344ca396bd1619c6449178a4d322021f29b25bbfee98"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/RUNTIME_ORACLE_PIN_V57_BACKCHECK/RETURN.json",
+      "sha256": "2b60e6dd3b295e74ac680f373b687e0a5b9b17698ed7613d20d2a2598fdc8003"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FILTER_PRESENTATION_DIAGNOSIS_V58/REPORT.md",
+      "sha256": "213d752b3c01fef56c71e3592d3777aabded598589fcc9a62b49bff1eeaae035"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FILTER_PRESENTATION_DIAGNOSIS_V58/INPUTS.json",
+      "sha256": "0a434568da372f26b369e01d3d025eed4e30f3a24da3137d09d8adb79264990c"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U/RETURN.json",
+      "sha256": "f3dd1a4e4477064ebaf7ed93be9e4f6df2cc54359e9a6a10f626e3404b6fcb7b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U/OUTPUT_MANIFEST.json",
+      "sha256": "11107998609edf88d771bf7054e6090cd7dcf15f6596add3e0781f5c419bdeb6"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U/PATCH.diff",
+      "sha256": "17cb66808549d81228068a9254e20c621af4940a4f187f0f5575fdb636e164f4"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U/SOURCE_MANIFEST_V20U.json",
+      "sha256": "d54e65b155d34fc3f71340d96ca36f91381cd5e07d3c8aa34fb42c74f2809909"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U/controls-final.log",
+      "sha256": "c741d4d166b35c7fea31ba470c8b999318bf3cf40de56cff9d126016a2b88849"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U/unrelated.log",
+      "sha256": "5640206831d624da02bd2d97c0905209d8e786d1c4759b13664d501e22634149"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U/ARCHIVED_REGRESSION.json",
+      "sha256": "cfaba2d797a289c956a77daf2b42ea9a4b4ab27faff396e45f0487379c1ac3e7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FOREGROUND_QUALIFICATION_LAUNCH_V59/BOUND_EXECUTION_V20U/BINDINGS.json",
+      "sha256": "f3ecd8f35c7c3868c9b9fcf68453a726362717439ce1dd5cd4c2177efbe05dba"
+    }
+  ],
+  "delta": "100% two-file patch reconstructed exactly from preserved preimages matching V6; full changed functions/control additions and relevant extractOne/public API paths read. No public declaration delta.",
+  "sourceProof": "V58 REPORT and implementation brief read fully. All19 V58 bounded inputs rehashed, using sealed preimages for the two changed source paths. Pinned local_frame_view.cc lifecycle loop, paint/Push/Layerize and inspector FrameId code read.",
+  "controls": "Final95 self-contained recorded cases; old69-case population compared across67 calls/two APIs, with declared synthetic Layerize category supplied in both inputs. New multipass/instant tests use current API directly and are not universal differential proof. Missing/partial/aborted/ambiguous first-tail tests prove later positive independently before rejection, but tied paired ambiguity is absent.",
+  "archived": "Two raw traces and before canonical extractions rehashed/compared exact. Inspected raw stage indices and diagnostic matches: sample1 proxy1450 endpoint2275669232577; empty0 proxy1528 endpoint2275670490898. Did not execute extractor. Original before intervals preserved.",
+  "launch": "Allfour current command hashes exact, unchanged argv/cwd/browser/bundle/oracle/wrappers/profile/windows/targets. Method/source identities and fresh V59 focused/collection directories changed; full cohort-v2 runtime destination unchanged and absent. Cohort precondition text remains stale (R2).",
+  "limits": "Read/hash/diff/parse only. No tests/runtime/Git/browser/build/native/archive/delegation. No claim that local source reasoning is executed counterexample proof."
+}

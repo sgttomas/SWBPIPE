@@ -1,0 +1,19 @@
+{
+  "status": "REVIEW_ACCEPTED_SOURCE_COMMITTED_CLEAN_CHECKOUT_BOUND",
+  "utc": "2026-09-16T22:55:56.152948+00:00",
+  "source_commit": "325e46f3910a774c935b8743c7187732bca9a9ff",
+  "prior_source_commit": "5e22bd14a0b609aa0a1113ab4d7a1c2b2785a233",
+  "review_return_sha256": "24612b10d168fdfa6409be0fc38815d2ae5ea1321fcfd573af137ae32dc2a055",
+  "review_manifest_sha256": "b7c1a2d28b35ef32e91bf3f0bc9abe1c70dbb65de789bd59ff9e40b905e0ad09",
+  "root_verified_review_members": 2,
+  "source_manifest_sha256": "deff170bd0a1b9343066105726f6f1ca660f233e0d35ad3010b4cebaa21df6c5",
+  "verified_committed_source_files": 143,
+  "staged_paths": [
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs"
+  ],
+  "clean_checkout": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-final-check-20260916",
+  "clean_checkout_status": "clean, all143sourcefilesexact",
+  "runtime": "Not started; V59 exclusive grant follows",
+  "remaining": "Fresh focused and full cohort, full registered sweep, final metadata/practitioner/selfcheck/receipt and actual-head CI/merge"
+}

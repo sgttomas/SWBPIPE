@@ -1,0 +1,132 @@
+{
+  "schema": "chirality-ui-foundation-functional-acceptance/v1",
+  "status": "BOUNDED_FUNCTIONAL_TECHNICAL_ACCEPTANCE_FULL_PLAN_OPEN",
+  "recorded_at_utc": "2026-09-17T14:11:33.758823+00:00",
+  "owner": "HELP_HUMAN Agent0",
+  "derivative_package": true,
+  "accepted_authority": {
+    "owner_direction": "D-68_RULING_2026-09-15.md and this run's APPROVED_PLAN.md",
+    "planning_commit": "28ad73cc3f936872f8de1d5116c617db1290331b",
+    "accepted_authority": "Decomposition 0.12 / SCA-009 / DAG-010 / R5, unchanged; original handoff and accepted engineering history preserved."
+  },
+  "source_commit": "b6a1ab8378481adbb46d65847cb7eaf9a2864461",
+  "owning_evidence": {
+    "approved_plan": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/APPROVED_PLAN.md",
+      "sha256": "077371d84e0067315c4661cac6f0e199f3501ca1efce801fb3d31a0d37f8ca73",
+      "bytes": 13524
+    },
+    "owner_basis": {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md",
+      "sha256": "460055be7c3149156b33ff7c2230ce8127fb0c0cfac98470931ae4262185d5f7",
+      "bytes": 2306
+    },
+    "source": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
+      "sha256": "99077f9883a51421b874292ecc6ab51f62fc4bba9c5918413e7d6024b7e98145",
+      "bytes": 33601
+    },
+    "source_review": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CONTRAST_V102/RETURN.json",
+      "sha256": "6de237c082e31562e3d346d3c6d0555ab1410c6f54517517c29c86910b07ce33",
+      "bytes": 2632
+    },
+    "registered": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V104/RETURN.json",
+      "sha256": "df4a3d8905de4ca085d665b902db23ab8e79fd2f09c788202e181637cedb2a08",
+      "bytes": 4834
+    },
+    "registered_summary": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V104/sweep/SWEEP_20260917T133230Z_b6a1ab837848.json",
+      "sha256": "d17d595e39c8ce263c448569bc68916fc3f49270c214de1d84b8c58b584c427a",
+      "bytes": 3781
+    },
+    "registered_acceptance": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V104_ACCEPTANCE_NATIVE_V103_RUNTIME_LEASE.json",
+      "sha256": "aea25460382aa60207d073171c9784b5aab19d1039be15b45f8e985d96aa0e4f",
+      "bytes": 4879
+    },
+    "native_lifecycle": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/RETURN_FUNCTIONAL.json",
+      "sha256": "aa1a2cf6ba9c43864c7a9dbfe2584ac58b9a9035db19d8850b8f6b44812d44db",
+      "bytes": 4429
+    },
+    "native_lifecycle_acceptance": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_FUNCTIONAL_FANIN_AND_FINAL_CLEANUP.json",
+      "sha256": "7919cc0722a708db4602f18dc2ce02d69c66785d25e1c225c95cf454e3206db0",
+      "bytes": 5953
+    },
+    "native_current": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/CONTRAST_BACKCHECK_V103/RETURN.json",
+      "sha256": "46d8d6fbe4f63978b7055d6f4d20520ca93fcec057e764bc43531f002f8e9995",
+      "bytes": 3285
+    },
+    "native_current_acceptance": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_V103_ACCEPTANCE_ARCHIVE_V31_LEASE.json",
+      "sha256": "594f93654b9d2424152d6c4bea1f95635ea989f49393a0c4038ba2c2dea22c65",
+      "bytes": 7225
+    },
+    "resource_applicability": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_RESOURCE_APPLICABILITY.json",
+      "sha256": "00505ea5fc28dfb569dc7b7f8d9b2f4b5d3f41194731fc7d707b1bd00783a784",
+      "bytes": 6880
+    },
+    "performance_diagnosis": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/GPU_ORBIT_BOUNDARY_DIAGNOSIS_V79/REPORT.md",
+      "sha256": "ace3939d620489882e29e8fd10097135c3425e1d6b52aa2aa6e46fdd4e1561ca",
+      "bytes": 10331
+    },
+    "performance_proposal": {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-69_ui_foundation_performance_disposition.md",
+      "sha256": "557dadb307e0d7ce1debd30fb56623ad3eb13cdd4e210c1593a302f0bd1298c3",
+      "bytes": 7358
+    }
+  },
+  "accepted_functional_scope": [
+    "Persistent modelling workspace with command search, capability groups, model tree/grid, contextual properties and frozen active-task targets, resizable review/results dock, responsive drawers, System/Light/Dark appearances and Comfortable/Compact density.",
+    "Typed ordered multi-selection and primary identity; tree range/focus semantics; explicit directional Box Select through visible valid frustum geometry; every membership change advances preparation epoch without invalidating solved results.",
+    "Presentation-only hide/isolate/show-all and visible/selected fitting, with entity-owned attachments and graphics; authored-coordinate distance/components measurement; validated straight-span Actual OD with explicit schematic fallback.",
+    "Explicit selected-pipe target snapshots in existing transform and self-weight routes; virtualized tree/grid/large selectors, drafts retained outside mounted rows, focused editing-row pinning, filtered queueing that clears only submitted drafts.",
+    "Persistent renderer, camera and controls; shared geometry/materials and chunked instancing; demand-driven drawing, bounded labels, context/resource lifecycle handling and idle owned RAF zero.",
+    "Engineering author/edit/review/apply remains on existing typed intents and Rust application. Native failures, busy history, stale/cancelled/late responses and Current/Historical result boundaries remain explicit."
+  ],
+  "acceptance_reason": "The complete independently reviewed source passed the complete registered sweep on the clean indexed checkout. Accepted prior native lifecycle evidence and the final affected native backcheck establish continued modelling/result behavior on their exact execution bases. No product repair remains open from these gates. Only the bounded functional scope is accepted; the full D68 performance condition is not satisfied.",
+  "coverage_and_attribution": {
+    "source": "V102 reviews the complete final two-file delta and binds143 exact inherited paths through the fresh complete-diff review chain. Owning review reports preserve all findings and resolutions.",
+    "registered": "V104 owns the complete actual-source DEC025 pass, command counts and raw output. No skip, partial run or earlier pass substitutes for it.",
+    "native": "V12\u2013V17 own original350N\u2192500N authoring/undo/redo/human-agent intent checks. V83 owns later numerical/persistence Save/Quit/reopen Historical/unchanged Save/fresh Current. V103 owns affected final appearance, measurement, frozen draft/actual palette Close, pointer-selected Sparse and visible Run. All keep exact source/binary attribution; V103 is not a full lifecycle replay.",
+    "accessibility": "Touched browser controls and focused contrast/navigation checks pass with named native observations. The original transient inspector AX omission remains unexplained; fresh processes expose the controls. No independent macOS audit or whole-product WCAG conformance is claimed.",
+    "resources": "FINAL_RESOURCE_APPLICABILITY owns accepted prior V56 resource/lifetime evidence and later source/unit applicability limits. Final color-only CSS and focused-test delta creates no new resource ownership; no final-binary resource cohort is claimed.",
+    "preservation": "Owning numerical/verification returns are authoritative for their counts. Failed attempts stay unchanged. Canonical raw evidence uses host-local non-WORM CAS with original aliases and hashes; repository metadata is portable but raw evidence requires that archive or separate delivery."
+  },
+  "limits": [
+    "No accepted complete five-run1k/10k performance cohort. Original2000/100/200/16.7/33.3ms targets and workload remain unchanged. Focused passes and browser reported-time diagnosis do not establish performance acceptance or baseline speedup.",
+    "D69 remains UNRULED. Merge is held until an owner ruling permits functional landing or original performance acceptance succeeds. Standing Git authority otherwise permits scoped PR preparation and publication.",
+    "Short panels can require scrolling between a field label and its fully visible control; independent practitioner usability/security remain separate held work, not new publication gates.",
+    "Native readability is qualitative; exact CSS dimensions, numerical contrast and preference equality remain browser-attributed. Lower pre-solve rule text was not separately native-captured in both themes.",
+    "No engineering operation, project persistence/wire contract, pressure runtime, connector integration, CAEPIPE export or harness activation is introduced by this tranche.",
+    "Formal decomposition, dependencies, lifecycle, release and professional reliance status are unchanged."
+  ],
+  "publication_state": {
+    "final_metadata_review": "PENDING actual selected candidate",
+    "practitioner_self_check_receipt": "PENDING",
+    "hosted_candidate_CI": "PENDING",
+    "PR": "PENDING",
+    "merge": "HELD_D69_OR_ORIGINAL_PERFORMANCE_ACCEPTANCE"
+  },
+  "remaining": [
+    "Broader routing gestures, attached engineering transforms and finite component insert-in-run remain beyond this workspace foundation.",
+    "Modulus-basis entry, broader units and authoring widgets retain their deliverable-local residuals.",
+    "Independent usability/security validation remains held. Touched-control WCAG2.2AA verification does not establish whole-product conformance; untouched report/export target gaps remain.",
+    "Pressure runtime activation, connector mechanics, numerical robustness and end-to-end sparse execution remain separately scoped engineering work.",
+    "CAEPIPE export and harness integration remain deferred. Future harness controls should consume shared operation/view semantics.",
+    "Formal dependency statuses, decomposition, stage and lifecycle do not advance through tranche Git closeout."
+  ],
+  "original_handoff": {
+    "path": "{ORIGINAL_WORKTREE}/projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md",
+    "sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+    "policy": "Preserve local original; do not stage or rewrite it.",
+    "path_resolution": "ORIGINAL_WORKTREE is the original chirality checkout named by the owner at session entry, distinct from this isolated implementation checkout. This local preservation reference is not a clone/build dependency."
+  },
+  "closure_verdict": "Functional technical scope accepted; full approved tranche and publication remain open. This record narrows only expressly accepted functional Remaining entries and does not waive any acceptance gate."
+}

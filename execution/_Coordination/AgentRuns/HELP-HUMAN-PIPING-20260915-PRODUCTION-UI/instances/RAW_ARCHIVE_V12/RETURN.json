@@ -1,0 +1,31 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-16T17:32:49.137733+00:00",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "mechanism": "delegated-harness-native; no delegation",
+  "enforcement": "instruction/config asserted",
+  "brief": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/RAW_PRESERVATION_INCREMENT_V12.md",
+    "sha256": "78fcdcc4e49350d1a006edea58372cac960fd089a482d9a7e5297a60395eca34"
+  },
+  "inputs_sha256": "ad08174ac7aadb6a97c094a783463c6a80d87c4d7d031c375e79e173f6202bb7",
+  "map_sha256": "05e7f2363a1138cfa58876415e21df6c518575004e11696d2d7535cebead6a2e",
+  "closed_manifests": 3,
+  "verified_aliases": 159,
+  "verified_unique_objects": 150,
+  "created_unique_objects": 135,
+  "reused_verified_objects": 15,
+  "verified_unique_bytes": 249397667,
+  "exceptions": [],
+  "historical_status": "V20P author evidence and nativeV18 descriptive observations retain exact bounded attribution. V52 remains failed orbit structural scoring, no accepted cohort; preserved extracted evidence is not promoted.",
+  "retrieval": "MAP SHA/bytes/canonical path; alias indexes resolve through INPUTS to exact originals/source manifest hashes. Manifest bytes included.",
+  "method": "Supplied manifests and every member verified before copies. Exclusive fsync0444 temporary new objects, renamex_np RENAME_EXCL, SHA/size readback; existing exact objects verified and reused, never overwritten. No WORM claim.",
+  "scope_limit": "Exactly three sealed manifests and declared members; active/unsealed packages excluded, no prior archive recopy.",
+  "preservation": "All originals/prior mappings/history retained. No staging/deletion/source/Git/tests/build/browser/native/runtime changes.",
+  "archive_io": "COMPLETE_RELEASED; no background work",
+  "claim_limit": "Derivative preservation only; no acceptance/cohort/release claim."
+}

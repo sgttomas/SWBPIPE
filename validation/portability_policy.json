@@ -985,6 +985,1110 @@
       "role": "EVIDENCE",
       "reason": "Completed and sealed native V4 consumer/delivery evidence records actual host observations. Root accepted the native fan-in and exact manifest bytes; this evidence is preserved verbatim and supplies no active or future executable path direction.",
       "authority": "HELP_HUMAN under the approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT1/README.md",
+      "sha256": "7e22993717d686aea1f30323b57e99eb38f63f955a5a937ed6098188866f4232",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable checkpoint1 evidence inventory describes the original temporary runtime transcript and preserved failed/successful commands. It is historical observation, not an active replay instruction; README and its SHA256SUMS are preserved unchanged.",
+      "authority": "HELP_HUMAN under approved professional modelling workspace foundation and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/CHECKPOINT1_PORTABILITY_DISPOSITION_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V6/SOURCE_MANIFEST.json",
+      "sha256": "97d118522657b3e9ac9c344ca396bd1619c6449178a4d322021f29b25bbfee98",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Frozen source/provenance observation retained for completed source-review lineage; not a live launch configuration.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V61_REVIEW_ACCEPTANCE_SOURCE_COMMIT.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/ESCAPE_FOCUS_V31/COVERAGE.json",
+      "sha256": "82611a6ef46dba603103400491d3534fec6d59165ef0e67b0f6b10c5e042b3d4",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable review coverage/finding/closure record; preserves reviewed execution history, not future launch authority.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_SOURCE_COMMIT_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/ORACLE_PIN_AND_LAUNCH_V57/RETURN.json",
+      "sha256": "c43939df01af803e1ca1515bb386c3b93c24c9d7263909d409a9214e02b44822",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable review coverage/finding/closure record; preserves reviewed execution history, not future launch authority.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_SOURCE_COMMIT_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/ORACLE_PIN_AND_LAUNCH_V57/COVERAGE.json",
+      "sha256": "78573edf3d5cad7cd20c33ebf84d055ff27d6ef8eda1454f774087b11b0b7c38",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable review coverage/finding/closure record; preserves reviewed execution history, not future launch authority.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_SOURCE_COMMIT_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/RUNTIME_ORACLE_PIN_V57_BACKCHECK/COVERAGE.json",
+      "sha256": "c3f9f1d796f2d7ea91aad36d81bab1334b380b9e52369d10e52dfd1e60dfd74f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable review coverage/finding/closure record; preserves reviewed execution history, not future launch authority.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_SOURCE_COMMIT_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V5/RETURN.json",
+      "sha256": "d6fe36534f28f58e6c8ff7acbbe7879e40eb450319bb95d02dc0cfb4434e7ebe",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V5/RETURN.json SHA d6fe36534f28f58e6c8ff7acbbe7879e40eb450319bb95d02dc0cfb4434e7ebe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V6/RETURN.json",
+      "sha256": "d46751f2b3a175fb5f1ee44988878dcf9bceaa47c5696c39434749074c97b425",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V6/RETURN.json SHA d46751f2b3a175fb5f1ee44988878dcf9bceaa47c5696c39434749074c97b425"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V7/CANONICAL_REFERENCE_MAP.json",
+      "sha256": "ffbf21e8ca256971b3feecb54bd88036a29044f6ea064d458c6a0c7f8ce00b40",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V7/RETURN.json SHA 37fbc2561a5da3e28d7245a4310accd5e1df34af140bda96f8d1797463d89e26"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V7/RETURN.json",
+      "sha256": "37fbc2561a5da3e28d7245a4310accd5e1df34af140bda96f8d1797463d89e26",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V7/RETURN.json SHA 37fbc2561a5da3e28d7245a4310accd5e1df34af140bda96f8d1797463d89e26"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V8/INPUTS.json",
+      "sha256": "3e1b3468913079846939cd5b75b52ef001b4eb2c80e4691bb7db29da8f9a7e49",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V8/RETURN.json SHA f04eb0beda3e25f2db919992538b319379724dd96bfcc490d57220141b73adf2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V8/MAP.json",
+      "sha256": "796e6e762955fa5c42aee97c4d4bac4a9cb72bc9b0944e6b59811c6071d30565",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V8/RETURN.json SHA f04eb0beda3e25f2db919992538b319379724dd96bfcc490d57220141b73adf2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V8/RETURN.json",
+      "sha256": "f04eb0beda3e25f2db919992538b319379724dd96bfcc490d57220141b73adf2",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V8/RETURN.json SHA f04eb0beda3e25f2db919992538b319379724dd96bfcc490d57220141b73adf2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V9/MAP.json",
+      "sha256": "148dfff0149f6e6207b09023987f638d7ea4d01ea5d4b43e4f64e2951bc6d740",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V9/RETURN.json SHA 034b12986a85cb5906e366506c1e7e6041511cd89bd169e34808556a9b808ab1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V9/RETURN.json",
+      "sha256": "034b12986a85cb5906e366506c1e7e6041511cd89bd169e34808556a9b808ab1",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V9/RETURN.json SHA 034b12986a85cb5906e366506c1e7e6041511cd89bd169e34808556a9b808ab1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V10/MAP.json",
+      "sha256": "2f2517bc2768fb390b5d28f1f9da0b827f0c24a3d45c062e1b7204584e9dcbee",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V10/RETURN.json SHA e5af3cf645313f8d74d86698b3915d6d16d870f7056aac0eea22a4de73ff4890"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V10/RETURN.json",
+      "sha256": "e5af3cf645313f8d74d86698b3915d6d16d870f7056aac0eea22a4de73ff4890",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V10/RETURN.json SHA e5af3cf645313f8d74d86698b3915d6d16d870f7056aac0eea22a4de73ff4890"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V11/INPUTS.json",
+      "sha256": "687703930e344256e660c0df0e1a4d6a6e7e493a83494fdec79ef7dbdaf32a72",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V11/RETURN.json SHA 34450bd11133e10364408e29efa1ce88e134122fc94017fb429f6bfd6388fae5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V11/MAP.json",
+      "sha256": "d4f61dc8edfa98b18eac3b3df146f42dfb02b447602a97ad1321e2e33d60205a",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V11/RETURN.json SHA 34450bd11133e10364408e29efa1ce88e134122fc94017fb429f6bfd6388fae5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V11/RETURN.json",
+      "sha256": "34450bd11133e10364408e29efa1ce88e134122fc94017fb429f6bfd6388fae5",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V11/RETURN.json SHA 34450bd11133e10364408e29efa1ce88e134122fc94017fb429f6bfd6388fae5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V12/INPUTS.json",
+      "sha256": "ad08174ac7aadb6a97c094a783463c6a80d87c4d7d031c375e79e173f6202bb7",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V12/RETURN.json SHA b978220b906f32a6d671414b11d7c0cdd31f4e2ecef4a53c5c18eb5d587fe390"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V12/MAP.json",
+      "sha256": "05e7f2363a1138cfa58876415e21df6c518575004e11696d2d7535cebead6a2e",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V12/RETURN.json SHA b978220b906f32a6d671414b11d7c0cdd31f4e2ecef4a53c5c18eb5d587fe390"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V12/RETURN.json",
+      "sha256": "b978220b906f32a6d671414b11d7c0cdd31f4e2ecef4a53c5c18eb5d587fe390",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V12/RETURN.json SHA b978220b906f32a6d671414b11d7c0cdd31f4e2ecef4a53c5c18eb5d587fe390"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V13/RETURN.json",
+      "sha256": "2728bebd9ec30785bc7bc0028707494d6b9861914a93d4a5b366c6a628bdf08d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V13/RETURN.json SHA 2728bebd9ec30785bc7bc0028707494d6b9861914a93d4a5b366c6a628bdf08d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V14/INPUTS.json",
+      "sha256": "bfc6482b183a776684ce3190cd45b5703173c41f771cfa9ea1e5ae8809b31d6d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V14/RETURN.json SHA 72ca4d4de316fd51311912e04cb4665f8da89e8021654c29fe82804c2f2803cd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V14/MAP.json",
+      "sha256": "cebbeb0a1caf32057f62f9f0a2aabfb6fba0c0ea57a5cd6e49562be461931068",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V14/RETURN.json SHA 72ca4d4de316fd51311912e04cb4665f8da89e8021654c29fe82804c2f2803cd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V14/RETURN.json",
+      "sha256": "72ca4d4de316fd51311912e04cb4665f8da89e8021654c29fe82804c2f2803cd",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V14/RETURN.json SHA 72ca4d4de316fd51311912e04cb4665f8da89e8021654c29fe82804c2f2803cd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V15/INPUTS.json",
+      "sha256": "8301e0003c9448e67421edf0e51f9802675c58a27933ca8d8f0c00c8a8482ba5",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V15/RETURN.json SHA bd0a41de406f4cae785bca613761c776468fc3d2119768779fca87de64f3fdb1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V15/MAP.json",
+      "sha256": "f30b6e8c071c1f1354ae08922005dd2c00aec62af7bc1555af3e9ebcdabb52c2",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V15/RETURN.json SHA bd0a41de406f4cae785bca613761c776468fc3d2119768779fca87de64f3fdb1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V15/RETURN.json",
+      "sha256": "bd0a41de406f4cae785bca613761c776468fc3d2119768779fca87de64f3fdb1",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V15/RETURN.json SHA bd0a41de406f4cae785bca613761c776468fc3d2119768779fca87de64f3fdb1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V16/INPUTS.json",
+      "sha256": "e264e0340eb1c0de965e27aa059a2bd566bc4a0006e3746257e145692c8ef0e6",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V16/RETURN.json SHA e13e3267d0174ef70cad6e0abed773d9056ad9b3a5783258125dea48a951e026"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V16/MAP.json",
+      "sha256": "bda1b794d46ea57df6b85114484d2e93fdadfca3d50dd45abe85115227879011",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V16/RETURN.json SHA e13e3267d0174ef70cad6e0abed773d9056ad9b3a5783258125dea48a951e026"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V16/RETURN.json",
+      "sha256": "e13e3267d0174ef70cad6e0abed773d9056ad9b3a5783258125dea48a951e026",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V16/RETURN.json SHA e13e3267d0174ef70cad6e0abed773d9056ad9b3a5783258125dea48a951e026"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V17/INPUTS.json",
+      "sha256": "6b48448fd691571ef27c1c7f01659eea378744b55d1bc0364181d070ace8d3ee",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V17/RETURN.json SHA 5b577102a39b25034d95045e5b9a8b845b0c76f46c9c356f1cbe07c942ea0840"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V17/MAP.json",
+      "sha256": "7c06687335ce9a9792ed41c8989708d9353ed1e92699de25efa1124548e643bc",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V17/RETURN.json SHA 5b577102a39b25034d95045e5b9a8b845b0c76f46c9c356f1cbe07c942ea0840"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V17/RETURN.json",
+      "sha256": "5b577102a39b25034d95045e5b9a8b845b0c76f46c9c356f1cbe07c942ea0840",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V17/RETURN.json SHA 5b577102a39b25034d95045e5b9a8b845b0c76f46c9c356f1cbe07c942ea0840"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_METHOD_SUPPLEMENT_V14/SOURCE_OVERLAY.json",
+      "sha256": "354658f3a9a21d42d5e209de06d938de05deb4a13d1361b970480598d918bfc2",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Frozen source/provenance observation retained for completed source-review lineage; not a live launch configuration.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V61_REVIEW_ACCEPTANCE_SOURCE_COMMIT.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V18/INPUTS.json",
+      "sha256": "edcbdb67b63c453b75043b2dd3e8576958ffc678fce9d6660446c01db74e0296",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V18/RETURN.json SHA 5b60c2e6f36ef63e471fcc36efe8300212981258ba4a51c810d9672131f1786b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V18/MAP.json",
+      "sha256": "dede16cbac6aab4c6e351350eb3c0c4a1618e99a9eeb5dfa7591d87162712d5f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V18/RETURN.json SHA 5b60c2e6f36ef63e471fcc36efe8300212981258ba4a51c810d9672131f1786b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V18/RETURN.json",
+      "sha256": "5b60c2e6f36ef63e471fcc36efe8300212981258ba4a51c810d9672131f1786b",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V18/RETURN.json SHA 5b60c2e6f36ef63e471fcc36efe8300212981258ba4a51c810d9672131f1786b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V19/INPUTS.json",
+      "sha256": "03b61d7f5949bc01db71b5e0ce6293007a88d326a885d2bb4373ff86e053a84c",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V19/RETURN.json SHA 0f0a0fdafcd14441e7925641e93360bcf3cc8a1b7a2875020eb24fa54d20d7c9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V19/MAP.json",
+      "sha256": "3a10d12f34aecfdf916500198c5f629a960c4c78a75070f406ed1b33b24eb4cb",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V19/RETURN.json SHA 0f0a0fdafcd14441e7925641e93360bcf3cc8a1b7a2875020eb24fa54d20d7c9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V19/RETURN.json",
+      "sha256": "0f0a0fdafcd14441e7925641e93360bcf3cc8a1b7a2875020eb24fa54d20d7c9",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V19/RETURN.json SHA 0f0a0fdafcd14441e7925641e93360bcf3cc8a1b7a2875020eb24fa54d20d7c9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V20/INPUTS.json",
+      "sha256": "fc8cf1d74eb84c0e71c7eeb96cbd79ddcd3a9f89f7ed2cb1647cd2e6a9e47205",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V20/RETURN.json SHA a71e7a2bc83c9c028d39be58a5b27b891bad6f669b31f38ae1cb9c98c1b5f3d4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V20/MAP.json",
+      "sha256": "bf93440a975c37cb0c0f47dc151765fe36c563df99a91fbbe2afd775e8b8ba57",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V20/RETURN.json SHA a71e7a2bc83c9c028d39be58a5b27b891bad6f669b31f38ae1cb9c98c1b5f3d4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V20/RETURN.json",
+      "sha256": "a71e7a2bc83c9c028d39be58a5b27b891bad6f669b31f38ae1cb9c98c1b5f3d4",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V20/RETURN.json SHA a71e7a2bc83c9c028d39be58a5b27b891bad6f669b31f38ae1cb9c98c1b5f3d4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V21/INPUTS.json",
+      "sha256": "80b5556a478406ea39ea253ed698e782ec7ba00684dad332d2c534e337a4cc6f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V21/RETURN.json SHA 9509c83366d7d0cfd3acd398ac98007f2e9ab5a458cfae3577057d5e8a1ca4f1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V21/MAP.json",
+      "sha256": "e4d399f016148d824762a89eafe2501488f224660890f35e9b1559124a88efdd",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V21/RETURN.json SHA 9509c83366d7d0cfd3acd398ac98007f2e9ab5a458cfae3577057d5e8a1ca4f1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V21/RETURN.json",
+      "sha256": "9509c83366d7d0cfd3acd398ac98007f2e9ab5a458cfae3577057d5e8a1ca4f1",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V21/RETURN.json SHA 9509c83366d7d0cfd3acd398ac98007f2e9ab5a458cfae3577057d5e8a1ca4f1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V22/INPUTS.json",
+      "sha256": "33041b39d560544172332541077fddf302621992f4465918a4a68d026358b64e",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V22/RETURN.json SHA bfe507c1648db474b71b79b82bce71e3734016263e7d2c41982b71305850a8b7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V22/MAP.json",
+      "sha256": "203b02e5f96059b3a9f5f71ee12cfc78155586bc3ef0ca7cd03fe99df02eb8ee",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V22/RETURN.json SHA bfe507c1648db474b71b79b82bce71e3734016263e7d2c41982b71305850a8b7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V22/RETURN.json",
+      "sha256": "bfe507c1648db474b71b79b82bce71e3734016263e7d2c41982b71305850a8b7",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed preservation index records original aliases, verified digests and host-local retrieval; no executable direction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V22/RETURN.json SHA bfe507c1648db474b71b79b82bce71e3734016263e7d2c41982b71305850a8b7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FILTER_PRESENTATION_DIAGNOSIS_V58/INPUTS.json",
+      "sha256": "0a434568da372f26b369e01d3d025eed4e30f3a24da3137d09d8adb79264990c",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable diagnosis report/input attribution, not an executable instruction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FILTER_PRESENTATION_DIAGNOSIS_V58/OUTPUT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/INPUTS.json",
+      "sha256": "21b3b81bfa702696e077d3ef2cff467c51675db7d6810ca3277c18ac9ebb5054",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable diagnosis report/input attribution, not an executable instruction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/OUTPUT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/EVIDENCE.json",
+      "sha256": "64e8b462b61955a25d3be09bed5cd59db517e4429f1d5a68452acc8649be2326",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable diagnosis report/input attribution, not an executable instruction.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_WINDOW_DIAGNOSIS_V60/OUTPUT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/DOM_LIFECYCLE_V59/RETURN.json",
+      "sha256": "acbe0b7830a8b540a6c02d4e7316be92ebb4dea68c2ded537a1516f39da1167f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable review coverage/finding/closure record; preserves reviewed execution history, not future launch authority.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V20/RETURN.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/DOM_LIFECYCLE_V59/COVERAGE.json",
+      "sha256": "060e4802ab634dfc2a3fbfc402e8f7e283996d935a74c745d2d7e013ded127c2",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable review coverage/finding/closure record; preserves reviewed execution history, not future launch authority.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V20/RETURN.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/DOM_LIFECYCLE_V59_R2/COVERAGE.json",
+      "sha256": "c286f85e82f72d686250cac08d0eecbce991c7eb5abf4684e3de78f628d00cdf",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable review coverage/finding/closure record; preserves reviewed execution history, not future launch authority.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V20/RETURN.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/ORBIT_WINDOW_POPULATION_V61/COVERAGE.json",
+      "sha256": "3b1109d44c20712a8341de4b45ad59f1e00e2257ca04c7f08f964a87d88d4e14",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable review coverage/finding/closure record; preserves reviewed execution history, not future launch authority.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V22/RETURN.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V7/SOURCE_MANIFEST.json",
+      "sha256": "1ad256f83a7ff34adde05f392f7b1acb7c5947f80db921b09aea93b974358f2c",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Frozen source/provenance observation retained for completed source-review lineage; not a live launch configuration.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V61_REVIEW_ACCEPTANCE_SOURCE_COMMIT.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V8/SOURCE_MANIFEST.json",
+      "sha256": "deff170bd0a1b9343066105726f6f1ca660f233e0d35ad3010b4cebaa21df6c5",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Frozen source/provenance observation retained for completed source-review lineage; not a live launch configuration.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V61_REVIEW_ACCEPTANCE_SOURCE_COMMIT.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V9/SOURCE_MANIFEST.json",
+      "sha256": "c78a3cdc1af217a46a0b5238588f98adacafadfe8cf5c79614ad651c2a9ebd6d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Frozen source/provenance observation retained for completed source-review lineage; not a live launch configuration.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V61_REVIEW_ACCEPTANCE_SOURCE_COMMIT.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V9/SOURCE_MANIFEST_R1.json",
+      "sha256": "e8c242965e15619cebc2a8872da6349531eae122206e4ccd0a6d51ffdc3265f1",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Frozen source/provenance observation retained for completed source-review lineage; not a live launch configuration.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V61_REVIEW_ACCEPTANCE_SOURCE_COMMIT.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/PRACTITIONER_CHECKS_V1/COMMAND.json",
+      "sha256": "9efc8d1d80e45714cf3df0abf888b69804783901fcd196ede34e058df82dddcb",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed practitioner invocation/result, including failed classification; not a future command.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/PRACTITIONER_CHECKS_V1/OUTPUT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V6/INPUT_MAP.json",
+      "sha256": "7716103d1298c7a6ae85cd550422587a20280d6d67232dfc36a56b8399c345e4",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V9_PUBLICATION_PORTABILITY_ADJUDICATION_V1.json SHA 0f49510e5613ec228cbf2433c919fad1dd7b6f4c0db2180d3e23ccedde57b143"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V6/CANONICAL_REFERENCE_MAP.json",
+      "sha256": "d2ea1c6ff2cb2efa74e44273485d18d1a029c3bb234f78ecc4ae2b30ca26be36",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V9_PUBLICATION_PORTABILITY_ADJUDICATION_V1.json SHA 0f49510e5613ec228cbf2433c919fad1dd7b6f4c0db2180d3e23ccedde57b143"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V7/INPUT_MAP.json",
+      "sha256": "fd453fbd086473a009d135466332c29e2f2eee86f6941982cc4381f4443c0f31",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V9_PUBLICATION_PORTABILITY_ADJUDICATION_V1.json SHA 0f49510e5613ec228cbf2433c919fad1dd7b6f4c0db2180d3e23ccedde57b143"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V9/INPUTS.json",
+      "sha256": "b7341bbc9b3357282c75be900b019191715d83b803044ee6403954656c300bea",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V9_PUBLICATION_PORTABILITY_ADJUDICATION_V1.json SHA 0f49510e5613ec228cbf2433c919fad1dd7b6f4c0db2180d3e23ccedde57b143"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V10/INPUTS.json",
+      "sha256": "e529382e91eb8a4bdcbbb52e02b7044ad993993c349c71bb5272fdae6499c9af",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V9_PUBLICATION_PORTABILITY_ADJUDICATION_V1.json SHA 0f49510e5613ec228cbf2433c919fad1dd7b6f4c0db2180d3e23ccedde57b143"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V13/INPUTS.json",
+      "sha256": "4ed28831dcb08ee830893050a56f3a9c48d302fda8c5d319e210b52497ad1d1a",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V9_PUBLICATION_PORTABILITY_ADJUDICATION_V1.json SHA 0f49510e5613ec228cbf2433c919fad1dd7b6f4c0db2180d3e23ccedde57b143"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V13/MAP.json",
+      "sha256": "2c163b5e9defd2556f8eada69565bfbbb944a81e48ff59e69a2264bd429a2f1f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V9_PUBLICATION_PORTABILITY_ADJUDICATION_V1.json SHA 0f49510e5613ec228cbf2433c919fad1dd7b6f4c0db2180d3e23ccedde57b143"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_PREPARATION_V3/RAW_CANONICAL_MAP.json",
+      "sha256": "eb0dcfbf25f1ee21b6d63d2fa8d61dfa7a79d4183a5659858334e9c5dfe868c4",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed V3 context/proposed map retained to resolve accepted V5 archive aliases. Original proposed status and verification-before-cleanup language remain historical; no cleanup or future execution authorized by this classification.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V9_PUBLICATION_PORTABILITY_ADJUDICATION_V1.json SHA 0f49510e5613ec228cbf2433c919fad1dd7b6f4c0db2180d3e23ccedde57b143"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_PREPARATION_V3/CONTEXT.json",
+      "sha256": "1d16a07e3253895f7bbc42e49a5510b680864f3868dcc27e01c5037c5ffd4345",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed V3 context/proposed map retained to resolve accepted V5 archive aliases. Original proposed status and verification-before-cleanup language remain historical; no cleanup or future execution authorized by this classification.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V9_PUBLICATION_PORTABILITY_ADJUDICATION_V1.json SHA 0f49510e5613ec228cbf2433c919fad1dd7b6f4c0db2180d3e23ccedde57b143"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/ORBIT_WINDOW_METHOD_INTEGRATION_V20V/SOURCE_MANIFEST.json",
+      "sha256": "2fb1f2fa0d0002d704aab7b8298224ae94d315e051304c710ba23f99d40b37b7",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable corrected method manifest retaining original author provenance. Machine paths identify recorded inputs, not active executable instructions.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V9_PUBLICATION_PORTABILITY_ADJUDICATION_V1.json SHA 0f49510e5613ec228cbf2433c919fad1dd7b6f4c0db2180d3e23ccedde57b143"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/MAC_FEEDBACK_SOURCE_DIAGNOSIS_V66/REPORT.md",
+      "sha256": "c66318ec13f9b0a223518df0313a818932f04b90fed3737232f8cc41a0d7f2bd",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable completed diagnosis; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/MAC_FEEDBACK_SOURCE_DIAGNOSIS_V66/OUTPUT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_POLICY_V10/RETURN.json",
+      "sha256": "d5b038f35f2f196c65a467808ce8e64da3b64430e7aaa9b2760c919562a434c2",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable completed review; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_POLICY_V10/ARTIFACT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_POLICY_V10/BACKCHECK/RETURN.json",
+      "sha256": "da06eb34224993acf7cf6431a03e6f8a46b484d711c1e4104fed10c27bf11de2",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable completed review; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_POLICY_V10/BACKCHECK/ARTIFACT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/SAME_TRACE_DURATION_V67/RETURN.json",
+      "sha256": "94154810f8deb7ee30287e43fb277fa014031fbda253d2c35e4ef395a597cde0",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable completed review; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/SAME_TRACE_DURATION_V67/ARTIFACT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/SAME_TRACE_DURATION_V67/BACKCHECK/RETURN.json",
+      "sha256": "5628172a0312ad06d0d43a510d8b60abc726dff5ef54481baad417005af9da0a",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable completed review; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/SAME_TRACE_DURATION_V67/BACKCHECK/ARTIFACT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/SAME_TRACE_DURATION_V67/LAUNCH_V68/RETURN.json",
+      "sha256": "d17cc91300b3ed51cacd6f09c07afd911a7f9130cc3aee9c4d279b9996acc269",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable completed review; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/SAME_TRACE_DURATION_V67/LAUNCH_V68/ARTIFACT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/SAME_TRACE_DURATION_V67/LAUNCH_V68/COVERAGE.json",
+      "sha256": "6871b518ff32b3c278a0785cd570aa118d524438d22fe272eb48b091cd591ed4",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable completed review; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/SAME_TRACE_DURATION_V67/LAUNCH_V68/ARTIFACT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/SAME_TRACE_DURATION_V67/LAUNCH_V68/BACKCHECK/RETURN.json",
+      "sha256": "0c387a098aa2001e5e5c136fe97b65de3552a98f2666f9700a9a26f8da472b65",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable completed review; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/SAME_TRACE_DURATION_V67/LAUNCH_V68/BACKCHECK/ARTIFACT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_METHOD_INTEGRATION_V20W/SOURCE_MANIFEST.json",
+      "sha256": "fcb57840eda19a4d622f15fa317850f2e5a8b79f9e149a6ec83300a362fe22e3",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable superseded frozen preparation; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V20W_INTEGRATION.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_METHOD_INTEGRATION_V20W/SOURCE_MANIFEST_R1.json",
+      "sha256": "b95c7c3adc5a111687be78dcbf8b55a8df327f7150878597b750b4d2a04ebe26",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable governing frozen source record; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V68_R1_MANIFEST_REPAIR.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V23/INPUTS.json",
+      "sha256": "5f26b83c5355ddf99c9d5dbcae18fb4a7eaab381aae16af2e309fd82e6f4f022",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable completed preservation index; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V23_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V23/MAP.json",
+      "sha256": "60d4298807bde5b51fb7c2ae9d3ad03eba9ffb9fa58c8a11dad35d8113d8b4a9",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable completed preservation index; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V23_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V23/RETURN.json",
+      "sha256": "a379963e46904cbce9925ae638385c6b646dd8604e008ebed223a2f20ee9c247",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable completed preservation index; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V23_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_QUALIFICATION_LAUNCH_V68/BINDINGS.json",
+      "sha256": "29cc95e0e99d72a5fb4811c7e888523d3c15b335195b47cfca851c7a1c54a50f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable superseded launch preparation; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V68_R1_MANIFEST_REPAIR.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_QUALIFICATION_LAUNCH_V68/FOCUSED_COMMAND.json",
+      "sha256": "bd76efd158d4939ab43ae321e9b80fe8b7f6c2d3ead5089e27523216933a1f8f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable superseded launch preparation; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V68_R1_MANIFEST_REPAIR.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_QUALIFICATION_LAUNCH_V68/FOCUSED_COLLECTION_COMMAND.json",
+      "sha256": "b018db04f52429d0d5b9ddd2f3a92e0b0f819546cd20f3e8189b669b2bc7bd99",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable superseded launch preparation; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V68_R1_MANIFEST_REPAIR.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_QUALIFICATION_LAUNCH_V68/COHORT_COMMAND.json",
+      "sha256": "c802d42fd02f9da71479a6907971b36e1fb5a65bd6ae3768233f4b66849441ef",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable superseded launch preparation; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V68_R1_MANIFEST_REPAIR.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_QUALIFICATION_LAUNCH_V68/COHORT_COLLECTION_COMMAND.json",
+      "sha256": "0117ae2c5ea082a42ac685d7dd87d17496b48a030449c70f69743982e1bdcc91",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable superseded launch preparation; machine paths identify preserved observed inputs and results, not a current execution instruction. Original failure/pending labels remain unchanged.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V68_R1_MANIFEST_REPAIR.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/REPORTER_OCCURRENCE_METHOD_INTEGRATION_V20X/SOURCE_MANIFEST.json",
+      "sha256": "e6e145213e357a80464637bf08741875609ed06a8e9b8d5d21d31c425e0bad83",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable observation/manifest preserves exact historical source, review, diagnosis or focused-run identity; not executable launch direction and not full-cohort acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V20X_INTEGRATION_V70_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/SAME_TRACE_BASIS_DIAGNOSIS_V69/REPORT.md",
+      "sha256": "9987223e56658f868430dcecdba5c0c1829886e98433deee3eeccced376196d2",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable observation/manifest preserves exact historical source, review, diagnosis or focused-run identity; not executable launch direction and not full-cohort acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V69_ACCEPTANCE_V20X_DISPATCH.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/SAME_TRACE_BASIS_DIAGNOSIS_V69/RETURN.json",
+      "sha256": "81a38f6808da507c69ed4ad2f80f4bbe5b6d0078f13720d3235ca4df95529753",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable observation/manifest preserves exact historical source, review, diagnosis or focused-run identity; not executable launch direction and not full-cohort acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V69_ACCEPTANCE_V20X_DISPATCH.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V24/INPUTS.json",
+      "sha256": "d6d1cb9d6fa735884089e3e58230827842333da40d5015471f821189dbde36c1",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable observation/manifest preserves exact historical source, review, diagnosis or focused-run identity; not executable launch direction and not full-cohort acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V24/RETURN.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V24/MAP.json",
+      "sha256": "84b232ec0817be065fb0371ff31d3aa3fbf8bbc0408ca7fe83d2ac47de217541",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable observation/manifest preserves exact historical source, review, diagnosis or focused-run identity; not executable launch direction and not full-cohort acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V24/RETURN.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V24/RETURN.json",
+      "sha256": "77c08aaaa34c6876df2b56afa75b708f4775e136e5aa2c83157ba3a60a28f0c5",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable observation/manifest preserves exact historical source, review, diagnosis or focused-run identity; not executable launch direction and not full-cohort acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V24/RETURN.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_DELTA_V12/EVIDENCE/V71_RETURN_V71_FOCUSED.json",
+      "sha256": "3cd5ece3147de44ec0e237c8562bbfad461b180fddf9cd8d27eb86447935faaa",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable observation/manifest preserves exact historical source, review, diagnosis or focused-run identity; not executable launch direction and not full-cohort acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V71_FOCUSED_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_DELTA_V12/RETURN.json",
+      "sha256": "8785e4264544fe4f2a0ee77d954b8fc700fb52890f2da0ad6010c513dce12ea4",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable failure, diagnosis/proposal, review or preservation evidence. Received machine identities remain original; proposed directions record the sealed recommendation, not live execution authority or implementation success.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/PUBLICATION_V12_R1_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_DELTA_V12/RETURN.json",
+      "sha256": "e31a78c6cde7491fbd20f741738f5d68ba6fed13afe4b7c0668a69f4735e34ed",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable failure, diagnosis/proposal, review or preservation evidence. Received machine identities remain original; proposed directions record the sealed recommendation, not live execution authority or implementation success.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/PUBLICATION_V12_R1_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_DELTA_V12/BACKCHECK/RETURN.json",
+      "sha256": "2503581b20e5dc867111e4830bf33fe790ec8bc85b855997fb01b5182a04d1a0",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable failure, diagnosis/proposal, review or preservation evidence. Received machine identities remain original; proposed directions record the sealed recommendation, not live execution authority or implementation success.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/PUBLICATION_V12_R1_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V25/INPUTS.json",
+      "sha256": "e57c7453597ee1fd9e6cbcc6e2b117fe9e425b08186b23d5cb1bedbef4fac9da",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable failure, diagnosis/proposal, review or preservation evidence. Received machine identities remain original; proposed directions record the sealed recommendation, not live execution authority or implementation success.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V25_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V25/MAP.json",
+      "sha256": "ce3042ac262047c7923326e7c1b1a785b2f64f100ed15434f6dd266f42b7cbd8",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable failure, diagnosis/proposal, review or preservation evidence. Received machine identities remain original; proposed directions record the sealed recommendation, not live execution authority or implementation success.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V25_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V25/RETURN.json",
+      "sha256": "4da4b6aadea12323c1a871633aa4038d6ca4a13ab2c8d95f98f366235b4a2344",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable failure, diagnosis/proposal, review or preservation evidence. Received machine identities remain original; proposed directions record the sealed recommendation, not live execution authority or implementation success.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V25_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRESENTED_REPORTER_DIAGNOSIS_V72/REPORT.md",
+      "sha256": "1e66064c9e40436a9a30ee63f26b5acff4fe526e3a14ec407ae0e84c41d589fe",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable failure, diagnosis/proposal, review or preservation evidence. Received machine identities remain original; proposed directions record the sealed recommendation, not live execution authority or implementation success.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V72_ACCEPTANCE_V20Y_DISPATCH.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRESENTED_REPORTER_DIAGNOSIS_V72/PROSPECTIVE_CONTRACT.json",
+      "sha256": "3be111d2d4924204dcb542532454573028a59fadca105501842abfa621832b60",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable failure, diagnosis/proposal, review or preservation evidence. Received machine identities remain original; proposed directions record the sealed recommendation, not live execution authority or implementation success.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V72_ACCEPTANCE_V20Y_DISPATCH.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRESENTED_REPORTER_DIAGNOSIS_V72/RETURN.json",
+      "sha256": "d378a6faf4b369a6606b75aea61ae67e66ae9cc3dedf61c4301a12bb62ece619",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable failure, diagnosis/proposal, review or preservation evidence. Received machine identities remain original; proposed directions record the sealed recommendation, not live execution authority or implementation success.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V72_ACCEPTANCE_V20Y_DISPATCH.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_DELTA_V13/EVIDENCE/V3_RETURN_FULL_COHORT_V3.json",
+      "sha256": "f7bc3fd4dc16e6b0740c21bdbf8ded25004c6375d600bde507d45feb199d8c83",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable failure, diagnosis/proposal, review or preservation evidence. Received machine identities remain original; proposed directions record the sealed recommendation, not live execution authority or implementation success.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FULL_COHORT_V3_FAILURE_INTAKE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_DELTA_V13/EVIDENCE/V3_FAILED_CAPTURE_POINTERS.json",
+      "sha256": "0cac84b75aaf69a98969df4cbee9f51e0b9b6ec871bd0e417bfd7f8f62369e8f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable failure, diagnosis/proposal, review or preservation evidence. Received machine identities remain original; proposed directions record the sealed recommendation, not live execution authority or implementation success.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FULL_COHORT_V3_FAILURE_INTAKE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_DELTA_V13/EVIDENCE/V3_candidate-cohort-result.json",
+      "sha256": "f83ec223b8aff2f80ae9a4b5a29f977e2e865bcfa855b38816e395313e29e614",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable failure, diagnosis/proposal, review or preservation evidence. Received machine identities remain original; proposed directions record the sealed recommendation, not live execution authority or implementation success.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FULL_COHORT_V3_FAILURE_INTAKE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V26/INPUTS.json",
+      "sha256": "e02d4871f439e8d9add56648e859097e1f8660aa703fb0545541805745f241cf",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable source integration/review/preservation record. Machine paths identify exact observed historical inputs; no live execution authorization or runtime acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V26_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V26/MAP.json",
+      "sha256": "0b01a85c94657923d12b1dd9b35fe219db3d202d5774f9f5fe21226d3f5b5cd7",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable source integration/review/preservation record. Machine paths identify exact observed historical inputs; no live execution authorization or runtime acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V26_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V26/RETURN.json",
+      "sha256": "ad6f7464218c132abd14d48b39640e3eac08bfca1af8b8f242dd70e4c46f6570",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable source integration/review/preservation record. Machine paths identify exact observed historical inputs; no live execution authorization or runtime acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V26_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/GPU_ORBIT_BOUNDARY_DIAGNOSIS_V79/RETURN.json",
+      "sha256": "a343d5ff76792771c8bc15372f259b1276c415c68e4b715b8858e0f0c75806c5",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable preparation, diagnosis, review or preservation record; local identities describe actual historical inputs/outcomes, not new execution authority or verification acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V28_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/POST_SOLVE_CONTROL_REACHABILITY_DIAGNOSIS_V84/RETURN.json",
+      "sha256": "9ae60c2ea1a6a1e61f74365326f80000d14e2e4370c10a0481b81045a40a356f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable preparation, diagnosis, review or preservation record; local identities describe actual historical inputs/outcomes, not new execution authority or verification acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V84_DIAGNOSIS_R2_RUNTIME_LEASE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_PREPARATION/RETURN.json",
+      "sha256": "432459536fa2c878ca69b034b19b6e0b7bf140cc0b6d0f6ae892396d5e129844",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable preparation, diagnosis, review or preservation record; local identities describe actual historical inputs/outcomes, not new execution authority or verification acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V28_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V27/INPUTS.json",
+      "sha256": "d5baace0b27d2ff50394d3ccb4bd9b462345a68149dac64b269ce1460a8fe330",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable preparation, diagnosis, review or preservation record; local identities describe actual historical inputs/outcomes, not new execution authority or verification acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V27_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V27/MAP.json",
+      "sha256": "fd7d6418e96f8aeb1ce8c1eeee2176ea7e01b78f0031be3a2f3483d9d83c859d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable preparation, diagnosis, review or preservation record; local identities describe actual historical inputs/outcomes, not new execution authority or verification acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V27_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V27/RETURN.json",
+      "sha256": "877e11c8f33e9098640e6ccea7a3036a54b7ee8a9b8fdc87c1fe4f0d5430048d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable preparation, diagnosis, review or preservation record; local identities describe actual historical inputs/outcomes, not new execution authority or verification acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V27_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V28/INPUTS.json",
+      "sha256": "4eb24d605f2a6b528d0d8ce04ee9b894fc5fee2d9447433a40f0ff85521d5361",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable preparation, diagnosis, review or preservation record; local identities describe actual historical inputs/outcomes, not new execution authority or verification acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V28_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V28/MAP.json",
+      "sha256": "d3e516d88a908c30f596033101f151034cdc865894f4e5b35f7abd1fb5c20c0b",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed immutable preparation, diagnosis, review or preservation record; local identities describe actual historical inputs/outcomes, not new execution authority or verification acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V28_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V86/RETURN.json",
+      "sha256": "9db708bee410b75a9348733bb279d786ed6f4713079345a3de228b7423f0e90b",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed historical evidence or preparation metadata; host-local identities describe original evidence, not current execution authority. Preserve failures and limited attribution.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V86/OUTPUT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_LAYER_GIZMO_REPAIR_V89/RETURN.json",
+      "sha256": "b7fb14a74c1af300808d4c1c67bdc7d772e25109d302db9ab8042e4a88460f16",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed historical evidence or preparation metadata; host-local identities describe original evidence, not current execution authority. Preserve failures and limited attribution.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_LAYER_GIZMO_REPAIR_V89/OUTPUT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_CANVAS_PALETTE_COLLECTION_REPAIR_V92_R2/RETURN.json",
+      "sha256": "faba08d547e0280786ccdf53c9d62ebacfa373888f3e09cce71bf9f46d4b048b",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed historical evidence or preparation metadata; host-local identities describe original evidence, not current execution authority. Preserve failures and limited attribution.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/WORKSPACE_CANVAS_PALETTE_COLLECTION_REPAIR_V92_R2/OUTPUT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_SUPPLEMENT_V93/RETURN.json",
+      "sha256": "56a5110961ab511fac70b359967bc0bbf4d7a5d46a133102a3cee0fbab83ed0d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed historical evidence or preparation metadata; host-local identities describe original evidence, not current execution authority. Preserve failures and limited attribution.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83_SUPPLEMENT_V93/OUTPUT_MANIFEST.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V29/INPUTS.json",
+      "sha256": "17d8037bc441181ceed449e7bef6316351cf38d6cd36004722e07f2d22f5785f",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed historical evidence or preparation metadata; host-local identities describe original evidence, not current execution authority. Preserve failures and limited attribution.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V29_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V29/MAP.json",
+      "sha256": "fa52b3f31314888bd46cb57d3d47c9c1029ee94c0091444645bce65ba2bc6026",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed historical evidence or preparation metadata; host-local identities describe original evidence, not current execution authority. Preserve failures and limited attribution.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V29_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V30/INPUTS.json",
+      "sha256": "add6ed7edd2636a5fd28ef450891fff9a306f9134ee5d43c590b104d148a873d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed historical evidence or preparation metadata; host-local identities describe original evidence, not current execution authority. Preserve failures and limited attribution.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V30_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V30/MAP.json",
+      "sha256": "ffe0d710d0c88c12627d1be26fc5b0b040e2fa983a630bed4185cce29f776999",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed historical evidence or preparation metadata; host-local identities describe original evidence, not current execution authority. Preserve failures and limited attribution.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V30_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/RETURN.json",
+      "sha256": "68c5f6f747328ebb260e9247280aca712bc8cd429aee7ff29068f87a39c4d030",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed completed registered verification metadata records historical host-local command/evidence identities. Preserve original outcomes; this does not grant execution authority or performance/native acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V95_ACCEPTANCE_NATIVE_V83_RUNTIME_LEASE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/sweep/SWEEP_20260917T112650Z_45ede19f2b23.json",
+      "sha256": "dd07cddf49c5c28c479738fe9c1c0f7a20b26c4e709784cc0019c821d90f56f9",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed completed registered verification metadata records historical host-local command/evidence identities. Preserve original outcomes; this does not grant execution authority or performance/native acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V95_ACCEPTANCE_NATIVE_V83_RUNTIME_LEASE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CONTRAST_V102/RETURN.json",
+      "sha256": "6de237c082e31562e3d346d3c6d0555ab1410c6f54517517c29c86910b07ce33",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed reviewed source inventory or completed focused qualification/review metadata with historical machine-local identities; no source reclassification or future runtime acceptance.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V102_ACCEPTANCE_V104_RUNTIME_LEASE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V104/RETURN.json",
+      "sha256": "df4a3d8905de4ca085d665b902db23ab8e79fd2f09c788202e181637cedb2a08",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed completed registered verification or bounded preparation-review evidence records original host-local inputs. Preserve source-bound outcomes and preparation-only review scope; no future native/final acceptance inferred.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V104_ACCEPTANCE_NATIVE_V103_RUNTIME_LEASE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V104/sweep/SWEEP_20260917T133230Z_b6a1ab837848.json",
+      "sha256": "d17d595e39c8ce263c448569bc68916fc3f49270c214de1d84b8c58b584c427a",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed completed registered verification or bounded preparation-review evidence records original host-local inputs. Preserve source-bound outcomes and preparation-only review scope; no future native/final acceptance inferred.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V104_ACCEPTANCE_NATIVE_V103_RUNTIME_LEASE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V31/INPUTS.json",
+      "sha256": "686da32d21e436feac2256ea2ee4a2fde68540e7c4eff8f0c6f4c6c5efb698c3",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Accepted immutable V31 preservation index with host-local original aliases/canonical identities; preservation only, not product/runtime authority.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V31_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V31/MAP.json",
+      "sha256": "3890a222f4b0a5bf8334e92ee634a8d141db1e053989e778033a36eca5b2254a",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Accepted immutable V31 preservation index with host-local original aliases/canonical identities; preservation only, not product/runtime authority.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V31_ACCEPTANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL/PATHS.json",
+      "sha256": "4658420e28062278d045ca5977684a8c5a7be6615b62f8c0d7d34d05af07922b",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed frozen publication-selection inventory consumed by Root. Historical external aliases preserve evidence identity; the actual Git candidate now governs publication. No future runtime/selection authority or general path exception.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/PUBLICATION_SELECTION_ACCEPTANCE.json"
     }
   ],
   "control_path_exceptions": [
@@ -1315,6 +2419,30 @@
       "role": "CONTROL",
       "reason": "Exact completed checkpoint or earlier instruction basis retained unchanged. The portable COMPATIBILITY_QUALIFICATION_REPAIR_V9.md now governs remaining execution and supersedes machine-specific setup paragraphs; historical commands are evidence, not replay instructions.",
       "authority": "HELP_HUMAN routine coordination disposition; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_DISPOSITION_V2.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/ORBIT_WINDOW_POPULATION_V61/EXECUTION_BRIEF_ADDENDUM.json",
+      "sha256": "29e2fb8f067ce4d2a764e10adfa39472cff6dea1c8a35c59797bf13a6a63a46d",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Completed V61 execution review finding/closure; original target-failed V61 run is sealed. Preserve historical paths, never use this exception as new launch authority.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V22/RETURN.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/ORBIT_WINDOW_POPULATION_V61/EXECUTION_BRIEF_R1_CLOSURE.json",
+      "sha256": "eb52bd28238ff7739320c4aaa94e01736ff4689e03d09649043b7879d58d29df",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Completed V61 execution review finding/closure; original target-failed V61 run is sealed. Preserve historical paths, never use this exception as new launch authority.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V22/RETURN.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_CONTRAST_REPAIR_V101.json",
+      "sha256": "6a85e5389dd1ab7ef030c4ee31faef73b7f4dd690b2f59334fe2da73d88a2303",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed V101 execution brief records the actual isolated working_checkout used for the now-closed repair and V102 review. Retain its host-specific historical execution identity without editing sealed bytes; CONTROL semantics remain, and this exact exception grants no future execution authority or blanket portability exemption.",
+      "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CONTRAST_V102/RETURN.json"
     }
   ]
 }

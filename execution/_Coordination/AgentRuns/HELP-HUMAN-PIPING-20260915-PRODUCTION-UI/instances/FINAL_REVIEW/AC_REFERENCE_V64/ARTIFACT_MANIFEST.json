@@ -1,0 +1,20 @@
+{
+  "status": "SEALED",
+  "members": [
+    {
+      "path": "HASH_ENTRY.json",
+      "sha256": "b84d8f5f77a73e453b6b478b6d88d405018b4c795d37f633a8ff37cf3ae08e15",
+      "bytes": 50676
+    },
+    {
+      "path": "COVERAGE.json",
+      "sha256": "b345db7ff3a1c56ad85cd850247b0cb92fa67295e2b0cd2c2b1b2560a9afb01d",
+      "bytes": 4025
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "9b41c99c2d8f5c9f4016986226e6e31a2a78aa615d09d4f0eddd0237430d62e2",
+      "bytes": 1671
+    }
+  ]
+}

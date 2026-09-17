@@ -1,0 +1,64 @@
+{
+  "schema": "piping-diagnosis-output-manifest/v1",
+  "derivativePackage": true,
+  "acceptedUpstream": "INPUT_BINDINGS.json",
+  "sealedAt": "2026-09-17T09:26:16.624409+00:00",
+  "files": [
+    {
+      "path": "DIAGNOSIS.md",
+      "sha256": "ec5cb378c5bb74b86a4a0dfd90d5afa2c095c73f3db74f25c8b2e4b1774db2f1",
+      "bytes": 12537
+    },
+    {
+      "path": "FAILURE_ENUMERATION.json",
+      "sha256": "aa31fcaa782cfc5264bb6ea57e0fe2d6487b4f75bd46f687a9e8034bcdcd43a3",
+      "bytes": 32985
+    },
+    {
+      "path": "INPUT_BINDINGS.json",
+      "sha256": "1534a2b7ae03b3d331e0b4f550a21af44890e5e94a67848ad5e7b508a4099705",
+      "bytes": 11250
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "56c1a38fa8a6662984aab7c149f3eacf54ff5f46d62aa7081a73b698ff200161",
+      "bytes": 3007
+    },
+    {
+      "path": "SOURCE_HASH_CHECK.json",
+      "sha256": "f2ec1111e38a093fe54ee3139f0cfc7223fce7bbc55c3aea1fce9f47bce6010d",
+      "bytes": 44124
+    },
+    {
+      "path": "images/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist.jpeg",
+      "sha256": "d7e6272aa34063a72212c60ffcac33e37b9de280cfc29d1e31a1c8e4be8859d2",
+      "bytes": 72984
+    },
+    {
+      "path": "images/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist.jpeg",
+      "sha256": "6119fa8f949447c1c10167ba7d43404edb1b0e4373fa730644538bca053796bc",
+      "bytes": 85141
+    },
+    {
+      "path": "images/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist.jpeg",
+      "sha256": "e7e53fcf8beb60160d41cd4e46604b7bd08a28e6c58bb5498a06b12e2e58bc25",
+      "bytes": 90019
+    },
+    {
+      "path": "trace_extracts/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist.json",
+      "sha256": "81134d85a7834a3622b03b47069878896fe49fc807e23570b847c25eabc014e1",
+      "bytes": 2846
+    },
+    {
+      "path": "trace_extracts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist.json",
+      "sha256": "0381d507bc5f2dfca3d431885b1cbc276f72d17cbe4ecf0f1f14fc9a5d724c3d",
+      "bytes": 3201
+    },
+    {
+      "path": "trace_extracts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist.json",
+      "sha256": "d1ab4fda855e0bf6d00d216e08040f03ef743cebfd19257b6c6d55cfe58da78b",
+      "bytes": 3138
+    }
+  ],
+  "excludesSelf": true
+}

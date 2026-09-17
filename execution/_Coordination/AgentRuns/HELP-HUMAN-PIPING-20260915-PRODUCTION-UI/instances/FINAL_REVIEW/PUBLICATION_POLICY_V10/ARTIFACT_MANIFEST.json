@@ -1,0 +1,16 @@
+{
+  "status": "SEALED",
+  "self_excluding": true,
+  "members": [
+    {
+      "path": "COVERAGE.json",
+      "sha256": "15ef674d3b9f038c061890b077fa402179f899062f55aa3837adbbf75bc6f990",
+      "bytes": 120934
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "d5b038f35f2f196c65a467808ce8e64da3b64430e7aaa9b2760c919562a434c2",
+      "bytes": 4614
+    }
+  ]
+}

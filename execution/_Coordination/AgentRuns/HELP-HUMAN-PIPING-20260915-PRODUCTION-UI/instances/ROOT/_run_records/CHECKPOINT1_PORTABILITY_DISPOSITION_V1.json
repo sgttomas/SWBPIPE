@@ -1,0 +1,16 @@
+{
+  "status": "BOUNDED_HISTORICAL_EVIDENCE_CLASSIFICATION",
+  "authority": "HELP_HUMAN under approved professional UI tranche and standing engineering/coordination authority",
+  "trigger": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/PRACTITIONER_CHECKS_V1/OUTPUT_MANIFEST.json",
+    "sha256": "44f32fcb62001d3339930c625fc52dc759f407634b94937b89fc6e57b95a73ce",
+    "result": "Practitioner378 pass/one failure; historical checkpoint README classified unknown solely because it names original temporary transcript path."
+  },
+  "subject": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI_WRITER/CHECKPOINT1/README.md",
+    "sha256": "7e22993717d686aea1f30323b57e99eb38f63f955a5a937ed6098188866f4232"
+  },
+  "disposition": "Classify exact immutable checkpoint README as EVIDENCE through existing hash-bound historical_role_overrides. It describes completed commands and preserved transcript; it supplies no active/future execution direction. Do not modify README or hashes; no generic classifier/code/validator exception expansion.",
+  "policyPreimageSha256": "d1c20889e3a866139707799e610e47828b62a53c1ae4d41385262ee9a66ef5c4",
+  "remaining": "Independent final metadata review and verification of the candidate remain required; no tranche closure."
+}

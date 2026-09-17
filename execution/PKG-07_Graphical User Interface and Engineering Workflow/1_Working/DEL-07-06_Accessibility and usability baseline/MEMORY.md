@@ -1,5 +1,13 @@
 # DEL-07-06 Memory
 
+## 2026-09-17 — bounded UI foundation, functional technical acceptance
+
+- Implemented bounded scope: themes and density, keyboard/focus routes and the D-68 criteria for touched workspace controls, including contrast and applicable target sizes. Existing typed engineering intents and Rust application/persistence remain the semantic boundary; future harness transport and new engineering operations are not implied.
+- The [final ROOT acceptance record](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json) accepts the bounded functional technical scope using V20 source, V104 registered verification, V83 numerical/persistence lifecycle and V103 affected native evidence with their exact execution attribution. Resource acceptance retains prior V56 renderer/lifetime and later observer source/unit applicability limits; no final-binary resource cohort is claimed. Final publication metadata review, deterministic practitioner/self-check, receipt and actual-candidate CI remain pending.
+- Performance qualification remains OPEN under unchanged targets; no qualifying complete cohort is accepted. D-69 remains UNRULED, and merge is held until an owner ruling permits functional landing or original performance acceptance succeeds. Bounded functional technical acceptance does not close the full approved tranche.
+- Short panels can require scrolling between a label and its fully visible control. The original transient inspector AX omission remains unexplained although fresh processes expose controls; no independent macOS audit or whole-product WCAG conformance is claimed. Independent practitioner usability/security remain separate held work, not extra publication gates.
+- PDU-045/PDU-046 remain VERIFIED_NOT_VALIDATED pending separately authorized independent usability. Independent security and untouched report/export/generated-file target limitations survive; this does not claim whole-product WCAG conformance. Lifecycle and formal dependencies remain unchanged. Broader independent usability/security, CAEPIPE/harness, pressure runtime/connectors, numerical/sparse, report/export and professional/release limitations retain their existing scopes and owners. Original historical entries below remain unchanged.
+
 ## 2026-08-20 - packaged GUI edited-load smoke passed
 
 - Computer Use drove the actual macOS Tauri `.app` through the invented

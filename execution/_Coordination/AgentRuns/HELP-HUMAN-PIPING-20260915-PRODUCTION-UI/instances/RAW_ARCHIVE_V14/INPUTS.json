@@ -1,0 +1,872 @@
+{
+  "brief_sha256": "72e1a0033ed23d2f5543e206aad292918e3ef83d1c81c29edcabf1045ec4c216",
+  "prior_derivative": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V13/RETURN.json",
+    "sha256": "2728bebd9ec30785bc7bc0028707494d6b9861914a93d4a5b366c6a628bdf08d"
+  },
+  "source_manifests": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735"
+    }
+  ],
+  "aliases": [
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/CHECKS.json",
+      "sha256": "784b51027d6bbe0de3a926c056351baad65a56917bc032f734032c8c835dad47",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 2959
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/FINAL_BINDINGS.json",
+      "sha256": "a417587e265e4a779e4881be7fc724e1663793c1e6295fd211f35c157f0f21e0",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 51491
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/PRE_BINDINGS.json",
+      "sha256": "f3356cd390a2593d83e898a01563507392b152cb5931b70a9ed8bd3ab13802db",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 53013
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/RELEASE.json",
+      "sha256": "daa713ed05db1f00644195c43d76d5cde09169bc03d296f58eeda9a87dc62b78",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 275
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/REPORT.md",
+      "sha256": "5dd823d6b0fce7977c03ca7325a6aa0dc62c3dc303a7d9f880a594d6167cd5d9",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 3983
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/RETURN.json",
+      "sha256": "995f97ac971a83cc7501b40c087da07351600cb3c5c8b47b35c1423579ed653e",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 1574
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/REVIEW_READY.json",
+      "sha256": "af6f2ffaef27a307a9d9384a007169b6574595733e34fadbfb65f18944e9a26d",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 403
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/REVIEW_READY.patch",
+      "sha256": "3677ba4763e23ec49673506cfc6ed5c8b7a83268eee2c009df9007fc800edd00",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 16171
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/SCOPE.md",
+      "sha256": "44a852d6176513f1b2e0b781f5659865fe76b88f1650d14b0d22802ebfd81af6",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 516
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/SUCCESSFUL_BUILD_BINDINGS.json",
+      "sha256": "518947682757b4bcdd1ce8c9ba46b15addfbb49051b130be9dbf42e9035653a5",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 50846
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/build.log",
+      "sha256": "83b5192c3b404f6abe9f51b9bee8189917a3a19f4438c3229e449d11da14a66d",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 1640
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/dist-attachments/browser-identity.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 552
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/dist-attachments/decorative-pointer-gesture-results.json",
+      "sha256": "50e1e1ab7cca908ebbfa0b65377ba7a2c9e489e1aed6de15fab4445e05b2d24c",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 31680
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/dist-attachments/decorative-pointer-preconditions.json",
+      "sha256": "60b551b7546d4b42e1660668a89112e8156233c0ad1386594d06358c32d4b1fd",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 1572
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/dist-post-fix/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 45
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/dist-post-fix/ui-foundation-dist-decorat-2824e-w-controls-stay-interactive-chromium-desktop-dist/decorative-overlays-and-view-controls.png",
+      "sha256": "32b3c90c9598c979d33a8397a49eca6f0b5773830ccdcc79c4c03386ad9cb123",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 188578
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/dist-post-fix.json",
+      "sha256": "85228fa1a8a21c9ef630fa52c7d7daa9447fa97d80eef8c834c30036dd15b85a",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 49010
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/dist-post-fix.log",
+      "sha256": "61108c165efc289ee01f7b9aac5a1238be5988fc10a104eb00b0f802a08e9ea2",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 764
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/pre-fix-attachments/browser-identity.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 552
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/pre-fix-attachments/decorative-pointer-preconditions.json",
+      "sha256": "1b342ed9567ea3cb1209a104a1b82f863e02f87c403e118c7e7fa3c9da6f2032",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 1563
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/preimages/e2e/ui-foundation-dist.spec.ts",
+      "sha256": "ce7d6df0a01dcf019c5bb01aacd488ff35f7ace4a86d0ab0b3762fb39fb7644c",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 65915
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/preimages/e2e/ui-foundation.spec.ts",
+      "sha256": "4f2d8608da7465a31b5431ccc7fed48b71ad54397254e1ef3c666df706eed562",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 95059
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/preimages/src/styles.css",
+      "sha256": "0cb0278a0e3dc21e76cf9183086be50f9e000650f164e2981eb5a71c26e059e4",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 95505
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-attachments/box-select-camera-projection-invariance.json",
+      "sha256": "6e763093b187cacf004375885fa04ca146200ad5851a106be352dac47526e038",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 73063
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-attachments/browser-identity.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 552
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-attachments/decorative-pointer-gesture-results.json",
+      "sha256": "3ed7dd5c0d32676eb376ceb7a999b4478007383f6b96ede9b375dd623035e78f",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 31696
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-attachments/decorative-pointer-preconditions.json",
+      "sha256": "60b551b7546d4b42e1660668a89112e8156233c0ad1386594d06358c32d4b1fd",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 1572
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-attachments/late-diagnostics-raf-and-camera-projection.json",
+      "sha256": "b39f5092ade5771250f2bc276783fffc79538120b18682262c45717a34e9d338",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 2849
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-post-fix/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 45
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-post-fix/ui-foundation-decorative-v-edf02-w-controls-stay-interactive-chromium-desktop/decorative-overlays-and-view-controls.png",
+      "sha256": "3b7c58dcc140f79afcbf5635ba79fff16c868896443ad621d369a666b46aea93",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 188605
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-post-fix.json",
+      "sha256": "af0e8e036a86da01f59fbc572b1d6ef92181b92ecf1414ec72b294cf5619c62b",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 153693
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-post-fix.log",
+      "sha256": "e04fcef8187130ad841a1b6176e00e93147e06848c2125c6997412ffeede71d5",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 1099
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-pre-fix/.last-run.json",
+      "sha256": "8a2cc320d4efd992410ef4799def3dd88a083f925165e68e89f75bb801f23fba",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 96
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-pre-fix/ui-foundation-decorative-v-edf02-w-controls-stay-interactive-chromium-desktop/error-context.md",
+      "sha256": "14b17fc4547000a20e90494bf869337ba1803d2326498d38a84a18c96f8e3d9c",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 39596
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-pre-fix/ui-foundation-decorative-v-edf02-w-controls-stay-interactive-chromium-desktop/trace.zip",
+      "sha256": "b7f42890cb4b69bc2243f0ef1a73f15d342ba611a081c046f2430da2adf03123",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 828261
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-pre-fix.json",
+      "sha256": "aea843a521af2d7627d6f7348ea79cff0c6d3bb15187ee2c32dee28c951c9e51",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 12871
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/source-pre-fix.log",
+      "sha256": "be19ead3d825a0225c07b324d3819e361cbfc039cb38c5e20ed1d8f2ebc01e89",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": false,
+      "bytes": 3713
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/DECORATIVE_OVERLAY_POINTER_V29/MANIFEST.json",
+      "source_manifest_sha256": "950a0d641dfa909be1b1f125f54fc135fbab2d5e1188632ed2e8aee2ff5131ab",
+      "is_manifest": true,
+      "bytes": 4212
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/ATTACHMENT_EQUALITY.json",
+      "sha256": "0a54cf100971f94b92e4cb702f60872e33556f852c9ddc40041ec26a124a002c",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 2483
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/BEFORE_GESTURES.png",
+      "sha256": "321f447667ed427ee4caaddc93c22e03ae62cf7d7a8b3a0dba3d0532ca54cafb",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 633245
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/BEFORE_GESTURES.sqlite3",
+      "sha256": "cb4ab3c6af8b1866765d0d0d77ce71e015b9d1410061ed6a39de3c1a799b0923",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 614400
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/BEFORE_GESTURES_capture.json",
+      "sha256": "dc753638d50383ca835e09b819a8c988d2b2584613824a314b84b5717c50332e",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 6382
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/BEFORE_GESTURES_model.json",
+      "sha256": "1da13f5d5ec33a5b05f3fa0d7abf44125242365fb8e2269d63bf9a637695b97a",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 2678
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/BEFORE_GESTURES_row.json",
+      "sha256": "f24ac2a446c666f02ee31010f3e08aec5070b48833c5e885e63bd450980eb773",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 162967
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/BEFORE_GESTURES_store.json",
+      "sha256": "d6169d65b480c6904b507fe7ed485dedfa643c6f19b52768776e258f77b932a2",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 5527
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/BUILD.log",
+      "sha256": "e66234736615693e6741f30a408f2f4a6d8f39db016aefff0a65cf39f8b07c67",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 3913
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/BUILD_BINDING.json",
+      "sha256": "eaa204cf0c66f2c2d0431661ae22007c4b570dffc8c4c5a8452833575c55de79",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 1138
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/BUILD_COMMAND.json",
+      "sha256": "a8e9cbbf681945929fc0eb7e4debb51b5ea5b17d085cf7d14d8c7608c0d6652e",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 1698
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/BUILD_EXIT.json",
+      "sha256": "5bc232b82de377a5655a39a2af9d7ae0fc868de5b9df957e18905cb914606c88",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 12
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/FINAL_QUIT.sqlite3",
+      "sha256": "cb4ab3c6af8b1866765d0d0d77ce71e015b9d1410061ed6a39de3c1a799b0923",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 614400
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/FINAL_QUIT_model.json",
+      "sha256": "1da13f5d5ec33a5b05f3fa0d7abf44125242365fb8e2269d63bf9a637695b97a",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 2678
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/FINAL_QUIT_row.json",
+      "sha256": "f24ac2a446c666f02ee31010f3e08aec5070b48833c5e885e63bd450980eb773",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 162967
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/FINAL_QUIT_store.json",
+      "sha256": "4a82e866cbdb46c89c786649af3e3b1c8caf8e357863d36553ed1d4ea88a8fe1",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 4923
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/FRONT_CONTROL.png",
+      "sha256": "6cf51465e2e7c0a80d04395024f5c6e154005ba78aa470c5a45ca73325b07974",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 576554
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/FRONT_CONTROL_capture.json",
+      "sha256": "c2d1e43c1b45448aadf43d2c6c107383d04a3f49adde929c5b04a6c12f0adff2",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 6378
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/GUI_WITNESS.json",
+      "sha256": "b09362a2cb04498901e48dc6abba13c93d7a56447b964dd29012cb7cac61fb36",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 2635
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/POSTBUILD_FRONTEND.json",
+      "sha256": "c0180418c134551aeca53f9a08fd7f88cb148abe07b4c1167a19bb8817396ff9",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 4852
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/POST_BINDINGS.json",
+      "sha256": "631d4ecd77e0c89a51d68f468f6c481b71ec842af89fe8300cc7ab376499a832",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 57004
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/PREBUILD_FRONTEND.json",
+      "sha256": "896b32c4ec6597c5a5fc58c65bdb5ce26bb4d670fdccd639949e78ecc74e61e2",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 55629
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/PREBUILD_FRONTEND.tar.gz",
+      "sha256": "a13eae11a29a380f3701c882b262e30d396a79aed2c339598c9c9f69a94830fa",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 1566187
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/RELEASE.json",
+      "sha256": "c33cb9abe9736ff30f7d223d9058346b0bddc743452166a2808ae3ecdf079d81",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 541
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/RETURN_V19.json",
+      "sha256": "14912781357114ba55d9634a9d5c4e464f9dbfac59f8e59958e4c593985c7fe9",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 1295
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/SCALE_BOX.png",
+      "sha256": "d2a48bcabe51439072316396c4d76293ffe4fd3ef7bcd85c1dd34f5578e4771a",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 642560
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/SCALE_BOX_capture.json",
+      "sha256": "1f71cfeb771309266aec128747f2f432b580c5c45f54397038963e6c8fe9ba1e",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 6370
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/SCALE_ORBIT.png",
+      "sha256": "44de525aca243e33a35ab6f904fec314679b41c0dedf9495eb9b0b3d4813cd8a",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 625484
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/SCALE_ORBIT_capture.json",
+      "sha256": "f5a6c00191091abc90c1e4b4ba0a118290d9575f580f77f1a84abfd6ca7da84d",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 6374
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/SOURCE_FREEZE.json",
+      "sha256": "e98a7918c727ad7a4a2adba755343d60ccf3233a474fc0c928ade9d9785a9326",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 176359
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/STORE_SETUP.json",
+      "sha256": "af79c8d76e6962a3428d2d02f6a366a0c33d9d38e4a4ae64eea0240badff729a",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 593
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/TOP_CONTROL.png",
+      "sha256": "615563890d7888fe6f81c4cefe1ef7b93f725795e16e75f231511d5259bc383d",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 606984
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/TOP_CONTROL_capture.json",
+      "sha256": "97674c4d2d8d540337381c22e055915790a3319ef1868f8f6f5649c4938ed4aa",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 6374
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/TRIAD_BOX.png",
+      "sha256": "d8e180b9d821a3def00da219062261463d5f06c04caa6c55fb8924eb61c6eb32",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 633482
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/TRIAD_BOX_capture.json",
+      "sha256": "1b3a4c9e7fb74b83bb7ff48183bb06990ebc7f83c6e1e673464f151e1808516f",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 6370
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/TRIAD_ORBIT.png",
+      "sha256": "95ecad311480e8243c59cb3cde80434fe52b6a39dab880ca9b585c0331cb059d",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 607689
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/TRIAD_ORBIT_capture.json",
+      "sha256": "6bf12bfa1ac621a10154ee109d3d411abd456d71717454e1d47c6f7e560470aa",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 6374
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/capture_v19.py",
+      "sha256": "ac0c23b9bf9c050ca5e6f628409007a44781ddcb9d3c6e9f6ee7a575dbb2b8a0",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": false,
+      "bytes": 1663
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/DECORATIVE_POINTER_V19/runtime/OUTPUT_MANIFEST.json",
+      "source_manifest_sha256": "c9b4e0fb87d97a2f9dfeb63f16679115b8e0f712144ee15a2a5968c63280eecf",
+      "is_manifest": true,
+      "bytes": 5759
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/CHECKS.json",
+      "sha256": "4fee102fb438fc3e99c800425780a84f0e3b31fd207d5677a7b0e64c9b5fc61e",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 956
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/DRIVER_CORRECTION.json",
+      "sha256": "b605a8f97448f34cf2552998a44a9b8c3b0a1a077baa210dcea3e1627379f7c1",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 283
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/FROZEN_EXPECTATIONS.json",
+      "sha256": "3c2ed2e541b2c6821ffefde6b078aa4023fedc7336e86a91fa9199b30746519c",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 1164
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/INPUT_BINDINGS.json",
+      "sha256": "9997960ad3a50164cd9c68ab6b6d9c288eea5d3edd19e108040636ae6c061952",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 32788
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/OBSERVATIONS.json",
+      "sha256": "bb1a090121337ab5a6b17208bda74e52b863ebb25a161be57e36d1c6dd344921",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 3599
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/POST_SOURCE_VERIFICATION.json",
+      "sha256": "836860866e480f0f6cf566677b18312d743ef795339fafb82654135f3b96baf2",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 28734
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/RELEASE.json",
+      "sha256": "bd9554a57b13efda4fbb3dee875bd950e6f1f3d416193f6db6e406bba5a40484",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 221
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/REPORT.md",
+      "sha256": "986061d8a66d0515373067f54636b6885cb553b99bab087fbee9b1a9d1968fb2",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 3510
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/RETURN.json",
+      "sha256": "023637e1cd2a2c46b2d199ae9642f0c8ef63a0f970ceab9f13e1eaf88a8bdfd5",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 1457
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/attachments/browser-identity.json",
+      "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 552
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/attachments/escape-reproduction.json",
+      "sha256": "da4aefda6fdb8521a81192a80e41a2e7e071543b9a974fb5de4612d17d0b14b6",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 24235
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/attachments/ordinary-box.json",
+      "sha256": "afc0e7ee0fb9f9bd6b76f8bc6f5125cbdfb8f547cdbe6bc76b20d69c51e1e637",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 16151
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/attachments/replacement-reproduction.json",
+      "sha256": "3ac773eebf2134252ed335a89b2041c29453624fe1c2183877097209f0bc56dc",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 52785
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/box-gesture.spec.ts",
+      "sha256": "4fcfd3651b4e83e787e207c8538c85ebf2fbd4caef3240f50fddd5d9d4f43d1b",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 8322
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/config-cycle1.txt",
+      "sha256": "3c809a20eae6ca001755c410997f5bd4dcfd28e35dab314560a093f61e232f9c",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 1259
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/package.json",
+      "sha256": "1239d4d885dcad42201a27ed9324f8f0f760b78700d8db9ced39a511cffe7eae",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 18
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/playwright.config.ts",
+      "sha256": "9e90a36f467e0d16e121a96a719bf634f755390678d5bdd86ebd7484ebf19990",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 1259
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/raw-cycle2/.last-run.json",
+      "sha256": "68e321d3dfbcc0e4b3332f45bffe9ee85d5094c57f1b9aa7dc52e39bda477cc4",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 145
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/raw-cycle2/box-gesture-Escape-retires-03b02-x-before-delayed-pointer-up/after-delayed-up.png",
+      "sha256": "f93e98683d5aa3563c1f5e90147a3ebee207cab0c8e1770455a7f20cd71bd66d",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 165326
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/raw-cycle2/box-gesture-Escape-retires-03b02-x-before-delayed-pointer-up/after-escape-before-up.png",
+      "sha256": "be2d89fd3a58c9c62acba6c36b6734fa6924946e5471b0e6e5e06317ca9a72c3",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 193341
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/raw-cycle2/box-gesture-Escape-retires-03b02-x-before-delayed-pointer-up/error-context.md",
+      "sha256": "fd71295f3cd8b65c474a9756a5dca781255e0f87e1a4161fdc290cb2e43082df",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 22365
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/raw-cycle2/box-gesture-Escape-retires-03b02-x-before-delayed-pointer-up/trace.zip",
+      "sha256": "635811dd37ee862c21bb9f928b9b17a9cc614162c9c9a0f3b82409120c7efb1f",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 2383688
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/raw-cycle2/box-gesture-same-ID-Open-r-8db5c-x-before-delayed-pointer-up/error-context.md",
+      "sha256": "bfb8efc549fc1fe7c8be304da4ec4afac3a6c604c9162fb3b5c2e4d0c796cafb",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 21812
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/raw-cycle2/box-gesture-same-ID-Open-r-8db5c-x-before-delayed-pointer-up/replacement-after-delayed-up.png",
+      "sha256": "515c81b24693fdc1d65d15e279cc8cb769b39fc02ad468a2e5d40ca5dc027508",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 165735
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/raw-cycle2/box-gesture-same-ID-Open-r-8db5c-x-before-delayed-pointer-up/replacement-delayed-move-before-up.png",
+      "sha256": "a538ff425601fc0b91bf57323b2711a3805944c4653e8a860f8a0ef4dbd20aac",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 165898
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/raw-cycle2/box-gesture-same-ID-Open-r-8db5c-x-before-delayed-pointer-up/trace.zip",
+      "sha256": "db8254a7d9897dae7ed4a0f50b9a576bedbc73fb8079ba28fe8f764c59e8cc1a",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 2600590
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/results-cycle2.json",
+      "sha256": "32435a9f5da6f012f2099634cb341127cc12fb2ecb296bb7ae25f1a3eacf2762",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 157653
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/run-cycle1.log",
+      "sha256": "59f62eff8ab66bd031e855782a78ac31ab30ced92380f554082a7f73e0b4c34b",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 2341
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/run-cycle2.log",
+      "sha256": "489181e4234ebe111cf6c97c325b2511b9abb4227c6b04b12dfad96e79a320ae",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": false,
+      "bytes": 17526
+    },
+    {
+      "original_path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "source_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/BOX_GESTURE_REPRO_V30/MANIFEST.json",
+      "source_manifest_sha256": "42b16587603e49ebd0ac8557da040db4c3c3d007dd83f8875b4b42ad019ef735",
+      "is_manifest": true,
+      "bytes": 3324
+    }
+  ],
+  "exceptions": []
+}

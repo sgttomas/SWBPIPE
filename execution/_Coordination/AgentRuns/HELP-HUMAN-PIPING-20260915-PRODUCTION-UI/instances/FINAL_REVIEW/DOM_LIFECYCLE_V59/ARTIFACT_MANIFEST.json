@@ -1,0 +1,19 @@
+{
+  "members": [
+    {
+      "path": "RETURN.json",
+      "sha256": "acbe0b7830a8b540a6c02d4e7316be92ebb4dea68c2ded537a1516f39da1167f",
+      "bytes": 6714
+    },
+    {
+      "path": "COVERAGE.json",
+      "sha256": "060e4802ab634dfc2a3fbfc402e8f7e283996d935a74c745d2d7e013ded127c2",
+      "bytes": 7550
+    },
+    {
+      "path": "COUNTEREXAMPLE.md",
+      "sha256": "c16236ad40b2f767c71cbce053e6d6d9486175417beb1930c0440f7921c97506",
+      "bytes": 2514
+    }
+  ]
+}

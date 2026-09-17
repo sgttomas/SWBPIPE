@@ -1,0 +1,24 @@
+{
+  "status": "V69_ACCEPTED_THREE_FILE_V20X_REPAIR_DISPATCHED",
+  "utc": "2026-09-17T03:50:22.772540+00:00",
+  "derivative_package": true,
+  "source_head": "3f9a2c5143bd527441b0ac06d0d0d532bcd503cc",
+  "accepted_diagnosis": {
+    "return_sha256": "81a38f6808da507c69ed4ad2f80f4bbe5b6d0078f13720d3235ca4df95529753",
+    "manifest_sha256": "8d201f43d594a3c1d85aec2b28987e468383fb4127957b2bc6d01604921a141e",
+    "root_verified_members": 6,
+    "root_verified_bytes": 55946
+  },
+  "judgment": "Exactly one invalid track-key uniqueness premise; actual750 source occurrences qualify. Adopt no raw event reuse with unchanged source/clock/population guards. No product conclusion or V68 score.",
+  "writer": {
+    "owner": "/root/ui_causal_method_repair",
+    "role": "TASK Type2",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "enforcement": "instruction/config asserted; no delegation",
+    "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/REPORTER_OCCURRENCE_REPAIR_V20X.md",
+    "sha256": "305a9e7a5bf7ec43ccc3d53d0dbc8dad050ea9e4b0c702f12bd35bc326374091",
+    "scope": "Three named VERIFY scorer/controller-spec/scorer-spec files; pure checks and own packet only. ROOT source unchanged until accepted review."
+  },
+  "runtime": "No browser/native/performance lease; full cohort held. OriginalV68 failure preserved."
+}

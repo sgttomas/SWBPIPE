@@ -1,0 +1,11 @@
+{
+  "status": "PROPOSAL_REVIEW_ACCEPTED_FOR_PRESENTATION",
+  "at": "2026-09-17T08:15:34.150005+00:00",
+  "proposal": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-69_ui_foundation_performance_disposition.md",
+  "proposal_sha256": "557dadb307e0d7ce1debd30fb56623ad3eb13cdd4e210c1593a302f0bd1298c3",
+  "review_return_sha256": "a774324da14f411399ee5a52261db781674ed32dc342fc6105f062467113bb83",
+  "review_manifest_sha256": "b2998776136381dae1e870f68c05af0893258e70bac3fa2e943bbcede8b904a1",
+  "verified_members": 3,
+  "owner_ruling": "PENDING",
+  "effect": "None; current D-68 gate preserved; no source/performance/merge acceptance"
+}

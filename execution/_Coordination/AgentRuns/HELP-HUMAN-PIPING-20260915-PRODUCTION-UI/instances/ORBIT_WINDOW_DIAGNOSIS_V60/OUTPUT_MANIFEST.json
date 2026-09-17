@@ -1,0 +1,26 @@
+{
+  "schema": "diagnosis-output-manifest/v1",
+  "members": [
+    {
+      "path": "INPUTS.json",
+      "sha256": "21b3b81bfa702696e077d3ef2cff467c51675db7d6810ca3277c18ac9ebb5054",
+      "bytes": 6939
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "77692e3befa86c5cd15ad9ba15673c50408aa3b9d868d9e1c3174b69112cae7f",
+      "bytes": 11461
+    },
+    {
+      "path": "EVIDENCE.json",
+      "sha256": "64e8b462b61955a25d3be09bed5cd59db517e4429f1d5a68452acc8649be2326",
+      "bytes": 12015
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "db2fa6f94c2c1826106f07bdb4a1b3c597df741c0bbe21a829678320f3e47b8c",
+      "bytes": 1963
+    }
+  ],
+  "inputIntegrity": "19/19 entry/exit stable; sealed INPUTS unchanged; added brief/README hashes stable"
+}

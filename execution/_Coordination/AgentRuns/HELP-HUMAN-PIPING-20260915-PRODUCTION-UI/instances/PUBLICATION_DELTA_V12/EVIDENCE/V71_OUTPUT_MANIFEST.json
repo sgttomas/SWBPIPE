@@ -1,0 +1,525 @@
+{
+  "members": [
+    {
+      "path": "COLLECTION_PRESERVATION.json",
+      "sha256": "da347a2c11d8515c6e01dd9905159abfae0395b96fc8137499fecaae66970d8c",
+      "bytes": 6228
+    },
+    {
+      "path": "FOCUSED_CHECKPOINT.json",
+      "sha256": "04434598798289b8d73f9fcbfbc25ed041de3245cf913b0b541b1b0778b99a40",
+      "bytes": 26129
+    },
+    {
+      "path": "POST_BINDINGS.json",
+      "sha256": "18c0479d618ad882419f98055ca421ef107a55cd91b7eaf8dc6dfbacb0cfd914",
+      "bytes": 93084
+    },
+    {
+      "path": "PRE_BINDINGS.json",
+      "sha256": "b1258cbbeb3d9af55722aba3c85738c838916fd786346c82d8539794eeff17e5",
+      "bytes": 94111
+    },
+    {
+      "path": "RAW_CADENCE_DIAGNOSIS.json",
+      "sha256": "4e49838f11e3fea7e877f07345113bce3dac7684a6073589690b874ba49135fc",
+      "bytes": 3668
+    },
+    {
+      "path": "RELEASE.json",
+      "sha256": "06d9c4b724f4090fae6d8f5cddcd1d859b3611be311ddc8d8d3836ce03b6ba26",
+      "bytes": 273
+    },
+    {
+      "path": "RETURN_V71_FOCUSED.json",
+      "sha256": "3cd5ece3147de44ec0e237c8562bbfad461b180fddf9cd8d27eb86447935faaa",
+      "bytes": 1125
+    },
+    {
+      "path": "collections/cohort/EXECUTION.json",
+      "sha256": "b19dc668176e830eec58aca74dd9311a54b439ed37c1fd92b833fe379746373d",
+      "bytes": 7113
+    },
+    {
+      "path": "collections/cohort/EXIT.json",
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "bytes": 17
+    },
+    {
+      "path": "collections/cohort/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "collections/cohort/stdout.log",
+      "sha256": "4edb2e888eb1cedd91ec886c6be341c65f1889e845fc8b5bdb5b55607caa3eab",
+      "bytes": 2986
+    },
+    {
+      "path": "collections/focused/EXECUTION.json",
+      "sha256": "b30b9bca14ef8f3e1add2c0ebd03b36f2dcbc9675e73707d50cd8e99b9845c10",
+      "bytes": 7365
+    },
+    {
+      "path": "collections/focused/EXIT.json",
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "bytes": 17
+    },
+    {
+      "path": "collections/focused/playwright-results.json",
+      "sha256": "c88c86b13cf11ca6fa03afe2217c08f9f776eebf40f2ba6d97d39e98fcf09ab1",
+      "bytes": 5181
+    },
+    {
+      "path": "collections/focused/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "collections/focused/stdout.log",
+      "sha256": "557622706cf5e50ae156c5857a75d8e78bb3fa130f9be057afbf2f26c04224f3",
+      "bytes": 361
+    },
+    {
+      "path": "focused/runtime/EXECUTION.json",
+      "sha256": "b30b9bca14ef8f3e1add2c0ebd03b36f2dcbc9675e73707d50cd8e99b9845c10",
+      "bytes": 7365
+    },
+    {
+      "path": "focused/runtime/EXIT.json",
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "bytes": 17
+    },
+    {
+      "path": "focused/runtime/LIVE_EXECUTION.json",
+      "sha256": "e4e58fa27acfd47f1525fd30f302722ec7007cdcbddcb193ea21e92807555dd6",
+      "bytes": 7338
+    },
+    {
+      "path": "focused/runtime/LIVE_EXIT.json",
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "bytes": 17
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/assignment-001/action-stopped.json",
+      "sha256": "3549162fa90a78f149ae57a629fa2edd7984c3385ae598ddacb34b6073265728",
+      "bytes": 20606
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/assignment-001/derived.json",
+      "sha256": "02eca8d0ad2be910db9b5ae26ec87150030f2aaeba03cc0bc3f8412b9ad59e8e",
+      "bytes": 10839
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/assignment-001/drain-acknowledged.json",
+      "sha256": "442cd4197ab4c5b0acf0caff5ec4323d2995aa11ab83f68ec425338674264416",
+      "bytes": 230
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/assignment-001/prepared.json",
+      "sha256": "a02dae772b9c2b08d5cb95c6d02c3611d4ddbdc1ebc204b8f6b3c89c937de672",
+      "bytes": 2015
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/assignment-001/trace-events.raw.json",
+      "sha256": "a72aa1116aa4e0188a94fe20d56443ac3a36eb824685380afc76132e892ef012",
+      "bytes": 1791090
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/assignment-001/trace-finalized.json",
+      "sha256": "3e0d1353a894a18828bf717492e924a611d555f894362868d4cada8266296751",
+      "bytes": 248466
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/assignment-responsive-tree-witness.json",
+      "sha256": "9d23a77a9ced82ab78947c43c4c460899cdbb20f675e4dddebcdeaa04d6da918",
+      "bytes": 9946
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-001/action-stopped.json",
+      "sha256": "4d780fdac9f67247fd76672a9c41cb628146f94ba83d6bb3a329aad4b0eabb50",
+      "bytes": 13823
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-001/appearance.png",
+      "sha256": "c2bd5e276c9d3ea1d0f260bc53d435d5a3184b504934349bacaf25aff749f41b",
+      "bytes": 530922
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-001/box-before.json",
+      "sha256": "26182e08679b687c29bf04716c2105e14c09846c4de1f80cbdde43dc5f39a52f",
+      "bytes": 6303
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-001/box-capture-binding.json",
+      "sha256": "712a5783cbab72ef438d401e46b6c390352cf89ff598294006595d4c90f3ed34",
+      "bytes": 15270
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-001/box-stopped.json",
+      "sha256": "93b40257aab67696c82c61b40067264c7d9933f706da850bbcb7fc87c165ddde",
+      "bytes": 13842
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-001/derived.json",
+      "sha256": "87ed584ab9782cd97f6268da6f072a2e84e7245dba7b41b7500e0c2fbfbec302",
+      "bytes": 11517
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-001/drain-acknowledged.json",
+      "sha256": "1afcb04ce39c35755851e115bce0d7d474d3cf32b14bd596c98edf405a1a0797",
+      "bytes": 233
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-001/prepared.json",
+      "sha256": "410958dd20c8418b6388386028e97ff2358400bf042487ed44882e1ded05cd48",
+      "bytes": 2021
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-001/trace-events.raw.json",
+      "sha256": "6415d9636eeab9c2a505363d2800390b494be693b4327a38fa316e5889f0db6a",
+      "bytes": 2401780
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-001/trace-finalized.json",
+      "sha256": "1d50f34076b7aeb1320f822954ed69942add6d4af400019ef2d24a95b8228631",
+      "bytes": 271252
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-007/action-stopped.json",
+      "sha256": "8ea2805bbae412ee04b43c8f059b546e5361536c00d9fdfcab770e6dc0193c7b",
+      "bytes": 13917
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-007/appearance.png",
+      "sha256": "ad7b043eb4d06bf848241a36bf3b404b8f7fec2fdd641f6d4ca8444278e8edcd",
+      "bytes": 538629
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-007/box-before.json",
+      "sha256": "98804f6623a863490d89dbb3485a6a1461a8cbcefaeac515e90cc127761eab22",
+      "bytes": 19690
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-007/box-capture-binding.json",
+      "sha256": "b86982ffec0bffdaf599ae054915a27199b91630b43a5e9c80190d19be140ee0",
+      "bytes": 114492
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-007/box-stopped.json",
+      "sha256": "8431b327bd4b9b188ce36985f86068c3eab38cde1952fe45d374ce8847b82e5c",
+      "bytes": 76663
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-007/derived.json",
+      "sha256": "13f3a9bb4d2a398032cbea687056409214820a12b4fcb04f90fa73e49bb2be2e",
+      "bytes": 11541
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-007/drain-acknowledged.json",
+      "sha256": "a826af9fc989e10eee7e8998403092fc64819ba9297fdc97a6de1ecce2544e40",
+      "bytes": 233
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-007/prepared.json",
+      "sha256": "ba397191cd6e5ef0e0490b91b84ff61c3363a46b48e3474c053497f78e1c5198",
+      "bytes": 2021
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-007/trace-events.raw.json",
+      "sha256": "bd46516750ac5694f69b1cb915e1cefde1af05c12253362736f097d5175035b6",
+      "bytes": 2415978
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/box-selection-007/trace-finalized.json",
+      "sha256": "9d3a145861059a95ca6a29d5f94bb3bf1e9060419144352df7bced1a5c5ff8ad",
+      "bytes": 272545
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/chromium-environment.json",
+      "sha256": "e9f20b6fd4ea34b824d235cfed4463666c2ee04623ea1ac21eff9a10c2cbe93b",
+      "bytes": 11816
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/initialized.json",
+      "sha256": "62170c479694d74811c79216abf06cf7e656565bc6d985bdc68ccd3ad787f178",
+      "bytes": 2369
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/observer-accounting.json",
+      "sha256": "3980674c2041c70b8f85437d10fe8925152b436d1ae03647daa503b08242469d",
+      "bytes": 25862
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/orbit-001/action-stopped.json",
+      "sha256": "9a354a745e827acb2751426ec6f56a0e9198facf92d288854cf8e0784f9a8966",
+      "bytes": 4773838
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/orbit-001/derived.json",
+      "sha256": "8a66a1778a46a1f60964cd319005a02db1c6e0be5b2709058f5f387fdff009a2",
+      "bytes": 14535461
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/orbit-001/drain-acknowledged.json",
+      "sha256": "b7d135b87d5968821d6226a97ab9f2b556dd444bf77ba6aaa21f9b4afc899f67",
+      "bytes": 231
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/orbit-001/prepared.json",
+      "sha256": "53ae087a5e4d60387aeb998ca2fd3f5bb46a08c8a6776e167d15f828a31017a5",
+      "bytes": 2005
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/orbit-001/trace-events.raw.json",
+      "sha256": "a328b8c468d19c3168a1bba412d3a7d3d0234c8d1726ae7e9391c3138dc09f55",
+      "bytes": 95269761
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/orbit-001/trace-finalized.json",
+      "sha256": "2eef68e26187fd87d4556a20067b00724c58e7e31545a3af5bd27f5114df8b5a",
+      "bytes": 299290
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/orbit-002/action-stopped.json",
+      "sha256": "8e7c3c9f5df3b17285e74f42cdd91b2084873085367c0138dcb184a3d7c577d4",
+      "bytes": 4794274
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/orbit-002/derived.json",
+      "sha256": "35906ce7b2949eaa3054ac9629f1a0d9b0741a397bfa84fda2381d155632eaad",
+      "bytes": 14543812
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/orbit-002/drain-acknowledged.json",
+      "sha256": "b09d7fb14100ba02e9123f0567e2c7fed5f5701cf3618e438f67a5b45b0ff15e",
+      "bytes": 231
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/orbit-002/prepared.json",
+      "sha256": "4a7a85c215207f5eb2f807a76ea4b31788cd9723623e9e8fb184ea02e4bea7fd",
+      "bytes": 2005
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/orbit-002/trace-events.raw.json",
+      "sha256": "0a457a4c114c3044e0dd61bb013fab8655ef70f054656e38441e4eb7172748df",
+      "bytes": 95643591
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/orbit-002/trace-finalized.json",
+      "sha256": "a39e0ded6e9144840b53e85de30b521910b178641b0d0cdbf9c4a792e65ed91a",
+      "bytes": 296873
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/action-stopped.json",
+      "sha256": "aaf15a2753fadb5b28d93d2f9940c2692f5ae4d32a251e5a93e7ece47f47e833",
+      "bytes": 13114
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/derived.json",
+      "sha256": "390477ede46dcabe693bbe5a960587950013cb28223c6365dd11bde9742fefe0",
+      "bytes": 12232
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/drain-acknowledged.json",
+      "sha256": "5a489aee51fa2827b8001ed2d9927de39cc16163611b4ea2a58cd9ee515282e5",
+      "bytes": 235
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/highlight-after.png",
+      "sha256": "c593d4975aad350a4218a1e3955ceb00cb6da85964d42fc5213bd69fa9041e87",
+      "bytes": 12315
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/highlight-after.png.before.json",
+      "sha256": "ba538d4185367d5366f9d64513078151f60ffaef99182a93ff34de3870b8b5b1",
+      "bytes": 9222
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/highlight-after.png.json",
+      "sha256": "b0cdf0863bfe10e789e97b292420b7dd571cca694e99b0c7273036d16b02d005",
+      "bytes": 15266
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/highlight-before.png",
+      "sha256": "4fe28dc3a6076e140d9d30ef4cbb63ca02a5ca3bd15f8ca3ee5de7f436c7b329",
+      "bytes": 12561
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/highlight-before.png.before.json",
+      "sha256": "5a82f8461e43f2b9994d5334cce2d9e4f6ed501c58d2c87c9149462977a4a6c2",
+      "bytes": 8384
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/highlight-before.png.json",
+      "sha256": "031e5923541108070b658b84c4da5606d8ad78944b86f07bf4623a45209e4efc",
+      "bytes": 13602
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/pixel-witness.json",
+      "sha256": "84e421e097630d360cc16562fdee5fdea1a7d73f2a11305c88458a788db915bd",
+      "bytes": 64088
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/point-before-state.json",
+      "sha256": "86b3696a7d0559e53d38d01d21e68ef32e11acb00685a3d9bf1023ffd7d2656b",
+      "bytes": 13442
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/point-before.json",
+      "sha256": "6dde3a7524cc19401212fdbc38b9e810bfd6206a31239154e63df1bd61dfce02",
+      "bytes": 30207
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/point-stopped.json",
+      "sha256": "583286bc543f2d6a3f422dbfd5f34361dcda76581cd0e7f1074a567d591ef605",
+      "bytes": 27517
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/prepared.json",
+      "sha256": "fed3483676bb3e5d31c546668e211ba300b472b76dd196b4f21fc6ca0bad6c60",
+      "bytes": 2025
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/trace-events.raw.json",
+      "sha256": "2061575cc923683ff8196cac860dad62c313a1f951c89b23088a707faf493acf",
+      "bytes": 2370010
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/point-selection-002/trace-finalized.json",
+      "sha256": "65cde6ea8e619f9b0fa5607b6a0e8e47a37b3c4d41c5318000d67671f3b063a3",
+      "bytes": 268666
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/post-binding.json",
+      "sha256": "8f075fd261cab3a07856716d2df1d3e3fd1d02c9cbbb13c8f634704a709d740b",
+      "bytes": 719
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/restoration.json",
+      "sha256": "b48b8b541eed4d7da2a01cbff91d30656ee7a356afb3057fd27ac517d2789021",
+      "bytes": 323
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/result.json",
+      "sha256": "f3b3dd737aa817bd1fcd08e952e362506b005d8aaf70631d26eb2daa70a5dd5b",
+      "bytes": 3276483
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/settled-owned-raf.json",
+      "sha256": "682da887c59b1d3101f31144129f752861cea50cb9f2915f19f3dffa1afb7ac8",
+      "bytes": 117
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-000/action-stopped.json",
+      "sha256": "dec21a687b0a688009769394577a30750b7c2cebba635cd59c224b99f8549c39",
+      "bytes": 76960
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-000/appearance.png",
+      "sha256": "fe62b9822f96b1f573618d342fee0a28dc0b51db1a586a9fa155fbee4bbf9bfc",
+      "bytes": 442750
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-000/derived.json",
+      "sha256": "a8a7a848362e46eea1e79bac530340549e200078c23fedf2666e259e85d0532c",
+      "bytes": 10976
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-000/drain-acknowledged.json",
+      "sha256": "74a69a6838eafcf2c8f9432c68d9c3c3ed8d30af06e78e3136f14b1adddcb5be",
+      "bytes": 231
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-000/prepared.json",
+      "sha256": "c32946a7e30dc60b748515fff3d83c4a86af7059b07bacd44f6f229e47b5a82b",
+      "bytes": 2017
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-000/trace-events.raw.json",
+      "sha256": "564615fb33fbc508c7b9aa488712575d316b7357576a8153220730d6ad719bf1",
+      "bytes": 1044225
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-000/trace-finalized.json",
+      "sha256": "f5b6ceb81c7f91a3c8764c8b9e2bf77f2169d0303d8a872c7200da8c076c0636",
+      "bytes": 231186
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-001/action-stopped.json",
+      "sha256": "29ff1de267f1cf65e6a44c6f66892b7cbc69b1b3517ebda7bad2e9f8d5e48452",
+      "bytes": 76948
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-001/appearance.png",
+      "sha256": "36bd0c81af89dc32755d821a7c6bf9c863be9601e45b99c1c539fbe44a40ebcf",
+      "bytes": 448176
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-001/derived.json",
+      "sha256": "2c0405667a24bb8d13881df93495736a28140531cb11d0d069cd47f968d17c6d",
+      "bytes": 12007
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-001/drain-acknowledged.json",
+      "sha256": "2a532343ee26f1bf09814c357029f29e59f8fd0671e5a1913c77c76e5d20199d",
+      "bytes": 231
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-001/prepared.json",
+      "sha256": "62ea637e3f39aa1fa347fe739140033dfce9934a5b65b45bec8df3f29b172e05",
+      "bytes": 2017
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-001/trace-events.raw.json",
+      "sha256": "c73eeb5719b68215f1b3bc365832e6fa9be36f5f9af96a9601ddda74ed9b7317",
+      "bytes": 855352
+    },
+    {
+      "path": "focused/runtime/focused-full-v20/tree-filter-001/trace-finalized.json",
+      "sha256": "48bbd0248a961ad7bd306209906aa4f94af10ca2ced343003575f2e44a8cade0",
+      "bytes": 220129
+    },
+    {
+      "path": "focused/runtime/foreground-companion.json",
+      "sha256": "9fb82f6687448035994893e1288e057de3c3e567afb29119306b7bccfd583dd6",
+      "bytes": 12994
+    },
+    {
+      "path": "focused/runtime/foreground-companion.power-preflight.json",
+      "sha256": "11d7b20720b53586751bc445457f9224dc858aa28acf4a0de98ce8ee606b886b",
+      "bytes": 863
+    },
+    {
+      "path": "focused/runtime/live-stderr.log",
+      "sha256": "e82aa085c815b67189260f6f0db81ea04bfa8ac80d462c75ae4e1e7a15436773",
+      "bytes": 516
+    },
+    {
+      "path": "focused/runtime/live-stdout.log",
+      "sha256": "b0161b34a8f947126335bbc7d69d2d12a0863016143adecdbe72f98e8e58808d",
+      "bytes": 296
+    },
+    {
+      "path": "focused/runtime/playwright-artifacts/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "focused/runtime/playwright-results.json",
+      "sha256": "f25b1e321b162c119baaf3bd7a8a4bee890ae1f4307c621882203a64292f4417",
+      "bytes": 5688
+    },
+    {
+      "path": "focused/runtime/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "focused/runtime/stdout.log",
+      "sha256": "557622706cf5e50ae156c5857a75d8e78bb3fa130f9be057afbf2f26c04224f3",
+      "bytes": 361
+    }
+  ],
+  "derivativePackage": true
+}

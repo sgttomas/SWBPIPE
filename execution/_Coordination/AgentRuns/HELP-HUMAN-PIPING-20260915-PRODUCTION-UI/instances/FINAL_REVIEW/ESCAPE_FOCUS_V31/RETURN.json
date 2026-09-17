@@ -1,0 +1,77 @@
+{
+  "status": "PASS_NO_ACTIONABLE_FINDINGS",
+  "findings": [],
+  "context": {
+    "agent": "/root/ui_fresh_integrated_review",
+    "parent": "/root HELP_HUMAN",
+    "role": "TASK Type2",
+    "model": "gpt-6-astra",
+    "effort": "high",
+    "method": "software-code-review with retained actual ROOT/project AGENTS and AGENT_TASK",
+    "enforcement": "instruction/config asserted",
+    "delegation": "none",
+    "briefSha256": "12a8bfad132583b055f5ce536d0369ed88a884285601225b76e5b1cbf5457e9c",
+    "writeScope": "instances/FINAL_REVIEW/ESCAPE_FOCUS_V31 only",
+    "reviewerRuntimeExecuted": false,
+    "archiveAccess": false
+  },
+  "derivativePackage": true,
+  "coverage": {
+    "currentPaths": 143,
+    "changedPaths": [
+      "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/App.tsx"
+    ],
+    "unchangedPaths": 139,
+    "allFourDeltasReviewed": true,
+    "exactPreimagesReconstructed": true,
+    "inventoryAdditionsOrRemovals": 0,
+    "entryExitMismatches": 0,
+    "unchangedCoverageBasisSha256": "a38694321047ca539bbf23bf8834e099a2f7cf72ed2b4cccc802f408cd1eb438",
+    "ledger": "COVERAGE.json"
+  },
+  "assessment": [
+    "One window bubble listener replaces main onKeyDown; local React palette stopPropagation/preventDefault and drawer preventDefault precede it and retain ownership. Ordinary unconsumed editable/body Escape follows the same cancellation/state/focus actions.",
+    "Effect registers once per mounted App and removes the exact callback. Stable setters and live shell/viewport refs avoid stale state. Loading/unmounted shell is guarded; viewport ref is refreshed in layout effect and cleared on cleanup. No duplicate main Escape handler remains.",
+    "Existing named cancellation synchronously retires captured gesture before delayed pointer input, disables Box, and restores Select focus. V30 gesture/session/model/ABA implementation is unchanged. No model operation, history, physics, persisted state, renderer or method logic changed.",
+    "New browser tests declare programmatic blur setup, assert BODY focus, and deliver trusted Escape. Sealed preimage2 unit and2 browser failures are retained; captured preimage rectangle remains1 and delayed up changes action3 to4. Repaired source/dist BODY records have rectangle0 and unchanged selection/action/Box/model/preparation/camera.",
+    "Local-consumption palette/drawer controls retain Box until subsequent unconsumed Escape. Listener ownership/rerender/unmount control is meaningful. All earlier assertions remain exact; source/dist additions are behavioral, with no threshold/guard weakening."
+  ],
+  "evidence": {
+    "authorReturnSha256": "6ef1b7444e6d19a0bbcadba9dfce2ac8b49b2459098f88c0b5173b1ef3f27cac",
+    "authorArtifactManifestSha256": "ec70ebc226995f8d6cb7c6110a9b8100c9f24b6ac04502a64fdc89403a6a02bc",
+    "reviewReadySha256": "0df8e49994927fc4b963ecb3cb77be0665e9b7122e4b54eded4921381cb7865d",
+    "patchSha256": "01e8b4fdfc2e500b9514f3c5fd9f015ed68cf6890e873277efd433fc6a08a73c",
+    "sourceManifestSha256": "13260d4a03b792454d68e97259a15c53a79f9b3c6f4f60da6cb65093d783d5f8",
+    "finalBindingsSha256": "7c7b833aed1b9c1df9697ce3f3da5357ae1b86ad15b53647117134dcdeb3d3c5",
+    "releaseSha256": "af3af6fffc9e238a4e62a45c0d35a98d08b71d83885b9099e2dd97613c0cd90c",
+    "nonArchiveAuthorMembersRehashed": 44,
+    "archivesNotOpenedOrRehashedByReviewer": 2,
+    "archiveAttribution": "Parent reports all46 author members rehashed; reviewer obeyed no-archive scope",
+    "authorChecks": {
+      "preimageExpectedUnitFailures": 2,
+      "preimageExpectedBrowserFailures": 2,
+      "focusedUnitPassed": 18,
+      "unitUnselected": 200,
+      "sourceBrowserPassed": 11,
+      "ordinaryBuildExit": 0,
+      "distBrowserPassed": 11,
+      "browserRetries": 0
+    },
+    "buildDistFilesExact": 21,
+    "publicFilesExactUnchanged": 8
+  },
+  "handoff": {
+    "closure": "Bounded source backcheck complete on finalflatV4; no whole-tranche acceptance",
+    "pause": "Owner-requested graceful pause after this return; reviewer starts no additional work or runtime",
+    "remaining": [
+      "Native ordinary-coordinate activation and Escape witness on rebuilt binary",
+      "Separate resource and camera/geometry qualification",
+      "Fresh performance/full cohort acceptance",
+      "Registered sweep, final metadata, actual-head CI/merge and ROOT tranche acceptance"
+    ],
+    "limits": "Programmatically blurred browser BODY reproduction is not native WKWebView event-target proof. Existing native/resource/performance results retain original source/binary attribution. Any subsequent source delta requires supplemental review."
+  }
+}

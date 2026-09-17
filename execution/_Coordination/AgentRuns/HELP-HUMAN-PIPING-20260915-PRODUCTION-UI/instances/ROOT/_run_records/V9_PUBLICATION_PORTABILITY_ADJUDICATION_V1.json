@@ -1,0 +1,104 @@
+{
+  "status": "ROOT_RESOLUTION_PREPARED_FOR_FINAL_METADATA_REVIEW",
+  "proposalSha256": "c2fce0f433b913b71166a59cec3f645a8cdfecd8ee002b18b50e8db07744bdd2",
+  "proposalFile": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_V9/PORTABILITY_PROPOSAL.json",
+  "existingProposedEntries": {
+    "historical": 63,
+    "controlExceptions": 2,
+    "hashesReverified": 65,
+    "adjudication": "Selected completed immutable evidence or completed/superseded execution-review records; existing policy unchanged. Apply only with actual selected publication candidate after final metadata review."
+  },
+  "unresolvedResolutions": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/WORK_GRAPH.json",
+      "resolution": "Keep as live CONTROL; four pointers normalized without changing source evidence. No exception.",
+      "currentSha256": "7d76462a72ed1b53e405233391bb6e95e1baccac63f2b8fb329f8c843da6880f",
+      "owningRecord": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/WORK_GRAPH_PORTABILITY_NORMALIZATION_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V6/INPUT_MAP.json",
+      "sha256": "7716103d1298c7a6ae85cd550422587a20280d6d67232dfc36a56b8399c345e4",
+      "proposedEntryType": "historical_role_override",
+      "proposedRole": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "inspected": "Complete JSON parsed; top-level semantics and member/alias/context structure inspected. No raw object reread or acceptance alteration."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V6/CANONICAL_REFERENCE_MAP.json",
+      "sha256": "d2ea1c6ff2cb2efa74e44273485d18d1a029c3bb234f78ecc4ae2b30ca26be36",
+      "proposedEntryType": "historical_role_override",
+      "proposedRole": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "inspected": "Complete JSON parsed; top-level semantics and member/alias/context structure inspected. No raw object reread or acceptance alteration."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V7/INPUT_MAP.json",
+      "sha256": "fd453fbd086473a009d135466332c29e2f2eee86f6941982cc4381f4443c0f31",
+      "proposedEntryType": "historical_role_override",
+      "proposedRole": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "inspected": "Complete JSON parsed; top-level semantics and member/alias/context structure inspected. No raw object reread or acceptance alteration."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V9/INPUTS.json",
+      "sha256": "b7341bbc9b3357282c75be900b019191715d83b803044ee6403954656c300bea",
+      "proposedEntryType": "historical_role_override",
+      "proposedRole": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "inspected": "Complete JSON parsed; top-level semantics and member/alias/context structure inspected. No raw object reread or acceptance alteration."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V10/INPUTS.json",
+      "sha256": "e529382e91eb8a4bdcbbb52e02b7044ad993993c349c71bb5272fdae6499c9af",
+      "proposedEntryType": "historical_role_override",
+      "proposedRole": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "inspected": "Complete JSON parsed; top-level semantics and member/alias/context structure inspected. No raw object reread or acceptance alteration."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V13/INPUTS.json",
+      "sha256": "4ed28831dcb08ee830893050a56f3a9c48d302fda8c5d319e210b52497ad1d1a",
+      "proposedEntryType": "historical_role_override",
+      "proposedRole": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "inspected": "Complete JSON parsed; top-level semantics and member/alias/context structure inspected. No raw object reread or acceptance alteration."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V13/MAP.json",
+      "sha256": "2c163b5e9defd2556f8eada69565bfbbb944a81e48ff59e69a2264bd429a2f1f",
+      "proposedEntryType": "historical_role_override",
+      "proposedRole": "EVIDENCE",
+      "reason": "Immutable completed archive input/member/alias index; local paths identify observed source/canonical objects, not active replay instructions.",
+      "inspected": "Complete JSON parsed; top-level semantics and member/alias/context structure inspected. No raw object reread or acceptance alteration."
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "resolution": "Existing classifier marks inactive historical surface; no override or rewriting of old receipts needed. New receipt remains a later Root task."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_PREPARATION_V3/RAW_CANONICAL_MAP.json",
+      "sha256": "eb0dcfbf25f1ee21b6d63d2fa8d61dfa7a79d4183a5659858334e9c5dfe868c4",
+      "proposedEntryType": "historical_role_override",
+      "proposedRole": "EVIDENCE",
+      "reason": "Immutable completed V3 context/proposed map retained to resolve accepted V5 archive aliases. Original proposed status and verification-before-cleanup language remain historical; no cleanup or future execution authorized by this classification.",
+      "inspected": "Complete JSON parsed; top-level semantics and member/alias/context structure inspected. No raw object reread or acceptance alteration."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_PREPARATION_V3/CONTEXT.json",
+      "sha256": "1d16a07e3253895f7bbc42e49a5510b680864f3868dcc27e01c5037c5ffd4345",
+      "proposedEntryType": "historical_role_override",
+      "proposedRole": "EVIDENCE",
+      "reason": "Immutable completed V3 context/proposed map retained to resolve accepted V5 archive aliases. Original proposed status and verification-before-cleanup language remain historical; no cleanup or future execution authorized by this classification.",
+      "inspected": "Complete JSON parsed; top-level semantics and member/alias/context structure inspected. No raw object reread or acceptance alteration."
+    }
+  ],
+  "requiredPublicationAddition": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/ORBIT_WINDOW_METHOD_INTEGRATION_V20V/SOURCE_MANIFEST.json",
+    "sha256": "2fb1f2fa0d0002d704aab7b8298224ae94d315e051304c710ba23f99d40b37b7",
+    "proposedRole": "EVIDENCE",
+    "reason": "Governing immutable corrected V20V method manifest is needed by current review/launch bindings and was omitted from V9 inventory. Preserve original author packet and explicit metadata correction."
+  },
+  "inventoryReasonCorrection": "Replace inherited source-path reason claiming all143 at5e22bd14a with current reviewed commit135a94cea and exact source manifest, without changing historical files. Top-level V9/current status already points to135a94cea; original proposal stays preserved.",
+  "futureInputs": "Add accepted V63 and completed/reviewed V64 AC profile records to final publication after fan-in; no prospective runtime result invented. Current final source/numerical acceptance and policy self-check remain separate.",
+  "application": "No additional policy entries or Git stage/commit performed in this adjudication. Initial checkpoint README entry and live graph normalization remain prepared working changes."
+}

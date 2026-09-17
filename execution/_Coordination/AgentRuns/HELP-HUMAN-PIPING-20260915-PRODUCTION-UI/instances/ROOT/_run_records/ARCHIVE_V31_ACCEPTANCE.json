@@ -1,0 +1,25 @@
+{
+  "status": "ACCEPTED_PRESERVATION_WITH_LIMITS",
+  "recorded_at_utc": "2026-09-17T14:12:43.436786+00:00",
+  "derivative_package": true,
+  "inputs": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V31/INPUTS.json",
+    "sha256": "686da32d21e436feac2256ea2ee4a2fde68540e7c4eff8f0c6f4c6c5efb698c3",
+    "bytes": 1677088
+  },
+  "map": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V31/MAP.json",
+    "sha256": "3890a222f4b0a5bf8334e92ee634a8d141db1e053989e778033a36eca5b2254a",
+    "bytes": 310967
+  },
+  "return": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V31/RETURN.json",
+    "sha256": "14dbc9e4c5dd60d2fd1588e91c5ec05773b59679ee164c3fac464e7873350f9e",
+    "bytes": 1570
+  },
+  "root_verification": "All canonical objects rehashed with exact size/mode0444/path; alias hashes and sizes match objects, indexes partition exactly. Numerical counts remain in owning return. No original or prior object deleted or overwritten.",
+  "limits": "Host-local, non-WORM and not clone-portable; no product/performance/publication acceptance.",
+  "runtime_lease": "NONE",
+  "archive_lease": "RELEASED",
+  "next": "Final metadata candidate, independent review and local publication checks"
+}

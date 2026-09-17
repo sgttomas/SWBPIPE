@@ -1,0 +1,60 @@
+{
+  "status": "SOURCE_AND_FOCUSED_CHECK_PREPARATION_AUTHORIZED_RUNTIME_HELD",
+  "role": "TASK Type 2 bounded implementation",
+  "parent": "HELP_HUMAN /root",
+  "executor": "/root/ui_workflow_regression_repair_v77",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "mechanism": "delegated-harness-native; nondelegation/scope instruction+config asserted",
+  "at": "2026-09-17T12:45:36.787200+00:00",
+  "scope": "Approved PKG07 workspace foundation; DEL-07-01/DEL-07-06 touched appearance controls. Two native-discovered contrast defects only.",
+  "working_checkout": "/Users/ryan/.codex/worktrees/8728/chirality-ui-workflow-repair-20260917",
+  "accepted_current_product": "Root45ede19f2; REPAIR HEAD1e4f7df with prior9-file owned overlay matches all145 V19 paths. Root independently verified both working trees before this dispatch. Preserve every existing owned edit.",
+  "basis": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V19/SOURCE_MANIFEST.json",
+      "sha256": "b5ed976cd86b1e90b5b83f1ba712a0d1ec1efb53bb7559d3c3baa090fd576e36",
+      "bytes": 33472
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_RAIL_ACCESSIBILITY_DIAGNOSIS_V100/RETURN.json",
+      "sha256": "3ce2aad5924cf80700aee5e9233313c680704417b9ac7370a0bbefec9528409d",
+      "bytes": 4346
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_RAIL_ACCESSIBILITY_DIAGNOSIS_V100/OUTPUT_MANIFEST.json",
+      "sha256": "8053c2d1ec59594a1b40b1a0c125a9e3d5809a137cb4f78252869601002e0332",
+      "bytes": 733
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "8166b04e99826cb1620bb3be0ce285651f28973e87b00f5f3ff488c0c5cfe795",
+      "bytes": 96750
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "sha256": "12022d085c081d875501b3606c3f9df3f65d8114b4922894f545891f2942a53c",
+      "bytes": 111561
+    }
+  ],
+  "root_fanin": "V100 three manifest members22409 bytes and18 source/evidence exit bindings verified. Two source-confirmed contrast defects accepted for repair. AX cause remains unclassified.",
+  "objective": "Use established theme tokens to make both rail hover states and every displayed readiness row label/value/icon readable in Light and Dark, with focused regression coverage and no application/solver semantics change.",
+  "write_scope": [
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_CONTRAST_REPAIR_V101 new bounded repair evidence only"
+  ],
+  "requirements": [
+    "Read applicable instructions, V100 diagnosis and previous V96 method/ownership as needed. Reuse existing context/skill origins; no invented unavailable software implementation skill.",
+    "Repair rail hover with existing raised-surface token; pair base/ok/info/warning/blocking readiness surfaces/text/borders coherently using existing tokens. Remove conflicting blanket strong foreground only for these rows. Preserve status meaning, spacing, geometry, selected/focus styling and shared semantics.",
+    "Extend existing dist appearance/contrast coverage. Freeze expectations before edits: text contrast >=4.5, meaningful icons >=3, both rails expanded/collapsed and actual hover; readiness label/value pairs before and after solve for actual represented tone classes, Light/Dark. Do not inject CSS/classes to simulate a pass.",
+    "Use existing helpers and fixtures. Preserve existing tests and assertions. No product App/PropertyInspector/SolvePanel logic or ARIA changes for unresolved AX omission.",
+    "Prepare bounded verification using current production preimage if exact bound; preserve original intended failures, then new build/focused affected tests once Root grants runtime. No runtime now.",
+    "Check final changed path inventory and source binds, preserving V96-era dirty scope. No commit/stage/push."
+  ],
+  "exclusions": [
+    "No Root/CHECK product changes, build/test/browser/native/server/benchmark or large artifact operations until explicit Root runtime grant.",
+    "No delegation, governance/contract change, tolerance/performance waiver, fixture rewriting or historical evidence overwrite."
+  ],
+  "return": "Prepared two-file delta, frozen expectations, source inventory and exact intended preimage/candidate checks with runtime HELD; report uncertainty promptly. Root owns runtime sequencing, fresh independent review and integration."
+}

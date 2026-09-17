@@ -1,0 +1,50 @@
+{
+  "status": "PASS_BOUNDED_NATIVE_CONTRAST_AND_CONTROL_BACKCHECK",
+  "role": "TASK Type2",
+  "parent": "/root",
+  "instance": "/root/ui_native_successor",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "enforcement": "instruction/config asserted",
+  "delegation": false,
+  "derivative_package": true,
+  "source_commit": "b6a1ab8378481adbb46d65847cb7eaf9a2864461",
+  "upstream": {
+    "lease_sha256": "aea25460382aa60207d073171c9784b5aab19d1039be15b45f8e985d96aa0e4f",
+    "preparation_manifest_sha256": "02f6f92813b23418e5dee966823ec85cdbc8c0ed47387dfa96f14aaa225586ad",
+    "seed_sha256": "74c5d708a1c68b94b5f684e64def8fc35acbc506db240aaa148b82d38604c932",
+    "V83_lifecycle": "NATIVE_FUNCTIONAL_FANIN_AND_FINAL_CLEANUP.json; full authoring/persistence retained at original attribution"
+  },
+  "builds": 1,
+  "binary_sha256": "eff35c6f5d0f067f38dc85e4f23aea2d63be22e90b7b05b45b83b6f35c36a3ae",
+  "observations": {
+    "rail_hover": "Both rails expanded/collapsed pointer-click-retained hover, Light/Dark readable;8captures. No pale near-white Dark rail failure observed.",
+    "readiness": "Light/Dark pre-solve and solved mechanics,diagnostic/professional cards readable after actual dock scroll; Dark full rule-readiness captured. No pixel contrast arithmetic inferred.",
+    "inspector": "Actual current CUA AX exposes opener,Properties/Task,new-name field and Cancel. Original transient omission remains unclassified; no independent macOS audit pass.",
+    "dark_measurement": "ROOT\u2192TIP3.2m,\u0394X3.2,\u0394Y0,\u0394Z0 complete with nonblank canvas and Analyze dock.",
+    "draft": "pipe:CANTILEVER, Cantilever V103 retained draft retained across palette Close, measurement/dock and solve. Actual Close restored Commands focus. Cancelled normally; never Add/Review/Apply.",
+    "button_solve": "Scrolled Analyze body to visible Sparse interactive and Run; pointer clicks157,624 then262,666 on current1024x768 screenshot;67rows completed,identitymatch.",
+    "analytical": "All67 stable rows exactly seed;5expected values within5.001e-7 units; unchanged model; see ANALYTICAL_PRESERVATION.json.",
+    "cleanup": "Normal CmdQ; owned PID absent; all9SQLite tables exactly saved snapshot; ports clear."
+  },
+  "representative_captures": [
+    "DARK_INSPECTOR_COLLAPSED.jpg",
+    "DARK_INSPECTOR_EXPANDED.jpg",
+    "DARK_PRESOLVE_TOP.jpg",
+    "DARK_SOLVED_RULE.jpg",
+    "DARK_SOLVED_LOWER.jpg",
+    "LIGHT_SOLVED_LOWER.jpg",
+    "DARK_MEASUREMENT_DOCK.jpg",
+    "VISIBLE_MODE_RUN.jpg",
+    "PALETTE_CLOSE_RETAINED.jpg",
+    "DRAFT_AFTER_DOCK.jpg"
+  ],
+  "limits": [
+    "Native qualitative readability only; exact CSS dimensions/contrast arithmetic/preference equality remain browser attribution.",
+    "CUA image scaling not treated as physical window or CSS geometry proof.",
+    "Palette Close/action focus native witness; no held-pointer or performance claim.",
+    "No full350N\u2192500N authoring/undo/redo or save/reopen replay; acceptedV83 lifecycle reused.",
+    "Pre-solve rule card lower text not individually captured in both themes; representative visible readiness plus exact browser coverage retains distinct attribution."
+  ],
+  "closure": "Affected native backcheck complete and runtime released; Root acceptance/final publication/D69 remain separate."
+}

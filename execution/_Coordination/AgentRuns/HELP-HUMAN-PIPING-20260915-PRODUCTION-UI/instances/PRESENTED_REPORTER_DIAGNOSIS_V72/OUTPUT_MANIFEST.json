@@ -1,0 +1,61 @@
+{
+  "schema": "bounded-diagnosis-output-manifest/v1",
+  "status": "SEALED",
+  "memberCount": 10,
+  "members": [
+    {
+      "path": "ATTEMPT.json",
+      "sha256": "a039d4eb63185037e9edf2ea7e5ed072fb4a2a94c9c8ca4b8e8369aa152661b7",
+      "bytes": 737
+    },
+    {
+      "path": "DIAGNOSE.mjs",
+      "sha256": "0facc346cda256d63f636eddfe78667d019b3654a82a75d19d1d4eb9639570ac",
+      "bytes": 7616
+    },
+    {
+      "path": "INPUT_BINDINGS.json",
+      "sha256": "b1fbfa5620b9804f35150706a0674d3425f40a1281796cb35e5387d845460a2e",
+      "bytes": 12333
+    },
+    {
+      "path": "INSTRUMENTATION.json",
+      "sha256": "dcea0d962ca53a9dc012c847ca100645af4006bfaf40c2d4d0d40cb081be1709",
+      "bytes": 770
+    },
+    {
+      "path": "PREDICATES.json",
+      "sha256": "c0e556de7d08adc9ca2238bd0bd07d51230e879d96cdc4aaec83c29d0b571de9",
+      "bytes": 134937
+    },
+    {
+      "path": "PROSPECTIVE_CONTRACT.json",
+      "sha256": "3be111d2d4924204dcb542532454573028a59fadca105501842abfa621832b60",
+      "bytes": 5707
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "1e66064c9e40436a9a30ee63f26b5acff4fe526e3a14ec407ae0e84c41d589fe",
+      "bytes": 8728
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "d378a6faf4b369a6606b75aea61ae67e66ae9cc3dedf61c4301a12bb62ece619",
+      "bytes": 6990
+    },
+    {
+      "path": "TIMING.json",
+      "sha256": "708b297dc162052a8ae7c1c89f0345e5e6b3f35df26b194fd2901cc6ba5bf8d8",
+      "bytes": 883
+    },
+    {
+      "path": "extractor.instrumented.mjs",
+      "sha256": "8e96a79df66858641f5a2ef21712ae8ae136ee25193f6f7c53f7de404948b92d",
+      "bytes": 43500
+    }
+  ],
+  "excludesSelf": true,
+  "smallInputExitHashesStable": true,
+  "privateExtractorOnlyObservationalInsertion": true,
+  "rawCopies": 0
+}

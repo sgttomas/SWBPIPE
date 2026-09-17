@@ -1,0 +1,55 @@
+{
+  "self_excluding": true,
+  "outputs": [
+    {
+      "path": "CONTEXT.json",
+      "sha256": "1d16a07e3253895f7bbc42e49a5510b680864f3868dcc27e01c5037c5ffd4345",
+      "bytes": 5850
+    },
+    {
+      "path": "EVIDENCE_AND_HELD_MANIFEST.json",
+      "sha256": "b1d23b729616fa83910ee08018359aa02d588e81e5d1fbb87769190619b87d5f",
+      "bytes": 3411605
+    },
+    {
+      "path": "HANDOFF.json",
+      "sha256": "962600fb53bfab47c4b226d191fc94e60ec330844c6e99741747c787411eedac",
+      "bytes": 798
+    },
+    {
+      "path": "MAINTAINED_SOURCE_MANIFEST.json",
+      "sha256": "bb0d6009de50e670142d31a01389c8bd3351f84959aa5f8bdd5848b4dae7cdd4",
+      "bytes": 69494
+    },
+    {
+      "path": "MANIFEST.md",
+      "sha256": "8519689f0d3d936fb3b3e35573ff37cc49b8f450b369fd7932d2f4cc02f489ea",
+      "bytes": 5517
+    },
+    {
+      "path": "RAW_CANONICAL_MAP.json",
+      "sha256": "eb0dcfbf25f1ee21b6d63d2fa8d61dfa7a79d4183a5659858334e9c5dfe868c4",
+      "bytes": 2427256
+    },
+    {
+      "path": "STABLE_MAINTAINED_STAGING_PATHS.txt",
+      "sha256": "79c9d9e6fa6cf578336c2199c6a5fc25b947ae71d708e573c17f455417cbf2b7",
+      "bytes": 4940
+    },
+    {
+      "path": "SUMMARY.json",
+      "sha256": "20e4387cd4a191c51608ff20a4e694aa33c00437cdf8f50628525ba073f5c6d8",
+      "bytes": 549
+    },
+    {
+      "path": "TRACKED_CHECKPOINT_RAW.json",
+      "sha256": "9403cc51c4b3eabd73bfe3c4e3ca2e667d8e544a2574e56b9ac947afb3af724a",
+      "bytes": 16288
+    },
+    {
+      "path": "TRANSFER_CANDIDATES.json",
+      "sha256": "7cd630a6e7941aa22a9353aa254bcbc7886f8d9651b54cdfaf7d3749ce5bde5c",
+      "bytes": 29827
+    }
+  ]
+}

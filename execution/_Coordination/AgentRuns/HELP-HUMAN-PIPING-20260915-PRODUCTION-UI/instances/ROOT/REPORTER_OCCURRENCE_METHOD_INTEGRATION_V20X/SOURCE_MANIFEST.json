@@ -1,0 +1,200 @@
+{
+  "status": "ROOT_INTEGRATED_V70_REVIEW_ACCEPTED_PENDING_PROSPECTIVE_RUNTIME",
+  "upstreamManifestPath": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_METHOD_INTEGRATION_V20W/SOURCE_MANIFEST_R1.json",
+  "upstreamManifestSha256": "b95c7c3adc5a111687be78dcbf8b55a8df327f7150878597b750b4d2a04ebe26",
+  "declaredSourceCommit": "3f9a2c5143bd527441b0ac06d0d0d532bcd503cc",
+  "fileCount": 28,
+  "completeMaintainedClosureCount": 29,
+  "changedCount": 3,
+  "unchangedCount": 25,
+  "files": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/benchmark-harness.ts",
+      "sha256": "0588824257de2c8a9d12631916938e46fd1f0119b49ecb98f0279b58638d90bf",
+      "bytes": 182447
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/candidate-server-response.ts",
+      "sha256": "3e687668fe8c21b22679de9fec010a7456594543a2b1734813a681a97837ab5c",
+      "bytes": 8541
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/chromium-compositor-trace.ts",
+      "sha256": "aa98659b9283bd490e180698ece87567ea301918e983782a62bf367ffe7ee460",
+      "bytes": 16319
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/lossless-trace-json.mjs",
+      "sha256": "de7e87219debfaf750b6bf707adc68c60a2c1d316bea53850c26742dbec97175",
+      "bytes": 2149
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/lossless-trace-json.d.mts",
+      "sha256": "79a19df1e2cabf9c67acb05cf8d25733b3f557da49c075933ae570df77dc5833",
+      "bytes": 129
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+      "sha256": "732a234efeeda61d1eb83a3df49833a335ccbb202f357e6cdc2459d34ebcd241",
+      "bytes": 43181
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-presentation-extractor.d.mts",
+      "sha256": "fd0b1dbfc36229248191560c84ca8a104353556c84fbcec4d40da412d4bf08e8",
+      "bytes": 780
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-presentation-preflight.benchmark.ts",
+      "sha256": "cd47c44deae1da5aab4ad77e737a7a95213fa5a473722cb530494131002b667c",
+      "bytes": 51252
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+      "sha256": "2a7d60c2009d26c7737081fe7f48c5639a2e7c08007ad18a79d287fce9654cb8",
+      "bytes": 42807
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.causal-presentation-preflight.config.ts",
+      "sha256": "a8d60bb10b9d6dddeaf2bc77ba27c1ee77d6468e136df6a6e250135d243a8bff",
+      "bytes": 1097
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.candidate-causal-presentation-preflight.config.ts",
+      "sha256": "2601abbcf5064aba023ee3104f36a0b5b362c2d5ae77ae568c235c3d19eb4714",
+      "bytes": 1405
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/fixture-manifest.json",
+      "sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+      "bytes": 14267
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-method-contract.ts",
+      "sha256": "06979207212a2317a0d1a7e6883839f8502383d1e94928dd885e16f35f622944",
+      "bytes": 21317
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-phase-journal.ts",
+      "sha256": "c2d66aa4f54434a0131a12ac49caa83d4ed0544c81e7ac573e7a2fc53597c053",
+      "bytes": 1267
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-method-contract.spec.ts",
+      "sha256": "572bf26e6185bf229f6d140308e6efede40f45b5b710c76dfbf138505e7b7807",
+      "bytes": 80282
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.causal-method-contract.config.ts",
+      "sha256": "0e78e16cfd53f88d2bed50bf8c1e9dee1d1d496f99e6c8a9efc6c0a643f04dd2",
+      "bytes": 1185
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/tsconfig.causal-method.json",
+      "sha256": "15376dbf50b04fae22683d2849e0a451eafc5d999ca9379a640905d09dbcc8a4",
+      "bytes": 527
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/performance-targets.ts",
+      "sha256": "cd76e8e9979d23cf460c5117aa4ce55fccd3639def6de4b132074e2f0e9e4a13",
+      "bytes": 17796
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+      "sha256": "e645adbc092a8f432e7f69c3b955944f31eff7bae485e6ab5b7a5349aaeebe18",
+      "bytes": 26829
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+      "sha256": "2f2deb8d2771b03a10f4f67b564c5cade7b4a1eaeb8f17c4375e55851047103c",
+      "bytes": 16900
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts",
+      "sha256": "d2ccd61de9343400d0d80e06ae8e3b13341828eed26935b8b8e3379239f44e3b",
+      "bytes": 781
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "18903d93521216a1ad47fb302c28cb501f9d3639260bf0adb425bcf06c8f5c12",
+      "bytes": 61849
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "97a9936c564ebe7ad0182ea167e5e2e5ecb117288f6770fb30500d1438becea6",
+      "bytes": 74348
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.performance.config.ts",
+      "sha256": "5b587689281763f4524c376e201dbc93e1d7307160769d95ded7abcaf6a7f190",
+      "bytes": 1399
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/serve-bound-candidate-output.mjs",
+      "sha256": "1def765af80b49bf0cb35f5be16a20430862dde3fc7622d70b95805ea51599ab",
+      "bytes": 5406
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/freeze-candidate-point-oracle.mjs",
+      "sha256": "d8c7a0cdb8a129a1d710df4d420d6437d76d44d8fcc34bb5132a601add599937",
+      "bytes": 13276
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/point-hit-oracle.mjs",
+      "sha256": "d9f4e01f80b62c777b3b48645b3d2180e7327fb0e335358c5aba6b4f96b992b4",
+      "bytes": 19159
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/box-selection-oracle.mjs",
+      "sha256": "74180e4c9d90bd2d7563afd8f70c5edd88d41c24c0d2aebba128746a064d5b49",
+      "bytes": 6478
+    }
+  ],
+  "offlineControlFiles": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/verify-winner-cue-plan.mjs",
+      "sha256": "c43489fff605c382aea6c4ffdc9495d0433225966e53d064a835dd06358c2abe",
+      "bytes": 7503
+    }
+  ],
+  "documentationFiles": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/README.md",
+      "sha256": "fd70a87407aa55ec82140cf74e9ceae3c7d6bd04b696ae8fd9ca45b6ff6ad274",
+      "bytes": 14702
+    }
+  ],
+  "changedFiles": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/performance-targets.ts",
+      "beforeSha256": "8da9f693e5aabf33b62a1ff46149d78d91be764711998972e1603afa4aabbf5e",
+      "sha256": "cd76e8e9979d23cf460c5117aa4ce55fccd3639def6de4b132074e2f0e9e4a13",
+      "bytes": 17796
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+      "beforeSha256": "4fd67d8ac1ecda21f041835937ec528bf163cb260ef09e3f9a29b83a4a74c731",
+      "sha256": "e645adbc092a8f432e7f69c3b955944f31eff7bae485e6ab5b7a5349aaeebe18",
+      "bytes": 26829
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "beforeSha256": "f7bac18d2097676f84690a708dcc60d08ecd9a2e63cae39b390a0f42e0a84aa5",
+      "sha256": "97a9936c564ebe7ad0182ea167e5e2e5ecb117288f6770fb30500d1438becea6",
+      "bytes": 74348
+    }
+  ],
+  "newDependencies": [],
+  "patchSha256": "e99d70e65a057de0a6d128e464c360942b40f39e4a3b272f1adade1c5988929f",
+  "authorManifest": {
+    "path": "{VERIFY_WORKTREE}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/REPORTER_OCCURRENCE_REPAIR_V20X/SOURCE_MANIFEST_V20X.json",
+    "sha256": "ecc6b963b694855bb2deef2ad1b203dff3c3e19b7a01d7012b50e5d7edd310d9"
+  },
+  "reviewReturn": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/REPORTER_OCCURRENCE_V70/RETURN.json",
+    "sha256": "9d35bccb9b3d3fd51666851dc99a9909f9fa9fe127cf36012c8f22da5cf1d5c5"
+  },
+  "preimageAuthority": {
+    "git_commit": "3f9a2c5143bd527441b0ac06d0d0d532bcd503cc",
+    "validation": "All three beforeSha256 values match actual committed blobs and ROOT preimages; unchanged rows carry only current hashes."
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "self_excluding": true,
+  "files": [
+    {
+      "path": "RETURN.json",
+      "sha256": "a774324da14f411399ee5a52261db781674ed32dc342fc6105f062467113bb83",
+      "bytes": 1158
+    },
+    {
+      "path": "COVERAGE.json",
+      "sha256": "0f87f90ada7a99146521635b64f44305f103f471c2c438b651302c262eb7c6d2",
+      "bytes": 4778
+    },
+    {
+      "path": "INPUT_BINDINGS.json",
+      "sha256": "903af46dad0564dd77b920ab0701c44d5ecb73fb63cb313fdb6e7b83b8da2d6e",
+      "bytes": 10742
+    }
+  ]
+}

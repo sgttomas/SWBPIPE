@@ -1,0 +1,35 @@
+{
+  "status": "VERIFIED_INCREMENT_COMPLETE",
+  "at": "2026-09-16T23:39:50.072671+00:00",
+  "role": "TASK Type2",
+  "parent": "/root",
+  "agent": "/root/ui_closeout_successor",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "enforcement": "instruction/config asserted; no delegation",
+  "derivative_package": true,
+  "brief_sha256": "c4e0417c3f15af39f6aa0671ba7740833a9acdbfa1c0bc4e41a585d3ae344320",
+  "accepted_prior_derivative": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V20/RETURN.json",
+    "sha256": "a71e7a2bc83c9c028d39be58a5b27b891bad6f669b31f38ae1cb9c98c1b5f3d4"
+  },
+  "inputs_sha256": "80b5556a478406ea39ea253ed698e782ec7ba00684dad332d2c534e337a4cc6f",
+  "map_sha256": "e4d399f016148d824762a89eafe2501488f224660890f35e9b1559124a88efdd",
+  "closed_manifests": 2,
+  "verified_aliases": 49,
+  "verified_unique_objects": 45,
+  "created_unique_objects": 39,
+  "reused_verified_objects": 6,
+  "verified_unique_bytes": 305656,
+  "exceptions": [],
+  "verification": "All declared members/manifests SHA/size/containment verified; canonical SHA/size/readonly readback verified. Exclusive temporary creation, fsync,0444,renamex_np RENAME_EXCL,directory fsync; exact existing objects reused.",
+  "preservation": "Failed author attempts and stale inherited preimage metadata preserved exactly. ROOT derivative correction remains separate. All originals/prior objects and outcome attribution unchanged.",
+  "exclusions": [
+    "active V61 review",
+    "unlisted referenced inputs",
+    "publication inventory",
+    "current source and metadata"
+  ],
+  "archive_io": "COMPLETE_RELEASED; no background or further automatic work",
+  "claims": "Derivative host-local preservation only, not WORM or portable raw availability. No source/status/Git/network/test/build/browser/native/runtime/deletion or acceptance change."
+}

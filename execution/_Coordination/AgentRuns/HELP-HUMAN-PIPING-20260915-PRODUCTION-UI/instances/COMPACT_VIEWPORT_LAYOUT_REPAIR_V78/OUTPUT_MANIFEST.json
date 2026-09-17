@@ -1,0 +1,855 @@
+{
+  "self_excluding": true,
+  "files": [
+    {
+      "path": "ACCEPTANCE_FREEZE.json",
+      "sha256": "900cea3190a356483cdd49f0fc320018d983c0f717e3b1ed0bafc3fd111fd424",
+      "bytes": 903
+    },
+    {
+      "path": "COMBINED_FROM_85D.patch",
+      "sha256": "3c9ac56b1972d4b207bef0aea08a5d265c359caca5c15f66ee59c4307028d435",
+      "bytes": 24655
+    },
+    {
+      "path": "CYCLE1/COLLECTION1.log",
+      "sha256": "a89ffcea25cbdbfd0190daea5800e398207da845cf8e93479ddf1c73c5a709a8",
+      "bytes": 1882
+    },
+    {
+      "path": "CYCLE1/COLLECTION2.log",
+      "sha256": "032a079e9ad933c1afd8758eefe9ea4620a1b78fd56c4251d2c919732fa345d3",
+      "bytes": 1215
+    },
+    {
+      "path": "CYCLE1/ENTRY_PORTS.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "CYCLE1/RUN1.EXIT.json",
+      "sha256": "7f322ae28252c3e007df4cfed80437a71d7e6ac87d95a53a31d3d8bb95f8fc37",
+      "bytes": 52
+    },
+    {
+      "path": "CYCLE1/RUN1.stderr.log",
+      "sha256": "ea78dd48870231b363a6ed64f8b7c3c9fe0ec21fec651f80d8d6a87581283f7f",
+      "bytes": 4452
+    },
+    {
+      "path": "CYCLE1/RUN1.stdout.log",
+      "sha256": "56751cfcad801f39bdfb849b59ecf501d792c6162c8df50089e31529673a5b91",
+      "bytes": 31420
+    },
+    {
+      "path": "CYCLE1/RUN2.EXIT.json",
+      "sha256": "56232c2c38be03207a5067e83d52584727d4c4a115058b518dcf7d477fff78a0",
+      "bytes": 53
+    },
+    {
+      "path": "CYCLE1/RUN2.stderr.log",
+      "sha256": "ed68e6e2c7efc962aa01635ecb3ec100742b66019ebfb051736443b7d7a8ee6a",
+      "bytes": 844
+    },
+    {
+      "path": "CYCLE1/RUN2.stdout.log",
+      "sha256": "a82f16224ed5fba633635953ab02a252cf88f9f97f24378ad0831e9b5fe8d283",
+      "bytes": 4330
+    },
+    {
+      "path": "CYCLE1/TOOLBAR_FAILURE_TRACE_EXCERPT.json",
+      "sha256": "eddd043a1064aaaa32ea76cf7329f91e2a96566b38f69c9fe338308882046c87",
+      "bytes": 8035
+    },
+    {
+      "path": "CYCLE1/run1-test-results/.last-run.json",
+      "sha256": "df3d00d255ebd5843cc5a98701f26b303f12fc1018f81197f75c7ad513aae0b7",
+      "bytes": 635
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-desktop/error-context.md",
+      "sha256": "01abedf35534cd1272a7fe9571e47f6b1e4dececc8ec2c52e635b44f19235c8a",
+      "bytes": 21651
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-desktop/trace.zip",
+      "sha256": "e2b6f80f0971d7b889afe39f7bf412dd68980babadd6050cf2336dbf1ded7c4b",
+      "bytes": 2699049
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-2979b-nvas-light-compact-1280x800-chromium-desktop/error-context.md",
+      "sha256": "5ccf391b1fee3b1958ba29115ff55d9e8ccfe116157a93dfdc1da4d49a4f1c17",
+      "bytes": 43177
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-2979b-nvas-light-compact-1280x800-chromium-desktop/trace.zip",
+      "sha256": "97b969f273506fce5b3b3b4493d576f05633a47e7eccc29bd27e0fcd7c6b13ef",
+      "bytes": 2584411
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-desktop/error-context.md",
+      "sha256": "2a2d54956d022fa9cab5fd29bf51b0beee976da6710eb6ec657e80a712ca8754",
+      "bytes": 21656
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-desktop/trace.zip",
+      "sha256": "84b2dee14f53e01997a1fe66d9b4bb60a561eb03603792d803ee199d41ddfe46",
+      "bytes": 2571954
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-2ebec-s-dark-comfortable-1024x768-chromium-desktop/error-context.md",
+      "sha256": "99b8391438ab514b62a3293975ca426e3a47f67023ff9aeee8de608d86a1b8cd",
+      "bytes": 21655
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-2ebec-s-dark-comfortable-1024x768-chromium-desktop/trace.zip",
+      "sha256": "f4519bd9cfe97e87b295c62bcc3753ca0a95d1d477093a043b2db92df3157024",
+      "bytes": 2820644
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-5443d--light-comfortable-1440x920-chromium-desktop/error-context.md",
+      "sha256": "b0affa011b1bac10e1f3bd2ef5ef0c6a531b94cabaece67f0fde4bac27aef92b",
+      "bytes": 43158
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-5443d--light-comfortable-1440x920-chromium-desktop/trace.zip",
+      "sha256": "37b595f91bd3f208a8405e215dc0fcea0cacf27262040eda83f968378378bf2f",
+      "bytes": 2352740
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-desktop/error-context.md",
+      "sha256": "831f0621556ce9dae525eb6dab6f415b79ad97aa8ec2bd062c5811edcf26ec59",
+      "bytes": 43157
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-desktop/trace.zip",
+      "sha256": "738b8f4034a936d6fa8af9299fb84073c0c6e97320136b4782324244478b8c88",
+      "bytes": 2576334
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-6d9e6-nvas-light-compact-1440x920-chromium-desktop/error-context.md",
+      "sha256": "80dd9b37e57689f0841f201dfb56b4b347fa009704a8eccae7e0a568a1e9996a",
+      "bytes": 43310
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-6d9e6-nvas-light-compact-1440x920-chromium-desktop/trace.zip",
+      "sha256": "fb54698dd6cbd9f7f511ab416c88df81527e28445bed0e9f1faf47cbff09bfae",
+      "bytes": 2746620
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-72367--light-comfortable-1280x800-chromium-desktop/error-context.md",
+      "sha256": "5e4a548c72b4d2e2ae1bd22daddb26ce307497412411dc8a4c438a20deab9f56",
+      "bytes": 43181
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-72367--light-comfortable-1280x800-chromium-desktop/trace.zip",
+      "sha256": "4bd531177a7db8981a66a446dfe7e63efa2e43f219932f142595202e16713163",
+      "bytes": 2654090
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-8746c-s-dark-comfortable-1280x800-chromium-desktop/error-context.md",
+      "sha256": "0e2a924f055782f2ca57982f7c08c334c1af63cb1ae55a728d40075e984cf7de",
+      "bytes": 43180
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-8746c-s-dark-comfortable-1280x800-chromium-desktop/trace.zip",
+      "sha256": "6f7c95f9af424d63d2c4c3caa68947039236e8f986dec3b43d2d5ce011cd5174",
+      "bytes": 2841202
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-94b10-anvas-dark-compact-1440x920-chromium-desktop/error-context.md",
+      "sha256": "222d3d9b14855e5e483f389fb5b54a7fce97f6d970e2a9f28155db218fd8c67f",
+      "bytes": 43309
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-94b10-anvas-dark-compact-1440x920-chromium-desktop/trace.zip",
+      "sha256": "8d53708363a5644c657e2ea27719eda32438deb5f7b934e53874b1ffdd8467fe",
+      "bytes": 2993395
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-e5cbc-nvas-light-compact-1024x768-chromium-desktop/error-context.md",
+      "sha256": "ce6059ea2b4e321648ff09687aaddb0fc7ba01ec1dd6f4d7dc3822399bd1210f",
+      "bytes": 21652
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-e5cbc-nvas-light-compact-1024x768-chromium-desktop/trace.zip",
+      "sha256": "095ed9cc08d82aefd09a576e8e789b88e880b0c314a5b64f33e814a9e5559426",
+      "bytes": 2578992
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-f4536-anvas-dark-compact-1280x800-chromium-desktop/error-context.md",
+      "sha256": "52636f62963877ad781496a034f8bc878b867414aec78ca5c3fbcb9356ed0853",
+      "bytes": 43176
+    },
+    {
+      "path": "CYCLE1/run1-test-results/ui-foundation-task-and-ana-f4536-anvas-dark-compact-1280x800-chromium-desktop/trace.zip",
+      "sha256": "50a65b0fb9dae72f762fa6d77b7fcf5f8598eab6e37628e20f69f4e78748d795",
+      "bytes": 2681980
+    },
+    {
+      "path": "CYCLE1/run2-test-results/.last-run.json",
+      "sha256": "2fc1256aa56733cf938c68bbd8c31546db97429961e3d8d5f65d4bced49c1dd5",
+      "bytes": 96
+    },
+    {
+      "path": "CYCLE1/run2-test-results/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/error-context.md",
+      "sha256": "f4bcd61355c47ef41aa536ec4251ad6f4e28557873c306c5a64cd0920a44640d",
+      "bytes": 90021
+    },
+    {
+      "path": "CYCLE1/run2-test-results/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/trace.zip",
+      "sha256": "81f250a34986316a620566a19f912c311a735abed1d0fe1578362c8560edd2c8",
+      "bytes": 8765455
+    },
+    {
+      "path": "CYCLE1/toolbar-failure.jpeg",
+      "sha256": "4d62627928aa3ce57118975515920c5a5e3d4bb22045d5eb49702d2c286c7f14",
+      "bytes": 94364
+    },
+    {
+      "path": "CYCLE2/COLLECTION1.log",
+      "sha256": "30e3597450cfcd3b2e91148c56bd538433dae13890bf2f07377610a5ce0fb5a1",
+      "bytes": 1882
+    },
+    {
+      "path": "CYCLE2/COLLECTION2.log",
+      "sha256": "032a079e9ad933c1afd8758eefe9ea4620a1b78fd56c4251d2c919732fa345d3",
+      "bytes": 1215
+    },
+    {
+      "path": "CYCLE2/DETAILS_FAILURE_TRACE_EXCERPT.json",
+      "sha256": "32f89a99e9e12f0963e32cbc1598f6950b6d7d3ede585de97690cf71d26fe009",
+      "bytes": 3710
+    },
+    {
+      "path": "CYCLE2/DIAGNOSIS.md",
+      "sha256": "eba31716757eab39d813b3e4cb60bfa1645ff4d76bd704407ef9f2812a5a74b4",
+      "bytes": 1897
+    },
+    {
+      "path": "CYCLE2/EXIT_PORTS.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "CYCLE2/OUTPUT_MANIFEST.json",
+      "sha256": "4e1f70b90e5f991af5e868faa1210a9d5361d9247a1e9951ff33acb08817748e",
+      "bytes": 11956
+    },
+    {
+      "path": "CYCLE2/REPAIR_RATIONALE.md",
+      "sha256": "1e55842b1327f2ed3c46984f8ea4170188b62300bafaba2726031d75e544f7c9",
+      "bytes": 697
+    },
+    {
+      "path": "CYCLE2/RETURN.json",
+      "sha256": "557f7f18dd284bf17df5522317bd1ff36a065b09fa05e712f91e10f79b285143",
+      "bytes": 284
+    },
+    {
+      "path": "CYCLE2/RUN1.EXIT.json",
+      "sha256": "a3de05b46ee4e6a1db07ea2f61aa46cec2eef023b66a37d2611cf7eb998a3b91",
+      "bytes": 52
+    },
+    {
+      "path": "CYCLE2/RUN1.stderr.log",
+      "sha256": "a76475a1e14a98ea568aae065e4b0c681431a3978006abdb6400b8f6ef70839a",
+      "bytes": 4452
+    },
+    {
+      "path": "CYCLE2/RUN1.stdout.log",
+      "sha256": "d066f6bfdddab07c9a0b0fb87bc28a0395587a76c2f87fbd6d79c9b1e85c821d",
+      "bytes": 30712
+    },
+    {
+      "path": "CYCLE2/RUN2.EXIT.json",
+      "sha256": "0246564738e01031f2aa474ea68233d94c7dfd6fe42499222d88b391fc726ff3",
+      "bytes": 52
+    },
+    {
+      "path": "CYCLE2/RUN2.stderr.log",
+      "sha256": "a480b66ccf590f795b48f98f653183dec53d09c2eabdb2c5160894f8e9145ddf",
+      "bytes": 844
+    },
+    {
+      "path": "CYCLE2/RUN2.stdout.log",
+      "sha256": "73b0c2a2df2697fd92171c53ea5bc4146a96482ec7efa6b1f5213d65b689cd1a",
+      "bytes": 1372
+    },
+    {
+      "path": "CYCLE2/SOURCE_MANIFEST.json",
+      "sha256": "21af9d15ff4d4a59cbdb3e002d229089a5c7520f8f5fca2e3fe55cc7853a7fdb",
+      "bytes": 575
+    },
+    {
+      "path": "CYCLE2/failure-screencasts/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-desktop.jpeg",
+      "sha256": "cd9ea8e182c3b77a6a56ec674361e77c18e661d9386542eb45794fb31c05d39f",
+      "bytes": 87223
+    },
+    {
+      "path": "CYCLE2/failure-screencasts/ui-foundation-task-and-ana-2979b-nvas-light-compact-1280x800-chromium-desktop.jpeg",
+      "sha256": "5f7813b5c6cee2ae6bfc80ff958e3dce89a1132f21fee29e55921e1520cd48d6",
+      "bytes": 96263
+    },
+    {
+      "path": "CYCLE2/failure-screencasts/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-desktop.jpeg",
+      "sha256": "b61923d3f3280ac649f3f5a71ce812254e1ed002bac4da0f0aa36bc24c75d9f7",
+      "bytes": 84465
+    },
+    {
+      "path": "CYCLE2/failure-screencasts/ui-foundation-task-and-ana-2ebec-s-dark-comfortable-1024x768-chromium-desktop.jpeg",
+      "sha256": "e27692b35d1d6030c2e74bf5509c975ce36735f2baf0651490fd5478c69a9112",
+      "bytes": 89622
+    },
+    {
+      "path": "CYCLE2/failure-screencasts/ui-foundation-task-and-ana-5443d--light-comfortable-1440x920-chromium-desktop.jpeg",
+      "sha256": "fe1a31a6413b5b8c6857c2ed60b9b614f65cc0d7fb013bf7c429bc1a0f7a139d",
+      "bytes": 92731
+    },
+    {
+      "path": "CYCLE2/failure-screencasts/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-desktop.jpeg",
+      "sha256": "990c0366ef5c2cab29e7b96b3ce4f9ba1a838dbc8fe62bf8c8ed564949ffc0b7",
+      "bytes": 96897
+    },
+    {
+      "path": "CYCLE2/failure-screencasts/ui-foundation-task-and-ana-6d9e6-nvas-light-compact-1440x920-chromium-desktop.jpeg",
+      "sha256": "060ffc346a8db81ffe496a525932c0ca0aa35a339a40d1754c58cda1105b5f49",
+      "bytes": 93223
+    },
+    {
+      "path": "CYCLE2/failure-screencasts/ui-foundation-task-and-ana-72367--light-comfortable-1280x800-chromium-desktop.jpeg",
+      "sha256": "6cf1bf71de0ac8d87cc936c469ada6f5002f3b631e09a64672fb146f2cf7e3fa",
+      "bytes": 95007
+    },
+    {
+      "path": "CYCLE2/failure-screencasts/ui-foundation-task-and-ana-8746c-s-dark-comfortable-1280x800-chromium-desktop.jpeg",
+      "sha256": "d7e1901f01455a2d7073b24cf1dfab35348018a2afe2d877e0c885e76de9a2ef",
+      "bytes": 98677
+    },
+    {
+      "path": "CYCLE2/failure-screencasts/ui-foundation-task-and-ana-94b10-anvas-dark-compact-1440x920-chromium-desktop.jpeg",
+      "sha256": "75550ffd8eb3a36d968dd9c3e2230ff9071d495494473172663657b5d857b30d",
+      "bytes": 98228
+    },
+    {
+      "path": "CYCLE2/failure-screencasts/ui-foundation-task-and-ana-e5cbc-nvas-light-compact-1024x768-chromium-desktop.jpeg",
+      "sha256": "d06d9f45709fa8735879dfbac64ce29628be7d0c4de8a05df0078e6d954c80de",
+      "bytes": 82377
+    },
+    {
+      "path": "CYCLE2/failure-screencasts/ui-foundation-task-and-ana-f4536-anvas-dark-compact-1280x800-chromium-desktop.jpeg",
+      "sha256": "f0b8e38bd9d6e58a923a08c5ba516510fb3f231f103553eb4c124eb032fde388",
+      "bytes": 99810
+    },
+    {
+      "path": "CYCLE2/run1-test-results/.last-run.json",
+      "sha256": "df3d00d255ebd5843cc5a98701f26b303f12fc1018f81197f75c7ad513aae0b7",
+      "bytes": 635
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-desktop/error-context.md",
+      "sha256": "85198a8043a07347d513917c63a62bfff59f896561176a1f7b98a798404799e5",
+      "bytes": 46383
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-desktop/trace.zip",
+      "sha256": "e603bb1f2c6c76203904cc15d9cc0a49f1f5e8c1586cf996de9289e7d6c6a1bc",
+      "bytes": 5777246
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-2979b-nvas-light-compact-1280x800-chromium-desktop/error-context.md",
+      "sha256": "52ec72158c9db4c122afffbf882cac4726152164e33e06105144670644f54408",
+      "bytes": 50868
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-2979b-nvas-light-compact-1280x800-chromium-desktop/trace.zip",
+      "sha256": "b9aa2dbd02fced293ab8a902759315da6929d5acdb406cb13fce61d7b8399ef5",
+      "bytes": 3573144
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-desktop/error-context.md",
+      "sha256": "128d11b27faf08c99c45dc71014c97f57684d5716246376b2a4fe2210a252a93",
+      "bytes": 46388
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-desktop/trace.zip",
+      "sha256": "a83ea7c04c67e8d6aec6c21a59b753c3cdd69530766b62426048434112dbf80c",
+      "bytes": 5194632
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-2ebec-s-dark-comfortable-1024x768-chromium-desktop/error-context.md",
+      "sha256": "641561560b663c3c6eded06e59224ec3959b51a8dc87d2d881b776d16189ea6f",
+      "bytes": 46387
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-2ebec-s-dark-comfortable-1024x768-chromium-desktop/trace.zip",
+      "sha256": "d362d5203182c7b698e3d298902f0be16ecf42a5d66ba0fe9b04dfe5e975f075",
+      "bytes": 5798766
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-5443d--light-comfortable-1440x920-chromium-desktop/error-context.md",
+      "sha256": "1445597bfc92bfaef3d2506127434d6202079e8ed31003c1f2643dfd1757a77a",
+      "bytes": 51018
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-5443d--light-comfortable-1440x920-chromium-desktop/trace.zip",
+      "sha256": "970b0464d67ec595d09e3aab0194ae49c0dc1819eb5b09e6861756e6e951fb85",
+      "bytes": 3384544
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-desktop/error-context.md",
+      "sha256": "4cbd4a5a2673c6200d101aee180598b03223e5bfcb5bfc2c0ae46aa73c1d6051",
+      "bytes": 51017
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-desktop/trace.zip",
+      "sha256": "926d8730b3e87887fb4d9d63fd65a6bc5099fbed688747fb77e81cc0ddcc67d3",
+      "bytes": 3812388
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-6d9e6-nvas-light-compact-1440x920-chromium-desktop/error-context.md",
+      "sha256": "415def9e5aad785721c314735b94ac8323c2d1fdb6a1c70e611032afd922c8ea",
+      "bytes": 51014
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-6d9e6-nvas-light-compact-1440x920-chromium-desktop/trace.zip",
+      "sha256": "6a0bcf6e804c38c1da8f2779f8e5527aec911a27caa98b74a7d96bb0f6c5e67a",
+      "bytes": 3797936
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-72367--light-comfortable-1280x800-chromium-desktop/error-context.md",
+      "sha256": "01ec142417919281f56dc293b6d948c183de6557159e45653eb3c61c1a6746a5",
+      "bytes": 50872
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-72367--light-comfortable-1280x800-chromium-desktop/trace.zip",
+      "sha256": "44d2609c4d6153f88dd9301160c49ffb7fcb92e0b1fdb83b653e3869d5ac85af",
+      "bytes": 3439727
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-8746c-s-dark-comfortable-1280x800-chromium-desktop/error-context.md",
+      "sha256": "66032de5f117765527d19d71b7ed1b5c07615f708d42da7f7fa1be3e3bbdd78f",
+      "bytes": 50871
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-8746c-s-dark-comfortable-1280x800-chromium-desktop/trace.zip",
+      "sha256": "9d27cbe8591c0db48c26cdbcc0d780f40c694b932166353eb096c125d90ba98c",
+      "bytes": 3643928
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-94b10-anvas-dark-compact-1440x920-chromium-desktop/error-context.md",
+      "sha256": "94825ffe8060750e12e75e63d897b5d50322c35a7f1d5eb44d73501a2e8a6900",
+      "bytes": 51013
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-94b10-anvas-dark-compact-1440x920-chromium-desktop/trace.zip",
+      "sha256": "bfc5fc4f3dafa5e256cef562bd55633b6a188fb521fed223257c31d3f2ab222c",
+      "bytes": 3921321
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-e5cbc-nvas-light-compact-1024x768-chromium-desktop/error-context.md",
+      "sha256": "0fe5023e011bb80370bcd54270783940449da1c19e6f9baa63ea209af9ae4b1d",
+      "bytes": 46384
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-e5cbc-nvas-light-compact-1024x768-chromium-desktop/trace.zip",
+      "sha256": "ca1cffb343993c28ee04ef21ebe97607e72f30949c780be20b41f68c9bd0664e",
+      "bytes": 5292465
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-f4536-anvas-dark-compact-1280x800-chromium-desktop/error-context.md",
+      "sha256": "f638a32d99719735083840b580c9a8b1c0c0344bf94ea9d43d82c0a5cc8d3a03",
+      "bytes": 50867
+    },
+    {
+      "path": "CYCLE2/run1-test-results/ui-foundation-task-and-ana-f4536-anvas-dark-compact-1280x800-chromium-desktop/trace.zip",
+      "sha256": "292f8b5e1e13db824127dfbba9be899ef115f2facd848dccea2bd943885f206d",
+      "bytes": 3942810
+    },
+    {
+      "path": "CYCLE2/run2-test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "CYCLE2/source/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "da0187d4208cb944025e60938a180078d73a9af9a6c8cac7ed8ec0631c659245",
+      "bytes": 103553
+    },
+    {
+      "path": "CYCLE2/source/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "b0d78570edb4d4d333173c8dd1bedd1ccf11626c6d7dcb5e97429bf281ba6126",
+      "bytes": 126530
+    },
+    {
+      "path": "CYCLE2/source/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "fb3b9dc1c75b309ab2057a4b87de4dc93154994563bf916202a16d504180e542",
+      "bytes": 202496
+    },
+    {
+      "path": "CYCLE2/source/apps/desktop/src/styles.css",
+      "sha256": "95c89c38c27c7aba3225ea1d33fb004dac8e0fe9f26728ab2647e8af5797dfcf",
+      "bytes": 96644
+    },
+    {
+      "path": "CYCLE3/COLLECTION.log",
+      "sha256": "62a1d779175ebce5a3e49c9e4f9c40bf5d005c1ae6374e873315a65258af5717",
+      "bytes": 1571
+    },
+    {
+      "path": "CYCLE3/COMMAND.json",
+      "sha256": "30282499516bba5cd703ed803e09539dd1d0a55666652dec568dc020d5e984d0",
+      "bytes": 609
+    },
+    {
+      "path": "CYCLE3/EXIT.json",
+      "sha256": "01c40a4f0f2cafc492a7bf616e6863563b176ae2018b79b09071eed2a0b348ab",
+      "bytes": 52
+    },
+    {
+      "path": "CYCLE3/EXIT_PORTS.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "CYCLE3/OUTPUT_MANIFEST.json",
+      "sha256": "5dfccb8a1b719dd94831b169732d8429a3fce827b724331e3ee797078667f9ff",
+      "bytes": 1533
+    },
+    {
+      "path": "CYCLE3/RETURN.json",
+      "sha256": "6de9c232a4430c52009ee150e04cb4b7ff7a1cb10684ce3a74ecccefd426e092",
+      "bytes": 575
+    },
+    {
+      "path": "CYCLE3/SOURCE_BINDING.json",
+      "sha256": "edfd1d8a0a9f96a69eecd0b5d7f74b3ba623fa80c920b95db8214d3ba8ccf08f",
+      "bytes": 479
+    },
+    {
+      "path": "CYCLE3/stderr.log",
+      "sha256": "0c113e50fd553529d8c612dd43f40a0f6026714127f8299b552f8911200b81b8",
+      "bytes": 516
+    },
+    {
+      "path": "CYCLE3/stdout.log",
+      "sha256": "b75787daf9f23cc33df2ab7dce779826e57dc4c006bfee5f8d5ba6d8aa1bbb16",
+      "bytes": 1813
+    },
+    {
+      "path": "CYCLE3/test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "CYCLE3/ui-foundation.spec.ts",
+      "sha256": "15ed7ee92c698881a70c16cdcfdea26ed24f5af72c15e5bb705326c05e4e621b",
+      "bytes": 130159
+    },
+    {
+      "path": "CYCLE4/CANONICAL_REPORT.json",
+      "sha256": "6e74f271f128f520dc2890b4688c31741716a4fc5f4284830a2c1ee7ca9e0ba8",
+      "bytes": 3406195
+    },
+    {
+      "path": "CYCLE4/COMMAND.json",
+      "sha256": "a89b7c662841f6bb8f0018051bcf1c5e98408134786d4ee7a5ea47ca027a9fea",
+      "bytes": 968
+    },
+    {
+      "path": "CYCLE4/DERIVATIVE_ATTACHMENT_MANIFEST.json",
+      "sha256": "9539c69907f313573ebf4fe00698a42303dcdcfdd5dc177419bb17c4bdebd7e9",
+      "bytes": 12265
+    },
+    {
+      "path": "CYCLE4/EXIT.json",
+      "sha256": "642cce35c0cf7503aa8f95095709bd2eaee5835f253c7e0f75ebcab539e4f6be",
+      "bytes": 52
+    },
+    {
+      "path": "CYCLE4/RESULT_VERIFICATION.json",
+      "sha256": "91b33adadeed8feaba1e21070381198d2b49eda96cb6dbdc82d2a9f41cff62f1",
+      "bytes": 15449
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-solved-task-dock.png",
+      "sha256": "3f3dbba437642d53c5ab2155b68e4d8d10a1850ef124ea9a4d3b7f856dc85c54",
+      "bytes": 160491
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-task-dock-layout.json",
+      "sha256": "6ecaf42d6ab076bbb8e42d43d406d2e4ce9494056b28d8d2d8b8fd0513a922cb",
+      "bytes": 19589
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-solved-task-dock.png",
+      "sha256": "a92a4ccaf7d3d55f9063cd1ee9a58a01680e3c881ab3a44461afb714928df216",
+      "bytes": 192092
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-task-dock-layout.json",
+      "sha256": "647060c6d1dd2c2d9911d42940d4eb186c3a1fe61bbfcd8f0731d87fdc77f12c",
+      "bytes": 19450
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-solved-task-dock.png",
+      "sha256": "cd29d0b15ab13de8fc4e75fdd15b70fc2c1c7525b87397e9a68bf5f7635fedfd",
+      "bytes": 222353
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-task-dock-layout.json",
+      "sha256": "28b8fed98162cb4ef04dfcbbadf908109b771ffd2c6228fb9e7d80e13166d43c",
+      "bytes": 19449
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1024x768-solved-task-dock.png",
+      "sha256": "2d7432b68f96b98da4a57d27b62f509150d5994e50ff1d6a7245b6fb8791ff5b",
+      "bytes": 160659
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1024x768-task-dock-layout.json",
+      "sha256": "8a4e9d284130d6fe9801f3b686f840ab48556f252cecc7d554b31f43d0392377",
+      "bytes": 19589
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-solved-task-dock.png",
+      "sha256": "ded889e20fd236b4f1f5edf661bbec48b715078cb67bb907fde0c6694b861221",
+      "bytes": 190954
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-task-dock-layout.json",
+      "sha256": "1676ebef4c60a68a1ff11005f1a0f688616378d34da157904ac4d793f973146d",
+      "bytes": 19450
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-solved-task-dock.png",
+      "sha256": "44e63fbed4f97c6741b3c7f82ac0dcc2cd83dd64b56f93426651de7450c5895c",
+      "bytes": 223804
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-task-dock-layout.json",
+      "sha256": "8a3549bebc20462203bc2c5f6fe7f2f45c1966f97ebea245f76f07019559337f",
+      "bytes": 19449
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-solved-task-dock.png",
+      "sha256": "d4b1db89f154b48e498611d6e66e61c3c16cdb3be62de597adf7d75914b94018",
+      "bytes": 160190
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-task-dock-layout.json",
+      "sha256": "6ecaf42d6ab076bbb8e42d43d406d2e4ce9494056b28d8d2d8b8fd0513a922cb",
+      "bytes": 19589
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-solved-task-dock.png",
+      "sha256": "385151905a9f3beb0f5851d8f12c5982321dda2a9bb69067e8d2d6fa3af94615",
+      "bytes": 191760
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-task-dock-layout.json",
+      "sha256": "647060c6d1dd2c2d9911d42940d4eb186c3a1fe61bbfcd8f0731d87fdc77f12c",
+      "bytes": 19450
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-solved-task-dock.png",
+      "sha256": "a9f9399f48e29749a5808ba965d84bb003f1688b2fc8456eacda22539b49735f",
+      "bytes": 224070
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-task-dock-layout.json",
+      "sha256": "28b8fed98162cb4ef04dfcbbadf908109b771ffd2c6228fb9e7d80e13166d43c",
+      "bytes": 19449
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1024x768-solved-task-dock.png",
+      "sha256": "4de60eb7589ef69713ebda78e97559cc250871b2160454daea7184a15c8fa19f",
+      "bytes": 161368
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1024x768-task-dock-layout.json",
+      "sha256": "8a4e9d284130d6fe9801f3b686f840ab48556f252cecc7d554b31f43d0392377",
+      "bytes": 19589
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-solved-task-dock.png",
+      "sha256": "5af3dbc529f3acc79c177f80bed80bbe97454aeda896f3406bc44982a5ad8a77",
+      "bytes": 191308
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-task-dock-layout.json",
+      "sha256": "1676ebef4c60a68a1ff11005f1a0f688616378d34da157904ac4d793f973146d",
+      "bytes": 19450
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-solved-task-dock.png",
+      "sha256": "6b8681c7e45df07a8984f16b846914e142aa73dadf24bae95ab2b9338b2eeec4",
+      "bytes": 225616
+    },
+    {
+      "path": "CYCLE4/derived-attachments/task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-task-dock-layout.json",
+      "sha256": "8a3549bebc20462203bc2c5f6fe7f2f45c1966f97ebea245f76f07019559337f",
+      "bytes": 19449
+    },
+    {
+      "path": "CYCLE4/stderr.log",
+      "sha256": "5e5f05465540c62e8e1d2e8752bebf0ebcf60f7874a620d90bdd63eeb9e93948",
+      "bytes": 516
+    },
+    {
+      "path": "CYCLE4/stdout.log",
+      "sha256": "5087f519900dbe535ddc9ca0fc379d62c5f1892a0725cb15f058994e7e98f963",
+      "bytes": 78
+    },
+    {
+      "path": "CYCLE4/test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "DIFF_CHECK.json",
+      "sha256": "2dd819db9ef7ef783952f12b1955759537f514e015c5ab3514fea49233e7a0f3",
+      "bytes": 36
+    },
+    {
+      "path": "ENGINEERING_RETURN.md",
+      "sha256": "f2ff8a7eaa8cfe2680d684565c67f3871c45198c9ae63e1b0559425649ef0535",
+      "bytes": 3229
+    },
+    {
+      "path": "EXIT_GIT.log",
+      "sha256": "d7e73fb08976e68da48444062dded1032038025c589e2a7d4de6bdbedef353e4",
+      "bytes": 311
+    },
+    {
+      "path": "EXIT_PORTS.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "EXIT_PROCESSES.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "FINAL_SOURCE/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "da0187d4208cb944025e60938a180078d73a9af9a6c8cac7ed8ec0631c659245",
+      "bytes": 103553
+    },
+    {
+      "path": "FINAL_SOURCE/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "15ed7ee92c698881a70c16cdcfdea26ed24f5af72c15e5bb705326c05e4e621b",
+      "bytes": 130159
+    },
+    {
+      "path": "FINAL_SOURCE/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "fb3b9dc1c75b309ab2057a4b87de4dc93154994563bf916202a16d504180e542",
+      "bytes": 202496
+    },
+    {
+      "path": "FINAL_SOURCE/apps/desktop/src/styles.css",
+      "sha256": "95c89c38c27c7aba3225ea1d33fb004dac8e0fe9f26728ab2647e8af5797dfcf",
+      "bytes": 96644
+    },
+    {
+      "path": "INCREMENTAL_FROM_V77.patch",
+      "sha256": "9e3dbf8e9a95c93d59e9c2107bcb57f9d10bb8bb294bf6bd78276774c3690a6e",
+      "bytes": 19273
+    },
+    {
+      "path": "PREIMAGES.json",
+      "sha256": "ea1bea0fcff7f8d0861203f87d31c9769b88518b53b73e905e898924aefc1211",
+      "bytes": 575
+    },
+    {
+      "path": "PREPARATION_V1/COMBINED_FROM_85D.patch",
+      "sha256": "52e9a53885a6c194fecc24de20da148679804ffc4e6252f2af0aee5c87a20d49",
+      "bytes": 20294
+    },
+    {
+      "path": "PREPARATION_V1/INCREMENTAL_FROM_V77.patch",
+      "sha256": "5546d4f14cd9d810c9c068b2d0c8a021d6e5dd8a840314887fb25d3fa393802e",
+      "bytes": 14912
+    },
+    {
+      "path": "PREPARATION_V1/OUTPUT_MANIFEST.json",
+      "sha256": "22213d61a7c520657baea1db42d2799366a5801a6174f63e90e614ede5d5dc41",
+      "bytes": 1693
+    },
+    {
+      "path": "PREPARATION_V1/PROPOSED_COMMANDS.json",
+      "sha256": "3578e98c271d64b7d4092082681a9801693e5bd476f2d5501cb06bd98214e2ff",
+      "bytes": 1536
+    },
+    {
+      "path": "PREPARATION_V1/RATIONALE.md",
+      "sha256": "75e6dffd6c0853ee6c7d8ecc90fd58a3a933bb0654aabdf7f22b440547ae9d84",
+      "bytes": 2402
+    },
+    {
+      "path": "PREPARATION_V1/RETURN.json",
+      "sha256": "c6027b6350816071fcc638fdf2fd81ae8e68e26edabbb9f3dfd1053fd4f10481",
+      "bytes": 749
+    },
+    {
+      "path": "PREPARATION_V1/SOURCE_MANIFEST.json",
+      "sha256": "c78345c71870a3abf332ccbe177734e513f9378dcbd67b742eb08ce8b20e1dad",
+      "bytes": 991
+    },
+    {
+      "path": "PREPARATION_V1/source/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "da0187d4208cb944025e60938a180078d73a9af9a6c8cac7ed8ec0631c659245",
+      "bytes": 103553
+    },
+    {
+      "path": "PREPARATION_V1/source/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "bf085356c14099d5063e3658b3008e97f7cd487275e302bb641914839a172699",
+      "bytes": 125912
+    },
+    {
+      "path": "PREPARATION_V1/source/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "fb3b9dc1c75b309ab2057a4b87de4dc93154994563bf916202a16d504180e542",
+      "bytes": 202496
+    },
+    {
+      "path": "PREPARATION_V1/source/apps/desktop/src/styles.css",
+      "sha256": "0a171f7ed99ca6fd50a4b57c43862b066348c02c93d904a2dc1b72e6cf55bdfe",
+      "bytes": 96596
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "3ac73e86f00cf7b20bbb0b76acf1f4780d2e1db27751d255df3519aed17c8ae3",
+      "bytes": 2281
+    },
+    {
+      "path": "RUNTIME_RELEASE.json",
+      "sha256": "385cc4a80991b426def2f9a82fbf1adc4065207f10672af7480b5b46b42cfd5c",
+      "bytes": 219
+    },
+    {
+      "path": "SOURCE_MANIFEST.json",
+      "sha256": "bccba6f7fde4b11982206d5e0ce8cfae7e683a20830dacf1ecd27fb1ccfd6512",
+      "bytes": 1482
+    },
+    {
+      "path": "preimages/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "52bfe3766191a9530e7284e7e54f8b193c3c378b396018400a623c61555ba66b",
+      "bytes": 103320
+    },
+    {
+      "path": "preimages/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "4f0978f2a93f348d03d996e332dc41629aab56f13e177bb2e376b41f41359865",
+      "bytes": 118625
+    },
+    {
+      "path": "preimages/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "6d16343611048605816b15362286925f51cd5c5f3c1adbb648fee3cb29066c96",
+      "bytes": 202385
+    },
+    {
+      "path": "preimages/apps/desktop/src/styles.css",
+      "sha256": "d9746ff91dfc803a445e90216bdebee6c135d952c11f5abf9c083747c75f343b",
+      "bytes": 95561
+    }
+  ]
+}

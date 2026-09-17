@@ -1,0 +1,112 @@
+{
+  "status": "BOUNDED_APPLICATION_ASSEMBLY_COMPLETE_FINAL_REVIEW_PENDING",
+  "parent": "/root",
+  "instance": "/root/ui_closeout_successor",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "low",
+  "mechanism": "delegated-harness-native",
+  "enforcement": "instruction/config asserted; host unrestricted, no mechanical per-file scope enforcement",
+  "delegated": false,
+  "brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/FINAL_PUBLICATION_ASSEMBLY_V17.json",
+    "sha256": "e54ba8e45ebc1e8c3818a4c63941d41a61e4d889dae1cface2f93bfe4fb9d2d3",
+    "bytes": 9954,
+    "category": "sealed_brief"
+  },
+  "applied_metadata": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "preimage_sha256": "21aa9911866df6add7d5edbb6bfd09c0a05ab6ca3cb7129f902a09aba54e1ac1",
+      "postimage_sha256": "9c62508663077b80184f60ffc694b5d2c1f228ee403d5402e97fa3df95989d13",
+      "bytes": 8322,
+      "lifecycle": "UNCHANGED"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "preimage_sha256": "174ac80ac2cee54eb6138b1824a7440e559b5ea432be4b47066b5caae0a03559",
+      "postimage_sha256": "35a9e2d2ad8805a92e38a9d11ff9b902d3e4a725821c30ec0f781b6a92d6bfdb",
+      "bytes": 37252,
+      "lifecycle": "UNCHANGED"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "preimage_sha256": "144df1941918431296d82c80127828623cfd93c756a575adf288ca86d899d094",
+      "postimage_sha256": "e2973e472a03e62b6b40382b644ac89fa32c6be2fed11627e72b91671c6c7ab1",
+      "bytes": 9539,
+      "lifecycle": "UNCHANGED"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+      "preimage_sha256": "a4fc2bf10d16a8911943a40d38c22f5c819d0de1720319af8bfc818241bfbc16",
+      "postimage_sha256": "eae2edddc30c0fb078b611421d07d403fd48a5fc43f01ec8f949aa7995c4e0e6",
+      "bytes": 63922,
+      "lifecycle": "UNCHANGED"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
+      "preimage_sha256": "fbe1f24727a555e0e533a2910ee726ee2c6d6de71b284a7e06f3953bb535061e",
+      "postimage_sha256": "144159a5e5f9dfe4ed0dba01e16a770b8a1ae6e3fadfcf7a1d9e0ccb162e3f79",
+      "bytes": 6629,
+      "lifecycle": "UNCHANGED"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md",
+      "preimage_sha256": "49e19ab2f223b8e46c7826cd97243abfacf4237f9a5ddaff41a714879ad27f60",
+      "postimage_sha256": "b9e2a549dc9e52acfbfc169b1db61a6d6e0e93c9b4ee0e59a438799b4c06bf99",
+      "bytes": 36689,
+      "lifecycle": "UNCHANGED"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "preimage_sha256": "0d8981850c7f4ca717e8f7070b69e5b37fef271b3785156a0d4a9354f63cba3e",
+      "postimage_sha256": "23ce1d466537bd6995c76b8d64af421d06943bf7f4c35630f86510f9dde106eb",
+      "bytes": 5017,
+      "lifecycle": "UNCHANGED"
+    }
+  ],
+  "policy": {
+    "retained": 288,
+    "added": 16,
+    "total": 304,
+    "sha256": "316dca67391f15dbed34794c622f85a344104322dcab3c301f3a004563c5213d"
+  },
+  "counts": {
+    "selected": 552,
+    "source": 145,
+    "tracked_raw": 30,
+    "deferred": 5,
+    "paths_and_deferred": 557
+  },
+  "identified_hash_changes": [],
+  "remaining": [
+    "V105 exact final candidate verdict",
+    "Root Receipt142 and deterministic practitioner/self-check records",
+    "Actual-candidate CI/PR checks",
+    "Refresh Root controls at next explicit boundary",
+    "Merge held for D69 ruling or original performance acceptance"
+  ],
+  "limits": "Functional technical acceptance only; D69 UNRULED/performance OPEN/merge held. AX, constrained-panel, native attribution and resource limits preserved. No lifecycle/history/dependency closure.",
+  "scope": "Seven targets+policy+own four output files. No source/raw/CAS/Git/runtime/tests mutation or execution.",
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL/PATHS.json",
+      "sha256": "4658420e28062278d045ca5977684a8c5a7be6615b62f8c0d7d34d05af07922b",
+      "bytes": 204433,
+      "category": "candidate_output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL/APPLIED_METADATA.patch",
+      "sha256": "a3244e9dbfc3f3c9fce3f96e3a06c8d34e46c036475a3cc9b45ca71d0afe9a89",
+      "bytes": 21292,
+      "category": "candidate_output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL/POLICY_CHANGES.json",
+      "sha256": "c117e6b53c6b026db0300993deb0a08b6ccbc5ca7c3bcc3112cdcbfdd6ddc2ba",
+      "bytes": 12316,
+      "category": "candidate_output"
+    }
+  ],
+  "deferred_resolution": "Five inherited V68/R1 controls remain in deferred_references, explicitly outside selected paths; parent agreed. No unrelated exceptions."
+}

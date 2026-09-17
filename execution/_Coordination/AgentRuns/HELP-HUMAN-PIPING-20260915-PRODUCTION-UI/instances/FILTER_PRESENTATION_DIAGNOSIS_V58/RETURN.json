@@ -1,0 +1,40 @@
+{
+  "schema": "task-return/v1",
+  "task": "FILTER_PRESENTATION_DIAGNOSIS_V58",
+  "parent": "/root",
+  "status": "COMPLETE_SOURCE_RAW_DIAGNOSIS",
+  "decision": "JUSTIFIED_PROSPECTIVE_TWO_FILE_VERIFIER_CORRECTION",
+  "diagnosis": "Exact-one lifecycle-pass and complete-X Layerize-only eligibility discard early final-epoch causal chains. No product filter delay established.",
+  "authorizedRecommendationPaths": [
+    "apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+    "apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs"
+  ],
+  "preserve": [
+    "V57 original status and intervals",
+    "final DOM epoch",
+    "all exact causal and clock guards",
+    "first eligible tail cannot use later rescue",
+    "500 ms waits and workload",
+    "p95 <= 200 ms target",
+    "instrumented-only claim and true-cost limitation",
+    "zero historical cohort contribution"
+  ],
+  "unknown": [
+    "Exact transient DOM edits",
+    "Trigger of +506 ms commit",
+    "Why Layerize encoded I rather than X; no zero-duration claim",
+    "Full-population target outcome"
+  ],
+  "next": [
+    "Bounded implementation and independent source backcheck",
+    "Focused existing/new controls",
+    "Diagnostic archived two-trace regression",
+    "Fresh focused qualification before full cohort"
+  ],
+  "sourceMutations": false,
+  "runtimeOrTestsExecuted": false,
+  "offlineJsonIntegerCalculationsOnly": true,
+  "delegated": false,
+  "derivativePackage": true,
+  "closure": "Diagnosis complete; performance acceptance and cohort held."
+}

@@ -1,0 +1,18 @@
+{
+  "status": "ACCEPTED_FOCUSED_METHOD_AND_REPORTED_ORBIT_TARGETS",
+  "derivative_package": true,
+  "source_commit": "11d51c16404b229ab505d1db9eef5758fbe249e6",
+  "owning_return": {
+    "path": "{VERIFY_WORKTREE}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/REPORTER_OCCURRENCE_QUALIFICATION_V71/RETURN_V71_FOCUSED.json",
+    "sha256": "3cd5ece3147de44ec0e237c8562bbfad461b180fddf9cd8d27eb86447935faaa"
+  },
+  "output_manifest_sha256": "2c3db6846e4251215099eb3bcf0f2966005f21a7ab2bad6067e2882b89724b5e",
+  "checkpoint_sha256": "04434598798289b8d73f9fcbfbc25ed041de3245cf913b0b541b1b0778b99a40",
+  "release_sha256": "06d9c4b724f4090fae6d8f5cddcd1d859b3611be311ddc8d8d3836ce03b6ba26",
+  "root_verified_members": 104,
+  "root_verified_bytes": 248874174,
+  "scope": "Exact eight-segment focused qualification; assignment and selected action examples plus both prescribed orbit windows. Full scorer correctly rejects incomplete discrete populations; no complete-cohort pass inferred.",
+  "metric": "Both upper-p95 reported orbit intervals satisfy original16.7/33.3ms thresholds. Raw source cadence reports8333us and no throttle; observed profile only, no settings-change or hardware scanout inference.",
+  "preservation": "V64/V68 failed evidence and one live V71 invocation preserved; collection scaffolding byte snapshots retained before live output.",
+  "next": "Grant the prepared ten-test V3 full cohort separately; keep runtime isolated."
+}

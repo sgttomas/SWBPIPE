@@ -1,0 +1,87 @@
+{
+  "status": "NUMERICAL_PERSISTENCE_LIFECYCLE_ACCEPTED_APPEARANCE_REPAIR_AND_AX_LIMIT_RETAINED_RUNTIME_RELEASED",
+  "at": "2026-09-17T13:02:24.758603+00:00",
+  "owner": "HELP_HUMAN /root",
+  "source_commit": "45ede19f2b2373dc451e146fdc7f29264f67c370",
+  "functional_return": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/RETURN_FUNCTIONAL.json",
+    "sha256": "aa1a2cf6ba9c43864c7a9dbfe2584ac58b9a9035db19d8850b8f6b44812d44db",
+    "bytes": 4429
+  },
+  "manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/OUTPUT_MANIFEST_FUNCTIONAL.json",
+    "sha256": "724de89206650857736434ef9e01e553b89fb92fcfc32b93f4d70f26c41e0b2b",
+    "bytes": 13409
+  },
+  "fanin": {
+    "verified_members": 83,
+    "bytes": 31725137,
+    "actual_analytical_model_attachment_outcomes": "Owning functional return and numerical/preservation reports; no count restatement as substitute evidence."
+  },
+  "root_additional_observations": [
+    "Fresh PID11255 exposes inspector opener, Properties/Task region and form controls in full CUA AX, unlike earlier PID9656 observation.",
+    "Root selected pipe, opened inspector, selected Task and opened/closed the palette with actual Close button; focus returned to Commands and inspector AX remained available.",
+    "CUA reported an external window change during initial Close request; refreshed screenshot showed a larger window, then current Close control worked. No exact viewport-size claim for this observation.",
+    "Root started an unapplied default name task; native AX reported editable New name and visible Task actions. No model edit, Add/Review/Apply, new solve or save was performed by Root during this final check.",
+    "Installed Apple Accessibility Inspector selected exact PID11255. Point inspection did not return a target element through the available automated input; one Run Audit returned no findings, captured screen or completion status. No audit pass or independent cause classification is inferred.",
+    "Root cancelled the unapplied task and normally Quit the native app and diagnostic tool. Both native witness PIDs9656/11255 are absent. Final store table values exactly equal final app-saved snapshot."
+  ],
+  "independent_observer_basis": "https://developer.apple.com/documentation/accessibility/inspecting-the-accessibility-of-screens",
+  "AX_disposition": "Original transient CUA omission preserved and cause unresolved. Fresh native controls are explicitly exposed; source inspection found no hidden/inert/ARIA defect. No speculative product change or claim that the original observation was repaired. Retain this observation limitation for final independent acceptance review.",
+  "remaining_native_checks": [
+    "Repaired native rail/readiness appearance against actual next source-bound bundle",
+    "Dark simultaneous measurement/dock and scrolled solver-mode/Run reachability from original bounded recipe",
+    "Exact stored panel preferences retain browser attribution; do not fabricate native CSS geometry or cross-binary equivalence."
+  ],
+  "cleanup": {
+    "pids_absent": [
+      9656,
+      11255
+    ],
+    "snapshot": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_FINAL_QUIT.sqlite3",
+      "sha256": "74c5d708a1c68b94b5f684e64def8fc35acbc506db240aaa148b82d38604c932",
+      "bytes": 614400
+    },
+    "tables_equal_final_saved": {
+      "local_libraries": true,
+      "local_project_fts": true,
+      "local_project_fts_config": true,
+      "local_project_fts_content": true,
+      "local_project_fts_data": true,
+      "local_project_fts_docsize": true,
+      "local_project_fts_idx": true,
+      "local_projects": true,
+      "local_rule_packs": true
+    },
+    "initial_copy_error": "Read-only URI SQLite backup returned unable to open database file; its empty partial destination is preserved. Readable path connection with query_only=ON completed backup and exact table comparison. No DML or source data mutation performed."
+  },
+  "extra_evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_SYSTEM_AX_ATTEMPT.txt",
+      "sha256": "435045aa57539bceb77c2c77bbaa652bb1597e07e870506b7acce8626109bd5a",
+      "bytes": 774
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_SYSTEM_AX_ATTEMPT.jpg",
+      "sha256": "9e4dc4139b1a5a429e24b7d4878791aeeb5b30fed219721640153b8db327bfcd",
+      "bytes": 33927
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_FRESH_PROCESS_INSPECTOR_AX.txt",
+      "sha256": "731908ce01d3b7fb4c2df2ae53691848b2ad1486f60582a5ff6aafda1e6e9a93",
+      "bytes": 8330
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_FRESH_PROCESS_INSPECTOR.jpg",
+      "sha256": "fa52c6db00b7b0cb0942a74c6a3fdbd51fbbdd7da6dbf7f74fe4af074dfee9a2",
+      "bytes": 155541
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/ROOT_FINAL_QUIT_COPY_ATTEMPT.sqlite3",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "runtime": "Released; Root permits later focused browser/build lease. No whole-native/accessibility, performance, release or D69 acceptance."
+}

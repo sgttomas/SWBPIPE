@@ -1,0 +1,11 @@
+{
+  "status": "REVIEWED_SOURCE_COMMITTED_NOT_RUNTIME_ACCEPTANCE",
+  "commit": "5e22bd14a0b609aa0a1113ab4d7a1c2b2785a233",
+  "source_manifest_sha256": "97d118522657b3e9ac9c344ca396bd1619c6449178a4d322021f29b25bbfee98",
+  "source_members": 143,
+  "staged_paths": 141,
+  "review_return_sha256": "2b60e6dd3b295e74ac680f373b687e0a5b9b17698ed7613d20d2a2598fdc8003",
+  "review_manifest_sha256": "57970e5b84d95b987012f46f042eadc187089c3f28c02803fade2c6593d9f50a",
+  "byte_equality": "143 committed blobs exactly match reviewed source",
+  "remaining": "Focused/full performance, clean DEC025, final metadata, CI and PR merge"
+}

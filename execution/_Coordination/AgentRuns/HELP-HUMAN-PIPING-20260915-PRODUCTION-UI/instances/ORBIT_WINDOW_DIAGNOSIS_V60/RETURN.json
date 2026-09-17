@@ -1,0 +1,42 @@
+{
+  "schema": "task-return/v1",
+  "task": "ORBIT_WINDOW_BOUNDARY_DIAGNOSIS_V60",
+  "parent": "/root",
+  "status": "COMPLETE_DIAGNOSIS_PROSPECTIVE_REPAIR_JUSTIFIED",
+  "finding": "Controller interval-envelope population and scorer scalar-coordinate membership predicates disagree. Two tail predicates fail. No product failure established.",
+  "recommendation": "Preserve collected envelope and unchanged upper gaps; conservatively maximize nearest-rank p95 over all contiguous boundary populations admitted by published endpoint bounds, without splitting reported-timestamp groups.",
+  "scope": [
+    "full-cohort-controller.ts",
+    "full-cohort-controller.spec.ts",
+    "performance-targets.ts",
+    "performance-targets.spec.ts"
+  ],
+  "documentation": "apps/desktop/e2e/ui-foundation/README.md short current-method population clarification",
+  "proof": "Every feasible actual window population is included; per-gap upper-bound monotonicity then maximum across candidates bounds its p95. Correlation over-approximation may make this conservative rather than tight.",
+  "preserved": [
+    "2s warmup/10s measured window/250ms trailing waits",
+    "closed window and strict outside brackets",
+    "qualified distinct tied occurrences",
+    "all original V59 records and failed status",
+    "targets16.7/33.3ms",
+    "existing clock/interval allowances",
+    "instrumented-only claim",
+    "zero cohort contribution"
+  ],
+  "inputHashesStable": "19/19",
+  "replacementV59Score": null,
+  "productEdits": false,
+  "sourceEdits": false,
+  "runtimeOrTestsExecuted": false,
+  "delegated": false,
+  "derivativePackage": true,
+  "nextGates": [
+    "Implementation/freeze",
+    "Independent changed-source review",
+    "Focused deterministic controls",
+    "Diagnostic-only archived boundary regression",
+    "Fresh focused qualification",
+    "ROOT full-cohort admission decision"
+  ],
+  "closure": "Diagnosis complete; performance qualification remains held by ROOT."
+}

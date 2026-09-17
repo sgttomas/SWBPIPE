@@ -1,0 +1,39 @@
+{
+  "status": "FOCUSED_VALIDATION_BLOCKED_BY_UNIT_FAILURE",
+  "role": "Type2 ephemeral generalist; no delegation",
+  "accepted_upstream": "85d142407bf4d288810f0e3a9a996c043ca163e6",
+  "candidate_upstream": "sealed V78 / CANDIDATE_SOURCE_V13; V80-R1",
+  "derivative_package": true,
+  "source_snapshot": "PREPARATION_V1/SOURCE_MANIFEST.json",
+  "patches": [
+    "PREPARATION_V1/INCREMENTAL_FROM_V78.patch",
+    "PREPARATION_V1/COMBINED_FROM_85D.patch"
+  ],
+  "results": {
+    "status": "STOPPED_AFTER_FOCUSED_UNIT_FAILURE",
+    "typescript": "PASS",
+    "existing_unit_proof": {
+      "passed": 6,
+      "failed": 1,
+      "skipped": 211,
+      "total_file_cases": 218,
+      "failed_test": "shows computed mechanics diagnostics in results, knowledge, and review-only proposal context",
+      "failure": "App.test.tsx:10264 stress-neutral-summary absent; stress-neutral-empty rendered",
+      "proof_assertions": "Earlier raw proof assertions at lines 9987 onward were reached and did not fail; full positive test is failed, not counted as a pass."
+    },
+    "matrix_collection": "NOT_RUN_DEPENDENCY_STOP",
+    "matrix": "NOT_RUN_DEPENDENCY_STOP",
+    "source_edits_during_runtime": false,
+    "runtime": "RELEASED",
+    "diagnostic_limit": "No baseline reproduction or attribution of the stress-neutral absence to this presentation change. No automatic rerun."
+  },
+  "closure_verdict": "Not accepted. Preparation remains frozen; V81 layout effectiveness not measured because dependent browser steps stopped.",
+  "remaining_blockers": [
+    "Root disposition of selected App test stress-neutral failure",
+    "12-case matrix collection/runtime and retained attachments not executed",
+    "independent review/integration/qualification"
+  ],
+  "rerun_requirement": "No automatic follow-on. Root must authorize any diagnosis or further runtime.",
+  "runtime": "RELEASED",
+  "git_index_mutation": false
+}

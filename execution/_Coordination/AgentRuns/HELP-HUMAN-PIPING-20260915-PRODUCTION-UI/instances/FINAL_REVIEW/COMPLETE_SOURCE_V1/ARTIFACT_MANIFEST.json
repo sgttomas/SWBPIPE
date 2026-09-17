@@ -1,0 +1,57 @@
+{
+  "schema": "review-artifact-manifest/v1",
+  "sealed_at": "2026-09-16T19:02:24.591485+00:00",
+  "durable": [
+    {
+      "path": "CONFIGURATION.json",
+      "sha256": "01987d95a1d8a9b0742134a1e18f0e15903c8312ecc39935936b3ad0910dd9de",
+      "bytes": 3156
+    },
+    {
+      "path": "COVERAGE.csv",
+      "sha256": "97a2cd937e6891696ed499d128080d7bba38d99e28d32142c7b2c9cb4fb09e60",
+      "bytes": 44323
+    },
+    {
+      "path": "ENTRY_MANIFEST.json",
+      "sha256": "96b810165899f56845cd14603517706e67ccc3fb68fb126e371e29c744102e9b",
+      "bytes": 35161
+    },
+    {
+      "path": "EXIT_MANIFEST.json",
+      "sha256": "54ef433f92b64907f1447d7022cd4dcb37a9d5f0ed33bd6669d60efe139d18b1",
+      "bytes": 40667
+    },
+    {
+      "path": "FINDINGS.json",
+      "sha256": "5090514f5e33ee5c6993c39dff7ee3f189f3e3f0faf9530c7f1f0df423e1d8a8",
+      "bytes": 6328
+    },
+    {
+      "path": "GENERATED_DATA_REVIEW.json",
+      "sha256": "05bfaffd5acd44503193f2a5df17922bc515d2281e80148240977c4f96a85520",
+      "bytes": 3391
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "ba5fef06acf4f00155dfd9fa55eff06965faaf67c89939af7b58589bb0eb7ec5",
+      "bytes": 1284
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "71108d546dbc5888fd7be9f7711f567ff4df18809d468e2671e0d55ead0ce43d",
+      "bytes": 4753
+    },
+    {
+      "path": "TEST_DUPLICATE_COVERAGE.json",
+      "sha256": "ad41474b90fb7a5f8c9b32bcafd40caaac9efc53609908d6baa36234f5fd35e0",
+      "bytes": 223521
+    }
+  ],
+  "scratch": {
+    "pattern": "read-*.txt",
+    "count": 146,
+    "purpose": "Local complete diff/new-file extracts and duplicate-elided reading aids; excluded from durable evidence closure."
+  },
+  "self_hash": "Omitted to avoid recursive manifest identity; return seal hash to parent."
+}

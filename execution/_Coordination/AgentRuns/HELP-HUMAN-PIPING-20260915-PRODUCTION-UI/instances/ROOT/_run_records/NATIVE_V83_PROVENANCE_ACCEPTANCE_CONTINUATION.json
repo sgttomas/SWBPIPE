@@ -1,0 +1,70 @@
+{
+  "status": "V98_ACCEPTED_EXISTING_NATIVE_V83_APP_GUI_RUNTIME_GRANTED",
+  "at": "2026-09-17T12:19:46.353138+00:00",
+  "owner": "HELP_HUMAN /root",
+  "executor": "/root/ui_native_successor",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "enforcement": "instruction/config asserted; no delegation",
+  "source_commit": "45ede19f2b2373dc451e146fdc7f29264f67c370",
+  "original_lease": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V95_ACCEPTANCE_NATIVE_V83_RUNTIME_LEASE.json",
+    "sha256": "ac6932f59f648e0648db65cdb07ee572f853a3c5f689c1335f19b2244d7cbcf6",
+    "bytes": 5455
+  },
+  "diagnosis": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_WASM_BUILD_PROVENANCE_V98/RETURN.json",
+    "sha256": "d614edad35f6cd2bfb532446252ebe8ee617ac70df10490c861ca1246e080fa3",
+    "bytes": 4149
+  },
+  "diagnosis_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE_WASM_BUILD_PROVENANCE_V98/OUTPUT_MANIFEST.json",
+    "sha256": "3cab0c19b29cd9d4d22aa1befc0e0ffd0982f47ff359fbc8739d489a510d64b3",
+    "bytes": 739
+  },
+  "root_fanin": {
+    "review_members_verified": 3,
+    "bytes": 127350,
+    "local_frontend_verified": 29,
+    "app_members_verified": 3,
+    "R1_packet_previously_verified": "22 members,21909926 bytes"
+  },
+  "actual_app": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/R1_BUILD_BINDING.json",
+    "sha256": "241d6c6a9156c8fffe9ae39f0bb6f8428e8683cb573403a0abf6b494443f0b8f",
+    "bytes": 858
+  },
+  "actual_frontend": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/R1_ACTUAL_FRONTEND.json",
+    "sha256": "c370bdad7f14af249833719d65cb950255a2d5abe0691abaac177c23d66b4056",
+    "bytes": 6262
+  },
+  "original_failed_condition": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/R1_FAILED_CONDITION.json",
+    "sha256": "913d61d25fb1fac5fe8301295505f6ef3dadfc08328ffe9280b9bc3466701db2",
+    "bytes": 531
+  },
+  "source_freeze": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/SOURCE_FREEZE.json",
+    "sha256": "b15c65259d08bb9efad6cfa4dae8aee2d2aa62b7d85ef092e1e5f75dd64ef59e",
+    "bytes": 119530
+  },
+  "fixture_source": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/FIXTURE_SOURCE_BINDING.json",
+    "sha256": "0734dcd720b01eae7d4bad651deca55acb711f4b7f6ec16dac7627784c1f52eb",
+    "bytes": 52386
+  },
+  "decision": "Accept the existing source-bound local R1 app for the original V83/V93 native witness. Both builds regenerated local WASM; repeated local hashes did not establish staleness. V98 verified current sources, locks, build chain, dependencies and exact app/asset pins; no concrete rebuild prerequisite is missing.",
+  "superseded_condition": "Only Root-added cross-checkout equality of all21 dist files to V95 in NATIVE_V83_QUALIFIED_WASM_REPACKAGE.json is superseded. The approved plan requires a fresh bound native build and actual native qualification, not cross-checkout binary reproducibility. No owner-approved criterion or D69/performance gate changes. Preserve the original hold and R1 failure without relabelling them PASS.",
+  "requirements": [
+    "Use the existing R1 app, executable f8e1f32eb2938c4401f2044c44b547fa358c3516d647dabf0c1bafcc28253756 and all local frontend pins. No build or asset transfer.",
+    "Refresh CUA docs, select the actual V83 app path/identity, and check source/app/asset identity and isolated-store absence before seed copy and launch.",
+    "Execute original V83 lifecycle, V93 measurement/palette observations and the authorized actual Geometry selector/Review return.",
+    "Retain normal Save/Quit/PID absence/fresh-process reopen, Historical designation, unchanged-save preservation, analytical Current re-solve and final cleanup.",
+    "Use local R1 frontend/app/source pins for exit checks. V95 browser evidence retains CHECK-byte attribution.",
+    "Write GUI evidence and final return/manifest additively; preserve every sealed R1 file. Stop dependent work on any failed assertion; no automatic retry or product repair."
+  ],
+  "limits": "No WASM semantic-equivalence proof, hermetic-toolchain certification or native acceptance is supplied by this provenance decision.",
+  "runtime": "Exclusive native GUI/lifecycle lease; other runtime/build/browser/performance/Git and heavy archive I/O held",
+  "remaining": "Native result, final metadata/publication checks and D69 remain open."
+}

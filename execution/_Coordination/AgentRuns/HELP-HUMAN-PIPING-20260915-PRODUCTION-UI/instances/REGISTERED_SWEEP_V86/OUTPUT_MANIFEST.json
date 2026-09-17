@@ -1,0 +1,634 @@
+{
+  "members": [
+    {
+      "path": "BUILT_DIST_IDENTITY.json",
+      "sha256": "2c1fbe55ce2bd7f0ec423db2cb4f1785f6fd6404b7b0e06d101d4a4bd2480d1a",
+      "bytes": 4952
+    },
+    {
+      "path": "COMMAND.json",
+      "sha256": "e4758e99b32ff6e397d1c3e430e4083dde24d021aa3bd3767352308ecf66fa59",
+      "bytes": 640
+    },
+    {
+      "path": "CONTEXT.json",
+      "sha256": "7ea5fbb39b778834a8c11c08dccdb360b345af0599ed83c7e6c2bbcf8bc4f586",
+      "bytes": 540
+    },
+    {
+      "path": "ENTRY_GIT.json",
+      "sha256": "03452a9f55f288e6297f7ef1ebf69cccd98de092f14c191b7f7865b516446853",
+      "bytes": 88
+    },
+    {
+      "path": "ENTRY_PORTS.json",
+      "sha256": "8d9c68c7768bfb8d8bcdaf08124c6a2c41ccedfd06d1ab3c9c43313a47b542d8",
+      "bytes": 298
+    },
+    {
+      "path": "ENTRY_PROCESSES.log",
+      "sha256": "f53f5a0b95dab2800e31a2627b090ceef83e7b490a8b8f3bbf903fc7da94bc23",
+      "bytes": 197534
+    },
+    {
+      "path": "ENTRY_SOURCE.json",
+      "sha256": "dafb6724578640c5d752f73d3803c7c0f8b1120a53ff83889170741e8188808e",
+      "bytes": 30325
+    },
+    {
+      "path": "EXIT.json",
+      "sha256": "819869b5e9d4063f4ced36f332bd403d29f1f8a1cae8ba1b8aae1798f950c4cc",
+      "bytes": 69
+    },
+    {
+      "path": "EXIT_GIT.json",
+      "sha256": "03452a9f55f288e6297f7ef1ebf69cccd98de092f14c191b7f7865b516446853",
+      "bytes": 88
+    },
+    {
+      "path": "EXIT_PROCESSES.log",
+      "sha256": "2e7af1184428eacda563d4446b794dab7da1545506d5d1c3346150220f3192eb",
+      "bytes": 197534
+    },
+    {
+      "path": "EXIT_SOURCE.json",
+      "sha256": "dafb6724578640c5d752f73d3803c7c0f8b1120a53ff83889170741e8188808e",
+      "bytes": 30325
+    },
+    {
+      "path": "FAILURE_DETAILS.log",
+      "sha256": "1ac3c04d016a7d6ba18ea1e05eaf65531994b4e56241fb0e8b7a39147d0f4cca",
+      "bytes": 31228
+    },
+    {
+      "path": "PROCESS.json",
+      "sha256": "8b3be6ad39bbfbe2bc23dc11df5910901de0476150e92b6ff283a53c15282fc0",
+      "bytes": 19
+    },
+    {
+      "path": "RETURN.json",
+      "sha256": "9db708bee410b75a9348733bb279d786ed6f4713079345a3de228b7423f0e90b",
+      "bytes": 6796
+    },
+    {
+      "path": "RUNTIME_RELEASE.json",
+      "sha256": "dd61c8e2d4a442696b1a6a8d34dea10e88702c3428b91032ac9b146fc072425e",
+      "bytes": 481
+    },
+    {
+      "path": "playwright-test-results/.last-run.json",
+      "sha256": "e5e4006b7132f8bbc0043b386ccae4c5b8caa637f1b2b0edb86352626f0e8ad2",
+      "bytes": 684
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--prefli-cfa44-ps-and-keyboard-measurement-chromium-desktop-dist/attachments/normal-authoring-preflight-light-compact-1024x768-keyboard-measurement-043b7a1ceb77b60b90d00ed19a3c75c8ecb3c82a.png",
+      "sha256": "28baea801eef1c2fd61b0668100560d07a95a365bb1de2119ca8e0b7039b9d4a",
+      "bytes": 104362
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--prefli-cfa44-ps-and-keyboard-measurement-chromium-desktop-dist/normal-authoring-preflight-light-compact-1024x768-keyboard-measurement.png",
+      "sha256": "28baea801eef1c2fd61b0668100560d07a95a365bb1de2119ca8e0b7039b9d4a",
+      "bytes": 104362
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/attachments/visual-clarification-1024x768-inspector-only-measurement-pipe-task-footer-19c219b42ceb0923a085f081053d938238ce9cb2.png",
+      "sha256": "9c23d109752a4db22521f8dbab4f58f92608dfec8b3d3756c8bc524a532bf6fd",
+      "bytes": 124782
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/attachments/visual-clarification-1024x768-rails-closed-measurement-36b2648859f0cd80288d9b06432ba7ff19173661.png",
+      "sha256": "02079104e32c7a0a42327ed2c253dbd830e76a1963a376058d4ba912115a5f4f",
+      "bytes": 102659
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/attachments/visual-clarification-1440x920-both-rails-default-deb2b0a0283940dd07203eb5f0d55b6ead96f376.png",
+      "sha256": "b37eee756138156ab26313bcf251e5f62c252454fad0064640696f94358f84fd",
+      "bytes": 187394
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/attachments/visual-clarification-1440x920-both-rails-measurement-pipe-task-footer-6f07c69440ece4cfcc711fd521f9878b8dc91289.png",
+      "sha256": "1e9d97ab58d985ce8e522c6d6f300ab48c4a3f81d7b0b75320dbba6598c29298",
+      "bytes": 212495
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/error-context.md",
+      "sha256": "cfce330786e28fd0e6a6bf9028448ee1dcf494eb48cc82dfe0723c77bd7e1389",
+      "bytes": 20810
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/trace.zip",
+      "sha256": "24668e83c5b18152c5d779f7d40718640ab0108068c1d595dbe277e71aa8e70c",
+      "bytes": 3807234
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/visual-clarification-1024x768-inspector-only-measurement-pipe-task-footer.png",
+      "sha256": "9c23d109752a4db22521f8dbab4f58f92608dfec8b3d3756c8bc524a532bf6fd",
+      "bytes": 124782
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/visual-clarification-1024x768-rails-closed-measurement.png",
+      "sha256": "02079104e32c7a0a42327ed2c253dbd830e76a1963a376058d4ba912115a5f4f",
+      "bytes": 102659
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/visual-clarification-1440x920-both-rails-default.png",
+      "sha256": "b37eee756138156ab26313bcf251e5f62c252454fad0064640696f94358f84fd",
+      "bytes": 187394
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/visual-clarification-1440x920-both-rails-measurement-pipe-task-footer.png",
+      "sha256": "1e9d97ab58d985ce8e522c6d6f300ab48c4a3f81d7b0b75320dbba6598c29298",
+      "bytes": 212495
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Support-4bd31-operty-Task-through-toolbar-chromium-desktop-dist/attachments/support-route-retained-task-toolbar-5989eacba44e9e6e1c22cf4d06750f90c7011b00.png",
+      "sha256": "d34f63c5e630d307a1a083c1c62fd16a6c81783ec6db7108b326b9a66e5fecb1",
+      "bytes": 159600
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Support-4bd31-operty-Task-through-toolbar-chromium-desktop-dist/support-route-retained-task-toolbar.png",
+      "sha256": "d34f63c5e630d307a1a083c1c62fd16a6c81783ec6db7108b326b9a66e5fecb1",
+      "bytes": 159600
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Support-4e11c-ty-Task-through-Insert-menu-chromium-desktop-dist/attachments/support-route-retained-task-Insert-menu-bc5eea6190ec4325cb0627b028e7ebde74bc1ee3.png",
+      "sha256": "27edb91fc944b1434598dc54e2d4b6c3a49c8793ead603e4886f296f711fb745",
+      "bytes": 159591
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-Support-4e11c-ty-Task-through-Insert-menu-chromium-desktop-dist/support-route-retained-task-insert-menu.png",
+      "sha256": "27edb91fc944b1434598dc54e2d4b6c3a49c8793ead603e4886f296f711fb745",
+      "bytes": 159591
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-capture-5d2d5-x-before-delayed-pointer-up-chromium-desktop-dist/after-delayed-up.png",
+      "sha256": "21d0c59530aa6f8444cf76ef4f4d81d166024b3aa84b5c16f2697567f17c333d",
+      "bytes": 182278
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-capture-5d2d5-x-before-delayed-pointer-up-chromium-desktop-dist/after-escape-before-up.png",
+      "sha256": "21d0c59530aa6f8444cf76ef4f4d81d166024b3aa84b5c16f2697567f17c333d",
+      "bytes": 182278
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-capture-ac6ba-x-before-delayed-pointer-up-chromium-desktop-dist/replacement-after-delayed-up.png",
+      "sha256": "79fd67d2de039f61e33210029cb3210ff4ac5266c07c9e64a794b177cca274e5",
+      "bytes": 156718
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-capture-ac6ba-x-before-delayed-pointer-up-chromium-desktop-dist/replacement-delayed-move-before-up.png",
+      "sha256": "79fd67d2de039f61e33210029cb3210ff4ac5266c07c9e64a794b177cca274e5",
+      "bytes": 156718
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-decorat-2824e-w-controls-stay-interactive-chromium-desktop-dist/decorative-overlays-and-view-controls.png",
+      "sha256": "1edbac3cbc845d65f6d57a38f4723a763308c06e90376b1f13d0e92d48f16772",
+      "bytes": 183941
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-empty-o-1cd7d-ntly-from-project-inspector-chromium-desktop-dist/empty-after-node-presentation.png",
+      "sha256": "b949c234166ddc008ab170fc43449de41d1e1d50b5e21aa58ec26bbcaa876053",
+      "bytes": 37595
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-empty-o-1cd7d-ntly-from-project-inspector-chromium-desktop-dist/hidden-selected-node-presentation.png",
+      "sha256": "0fe97a34f9c398416fbe6082cedf2ec7e3a11a670b5b205ca116776d9b802190",
+      "bytes": 37754
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-empty-o-1cd7d-ntly-from-project-inspector-chromium-desktop-dist/project-after-empty.png",
+      "sha256": "4f496d9c34cf8eff937f2b2617d53830a6d3adef083da19344bb0762cc381e86",
+      "bytes": 162557
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-empty-o-1cd7d-ntly-from-project-inspector-chromium-desktop-dist/selected-node-presentation.png",
+      "sha256": "daf9e1510f2b8702bf2c25da2d3eb6c31684438484417cc84b7780f4819632e9",
+      "bytes": 37904
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-current-gap-ledger-dark-1d62155e5492fdf6768bdf8daad17a8758e4d522.png",
+      "sha256": "f4724a3253091a72b4f162fc71181e15d6a978be073d998a76cd9ac15c828cda",
+      "bytes": 106273
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-historical-gap-ledger-dark-10bb40eda5c8071f54b21ba0725e75701b65c367.png",
+      "sha256": "a361a96d60eb894add4ec485b0710394c39f35bf4fef55abe37a6afc3fce3dc1",
+      "bytes": 89131
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-current-dark-1024-96f9bd4e648f77ae83544233979ffc8a377eaf45.png",
+      "sha256": "377b7f22fdc1c944915e12b179f69ffea954d9d0990d127caaaec9ab6c77e4ce",
+      "bytes": 142269
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-current-dark-1280-ea3b77215006a2e1ffb5aa23748db5ef2087f45c.png",
+      "sha256": "81509446e00ade3cf476b45e705b04b26023aebff4ab39df158b5679de2fcd81",
+      "bytes": 185872
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-dark-09ad80e7b970d71ea95dfb66639e68d78ff5292c.png",
+      "sha256": "448fb26a9412bc793ea00ebc4a264d76f42b6a0421fb5eda7a4b141f57fd2c68",
+      "bytes": 187597
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-historical-dark-1024-5025bbd0a6d18a74ed43fa402a289b30a0dec032.png",
+      "sha256": "945defeaec3c416a3a420596f5d9431fa5578ecbbcea69ad782750531a84dc97",
+      "bytes": 136473
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-historical-dark-1280-bf56382e61f06cd69d1454ae26165e191362586b.png",
+      "sha256": "097dfaa5eb6e7b47ad82c36887ffad9cdfc4df532917368b10843d2ec5189da0",
+      "bytes": 175057
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-selected-dark-8a505ab7dee4653bde454e36d4e05a94a5bba5d3.png",
+      "sha256": "40d26da5d0d833ea807f49e08466a7f8418f5a2dd65819839a923a7d3d9160e7",
+      "bytes": 196322
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-current-gap-ledger-dark.png",
+      "sha256": "f4724a3253091a72b4f162fc71181e15d6a978be073d998a76cd9ac15c828cda",
+      "bytes": 106273
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-historical-gap-ledger-dark.png",
+      "sha256": "a361a96d60eb894add4ec485b0710394c39f35bf4fef55abe37a6afc3fce3dc1",
+      "bytes": 89131
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-results-current-dark-1024.png",
+      "sha256": "377b7f22fdc1c944915e12b179f69ffea954d9d0990d127caaaec9ab6c77e4ce",
+      "bytes": 142269
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-results-current-dark-1280.png",
+      "sha256": "81509446e00ade3cf476b45e705b04b26023aebff4ab39df158b5679de2fcd81",
+      "bytes": 185872
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-results-dark.png",
+      "sha256": "448fb26a9412bc793ea00ebc4a264d76f42b6a0421fb5eda7a4b141f57fd2c68",
+      "bytes": 187597
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-results-historical-dark-1024.png",
+      "sha256": "945defeaec3c416a3a420596f5d9431fa5578ecbbcea69ad782750531a84dc97",
+      "bytes": 136473
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-results-historical-dark-1280.png",
+      "sha256": "097dfaa5eb6e7b47ad82c36887ffad9cdfc4df532917368b10843d2ec5189da0",
+      "bytes": 175057
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/populated-results-selected-dark.png",
+      "sha256": "40d26da5d0d833ea807f49e08466a7f8418f5a2dd65819839a923a7d3d9160e7",
+      "bytes": 196322
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-current-gap-ledger-light-cd2c66aee3d0be41c763c5c0522c00cd41500c7f.png",
+      "sha256": "b24cfb4ee7af4a359f3c8605bbe2a0d3a82fb0e1f8071852472a5eacbd0c6a99",
+      "bytes": 107814
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-historical-gap-ledger-light-b3351735732faf2aca6823c2f69de2e8417bc1b3.png",
+      "sha256": "341443b0e9e8577c6f97ac267b4a54deed254e5b99158e5fb446af78a8371379",
+      "bytes": 90194
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-current-light-1024-7ac26f2c0f694a4b3f4fe988bee0ec62ad580e7a.png",
+      "sha256": "d1b3cc904474a0b8c421a148fa46367daed7f1aa6f673d53979371ca56ea4ce6",
+      "bytes": 144252
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-current-light-1280-70432155360d93f9024467b487f8958e91cb2970.png",
+      "sha256": "28f9b333b94c159837a9f4dbe2e9564e31bc53ac6094d05113a7c6f5f07ec7c5",
+      "bytes": 188056
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-historical-light-1024-539322277397df3e145cab070451dac782c24fd9.png",
+      "sha256": "cc5029fef90a94c52f90b51c01512e3187a9be45ac103e5899b9597793bc66a8",
+      "bytes": 138555
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-historical-light-1280-acb129aeed543da1d48874af23f45116d398024f.png",
+      "sha256": "14d354a521c4ef026435c106b3eb6e4f13f4c7b25e10376ad7d206bc85c8218e",
+      "bytes": 176425
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-light-65754a9bb52997ec87386bf9cc39dd276668fd2c.png",
+      "sha256": "e2677adac82586f1acdc9e385663fed3041aed2938f5a9cd03b2467e84b0c926",
+      "bytes": 188159
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-selected-light-e82360bc56eeeb83130ff12166e479de685dd3ca.png",
+      "sha256": "aa7bf0895df2151431e8a92b3f8c6ef9c3ef57f763a75e85d6e2c47e0b4468ab",
+      "bytes": 197912
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-current-gap-ledger-light.png",
+      "sha256": "b24cfb4ee7af4a359f3c8605bbe2a0d3a82fb0e1f8071852472a5eacbd0c6a99",
+      "bytes": 107814
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-historical-gap-ledger-light.png",
+      "sha256": "341443b0e9e8577c6f97ac267b4a54deed254e5b99158e5fb446af78a8371379",
+      "bytes": 90194
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-results-current-light-1024.png",
+      "sha256": "d1b3cc904474a0b8c421a148fa46367daed7f1aa6f673d53979371ca56ea4ce6",
+      "bytes": 144252
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-results-current-light-1280.png",
+      "sha256": "28f9b333b94c159837a9f4dbe2e9564e31bc53ac6094d05113a7c6f5f07ec7c5",
+      "bytes": 188056
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-results-historical-light-1024.png",
+      "sha256": "cc5029fef90a94c52f90b51c01512e3187a9be45ac103e5899b9597793bc66a8",
+      "bytes": 138555
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-results-historical-light-1280.png",
+      "sha256": "14d354a521c4ef026435c106b3eb6e4f13f4c7b25e10376ad7d206bc85c8218e",
+      "bytes": 176425
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-results-light.png",
+      "sha256": "e2677adac82586f1acdc9e385663fed3041aed2938f5a9cd03b2467e84b0c926",
+      "bytes": 188159
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/populated-results-selected-light.png",
+      "sha256": "aa7bf0895df2151431e8a92b3f8c6ef9c3ef57f763a75e85d6e2c47e0b4468ab",
+      "bytes": 197912
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/error-context.md",
+      "sha256": "ae4b411e8adac878d9bbc78bb367a4646ac1767f86868903d6410030f382b635",
+      "bytes": 28656
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/trace.zip",
+      "sha256": "d66ce2586273c49e48c9b20057a30fa3598c6c66d1c2c592a192c1dd35212c61",
+      "bytes": 1942643
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/error-context.md",
+      "sha256": "f8eb7d38e4213ea9f08f33e82bde6027367fd595c7cc73673ef1c473d75f7859",
+      "bytes": 28661
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/trace.zip",
+      "sha256": "910de3a953d42eed09a096ea84d7ccb985af6d4b3063b514b7ff0fda5e46ca04",
+      "bytes": 1716094
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/error-context.md",
+      "sha256": "05570082448113dbf4c66c2104c8142acbd79817e1bc5b7cd5ee1a95cafe301c",
+      "bytes": 24806
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/trace.zip",
+      "sha256": "9ec7fc331a769247d3d94396d2bd588a7c49d0384ea19583f61442caf607b77c",
+      "bytes": 2036265
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/error-context.md",
+      "sha256": "d279a43ea73c2596f46d4a56ae933b9896ffa19a9143982144f2a1ff792a3358",
+      "bytes": 24805
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/trace.zip",
+      "sha256": "752daa8ee31ff0262c94fd02e7096babf1a8eeb6ca6a8aced9982d875d7ac8f4",
+      "bytes": 2202876
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/error-context.md",
+      "sha256": "a56c9e979aeff950dcb09c81e8bcef2955c43d815b405ccf06d04addb365aebd",
+      "bytes": 24809
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/trace.zip",
+      "sha256": "331df909ec7b190fd2001e61a14720a2139d74455fa71b1d8790f139f0be50c7",
+      "bytes": 2228505
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/error-context.md",
+      "sha256": "db90306b34979018ccf79a3439c34304dfdd5332b20dd0dd8e0ffa7e07ccca17",
+      "bytes": 28657
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/trace.zip",
+      "sha256": "5506d30b7a31b3facb185ba9d5aae71f1f1471d329f6b61dee0b8189e47663f8",
+      "bytes": 1721497
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/error-context.md",
+      "sha256": "6b2b15e8947dac7eea2f82bfb88ef4b40116edc6cc7d04ed02b4a9e03ac78243",
+      "bytes": 28483
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/trace.zip",
+      "sha256": "bc5eec7c3efe53f719b8c288c3a40e0fbfb569ddf4ee8a5eab40aa90056f4eaa",
+      "bytes": 1848836
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/error-context.md",
+      "sha256": "3f3486bc3d69e4f95a5b82e19d4e2de7cdb4a2f38759b2a0333f6dd16888a3d4",
+      "bytes": 28482
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/trace.zip",
+      "sha256": "a0c5840642ae7a17fa92cf12a6286c1f6c127da67e40e544afdef43baaa024a5",
+      "bytes": 1929757
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/error-context.md",
+      "sha256": "f530179c283a2d1ce51209af7c0d1334e7cf87cb9a8741ab651f8f1c413f9d9d",
+      "bytes": 24810
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/trace.zip",
+      "sha256": "ab417359a8be021c1cc4c958bd0a63a21f78ce3b247e1ef0d4e4546151df22ae",
+      "bytes": 2069825
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/error-context.md",
+      "sha256": "38498c8e27a2f5d390e3c582f3b763b640e47895b717768cab046749ebab08e4",
+      "bytes": 28654
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/trace.zip",
+      "sha256": "6b1f0fa5767a6495e96da147a4e227d9f904e9da54afcfe3d0078a13c87857d7",
+      "bytes": 2049494
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/error-context.md",
+      "sha256": "6847ad7924bb7788ccf62981ca369d91b5b5ff5059b4d405bd5d46cdc8ba9e0b",
+      "bytes": 28660
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/trace.zip",
+      "sha256": "33749ca155e021c60ddedb362034ec59ae5e8cdc50f3dde30af86463d03e3943",
+      "bytes": 1817176
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/error-context.md",
+      "sha256": "dd29b4b0b80c01b13276fb2b46acf8ef4ac6fd175f13919ab02108f0e113b715",
+      "bytes": 28655
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/trace.zip",
+      "sha256": "5f775435afccad38a86e83e12d8388df73bb3448a14b94098b719c607b562bf7",
+      "bytes": 1748450
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-0c804-ontained-controls-dark-1280-chromium-desktop-dist/attachments/rail-dark-1280-both-pointer-max-75773fda70b8c73f0985c28078121399f4eb596a.png",
+      "sha256": "1f45951c46f86491e523dc8099eb5690b64bc6c4af740e430bec3ee40ac7fd83",
+      "bytes": 176505
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-0c804-ontained-controls-dark-1280-chromium-desktop-dist/attachments/rail-dark-1280-defaults-d42858b773d16a5e13cecd9163055894eadd8f74.png",
+      "sha256": "aa16e5964fa52e034416fc204ecc1c3c6cf962b745f4fed473069dcbc3695e4a",
+      "bytes": 191688
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-0c804-ontained-controls-dark-1280-chromium-desktop-dist/attachments/rail-dark-1280-pointer-lower-clamps-e7745fdd9431d445773f0aad9d3376f96f46a647.png",
+      "sha256": "38f8ac1dbd1c25fff2ac2ced14638fa019d62414ce4b0cbffd8fc51bd69198e6",
+      "bytes": 257562
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-0c804-ontained-controls-dark-1280-chromium-desktop-dist/rail-dark-1280-both-pointer-max.png",
+      "sha256": "1f45951c46f86491e523dc8099eb5690b64bc6c4af740e430bec3ee40ac7fd83",
+      "bytes": 176505
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-0c804-ontained-controls-dark-1280-chromium-desktop-dist/rail-dark-1280-defaults.png",
+      "sha256": "aa16e5964fa52e034416fc204ecc1c3c6cf962b745f4fed473069dcbc3695e4a",
+      "bytes": 191688
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-0c804-ontained-controls-dark-1280-chromium-desktop-dist/rail-dark-1280-pointer-lower-clamps.png",
+      "sha256": "38f8ac1dbd1c25fff2ac2ced14638fa019d62414ce4b0cbffd8fc51bd69198e6",
+      "bytes": 257562
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-55fe9-ntained-controls-light-1280-chromium-desktop-dist/attachments/rail-light-1280-both-pointer-max-4ef07e9d05d2b8f633ece255b4456f8638de782a.png",
+      "sha256": "61115aa89a26098c5957ff6e3a8fbded8e2459f2162b74d7bc203544a94b8ff1",
+      "bytes": 170999
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-55fe9-ntained-controls-light-1280-chromium-desktop-dist/attachments/rail-light-1280-defaults-c1082b67d8788861939054f045aa3152c8dcbf12.png",
+      "sha256": "e871ef1f85db8bffa878b6b59296f8636a4e1ce4b1470e75440853b0cae069e2",
+      "bytes": 184888
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-55fe9-ntained-controls-light-1280-chromium-desktop-dist/attachments/rail-light-1280-pointer-lower-clamps-c565189e74358f3f22a3e2ebdc821f3712151574.png",
+      "sha256": "97a0543d8e7f399b8c48e1e9ae8c908ddc9e1e45073bdf3a02f37106bcef6269",
+      "bytes": 251953
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-55fe9-ntained-controls-light-1280-chromium-desktop-dist/rail-light-1280-both-pointer-max.png",
+      "sha256": "61115aa89a26098c5957ff6e3a8fbded8e2459f2162b74d7bc203544a94b8ff1",
+      "bytes": 170999
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-55fe9-ntained-controls-light-1280-chromium-desktop-dist/rail-light-1280-defaults.png",
+      "sha256": "e871ef1f85db8bffa878b6b59296f8636a4e1ce4b1470e75440853b0cae069e2",
+      "bytes": 184888
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-55fe9-ntained-controls-light-1280-chromium-desktop-dist/rail-light-1280-pointer-lower-clamps.png",
+      "sha256": "97a0543d8e7f399b8c48e1e9ae8c908ddc9e1e45073bdf3a02f37106bcef6269",
+      "bytes": 251953
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-7ea36-ntained-controls-light-1440-chromium-desktop-dist/attachments/rail-light-1440-both-pointer-max-977041a0b1a82617ae1a028804750a303213a970.png",
+      "sha256": "7edbb5466072be2dadf4106bd7f2c9a6d5ba3b67d68923c74be78967afc5584b",
+      "bytes": 206401
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-7ea36-ntained-controls-light-1440-chromium-desktop-dist/attachments/rail-light-1440-defaults-9d50385b75d6ad65dd92452f2100c92af7c4902f.png",
+      "sha256": "6723f178edb2320b5f8c5228eccdca005522630b2f6758ef3a4bdaed0191f56d",
+      "bytes": 220276
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-7ea36-ntained-controls-light-1440-chromium-desktop-dist/attachments/rail-light-1440-pointer-lower-clamps-95432b6f40e1b49449cf691166bf7856c3eabc87.png",
+      "sha256": "d6d6ed104412de181a02a53132bf1201adf7e197d7d036e20395fbcbb7532f58",
+      "bytes": 316258
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-7ea36-ntained-controls-light-1440-chromium-desktop-dist/rail-light-1440-both-pointer-max.png",
+      "sha256": "7edbb5466072be2dadf4106bd7f2c9a6d5ba3b67d68923c74be78967afc5584b",
+      "bytes": 206401
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-7ea36-ntained-controls-light-1440-chromium-desktop-dist/rail-light-1440-defaults.png",
+      "sha256": "6723f178edb2320b5f8c5228eccdca005522630b2f6758ef3a4bdaed0191f56d",
+      "bytes": 220276
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-7ea36-ntained-controls-light-1440-chromium-desktop-dist/rail-light-1440-pointer-lower-clamps.png",
+      "sha256": "d6d6ed104412de181a02a53132bf1201adf7e197d7d036e20395fbcbb7532f58",
+      "bytes": 316258
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-e7e1e-ontained-controls-dark-1440-chromium-desktop-dist/attachments/rail-dark-1440-both-pointer-max-3cbae3e930729d998bc82248b2fa75d9f25cc1ae.png",
+      "sha256": "decd9ec6edd38d41cae605c991d414145c7105eb6abf48a3e5b77a14281942c9",
+      "bytes": 214232
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-e7e1e-ontained-controls-dark-1440-chromium-desktop-dist/attachments/rail-dark-1440-defaults-2a857b8ca0fd03ab8cb737784a1a5d4b2ca628a4.png",
+      "sha256": "58848a8713a80ead51e28cd272971427251f58f62b43cc301cd4b4e66d4407ab",
+      "bytes": 225943
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-e7e1e-ontained-controls-dark-1440-chromium-desktop-dist/attachments/rail-dark-1440-pointer-lower-clamps-16b6364619b8373e758ca80587bfe71367ef0b0c.png",
+      "sha256": "e50cf52880a57a2e0716fc392fa19af91c2a513ef36e1230947c5aa1a5181a53",
+      "bytes": 317619
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-e7e1e-ontained-controls-dark-1440-chromium-desktop-dist/rail-dark-1440-both-pointer-max.png",
+      "sha256": "decd9ec6edd38d41cae605c991d414145c7105eb6abf48a3e5b77a14281942c9",
+      "bytes": 214232
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-e7e1e-ontained-controls-dark-1440-chromium-desktop-dist/rail-dark-1440-defaults.png",
+      "sha256": "58848a8713a80ead51e28cd272971427251f58f62b43cc301cd4b4e66d4407ab",
+      "bytes": 225943
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-rail-pr-e7e1e-ontained-controls-dark-1440-chromium-desktop-dist/rail-dark-1440-pointer-lower-clamps.png",
+      "sha256": "e50cf52880a57a2e0716fc392fa19af91c2a513ef36e1230947c5aa1a5181a53",
+      "bytes": 317619
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-same-ra-bd9c0-intent-after-node-selection-chromium-desktop-dist/attachments/typed-collision-pipe-task-after-node-selection-8d55cf2544c98e79e8b0644992255426d7749bba.png",
+      "sha256": "e2f3d32e37aedd1d47ec362dd4702f4a8a0cd0f29dc6660f7014e20b38cb0fd7",
+      "bytes": 166029
+    },
+    {
+      "path": "playwright-test-results/ui-foundation-dist-same-ra-bd9c0-intent-after-node-selection-chromium-desktop-dist/typed-collision-pipe-task-after-node-selection.png",
+      "sha256": "e2f3d32e37aedd1d47ec362dd4702f4a8a0cd0f29dc6660f7014e20b38cb0fd7",
+      "bytes": 166029
+    },
+    {
+      "path": "sweep/SWEEP_20260917T085850Z_1e4f7dfb06bc.json",
+      "sha256": "10931a80900877553645ad00db846f99c602d5c44e757d9326be3f36acc18c85",
+      "bytes": 3596
+    },
+    {
+      "path": "sweep.stderr.log",
+      "sha256": "bb2ad771475197724d37babc6ec23a11e9405f03afaa485aca80c69deafd4921",
+      "bytes": 1459228
+    },
+    {
+      "path": "sweep.stdout.log",
+      "sha256": "0fffe4f720656b80ca3d0a26f4c8f50adb1eb41c97344671f77fe6560d188a7d",
+      "bytes": 212091
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "status": "FUNCTIONAL_LIFECYCLE_PASS_WITH_DECLARED_LIMITS_FINAL_CLEANUP_TO_ROOT",
+  "derivative_package": true,
+  "source_commit": "45ede19f2b2373dc451e146fdc7f29264f67c370",
+  "upstream": "V83 preparation,V93 supplement,V98 provenance acceptance,V99 input disposition; original/R1 holds retained",
+  "first_pid": 9656,
+  "first_normal_quit_verified": true,
+  "fresh_pid": 11255,
+  "fresh_historical_rows": 67,
+  "unchanged_save_all_attachments_exact": true,
+  "fresh_current_rows": 67,
+  "all67rows_exact_first_and_seed": true,
+  "all5analytical_checks_pass": [
+    {
+      "id": "result:disp:node-TIP:uy",
+      "expected": 2.375816737208654,
+      "actual": 2.375817,
+      "absolute_tolerance": 5.001e-07
+    },
+    {
+      "id": "result:disp:node-TIP:rz",
+      "expected": 0.0011136640955665567,
+      "actual": 0.001114,
+      "absolute_tolerance": 5.001e-07
+    },
+    {
+      "id": "result:reaction:support-ROOT",
+      "expected": 500,
+      "actual": 500,
+      "absolute_tolerance": 5.001e-07
+    },
+    {
+      "id": "result:force:pipe-CANTILEVER:shear-z",
+      "expected": 500,
+      "actual": 500,
+      "absolute_tolerance": 5.001e-07
+    },
+    {
+      "id": "result:moment:pipe-CANTILEVER:bending-y",
+      "expected": -1600,
+      "actual": -1600,
+      "absolute_tolerance": 5.001e-07
+    }
+  ],
+  "model_exact_seed": true,
+  "fresh_attachment_hashes": {
+    "analysis_run_json": "74fe9299bf8e139be7f19da3c42b9d997e48ed1283f65916cbdf11071b71efa3",
+    "editor_intents_json": "a8cbf0a56849295ad5a12073f3e4ada3df5e5165b79b2a8360a646a7afcbfbd0",
+    "mechanics_result_json": "61b4e67574b3239940fade94e0aa3f5becd097996884f877cd6490a953dc1442",
+    "model_hash_json": "98e663d527df253547d107c9495a06ea16085566aec9a67595a16fdcc922312f",
+    "model_json": "1da13f5d5ec33a5b05f3fa0d7abf44125242365fb8e2269d63bf9a637695b97a",
+    "model_migration_ledger_json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "project_envelope_hash_json": "7c8dfe0d91d94ab327cb73bf4d1f0532d610b148584af76eec857b520e80a28b",
+    "proposal_json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+    "selected_review_target_json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+  },
+  "measurement": {
+    "route": "native Measure,ROOT then TIP viewport accessibility buttons",
+    "distance_m": 3.2,
+    "delta_xyz_m": [
+      3.2,
+      0,
+      0
+    ],
+    "light_dock_capture": "MEASURE_LIGHT_DOCK.png",
+    "draft_retention": "DRAFT_RETAINED_PALETTE_MEASURE.png"
+  },
+  "geometry": "Actual Geometry selector accessed options; Escape left Not provided focused; Review return, no model mutation. GEOMETRY_SELECTOR_FOCUS.png",
+  "palette": "Backdrop restored invoker focus and retained draft; group Escape returned Build focus; keyboard Node focused New node ID and Select focused model search, done before draft; no engineering Apply. Close control not separately exercised.",
+  "proof": {
+    "model_sha256": "1da13f5d5ec33a5b05f3fa0d7abf44125242365fb8e2269d63bf9a637695b97a",
+    "input_manifest_sha256": "eae2ff5224bc84ec6132ef90356485b1599101e36aa3a0df48607f6e80a01378",
+    "seam": "tauri_backend_job",
+    "identity": "match"
+  },
+  "limits": [
+    "Appearance NOT PASS: confirmed dark hover/readiness contrast defects.",
+    "Inspector AX omission unresolved; visible Task pointer/keyboard method corrected by Root; no native accessibility PASS.",
+    "Screenshot dimensions not exact CSS geometry proof; larger view belongs Root captures.",
+    "Stored panel preference equality not independently proven; no panel splitter resize by executor.",
+    "Light complete measurement/dock observed; Dark simultaneous measurement/readout not separately repeated.",
+    "Solver mode/Run controls exist in AX; native menu ran solves; independent scrolled pointer-mode/Run route not fully exercised.",
+    "First fresh solve executed by Root on PID9656, final fresh-process solve by executor.",
+    "Original350\u2192500 authoring/undo/redo retains historical attribution; not repeated.",
+    "No held-pointer or performance claim."
+  ],
+  "handoff": {
+    "ui_lease": "RELEASED_TO_ROOT",
+    "app_open_pid": 11255,
+    "final_normal_quit": "PENDING_ROOT_AX_OBSERVATION_AND_CLEANUP",
+    "no_further_agent_UI": true
+  },
+  "closure": "Bounded numerical/persistence lifecycle complete; final cleanup and appearance/a11y acceptance outstanding; no release acceptance"
+}

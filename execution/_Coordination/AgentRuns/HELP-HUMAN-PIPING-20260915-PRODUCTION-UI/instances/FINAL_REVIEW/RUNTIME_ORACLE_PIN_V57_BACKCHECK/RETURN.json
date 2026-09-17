@@ -1,0 +1,44 @@
+{
+  "schema": "bounded-independent-review-return/v1",
+  "status": "PASS_SOURCE_AND_LAUNCH_SUITABILITY",
+  "findings": [],
+  "resolved": [
+    "V57-R1"
+  ],
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "delegation": "none",
+  "enforcement": "instruction/config asserted",
+  "derivativePackage": true,
+  "acceptedUpstream": {
+    "priorReviewSha256": "c43939df01af803e1ca1515bb386c3b93c24c9d7263909d409a9214e02b44822",
+    "flatV5Sha256": "0d2435e4b71adc2d4ba8070be5f2cc444a8ba2f0c774a2f77897ce09e9efda24",
+    "flatV6Sha256": "97d118522657b3e9ac9c344ca396bd1619c6449178a4d322021f29b25bbfee98",
+    "methodManifestSha256": "0dfc5eb61d22d9bac9575278f2fcc5af2211a92fffaf4ba08ef6d577ff10d418",
+    "launchBindingsSha256": "b5f1d122d86f4c8a8484703d2f48c4782ee6be1e38c55ccde8ef5b4a48ad3e38"
+  },
+  "coverage": "100% two-file delta and affected callers; 141 unchanged paths retain prior coverage. All143 source hashes exact at entry and exit. Rehashed all25+35 author members,29 method files in both lanes,six wrapper/config/package pins andfour final commands with zero mismatches.",
+  "resolution": "CUE_GEOMETRY_SOURCE_SHA256 now equals accepted c0c09e... used by the generator, actual source and all new plans. validateCandidateOracleBinding and validateWinnerCuePlan retain their strict declared/disk/selfhash/provenance checks. No other runtime implementation, geometry, masks, workload, tolerance or target changes.",
+  "controls": {
+    "V20T": "Retained original preimage failure at actual source guard; recorded3/3 pass includes actual loadFixture/validateCandidateOracleBinding for both generated sizes and validation of all400 plans. Same harness bytes are integrated; original test depended on dated evidence and was replaced before integration. Evidence remains one-time V20T proof, not relabeled R2.",
+    "V20T_R2": "Recorded2/2 focused pass and semantic exit0. Old/mutated plan hashes are recomputed and probe rebound, so rejection targets the source pin rather than stale selfhash. For each maintained fixture size, accepted source copy passes, stale declaration fails, disk-only mutation fails, and coherent wrong declaration+disk fails. Manifest hashes are rebound in each control. Output writes are test-owned and oracle environment is restored in finally.",
+    "selfContained": "No dated-run/untracked fixture dependency in maintained new tests. Four-level URL default resolves to project root and current maintained source exists there. Both fixtures and three generator dependencies resolve within maintained method directory. Split VERIFY used explicit existing candidate-source-root override; clean-default runtime was not executed.",
+    "limits": "Synthetic one-probe manifests isolate admission guards and do not prove200-point/20-Box populations. Full generated population evidence is the separately retained V20T acceptance and prior V20S complete comparison. Historical verify-winner-cue-plan helper remains unchanged/uninvoked/unclaimed."
+  },
+  "launch": "Exact four-object substitution verified against previously reviewed BOUND_EXECUTION: only method/source manifest paths and hashes changed. Actual source/method/browser/bundle/oracle pins match; wrappers/config/packages unchanged, required SHA populated. Same focused1/eight segments, full10/five per size/243 segments, foreground-cohort-v2 and fresh separate evidence directories. No launcher/workload/profile/deadline/target change. Prefix cleanup, exact collection, exclusive ROOT lease and focused PASS acceptance before full remain mandatory.",
+  "impact": "Only accepted runtime source identity changes. Prior V56 resource/camera/pure observations retain original V20R attribution and unchanged NativeV32 product evidence remains valid. They are not V20T runs. Added admission controls have focused verification; broad/final registered sweep remains owed. No rebuild justified by this method-only delta.",
+  "handoff": "ROOT may accept source/launch readiness and authorize exact collection/focused qualification under its runtime lease. Full cohort requires separate ROOT acceptance of focused PASS. Preserve prior failed evidence and all original attribution.",
+  "remainingGates": [
+    "exact collection and ROOT runtime authorization",
+    "focused eight-segment qualification",
+    "fresh full ten-test performance cohort",
+    "registered checks/sweep",
+    "final metadata review",
+    "actual-head CI",
+    "scoped merge"
+  ],
+  "limits": "No reviewer runtime, tests, browser, native, build, Git, archive, source mutation or delegation. Only own immutable evidence written. This is source/launch suitability, not performance or overall acceptance."
+}

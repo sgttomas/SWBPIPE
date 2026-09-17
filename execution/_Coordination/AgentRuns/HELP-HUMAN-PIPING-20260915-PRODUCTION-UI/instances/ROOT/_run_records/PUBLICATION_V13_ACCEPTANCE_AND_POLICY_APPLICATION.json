@@ -1,0 +1,32 @@
+{
+  "status": "PASS_V13_DELTA_REVIEW_AND_V12_V13_POLICY_APPLICATION_LOADER",
+  "at": "2026-09-17T06:01:11.229713+00:00",
+  "derivativePackage": true,
+  "v13_review": {
+    "return_sha256": "32dcf522f8afb6b25b851d558f388c0bd1478cecf156ef45b9646f0b07a132e6",
+    "manifest_sha256": "39949a5d4ceb398de10b433597e9f328874c8ccf34b9b1326884225aec61b1a1",
+    "root_verified_members": 2,
+    "root_verified_bytes": 43366,
+    "coverage": "23 additions/12 proposals/4 copies;38 input bindings stable; no actionable findings"
+  },
+  "v12_prior_acceptance_sha256": "dccc9cb95191fed042a296792ee91e9620f086af4ca03da8fcdb99c37bfdce02",
+  "v13_proposal_manifest_sha256": "e4988c682e7f9ce87cbd9e5e277689a05f08683af70cbe863a3b1396e5b6b620",
+  "policy": {
+    "path": "projects/chirality-piping/validation/portability_policy.json",
+    "before_sha256": "0ff3144575d039763972938561cee15fe30263855179230757f1e19ef4643967",
+    "sha256": "b6d4232b765470fac1c68ba4e8e206e0f74ddb3783e5886131588805200a5891",
+    "bytes": 220389,
+    "applied_historical_entries": 19,
+    "historical_entries": 234,
+    "control_entries": 43,
+    "prior_entries_preserved": true,
+    "all_subjects_authorities_in_composed_selection": true
+  },
+  "loader": {
+    "entries": 277,
+    "issues": [],
+    "added_effective_roles": "all EVIDENCE"
+  },
+  "source_rows": "Canonical V12/R1 source row repair accepted; actual final source refresh awaits reviewed V20Y. No stale size/attribution propagation.",
+  "limits": "This applies only independently reviewed historical policy additions. Final selected publication/source/Remaining/receipt/checks/CI and performance are not accepted. V3 remains failed7/1/2."
+}

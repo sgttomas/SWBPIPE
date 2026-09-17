@@ -1,0 +1,769 @@
+{
+  "schema": "piping-final-source-review-input/v1",
+  "status": "SOURCE_REVIEW_ACCEPTED_PENDING_PROSPECTIVE_RUNTIME",
+  "base_commit": "28ad73cc3f936872f8de1d5116c617db1290331b",
+  "head_checkpoint": "135a94cea310129ebbf53e678159b7016c3701d5",
+  "source_count": 143,
+  "source_files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "30695d536c1c4c788174aecfeb0c3dbc27e93597e4914b296fa74a1112871ebf",
+      "bytes": 22948
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "sha256": "3dd3177dfb128d2dfad0089693fa4d69eea4e92a1455c25ab7a56342f3344e81",
+      "bytes": 18031
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "f94705da89cffc273412b27b93d3323b44ad7e512b48db56893595113f51f5dc",
+      "bytes": 102488
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/report-package-dist.spec.ts",
+      "sha256": "b94308160608b0651db6cac572aa94871782db2885ef5cb426cce1d3c43fda39",
+      "bytes": 1371
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts",
+      "sha256": "d62318d0032a2b985ea7bbb4334f3893b3897eb6ec42cad0dd7e412b831c9bc4",
+      "bytes": 3561
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts",
+      "sha256": "c469faaeab1d3f684ac340d9f0008efc6624e70ce4fe8b29ac040e22c845b2bb",
+      "bytes": 4137
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/toolkit-batch-dist.spec.ts",
+      "sha256": "e8cc275e973b6ecfb24dde5c001bea812e580c627e5ce6491a794af1a326e9b5",
+      "bytes": 4289
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "sha256": "c1f3443f7ea8b0dd5a3de11c869e645669e6c1dc9abfdf54eb04baf5286516e8",
+      "bytes": 89481
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts",
+      "sha256": "29a3fba6bba2530844bab1078d19dfcc5f25dc685148888a94b1e394e459cb1c",
+      "bytes": 31326
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "4f0978f2a93f348d03d996e332dc41629aab56f13e177bb2e376b41f41359865",
+      "bytes": 118625
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "sha256": "fd70a87407aa55ec82140cf74e9ceae3c7d6bd04b696ae8fd9ca45b6ff6ad274",
+      "bytes": 14702
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/aggregate-results.mjs",
+      "sha256": "e0f75f59f5de9ff4c1c42c3f989c4a903f1cf4e94a047bec2dae74054f3e338a",
+      "bytes": 2034
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/baseline-canvas-point.benchmark.ts",
+      "sha256": "738f25f544f497e85ce59a00fa1ea613fedef9cf209be0481bb2c43ac759d97c",
+      "bytes": 15618
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/benchmark-harness.ts",
+      "sha256": "0588824257de2c8a9d12631916938e46fd1f0119b49ecb98f0279b58638d90bf",
+      "bytes": 182447
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/box-selection-oracle.mjs",
+      "sha256": "74180e4c9d90bd2d7563afd8f70c5edd88d41c24c0d2aebba128746a064d5b49",
+      "bytes": 6478
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/candidate-camera-preflight.benchmark.ts",
+      "sha256": "9a542f9d8eafcebf6fd2f961a059d795a6f470429030bf77b04d9b771b1c8c9e",
+      "bytes": 8921
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/candidate-control-binding-v1.json",
+      "sha256": "fea322ba1a94caecde05690978301d3df7a3689ac0fc8b018243e27f170ec374",
+      "bytes": 1829
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/candidate-resource-qualification.benchmark.ts",
+      "sha256": "05fc51d904bfc4f5eb6a4c189088977c705e802a88c2f5806a35baf0d7c42ef7",
+      "bytes": 3224
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/candidate-server-response.ts",
+      "sha256": "3e687668fe8c21b22679de9fec010a7456594543a2b1734813a681a97837ab5c",
+      "bytes": 8541
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/candidate-visual-point-preflight.benchmark.ts",
+      "sha256": "79ef90b68b2a3938e184946afd9d4013a6395a07bb1af560f98928dd99938364",
+      "bytes": 4798
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/capture-bundle-manifest.mjs",
+      "sha256": "6a0343454c88d0d3683731b83bc86e7512877fa875fd8bbb1153a1fe7565b8a8",
+      "bytes": 2883
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/capture-external-candidate-bundle-manifest.mjs",
+      "sha256": "278a7b3d692725e84f76055b9f7b41064ccda7d092f7fa2eb6bdb0f01456e465",
+      "bytes": 4157
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-method-contract.spec.ts",
+      "sha256": "572bf26e6185bf229f6d140308e6efede40f45b5b710c76dfbf138505e7b7807",
+      "bytes": 80282
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-method-contract.ts",
+      "sha256": "06979207212a2317a0d1a7e6883839f8502383d1e94928dd885e16f35f622944",
+      "bytes": 21317
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-phase-journal.ts",
+      "sha256": "c2d66aa4f54434a0131a12ac49caa83d4ed0544c81e7ac573e7a2fc53597c053",
+      "bytes": 1267
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.d.mts",
+      "sha256": "fd0b1dbfc36229248191560c84ca8a104353556c84fbcec4d40da412d4bf08e8",
+      "bytes": 780
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+      "sha256": "732a234efeeda61d1eb83a3df49833a335ccbb202f357e6cdc2459d34ebcd241",
+      "bytes": 43181
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-preflight.benchmark.ts",
+      "sha256": "cd47c44deae1da5aab4ad77e737a7a95213fa5a473722cb530494131002b667c",
+      "bytes": 51252
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/chromium-compositor-trace.ts",
+      "sha256": "aa98659b9283bd490e180698ece87567ea301918e983782a62bf367ffe7ee460",
+      "bytes": 16319
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/compositor-trace-preflight.benchmark.ts",
+      "sha256": "e10efa8ad431894d36e1a2abde61667a913cbcfeaccf9b2fbad6eea2f403b02e",
+      "bytes": 6484
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixture-manifest.json",
+      "sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+      "bytes": 14267
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-base.model.json",
+      "sha256": "91464bd04ecd21c5a3e5fc63bca45e772c6ef64a1dfd955bec931ef503da09ff",
+      "bytes": 15613
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-expectations.json",
+      "sha256": "ca0cedc7816c7b622bcf724b4b0ea818897291b209637b1e5c7ab25cba496bb2",
+      "bytes": 999
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-translated.model.json",
+      "sha256": "d16d71af895e44663315c24d8716a53981f2bfaaa440624e6266458c48ce6e5a",
+      "bytes": 15992
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.deformation-overlay.json",
+      "sha256": "36957eb7ef2958b34cc7138500889f26829c2612d9b95b23c34dea56e7aa6081",
+      "bytes": 88536
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.model.json",
+      "sha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+      "bytes": 648923
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.deformation-overlay.json",
+      "sha256": "bd39138c90e5c21689cf5778220976d5ad65ba932b63c21303d491af6a5fffc9",
+      "bytes": 886262
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.model.json",
+      "sha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+      "bytes": 6454791
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/freeze-candidate-point-oracle.mjs",
+      "sha256": "d8c7a0cdb8a129a1d710df4d420d6437d76d44d8fcc34bb5132a601add599937",
+      "bytes": 13276
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "f7bac18d2097676f84690a708dcc60d08ecd9a2e63cae39b390a0f42e0a84aa5",
+      "bytes": 62463
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "18903d93521216a1ad47fb302c28cb501f9d3639260bf0adb425bcf06c8f5c12",
+      "bytes": 61849
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/functional-qualification-contract-v1.json",
+      "sha256": "45270f9f3b1f0ad92180a6569119e74118aa78c74aeecca1636b1964741f0df4",
+      "bytes": 3640
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs",
+      "sha256": "60b7a300b3d8e9550c1c520bffc7a325ee6c97e78e62c747d355afa4067da062",
+      "bytes": 36910
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/load-availability-diagnostic.mjs",
+      "sha256": "b40288746818029de832ca41cca564ad3cb4064bebea53aca82242954f99551a",
+      "bytes": 6888
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/lossless-trace-json.d.mts",
+      "sha256": "79a19df1e2cabf9c67acb05cf8d25733b3f557da49c075933ae570df77dc5833",
+      "bytes": 129
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/lossless-trace-json.mjs",
+      "sha256": "de7e87219debfaf750b6bf707adc68c60a2c1d316bea53850c26742dbec97175",
+      "bytes": 2149
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/observer-contract-binding-v1.md",
+      "sha256": "8ab87d0d0d9088df085cecef7e88c4d6712b179c93dc2c6172197d4f5e9b2fa4",
+      "bytes": 4398
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+      "sha256": "4fd67d8ac1ecda21f041835937ec528bf163cb260ef09e3f9a29b83a4a74c731",
+      "bytes": 25761
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.ts",
+      "sha256": "8da9f693e5aabf33b62a1ff46149d78d91be764711998972e1603afa4aabbf5e",
+      "bytes": 17668
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.baseline-points.config.ts",
+      "sha256": "9b351a1a73c1940565f54603c8c379eba7b60673c65cf0a8b0a67629ee5515d8",
+      "bytes": 294
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-causal-presentation-preflight.config.ts",
+      "sha256": "2601abbcf5064aba023ee3104f36a0b5b362c2d5ae77ae568c235c3d19eb4714",
+      "bytes": 1405
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-compositor-preflight.config.ts",
+      "sha256": "47a25a1c5018a95234c5293b0cd0c5848b0caf411ec0c95cb60a8a18d8924a38",
+      "bytes": 727
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts",
+      "sha256": "d2ccd61de9343400d0d80e06ae8e3b13341828eed26935b8b8e3379239f44e3b",
+      "bytes": 781
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-preflight.config.ts",
+      "sha256": "b6cdc8e00cd0efaf338fbc729f4860d8f0bd35b1dc02cbe4fd4c91a700736272",
+      "bytes": 650
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-resource.config.ts",
+      "sha256": "737965961b9da08bd2d1a55eee582306de989b06aa19a1bfeb520eb384a09ce9",
+      "bytes": 1250
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-visual-preflight.config.ts",
+      "sha256": "86c6419cce246fe63a51d5450f9e3e029c724d460e24b0795de41296d1f241e7",
+      "bytes": 497
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.causal-method-contract.config.ts",
+      "sha256": "0e78e16cfd53f88d2bed50bf8c1e9dee1d1d496f99e6c8a9efc6c0a643f04dd2",
+      "bytes": 1185
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.causal-presentation-preflight.config.ts",
+      "sha256": "a8d60bb10b9d6dddeaf2bc77ba27c1ee77d6468e136df6a6e250135d243a8bff",
+      "bytes": 1097
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.compositor-preflight.config.ts",
+      "sha256": "daaf22507891a194fce3d1ab214571494ba980c2a091a9e1a186a9bf5f6e14fe",
+      "bytes": 386
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.performance.config.ts",
+      "sha256": "5b587689281763f4524c376e201dbc93e1d7307160769d95ded7abcaf6a7f190",
+      "bytes": 1399
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.resource-lifecycle-source.config.ts",
+      "sha256": "28c46826270007bfbd4c9dbfbbe8d2017e8af7236ca34b78e8ac294d1f111eef",
+      "bytes": 2892
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/point-hit-oracle.mjs",
+      "sha256": "d9f4e01f80b62c777b3b48645b3d2180e7327fb0e335358c5aba6b4f96b992b4",
+      "bytes": 19159
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/resource-accounting.ts",
+      "sha256": "9c86cf3fb674e2adb4b81ae9a8cbca809cec8f8e75651e9760dc389bd4232024",
+      "bytes": 15663
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/resource-lifecycle-page.html",
+      "sha256": "919091d0383d1e039f697debc85814d3a82aa4e869b28ac33a86fc12d1ec06c0",
+      "bytes": 684
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/resource-lifecycle-page.tsx",
+      "sha256": "e3973137ee6f3ff942a6a6ff5ec3cb8fc6026f0157f9ef9600c2f8c91902c33d",
+      "bytes": 1626
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/resource-lifecycle-source.benchmark.ts",
+      "sha256": "01e264a89b4aad3475a72c75184e8e33326621214b694d24e2305247bc2f56b5",
+      "bytes": 10720
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/run-baseline-session-supervised.mjs",
+      "sha256": "742f6dc88efc3b1b68b7eed41584867aa5225f0ac623663014fc438cadf7c7b6",
+      "bytes": 9546
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-1000.interactions.json",
+      "sha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4",
+      "bytes": 104157
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-1000.point-oracle-v3.json",
+      "sha256": "57582d0b08b9edf91c6c61cc3ec37f149db89ebb055220291700366fb871de93",
+      "bytes": 298236
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-10000.interactions.json",
+      "sha256": "590fc0c7a0ab50f1f255150ce522a4a6626393d0ba8469ac62bdae2afdce29da",
+      "bytes": 257158
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-10000.point-oracle-v3.json",
+      "sha256": "2bfaffbc5a720d641888152a2a463455a3ced1c316699e960843d5a831f1b6fd",
+      "bytes": 293993
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/serve-bound-candidate-output.mjs",
+      "sha256": "1def765af80b49bf0cb35f5be16a20430862dde3fc7622d70b95805ea51599ab",
+      "bytes": 5406
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/tsconfig.causal-method.json",
+      "sha256": "15376dbf50b04fae22683d2849e0a451eafc5d999ca9379a640905d09dbcc8a4",
+      "bytes": 527
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+      "sha256": "2f2deb8d2771b03a10f4f67b564c5cade7b4a1eaeb8f17c4375e55851047103c",
+      "bytes": 16900
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-baseline-point-actionability.mjs",
+      "sha256": "857a8e35e8abb83e4e5c531b8ce4eda411717f424d5133821223325685bf7d6c",
+      "bytes": 4287
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-box-selection-oracle.mjs",
+      "sha256": "206f7047800a7aacdf2bcfb277f41a1bb3e305ecc0ff130d04bc1d27ded85aa3",
+      "bytes": 2432
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+      "sha256": "2a7d60c2009d26c7737081fe7f48c5639a2e7c08007ad18a79d287fce9654cb8",
+      "bytes": 42807
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-fixtures.mjs",
+      "sha256": "b801cc71754272707ee13e9b8e7e3a242a28242e3675cdcef69b2de17f8edd48",
+      "bytes": 4374
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-point-hit-oracle.mjs",
+      "sha256": "b67fd6c0f2d41778ac182d0e585d1fce871f040129763397d252cf5a3fa83a6e",
+      "bytes": 4069
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-winner-cue-plan.mjs",
+      "sha256": "c43489fff605c382aea6c4ffdc9495d0433225966e53d064a835dd06358c2abe",
+      "bytes": 7503
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/wasm-engine-dist.spec.ts",
+      "sha256": "eb8e2f14e312724362602f4b0e09edd981ca145f5e325d4e1118fc32300c9170",
+      "bytes": 1605
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts",
+      "sha256": "93019098c45039d78621ea4544cfa2b302dd492ec1256802f33045641711d7ff",
+      "bytes": 6403
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts",
+      "sha256": "d13c05b4864ca8efd9a392abd681206cdc3ba41e9b9a1c2e0b5b4321b15257cb",
+      "bytes": 13190
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.deadControls.test.tsx",
+      "sha256": "5e3cb3f92951b0f4ed7b14c9c8ebcc61f360b75ce3b5fea7836f93f92fff7607",
+      "bytes": 10683
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "ead13ada0be7d0557fdaf725c6f60a2a9523da4853ca4a388018be4c57d20bea",
+      "bytes": 792517
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "e29e1dc8c6f74d57b77f9b582cba87b8926c9402b2c2f9db112c1588f5d27940",
+      "bytes": 182047
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
+      "sha256": "71c61291b7b9d8c4823b763747886f189f15359bd20342029f057c74286ec0d9",
+      "bytes": 10297
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx",
+      "sha256": "06b95695489941331d6e10b48ae4ed98879bdec9dc95f3121d65a94a0099cd8f",
+      "bytes": 6929
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.tsx",
+      "sha256": "4e5c77c79e5c9535d0abcaad54e57e0bc323575831171766ee39f9d1380d201d",
+      "bytes": 5817
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.test.tsx",
+      "sha256": "f91f12309cc36ff712aa56911fffd73dfc8ba653987656e01a82a96a7f82924b",
+      "bytes": 10248
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+      "sha256": "3970d1fe2ad86a05bddc1f4e3cb80545e4742e6e58eb7ff1d9e6eea4b33dda87",
+      "bytes": 8856
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/HangerSelectionPanel.tsx",
+      "sha256": "ed2fee35f4076f79378129b7cb6b9e9216aaf3573638c1a5e1022cc1350665b5",
+      "bytes": 11154
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "sha256": "88b47451ee30712c9d8e9e7ab56940520f2dfd90bd9daea620e1d0e441e3d88c",
+      "bytes": 106737
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx",
+      "sha256": "a3b5678700f9bdd1e215e9335f5a9098167a11d1ae4c2b7320e93b04c6d841b2",
+      "bytes": 28990
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "fe9186eb57a974565b39c8241e1fbdf391886da9a01cc8389fd1ba6072ff181d",
+      "bytes": 61322
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "sha256": "dca007bbfff4130c0228b588b46bb75372bf825c1c999f5e27353d2472bcfc78",
+      "bytes": 128662
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/schemaSlotEmission.test.tsx",
+      "sha256": "d025d6ebb2d4573d6c0baedd13f6ff655f9036667e6ade2d5d160bfc484083a1",
+      "bytes": 19412
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx",
+      "sha256": "5fed5701a8cd75431b05b1dc89e88b3de129f001d2f8889578b2bfef07680436",
+      "bytes": 18771
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.test.ts",
+      "sha256": "e1849e8ae3f0e2f8913f4428cbf7718dfd3e8c6596535dd66ddc08106c374743",
+      "bytes": 1773
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.ts",
+      "sha256": "bf02409037a67b6842e5ceef6fe38a132ac31c267524c5fd27ecb15b5534615e",
+      "bytes": 19222
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/workflows.test.tsx",
+      "sha256": "12146869ab6d2c57c8c76d12ba2bca9f52c4fce3938095358ebd61a3ecc0773a",
+      "bytes": 15639
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "sha256": "4a2df280440156053b956efacb509bffc0168bb954cb3bb0a64271beffc9f749",
+      "bytes": 25343
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "12409babaca0868ad26addbf32cf4db7a48d6a8468d2594a7a9091d4f766ca08",
+      "bytes": 14102
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.test.tsx",
+      "sha256": "e4a46800571089e764f61b67cb28784ec27ac920149d37d26688b8cc09160e2c",
+      "bytes": 6014
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.tsx",
+      "sha256": "6ca5b8b74f6754b2649512c596b30fd07eff7e29339e6d4ac7085f6731422fe9",
+      "bytes": 9247
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx",
+      "sha256": "9c4d7432ba2178d15b502bc905d257c6fb9d867ab4541f7ba59982f794773449",
+      "bytes": 16708
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx",
+      "sha256": "6ae4b7fa74004d555701543c06667b9adad43e984f784653f6ae55555c9a24ea",
+      "bytes": 36233
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+      "sha256": "4293c2d47e86ab99799a8017dcc4a1a250676a99792ee2b54e0b62c8d0a5bb15",
+      "bytes": 44295
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+      "sha256": "4a0c22f313d5fd9fc6e8fab6a31ea97ac3c8f894a83a423ad6c324e7b7f15496",
+      "bytes": 8159
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+      "sha256": "40dd6cfcfe37b08471cbb99f3f338f148f9519a15d9863f2bcfa5fb523752650",
+      "bytes": 15017
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+      "sha256": "0560e420d75322cc46a9d197d0a6f6464e7ab6aa4b696b5f6e970dd1663d74ec",
+      "bytes": 11032
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ExistingToolkitEngine.test.tsx",
+      "sha256": "88fb16d978b15314d01c87f4b9bed4594766bc34c11e88c25a7988ef263e1330",
+      "bytes": 9344
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx",
+      "sha256": "3db391d36e3507047e917bf8ec3ad8dc17fa3ad0e3e52ecc6ca63a2701ac8d63",
+      "bytes": 7498
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+      "sha256": "4183a63cd227c6b0908ae202680ff68628ca76362aa3c0021c398de1009aee9a",
+      "bytes": 7335
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts",
+      "sha256": "fd1ec989258237a0dbeba416cf49c1b69bdf197d6a280b8f98dde8a0d03f3fe0",
+      "bytes": 15140
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "6d16343611048605816b15362286925f51cd5c5f3c1adbb648fee3cb29066c96",
+      "bytes": 202385
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/selectionPresentationBinding.test.ts",
+      "sha256": "205dbc9d2340cd9c226d65b41c4fa98db63da0f2483d78079eae4f1806018121",
+      "bytes": 5668
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/selectionPresentationBinding.ts",
+      "sha256": "cb3599b666a1acf225a1792fbce09d52aa8b7a5c13ba20fdb0b87bd6c9515df2",
+      "bytes": 3673
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.test.ts",
+      "sha256": "fdc6297f0037864ecc526dcdf14cf09218992172baaad68df0011bfc3b8d3e29",
+      "bytes": 29947
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts",
+      "sha256": "01972b482750ce05bb8a848635911c3e3c2197a850d05d11763836a4c6613b3b",
+      "bytes": 41388
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.test.ts",
+      "sha256": "25b76118c780c66a1b70338420356e5b7877546cebe8a45204b7f3d8f939fe04",
+      "bytes": 20099
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.ts",
+      "sha256": "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e",
+      "bytes": 43382
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelectionPresentation.test.ts",
+      "sha256": "e1e0e316d3c4f7cbdfa6eeb2d914f61cc29cd4cc81089f247dec04985ac51226",
+      "bytes": 7510
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelectionPresentation.ts",
+      "sha256": "00384d2831797e5cba8acff21e82e36f21a853c398e8c2a801ccfed0f3a55931",
+      "bytes": 4093
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/wind-exposure/WindExposureForm.tsx",
+      "sha256": "a7c3ae0a4d08de1a71173e1354b19a9c08b1241ded3f8de48fcc77b59f08b2eb",
+      "bytes": 6210
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/VirtualList.test.tsx",
+      "sha256": "ef21bccead703c680308b23a42d0943ef1d255e3c74056fdae14e1d0f72091ac",
+      "bytes": 5484
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/VirtualList.tsx",
+      "sha256": "0ef58bdc7c98188be7b1a828125ac056de25bb7646ca38bff76f3ad11d49c92c",
+      "bytes": 4910
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/VirtualTargetPicker.test.tsx",
+      "sha256": "bef46d7fc13caf46bb00e178ed0a4c715eb4b64d7838deea42f215b227068e00",
+      "bytes": 6544
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/VirtualTargetPicker.tsx",
+      "sha256": "5511fa36d899477c0652578528d9d66b85274a3806c3437dcc99705bb222d108",
+      "bytes": 9133
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.test.tsx",
+      "sha256": "d6a2a818496b7e2b3fc4885eb20d4552809dddbe274b6917dcaac3506e33a37b",
+      "bytes": 2133
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.tsx",
+      "sha256": "211844849da4ba2257d95ae542852a74360377095efaaee1259c7d054ed8433e",
+      "bytes": 2409
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/dormantSection.test.tsx",
+      "sha256": "95edca7a73256c99837d2145cbebb431c153eaf6944a54ecf5375281f07a69e9",
+      "bytes": 4437
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/dormantSection.tsx",
+      "sha256": "a52979ab011dc924f0ee8ff56fe6fb061177ab8a1c769f782c806ed216986784",
+      "bytes": 1095
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/modelIndex.test.ts",
+      "sha256": "1ed663fb3e155f51c7268e680608ff8d7294994e85016d53a68c029513f8101c",
+      "bytes": 6006
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/modelIndex.ts",
+      "sha256": "7daf63de7e0f4834b8dba7252065a528438b5fe7dd558d3107350e7855b30bd9",
+      "bytes": 18481
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/selectionState.test.ts",
+      "sha256": "619a32d97db596b72f19764bc111d3f7c1342d95a19cda1d3c686bc3277e39b4",
+      "bytes": 3836
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/selectionState.ts",
+      "sha256": "e6eb8cb213692f94b2fa1fe21a0a7de17c9954e3038a90889dca20d631d3dbb2",
+      "bytes": 8884
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/uiDiagnostics.test.ts",
+      "sha256": "719056fca2a43e8199ae077c0e77b5b1926d7a5ac26b37886528b048e2cd74cc",
+      "bytes": 9848
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/uiDiagnostics.ts",
+      "sha256": "9cee0e7c543cceaeaa9045ff91f74ff3f2fc2cbcaecf2eab6fb2fd958fecfca7",
+      "bytes": 13998
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/uiPreferences.test.ts",
+      "sha256": "8aa674683603922d1606ed6598a7c45fb8584315564936b07170a023068f64ec",
+      "bytes": 2287
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/uiPreferences.ts",
+      "sha256": "1fa947afccaffca87b9badaa71567bff0d3787dc271575d6269efabe1a477640",
+      "bytes": 3954
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "640b560d44b1877a06602cd4f8bb0c5eae6552af41f2b9502aeb7fec27708b2c",
+      "bytes": 95576
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/test-support/workspaceTestControls.ts",
+      "sha256": "92413ddbfe11ef0137f228fcc1b9a872301ff870bb3a8120f7edaf6f1ed76fce",
+      "bytes": 1786
+    }
+  ],
+  "provenance": {
+    "prior_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V9/SOURCE_MANIFEST_R1.json",
+    "prior_manifest_sha256": "e8c242965e15619cebc2a8872da6349531eae122206e4ccd0a6d51ffdc3265f1",
+    "method_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_METHOD_INTEGRATION_V20W/SOURCE_MANIFEST.json",
+    "method_manifest_sha256": "fcb57840eda19a4d622f15fa317850f2e5a8b79f9e149a6ec83300a362fe22e3",
+    "source_change": "V20W exact same-trace reported timestamp arithmetic; V67-R1 definite pinned Mac producer claim. Product unchanged.",
+    "review_return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/SAME_TRACE_DURATION_V67/BACKCHECK/RETURN.json",
+    "review_return_sha256": "5628172a0312ad06d0d43a510d8b60abc726dff5ef54481baad417005af9da0a"
+  },
+  "changes_since_v9": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "beforeSha256": "e84a760e14e6f8efa0b8590f22b960b2292d1357347e334d359f4df97ed43cdc",
+      "sha256": "18903d93521216a1ad47fb302c28cb501f9d3639260bf0adb425bcf06c8f5c12",
+      "bytes": 61849
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "beforeSha256": "95eff452fb9b65e7745e382ee185944ee6d859a1840d265b39cadc2438671d7d",
+      "sha256": "f7bac18d2097676f84690a708dcc60d08ecd9a2e63cae39b390a0f42e0a84aa5",
+      "bytes": 62463
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.ts",
+      "beforeSha256": "f27a99bb346386d84fcbf28af6a421b53935ab0750cc6b881ed706cfbd46ba6c",
+      "sha256": "8da9f693e5aabf33b62a1ff46149d78d91be764711998972e1603afa4aabbf5e",
+      "bytes": 17668
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+      "beforeSha256": "b69be586a0fca324943560612e1b9c7c90a290e5f9798c5bf5219b99956b853b",
+      "sha256": "4fd67d8ac1ecda21f041835937ec528bf163cb260ef09e3f9a29b83a4a74c731",
+      "bytes": 25761
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "beforeSha256": "7975ba4a9681ab785e5a8648872dd1307e6e0ef2a05a15037999a4ab50598c6f",
+      "sha256": "fd70a87407aa55ec82140cf74e9ceae3c7d6bd04b696ae8fd9ca45b6ff6ad274",
+      "bytes": 14702
+    }
+  ],
+  "limits": [
+    "Five method/test/documentation deltas,138 unchanged paths with carried independent coverage.",
+    "No historical rescore; source review and51 pure controls do not establish live performance acceptance."
+  ]
+}

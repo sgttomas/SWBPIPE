@@ -18,7 +18,10 @@
       "parent": "ROOT",
       "model": "gpt-5.6-sol",
       "effort": "high",
-      "status": "prepared"
+      "status": "current_assignment_complete_R7_R8_transferred_V10",
+      "agent_name": "/root/ui_workspace_manager",
+      "repair_brief": "briefs/UI_REVIEW_REPAIR_BATCH_V2_SUPPLEMENT.md",
+      "repair_brief_sha256": "a557e519bc06e1ba7fd4b61626782d0fff431f4e7ba369f5f6b00df8e5fe681f"
     },
     {
       "id": "WRITER",
@@ -26,7 +29,11 @@
       "parent": "UI",
       "model": "gpt-5.6-sol",
       "effort": "high",
-      "status": "held_until_baseline"
+      "status": "current_assignment_complete_R7_R8_transferred_V10",
+      "agent_name": "/root/ui_workspace_manager/ui_foundation_writer",
+      "dispatch_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI/_run_records/CHILD_DISPATCH_V1.json",
+      "repair_brief": "briefs/UI_REVIEW_REPAIR_BATCH_V2_SUPPLEMENT.md",
+      "repair_brief_sha256": "a557e519bc06e1ba7fd4b61626782d0fff431f4e7ba369f5f6b00df8e5fe681f"
     },
     {
       "id": "VERIFY",
@@ -34,7 +41,8 @@
       "parent": "ROOT",
       "model": "gpt-5.6-sol",
       "effort": "high",
-      "status": "prepared"
+      "status": "V13_real_method_failed_clock_observer_pixel_source_diagnosis_pending",
+      "agent_name": "/root/ui_foundation_verification"
     },
     {
       "id": "REVIEW",
@@ -42,7 +50,7 @@
       "parent": "ROOT",
       "model": "gpt-6-astra",
       "effort": "high",
-      "status": "after_frozen_source"
+      "status": "existing_reviewer_root_v9_early_backcheck_pending_final_fresh_review"
     },
     {
       "id": "CLOSEOUT",
@@ -50,7 +58,327 @@
       "parent": "ROOT",
       "model": "gpt-5.6-sol",
       "effort": "medium",
-      "status": "after_acceptance"
+      "status": "historical_planned_Sol_allocation_superseded_future_dispatch_Astra_low"
+    },
+    {
+      "id": "NATIVE",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "status": "historical_V5_preparation_superseded_by_Astra_native_successor",
+      "agent_name": "/root/ui_native_verification"
+    },
+    {
+      "id": "BENCHMARK_DIAGNOSIS",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "status": "causal_presentation_v2_sealed",
+      "agent_name": "/root/ui_benchmark_diagnosis"
+    },
+    {
+      "id": "WORKFLOW_TESTS",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "status": "focused114_typecheck_pass_test8_transferred_writer_full_pending",
+      "agent_name": "/root/ui_workflow_test_adaptation",
+      "dispatch_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/DISPATCH_WORKFLOW_DRIVER_ADAPTATION_V1.json",
+      "scope_supplement": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/WORKFLOW_DRIVER_APP_TEST_TRANSFER_V1.md",
+      "brief": "briefs/DESKTOP_TEST_ROUTE_COMPATIBILITY_V1.md",
+      "brief_sha256": "0c13ed618da1ba79517d5b2af9d0ebfd2900e211985158279a161fcf77a539ae"
+    },
+    {
+      "id": "FUNCTIONAL",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "status": "V17_source40_dist17_prepared_not_executed",
+      "agent_name": "/root/ui_functional_qualification",
+      "dispatch_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/DISPATCH_FUNCTIONAL_WORKSPACE_V1.json",
+      "prior_result": "instances/FUNCTIONAL/V11_FINAL_RESULT.json"
+    },
+    {
+      "id": "CLOSEOUT_PREPARATION",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-5.6-sol",
+      "effort": "medium",
+      "status": "V2_preparation_complete_not_closeout",
+      "agent_name": "/root/ui_closeout_preparation",
+      "brief": "briefs/CLOSEOUT_PREPARATION_V1.md",
+      "brief_sha256": "8c0b01423ceacd393fcda9f14cedfad24e62d7dd33c7624e4f8970e1af1ee921",
+      "enforcement": "instruction-asserted"
+    },
+    {
+      "id": "PRESENTATION_METHOD_DIAGNOSIS",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "status": "complete_source_trace_diagnosis_no_runtime",
+      "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/PRESENTATION_METHOD_REPAIR_DIAGNOSIS_V1.md",
+      "brief_sha256": "1537845fc9f99b4a9898d5a948fc5a8863fdf0f140123f21100baa05ea0a4d4b",
+      "enforcement": "instruction-asserted",
+      "agent_name": "/root/ui_presentation_method_repair_diagnosis"
+    },
+    {
+      "id": "APP_TEST_ISOLATION_DIAGNOSIS",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "status": "complete_source_cause_identified_no_isolation_defect_established",
+      "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/APP_TEST_ISOLATION_DIAGNOSIS_V1.md",
+      "brief_sha256": "c4df5f94caab36501b7994db4915c20595992f2acb758677c9d2bb4a9623c683",
+      "enforcement": "instruction-asserted",
+      "agent_name": "/root/ui_app_test_isolation_diagnosis"
+    },
+    {
+      "id": "ASSIGNMENT_FILTER_METHOD",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "status": "source_comparison_complete_CfT36_prospective_pin",
+      "agent_name": "/root/ui_assignment_filter_method",
+      "dispatch_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/DISPATCH_ASSIGNMENT_FILTER_METHOD_V1.json"
+    },
+    {
+      "id": "SYNTHETIC_WEBGL_ARM_DIAGNOSIS",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "status": "complete_V2_owned_context_fixture_prospectively_adopted_historical_cause_unresolved",
+      "agent_name": "/root/ui_synthetic_webgl_arm_diagnosis",
+      "dispatch_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/DISPATCH_SYNTHETIC_WEBGL_ARM_DIAGNOSIS_V1.json"
+    },
+    {
+      "id": "PINNED_BROWSER_IDENTITY_DIAGNOSIS",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "agent_name": "/root/ui_runtime_identity_diagnosis",
+      "status": "completed_confirmed_missingdefaultflag_proposal_adopted",
+      "brief_sha256": "d3017c0d19ca9b8f868384cfaa597c5b3c0060ccbae0a385b1e40e044eae3b61",
+      "enforcement": "instruction-asserted"
+    },
+    {
+      "id": "EARLY_PRODUCT_REVIEW",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "agent_name": "/root/ui_independent_source_review",
+      "status": "complete_changes_required_six_findings_43_of_43_no_drift",
+      "brief_sha256": "ae75ed8a83ca91fc351343b8357017ef3881c8ae21aa266963ae851a92f3d8bc",
+      "enforcement": "instruction-asserted"
+    },
+    {
+      "id": "BOX_CAMERA_DIAGNOSIS",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "status": "complete_two_product_causes_bound_R8_repair",
+      "agent_name": "/root/ui_box_camera_diagnosis",
+      "brief": "briefs/BOX_CAMERA_INVARIANCE_DIAGNOSIS_V1.md",
+      "brief_sha256": "6012760cc7d037a7743a993c5a5b03a0602fa4624a359cc898315d95865527ed",
+      "enforcement": "instruction-asserted"
+    },
+    {
+      "id": "CAUSAL_RUNTIME_DIAGNOSIS",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "status": "V53_DIAGNOSIS_ACCEPTED_RELEASED",
+      "agent_name": "/root/ui_causal_runtime_diagnosis",
+      "brief": "briefs/CAUSAL_RUNTIME_CLOCK_OBSERVER_DIAGNOSIS_V1.md",
+      "brief_sha256": "26d3c6dff0164f291b9cd33bedefbb4283107a6a32147869dc51df625cb0c6e5",
+      "successor_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/ORBIT_INTERVAL_DIAGNOSIS_V29A.md",
+      "successor_brief_sha256": "6c378e9561ecaab6276149c3dfe264ca062cb1b82bbf889d32a666659ed51c70",
+      "successor_return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ORBIT_INTERVAL_DIAGNOSIS_V29A/RETURN.json",
+      "successor_return_sha256": "2435ab5115db3f26a108af9d197cce826c11467c95f058ac7b51eeba4879d482",
+      "current_assignment": {
+        "brief": "briefs/ORBIT_SCORER_DIAGNOSIS_V53.md",
+        "sha256": "d57a6bf5658d60f17ef0ce52c0b26a995040b21ad3d6f618afe86a6caffc9918",
+        "write_scope": [],
+        "runtime": "small offline calculation only"
+      }
+    },
+    {
+      "id": "FUNCTIONAL_SUCCESSOR",
+      "parent": "ROOT",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "agent_name": "/root/ui_functional_successor",
+      "status": "V30_R2_COMPLETE_RELEASED_SOURCE_ACCEPTED",
+      "dispatch_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/DISPATCH_FUNCTIONAL_SUCCESSOR_V18.json",
+      "successor_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/SELECTION_PRESENTATION_PRODUCT_V28.md",
+      "successor_brief_sha256": "c88968e3388d2af9cdc6af9ef7bf6f1c8f7d68c6c42ac709e2e80325fffe1cd6",
+      "scope_supplement": "briefs/NATIVE_UI_FINDINGS_V16_APP_ROUTE_SUPPLEMENT.md",
+      "scope_supplement_sha256": "840ad003820cf0656a3569aea267938e57e774545eafed2c952c5a047836d5df",
+      "successor_return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FUNCTIONAL/SELECTION_PRESENTATION_V28/RETURN.json",
+      "successor_return_sha256": "562dab0946aa7650bc3a6a26cd05a35ee38d9d32fe429fa789977bc0d150d5a5",
+      "current_assignment": {
+        "brief": "briefs/FRESH_REVIEW_REPAIR_BATCH_V30_R2.md",
+        "sha256": "3ca46cbce2d7e35eb18c089c0961bf6f8038df9b879c530ce2f41ab0ae36c3cf",
+        "scope": "ten-file ceiling and dedicated repair evidence"
+      }
+    },
+    {
+      "id": "UI_SELECTION_CUE",
+      "parent": "ROOT",
+      "role": "WORKING_ITEMS",
+      "agent_name": "/root/ui_selection_cue_manager",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "status": "completed_union4_transferred_ROOT_V11",
+      "dispatch_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/DISPATCH_UI_SELECTION_CUE_V1.json"
+    },
+    {
+      "id": "CAUSAL_METHOD_REPAIR",
+      "parent": "ROOT",
+      "role": "TASK",
+      "agent_name": "/root/ui_causal_method_repair",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "status": "V20R_COMPLETE_REVIEWED_INTEGRATED",
+      "dispatch_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/DISPATCH_CAUSAL_METHOD_REPAIR_V1.json",
+      "successor_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/FOREGROUND_COHORT_PREPARATION_V1.md",
+      "successor_brief_sha256": "67c94b921d2ab62115616b35c2b288440c2a731c86d33ddc63443655199951ef",
+      "successor_return": "{VERIFY_WORKTREE}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/WINNER_GEOMETRY_REPAIR_V20L/RETURN.json",
+      "successor_return_sha256": "6d533e212c2d5b39e79a5e246801bdcb722b558b729d6c30a3346443620571f3",
+      "current_assignment": {
+        "brief": "briefs/RUNTIME_ORACLE_PIN_V20T.md",
+        "sha256": "d2f8b2268a0d0eaa0f6556fcd04d08b39d722b46062b4175f4205f9c496c602d",
+        "status": "ACTIVE_OFFLINE",
+        "model": "gpt-6-astra",
+        "effort": "low",
+        "scope": "VERIFY benchmark-harness.ts and full-cohort-controller.spec.ts plus own V20T evidence",
+        "supplement": "briefs/RUNTIME_ORACLE_PIN_V20T_R2.md",
+        "supplement_sha256": "39dd0493eea8e4fb81fd009e3b83c600050788455974fdc5c9dfe25f92ddb25c"
+      }
+    },
+    {
+      "id": "NATIVE_SUCCESSOR",
+      "parent": "ROOT",
+      "role": "TASK",
+      "agent_name": "/root/ui_native_successor",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "status": "V103_COMPLETE_ACCEPTED_RUNTIME_RELEASED",
+      "dispatch_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/DISPATCH_NATIVE_SUCCESSOR_V6.json",
+      "successor_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/HEADED_DIAGNOSTIC_LIVE_V42.md",
+      "successor_brief_sha256": "9665906c120f90ba909ff258f378427d3294843cf545228d929baa6b4fc9fcb9",
+      "successor_return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HEADED_DIAGNOSTIC_PREPARATION_V2/RETURN_FINAL_BINDINGS.json",
+      "successor_return_sha256": "59dccf307cfd4054ff9cd28ae740c64c99fd9551387291532a02d57f49f924c4",
+      "current_assignment": {
+        "brief": "briefs/NATIVE_V30_LIVE.md",
+        "sha256": "c9dafcdc7e74ed637eec1e2131adfee7dd13c73d73188444105878cbbae5be15"
+      }
+    },
+    {
+      "id": "RESOURCE_SUCCESSOR",
+      "parent": "ROOT",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "agent_name": "/root/ui_resource_successor",
+      "status": "V28_final_resource_PASS_RELEASED",
+      "brief": "briefs/RESOURCE_SUCCESSOR_V2.md",
+      "brief_sha256": "a474dac7c821eacedca0cc4a6957b0f324f7e100976d3a2e04ba312b26bc5575",
+      "enforcement": "instruction-asserted",
+      "successor_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/FINAL_RESOURCE_RUNTIME_V28.md",
+      "successor_brief_sha256": "eedb56ee11258d201ba1ff677187ae0bf2660a8b0e66e25108b301f629944917",
+      "successor_return": "{VERIFY_WORKTREE}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FINAL_RESOURCE_V28/RUNTIME_RETURN.json",
+      "successor_return_sha256": "b8f5d8d2a4452b2e454bd4e71bf9c479d21540bdbb6b65fd079e1f267224b9b4"
+    },
+    {
+      "id": "CLOSEOUT_SUCCESSOR",
+      "parent": "ROOT",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "agent_name": "/root/ui_closeout_successor",
+      "status": "V17_COMPLETE_APPLIED_RELEASED",
+      "brief": "briefs/CLOSEOUT_SOURCE_INVENTORY_V3.md",
+      "brief_sha256": "948b6065a210ed4d7d4d9e1c3cdc922b3c1d925c01327bebfd531373f45e7df8",
+      "output_manifest_sha256": "34c2596425d43afa064830e36681e7a6a40d22b48dca56bcc1b91d4909be66d1",
+      "enforcement": "instruction-asserted",
+      "successor_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/CLOSEOUT_FINAL_PREPARATION_V5.md",
+      "successor_brief_sha256": "f75db2bd2b3a463dd4865c3e13f8c08b7dd0bbfcff998d840122d26735e80ad2",
+      "successor_return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/RAW_ARCHIVE_V9/RETURN.json",
+      "successor_return_sha256": "034b12986a85cb5906e366506c1e7e6041511cd89bd169e34808556a9b808ab1",
+      "current_assignment": {
+        "brief": "briefs/PUBLICATION_ASSEMBLY_V7.md",
+        "sha256": "6b58ecb37373b34850a7871c6908b5c3619356c544294196aaae27056a9731a2",
+        "write_scope": "instances/PUBLICATION_CANDIDATE_V7",
+        "runtime": "NONE; no archive I/O or Git mutation"
+      }
+    },
+    {
+      "id": "FULL_METHOD_QUALIFICATION",
+      "parent": "ROOT",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "agent_name": "/root/ui_full_method_qualification",
+      "status": "V104_SWEEP_AND_V31_ARCHIVE_ACCEPTED_RELEASED",
+      "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/FULL_METHOD_RUNTIME_QUALIFICATION_V21.md",
+      "brief_sha256": "58cf0bf61ef9e6a4d5562c2510b9a15b8611671130316a0eafae00cfd3496ba9",
+      "enforcement": "instruction/config asserted; no delegation",
+      "successor_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/ORDINARY_THREE_PROBES_PREPARATION_V41.md",
+      "successor_brief_sha256": "87498fd4b6c597ab28f804eaf6d0a6fb576213f8f49a8fc2f6d1f175da9ff1f4",
+      "successor_return": "{VERIFY_WORKTREE}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/PRODUCT_BOUND_VISUAL_QUALIFICATION_V36/RETURN.json",
+      "successor_return_sha256": "b4c69cb43111ba010c4f976109c92aff64f5818b8ddeb8b6654fdc84887bd4d8"
+    },
+    {
+      "id": "FRESH_INTEGRATED_REVIEW",
+      "parent": "ROOT",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "agent_name": "/root/ui_fresh_integrated_review",
+      "status": "V105_FINAL_PUBLICATION_REVIEW_ACTIVE",
+      "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/FRESH_INTEGRATED_SOURCE_REVIEW_V1.md",
+      "brief_sha256": "d1794fa6d8788b2a69a0e7e66fdb015cb278c74893d422ff5bfde3c96dc38e3b",
+      "write_targets": [],
+      "successor_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/INTEGRATED_METHOD_SUPPLEMENT_REVIEW_V10.md",
+      "successor_brief_sha256": "658c0acf58a6c371c2d165eb5ba76bca1564fcb02ba13fa38029ceea1c4d2efc",
+      "successor_return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/HEADED_V3_AND_DISCLOSURE_ORDER_REVIEW_RETURN.json",
+      "successor_return_sha256": "43f9650c67ab89d7a44c77e911acecbf34da9dceba926fd799f9bde9c7bc381a",
+      "current_assignment": {
+        "brief": "briefs/TIED_INTERVAL_AND_LAUNCH_REVIEW_V54.md",
+        "sha256": "4ee8f6e5db9288e8ba24ae4edf35d0d7b55a8a957deb60b97795126e9f9e8ab6",
+        "write_scope": []
+      }
+    },
+    {
+      "id": "FINAL_FRESH_SOURCE_REVIEW",
+      "status": "active",
+      "agent": "/root/ui_final_source_review",
+      "parent": "/root",
+      "role": "TASK Type2",
+      "configured_model": "gpt-6-astra",
+      "configured_reasoning_effort": "high",
+      "fork_turns": "none",
+      "mechanism": "delegated-harness-native",
+      "enforcement": "instruction/config asserted",
+      "delegation": false,
+      "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/FINAL_FRESH_COMPLETE_SOURCE_REVIEW_V1.md",
+      "brief_sha256": "71e729211e87d922d963785f625e13b92c1896c9fff8c341f81c5fc311d15068",
+      "context_manifest_sha256": "94368ff10132924e9b79b6325fff3ad6b451d5198c22fc513536395ec3d56381",
+      "scope": "Read-only complete143 source diff; writes FINAL_REVIEW/COMPLETE_SOURCE_V1 only; no runtime",
+      "utc": "2026-09-16T18:36:13.844349+00:00"
     }
   ],
   "edges": [
@@ -77,15 +405,404 @@
     [
       "REVIEW",
       "CLOSEOUT"
+    ],
+    [
+      "ROOT",
+      "NATIVE"
+    ],
+    [
+      "WRITER",
+      "NATIVE"
+    ],
+    [
+      "ROOT",
+      "BENCHMARK_DIAGNOSIS"
+    ],
+    [
+      "BENCHMARK_DIAGNOSIS",
+      "VERIFY"
+    ],
+    [
+      "ROOT",
+      "WORKFLOW_TESTS"
+    ],
+    [
+      "WRITER",
+      "WORKFLOW_TESTS"
+    ],
+    [
+      "WORKFLOW_TESTS",
+      "REVIEW"
+    ],
+    [
+      "ROOT",
+      "FUNCTIONAL"
+    ],
+    [
+      "WRITER",
+      "FUNCTIONAL"
+    ],
+    [
+      "FUNCTIONAL",
+      "REVIEW"
+    ],
+    [
+      "ROOT",
+      "CLOSEOUT_PREPARATION"
+    ],
+    [
+      "ROOT",
+      "PRESENTATION_METHOD_DIAGNOSIS"
+    ],
+    [
+      "ROOT",
+      "APP_TEST_ISOLATION_DIAGNOSIS"
+    ],
+    [
+      "ROOT",
+      "ASSIGNMENT_FILTER_METHOD"
+    ],
+    [
+      "ROOT",
+      "SYNTHETIC_WEBGL_ARM_DIAGNOSIS"
+    ],
+    [
+      "ROOT",
+      "PINNED_BROWSER_IDENTITY_DIAGNOSIS"
+    ],
+    [
+      "ROOT",
+      "EARLY_PRODUCT_REVIEW"
+    ],
+    [
+      "ROOT",
+      "FUNCTIONAL_SUCCESSOR"
+    ],
+    [
+      "ROOT",
+      "UI_SELECTION_CUE"
+    ],
+    [
+      "ROOT",
+      "CAUSAL_METHOD_REPAIR"
+    ],
+    [
+      "ROOT",
+      "NATIVE_SUCCESSOR"
+    ],
+    [
+      "ROOT",
+      "RESOURCE_SUCCESSOR"
+    ],
+    [
+      "ROOT",
+      "CLOSEOUT_SUCCESSOR"
+    ],
+    [
+      "ROOT",
+      "FULL_METHOD_QUALIFICATION"
+    ],
+    [
+      "ROOT",
+      "FRESH_INTEGRATED_REVIEW"
     ]
   ],
   "runtime_lease": {
-    "holder": null,
-    "serializes": [
-      "native_build",
-      "browser_witness",
-      "native_witness",
-      "final_git"
-    ]
+    "status": "RELEASED",
+    "owner": null,
+    "record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_V103_ACCEPTANCE_ARCHIVE_V31_LEASE.json",
+      "sha256": "594f93654b9d2424152d6c4bea1f95635ea989f49393a0c4038ba2c2dea22c65",
+      "bytes": 7225
+    }
+  },
+  "prospective_model_allocation": {
+    "owner_update": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/OWNER_MODEL_ALLOCATION_UPDATE_20260916_V1.json",
+    "sha256": "98eea827274b8e4c7b44b87e4a271f850621d0db229bcf1a5dceb73f925f58b4",
+    "new_Type1": "gpt-6-astra/low",
+    "new_Type2_default": "gpt-6-astra/low",
+    "existing_instances": "finish current assignment unchanged; existing Astra reasoning retained"
+  },
+  "auxiliary_pure_node": {
+    "owner": "/root/ui_full_method_qualification",
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/PURE_METHOD_CONTROLS_CONCURRENCY_V21.json",
+    "sha256": "ecf12d586c6e6dbe8ad50066949357ed29d4ab96edb6641d463d656eb00e7ae7",
+    "status": "former_exception_closed_native_released"
+  },
+  "current_frontier": "Bounded functional technical acceptance and V31 preservation complete. V17 seven Remaining targets and16 exact policy additions applied; Root consumes its frozen552-path selection as history. Final V105 actual-candidate review and clean-checkout publication checks next. D69 UNRULED; merge held.",
+  "active_dependency_path": [
+    "V105 actual-candidate review and clean selected-checkout practitioner/self-check/receipt/full-range guards",
+    "Scoped PR and required actual-candidate CI",
+    "D69 owner ruling or original performance acceptance before merge"
+  ],
+  "historical_node_interpretation": "Earlier node statuses describe original attribution, not active workers or fresh acceptance. Current frontier/runtime lease and active_dependency_path govern remaining sequencing. Historical failures stay preserved.",
+  "pause_direction": {
+    "status": "RESUMED_BY_OWNER",
+    "owner_request": "yes please, pause gracefully now",
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/OWNER_PAUSE_20260916_V2.json",
+    "sha256": "a23c5d0182f1963a54314d69306fedc29bb0b0a9e4704eecb4fb46e6ae9d7353",
+    "future_execution": "Owner resumed; proceed under current reviewed source and explicit Root runtime leases.",
+    "latest_owner_direction": "You were interrupted during compaction. I'm not sure your status, please resume."
+  },
+  "archive_io": {
+    "status": "RELEASED_ROOT_VERIFIED_V31",
+    "owner": null,
+    "latest_accepted": "instances/RAW_ARCHIVE_V31",
+    "record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V31_ACCEPTANCE.json",
+      "sha256": "774ab4bc934076be918e8416f6bd5b485b656ec41bf558f7244bc20c2842e80c",
+      "bytes": 1456
+    }
+  },
+  "clean_default_controls": {
+    "status": "PASS_TWO_FOCUSED_TESTS",
+    "commit": "5e22bd14a0b609aa0a1113ab4d7a1c2b2785a233",
+    "record": "instances/ROOT/CLEAN_DEFAULT_ADMISSION_V1/RETURN.json",
+    "sha256": "bce933e759800bb39760381ac310acdd03f2835f22517fcdd8009a19d8feed41"
+  },
+  "path_resolution": {
+    "repository_paths": "Unprefixed project paths are relative to the checkout root.",
+    "VERIFY_WORKTREE": "Resolve from the verification checkout declared in this run execution context; this token identifies external historical artifacts, not a required product/build dependency. Canonical immutable evidence may instead be resolved through its owning archive map.",
+    "REPAIR_WORKTREE": "The isolated V101 repair checkout recorded by its sealed launch brief working_checkout field. That original host identity is historical execution context, not a clone/build dependency; derive an active checkout root with git rev-parse before any future authorized execution."
+  },
+  "parallel_file_light_work": {
+    "owner": "/root/ui_native_successor",
+    "role": "TASK Type2",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "enforcement": "instruction/config asserted; no delegation",
+    "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_V83_CANVAS_PALETTE_SUPPLEMENT_V93.md",
+    "sha256": "09007521015a95bc04e8d6eb506d8a9367f1b0f95e0acd55d9f40f58b1453009",
+    "status": "HISTORICAL_V93_PREPARATION_CONSUMED_BY_COMPLETED_NATIVE_CHAIN",
+    "scope": "Own new nativeV93 three-file packet only; no runtime",
+    "return_sha256": "56a5110961ab511fac70b359967bc0bbf4d7a5d46a133102a3cee0fbab83ed0d",
+    "manifest_sha256": "183b41fd490565bd703ba4e52fac3a87bf9b49529c147e4a0354bca3226f4515"
+  },
+  "active_readonly_work": [
+    {
+      "status": "V98_SEALED_ROOT_ACCEPTED_RELEASED",
+      "at": "2026-09-17T12:05:52.607222+00:00",
+      "parent": "/root",
+      "owner": "/root/ui_dist_overlay_diagnosis",
+      "role": "TASK Type2",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "enforcement": "instruction/config asserted; no delegation",
+      "brief": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_WASM_BUILD_PROVENANCE_V98.md",
+        "sha256": "94d3e20e0cc7ad9c53e6c24660bee9f236256440892e97cd2b7f367c8476b55e",
+        "bytes": 6166
+      },
+      "native_return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/RETURN_R1.json",
+        "sha256": "23bdddd247c720bac6105ca5b7bae14b3437de315d3cbee10d3f7ba9566b2257",
+        "bytes": 1042
+      },
+      "native_manifest": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/POST_SOLVE_V83/runtime/OUTPUT_MANIFEST_R1.json",
+        "sha256": "8d6588801cde48b5dc5190c25052e64ab64a82c68856851984b906106a116233",
+        "bytes": 3482
+      },
+      "runtime": "NONE; GUI, builds and artifact changes held",
+      "decision_authority": "Root disposition after independent facts; no user acceptance criterion amended"
+    },
+    {
+      "owner": "/root/ui_dist_overlay_diagnosis",
+      "status": "V100_COMPLETE_ROOT_VERIFIED_TWO_FINDINGS_AX_UNRESOLVED",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "brief": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_RAIL_ACCESSIBILITY_DIAGNOSIS_V100.json",
+        "sha256": "c8547526f1cd1be98afd99c330f715aec0f7bf8aec842e499dc84f0a76cd82ab",
+        "bytes": 4351
+      }
+    },
+    {
+      "owner": "/root/ui_fresh_integrated_review",
+      "status": "V102_COMPLETE_PASS_ROOT_VERIFIED_RELEASED",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "brief": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/CONTRAST_REVIEW_V102.json",
+        "sha256": "599c310db660330e53ea30fd509f63983c3a9e6255364f5c5f77791089824c7f",
+        "bytes": 4347
+      },
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CONTRAST_V102/RETURN.json",
+        "sha256": "6de237c082e31562e3d346d3c6d0555ab1410c6f54517517c29c86910b07ce33",
+        "bytes": 2632
+      }
+    },
+    {
+      "owner": "/root/ui_fresh_integrated_review",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "status": "V105_FINAL_ACCEPTANCE_CALIBRATION_ACTIVE_EXACT_CANDIDATE_PENDING",
+      "brief": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/PUBLICATION_REVIEW_PREPARATION_V105.json",
+        "sha256": "e20ca4d1319b3b8fd0f31ccb1c5ed14b3665a512bf303e1d9c17a5e992521453",
+        "bytes": 5428
+      }
+    }
+  ],
+  "policy_preparation": {
+    "status": "V17_APPLIED_PLUS_ONE_COMPLETED_SELECTION_ENTRY_FINAL_REVIEW_PENDING",
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V86_FAILURE_V87_PROPOSAL_FANIN.json",
+    "sha256": "0a68f83f80d43700ad1816dca95678e45b72bf1934fb70657d561784fdfee838",
+    "policy_sha256": "287f1f85c0ced4edc2b4783c404de48d5996c8fe6e0891bb30150925b27a63e0",
+    "final_selected_candidate_validation": "PENDING",
+    "policy_preimage_note": "Recorded288-entry hash is the accepted preimage; final postimage will be bound by V17/V105."
+  },
+  "active_method_work": {
+    "owner": "/root/ui_causal_method_repair",
+    "role": "TASK Type2",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "enforcement": "instruction/config asserted; no delegation",
+    "status": "V76_R1_PREPARATION_COMPLETE_INDEPENDENT_BACKCHECK_PASS_RELEASED",
+    "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/PRIVATE_GPU_DIAGNOSTIC_REPAIR_V76_R1.md",
+    "sha256": "f6abae4f96025bef71fe11d4aa5fa7622233b2b4090f37d685496662ff409090",
+    "scope": "Own sibling R1 packet; resolver/control and stale command metadata only; accepted source unchanged/liveheld"
+  },
+  "frontier_record": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json",
+    "sha256": "1ff013da86e97e0662824d18526cab7a902a9afdfb559e3d1b2ce55d7f721450",
+    "bytes": 11581
+  },
+  "active_product_work": {
+    "owner": "/root/ui_workflow_regression_repair_v77",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "worktree": "{REPAIR_WORKTREE}",
+    "status": "V101_R1_ACCEPTED_INTEGRATED_B6A1AB837",
+    "brief": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_CONTRAST_REPAIR_V101.json",
+      "sha256": "6a85e5389dd1ab7ef030c4ee31faef73b7f4dd690b2f59334fe2da73d88a2303",
+      "bytes": 4844
+    },
+    "writes": [
+      "projects/chirality-piping/apps/desktop/src/styles.css",
+      "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts"
+    ],
+    "supplement": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_CONTRAST_ROUTE_REPAIR_V101_R1.json",
+      "sha256": "26a43d4e406b93985539088c500098ea1e0e4d0fb518da6b8edcf743c86eaf84",
+      "bytes": 4070
+    }
+  },
+  "owner_decision": {
+    "id": "D-69",
+    "status": "REVIEW_PASS_AWAITING_OWNER_RULING",
+    "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-69_ui_foundation_performance_disposition.md",
+    "effect": "NONE; D-68 original gate remains"
+  },
+  "active_native_preparation": {
+    "owner": "/root/ui_native_successor",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "status": "V83_LIFECYCLE_AND_V103_AFFECTED_BACKCHECK_ACCEPTED_RELEASED",
+    "brief": "briefs/POST_SOLVE_NATIVE_PREPARATION_V83.md",
+    "sha256": "bc415ffc1ab5cda683ea31aafeebb711436096f7bcfe988942018994f5b825b4",
+    "runtime": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V95_ACCEPTANCE_NATIVE_V83_RUNTIME_LEASE.json",
+    "manifest_sha256": "09893d0e3ab5641527998a4127c1a1ff845985635bef9f97d5446b73be91ae6c",
+    "supplement": {
+      "path": "instances/NATIVE/POST_SOLVE_V83_SUPPLEMENT_V93",
+      "manifest_sha256": "183b41fd490565bd703ba4e52fac3a87bf9b49529c147e4a0354bca3226f4515",
+      "status": "HELD_ROOT_VERIFIED_2_MEMBERS_10_INPUTS",
+      "qualification_limit": "Actual native dimensions/focus/prefs limitations explicit; browser exact bounds and saved-size equality retain distinct attribution"
+    },
+    "observation_continuation": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_INSPECTOR_OBSERVATION_V99.json",
+      "sha256": "c52f5c34201e081f16b578abcf358010742f704c69012d8c3a74c3ffee158ffa",
+      "bytes": 3708
+    },
+    "current_operator": null,
+    "followup": {
+      "status": "V103_COMPLETE_PASS_ROOT_VERIFIED_RELEASED",
+      "brief": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/NATIVE_CONTRAST_BACKCHECK_PREPARATION_V103.json",
+        "sha256": "53130bb48343c22e09b8ef3625da247958f24ef01d496936be541b9ce58c4470",
+        "bytes": 4979
+      },
+      "lease": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V104_ACCEPTANCE_NATIVE_V103_RUNTIME_LEASE.json",
+        "sha256": "aea25460382aa60207d073171c9784b5aab19d1039be15b45f8e985d96aa0e4f",
+        "bytes": 4879
+      },
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/CONTRAST_BACKCHECK_V103/RETURN.json",
+        "sha256": "46d8d6fbe4f63978b7055d6f4d20520ca93fcec057e764bc43531f002f8e9995",
+        "bytes": 3285
+      },
+      "acceptance": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_V103_ACCEPTANCE_ARCHIVE_V31_LEASE.json",
+        "sha256": "594f93654b9d2424152d6c4bea1f95635ea989f49393a0c4038ba2c2dea22c65",
+        "bytes": 7225
+      }
+    }
+  },
+  "registered_sweep_preparation": {
+    "status": "V95_COMPLETE_PASS_ROOT_VERIFIED_RELEASED",
+    "owner": "/root/ui_full_method_qualification",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/REGISTERED_SWEEP_PREPARATION_V95.md",
+    "sha256": "6ac6a575bdec741dc1e431d547a3e6653205bd6dcfc647a262f00f86badd3f9c",
+    "manifest_sha256": "7219a969138199258d81ef75d0c2e4ea6405fa38e34cc69681b7fe040046eb48",
+    "return": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V95/RETURN.json",
+      "sha256": "68c5f6f747328ebb260e9247280aca712bc8cd429aee7ff29068f87a39c4d030",
+      "bytes": 4821
+    },
+    "followup": {
+      "status": "V104_COMPLETE_PASS_ROOT_VERIFIED_RELEASED",
+      "brief": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/REGISTERED_SWEEP_PREPARATION_V104.json",
+        "sha256": "452a11dc0617d686725ecaf6f3bef87365fb8c20c52198e589b07b22d0419ad3",
+        "bytes": 3729
+      },
+      "manifest": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V104_PREPARATION/OUTPUT_MANIFEST.json",
+        "sha256": "741b733fe59c334d162130ae1153ab9f49b1895895cd4e452ddeae313020b36f",
+        "bytes": 624
+      },
+      "source": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
+        "sha256": "99077f9883a51421b874292ecc6ab51f62fc4bba9c5918413e7d6024b7e98145",
+        "bytes": 33601
+      },
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/REGISTERED_SWEEP_V104/RETURN.json",
+        "sha256": "df4a3d8905de4ca085d665b902db23ab8e79fd2f09c788202e181637cedb2a08",
+        "bytes": 4834
+      }
+    }
+  },
+  "parallel_closeout_draft": {
+    "status": "V17_COMPLETE_APPLIED_ROOT_SELECTION_CONSUMED",
+    "owner": "/root/ui_closeout_successor",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "brief": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/FINAL_PUBLICATION_ASSEMBLY_V17.json",
+      "sha256": "e54ba8e45ebc1e8c3818a4c63941d41a61e4d889dae1cface2f93bfe4fb9d2d3",
+      "bytes": 9954
+    },
+    "scope": "Seven declared Remaining targets, exact portability policy and own final candidate records; no source/runtime/Git/raw/CAS writes",
+    "final_source": "b6a1ab8378481adbb46d65847cb7eaf9a2864461; V20 manifest",
+    "return": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_CANDIDATE_FINAL/RETURN.json",
+      "sha256": "602c4d34575d28f8d9e12c3e0ed25fd23c57980ad0c13ad78b3257988d0843ff",
+      "bytes": 5869
+    }
+  },
+  "archive_lease": {
+    "status": "RELEASED",
+    "owner": null,
+    "record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V31_ACCEPTANCE.json",
+      "sha256": "774ab4bc934076be918e8416f6bd5b485b656ec41bf558f7244bc20c2842e80c",
+      "bytes": 1456
+    }
   }
 }

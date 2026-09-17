@@ -1,0 +1,25 @@
+{
+  "source": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V9/SOURCE_MANIFEST_R1.json",
+    "sha256": "e8c242965e15619cebc2a8872da6349531eae122206e4ccd0a6d51ffdc3265f1"
+  },
+  "launch": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FOREGROUND_QUALIFICATION_LAUNCH_V61/BOUND_EXECUTION_V20V_R1/BINDINGS.json",
+    "sha256": "00c54245a0c8eed0446867911013c9f8d7c831789cf629b8353d79ad2630186b"
+  },
+  "reason": {
+    "supersedes": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V9/SOURCE_MANIFEST.json",
+      "sha256": "c78a3cdc1af217a46a0b5238588f98adacafadfe8cf5c79614ad651c2a9ebd6d"
+    },
+    "reason": "Root copied an obsolete provenance object from flatV8; only that object is replaced. All143 source records, five deltas and source bytes unchanged.",
+    "preservedPriorProvenance": {
+      "prior_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V7/SOURCE_MANIFEST.json",
+      "prior_manifest_sha256": "1ad256f83a7ff34adde05f392f7b1acb7c5947f80db921b09aea93b974358f2c",
+      "method_manifest": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/DOM_LIFECYCLE_METHOD_REPAIR_V20U_R2/SOURCE_MANIFEST_V20U_R2.json",
+      "method_manifest_sha256": "69fa2f893e9b86ce45ac99c3ecebee5719089f37c0146270117589c604cd0539",
+      "source_change": "V59-R1 conservative rejection of tied/duplicate lifecycle stages, with focused controls. Product unchanged."
+    }
+  },
+  "runtime": "Not started. No source changes."
+}

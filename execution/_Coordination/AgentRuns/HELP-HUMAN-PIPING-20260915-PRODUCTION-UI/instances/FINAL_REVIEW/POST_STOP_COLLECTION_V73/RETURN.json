@@ -1,0 +1,60 @@
+{
+  "status": "CHANGES_REQUESTED",
+  "review": "POST_STOP_COLLECTION_V73",
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root",
+  "configuration": "gpt-6-astra/high; no delegation; instruction/config asserted",
+  "derivativePackage": true,
+  "reviewBriefSha256": "f031b3d5967b54d6edaa0585c95b785b6b9b06538e8de9187a51956f433d6fdb",
+  "authorReturnSha256": "8c8b1e7113509f1a7f476a03a4eec74d863a51704b91f19346a056c7070ca1a7",
+  "authorOutputManifestSha256": "6d5de3350cc838df6e5ec4795520f791cca93396540ccc6c8188011edce06af6",
+  "authorSourceManifestSha256": "8edcf6291c4af761fbb42fc6d617983728c6caec68c68e3cdaeaa653c86010b8",
+  "findings": [
+    {
+      "id": "PSC73-R1",
+      "priority": "P2",
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "lines": [
+        906,
+        925
+      ],
+      "title": "Exercise the actual action lifecycle in ordering and failure controls",
+      "body": "The ordering test initializes its log with work/stop/persist-exact-hash and the failure test initializes errors with a string before invoking only finalizeStoppedCollection. Neither executes the controller action wrapper, stop helper or persistence path. Moving the helper call ahead of stopped-evidence persistence, adding a second stop or browser/next-action work during the wait, or discarding a work/stop/persistence exception in action() leaves both tests unchanged and passing. These are precisely the independent lifecycle/failure regressions required by V72 and the repair brief; the current tests establish only helper wait/finalize behavior.",
+      "requiredRepair": "Use a small dependency-injected seam shared by the actual controller action lifecycle and pure controls, or equivalent mocks that execute the actual caller. Record calls from invoked work, stop, persistence, wait and finalize operations; assert each class's order and unchanged filter/orbit behavior. Inject work/stop/persistence/tail/finalization failures at those operations, preserve their real exceptions, assert exactly-once finalization, no replacement stop/evidence, no browser calls during tail, and no next action before completion. Keep collection semantics and all unrelated files frozen.",
+      "counterexample": "Source-level counterfactual, not executed: move finalizeStoppedCollection invocation above action()'s stopped-evidence recovery/persistence block. Both new tests still run exactly the same helper-only callbacks against preloaded log/error arrays, so neither detects the ordering regression.",
+      "scope": "Validation gap; no claim that the inspected normal path currently finalizes before persistence."
+    }
+  ],
+  "coverage": {
+    "changed": 5,
+    "unchangedInherited": 138,
+    "total": 143,
+    "stableBindings": 209,
+    "drift": 0
+  },
+  "evidence": [
+    {
+      "path": "BINDINGS.json",
+      "sha256": "759a18f36948a95ab8d5c84749521b439fc18a137c9f1054342477086b052b7d",
+      "bytes": 63598
+    },
+    {
+      "path": "COVERAGE.json",
+      "sha256": "4144521a49a1de35e81bd5b9ba76ea1cc99456584cd39e53c241fb3b5404d8db",
+      "bytes": 5337
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "d240288862701aa9e528880122866fc7541822d5021b080eb98dcffc0f55c57d",
+      "bytes": 1699
+    }
+  ],
+  "handoff": {
+    "closure": "BLOCKED_BY_PSC73_R1",
+    "nextOwner": "ROOT",
+    "required": "Narrow actual-caller lifecycle controls and independent backcheck before integration/live qualification. Preserve original sealed packet and failed historical results.",
+    "remaining": "Prospective integration/bindings,10 assignment diagnostics, separate focused8, full-performance and other final acceptance gates.",
+    "noRuntimeAuthorized": true
+  },
+  "release": "Review complete and released; no active subprocesses or delegated work."
+}

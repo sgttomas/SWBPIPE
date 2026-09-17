@@ -1,0 +1,53 @@
+{
+  "status": "INTEGRATED_EXACT_REVIEWED_SOURCE_PENDING_COMMIT",
+  "utc": "2026-09-17T03:20:08.007161+00:00",
+  "derivative_package": true,
+  "changed_files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "beforeSha256": "e84a760e14e6f8efa0b8590f22b960b2292d1357347e334d359f4df97ed43cdc",
+      "sha256": "18903d93521216a1ad47fb302c28cb501f9d3639260bf0adb425bcf06c8f5c12",
+      "bytes": 61849
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "beforeSha256": "95eff452fb9b65e7745e382ee185944ee6d859a1840d265b39cadc2438671d7d",
+      "sha256": "f7bac18d2097676f84690a708dcc60d08ecd9a2e63cae39b390a0f42e0a84aa5",
+      "bytes": 62463
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.ts",
+      "beforeSha256": "f27a99bb346386d84fcbf28af6a421b53935ab0750cc6b881ed706cfbd46ba6c",
+      "sha256": "8da9f693e5aabf33b62a1ff46149d78d91be764711998972e1603afa4aabbf5e",
+      "bytes": 17668
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+      "beforeSha256": "b69be586a0fca324943560612e1b9c7c90a290e5f9798c5bf5219b99956b853b",
+      "sha256": "4fd67d8ac1ecda21f041835937ec528bf163cb260ef09e3f9a29b83a4a74c731",
+      "bytes": 25761
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "beforeSha256": "7975ba4a9681ab785e5a8648872dd1307e6e0ef2a05a15037999a4ab50598c6f",
+      "sha256": "fd70a87407aa55ec82140cf74e9ceae3c7d6bd04b696ae8fd9ca45b6ff6ad274",
+      "bytes": 14702
+    }
+  ],
+  "source_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V10/SOURCE_MANIFEST.json",
+    "sha256": "bbd6e13e1e22d7814d2a9e26ed6c34fbc40ee4c1451461c01bff860ed39acf0d"
+  },
+  "method_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/SAME_TRACE_METHOD_INTEGRATION_V20W/SOURCE_MANIFEST.json",
+    "sha256": "fcb57840eda19a4d622f15fa317850f2e5a8b79f9e149a6ec83300a362fe22e3"
+  },
+  "review": {
+    "initial": "94154810f8deb7ee30287e43fb277fa014031fbda253d2c35e4ef395a597cde0",
+    "backcheck": "5628172a0312ad06d0d43a510d8b60abc726dff5ef54481baad417005af9da0a",
+    "root_verified_backcheck_members": 1
+  },
+  "tests": "51 pure tests+semantic noEmit on exact four code/test files; README-only R1 correction. No rebuild/retest justified.",
+  "product": "Unchanged; nativeV32/resourceV56/finalbundle/oracle evidence retain attribution.",
+  "runtime": "Not yet authorized; no full cohort accepted."
+}

@@ -1,0 +1,30 @@
+{
+  "status": "V68_FAILURE_PRESERVED_V69_INDEPENDENT_DIAGNOSIS",
+  "utc": "2026-09-17T03:36:55.297652+00:00",
+  "derivative_package": true,
+  "source_head": "3f9a2c5143bd527441b0ac06d0d0d532bcd503cc",
+  "runtime_return_sha256": "9e86d11af6cda3e6c2dbffbffb9137ca3d9a32fc574ec3f0fa74f8c3d4188a02",
+  "runtime_manifest_sha256": "e546d4cfde2bcf8dc83ac4ba010ce7c4b9f4b11bb361f51283e5defaa28321a5",
+  "root_verified_runtime_members": 90,
+  "root_verified_runtime_bytes": 66566984,
+  "runtime_release_sha256": "22de3f438a0128311fad50824d320383f55a89bd4e755c773c01d7dcc54af4f4",
+  "failure": "First orbit final same-trace basis guard rejects; six derived segments and seven closed traces; no orbit scores or full cohort. AC/foreground/restoration and371 bindings pass.",
+  "hypothesis": "New global track-key uniqueness may reject legitimate sequential async-track reuse; not established runtime cause until actual qualified occurrence reconstruction.",
+  "diagnosis": {
+    "owner": "/root/ui_causal_runtime_diagnosis",
+    "role": "TASK Type2",
+    "model": "gpt-6-astra",
+    "effort": "xhigh",
+    "enforcement": "instruction/config asserted; no delegation",
+    "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/SAME_TRACE_BASIS_DIAGNOSIS_V69.md",
+    "sha256": "02e9ef271611d526c412ca7ffa5634cfebd6e3c7d8d7a4b8a81a7bd4cab66582",
+    "scope": "One saved V68 first-orbit raw capture, pure offline predicate reconstruction only; no score, runtime or source changes."
+  },
+  "publication_preparation": {
+    "return_sha256": "5bc65f2a27dcf0b20095865764fb4673c8dbe51d3b5c3ba794fa033ee77e41f1",
+    "manifest_sha256": "7da2715f8f85a05a4871de25d13db8332546c87f6587615992cd6fe721ea2671",
+    "root_verified_members": 4,
+    "status": "V11_SEALED_UNAPPLIED_PENDING_REVIEW",
+    "basis": "Prepared while V68 active, correctly excludes its outcome; current source attribution is a time-bounded proposal."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "status": "TWO_REPAIRS_READY_FOR_INDEPENDENT_BACKCHECK",
+  "utc": "2026-09-16T22:52:57.237485+00:00",
+  "author_output_sha256": "ca2c96c5b9f243ddd00b8861f33a9c86af9adb6f1cf31c48c6b98c52085adcd2",
+  "verified_members": 15,
+  "source_sha256": "deff170bd0a1b9343066105726f6f1ca660f233e0d35ad3010b4cebaa21df6c5",
+  "method_sha256": "69fa2f893e9b86ce45ac99c3ecebee5719089f37c0146270117589c604cd0539",
+  "bindings_sha256": "85a160bb7f390a0b34351656ab1c79e305fec217838c4de0c3a376f6756558c0",
+  "brief_sha256": "a69334597b8f6de934f4d2e4bd05d8a6b6f21738da11eee5deaad3644d0c756e",
+  "changes": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+      "before_sha256": "aa2bdd9d2a9301093a071a01e734a12d611d0527c4febf364e0d1e7ccc8b70d3",
+      "sha256": "732a234efeeda61d1eb83a3df49833a335ccbb202f357e6cdc2459d34ebcd241"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+      "before_sha256": "594f9cd24b5bf520404c00cb807baf6718200446cb0b3e7a363a6b7ec9723e11",
+      "sha256": "2a7d60c2009d26c7737081fe7f48c5639a2e7c08007ad18a79d287fce9654cb8"
+    }
+  ]
+}

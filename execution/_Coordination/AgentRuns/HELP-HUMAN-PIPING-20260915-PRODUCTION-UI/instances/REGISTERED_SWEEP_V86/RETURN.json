@@ -1,0 +1,214 @@
+{
+  "task": "REGISTERED_SWEEP_V86",
+  "status": "FAILED",
+  "derivativePackage": true,
+  "sourceCommit": "1e4f7dfb06bc6fe5ce011efda7efd3dd6ee4b66d",
+  "acceptedUpstreamBindings": "CONTEXT.json",
+  "summary": {
+    "path": "sweep/SWEEP_20260917T085850Z_1e4f7dfb06bc.json",
+    "sha256": "10931a80900877553645ad00db846f99c602d5c44e757d9326be3f36acc18c85",
+    "bytes": 3596
+  },
+  "surfaces": [
+    {
+      "order": 1,
+      "surface_id": "cargo_crate_sweep",
+      "description": "Rust crate tests across all discovered crate manifests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/private/tmp/piping-foundation-20260914-venv/bin/python",
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "cargo",
+            "--execute"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 23.621
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 2,
+      "surface_id": "python_pytest",
+      "description": "Repository Python contract, governance, and validation tests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/private/tmp/piping-foundation-20260914-venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "tests"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 57.957
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 3,
+      "surface_id": "desktop_vitest",
+      "description": "Desktop unit/contract tests; wasm engine built first.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:wasm:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.6
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 105.758
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 4,
+      "surface_id": "desktop_playwright_e2e",
+      "description": "Playwright end-to-end smoke in a real Chrome browser: dev-server lane, then production-dist lane via vite preview (TP-APP-R2-WASMPKG-001).",
+      "execution_capability": "host",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 565.916
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:dist:desktop"
+          ],
+          "exit_code": 1,
+          "duration_seconds": 137.271
+        }
+      ],
+      "status": "fail"
+    },
+    {
+      "order": 5,
+      "surface_id": "desktop_production_build",
+      "description": "Desktop production build (tsc -b && vite build).",
+      "execution_capability": "sandboxed",
+      "commands": [],
+      "status": "not_run"
+    }
+  ],
+  "counts": {
+    "pythonPassed": 1105,
+    "vitestFilesPassed": 71,
+    "vitestTestsPassed": 1119,
+    "sourceE2EPassed": 342,
+    "distE2EPassed": 32,
+    "distE2EFailed": 13
+  },
+  "firstFailure": {
+    "case": "[visual-clarification] measurement and real pipe task remain unobscured as narrow drawers close",
+    "test": "e2e/ui-foundation-dist.spec.ts:96:1",
+    "call": "e2e/ui-foundation-dist.spec.ts:162:23",
+    "locator": "getByTestId(\"viewport-axis-triad\")",
+    "state": "1024x768 rails closed after measurement",
+    "assertion": "expect(witness.centerOwnedByTarget, `center is covered by ${witness.centerOwner ?? \"no element\"}`).toBe(true)",
+    "stack": "expectCenterUnobscured at e2e/ui-foundation-workflows.ts:573:102",
+    "expected": true,
+    "actual": false,
+    "message": "center is covered by ",
+    "trace": {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/trace.zip",
+      "sha256": "24668e83c5b18152c5d779f7d40718640ab0108068c1d595dbe277e71aa8e70c",
+      "bytes": 3807234
+    },
+    "screenshot": {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/visual-clarification-1024x768-rails-closed-measurement.png",
+      "sha256": "02079104e32c7a0a42327ed2c253dbd830e76a1963a376058d4ba912115a5f4f",
+      "bytes": 102659
+    },
+    "errorContext": {
+      "path": "playwright-test-results/ui-foundation-dist--visual-ba33a-red-as-narrow-drawers-close-chromium-desktop-dist/error-context.md",
+      "sha256": "cfce330786e28fd0e6a6bf9028448ee1dcf494eb48cc82dfe0723c77bd7e1389",
+      "bytes": 20810
+    }
+  },
+  "otherFailures": {
+    "count": 12,
+    "cases": "production appearance light/dark \u00d7 comfortable/compact \u00d7 1024x768/1280x800/1440x920",
+    "call": "e2e/ui-foundation-dist.spec.ts:375:32",
+    "assertion": "expect(witness.surfaceOwnsPoint, `${control.name} paints or hit-tests above the open overlay at ${JSON.stringify(witness.point)} (${witness.topmost})`).toBe(true)",
+    "stack": "expectOverlayAboveWorkspaceControls at e2e/ui-foundation-workflows.ts:464:7",
+    "control": "Property inspector splitter",
+    "topmost": "resize-property-inspector",
+    "expected": true,
+    "actual": false
+  },
+  "rawEvidence": [
+    "sweep.stdout.log",
+    "sweep.stderr.log",
+    "FAILURE_DETAILS.log",
+    "playwright-test-results"
+  ],
+  "retainedTestResultFiles": 108,
+  "buildIdentity": "BUILT_DIST_IDENTITY.json",
+  "inputExitEquality": {
+    "sourceFiles": 143,
+    "rootAndCheckHashesUnchanged": true,
+    "checkGitStateUnchanged": true,
+    "checkTrackedAndIndexClean": true
+  },
+  "runtimeRelease": {
+    "released": true,
+    "ownedSweepPid": 85275,
+    "ownedSweepPidPresent": false,
+    "newRuntimeProcessCandidates": [],
+    "ports": [
+      {
+        "port": 5173,
+        "exit": 1,
+        "stdout": ""
+      },
+      {
+        "port": 5174,
+        "exit": 1,
+        "stdout": ""
+      },
+      {
+        "port": 5175,
+        "exit": 1,
+        "stdout": ""
+      },
+      {
+        "port": 5176,
+        "exit": 1,
+        "stdout": ""
+      },
+      {
+        "port": 5177,
+        "exit": 1,
+        "stdout": ""
+      }
+    ]
+  },
+  "communicationCorrection": "Prior tail-only dist progress messages incorrectly said no reported failures: failures earlier in the same raw log were missed. Raw logs are unchanged. Final owning outcome is 13 dist failures, not a pass.",
+  "closure": "Execution sealed and runtime released; registered acceptance failed. Root diagnosis/disposition pending.",
+  "rerun": "No retry performed or authorized; no automatic follow-on.",
+  "performanceOrTrancheAcceptance": false,
+  "sealedAt": "2026-09-17T09:16:13.505327+00:00"
+}

@@ -1,0 +1,59 @@
+{
+  "schema": "piping-source-diagnosis-return/v1",
+  "task": "MAC_FEEDBACK_SOURCE_DIAGNOSIS_V66",
+  "status": "COMPLETE_PRODUCER_SEMANTICS_RESOLVED_PER_FRAME_PREDICTOR_BRANCH_UNOBSERVED",
+  "parent": "/root HELP_HUMAN",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoningEffort": "xhigh",
+  "enforcement": "instruction/config asserted",
+  "derivativePackage": true,
+  "briefSha256": "20c8779d4ed66b64c33a6fccc94ccfecd033b29a4ab8321cbf8526349642d407",
+  "acceptedUpstream": {
+    "V65OutputManifest": "f8e5a4e2394809b5da68b5f950a223dba95122fa4e176cc52d600e87a17f2a31",
+    "V64Return": "13782a325e9be4dbf65ad6063cf016bc0f8dd60badfddffb1462afbf30722359",
+    "V64CanonicalResult": "a78849e2bc47036366af793fa31b7955bb619f7e6fb70775dde15c41742eedae",
+    "frozenRootMethod": "2fb1f2fa0d0002d704aab7b8298224ae94d315e051304c710ba23f99d40b37b7"
+  },
+  "sourceRevision": "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+  "sourceCounts": {
+    "attempts": 19,
+    "successfulBlobs": 18,
+    "bytes": 378112,
+    "failedRetrievals": 1
+  },
+  "findings": [
+    "GraphiteDawnMetal EGL/ANGLE onscreen Mac factory chain selects ImageTransportSurfaceOverlayMacEGL and CALayerTreeCoordinator",
+    "PresentationFeedback.timestamp is computed before CA-tree commit using GetDisplaytime and its1.5ms latch buffer; it is a future estimate",
+    "Ready and latch are user-space Now samples; available is defaulted by common consumer; swap-end is user-space completion bookkeeping",
+    "The Mac producer assigns HWCompletion|VSync to the estimate, so those flags do not independently prove hardware scanout",
+    "Representative latch-before-swap-end ordering supports posted callback branch; far-future values exclude no-display-data fallback",
+    "Exact early/late predictor, interaction/queue/backpressure and display-provider state not captured; gpu category absent from both V64 traces"
+  ],
+  "V65Clarification": "Post-swap arithmetic spans a future estimated timestamp, not observed hardware waiting. Immutable V65 records remain unchanged; this successor supplies producer-specific semantics.",
+  "recommendedImmediateAction": "Document producer-specific reported-estimate semantics and finish separately assigned precision repair/backcheck. No additional runtime is necessary for this discriminator.",
+  "optionalNextStep": {
+    "status": "UNEXECUTED_NOT_AUTOMATIC_NOT_AUTHORIZED",
+    "scope": "Only if work attribution remains necessary, one prospectively frozen same-workload diagnostic retaining five categories and adding available gpu category, with exact/unique producer-to-display joins and separate observational profile binding",
+    "limits": "Stock events do not expose all private predictor state or hardware scanout; no exact replay/acceptance promise, no flags/settings/display changes"
+  },
+  "preserved": [
+    "V64 canonical failure",
+    "all original endpoint/window/lineage/tie/population guards",
+    "ActualOD33.332ms descriptive p95 not rescued",
+    "full cohort hold",
+    "runtime hold",
+    "product freeze"
+  ],
+  "productRepairJustified": false,
+  "historicalRescore": false,
+  "runtimeExecuted": false,
+  "testsExecuted": false,
+  "maintainedEdits": false,
+  "cohortAuthorized": false,
+  "closureVerdict": "Bounded source discriminator complete. Remaining target qualification and any optional diagnostic belong to separate Root scope.",
+  "reportSha256": "c66318ec13f9b0a223518df0313a818932f04b90fed3737232f8cc41a0d7f2bd",
+  "inputsSha256": "34d00d7fd8d3c5f4d8c2eb4f3729ec43034622a9b595351067170d29ba21efd0",
+  "sourceManifestSha256": "2ff58c8667fb3179e8ff0efb845955895937070aa88156ffa58dcd11f49587ea",
+  "semanticComparisonSha256": "0bf29e5f105cf2957552357d05af03d6f8832d85cbd23fba9d511764fd27fda3"
+}

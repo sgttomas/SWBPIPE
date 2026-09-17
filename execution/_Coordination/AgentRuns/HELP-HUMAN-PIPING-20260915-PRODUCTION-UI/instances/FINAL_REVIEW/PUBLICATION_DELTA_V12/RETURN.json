@@ -1,0 +1,95 @@
+{
+  "status": "FINDING_PD12_R1_SOURCE_INVENTORY_SIZE_REPAIR_REQUIRED",
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "enforcement": "instruction/config asserted",
+  "delegation": "none",
+  "derivativePackage": true,
+  "brief_sha256": "0102916c26467e281a176b0f4f37ab41fc4895cc7c34c6af76119e391087f296",
+  "author_manifest_sha256": "b52bc90b11e386d3b4e4005986531776445446ae923fc0e67acbf16cbb5896dd",
+  "path_delta_sha256": "f467f3e1d8f5748b77f66ea82ace8616bcf505c26eb72b8ae6cdb1e29ae8b16c",
+  "policy_delta_sha256": "e643f9e2547e8ca9e6ad0473878151c69736ea4791dc297920d8d9253d8a7028",
+  "findings": [
+    {
+      "id": "PD12-R1",
+      "priority": 2,
+      "title": "Refresh complete source records rather than only selected hashes",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PUBLICATION_DELTA_V12/PATH_DELTA.json",
+      "start": 9,
+      "end": 27,
+      "fields": [
+        "global_source_attribution_replacement",
+        "replace_source_hashes"
+      ],
+      "trigger": "Assemble current publication by applying the specified attribution/hash replacements to the preserved V11 PATHS base.",
+      "impact": "Seven inherited bytes_from_stat fields would remain inconsistent with current hash-bound source identities. All three changed rows already have older byte counts, and four unchanged-hash rows also retain stale sizes. Any copied aggregate based on those fields is correspondingly wrong. For example, full-cohort-controller.spec.ts would pair the current97a9936c hash with55764 bytes instead of74348. This is an inventory metadata defect, not source drift.",
+      "affected": [
+        {
+          "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+          "old_bytes": 11793,
+          "bytes": 14702,
+          "hash_replaced": false
+        },
+        {
+          "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+          "old_bytes": 41292,
+          "bytes": 43181,
+          "hash_replaced": false
+        },
+        {
+          "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+          "old_bytes": 55764,
+          "bytes": 74348,
+          "hash_replaced": true
+        },
+        {
+          "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+          "old_bytes": 54316,
+          "bytes": 61849,
+          "hash_replaced": false
+        },
+        {
+          "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+          "old_bytes": 15536,
+          "bytes": 26829,
+          "hash_replaced": true
+        },
+        {
+          "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.ts",
+          "old_bytes": 10238,
+          "bytes": 17796,
+          "hash_replaced": true
+        },
+        {
+          "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+          "old_bytes": 36457,
+          "bytes": 42807,
+          "hash_replaced": false
+        }
+      ],
+      "basis": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_SOURCE_FREEZE_V11/SOURCE_MANIFEST.json",
+        "sha256": "0cb106e56058889bd2016e351fef35137f9ec7f0dc94f50a2a9ea1adb77c0e95"
+      },
+      "repair": "Preserve V11/V12 originals. Add an immutable correction requiring all143 current source path/hash/byte records to be populated from the governing flatV11 manifest, with current commit attribution, and recompute any derived totals from the final assembled selection. No implementation reread or source change is necessary; request a narrow metadata backcheck."
+    }
+  ],
+  "coverage": "Complete20 additions, three source identity replacements and seven policy proposals reviewed. All6 author members/54484bytes and32 named inputs match. Source143 hashes compared through sealed manifests only; no implementation reread.",
+  "policy_disposition": "PASS_BOUNDED_SEVEN_ENTRY_POLICY_DELTA; independent of outstanding inventory-size repair. All258 existing entries preserved. Prospective policy reconstructed in memory only.",
+  "prospective_policy": {
+    "sha256": "5a6952e6044769ab646cd55a909f776248abe5fefcb4b11da4d45640f8a70da1",
+    "bytes": 210980,
+    "historical": 222,
+    "control": 43
+  },
+  "limits": "No policy/source writes, tests/build/runtime/browser/native/OS/network/Git/raw/CAS/archive operations or delegation. No active fullV3 or mutable control reads. No final selected-publication, complete-cohort/performance or tranche acceptance.",
+  "handoff": "Complete bounded review released. Root owns immutable source-record refresh correction, narrow backcheck and eventual exact policy/selection application. Preserve prior proposals and all historical failure/acceptance attribution. Later archive, final metadata, assembled selection validation, registered/practitioner/self-check, CI and merge remain separate.",
+  "coverage_sha256": "10c06495dfc8024567add80866d1d198e4f80b75386345491c7ba2ad9778515f",
+  "entry_exit": {
+    "bindings": 32,
+    "drift": []
+  }
+}

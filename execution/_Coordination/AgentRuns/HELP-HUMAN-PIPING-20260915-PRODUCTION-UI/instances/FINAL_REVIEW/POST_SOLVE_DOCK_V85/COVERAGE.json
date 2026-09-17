@@ -1,0 +1,426 @@
+{
+  "source": {
+    "total": 143,
+    "bytes": 12647281,
+    "changed_complete": [
+      "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "projects/chirality-piping/apps/desktop/src/styles.css"
+    ],
+    "inherited_exact": 137,
+    "changed_since_v80": [
+      "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/App.tsx"
+    ],
+    "manifest_sha256": "a7a48c056dbba800603077fc0fcdee8ec1c00235cdcf229d650d20f3c76dfd88",
+    "patch_sha256": "d0b777e2a9316fc07202d369e3bd0b990c30bd5ca60a201486ec5a3cf3e5068b",
+    "basis": "Accepted85d/flatV12 complete prior review chain; V80 reviewed four-file delta preserved. All143candidate path/hash/size bindings checked entry/exit, exactly6changed/137unchanged versus flatV12. Entire6file patch read and reconstructed in memory from actualROOT preimages to exactREPAIR bytes."
+  },
+  "semantic_coverage": [
+    {
+      "path": "src/App.tsx",
+      "result": "Optional summaryText on localStatusPill supplied only by Solve-proof caller; nullish fallback leaves all other summaries unchanged. Unchanged solveProofStatus still enforces completed job/proof, model hash/project, job/seam, result run/model/row count. Exact original raw value remains incodeDetails. No solver/result/current-versus-historical state mutation or readiness/engineering acceptance language."
+    },
+    {
+      "path": "src/App.test.tsx",
+      "result": "Only first stress-neutral-summary query becomes awaited findByTestId using existing default timeout. StressNeutralExportPanel useEffect clears packet/binding, asynchronously builds and publishes only still-current bindings; summary only renders forcurrentPacket. Observable-readiness await matches producer. Every subsequent830rows/11CSVcolumns/unit/state/package/hash/export assertion and earlier raw-proof assertions preserved; no sleep, timeout increase or retry."
+    },
+    {
+      "path": "e2e/ui-foundation.spec.ts",
+      "result": "Entire final matrix reviewed. Preserves2themes×2densities×3sizes,200×200canvas, shell/containment, exact primary/frozen target/drafts,830solvedrows, toolbar/footer controls and Range-fragment Details. Adds actual ancestor-clipped dock-body geometry and>64floor at solved states;3enabled controls before/after proofDetails; exact original raw-proof content format and normal disclosure route; final open task/dock geometry."
+    },
+    {
+      "path": "e2e/ui-foundation.spec.ts R2 helper",
+      "result": "Initial enabled/focused/center checks precede optional action. Only top-clipped center-owned controls receive one-24CSSpx upward wheel over reverified control inside dock; actual scrollTop decrease observed under defaultwait. No DOM scroll injection/forcing/sleep/loops/tolerance or new timeout. Finally attaches initial/final and wheel witness before final strict top/bottom/focus/hit assertions. Oversized or still-clipped control cannot pass exact final containment; failed preguards cannot be rescued. Bottom-only clip is still a failure, not a generic rescue. Wheel success is ordinary reachability only."
+    },
+    {
+      "path": "src/styles.css",
+      "result": "Full inheritedV78delta reread and exactV80postimage retained: bounded toolbar/command scrollregions/staticDetails, independentstatusrow,dockheightbudget and restoration ofdrawer30belowbackdrop40/openmenu50,palette99/100. Scroll/cascade/resize callers retain previous reviewed semantics."
+    },
+    {
+      "path": "src/features/viewport/PipeViewport.tsx",
+      "result": "Full2hunks add labelledcontrolwrapper only; handlers/state/renderer unchanged. ExactV80postimage retained."
+    },
+    {
+      "path": "e2e/r2-smoke.spec.ts",
+      "result": "Full inheriteddelta reread: precise inspectorregion; explicit cancel/starttask helper; treepriority preservesarmedcapture followedbyactualvisiblelabelclick;200pxfloor added without weakening>100colors or existing>64dockbody assertions. ExactV80postimage retained."
+    }
+  ],
+  "finding_backcheck": {
+    "id": "V80-R1",
+    "disposition": "RESOLVED_FOR_FROZEN_V14_SOURCE_AND_BOUNDED_MATRIX",
+    "basis": "1024comfortable status height decreases125.1875→47.59375px; outerdock102.640625→180.234375px. Actual usable dockbody97px and mode/Run controls visible/reachable; canvas582×219 retained. Both themes verified. Original V80 finding preserved unchanged."
+  },
+  "actual_evidence": {
+    "author_packet": {
+      "members": 127,
+      "bytes": 8286468,
+      "all_hashes_verified": true,
+      "return_sha256": "6286e89c20089e867be5b51e2bf1c362db41660332f6a10724c7584c39222e6d",
+      "output_sha256": "88cd391072534ef7f59425fb623486c25916c2f9de2c2f65db9f5283fe93bfec"
+    },
+    "R2": "Canonical12PASSsingleattempt/retry0,0failed/skipped/flaky. Exact97derivedbodies:12PNG+12layoutJSON+72controlJSON+1browseridentity, independently matched declaredhash/size and canonicalbase64pointers. All12PNGdirectly viewed; everylayout geometry/rawproof/textfragment and all72finalcontrol records checked.",
+    "configuration": "Ordinarychecked-in Playwright1.60.0 sourceconfig,chromium-desktop,worker1,retries0,JSONreporter,Vite5174/reuseExistingServerfalse. ActualCDPChrome153.0.8010.48 revision199a3a541d76237379e353b348e64045584db057; ordinarybrowser evidence, not the performanceCfTprofile. Reviewer launchednothing.",
+    "controls": {
+      "total": 72,
+      "exact_final_containment_focus_owned": 72,
+      "wheel_assisted": 2,
+      "ordinary_scroll_focus": 70,
+      "minimum_solved_body": 97,
+      "minimum_canvas_width": 369,
+      "minimum_canvas_height": 206
+    },
+    "wheel": "Exactly Light/DarkCompact1024 solver-mode-sparse beforeproofdisclosure. Initialtop583.828125<cliptop584.171875,centerowned/focused/bodyhittrue. Onewheel-24 moves scrollTop920→896; finaltop607.828125,bottom638.625 inside clip584.171875…690.171875,focus/ownershipretained. Remaining70controlsno wheel.",
+    "visual": "All12finalscreenshots show conciseproofsummary, renderedcanvas and reachableAnalyze modes/Run. At1024 body is still bounded/scrollable but no longer the20pxstrip. Intentional scrolling clips other offscreen content; no claim everycontrol/content simultaneously visible. RawDetails verified by normalopen/close and retainedproofbody; no loss ofrawdiagnostics.",
+    "attribution": "OriginalV81: TypeScriptPASS,6selectedunitPASS1FAIL,dependentmatrixNOT_RUN. R1:baseline7PASSinconclusiveabouttiming;correctedcandidate7PASS(211unselected),matrix10PASS2FAIL exacttopclip. V84 establishes neitherroundingcause norproductdefect. R2 changes onlymatrixdriver,12PASS; V81TypeScript/R1units carrytheiroriginalattribution,notrerun. V78earlier8workflow+2stability/splitterPASSarehistoricalowningresults,notfreshfinalAppcandidatefullsuite. Allfailures andCYCLE3retentiongap preserved."
+  },
+  "per_variant": [
+    {
+      "attachment": "task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1024x768-task-dock-layout.json",
+      "minimum_solved_body": 97,
+      "final_canvas": {
+        "x": 47,
+        "y": 285.171875,
+        "width": 582,
+        "height": 219,
+        "right": 629,
+        "bottom": 504.171875
+      },
+      "final_dock": {
+        "x": 6,
+        "y": 511.171875,
+        "width": 1012,
+        "height": 180.234375,
+        "right": 1018,
+        "bottom": 691.40625
+      },
+      "final_status": {
+        "x": 0,
+        "y": 697.40625,
+        "width": 1024,
+        "height": 47.59375,
+        "right": 1024,
+        "bottom": 745
+      }
+    },
+    {
+      "attachment": "task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1280x800-task-dock-layout.json",
+      "minimum_solved_body": 129,
+      "final_canvas": {
+        "x": 293,
+        "y": 298.171875,
+        "width": 369,
+        "height": 206,
+        "right": 662,
+        "bottom": 504.171875
+      },
+      "final_dock": {
+        "x": 6,
+        "y": 511.171875,
+        "width": 1268,
+        "height": 212.234375,
+        "right": 1274,
+        "bottom": 723.40625
+      },
+      "final_status": {
+        "x": 0,
+        "y": 729.40625,
+        "width": 1280,
+        "height": 47.59375,
+        "right": 1280,
+        "bottom": 777
+      }
+    },
+    {
+      "attachment": "task-and-analysis-dock-preserve-usable-canvas-light-comfortable-1440x920-task-dock-layout.json",
+      "minimum_solved_body": 177,
+      "final_canvas": {
+        "x": 293,
+        "y": 285.171875,
+        "width": 529,
+        "height": 291,
+        "right": 822,
+        "bottom": 576.171875
+      },
+      "final_dock": {
+        "x": 6,
+        "y": 583.40625,
+        "width": 1428,
+        "height": 260,
+        "right": 1434,
+        "bottom": 843.40625
+      },
+      "final_status": {
+        "x": 0,
+        "y": 849.40625,
+        "width": 1440,
+        "height": 47.59375,
+        "right": 1440,
+        "bottom": 897
+      }
+    },
+    {
+      "attachment": "task-and-analysis-dock-preserve-usable-canvas-light-compact-1024x768-task-dock-layout.json",
+      "minimum_solved_body": 106,
+      "final_canvas": {
+        "x": 47,
+        "y": 276.171875,
+        "width": 582,
+        "height": 223,
+        "right": 629,
+        "bottom": 499.171875
+      },
+      "final_dock": {
+        "x": 6,
+        "y": 506.171875,
+        "width": 1012,
+        "height": 185.234375,
+        "right": 1018,
+        "bottom": 691.40625
+      },
+      "final_status": {
+        "x": 0,
+        "y": 697.40625,
+        "width": 1024,
+        "height": 47.59375,
+        "right": 1024,
+        "bottom": 745
+      }
+    },
+    {
+      "attachment": "task-and-analysis-dock-preserve-usable-canvas-light-compact-1280x800-task-dock-layout.json",
+      "minimum_solved_body": 138,
+      "final_canvas": {
+        "x": 293,
+        "y": 293.171875,
+        "width": 369,
+        "height": 206,
+        "right": 662,
+        "bottom": 499.171875
+      },
+      "final_dock": {
+        "x": 6,
+        "y": 506.171875,
+        "width": 1268,
+        "height": 217.234375,
+        "right": 1274,
+        "bottom": 723.40625
+      },
+      "final_status": {
+        "x": 0,
+        "y": 729.40625,
+        "width": 1280,
+        "height": 47.59375,
+        "right": 1280,
+        "bottom": 777
+      }
+    },
+    {
+      "attachment": "task-and-analysis-dock-preserve-usable-canvas-light-compact-1440x920-task-dock-layout.json",
+      "minimum_solved_body": 181,
+      "final_canvas": {
+        "x": 293,
+        "y": 276.171875,
+        "width": 529,
+        "height": 300,
+        "right": 822,
+        "bottom": 576.171875
+      },
+      "final_dock": {
+        "x": 6,
+        "y": 583.40625,
+        "width": 1428,
+        "height": 260,
+        "right": 1434,
+        "bottom": 843.40625
+      },
+      "final_status": {
+        "x": 0,
+        "y": 849.40625,
+        "width": 1440,
+        "height": 47.59375,
+        "right": 1440,
+        "bottom": 897
+      }
+    },
+    {
+      "attachment": "task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1024x768-task-dock-layout.json",
+      "minimum_solved_body": 97,
+      "final_canvas": {
+        "x": 47,
+        "y": 285.171875,
+        "width": 582,
+        "height": 219,
+        "right": 629,
+        "bottom": 504.171875
+      },
+      "final_dock": {
+        "x": 6,
+        "y": 511.171875,
+        "width": 1012,
+        "height": 180.234375,
+        "right": 1018,
+        "bottom": 691.40625
+      },
+      "final_status": {
+        "x": 0,
+        "y": 697.40625,
+        "width": 1024,
+        "height": 47.59375,
+        "right": 1024,
+        "bottom": 745
+      }
+    },
+    {
+      "attachment": "task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1280x800-task-dock-layout.json",
+      "minimum_solved_body": 129,
+      "final_canvas": {
+        "x": 293,
+        "y": 298.171875,
+        "width": 369,
+        "height": 206,
+        "right": 662,
+        "bottom": 504.171875
+      },
+      "final_dock": {
+        "x": 6,
+        "y": 511.171875,
+        "width": 1268,
+        "height": 212.234375,
+        "right": 1274,
+        "bottom": 723.40625
+      },
+      "final_status": {
+        "x": 0,
+        "y": 729.40625,
+        "width": 1280,
+        "height": 47.59375,
+        "right": 1280,
+        "bottom": 777
+      }
+    },
+    {
+      "attachment": "task-and-analysis-dock-preserve-usable-canvas-dark-comfortable-1440x920-task-dock-layout.json",
+      "minimum_solved_body": 177,
+      "final_canvas": {
+        "x": 293,
+        "y": 285.171875,
+        "width": 529,
+        "height": 291,
+        "right": 822,
+        "bottom": 576.171875
+      },
+      "final_dock": {
+        "x": 6,
+        "y": 583.40625,
+        "width": 1428,
+        "height": 260,
+        "right": 1434,
+        "bottom": 843.40625
+      },
+      "final_status": {
+        "x": 0,
+        "y": 849.40625,
+        "width": 1440,
+        "height": 47.59375,
+        "right": 1440,
+        "bottom": 897
+      }
+    },
+    {
+      "attachment": "task-and-analysis-dock-preserve-usable-canvas-dark-compact-1024x768-task-dock-layout.json",
+      "minimum_solved_body": 106,
+      "final_canvas": {
+        "x": 47,
+        "y": 276.171875,
+        "width": 582,
+        "height": 223,
+        "right": 629,
+        "bottom": 499.171875
+      },
+      "final_dock": {
+        "x": 6,
+        "y": 506.171875,
+        "width": 1012,
+        "height": 185.234375,
+        "right": 1018,
+        "bottom": 691.40625
+      },
+      "final_status": {
+        "x": 0,
+        "y": 697.40625,
+        "width": 1024,
+        "height": 47.59375,
+        "right": 1024,
+        "bottom": 745
+      }
+    },
+    {
+      "attachment": "task-and-analysis-dock-preserve-usable-canvas-dark-compact-1280x800-task-dock-layout.json",
+      "minimum_solved_body": 138,
+      "final_canvas": {
+        "x": 293,
+        "y": 293.171875,
+        "width": 369,
+        "height": 206,
+        "right": 662,
+        "bottom": 499.171875
+      },
+      "final_dock": {
+        "x": 6,
+        "y": 506.171875,
+        "width": 1268,
+        "height": 217.234375,
+        "right": 1274,
+        "bottom": 723.40625
+      },
+      "final_status": {
+        "x": 0,
+        "y": 729.40625,
+        "width": 1280,
+        "height": 47.59375,
+        "right": 1280,
+        "bottom": 777
+      }
+    },
+    {
+      "attachment": "task-and-analysis-dock-preserve-usable-canvas-dark-compact-1440x920-task-dock-layout.json",
+      "minimum_solved_body": 181,
+      "final_canvas": {
+        "x": 293,
+        "y": 276.171875,
+        "width": 529,
+        "height": 300,
+        "right": 822,
+        "bottom": 576.171875
+      },
+      "final_dock": {
+        "x": 6,
+        "y": 583.40625,
+        "width": 1428,
+        "height": 260,
+        "right": 1434,
+        "bottom": 843.40625
+      },
+      "final_status": {
+        "x": 0,
+        "y": 849.40625,
+        "width": 1440,
+        "height": 47.59375,
+        "right": 1440,
+        "bottom": 897
+      }
+    }
+  ],
+  "limits": [
+    "Source-suitability PASS is for exactly frozencandidateV14 and boundedproofs; not product/tranche/release acceptance or merge permission.",
+    "Wheel-assisted checks do not prove keyboard-only automatic full-border reveal, universal accessibility, a roundingcause, or harmlessness of the originalclip.",
+    "The matrix demonstrates specified ordinary scroll/focus/pointer ownership; it does not re-execute a second solve or certify all possible pane sizes/panelstates. No hidden state injection or forced actions used.",
+    "Root owns exactsourceintegration, rebuild/dist/native/registeredsweep, resource/performance qualification, D-69ownerdisposition, finalmetadata andactualcandidateCI. Orbitgate remains unaccepted by thisreview.",
+    "No tests/runtime/browser/build/Git/source/policy mutation/delegation by reviewer. Originalsealedpackets preserved."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "status": "PASS_EXECUTION_BRIEF_CORRECTION",
+  "resolved": [
+    "V61-EXEC-1"
+  ],
+  "role": "TASK Type2 software-code-review",
+  "parent": "/root HELP_HUMAN",
+  "reviewer": "/root/ui_fresh_integrated_review",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "derivativePackage": true,
+  "input": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/FOREGROUND_QUALIFICATION_AND_COHORT_V61_EXECUTION_R1.md",
+    "sha256": "5ce5f19b53c4dc5aed5e6af53336002b27ef738a5643aa0adcf0084c779cb8e4"
+  },
+  "priorFindingSha256": "29e2fb8f067ce4d2a764e10adfa39472cff6dea1c8a35c59797bf13a6a63a46d",
+  "priorSourcePassSha256": "ed32d1ec76190f4d5d45e8e7b109b9527f0ee4b7021c1ca432a317fc0cf14093",
+  "assessment": "Full R1 brief and exact diff inspected. Only offline environment declaration and supersession note added. It first clears inherited UI_FOUNDATION_/PLAYWRIGHT_ keys, then explicitly sets UI_FOUNDATION_CANDIDATE_SOURCE_ROOT to the reviewed ROOT projects/chirality-piping path, matching the structured commands. The missing split-checkout dependency is resolved.",
+  "preserved": "Source and four-command prior review remains unchanged. Complete offline47, exact1+10 collection, fresh focused8 once, and separate ROOT full-cohort authorization stay required; this brief alone does not activate runtime. Original finding preserved.",
+  "limits": "Brief-only closure; no source re-review, tests/runtime/Git or other scope. Only own evidence written."
+}
