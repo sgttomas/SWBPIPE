@@ -3,6 +3,9 @@ import { displayedBoundsForEntityKeys, fittedViewportDistance } from "../src/fea
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   activateWithKeyboard,
+  APPEARANCE_THEMES,
+  APPEARANCE_DENSITIES,
+  APPEARANCE_VIEWPORTS,
   attachBrowserIdentity,
   clearTreeFilter,
   commandGroupControl,
@@ -21,6 +24,8 @@ import {
   withOneInvalidOd,
   withTypedCollision,
 } from "./ui-foundation-workflows";
+
+import { startPropertyTaskFromTreeEntity } from "./workspace-driver";
 
 test.beforeAll(async ({ browser }, testInfo) => {
   await attachBrowserIdentity(browser, testInfo);
@@ -649,6 +654,286 @@ test("Box Select keeps the camera and authored projection invariant for plain, S
     contentType: "application/json",
   });
 });
+
+// Frozen regression floor: simultaneous authoring and analysis must retain a
+// 200 × 200 CSS-pixel canvas, with controls and drafts still usable.
+for (const theme of APPEARANCE_THEMES) {
+  for (const density of APPEARANCE_DENSITIES) {
+    for (const viewport of APPEARANCE_VIEWPORTS) {
+      test(`task and analysis dock preserve usable canvas ${theme} ${density} ${viewport.width}x${viewport.height}`, async ({ page }, testInfo) => {
+        await page.setViewportSize(viewport);
+        await page.goto("/");
+        await page.getByLabel("Appearance theme").selectOption(theme);
+        await page.getByLabel("Workspace density").selectOption(density);
+        await startPropertyTaskFromTreeEntity(page, "node", "node:N-100");
+        const inspector = page.getByTestId("property-inspector");
+        await inspector.getByTestId("editor-intent-field").selectOption("label");
+        await inspector.getByTestId("editor-intent-value").fill("Retained inspector task");
+        if (viewport.width < 1280) await ensureRail(page, "inspector", false);
+        await activateWithKeyboard(page, page.getByTestId("command-pipe"));
+        const pipeForm = page.getByTestId("viewport-editor-intents");
+        await expect(pipeForm).toHaveClass(/active/);
+        await page.getByTestId("viewport-create-pipe-label").fill("Retained pipe draft");
+        await page.getByTestId("viewport-create-pipe-provenance").fill("layout regression draft");
+        await openWorkspaceSection(page, "solve");
+        const dock = page.getByTestId("workspace-dock");
+        await expect(dock).not.toHaveClass(/collapsed/);
+        await expect(page.getByTestId("workspace-section-solve")).toBeVisible();
+
+        const evidence: unknown[] = [];
+        const measure = async (phase: string) => {
+          await expect(pipeForm).toHaveClass(/active/);
+          await expect(dock).not.toHaveClass(/collapsed/);
+          const geometry = await page.evaluate(() => {
+            const rect = (selector: string) => {
+              const element = document.querySelector<HTMLElement>(selector)!;
+              const box = element.getBoundingClientRect();
+              return { x: box.x, y: box.y, width: box.width, height: box.height, right: box.right, bottom: box.bottom };
+            };
+            const body = document.querySelector<HTMLElement>(".workspace-dock-body")!;
+            const bodyBox = body.getBoundingClientRect();
+            const bodyClip = { top: Math.max(0, bodyBox.top + body.clientTop),
+              bottom: Math.min(innerHeight, bodyBox.top + body.clientTop + body.clientHeight) };
+            for (let ancestor = body.parentElement; ancestor; ancestor = ancestor.parentElement) {
+              if (!/(auto|scroll|hidden|clip)/.test(getComputedStyle(ancestor).overflowY)) continue;
+              const box = ancestor.getBoundingClientRect();
+              bodyClip.top = Math.max(bodyClip.top, box.top + ancestor.clientTop);
+              bodyClip.bottom = Math.min(bodyClip.bottom, box.top + ancestor.clientTop + ancestor.clientHeight);
+            }
+            return {
+              dockBody: { ...rect(".workspace-dock-body"), clientHeight: body.clientHeight,
+                scrollHeight: body.scrollHeight, scrollTop: body.scrollTop, clip: bodyClip,
+                usableHeight: Math.max(0, bodyClip.bottom - bodyClip.top) },
+              canvas: rect(".viewport-canvas canvas"), toolbar: rect(".viewport-toolbar"),
+              task: rect('[data-testid="viewport-editor-intents"]'), dock: rect(".workspace-dock"),
+              status: rect('[data-testid="workspace-status-bar"]'),
+              bodyOverflowX: document.documentElement.scrollWidth - innerWidth,
+              bodyOverflowY: document.documentElement.scrollHeight - innerHeight,
+            };
+          });
+          evidence.push({ phase, geometry });
+          expect(geometry.canvas.width, `${phase} canvas width`).toBeGreaterThanOrEqual(200);
+          expect(geometry.canvas.height, `${phase} canvas height`).toBeGreaterThanOrEqual(200);
+          expect(geometry.canvas.x).toBeGreaterThanOrEqual(0);
+          expect(geometry.canvas.y).toBeGreaterThanOrEqual(0);
+          expect(geometry.canvas.right).toBeLessThanOrEqual(viewport.width);
+          expect(geometry.canvas.bottom).toBeLessThanOrEqual(geometry.dock.y);
+          expect(geometry.task.bottom).toBeLessThanOrEqual(geometry.dock.y);
+          expect(geometry.dock.bottom).toBeLessThanOrEqual(geometry.status.y);
+          expect(geometry.bodyOverflowX).toBeLessThanOrEqual(0);
+          expect(geometry.bodyOverflowY).toBeLessThanOrEqual(0);
+          if (phase.startsWith("solved")) {
+            expect(geometry.dockBody.usableHeight, `${phase} usable dock body height`).toBeGreaterThan(64);
+          }
+          return geometry.canvas;
+        };
+        const beforeSelection = await measure("before solve");
+        const selected = await selectTreeRow(page, "node", "node:N-110");
+        await expect(selected).toHaveAttribute("aria-selected", "true");
+        if (viewport.width < 1280) {
+          // Narrow rail navigation normally dismisses the dock. Restore the
+          // same simultaneous task/dock layout before comparing rectangles.
+          await ensureRail(page, "tree", false);
+          await openWorkspaceSection(page, "solve");
+        }
+        await expect(page.locator(".viewport-toolbar-selection-status")).toHaveText("Selected: node:N-110");
+        expect(await measure("changed primary; task/dock restored")).toEqual(beforeSelection);
+        await ensureRail(page, "inspector", true);
+        await expect(inspector.getByTestId("inspector-frozen-task-target")).toContainText("node: node:N-100");
+        await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("Retained inspector task");
+        const footer = inspector.getByTestId("task-action-footer");
+        for (const control of await footer.getByRole("button").all()) {
+          await control.scrollIntoViewIfNeeded();
+          await expectCenterUnobscured(control);
+          if (await control.isEnabled()) {
+            await control.focus();
+            await expect(control).toBeFocused();
+          }
+        }
+        if (viewport.width < 1280) {
+          await ensureRail(page, "inspector", false);
+          await openWorkspaceSection(page, "solve");
+        } else {
+          await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
+          await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
+        }
+        expect(await measure("after footer navigation; task/dock restored")).toEqual(beforeSelection);
+        const toolbar = page.getByRole("group", { name: "Viewport controls", exact: true });
+        for (const control of await toolbar.locator("button, select, summary").all()) {
+          await control.scrollIntoViewIfNeeded();
+          await expectCenterUnobscured(control);
+          if (await control.isEnabled()) {
+            await control.focus();
+            await expect(control).toBeFocused();
+          }
+        }
+        await page.getByTestId("cancel-pipe-draft").scrollIntoViewIfNeeded();
+        await page.getByTestId("cancel-pipe-draft").focus();
+        await expect(page.getByTestId("cancel-pipe-draft")).toBeFocused();
+        await expectCenterUnobscured(page.getByTestId("cancel-pipe-draft"));
+        await page.getByTestId("queue-explicit-pipe-intent").scrollIntoViewIfNeeded();
+        await expectCenterUnobscured(page.getByTestId("queue-explicit-pipe-intent"));
+        await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
+        await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+        await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=830");
+        await measure("solved");
+        const verifySolvedDockControls = async (phase: string) => {
+          await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+          for (const testId of ["solver-mode-sparse", "solver-mode-dense", "run-mechanics-preview"]) {
+            const control = page.getByTestId(testId);
+            await expect(control).toBeEnabled();
+            await control.scrollIntoViewIfNeeded();
+            await control.focus();
+            await expect(control).toBeFocused();
+            await expectCenterUnobscured(control);
+            const readControlWitness = () => control.evaluate((element) => {
+              const body = element.closest(".workspace-dock-body")!;
+              const box = body.getBoundingClientRect();
+              const target = element.getBoundingClientRect();
+              const hit = document.elementFromPoint(target.x + target.width / 2, target.y + target.height / 2);
+              return { target: target.toJSON(), body: box.toJSON(), scrollTop: body.scrollTop,
+                clip: { top: box.top + body.clientTop, bottom: box.top + body.clientTop + body.clientHeight },
+                focused: document.activeElement === element,
+                hitInsideBody: hit !== null && body.contains(hit),
+                owned: hit !== null && (hit === element || element.contains(hit)) };
+            });
+            const initial = await readControlWitness();
+            let witness = initial;
+            let wheel: { deltaY: number; dispatched: boolean; beforeScrollTop: number;
+              afterScrollTop: number | null } | null = null;
+            try {
+              if (initial.target.top < initial.clip.top && initial.owned) {
+                const center = { x: initial.target.x + initial.target.width / 2,
+                  y: initial.target.y + initial.target.height / 2 };
+                await page.mouse.move(center.x, center.y);
+                const pointerOwned = await control.evaluate((element, point) => {
+                  const hit = document.elementFromPoint(point.x, point.y);
+                  return hit !== null && element.closest(".workspace-dock-body")!.contains(hit) &&
+                    (hit === element || element.contains(hit));
+                }, center);
+                expect(pointerOwned).toBe(true);
+                const beforeWheel = await readControlWitness();
+                expect(beforeWheel.owned).toBe(true);
+                expect(beforeWheel.hitInsideBody).toBe(true);
+                expect(center.y).toBeGreaterThanOrEqual(beforeWheel.clip.top);
+                expect(center.y).toBeLessThanOrEqual(beforeWheel.clip.bottom);
+                wheel = { deltaY: -24, dispatched: false, beforeScrollTop: beforeWheel.scrollTop,
+                  afterScrollTop: null };
+                await page.mouse.wheel(0, wheel.deltaY);
+                wheel.dispatched = true;
+                await expect.poll(async () => (await readControlWitness()).scrollTop)
+                  .toBeLessThan(beforeWheel.scrollTop);
+              }
+            } finally {
+              witness = await readControlWitness();
+              if (wheel) wheel.afterScrollTop = witness.scrollTop;
+              const controlEvidence = { phase, testId, initial, wheel, final: witness,
+                reachability: wheel?.dispatched ? "wheel-assisted" : "ordinary scroll and focus" };
+              evidence.push(controlEvidence);
+              await testInfo.attach(`${phase}-${testId}-reachability`, {
+                body: JSON.stringify(controlEvidence, null, 2), contentType: "application/json",
+              });
+            }
+            expect(witness.target.top).toBeGreaterThanOrEqual(witness.clip.top);
+            expect(witness.target.bottom).toBeLessThanOrEqual(witness.clip.bottom);
+            expect(witness.focused).toBe(true);
+            expect(witness.owned).toBe(true);
+          }
+        };
+        await verifySolvedDockControls("solved controls before proof disclosure");
+        const proof = page.getByTestId("status-pill-solve-proof");
+        const proofSummary = proof.locator("summary");
+        await expect(proofSummary).toHaveText("Solve proof Run identity matches");
+        await proofSummary.scrollIntoViewIfNeeded();
+        await expectCenterUnobscured(proofSummary);
+        await proofSummary.click();
+        await expect(proof).toHaveAttribute("open", "");
+        const rawProof = proof.locator("code");
+        await expect(rawProof).toBeVisible();
+        await rawProof.scrollIntoViewIfNeeded();
+        await expectCenterUnobscured(rawProof);
+        const rawProofText = await rawProof.innerText();
+        expect(rawProofText).toMatch(/^seam=browser_fixture_no_backend_job; project=project:invented-loop-01; result_model=project:invented-loop-01; identity=match; rows=830; generation=\d+; job=[^;]+; model_sha256=sha256:[a-f0-9]{64}; input_manifest_sha256=[a-f0-9]{64}$/);
+        evidence.push({ phase: "solved proof Details", summary: await proofSummary.innerText(),
+          rawProof: rawProofText, bounds: await rawProof.boundingBox() });
+        await proofSummary.click();
+        await expect(proof).not.toHaveAttribute("open", "");
+        await expect(rawProof).toBeHidden();
+        await verifySolvedDockControls("solved controls after proof disclosure");
+        await measure("solved after proof disclosure");
+        const deformation = page.getByTestId("viewport-deformation-status");
+        await deformation.locator("summary").click();
+        await expect(deformation.getByTestId("viewport-deformation-summary")).toContainText("available; nodes=5");
+        // Noninteractive wrapped inline text has disjoint fragments; its union
+        // center can legitimately fall on a sibling. Check actual text fragments
+        // inside the scroll clip, retaining center-hit checks for all controls.
+        for (const [testId, expected] of [
+          ["viewport-deformation-summary", "available; nodes=5"],
+          ["viewport-deformation-boundary", "vector_direction=global_cartesian_displacement_components"],
+        ] as const) {
+          const text = deformation.getByTestId(testId);
+          await expect(text).toContainText(expected);
+          await text.scrollIntoViewIfNeeded();
+          const witness = await text.evaluate((element) => {
+            let clip = { left: 0, top: 0, right: innerWidth, bottom: innerHeight };
+            const clips = [];
+            for (let ancestor = element.parentElement; ancestor; ancestor = ancestor.parentElement) {
+              const style = getComputedStyle(ancestor);
+              const box = ancestor.getBoundingClientRect();
+              const bounds = { left: box.left + ancestor.clientLeft, top: box.top + ancestor.clientTop,
+                right: box.left + ancestor.clientLeft + ancestor.clientWidth,
+                bottom: box.top + ancestor.clientTop + ancestor.clientHeight };
+              if (/(auto|scroll|hidden|clip)/.test(style.overflowX)) {
+                clip.left = Math.max(clip.left, bounds.left);
+                clip.right = Math.min(clip.right, bounds.right);
+              }
+              if (/(auto|scroll|hidden|clip)/.test(style.overflowY)) {
+                clip.top = Math.max(clip.top, bounds.top);
+                clip.bottom = Math.min(clip.bottom, bounds.bottom);
+              }
+              clips.push({ tag: ancestor.tagName, className: ancestor.className,
+                overflowX: style.overflowX, overflowY: style.overflowY, bounds });
+            }
+            const fragments = [];
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+            for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+              if (!node.textContent?.trim()) continue;
+              const range = document.createRange();
+              range.selectNodeContents(node);
+              for (const rect of range.getClientRects()) {
+                if (rect.width <= 0 || rect.height <= 0) continue;
+                const visible = { left: Math.max(rect.left, clip.left), top: Math.max(rect.top, clip.top),
+                  right: Math.min(rect.right, clip.right), bottom: Math.min(rect.bottom, clip.bottom) };
+                const fullLineHeightVisible = visible.bottom - visible.top >= rect.height - 0.5;
+                const hasVisibleArea = visible.right > visible.left && visible.bottom > visible.top;
+                const hit = hasVisibleArea ? document.elementFromPoint(
+                  (visible.left + visible.right) / 2, (visible.top + visible.bottom) / 2,
+                ) : null;
+                fragments.push({ text: node.textContent, rect: rect.toJSON(), visible,
+                  fullLineHeightVisible, hasVisibleArea,
+                  owner: hit?.getAttribute("data-testid") ?? hit?.tagName ?? null,
+                  owned: hit !== null && (hit === element || element.contains(hit)) });
+              }
+            }
+            return { text: element.textContent, clip, clips, fragments };
+          });
+          evidence.push({ phase: "expanded deformation text", testId, witness });
+          expect(witness.fragments.length, `${testId} has nonempty text fragments`).toBeGreaterThan(0);
+          expect(witness.fragments.some((fragment) => fragment.hasVisibleArea &&
+            fragment.fullLineHeightVisible && fragment.owned), `${testId} has readable owned text inside the scroll clip`).toBe(true);
+        }
+        await measure("expanded deformation details");
+        await deformation.locator("summary").click();
+        await expect(page.getByTestId("viewport-create-pipe-label")).toHaveValue("Retained pipe draft");
+        await expect(page.getByTestId("viewport-create-pipe-provenance")).toHaveValue("layout regression draft");
+        await expect(page.getByTestId("command-pipe")).toHaveAttribute("aria-pressed", "true");
+        await measure("solved final task and dock");
+        await testInfo.attach("task-dock-layout", { body: JSON.stringify(evidence, null, 2), contentType: "application/json" });
+        await testInfo.attach("solved-task-dock", { body: await page.screenshot(), contentType: "image/png" });
+      });
+    }
+  }
+}
 
 test("selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths", async ({ page }, testInfo) => {
   const model = await gotoRoutedFixture(page, "ui-foundation-1000.model.json");

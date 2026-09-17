@@ -3602,6 +3602,7 @@ function StatusBar({
           <StatusPill
             label="Solve proof"
             value={visibleSolveProof}
+            summaryText="Run identity matches"
             testId="status-pill-solve-proof"
           />
         ) : null}
@@ -3744,10 +3745,12 @@ function IssuesHome({
   );
 }
 
-function StatusPill({ label, value, testId }: { label: string; value: string; testId: string }) {
+function StatusPill({ label, value, testId, summaryText }: {
+  label: string; value: string; testId: string; summaryText?: string;
+}) {
   return (
     <details className="status-pill" data-testid={testId}>
-      <summary><strong>{label}</strong> {readableWorkspaceStatus(value)}</summary>
+      <summary><strong>{label}</strong> {summaryText ?? readableWorkspaceStatus(value)}</summary>
       <div><strong>Recorded status</strong><code>{value}</code></div>
     </details>
   );

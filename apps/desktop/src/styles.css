@@ -3365,7 +3365,12 @@ body { min-width: 760px; min-height: 540px; }
 .workspace-pane-viewport { overflow: hidden; }
 .workspace-pane-viewport > .viewport-shell { min-height: 0; height: 100%; border: 0; border-radius: 0; }
 .viewport-shell { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; overflow: hidden; }
-.viewport-toolbar { grid-row: 2; grid-column: 1; min-height: 30px; padding: 4px 8px; gap: 8px; flex-wrap: wrap; font-size: 11px; }
+/* Keep toolbar wrapping inside its own scroll region, never in the canvas row.
+   Status has a separate fixed row so selection text cannot resize the canvas. */
+.viewport-toolbar { grid-row: 2; grid-column: 1; display: grid; align-items: stretch; justify-content: stretch; grid-template-rows: minmax(0, 1fr) 24px; box-sizing: border-box; height: 80px; min-height: 0; min-width: 0; padding: 4px 8px; gap: 4px; font-size: 11px; }
+.viewport-toolbar-controls { display: flex; flex-wrap: wrap; align-items: center; align-content: start; gap: 4px 8px; min-height: 0; min-width: 0; overflow: auto; scrollbar-width: thin; }
+.viewport-toolbar-controls > * { flex: 0 0 auto; max-width: 100%; }
+.viewport-toolbar-controls .viewport-deformation-status[open] > div { position: static; box-sizing: border-box; width: min(250px, 100%); }
 .viewport-toolbar-status-strip {
   box-sizing: border-box;
   display: flex;
@@ -3394,7 +3399,7 @@ body { min-width: 760px; min-height: 540px; }
 .viewport-frame { grid-row: 3; grid-column: 1; min-height: 0; height: 100%; }
 .viewport-canvas { min-height: 0; height: 100%; }
 .viewport-canvas canvas { display: block; }
-.command-bar { grid-row: 1; grid-column: 1 / -1; min-width: 0; min-height: 38px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 5px 7px; border-top: 0; border-bottom: 1px solid #d6ded9; }
+.command-bar { grid-row: 1; grid-column: 1 / -1; box-sizing: border-box; max-height: 56px; overflow: auto; scrollbar-width: thin; min-width: 0; min-height: 38px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 5px 7px; border-top: 0; border-bottom: 1px solid #d6ded9; }
 .viewport-measurement-strip { grid-row: 4; grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; min-width: 0; min-height: 30px; padding: 5px 8px; overflow-wrap: anywhere; border-top: 1px solid var(--ui-divider); color: var(--ui-text); background: var(--ui-raised); font-size: 11px; }
 .viewport-measurement-strip strong { min-width: 0; }
 .command-buttons { gap: 4px; flex-wrap: wrap; }
@@ -3403,6 +3408,7 @@ body { min-width: 760px; min-height: 540px; }
 .command-context { font-size: 11px; margin-left: auto; position: relative; }
 .command-context summary { cursor: pointer; }
 .command-context[open] > .command-context-content { position: absolute; top: 25px; right: 0; z-index: 12; width: 260px; padding: 10px; border: 1px solid #c8d0cb; background: #fff; box-shadow: 0 6px 20px #162d3026; }
+.command-bar .command-context[open] > .command-context-content { position: static; width: min(260px, 100%); box-sizing: border-box; }
 .command-context-content > span { display: block; margin: 6px 0; overflow-wrap: anywhere; }
 .viewport-shell:has(.viewport-intents.active) { grid-template-columns: minmax(0, 1fr) 265px; }
 .viewport-intents.active { grid-column: 2; grid-row: 2 / 4; min-width: 0; min-height: 0; max-height: none; overflow: auto; padding: 10px; border-top: 0; border-left: 1px solid #c8d0cb; background: #f7f9f8; }
@@ -3473,7 +3479,9 @@ body { min-width: 760px; min-height: 540px; }
 .viewport-toolbar > span:last-child { margin-left: auto; }
 .viewport-display-toggles { gap: 3px; }
 .viewport-display-toggles button { font-size: 10px; padding: 2px 5px; }
-.workspace-dock { flex: 0 0 clamp(180px, var(--workspace-dock-height, 260px), 600px); max-height: 60%; min-height: 0; border: 1px solid #bccbc3; border-radius: 6px; overflow: hidden; background: #f7f9f8; }
+/* Reserve 344px for modelling plus the 6px workspace gap.
+   The saved dock preference still applies whenever that budget is available. */
+.workspace-dock { flex: 0 0 clamp(180px, var(--workspace-dock-height, 260px), 600px); max-height: min(60%, max(0px, calc(100% - 350px))); min-height: 0; border: 1px solid #bccbc3; border-radius: 6px; overflow: hidden; background: #f7f9f8; }
 .workspace-dock-splitter { position: relative; flex: 0 0 24px; width: 100%; min-height: 24px !important; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: row-resize; touch-action: none; }
 .workspace-dock-splitter::after { content: ""; position: absolute; inset: 11px 0; background: var(--ui-divider); }
 .workspace-dock-header { min-height: 32px; padding: 4px 9px; }
@@ -3700,7 +3708,6 @@ body { min-width: 760px; min-height: 540px; }
   border-color: var(--ui-divider);
 }
 .app-shell .workspace-drawer {
-  z-index: 80;
   color: var(--ui-text);
   background: var(--ui-surface);
   border-color: var(--ui-border);

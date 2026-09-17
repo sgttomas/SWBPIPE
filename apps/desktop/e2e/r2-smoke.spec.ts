@@ -169,8 +169,8 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await expect(page.getByTestId("entity-grid-table-nodes")).toBeVisible();
   await page.getByTestId("entity-grid-row-node-node:N-100").click();
   await expect(page.getByTestId("agent-focus-selection")).toContainText("node:N-100");
-  await openNamedDisclosure(page.getByLabel("Property inspector"), "All properties");
-  await expect(page.getByLabel("Property inspector")).toContainText("node:N-100");
+  await openNamedDisclosure(page.getByRole("region", { name: "Property inspector", exact: true }), "All properties");
+  await expect(page.getByRole("region", { name: "Property inspector", exact: true })).toContainText("node:N-100");
   await page.getByTestId("entity-grid-input-node:N-100-x").fill("1.25");
   await page.getByTestId("entity-grid-input-node:N-100-y").fill("0.5");
   await expect(page.getByTestId("entity-grid-change-count")).toContainText("2 changed cells");
@@ -248,7 +248,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   // through the wasm32 operation_applier build; wait for init before edits.
   await ensureEngineReady(page);
   await ensureInspectorExpanded(page);
-  await openNamedDisclosure(page.getByLabel("Property inspector"), "Sources and units");
+  await openNamedDisclosure(page.getByRole("region", { name: "Property inspector", exact: true }), "Sources and units");
   await expect(page.getByTestId("property-unit-catalog-status")).toContainText(
     "browser preview uses model metadata"
   );
@@ -495,13 +495,14 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-combination-delete-preview")).toContainText(
     "before=load:L-200 x 0.5; after=not_present; unit=none; dimensionless"
   );
-  await selectTreeEntity(page, "node", "node:N-120");
+  // Delete previews belong to the explicitly started task, not a new selection.
+  await startPropertyTaskFromTreeEntity(page, "node", "node:N-120");
   await expect(page.getByTestId("delete-node-intent-panel")).toContainText("delete_node");
   await expect(page.getByTestId("delete-node-intent-panel")).toContainText(
     "before=Riser elbow; x=3.2; y=2.4; z=0"
   );
   await expect(page.getByTestId("delete-node-intent-panel")).toContainText("after=not_present");
-  await selectTreeEntity(page, "pipe", "pipe:P-130");
+  await startPropertyTaskFromTreeEntity(page, "pipe", "pipe:P-130");
   await expect(page.getByTestId("delete-pipe-intent-panel")).toContainText("delete_pipe_run");
   await expect(page.getByTestId("delete-pipe-intent-panel")).toContainText(
     "before=Tie-in rise; node:N-130->node:N-140; material=material:invented-carbon-steel"
@@ -537,9 +538,17 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
 
   await ensurePipeEndpointPick(page, "viewport-pick-pipe-from");
+  // Selected entities receive label priority when projected labels overlap.
+  // Tree selection must preserve endpoint capture; the viewport click performs it.
+  await selectTreeEntity(page, "node", "node:N-100");
+  await expect(page.getByTestId("viewport-pick-pipe-from")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("viewport-select-node:N-100")).toBeVisible();
   await page.getByTestId("viewport-select-node:N-100").click();
   await expectVirtualTarget(page, "viewport-create-pipe-from", "node:N-100");
   await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "true");
+  await selectTreeEntity(page, "node", "node:N-140");
+  await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("viewport-select-node:N-140")).toBeVisible();
   await page.getByTestId("viewport-select-node:N-140").click();
   await expectVirtualTarget(page, "viewport-create-pipe-to", "node:N-140");
   await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "false");
@@ -596,6 +605,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("knowledge-unit-context")).toContainText("source=computed_preview_result");
   await expect(page.getByTestId("knowledge-unit-context")).toContainText("conversion=false");
 
+  const solvedCanvasBounds = await canvas.boundingBox();
+  expect(solvedCanvasBounds).not.toBeNull();
+  expect(solvedCanvasBounds!.width).toBeGreaterThanOrEqual(200);
+  expect(solvedCanvasBounds!.height).toBeGreaterThanOrEqual(200);
   const solvedCanvas = await canvas.screenshot();
   expect(pngStats(solvedCanvas).uniqueColors).toBeGreaterThan(100);
 

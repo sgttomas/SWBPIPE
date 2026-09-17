@@ -10261,7 +10261,7 @@ describe("OpenPipeStress desktop preview", () => {
     const expectedStressWitnessCount = expectedSource.results.length - incompatibleWorkDiagnostics.length;
     const stressNeutral = stressNeutralExport();
     expect(
-      within(stressNeutral).getByTestId("stress-neutral-summary").textContent,
+      (await within(stressNeutral).findByTestId("stress-neutral-summary")).textContent,
     ).toContain("available");
     expect(
       within(stressNeutral).getByTestId("stress-neutral-summary").textContent,

@@ -2161,6 +2161,7 @@ export function PipeViewport({
   return (
     <div className="viewport-shell">
       <div className="viewport-toolbar">
+        <div className="viewport-toolbar-controls" role="group" aria-label="Viewport controls">
         <span>3D Centerline</span>
         <details
           className={`viewport-deformation-status ${deformation.state}`}
@@ -2233,6 +2234,7 @@ export function PipeViewport({
           <button aria-pressed={geometryMode === "schematic"} data-testid="viewport-geometry-schematic" onClick={() => dispatchViewportViewCommand({ type: "set-geometry-mode", mode: "schematic" })} type="button">Schematic</button>
           <button aria-pressed={geometryMode === "actual-od"} data-testid="viewport-geometry-actual-od" onClick={() => dispatchViewportViewCommand({ type: "set-geometry-mode", mode: "actual-od" })} type="button">Actual OD</button>
           <button aria-pressed={measurementActive} onClick={() => dispatchViewportViewCommand({ type: "set-measurement", active: !measurementActive })} type="button">Measure</button>
+        </div>
         </div>
         <div className="viewport-toolbar-status-strip" aria-label="Viewport status">
           <span
