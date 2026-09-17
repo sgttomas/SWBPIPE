@@ -557,7 +557,7 @@ button:focus-visible {
 }
 
 .workspace-pane-toggle:hover {
-  background: #dde6e1;
+  background: var(--ui-raised);
 }
 
 .workspace-pane-toggle-label {
@@ -2509,36 +2509,46 @@ fieldset.viewport-intent-controls {
   gap: 7px;
   min-height: 34px;
   padding: 7px;
-  border: 1px solid #d8dfdb;
+  border: 1px solid var(--ui-divider);
   border-radius: 4px;
-  background: #f7f9f6;
+  color: var(--ui-text);
+  background: var(--ui-raised);
 }
 
 .readiness-row span {
-  color: #65716c;
+  color: inherit;
   font-size: 11px;
 }
 
 .readiness-row strong {
-  color: #25312f;
+  color: inherit;
   font-size: 12px;
   font-weight: 650;
   overflow-wrap: anywhere;
 }
 
 .readiness-row.ok {
-  border-color: #bfd5c8;
-  background: #eef7f0;
+  color: var(--ui-text);
+  border-color: var(--ui-divider);
+  background: var(--ui-raised);
+}
+
+.readiness-row.info {
+  color: var(--ui-info-text);
+  border-color: var(--ui-info-border);
+  background: var(--ui-info-surface);
 }
 
 .readiness-row.warning {
-  border-color: #e4c478;
-  background: #fff8e7;
+  color: var(--ui-warning-text);
+  border-color: var(--ui-warning-border);
+  background: var(--ui-warning-surface);
 }
 
 .readiness-row.blocking {
-  border-color: #d7a7a7;
-  background: #fff1f1;
+  color: var(--ui-error-text);
+  border-color: var(--ui-error-border);
+  background: var(--ui-error-surface);
 }
 
 .solver-mode-control {
@@ -3765,7 +3775,6 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .editor-intent-queue strong,
 .app-shell .proposal-fact strong,
 .app-shell .proposal-flag strong,
-.app-shell .readiness-row strong,
 .app-shell .status-pill strong,
 .app-shell .diagnostic-severity-summary strong,
 .app-shell .result-detail-panel dd,

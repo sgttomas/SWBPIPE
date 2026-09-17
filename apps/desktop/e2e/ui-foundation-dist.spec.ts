@@ -4,6 +4,7 @@ const defaultPreviewModel = JSON.parse(readFileSync(fileURLToPath(
   new URL("../../../fixtures/product_preview/invented_preview_model.json", import.meta.url),
 ), "utf8"));
 import { expect, test, type Page } from "@playwright/test";
+import { startPropertyTaskFromTreeEntity } from "./workspace-driver";
 import {
   APPEARANCE_DENSITIES,
   APPEARANCE_THEMES,
@@ -620,6 +621,35 @@ for (const theme of APPEARANCE_THEMES) {
         }
 
         await setAppearance(page, theme, density);
+        const railHoverWitnesses: unknown[] = [];
+        try {
+          for (const rail of ["tree", "inspector"] as const) {
+            const toggle = page.getByTestId(`toggle-${rail}`);
+            const originalOpen = await toggle.getAttribute("aria-expanded") === "true";
+            for (const open of [false, true]) {
+              await ensureRail(page, rail, open);
+              await toggle.hover();
+              await expect(toggle).toHaveAttribute("aria-expanded", String(open));
+              await expectCenterUnobscured(toggle, { minimumTarget: true });
+              await captureElementState(toggle, testInfo, `rail-hover-${theme}-${density}-${viewport.width}-${rail}-${open}`);
+              railHoverWitnesses.push(...await expectResolvedContrast([
+                { name: `${rail} ${open ? "expanded" : "collapsed"} hovered label`, locator: toggle.locator(".workspace-pane-toggle-label"), minimum: 4.5 },
+                { name: `${rail} hovered disclosure glyph`, locator: toggle.locator(".workspace-pane-toggle-icon"), source: "graphic", minimum: 3 },
+                ...await Promise.all((await toggle.locator("svg").all()).map(async (locator, index) => ({
+                  name: `${rail} hovered icon ${index}`, locator, source: "graphic" as const, minimum: 3 as const,
+                }))),
+              ]));
+              await activateWithKeyboard(page, toggle);
+              await expect(toggle).toHaveAttribute("aria-expanded", String(!open));
+              await expect(toggle).toBeFocused();
+            }
+            await ensureRail(page, rail, originalOpen);
+          }
+        } finally {
+          await testInfo.attach(`rail-hover-contrast-${theme}-${density}-${viewport.width}`, {
+            body: JSON.stringify(railHoverWitnesses), contentType: "application/json",
+          });
+        }
         const pipe = model.pipe_segments[4];
         const selected = await selectTreeRow(page, "pipe", pipe.id);
         await expect(selected).toHaveAttribute("aria-selected", "true");
@@ -909,6 +939,73 @@ async function expectPopulatedResultsGeometry(page: Page, width: number, histori
     expect(value.box.width).toBeLessThanOrEqual(value.cell.width);
   }
   return { width, historical, ...geometry };
+}
+
+for (const theme of APPEARANCE_THEMES) {
+  test(`Solve readiness rows retain resolved contrast in ${theme}`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width: 1440, height: 920 });
+    await page.goto("/");
+    await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+    await setAppearance(page, theme, "comfortable");
+    const tones = new Set<string>();
+    for (const phase of ["before-solve", "solved", "blocked"] as const) {
+      if (phase === "blocked") {
+        await openWorkspaceSection(page, "operations");
+        await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+        const editor = await startPropertyTaskFromTreeEntity(page, "load", "load:L-100");
+        await editor.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
+        await expect(editor.getByTestId("editor-intent-unit")).toHaveValue("N/m");
+        await editor.getByLabel("New first primitive magnitude", { exact: true }).fill("-225");
+        await editor.getByTestId("queue-editor-intent").click();
+        await openWorkspaceSection(page, "operations");
+        await page.getByTestId("apply-intent-editor-intent-1").click();
+        await expect(page.getByTestId("applied-operation-route-applied-1-editor-intent-1")).toContainText("Applied through local_wasm_engine");
+      }
+      await openWorkspaceSection(page, "solve");
+      if (phase !== "before-solve") {
+        await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
+        await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+        await expect(page.getByTestId("status-pill-mechanics")).toContainText(phase === "solved" ? "MECHANICS_SOLVED" : "MODEL_INCOMPLETE");
+      }
+      if (phase === "blocked") {
+        await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
+        await expect(page.getByTestId("readiness-mechanics")).toContainText("0 computed result rows; model incomplete");
+        await expect(page.getByTestId("readiness-diagnostics")).toHaveClass(/\bblocking\b/);
+        await expect(page.getByTestId("readiness-diagnostics")).toContainText("1 blocking/error");
+      }
+      const rows = page.getByTestId("solve-readiness-summary").locator(".readiness-row");
+      await expect(rows).toHaveCount(4);
+      const witnesses: unknown[] = [];
+      try {
+        for (const row of await rows.all()) {
+          await row.scrollIntoViewIfNeeded();
+          const tone = (await row.getAttribute("class"))!.split(/\s+/).find((value) => ["ok", "info", "warning", "blocking"].includes(value))!;
+          expect(tone).toBeTruthy(); tones.add(tone);
+          const identity = await row.getAttribute("data-testid");
+          await captureElementState(row, testInfo, `readiness-${theme}-${phase}-${identity}-${tone}`);
+          witnesses.push(...await expectResolvedContrast([
+            { name: `${phase} ${identity} ${tone} label`, locator: row.locator(":scope > span"), minimum: 4.5 },
+            { name: `${phase} ${identity} ${tone} value`, locator: row.locator(":scope > strong"), minimum: 4.5 },
+            { name: `${phase} ${identity} ${tone} icon`, locator: row.locator(":scope > svg"), source: "graphic", minimum: 3 },
+          ]));
+        }
+      } finally {
+        await testInfo.attach(`readiness-contrast-${theme}-${phase}`, { body: JSON.stringify({ tones: [...tones], witnesses }), contentType: "application/json" });
+        await captureState(page, testInfo, `readiness-${theme}-${phase}`);
+      }
+      if (phase === "blocked") {
+        await page.getByTestId("issues-drawer-toggle").click();
+        const diagnostic = page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+        await expect(diagnostic).toBeVisible();
+        await expect(diagnostic).toContainText("Browser fixture mode will not reuse bundled solved-result rows for an edited model");
+        await testInfo.attach(`readiness-blocked-diagnostic-${theme}`, {
+          body: JSON.stringify({ code: "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL", text: await diagnostic.innerText() }), contentType: "application/json",
+        });
+        await captureElementState(diagnostic, testInfo, `readiness-blocked-diagnostic-${theme}`);
+      }
+    }
+    expect([...tones].sort()).toEqual(["blocking", "info", "ok", "warning"]);
+  });
 }
 
 for (const theme of APPEARANCE_THEMES) {
