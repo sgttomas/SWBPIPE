@@ -1,5 +1,5 @@
 {
-  "status": "FUNCTIONAL_TECHNICAL_ACCEPTED_PUBLICATION_PENDING_D69_UNRULED",
+  "status": "FUNCTIONAL_TECHNICAL_ACCEPTED_PUBLICATION_TAIL_PENDING_D69_UNRULED",
   "derivative_package": true,
   "basis": {
     "owner_direction": "D-68_RULING_2026-09-15.md and this run's APPROVED_PLAN.md",
@@ -10,7 +10,7 @@
     "overlay": "instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
     "sha256": "99077f9883a51421b874292ecc6ab51f62fc4bba9c5918413e7d6024b7e98145",
     "maintained_paths": 145,
-    "product": "V101 contrast repair and R1 legitimate blocking test route integrated after independent V102 review. All145 ROOT/CHECK working and committed source hashes exact at b6a1ab837; final registered V104 qualification is running.",
+    "product": "V101 contrast repair and R1 legitimate blocking test route integrated after independent V102 review. All145 ROOT/CHECK working and committed source hashes exact at b6a1ab837; complete registered V104 qualification passed on the clean candidate.",
     "method": "V20Y fixed250ms post-stop collection for assignment/point/box and retained stopped evidence; explicit zero-cohort assignment diagnostic. V20X raw occurrence identity and V20W same-trace interval bounds unchanged; product/filter/orbit/extractor/scorer/targets unchanged.",
     "oracle": "V20S checked geometry source pin; frozen400point/40box geometry identical to accepted V46.",
     "source_commit": "b6a1ab8378481adbb46d65847cb7eaf9a2864461"
@@ -36,8 +36,8 @@
     "resources": "Root accepts resource evidence applicability with explicit limits in FINAL_RESOURCE_APPLICABILITY.json. V56 owns the earlier-bundle resource baseline; its resource implementation is unchanged, while the new DOM observer lifetime has independent source review and passed unit coverage. No final-binary resource-cohort replay is claimed.",
     "performance": "V79 diagnosis sealed and Root verified. All1204 exact producer joins support future-estimate contribution without long recorded serialized GPU wait; no product/scorer patch justified. V76 diagnostic orbit33.334ms both FAIL/zero cohort. No complete accepted performance cohort. D-69 proposal would defer performance prerequisite for one functional merge; no ruling yet.",
     "registered_sweep": "V104 complete registered sweep PASS on clean actual-source b6a1ab8378481adbb46d65847cb7eaf9a2864461. Root verified the owning output manifest and exact ROOT/CHECK working and committed source equality. Canonical summary and return own numerical counts. V95 retains attribution to prior45ede source.",
-    "practitioner_and_receipt": "PENDING final checks",
-    "publication": "V17 Remaining/policy application complete and frozen selection consumed by Root. V31 preservation accepted. V105 actual-candidate review, clean-checkout practitioner/self-check/receipt and hosted PR/CI remain pending. D69 UNRULED; merge held. This is the pre-publication checkpoint; later review/check/PR records own their actual outcomes."
+    "practitioner_and_receipt": "FINAL_LOCAL_CHECKS/RESULT.json records passed clean ec39 candidate checks, including routed practitioner/validation, self-check, existing receipt corpus and full-range guards. Receipt142/final review-control tail receives its own bounded backcheck; hosted CI is separate.",
+    "publication": "V105 reviewed the complete ec39 candidate with no blocking findings. Root corrected its one stale status sentence. Receipt142 and final control/review/check evidence tail now awaits narrow backcheck, followed by scoped PR and required actual-head CI. D69 UNRULED; merge held. V105 and check records preserve exact attribution."
   },
   "performance_interpretation": {
     "profile": "Instrumented foreground Chromium-reported presentation on current M5 Max/128GiB host, 1440x920,DPR2. Conservative upper bounds; no cost subtraction or physical scanout claim.",
@@ -61,8 +61,8 @@
     "Formal dependency statuses, decomposition, stage and lifecycle do not advance through tranche Git closeout."
   ],
   "next_phase": [
-    "Final archive/Remaining/policy/candidate review and practitioner/self-check/receipt",
-    "Scoped PR and actual CI",
+    "Final receipt/control/check tail backcheck",
+    "Scoped PR and actual-head CI",
     "Owner D69 decision or original performance acceptance before merge"
   ],
   "original_handoff": {
@@ -71,9 +71,9 @@
     "policy": "Preserve local original; do not stage or rewrite it.",
     "path_resolution": "ORIGINAL_WORKTREE is the original chirality checkout named by the owner at session entry, distinct from this isolated implementation checkout. This local preservation reference is not a clone/build dependency."
   },
-  "evidence_policy": "Canonical originals plus Root-verified host-local CAS throughV31, including final nativeV103 and registeredV104. Host-local non-WORM/non-clone-portable; original local handoff unchanged.",
+  "evidence_policy": "Canonical originals plus Root-verified host-local CAS throughV31, including final nativeV103 and registeredV104. Host-local non-WORM/non-clone-portable; original local handoff unchanged. The small final local-check logs are canonical Git evidence; no duplicate archive copy is required.",
   "closure_verdict": "Functional technical scope accepted; full approved tranche and publication remain open. This record narrows only expressly accepted functional Remaining entries and does not waive any acceptance gate.",
-  "next_action": "Complete archive and final selected publication candidate; independent metadata review, clean-checkout practitioner/self-check/receipt, then scoped PR and actual CI. Merge held by D69/original performance gate.",
+  "next_action": "Complete final tail backcheck and affected clean-checkout checks, publish scoped PR and inspect required actual-head CI. Merge held by D69/original performance acceptance.",
   "test_evidence_calibration": "Original V20Y reports57initial pure checks, final1diagnostic-agreement backcheck and noEmit. Extractor result contains98evaluated cases plus6unrequested differential placeholders, not104executed checks; preserve original output and corrected interpretation.",
   "current_focused_status": {
     "status": "V96_R1_AND_V97_ACCEPTED_INTEGRATED",

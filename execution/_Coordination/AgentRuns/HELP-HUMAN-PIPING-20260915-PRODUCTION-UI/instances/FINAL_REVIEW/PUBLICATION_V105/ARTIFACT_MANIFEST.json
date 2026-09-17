@@ -1,0 +1,28 @@
+{
+  "schema": "review-artifact-manifest/v1",
+  "candidate_commit": "ec39c8485ad285f87eed1d63181303b467eba0f5",
+  "status": "SEALED_BOUNDED_REVIEW_FINAL_TAIL_PENDING",
+  "members": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/REVIEW.md",
+      "sha256": "cb2d8b91db8edbdd1cad080b4f5c90ee9fbf198493afed9e23dd700a232d5567",
+      "bytes": 3917
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/COVERAGE.json",
+      "sha256": "2e2f72aa1d9c8141419e32e110cab51d14c62d224c3370521f10b28bbbbcc3b6",
+      "bytes": 287156
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/INPUT_BINDINGS.json",
+      "sha256": "084612f31ad1915c2a5b10e50a70bd7e5f42699a45e61760588dd602e261f4c6",
+      "bytes": 161867
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/RETURN.json",
+      "sha256": "0042873232f8df8b1032acb8e82a73b012a7bb81eba09b8abdaf2140060d6414",
+      "bytes": 4570
+    }
+  ],
+  "preservation": "Earlier preparation review/bindings/control note remain unchanged; this manifest seals only final phase outputs."
+}

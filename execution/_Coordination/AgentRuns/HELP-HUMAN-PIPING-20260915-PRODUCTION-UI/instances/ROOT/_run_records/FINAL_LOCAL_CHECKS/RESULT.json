@@ -1,0 +1,163 @@
+{
+  "status": "PASS",
+  "source_commit": "b6a1ab8378481adbb46d65847cb7eaf9a2864461",
+  "candidate_commit": "ec39c8485ad285f87eed1d63181303b467eba0f5",
+  "base_commit": "28ad73cc3f936872f8de1d5116c617db1290331b",
+  "started_at_utc": "2026-09-17T14:25:35.000163+00:00",
+  "checkout": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-final-check-20260916",
+  "clean_before": true,
+  "attempts": "One per command; no retry/skip/substitution",
+  "checks": [
+    {
+      "name": "routed_tools_tests",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/run_affected_tests.py",
+        "--base",
+        "28ad73cc3f936872f8de1d5116c617db1290331b"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 40.074,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/routed_tools_tests.log",
+      "sha256": "1471b4e47abd0c05679da0b2c7bbfc2a2c941b339e219b32cbfc768873d7b928",
+      "bytes": 84379
+    },
+    {
+      "name": "self_check",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 27.357,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/self_check.log",
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+      "bytes": 41362
+    },
+    {
+      "name": "receipt",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.63,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/receipt.log",
+      "sha256": "ea0245fce518584bf09f7eac2de87861a082f7dad9cf45afda30d6de8731397f",
+      "bytes": 198
+    },
+    {
+      "name": "agent_contract",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_agent_instructions.py",
+        "--json"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.037,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/agent_contract.log",
+      "sha256": "74e955ec260140f91d03643f678c994fcd26c7d5bb29008e0b04fbcda71456a6",
+      "bytes": 75
+    },
+    {
+      "name": "workflow_contract",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_workflow_metadata.py",
+        "--json"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.128,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/workflow_contract.log",
+      "sha256": "275b16c8086cd5aca35563635a124b38fa1e750929bc45b140dbfa9b083d52b4",
+      "bytes": 6735
+    },
+    {
+      "name": "conflict_markers",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_conflict_markers.py",
+        "--base",
+        "28ad73cc3f936872f8de1d5116c617db1290331b",
+        "--head",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.239,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/conflict_markers.log",
+      "sha256": "77e86fa18dd10ff92a9b2ba59fe74a0ae6d5a364749064e44aa2301c274b6df8",
+      "bytes": 44
+    },
+    {
+      "name": "G0",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_root_materialization_fence.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 2.438,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/G0.log",
+      "sha256": "19878a424b48ca671d3e758269df15cb764f6158b2626ff8670d80c93cd9b11c",
+      "bytes": 100
+    },
+    {
+      "name": "G1",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_root_harness_adapter.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 2.21,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/G1.log",
+      "sha256": "a446575a34e6896cb92123eab0cfd5c4e0180db7ff62699e5db07b438fe9be37",
+      "bytes": 92
+    },
+    {
+      "name": "G2",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_root_surface_ownership.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 2.335,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/G2.log",
+      "sha256": "8a2425c5d13c122eb51b2482911778315724f5d3854922916c43f49cc6247618",
+      "bytes": 65
+    },
+    {
+      "name": "G3",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_root_work_graph_dispatch.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 4.518,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/G3.log",
+      "sha256": "02ef198ca71b3d832101ae4e4fd358f9e4c65732da5f0bc0d77b8f2bdd7ab0b6",
+      "bytes": 188
+    },
+    {
+      "name": "G4",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_instruction_tranche_manifest.py",
+        "--base",
+        "28ad73cc3f936872f8de1d5116c617db1290331b",
+        "--head",
+        "HEAD",
+        "--added-manifests-only"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.261,
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/G4.log",
+      "sha256": "5058d181f072bd1ced4de649028005031edc295b987f908b13dbd4e35c9d1a54",
+      "bytes": 10000
+    }
+  ],
+  "clean_after": true,
+  "finished_at_utc": "2026-09-17T14:26:56.910128+00:00",
+  "limits": "Receipt check covers the committed Receipt141 corpus; Receipt142 and final review/check tail require bounded follow-up checks. Hosted CI and D69 remain separate."
+}

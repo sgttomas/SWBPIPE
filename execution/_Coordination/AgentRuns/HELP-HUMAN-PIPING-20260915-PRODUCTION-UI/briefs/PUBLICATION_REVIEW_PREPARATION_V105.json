@@ -1,0 +1,75 @@
+{
+  "status": "READ_ONLY_PUBLICATION_REVIEW_PREPARATION_FINAL_BINDINGS_PENDING",
+  "at": "2026-09-17T13:38:59.560856+00:00",
+  "parent": "/root HELP_HUMAN",
+  "executor": "/root/ui_fresh_integrated_review",
+  "role": "TASK Type 2 software-code-review",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "mechanism": "delegated-harness-native; instruction/config asserted; no delegation",
+  "objective": "Use V104 runtime interval to review the selected publication/Remaining/policy proposal for the exact V20 source. Final complete selected-candidate verdict remains pending native/sweep/acceptance/archive and actual frozen file inventory; keep one revisable review packet until that boundary.",
+  "context": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16/PATH_SELECTION.json",
+      "sha256": "d4ab4673460d487c084ea4bfb398e6b5bcba7742e494ca11b43140254b46952f",
+      "bytes": 80872
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16/POLICY_ADDITIONS.json",
+      "sha256": "b46c02727d6329a56a27fd67d27eedb10bc5f0a6485e3e41eee423465f841206",
+      "bytes": 33870
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16/REMAINING_WORDING.json",
+      "sha256": "a998b880199e9a7d8924c920d1d71609f650521781c001e9ec2a039002c2dcfc",
+      "bytes": 6888
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/CLOSEOUT_WORKING_V16/STATUS.json",
+      "sha256": "2e405a194ab599cec448650d34179ec4c4c53808fb5854ef5877a718e2808f03",
+      "bytes": 24123
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
+      "sha256": "99077f9883a51421b874292ecc6ab51f62fc4bba9c5918413e7d6024b7e98145",
+      "bytes": 33601
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/CONTRAST_V102/RETURN.json",
+      "sha256": "6de237c082e31562e3d346d3c6d0555ab1410c6f54517517c29c86910b07ce33",
+      "bytes": 2632
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_REMAINING_V87/RETURN.json",
+      "sha256": "e18e445a0cba3c8d3c14b7925fcecc163ac19f00a9adffe6cacdf8ceabf2d6c9",
+      "bytes": 1653
+    },
+    {
+      "path": "projects/chirality-piping/validation/portability_policy.json",
+      "sha256": "287f1f85c0ced4edc2b4783c404de48d5996c8fe6e0891bb30150925b27a63e0",
+      "bytes": 228290
+    }
+  ],
+  "reads": [
+    "Applicable existing role/project/review skill and V87 inherited reviewed publication basis",
+    "V16 four frozen proposals, referenced V15 selection/non-source context, proposed exact policy target bytes and closed-run authority",
+    "Current seven Remaining target preimages and unchanged held scope/lifecycle descriptions",
+    "Existing surface_roles.py, self-check and coord-check semantics; no root tool changes",
+    "V20 source manifest/commit and V102 full-source coverage inheritance; no duplicate full source review absent drift"
+  ],
+  "review_points": [
+    "Check selection composes exact145 maintained paths with proportionate canonical evidence references, defers raw bulk through owned archive maps, preserves original handoff/failed evidence and uses no untracked runtime data as a maintained build dependency.",
+    "Check proposed exact historical-role and control-path exceptions against actual classifier, bytes, scope and authority. Never reclassify an explicit control as evidence. Completed immutable host control may use explicit SHA-bound CONTROL exception; current mutable controls must be anchored for portability. Identify unresolved cases now.",
+    "Check Remaining wording for truthful functional/performance/native attribution, current/held boundaries, no lifecycle/dependency promotion, D69UNRULED/no performance pass, and no unsupported prerequisite such as separately held independent usability/security.",
+    "Identify concrete issues before final closeout; inherit only exact V87 reviewed metadata. Distinguish current reviewable proposal from not-yet-created final source/artifact acceptance. Do not treat pending expected outputs as passes."
+  ],
+  "writes": [
+    "RUN/instances/FINAL_REVIEW/PUBLICATION_V105 only, initially revisable preparation notes and exact input bindings; final sealed verdict only when Root supplies actual complete selected candidate"
+  ],
+  "exclusions": [
+    "No source/test/Git/policy/Remaining mutation, builds/tests/browser/native/server/large archive operations or delegation",
+    "No read of evolving V104 raw outputs; source remains frozen and owned runtime exclusive",
+    "No final publication/merge/acceptance verdict or owner D69 ruling inferred from preparation"
+  ],
+  "return": "Prompt findings with precise artifact/trigger/impact and bounded recommendation; otherwise source/proposal preparation complete, final actual-candidate bindings pending. Root owns integration and final fan-in."
+}

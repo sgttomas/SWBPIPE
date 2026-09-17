@@ -1,0 +1,84 @@
+{
+  "status": "BOUNDED_ACTUAL_CANDIDATE_REVIEW_PASS_FINAL_TAIL_REQUIRED",
+  "at_utc": "2026-09-17T14:30:33.951350+00:00",
+  "parent": "/root HELP_HUMAN",
+  "executor": "/root/ui_fresh_integrated_review",
+  "role": "TASK Type2 software-code-review",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "delegation": false,
+  "enforcement": "delegated-harness-native; instruction/config asserted",
+  "derivative_package": true,
+  "candidate_commit": "ec39c8485ad285f87eed1d63181303b467eba0f5",
+  "base_commit": "28ad73cc3f936872f8de1d5116c617db1290331b",
+  "source_commit": "b6a1ab8378481adbb46d65847cb7eaf9a2864461",
+  "brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/PUBLICATION_REVIEW_PREPARATION_V105.json",
+    "sha256": "e20ca4d1319b3b8fd0f31ccb1c5ed14b3665a512bf303e1d9c17a5e992521453",
+    "bytes": 5428
+  },
+  "governing_selection_consumption": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/PUBLICATION_SELECTION_ACCEPTANCE.json",
+    "sha256": "1c326ffa85730ac6392bd2eb89387d9fc4f10903a095829d7307fd24486ca824",
+    "bytes": 6164
+  },
+  "functional_acceptance": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json",
+    "sha256": "1ff013da86e97e0662824d18526cab7a902a9afdfb559e3d1b2ce55d7f721450",
+    "bytes": 11581
+  },
+  "coverage": {
+    "actual_git_diff_paths": 567,
+    "source_exact_inherited": 145,
+    "selected_paths": 552,
+    "extra_preserved_history": 13,
+    "publication_additions": 3,
+    "remaining_full_deltas": 7,
+    "existing_policy_entries_preserved": 288,
+    "new_policy_entries": 17,
+    "final_policy_entries": 305,
+    "deferred_controls_absent": 5,
+    "direct_candidate_hash_and_blob_checks": 471,
+    "authority_only_raw_archive_metadata_rows": 83,
+    "entry_exit_drift": 0
+  },
+  "findings": [],
+  "nonblocking_notes": [
+    {
+      "priority": 3,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_HANDOFF.json",
+      "line": 13,
+      "text": "source.product retains a stale sentence saying V104 qualification is running; verification.registered_sweep and governing acceptance correctly state PASS. Root acknowledged exact correction in the final control tail.",
+      "blocking": false
+    }
+  ],
+  "local_checks": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/RESULT.json",
+    "sha256": "34027cb70396ccbd99e4592756aa3f2523f2c70b0bddf62044dc8a81ab3f00fb",
+    "bytes": 6938
+  },
+  "required_final_tail_backcheck": [
+    "Receipt142 exact diff and source/result attribution; no invented hosted checks or owner ruling.",
+    "New review/check files and final control changes, including stale sentence correction, with no unauthorized source/Remaining/policy drift.",
+    "Any new policy exception exact subject/role/authority/availability; review records should use repository-relative current bindings.",
+    "Updated receipt/portability/conflict and applicable final-range checks on actual final commit, and actual PR/required CI separately."
+  ],
+  "boundaries": "No tests/runtime/build/native/CAS replay, delegation or product/Git/policy writes. Exact inherited source and metadata coverage retained. Root authority accepted archive/raw verification; no independent bulk replay claimed. Performance/D69/merge and full-plan closure remain open.",
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/REVIEW.md",
+      "sha256": "cb2d8b91db8edbdd1cad080b4f5c90ee9fbf198493afed9e23dd700a232d5567",
+      "bytes": 3917
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/COVERAGE.json",
+      "sha256": "2e2f72aa1d9c8141419e32e110cab51d14c62d224c3370521f10b28bbbbcc3b6",
+      "bytes": 287156
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/INPUT_BINDINGS.json",
+      "sha256": "084612f31ad1915c2a5b10e50a70bd7e5f42699a45e61760588dd602e261f4c6",
+      "bytes": 161867
+    }
+  ]
+}

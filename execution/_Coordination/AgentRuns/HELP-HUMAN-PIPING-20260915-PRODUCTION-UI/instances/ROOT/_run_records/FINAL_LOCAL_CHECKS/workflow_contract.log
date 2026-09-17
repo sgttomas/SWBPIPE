@@ -1,0 +1,366 @@
+{
+  "checked_workflow_count": 72,
+  "invalid_workflow_count": 0,
+  "results": [
+    {
+      "workflow": "aggregation",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "audit-agents",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "audit-decomp",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "audit-dep-closure",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "audit-epistemic",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "audit-governance",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "audit-hypergraph-closure",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "audit-scope-closure",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "change",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "content-digest",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "create-workflow",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "dbm-concordance-seed",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "dbm-concordance-verify",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "dbm-draft-review",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "dbm-postauthor-concordance",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "dbm-publish",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "dbm-publisher",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "dbm-section-publish",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "decomposition-package-review",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "deliverable-consistency",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "dependency-extract",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "domain-decomp",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "domain-documents",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "domain-engine",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "domain-hypergraph",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "domain-prose-validate",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "domain-source-atomize",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "drawing-extract",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "drawing-extract-page",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "drawing-titleblock-page",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "equation-audit",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "equation-bbox-detect",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "equation-flag-interpret",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "equipment-costing-extract",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "equipment-extract",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "estimate-prep",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "estimate-snapshot",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "evaluation-protocol",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "evaluation-report",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "four-documents",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "kty-content-remediate",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "kty-metadata-align",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "lens-register",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "pandid-valve-symbol-instance",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "pandid-valve-tile",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "pdf2md",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "pdf2md-folio-extract",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "pdf2md-orchestration",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "pdf2md-page",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "pdf2md-page-assets",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "pdf2md-page-full",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "preparation",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "project-decomp",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "project-setup",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "proposal-format",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "reconciliation",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "research-orchestration",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "researcher",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "review",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "scc-resolution-case",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "scope-change",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "scope-change-packet",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "scope-of-work",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "semantic-lensing",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "semantic-matrix-build",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "software-bounded-implementation",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "software-code-review",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "software-decomp",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "software-defect-diagnosis",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "software-repository-reconnaissance",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "software-test-planning",
+      "valid": true,
+      "issues": []
+    },
+    {
+      "workflow": "task-management",
+      "valid": true,
+      "issues": []
+    }
+  ]
+}

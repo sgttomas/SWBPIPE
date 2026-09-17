@@ -529,10 +529,10 @@
     "sha256": "ecf12d586c6e6dbe8ad50066949357ed29d4ab96edb6641d463d656eb00e7ae7",
     "status": "former_exception_closed_native_released"
   },
-  "current_frontier": "Bounded functional technical acceptance and V31 preservation complete. V17 seven Remaining targets and16 exact policy additions applied; Root consumes its frozen552-path selection as history. Final V105 actual-candidate review and clean-checkout publication checks next. D69 UNRULED; merge held.",
+  "current_frontier": "Functional source, native, V31 archive, complete V105 ec39 candidate review and clean ec39 local governance checks are accepted. Receipt142/final control-review-check tail backcheck next; no product/source changes. D69 UNRULED; merge held.",
   "active_dependency_path": [
-    "V105 actual-candidate review and clean selected-checkout practitioner/self-check/receipt/full-range guards",
-    "Scoped PR and required actual-candidate CI",
+    "Narrow V105 final-tail backcheck and affected final clean-checkout checks",
+    "Scoped PR and required actual-head CI",
     "D69 owner ruling or original performance acceptance before merge"
   ],
   "historical_node_interpretation": "Earlier node statuses describe original attribution, not active workers or fresh acceptance. Current frontier/runtime lease and active_dependency_path govern remaining sequencing. Historical failures stay preserved.",
@@ -637,11 +637,16 @@
       "owner": "/root/ui_fresh_integrated_review",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "status": "V105_FINAL_ACCEPTANCE_CALIBRATION_ACTIVE_EXACT_CANDIDATE_PENDING",
+      "status": "V105_EC39_PASS_FINAL_TAIL_BACKCHECK_PENDING",
       "brief": {
         "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/PUBLICATION_REVIEW_PREPARATION_V105.json",
         "sha256": "e20ca4d1319b3b8fd0f31ccb1c5ed14b3665a512bf303e1d9c17a5e992521453",
         "bytes": 5428
+      },
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/RETURN.json",
+        "sha256": "0042873232f8df8b1032acb8e82a73b012a7bb81eba09b8abdaf2140060d6414",
+        "bytes": 4570
       }
     }
   ],
@@ -803,6 +808,22 @@
       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/ARCHIVE_V31_ACCEPTANCE.json",
       "sha256": "774ab4bc934076be918e8416f6bd5b485b656ec41bf558f7244bc20c2842e80c",
       "bytes": 1456
+    }
+  },
+  "publication_review": {
+    "status": "EC39_REVIEW_PASS_FINAL_TAIL_PENDING",
+    "return": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/RETURN.json",
+      "sha256": "0042873232f8df8b1032acb8e82a73b012a7bb81eba09b8abdaf2140060d6414",
+      "bytes": 4570
+    }
+  },
+  "local_checks": {
+    "status": "EC39_PASS_FINAL_TAIL_CHECKS_PENDING",
+    "result": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/RESULT.json",
+      "sha256": "34027cb70396ccbd99e4592756aa3f2523f2c70b0bddf62044dc8a81ab3f00fb",
+      "bytes": 6938
     }
   }
 }
