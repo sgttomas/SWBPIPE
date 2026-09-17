@@ -1,0 +1,42 @@
+{
+  "status": "PASS_NO_ACTIONABLE_FINDINGS",
+  "at_utc": "2026-09-17T14:35:51.501771+00:00",
+  "parent": "/root HELP_HUMAN",
+  "executor": "/root/ui_fresh_integrated_review",
+  "role": "TASK Type2 software-code-review",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "delegation": false,
+  "enforcement": "delegated-harness-native; instruction/config asserted",
+  "derivative_package": true,
+  "candidate_commit": "bd32f3c15d530832bedda153f86d0f7dedb0d0ab",
+  "parent_commit": "ec39c8485ad285f87eed1d63181303b467eba0f5",
+  "base_commit": "28ad73cc3f936872f8de1d5116c617db1290331b",
+  "accepted_upstream_review": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/RETURN.json",
+    "sha256": "0042873232f8df8b1032acb8e82a73b012a7bb81eba09b8abdaf2140060d6414",
+    "bytes": 4570
+  },
+  "coverage": "Complete22-file final tail;567-path V105 inherited review;586 unique changed paths cumulative.145 source paths unchanged. No product/source/Remaining/policy changes.",
+  "verdict": "Receipt142, control updates and sealed review/check evidence preserve exact attribution. Prior stale V104 sentence resolved. No actionable finding; original reports preserved.",
+  "findings": [],
+  "entry_exit_drift": 0,
+  "remaining_gates": [
+    "Actual affected clean-checkout tail checks; not yet supplied as a sealed result to this review.",
+    "Scoped PR and required actual-head hosted CI.",
+    "Owner D69 ruling or original performance acceptance before merge."
+  ],
+  "limits": "This source/metadata review does not execute or predict checks, adopt D69, accept full-plan/performance closure or approve merge. No tests/runtime/CAS replay/delegation/Git or product writes. Only own final-review evidence authored.",
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105_FINAL_TAIL/INPUT_BINDINGS.json",
+      "sha256": "875dc213beae2f34023ed8f679441a965db35e7577e5ea1537e56e99711b23e4",
+      "bytes": 11645
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105_FINAL_TAIL/COVERAGE.json",
+      "sha256": "054773cc587a34aea9bfbab9a2dad4650b03fe895c1899af82c122d25e67d0b3",
+      "bytes": 2334
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "tail_paths": 22,
+  "inherited_reviewed_diff_paths": 567,
+  "cumulative_unique_diff_paths": 586,
+  "source_paths_inherited_exact": 145,
+  "review_method": "Full actual parent-to-head receipt/control diff read; all22 final bytes equal committed blobs and remain exact at exit. Prior V105 coverage inherited; all four prior manifest members, manifest itself, brief and eleven canonical logs match their sealed identities.",
+  "receipt": {
+    "id": "Receipt-142",
+    "parent": "Receipt-141",
+    "appended_bytes": 1975,
+    "prior_history": "Preserved exactly",
+    "attribution": "Source b6a1, reviewed ec39 metadata and ec39 local checks; final-tail checks/hosted CI explicitly pending; bounded functional technical acceptance only."
+  },
+  "controls": {
+    "stale_V104_sentence": "RESOLVED; completed registered qualification correctly recorded",
+    "new_claims": "Only sealed V105/ec39 review and ec39 checks; no future check pass",
+    "holds": "D69 unruled, performance open, merge held, formal lifecycle/dependency/release unchanged",
+    "machine_paths": "No new machine-local paths in current controls, new review records or brief"
+  },
+  "check_evidence": {
+    "result": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/RESULT.json",
+      "sha256": "34027cb70396ccbd99e4592756aa3f2523f2c70b0bddf62044dc8a81ab3f00fb",
+      "bytes": 6938
+    },
+    "canonical_logs": 11,
+    "scope": "Original clean ec39 commands and Receipt141 corpus; original hashes preserved, no final-tail or hosted result imputed",
+    "log_role": "Canonical historical text logs bound by structural RESULT evidence; machine-path lines retain original execution identity. .log files are not current runtime controls; no portability rule or policy changed."
+  },
+  "unchanged": [
+    "All145 product/test/config source paths",
+    "Seven deliverable Remaining postimages",
+    "305-entry portability policy",
+    "Accepted original failed evidence and preserved selection history"
+  ],
+  "findings": [],
+  "remaining": "Root affected bd32 tail checks and required actual-head hosted CI remain independent gates. No D69 ruling or merge authorization supplied. Review-owned final evidence does not require recursive self-review."
+}

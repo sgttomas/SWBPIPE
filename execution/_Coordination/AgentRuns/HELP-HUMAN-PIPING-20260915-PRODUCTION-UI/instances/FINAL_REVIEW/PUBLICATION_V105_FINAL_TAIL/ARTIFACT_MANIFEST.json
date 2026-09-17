@@ -1,0 +1,22 @@
+{
+  "schema": "review-artifact-manifest/v1",
+  "status": "SEALED",
+  "candidate_commit": "bd32f3c15d530832bedda153f86d0f7dedb0d0ab",
+  "members": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105_FINAL_TAIL/INPUT_BINDINGS.json",
+      "sha256": "875dc213beae2f34023ed8f679441a965db35e7577e5ea1537e56e99711b23e4",
+      "bytes": 11645
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105_FINAL_TAIL/COVERAGE.json",
+      "sha256": "054773cc587a34aea9bfbab9a2dad4650b03fe895c1899af82c122d25e67d0b3",
+      "bytes": 2334
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105_FINAL_TAIL/RETURN.json",
+      "sha256": "3b29fe8293e95837a4673aafa1c952c1dedb4859ada90fccda209f13f37ee88b",
+      "bytes": 2440
+    }
+  ]
+}

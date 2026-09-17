@@ -1,0 +1,208 @@
+{
+  "head": "bd32f3c15d530832bedda153f86d0f7dedb0d0ab",
+  "parent": "ec39c8485ad285f87eed1d63181303b467eba0f5",
+  "base": "28ad73cc3f936872f8de1d5116c617db1290331b",
+  "full_tail_patch_sha256": "4754f5d53578bde0cece555217b7d4b8e736ad118beadae181f4f5bfcb36a90f",
+  "tail_patch_bytes": 655159,
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/WORK_GRAPH.json",
+      "sha256": "208c9be3f83757e5ca04a81b68668f5138d335f826b8bf596d95d437b79314ae",
+      "bytes": 39618,
+      "git_status": "M",
+      "git_blob": "cd47c0937db28c2db0a57ed2a308d096f2c43c9c",
+      "coverage": "Complete new receipt/control delta read"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/briefs/PUBLICATION_REVIEW_PREPARATION_V105.json",
+      "sha256": "e20ca4d1319b3b8fd0f31ccb1c5ed14b3665a512bf303e1d9c17a5e992521453",
+      "bytes": 5428,
+      "git_status": "A",
+      "git_blob": "e36d33d3e8ae359741a8cc7cf51773e0640017aa",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/ARTIFACT_MANIFEST.json",
+      "sha256": "2bdbb0aa381a66776e5d8441d9341b69e74e9e5fa50c8f7a3b1f954a7ec26ff6",
+      "bytes": 1481,
+      "git_status": "A",
+      "git_blob": "97f0bd1cc340037f4d625769418262d8a39d3789",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/COVERAGE.json",
+      "sha256": "2e2f72aa1d9c8141419e32e110cab51d14c62d224c3370521f10b28bbbbcc3b6",
+      "bytes": 287156,
+      "git_status": "A",
+      "git_blob": "d52a27ab02fdaee5e598177751dae95ed173ed95",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/INPUT_BINDINGS.json",
+      "sha256": "084612f31ad1915c2a5b10e50a70bd7e5f42699a45e61760588dd602e261f4c6",
+      "bytes": 161867,
+      "git_status": "A",
+      "git_blob": "eb9d36cba9702f2a9ecc8fb3dc081be3de69abcf",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/RETURN.json",
+      "sha256": "0042873232f8df8b1032acb8e82a73b012a7bb81eba09b8abdaf2140060d6414",
+      "bytes": 4570,
+      "git_status": "A",
+      "git_blob": "9c8863058ed9fe7152a560f6c751f0be7e6af733",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/REVIEW.md",
+      "sha256": "cb2d8b91db8edbdd1cad080b4f5c90ee9fbf198493afed9e23dd700a232d5567",
+      "bytes": 3917,
+      "git_status": "A",
+      "git_blob": "a0ce504cd52f6c2e462a4c94b846f376b972533a",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/ACCEPTANCE_MAP.md",
+      "sha256": "b74597d7c5704709bc175c6599894e4e088cbdf4bc206e5116a7391e3ddae45d",
+      "bytes": 9455,
+      "git_status": "M",
+      "git_blob": "26837ab52cf9279a077163dab794ca6214beb74c",
+      "coverage": "Complete new receipt/control delta read"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_HANDOFF.json",
+      "sha256": "338e0a8d4665b105a78d9b9589cbf3cf83ad2987d17b446b934016f9263201dd",
+      "bytes": 11685,
+      "git_status": "M",
+      "git_blob": "cb7334eb154f27044527b265106ccab462552060",
+      "coverage": "Complete new receipt/control delta read"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/G0.log",
+      "sha256": "19878a424b48ca671d3e758269df15cb764f6158b2626ff8670d80c93cd9b11c",
+      "bytes": 100,
+      "git_status": "A",
+      "git_blob": "64a96b252306375b943c7dd48ef348817ee33856",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/G1.log",
+      "sha256": "a446575a34e6896cb92123eab0cfd5c4e0180db7ff62699e5db07b438fe9be37",
+      "bytes": 92,
+      "git_status": "A",
+      "git_blob": "8226d99c5e314a94b37775c0afe63143881a1846",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/G2.log",
+      "sha256": "8a2425c5d13c122eb51b2482911778315724f5d3854922916c43f49cc6247618",
+      "bytes": 65,
+      "git_status": "A",
+      "git_blob": "214764a8f8b94095c27a8b3a28a69872077dd1d2",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/G3.log",
+      "sha256": "02ef198ca71b3d832101ae4e4fd358f9e4c65732da5f0bc0d77b8f2bdd7ab0b6",
+      "bytes": 188,
+      "git_status": "A",
+      "git_blob": "99562c0288e968ac7e74ca8ed3a7ab48c34e132e",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/G4.log",
+      "sha256": "5058d181f072bd1ced4de649028005031edc295b987f908b13dbd4e35c9d1a54",
+      "bytes": 10000,
+      "git_status": "A",
+      "git_blob": "8a15ffb28708b09256e5beb57fa3285e37a744e1",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/RESULT.json",
+      "sha256": "34027cb70396ccbd99e4592756aa3f2523f2c70b0bddf62044dc8a81ab3f00fb",
+      "bytes": 6938,
+      "git_status": "A",
+      "git_blob": "8441f5412a4c0b5e12ddce1f0901b757c773ac7d",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/agent_contract.log",
+      "sha256": "74e955ec260140f91d03643f678c994fcd26c7d5bb29008e0b04fbcda71456a6",
+      "bytes": 75,
+      "git_status": "A",
+      "git_blob": "981a165efc650e0fd1ca9fe1c24cb843f5c0614c",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/conflict_markers.log",
+      "sha256": "77e86fa18dd10ff92a9b2ba59fe74a0ae6d5a364749064e44aa2301c274b6df8",
+      "bytes": 44,
+      "git_status": "A",
+      "git_blob": "e3dc6743d805571562c71f5e4a93da7c72617bc9",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/receipt.log",
+      "sha256": "ea0245fce518584bf09f7eac2de87861a082f7dad9cf45afda30d6de8731397f",
+      "bytes": 198,
+      "git_status": "A",
+      "git_blob": "20842fc562b501755f83cb8ebc62252c8d50ed36",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/routed_tools_tests.log",
+      "sha256": "1471b4e47abd0c05679da0b2c7bbfc2a2c941b339e219b32cbfc768873d7b928",
+      "bytes": 84379,
+      "git_status": "A",
+      "git_blob": "7c01ecab9536935d9b3c0d5d11444913fd30a7ea",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/self_check.log",
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+      "bytes": 41362,
+      "git_status": "A",
+      "git_blob": "6c69bfbd20a942de6a8e682d7f8153d1f6facc5c",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/workflow_contract.log",
+      "sha256": "275b16c8086cd5aca35563635a124b38fa1e750929bc45b140dbfa9b083d52b4",
+      "bytes": 6735,
+      "git_status": "A",
+      "git_blob": "92a352c129f8030adb78536135fba06b516c5ba0",
+      "coverage": "Exact unchanged sealed V105 brief/review or canonical completed check evidence"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "sha256": "ef9732c933c179d89b039e10e9a9fa29e2d87cffa706728e8af096f417558aa7",
+      "bytes": 267579,
+      "git_status": "M",
+      "git_blob": "bd33b238a6b4bf34711f162bf766151dd8e3e4b7",
+      "coverage": "Complete new receipt/control delta read"
+    }
+  ],
+  "accepted_upstream": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/RETURN.json",
+      "sha256": "0042873232f8df8b1032acb8e82a73b012a7bb81eba09b8abdaf2140060d6414",
+      "bytes": 4570
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
+      "sha256": "99077f9883a51421b874292ecc6ab51f62fc4bba9c5918413e7d6024b7e98145",
+      "bytes": 33601
+    },
+    {
+      "path": "projects/chirality-piping/validation/portability_policy.json",
+      "sha256": "2864b8591621b8732ad5e79dfa9e22f751fb661040530ed5ed40aba31ae4a042",
+      "bytes": 240861
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/RESULT.json",
+      "sha256": "34027cb70396ccbd99e4592756aa3f2523f2c70b0bddf62044dc8a81ab3f00fb",
+      "bytes": 6938
+    }
+  ],
+  "entry_exit_drift": []
+}

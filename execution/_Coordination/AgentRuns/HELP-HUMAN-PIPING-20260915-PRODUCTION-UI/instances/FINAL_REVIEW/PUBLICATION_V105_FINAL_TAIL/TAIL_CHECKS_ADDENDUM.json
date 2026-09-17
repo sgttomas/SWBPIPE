@@ -1,0 +1,49 @@
+{
+  "status": "PASS_NO_ACTIONABLE_FINDINGS_TAIL_CHECKS_BOUND",
+  "at_utc": "2026-09-17T14:36:25.947330+00:00",
+  "candidate_commit": "bd32f3c15d530832bedda153f86d0f7dedb0d0ab",
+  "preserved_review": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105_FINAL_TAIL/RETURN.json",
+    "sha256": "3b29fe8293e95837a4673aafa1c952c1dedb4859ada90fccda209f13f37ee88b",
+    "bytes": 2440
+  },
+  "preserved_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105_FINAL_TAIL/ARTIFACT_MANIFEST.json",
+    "sha256": "66c17891081b332e7cd3adc2ec693206a6131044200b4fafc6118ae00c290839",
+    "bytes": 1058
+  },
+  "addendum": "Sealed Root result arrived immediately after the original review was sealed. Preserve all original evidence; this addendum closes only its outstanding affected-tail-check item. No source/control/policy mutation or additional execution.",
+  "accepted_result": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_TAIL_CHECKS/RESULT.json",
+    "sha256": "8ee4714d22dd33e89bf98a4d50f8847f0799558a2787155f3797cdfc8f09868b",
+    "bytes": 3299
+  },
+  "logs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_TAIL_CHECKS/self_check.log",
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+      "bytes": 41362
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_TAIL_CHECKS/receipt142.log",
+      "sha256": "ea0245fce518584bf09f7eac2de87861a082f7dad9cf45afda30d6de8731397f",
+      "bytes": 198
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_TAIL_CHECKS/conflict_markers.log",
+      "sha256": "77e86fa18dd10ff92a9b2ba59fe74a0ae6d5a364749064e44aa2301c274b6df8",
+      "bytes": 44
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_TAIL_CHECKS/G4.log",
+      "sha256": "7e6216de3740686193679dc97604411a95d864629899ae21378ecd40069eef90",
+      "bytes": 10000
+    }
+  ],
+  "assessment": "All four commands exited zero; their four logs independently rehashed exact. Result binds clean bd32 before/after, unchanged apps/core source, policy305 with zero issues. Receipt142 validation, self-check, complete-range conflict and G4 results remain actual bd32 execution attribution. Historical ec39 checks retain their own identity.",
+  "remaining": [
+    "Scoped PR and required actual-head hosted CI.",
+    "D69 owner ruling or original performance acceptance before merge."
+  ],
+  "scope": "Final result and review-owned evidence are terminal records; no recursive self-review required. No additional product or current-control changes covered."
+}
