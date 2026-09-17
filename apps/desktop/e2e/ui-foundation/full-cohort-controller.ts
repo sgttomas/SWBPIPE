@@ -394,10 +394,87 @@ export async function performanceExpectation(fixture: LoadedFixture, binding: Ca
     oracleSha256: fixture.pointOracleSha256, methodSha256: methodSha!, samplesSha256: digest(await readFile(fixture.samplesPath)) } };
 }
 
+export const POST_STOP_COLLECTION_MS = 250;
+export function candidateDiagnosticMode(value: string | undefined, focused = false, assignmentOnly?: boolean) {
+  if (value !== undefined && (value !== "assignment-collection" || focused)) throw new Error("unknown or conflicting candidate diagnostic mode");
+  const mode=value === undefined ? focused ? "focused" : "full" : "assignment-collection";
+  if(assignmentOnly!==undefined && assignmentOnly!==(mode==="assignment-collection"))throw new Error("diagnostic flag/options conflict");
+  return mode;
+}
+// Host-only tail: stopped evidence has already been persisted. Finalization runs
+// exactly once even if waiting fails; its error cannot erase the original error.
+export async function finalizeStoppedCollection(kind: string, stoppedSha256: string,
+  finalize: () => Promise<void>, wait: (ms: number) => Promise<unknown> = delay) {
+  const budgetMs = ["assignment", "point-selection", "box-selection"].includes(kind) && /^[a-f0-9]{64}$/.test(stoppedSha256) ? POST_STOP_COLLECTION_MS : 0;
+  const errors: { phase: string; error: string }[] = [];
+  const startedAtHostMs = nodePerformance.now();
+  try { if (budgetMs) await wait(budgetMs); }
+  catch (error) { errors.push({ phase: "collection-tail", error: String(error) }); }
+  finally { try { await finalize(); } catch (error) { errors.push({ phase: "trace-finalize", error: String(error) }); } }
+  return { policy: "fixed-post-stop-host-collection/v1", kind, stoppedSha256, budgetMs,
+    startedAtHostMs, finalizedAtHostMs: nodePerformance.now(), timingMeaning: "collection bookkeeping only; never a metric endpoint", errors };
+}
+// Shared by the real action wrapper and pure controls. The stop promise records
+// the first attempt before either snapshot acquisition or persistence can fail.
+export async function runStoppedActionLifecycle(kind: string, operations: {
+  begin: () => Promise<void>;
+  work: (stop: () => Promise<{ evidence: any; stoppedSha256: string }>) => Promise<any>;
+  stop: () => Promise<any>;
+  persist: (evidence: any) => Promise<string>;
+  finalize: () => Promise<void>;
+  wait?: (ms: number) => Promise<unknown>;
+}) {
+  const errors: { phase: string; error: string }[] = [];
+  let began=false, stopped:any=null, stoppedSha256="", auxiliary:any=null;
+  let stopAttempt: Promise<{ evidence:any; stoppedSha256:string }> | undefined;
+  const stopOnce = () => {
+    if (!stopAttempt) stopAttempt=(async()=>{
+      try { stopped=await operations.stop(); }
+      catch(error){errors.push({phase:"stop",error:String(error)});throw error;}
+      try { stoppedSha256=await operations.persist(stopped); }
+      catch(error){errors.push({phase:"stop-persist",error:String(error)});throw error;}
+      return {evidence:stopped,stoppedSha256};
+    })();
+    return stopAttempt;
+  };
+  let collection: Awaited<ReturnType<typeof finalizeStoppedCollection>> | null=null;
+  try { await operations.begin();began=true;auxiliary=await operations.work(stopOnce); }
+  catch(error){errors.push({phase:"work",error:String(error)});}
+  finally {
+    if(began) {try {await (stopAttempt ?? stopOnce());}catch{/* Original stop/persist error is retained above. */}}
+    if(began) {
+      collection=await finalizeStoppedCollection(kind,stoppedSha256,operations.finalize,operations.wait);
+      errors.push(...collection.errors);
+    }
+  }
+  return {stopped,stoppedSha256,auxiliary,collection,errors};
+}
+
+export function assignmentDiagnosticResult(expected: RunExpectation, assignment: any, errors: readonly unknown[], segmentCount: number) {
+  const i=assignment?.durationIntervalMs;
+  const pass=Array.isArray(errors) && errors.length===0 && segmentCount===1 && assignment?.qualification==="PASS_QUALIFIED_CAUSAL_EVIDENCE" &&
+    Number.isFinite(i?.lower) && Number.isFinite(i?.upper) && i.lower>=0 && i.upper>=i.lower && i.upper<=2000;
+  return { status: pass ? "PASS_ASSIGNMENT_COLLECTION_DIAGNOSTIC" : "FAIL_ASSIGNMENT_COLLECTION_DIAGNOSTIC",
+    scope: "ASSIGNMENT_ONLY_INCOMPLETE_WORKLOAD", cohortContribution: 0, expected, assignment, errors, segmentCount, targetUpperMs: 2000 };
+}
+export function assignmentDiagnosticSummary(results: readonly any[], expected: readonly RunExpectation[]) {
+  const planned=expected.length===10 && new Set(expected.map(e=>e.sessionId)).size===10 &&
+    [1000,10000].every(n=>[1,2,3,4,5].every(r=>expected.filter(e=>e.fixtureSize===n&&e.runNumber===r).length===1));
+  const pass=planned && results.length===10 && expected.every(e=>{
+    const matches=results.filter(r=>JSON.stringify(r.expected)===JSON.stringify(e));
+    return matches.length===1 && matches[0].scope==="ASSIGNMENT_ONLY_INCOMPLETE_WORKLOAD" && matches[0].cohortContribution===0 &&
+      matches[0].status==="PASS_ASSIGNMENT_COLLECTION_DIAGNOSTIC" &&
+      assignmentDiagnosticResult(e,matches[0].assignment,matches[0].errors,matches[0].segmentCount).status==="PASS_ASSIGNMENT_COLLECTION_DIAGNOSTIC";
+  });
+  return { status: pass ? "PASS_TEN_ASSIGNMENT_COLLECTION_DIAGNOSTICS" : "FAIL_ASSIGNMENT_COLLECTION_DIAGNOSTICS",
+    scope: "ASSIGNMENT_ONLY_INCOMPLETE_WORKLOAD", cohortContribution: 0, plannedSessions: 10, completedSessions: results.length };
+}
+
 type Segment = { token: string; kind: string; directory: string; stoppedPath: string; stoppedSha256: string;
   extraction: any; auxiliary: any; window: { start: number; end: number } };
 export async function runCandidateCausalPerformance(page: Page, fixture: LoadedFixture, expected: RunExpectation,
-  directory: string, options: { focused?: boolean; timeoutMs: number; binding: CandidateDriverBinding }) {
+  directory: string, options: { focused?: boolean; assignmentOnly?: boolean; timeoutMs: number; binding: CandidateDriverBinding }) {
+  candidateDiagnosticMode(process.env.UI_FOUNDATION_DIAGNOSTIC_MODE, options.focused, options.assignmentOnly === true);
   await mkdir(directory, { recursive: true });
   const actualViewport = await page.evaluate(() => ({ width: innerWidth, height: innerHeight, deviceScaleFactor: devicePixelRatio }));
   await immutable(path.join(directory, "initialized.json"), { expected, actualViewport,
@@ -405,83 +482,72 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
       supportFilesRead: fixture.supportFilesReadMs, supportFilesParse: fixture.supportFilesParseMs,
       meaning: "Host preparation outside original product assignment interval; no subtraction" },
     recipe: FULL_COHORT_RECIPE, focused: options.focused === true,
-    qualificationScope: options.focused ? "METHOD_ONLY_ZERO_COHORT_SAMPLES" : "PRESCRIBED_INSTRUMENTED_COHORT_RUN" });
+    qualificationScope: options.assignmentOnly ? "ASSIGNMENT_ONLY_INCOMPLETE_WORKLOAD_ZERO_COHORT" : options.focused ? "METHOD_ONLY_ZERO_COHORT_SAMPLES" : "PRESCRIBED_INSTRUMENTED_COHORT_RUN" });
   if (actualViewport.width !== 1440 || actualViewport.height !== 920 || actualViewport.deviceScaleFactor !== 2) throw new Error("prescribed viewport/DPR binding mismatch");
   const initialStorage = await page.context().storageState();
   if (initialStorage.cookies.length || initialStorage.origins.length || page.context().pages().length !== 1 || page.url() !== "about:blank") throw new Error("fresh Playwright application context required");
   const segments: Segment[] = [];
   const errors: { phase: string; error: string }[] = [];
-  let restore: any = null, currentToken: string | null = null;
+  let restore: any = null;
   const timeout = options.timeoutMs;
-  const action = async (kind: string, sample: number, work: (token: string, dir: string) => Promise<any>) => {
+  const action = async (kind: string, sample: number, work: (token: string, dir: string, stopAction: () => Promise<{evidence:any;stoppedSha256:string}>) => Promise<any>) => {
     const token = `${expected.runId}.${kind}.${sample}`;
     const dir = path.join(directory, `${kind}-${String(sample).padStart(3, "0")}`);
     await mkdir(dir);
     await immutable(path.join(dir, "prepared.json"), { token, kind, sample, expected, recipe: FULL_COHORT_RECIPE });
-    let capture: ChromiumTraceCapture | null = null, trace: any = null, stopped: any = null, auxiliary: any = null;
-    let stoppedSha256 = "";
-    try {
-      // Before reset/setup, so original Send may precede the measured action.
-      capture = await beginChromiumCompositorTrace(page, token, path.join(dir, "trace-events.raw.json"), "discrete-segment");
-      currentToken = token;
-      auxiliary = await work(token, dir);
-      stopped = auxiliary.evidence;
-      stoppedSha256 = auxiliary.stoppedSha256;
-    } catch (error) { errors.push({ phase: token, error: String(error) }); }
-    finally {
-      if (!stopped && currentToken) {
-        try {
-          const persisted = await readFile(path.join(dir, "action-stopped.json"));
-          stopped = JSON.parse(persisted.toString()); stoppedSha256 = digest(persisted);
-        } catch { /* If the action did not persist yet, attempt the bounded stop below. */ }
+    const traceState: {capture: ChromiumTraceCapture | null} = {capture:null};
+    let trace: any = null, stopped: any = null, auxiliary: any = null;
+    const lifecycle = await runStoppedActionLifecycle(kind, {
+      begin: async () => {
+        // Before reset/setup, so original Send may precede the measured action.
+        traceState.capture = await beginChromiumCompositorTrace(page, token, path.join(dir, "trace-events.raw.json"), "discrete-segment");
+      },
+      work: stopAction => work(token, dir, stopAction),
+      stop: () => stopCausalFeedbackMarker(page, token),
+      persist: evidence => immutable(path.join(dir, "action-stopped.json"), evidence),
+      finalize: async () => {
+        trace = await endChromiumCompositorTrace(page, traceState.capture!);
+        await immutable(path.join(dir, "trace-finalized.json"), trace);
       }
-      if (!stopped && currentToken) {
-        try {
-          stopped = await stopCausalFeedbackMarker(page, currentToken);
-          stoppedSha256 = await immutable(path.join(dir, "action-stopped.json"), stopped);
-        } catch (error) { errors.push({ phase: `${token}:stop`, error: String(error) }); }
-      }
-      currentToken = null;
-      if (capture) {
-        try { trace = await endChromiumCompositorTrace(page, capture); await immutable(path.join(dir, "trace-finalized.json"), trace); }
-        catch (error) { errors.push({ phase: `${token}:trace-finalize`, error: String(error) }); }
-      }
+    });
+    stopped=lifecycle.stopped;auxiliary=lifecycle.auxiliary;
+    const stoppedSha256=lifecycle.stoppedSha256;
+    errors.push(...lifecycle.errors.map(e=>({phase:`${token}:${e.phase}`,error:e.error})));
+    if(lifecycle.collection) {
+      try { await immutable(path.join(dir,"collection-tail.json"),lifecycle.collection); }
+      catch(error){errors.push({phase:`${token}:collection-persist`,error:String(error)});}
     }
-    if (errors.length || !capture || !stopped || !capture.rawTraceComplete || !capture.rawTraceSha256 ||
+    if (errors.length || !traceState.capture || !stopped || !traceState.capture.rawTraceComplete || !traceState.capture.rawTraceSha256 ||
         trace?.traceDataLossOccurred !== false || trace?.markerValidation?.status !== "PASS_REQUIRED_MARKERS_PRESENT_ONCE_WITH_FINITE_ORDERED_TIMESTAMPS") {
-      await immutable(path.join(dir, "failed.json"), { errors, trace, stoppedAvailable: Boolean(stopped) });
+      await immutable(path.join(dir, "failed.json"), { errors, trace, stoppedAvailable: Boolean(stopped), stopped, stoppedSha256 });
       throw new Error(`segment ${token} failed; canonical earlier evidence retained`);
     }
     try {
     assertStoppedCausalEvidence(stopped, kind as any, true);
     const selected = selectedEpochEvidence(stopped);
-    const extraction = extractCausalPresentations(capture.events, REQUIRED_CHROMIUM_BINDING, selected);
+    const extraction = extractCausalPresentations(traceState.capture.events, REQUIRED_CHROMIUM_BINDING, selected);
     if (extraction.status !== "PASS_ALL_CAUSAL_PRESENTATIONS_EXACT_AND_UNAMBIGUOUS") throw new Error("causal extraction incomplete");
     const window = { start: stopped.active.actionMarker.listenerObservedAt,
       end: Math.max(...stopped.active.feedbackMarkers.map((m: any) => m.callbackCompletedAt)) };
     // Post-window only. A bounded reread supplies metadata omitted by the existing
     // transport result; bytes/temporary parsed metadata are not retained in segment evidence.
-    const orbitDurationBasis = kind === "orbit" ? bindSameTraceDurationBasis({ rawBytes: await readFile(capture.rawTracePath),
-      capture, trace, extraction, stopped }) : undefined;
+    const orbitDurationBasis = kind === "orbit" ? bindSameTraceDurationBasis({ rawBytes: await readFile(traceState.capture.rawTracePath),
+      capture: traceState.capture, trace, extraction, stopped }) : undefined;
     const segment = { token, kind, orbitDurationBasis, directory: dir, stoppedPath: path.join(dir, "action-stopped.json"), stoppedSha256,
       extraction, auxiliary: { ...auxiliary, evidence: undefined }, window };
     await immutable(path.join(dir, "derived.json"), { ...segment, excludedInvalidatedContentMarkers: selected.excludedInvalidatedContentMarkers });
     segments.push(segment);
     const drain = await page.evaluate(({ token, sha }) => (globalThis as any).__uifHarness.causal.acknowledgeStopped(token, sha), { token, sha: stoppedSha256 });
     await immutable(path.join(dir, "drain-acknowledged.json"), drain);
-    capture.events = [];
+    traceState.capture.events = [];
     return segment;
     } catch (error) {
       errors.push({ phase: `${token}:derivation`, error: String(error) });
-      await immutable(path.join(dir, "failed.json"), { errors, stoppedSha256, rawSha256: capture.rawTraceSha256 });
+      await immutable(path.join(dir, "failed.json"), { errors, stoppedSha256, rawSha256: traceState.capture.rawTraceSha256 });
       throw error;
     }
   };
-  const stop = async (token: string, dir: string) => {
-    const evidence = await stopCausalFeedbackMarker(page, token);
-    const stoppedSha256 = await immutable(path.join(dir, "action-stopped.json"), evidence);
-    return { evidence, stoppedSha256 };
-  };
+
   const modelExpectation = (snapshot: any) => ({ projectId: fixture.model.project.id, modelIdentityHash: expectedModelIdentity(fixture.model),
     modelGeneration: snapshot.model.generation, indexGeneration: snapshot.model.indexGeneration,
     projectSessionGeneration: snapshot.model.projectSessionGeneration, priorRenderSubmissionSequence: snapshot.viewport.mainRender.submissionSequence });
@@ -502,11 +568,11 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
         treeExpectation: frozenTreeExpectation(fixture.model, ""), candidateExpectation: {
           projectId: fixture.model.project.id, modelIdentityHash: expectedModelIdentity(fixture.model), priorRenderSubmissionSequence: 0 } } });
     await routeModelFixture(page, fixture);
-    assignment = await action("assignment", 1, async (token, dir) => {
+    assignment = await action("assignment", 1, async (token, dir, stopAction) => {
       const response = await page.goto("/", { waitUntil: "domcontentloaded", timeout });
       assertBoundCandidateDocumentResponse(response);
       await delay(FULL_COHORT_RECIPE.settleMs);
-      return stop(token, dir);
+      return stopAction();
     });
     // Same-model responsiveness witness is outside the assignment metric.
     const responsive = await resetProject(page, fixture, timeout);
@@ -525,9 +591,10 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
         environment.browserProtocolVersion?.product !== REQUIRED_CHROMIUM_RUNTIME_BINDING.product) throw new Error("actual browser pin/source mismatch");
     environment.actualExecutable = { path: executablePath, bytes: executableBytes.length, sha256: digest(executableBytes) };
     await immutable(path.join(directory, "chromium-environment.json"), environment);
+    if (!options.assignmentOnly) {
     const pointSamples = options.focused ? fixture.samples.point_selection.filter((s: any) => s.sample === 2) : fixture.samples.point_selection;
     for (const sample of pointSamples) {
-      const segment = await action("point-selection", sample.sample, async (token, dir) => {
+      const segment = await action("point-selection", sample.sample, async (token, dir, stopAction) => {
         await resetProject(page, fixture, timeout);
         await ensureViewportToggle(page, "toggle-viewport-labels", false, timeout);
         await cameraRecipe(page, fixture, timeout);
@@ -557,7 +624,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
         assertMainCanvasHitTarget(await validateMainCanvasHitTarget(page, point));
         await page.mouse.click(point.x, point.y, { button: "left" });
         await delay(FULL_COHORT_RECIPE.settleMs);
-        const stopped = await stop(token, dir);
+        const stopped = await stopAction();
         const after = (await readCandidateDiagnostics(page, true)).snapshot;
         await immutable(path.join(dir, "point-stopped.json"), { before, after, expectedRef, plan, stopped });
         const afterCapture = await captureWinnerCue(page, probe, afterImage);
@@ -575,7 +642,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
     }
     const boxSamples = options.focused ? focusedBoxSamples(fixture) : fixture.samples.box_selection;
     for (const sample of boxSamples) {
-      const segment = await action("box-selection", sample.sample, async (token, dir) => {
+      const segment = await action("box-selection", sample.sample, async (token, dir, stopAction) => {
         await resetProject(page, fixture, timeout);
         await cameraRecipe(page, fixture, timeout);
         const oracle = fixture.pointOracle.candidate_box_selection;
@@ -606,7 +673,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
         await page.mouse.move(start.x, start.y); await page.mouse.down({ button: "left" });
         await page.mouse.move(end.x, end.y, { steps: 8 }); await page.mouse.up({ button: "left" });
         await delay(FULL_COHORT_RECIPE.settleMs);
-        const stopped = await stop(token, dir);
+        const stopped = await stopAction();
         const after = (await readCandidateDiagnostics(page, true)).snapshot;
         await persistBoxPostcondition(path.join(dir, "box-stopped.json"), { before, after, expected: box, prior: priorBox,
           priorRender: before.viewport.mainRender.submissionSequence, projectId: fixture.model.project.id,
@@ -631,7 +698,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
     }
     const filterSamples = options.focused ? [fixture.samples.tree_filters[0], { sample: 0, query: "__UIF_FOCUSED_EMPTY_NO_ENTITY__" }] : fixture.samples.tree_filters;
     for (const sample of filterSamples) {
-      const segment = await action("tree-filter", sample.sample, async (token, dir) => {
+      const segment = await action("tree-filter", sample.sample, async (token, dir, stopAction) => {
         const input = page.getByTestId("model-tree-filter-input");
         await input.fill("", { timeout });
         await delay(FULL_COHORT_RECIPE.settleMs);
@@ -652,7 +719,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
           candidateExpectation: { ...modelExpectation(before), priorActionSequence: before.viewport.filter.actionSequence } });
         await input.fill(sample.query, { timeout });
         await delay(FULL_COHORT_RECIPE.settleMs);
-        const stopped = await stop(token, dir);
+        const stopped = await stopAction();
         await page.screenshot({ path: path.join(dir, "appearance.png") });
         return { ...stopped, productObservationRaf: stopped.evidence.active.contentProof.snapshot.viewport.mainRender.nextPaintOpportunity };
       });
@@ -661,7 +728,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
     await page.getByTestId("model-tree-filter-input").fill("", { timeout });
     await delay(FULL_COHORT_RECIPE.settleMs);
     for (const mode of ["centerline", "actual-od"] as const) {
-      const segment = await action("orbit", mode === "centerline" ? 1 : 2, async (token, dir) => {
+      const segment = await action("orbit", mode === "centerline" ? 1 : 2, async (token, dir, stopAction) => {
         await ensureViewportToggle(page, "toggle-viewport-labels", true, timeout);
         const cold = (await readCandidateDiagnostics(page, true)).snapshot;
         if (mode === "actual-od" && cold.viewport.geometry.odGeneration !== 0) throw new Error("OD cold first-conversion precondition lost");
@@ -689,7 +756,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
           moves++; await delay(Math.max(1, 16 - (moves % 5 === 0 ? 1 : 0)));
         }
         await page.mouse.up({ button: "left" }); await delay(FULL_COHORT_RECIPE.trailingMs);
-        const stopped = await stop(token, dir);
+        const stopped = await stopAction();
         const after = (await readCandidateDiagnostics(page, true)).snapshot;
         if (after.model.generation !== before.model.generation || after.viewport.geometry.mode !== before.viewport.geometry.mode ||
             (mode === "actual-od" && (after.viewport.geometry.odStatus !== "available" || after.viewport.geometry.odGeneration !== before.viewport.geometry.odGeneration))) throw new Error("orbit model/geometry changed");
@@ -697,6 +764,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
           productObservationRaf: after.viewport.mainRender.nextPaintOpportunity };
       });
       orbitResults[mode] = constructOrbitEvidence(segment.extraction.presentations, segment.window.start, mode, segment.orbitDurationBasis!);
+    }
     }
     const settleStart = nodePerformance.now();
     do {
@@ -735,6 +803,13 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
   } catch (error) {
     errors.push({ phase: "post-binding", error: String(error) });
     await immutable(path.join(directory, "post-binding.json"), { status: "FAIL", error: String(error) });
+  }
+  if (options.assignmentOnly) {
+    const result = { ...assignmentDiagnosticResult(expected, assignment ? metric(assignment,1) : undefined, errors, segments.length), environment,
+      trueCost: "UNPROVED_NO_UNINSTRUMENTED_HEADROOM_CLAIM" };
+    await immutable(path.join(directory,"assignment-diagnostic-result.json"),result);
+    if(result.status!=="PASS_ASSIGNMENT_COLLECTION_DIAGNOSTIC")throw new Error("assignment collection diagnostic failed; no cohort contribution");
+    return result;
   }
   const evidence: PerformanceRun = { ...expected, freshSession: true, qualification: errors.length ? "FAIL" as any : "PASS_QUALIFIED_RUN",
     assignment: assignment ? metric(assignment, 1) : undefined as any, points, boxes, filters,

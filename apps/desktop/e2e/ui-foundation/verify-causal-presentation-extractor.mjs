@@ -586,6 +586,34 @@ for (const [name, mutate] of [
   cases.push({name:`event index differential: ${name}`,status:reference?"PASS_EXACT_BOTH_APIS":"REFERENCE_NOT_REQUESTED"});
 }
 
+// Retrospective serialization can omit the entire original occurrence, leaving
+// only complete old pairs. Independent full counterpart restores that pair only.
+{
+  const isReporter=e=>["PipelineReporter","SubmitCompositorFrameToPresentationCompositorFrame"].includes(e.name)&&e.cat==="cc,benchmark";
+  const complete=buildFixture();
+  const old=buildLineage(99,900000).events.filter(isReporter);
+  complete.events.push(...old);
+  const target=complete.events.filter(e=>isReporter(e)&&!old.includes(e));
+  const missing=clone(complete);missing.events=missing.events.filter(e=>!isReporter(e)||e.ts<1000000);
+  assert.equal(missing.events.filter(e=>isReporter(e)&&e.ph==="b").length,2);
+  assert.equal(missing.events.filter(e=>isReporter(e)&&e.ph==="e").length,2);
+  expectError("AMBIGUOUS_OR_MISSING_PRESENTED_PIPELINE_REPORTER_OCCURRENCE",()=>currentExtract(missing.events,REQUIRED_CHROMIUM_BINDING,missing.markerEvidence));
+  cases.push({name:"whole retrospective target absent despite complete old outer and child pairs",status:"PASS_EXPECTED_REJECTION"});
+  const restored=clone(missing);restored.events.push(...clone(target));
+  const a=currentExtract(complete.events,REQUIRED_CHROMIUM_BINDING,complete.markerEvidence).results[0];
+  const b=currentExtract(restored.events,REQUIRED_CHROMIUM_BINDING,restored.markerEvidence).results[0];
+  for(const key of ["actionTraceTimestamp","feedbackMarkerTraceTimestamp","presentationTraceTimestamp","actionToPresentationIntervalMs","originBeginFrameId","currentBeginFrameId","sourceFrameNumber","surfaceFrameTraceId"])assert.deepEqual(b[key],a[key]);
+  cases.push({name:"restoring only original whole occurrence preserves source timestamps and interval",status:"PASS"});
+  const later=clone(missing);later.events.push(...buildLineage(100,1300000).events.filter(e=>e.name!=="TimeStamp"));
+  expectError("AMBIGUOUS_OR_MISSING_PRESENTED_PIPELINE_REPORTER_OCCURRENCE",()=>currentExtract(later.events,REQUIRED_CHROMIUM_BINDING,later.markerEvidence));
+  cases.push({name:"later full reporter cannot rescue absent original retrospective occurrence",status:"PASS_EXPECTED_REJECTION"});
+  for(const shape of ["begin-only","end-only","incomplete-child"]) {
+    const f=clone(missing);f.events.push(...clone(target).filter(e=>shape==="incomplete-child"?!(e.name==="SubmitCompositorFrameToPresentationCompositorFrame"&&e.ph==="e"):e.ph===(shape==="begin-only"?"b":"e")));
+    assert.throws(()=>currentExtract(f.events,REQUIRED_CHROMIUM_BINDING,f.markerEvidence));
+    cases.push({name:`retrospective capture shape ${shape}`,status:"PASS_EXPECTED_REJECTION"});
+  }
+}
+
 const output = {
   schema: "openpipestress.ui-foundation.causal-presentation-extractor-synthetic-validation/v1",
   status: "PASS_ALL_SYNTHETIC_EXTRACTION_CASES",

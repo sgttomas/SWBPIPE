@@ -25,7 +25,7 @@ import {
   waitForFirstUsable,
   writeJson
 } from "./benchmark-harness";
-import { performanceExpectation, runCandidateCausalPerformance } from "./full-cohort-controller";
+import { performanceExpectation, runCandidateCausalPerformance, candidateDiagnosticMode, assignmentDiagnosticSummary } from "./full-cohort-controller";
 import { scorePerformanceCohort, type RunExpectation } from "./performance-targets";
 import { bindCandidateDriverEntry } from "./candidate-server-response";
 
@@ -41,6 +41,9 @@ const cohortId = process.env.UI_FOUNDATION_COHORT_ID;
 if (phase === "candidate" && (!cohortId || !/^[A-Za-z0-9._:-]{1,48}$/.test(cohortId))) throw new Error("fresh explicit candidate cohort ID required");
 const candidatePlan = ([1000, 10000] as const).flatMap((fixtureSize) => [1, 2, 3, 4, 5].map((runNumber) => ({
   fixtureSize, runNumber, runId: `${cohortId}.${fixtureSize}.${runNumber}`, sessionId: randomUUID() })));
+const diagnosticMode = phase === "candidate" ? candidateDiagnosticMode(process.env.UI_FOUNDATION_DIAGNOSTIC_MODE) : "full";
+const assignmentOnly = diagnosticMode === "assignment-collection";
+if (assignmentOnly && (JSON.stringify(configuredCounts)!=="[1000,10000]" || JSON.stringify(configuredRuns)!=="[1,2,3,4,5]")) throw new Error("assignment diagnostic requires the complete fixed five-by-two plan");
 const candidateExpectations: RunExpectation[] = [];
 if (phase === "candidate") {
   test.beforeAll(async () => {
@@ -48,14 +51,20 @@ if (phase === "candidate") {
     for (const identity of candidatePlan) {
       candidateExpectations.push(await performanceExpectation(await loadFixture(identity.fixtureSize), candidateDriverBinding!, identity));
     }
-    await writeFile(path.join(evidenceRoot, "candidate-cohort-plan.json"), `${JSON.stringify(candidateExpectations, null, 2)}\n`, { flag: "wx" });
+    await writeFile(path.join(evidenceRoot, assignmentOnly ? "assignment-diagnostic-plan.json" : "candidate-cohort-plan.json"), `${JSON.stringify(assignmentOnly ? { scope: "ASSIGNMENT_ONLY_INCOMPLETE_WORKLOAD", cohortContribution: 0, plannedSessions: 10, expectations: candidateExpectations } : candidateExpectations, null, 2)}\n`, { flag: "wx" });
   });
   test.afterAll(async () => {
     const completed = [], missing = [];
     for (const expected of candidateExpectations) {
-      const file = path.join(evidenceRoot, "raw", `run-${String(expected.runNumber).padStart(2, "0")}`, String(expected.fixtureSize), "result.json");
-      try { completed.push(JSON.parse(await readFile(file, "utf8")).evidence); }
+      const file = path.join(evidenceRoot, "raw", `run-${String(expected.runNumber).padStart(2, "0")}`, String(expected.fixtureSize), assignmentOnly ? "assignment-diagnostic-result.json" : "result.json");
+      try { const result=JSON.parse(await readFile(file,"utf8"));completed.push(assignmentOnly ? result : result.evidence); }
       catch (error) { missing.push({ runId: expected.runId, error: String(error) }); }
+    }
+    if(assignmentOnly) {
+      const result=assignmentDiagnosticSummary(completed,candidateExpectations);
+      await writeFile(path.join(evidenceRoot,"assignment-diagnostic-summary.json"),`${JSON.stringify({...result,missing},null,2)}\n`,{flag:"wx"});
+      if(result.status!=="PASS_TEN_ASSIGNMENT_COLLECTION_DIAGNOSTICS")throw new Error("incomplete or failed assignment diagnostics; zero cohort contribution");
+      return;
     }
     const result = scorePerformanceCohort(completed, candidateExpectations);
     await writeFile(path.join(evidenceRoot, "candidate-cohort-result.json"), `${JSON.stringify({ ...result, missing }, null, 2)}\n`, { flag: "wx" });
@@ -102,7 +111,7 @@ test.describe.serial(`UI foundation ${phase} production benchmark`, () => {
         if (phase === "candidate") {
           const expected = candidateExpectations.find((e) => e.fixtureSize === pipeCount && e.runNumber === run);
           if (!expected) throw new Error("run is outside the frozen five-by-two cohort plan");
-          await runCandidateCausalPerformance(page, fixture, expected, runDir, { timeoutMs, binding: candidateDriverBinding! });
+          await runCandidateCausalPerformance(page, fixture, expected, runDir, { timeoutMs, binding: candidateDriverBinding!, assignmentOnly });
           return;
         }
         // Candidate runs returned above; this historical proxy path is baseline only.

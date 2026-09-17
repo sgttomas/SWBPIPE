@@ -901,3 +901,76 @@ test("source-shaped extractor still rejects overlap missing pair and mismatched 
     ...["pid","tid","scope"].map(k=>(f:any)=>{const e=f.events.find((e:any)=>e.name==="PipelineReporter"&&e.ph==="e"&&e.id2.local==="0x8");e[k]=k==="scope"?"wrong":99;})
   ]){const f=sourceOccurrenceFixture();mutate(f);expect(()=>extractedOccurrenceInput(f)).toThrow();}
 });
+
+
+test("actual action lifecycle persists once before host tail and blocks next action through finalization",async()=>{
+  const {runStoppedActionLifecycle}=await import("./full-cohort-controller");
+  for(const kind of ["assignment","point-selection","box-selection","tree-filter","orbit"]) {
+    const calls:string[]=[],snapshot={original:true},sha="a".repeat(64);
+    let releaseWait!:()=>void,releaseEnd!:()=>void,enteredWait!:()=>void,enteredEnd!:()=>void;
+    const waiting=new Promise<void>(r=>enteredWait=r),ending=new Promise<void>(r=>enteredEnd=r);
+    const waitGate=new Promise<void>(r=>releaseWait=r),endGate=new Promise<void>(r=>releaseEnd=r);
+    const promise=runStoppedActionLifecycle(kind,{
+      begin:async()=>{calls.push("begin");},
+      work:async stop=>{calls.push("work");const saved=await stop();calls.push("proof");expect(saved.evidence).toBe(snapshot);expect(saved.stoppedSha256).toBe(sha);return saved;},
+      stop:async()=>{calls.push("stop");return snapshot;},
+      persist:async evidence=>{calls.push("persist");expect(evidence).toBe(snapshot);return sha;},
+      wait:async ms=>{calls.push(`host-wait:${ms}`);enteredWait();await waitGate;calls.push("wait-complete");},
+      finalize:async()=>{calls.push("trace-end");enteredEnd();await endGate;calls.push("trace-complete");}
+    }).then(result=>{calls.push("next-action-allowed");return result;});
+    const tail=!["tree-filter","orbit"].includes(kind);
+    if(tail){await waiting;expect(calls).toEqual(["begin","work","stop","persist","proof","host-wait:250"]);await Promise.resolve();expect(calls.at(-1)).toBe("host-wait:250");releaseWait();}
+    await ending;expect(calls.at(-1)).toBe("trace-end");expect(calls).not.toContain("next-action-allowed");releaseEnd();
+    const result=await promise;expect(result.errors).toEqual([]);expect(result.stopped).toBe(snapshot);expect(result.stoppedSha256).toBe(sha);
+    expect(calls).toEqual(["begin","work","stop","persist","proof",...(tail?["host-wait:250","wait-complete"]:[]),"trace-end","trace-complete","next-action-allowed"]);
+  }
+});
+test("actual lifecycle retains injected work stop persistence tail and finalization failures without replacement stop",async()=>{
+  const {runStoppedActionLifecycle}=await import("./full-cohort-controller");
+  for(const failure of ["work-before","stop","persist","work-after","wait","finalize"]) {
+    const calls:string[]=[],snapshot={original:true},sha="b".repeat(64),error=new Error(`injected:${failure}`);
+    const result=await runStoppedActionLifecycle("assignment",{
+      begin:async()=>{calls.push("begin");},
+      work:async stop=>{calls.push("work");if(failure==="work-before")throw error;await stop();if(failure==="work-after")throw error;return {};},
+      stop:async()=>{calls.push("stop");if(failure==="stop")throw error;return snapshot;},
+      persist:async evidence=>{calls.push("persist");expect(evidence).toBe(snapshot);if(failure==="persist")throw error;return sha;},
+      wait:async ms=>{calls.push(`wait:${ms}`);if(failure==="wait")throw error;},
+      finalize:async()=>{calls.push("finalize");if(failure==="finalize")throw error;}
+    });
+    expect(result.errors.some(e=>e.error===String(error))).toBe(true);
+    expect(calls.filter(c=>c==="stop")).toHaveLength(1);expect(calls.filter(c=>c==="finalize")).toHaveLength(1);
+    expect(calls.filter(c=>c==="persist")).toHaveLength(failure==="stop"?0:1);
+    expect(result.stopped).toBe(failure==="stop"?null:snapshot);
+    expect(result.stoppedSha256).toBe(["stop","persist"].includes(failure)?"":sha);
+    expect(calls.filter(c=>c.startsWith("wait:"))).toHaveLength(["stop","persist"].includes(failure)?0:1);
+    expect(calls.at(-1)).toBe("finalize");
+  }
+  const calls:string[]=[],result=await runStoppedActionLifecycle("assignment",{
+    begin:async()=>{},work:async stop=>{for(let i=0;i<2;i++){try{await stop();}catch{}}throw new Error("work failed");},
+    stop:async()=>{calls.push("stop");return {original:true};},persist:async()=>{calls.push("persist");throw new Error("persist failed");},
+    wait:async()=>{calls.push("wait");},finalize:async()=>{calls.push("finalize");throw new Error("finalize failed");}
+  });
+  expect(calls).toEqual(["stop","persist","finalize"]);
+  expect(result.errors.map(e=>e.error)).toEqual(["Error: persist failed","Error: work failed","Error: finalize failed"]);
+});
+test("assignment diagnostics freeze ten fresh identities and cannot qualify full or focused workload",async()=>{
+  const {candidateDiagnosticMode,assignmentDiagnosticResult,assignmentDiagnosticSummary}=await import("./full-cohort-controller");
+  const {scorePerformanceRun,scorePerformanceCohort}=await import("./performance-targets");
+  expect(candidateDiagnosticMode(undefined)).toBe("full");expect(candidateDiagnosticMode(undefined,true)).toBe("focused");
+  expect(candidateDiagnosticMode("assignment-collection")).toBe("assignment-collection");
+  for(const value of ["","full","unknown"])expect(()=>candidateDiagnosticMode(value)).toThrow();
+  expect(()=>candidateDiagnosticMode("assignment-collection",true)).toThrow();
+  expect(()=>candidateDiagnosticMode(undefined,false,true)).toThrow();
+  expect(()=>candidateDiagnosticMode("assignment-collection",false,false)).toThrow();
+  expect(candidateDiagnosticMode("assignment-collection",false,true)).toBe("assignment-collection");
+  const expected:any[]=[1000,10000].flatMap(fixtureSize=>[1,2,3,4,5].map(runNumber=>({fixtureSize,runNumber,runId:`d-${fixtureSize}-${runNumber}`,sessionId:`s-${fixtureSize}-${runNumber}`,bindings:{}})));
+  const metric={qualification:"PASS_QUALIFIED_CAUSAL_EVIDENCE",durationIntervalMs:{lower:1,upper:2000}};
+  const results=expected.map(e=>assignmentDiagnosticResult(e,metric,[],1));
+  expect(assignmentDiagnosticSummary(results,expected).status).toBe("PASS_TEN_ASSIGNMENT_COLLECTION_DIAGNOSTICS");
+  expect(results.every(r=>r.cohortContribution===0)).toBe(true);
+  for(const missing of [results.slice(1),[...results.slice(0,9),results[0]],[]])expect(assignmentDiagnosticSummary(missing,expected).status).toBe("FAIL_ASSIGNMENT_COLLECTION_DIAGNOSTICS");
+  expect(assignmentDiagnosticSummary(results,expected.slice(1)).status).toBe("FAIL_ASSIGNMENT_COLLECTION_DIAGNOSTICS");
+  for(const [value,errors,count] of [[{...metric,durationIntervalMs:{lower:1,upper:2000.0001}},[],1],[metric,["observer/restoration/binding failed"],1],[metric,[],8],[undefined,[],1]] as any[])expect(assignmentDiagnosticResult(expected[0],value,errors,count).status).toBe("FAIL_ASSIGNMENT_COLLECTION_DIAGNOSTIC");
+  expect(scorePerformanceRun(results[0] as any,expected[0]).status).toBe("FAIL_INVALID_EVIDENCE");
+  expect(scorePerformanceCohort(results as any,expected).status).toBe("FAIL_COHORT");
+});

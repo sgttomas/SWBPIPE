@@ -238,3 +238,26 @@ wait, workload or observer-cost subtraction changes. Clock metadata is absent
 from the retained transport result, so one bounded hash-checked raw read/parse
 occurs after the measured window; it is discarded after binding. Its transient
 allocation and live execution cost still require prospective qualification.
+
+
+Assignment, point selection and box selection now receive a fixed 250ms host-only
+collection tail after existing work and immutable stopped evidence/hash, immediately
+before trace finalization. The tail adds no browser reads/actions, RAF, feedback or
+render scheduling. Filter and orbit collection remain unchanged. This is a bounded
+serialization budget, never a metric endpoint, subtraction, retry or guarantee;
+missing/dropped/partial/ambiguous original reporters still fail. Finalization and
+error persistence remain required even when work, stop, persistence or waiting fails.
+
+The existing candidate benchmark supports explicit
+`UI_FOUNDATION_DIAGNOSTIC_MODE=assignment-collection`: exactly five fresh sessions
+for each of 1000 and10000, original assignment path, same-model responsiveness,
+observer/restoration and pre/post bindings, and unchanged2000ms upper target.
+Freeze workers1/retries0/maxfail1 at launch. It writes separate
+`assignment-diagnostic-plan.json`, per-run `assignment-diagnostic-result.json`, and
+`assignment-diagnostic-summary.json`; every result is an incomplete workload with
+zero cohort contribution. Missing sessions fail diagnostic completion. Without the
+flag the full candidate workload remains required; empty/unknown flags and conflict
+with focused mode reject. The existing eight-segment focused proof is separate.
+Chromium-reported timestamps retain their future-estimate limitation; neither this
+collection tail nor diagnostic success establishes hardware timing or full-cohort
+acceptance. Historical failed/unrun attempts remain unchanged.
