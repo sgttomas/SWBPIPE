@@ -1,0 +1,89 @@
+{
+  "role": "TASK Type 2",
+  "parent": "/root",
+  "agent": "/root/d69_metadata_review",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "low",
+  "model_basis": "Owner standing prospective replacement for formerly Sol Type 2 instances; scoped Git/evidence closeout assignment.",
+  "delegation_class": "delegated-harness-native",
+  "enforcement": "Role, file scope and non-delegation are instruction/config asserted, not mechanism-proven. Type 2 does not delegate.",
+  "workflow": ".agents/skills/software-code-review/SKILL.md",
+  "instructions": "agents/AGENT_TASK.md",
+  "objective": "Independently review the complete D69 owner-ruling/current-control metadata increment at frozen hashes against the supplied exact owner message and accepted evidence. Find actionable defects; product code unchanged. Assess that Option A is a faithful bounded adoption in context and the prospective follow-on does not launch or amend criteria.",
+  "base_commit": "306a74ba9d3ed0ac9ae58cceb744de133ebdd9ea",
+  "context": [
+    "AGENTS.md",
+    "agents/AGENT_TASK.md",
+    ".agents/skills/software-code-review/SKILL.md",
+    "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-69_ui_foundation_performance_disposition.md",
+    "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105_FINAL_TAIL/RETURN.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/ACCEPTANCE.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/GPU_ORBIT_BOUNDARY_DIAGNOSIS_V79/REPORT.md"
+  ],
+  "input_files": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "sha256": "0bb93fa09a05958d517550b14dadfaa247e73d55bccc0f50b8ce1ee91e2b821a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "sha256": "7b7969fa4afc3c8513f201ee84fa9c03c3a0abf30a376ddea8089e9424b81097"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+      "sha256": "d56941be2e6a76228d04d6821d2e7381b86a86a0d0c931962f9504931b0ef6e8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "sha256": "435f9921010b945b04dd1c7873666fb02dbbbf8a339ab4d710531fed0e9350b4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md",
+      "sha256": "9459dd2665b1dd63e5a82edbcd771983abd7eb8a13757bffe93398ddb96618bf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
+      "sha256": "aefe6a6826083209367db37b7498eeecb739ef38162ba1621187292d1fd77498"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "sha256": "d9b8ac6f128718e9c59ec0b58c2c45d8e3dcc34f4a1eeff96a47fdb70dedd178"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/WORK_GRAPH.json",
+      "sha256": "b03aa6df9ba191fde33fb20e65f5bb8d62e76f4d0d1704a590077368d274bb4c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/ACCEPTANCE_MAP.md",
+      "sha256": "0f2fccb77b6fd0848c111dc751570852268ec67b30ecdb335aa9b2eabff3efeb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_HANDOFF.json",
+      "sha256": "d9d37217b640d12b2d3450d0b6a35801fb1893e7556b29cbdb5b47bbd902847f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/PERFORMANCE_FOLLOW_ON.md",
+      "sha256": "b6cafe601653d060a00b74bd03335bbf00fa8af131b529d2b3289b813401fd01"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-69_RULING_2026-09-17.md",
+      "sha256": "bb0c5bacbe9ddf6ab23364a0258d188ec745d254e9b33deac7506b87c0a2ee1c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "sha256": "70849b2d0ba7d0d83488b006e0b785b6c8c7b624251be446b34540c30e2d6cba"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "sha256": "b13ca960b634073b0b109ef3633c41468b4ed8c6ab6a0c25979a0db5bb4d43d0"
+    }
+  ],
+  "tools": "Read-only filesystem, git diff/show, deterministic hash/JSON/receipt checks. No browser/native/build/performance run, no network mutation, no Git mutation.",
+  "write_scope": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/D69_V108/RETURN.json"
+  ],
+  "output_contract": "RETURN.json with model/effort,parentage,input hashes,full reviewed inventory,actionable findings or none,checks and explicit remaining limits. Root handles acceptance and final Git/CI. No independent usability/performance/merge claims.",
+  "acceptance": "All frozen changed paths reviewed; hashes exact; evidence and authority attributed correctly; no unresolved actionable findings. Do not review unrelated dirty DEL07-03 or unselected raw evidence."
+}

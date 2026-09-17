@@ -543,11 +543,12 @@
     "sha256": "ecf12d586c6e6dbe8ad50066949357ed29d4ab96edb6641d463d656eb00e7ae7",
     "status": "former_exception_closed_native_released"
   },
-  "current_frontier": "Functional source, native, V31 archive, complete V105 ec39 candidate review and clean ec39 local governance checks are accepted. Receipt142/final control-review-check tail backcheck next; no product/source changes. D69 UNRULED; merge held.",
+  "current_frontier": "Owner adopted D-69 Option A and approves PR #789 functional merge. Functional source, native, V31 archive, V105 complete candidate/tail review, local checks and both required hosted checks at 306a74ba9d3ed0ac9ae58cceb744de133ebdd9ea passed. Complete the bounded owner-ruling metadata review and actual-candidate checks, then merge. Performance remains open; the owner reserves subsequent redesign/performance sequencing.",
   "active_dependency_path": [
-    "Narrow V105 final-tail backcheck and affected final clean-checkout checks",
-    "Scoped PR and required actual-head CI",
-    "D69 owner ruling or original performance acceptance before merge"
+    "D-69 ruling and current-control metadata -> independent bounded review",
+    "Final committed metadata candidate -> affected clean-checkout checks -> required hosted CI",
+    "Merge PR #789 under explicit owner approval; preserve open performance follow-on",
+    "Owner chooses subsequent redesign/performance sequencing after Agent 0 recommendation"
   ],
   "historical_node_interpretation": "Earlier node statuses describe original attribution, not active workers or fresh acceptance. Current frontier/runtime lease and active_dependency_path govern remaining sequencing. Historical failures stay preserved.",
   "pause_direction": {
@@ -665,12 +666,13 @@
     }
   ],
   "policy_preparation": {
-    "status": "V17_APPLIED_PLUS_ONE_COMPLETED_SELECTION_ENTRY_FINAL_REVIEW_PENDING",
+    "status": "305_ENTRY_FINAL_POSTIMAGE_ACCEPTED_AND_HOSTED_CHECKS_PASSED_AT_306",
     "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/V86_FAILURE_V87_PROPOSAL_FANIN.json",
     "sha256": "0a68f83f80d43700ad1816dca95678e45b72bf1934fb70657d561784fdfee838",
     "policy_sha256": "287f1f85c0ced4edc2b4783c404de48d5996c8fe6e0891bb30150925b27a63e0",
-    "final_selected_candidate_validation": "PENDING",
-    "policy_preimage_note": "Recorded288-entry hash is the accepted preimage; final postimage will be bound by V17/V105."
+    "final_selected_candidate_validation": "PASS through 306a74ba9d3ed0ac9ae58cceb744de133ebdd9ea; final metadata increment receives its own checks",
+    "policy_preimage_note": "Original 288-entry preimage fields retain their historical attribution. The accepted final postimage is recorded separately.",
+    "accepted_final_policy_sha256": "2864b8591621b8732ad5e79dfa9e22f751fb661040530ed5ed40aba31ae4a042"
   },
   "active_method_work": {
     "owner": "/root/ui_causal_method_repair",
@@ -711,9 +713,10 @@
   },
   "owner_decision": {
     "id": "D-69",
-    "status": "REVIEW_PASS_AWAITING_OWNER_RULING",
-    "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-69_ui_foundation_performance_disposition.md",
-    "effect": "NONE; D-68 original gate remains"
+    "status": "RULED_OPTION_A",
+    "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-69_RULING_2026-09-17.md",
+    "sha256": "bb0c5bacbe9ddf6ab23364a0258d188ec745d254e9b33deac7506b87c0a2ee1c",
+    "effect": "Functional merge authorized after other actual-candidate gates; original performance qualification remains open. No new metric/profile or follow-on execution selected."
   },
   "active_native_preparation": {
     "owner": "/root/ui_native_successor",
@@ -825,15 +828,19 @@
     }
   },
   "publication_review": {
-    "status": "EC39_REVIEW_PASS_FINAL_TAIL_PENDING",
+    "status": "V105_COMPLETE_CANDIDATE_AND_FINAL_TAIL_PASS; D69 metadata increment requires bounded review",
     "return": {
       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105/RETURN.json",
       "sha256": "0042873232f8df8b1032acb8e82a73b012a7bb81eba09b8abdaf2140060d6414",
       "bytes": 4570
+    },
+    "final_tail_return": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/FINAL_REVIEW/PUBLICATION_V105_FINAL_TAIL/RETURN.json",
+      "sha256": "3b29fe8293e95837a4673aafa1c952c1dedb4859ada90fccda209f13f37ee88b"
     }
   },
   "local_checks": {
-    "status": "EC39_PASS_FINAL_TAIL_CHECKS_PENDING",
+    "status": "EC39_AND_306_LOCAL_CHECKS_PASS; D69 final metadata candidate checks required",
     "result": {
       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/FINAL_LOCAL_CHECKS/RESULT.json",
       "sha256": "34027cb70396ccbd99e4592756aa3f2523f2c70b0bddf62044dc8a81ab3f00fb",
@@ -843,13 +850,13 @@
   "hosted_ci_v106": {
     "head": "211bd7e11f47601f3d83fe4d6c9bb80d018647fd",
     "run": 35235097946,
-    "state": "test_only_correction_accepted_review_and_focused_pass_actual_head_CI_pending",
+    "state": "test_only_correction_reviewed_and_both_required_actual_head_checks_passed",
     "dependencies": [
       "preserved_failed_CI -> diagnosis",
       "diagnosis -> Root correction decision",
       "any changed test -> independent review -> focused/local governance checks -> candidate CI"
     ],
-    "merge_hold": "D69 remains unruled; no accepted performance cohort",
+    "merge_hold": "D-69 performance prerequisite removed for PR #789; final metadata candidate review/checks still required",
     "review": {
       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/HOSTED_CI_V106/REVIEW.json",
       "sha256": "a4bf9f43e0efed8437e926f1ab9243019b55343f660aad24da8ea588a769283d",
@@ -858,6 +865,15 @@
       "agent": "/root/ui_fresh_integrated_review",
       "status": "complete_read_only_no_actionable_findings"
     },
-    "runtime": "Root sole browser lease released; both focused cases passed once; source frozen"
+    "runtime": "Root sole browser lease released; both focused cases passed once; source frozen",
+    "successful_head": "306a74ba9d3ed0ac9ae58cceb744de133ebdd9ea",
+    "successful_runs": {
+      "governance_harness": 35240131882,
+      "desktop_e2e": 35240131820
+    }
+  },
+  "performance_follow_on": {
+    "status": "PROSPECTIVE_ONLY_OWNER_SEQUENCING_PENDING",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/PERFORMANCE_FOLLOW_ON.md"
   }
 }

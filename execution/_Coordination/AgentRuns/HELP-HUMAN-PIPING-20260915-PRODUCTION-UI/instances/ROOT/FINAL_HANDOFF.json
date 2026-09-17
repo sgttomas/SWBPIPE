@@ -1,10 +1,14 @@
 {
-  "status": "FUNCTIONAL_TECHNICAL_ACCEPTED_PUBLICATION_TAIL_PENDING_D69_UNRULED",
+  "status": "FUNCTIONAL_TECHNICAL_ACCEPTED_D69_MERGE_AUTHORIZED_PERFORMANCE_OPEN",
   "derivative_package": true,
   "basis": {
-    "owner_direction": "D-68_RULING_2026-09-15.md and this run's APPROVED_PLAN.md",
+    "owner_direction": "D-68_RULING_2026-09-15.md and this run's APPROVED_PLAN.md, amended only for PR #789 acceptance sequencing by D-69_RULING_2026-09-17.md",
     "planning_commit": "28ad73cc3f936872f8de1d5116c617db1290331b",
-    "accepted_authority": "Decomposition 0.12 / SCA-009 / DAG-010 / R5, unchanged; original handoff and accepted engineering history preserved."
+    "accepted_authority": "Decomposition 0.12 / SCA-009 / DAG-010 / R5, unchanged; original handoff and accepted engineering history preserved.",
+    "d69_ruling": {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-69_RULING_2026-09-17.md",
+      "sha256": "bb0c5bacbe9ddf6ab23364a0258d188ec745d254e9b33deac7506b87c0a2ee1c"
+    }
   },
   "source": {
     "overlay": "instances/ROOT/INTEGRATED_SOURCE_V20/SOURCE_MANIFEST.json",
@@ -31,13 +35,13 @@
     "lifetime": "Project replacement, including same-ID reopen, clears transient view state; ordinary edits preserve/prune it. Undo/redo restores the primary checkpoint as a singleton selection."
   },
   "verification": {
-    "source_review": "V102 PASS with no actionable findings; complete two-file cumulative contrast/test delta reviewed,143 exact inherited source paths. Root verified eight sealed review members and474input bindings. Twelve original appearance passes and two R1 readiness passes remain separately attributed; original intended preimage and failed-route evidence preserved. V97/prior cumulative review owns inherited paths; final selected metadata review remains pending.",
+    "source_review": "V102 PASS with no actionable findings; complete two-file cumulative contrast/test delta reviewed,143 exact inherited source paths. Root verified eight sealed review members and474input bindings. Twelve original appearance passes and two R1 readiness passes remain separately attributed; original intended preimage and failed-route evidence preserved. V97/prior cumulative review owns inherited paths; final selected metadata review was completed by V105. V105 complete candidate and final tail PASS; V106 independent review accepts the sole wheel-roundoff test change at 306a74ba. Product source remains b6a1ab837; the new D-69 control increment receives bounded review.",
     "native": "V103 bounded affected native PASS accepted by Root in NATIVE_V103_ACCEPTANCE_ARCHIVE_V31_LEASE.json. It verifies current contrast/readability, complete Dark measurement, retained draft/palette Close, visible pointer mode/Run, exact seed model/results and normal Quit. Prior V83 owns full later save/reopen lifecycle; original V12\u2013V17 own authoring/history/semantic-equivalence. Old transient AX omission remains unexplained; no independent audit pass.",
     "resources": "Root accepts resource evidence applicability with explicit limits in FINAL_RESOURCE_APPLICABILITY.json. V56 owns the earlier-bundle resource baseline; its resource implementation is unchanged, while the new DOM observer lifetime has independent source review and passed unit coverage. No final-binary resource-cohort replay is claimed.",
-    "performance": "V79 diagnosis sealed and Root verified. All1204 exact producer joins support future-estimate contribution without long recorded serialized GPU wait; no product/scorer patch justified. V76 diagnostic orbit33.334ms both FAIL/zero cohort. No complete accepted performance cohort. D-69 proposal would defer performance prerequisite for one functional merge; no ruling yet.",
+    "performance": "V79 diagnosis sealed and Root verified. All1204 exact producer joins support future-estimate contribution without long recorded serialized GPU wait; no product/scorer patch justified. V76 diagnostic orbit33.334ms both FAIL/zero cohort. No complete accepted performance cohort. D-69 Option A now permits this functional merge with performance qualification explicitly open. Original targets, workload, evidence and resource obligations remain unchanged; no new metric/profile or cohort is approved.",
     "registered_sweep": "V104 complete registered sweep PASS on clean actual-source b6a1ab8378481adbb46d65847cb7eaf9a2864461. Root verified the owning output manifest and exact ROOT/CHECK working and committed source equality. Canonical summary and return own numerical counts. V95 retains attribution to prior45ede source.",
-    "practitioner_and_receipt": "FINAL_LOCAL_CHECKS/RESULT.json records passed clean ec39 candidate checks, including routed practitioner/validation, self-check, existing receipt corpus and full-range guards. Receipt142/final review-control tail receives its own bounded backcheck; hosted CI is separate.",
-    "publication": "V105 reviewed the complete ec39 candidate with no blocking findings. Root corrected its one stale status sentence. Receipt142 and final control/review/check evidence tail now awaits narrow backcheck, followed by scoped PR and required actual-head CI. D69 UNRULED; merge held. V105 and check records preserve exact attribution."
+    "practitioner_and_receipt": "FINAL_LOCAL_CHECKS/RESULT.json owns the clean ec39 routed practitioner/validation, self-check and full-range guard pass. V105 final tail and 306 checks accepted Receipt142 and the publication tail. The D-69 control increment and Receipt143 require affected final clean-checkout checks; required hosted CI is separate.",
+    "publication": "V105 complete candidate and final tail reviews passed with no actionable findings. V106 reviewed the test-only correction; both required hosted checks passed at 306a74ba9d3ed0ac9ae58cceb744de133ebdd9ea. The owner explicitly approves PR #789 merge under D-69 Option A. Complete the final metadata review/checks and actual-head CI before merge; PR #789 owns eventual merge SHA/check history."
   },
   "performance_interpretation": {
     "profile": "Instrumented foreground Chromium-reported presentation on current M5 Max/128GiB host, 1440x920,DPR2. Conservative upper bounds; no cost subtraction or physical scanout claim.",
@@ -53,6 +57,7 @@
     "memory_startup": "Browser heap/Chrome RSS, owned renderer resources, worker memory, host read/parse and native main-PID RSS are separate. Native startup/reopen observations include declared tool timing limits; cold-cache startup and total WebKit memory are unavailable."
   },
   "remaining": [
+    "Complete original performance qualification; D-69 changes the prerequisite for this one functional merge only. The owner reserves whether redesign implementation or this follow-on proceeds next.",
     "Broader routing gestures, attached engineering transforms and finite component insert-in-run remain beyond this workspace foundation.",
     "Modulus-basis entry, broader units and authoring widgets retain their deliverable-local residuals.",
     "Independent usability/security validation remains held. Touched-control WCAG2.2AA verification does not establish whole-product conformance; untouched report/export target gaps remain.",
@@ -61,9 +66,9 @@
     "Formal dependency statuses, decomposition, stage and lifecycle do not advance through tranche Git closeout."
   ],
   "next_phase": [
-    "Final receipt/control/check tail backcheck",
-    "Scoped PR and actual-head CI",
-    "Owner D69 decision or original performance acceptance before merge"
+    "Bounded D-69 metadata review and final candidate local/hosted checks",
+    "Merge PR #789 under explicit owner approval",
+    "Owner selects redesign/performance sequencing using the prospective PERFORMANCE_FOLLOW_ON.md recommendation"
   ],
   "original_handoff": {
     "path": "{ORIGINAL_WORKTREE}/projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md",
@@ -72,8 +77,8 @@
     "path_resolution": "ORIGINAL_WORKTREE is the original chirality checkout named by the owner at session entry, distinct from this isolated implementation checkout. This local preservation reference is not a clone/build dependency."
   },
   "evidence_policy": "Canonical originals plus Root-verified host-local CAS throughV31, including final nativeV103 and registeredV104. Host-local non-WORM/non-clone-portable; original local handoff unchanged. The small final local-check logs are canonical Git evidence; no duplicate archive copy is required.",
-  "closure_verdict": "Functional technical scope accepted; full approved tranche and publication remain open. This record narrows only expressly accepted functional Remaining entries and does not waive any acceptance gate.",
-  "next_action": "Complete final tail backcheck and affected clean-checkout checks, publish scoped PR and inspect required actual-head CI. Merge held by D69/original performance acceptance.",
+  "closure_verdict": "Bounded functional technical scope accepted; owner authorizes its Git merge under D-69 Option A after remaining actual-candidate checks. Full D-68 performance qualification remains open. No formal lifecycle or release promotion.",
+  "next_action": "Complete the D-69 metadata increment review and final local/hosted checks, then merge PR #789. Present the prospective bounded performance recommendation; do not launch another cohort or redesign before the reserved sequencing decision.",
   "test_evidence_calibration": "Original V20Y reports57initial pure checks, final1diagnostic-agreement backcheck and noEmit. Extractor result contains98evaluated cases plus6unrequested differential placeholders, not104executed checks; preserve original output and corrected interpretation.",
   "current_focused_status": {
     "status": "V96_R1_AND_V97_ACCEPTED_INTEGRATED",
