@@ -12,9 +12,9 @@ import { armCausalFeedbackMarker, captureChromiumEnvironment, ensureViewportTogg
 import { assertMainCanvasHitTarget, assertStoppedCausalEvidence, canvasLocalToClient, normalizedCanvasPoint,
   observerValidity, ORBIT_START_NORMALIZED } from "./causal-method-contract";
 import { CHROMIUM_TRACE_RAW_BYTE_LIMIT, beginChromiumCompositorTrace, endChromiumCompositorTrace, type ChromiumTraceCapture } from "./chromium-compositor-trace";
-import { extractCausalPresentations, REQUIRED_CHROMIUM_BINDING } from "./causal-presentation-extractor.mjs";
+import { extractCausalPresentations, REQUIRED_CHROMIUM_BINDING, PAGE_CLOCK_SOURCE } from "./causal-presentation-extractor.mjs";
 import { assertBoundCandidateDocumentResponse, bindCandidateDriverEntry, bindRequiredChromiumExecutable, REQUIRED_CHROMIUM_RUNTIME_BINDING, type CandidateDriverBinding } from "./candidate-server-response";
-import { scorePerformanceRun, type ActionDuration, type OrbitEvidence, type PerformanceRun, type RunExpectation } from "./performance-targets";
+import { scorePerformanceRun, SAME_TRACE_EXPORT_PROFILE, validSameTraceBasis, type SameTraceDurationBasis, type ActionDuration, type OrbitEvidence, type PerformanceRun, type RunExpectation } from "./performance-targets";
 
 export const FULL_COHORT_RECIPE = Object.freeze({ version: "causal-full-v20", pointCount: 200, boxCount: 20, filterCount: 20,
   discreteActionsPerTrace: 1, settleMs: 500, warmupMs: 2000, measuredMs: 10000, trailingMs: 250,
@@ -183,7 +183,64 @@ export function frozenTreeExpectation(model: any, query: string) {
   const mountedCount = rows.length < 100 ? rows.length : Math.min(rows.length, Math.ceil(420 / 34) + 16);
   return { query, totalCount, visibleCount, rows, mountedCount };
 }
-export function constructOrbitEvidence(results: readonly any[], actionAt: number, mode: OrbitEvidence["mode"]): OrbitEvidence {
+export function sameTracePresentedGap(previousUs: number, nextUs: number) {
+  if (![previousUs,nextUs].every(t=>Number.isSafeInteger(t)&&t>=0) || nextUs<previousUs) throw new Error("invalid same-trace integer timestamps");
+  const delta=BigInt(nextUs)-BigInt(previousUs);
+  return { lower: Math.max(0,nextFloat(Number(delta-1n)/1000,false)), upper: nextFloat(Number(delta+1n)/1000,true) };
+}
+export function bindSameTraceDurationBasis({rawBytes,capture,trace,extraction,stopped}: any): SameTraceDurationBasis {
+  const active=stopped?.active, action=active?.actionMarker, results=extraction?.presentations;
+  if (!Buffer.isBuffer(rawBytes) || rawBytes.length > CHROMIUM_TRACE_RAW_BYTE_LIMIT || !capture?.rawTraceComplete || trace?.traceDataLossOccurred!==false ||
+      trace?.rawTraceTransport?.rawCompleteThroughEof!==true || digest(rawBytes)!==capture.rawTraceSha256 ||
+      capture.rawTraceSha256!==trace.rawTraceTransport.rawSha256 ||
+      extraction?.status!=="PASS_ALL_CAUSAL_PRESENTATIONS_EXACT_AND_UNAMBIGUOUS" ||
+      !Object.entries(REQUIRED_CHROMIUM_BINDING).every(([k,v])=>extraction.sourceBinding?.[k]===v) ||
+      !Array.isArray(results) || !results.length || active?.feedbackKind!=="orbit" || action?.token!==active.token) throw new Error("same-trace capture/source qualification unavailable");
+  // Transport retains lossless events but not top-level metadata. Parse only to read
+  // clock-domain after hashing these bounded bytes; never use JSON.parse numeric events.
+  const clockDomain=JSON.parse(rawBytes.toString("utf8"))?.metadata?.["clock-domain"];
+  if (clockDomain!==SAME_TRACE_EXPORT_PROFILE.clockDomain) throw new Error("same-trace clock domain mismatch");
+  const first=results[0], events=capture.events;
+  const actionEvents=events.filter((e:any)=>e.name==="TimeStamp"&&e.args?.data?.message===`UIF_CAUSAL_V1:ACTION:${active.token}`);
+  if(actionEvents.length!==1 || actionEvents[0].ts!==first.actionTraceTimestamp || actionEvents[0].pid!==first.rendererProcessId || actionEvents[0].tid!==first.rendererMainThreadId ||
+     typeof actionEvents[0].args?.data?.frame!=="string") throw new Error("same-trace document/action unavailable");
+  const documentFrame=actionEvents[0].args.data.frame;
+  for(const r of results) {
+    const feedback=active.feedbackMarkers?.find((m:any)=>m.markerIdentity===r.markerIdentity);
+    const marker=events.filter((e:any)=>e.name==="TimeStamp"&&e.args?.data?.message===`UIF_CAUSAL_V1:FEEDBACK:${r.markerIdentity}`);
+    const end=events[r.reporterEndEventIndex], begin=events[r.reporterBeginEventIndex];
+    if(r.status!=="PASS_EXACT_CAUSAL_CHROMIUM_REPORTED_PRESENTATION" || r.feedbackKind!=="orbit" || r.token!==active.token || !feedback ||
+      r.actionTraceTimestamp!==first.actionTraceTimestamp || r.canvasEpoch!==active.armedCanvasEpoch || r.contextEpoch!==active.armedContextEpoch ||
+      ["rendererProcessId","rendererMainThreadId","rendererCompositorThreadId","layerTreeId","modelGeneration"].some(k=>r[k]!==first[k]) ||
+      !Object.entries(PAGE_CLOCK_SOURCE).every(([k,v])=>r.pageClockSource?.[k]===v) ||
+      typeof action.traceClock?.crossOriginIsolated!=="boolean" || r.pageClockSource.crossOriginIsolated!==action.traceClock.crossOriginIsolated ||
+      feedback.canvasEpoch!==r.canvasEpoch || feedback.contextEpoch!==r.contextEpoch ||
+      marker.length!==1 || marker[0].args?.data?.frame!==documentFrame || marker[0].pid!==r.rendererProcessId || marker[0].tid!==r.rendererMainThreadId ||
+      begin?.name!=="PipelineReporter" || begin.ph!=="b" || end?.name!=="PipelineReporter" || end.ph!=="e" ||
+      begin.pid!==r.rendererProcessId || end.pid!==r.rendererProcessId || begin.tid!==r.rendererCompositorThreadId || end.tid!==r.rendererCompositorThreadId ||
+      end.ts!==r.presentationTraceTimestamp) throw new Error("same-trace endpoint identity/source mismatch");
+    sameTracePresentedGap(first.presentationTraceTimestamp,r.presentationTraceTimestamp);
+  }
+  const basis: SameTraceDurationBasis={kind:"same-trace-integer-us/v1",qualification:"PASS_CALLER_BOUND_SAME_TRACE",
+    rawCaptureSha256:capture.rawTraceSha256,profile:SAME_TRACE_EXPORT_PROFILE,documentFrame,documentTimeOrigin:active.documentTimeOrigin,documentEvidenceEpoch:active.evidenceEpoch,actionListenerObservedAt:action.listenerObservedAt,crossOriginIsolated:action.traceClock.crossOriginIsolated,
+    actionToken:active.token,actionTraceTimestamp:first.actionTraceTimestamp,canvasEpoch:active.armedCanvasEpoch,contextEpoch:active.armedContextEpoch,
+    modelGeneration:first.modelGeneration,rendererProcessId:first.rendererProcessId,rendererMainThreadId:first.rendererMainThreadId,
+    rendererCompositorThreadId:first.rendererCompositorThreadId,layerTreeId:String(first.layerTreeId),
+    references:results.map((r:any)=>({rawCaptureSha256:capture.rawTraceSha256,markerIdentity:r.markerIdentity,reportedTimestamp:r.presentationTraceTimestamp,
+      reporterOccurrence:r.pipelineReporterOccurrence,reporterBeginEventIndex:r.reporterBeginEventIndex,reporterEndEventIndex:r.reporterEndEventIndex}))};
+  if(!validSameTraceBasis(basis,results.length))throw new Error("same-trace declared basis invalid");
+  return basis;
+}
+export function constructOrbitEvidence(results: readonly any[], actionAt: number, mode: OrbitEvidence["mode"], durationBasis: SameTraceDurationBasis): OrbitEvidence {
+  if (actionAt!==durationBasis?.actionListenerObservedAt || !validSameTraceBasis(durationBasis,results.length) || results.some((r:any,i:number)=>
+      r.presentationTraceTimestamp!==durationBasis.references[i].reportedTimestamp || r.markerIdentity!==durationBasis.references[i].markerIdentity ||
+      r.token!==durationBasis.actionToken || r.actionTraceTimestamp!==durationBasis.actionTraceTimestamp ||
+      r.canvasEpoch!==durationBasis.canvasEpoch || r.contextEpoch!==durationBasis.contextEpoch ||
+      r.rendererProcessId!==durationBasis.rendererProcessId || r.rendererMainThreadId!==durationBasis.rendererMainThreadId ||
+      r.rendererCompositorThreadId!==durationBasis.rendererCompositorThreadId || String(r.layerTreeId)!==durationBasis.layerTreeId ||
+      r.modelGeneration!==durationBasis.modelGeneration || r.status!=="PASS_EXACT_CAUSAL_CHROMIUM_REPORTED_PRESENTATION" ||
+      r.feedbackKind!=="orbit" || r.reporterBeginEventIndex!==durationBasis.references[i].reporterBeginEventIndex ||
+      r.reporterEndEventIndex!==durationBasis.references[i].reporterEndEventIndex || r.pipelineReporterOccurrence!==durationBasis.references[i].reporterOccurrence)) throw new Error("orbit requires bound same-trace endpoint context");
   // Absolute page windows are prescribed from the captured action, not from
   // IPC receipt times or the actual loop completion (which may overshoot).
   const warmup = { startMs: actionAt, endMs: actionAt + 2000 }, measured = { startMs: actionAt + 2000, endMs: actionAt + 12000 };
@@ -203,9 +260,9 @@ export function constructOrbitEvidence(results: readonly any[], actionAt: number
   const gaps = mapped.slice(1).map((p: any, i: number) => ({ sampleId: i + 1,
     fromMs: mapped[i].traceMs - shift, toMs: p.traceMs - shift, fromSourceIndex: first + i, toSourceIndex: first + i + 1,
     qualification: "PASS_QUALIFIED_CAUSAL_EVIDENCE" as const,
-    durationIntervalMs: conservativePresentedGap(mapped[i], p) }));
+    durationIntervalMs: sameTracePresentedGap(results[first+i].presentationTraceTimestamp,results[first+i+1].presentationTraceTimestamp) }));
   return { mode, qualification: "PASS_QUALIFIED_CAUSAL_EVIDENCE", coverageStatus: "PASS_COMPLETE_BRACKETED_PRESENTATIONS",
-    labelsOn: true, warmup, measured, traceToPageOffsetMs: offsetMin, endpoints, envelope: { first, last }, gaps,
+    labelsOn: true, warmup, measured, durationBasis, traceToPageOffsetMs: offsetMin, endpoints, envelope: { first, last }, gaps,
     ...(mode === "actual-od" ? { odConversion: { status: "PASS_CURRENT_CONVERSION" as const, cache: "warm" as const } } : {}) };
 }
 
@@ -402,7 +459,11 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
     if (extraction.status !== "PASS_ALL_CAUSAL_PRESENTATIONS_EXACT_AND_UNAMBIGUOUS") throw new Error("causal extraction incomplete");
     const window = { start: stopped.active.actionMarker.listenerObservedAt,
       end: Math.max(...stopped.active.feedbackMarkers.map((m: any) => m.callbackCompletedAt)) };
-    const segment = { token, kind, directory: dir, stoppedPath: path.join(dir, "action-stopped.json"), stoppedSha256,
+    // Post-window only. A bounded reread supplies metadata omitted by the existing
+    // transport result; bytes/temporary parsed metadata are not retained in segment evidence.
+    const orbitDurationBasis = kind === "orbit" ? bindSameTraceDurationBasis({ rawBytes: await readFile(capture.rawTracePath),
+      capture, trace, extraction, stopped }) : undefined;
+    const segment = { token, kind, orbitDurationBasis, directory: dir, stoppedPath: path.join(dir, "action-stopped.json"), stoppedSha256,
       extraction, auxiliary: { ...auxiliary, evidence: undefined }, window };
     await immutable(path.join(dir, "derived.json"), { ...segment, excludedInvalidatedContentMarkers: selected.excludedInvalidatedContentMarkers });
     segments.push(segment);
@@ -635,7 +696,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
         return { ...stopped, mode, moves, conversion: { before: cold.viewport.geometry, ready: before.viewport.geometry, after: after.viewport.geometry },
           productObservationRaf: after.viewport.mainRender.nextPaintOpportunity };
       });
-      orbitResults[mode] = constructOrbitEvidence(segment.extraction.presentations, segment.window.start, mode);
+      orbitResults[mode] = constructOrbitEvidence(segment.extraction.presentations, segment.window.start, mode, segment.orbitDurationBasis!);
     }
     const settleStart = nodePerformance.now();
     do {

@@ -16,6 +16,22 @@ export type RunExpectation = Readonly<{
   fixtureSize: FixtureSize; runNumber: number; runId: string; sessionId: string;
   bindings: PerformanceBindings;
 }>;
+export const SAME_TRACE_EXPORT_PROFILE = Object.freeze({
+  clockDomain: "MAC_MACH_ABSOLUTE_TIME", chromiumRevision: "507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+  perfettoRevision: "da65f7e907e0caf473ddec16e15427465f503d05",
+  exporterSha256: "dc3a3b53cc2df3cd66be8b331b805d31331c2a8dbcf42e3f58d6fe8a05377667",
+  traceTimeSha256: "6a5fa3cf626a07016997c3bdaf32610577c45c9e0fccd60f174205793da7fe2b",
+  exportRule: "positive-integer-nanoseconds-truncated-to-microseconds", differenceAllowanceUs: 1
+} as const);
+export type SameTraceDurationBasis = Readonly<{
+  kind: "same-trace-integer-us/v1"; qualification: "PASS_CALLER_BOUND_SAME_TRACE";
+  rawCaptureSha256: string; profile: typeof SAME_TRACE_EXPORT_PROFILE;
+  documentFrame: string; documentTimeOrigin: number; documentEvidenceEpoch: number; actionListenerObservedAt: number; crossOriginIsolated: boolean; actionToken: string; actionTraceTimestamp: number;
+  canvasEpoch: number; contextEpoch: number; modelGeneration: number;
+  rendererProcessId: number; rendererMainThreadId: number; rendererCompositorThreadId: number; layerTreeId: string;
+  references: readonly Readonly<{ rawCaptureSha256: string; markerIdentity: string; reportedTimestamp: number;
+    reporterOccurrence: string; reporterBeginEventIndex: number; reporterEndEventIndex: number }>[];
+}>;
 export type OrbitEndpoint = Readonly<{ sourceIndex: number; reportedTimestamp: number; coordinateMs: number; intervalMs: DurationInterval }>;
 export type OrbitPopulation = Readonly<{ left: number; right: number; gapCount: number }>;
 export type OrbitEvidence = Readonly<{
@@ -26,6 +42,7 @@ export type OrbitEvidence = Readonly<{
   warmup: Readonly<{ startMs: number; endMs: number }>;
   measured: Readonly<{ startMs: number; endMs: number }>;
   // Full caller-qualified source sequence plus exact conservative enclosing slice.
+  durationBasis: SameTraceDurationBasis | Readonly<{ kind: "independent-page-interval/v1" }>;
   traceToPageOffsetMs: number;
   endpoints: readonly OrbitEndpoint[];
   envelope: Readonly<{ first: number; last: number }>;
@@ -60,6 +77,30 @@ const p95 = (values: readonly number[]) => [...values].sort((a, b) => a - b)[Mat
 const identityValid = (e: RunExpectation | undefined) => (e?.fixtureSize === 1000 || e?.fixtureSize === 10000) &&
   Number.isSafeInteger(e.runNumber) && e.runNumber >= 1 && e.runNumber <= 5 && text(e.runId) && text(e.sessionId);
 
+const directed = (value: number, up: boolean) => {
+  if (value === 0) return up ? Number.MIN_VALUE : -Number.MIN_VALUE;
+  const view = new DataView(new ArrayBuffer(8)); view.setFloat64(0, value);
+  view.setBigUint64(0, view.getBigUint64(0) + ((value > 0) === up ? 1n : -1n)); return view.getFloat64(0);
+};
+// Independent scorer enclosure, deliberately not imported from controller arithmetic.
+const sameTracePairBounds = (a: number, b: number) => {
+  if (![a,b].every(t=>Number.isSafeInteger(t)&&t>=0) || b<a) throw new Error("invalid same-trace integer pair");
+  const delta=BigInt(b)-BigInt(a);
+  return { lower: Math.max(0,directed(Number(delta-1n)/1000,false)), upper: directed(Number(delta+1n)/1000,true) };
+};
+export function validSameTraceBasis(b: SameTraceDurationBasis | undefined, count: number): boolean {
+  return b?.kind === "same-trace-integer-us/v1" && b.qualification === "PASS_CALLER_BOUND_SAME_TRACE" &&
+    /^[a-f0-9]{64}$/.test(b.rawCaptureSha256) && Object.entries(SAME_TRACE_EXPORT_PROFILE).every(([k,v]) => (b.profile as any)?.[k]===v) &&
+    Number.isSafeInteger(b.documentEvidenceEpoch) && b.documentEvidenceEpoch>=0 && finite(b.actionListenerObservedAt) && b.actionListenerObservedAt>=0 && typeof b.crossOriginIsolated==="boolean" &&
+    text(b.documentFrame) && finite(b.documentTimeOrigin) && b.documentTimeOrigin>0 && text(b.actionToken) &&
+    Number.isSafeInteger(b.actionTraceTimestamp) && b.actionTraceTimestamp>=0 && text(b.layerTreeId) &&
+    [b.canvasEpoch,b.contextEpoch,b.modelGeneration,b.rendererProcessId,b.rendererMainThreadId,b.rendererCompositorThreadId].every(n=>Number.isSafeInteger(n)&&n>0) &&
+    Array.isArray(b.references) && b.references.length===count && Array.from(b.references).every(r=>r && r.rawCaptureSha256===b.rawCaptureSha256 && text(r.markerIdentity) && text(r.reporterOccurrence) &&
+      Number.isSafeInteger(r.reportedTimestamp) && r.reportedTimestamp>=0 && Number.isSafeInteger(r.reporterBeginEventIndex) && r.reporterBeginEventIndex>=0 &&
+      Number.isSafeInteger(r.reporterEndEventIndex) && r.reporterEndEventIndex>=0 && r.reporterEndEventIndex!==r.reporterBeginEventIndex) &&
+    new Set(b.references.map(r=>r.reporterOccurrence)).size===count;
+}
+
 // Necessary local cut conditions conservatively over-approximate shared-clock feasibility.
 // Callers authenticate observations; this validates the complete carried source/slice linkage.
 export function orbitBoundaryPopulations(e: OrbitEvidence): OrbitPopulation[] {
@@ -70,17 +111,21 @@ export function orbitBoundaryPopulations(e: OrbitEvidence): OrbitPopulation[] {
         p.coordinateMs < p.intervalMs.lower || p.coordinateMs > p.intervalMs.upper ||
         (i > 0 && (p.reportedTimestamp < points[i - 1].reportedTimestamp || p.coordinateMs < points[i - 1].coordinateMs ||
           (p.reportedTimestamp === points[i - 1].reportedTimestamp) !== (p.coordinateMs === points[i - 1].coordinateMs))))) throw new Error("invalid orbit endpoint population");
+  const sameTrace = e.durationBasis?.kind === "same-trace-integer-us/v1";
+  if (sameTrace ? !validSameTraceBasis(e.durationBasis as SameTraceDurationBasis, points.length) : e.durationBasis?.kind !== "independent-page-interval/v1") throw new Error("invalid orbit duration basis");
+  if (sameTrace && points.some((p,i)=>p.reportedTimestamp!==(e.durationBasis as SameTraceDurationBasis).references[i].reportedTimestamp)) throw new Error("orbit endpoint reference mismatch");
   const first = points.reduce((found: number, p: OrbitEndpoint, i: number) => p.intervalMs.upper < m.startMs ? i : found, -1);
   const last = points.findIndex(p => p.intervalMs.lower > m.endMs);
   if (first < 0 || last <= first + 1 || envelope?.first !== first || envelope?.last !== last ||
       !Array.isArray(e.gaps) || e.gaps.length !== last - first) throw new Error("incomplete orbit envelope");
   if (Array.from(e.gaps).some((g, i) => {
     const a = points[first + i], b = points[first + i + 1];
+    const required = sameTrace ? sameTracePairBounds(a.reportedTimestamp,b.reportedTimestamp)
+      : { lower: Math.max(0,b.intervalMs.lower-a.intervalMs.upper), upper:b.intervalMs.upper-a.intervalMs.lower };
     return !g || g.sampleId !== i + 1 || g.fromSourceIndex !== a.sourceIndex || g.toSourceIndex !== b.sourceIndex ||
       !qualified(g) || g.fromMs !== a.coordinateMs || g.toMs !== b.coordinateMs || g.fromMs < 0 || g.toMs < g.fromMs ||
       g.durationIntervalMs.lower > g.toMs - g.fromMs || g.durationIntervalMs.upper < g.toMs - g.fromMs ||
-      g.durationIntervalMs.lower > Math.max(0, b.intervalMs.lower - a.intervalMs.upper) ||
-      g.durationIntervalMs.upper < b.intervalMs.upper - a.intervalMs.lower;
+      g.durationIntervalMs.lower > required.lower || g.durationIntervalMs.upper < required.upper;
   })) throw new Error("invalid orbit gap association");
   const left: number[] = [], right: number[] = [];
   for (let i = first; i < last; i++) {

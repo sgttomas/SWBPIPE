@@ -208,3 +208,33 @@ in authored project coordinates.
 ### Conservative orbit window populations
 
 Orbit windows remain 2 s warm-up and 10 s measured from the captured action. All qualified consecutive presentations in the conservative strict-outside-bracket envelope are retained, with their source occurrence indexes, endpoint intervals and reported timestamp groups. Where endpoint uncertainty permits multiple contiguous window populations, acceptance uses the largest nearest-rank p95 of the unchanged gap upper bounds across every admitted population; every cut and count is recorded. Equal reported timestamps retain distinct qualified occurrences and cannot be split at a boundary. Local boundary conditions conservatively over-approximate shared-clock feasibility. This is a bound for the qualified instrumented Chromium-reported metric, not an exact percentile, physical scan-out timing or uninstrumented performance claim. Targets, clock allowances, waits and observer-cost limitations are unchanged.
+
+
+The orbit duration basis `same-trace-integer-us/v1` applies only to caller-bound
+reported timestamps from one finalized, hash-checked capture. It pins Chromium
+`507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c`, Perfetto
+`da65f7e907e0caf473ddec16e15427465f503d05`, JSON exporter SHA256
+`dc3a3b53cc2df3cd66be8b331b805d31331c2a8dbcf42e3f58d6fe8a05377667`
+and trace-time source SHA256
+`6a5fa3cf626a07016997c3bdaf32610577c45c9e0fccd60f174205793da7fe2b`.
+The positive integer nanosecond export truncates to microseconds. For an exact
+integer difference `d` in microseconds, the interval is
+`[max(0,nextDown((d-1)/1000)), nextUp((d+1)/1000)]` milliseconds.
+This bounds exported reported timestamps, not hardware presentation or scan-out.
+On the pinned Mac Graphite/Dawn Metal -> OutputPresenterGL ->
+ImageTransportSurfaceOverlayMacEGL path, the feedback timestamp is a future
+display-time estimate computed before the CA tree commit. Ready and latch
+timestamps are user-space samples; the assigned HWCompletion flag does not
+establish physical scan-out. This producer-specific meaning changes neither
+the reported metric nor its targets and does not rescore historical results.
+
+The controller binds raw SHA, clock domain `MAC_MACH_ABSOLUTE_TIME`, document,
+action, epochs, process/layer and already-qualified reporter references. The
+scorer independently checks integer-pair enclosure but remains caller-qualified.
+Wide page endpoint uncertainty, clock/isolation guards, complete envelopes,
+timestamp ties and maximum p95 over every admissible boundary population remain.
+Independent page-interval subtraction keeps its original semantics. No target,
+wait, workload or observer-cost subtraction changes. Clock metadata is absent
+from the retained transport result, so one bounded hash-checked raw read/parse
+occurs after the measured window; it is discarded after binding. Its transient
+allocation and live execution cost still require prospective qualification.

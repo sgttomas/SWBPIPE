@@ -1,3 +1,4 @@
+import { REQUIRED_CHROMIUM_BINDING, PAGE_CLOCK_SOURCE } from "./causal-presentation-extractor.mjs";
 import { beginChromiumCompositorTrace, endChromiumCompositorTrace, CHROMIUM_TRACE_RAW_BYTE_LIMIT } from "./chromium-compositor-trace";
 import { createHash } from "node:crypto";
 import { deflateSync } from "node:zlib";
@@ -5,7 +6,7 @@ import { createContext, runInContext } from "node:vm";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { loadFixture, validateCandidateOracleBinding, validatedPriorBoxBaseline, persistBoxPostcondition, boxCallbackMatchesSnapshot, expectedBoxInspectorHeading, pairedWinnerCueWitness, winnerCuePairs, validateWinnerCuePlan, cueActionBindingsStable, cueCameraGeometryMatches, cueCaptureHasNoDrift, pointCaptureMatchesMarker, captureWinnerCue, installInstrumentation, CUE_GEOMETRY_SOURCE_SHA256, CUE_SOURCE_SHA256 } from "./benchmark-harness";
 import { expect, test } from "@playwright/test";
-import { constructOrbitEvidence, conservativePresentedGap, expectedModelIdentity, frozenTreeExpectation, selectedEpochEvidence,
+import { bindSameTraceDurationBasis, sameTracePresentedGap, constructOrbitEvidence, conservativePresentedGap, expectedModelIdentity, frozenTreeExpectation, selectedEpochEvidence,
   segmentObserverRequirements, FULL_COHORT_RECIPE } from "./full-cohort-controller";
 
 test("frozen controller recipe retains prescribed workload and bounded independent segments", () => {
@@ -628,20 +629,68 @@ test("runtime geometry pin checks self-contained manifests and actual disk sourc
 });
 
 test("orbit constructor preserves full qualified sequence and unchanged interval gaps", () => {
-  const actionAt = 1000, times = [2990,2999,3000.0625,5000,9000,13000.0625,13001,13010];
+  const actionAt = 1000, times = [2990,2999,3000.062,5000,9000,13000.062,13001,13010];
   const results = times.map(t => ({ presentationTraceTimestamp: t * 1000,
     pageToTraceOffsetIntervalMs: { minimum: 0, maximum: 0 },
     actionToPresentationIntervalMs: { lower: t - .125 - actionAt, upper: t + .125 - actionAt } }));
-  const before = structuredClone(results), evidence = constructOrbitEvidence(results, actionAt, "centerline");
+  const input = syntheticTraceInput(results, actionAt), basis = bindSameTraceDurationBasis(input);
+  const boundResults = input.extraction.presentations, before = structuredClone(boundResults), evidence = constructOrbitEvidence(boundResults, actionAt, "centerline", basis);
   expect(evidence.envelope).toEqual({ first: 1, last: 6 });
   expect(evidence.endpoints.map(p=>p.sourceIndex)).toEqual([0,1,2,3,4,5,6,7]);
   expect(evidence.endpoints.map(p=>p.reportedTimestamp)).toEqual(times.map(t=>t*1000));
   expect(evidence.gaps).toHaveLength(5);
   evidence.gaps.forEach((g,i)=> {
     expect(g.fromSourceIndex).toBe(i+1);expect(g.toSourceIndex).toBe(i+2);
-    expect(g.durationIntervalMs).toEqual(conservativePresentedGap(evidence.endpoints[i+1].intervalMs,evidence.endpoints[i+2].intervalMs));
+    expect(g.durationIntervalMs).toEqual(sameTracePresentedGap(evidence.endpoints[i+1].reportedTimestamp,evidence.endpoints[i+2].reportedTimestamp));
   });
   expect(evidence.warmup).toEqual({startMs:1000,endMs:3000});
-  expect(evidence.measured).toEqual({startMs:3000,endMs:13000});expect(results).toEqual(before);
-  expect(()=>constructOrbitEvidence(results.map(r=>({...r,pageToTraceOffsetIntervalMs:{minimum:1,maximum:0}})),actionAt,"centerline")).toThrow("no common source-bound clock mapping");
+  expect(evidence.measured).toEqual({startMs:3000,endMs:13000});expect(boundResults).toEqual(before);
+  expect(()=>constructOrbitEvidence(boundResults.map((r:any)=>({...r,pageToTraceOffsetIntervalMs:{minimum:1,maximum:0}})),actionAt,"centerline",basis)).toThrow("no common source-bound clock mapping");
+});
+
+function syntheticTraceInput(rows: any[], actionAt=1000) {
+  const token="synthetic-bound-orbit", frame="document-A", events:any[]=[{name:"TimeStamp",ts:1000000,pid:41,tid:7,args:{data:{message:`UIF_CAUSAL_V1:ACTION:${token}`,frame}}}];
+  const feedbackMarkers:any[]=[];
+  const presentations=rows.map((r,i)=>{
+    const markerIdentity=`${token}.${i}`;events.push({name:"TimeStamp",pid:41,tid:7,ts:1000100+i,args:{data:{message:`UIF_CAUSAL_V1:FEEDBACK:${markerIdentity}`,frame}}});
+    const reporterBeginEventIndex=events.length;events.push({name:"PipelineReporter",ph:"b",pid:41,tid:9,ts:r.presentationTraceTimestamp-1});
+    const reporterEndEventIndex=events.length;events.push({name:"PipelineReporter",ph:"e",pid:41,tid:9,ts:r.presentationTraceTimestamp});
+    feedbackMarkers.push({markerIdentity,canvasEpoch:1,contextEpoch:2});
+    return {...r,status:"PASS_EXACT_CAUSAL_CHROMIUM_REPORTED_PRESENTATION",feedbackKind:"orbit",token,markerIdentity,actionTraceTimestamp:1000000,
+      canvasEpoch:1,contextEpoch:2,modelGeneration:3,rendererProcessId:41,rendererMainThreadId:7,rendererCompositorThreadId:9,layerTreeId:23,
+      pageClockSource:{...PAGE_CLOCK_SOURCE,crossOriginIsolated:false},pipelineReporterOccurrence:`reporter-${i}`,reporterBeginEventIndex,reporterEndEventIndex};
+  });
+  const rawBytes=Buffer.from(JSON.stringify({metadata:{"clock-domain":"MAC_MACH_ABSOLUTE_TIME"},traceEvents:events}));
+  const rawSha256=createHash("sha256").update(rawBytes).digest("hex");
+  return {rawBytes,capture:{events,rawTraceComplete:true,rawTraceSha256:rawSha256},trace:{traceDataLossOccurred:false,rawTraceTransport:{rawCompleteThroughEof:true,rawSha256}},
+    extraction:{status:"PASS_ALL_CAUSAL_PRESENTATIONS_EXACT_AND_UNAMBIGUOUS",sourceBinding:REQUIRED_CHROMIUM_BINDING,presentations},
+    stopped:{active:{token,feedbackKind:"orbit",documentTimeOrigin:10000,evidenceEpoch:0,armedCanvasEpoch:1,armedContextEpoch:2,
+      actionMarker:{token,listenerObservedAt:actionAt,traceClock:{crossOriginIsolated:false}},feedbackMarkers}}};
+}
+// Independently frozen V65 rational/binary64 expectations, copied as literals (no run dependency).
+test("same-trace integer arithmetic matches independent rational bounds and translation",()=>{
+  const cases=[[0, 0, 0.0010000000000000002], [1, 0, 0.0020000000000000005], [16666, 16.664999999999996, 16.667000000000005], [16667, 16.665999999999997, 16.668000000000003], [33332, 33.330999999999996, 33.333000000000006], [33333, 33.331999999999994, 33.33400000000001], [9007199254740989, 9007199254740.986, 9007199254740.992]];
+  for(const[delta,lower,upper]of cases){
+    expect(sameTracePresentedGap(0,delta)).toEqual({lower,upper});
+    expect(sameTracePresentedGap(Number.MAX_SAFE_INTEGER-delta,Number.MAX_SAFE_INTEGER)).toEqual({lower,upper});
+  }
+  for(const pair of [[2,1],[-1,0],[0,.5],[0,Number.MAX_SAFE_INTEGER+1],[NaN,1],[0,Infinity]])expect(()=>sameTracePresentedGap(...pair as [number,number])).toThrow();
+  expect(conservativePresentedGap({lower:100,upper:100.1},{lower:116.5,upper:116.8})).toEqual({lower:4616189618054759/2**48,upper:4728779608739021/2**48});
+});
+test("same-trace boundary rejects mixed raw clock source document action epoch process and lineage",()=>{
+  const make=()=>syntheticTraceInput([1000001,1016668].map(t=>({presentationTraceTimestamp:t}))), good=make();
+  expect(bindSameTraceDurationBasis(good).references).toHaveLength(2);
+  for(const mutate of [
+    (v:any)=>{v.capture.rawTraceSha256="0".repeat(64);},(v:any)=>{v.trace.rawTraceTransport.rawSha256="0".repeat(64);},
+    (v:any)=>{v.rawBytes=Buffer.from(v.rawBytes.toString().replace("MAC_MACH_ABSOLUTE_TIME","OTHER_CLOCK"));const h=createHash("sha256").update(v.rawBytes).digest("hex");v.capture.rawTraceSha256=h;v.trace.rawTraceTransport.rawSha256=h;},
+    (v:any)=>{v.extraction.sourceBinding={...v.extraction.sourceBinding,revision:"other"};},
+    (v:any)=>{v.capture.events[1].args.data.frame="other";},(v:any)=>{v.stopped.active.documentTimeOrigin=undefined;},
+    (v:any)=>{v.stopped.active.evidenceEpoch=undefined;},(v:any)=>{v.extraction.presentations[1].token="other";},
+    (v:any)=>{v.extraction.presentations[1].canvasEpoch++;},(v:any)=>{v.extraction.presentations[1].contextEpoch++;},
+    (v:any)=>{v.extraction.presentations[1].rendererProcessId++;},(v:any)=>{v.extraction.presentations[1].layerTreeId++;},
+    (v:any)=>{v.extraction.presentations[1].pageClockSource.quantumBoundMs=0;},(v:any)=>{v.stopped.active.actionMarker.traceClock.crossOriginIsolated=undefined;},
+    (v:any)=>{v.extraction.presentations[1].status="FAIL";},(v:any)=>{v.extraction.status="FAIL";},
+    (v:any)=>{v.extraction.presentations[1].reporterEndEventIndex=999;},(v:any)=>{v.stopped.active.feedbackMarkers.pop();},
+    (v:any)=>{v.capture.rawTraceComplete=false;},(v:any)=>{v.trace.traceDataLossOccurred=true;}
+  ]){const bad=make();mutate(bad);expect(()=>bindSameTraceDurationBasis(bad)).toThrow();}
 });

@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { scorePerformanceRun, scorePerformanceCohort, orbitBoundaryPopulations, type PerformanceRun, type RunExpectation,
+import { scorePerformanceRun, scorePerformanceCohort, orbitBoundaryPopulations, SAME_TRACE_EXPORT_PROFILE, type PerformanceRun, type RunExpectation,
   type FixtureSize, type OrbitEvidence, type PerformanceBindings } from "./performance-targets";
 
-import { constructOrbitEvidence } from "./full-cohort-controller";
+import { constructOrbitEvidence, conservativePresentedGap } from "./full-cohort-controller";
 
 const bindings = (size: FixtureSize): PerformanceBindings => ({ validationStatus: "PASS_CALLER_VALIDATED_BINDINGS",
   sourceSha256: "a".repeat(64), buildSha256: "b".repeat(64), fixtureSha256: (size === 1000 ? "c" : "d").repeat(64),
@@ -15,7 +15,7 @@ const actions = (count: number, upper: number) => Array.from({ length: count }, 
 function withEndpoints(e: any): OrbitEvidence {
   // Synthetic reported coordinates use the same binary64 microsecond-to-ms mapping as the caller.
   const times = [e.gaps[0].fromMs, ...e.gaps.map((g: any) => g.toMs)].map((t: number) => (t * 1000) / 1000);
-  return { ...e, traceToPageOffsetMs: 0, endpoints: times.map((coordinateMs: number, sourceIndex: number) => ({ sourceIndex,
+  return { ...e, durationBasis: { kind: "independent-page-interval/v1" }, traceToPageOffsetMs: 0, endpoints: times.map((coordinateMs: number, sourceIndex: number) => ({ sourceIndex,
     coordinateMs, reportedTimestamp: coordinateMs * 1000, intervalMs: { lower: coordinateMs, upper: coordinateMs } })),
     envelope: { first: 0, last: times.length - 1 },
     gaps: e.gaps.map((g: any, i: number) => ({ ...g, fromMs: times[i], toMs: times[i + 1], fromSourceIndex: i, toSourceIndex: i + 1 })) };
@@ -247,9 +247,14 @@ for (const [mode, origin, ties, target] of [["centerline", 9635.5, 30, 16.7], ["
 }
 
 function constructed(times: number[], radius = .125, actionAt = 1000, mode: OrbitEvidence["mode"] = "centerline") {
-  return constructOrbitEvidence(times.map(time => ({ presentationTraceTimestamp: time * 1000,
-    actionToPresentationIntervalMs: { lower: time - radius - actionAt, upper: time + radius - actionAt },
-    pageToTraceOffsetIntervalMs: { minimum: 0, maximum: 0 } })), actionAt, mode);
+  const endpoints=times.map((time,sourceIndex)=>({sourceIndex,reportedTimestamp:time*1000,coordinateMs:time,
+    intervalMs:{lower:time-radius,upper:time+radius}}));
+  const first=endpoints.reduce((found,p,i)=>p.intervalMs.upper<actionAt+2000?i:found,-1),last=endpoints.findIndex(p=>p.intervalMs.lower>actionAt+12000);
+  return { ...validOrbit(mode,10),durationBasis:{kind:"independent-page-interval/v1"} as const,
+    warmup:{startMs:actionAt,endMs:actionAt+2000},measured:{startMs:actionAt+2000,endMs:actionAt+12000},endpoints,envelope:{first,last},
+    gaps:endpoints.slice(first+1,last+1).map((p,i)=>({sampleId:i+1,fromSourceIndex:first+i,toSourceIndex:first+i+1,
+      fromMs:endpoints[first+i].coordinateMs,toMs:p.coordinateMs,qualification:"PASS_QUALIFIED_CAUSAL_EVIDENCE" as const,
+      durationIntervalMs:conservativePresentedGap(endpoints[first+i].intervalMs,p.intervalMs)})) };
 }
 test("uncertain right boundary is qualified rather than nominally rejected", () => {
   const times = [2999, ...Array.from({ length: 1000 }, (_, i) => 3009 + i * 10), 13000.0625, 13009];
@@ -306,4 +311,55 @@ test("endpoint and envelope defects never become a favorable boundary population
     (v:any)=>{v.endpoints.at(-1).intervalMs.lower=v.measured.endMs;},
     (v:any)=>{v.gaps.splice(1,1);},(v:any)=>{v.endpoints.forEach((p:any)=>p.reportedTimestamp=1);}
   ]) {const bad=structuredClone(e);mutate(bad);expect(()=>orbitBoundaryPopulations(bad)).toThrow();}
+});
+
+// Synthetic caller-qualified records exercise the actual constructor, while expected
+// bounds below are frozen rational/binary64 values, not this implementation's output.
+function sameTraceConstructed(times: number[], mode: OrbitEvidence["mode"] = "centerline") {
+  const refs=times.map((t,i)=>({rawCaptureSha256:"a".repeat(64),markerIdentity:`m-${i}`,reportedTimestamp:Math.round(t*1000),
+    reporterOccurrence:`r-${i}`,reporterBeginEventIndex:2*i,reporterEndEventIndex:2*i+1}));
+  const basis:any={kind:"same-trace-integer-us/v1",qualification:"PASS_CALLER_BOUND_SAME_TRACE",rawCaptureSha256:"a".repeat(64),
+    profile:SAME_TRACE_EXPORT_PROFILE,documentFrame:"document",documentTimeOrigin:10000,documentEvidenceEpoch:0,actionListenerObservedAt:1000,
+    crossOriginIsolated:false,actionToken:"orbit",actionTraceTimestamp:1000000,canvasEpoch:1,contextEpoch:2,modelGeneration:3,
+    rendererProcessId:41,rendererMainThreadId:7,rendererCompositorThreadId:9,layerTreeId:"23",references:refs};
+  const results=refs.map(r=>({presentationTraceTimestamp:r.reportedTimestamp,markerIdentity:r.markerIdentity,token:"orbit",feedbackKind:"orbit",
+    actionTraceTimestamp:1000000,canvasEpoch:1,contextEpoch:2,modelGeneration:3,rendererProcessId:41,rendererMainThreadId:7,
+    rendererCompositorThreadId:9,layerTreeId:"23",status:"PASS_EXACT_CAUSAL_CHROMIUM_REPORTED_PRESENTATION",
+    pipelineReporterOccurrence:r.reporterOccurrence,reporterBeginEventIndex:r.reporterBeginEventIndex,reporterEndEventIndex:r.reporterEndEventIndex,
+    actionToPresentationIntervalMs:{lower:r.reportedTimestamp/1000-1000-.125,upper:r.reportedTimestamp/1000-1000+.125},
+    pageToTraceOffsetIntervalMs:{minimum:0,maximum:0}}));
+  return constructOrbitEvidence(results,1000,mode,basis);
+}
+test("same-trace scorer independently rejects narrow bounds and false carried context",()=>{
+  const times=[2999,...Array.from({length:1000},(_,i)=>3009+i*10),13000.062,13009];
+  const e=sameTraceConstructed(times),result=score({...fixture(),centerline:e});
+  expect(result.validityFailures).toEqual([]);
+  expect(result.orbitPopulations.centerline?.map(c=>c.gapCount)).toEqual([1001,1002]);
+  expect(e.gaps[0].durationIntervalMs).toEqual({lower:9.998999999999999,upper:10.001000000000001});
+  expect(e.endpoints[1].intervalMs.upper-e.endpoints[1].intervalMs.lower).toBeGreaterThan(.25);
+  for(const mutate of [
+    (v:any)=>{v.gaps[0].durationIntervalMs.upper=10;},(v:any)=>{v.gaps[0].durationIntervalMs.lower=10;},
+    (v:any)=>{delete v.durationBasis;},(v:any)=>{v.durationBasis.qualification="FAIL";},
+    (v:any)=>{v.durationBasis.references[0].rawCaptureSha256="b".repeat(64);},
+    (v:any)=>{v.durationBasis.profile={...v.durationBasis.profile,exporterSha256:"0".repeat(64)};},
+    (v:any)=>{v.durationBasis.references.pop();},(v:any)=>{v.durationBasis.references[1].reportedTimestamp++;},
+    (v:any)=>{v.durationBasis.references[1].reporterOccurrence=v.durationBasis.references[0].reporterOccurrence;}
+  ]){const bad=structuredClone(e);mutate(bad);expect(score({...fixture(),centerline:bad}).status).toBe("FAIL_INVALID_EVIDENCE");}
+});
+test("same-trace complete populations retain ties and prevent boundary dilution",()=>{
+  // 60 high gaps: rank1139 of1199 is high; rank1140 of1200 is low.
+  const deltas=Array.from({length:1199},(_,i)=>i>=500&&i<560?17000:7885);
+  const start=13000062-deltas.reduce((a,b)=>a+b,0),us=[start];
+  for(const delta of deltas)us.push(us.at(-1)!+delta);
+  us.push(us.at(-1)!+7885);
+  const e=sameTraceConstructed(us.map(t=>t/1000)),result=score({...fixture(),centerline:e});
+  expect(result.validityFailures).toEqual([]);expect(result.status).toBe("FAIL_TARGETS");
+  expect(result.orbitPopulations.centerline?.map(c=>c.gapCount)).toEqual([1199,1200]);
+  expect(result.scores.centerlineP95).toBe(17.001000000000005);
+  expect(result.orbitPopulations.centerline![1].p95UpperMs).toBe(7.886000000000001);
+  const tied=sameTraceConstructed([2999,3000.062,3000.062,5000,9000,13000.062,13001]);
+  expect(tied.gaps.filter(g=>g.fromMs===g.toMs)).toHaveLength(1);
+  expect(tied.gaps.find(g=>g.fromMs===g.toMs)!.durationIntervalMs).toEqual({lower:0,upper:.0010000000000000002});
+  expect(orbitBoundaryPopulations(tied).map(c=>[c.left,c.right])).toEqual([[0,5],[0,6],[2,5],[2,6]]);
+  expect(result.scores.assignment).toBe(2000);expect(result.scores.pointP95).toBe(100);
 });
