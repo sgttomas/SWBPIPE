@@ -1,10 +1,61 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ToolkitPalette } from "./ToolkitPalette";
 import { capabilityAvailability, capabilityRoute, toolkitCapabilities, type ToolkitContext } from "./capabilityCatalog";
 
 const context: ToolkitContext = { selection: { type: "project", id: "project:test" }, selectionCardinality: 1, canUndo: false, canRedo: false, busy: false };
 describe("human toolkit", () => {
+  it("keeps explicit command focus after queued opener callbacks flush", () => {
+    const callbacks: FrameRequestCallback[] = [];
+    const raf = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callbacks.push(callback); return callbacks.length;
+    });
+    try {
+      render(<ToolkitPalette context={context} onChoose={vi.fn()} />);
+      fireEvent.click(screen.getByTestId("toolkit-entry"));
+      const command = screen.getByTestId("toolkit-build.node");
+      expect(command).toBeEnabled();
+      command.focus();
+      expect(command).toHaveFocus();
+      act(() => { for (const callback of callbacks.splice(0)) callback(0); });
+      expect(command).toHaveFocus();
+      expect(raf).not.toHaveBeenCalled();
+    } finally { raf.mockRestore(); }
+  });
+  it("keeps reopened command and dispatched destination focus after old callbacks flush", () => {
+    const callbacks: FrameRequestCallback[] = [];
+    const raf = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callbacks.push(callback); return callbacks.length;
+    });
+    const destination = document.createElement("input");
+    document.body.append(destination);
+    const onChoose = vi.fn(() => destination.focus());
+    try {
+      render(<ToolkitPalette context={context} onChoose={onChoose} />);
+      fireEvent.click(screen.getByTestId("toolkit-entry"));
+      fireEvent.keyDown(screen.getByRole("searchbox"), { key: "Escape" });
+      fireEvent.click(screen.getByTestId("toolkit-group-build"));
+      const command = screen.getByTestId("toolkit-build.node");
+      command.focus();
+      act(() => { for (const callback of callbacks.splice(0)) callback(0); });
+      expect(command).toHaveFocus();
+      fireEvent.click(command);
+      expect(onChoose).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ id: "build.node" }));
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      act(() => { for (const callback of callbacks.splice(0)) callback(0); });
+      expect(destination).toHaveFocus();
+    } finally { raf.mockRestore(); destination.remove(); }
+  });
+  it("consumes owned backdrop pointer default and returns the group invoker", () => {
+    render(<ToolkitPalette context={context} onChoose={vi.fn()} />);
+    const invoker = screen.getByTestId("toolkit-group-build");
+    fireEvent.click(invoker);
+    const event = new Event("pointerdown", { bubbles: true, cancelable: true });
+    fireEvent(document.querySelector(".toolkit-backdrop")!, event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(invoker).toHaveFocus();
+  });
   it("represents all accepted vocabulary rows and only grants executable routes", () => {
     expect([...new Set(toolkitCapabilities.flatMap((entry) => entry.vocabularyRows))].sort((a, b) => a - b)).toEqual(Array.from({ length: 24 }, (_, i) => i + 1));
     expect(new Set(toolkitCapabilities.map((entry) => entry.id)).size).toBe(toolkitCapabilities.length);
@@ -36,7 +87,7 @@ describe("human toolkit", () => {
     expect(screen.getByText("Deferred roadmap")).toHaveFocus();
     fireEvent.keyDown(document.activeElement!, { key: "Tab" });
     expect(search).toHaveFocus();
-    fireEvent.pointerDown(document.body);
+    fireEvent.pointerDown(document.querySelector(".toolkit-backdrop")!);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Find modeling commands" })).toHaveFocus();
   });

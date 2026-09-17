@@ -545,6 +545,117 @@ export async function expectFlatTokenBorders(page: Page, controls: readonly Loca
   }
 }
 
+// The semantic marker is passive; the rendered orientation frame belongs to
+// the main canvas. Painted XYZ quality still requires independent visual review.
+export async function choosePaletteNodeThenSelectWithFocusEvidence(page: Page, testInfo: TestInfo, activation: "keyboard" | "pointer" = "keyboard") {
+  await page.evaluate(() => {
+    const events: unknown[] = [];
+    const listener = (event: Event) => {
+      const target = event.target as Element | null;
+      if (events.length < 64) events.push({ type: event.type, trusted: event.isTrusted,
+        key: event instanceof KeyboardEvent ? event.key : null,
+        targetTag: target?.tagName, targetId: target?.getAttribute("data-testid") || target?.id || null,
+        activeId: document.activeElement?.getAttribute("data-testid") || document.activeElement?.getAttribute("aria-label") || null });
+    };
+    document.addEventListener("focusin", listener, true);
+    document.addEventListener("keydown", listener, true);
+    (window as any).__paletteFocusEvidence = { events, dispose: () => {
+      document.removeEventListener("focusin", listener, true);
+      document.removeEventListener("keydown", listener, true);
+    } };
+  });
+  try {
+    for (const [commandId, destinationId] of [
+      ["toolkit-build.node", "viewport-create-node-id"],
+      ["toolkit-view.select", "model-tree-filter-input"],
+    ]) {
+      const entry = page.getByTestId("toolkit-entry");
+      await expect(entry).toBeEnabled();
+      await entry.focus(); await expect(entry).toBeFocused();
+      if (activation === "keyboard") await page.keyboard.press("Enter");
+      else await entry.click();
+      const dialog = page.getByRole("dialog", { name: "Find a modeling tool" });
+      await expect(dialog).toBeVisible();
+      const command = page.getByTestId(commandId);
+      await expect(command).toBeEnabled();
+      await command.focus(); await expect(command).toBeFocused();
+      if (activation === "keyboard") await page.keyboard.press("Enter");
+      else await command.click();
+      await expect(dialog).toHaveCount(0);
+      await expect(page.getByTestId(destinationId)).toBeVisible();
+      await expect(page.getByTestId(destinationId)).toBeFocused();
+    }
+  } finally {
+    const events = await page.evaluate(() => {
+      const evidence = (window as any).__paletteFocusEvidence;
+      evidence.dispose(); delete (window as any).__paletteFocusEvidence;
+      return evidence.events;
+    });
+    await testInfo.attach(`palette-node-select-${activation}-focus-events`, { body: JSON.stringify(events, null, 2), contentType: "application/json" });
+  }
+}
+
+export async function expectPassiveOrientationFrame(page: Page, testInfo: TestInfo, name: string) {
+  const marker = page.getByTestId("viewport-axis-triad");
+  const witness = await page.getByTestId("viewport-canvas").evaluate((host) => {
+    const canvases = Array.from(host.querySelectorAll("canvas"));
+    const visible = canvases.filter((canvas) => {
+      const box = canvas.getBoundingClientRect();
+      return box.width > 0 && box.height > 0 && getComputedStyle(canvas).visibility !== "hidden";
+    });
+    const canvas = visible[0];
+    if (!canvas) return null;
+    const box = canvas.getBoundingClientRect();
+    const frame = canvas.closest(".viewport-frame")!.getBoundingClientRect();
+    const width = canvas.clientWidth, height = canvas.clientHeight;
+    const size = Math.min(96, Math.floor(Math.min(width, height)));
+    const insetX = Math.min(8, Math.max(0, width - size));
+    const insetY = Math.min(8, Math.max(0, height - size));
+    const clip = { x: box.left + insetX, y: box.top + box.height - insetY - size, width: size, height: size };
+    const offset = 0.5 / devicePixelRatio;
+    const low = offset, high = size - offset, mid = size / 2;
+    const samples = [[mid, mid], [low, low], [high, low], [low, high], [high, high],
+      [mid, low], [mid, high], [low, mid], [high, mid]].map(([x, y]) => {
+      const point = { x: clip.x + x, y: clip.y + y };
+      const hit = document.elementFromPoint(point.x, point.y);
+      return { point, ownedByCanvas: hit === canvas, tag: hit?.tagName ?? null,
+        testId: hit?.getAttribute("data-testid") || null, id: hit?.id || null,
+        owner: hit?.getAttribute("data-testid") || hit?.getAttribute("aria-label") || hit?.id || hit?.tagName || null };
+    });
+    return { canvas: box.toJSON(), frame: frame.toJSON(), client: { width, height }, clip,
+      size, insetX, insetY, dpr: devicePixelRatio, visibleCanvases: visible.length,
+      totalMainCanvases: canvases.length, separateGizmoCanvases: document.querySelectorAll('[data-testid="viewport-axis-triad"] canvas').length,
+      viewport: { width: innerWidth, height: innerHeight }, samples };
+  });
+  await testInfo.attach(`${name}-orientation-witness`, { body: JSON.stringify(witness, null, 2), contentType: "application/json" });
+  await testInfo.attach(`${name}-orientation-context`, { body: await page.screenshot(), contentType: "image/png" });
+  if (witness && witness.size > 0 && witness.clip.x >= 0 && witness.clip.y >= 0 &&
+      witness.clip.x + witness.size <= witness.viewport.width && witness.clip.y + witness.size <= witness.viewport.height) {
+    await testInfo.attach(`${name}-orientation-xyz-crop`, { body: await page.screenshot({ clip: witness.clip }), contentType: "image/png" });
+  }
+  await expect(marker).toBeVisible();
+  await expect(marker).toHaveAccessibleName(/Orientation gizmo.*X.*Y.*Z/i);
+  await expect(marker).toHaveCSS("pointer-events", "none");
+  expect(witness).not.toBeNull();
+  if (!witness) throw new Error("No visible main canvas for passive orientation witness");
+  expect(witness.visibleCanvases).toBe(1);
+  expect(witness.totalMainCanvases).toBe(1);
+  expect(Math.abs(witness.canvas.width - witness.client.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(witness.canvas.height - witness.client.height)).toBeLessThanOrEqual(1);
+  expect(witness.separateGizmoCanvases).toBe(0);
+  expect(witness.size).toBeGreaterThan(0);
+  if (Math.min(witness.client.width, witness.client.height) >= 96) expect(witness.size).toBe(96);
+  for (const bounds of [witness.canvas, witness.frame,
+    { left: 0, top: 0, right: witness.viewport.width, bottom: witness.viewport.height }]) {
+    expect(witness.clip.x).toBeGreaterThanOrEqual(bounds.left);
+    expect(witness.clip.y).toBeGreaterThanOrEqual(bounds.top);
+    expect(witness.clip.x + witness.size).toBeLessThanOrEqual(bounds.right);
+    expect(witness.clip.y + witness.size).toBeLessThanOrEqual(bounds.bottom);
+  }
+  for (const sample of witness.samples) expect(sample.ownedByCanvas, `orientation sample owned by ${sample.owner}`).toBe(true);
+  return witness;
+}
+
 export async function expectCenterUnobscured(
   locator: Locator,
   options: Readonly<{ minimumTarget?: boolean }> = {},

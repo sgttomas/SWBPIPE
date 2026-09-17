@@ -481,6 +481,8 @@ button:focus-visible {
 /* === 2. Workspace layout (TP-APP-R2-UXSHELL-001) === */
 
 .workspace {
+  /* Keep viewport, rail and dock layers below outer menus and drawers. */
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -3479,9 +3481,9 @@ body { min-width: 760px; min-height: 540px; }
 .viewport-toolbar > span:last-child { margin-left: auto; }
 .viewport-display-toggles { gap: 3px; }
 .viewport-display-toggles button { font-size: 10px; padding: 2px 5px; }
-/* Reserve 344px for modelling plus the 6px workspace gap.
-   The saved dock preference still applies whenever that budget is available. */
-.workspace-dock { flex: 0 0 clamp(180px, var(--workspace-dock-height, 260px), 600px); max-height: min(60%, max(0px, calc(100% - 350px))); min-height: 0; border: 1px solid #bccbc3; border-radius: 6px; overflow: hidden; background: #f7f9f8; }
+/* Current measured viewport chrome plus 200px canvas and the workspace gap.
+   Clamping the displayed dock does not change its saved height preference. */
+.workspace-dock { flex: 0 0 clamp(180px, var(--workspace-dock-height, 260px), 600px); max-height: min(60%, max(0px, calc(100% - var(--workspace-modeling-reserve, 100%)))); min-height: 0; border: 1px solid #bccbc3; border-radius: 6px; overflow: hidden; background: #f7f9f8; }
 .workspace-dock-splitter { position: relative; flex: 0 0 24px; width: 100%; min-height: 24px !important; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: row-resize; touch-action: none; }
 .workspace-dock-splitter::after { content: ""; position: absolute; inset: 11px 0; background: var(--ui-divider); }
 .workspace-dock-header { min-height: 32px; padding: 4px 9px; }
@@ -3491,7 +3493,7 @@ body { min-width: 760px; min-height: 540px; }
 .workspace-dock-section { grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 8px; }
 .workspace-dock-section[data-testid="workspace-section-operations"] { display: block; }
 .workspace-dock-section.inactive, .workspace-dock-section[data-testid="workspace-section-operations"].inactive { display: none; }
-.operation-tabs { display: flex; flex-wrap: wrap; gap: 4px; position: sticky; top: -8px; z-index: 2; background: #f7f9f8; padding-bottom: 6px; border-bottom: 1px solid #d6ded9; }
+.operation-tabs { display: flex; flex-wrap: wrap; gap: 4px; background: #f7f9f8; padding-bottom: 6px; border-bottom: 1px solid #d6ded9; }
 .operation-tool-page { min-width: 0; margin-top: 8px; }
 .operation-tool-page[hidden] { display: none; }
 .review-tool-page { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 8px; }

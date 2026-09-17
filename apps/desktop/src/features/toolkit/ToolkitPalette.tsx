@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Box, CircleDot, SlidersHorizontal, Layers, Pencil, MousePointer2, ClipboardCheck, Search, X } from "lucide-react";
 import {
   capabilityAvailability,
@@ -22,14 +22,8 @@ export function ToolkitPalette({ context, onChoose }: Props) {
   const returnFocus = useRef<HTMLButtonElement | null>(null);
   const search = useRef<HTMLInputElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    search.current?.focus();
-    function dismiss(event: PointerEvent) {
-      if (event.target instanceof Node && !dialog.current?.contains(event.target) && !toggle.current?.contains(event.target)) close();
-    }
-    document.addEventListener("pointerdown", dismiss);
-    return () => document.removeEventListener("pointerdown", dismiss);
+  useLayoutEffect(() => {
+    if (open) search.current?.focus();
   }, [open]);
   useEffect(() => {
     function openFromShortcut(event: globalThis.KeyboardEvent) {
@@ -76,7 +70,6 @@ export function ToolkitPalette({ context, onChoose }: Props) {
           returnFocus.current = toggle.current;
           setGroupFilter(null);
           setOpen(!open);
-          if (!open) requestAnimationFrame(() => search.current?.focus());
         }}
       >
         <Search size={16} aria-hidden="true" /> Commands <kbd aria-label="Command K">⌘K</kbd>
@@ -100,7 +93,11 @@ export function ToolkitPalette({ context, onChoose }: Props) {
       </div>
       {open ? (
         <>
-        <div className="toolkit-backdrop" aria-hidden="true" onPointerDown={close} />
+        <div className="toolkit-backdrop" aria-hidden="true" onPointerDown={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          close();
+        }} />
         <div id="toolkit-commands" className="toolkit-commands" ref={dialog} role="dialog" aria-label="Find a modeling tool" aria-modal="true" onKeyDown={(event) => {
           if (event.key !== "Tab") return;
           const focusable = Array.from(dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input, summary') ?? []);

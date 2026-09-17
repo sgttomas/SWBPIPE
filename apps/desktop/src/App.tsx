@@ -1,3 +1,4 @@
+import { observeWorkspaceCanvasBudget } from "./features/workspace/workspaceCanvasBudget";
 import type { ViewportViewCommand } from "./features/viewport/viewportSelection";
 import { HangerSelectionPanel } from "./features/hanger-selection";
 import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
@@ -671,6 +672,12 @@ function AppSession() {
   const [armedCreationTool, setArmedCreationTool] = useState<CreationTool | null>(null);
   const viewportViewCommandRef = useRef<((command: ViewportViewCommand) => void) | null>(null);
   const workspaceShellRef = useRef<HTMLElement | null>(null);
+  const workspaceBudgetRef = useRef<HTMLDivElement | null>(null);
+  useLayoutEffect(() => {
+    const workspace = workspaceBudgetRef.current;
+    if (!model || !workspace) return;
+    return observeWorkspaceCanvasBudget(workspace);
+  }, [Boolean(model)]);
   // Viewport-first agent-mediated shell (TP-R3UX-AGENTSHELL-001): the detailed
   // tree and property inspector start tucked away so the primary screen is the
   // 3D model plus a local review-only agent workbench. The detailed rails remain
@@ -2649,7 +2656,7 @@ function AppSession() {
           />
       </WorkspaceToolbar>
 
-      <div className={activeSection ? "workspace" : "workspace dock-collapsed"}>
+      <div ref={workspaceBudgetRef} className={activeSection ? "workspace" : "workspace dock-collapsed"}>
         <section
           className={`modeling-workspace${treeCollapsed ? " tree-collapsed" : ""}${
             inspectorCollapsed ? " inspector-collapsed" : ""

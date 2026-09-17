@@ -1,3 +1,8 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+const defaultPreviewModel = JSON.parse(readFileSync(fileURLToPath(
+  new URL("../../../fixtures/product_preview/invented_preview_model.json", import.meta.url),
+), "utf8"));
 import { expect, test, type Page } from "@playwright/test";
 import {
   APPEARANCE_DENSITIES,
@@ -5,13 +10,14 @@ import {
   APPEARANCE_VIEWPORTS,
   COMMAND_GROUPS,
   activateWithKeyboard,
+  choosePaletteNodeThenSelectWithFocusEvidence,
   attachBrowserIdentity,
   captureElementState,
-  capturePageClip,
   captureState,
   commandGroupControl,
   ensureRail,
   expectCenterUnobscured,
+  expectPassiveOrientationFrame,
   expectClearOfClosedRailHandles,
   expectContentFits,
   expectFlatTokenBorders,
@@ -68,6 +74,22 @@ test("[preflight] production dist exposes compact command groups and keyboard me
   await expect(dialog.getByTestId("toolkit-build.node")).toBeVisible();
   await expect(dialog.getByTestId("toolkit-loads.cases")).toBeVisible();
   await page.keyboard.press("Escape");
+
+  for (const invoker of ["group", "shortcut"] as const) {
+    const trigger = invoker === "group" ? commandGroupControl(page, "Build") : page.getByTestId("toolkit-entry");
+    if (invoker === "group") await trigger.click();
+    else await page.keyboard.press(`${process.platform === "darwin" ? "Meta" : "Control"}+k`);
+    await expect(dialog).toBeVisible();
+    const point = { x: 10, y: 738 };
+    expect(await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.classList.contains("toolkit-backdrop"), point)).toBe(true);
+    await page.mouse.click(point.x, point.y);
+    await expect(dialog).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+  }
+  await commandGroupControl(page, "Build").click();
+  await dialog.getByRole("button", { name: "Close toolkit" }).click();
+  await expect(commandGroupControl(page, "Build")).toBeFocused();
+  await choosePaletteNodeThenSelectWithFocusEvidence(page, testInfo, "pointer");
 
   const pipe = model.pipe_segments[10];
   await selectTreeRow(page, "pipe", pipe.id);
@@ -159,11 +181,37 @@ test("[visual-clarification] measurement and real pipe task remain unobscured as
   await expect(target).toBeFocused();
   const targetClosed = await expectCenterUnobscured(target, { minimumTarget: true });
   const readoutClosedWitness = await expectCenterUnobscured(readoutClosed);
-  const gizmoClosed = await expectCenterUnobscured(page.getByTestId("viewport-axis-triad"));
+  const gizmoClosed = await expectPassiveOrientationFrame(page, testInfo, "rails-closed-measurement");
   await testInfo.attach("visibility-witness-1024x768-rails-closed", {
     body: JSON.stringify({ measure: measureClosed, focusedMeasurementTarget: targetClosed, measurementReadout: readoutClosedWitness, gizmo: gizmoClosed }, null, 2),
     contentType: "application/json",
   });
+
+  const readSavedPanelSizes = () => page.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem("chirality.desktop.ui-preferences.v1")!);
+    return { left: saved.leftRailPx, right: saved.rightRailPx, dock: saved.dockPx };
+  });
+  const savedPanels = await readSavedPanelSizes();
+  await openWorkspaceSection(page, "operations");
+  await expect(page.getByTestId("workspace-dock")).not.toHaveClass(/collapsed/);
+  await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
+  for (const dockState of ["open", "closed"] as const) {
+    if (dockState === "closed") await page.getByTestId("workspace-dock-close").click();
+    await expect(page.getByTestId("workspace-dock")).toHaveClass(dockState === "closed" ? /collapsed/ : /^(?!.*collapsed)/);
+    await target.focus();
+    await expect(target).toBeFocused();
+    await expectCenterUnobscured(target, { minimumTarget: true });
+    await expectCenterUnobscured(readoutClosed);
+    await expectContentFits(readoutClosed, `measurement with dock ${dockState}`);
+    for (const label of ["Distance", "ΔX", "ΔY", "ΔZ"]) await expect(readoutClosed).toContainText(label);
+    const orientation = await expectPassiveOrientationFrame(page, testInfo, `narrow-measurement-dock-${dockState}`);
+    expect(orientation.canvas.width).toBeGreaterThanOrEqual(200);
+    expect(orientation.canvas.height).toBeGreaterThanOrEqual(200);
+    await expect(page.getByTestId("workspace-dock")).toHaveClass(dockState === "closed" ? /collapsed/ : /^(?!.*collapsed)/);
+    expect(await readSavedPanelSizes()).toEqual(savedPanels);
+    await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("Retained through measurement drawer close");
+    await expect(inspector.getByTestId("inspector-frozen-task-target")).toContainText(`pipe: ${pipe.id}`);
+  }
 
   await ensureRail(page, "inspector", true);
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "false");
@@ -240,6 +288,319 @@ test("[rail-clearance] closed rail handles leave active viewport controls and co
   await expect(inspector.getByTestId("inspector-frozen-task-target")).toContainText(`pipe: ${pipe.id}`);
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("Retained across Measure rail cycles");
 });
+
+for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIES) {
+  test(`content-aware narrow canvas budget ${theme} ${density}`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    for (const content of ["regular", "wrapped"] as const) {
+      let model: any;
+      if (content === "regular") {
+        model = defaultPreviewModel;
+        await page.goto("/");
+        await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+      } else {
+        const original = (await readFixture("precision-origin-base.model.json")).model;
+        model = structuredClone(original);
+        // Only pipe IDs differ; this exact fixture has no pipe-reference owners.
+        expect(original.components).toHaveLength(0);
+        expect(original.load_cases).toHaveLength(0);
+        expect(original.combinations).toHaveLength(0);
+        const mapping = model.pipe_segments.map((pipe: any, index: number) => ({
+          original: pipe.id, replacement: `pipe:${"MEASUREMENT-TARGET-".repeat(8)}${index}`,
+        }));
+        model.pipe_segments.forEach((pipe: any, index: number) => { pipe.id = mapping[index].replacement; });
+        const restored = structuredClone(model);
+        restored.pipe_segments.forEach((pipe: any, index: number) => { pipe.id = mapping[index].original; });
+        expect(restored).toEqual(original);
+        await testInfo.attach(`wrapped-id-map-${theme}-${density}`, { body: JSON.stringify(mapping), contentType: "application/json" });
+        await gotoModel(page, model);
+      }
+      await setAppearance(page, theme, density);
+      if (content === "regular") {
+        await openWorkspaceSection(page, "solve");
+        await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
+        await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+        await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=830");
+        await page.getByTestId("workspace-dock-close").click();
+      }
+      const pipe = model.pipe_segments[0];
+      await selectTreeRow(page, "pipe", pipe.id);
+      await page.getByTestId("clear-model-tree-filter").click();
+      await ensureRail(page, "inspector", true);
+      const inspector = page.getByTestId("property-inspector");
+      await activateWithKeyboard(page, inspector.getByRole("tab", { name: "Task", exact: true }));
+      await activateWithKeyboard(page, inspector.getByTestId("inspector-start-task"));
+      await inspector.getByTestId("editor-intent-value").fill(`Retained ${content} measurement task`);
+      await activateWithKeyboard(page, page.getByTestId("viewport-fit-selection"));
+      const readout = await keyboardMeasureTargets(page, [`Select ${pipe.label} in viewport`]);
+      const target = page.getByRole("button", { name: `Select ${pipe.label} in viewport`, exact: true });
+      const readSizes = () => page.evaluate(() => {
+        const preferences = JSON.parse(localStorage.getItem("chirality.desktop.ui-preferences.v1")!);
+        return { left: preferences.leftRailPx, right: preferences.rightRailPx, dock: preferences.dockPx };
+      });
+      for (const section of content === "regular" ? ["operations", "results"] as const : ["operations"] as const) {
+        for (const desired of [180, 600]) {
+          await openWorkspaceSection(page, section);
+          const dock = page.getByTestId("workspace-dock");
+          await expect(dock).not.toHaveClass(/collapsed/);
+          if (section === "results") await expect(page.getByTestId("result-group-displacement")).toBeVisible();
+          const splitter = page.getByTestId("resize-task-dock");
+          await splitter.focus();
+          const before = Number(await splitter.getAttribute("aria-valuenow"));
+          for (let step = 0; step < Math.ceil(Math.abs(desired - before) / 16); step += 1) {
+            await page.keyboard.press(desired > before ? "ArrowUp" : "ArrowDown");
+          }
+          await expect(splitter).toHaveAttribute("aria-valuenow", String(desired));
+          const saved = await readSizes();
+          for (const state of ["open", "closed"] as const) {
+            if (state === "closed") await page.getByTestId("workspace-dock-close").click();
+            const name = `budget-${theme}-${density}-${content}-${section}-${desired}-${state}`;
+            try {
+              await expect.poll(async () => (await page.getByTestId("viewport-canvas").locator("canvas").boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(200);
+              await expectContentFits(readout, "complete measurement content");
+              await expectCenterUnobscured(readout);
+              for (const label of ["Distance", "ΔX", "ΔY", "ΔZ"]) await expect(readout).toContainText(label);
+              if (content === "wrapped") {
+                const wraps = await readout.evaluate((element) => {
+                  const title = element.querySelector("strong")!.getBoundingClientRect();
+                  const values = element.querySelector(":scope > span")!.getBoundingClientRect();
+                  return values.top > title.top;
+                });
+                expect(wraps, "long authored identity moves values onto another readout row").toBe(true);
+              }
+              await target.focus(); await expect(target).toBeFocused();
+              await expectCenterUnobscured(target, { minimumTarget: true });
+              if (state === "open") {
+                await expect(dock).not.toHaveClass(/collapsed/);
+                await expectCenterUnobscured(splitter, { minimumTarget: true });
+                await expectCenterUnobscured(page.getByTestId("workspace-dock-close"), { minimumTarget: true });
+                const body = page.locator(".workspace-dock-body");
+                if (section === "operations") {
+                  const tab = page.getByTestId("operation-tab-geometry");
+                  await tab.scrollIntoViewIfNeeded(); await tab.focus();
+                  await expect(tab).toBeFocused(); await expectCenterUnobscured(tab);
+                  await tab.click(); await expect(tab).toHaveAttribute("aria-pressed", "true");
+                }
+                const control = section === "operations"
+                  ? body.locator('.operation-tool-page:not([hidden])').getByLabel("Geometry tool", { exact: true })
+                  : body.locator('button:visible:not(:disabled), input:visible:not(:disabled), select:visible:not(:disabled)').first();
+                await expect(control).toBeEnabled();
+                await control.scrollIntoViewIfNeeded(); await control.focus();
+                const readAccess = () => control.evaluate((element) => {
+                  const body = element.closest(".workspace-dock-body")!;
+                  const box = body.getBoundingClientRect();
+                  const clip = { left: Math.max(0, box.left + body.clientLeft), top: Math.max(0, box.top + body.clientTop),
+                    right: Math.min(innerWidth, box.left + body.clientLeft + body.clientWidth),
+                    bottom: Math.min(innerHeight, box.top + body.clientTop + body.clientHeight) };
+                  for (let parent = body.parentElement; parent; parent = parent.parentElement) {
+                    const style = getComputedStyle(parent), rect = parent.getBoundingClientRect();
+                    if (/(auto|scroll|hidden|clip)/.test(style.overflowX)) {
+                      clip.left = Math.max(clip.left, rect.left + parent.clientLeft);
+                      clip.right = Math.min(clip.right, rect.left + parent.clientLeft + parent.clientWidth);
+                    }
+                    if (/(auto|scroll|hidden|clip)/.test(style.overflowY)) {
+                      clip.top = Math.max(clip.top, rect.top + parent.clientTop);
+                      clip.bottom = Math.min(clip.bottom, rect.top + parent.clientTop + parent.clientHeight);
+                    }
+                  }
+                  const target = element.getBoundingClientRect();
+                  const hit = document.elementFromPoint(target.x + target.width / 2, target.y + target.height / 2);
+                  const bodyHit = document.elementFromPoint((clip.left + clip.right) / 2, (clip.top + clip.bottom) / 2);
+                  return { body: box.toJSON(), clientHeight: body.clientHeight, scrollHeight: body.scrollHeight,
+                    scrollTop: body.scrollTop, overflowY: getComputedStyle(body).overflowY,
+                    identity: { tag: element.tagName, id: element.id, label: element.getAttribute("aria-label") },
+                    page: element.closest(".operation-tool-page")?.getBoundingClientRect().toJSON(),
+                    tabs: body.querySelector(".operation-tabs")?.getBoundingClientRect().toJSON(),
+                    activeTab: body.querySelector('.operation-tabs [aria-pressed="true"]')?.textContent,
+                    focused: document.activeElement === element, owned: hit === element || element.contains(hit),
+                    hit: hit?.outerHTML.slice(0, 500), bodyPointOwned: bodyHit === body || body.contains(bodyHit),
+                    target: target.toJSON(), clip };
+                });
+                const initial = await readAccess();
+                let wheel: { deltaY: number; before: number; after?: number } | undefined;
+                try {
+                  // A single ordinary wheel can center an edge-clipped control; no repeated search or tolerance.
+                  if (initial.target.top < initial.clip.top || initial.target.bottom > initial.clip.bottom) {
+                    const deltaY = Math.round((initial.target.top + initial.target.bottom - initial.clip.top - initial.clip.bottom) / 2);
+                    if (deltaY !== 0 && (deltaY < 0 ? initial.scrollTop > 0 : initial.scrollTop < initial.scrollHeight - initial.clientHeight)) {
+                      expect(initial.bodyPointOwned, "wheel point belongs to the scrolling dock body").toBe(true);
+                      wheel = { deltaY, before: initial.scrollTop };
+                      await page.mouse.move((initial.clip.left + initial.clip.right) / 2, (initial.clip.top + initial.clip.bottom) / 2);
+                      await page.mouse.wheel(0, deltaY);
+                      await expect.poll(() => body.evaluate((element) => element.scrollTop)).not.toBe(initial.scrollTop);
+                      wheel.after = await body.evaluate((element) => element.scrollTop);
+                    }
+                  }
+                } finally {
+                  await testInfo.attach(`${name}-dock-control-access`, {
+                    body: JSON.stringify({ initial, wheel, final: await readAccess() }), contentType: "application/json",
+                  });
+                  await captureState(page, testInfo, `${name}-actual-page-control`);
+                }
+                const access = await readAccess();
+                await expect(control).toBeFocused(); await expectCenterUnobscured(control);
+                expect(access.owned).toBe(true);
+                expect(access.clip.right - access.clip.left).toBeGreaterThan(0);
+                expect(access.clip.bottom - access.clip.top).toBeGreaterThan(0);
+                expect(access.overflowY).toMatch(/auto|scroll/);
+                expect(access.target.left).toBeGreaterThanOrEqual(access.clip.left);
+                expect(access.target.right).toBeLessThanOrEqual(access.clip.right);
+                expect(access.target.top).toBeGreaterThanOrEqual(access.clip.top);
+                expect(access.target.bottom).toBeLessThanOrEqual(access.clip.bottom);
+                if (section === "operations") {
+                  const review = page.getByTestId("operation-tab-review");
+                  await review.scrollIntoViewIfNeeded(); await review.focus();
+                  await expect(review).toBeFocused(); await expectCenterUnobscured(review);
+                  await review.click(); await expect(review).toHaveAttribute("aria-pressed", "true");
+                  await testInfo.attach(`${name}-navigation-return`, { body: JSON.stringify({
+                    tab: await review.boundingBox(), body: await body.boundingBox(),
+                    scrollTop: await body.evaluate((element) => element.scrollTop), activeTab: "Review changes",
+                  }), contentType: "application/json" });
+                }
+              } else await expect(dock).toHaveClass(/collapsed/);
+              expect(await readSizes()).toEqual(saved);
+              await expect(inspector.getByTestId("inspector-frozen-task-target")).toContainText(`pipe: ${pipe.id}`);
+              await expect(inspector.getByTestId("editor-intent-value")).toHaveValue(`Retained ${content} measurement task`);
+              const orientation = await expectPassiveOrientationFrame(page, testInfo, name);
+              expect(orientation.canvas.width).toBeGreaterThanOrEqual(200);
+            } finally {
+              const geometry = await page.evaluate(() => {
+                const rect = (selector: string) => document.querySelector(selector)?.getBoundingClientRect().toJSON();
+                return { canvas: rect('[data-testid="viewport-canvas"] canvas'), command: rect(".command-bar"),
+                  toolbar: rect(".viewport-toolbar"), measurement: rect(".viewport-measurement-strip"),
+                  dock: rect(".workspace-dock"), body: rect(".workspace-dock-body"),
+                  reserve: document.querySelector<HTMLElement>(".workspace")?.style.getPropertyValue("--workspace-modeling-reserve"),
+                  overflowX: document.documentElement.scrollWidth - innerWidth,
+                  overflowY: document.documentElement.scrollHeight - innerHeight };
+              });
+              await testInfo.attach(`${name}-geometry`, { body: JSON.stringify({ geometry, saved, actualSaved: await readSizes() }), contentType: "application/json" });
+              await captureState(page, testInfo, name);
+              expect(geometry.overflowX).toBeLessThanOrEqual(0); expect(geometry.overflowY).toBeLessThanOrEqual(0);
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+for (const width of [1024, 1440] as const) {
+  test(`outer overlays own actual workspace intersections and restore controls ${width}`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: width === 1024 ? 768 : 920 });
+    await gotoRoutedFixture(page);
+    const inspectorToggle = page.getByTestId("toggle-inspector");
+    const obstacle = page.getByTestId(width < 1280 ? "toggle-inspector" : "resize-property-inspector");
+    for (const railOpen of width < 1280 ? [false, true] : [true]) {
+      await ensureRail(page, "inspector", railOpen);
+      for (const [drawerId, toggleId] of [
+        ["issues-home", "issues-drawer-toggle"], ["audit-boundary-drawer", "audit-drawer-toggle"],
+      ]) {
+        await page.getByTestId(toggleId).click();
+        const drawer = page.getByTestId(drawerId);
+        await expect(drawer).toBeVisible();
+        const close = drawer.getByRole("button", { name: "Close", exact: true });
+        await expectCenterUnobscured(close, { minimumTarget: true });
+        await expectCenterUnobscured(drawer.getByRole("heading").first());
+        const overlap = await expectOverlayAboveWorkspaceControls(page, drawer, [{ name: "actual inspector layer", locator: obstacle }]);
+        const point = await obstacle.evaluate((element, id) => {
+          const box = element.getBoundingClientRect();
+          const drawerBox = document.querySelector(`[data-testid="${id}"]`)!.getBoundingClientRect();
+          const left = Math.max(box.left, drawerBox.left), right = Math.min(box.right, drawerBox.right);
+          const top = Math.max(box.top, drawerBox.top), bottom = Math.min(box.bottom, drawerBox.bottom);
+          return { x: (left + right) / 2, y: (top + bottom) / 2, width: right - left, height: bottom - top };
+        }, drawerId);
+        expect(point.width).toBeGreaterThan(0);
+        expect(point.height).toBeGreaterThan(0);
+        const assertOwner = async (selector: string, phase: string) => {
+          const hit = await page.evaluate(({ point, selector }) => {
+            const owner = document.elementFromPoint(point.x, point.y);
+            const surface = document.querySelector(selector);
+            return { tag: owner?.tagName, testId: owner?.getAttribute("data-testid") || null,
+              className: owner?.className, owned: !!surface && !!owner && (surface === owner || surface.contains(owner)) };
+          }, { point, selector });
+          await testInfo.attach(`${width}-${railOpen}-${drawerId}-${phase}`, {
+            body: JSON.stringify({ point, overlap, hit }), contentType: "application/json",
+          });
+          expect(hit.owned, `${phase} owns real drawer/workspace intersection`).toBe(true);
+        };
+        await page.getByTestId("menu-view").click();
+        await expectCenterUnobscured(page.getByTestId("menu-item-view.section.operations"), { minimumTarget: true });
+        await assertOwner('[data-testid="app-menu-backdrop"]', "menu-backdrop");
+        await page.mouse.click(point.x, point.y);
+        await expect(page.getByTestId("app-menu-backdrop")).toHaveCount(0);
+        await expect(drawer).toBeVisible();
+        await page.getByTestId("menu-view").click();
+        await page.getByTestId("menu-item-view.section.operations").click();
+        await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
+        await expect(drawer).toBeVisible();
+        await page.getByTestId("toolkit-entry").click();
+        const dialog = page.getByRole("dialog", { name: "Find a modeling tool" });
+        await expect(dialog).toBeVisible();
+        await expectCenterUnobscured(dialog.getByRole("searchbox", { name: "Find a tool" }));
+        const palettePoint = await obstacle.evaluate((element, id) => {
+          const obstacleBox = element.getBoundingClientRect();
+          const drawerBox = document.querySelector(`[data-testid="${id}"]`)!.getBoundingClientRect();
+          const dialogBox = document.querySelector('[role="dialog"][aria-label="Find a modeling tool"]')!.getBoundingClientRect();
+          const intersection = { left: Math.max(0, obstacleBox.left, drawerBox.left),
+            top: Math.max(0, obstacleBox.top, drawerBox.top),
+            right: Math.min(innerWidth, obstacleBox.right, drawerBox.right),
+            bottom: Math.min(innerHeight, obstacleBox.bottom, drawerBox.bottom) };
+          // Subtract the dialog rectangle from the real drawer/control overlap.
+          // Select the largest positive remainder deterministically, without hit sampling.
+          const pieces = [
+            { ...intersection, right: Math.min(intersection.right, dialogBox.left) },
+            { ...intersection, left: Math.max(intersection.left, dialogBox.right) },
+            { left: Math.max(intersection.left, dialogBox.left), right: Math.min(intersection.right, dialogBox.right),
+              top: intersection.top, bottom: Math.min(intersection.bottom, dialogBox.top) },
+            { left: Math.max(intersection.left, dialogBox.left), right: Math.min(intersection.right, dialogBox.right),
+              top: Math.max(intersection.top, dialogBox.bottom), bottom: intersection.bottom },
+          ].map((rect) => ({ ...rect, area: Math.max(0, rect.right - rect.left) * Math.max(0, rect.bottom - rect.top) }))
+            .filter((rect) => rect.area > 0).sort((a, b) => b.area - a.area);
+          const region = pieces[0] ?? null;
+          const point = region ? { x: (region.left + region.right) / 2, y: (region.top + region.bottom) / 2 } : null;
+          const hit = point ? document.elementFromPoint(point.x, point.y) : null;
+          const backdrop = document.querySelector(".toolkit-backdrop");
+          return { obstacle: obstacleBox.toJSON(), drawer: drawerBox.toJSON(), dialog: dialogBox.toJSON(),
+            viewport: { width: innerWidth, height: innerHeight }, intersection, pieces, region, point,
+            owner: hit?.getAttribute("data-testid") || hit?.id || hit?.tagName || null,
+            backdropOwnsPoint: !!backdrop && !!hit && (hit === backdrop || backdrop.contains(hit)) };
+        }, drawerId);
+        await testInfo.attach(`${width}-${railOpen}-${drawerId}-palette-backdrop`, {
+          body: JSON.stringify(palettePoint, null, 2), contentType: "application/json",
+        });
+        expect(palettePoint.region?.area ?? 0).toBeGreaterThan(0);
+        expect(palettePoint.point).not.toBeNull();
+        expect(palettePoint.backdropOwnsPoint).toBe(true);
+        await page.mouse.click(palettePoint.point!.x, palettePoint.point!.y);
+        await expect(dialog).toHaveCount(0);
+        await expect(page.getByTestId("toolkit-entry")).toBeFocused();
+        await expect(drawer).toBeVisible();
+        await page.getByTestId("toolkit-entry").click();
+        const selectCommand = page.getByTestId("toolkit-view.select");
+        await selectCommand.scrollIntoViewIfNeeded();
+        await expectCenterUnobscured(selectCommand, { minimumTarget: true });
+        await selectCommand.click();
+        await expect(dialog).toHaveCount(0);
+        await expect(drawer).toBeVisible();
+        await close.click();
+        await expect(drawer).toHaveCount(0);
+        await ensureRail(page, "inspector", railOpen);
+        await expectCenterUnobscured(obstacle, { minimumTarget: true });
+        await obstacle.focus();
+        await expect(obstacle).toBeFocused();
+        if (width >= 1280) {
+          await obstacle.press("ArrowLeft");
+          await expectCenterUnobscured(obstacle, { minimumTarget: true });
+        } else {
+          await inspectorToggle.click();
+          await expect(inspectorToggle).toHaveAttribute("aria-expanded", String(!railOpen));
+          await inspectorToggle.click();
+          await expect(inspectorToggle).toHaveAttribute("aria-expanded", String(railOpen));
+        }
+      }
+    }
+  });
+}
 
 for (const theme of APPEARANCE_THEMES) {
   for (const density of APPEARANCE_DENSITIES) {
@@ -385,46 +746,6 @@ for (const theme of APPEARANCE_THEMES) {
           contentType: "application/json",
         });
 
-        const gizmo = page.getByTestId("viewport-axis-triad");
-        // This checks semantics only. Glyph quality is judged independently
-        // from the actual shared-renderer scissor crop attached below.
-        await expect(gizmo).toHaveAccessibleName(/Orientation gizmo.*X.*Y.*Z/i);
-        const canvas = page.getByTestId("viewport-canvas");
-        const canvasBox = await canvas.boundingBox();
-        expect(canvasBox).not.toBeNull();
-        const canvasClientSize = await canvas.evaluate((element) => ({
-          height: element.clientHeight,
-          width: element.clientWidth,
-        }));
-        expect(Math.abs(canvasBox!.width - canvasClientSize.width)).toBeLessThanOrEqual(1);
-        expect(Math.abs(canvasBox!.height - canvasClientSize.height)).toBeLessThanOrEqual(1);
-        const rendererGizmoSize = Math.min(96, Math.floor(Math.min(canvasClientSize.width, canvasClientSize.height)));
-        expect(rendererGizmoSize).toBeGreaterThan(0);
-        if (Math.min(canvasClientSize.width, canvasClientSize.height) >= 96) {
-          expect(rendererGizmoSize).toBe(96);
-        }
-        const rendererGizmoInsetX = Math.min(8, Math.max(0, canvasClientSize.width - rendererGizmoSize));
-        const rendererGizmoInsetY = Math.min(8, Math.max(0, canvasClientSize.height - rendererGizmoSize));
-        const rendererGizmoClip = {
-          x: canvasBox!.x + rendererGizmoInsetX,
-          y: canvasBox!.y + canvasBox!.height - rendererGizmoInsetY - rendererGizmoSize,
-          width: rendererGizmoSize,
-          height: rendererGizmoSize,
-        };
-        await testInfo.attach(`orientation-gizmo-frame-${theme}-${density}-${viewport.width}x${viewport.height}`, {
-          body: JSON.stringify({
-            canvas: { boundingBox: canvasBox, clientSize: canvasClientSize },
-            renderedGizmoFrame: {
-              coordinateSystem: "page CSS pixels; renderer lower-left scissor converted to screenshot top-left",
-              insetX: rendererGizmoInsetX,
-              insetY: rendererGizmoInsetY,
-              size: rendererGizmoSize,
-              clip: rendererGizmoClip,
-            },
-            axesExpectedForIndependentVisualReview: ["X", "Y", "Z"],
-          }),
-          contentType: "application/json",
-        });
         await expectWorkspaceGeometry(page, viewport);
         await expectResolvedStyleAndTargets(page);
         await testInfo.attach(`appearance-capture-semantics-${theme}-${density}-${viewport.width}x${viewport.height}`, {
@@ -499,16 +820,7 @@ for (const theme of APPEARANCE_THEMES) {
           contentType: "application/json",
         });
         await captureState(page, testInfo, `unobscured-authoring-${theme}-${density}-${viewport.width}x${viewport.height}`);
-        const gizmoCrop = await capturePageClip(
-          page,
-          testInfo,
-          `orientation-gizmo-renderer-frame-${theme}-${density}-${viewport.width}x${viewport.height}`,
-          rendererGizmoClip,
-        );
-        await testInfo.attach(`root-review-gizmo-crop-xyz-${theme}-${density}-${viewport.width}x${viewport.height}`, {
-          path: gizmoCrop,
-          contentType: "image/png",
-        });
+        await expectPassiveOrientationFrame(page, testInfo, `clean-appearance-${theme}-${density}-${viewport.width}x${viewport.height}`);
       });
     }
   }
@@ -1278,11 +1590,7 @@ for (const route of ["Measure", "palette Node and Select"] as const) test(`${rou
     await page.getByRole("button", { name: "Measure", exact: true }).focus(); await page.keyboard.press("Enter");
     await expect(page.getByRole("button", { name: "Measure", exact: true })).toHaveAttribute("aria-pressed", "true");
   } else {
-    await page.getByTestId("toolkit-entry").focus(); await page.keyboard.press("Enter");
-    await page.getByTestId("toolkit-build.node").focus(); await page.keyboard.press("Enter");
-    await expect(page.getByTestId("viewport-create-node-id")).toBeVisible();
-    await page.getByTestId("toolkit-entry").focus(); await page.keyboard.press("Enter");
-    await page.getByTestId("toolkit-view.select").focus(); await page.keyboard.press("Enter");
+    await choosePaletteNodeThenSelectWithFocusEvidence(page, info);
   }
   const exited = await read(page);
   if (await page.getByTestId("viewport-box-select").getAttribute("aria-pressed") !== "true") {

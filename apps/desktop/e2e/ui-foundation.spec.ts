@@ -3,6 +3,7 @@ import { displayedBoundsForEntityKeys, fittedViewportDistance } from "../src/fea
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   activateWithKeyboard,
+  choosePaletteNodeThenSelectWithFocusEvidence,
   APPEARANCE_THEMES,
   APPEARANCE_DENSITIES,
   APPEARANCE_VIEWPORTS,
@@ -2158,11 +2159,7 @@ for (const route of ["Measure", "palette Node and Select"] as const) test(`${rou
     await page.getByRole("button", { name: "Measure", exact: true }).focus(); await page.keyboard.press("Enter");
     await expect(page.getByRole("button", { name: "Measure", exact: true })).toHaveAttribute("aria-pressed", "true");
   } else {
-    await page.getByTestId("toolkit-entry").focus(); await page.keyboard.press("Enter");
-    await page.getByTestId("toolkit-build.node").focus(); await page.keyboard.press("Enter");
-    await expect(page.getByTestId("viewport-create-node-id")).toBeVisible();
-    await page.getByTestId("toolkit-entry").focus(); await page.keyboard.press("Enter");
-    await page.getByTestId("toolkit-view.select").focus(); await page.keyboard.press("Enter");
+    await choosePaletteNodeThenSelectWithFocusEvidence(page, info);
   }
   const exited = await read(page);
   if (await page.getByTestId("viewport-box-select").getAttribute("aria-pressed") !== "true") {
