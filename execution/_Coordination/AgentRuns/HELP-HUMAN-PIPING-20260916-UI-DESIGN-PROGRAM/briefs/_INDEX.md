@@ -230,4 +230,12 @@ Sealed after the owner ruled D-71 in part and answered the frames' questions in 
 |---|---|---|---|---|---|
 | `DESIGN-SYSTEM-03_revision.md` | `e0af1bda062a3ad6c67693ef394c6825cecbea4a3268ebcd4bd6bdf2e2b61be2` | 2026-09-18T13:37Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone | `../instances/DESIGN-SYSTEM/` (V1.2 in place) |
 
+## Successor ROOT, 2026-09-18: independent review of the ruling records, sealed before launch
+
+A fresh read-only reviewer over the ruling-records candidate `fe0b86e12`, excluding the sealed design brief; its central test is whether every statement about what the owner ruled is supported by the hash-bound verbatim message. Mechanism and parentage as REVIEW-01; the return is the child's final message, retained by ROOT at `../instances/REVIEW/REVIEW-02_RETURN.md`.
+
+| Brief | Sealed SHA-256 | Launched (UTC) | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `REVIEW-02_ruling_records_review.md` | `e742f2e8ac46d0bbe0a1db4e96fec857aedb8154162de7dcffb9d9364a1b80f7` | 2026-09-18T14:05Z | `opus` (Claude Opus 5) | TASK, read-only reviewer, working alone | `../instances/REVIEW/REVIEW-02_RETURN.md` |
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
