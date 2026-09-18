@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-18T00:40:26.111016+00:00",
+  "status": "RELEASE_ONE_FROZEN_ORBIT_SMOKE",
+  "candidate": "97c6e556eb4bc88c13b33e0667d208c7dbb2cf97",
+  "review_return_sha256": "be4ba93f2f33a207458908d090f279f5931efbf86e6e676db26f4aec2efd1d4f",
+  "script_sha256": "a167cf3eb33a4164e8cc7e479300e12210221e74201801cf2c301ec0ca67f04a",
+  "method_sha256": "c36048c44d14acdceb7b15a898c96e38a473e96adb985a07a9694496324426b1",
+  "oracle_sha256": "0b8a0b5239f10547c72907e32160db262288216ed1fb4818551782dc89b05b17",
+  "owner": "/root/d70_runner",
+  "scope": "Only controls-smoke-03, both fixture sizes. Exact frozen start; no coordinate search or label changes.",
+  "timed_cohort": "UNATTEMPTED_AND_HELD",
+  "failure": "Stop and preserve exact blocker. No automatic repairs/retries."
+}

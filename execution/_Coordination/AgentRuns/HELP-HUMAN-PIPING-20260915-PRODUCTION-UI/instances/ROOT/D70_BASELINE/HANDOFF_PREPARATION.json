@@ -1,0 +1,23 @@
+{
+  "upstream": {
+    "ruling": "D-70",
+    "integration_base": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+    "product_source": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e"
+  },
+  "derivative_package": true,
+  "closure_verdict": "PREPARATION_ACTIVE_NOT_COHORT_ACCEPTANCE",
+  "current": [
+    "D70 adoption recorded",
+    "independent expectations and manager inspection active"
+  ],
+  "required": [
+    "independent expectations",
+    "instrument freeze/review",
+    "untimed smoke and bound profile",
+    "one cohort attempt",
+    "report/review/registered checks/Git"
+  ],
+  "remaining_blockers": [],
+  "rerun_rule": "No timed retry or replacement; collect only after preparation prerequisites",
+  "original_handoff_preserved": true
+}

@@ -1,0 +1,23 @@
+{
+  "stage": "freezeOracle",
+  "at": "2026-09-18T00:13:46.540504+00:00",
+  "argv": [
+    "/Users/ryan/.local/share/mise/installs/node/24/bin/node",
+    "apps/desktop/e2e/ui-foundation/freeze-candidate-point-oracle.mjs",
+    "--preflight-dir",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/candidate-camera-preflight",
+    "--output-dir",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-oracle-01",
+    "--visual-tokens",
+    "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI/VISUAL_TOKENS_V4.json",
+    "--cue-source",
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelectionPresentation.ts",
+    "--geometry-source",
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.ts"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping",
+  "environmentOverrides": {},
+  "clearedInheritedKeys": [],
+  "cohortContribution": 0,
+  "beforeBindings": "PASS"
+}

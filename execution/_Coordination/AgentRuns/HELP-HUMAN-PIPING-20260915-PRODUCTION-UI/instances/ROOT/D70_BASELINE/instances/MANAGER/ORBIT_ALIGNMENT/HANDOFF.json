@@ -1,0 +1,18 @@
+{
+  "status": "MANAGER_ORBIT_ALIGNMENT_COMPLETE_REVIEW_READY",
+  "acceptedUpstream": [
+    "MANAGER_REPAIR_ORBIT.md SHA0b4030d6efd8a6f59b3d58e38a2b0409619e794b5545a832be91152afce060da",
+    "controls-smoke-02 canonical failure"
+  ],
+  "derivativePackage": true,
+  "closureVerdict": "faithful smoke alignment verified; runtime readiness remains open",
+  "writerCommit": "6351d270e87793a91be4f785c46a1a890ae74f71",
+  "methodManifestSha256": "c36048c44d14acdceb7b15a898c96e38a473e96adb985a07a9694496324426b1",
+  "rerunRequirements": "ROOT affected review then one smoke requalification; if actual frozen start obstructed report blocker without coordinate adjustment",
+  "remaining": [
+    "affected review",
+    "smoke requalification",
+    "timed cohort held"
+  ],
+  "blockers": []
+}

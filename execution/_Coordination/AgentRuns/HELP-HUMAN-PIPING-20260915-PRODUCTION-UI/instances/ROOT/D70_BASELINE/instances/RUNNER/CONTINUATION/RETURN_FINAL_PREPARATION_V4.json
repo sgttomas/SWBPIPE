@@ -1,0 +1,41 @@
+{
+  "status": "V4_FINAL_PREPARATION_READY_FOR_AFFECTED_REVIEW",
+  "at": "2026-09-18T01:47:26.731763+00:00",
+  "instrumentRevision": "7306e2c6a435831c2f1457458516242decf88055",
+  "method": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/CONTENT_WIDTH_REPAIR/PORTABLE_BACKCHECK/METHOD_MANIFEST_SUCCESSOR.json",
+    "sha256": "6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a"
+  },
+  "verifiedMethodMembers": 34,
+  "policy": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/POLICY_V4.json",
+    "sha256": "e4889e31c0d37c8fb056250b893c9691e1930b8e8e4a49af107ce89fc99f4f77"
+  },
+  "script": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/control_v4.py",
+    "sha256": "3c85a7b02fefad0f08438520bf7da919cc9902780840ece7de9823df992b60ce"
+  },
+  "commands": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/COMMANDS_V4.json",
+    "sha256": "3771cb2debac0435893d4d112baf539dbc22b79ea5e90b28348634ac6366dc24"
+  },
+  "preciseDeltaFromV3": [
+    "Policy instrumentRevision and method path/hash",
+    "Script POLICY_V4 path and policy SHA",
+    "Command references and predecessor metadata"
+  ],
+  "unchanged": [
+    "Guards",
+    "canonical original seed",
+    "fixed ledger",
+    "nine slot order and attempt roots",
+    "smoke-process-02 and continuation-smoke-02",
+    "receipt and launcher CLI",
+    "no overall timeout/no retry"
+  ],
+  "validation": "AST parse and read-only committed hash checks only",
+  "priorVersionsPreserved": true,
+  "registryLedgerAttemptRootsAbsent": true,
+  "runtimeLaunched": false,
+  "receiptsPrepared": false
+}

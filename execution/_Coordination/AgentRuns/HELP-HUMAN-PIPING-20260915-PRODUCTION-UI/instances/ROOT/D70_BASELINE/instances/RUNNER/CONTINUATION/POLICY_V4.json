@@ -1,0 +1,26 @@
+{
+  "schema": "ui-foundation.continuation-policy/v1",
+  "seed": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN.json",
+    "sha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6"
+  },
+  "cohortId": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+  "ledgerRoot": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger",
+  "instrumentProjectRoot": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping",
+  "instrumentRevision": "7306e2c6a435831c2f1457458516242decf88055",
+  "method": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/CONTENT_WIDTH_REPAIR/PORTABLE_BACKCHECK/METHOD_MANIFEST_SUCCESSOR.json",
+    "sha256": "6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a"
+  },
+  "attemptRoots": {
+    "1000.2": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.2",
+    "1000.3": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.3",
+    "1000.4": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.4",
+    "1000.5": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.5",
+    "10000.1": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1",
+    "10000.2": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2",
+    "10000.3": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.3",
+    "10000.4": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.4",
+    "10000.5": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.5"
+  }
+}

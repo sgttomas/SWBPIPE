@@ -1,0 +1,45 @@
+{
+  "revision": "36e56f2d93f763296b09520fe9f7c8481dd6fd54",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "2139a094b075c307a7b5fa26fa3d4a7aa560f6e7e0d8820aa3e398c2455359d4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "968a688ebd03b1cc36df1f3c0064f44323bcff8ff917e34dc9521387cd7a1c2b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+      "sha256": "ffb08f121b36fbeb7fa6c3fdad5528a662d830be1eccda8562d8a544ba7d06c5"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts",
+      "sha256": "7cad30cbc11ab3c536af658b70e30cd7fba94f719e2ca26ea017011ded0690e4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "sha256": "5c14bea4e6bcc84f808bf066564d1eb373861c8ef4a8a5dfd9664f45d0749f08"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-mode.ts",
+      "sha256": "f1ae0ef786854f8cf2ce2a7dcefc25f0029910030cacf9d262a8a493964a80c1"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+      "sha256": "25cfe122fd24d8d25dd348c00e3a64d828dc2f9118c53225ac010b74673a94f3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.mjs",
+      "sha256": "3729ea10f5b3f4f2f11af954b2c4438bf20c4cd6737f8aef02f9b10951e82558"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.d.mts",
+      "sha256": "e1f64817f7b4264b0edec49c83efc1cb3cf3976066d10eff275e80770e184b2b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-characterization-observations.mjs",
+      "sha256": "50055988ca0e3e633bf35ad90d2e27f3ee57b4571204f9b00a72430305475fd3"
+    }
+  ]
+}

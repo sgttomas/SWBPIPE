@@ -1,0 +1,25 @@
+{
+  "baseCommit": "c5e9d53e4af07e9d3a26251474a331924f5e50f1",
+  "inputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/MANAGER_REPAIR_ORBIT.md",
+      "sha256": "0b4030d6efd8a6f59b3d58e38a2b0409619e794b5545a832be91152afce060da"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/raw/run-01/1000/smoke-result.json",
+      "sha256": "878a807f9af984cc5943012f03ffcf1d01036880edf7e94b8a25c1c275359065"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+      "sha256": "8f76a651907af658baf6bf273fffca75272bbcb8310d7431c8e22706d1af3659"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-method-contract.ts",
+      "sha256": "06979207212a2317a0d1a7e6883839f8502383d1e94928dd885e16f35f622944"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "2139a094b075c307a7b5fa26fa3d4a7aa560f6e7e0d8820aa3e398c2455359d4"
+    }
+  ]
+}

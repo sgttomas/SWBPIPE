@@ -1,0 +1,105 @@
+{
+  "status": "BLOCKED_SMOKE_ORBIT_LABEL_POINTER_OBSTRUCTION",
+  "at": "2026-09-18T00:29:11.974712+00:00",
+  "processExit": 1,
+  "testOutcome": {
+    "failed": 1,
+    "unattempted": 1,
+    "sizes": {
+      "1000": "FAIL_AFTER_ASSIGNMENT_POINT_BOX_FILTER",
+      "10000": "UNATTEMPTED"
+    }
+  },
+  "completedActions": [
+    "assignment",
+    "point",
+    "box",
+    "filter"
+  ],
+  "errors": [
+    "Error: smoke pointer target is not the uninstrumented current main canvas: {\"status\":\"FAIL_MAIN_CANVAS_TARGET\",\"clientPoint\":{\"x\":690,\"y\":563.6953125},\"canvasEpoch\":null,\"armedCanvasEpoch\":null,\"exactArmedCanvas\":null,\"canvasConnected\":true,\"exactCanvasTarget\":false,\"targetTag\":\"SPAN\",\"targetTestId\":\"viewport-select-node:UIF-00454\",\"canvasRect\":{\"x\":293,\"y\":285.1953125,\"width\":794,\"height\":557}}"
+  ],
+  "bindingsBeforeAfter": "PASS",
+  "port5176After": {
+    "exit": 1,
+    "stdout": ""
+  },
+  "remainingPinnedBrowserProcesses": [],
+  "smokeMetadata": "Canonical per-run snapshots retained in raw tree; no continuous profile claim",
+  "timedCohortAttempted": false,
+  "cohortContribution": 0,
+  "retryOrRepairPerformed": false,
+  "handoff": "ROOT disposition required; timed launch remains held",
+  "canonicalEvidence": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/process-final.txt",
+      "sha256": "e4be688ee4bcb601bd16a342ce93b364d47f40d9a4b658eb21dd0c64acc4f6c8",
+      "bytes": 119191
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/process-before.txt",
+      "sha256": "621c11592b3c6c1d287932560cdda164f215d06f130ae96f6c2436f3fdadf8bf",
+      "bytes": 186548
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/process.stdout.log",
+      "sha256": "0ae1fa44923cd7b4ea75c5e23162f05425f7dd9a2fe62a9589c087416d6c5a7e",
+      "bytes": 3689
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/process-after.txt",
+      "sha256": "6265a186de366879062dcf1101a48fcb64fac12b0f0098ee16b213c0567abf5c",
+      "bytes": 187298
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/smoke-summary.json",
+      "sha256": "80b5d13d23b6ddbee2f8116f37cae08ac35962c0f150ce17669b0f63de725433",
+      "bytes": 3016
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/process.stderr.log",
+      "sha256": "5f64b5e408f4fe68ab39926bf92f2c7a69d836a30a39ae5cacc4bfd04218fa7d",
+      "bytes": 534
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/smoke-plan.json",
+      "sha256": "dcae35e69d8a537ce16a974c265e3ce2cc2d2349b19a7808438127dcbc6b546b",
+      "bytes": 1787
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/playwright-artifacts/.last-run.json",
+      "sha256": "7e674645a6d4c00cec7219924b9e3fd436643e6650d2b363e5483da19f5d7f0c",
+      "bytes": 96
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/raw/run-01/1000/run-failure.json",
+      "sha256": "ad55422404f66bc0c7c2c9f78850cad587c9468fa41d1779a061f3f50a57178e",
+      "bytes": 555
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/raw/run-01/1000/run-started.json",
+      "sha256": "6bcf8640a5e420cea75f2b29849bee23549a0924e41e8489ed9fd27bfa60e6d9",
+      "bytes": 115
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/raw/run-01/1000/smoke-initial.json",
+      "sha256": "a0e606130247ec1225d9c79d75c54eb36f05cf282b883ab822e75f5ed2f04580",
+      "bytes": 6316
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/raw/run-01/1000/smoke-result.json",
+      "sha256": "878a807f9af984cc5943012f03ffcf1d01036880edf7e94b8a25c1c275359065",
+      "bytes": 2917
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/raw/run-01/1000/smoke-centerline.json",
+      "sha256": "c5a50b3682ec6a17dadf12ade1a97576a1cdc5bb37481df60efedfd8b7c9eee5",
+      "bytes": 6292
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02/playwright-artifacts/ui-foundation-performance.-3e006-mark-candidate-N-1000-run-1-chromium-ui-foundation-candidate-production/error-context.md",
+      "sha256": "5afb30ecbb3aa27132b4f71618d824ed96eea14a25ef03b00d0fc3468b564c58",
+      "bytes": 14563
+    }
+  ]
+}

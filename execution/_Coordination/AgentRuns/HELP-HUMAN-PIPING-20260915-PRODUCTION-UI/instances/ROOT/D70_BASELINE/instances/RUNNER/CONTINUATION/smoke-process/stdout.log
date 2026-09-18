@@ -1,0 +1,41 @@
+
+Running 2 tests using 1 worker
+
+  ✘  1 [chromium-ui-foundation-candidate-production] › apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:118:7 › UI foundation candidate production benchmark › candidate N=1000 run 1 (2.1s)
+  -  2 [chromium-ui-foundation-candidate-production] › apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:118:7 › UI foundation candidate production benchmark › candidate N=10000 run 1
+
+
+  1) [chromium-ui-foundation-candidate-production] › apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:118:7 › UI foundation candidate production benchmark › candidate N=1000 run 1 
+
+    Error: smoke failed: Error: boundary profile/model/binding drift: [{"field":"panels.1.width","before":338,"after":323}]
+
+       at characterization-commands.ts:190
+
+      188 |   const result={status:errors.length?"FAIL_UNTIMED_SMOKE":"PASS_UNTIMED_SMOKE",qualification:false,cohortContribution:0,fixtureSize:expected.fixtureSize,steps,errors,claim:"control-path smoke only; no timing, trace or performance score"};
+      189 |   await writeFile(path.join(directory,"smoke-result.json"),`${JSON.stringify(result,null,2)}\n`,{flag:"wx"});
+    > 190 |   if(errors.length)throw new Error(`smoke failed: ${errors.join("; ")}`);
+          |                          ^
+      191 |   return result;
+      192 | }
+      193 |
+        at runCharacterizationSmoke (/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts:190:26)
+        at /Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:161:24
+
+    Error: both-size smoke incomplete or failed
+
+      91 |       const pass=completed.length===2 && completed.every(r=>r.status==="PASS_UNTIMED_SMOKE");
+      92 |       await writeFile(path.join(evidenceRoot,"smoke-summary.json"),`${JSON.stringify({status:pass?"PASS_BOTH_SIZE_UNTIMED_SMOKE":"FAIL_UNTIMED_SMOKE",cohortContribution:0,runRecords,missing},null,2)}\n`,{flag:"wx"});
+    > 93 |       if(!pass)throw new Error("both-size smoke incomplete or failed");return;
+         |                      ^
+      94 |     }
+      95 |     if(assignmentOnly) {
+      96 |       const result=assignmentDiagnosticSummary(completed,candidateExpectations);
+        at /Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:93:22
+
+    Error Context: ../../../../../task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/playwright-artifacts/ui-foundation-performance.-3e006-mark-candidate-N-1000-run-1-chromium-ui-foundation-candidate-production/error-context.md
+
+    Error Context: ../../../../../task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/playwright-artifacts/ui-foundation-performance.-3e006-mark-candidate-N-1000-run-1-chromium-ui-foundation-candidate-production/error-context.md
+
+  1 failed
+    [chromium-ui-foundation-candidate-production] › apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:118:7 › UI foundation candidate production benchmark › candidate N=1000 run 1 
+  1 did not run

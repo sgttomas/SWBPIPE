@@ -1,0 +1,9 @@
+{
+  "schema": "chirality.piping.d70.runtime-locations/v1",
+  "integration_repo": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917",
+  "instrument_repo": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917",
+  "product_repo": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c",
+  "raw_evidence_root": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917",
+  "custody_sha256": "062d2c6f8213407cebaad70fc2c19236124c05ac91e8ec4632383b3a10fbe10f",
+  "runtime_status": "not authorized; preparation only"
+}

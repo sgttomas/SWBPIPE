@@ -1,0 +1,55 @@
+{
+  "status": "BLOCKED_UNTIMED_CAMERA_LAUNCH_PATH_CONTRACT",
+  "at": "2026-09-18T00:12:26.736699+00:00",
+  "processExit": 1,
+  "testOutcome": "No tests found after module initialization exception",
+  "error": "UI_FOUNDATION_EVIDENCE_DIR must be an absolute instances/VERIFY/** path",
+  "source": "benchmark-harness.ts requireEvidenceRoot line2863",
+  "bindingsBeforeAfter": "PASS",
+  "port5176After": {
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "remainingMatchingProcessComm": [],
+  "cameraCompleted": false,
+  "oracleFrozen": false,
+  "smokeAttempted": false,
+  "timedCohortAttempted": false,
+  "cohortContribution": 0,
+  "retryPerformed": false,
+  "rawCanonicalRoot": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/camera-preflight-01",
+  "rawFiles": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/camera-preflight-01/process-final.txt",
+      "bytes": 117860,
+      "sha256": "30581e89286b75d0c0108b253da65ae6f2c6f1008b30e9a6cb8f83e5b948c7d2"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/camera-preflight-01/process-before.txt",
+      "bytes": 186512,
+      "sha256": "9d1b6c8b96daa00aaf29e433ba870aa3d724fe2fae380af69c7a48a1cecb3379"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/camera-preflight-01/process.stdout.log",
+      "bytes": 897,
+      "sha256": "c1aa6f923f977f0f990073df05a9f38dc362f04911de56d41e229a66137ee923"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/camera-preflight-01/process-after.txt",
+      "bytes": 186512,
+      "sha256": "10ee343b3a36adcfd50e24ea90c97a30179f7b960a68242c86229a14c2f3565a"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/camera-preflight-01/process.stderr.log",
+      "bytes": 206,
+      "sha256": "8afb5f2550477b322460968b874c0153371d56d94d32a7972b83966522fe4fce"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/camera-preflight-01/playwright-artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "e22df5d0991eb28c09093b1e678b3fa8cd1fab48185d38e67cf79fb6e63ad5ea"
+    }
+  ],
+  "handoff": "ROOT disposition needed; compatible external subtree would include instances/VERIFY. No repair or retry authorized under current release."
+}

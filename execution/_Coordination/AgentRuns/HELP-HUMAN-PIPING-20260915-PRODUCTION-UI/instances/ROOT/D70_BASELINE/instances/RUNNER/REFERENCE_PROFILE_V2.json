@@ -1,0 +1,26 @@
+{
+  "schema": "ui-foundation.reference-profile/v1",
+  "cohortId": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+  "productRevision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "hostModel": "Apple M5 Max",
+  "memoryBytes": 137438953472,
+  "refreshHz": 60,
+  "externallyVerified": true,
+  "verificationEvidence": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/DISPLAY_PROFILE_VERIFIED.json#sha256=a730522a40132bfcf3a0819755d428c7dbbba996531c7c6850eb2c8bce14be30",
+  "verifiedAt": "2026-09-17T23:49:08.859497+00:00",
+  "viewport": [
+    1440,
+    920
+  ],
+  "browserDpr": 2,
+  "effectiveDprCap": 2,
+  "display": {
+    "name": "LG ULTRAFINE",
+    "vendor": "1e6d",
+    "product": "5bcb",
+    "serial": "2011a",
+    "pixels": "3840 x 2160",
+    "resolution": "1920 x 1080 @ 60.00Hz",
+    "mirror": "spdisplays_off"
+  }
+}

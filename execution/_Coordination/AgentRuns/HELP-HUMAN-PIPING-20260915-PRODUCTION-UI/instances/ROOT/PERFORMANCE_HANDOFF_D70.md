@@ -1,0 +1,15 @@
+# D-70 rendering baseline — redesign handoff
+
+The single authorized characterization attempt ended incomplete. The first 1,000-pipe run stopped at its first point-selection boundary check with `boundary profile/model/binding drift`; the remaining nine runs were unattempted. No run completed validly, and no retries or replacement samples were collected.
+
+The [baseline report](D70_BASELINE/instances/RUNNER/BASELINE_REPORT.md) owns the measured values, metadata and limitations. The [runner return](D70_BASELINE/instances/RUNNER/RETURN.json) and [canonical evidence manifest](D70_BASELINE/instances/RUNNER/CANONICAL_EVIDENCE_MANIFEST.json) bind the retained evidence. Product source is PR #789 merge `8468a33c86adb622b25e98f98b0eaf28c7e9fa0e`; instrument source is `36e56f2d93f763296b09520fe9f7c8481dd6fd54`. Governance is D-70 through PR #790 merge `fc21b00d0b4233349c7fa8df433d6a82e9f7678e`.
+
+Assignment evidence retains a 271.338 ms upper bound against the original 2,000 ms target. Selection, filtering and orbit populations are unavailable. Cleanup passed, but the final settled-frame count is null, so settled-zero is unestablished. Before/after external bindings passed; the exact field behind the failed boundary check is not established. Partial trace events cannot substitute for the prescribed orbit populations.
+
+Under D-70, this report supplies the performance handoff condition for redesign implementation. Final independent review, the registered sweep, local checks and actual-candidate CI/merge remain closeout requirements at this snapshot. This is an incomplete baseline, not a performance pass or proof of redesign implementation readiness. The design program retains its own readiness and approval responsibilities; coordination passes through the owner.
+
+The design program owns a rendering brief after its concept phase and a proposal for future acceptance criteria. Those criteria require score-independent rationale, prospective freezing, identical application to baseline and candidate, and owner ruling before use. Overlay/deformation observations follow separately when both the brief and the implemented features exist. They block neither this handoff nor design progress. No further benchmark attempt or compositor investigation is part of this tranche.
+
+The D-68 performance, settled-frame and resource obligations carry forward. Earlier native lifecycle evidence (V12–V17, V83 and V103) remains attributable only to its recorded source and execution. The [prior resource applicability record](FINAL_RESOURCE_APPLICABILITY.json) retains V56 and later source/unit applicability limits; this attempt is not a new full resource qualification. D-58, PDU-045/PDU-046, decomposition 0.12, DAG-010, R5, lifecycle state, CAEPIPE and harness deferrals remain unchanged. Pressure, connectors and sparse execution require separate coordinated scope.
+
+This is a derivative handoff from D-70 and the bound execution evidence. Original plans, handoffs, rulings and failed evidence remain preserved. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

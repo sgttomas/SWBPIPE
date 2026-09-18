@@ -1,5 +1,9 @@
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import { collectionMode, runCollectionDisposition, bindReferenceProfile, CHARACTERIZATION_PRODUCT_REVISION } from "./characterization-mode";
+import { benchmarkCommands, captureBoundary, persistBoundary, prepareFilterInput, insertFilterQuery, FILTER_STIMULUS, captureDisplayProfile } from "./characterization-commands";
 import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile, realpath } from "node:fs/promises";
+import { mkdir, readFile, writeFile, realpath, readdir } from "node:fs/promises";
 import path from "node:path";
 import { performance as nodePerformance } from "node:perf_hooks";
 import { setTimeout as delay } from "node:timers/promises";
@@ -307,43 +311,25 @@ async function resetProject(page: Page, fixture: LoadedFixture, timeout: number)
   const snapshots = [];
   // Real keyboard navigation remounts the first virtual rows after viewport
   // selection has legitimately moved tree focus to a distant entity.
-  const tree = page.getByTestId("model-tree-virtual");
-  await tree.focus({ timeout }); await tree.press("Home", { timeout });
+  const commands = benchmarkCommands(page, timeout);
+  await commands.home();
   for (const ref of [alternate, project]) {
     const before = (await readCandidateDiagnostics(page)).snapshot;
-    await page.getByTestId(treeRowTestId(ref, "candidate")).click({ timeout });
+    await commands.select(ref);
     snapshots.push(await waitForCandidateExclusiveSelection(page, ref, before.model.generation,
       before.viewport.selection.actionSequence, before.viewport.mainRender.submissionSequence, timeout));
   }
   return snapshots;
 }
 async function cameraRecipe(page: Page, fixture: LoadedFixture, timeout: number) {
-  await ensureViewportToggle(page, "viewport-box-select", false, timeout);
-  await page.getByTestId("viewport-view-isometric").click({ timeout });
-  await page.getByTestId("viewport-fit-model").click({ timeout });
+  await benchmarkCommands(page, timeout).camera();
   await delay(FULL_COHORT_RECIPE.settleMs);
   return validateCandidateMeasuredCameraBinding(page, fixture.pointOracle);
 }
 
-export async function performanceExpectation(fixture: LoadedFixture, binding: CandidateDriverBinding,
-  identity: Omit<RunExpectation, "bindings">): Promise<RunExpectation> {
-  const currentEntry = bindCandidateDriverEntry(binding.driver);
-  if (JSON.stringify(currentEntry) !== JSON.stringify(binding)) throw new Error("candidate entry binding drift");
-  if (JSON.stringify(JSON.parse(await readFile(fixture.samplesPath, "utf8"))) !== JSON.stringify(fixture.samples)) throw new Error("loaded sample inventory drift");
-  if (fixture.model.pipe_segments?.length !== identity.fixtureSize || fixture.samples.fixture_pipe_count !== identity.fixtureSize ||
-      fixture.samples.point_selection?.length !== 200 || fixture.samples.box_selection?.length !== 20 || fixture.samples.tree_filters?.length !== 20) {
-    throw new Error("fixture/run/sample inventory mismatch");
-  }
-  if (digest(await readFile(fixture.modelPath)) !== digest(fixture.bytes) ||
-      digest(await readFile(fixture.pointOraclePath)) !== fixture.pointOracleSha256) throw new Error("loaded fixture/oracle bytes drift");
-  await validateCandidateOracleBinding(fixture, identity.fixtureSize);
-  const methodPath = process.env.UI_FOUNDATION_METHOD_MANIFEST_PATH;
-  const methodSha = process.env.UI_FOUNDATION_METHOD_MANIFEST_SHA256;
-  if (!methodPath || !path.isAbsolute(methodPath) || !/^[a-f0-9]{64}$/.test(methodSha ?? "")) throw new Error("final method manifest is required");
-  const bytes = await readFile(methodPath);
-  if (digest(bytes) !== methodSha) throw new Error("method manifest hash drift");
-  const method = JSON.parse(bytes.toString());
-  const requiredMethodFiles = [
+export const requiredMethodFiles = [
+    "characterization-mode.ts", "characterization-commands.ts", "characterization-observations.mjs",
+    "characterization-observations.d.mts", "verify-characterization-observations.mjs", "README.md",
     "benchmark-harness.ts",
     "candidate-server-response.ts",
     "chromium-compositor-trace.ts",
@@ -370,6 +356,55 @@ export async function performanceExpectation(fixture: LoadedFixture, binding: Ca
     "playwright.performance.config.ts",
     "serve-bound-candidate-output.mjs", "freeze-candidate-point-oracle.mjs", "point-hit-oracle.mjs", "box-selection-oracle.mjs"
 ];
+export function validateInventoryCoverage(declared: readonly {path:string}[], actual: readonly string[], root: string) {
+  const names=declared.map(e=>e.path).filter(name=>name.startsWith(`${root}/`)).sort();
+  if(new Set(declared.map(e=>e.path)).size!==declared.length || JSON.stringify(names)!==JSON.stringify([...actual].sort())) throw new Error(`incomplete or duplicate product inventory: ${root}`);
+}
+export function validateFinalProductProvenance(stage: string, revision: string, gitHead: string, sameRoot: boolean) {
+  if(stage!=="final" || revision!==CHARACTERIZATION_PRODUCT_REVISION || gitHead!==CHARACTERIZATION_PRODUCT_REVISION || sameRoot)throw new Error("separate frozen final product provenance required");
+}
+export async function validateCharacterizationProduct(binding: CandidateDriverBinding, bundle: any) {
+  const {stdout}=await promisify(execFile)("git",["rev-parse","HEAD"],{cwd:binding.candidateSourceRoot});
+  validateFinalProductProvenance(binding.sourceStage,bundle.productRevision,stdout.trim(),await realpath(binding.candidateSourceRoot)===await realpath(process.cwd()));
+  const inventory = async (relative: string): Promise<string[]> => {
+    const entries = await readdir(path.join(binding.candidateSourceRoot, relative), { withFileTypes: true });
+    const result: string[] = [];
+    for (const entry of entries) {
+      const name = `${relative}/${entry.name}`;
+      if (entry.isDirectory()) result.push(...await inventory(name));
+      else if (entry.isFile()) result.push(name);
+      else throw new Error("unsupported product inventory entry");
+    }
+    return result.sort();
+  };
+  const sources = [...(bundle.source ?? []), ...(bundle.mutableTestOnlySourceSnapshot ?? [])];
+  for (const [root, declared] of [["apps/desktop/src", sources], ["apps/desktop/src-tauri/src", sources], ["apps/desktop/dist", bundle.files], ["apps/desktop/public/wasm-engine", bundle.files]] as const)
+    validateInventoryCoverage(declared,await inventory(root),root);
+  for(const entry of [...sources,...bundle.files]) {
+    if(typeof entry.path!=="string" || path.isAbsolute(entry.path) || entry.path.split(/[\\/]/).includes(".."))throw new Error("product inventory path invalid");
+    const bytes=await readFile(path.join(binding.candidateSourceRoot,entry.path));
+    if(bytes.length!==entry.bytes || digest(bytes)!==entry.sha256)throw new Error(`product source/dist bytes drift: ${entry.path}`);
+  }
+}
+export async function performanceExpectation(fixture: LoadedFixture, binding: CandidateDriverBinding,
+  identity: Omit<RunExpectation, "bindings">): Promise<RunExpectation> {
+  const currentEntry = bindCandidateDriverEntry(binding.driver);
+  if (JSON.stringify(currentEntry) !== JSON.stringify(binding)) throw new Error("candidate entry binding drift");
+  if (JSON.stringify(JSON.parse(await readFile(fixture.samplesPath, "utf8"))) !== JSON.stringify(fixture.samples)) throw new Error("loaded sample inventory drift");
+  if (fixture.model.pipe_segments?.length !== identity.fixtureSize || fixture.samples.fixture_pipe_count !== identity.fixtureSize ||
+      fixture.samples.point_selection?.length !== 200 || fixture.samples.box_selection?.length !== 20 || fixture.samples.tree_filters?.length !== 20) {
+    throw new Error("fixture/run/sample inventory mismatch");
+  }
+  if (digest(await readFile(fixture.modelPath)) !== digest(fixture.bytes) ||
+      digest(await readFile(fixture.pointOraclePath)) !== fixture.pointOracleSha256) throw new Error("loaded fixture/oracle bytes drift");
+  await validateCandidateOracleBinding(fixture, identity.fixtureSize);
+  const methodPath = process.env.UI_FOUNDATION_METHOD_MANIFEST_PATH;
+  const methodSha = process.env.UI_FOUNDATION_METHOD_MANIFEST_SHA256;
+  if (!methodPath || !path.isAbsolute(methodPath) || !/^[a-f0-9]{64}$/.test(methodSha ?? "")) throw new Error("final method manifest is required");
+  const bytes = await readFile(methodPath);
+  if (digest(bytes) !== methodSha) throw new Error("method manifest hash drift");
+  const method = JSON.parse(bytes.toString());
+
   if (!Array.isArray(method.files) || method.files.length !== requiredMethodFiles.length || new Set(method.files.map((f: any) => f.path)).size !== method.files.length ||
       requiredMethodFiles.some((name) => !method.files.some((f: any) => f.path === `apps/desktop/e2e/ui-foundation/${name}`))) throw new Error("method inventory incomplete");
   for (const file of method.files) {
@@ -379,6 +414,7 @@ export async function performanceExpectation(fixture: LoadedFixture, binding: Ca
   const bundleBytes = await readFile(binding.candidateBundleManifestPath);
   if (digest(bundleBytes) !== binding.candidateBundleManifestSha256) throw new Error("candidate bundle manifest changed");
   const bundle = JSON.parse(bundleBytes.toString());
+  if (collectionMode(process.env.UI_FOUNDATION_COLLECTION_MODE) === "characterization") await validateCharacterizationProduct(binding,bundle);
   for (const [root, entries] of [[binding.candidateSourceRoot, bundle.source], [binding.candidateSourceRoot, bundle.files]] as const) {
     if (!Array.isArray(entries) || !entries.length) throw new Error("candidate source/dist inventory absent");
     for (const entry of entries) {
@@ -475,13 +511,15 @@ type Segment = { token: string; kind: string; directory: string; stoppedPath: st
 export async function runCandidateCausalPerformance(page: Page, fixture: LoadedFixture, expected: RunExpectation,
   directory: string, options: { focused?: boolean; assignmentOnly?: boolean; timeoutMs: number; binding: CandidateDriverBinding }) {
   candidateDiagnosticMode(process.env.UI_FOUNDATION_DIAGNOSTIC_MODE, options.focused, options.assignmentOnly === true);
+  const mode = collectionMode(process.env.UI_FOUNDATION_COLLECTION_MODE, "candidate", process.env.UI_FOUNDATION_DIAGNOSTIC_MODE, options.focused);
+  const characterization = mode === "characterization";
   await mkdir(directory, { recursive: true });
   const actualViewport = await page.evaluate(() => ({ width: innerWidth, height: innerHeight, deviceScaleFactor: devicePixelRatio }));
   await immutable(path.join(directory, "initialized.json"), { expected, actualViewport,
     fixturePreparationMilliseconds: { fileRead: fixture.readMs, modelParse: fixture.parseMs,
       supportFilesRead: fixture.supportFilesReadMs, supportFilesParse: fixture.supportFilesParseMs,
       meaning: "Host preparation outside original product assignment interval; no subtraction" },
-    recipe: FULL_COHORT_RECIPE, focused: options.focused === true,
+    mode, recipe: FULL_COHORT_RECIPE, focused: options.focused === true,
     qualificationScope: options.assignmentOnly ? "ASSIGNMENT_ONLY_INCOMPLETE_WORKLOAD_ZERO_COHORT" : options.focused ? "METHOD_ONLY_ZERO_COHORT_SAMPLES" : "PRESCRIBED_INSTRUMENTED_COHORT_RUN" });
   if (actualViewport.width !== 1440 || actualViewport.height !== 920 || actualViewport.deviceScaleFactor !== 2) throw new Error("prescribed viewport/DPR binding mismatch");
   const initialStorage = await page.context().storageState();
@@ -489,6 +527,15 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
   const segments: Segment[] = [];
   const errors: { phase: string; error: string }[] = [];
   let restore: any = null;
+  let profile: Awaited<ReturnType<typeof bindReferenceProfile>> | undefined, display: any;
+  let initialBoundary: any;
+  const boundaries: any[] = [];
+  const boundary = async (id: string) => {
+    if (!characterization) return undefined;
+    const metadata = await captureBoundary(page, expected, id, initialBoundary, directory);
+    initialBoundary ??= metadata;
+    const ref = await persistBoundary(directory, metadata); boundaries.push(ref); return ref;
+  };
   const timeout = options.timeoutMs;
   const action = async (kind: string, sample: number, work: (token: string, dir: string, stopAction: () => Promise<{evidence:any;stoppedSha256:string}>) => Promise<any>) => {
     const token = `${expected.runId}.${kind}.${sample}`;
@@ -504,7 +551,11 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
       },
       work: stopAction => work(token, dir, stopAction),
       stop: () => stopCausalFeedbackMarker(page, token),
-      persist: evidence => immutable(path.join(dir, "action-stopped.json"), evidence),
+      persist: async evidence => {
+        const sha = await immutable(path.join(dir, "action-stopped.json"), evidence);
+        await boundary(`${kind}-${sample}-stopped`);
+        return sha;
+      },
       finalize: async () => {
         trace = await endChromiumCompositorTrace(page, traceState.capture!);
         await immutable(path.join(dir, "trace-finalized.json"), trace);
@@ -535,7 +586,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
       capture: traceState.capture, trace, extraction, stopped }) : undefined;
     const segment = { token, kind, orbitDurationBasis, directory: dir, stoppedPath: path.join(dir, "action-stopped.json"), stoppedSha256,
       extraction, auxiliary: { ...auxiliary, evidence: undefined }, window };
-    await immutable(path.join(dir, "derived.json"), { ...segment, excludedInvalidatedContentMarkers: selected.excludedInvalidatedContentMarkers });
+    await immutable(path.join(dir, "derived.json"), { ...segment, metadataReferences: boundaries.filter(b => b.id.startsWith(`${kind}-${sample}-`)), excludedInvalidatedContentMarkers: selected.excludedInvalidatedContentMarkers });
     segments.push(segment);
     const drain = await page.evaluate(({ token, sha }) => (globalThis as any).__uifHarness.causal.acknowledgeStopped(token, sha), { token, sha: stoppedSha256 });
     await immutable(path.join(dir, "drain-acknowledged.json"), drain);
@@ -560,6 +611,11 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
       lower: Math.max(0, segment.extraction.results[0].actionToPresentationIntervalMs.lower),
       upper: segment.extraction.results[0].actionToPresentationIntervalMs.upper } });
   try {
+    if (characterization) {
+      profile = await bindReferenceProfile();
+      display = await captureDisplayProfile(directory, "before", profile.record.display);
+      await immutable(path.join(directory, "reference-profile-before.json"), { profile, display });
+    }
     const assignmentToken = `${expected.runId}.assignment.1`;
     await installInstrumentation(page, { captureGlobalRaf: false, causalFeedbackMarkers: true,
       assignmentSpecification: { token: assignmentToken, phase: "candidate", feedbackKind: "assignment", actionStartEvent: "assignment",
@@ -574,6 +630,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
       await delay(FULL_COHORT_RECIPE.settleMs);
       return stopAction();
     });
+    await boundary("initial-presentation");
     // Same-model responsiveness witness is outside the assignment metric.
     const responsive = await resetProject(page, fixture, timeout);
     if (responsive.some((s) => s.model.generation !== assignment!.extraction.results[0].modelGeneration ||
@@ -616,6 +673,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
         const beforeImage = path.join(dir, "highlight-before.png"), afterImage = path.join(dir, "highlight-after.png");
         const beforeCapture = await captureWinnerCue(page, probe, beforeImage);
         await immutable(path.join(dir, "point-before.json"), { before, beforeCapture, plan, expectedRef, probe });
+        await boundary(`point-selection-${sample.sample}-ready`);
         await armCausalFeedbackMarker(page, { token, phase: "candidate", feedbackKind: "point-selection", actionStartEvent: "pointerdown",
           expectedActionTargetTestId: "viewport-canvas", maximumFeedbackMarkers: 1,
           actionIdentity: { sample: sample.sample, expectedRef, expectedCssPoint: point, expectedCanvasLocalPoint: local, expectedClientPoint: point },
@@ -662,6 +720,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
         const resourceGeneration = before.viewport.mainRender.selectionPresentation?.resourceGeneration;
         if (!Number.isSafeInteger(resourceGeneration) || resourceGeneration <= 0) throw new Error("Box rendered resource binding unavailable");
         const expectedInspectorHeading = expectedBoxInspectorHeading(fixture.model, box.orderedRefs, box.primaryRef, fixture.model.project.id);
+        await boundary(`box-selection-${sample.sample}-ready`);
         await armCausalFeedbackMarker(page, { token, phase: "candidate", feedbackKind: "box-selection", actionStartEvent: "pointerup",
           expectedActionTargetTestId: "viewport-canvas", maximumFeedbackMarkers: 1,
           actionIdentity: { sample: sample.sample, start, end, direction: box.direction, filter: box.filter, oracleSha256: fixture.pointOracleSha256 },
@@ -712,12 +771,15 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
           const ancestors = []; for (let e: Element | null = root; e; e = e.parentElement) ancestors.push(e);
           return ancestors.map((e) => `${e.tagName}|${e.className}|${e.getAttribute("style") ?? ""}`);
         });
+        if (characterization) await prepareFilterInput(page, timeout);
+        await boundary(`tree-filter-${sample.sample}-ready`);
         await armCausalFeedbackMarker(page, { token, phase: "candidate", feedbackKind: "tree-filter", actionStartEvent: "input",
           expectedActionTargetTestId: "model-tree-filter-input", maximumFeedbackMarkers: 4096,
-          actionIdentity: { sample: sample.sample, query: sample.query, fixtureSha256: expected.bindings.fixtureSha256 },
+          actionIdentity: { sample: sample.sample, query: sample.query, fixtureSha256: expected.bindings.fixtureSha256, stimulus: characterization ? FILTER_STIMULUS : "historical-playwright-fill" },
           treeExpectation: { ...frozenTreeExpectation(fixture.model, sample.query), layoutSignature },
           candidateExpectation: { ...modelExpectation(before), priorActionSequence: before.viewport.filter.actionSequence } });
-        await input.fill(sample.query, { timeout });
+        if (characterization) await insertFilterQuery(page, sample.query);
+        else await input.fill(sample.query, { timeout });
         await delay(FULL_COHORT_RECIPE.settleMs);
         const stopped = await stopAction();
         await page.screenshot({ path: path.join(dir, "appearance.png") });
@@ -741,6 +803,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
         await cameraRecipe(page, fixture, timeout);
         const before = (await readCandidateDiagnostics(page, true)).snapshot;
         const canvas = await requireUniqueConnectedMainCanvas(page), start = normalizedCanvasPoint(canvas.box, ORBIT_START_NORMALIZED);
+        await boundary(`orbit-${mode === "centerline" ? 1 : 2}-ready`);
         await armCausalFeedbackMarker(page, { token, phase: "candidate", feedbackKind: "orbit", actionStartEvent: "pointerdown",
           expectedActionTargetTestId: "viewport-canvas", maximumFeedbackMarkers: FULL_COHORT_RECIPE.maximumFeedbackMarkers,
           actionIdentity: { gesture: "frozen-orbit-pointer-path", mode, startNormalized: ORBIT_START_NORMALIZED,
@@ -779,10 +842,20 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
   finally {
     try { restore = await restoreCausalFeedbackInstrumentation(page); }
     catch (error) { errors.push({ phase: "restore", error: String(error) }); }
-    await immutable(path.join(directory, "restoration.json"), { restore, errors });
+    try { await immutable(path.join(directory, "restoration.json"), { restore, errors }); }
+    catch (error) { errors.push({ phase: "restore-persist", error: String(error) }); }
+    if (characterization) {
+      try {
+        const postProfile = await bindReferenceProfile();
+        if (!profile || JSON.stringify(postProfile) !== JSON.stringify(profile)) throw new Error("reference profile drift");
+        const postDisplay = await captureDisplayProfile(directory, "after", postProfile.record.display, display?.identity);
+        await immutable(path.join(directory, "reference-profile-after.json"), { profile: postProfile, display: postDisplay });
+      } catch (error) { errors.push({ phase: "profile-exit", error: String(error) }); }
+    }
   }
   const observers = [];
   for (const segment of segments) {
+    try {
     const bytes = await readFile(segment.stoppedPath);
     if (digest(bytes) !== segment.stoppedSha256) throw new Error("persisted stopped evidence drift");
     const stopped = JSON.parse(bytes.toString());
@@ -792,8 +865,10 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
       stopped.active.observerErrors.length, segmentObserverRequirements(stopped, restore?.status, productRaf));
     observers.push({ token: segment.token, observer });
     if (observer.status !== "PASS_OBSERVER_STRUCTURAL_EVIDENCE") errors.push({ phase: `${segment.token}:observer`, error: JSON.stringify(observer.structuralFailures) });
+    } catch (error) { errors.push({ phase: `${segment.token}:observer-read`, error: String(error) }); }
   }
-  await immutable(path.join(directory, "observer-accounting.json"), observers);
+  try { await immutable(path.join(directory, "observer-accounting.json"), observers); }
+  catch (error) { errors.push({ phase: "observer-accounting-persist", error: String(error) }); }
   // Binding verification precedes publication and scoring so a failed post-run
   // hash cannot leave an apparently qualified result for cohort aggregation.
   try {
@@ -822,10 +897,13 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
     if (unexpected.length) errors.push({ phase: "focused-structural-scoring", error: JSON.stringify(unexpected) });
     if (segments.length !== 8) errors.push({ phase: "focused-coverage", error: `expected 8 complete segments, got ${segments.length}` });
   }
-  const result = { status: options.focused ? errors.length ? "FAIL_FOCUSED_METHOD" : "PASS_FOCUSED_METHOD_ZERO_COHORT" : scored.status,
+  const collection = runCollectionDisposition(mode, scored, errors, segments.length);
+  const result = { collection, metadataReferences: boundaries, status: options.focused ? errors.length ? "FAIL_FOCUSED_METHOD" : "PASS_FOCUSED_METHOD_ZERO_COHORT" : scored.status,
     expected, evidence, scored, errors, segmentCount: segments.length, environment,
+    separateObservations: { startup: "UNAVAILABLE_NATIVE_STARTUP_NOT_MEASURED", loading: "ORIGINAL_ASSIGNMENT_METRIC_PLUS_HOST_PREPARATION_IN_INITIALIZED_JSON",
+      processMemory: "UNAVAILABLE_NOT_MEASURED", heap: "UNAVAILABLE_NOT_MEASURED", resources: "BOUNDARY_DIAGNOSTIC_COUNTS_ONLY_NOT_FULL_RESOURCE_PROOF" },
     resourceNativeAcceptance: "SEPARATELY_OWNED_NOT_CLAIMED", trueCost: "UNPROVED_NO_UNINSTRUMENTED_HEADROOM_CLAIM" };
   await immutable(path.join(directory, "result.json"), result);
-  if (errors.length || (!options.focused && scored.status !== "PASS_METRIC_ACCEPTANCE")) throw new Error(`candidate causal run failed: ${JSON.stringify({ errors, scored })}`);
+  if (errors.length || (!options.focused && collection.attemptDisposition === "ABORT_REMAINING")) throw new Error(`candidate causal run failed: ${JSON.stringify({ errors, scored })}`);
   return result;
 }

@@ -1,0 +1,11 @@
+{
+  "manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/instances/VERIFY/PRODUCT_8468/candidate-bundle-manifest.json",
+  "sha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+  "productRevision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "sourceAggregateSha256": "23206c0762ba7f8aabd7529587e4032f61894aec04a21556f4d75b6fcfd57779",
+  "bundleAggregateSha256": "41d51c09dc4b1c89619aa91d7d560765b08c7ca7c7ad92de981f436d3b1b393a",
+  "generated_manifest_amendment": "Before sealing, ROOT added productRevision and build-evidence binding to the standard final capture payload; source and bundle inventories/aggregates unchanged.",
+  "source_count": 142,
+  "test_snapshot_count": 74,
+  "bundle_count": 25
+}

@@ -1,0 +1,96 @@
+{
+  "status": "PREPARED_NOT_LAUNCHABLE",
+  "cohortId": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+  "instrumentProjectCwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping",
+  "environment": {
+    "UI_FOUNDATION_PHASE": "candidate",
+    "UI_FOUNDATION_COHORT_ID": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+    "UI_FOUNDATION_EVIDENCE_DIR": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01",
+    "UI_FOUNDATION_MANIFEST_SHA256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+    "UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/instances/VERIFY/PRODUCT_8468/candidate-bundle-manifest.json",
+    "UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST_SHA256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+    "UI_FOUNDATION_CANDIDATE_SOURCE_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping",
+    "UI_FOUNDATION_CANDIDATE_OUTPUT_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/dist",
+    "UI_FOUNDATION_CANDIDATE_SOURCE_STAGE": "final",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/chrome-for-testing/153.0.8010.36/mac-arm64/1f701ef60757c63c6ccf98afaf28291dd0c8d1457d3d738e81fd62201c230ad0/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_SHA256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+    "UI_FOUNDATION_REFERENCE_PROFILE": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/REFERENCE_PROFILE_V2.json",
+    "UI_FOUNDATION_REFERENCE_PROFILE_SHA256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922",
+    "PLAYWRIGHT_WORKERS": "1"
+  },
+  "pending": [
+    "Frozen exact method manifest/path/hash",
+    "Final characterization mode environment name from reviewed instrument",
+    "Smoke frozen camera/oracles and oracle directory",
+    "Final invocation/config and ROOT runtime release"
+  ],
+  "plan": [
+    {
+      "ordinal": 1,
+      "fixtureSize": 1000,
+      "freshSession": true,
+      "status": "unattempted"
+    },
+    {
+      "ordinal": 2,
+      "fixtureSize": 1000,
+      "freshSession": true,
+      "status": "unattempted"
+    },
+    {
+      "ordinal": 3,
+      "fixtureSize": 1000,
+      "freshSession": true,
+      "status": "unattempted"
+    },
+    {
+      "ordinal": 4,
+      "fixtureSize": 1000,
+      "freshSession": true,
+      "status": "unattempted"
+    },
+    {
+      "ordinal": 5,
+      "fixtureSize": 1000,
+      "freshSession": true,
+      "status": "unattempted"
+    },
+    {
+      "ordinal": 6,
+      "fixtureSize": 10000,
+      "freshSession": true,
+      "status": "unattempted"
+    },
+    {
+      "ordinal": 7,
+      "fixtureSize": 10000,
+      "freshSession": true,
+      "status": "unattempted"
+    },
+    {
+      "ordinal": 8,
+      "fixtureSize": 10000,
+      "freshSession": true,
+      "status": "unattempted"
+    },
+    {
+      "ordinal": 9,
+      "fixtureSize": 10000,
+      "freshSession": true,
+      "status": "unattempted"
+    },
+    {
+      "ordinal": 10,
+      "fixtureSize": 10000,
+      "freshSession": true,
+      "status": "unattempted"
+    }
+  ],
+  "rawRootExistingChildren": [],
+  "cohortOutputExists": false,
+  "runtimeLaunched": false,
+  "predecessor": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/COHORT_INPUT_PREPARATION.json",
+    "sha256": "835bf5b97da75488c083c61124d5c1d42cedd75c8a34ed3c3745641be2ad3bc2"
+  }
+}

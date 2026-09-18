@@ -1,0 +1,12 @@
+{
+  "exitCode": 1,
+  "signal": null,
+  "slot": "1000.5",
+  "claim": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/CONTINUATION/test-output/full-cohort-controller-con-0a326-nly-after-independent-gates/continuation/ledger/claims/1000.5.json",
+    "sha256": "ef38aa9390da9b0a6f63fcc4fa5e0c796045ab8292b33a154045c24acdc8e81b"
+  },
+  "finishedAt": "2026-09-18T01:19:49.589Z",
+  "cleanup": "UNKNOWN_REQUIRES_INDEPENDENT_REVALIDATION",
+  "comparison": "mixed-method attempt budget; not same-method cohort qualification"
+}

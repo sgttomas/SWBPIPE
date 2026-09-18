@@ -1,0 +1,455 @@
+{
+  "status": "PASS_BOTH_SIZE_UNTIMED_CONTINUATION_WITNESS",
+  "at": "2026-09-18T01:53:13.673485+00:00",
+  "processExit": 0,
+  "testsPassed": 2,
+  "results": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/10000/smoke-result.json",
+      "sha256": "ab36c4a0b273a0e1ee746986de157cbb7ddc5bf838625b0e8931adce04c4df36",
+      "result": {
+        "status": "PASS_UNTIMED_SMOKE",
+        "qualification": false,
+        "cohortContribution": 0,
+        "fixtureSize": 10000,
+        "steps": [
+          {
+            "action": "assignment",
+            "status": "VISIBLE_FIRST_USABLE"
+          },
+          {
+            "action": "point",
+            "sample": 1,
+            "expectedRef": {
+              "type": "component",
+              "id": "component:UIF-10000"
+            }
+          },
+          {
+            "action": "box",
+            "sample": 1,
+            "expected": {
+              "sample": 1,
+              "direction": "left-to-right",
+              "filter": "all",
+              "rectangle": {
+                "left": 0.08,
+                "right": 0.29,
+                "top": 0.1,
+                "bottom": 0.28
+              },
+              "orderedRefs": [],
+              "primaryRef": null,
+              "membershipCount": 0
+            }
+          },
+          {
+            "action": "filter",
+            "query": "UI benchmark pipe 00001",
+            "stimulus": {
+              "name": "browser-keyboard-insert-text/v1",
+              "command": "focus then page.keyboard.insertText(query)",
+              "timingStart": "existing first trusted input listener",
+              "timingEnd": "unchanged final stopped-content causal witness",
+              "semantics": "one whole-query Chromium Input.insertText; no keydown/keyup events or hardware keyboard claim",
+              "comparability": "explicit keyboard API instead of historical fill; locked Playwright fill itself uses insertText for text input",
+              "expectedInputEvents": 1
+            },
+            "expectedTree": {
+              "query": "UI benchmark pipe 00001",
+              "totalCount": 20609,
+              "visibleCount": 1,
+              "rows": [
+                {
+                  "testId": "tree-group-Pipes",
+                  "label": "Pipes",
+                  "expanded": true,
+                  "position": 1,
+                  "setSize": 1,
+                  "level": 1
+                },
+                {
+                  "testId": "tree-row-pipe-pipe%3AUIF-00001",
+                  "label": "UI benchmark pipe 00001",
+                  "position": 1,
+                  "setSize": 1,
+                  "level": 2
+                }
+              ],
+              "mountedCount": 2
+            },
+            "visibleRows": [
+              {
+                "testId": "tree-group-Pipes",
+                "label": "\u25bePipes",
+                "level": 1,
+                "position": 1,
+                "setSize": 1
+              },
+              {
+                "testId": "tree-row-pipe-pipe%3AUIF-00001",
+                "label": "UI benchmark pipe 00001pipe:UIF-00001",
+                "level": 2,
+                "position": 1,
+                "setSize": 1
+              }
+            ]
+          },
+          {
+            "action": "filter",
+            "query": "no-match-ui-foundation",
+            "stimulus": {
+              "name": "browser-keyboard-insert-text/v1",
+              "command": "focus then page.keyboard.insertText(query)",
+              "timingStart": "existing first trusted input listener",
+              "timingEnd": "unchanged final stopped-content causal witness",
+              "semantics": "one whole-query Chromium Input.insertText; no keydown/keyup events or hardware keyboard claim",
+              "comparability": "explicit keyboard API instead of historical fill; locked Playwright fill itself uses insertText for text input",
+              "expectedInputEvents": 1
+            },
+            "expectedTree": {
+              "query": "no-match-ui-foundation",
+              "totalCount": 20609,
+              "visibleCount": 0,
+              "rows": [],
+              "mountedCount": 0
+            },
+            "visibleRows": []
+          },
+          {
+            "action": "orbit",
+            "mode": "centerline",
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "conversion": {
+              "mode": "schematic",
+              "odGeneration": 0,
+              "odStatus": "not-requested"
+            }
+          },
+          {
+            "action": "orbit",
+            "mode": "actual-od",
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "conversion": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            }
+          }
+        ],
+        "errors": [],
+        "claim": "control-path smoke only; no timing, trace or performance score"
+      }
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/1000/smoke-result.json",
+      "sha256": "220eb91c5cf95d9a592e30c11751ed5ee66690d8505f0adb5503bd93335ae841",
+      "result": {
+        "status": "PASS_UNTIMED_SMOKE",
+        "qualification": false,
+        "cohortContribution": 0,
+        "fixtureSize": 1000,
+        "steps": [
+          {
+            "action": "assignment",
+            "status": "VISIBLE_FIRST_USABLE"
+          },
+          {
+            "action": "point",
+            "sample": 1,
+            "expectedRef": {
+              "type": "pipe",
+              "id": "pipe:UIF-00205"
+            }
+          },
+          {
+            "action": "box",
+            "sample": 1,
+            "expected": {
+              "sample": 1,
+              "direction": "left-to-right",
+              "filter": "all",
+              "rectangle": {
+                "left": 0.08,
+                "right": 0.29,
+                "top": 0.1,
+                "bottom": 0.28
+              },
+              "orderedRefs": [],
+              "primaryRef": null,
+              "membershipCount": 0
+            }
+          },
+          {
+            "action": "filter",
+            "query": "UI benchmark pipe 00001",
+            "stimulus": {
+              "name": "browser-keyboard-insert-text/v1",
+              "command": "focus then page.keyboard.insertText(query)",
+              "timingStart": "existing first trusted input listener",
+              "timingEnd": "unchanged final stopped-content causal witness",
+              "semantics": "one whole-query Chromium Input.insertText; no keydown/keyup events or hardware keyboard claim",
+              "comparability": "explicit keyboard API instead of historical fill; locked Playwright fill itself uses insertText for text input",
+              "expectedInputEvents": 1
+            },
+            "expectedTree": {
+              "query": "UI benchmark pipe 00001",
+              "totalCount": 2069,
+              "visibleCount": 1,
+              "rows": [
+                {
+                  "testId": "tree-group-Pipes",
+                  "label": "Pipes",
+                  "expanded": true,
+                  "position": 1,
+                  "setSize": 1,
+                  "level": 1
+                },
+                {
+                  "testId": "tree-row-pipe-pipe%3AUIF-00001",
+                  "label": "UI benchmark pipe 00001",
+                  "position": 1,
+                  "setSize": 1,
+                  "level": 2
+                }
+              ],
+              "mountedCount": 2
+            },
+            "visibleRows": [
+              {
+                "testId": "tree-group-Pipes",
+                "label": "\u25bePipes",
+                "level": 1,
+                "position": 1,
+                "setSize": 1
+              },
+              {
+                "testId": "tree-row-pipe-pipe%3AUIF-00001",
+                "label": "UI benchmark pipe 00001pipe:UIF-00001",
+                "level": 2,
+                "position": 1,
+                "setSize": 1
+              }
+            ]
+          },
+          {
+            "action": "filter",
+            "query": "no-match-ui-foundation",
+            "stimulus": {
+              "name": "browser-keyboard-insert-text/v1",
+              "command": "focus then page.keyboard.insertText(query)",
+              "timingStart": "existing first trusted input listener",
+              "timingEnd": "unchanged final stopped-content causal witness",
+              "semantics": "one whole-query Chromium Input.insertText; no keydown/keyup events or hardware keyboard claim",
+              "comparability": "explicit keyboard API instead of historical fill; locked Playwright fill itself uses insertText for text input",
+              "expectedInputEvents": 1
+            },
+            "expectedTree": {
+              "query": "no-match-ui-foundation",
+              "totalCount": 2069,
+              "visibleCount": 0,
+              "rows": [],
+              "mountedCount": 0
+            },
+            "visibleRows": []
+          },
+          {
+            "action": "orbit",
+            "mode": "centerline",
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "conversion": {
+              "mode": "schematic",
+              "odGeneration": 0,
+              "odStatus": "not-requested"
+            }
+          },
+          {
+            "action": "orbit",
+            "mode": "actual-od",
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "conversion": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            }
+          }
+        ],
+        "errors": [],
+        "claim": "control-path smoke only; no timing, trace or performance score"
+      }
+    }
+  ],
+  "cleanup": {
+    "browserProcessesRemaining": 0,
+    "serverListening": false,
+    "verificationStatus": "VERIFIED",
+    "verifiedAt": "2026-09-18T01:52:52.693272+00:00",
+    "portReadout": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "bindingStatus": "PASS_INDEPENDENT_EXTERNAL_REVALIDATION",
+  "processEvidence": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/smoke-process-02/launch.json",
+      "sha256": "6f8b6d3df3a34001b4926a6738f4f3cba01b5ea8ab4bca6c07350b801fcc119e"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/smoke-process-02/process-return.json",
+      "sha256": "afae3f31527d8a695354d715674493e2ef3e0ba41a641a023bcba9029a1021e7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/smoke-process-02/started.json",
+      "sha256": "de2d5aada0cec8275a7927492dd4995cb077e80c3d812f197105a1225134f337"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/smoke-process-02/stderr.log",
+      "sha256": "b3b7ac129023b9362379c869848525a183f2d54f341e0f4c95b0d298acff6054"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/smoke-process-02/stdout.log",
+      "sha256": "bf548b84a50ee84732fcce0a4b52387a571eb3e5f07f57ac53b49426ebd1a417"
+    }
+  ],
+  "canonicalEvidence": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/playwright-artifacts/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/1000/run-started.json",
+      "sha256": "70c3dd2033923f65317772498ca6197fff0a80b8327900d34b1c1111c5df9b64",
+      "bytes": 115
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/1000/smoke-actual-od.json",
+      "sha256": "5e3d01ee1f4fbf1d7585105c5ae00c8e8fd35a53ef6788eac2d8e5013db8360a",
+      "bytes": 6981
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/1000/smoke-centerline.json",
+      "sha256": "f57034584e755cfacb340b8ab9e701abee77f43c7d66df9397f52862609b9da9",
+      "bytes": 6981
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/1000/smoke-filter-1-cleared.json",
+      "sha256": "ae0c0d290b721d880f45073e8e2b753d11e73bba2f9ea1ba8c0e7a531d7506d8",
+      "bytes": 7013
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/1000/smoke-filter-1-stopped.json",
+      "sha256": "9d73dda99820b014f1f78bba2e6858001ac250836f20b781f53538c96d490fa3",
+      "bytes": 7054
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/1000/smoke-filter-18-cleared.json",
+      "sha256": "977f6ed9c07e566de8f3d0efb970d470bc7b0ff56ad37e088b79db2849093a0e",
+      "bytes": 6998
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/1000/smoke-filter-18-stopped.json",
+      "sha256": "e7d603625691235a1d487579b679d3b48e0c7cc64d4221e728ff6462052170ee",
+      "bytes": 7143
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/1000/smoke-initial.json",
+      "sha256": "e6b270aac5e8b695730796b2b04fcfb8abf5628fef744d602c4c825ac1cf2dfc",
+      "bytes": 6969
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/1000/smoke-point-stopped.json",
+      "sha256": "30ee38d26fc22aa5cae10bdec9deb5475eb4ceefaa6ad8e37b499f0afee7ae7c",
+      "bytes": 7243
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/1000/smoke-result.json",
+      "sha256": "220eb91c5cf95d9a592e30c11751ed5ee66690d8505f0adb5503bd93335ae841",
+      "bytes": 3895
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/10000/run-started.json",
+      "sha256": "2f0a79300c1cb1603509ac5f6aea045e9e0d0c51000e03b0dfa893e89e4ba240",
+      "bytes": 116
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/10000/smoke-actual-od.json",
+      "sha256": "de98f0ffc8cde43f51c0209f707c49c208c7aedd22de551277c82a33cfd76919",
+      "bytes": 6987
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/10000/smoke-centerline.json",
+      "sha256": "8bba96f483b322cea8a3c86bb2506bdb8c914a37f3eb6c2cdc3bf461e8a907d2",
+      "bytes": 6978
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/10000/smoke-filter-1-cleared.json",
+      "sha256": "65224694fc0be441722ef0452184d34290091db5c6b9f9e9d4f13eac388dd00c",
+      "bytes": 6971
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/10000/smoke-filter-1-stopped.json",
+      "sha256": "4e142948b2b73217df2cf845e7c821499e316ae055941b78501a61f12801b1db",
+      "bytes": 6999
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/10000/smoke-filter-18-cleared.json",
+      "sha256": "68811f289d94d1c0d5be31fdb4853d62192be6acfe1e48703f8fed2625dc3d8c",
+      "bytes": 6985
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/10000/smoke-filter-18-stopped.json",
+      "sha256": "4cf57357605ade450a75f3ff1983237432c4ac365cec0e21686db6fc59950afb",
+      "bytes": 7128
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/10000/smoke-initial.json",
+      "sha256": "407854ed0e8ead5198d67a18fc2fb25d9bfccda42f47f93cce41073e96538d70",
+      "bytes": 6935
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/10000/smoke-point-stopped.json",
+      "sha256": "d8ea81e459010c825de28bb3543290266ca9df55edd30511ba28d36112f4ce25",
+      "bytes": 7275
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/raw/run-01/10000/smoke-result.json",
+      "sha256": "ab36c4a0b273a0e1ee746986de157cbb7ddc5bf838625b0e8931adce04c4df36",
+      "bytes": 3908
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/smoke-plan.json",
+      "sha256": "3143ccd52104114ded59fc77143aa7669dccec2617d13244bbc5c30adae031d4",
+      "bytes": 1787
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-02/smoke-summary.json",
+      "sha256": "d889d4b76e2964191bb17c1e3eca32a5ce44f4b7452ae391c0a5eb7f637c81b0",
+      "bytes": 2482
+    }
+  ],
+  "timedSlotsConsumed": 0,
+  "receiptsPrepared": false,
+  "registryAbsent": true,
+  "ledgerAbsent": true,
+  "originalReturnSha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6",
+  "handoff": "Ready for ROOT receipt-preparation and separate per-slot releases; no timed runtime authorized by this smoke"
+}

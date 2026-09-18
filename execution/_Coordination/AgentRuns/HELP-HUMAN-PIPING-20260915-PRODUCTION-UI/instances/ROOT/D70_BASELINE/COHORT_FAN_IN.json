@@ -1,0 +1,68 @@
+{
+  "schema": "chirality.piping.d70.cohort-fan-in/v1",
+  "at": "2026-09-18T00:50:03.689544+00:00",
+  "agent": "HELP_HUMAN /root",
+  "configuredModel": "gpt-6-astra",
+  "reasoning": "high",
+  "derivativePackage": true,
+  "acceptedUpstream": [
+    {
+      "path": "D70_ADOPTION.json",
+      "sha256": "280b56423eaec90bca3822ef9484860752b2b494ebcdc93cb201b8b2cdac411f"
+    },
+    {
+      "path": "APPROVED_EXECUTION_CONTRACT.md",
+      "sha256": "22735b52f4a26ad1e6df005a8fa1118de500460251decacecc794e1affd1d63b"
+    },
+    {
+      "path": "COHORT_RELEASE.json",
+      "sha256": "fed0a0e58daed36c618d7e156562a49550ef014c6e62f26be8f90c633329b6ee"
+    },
+    {
+      "path": "instances/EXPECTATIONS/EXPECTATIONS.md",
+      "sha256": "c9942be2e593424b46b607f614befb6ed2ec2fa823a7902c6b906a46ffa09b9e"
+    },
+    {
+      "path": "instances/RUNNER/BASELINE_REPORT.md",
+      "sha256": "4ea51b6fcaeadaccf1bdb3ff401728a3b491dafec1d17bcd5a6f1f6cde8e2b72"
+    },
+    {
+      "path": "instances/RUNNER/RETURN.json",
+      "sha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6"
+    },
+    {
+      "path": "instances/RUNNER/CANONICAL_EVIDENCE_MANIFEST.json",
+      "sha256": "b7a254b9f84b43080244bc4bc8afb7c064bb31724066ac68ac66dd965e1c3adb"
+    },
+    {
+      "path": "instances/RUNNER/COHORT_V1_PROCESS_RETURN.json",
+      "sha256": "a6f2975ee16b2da24dd1cef8e087d9e1912fde3278db2ea958e54037dbfb5199"
+    },
+    {
+      "path": "instances/RUNNER/OFFLINE_PROCESS_RETURN.json",
+      "sha256": "42946e8bd6a12889afbaaa35445d076809454555c35d5ddf6322e1c82678af52"
+    }
+  ],
+  "technicalDisposition": "Incomplete attempt preserved; no performance acceptance; final independent report review and Git gates pending",
+  "rawCustodyCheck": {
+    "status": "PASS",
+    "manifest": "instances/RUNNER/CANONICAL_EVIDENCE_MANIFEST.json",
+    "checks": [
+      "Every listed file size and SHA256 matches",
+      "All paths contained in the canonical cohort root",
+      "Exact on-disk file set equals manifest; no missing or unlisted file"
+    ],
+    "countsOwner": "instances/RUNNER/RETURN.json"
+  },
+  "runnerExecutionClosed": true,
+  "runtimeLease": "RELEASED_AFTER_PROCESS_EXIT_AND_CLEANUP",
+  "rerunAuthorized": false,
+  "sourceRepairAuthorizedByFailure": false,
+  "unknown": "Exact field behind boundary profile/model/binding drift is not established; external before/after bindings passed",
+  "next": [
+    "Independent final diff and evidence review",
+    "Registered DEC-025 and closeout checks",
+    "One scoped PR and actual-candidate CI",
+    "Owner-facing D70 report handoff"
+  ]
+}

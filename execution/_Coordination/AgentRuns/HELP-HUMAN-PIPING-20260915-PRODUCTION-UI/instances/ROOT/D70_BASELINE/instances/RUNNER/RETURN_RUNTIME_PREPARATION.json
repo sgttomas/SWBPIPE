@@ -1,0 +1,39 @@
+{
+  "status": "PASS_METHOD_BINDINGS_PREPARED_RUNTIME_HELD",
+  "at": "2026-09-18T00:05:41.218495+00:00",
+  "methodManifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/METHOD_MANIFEST_CANDIDATE.json",
+    "sha256": "98e5449b202b19eee841e8846200c885195770be73326bff61f9e6d45f83480e",
+    "members": 34,
+    "allExactInInstrumentAndIntegration": true
+  },
+  "commands": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RUNTIME_COMMANDS_PREPARED.json",
+    "sha256": "9f7ecb872f46845f359a71099eb7fb91b6fcc06822522ef075fd88bbc30056e2"
+  },
+  "additionalCameraMethodContext": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-preflight.config.ts",
+      "sha256": "b6cdc8e00cd0efaf338fbc729f4860d8f0bd35b1dc02cbe4fd4c91a700736272"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/candidate-camera-preflight.benchmark.ts",
+      "sha256": "9a542f9d8eafcebf6fd2f961a059d795a6f470429030bf77b04d9b771b1c8c9e"
+    }
+  ],
+  "visualInputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/UI/VISUAL_TOKENS_V4.json",
+      "sha256": "009b27db887e3de224f72d0df221966fbaaa0305de218ee20848050ac6a1be1b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelectionPresentation.ts",
+      "sha256": "00384d2831797e5cba8acff21e82e36f21a853c398e8c2a801ccfed0f3a55931"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.ts",
+      "sha256": "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e"
+    }
+  ],
+  "runtimeLaunched": false
+}

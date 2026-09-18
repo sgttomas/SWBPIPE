@@ -1,0 +1,54 @@
+{
+  "schema": "chirality.piping.d70.continuation-slot-release/v1",
+  "at": "2026-09-18T02:05:21.332150+00:00",
+  "status": "RELEASE_ONE_ALLOTTED_SLOT",
+  "owner": "HELP_HUMAN /root",
+  "runtimeOwner": "/root/d70_runner",
+  "slot": "1000.3",
+  "ownerDirection": {
+    "path": "OWNER_CLARIFICATION_CONTINUE_20260917.md",
+    "sha256": "a5ba424fde8f8be92ae69b694a718452c9753b3ce2217df8f6b4b55e042c9730"
+  },
+  "productRevision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "instrumentRevision": "7306e2c6a435831c2f1457458516242decf88055",
+  "methodSha256": "6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a",
+  "policy": {
+    "path": "instances/RUNNER/CONTINUATION/POLICY_V4.json",
+    "sha256": "e4889e31c0d37c8fb056250b893c9691e1930b8e8e4a49af107ce89fc99f4f77"
+  },
+  "script": {
+    "path": "instances/RUNNER/CONTINUATION/control_v4.py",
+    "sha256": "3c85a7b02fefad0f08438520bf7da919cc9902780840ece7de9823df992b60ce"
+  },
+  "review": {
+    "path": "instances/CONTINUATION_REVIEW/WIDTH_BACKCHECK/RETURN.json",
+    "sha256": "da62c1a6914d6d1bc850b6ab6aa3d405d146ce2514f9e0d11632c4d8b834f0af"
+  },
+  "smoke": {
+    "path": "instances/RUNNER/CONTINUATION/RETURN_SMOKE02.json",
+    "sha256": "db1479a92efc77cb04b600c58db511668799796b8a8bdef25060b8f415284784"
+  },
+  "operation": "Prepare fresh external precondition receipt and immediately launch exactly1000.3 through reviewed V4 wrapper. No automatic next slot/retry/replacement.",
+  "runtimeExclusivity": "No competing builds, tests, GUI/native witnesses or substantial archive/offline analysis; Root light monitoring only.",
+  "limits": "Existing action/trace and20minute per-run limits preserved; no overall clock cap. Original targets unchanged; valid timing misses continue within this run.",
+  "returnRequirement": "Report actual subprocess outcome, original-target score if available, completeness/validity separately, cleanup and binding proof. Use existing persisted progress; defer offline trace analysis until all timed attempts end.",
+  "previousAttempt": {
+    "slot": "1000.2",
+    "process": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/processes/1000.2/process-return.json",
+      "sha256": "c7f9e79527c1570ace8e9003943f1c66372b332b39cb7f9afb049245012361be"
+    },
+    "result": {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.2/raw/run-02/1000/result.json",
+      "sha256": "e8a03ec10535b9c74b5d73f6d7d4dd8df31404fe035e2460a687c6bdf9d3f575"
+    },
+    "disposition": {
+      "mode": "characterization",
+      "evidenceValidity": "VALID",
+      "collectionCompleteness": "COMPLETE",
+      "targetOutcome": "PASS_METRIC_ACCEPTANCE",
+      "attemptDisposition": "CONTINUE",
+      "cohortContribution": 1
+    }
+  }
+}

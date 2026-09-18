@@ -1,0 +1,47 @@
+{
+  "status": "PASS_BOUNDED_CONTENT_WIDTH_REPAIR_PENDING_ROOT_REVIEW",
+  "baseRevision": "b50c12370d493cf2bab42f27a6b468880e691052",
+  "parentMethodSha256": "c130feec3c729adb71502ca60af32e3a37f137b3ef3b8e5291175985ddef7871",
+  "successorManifestSha256": "d1b04c4e279081d0e0b2e9e45702f0aab1adb157f7537f2c8a46fd8eebcccf52",
+  "manifestEntries": 34,
+  "source": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "sha256": "112da4172687f9c463fbd0462d6a597459c185ad933494f5373ed5825e95cbde"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+      "sha256": "98e6369779d3de2bcebafbc2a4e7bda6d9e8d7669c230253a8644ac5ef5537cb"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "380c228d9ef3c0bd1c49bb8a92fdc5a93ccbff00790b42aedbb1f5d310093e54"
+    }
+  ],
+  "checks": {
+    "focusedTestsPassed": 5,
+    "focusedTestsSkipped": 0,
+    "typescript": "PASS",
+    "diffCheck": "PASS",
+    "originalRejectedArtifactUntouched": true
+  },
+  "pinnedSource": {
+    "apps/desktop/src/styles.css": "760a98328b3203eb6f594fd01c1eea3ffb091d0b398543ab600e86ed31f14c9a",
+    "apps/desktop/src/App.tsx": "f3d143f77715306a698c9c19ad46ec65a8c849fba4d8e0e3aa06f1478b2ab2d3",
+    "apps/desktop/src/features/model-tree/PropertyInspector.tsx": "dca007bbfff4130c0228b588b46bb75372bf825c1c999f5e27353d2472bcfc78"
+  },
+  "finding": "Observed content height exceeds fixed scrollable outer pane; 15px inner width narrowing with unchanged pane/canvas is supported as content/scrollbar geometry. Inner width/height are observed, positive dimensions required; true outer layout remains invariant.",
+  "historicalLimit": "First original timed attempt rejected snapshot absent; its precise differing field remains unproved.",
+  "runtimeExecuted": false,
+  "attemptsConsumed": 0,
+  "childDispatched": false,
+  "derivativePackage": true,
+  "closure": "SOURCE_REPAIR_COMPLETE_PENDING_ROOT_BACKCHECK_AND_RELEASE",
+  "remaining": [
+    "ROOT integrate and affected independent review",
+    "ROOT freeze successor method/revision",
+    "ROOT separate untimed smoke release"
+  ],
+  "additionalFindings": [],
+  "claimFence": "F-PIP-2 / DEC081"
+}

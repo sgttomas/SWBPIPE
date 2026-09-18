@@ -1,0 +1,81 @@
+{
+  "status": "PASS_PREPARATION_INPUT_VERIFICATION_RUNTIME_HELD",
+  "at": "2026-09-17T23:49:08.859497+00:00",
+  "productRevision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "cleanGit": true,
+  "manifestSha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+  "inventories": {
+    "source": 142,
+    "mutableTestOnlySourceSnapshot": 74,
+    "files": 25
+  },
+  "scopeCompletenessChecked": [
+    "apps/desktop/src",
+    "apps/desktop/src-tauri/src",
+    "apps/desktop/dist",
+    "apps/desktop/public/wasm-engine",
+    "apps/desktop/public/self-weight-engine"
+  ],
+  "missingInventoryPaths": [
+    "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+    "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+    "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+    "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm"
+  ],
+  "buildEvidenceAndLogsHashVerified": true,
+  "browserExecutableSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+  "profilePath": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/REFERENCE_PROFILE.json",
+  "profileSha256": "1eb807fdb3bdd2ac539208dec542083e06951e63b684494ed5756091b2392a9b",
+  "custody": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/RAW_EVIDENCE_CUSTODY.md",
+      "sha256": "062d2c6f8213407cebaad70fc2c19236124c05ac91e8ec4632383b3a10fbe10f"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/RUNTIME_LOCATIONS.json",
+      "sha256": "236c69c6333d205bf0afbca9b04246efadc9dc085bad8d1651ed3565a7731bf4"
+    }
+  ],
+  "runtimeLaunched": false,
+  "limitations": [
+    "No method hash guessed; invocation incomplete",
+    "No browser smoke/cohort started",
+    "Current profile boundary snapshot, not continuous monitoring",
+    "No native/resource qualification inferred",
+    "Manifest does not inventory entire public tree; source provenance also binds clean exact Git and fresh recorded WASM build"
+  ],
+  "unservedIntermediateDisposition": {
+    "authority": "ROOT direct message2026-09-17",
+    "reason": "Capture helper covers delivered dist plus legacy public/wasm-engine extra; public/self-weight-engine are unserved build intermediates",
+    "pairs": [
+      {
+        "unservedIntermediate": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+        "deliveredInventoriedCopy": "apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+        "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+        "bytes": 520,
+        "equal": true
+      },
+      {
+        "unservedIntermediate": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+        "deliveredInventoriedCopy": "apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+        "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+        "bytes": 6961,
+        "equal": true
+      },
+      {
+        "unservedIntermediate": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+        "deliveredInventoriedCopy": "apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+        "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+        "bytes": 1688,
+        "equal": true
+      },
+      {
+        "unservedIntermediate": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+        "deliveredInventoriedCopy": "apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+        "sha256": "4d08bcc816ca40ebbd538db70900eaf632ee5899f7b9a6e5ca60bc6e3031fe87",
+        "bytes": 683819,
+        "equal": true
+      }
+    ]
+  }
+}

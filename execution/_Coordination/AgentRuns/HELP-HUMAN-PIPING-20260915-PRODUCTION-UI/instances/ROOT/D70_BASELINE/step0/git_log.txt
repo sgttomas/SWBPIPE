@@ -1,0 +1,7 @@
+fc21b00d0 Merge pull request #790 from sgttomas/claude/chirality-piping-ui-design-a31fd2
+1c08fde56 Add the D-70 sequencing ruling notice for the piping loop
+28bb4227d Resolve D-70 references and name its precedent
+f8fd9ddae Open the UI design program run record
+81f59e98b Record D-70 baseline-then-redesign sequencing ruling
+8468a33c8 Merge pull request #789 from sgttomas/codex/piping-ui-foundation-20260915
+68a20accb Record owner-approved UI foundation landing with performance follow-on open

@@ -1,0 +1,33 @@
+{
+  "status": "V5_READY_FOR_AFFECTED_REVIEW",
+  "at": "2026-09-18T02:27:00.953870+00:00",
+  "policy": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/POLICY_V5.json",
+    "sha256": "54874f7d4811bd3d3a2d5116b4f4634efe2e3199500ac49f96d2136c17e8b291"
+  },
+  "script": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/control_v5.py",
+    "sha256": "b21871509c3c20340520d1d34af772b2930ce287c9330b0cdd4b7fa4d5a240c6"
+  },
+  "commands": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/COMMANDS_V5.json",
+    "sha256": "484238730f66b7b91d3de68b2e8aed47f6309bdc8461e41161dab0e9615db105"
+  },
+  "instrumentRevision": "c1266b8aa22a57bb608a97140ecdc97b098dd2ad",
+  "method": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/ONE_SUCCESS/METHOD_MANIFEST_SUCCESSOR.json",
+    "sha256": "29e22f296e569c2c20824f77403a6fdbac805ea9560f149fdcd9e24e4f93ca36"
+  },
+  "verifiedMembers": 34,
+  "historyRefsVerified": 13,
+  "delta": [
+    "ownerTransition exact authority/V4/registry/history refs",
+    "only10000slots, skip1000.5 without claim, first predecessor1000.4",
+    "prepare-close/close with same-successful-claim fresh proof",
+    "reject launch after successful actual validcomplete run",
+    "removed smoke command; no new smoke",
+    "compact final stdout; full process evidence retained"
+  ],
+  "checks": "Syntax/read-only hashes only; no runtime/tests/receipts/ledger changes",
+  "originalRegistryHash": "4b5843acc27e55e24b7d9ad2b86850eade669da1e143b396aa0ed800dd727877"
+}

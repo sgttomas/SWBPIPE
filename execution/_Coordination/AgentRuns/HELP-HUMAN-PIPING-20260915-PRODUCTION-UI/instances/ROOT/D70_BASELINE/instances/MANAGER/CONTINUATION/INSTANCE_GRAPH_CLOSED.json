@@ -1,0 +1,8 @@
+{
+  "instance": "/root/d70_manager",
+  "status": "FAN_IN_COMPLETE_PENDING_ROOT",
+  "child": "/root/d70_manager/writer",
+  "childStatus": "COMPLETE",
+  "activeChildren": 0,
+  "runtimeAuthorized": false
+}

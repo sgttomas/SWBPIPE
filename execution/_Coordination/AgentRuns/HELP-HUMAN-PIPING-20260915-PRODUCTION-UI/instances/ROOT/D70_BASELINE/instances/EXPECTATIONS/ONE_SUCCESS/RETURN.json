@@ -1,0 +1,87 @@
+{
+  "status": "COMPLETE_READ_ONLY_EXPECTATIONS",
+  "disposition": "READY_FOR_BOUNDED_IMPLEMENTATION",
+  "parent": "/root",
+  "agent": "/root/d70_expectations",
+  "role": "TASK Type 2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "attribution": "caller configuration; no independent model introspection",
+  "enforcement": "instruction/config asserted",
+  "delegation": "none",
+  "no_runtime_tests_build_source_git_writes": true,
+  "contradictions": [],
+  "implementation_constraint": "V4 contiguous-claim rule needs reviewed append-only successor, not bypass/reset/fake claim",
+  "context_hashes": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/EXPECTATIONS_ONE_SUCCESS.md",
+      "sha256": "ad02973a8096b403784f09c29fbfec0120946095ec06daa6d38fcc8de967db0f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/OWNER_DIRECTION_ONE_SUCCESS_20260917.md",
+      "sha256": "ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/OWNER_CLARIFICATION_CONTINUE_20260917.md",
+      "sha256": "a5ba424fde8f8be92ae69b694a718452c9753b3ce2217df8f6b4b55e042c9730"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/APPROVED_EXECUTION_CONTRACT.md",
+      "sha256": "22735b52f4a26ad1e6df005a8fa1118de500460251decacecc794e1affd1d63b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/EXPECTATIONS.md",
+      "sha256": "c9942be2e593424b46b607f614befb6ed2ec2fa823a7902c6b906a46ffa09b9e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/CONTINUATION/EXPECTATIONS.md",
+      "sha256": "b820e8826815f22992b8bd3240d2aedccf333e4ec39a7016f25f42dab3b3601e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN.json",
+      "sha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/POLICY_V4.json",
+      "sha256": "e4889e31c0d37c8fb056250b893c9691e1930b8e8e4a49af107ce89fc99f4f77"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_1000.2.json",
+      "sha256": "3887cd9c059e51c10c0fb15cbd2b206541a52d294131a98803ffe0ed09702cae"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_1000.3.json",
+      "sha256": "61aba8a5f9ed1b0df056336b937e5d7766f23b2422e1351b0e7c18fe1d7e62b6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_1000.4_INTERRUPTED.json",
+      "sha256": "79d59d625353d84258daea4452cca0eed5dddb625cd24920c1a4cfde14b6e335"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/1000.2.json",
+      "sha256": "a05b72fe3b375abb96b75a7d9dcd245c1ddf0c1b05824adec3d472cb3dcb3f49"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/1000.3.json",
+      "sha256": "81aadbae9c2364534a75f31026e14e09683ff11aec8c925ec230547188eeb759"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/1000.4.json",
+      "sha256": "de72c0ef4732e3a81abe5b02a7ca757cccd8622bb4a5ccfa69cbc2d96faa3c53"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/terminal-1000.2.json",
+      "sha256": "e465ad8e732f181e0e075aa282eed2bd53a1b1f06e8697b5a43178a735a7af54"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/terminal-1000.3.json",
+      "sha256": "b615a6ebcf857886a86829fc6ea67b743be56abeeb8ccb639289b3dcc98cac43"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/terminal-1000.4.json",
+      "sha256": "c2d53988f24268378c75c64f4e23881da04d5260bc55f7f2295ffece37d59bbe"
+    }
+  ],
+  "expectations_sha256": "7c895915cb178e88cc087f246ac80d60165a2c0d3d4cc68bdff9bd596e06ddc7",
+  "remaining": "Manager accounting repair, independent review, ROOT release; up to five N10000 actual attempts stopping on first valid complete run."
+}

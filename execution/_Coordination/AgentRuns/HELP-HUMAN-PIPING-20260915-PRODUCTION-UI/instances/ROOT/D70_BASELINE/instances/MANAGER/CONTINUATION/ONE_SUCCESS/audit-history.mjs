@@ -1,0 +1,12 @@
+import {readFile,writeFile} from "node:fs/promises";
+import {createHash} from "node:crypto";
+import {continuationClaims,continuationBudgetReport} from "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.mjs";
+const dir=new URL(".",import.meta.url),policy=JSON.parse(await readFile(new URL("POLICY_TEMPLATE.json",dir),"utf8"));
+const refs=[policy.seed,policy.ownerTransition.registry,policy.ownerTransition.previousPolicy,...policy.ownerTransition.history.flatMap(r=>[r.claim,r.terminal,r.return])];
+const readHashes=async()=>Promise.all(refs.map(async ref=>({path:ref.path,sha256:createHash("sha256").update(await readFile(ref.path)).digest("hex")})));
+const before=await readHashes();
+const claims=await continuationClaims(policy),seed=JSON.parse(await readFile(policy.seed.path,"utf8")),report=await continuationBudgetReport(policy,seed);
+const after=await readHashes();if(JSON.stringify(before)!==JSON.stringify(after)||before.some((v,i)=>v.sha256!==refs[i].sha256))throw Error("historical hash drift");
+if(claims.length!==3||report.consumed!==4||report.waived!==1||report.eligible!==5||report.invalidFailed!==2||report.interrupted!==1||report.validCompleteBySize[1000]!==1)throw Error("actual historical accounting mismatch");
+await writeFile(new URL("ACTUAL_HISTORY_AUDIT.json",dir),JSON.stringify({status:"PASS_READ_ONLY_ACTUAL_HISTORY",policyTemplateNotExecutable:true,hashes:before,report},null,2)+"\n",{flag:"wx"});
+console.log("PASS actual history: four consumed, one1000validcomplete, two invalid, one owner-interrupted, one waived, five10000 eligible; original hashes unchanged");

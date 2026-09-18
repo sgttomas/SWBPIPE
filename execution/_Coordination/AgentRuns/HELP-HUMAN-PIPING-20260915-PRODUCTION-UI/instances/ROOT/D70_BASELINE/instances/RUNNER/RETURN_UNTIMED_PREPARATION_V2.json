@@ -1,0 +1,217 @@
+{
+  "status": "BLOCKED_UNTIMED_SMOKE_CANVAS_IDENTITY",
+  "at": "2026-09-18T00:14:56.900293+00:00",
+  "camera": {
+    "exit": 0,
+    "testsPassed": 2,
+    "sizes": [
+      1000,
+      10000
+    ]
+  },
+  "freezer": {
+    "exit": 0,
+    "manifest": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-oracle-01/CANDIDATE_POINT_ORACLE_MANIFEST.json",
+    "sha256": "0b8a0b5239f10547c72907e32160db262288216ed1fb4818551782dc89b05b17"
+  },
+  "smoke": {
+    "exit": 1,
+    "failedSize": 1000,
+    "unattemptedSizes": [
+      10000
+    ],
+    "result": {
+      "status": "FAIL_UNTIMED_SMOKE",
+      "qualification": false,
+      "cohortContribution": 0,
+      "fixtureSize": 1000,
+      "steps": [
+        {
+          "action": "assignment",
+          "status": "VISIBLE_FIRST_USABLE"
+        }
+      ],
+      "errors": [
+        "Error: prescribed pointer target is not the current main canvas: {\"status\":\"PASS_ACTUAL_CONNECTED_MAIN_CANVAS_TARGET\",\"clientPoint\":{\"x\":576.3383298461134,\"y\":510.83226543984887},\"canvasEpoch\":null,\"armedCanvasEpoch\":null,\"exactArmedCanvas\":null,\"canvasConnected\":true,\"exactCanvasTarget\":true,\"targetTag\":\"CANVAS\",\"targetTestId\":\"viewport-canvas\",\"canvasRect\":{\"x\":293,\"y\":285.1953125,\"width\":794,\"height\":557}}"
+      ],
+      "claim": "control-path smoke only; no timing, trace or performance score"
+    }
+  },
+  "bindingsBeforeAfter": "PASS_ALL_THREE_PROCESSES",
+  "port5176After": {
+    "exit": 1,
+    "stdout": ""
+  },
+  "remainingPinnedBrowserProcesses": [],
+  "timedCohortAttempted": false,
+  "cohortContribution": 0,
+  "readiness": false,
+  "handoff": "ROOT disposition required; no repair/retry undertaken after smoke failure; no product or source changes",
+  "canonicalEvidence": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/process-before.txt",
+      "bytes": 186785,
+      "sha256": "f14ddefba4258378db7f783a39df2da161b723f3e30ccebd28820a9fbdc2904c"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/process.stdout.log",
+      "bytes": 617,
+      "sha256": "1d472b4629ebfe280041403d157a079939ea601f703fb2e5a64903576d5c5b78"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/process-after.txt",
+      "bytes": 186915,
+      "sha256": "13421fbd2807e65c70ed0c6070d1fe5f11b06c1a402cd69410ce51b941dacae3"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/process.stderr.log",
+      "bytes": 534,
+      "sha256": "2ae630803cf4362513186625c0626e5467ef3cff5329077409526bb528ffb1e2"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/candidate-camera-preflight/candidate-camera-preflight-1000-after-navigation.png",
+      "bytes": 548993,
+      "sha256": "3d6a386ee993c10e7a174db57c164e9c85426584c6de2ae4e348b7208461c7ef"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/candidate-camera-preflight/candidate-camera-preflight-10000.json",
+      "bytes": 225723,
+      "sha256": "c797f83dfc82628f7b4b870c937a6a3b8135d189e1f709855940684466789795"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/candidate-camera-preflight/candidate-camera-preflight-10000.png",
+      "bytes": 557208,
+      "sha256": "ef70ec4e1e9b45c74e20869618c2ff1a6ddd1c36d5fc80d506db202426fbf784"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/candidate-camera-preflight/candidate-camera-preflight-1000.json",
+      "bytes": 226405,
+      "sha256": "d3caf0ca11823becdd8daca3ed961f56aaefe1ade35cf4185aef094d05afae52"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/candidate-camera-preflight/candidate-camera-preflight-1000-after-navigation.json",
+      "bytes": 6234,
+      "sha256": "94af2cf19e08cb51c6d0d15c0efb8e783099f74c58f0b53f9d120dbc6aeb2be8"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/candidate-camera-preflight/candidate-camera-preflight-10000-after-navigation.png",
+      "bytes": 32758,
+      "sha256": "00b22ba80789ad23b2dbabd86a8c3b89526cd68bf2d9ee53a9609660cb1cf953"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/candidate-camera-preflight/candidate-camera-preflight-10000-after-navigation.json",
+      "bytes": 6204,
+      "sha256": "f469d034554b764d0f7349bc2ececa7aab1cdd3911e971186a449937092e998a"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/candidate-camera-preflight/candidate-camera-preflight-1000.png",
+      "bytes": 543671,
+      "sha256": "179f7ff0bdc019cdc984ee90e0ae35a8aa923972f935f7d5ab5fa147840e2a62"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-preflight-02/playwright-artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-oracle-01/ui-foundation-1000.candidate-runtime-point-oracle-v3.json",
+      "bytes": 1019070,
+      "sha256": "1d483eb78f901abb84bc2e32678cf74b500d624bcd9e0f9b5bce29bdceba4d16"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-oracle-01/CANDIDATE_POINT_ORACLE_MANIFEST.json",
+      "bytes": 2085,
+      "sha256": "0b8a0b5239f10547c72907e32160db262288216ed1fb4818551782dc89b05b17"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-oracle-01/ui-foundation-10000.candidate-runtime-point-oracle-v3.json",
+      "bytes": 1596214,
+      "sha256": "47f52cbc49b03a3202f1f9247bf146f0e765557b5ce54c3f97723519a1c58a8f"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/oracle-freeze-process-01/process-before.txt",
+      "bytes": 189529,
+      "sha256": "f21772c706c54762f63dbcb5227af06d27fd6b9a321a91769e6b601c11a143f5"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/oracle-freeze-process-01/process.stdout.log",
+      "bytes": 2426,
+      "sha256": "85f449da54c79c6c6570298e6a9f674c71e9d63e31d45ed6054839e30b8e19a1"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/oracle-freeze-process-01/process-after.txt",
+      "bytes": 189529,
+      "sha256": "52bff8496342b1f372091da54117d53307f7eceed46221429994ba4531177c45"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/oracle-freeze-process-01/process.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/process-final.txt",
+      "bytes": 117176,
+      "sha256": "53611936921a0d6635d394a7e9b6fc696fc2a9c668ce46bbe233a37e62a4ab45"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/process-before.txt",
+      "bytes": 189392,
+      "sha256": "dd06dc82a4875df492b96421802e867b23171c7dfadf1ce2c09b72f8d0d8f404"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/process.stdout.log",
+      "bytes": 3703,
+      "sha256": "ba3d94e8d043acb4b33aeeefb90c0d489f620f9f28614b3decce752e9f4de96f"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/process-after.txt",
+      "bytes": 190081,
+      "sha256": "7407a60ce7e701a3adf9fa1a83b5c9fcc5dce39183e8c278ad0a6920f9292196"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/smoke-summary.json",
+      "bytes": 3016,
+      "sha256": "040ea3adcae1f1dbdcc3c66048275da6b4beb91c63794cf969dcf7a0d818dab8"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/process.stderr.log",
+      "bytes": 534,
+      "sha256": "cf00fe39a1a262b5b6be96c86a6488faeeb097589585cce3ce0f451dfd304d1c"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/smoke-plan.json",
+      "bytes": 1787,
+      "sha256": "620c390baf823ea155dc86250e8da1452eaa8b48ebb500f8f68405b170ffe8ed"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/playwright-artifacts/.last-run.json",
+      "bytes": 96,
+      "sha256": "7e674645a6d4c00cec7219924b9e3fd436643e6650d2b363e5483da19f5d7f0c"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/raw/run-01/1000/run-failure.json",
+      "bytes": 569,
+      "sha256": "938829d8f4cf70a88b5a88cb064833898cc34d7a1dd8a9d2aa7d9d11d8dbd3a4"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/raw/run-01/1000/run-started.json",
+      "bytes": 115,
+      "sha256": "25e0466b6dc7492c6735044b35effb9f77d6d7a13ebc012d529b87163cc719f7"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/raw/run-01/1000/smoke-initial.json",
+      "bytes": 6289,
+      "sha256": "5c6eb8468baa91520f22e20edaf9e9c1ffb8f48e65d9cd66be97d694ed0c72e1"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/raw/run-01/1000/smoke-result.json",
+      "bytes": 765,
+      "sha256": "cb7d6ee426124bdc8214ddfa5c6be7b5a298b1c7b258b0eb2ead0d6c113e8f98"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/playwright-artifacts/ui-foundation-performance.-3e006-mark-candidate-N-1000-run-1-chromium-ui-foundation-candidate-production/error-context.md",
+      "bytes": 14577,
+      "sha256": "9bab8baee2965bf6f5a684503d09458546fa19d8f5fc1335f28b562685868ddb"
+    }
+  ]
+}

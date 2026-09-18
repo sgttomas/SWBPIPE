@@ -1,0 +1,104 @@
+{
+  "status": "COMPLETE_READ_ONLY_EXPECTATIONS",
+  "disposition": "READY_FOR_BOUNDED_IMPLEMENTATION",
+  "parent": "/root",
+  "agent": "/root/d70_expectations",
+  "role": "TASK Type 2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "attribution": "caller selected; no independent runtime introspection",
+  "enforcement": "instruction/config asserted",
+  "delegation": "none",
+  "writes": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/CONTINUATION/EXPECTATIONS.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/CONTINUATION/RETURN.json"
+  ],
+  "runtime_source_tests_builds_git_writes": "none",
+  "consumed": [
+    [
+      1000,
+      1
+    ]
+  ],
+  "remaining": [
+    [
+      1000,
+      2
+    ],
+    [
+      1000,
+      3
+    ],
+    [
+      1000,
+      4
+    ],
+    [
+      1000,
+      5
+    ],
+    [
+      10000,
+      1
+    ],
+    [
+      10000,
+      2
+    ],
+    [
+      10000,
+      3
+    ],
+    [
+      10000,
+      4
+    ],
+    [
+      10000,
+      5
+    ]
+  ],
+  "extra_attempts_authorized": 0,
+  "context_hashes": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/EXPECTATIONS_CONTINUATION.md",
+      "sha256": "d10207bd6aebe57b9be47e49db14f848f3489d6c5ba07d9f78d730e9ae3c7c69"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/EXPECTATIONS.md",
+      "sha256": "c9942be2e593424b46b607f614befb6ed2ec2fa823a7902c6b906a46ffa09b9e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/APPROVED_EXECUTION_CONTRACT.md",
+      "sha256": "22735b52f4a26ad1e6df005a8fa1118de500460251decacecc794e1affd1d63b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/OWNER_CLARIFICATION_CONTINUE_20260917.md",
+      "sha256": "a5ba424fde8f8be92ae69b694a718452c9753b3ce2217df8f6b4b55e042c9730"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN.json",
+      "sha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/MANAGER_CONTINUATION.md",
+      "sha256": "28524661f4cf075dc3aabed269ad9413c8374aef9442d1d9bb29877964e92ff4"
+    }
+  ],
+  "expectations_sha256": "b820e8826815f22992b8bd3240d2aedccf333e4ec39a7016f25f42dab3b3601e",
+  "blockers": [],
+  "remaining_work": "Manager diagnosis/repair, focused evidence, independent affected review, ROOT runtime release, remaining attempts and full report.",
+  "additional_context": "ROOT message relaying manager inner inspector height finding and proposed outer-pane invariant boundary; historical precise differing field unproved."
+}

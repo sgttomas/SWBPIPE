@@ -1,0 +1,7 @@
+# Portable width backcheck
+
+ROOT explicitly requested test-only completion before freeze. Existing unconditional metadata regression now carries exact observed inspector dimensions338→323 and299.96875→1530.625 and asserts both recorded transitions. No raw-cache access or environment variable is needed for this coverage. Existing hash-bound captured-artifact replay remains unchanged. Only maintained full-cohort-controller.spec.ts changed; no implementation/product/metric change.
+
+Node-only unconditional test ran with `env -u D70_CONTENT_WIDTH_REJECTED`,1PASS0SKIP. Captured replay ran separately with the canonical continuation-smoke-01 rejected artifact,1PASS0SKIP. Separate config/output/report paths preserve both results. TypeScript and diffcheck PASS. Logs portable.log/replay.log and test-results.json/replay-results.json retain outcomes. Canonical rejected artifact SHA remains9d7b0d55113f13dec928ad44a7a383825021fc83d4cf9cbcae519d194f128169.
+
+Checks used local Playwright cli with this directory's node-only.config.ts and grep `continuation metadata allows truthful inner content heights`; replay.config.ts and grep `captured scrollable inspector`; tsc --project this directory's tsconfig.json. No browser/native/runtime, no slots consumed. Prior evidence preserved; successor34 manifest and exact source hash are in RETURN.json. ROOT owns integration/backcheck/freeze/release. Derivative test evidence only; no performance acceptance.

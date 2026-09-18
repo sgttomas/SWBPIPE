@@ -1,0 +1,109 @@
+{
+  "slot": "10000.5",
+  "collection": {
+    "mode": "characterization",
+    "evidenceValidity": "INVALID",
+    "collectionCompleteness": "INCOMPLETE",
+    "targetOutcome": "FAIL_INVALID_EVIDENCE",
+    "attemptDisposition": "ABORT_REMAINING",
+    "cohortContribution": 0
+  },
+  "exitCode": 1,
+  "signal": null,
+  "errors": [
+    {
+      "phase": "D70-8468a33c-20260917-CHARACTERIZATION-01.10000.5.point-selection.58:work",
+      "error": "Error: winner cue transition/typed capture binding failed"
+    },
+    {
+      "phase": "run",
+      "error": "Error: segment D70-8468a33c-20260917-CHARACTERIZATION-01.10000.5.point-selection.58 failed; canonical earlier evidence retained"
+    }
+  ],
+  "scored": {
+    "status": "FAIL_INVALID_EVIDENCE",
+    "validityFailures": [
+      "RUN_NOT_FRESH_AND_QUALIFIED",
+      "INCOMPLETE_OR_INVALID_POINTS",
+      "INCOMPLETE_OR_INVALID_BOXES",
+      "INCOMPLETE_OR_INVALID_FILTERS",
+      "INCOMPLETE_OR_INVALID_ORBIT:centerline",
+      "INCOMPLETE_OR_INVALID_ORBIT:actual-od",
+      "SETTLED_OWNED_RAF_NOT_EXACT_ZERO"
+    ],
+    "targetFailures": [],
+    "scores": {
+      "assignment": 652.1140018463138,
+      "pointP95": null,
+      "boxP95": null,
+      "filterP95": null,
+      "centerlineP95": null,
+      "actualOdP95": null
+    },
+    "orbitPopulations": {},
+    "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.10000.5",
+    "fixtureSize": 10000,
+    "bindings": {
+      "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+      "sourceSha256": "23206c0762ba7f8aabd7529587e4032f61894aec04a21556f4d75b6fcfd57779",
+      "buildSha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+      "fixtureSha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+      "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+      "oracleSha256": "47f52cbc49b03a3202f1f9247bf146f0e765557b5ce54c3f97723519a1c58a8f",
+      "methodSha256": "1e0ab8a4e4a57753084d7ceca695b0b4b952aa047923cb48e3dbd3074bf22a78",
+      "samplesSha256": "590fc0c7a0ab50f1f255150ce522a4a6626393d0ba8469ac62bdae2afdce29da"
+    },
+    "observerDiagnostics": {
+      "evidenceRef": "observer-accounting.json",
+      "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+    },
+    "rawObserverReferences": {
+      "p95Ms": 0.5,
+      "maximumMs": 2,
+      "totalPercent": 3
+    },
+    "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+  },
+  "settled": {
+    "status": "FAIL",
+    "ownedRafCount": null
+  },
+  "counts": {
+    "points": 57,
+    "boxes": 0,
+    "filters": 0
+  },
+  "afterCleanup": {
+    "browserProcessesRemaining": 0,
+    "serverListening": false,
+    "verificationStatus": "VERIFIED",
+    "verifiedAt": "2026-09-18T03:24:00.502012+00:00",
+    "portReadout": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "afterBindings": "PASS_INDEPENDENT_EXTERNAL_REVALIDATION",
+  "profile": "INTERNAL120_EXACT_POSTCHECK_PASS",
+  "remaining10000Slots": 0,
+  "references": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.5/raw/run-05/10000/result.json",
+      "sha256": "c4977f3c399c5fef6d13e8ea1fad2f7a0da3a728862aa94adcb89c8104e94791"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/processes/10000.5/process-return.json",
+      "sha256": "af849298f7d6ea7ac15d1b23b51d122b986b1dd33d09915a808f7a18a0dcec89"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/terminal-10000.5.json",
+      "sha256": "53894a7b9030dfba730b1b70461d34df7aa8ef6f87b4b7156e3e3032fb574aac"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/10000.5.json",
+      "sha256": "05d023e73afd061f98d62c4b111149fb7bf117b7417db0fcf472e032efdf54c7"
+    }
+  ],
+  "handoff": "Final allotted attempt consumed; no retry, replacement or sixth ordinal. Await ROOT disposition/offline release. Partial raw evidence preserved; no offline trace analysis."
+}

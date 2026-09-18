@@ -1,0 +1,118 @@
+{
+  "status": "BOUNDED_READ_ONLY_DIAGNOSIS_COMPLETE",
+  "classification": "REPRODUCIBLE_TYPED_PRODUCT_ORACLE_DISAGREEMENT_UNDERLYING_CAUSE_UNRESOLVED",
+  "confidence": "high immediate mechanism; insufficient underlying attribution",
+  "correction_supported": false,
+  "unchanged_attempt_likely_to_resolve": "not supported by repeated identical saved evidence",
+  "parent": "/root",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "attribution": "caller configured, instruction/config asserted",
+  "delegation": "none",
+  "source_writes_tests_runtime_trace_analysis": "none",
+  "expected": {
+    "type": "node",
+    "id": "node:UIF-08786"
+  },
+  "observed": {
+    "type": "pipe",
+    "id": "pipe:UIF-08786"
+  },
+  "both_attempts": {
+    "exact": false,
+    "markerBound": false,
+    "visualVerdict": "PASS_PAIRED_WINNER_CUE_TRANSITION",
+    "newQualifyingPixels": 23,
+    "requiredPixels": 4,
+    "feedbackMarkers": 0,
+    "completePoints": 57
+  },
+  "context_hashes": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/POINT58_EVIDENCE_DIAGNOSIS.md",
+      "sha256": "a8d0c0673955a06839606e9e23c585531adb0bdd16380db6fc63d8df017d9f23"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_10000.1.json",
+      "sha256": "d322e9d42f3add347dbac84e1df5052c1b460c1eda18df4c0eb29732bb29f40a"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_10000.2.json",
+      "sha256": "f8e5d299af67cf55477d22bc13b96be53584e1d07dbc262119d6fdf869d0cc18"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1/raw/run-01/10000/point-selection-058/point-before-state.json",
+      "sha256": "3b1a91316068cfe51e20c50f645af7f9d08834f9f200105f0d4df3ae4cca7e98"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1/raw/run-01/10000/point-selection-058/action-stopped.json",
+      "sha256": "78741746a77210dc624cffe2736a171f7d5a9a8ba187db9243fc28833585124d"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1/raw/run-01/10000/point-selection-058/point-stopped.json",
+      "sha256": "a01bab184b13528e1b0490dcafcc584f72bfdb6b62955c84b6c4cc498d2af5c7"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1/raw/run-01/10000/point-selection-058/pixel-witness.json",
+      "sha256": "8be366cb45fafa8e77f6f758803cef7cca866cc1b76e8adc2dda24cfd3759c05"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1/raw/run-01/10000/point-selection-058/highlight-before.png",
+      "sha256": "6674acfabe79189ed610a71450b7e57258f7ec7f9762c156428740d90af7bb09"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1/raw/run-01/10000/point-selection-058/highlight-after.png",
+      "sha256": "36d55b110ea38846a6c59474afd75b7f0287afa93df77ab3246a34fcd1d319ed"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1/raw/run-01/10000/point-selection-058/highlight-after.png.json",
+      "sha256": "915f2bb33ee258231c4ef8225737793d3817f7dc885825d3d1d79edab148815d"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2/raw/run-02/10000/point-selection-058/point-before-state.json",
+      "sha256": "915fd26a02ac7edcdff0675779f3a92a72e270121c5c58c13ac896ffbbd4097a"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2/raw/run-02/10000/point-selection-058/action-stopped.json",
+      "sha256": "fef868343340dfe61fb697568ca301b82461292926fd84c7f2065c833e903da8"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2/raw/run-02/10000/point-selection-058/point-stopped.json",
+      "sha256": "5f1e46adece16a63a52624a440a7d12a53851eb85906076411ef7825a8fd486e"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2/raw/run-02/10000/point-selection-058/pixel-witness.json",
+      "sha256": "5be4a8526aeae2c7f74d408802fb1e24375b04abd045d6450371bd2b543f039c"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2/raw/run-02/10000/point-selection-058/highlight-before.png",
+      "sha256": "6674acfabe79189ed610a71450b7e57258f7ec7f9762c156428740d90af7bb09"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2/raw/run-02/10000/point-selection-058/highlight-after.png",
+      "sha256": "36d55b110ea38846a6c59474afd75b7f0287afa93df77ab3246a34fcd1d319ed"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2/raw/run-02/10000/point-selection-058/highlight-after.png.json",
+      "sha256": "a56c848749cd892209c34d9b3a00fac7132a1e028e91a3cae5a0493736c7de0e"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "6174c3ecd6f9732eefd00b8db50bcb0a0f3ce59b28ec217c3b189f3ef2e526a4"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/point-hit-oracle.mjs",
+      "sha256": "d9f4e01f80b62c777b3b48645b3d2180e7327fb0e335358c5aba6b4f96b992b4"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.ts",
+      "sha256": "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "fb3b9dc1c75b309ab2057a4b87de4dc93154994563bf916202a16d504180e542"
+    }
+  ],
+  "diagnosis_sha256": "eab439eac9bace6fda2a7a31a85fda8e2e43155ae2671cabe87d2bf162879fc8"
+}

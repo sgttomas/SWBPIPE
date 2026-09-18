@@ -1,0 +1,23 @@
+{
+  "schema": "chirality.task.dispatch/v1",
+  "parent": "/root",
+  "agent": "/root/d70_final_review",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "delegation": false,
+  "mechanism": "delegated-harness-native",
+  "enforcement": "instruction/config asserted",
+  "brief": "briefs/CONTINUATION_REVIEW.md",
+  "briefSha256": "7d88283706812ee83ceed064017f9f9963c8f2c1eae02478581022f06909549f",
+  "freeze": "CONTINUATION_BACKCHECK_FREEZE.json",
+  "freezeSha256": "684d6b905503da6dcba13242e6245987b6a9a788374399d4c3214499c0b4bf51",
+  "candidate": "3882fb8308030c717709d226c8a92c02548abc0b",
+  "purpose": "Close CR-1 against integrated correction and independently review final runner policyV2, commandV2 and control_v2.py; verify complete candidate coverage using exact carry-forward hashes",
+  "allowedWrites": [
+    "instances/CONTINUATION_REVIEW/LABEL_BACKCHECK/REVIEW.md",
+    "instances/CONTINUATION_REVIEW/LABEL_BACKCHECK/RETURN.json"
+  ],
+  "tools": "Read-only Git/filesystem/bounded offline checks; no runtime, tests, builds, source edits or Git mutations",
+  "requiredReturn": "PASS with no actionable findings or precise defects; CR-1 disposition, new/unchanged path hashes and launcher/receipt/cleanup/source binding assessment; no prospective runtime acceptance"
+}

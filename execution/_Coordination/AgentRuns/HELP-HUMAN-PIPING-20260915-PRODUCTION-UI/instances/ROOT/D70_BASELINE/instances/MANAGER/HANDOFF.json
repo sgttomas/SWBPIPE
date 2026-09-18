@@ -1,0 +1,31 @@
+{
+  "status": "MANAGER_SCOPE_COMPLETE_REVIEW_READY",
+  "closureVerdict": "tested instrument returned; overall characterization remains open",
+  "parent": "/root",
+  "manager": "/root/d70_manager",
+  "writer": "/root/d70_manager/writer",
+  "requestedSettings": {
+    "manager": "gpt-6-astra/high",
+    "writer": "gpt-6-astra/low"
+  },
+  "actualRuntimeModelIndependentlyObserved": false,
+  "mechanism": "delegated-harness-native",
+  "enforcement": "instruction/config asserted",
+  "acceptedUpstream": [
+    "D-70",
+    "IMPLEMENTATION_RELEASE.json",
+    "EXPECTATIONS.md c9942be2e593424b46b607f614befb6ed2ec2fa823a7902c6b906a46ffa09b9e"
+  ],
+  "derivativePackage": true,
+  "writerCommit": "c9cbec96e5877e307d8895ab51c2d1d9928ea10f",
+  "blockingSourceFindings": [],
+  "remaining": [
+    "ROOT integration",
+    "fresh complete-diff review",
+    "final method/camera/runtime-oracle freeze",
+    "both-size untimed smoke",
+    "exclusive one cohort attempt",
+    "independent offline report/review and governed Git closeout"
+  ],
+  "rerunRequirements": "Repeat affected tests if revised. Browser smoke/runtime still required. No timed replacement/retry. Manager ends before cohort."
+}

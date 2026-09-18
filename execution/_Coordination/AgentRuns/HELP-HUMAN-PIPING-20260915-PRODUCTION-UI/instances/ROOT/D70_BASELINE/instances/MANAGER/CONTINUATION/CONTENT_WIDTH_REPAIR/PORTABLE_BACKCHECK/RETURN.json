@@ -1,0 +1,30 @@
+{
+  "status": "PASS_PORTABLE_REGRESSION_AND_CAPTURED_REPLAY",
+  "instance": "/root/d70_manager",
+  "role": "WORKING_ITEMS Type 1",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "directGrant": "ROOT bounded test completion",
+  "baseRevision": "fbde75721c86547b877221f394cdc96d38d2ead7",
+  "source": {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "sha256": "e35773e0ac6fe1a7dd727857747c7d4e5901b7dfacbad4114e2f7fd6d2ae9074"
+  },
+  "parentMethodSha256": "d1b04c4e279081d0e0b2e9e45702f0aab1adb157f7537f2c8a46fd8eebcccf52",
+  "successorManifestSha256": "6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a",
+  "manifestEntries": 34,
+  "checks": {
+    "unconditionalTestWithoutArtifactEnvironment": "1PASS0SKIP",
+    "capturedReplayWithHashBoundArtifact": "1PASS0SKIP",
+    "typescript": "PASS",
+    "diffCheck": "PASS"
+  },
+  "runtimeExecuted": false,
+  "attemptsConsumed": 0,
+  "priorEvidenceUntouched": true,
+  "remaining": [
+    "ROOT integrate/review/freeze successor method",
+    "ROOT runtime release"
+  ],
+  "derivativePackage": true
+}

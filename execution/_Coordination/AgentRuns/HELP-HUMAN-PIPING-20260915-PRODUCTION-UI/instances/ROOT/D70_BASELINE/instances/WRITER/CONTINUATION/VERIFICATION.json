@@ -1,0 +1,17 @@
+{
+  "status": "PASS_NODE_ONLY",
+  "focusedSuite": {
+    "passed": 39,
+    "log": "focused-final.log"
+  },
+  "finalBudgetRegression": {
+    "passed": 1,
+    "log": "budget-regression.log"
+  },
+  "typescript": "PASS before and after final budget gate",
+  "offline": "PASS offline.log",
+  "runtimeExecuted": false,
+  "runtimeAttemptsConsumed": 0,
+  "excluded": "browser/build/cohort and unchanged large raw-transfer tests",
+  "historicalRejectedField": "unproved; actual rejected snapshot was unavailable"
+}

@@ -1,0 +1,15 @@
+{
+  "bindings": {
+    "OWNER_DIRECTION_ONE_SUCCESS_20260917.md": "ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2",
+    "briefs/MANAGER_ONE_SUCCESS.md": "1874706e7a9f68094913c22e157899e8604499fca3800a72054deadedafe039e",
+    "instances/EXPECTATIONS/ONE_SUCCESS/EXPECTATIONS.md": "7c895915cb178e88cc087f246ac80d60165a2c0d3d4cc68bdff9bd596e06ddc7",
+    "instances/EXPECTATIONS/ONE_SUCCESS/RETURN.json": "33a5e3730c80f0afa4f32012b7094603b517dbf39b19466ee55764a0f2d4d141"
+  },
+  "base": "7306e2c6a435831c2f1457458516242decf88055",
+  "instance": "/root/d70_manager",
+  "role": "WORKING_ITEMS Type1",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "implementation": "direct explicit ROOT grant; no child",
+  "runtimeAuthorized": false
+}

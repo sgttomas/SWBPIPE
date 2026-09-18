@@ -1,0 +1,138 @@
+{
+  "schema": "ui-foundation.lifetime-attempt-budget-report/v1",
+  "seed": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN.json",
+    "sha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6"
+  },
+  "slots": [
+    {
+      "slot": "1000.1",
+      "consumed": true,
+      "instrumentRevision": "36e56f2d93f763296b09520fe9f7c8481dd6fd54",
+      "methodSha256": "c36048c44d14acdceb7b15a898c96e38a473e96adb985a07a9694496324426b1",
+      "evidenceValidity": "INVALID",
+      "collectionCompleteness": "INCOMPLETE",
+      "originalScored": {
+        "status": "FAIL_INVALID_EVIDENCE",
+        "validityFailures": [
+          "RUN_NOT_FRESH_AND_QUALIFIED",
+          "INCOMPLETE_OR_INVALID_POINTS",
+          "INCOMPLETE_OR_INVALID_BOXES",
+          "INCOMPLETE_OR_INVALID_FILTERS",
+          "INCOMPLETE_OR_INVALID_ORBIT:centerline",
+          "INCOMPLETE_OR_INVALID_ORBIT:actual-od",
+          "SETTLED_OWNED_RAF_NOT_EXACT_ZERO"
+        ],
+        "targetFailures": [],
+        "scores": {
+          "assignment": 271.3380018234255,
+          "pointP95": null,
+          "boxP95": null,
+          "filterP95": null,
+          "centerlineP95": null,
+          "actualOdP95": null
+        },
+        "orbitPopulations": {},
+        "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.1",
+        "fixtureSize": 1000,
+        "bindings": {
+          "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+          "sourceSha256": "23206c0762ba7f8aabd7529587e4032f61894aec04a21556f4d75b6fcfd57779",
+          "buildSha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+          "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+          "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+          "oracleSha256": "1d483eb78f901abb84bc2e32678cf74b500d624bcd9e0f9b5bce29bdceba4d16",
+          "methodSha256": "c36048c44d14acdceb7b15a898c96e38a473e96adb985a07a9694496324426b1",
+          "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+        },
+        "observerDiagnostics": {
+          "evidenceRef": "observer-accounting.json",
+          "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+        },
+        "rawObserverReferences": {
+          "p95Ms": 0.5,
+          "maximumMs": 2,
+          "totalPercent": 3
+        },
+        "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+      },
+      "source": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN.json",
+        "sha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6"
+      }
+    },
+    {
+      "slot": "1000.2",
+      "consumed": true,
+      "instrumentRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "methodSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "claimSha256": "32852d9eb4b6c13a660885dcec969354eb6d7b94dd484ba81e05b23e5fd6205e",
+      "evidenceValidity": "INVALID_OR_UNAVAILABLE",
+      "collectionCompleteness": "INCOMPLETE",
+      "originalScored": null,
+      "runtimeDisposition": "FAILED_OR_UNAVAILABLE",
+      "terminal": {
+        "exitCode": null,
+        "signal": null,
+        "launchError": "Error: interrupted spawn/process",
+        "slot": "1000.2",
+        "claim": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/CONTINUATION/test-output/full-cohort-controller-con-0a326-nly-after-independent-gates/continuation/ledger/claims/1000.2.json",
+          "sha256": "32852d9eb4b6c13a660885dcec969354eb6d7b94dd484ba81e05b23e5fd6205e"
+        },
+        "finishedAt": "2026-09-18T01:19:49.573Z",
+        "cleanup": "UNKNOWN_REQUIRES_INDEPENDENT_REVALIDATION",
+        "comparison": "mixed-method attempt budget; not same-method cohort qualification"
+      },
+      "resultFile": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/CONTINUATION/test-output/full-cohort-controller-con-0a326-nly-after-independent-gates/continuation/attempt-1000.2/raw/run-02/1000/result.json"
+    },
+    {
+      "slot": "1000.3",
+      "consumed": false,
+      "disposition": "UNATTEMPTED"
+    },
+    {
+      "slot": "1000.4",
+      "consumed": false,
+      "disposition": "UNATTEMPTED"
+    },
+    {
+      "slot": "1000.5",
+      "consumed": false,
+      "disposition": "UNATTEMPTED"
+    },
+    {
+      "slot": "10000.1",
+      "consumed": false,
+      "disposition": "UNATTEMPTED"
+    },
+    {
+      "slot": "10000.2",
+      "consumed": false,
+      "disposition": "UNATTEMPTED"
+    },
+    {
+      "slot": "10000.3",
+      "consumed": false,
+      "disposition": "UNATTEMPTED"
+    },
+    {
+      "slot": "10000.4",
+      "consumed": false,
+      "disposition": "UNATTEMPTED"
+    },
+    {
+      "slot": "10000.5",
+      "consumed": false,
+      "disposition": "UNATTEMPTED"
+    }
+  ],
+  "consumed": 2,
+  "validCompleteBySize": {
+    "1000": 0,
+    "10000": 0
+  },
+  "originalAggregateFailure": "FAIL_COHORT",
+  "qualificationCohort": false,
+  "comparison": "Original and successor methods remain separate; attempt budget completion is not valid-workload or metric acceptance."
+}

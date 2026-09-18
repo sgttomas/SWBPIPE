@@ -1,0 +1,11 @@
+# Bounded continuation repair — scrollable inner panel geometry
+
+Parent HELP_HUMAN /root; WORKING_ITEMS Type 1; configured gpt-6-astra/high. Execute this localized repair directly; no child required and no other source writer is active. Runtime and timed attempts are stopped. Existing manager instruction context and original bounds remain.
+
+New evidence: continuation-smoke-01/raw/run-01/1000/smoke-point-stopped-rejected.json, under the canonical D70 cache. Selection changes the inner inspector width from 338 to 323 and its height from 299.96875 to 1530.625. Outer pane geometry and canvas do not change. Check the pinned product CSS and actual rejected snapshot to establish whether this is expected scrollbar/content geometry. The first historical failed attempt did not preserve its rejected snapshot; do not retroactively assert its exact field.
+
+If supported, treat inner panel width as well as height as recorded content observations. Keep actual outer pane x/y/width/height, canvas/DPR, selector/visibility, model/source/profile and existing label policy invariant. Validate positive inner dimensions. Preserve all boundary snapshots and transition reporting; reject genuine outer-layout changes and persist the rejected record. No target, workload, timing instrumentation, raw trace, product or scoring change.
+
+Write fence: instrument checkout only, characterization-commands.ts, full-cohort-controller.spec.ts and matching bounded README documentation; plus this phase's instances/MANAGER/CONTINUATION/CONTENT_WIDTH_REPAIR evidence/return and successor 34-file manifest. Focused regression must exercise the actual observed width/height transition while rejecting outer-pane or canvas drift. Run focused tests/typecheck only, no browser/native smoke or benchmark. Retain failed smoke untouched. Commit scoped changes and return actual source hashes, checks, root cause and successor manifest. Root integrates, obtains affected independent review and issues a separate smoke release. No push, timed launch, method-policy expansion or product repair.
+
+This cycle uses new concrete failure evidence. Do not expand into compositor diagnostics. If the evidence does not support this interpretation, return a bounded finding instead of changing the invariant.

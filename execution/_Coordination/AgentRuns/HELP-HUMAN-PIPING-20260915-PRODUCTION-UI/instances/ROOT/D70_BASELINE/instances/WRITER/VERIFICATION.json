@@ -1,0 +1,24 @@
+{
+  "at": "2026-09-18T00:01:12.964673+00:00",
+  "focusedNodeTests": 36,
+  "focusedStatus": "PASS",
+  "typecheck": "PASS",
+  "offlineVerifier": "PASS",
+  "diffCheck": "PASS",
+  "runtime": "NOT_EXECUTED",
+  "sourceFenceCount": 10,
+  "methodInventoryCount": 34,
+  "protectedBytesUnchanged": [
+    "performance-targets.ts",
+    "causal-presentation-extractor.mjs",
+    "chromium-compositor-trace.ts",
+    "fixture-manifest.json",
+    "benchmark-harness.ts"
+  ],
+  "largeRawTransferStressTests": "NOT_RERUN_UNCHANGED_TRANSPORT",
+  "preparedInputsReadOnly": "PASS_REAL_FINAL_PRODUCT_PROFILE_AND_TEST_ONLY_BYTE_DRIFT_NEGATIVE",
+  "temporaryConfigs": [
+    "node-only.config.ts",
+    "tsconfig.json"
+  ]
+}

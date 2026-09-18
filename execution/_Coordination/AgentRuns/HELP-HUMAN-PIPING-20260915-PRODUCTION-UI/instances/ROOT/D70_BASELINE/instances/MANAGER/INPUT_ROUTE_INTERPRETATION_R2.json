@@ -1,0 +1,21 @@
+{
+  "at": "2026-09-17T23:42:42.202543+00:00",
+  "supersedes": "INPUT_ROUTE_INTERPRETATION.json",
+  "authority": "ROOT explicit correction from installed locked Playwright primary source",
+  "dependencyVersion": "1.60.0",
+  "primarySource": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/node_modules/playwright-core/lib/coreBundle.js",
+    "sha256": "f74353fcb8e406756a70a6af0dfc4a5069acd577e35ec9d923ccf36ac009c2f5",
+    "lines": [
+      16456,
+      16480,
+      34580,
+      34581
+    ]
+  },
+  "correction": "Text/search locator.fill already takes keyboard.insertText native browser path; earlier manager statement calling it DOM input rather than keyboard was imprecise",
+  "selectedRoute": "Explicit actual input focus then page.keyboard.insertText(query), characterization only. Strict/default fill unchanged. One whole-query trusted browser input; no keydown/keyup claim.",
+  "causalContract": "Exactly one input event; unchanged stopped-content witness and extractor/scorer",
+  "excluded": "No clipboard modification, permission grants or restoration; no sequential typing or product handler/state calls",
+  "runtime": "Untested until authorized smoke; node-only preparation permitted"
+}

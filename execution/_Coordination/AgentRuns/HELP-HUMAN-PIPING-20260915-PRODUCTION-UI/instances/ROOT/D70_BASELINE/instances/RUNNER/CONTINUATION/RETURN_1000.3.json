@@ -1,0 +1,131 @@
+{
+  "status": "SLOT_1000_3_FAILED_RETAINED",
+  "at": "2026-09-18T02:07:40.232716+00:00",
+  "slot": "1000.3",
+  "processExit": 1,
+  "collection": {
+    "mode": "characterization",
+    "evidenceValidity": "INVALID",
+    "collectionCompleteness": "INCOMPLETE",
+    "targetOutcome": "FAIL_INVALID_EVIDENCE",
+    "attemptDisposition": "ABORT_REMAINING",
+    "cohortContribution": 0
+  },
+  "scored": {
+    "status": "FAIL_INVALID_EVIDENCE",
+    "validityFailures": [
+      "RUN_NOT_FRESH_AND_QUALIFIED",
+      "INCOMPLETE_OR_INVALID_POINTS",
+      "INCOMPLETE_OR_INVALID_BOXES",
+      "INCOMPLETE_OR_INVALID_FILTERS",
+      "INCOMPLETE_OR_INVALID_ORBIT:centerline",
+      "INCOMPLETE_OR_INVALID_ORBIT:actual-od",
+      "SETTLED_OWNED_RAF_NOT_EXACT_ZERO"
+    ],
+    "targetFailures": [],
+    "scores": {
+      "assignment": 268.0240016937258,
+      "pointP95": null,
+      "boxP95": null,
+      "filterP95": null,
+      "centerlineP95": null,
+      "actualOdP95": null
+    },
+    "orbitPopulations": {},
+    "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.3",
+    "fixtureSize": 1000,
+    "bindings": {
+      "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+      "sourceSha256": "23206c0762ba7f8aabd7529587e4032f61894aec04a21556f4d75b6fcfd57779",
+      "buildSha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+      "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+      "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+      "oracleSha256": "1d483eb78f901abb84bc2e32678cf74b500d624bcd9e0f9b5bce29bdceba4d16",
+      "methodSha256": "6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a",
+      "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+    },
+    "observerDiagnostics": {
+      "evidenceRef": "observer-accounting.json",
+      "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+    },
+    "rawObserverReferences": {
+      "p95Ms": 0.5,
+      "maximumMs": 2,
+      "totalPercent": 3
+    },
+    "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+  },
+  "errors": [
+    {
+      "phase": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.3.point-selection.3:work",
+      "error": "Error: winner cue capture state drift"
+    },
+    {
+      "phase": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.3.point-selection.3:stop",
+      "error": "Error: page.evaluate: Error: causal feedback marker token is not active\n    at causal.stop (<anonymous>:891:136)\n    at eval (eval at evaluate (:302:30), <anonymous>:5:19)\n    at UtilityScript.evaluate (<anonymous>:304:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+    },
+    {
+      "phase": "run",
+      "error": "Error: segment D70-8468a33c-20260917-CHARACTERIZATION-01.1000.3.point-selection.3 failed; canonical earlier evidence retained"
+    }
+  ],
+  "populations": {
+    "points": 2,
+    "boxes": 0,
+    "filters": 0
+  },
+  "settled": {
+    "status": "FAIL",
+    "ownedRafCount": null
+  },
+  "cleanup": {
+    "browserProcessesRemaining": 0,
+    "serverListening": false,
+    "verificationStatus": "VERIFIED",
+    "verifiedAt": "2026-09-18T02:06:19.162826+00:00",
+    "portReadout": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "externalBindings": "PASS_INDEPENDENT_EXTERNAL_REVALIDATION",
+  "postconditionError": null,
+  "evidence": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.3/raw/run-03/1000/result.json",
+      "sha256": "2132453f8aba083aab585df2ff3a539b460977d7e9dc428f7cb10518b342ddd8"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.3/selected-slot-result.json",
+      "sha256": "1884dbae8384d1f52640dfd552c5285f7140be3ae5d48b528f2682d0748adaeb"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/1000.3.json",
+      "sha256": "81aadbae9c2364534a75f31026e14e09683ff11aec8c925ec230547188eeb759"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/terminal-1000.3.json",
+      "sha256": "b615a6ebcf857886a86829fc6ea67b743be56abeeb8ccb639289b3dcc98cac43"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/budget-after-1000.3.json",
+      "sha256": "a6a3f30731a417bd071418572bab9fe92d5208c810979e3a94317fed4e96d647"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/processes/1000.3/process-return.json",
+      "sha256": "f4ebafce64332b0da6bd7df648690403e129a15c338cbe0ecec19131224cda45"
+    }
+  ],
+  "remainingSlots": [
+    "1000.4",
+    "1000.5",
+    "10000.1",
+    "10000.2",
+    "10000.3",
+    "10000.4",
+    "10000.5"
+  ],
+  "offlineAnalysisPerformed": false,
+  "nextSlotLaunched": false
+}

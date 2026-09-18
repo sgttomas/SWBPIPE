@@ -1,0 +1,20 @@
+{
+  "schema": "chirality.piping.internal120-fan-in/v1",
+  "at": "2026-09-18T02:53:17.984803+00:00",
+  "sourceCommit": "df1562e06c90653a96252e19f5730b19b8d4f66c",
+  "integratedCommit": "70ce64ee2e93823131cbf3cf450fe4467a9e082e",
+  "managerReturn": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/RETURN.json",
+    "sha256": "ac04899f493cb3cc8c7542323508d595cc2f1acb04894a894d95d28e756d9d1e"
+  },
+  "methodManifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/METHOD_MANIFEST_SUCCESSOR.json",
+    "sha256": "1e0ab8a4e4a57753084d7ceca695b0b4b952aa047923cb48e3dbd3074bf22a78"
+  },
+  "all34MethodMembersMatchBothWorktrees": true,
+  "instrumentClean": true,
+  "profileCustody": "Root verified all5 profile-return file references and exact main/online/internal display capture",
+  "testEvidence": "Manager9 focused /0 skipped, TypeScript pass; no redundant runtime",
+  "status": "PASS_FAN_IN_PENDING_LAUNCHER_AND_INDEPENDENT_REVIEW",
+  "runtimeAuthorized": false
+}

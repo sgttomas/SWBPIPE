@@ -1,0 +1,12 @@
+{
+  "exitCode": 1,
+  "signal": null,
+  "slot": "10000.2",
+  "claim": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/10000.2.json",
+    "sha256": "f17abda6d869c6083026df01789fb14efa83b7e5cdde09cb80599da20b2fc1b7"
+  },
+  "finishedAt": "2026-09-18T03:08:56.340Z",
+  "cleanup": "UNKNOWN_REQUIRES_INDEPENDENT_REVALIDATION",
+  "comparison": "mixed-method attempt budget; not same-method cohort qualification"
+}

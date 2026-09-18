@@ -1,0 +1,35 @@
+{
+  "status": "INTERNAL120_PROFILE_SEALED_PREPARATION_ONLY",
+  "profile": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/INTERNAL120/REFERENCE_PROFILE_INTERNAL120.json",
+    "sha256": "6de03bed447bc236b34295eabcdcd3957434aada022e368f1a4559e5f839ad8e"
+  },
+  "previousProfile": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/REFERENCE_PROFILE_V2.json",
+    "sha256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922"
+  },
+  "authority": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/OWNER_DIRECTION_INTERNAL120_20260917.md",
+    "sha256": "6df272b7af0367b0083302229018143f8fa397a6bde0f5e368c6ec1e454157b9"
+  },
+  "capture": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/INTERNAL120/DISPLAY_CAPTURE.json",
+    "sha256": "b7ea332f9ca5c899d44319aa0ae816f4cf378f8149f4596b8317a5f73084d534"
+  },
+  "memory": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/INTERNAL120/HOST_MEMORY.txt",
+    "sha256": "62497aa7d755cf0a3aa04ce070e56be0d979088134f2273ecb2f5a7f617f9fb0"
+  },
+  "blockedReturnSha256": "c4347730400ea6dc4323bf1fdd995de18711e49c65f20f55c0ea6d6c8d29a6cb",
+  "display": {
+    "name": "Color LCD",
+    "vendor": "610",
+    "product": "a05f",
+    "serial": "fd626d62",
+    "pixels": "3456 x 2234",
+    "resolution": "1728 x 1117 @ 120.00Hz",
+    "mirror": "spdisplays_off",
+    "connection": "spdisplays_internal"
+  },
+  "noRuntime": true
+}

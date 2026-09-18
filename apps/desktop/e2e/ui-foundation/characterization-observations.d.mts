@@ -1,0 +1,15 @@
+export function observeOrbitTrace(rawBytes: Buffer, derived: any, finalized: any): any;
+export function observeAttempt(attemptFile: string, outputFile: string): Promise<any>;
+export const CONTINUATION_SLOTS: readonly string[];
+export const ORIGINAL_RETURN_SHA256: string;
+export function continuationExternalBindings(seed: any, policy?: any): any;
+export const INTERNAL120_AUTHORITY_SHA256: string;
+export function validateDisplayTransition(policy: any, seed: any): Promise<any>;
+export function continuationProfileAuthorization(env: any): Promise<any>;
+export function validateContinuationPolicy(policy: any, seed: any): void;
+export function continuationClaims(policy: any): Promise<any[]>;
+export function validateContinuationReceipt(receipt: any, policy: any, slot: string, previous: any, seed: any): Promise<void>;
+export function validateClaimedContinuation(policyRef: any, claimRef: any, executionToken: string, evidenceRoot: string): Promise<any>;
+export function launchContinuationSlot(policyRef: any, slot: string, receiptRef: any, operations?: any): Promise<any>;
+export function continuationBudgetReport(policy: any, seed: any): Promise<any>;
+export function closeOneSuccess(policyRef: any, receiptRef: any, operations?: any): Promise<any>;

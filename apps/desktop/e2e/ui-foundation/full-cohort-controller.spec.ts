@@ -974,3 +974,404 @@ test("assignment diagnostics freeze ten fresh identities and cannot qualify full
   expect(scorePerformanceRun(results[0] as any,expected[0]).status).toBe("FAIL_INVALID_EVIDENCE");
   expect(scorePerformanceCohort(results as any,expected).status).toBe("FAIL_COHORT");
 });
+
+import { collectionMode, validateFixedSelection, runCollectionDisposition, executeCollectionRun, attemptDisposition, validateReferenceProfile, CHARACTERIZATION_PRODUCT_REVISION } from "./characterization-mode";
+import { validateBoundaryMetadata, validateDisplayProfile, prepareFilterInput, insertFilterQuery, FILTER_STIMULUS } from "./characterization-commands";
+
+test("characterization rejects malformed/conflicting modes and every partial/reordered plan", () => {
+  expect(collectionMode(undefined)).toBe("qualification"); expect(collectionMode("characterization")).toBe("characterization");
+  for(const value of ["", "CHARACTERIZATION", "true", "unknown"])expect(()=>collectionMode(value)).toThrow();
+  for(const [phase,diagnostic,focused] of [["baseline",undefined,false],["candidate","assignment-collection",false],["candidate",undefined,true]] as const)
+    expect(()=>collectionMode("characterization",phase,diagnostic,focused)).toThrow();
+  validateFixedSelection([1000,10000],[1,2,3,4,5]);
+  for(const counts of [[1000],[10000,1000],[1000,1000],[1000,10000,1000],[NaN,10000]])expect(()=>validateFixedSelection(counts,[1,2,3,4,5])).toThrow();
+  for(const runs of [[1],[5,4,3,2,1],[1,2,3,4,4],[1,2,3,4,5,6],[1,2,NaN,4,5]])expect(()=>validateFixedSelection([1000,10000],runs)).toThrow();
+});
+const targetMiss={status:"FAIL_TARGETS",validityFailures:[],targetFailures:["TARGET_EXCEEDED:centerlineP95"]};
+test("real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries", async () => {
+  const plan=[1000,10000].flatMap(size=>[1,2,3,4,5].map(run=>`${size}.${run}`));
+  for(const mode of ["characterization","qualification"] as const) {
+    const calls:string[]=[];
+    const sequence=async()=>{for(const id of plan)await executeCollectionRun(async()=>{
+      calls.push(id);return {scored:targetMiss,collection:runCollectionDisposition(mode,targetMiss,[],243)};
+    });};
+    if(mode==="qualification")await expect(sequence()).rejects.toThrow();else await sequence();
+    expect(calls).toEqual(mode==="qualification"?plan.slice(0,1):plan);
+  }
+  for(const failure of ["SETTLED_OWNED_RAF_NOT_EXACT_ZERO","INVALID_OR_MISMATCHED_BINDINGS","INCOMPLETE_OR_INVALID_ORBIT:actual-od"]){
+    const calls:string[]=[];await expect((async()=>{for(const id of plan)await executeCollectionRun(async()=>{
+      calls.push(id);const score={...targetMiss,validityFailures:calls.length===2?[failure]:[]};
+      return {collection:runCollectionDisposition("characterization",score,[],243)};
+    });})()).rejects.toThrow();expect(calls).toEqual(plan.slice(0,2));
+  }
+  for(const [errors,count] of [[["cleanup"],243],[[],242]] as const)expect(runCollectionDisposition("characterization",targetMiss,errors,count).attemptDisposition).toBe("ABORT_REMAINING");
+  const original=new Error("original timeout");await expect(executeCollectionRun(async()=>{throw original;})).rejects.toBe(original);
+});
+test("attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs",()=>{
+  const plan=Array.from({length:10},(_,i)=>({runId:`r${i}`}));
+  const records=plan.map(expected=>({expected,collection:runCollectionDisposition("characterization",targetMiss,[],243)}));
+  const score={status:"FAIL_COHORT",validityFailures:[]};const frozen=JSON.stringify(score);
+  expect(attemptDisposition("characterization",plan,records,score)).toMatchObject({attemptDisposition:"COMPLETED",targetOutcome:"FAIL_COHORT",collectionCompleteness:"COMPLETE_TEN_RUNS"});
+  expect(attemptDisposition("qualification",plan,records,score).attemptDisposition).toBe("ABORTED");
+  const partial=attemptDisposition("characterization",plan,[records[0],{expected:plan[1],started:true,error:"timeout"}],score);
+  expect(partial.runs[1].disposition.attemptDisposition).toBe("ABORT_REMAINING");expect(partial.runs[2].disposition.attemptDisposition).toBe("UNATTEMPTED");expect(JSON.stringify(score)).toBe(frozen);
+});
+function metadataFixture(){return {id:"point-selection-1-ready",runId:"r",referenceProfileSha256:"a".repeat(64),bindings:{source:"s"},snapshot:{model:{generation:1,identityHash:"m"},viewport:{
+  canvas:{cssLeft:0,cssTop:0,cssWidth:400,cssHeight:300,bufferWidth:800,bufferHeight:600,dpr:2},labels:{enabled:false,renderedCount:0,budget:200},
+  geometry:{mode:"schematic",odGeneration:0,odStatus:"idle"},camera:{sequence:1,kind:"perspective",position:[1,2,3],target:[0,0,0],up:[0,1,0],localRenderOrigin:[0,0,0],fovDegrees:45,near:.1,far:1000,aspect:4/3}}},
+  presentation:{browserDpr:2,windowWidth:1440,windowHeight:920,theme:"light",density:"comfortable",panes:[{selector:".workspace-pane-tree",visible:true,x:0,y:0,width:300,height:500},{selector:".workspace-pane-inspector",visible:true,x:1000,y:0,width:300,height:500}],panels:[{visible:true,width:300,height:400},{visible:true,width:300,height:400}]}};}
+test("required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions",()=>{
+  const value=metadataFixture(),expected={runId:"r",bindings:value.bindings};validateBoundaryMetadata(value,expected);
+  for(const mutate of [(v:any)=>v.snapshot.viewport.canvas.cssWidth=0,(v:any)=>v.snapshot.viewport.canvas.bufferWidth=999,
+    (v:any)=>v.presentation.browserDpr=NaN,(v:any)=>v.snapshot.viewport.labels.renderedCount=1,(v:any)=>v.snapshot.viewport.labels.renderedCount=-1,
+    (v:any)=>v.snapshot.viewport.camera.position=[0,Infinity,0],(v:any)=>v.presentation.theme=null,(v:any)=>v.presentation.panels[0].visible=false,
+    (v:any)=>v.snapshot.viewport.geometry={mode:"actual-od",odStatus:"idle",odGeneration:0},(v:any)=>v.bindings.source="drift"]){const bad=structuredClone(value);mutate(bad);expect(()=>validateBoundaryMetadata(bad,expected)).toThrow();}
+  for(const mutate of [(v:any)=>v.presentation.theme="dark",(v:any)=>v.snapshot.model.generation++,(v:any)=>v.snapshot.viewport.canvas.cssLeft++]){const bad=structuredClone(value);mutate(bad);expect(()=>validateBoundaryMetadata(bad,expected,value)).toThrow("drift");}
+  const changed=structuredClone(value);changed.id="orbit-1-ready";changed.snapshot.viewport.camera.position=[4,5,6];changed.snapshot.viewport.labels.enabled=true;changed.snapshot.viewport.labels.renderedCount=3;validateBoundaryMetadata(changed,expected,value);
+});
+test("keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers",async()=>{
+  const calls:string[]=[],page:any={getByTestId:()=>({inputValue:async()=>"",focus:async()=>calls.push("focus")}),keyboard:{insertText:async(q:string)=>calls.push(`insert:${q}`)}};
+  await prepareFilterInput(page,100);calls.push("arm-first-input");await insertFilterQuery(page,"pipe 42");calls.push("stop-final-content");
+  expect(calls).toEqual(["focus","arm-first-input","insert:pipe 42","stop-final-content"]);expect(FILTER_STIMULUS.expectedInputEvents).toBe(1);
+  page.getByTestId=()=>({inputValue:async()=>"stale"});await expect(prepareFilterInput(page,100)).rejects.toThrow();
+});
+test("reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles",()=>{
+  const profile={schema:"ui-foundation.reference-profile/v1",cohortId:"c",productRevision:CHARACTERIZATION_PRODUCT_REVISION,hostModel:"Apple M5 Max",memoryBytes:128*1024**3,
+    refreshHz:60,externallyVerified:true,verificationEvidence:"external.json",verifiedAt:"2026-09-17T23:00:00Z",viewport:[1440,920],browserDpr:2,effectiveDprCap:2};
+  const host={model:"Apple M5 Max",memoryBytes:profile.memoryBytes};validateReferenceProfile(profile,"c",host);
+  for(const bad of [{...profile,refreshHz:120},{...profile,externallyVerified:false},{...profile,cohortId:"other"}])expect(()=>validateReferenceProfile(bad,"c",host)).toThrow();
+  expect(()=>validateReferenceProfile(profile,"c",{...host,memoryBytes:1})).toThrow();
+  const identity={name:"LG",vendor:"v",product:"p",serial:"s",pixels:"3840 x 2160",resolution:"1920 x 1080 @ 60.00Hz",mirror:"spdisplays_off"};
+  const display={_name:identity.name,"_spdisplays_display-vendor-id":"v","_spdisplays_display-product-id":"p","_spdisplays_display-serial-number":"s",_spdisplays_pixels:identity.pixels,_spdisplays_resolution:identity.resolution,spdisplays_mirror:identity.mirror,spdisplays_main:"spdisplays_yes",spdisplays_online:"spdisplays_yes"};
+  const raw={SPDisplaysDataType:[{sppci_model:"Apple M5 Max",spdisplays_ndrvs:[display]}]};
+  expect(validateDisplayProfile(raw,Object.fromEntries(Object.entries(identity).reverse()))).toEqual(identity);
+  for(const bad of [{SPDisplaysDataType:[]},{SPDisplaysDataType:[{sppci_model:"Apple M5 Max",spdisplays_ndrvs:[display,display]}]}])expect(()=>validateDisplayProfile(bad,identity)).toThrow();
+  expect(()=>validateDisplayProfile(raw,{...identity,resolution:"120 Hz"})).toThrow();
+});
+
+test("product inventory rejects omission duplicates split overlap and wrong final provenance",async()=>{
+  const {validateInventoryCoverage,validateFinalProductProvenance}=await import("./full-cohort-controller");
+  const root="apps/desktop/src",actual=[`${root}/App.tsx`,`${root}/App.test.tsx`],production=[{path:actual[0]}],testOnly=[{path:actual[1]}];
+  validateInventoryCoverage([...production,...testOnly],actual,root);
+  for(const bad of [production,[...production,...testOnly,...testOnly],[...production,{path:`${root}/omitted.ts`} ]])expect(()=>validateInventoryCoverage(bad,actual,root)).toThrow();
+  validateFinalProductProvenance("final",CHARACTERIZATION_PRODUCT_REVISION,CHARACTERIZATION_PRODUCT_REVISION,false);
+  for(const [stage,revision,head,same] of [["preliminary",CHARACTERIZATION_PRODUCT_REVISION,CHARACTERIZATION_PRODUCT_REVISION,false],["final","wrong",CHARACTERIZATION_PRODUCT_REVISION,false],["final",CHARACTERIZATION_PRODUCT_REVISION,"wrong",false],["final",CHARACTERIZATION_PRODUCT_REVISION,CHARACTERIZATION_PRODUCT_REVISION,true]] as const)expect(()=>validateFinalProductProvenance(stage,revision,head,same)).toThrow();
+});
+test("frozen actual product/profile inputs validate read-only when explicitly supplied",async()=>{
+  test.skip(!process.env.D70_WRITER_PREPARED_INPUTS,"runner input file not supplied");
+  const prepared=JSON.parse(await readFile(process.env.D70_WRITER_PREPARED_INPUTS!,"utf8"));
+  const env=prepared.environment;const {bindReferenceProfile}=await import("./characterization-mode");
+  expect((await bindReferenceProfile(env)).record.cohortId).toBe(env.UI_FOUNDATION_COHORT_ID);
+  const {validateCharacterizationProduct}=await import("./full-cohort-controller");
+  const bytes=await readFile(env.UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST);
+  expect(createHash("sha256").update(bytes).digest("hex")).toBe(env.UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST_SHA256);
+  const bundle=JSON.parse(bytes.toString());const binding:any={sourceStage:env.UI_FOUNDATION_CANDIDATE_SOURCE_STAGE,candidateSourceRoot:env.UI_FOUNDATION_CANDIDATE_SOURCE_ROOT};
+  await validateCharacterizationProduct(binding,bundle);
+  const changed=structuredClone(bundle);changed.mutableTestOnlySourceSnapshot[0].sha256="0".repeat(64);
+  await expect(validateCharacterizationProduct(binding,changed)).rejects.toThrow("bytes drift");
+});
+
+
+test("uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs",async()=>{
+  const {assertSmokeMainCanvasHitTarget}=await import("./characterization-commands");
+  const {assertMainCanvasHitTarget}=await import("./causal-method-contract");
+  // Exact structural read from controls-smoke-01's canonical failure record.
+  const observed={status:"PASS_ACTUAL_CONNECTED_MAIN_CANVAS_TARGET" as const,
+    clientPoint:{x:576.3383298461134,y:510.83226543984887},canvasEpoch:null,armedCanvasEpoch:null,exactArmedCanvas:null,
+    canvasConnected:true,exactCanvasTarget:true,targetTag:"CANVAS",targetTestId:"viewport-canvas",
+    canvasRect:{x:293,y:285.1953125,width:794,height:557}};
+  const original=JSON.stringify(observed);
+  assertSmokeMainCanvasHitTarget(observed);
+  expect(()=>assertMainCanvasHitTarget(observed)).toThrow("prescribed pointer target");
+  expect(JSON.stringify(observed)).toBe(original);
+  for(const change of [{canvasConnected:false},{exactCanvasTarget:false},{targetTag:"DIV"},{targetTestId:"overlay"},
+    {status:"FAIL_MAIN_CANVAS_TARGET"},{clientPoint:{x:0,y:0}},{clientPoint:{x:NaN,y:500}},
+    {canvasRect:{...observed.canvasRect,width:0}},{canvasEpoch:1},{armedCanvasEpoch:1},{exactArmedCanvas:false}])
+    expect(()=>assertSmokeMainCanvasHitTarget({...observed,...change} as any)).toThrow("smoke pointer target");
+  const timed={...observed,canvasEpoch:7,armedCanvasEpoch:7,exactArmedCanvas:true};
+  expect(()=>assertMainCanvasHitTarget(timed)).not.toThrow();
+  expect(()=>assertMainCanvasHitTarget({...timed,canvasEpoch:8})).toThrow();
+  expect(()=>assertMainCanvasHitTarget({...timed,exactArmedCanvas:false})).toThrow();
+});
+
+test("continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence",async({},info)=>{
+  const {validateBoundaryWithRejectionRecord,boundaryFieldDifferences}=await import("./characterization-commands");
+  const before=metadataFixture(),expected={runId:before.runId,fixtureSize:1000,runNumber:2,bindings:before.bindings};
+  // Exact inner dimensions from retained continuation-smoke-01, portable without its raw cache.
+  before.presentation.panels[1].width=338;before.presentation.panels[1].height=299.96875;
+  const selected=structuredClone(before);selected.presentation.panels[1].width=323;selected.presentation.panels[1].height=1530.625;
+  (selected.snapshot.viewport as any).selection={primaryRef:{type:"pipe",id:"pipe:UIF-00205"}} as any;
+  validateBoundaryMetadata(selected,expected,before);
+  expect((selected as any).contentGeometryTransitions).toContainEqual({field:"presentation.panels.1.width",before:338,after:323});
+  expect((selected as any).contentGeometryTransitions).toContainEqual({field:"presentation.panels.1.height",before:299.96875,after:1530.625});
+  const empty=structuredClone(before);empty.presentation.panels[0].height=100;validateBoundaryMetadata(empty,expected,before);
+  for(const size of [1000,10000]) {
+    const fixture=await loadFixture(size);const sample=fixture.samples.tree_filters.find((s:any)=>s.sample===18);
+    expect(sample.query).toBe("no-match-ui-foundation");expect(frozenTreeExpectation(fixture.model,sample.query).visibleCount).toBe(0);
+  }
+  const directory=info.outputPath("rejected");await mkdir(directory,{recursive:true});
+  for(const [i,mutate] of [(v:any)=>v.presentation.panes[0].x++,(v:any)=>v.presentation.panes[1].height++,
+    (v:any)=>v.presentation.panels[0].visible=false,(v:any)=>v.snapshot.viewport.canvas.cssLeft++,
+    (v:any)=>v.snapshot.model.generation++,(v:any)=>v.bindings.source="changed",(v:any)=>v.referenceProfileSha256="b".repeat(64),
+    (v:any)=>delete v.presentation.panes[0].width].entries()) {
+    const bad=structuredClone(before);bad.id=`rejected-${i}`;mutate(bad);
+    await expect(validateBoundaryWithRejectionRecord(bad,expected,before,directory)).rejects.toThrow();
+    const record=JSON.parse(await readFile(`${directory}/${bad.id}-rejected.json`,"utf8"));
+    expect(record.actual).toEqual(bad);expect(record.referenceId).toBe(before.id);expect(record.expected.runNumber).toBe(2);
+    expect(record.fieldDifferences).toEqual(boundaryFieldDifferences(before,bad));expect(record.error).toMatch(/metadata|drift/);
+  }
+  const bad=structuredClone(before);bad.presentation.panes[0].height++;
+  await expect(validateBoundaryWithRejectionRecord(bad,expected,before,directory,async()=>{throw new Error("disk failure");})).rejects.toThrow("rejected metadata persistence failed: Error: disk failure");
+});
+
+test("continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates",async({},info)=>{
+  const {launchContinuationSlot,continuationClaims,continuationBudgetReport,continuationExternalBindings,CONTINUATION_SLOTS,ORIGINAL_RETURN_SHA256}=await import("./characterization-observations.mjs");
+  const {rm}=await import("node:fs/promises");
+  const original=process.env.D70_WRITER_ORIGINAL_RETURN;
+  test.skip(!original,"hash-bound original return must be explicitly supplied");
+  const seedBytes=await readFile(original!);expect(createHash("sha256").update(seedBytes).digest("hex")).toBe(ORIGINAL_RETURN_SHA256);
+  const seed=JSON.parse(seedBytes.toString()),directory=info.outputPath("continuation");await mkdir(directory,{recursive:true});
+  const save=async(name:string,value:any)=>{const file=`${directory}/${name}`,bytes=typeof value==="string"?value:JSON.stringify(value);await writeFile(file,bytes,{flag:"wx"});return {path:file,sha256:createHash("sha256").update(bytes).digest("hex")};};
+  const seedRef={path:original!,sha256:ORIGINAL_RETURN_SHA256};
+  const policy={schema:"ui-foundation.continuation-policy/v1",seed:seedRef,cohortId:seed.frozenEnvironment.UI_FOUNDATION_COHORT_ID,
+    ledgerRoot:`${directory}/ledger`,instrumentProjectRoot:directory,instrumentRevision:"a".repeat(40),method:{path:`${directory}/method.json`,sha256:"b".repeat(64)},
+    attemptRoots:Object.fromEntries(CONTINUATION_SLOTS.map(slot=>[slot,`${directory}/attempt-${slot}`]))};
+  const policyRef=await save("policy.json",policy),calls:string[]=[],checks:string[]=[];
+  const receipt=async(slot:string,previous:string,recovery=false)=>{
+    const cleanup=await save(`cleanup-${slot}-${recovery}.json`,{previousClaimSha256:previous,browserProcessesRemaining:0,serverListening:false,verificationStatus:"VERIFIED",processDisposition:recovery?"EXTERNAL_RECOVERY_VERIFIED":"NORMAL_EXIT"});
+    const bindings=await save(`bindings-${slot}-${recovery}.json`,{status:"PASS_INDEPENDENT_EXTERNAL_REVALIDATION",externalBindings:continuationExternalBindings(seed)});
+    return save(`receipt-${slot}-${recovery}.json`,{schema:"ui-foundation.continuation-preconditions/v1",slot,previousClaimSha256:previous,verifiedAt:new Date().toISOString(),
+      cleanup:{status:"VERIFIED_NO_REMAINING_BROWSER_OR_SERVER",evidence:cleanup},bindingsStatus:"VERIFIED_UNCHANGED",externalBindings:continuationExternalBindings(seed),bindingEvidence:bindings,evidence:[cleanup,bindings]});
+  };
+  let registry:any=null;
+  const operations={bindRegistry:async(_file:string,value:any)=>{if(registry&&JSON.stringify(registry)!==JSON.stringify(value))throw new Error("approved ledger relocation/reset rejected");registry=value;},verifyFiles:async()=>{checks.push("external");return seed.frozenEnvironment;},spawn:async(_p:any,env:any)=>{
+    const claim=JSON.parse(await readFile(env.UI_FOUNDATION_CONTINUATION_CLAIM,"utf8"));calls.push(claim.slot);
+    if(claim.slot==="1000.2")throw new Error("interrupted spawn/process");return {exitCode:1,signal:null};
+  }};
+  const firstReceipt=await receipt("1000.2",ORIGINAL_RETURN_SHA256);
+  await expect(launchContinuationSlot(policyRef,"1000.2",firstReceipt,{...operations,verifyFiles:async()=>{throw new Error("actual binding hash drift");}})).rejects.toThrow("binding hash drift");
+  expect(await continuationClaims(policy)).toHaveLength(0);expect(calls).toEqual([]);
+  const receiptBody=JSON.parse(await readFile(firstReceipt.path,"utf8"));
+  const dirty=await save("dirty-cleanup.json",{previousClaimSha256:ORIGINAL_RETURN_SHA256,browserProcessesRemaining:1,serverListening:false,verificationStatus:"VERIFIED",processDisposition:"NORMAL_EXIT"});
+  const dirtyReceipt=await save("dirty-receipt.json",{...receiptBody,cleanup:{...receiptBody.cleanup,evidence:dirty}});
+  await expect(launchContinuationSlot(policyRef,"1000.2",dirtyReceipt,operations)).rejects.toThrow("cleanup evidence");
+  const wrongBindings=await save("wrong-bindings.json",{status:"PASS_INDEPENDENT_EXTERNAL_REVALIDATION",externalBindings:{...continuationExternalBindings(seed),UI_FOUNDATION_MANIFEST_SHA256:"wrong"}});
+  const wrongReceipt=await save("wrong-receipt.json",{...receiptBody,bindingEvidence:wrongBindings});
+  await expect(launchContinuationSlot(policyRef,"1000.2",wrongReceipt,operations)).rejects.toThrow("binding proof mismatch");
+  expect(await continuationClaims(policy)).toHaveLength(0);expect(calls).toEqual([]);
+  const copiedSeed=await save("copied-original.json",seedBytes.toString());
+  const copiedPolicy=await save("copied-policy.json",{...policy,seed:copiedSeed});
+  await expect(launchContinuationSlot(copiedPolicy,"1000.2",firstReceipt,operations)).rejects.toThrow("canonical original seed");
+  const first=await launchContinuationSlot(policyRef,"1000.2",firstReceipt,operations);
+  expect(first.exitCode).toBeNull();expect(first.launchError).toContain("interrupted");
+  await rm(`${policy.ledgerRoot}/terminal-1000.2.json`); // models launcher termination before terminal persistence
+  const claims=await continuationClaims(policy);expect(claims.map(c=>c.claim.slot)).toEqual(["1000.2"]);
+  const nextReceipt=await receipt("1000.3",claims[0].sha256);
+  await expect(launchContinuationSlot(policyRef,"1000.3",nextReceipt,operations)).rejects.toThrow("external recovery");expect(calls).toEqual(["1000.2"]);
+  for(const bad of ["1000.1","1000.2","1000.6","10000.1"])await expect(launchContinuationSlot(policyRef,bad,nextReceipt,operations)).rejects.toThrow();
+  for(const slot of CONTINUATION_SLOTS.slice(1)) {
+    const prior=(await continuationClaims(policy)).at(-1)!;const output=await launchContinuationSlot(policyRef,slot,await receipt(slot,prior.sha256,slot==="1000.3"),operations);
+    expect(output.exitCode).toBe(1);expect(output.cleanup).toBe("UNKNOWN_REQUIRES_INDEPENDENT_REVALIDATION");
+  }
+  expect(calls).toEqual(CONTINUATION_SLOTS);expect(checks).toHaveLength(9);expect(await continuationClaims(policy)).toHaveLength(9);
+  const budget=JSON.parse(await readFile(`${policy.ledgerRoot}/budget-after-10000.5.json`,"utf8"));expect(budget.consumed).toBe(10);
+  expect(budget.validCompleteBySize).toEqual({1000:0,10000:0});expect(budget.qualificationCohort).toBe(false);expect(budget.slots[0].originalScored).toEqual(seed.originalScores);
+  // Constructed results preserve target misses while reconciling process failure independently.
+  for(const slot of ["1000.3","1000.4"]) {
+    const dir=`${policy.attemptRoots[slot]}/raw/run-${slot.split(".")[1].padStart(2,"0")}/1000`;
+    await mkdir(dir,{recursive:true});await writeFile(`${dir}/result.json`,JSON.stringify({collection:{evidenceValidity:"VALID",collectionCompleteness:"COMPLETE"},scored:{targetOutcome:"FAIL"}}));
+  }
+  await writeFile(`${policy.ledgerRoot}/terminal-1000.4.json`,JSON.stringify({exitCode:0,signal:null}));
+  const reconciled=await continuationBudgetReport(policy,seed);
+  expect(reconciled.validCompleteBySize).toEqual({1000:1,10000:0});
+  expect(reconciled.slots.find((s:any)=>s.slot==="1000.3")?.runtimeDisposition).toBe("FAILED_OR_UNAVAILABLE");
+  expect(reconciled.slots.find((s:any)=>s.slot==="1000.4")?.originalScored).toEqual({targetOutcome:"FAIL"});
+  const altered={...policy,method:{...policy.method,sha256:"c".repeat(64)}};await expect(continuationClaims(altered)).rejects.toThrow("untracked method");
+  const moved=await save("moved-policy.json",{...policy,ledgerRoot:`${directory}/another-ledger`});await expect(launchContinuationSlot(moved,"1000.2",nextReceipt,operations)).rejects.toThrow("relocation/reset");
+});
+
+for (const [id, expectedEnabled] of [["point-selection-1-stopped", false], ["orbit-1-ready", true]] as const) {
+  test(`phase label rejection preserves actual boundary metadata: ${id}`, async ({}, info) => {
+    const {validateBoundaryWithRejectionRecord} = await import("./characterization-commands");
+    const previous=metadataFixture();previous.id="initial-presentation";
+    const expected={runId:previous.runId,fixtureSize:1000,runNumber:2,bindings:previous.bindings};
+    const value=structuredClone(previous);value.id=id;value.snapshot.viewport.labels.enabled=!expectedEnabled;
+    const directory=info.outputPath("phase-label-rejection");await mkdir(directory,{recursive:true});
+    await expect(validateBoundaryWithRejectionRecord(value,expected,previous,directory)).rejects.toThrow("phase label policy mismatch");
+    const rejected=JSON.parse(await readFile(`${directory}/${id}-rejected.json`,"utf8"));
+    expect(rejected.status).toBe("REJECTED_BOUNDARY_METADATA");
+    expect(rejected.actual).toEqual(value);
+    expect(rejected.actual.snapshot.viewport.labels.enabled).toBe(!expectedEnabled);
+    expect(rejected.expected).toEqual(expected);expect(rejected.reference).toEqual(previous);
+    expect(rejected.error).toBe("Error: phase label policy mismatch");
+    const allowed=structuredClone(value);allowed.snapshot.viewport.labels.enabled=expectedEnabled;
+    expect(()=>validateBoundaryMetadata(allowed,expected,previous)).not.toThrow();
+  });
+}
+
+test("captured scrollable inspector dimensions remain observations while true layout drift rejects", async ({}, info) => {
+  const file=process.env.D70_CONTENT_WIDTH_REJECTED;
+  test.skip(!file,"requires the hash-bound continuation-smoke-01 rejected snapshot");
+  const bytes=await readFile(file!);
+  expect(createHash("sha256").update(bytes).digest("hex")).toBe("9d7b0d55113f13dec928ad44a7a383825021fc83d4cf9cbcae519d194f128169");
+  const {actual,reference,expected}=JSON.parse(bytes.toString());
+  expect(reference.presentation.panels[1]).toMatchObject({width:338,height:299.96875});
+  expect(actual.presentation.panels[1]).toMatchObject({width:323,height:1530.625});
+  expect(actual.presentation.panes).toEqual(reference.presentation.panes);
+  expect(actual.snapshot.viewport.canvas).toEqual(reference.snapshot.viewport.canvas);
+  expect(actual.snapshot.viewport.selection.primaryRef).toEqual({type:"pipe",id:"pipe:UIF-00205"});
+  validateBoundaryMetadata(actual,expected,reference);
+  expect(actual.contentGeometryTransitions).toEqual([
+    {field:"presentation.panels.1.width",before:338,after:323},
+    {field:"presentation.panels.1.height",before:299.96875,after:1530.625}
+  ]);
+  const {validateBoundaryWithRejectionRecord}=await import("./characterization-commands");
+  const directory=info.outputPath("actual-layout-rejections");await mkdir(directory,{recursive:true});
+  const mutations=[(v:any)=>v.presentation.panes[1].width--,(v:any)=>v.presentation.panes[0].x++,
+    (v:any)=>v.snapshot.viewport.canvas.cssLeft++,(v:any)=>v.presentation.panels[1].selector=".other",
+    (v:any)=>v.presentation.panels[1].visible=false,(v:any)=>v.presentation.panels[1].width=0,
+    (v:any)=>v.presentation.panels[1].height=0];
+  for(const [index,mutate] of mutations.entries()) {
+    const bad=structuredClone(actual);bad.id=`content-width-negative-${index}`;mutate(bad);
+    await expect(validateBoundaryWithRejectionRecord(bad,expected,reference,directory)).rejects.toThrow();
+    const rejected=JSON.parse(await readFile(`${directory}/${bad.id}-rejected.json`,"utf8"));
+    expect(rejected.actual).toEqual(bad);expect(rejected.error).toMatch(/metadata|drift/);
+  }
+});
+
+for (const outcomes of [["target-miss"],["invalid","valid"],["invalid","invalid","invalid","invalid","invalid"],["interrupted","valid"],["empty-exit0","valid"],["stale-success"]]) {
+  test(`owner one-success transition preserves history and bounded dispatch: ${outcomes.join(",")}`,async({},info)=>{
+    const original=process.env.D70_WRITER_ORIGINAL_RETURN;test.skip(!original,"requires hash-bound original seed");
+    const {launchContinuationSlot,closeOneSuccess,continuationClaims,continuationBudgetReport,continuationExternalBindings,CONTINUATION_SLOTS,ORIGINAL_RETURN_SHA256}=await import("./characterization-observations.mjs");
+    const {dirname,resolve}=await import("node:path");
+    const root=info.outputPath("one-success");await mkdir(`${root}/ledger/claims`,{recursive:true});
+    let sequence=0;
+    const save=async(file:string,value:any)=>{const bytes=JSON.stringify(value);await writeFile(file,bytes,{flag:"wx"});return {path:file,sha256:createHash("sha256").update(bytes).digest("hex")};};
+    const seed=JSON.parse(await readFile(original!,"utf8")),seedRef={path:original!,sha256:ORIGINAL_RETURN_SHA256};
+    const files=Array.from({length:34},(_,i)=>({path:`apps/desktop/e2e/ui-foundation/${i===0?"characterization-observations.mjs":`frozen-${i}.ts`}`,sha256:"a".repeat(64)}));
+    const oldMethod=await save(`${root}/old-method.json`,{files}),method=await save(`${root}/method.json`,{files:files.map((f,i)=>i?f:{...f,sha256:"b".repeat(64)})});
+    const prior:any={schema:"ui-foundation.continuation-policy/v1",seed:seedRef,cohortId:seed.frozenEnvironment.UI_FOUNDATION_COHORT_ID,ledgerRoot:`${root}/ledger`,instrumentProjectRoot:root,instrumentRevision:"a".repeat(40),method:oldMethod,
+      attemptRoots:Object.fromEntries(CONTINUATION_SLOTS.map(slot=>[slot,`${root}/attempt-${slot}`]))};
+    const priorRef=await save(`${root}/prior.json`,prior),history:any[]=[],originalHashes:any[]=[];
+    const resultFor=(claim:any,status:string)=>{
+      const [size,ordinal]=claim.slot.split("."),expected={runId:`${claim.cohortId}.${claim.slot}`,fixtureSize:Number(size),runNumber:Number(ordinal),sessionId:`session-${claim.slot}`,bindings:{methodSha256:claim.methodSha256}};
+      return {expected,evidence:{...expected,freshSession:true,qualification:"PASS_QUALIFIED_RUN",points:Array(200).fill({}),boxes:Array(20).fill({}),filters:Array(20).fill({})},segmentCount:243,errors:[],scored:{status:status==="target-miss"?"FAIL_TARGETS":"PASS_METRIC_ACCEPTANCE",validityFailures:[],targetFailures:status==="target-miss"?["POINT_TARGET"]:[]},collection:{evidenceValidity:"VALID",collectionCompleteness:"COMPLETE"}};
+    };
+    const persistResult=async(claim:any,status:string)=>{
+      const [size,ordinal]=claim.slot.split("."),dir=`${claim.evidenceRoot}/raw/run-${ordinal.padStart(2,"0")}/${size}`;await mkdir(dir,{recursive:true});return save(`${dir}/result.json`,resultFor(claim,status));
+    };
+    let previous=ORIGINAL_RETURN_SHA256;
+    for(const [i,slot] of ["1000.2","1000.3","1000.4"].entries()) {
+      const claim={slot,cohortId:prior.cohortId,seedSha256:ORIGINAL_RETURN_SHA256,policySha256:priorRef.sha256,methodSha256:prior.method.sha256,instrumentRevision:prior.instrumentRevision,evidenceRoot:prior.attemptRoots[slot],previousClaimSha256:previous,claimedAt:"2026-09-18T00:00:00Z"};
+      const c=await save(`${prior.ledgerRoot}/claims/${slot}.json`,claim),t=await save(`${prior.ledgerRoot}/terminal-${slot}.json`,{slot,claim:c,exitCode:i===2?null:i,signal:i===2?"SIGTERM":null,cleanup:"UNKNOWN_REQUIRES_INDEPENDENT_REVALIDATION"});
+      const evidence=[c,t];if(i===0)evidence.push(await persistResult(claim,"valid"));
+      const returned=await save(`${root}/return-${slot}.json`,{slot,processExit:i,collection:{evidenceValidity:i?"INVALID":"VALID",collectionCompleteness:i?"INCOMPLETE":"COMPLETE"},cleanup:{verificationStatus:"VERIFIED",browserProcessesRemaining:0,serverListening:false},externalBindings:"PASS_INDEPENDENT_EXTERNAL_REVALIDATION",evidence,
+        ...(i===2?{status:"OWNER_CANCELLED_STARTED_SLOT_INTERRUPTED",startedBeforeSteering:true,externalRecovery:{verificationStatus:"VERIFIED",browserProcessesRemaining:0,serverListening:false}}:{})});
+      history.push({claim:c,terminal:t,return:returned});originalHashes.push(c,t,returned);previous=c.sha256;
+    }
+    const registry=await save(`${root}/original-registry.json`,{seedSha256:ORIGINAL_RETURN_SHA256,cohortId:prior.cohortId,ledgerRoot:prior.ledgerRoot,policySha256:priorRef.sha256,methodSha256:prior.method.sha256,instrumentRevision:prior.instrumentRevision});
+    const authority={path:resolve(dirname(original!),"../../OWNER_DIRECTION_ONE_SUCCESS_20260917.md"),sha256:"ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"};
+    const policy:any={...prior,instrumentRevision:"b".repeat(40),method,ownerTransition:{schema:"ui-foundation.one-success-transition/v1",authority,previousPolicy:priorRef,registry,history}};
+    const policyRef=await save(`${root}/policy.json`,policy),calls:string[]=[];
+    const receipt=async(slot:string,previousHash:string,recovery:boolean,dirty=false)=>{
+      const n=sequence++,cleanup=await save(`${root}/cleanup-${n}.json`,{previousClaimSha256:previousHash,browserProcessesRemaining:dirty?1:0,serverListening:false,verificationStatus:"VERIFIED",processDisposition:recovery?"EXTERNAL_RECOVERY_VERIFIED":"NORMAL_EXIT"});
+      const bindings=await save(`${root}/bindings-${n}.json`,{status:"PASS_INDEPENDENT_EXTERNAL_REVALIDATION",externalBindings:continuationExternalBindings(seed)});
+      return save(`${root}/receipt-${n}.json`,{schema:"ui-foundation.continuation-preconditions/v1",slot,previousClaimSha256:previousHash,verifiedAt:new Date().toISOString(),cleanup:{status:"VERIFIED_NO_REMAINING_BROWSER_OR_SERVER",evidence:cleanup},bindingsStatus:"VERIFIED_UNCHANGED",externalBindings:continuationExternalBindings(seed),bindingEvidence:bindings,evidence:[cleanup,bindings]});
+    };
+    const operations={bindRegistry:async(_file:string,value:any)=>expect(value.policySha256).toBe(priorRef.sha256),verifyFiles:async()=>seed.frozenEnvironment,spawn:async(_p:any,env:any)=>{
+      const claim=JSON.parse(await readFile(env.UI_FOUNDATION_CONTINUATION_CLAIM,"utf8"));calls.push(claim.slot);
+      const outcome=outcomes[calls.length-1];if(outcome==="interrupted")throw new Error("interrupted actual process");
+      if(["valid","target-miss"].includes(outcome))await persistResult(claim,outcome);
+      return {exitCode:outcome==="invalid"?1:0,signal:null};
+    }};
+    const firstReceipt=await receipt("10000.1",history[2].claim.sha256,true);
+    const wrongAuthority=await save(`${root}/wrong-authority-policy.json`,{...policy,ownerTransition:{...policy.ownerTransition,authority:{...authority,sha256:"0".repeat(64)}}});
+    await expect(launchContinuationSlot(wrongAuthority,"10000.1",firstReceipt,operations)).rejects.toThrow("authority");
+    const wrongHistory=await save(`${root}/wrong-history-policy.json`,{...policy,ownerTransition:{...policy.ownerTransition,history:history.map((h,i)=>i===1?{...h,claim:{...h.claim,sha256:"0".repeat(64)}}:h)}});
+    await expect(launchContinuationSlot(wrongHistory,"10000.1",firstReceipt,operations)).rejects.toThrow("bound JSON changed");
+    await expect(launchContinuationSlot(policyRef,"10000.1",await receipt("10000.1",history[2].claim.sha256,false),operations)).rejects.toThrow("external recovery");
+    for(const bad of ["1000.5","1000.4","10000.2","10000.6"])await expect(launchContinuationSlot(policyRef,bad,firstReceipt,operations)).rejects.toThrow();
+    await expect(launchContinuationSlot(policyRef,"10000.1",firstReceipt,{...operations,verifyFiles:async()=>{throw new Error("binding drift");}})).rejects.toThrow("binding drift");
+    expect(await continuationClaims(policy)).toHaveLength(3);expect(calls).toEqual([]);
+    for(const [i,outcome] of outcomes.entries()) {
+      const slot=`10000.${i+1}`,last=(await continuationClaims(policy)).at(-1)!;
+      const output=await launchContinuationSlot(policyRef,slot,await receipt(slot,last.sha256,i===0||outcomes[i-1]==="interrupted"),operations);
+      expect(output.slot).toBe(slot);expect((await continuationClaims(policy)).at(-1)!.claim.methodSha256).toBe(method.sha256);
+      await expect(launchContinuationSlot(policyRef,slot,firstReceipt,operations)).rejects.toThrow();
+      if(outcome==="stale-success") {
+        const current=(await continuationClaims(policy)).at(-1)!;
+        await expect(launchContinuationSlot(policyRef,"10000.2",await receipt("10000.2",current.sha256,false),{
+          ...operations,verifyFiles:async()=>{await persistResult(current.claim,"valid");return seed.frozenEnvironment;}
+        })).rejects.toThrow("stale concurrent launch");
+        expect(await continuationClaims(policy)).toHaveLength(4);expect(calls).toEqual(["10000.1"]);
+      }
+      if(["valid","target-miss","stale-success"].includes(outcome)) {
+        const current=(await continuationClaims(policy)).at(-1)!;
+        await expect(launchContinuationSlot(policyRef,`10000.${i+2}`,firstReceipt,operations)).rejects.toThrow();
+        await expect(closeOneSuccess(policyRef,await receipt(slot,current.sha256,false,true),operations)).rejects.toThrow("cleanup");
+        const closed=await closeOneSuccess(policyRef,await receipt(slot,current.sha256,false),operations);
+        expect(closed.waivedUnattempted).toHaveLength(4-i);expect(closed.targetAcceptanceClaim).toBe(false);
+        await expect(launchContinuationSlot(policyRef,`10000.${i+2}`,firstReceipt,operations)).rejects.toThrow();
+      }
+    }
+    const report=await continuationBudgetReport(policy,seed);
+    expect(report.slots.find((s:any)=>s.slot==="1000.5")).toMatchObject({consumed:false,disposition:"WAIVED_UNATTEMPTED_BY_OWNER"});
+    expect(report.slots.find((s:any)=>s.slot==="1000.4")).toMatchObject({consumed:true,ownerDisposition:"OWNER_INTERRUPTED_CONSUMED"});
+    expect(report.consumed).toBe(4+outcomes.length);expect(calls).toEqual(outcomes.map((_,i)=>`10000.${i+1}`));
+    expect(report.interrupted).toBe(1+outcomes.filter(o=>o==="interrupted").length);
+    expect(report.invalidFailed).toBe(2+outcomes.filter(o=>["invalid","empty-exit0"].includes(o)).length);
+    expect(report.confirmedSuccessBySize).toEqual({1000:1,10000:outcomes.some(o=>["valid","target-miss","stale-success"].includes(o))?1:0});
+    if(outcomes.length===5){expect(report.ownerStoppingStatus).toBe("FIVE_ATTEMPTS_EXHAUSTED_NO_SUCCESS");expect(report.waived).toBe(1);await expect(closeOneSuccess(policyRef,firstReceipt,operations)).rejects.toThrow();}
+    else expect(report.ownerStoppingStatus).toBe("SUCCESS_CONFIRMED_AND_REMAINDER_WAIVED");
+    for(const ref of [...originalHashes,registry,priorRef])expect(createHash("sha256").update(await readFile(ref.path)).digest("hex")).toBe(ref.sha256);
+  });
+}
+
+test("explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates",async({},info)=>{
+  const original=process.env.D70_WRITER_ORIGINAL_RETURN;test.skip(!original,"requires frozen seed and owner direction");
+  const {validateDisplayTransition,continuationProfileAuthorization,continuationExternalBindings,INTERNAL120_AUTHORITY_SHA256,ORIGINAL_RETURN_SHA256}=await import("./characterization-observations.mjs");
+  const {bindReferenceProfile}=await import("./characterization-mode");
+  const {dirname,resolve}=await import("node:path");
+  const directory=info.outputPath("internal120");await mkdir(directory,{recursive:true});
+  const save=async(name:string,value:any)=>{const file=`${directory}/${name}`,bytes=JSON.stringify(value);await writeFile(file,bytes,{flag:"wx"});return {path:file,sha256:createHash("sha256").update(bytes).digest("hex")};};
+  const seed=JSON.parse(await readFile(original!,"utf8"));
+  const previousProfile={path:seed.frozenEnvironment.UI_FOUNDATION_REFERENCE_PROFILE,sha256:seed.frozenEnvironment.UI_FOUNDATION_REFERENCE_PROFILE_SHA256};
+  const legacy=JSON.parse(await readFile(previousProfile.path,"utf8"));
+  const display={name:"Color LCD",vendor:"610",product:"a05f",serial:"fd626d62",pixels:"3456 x 2234",resolution:"1728 x 1117 @ 120.00Hz",mirror:"spdisplays_off",connection:"spdisplays_internal"};
+  const internal={...legacy,refreshHz:120,display}; // deterministic test profile; not a live verification claim
+  const profile=await save("profile.json",internal);
+  const authority={path:resolve(dirname(original!),"../../OWNER_DIRECTION_INTERNAL120_20260917.md"),sha256:INTERNAL120_AUTHORITY_SHA256};
+  const policy:any={seed:{path:original!,sha256:ORIGINAL_RETURN_SHA256},cohortId:legacy.cohortId,ownerTransition:{},method:{sha256:"c".repeat(64)},displayTransition:{schema:"ui-foundation.internal120-transition/v1",authority,previousProfile,profile}};
+  const transition=await validateDisplayTransition(policy,seed);expect(transition.record).toEqual(internal);
+  const base=continuationExternalBindings(seed),next=continuationExternalBindings(seed,policy);
+  expect(Object.keys(next).filter(k=>next[k]!==base[k])).toEqual(["UI_FOUNDATION_REFERENCE_PROFILE","UI_FOUNDATION_REFERENCE_PROFILE_SHA256"]);
+  expect(next.UI_FOUNDATION_REFERENCE_PROFILE).toBe(profile.path);expect(next.UI_FOUNDATION_REFERENCE_PROFILE_SHA256).toBe(profile.sha256);
+  const host={model:"Apple M5 Max",memoryBytes:128*1024**3};
+  expect(()=>validateReferenceProfile(internal,legacy.cohortId,host)).toThrow();
+  expect(()=>validateReferenceProfile(legacy,legacy.cohortId,host)).not.toThrow();
+  const policyRef=await save("policy.json",policy),claim=await save("claim.json",{slot:"10000.1",policySha256:policyRef.sha256,methodSha256:policy.method.sha256,executionToken:"token"});
+  const env={...seed.frozenEnvironment,...next,UI_FOUNDATION_CONTINUATION_POLICY:policyRef.path,UI_FOUNDATION_CONTINUATION_POLICY_SHA256:policyRef.sha256,
+    UI_FOUNDATION_CONTINUATION_CLAIM:claim.path,UI_FOUNDATION_CONTINUATION_CLAIM_SHA256:claim.sha256,UI_FOUNDATION_CONTINUATION_TOKEN:"token"};
+  const authorization=await continuationProfileAuthorization(env);
+  expect(()=>validateReferenceProfile(internal,legacy.cohortId,host,authorization)).not.toThrow();
+  expect(()=>validateReferenceProfile(legacy,legacy.cohortId,host,authorization)).toThrow();
+  expect((await bindReferenceProfile(env)).record.refreshHz).toBe(120);
+  await expect(bindReferenceProfile({...env,UI_FOUNDATION_CONTINUATION_POLICY:undefined,UI_FOUNDATION_CONTINUATION_POLICY_SHA256:undefined})).rejects.toThrow();
+  const oldClaim=await save("1000-claim.json",{slot:"1000.5",policySha256:policyRef.sha256,methodSha256:policy.method.sha256,executionToken:"token"});
+  await expect(continuationProfileAuthorization({...env,UI_FOUNDATION_CONTINUATION_CLAIM:oldClaim.path,UI_FOUNDATION_CONTINUATION_CLAIM_SHA256:oldClaim.sha256})).rejects.toThrow("authorized10000 claim");
+  await expect(validateDisplayTransition({...policy,displayTransition:{...policy.displayTransition,authority:{...authority,sha256:"0".repeat(64)}}},seed)).rejects.toThrow("owner/profile lineage");
+  await expect(validateDisplayTransition({...policy,displayTransition:{...policy.displayTransition,previousProfile:profile}},seed)).rejects.toThrow("lineage");
+  for(const [index,changed] of [{...internal,refreshHz:60},{...internal,viewport:[100,100]},{...internal,display:{...display,connection:"external"}}].entries()) {
+    const bad=await save(`bad-profile-${index}.json`,changed);
+    await expect(validateDisplayTransition({...policy,displayTransition:{...policy.displayTransition,profile:bad}},seed)).rejects.toThrow("reference profile mismatch");
+  }
+  const raw={SPDisplaysDataType:[{sppci_model:"Apple M5 Max",spdisplays_ndrvs:[{_name:display.name,"_spdisplays_display-vendor-id":display.vendor,"_spdisplays_display-product-id":display.product,
+    "_spdisplays_display-serial-number":display.serial,_spdisplays_pixels:display.pixels,_spdisplays_resolution:display.resolution,spdisplays_mirror:display.mirror,spdisplays_connection_type:display.connection,spdisplays_main:"spdisplays_yes",spdisplays_online:"spdisplays_yes"}]}]};
+  expect(validateDisplayProfile(raw,display)).toEqual(display);
+  expect(()=>validateDisplayProfile(raw,legacy.display)).toThrow();
+  for(const [key,value] of [["_spdisplays_resolution","1728 x 1117 @ 60.00Hz"],["_spdisplays_display-serial-number","wrong"],["spdisplays_connection_type","external"],["_spdisplays_pixels","999 x 999"]]) {
+    const drift=structuredClone(raw);(drift.SPDisplaysDataType[0].spdisplays_ndrvs[0] as any)[key]=value;
+    expect(()=>validateDisplayProfile(drift,display)).toThrow();
+  }
+  expect(()=>validateDisplayProfile(raw,display,{...display,resolution:"other"})).toThrow();
+});

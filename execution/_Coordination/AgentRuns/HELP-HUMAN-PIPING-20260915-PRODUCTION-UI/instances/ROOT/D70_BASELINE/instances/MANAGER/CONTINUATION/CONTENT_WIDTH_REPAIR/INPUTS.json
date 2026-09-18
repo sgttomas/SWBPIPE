@@ -1,0 +1,14 @@
+{
+  "briefSha256": "50b21da562e05bd449d8d8ebce705d98be71d4cdf827dfbcf5c6f4adffe15f66",
+  "artifact": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/raw/run-01/1000/smoke-point-stopped-rejected.json",
+  "artifactSha256": "9d7b0d55113f13dec928ad44a7a383825021fc83d4cf9cbcae519d194f128169",
+  "productRevision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "role": "WORKING_ITEMS Type 1",
+  "instance": "/root/d70_manager",
+  "parent": "/root",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "settingsAttribution": "caller configured; independently unobserved",
+  "execution": "direct explicit ROOT grant; no child",
+  "runtimeAuthorized": false
+}

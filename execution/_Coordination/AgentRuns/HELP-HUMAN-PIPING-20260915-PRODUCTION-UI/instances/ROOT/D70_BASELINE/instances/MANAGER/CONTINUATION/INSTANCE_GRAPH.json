@@ -1,0 +1,18 @@
+{
+  "instance": "/root/d70_manager",
+  "role": "WORKING_ITEMS Type 1",
+  "parent": "/root",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "status": "IMPLEMENTATION_DISPATCHED",
+  "child": {
+    "instance": "/root/d70_manager/writer",
+    "role": "TASK Type 2",
+    "model": "gpt-6-astra",
+    "reasoning": "low",
+    "status": "ACTIVE",
+    "furtherDelegation": false
+  },
+  "enforcement": "instruction/config asserted; actual runtime settings independently unobserved",
+  "runtimeAuthorized": false
+}

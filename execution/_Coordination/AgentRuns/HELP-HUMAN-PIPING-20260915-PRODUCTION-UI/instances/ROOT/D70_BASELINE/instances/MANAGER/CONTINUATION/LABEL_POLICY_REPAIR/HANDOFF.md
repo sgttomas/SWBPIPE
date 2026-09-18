@@ -1,0 +1,5 @@
+# Handoff
+
+Bounded correction complete pending ROOT affected review. The unchanged point/orbit phase-label requirement now runs inside the existing metadata validator and rejection-persistence wrapper; no post-capture label-policy throw remains in controller. Wrong point-labelsON and orbit-labelsOFF both reject only after actual snapshot/reference/expected/error are persisted. Strict route still bypasses characterization boundary capture. Existing legitimate-label-transition test now identifies its orbit phase correctly. Three focused tests and TS PASS; no additional finding beyond authorized gap.
+
+Successor manifest and source hashes in RETURN.json. Prior5aba132e and79efe4a method retained; no runtime, no attempt slots used, command/receipt schema unchanged. ROOT must rebind policy to successor method and final instrument HEAD after integration/review. Product, scorer, timeouts, targets and workload unchanged. This derivative evidence is not runtime acceptance; ROOT owns remaining review/witness/release.

@@ -1,0 +1,306 @@
+{
+  "schema": "chirality.piping.d70-closeout-checks/v1",
+  "createdAt": "2026-09-18T04:19:20.787897+00:00",
+  "status": "PASS_LOCAL_GATES",
+  "testedCandidate": "81abfa7d3108fc8f92c42e046843f060b1ae952b",
+  "localChecksCandidate": "afc3b51b5925941e5b2f6da2efa8735788e09f78",
+  "failedPredecessor": {
+    "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-01/EXECUTION_RESULT.json",
+    "sha256": "08b8c178dce74a1398dbbd407af14ca8471f9785fc152c0b6c57df9c05228fcd",
+    "bytes": 1467
+  },
+  "failedLocalCheckLog": {
+    "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-01/routed_tools_tests.log",
+    "sha256": "0257715a477a3c3d39ced026474ee8c28d47c8ed54eefd7aa134929521b76129",
+    "bytes": 131115
+  },
+  "reviewedCandidate": "c08b4ab7d34b013f7383d062966e1e3de3dffff4",
+  "sourceEquivalence": "Reviewed and swept product/instrument source and tests are identical. Later local-check candidate adds only sealed review/evidence records and exact historical portability classifications; no product or measurement input changed.",
+  "execution": {
+    "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/EXECUTION_RESULT.json",
+    "sha256": "d4687cb77c71ae49fa49a835b65ba09f08add0b822b71d165eb36ea42e2fe501",
+    "bytes": 9837
+  },
+  "commandPlan": {
+    "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/PREPARED_COMMANDS.json",
+    "sha256": "fe305578af5961e32e05b243a02fd0d08fe9efa6b396e4e5276f9178796a3a13",
+    "bytes": 4209
+  },
+  "runner": {
+    "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/run_closeout.py",
+    "sha256": "c554ae7170ef9198ef3d2771a5dda6efaaa5f54a96d216b333587c1aded1c103",
+    "bytes": 3686
+  },
+  "sweep": {
+    "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-01/sweep/SWEEP_20260918T035212Z_81abfa7d3108.json",
+    "sha256": "bda279071a3ed82dddfb0dce6b8aa94eb0e7650da424f58e0449e3c6e915d718",
+    "bytes": 3822
+  },
+  "registeredSurfaces": [
+    {
+      "id": "cargo_crate_sweep",
+      "status": "pass"
+    },
+    {
+      "id": "python_pytest",
+      "status": "pass"
+    },
+    {
+      "id": "desktop_vitest",
+      "status": "pass"
+    },
+    {
+      "id": "desktop_playwright_e2e",
+      "status": "pass"
+    },
+    {
+      "id": "desktop_production_build",
+      "status": "pass"
+    }
+  ],
+  "checks": [
+    {
+      "name": "DEC025_sweep",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/release/run_evidence_sweep.py",
+        "--execute",
+        "--output-dir",
+        "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-01/sweep"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping",
+      "exitCode": 0,
+      "seconds": 1048.4280468751676,
+      "log": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-01/DEC025_sweep.log",
+        "sha256": "714c53c57e52c5d90dfb9ab3e5d27ddafd032e3705f33c5b85afd66b72e70e62",
+        "bytes": 1641777
+      },
+      "candidate": "81abfa7d3108fc8f92c42e046843f060b1ae952b",
+      "executionMode": "SOURCE_EQUIVALENT_CARRY_FORWARD",
+      "summary": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-01/sweep/SWEEP_20260918T035212Z_81abfa7d3108.json",
+        "sha256": "bda279071a3ed82dddfb0dce6b8aa94eb0e7650da424f58e0449e3c6e915d718",
+        "bytes": 3822
+      }
+    },
+    {
+      "name": "routed_tools_tests",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/run_affected_tests.py",
+        "--base",
+        "fc21b00d0b4233349c7fa8df433d6a82e9f7678e"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917",
+      "candidate": "afc3b51b5925941e5b2f6da2efa8735788e09f78",
+      "executionMode": "EXECUTED",
+      "exitCode": 0,
+      "seconds": 42.83119345875457,
+      "log": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/routed_tools_tests.log",
+        "sha256": "731cef848b87e3ddc93a39eb3f41c87f110ed61cc2548579bf4bfcfdb87efcf1",
+        "bytes": 130824
+      }
+    },
+    {
+      "name": "self_check",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917",
+      "candidate": "afc3b51b5925941e5b2f6da2efa8735788e09f78",
+      "executionMode": "EXECUTED",
+      "exitCode": 0,
+      "seconds": 24.54601762536913,
+      "log": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/self_check.log",
+        "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+        "bytes": 41362
+      }
+    },
+    {
+      "name": "receipt",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917",
+      "candidate": "afc3b51b5925941e5b2f6da2efa8735788e09f78",
+      "executionMode": "EXECUTED",
+      "exitCode": 0,
+      "seconds": 1.4773708749562502,
+      "log": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/receipt.log",
+        "sha256": "5612818a65a529a83deb93248fda9f96f98be4027bc7ac0a8083f80c3170406b",
+        "bytes": 191
+      }
+    },
+    {
+      "name": "agent_contract",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_agent_instructions.py",
+        "--json"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917",
+      "candidate": "afc3b51b5925941e5b2f6da2efa8735788e09f78",
+      "executionMode": "EXECUTED",
+      "exitCode": 0,
+      "seconds": 0.03604012541472912,
+      "log": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/agent_contract.log",
+        "sha256": "74e955ec260140f91d03643f678c994fcd26c7d5bb29008e0b04fbcda71456a6",
+        "bytes": 75
+      }
+    },
+    {
+      "name": "workflow_contract",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_workflow_metadata.py",
+        "--json"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917",
+      "candidate": "afc3b51b5925941e5b2f6da2efa8735788e09f78",
+      "executionMode": "EXECUTED",
+      "exitCode": 0,
+      "seconds": 0.11935845902189612,
+      "log": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/workflow_contract.log",
+        "sha256": "275b16c8086cd5aca35563635a124b38fa1e750929bc45b140dbfa9b083d52b4",
+        "bytes": 6735
+      }
+    },
+    {
+      "name": "conflict_markers",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_conflict_markers.py",
+        "--base",
+        "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+        "--head",
+        "HEAD"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917",
+      "candidate": "afc3b51b5925941e5b2f6da2efa8735788e09f78",
+      "executionMode": "EXECUTED",
+      "exitCode": 0,
+      "seconds": 0.08652329118922353,
+      "log": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/conflict_markers.log",
+        "sha256": "77e86fa18dd10ff92a9b2ba59fe74a0ae6d5a364749064e44aa2301c274b6df8",
+        "bytes": 44
+      }
+    },
+    {
+      "name": "G0",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_root_materialization_fence.py"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917",
+      "candidate": "afc3b51b5925941e5b2f6da2efa8735788e09f78",
+      "executionMode": "EXECUTED",
+      "exitCode": 0,
+      "seconds": 1.93849837500602,
+      "log": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/G0.log",
+        "sha256": "19878a424b48ca671d3e758269df15cb764f6158b2626ff8670d80c93cd9b11c",
+        "bytes": 100
+      }
+    },
+    {
+      "name": "G1",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_root_harness_adapter.py"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917",
+      "candidate": "afc3b51b5925941e5b2f6da2efa8735788e09f78",
+      "executionMode": "EXECUTED",
+      "exitCode": 0,
+      "seconds": 1.8491376247256994,
+      "log": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/G1.log",
+        "sha256": "a446575a34e6896cb92123eab0cfd5c4e0180db7ff62699e5db07b438fe9be37",
+        "bytes": 92
+      }
+    },
+    {
+      "name": "G2",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_root_surface_ownership.py"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917",
+      "candidate": "afc3b51b5925941e5b2f6da2efa8735788e09f78",
+      "executionMode": "EXECUTED",
+      "exitCode": 0,
+      "seconds": 1.9610248329117894,
+      "log": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/G2.log",
+        "sha256": "8a2425c5d13c122eb51b2482911778315724f5d3854922916c43f49cc6247618",
+        "bytes": 65
+      }
+    },
+    {
+      "name": "G3",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_root_work_graph_dispatch.py"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917",
+      "candidate": "afc3b51b5925941e5b2f6da2efa8735788e09f78",
+      "executionMode": "EXECUTED",
+      "exitCode": 0,
+      "seconds": 3.7890827083028853,
+      "log": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/G3.log",
+        "sha256": "02ef198ca71b3d832101ae4e4fd358f9e4c65732da5f0bc0d77b8f2bdd7ab0b6",
+        "bytes": 188
+      }
+    },
+    {
+      "name": "G4",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_instruction_tranche_manifest.py",
+        "--base",
+        "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+        "--head",
+        "HEAD",
+        "--added-manifests-only"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917",
+      "candidate": "afc3b51b5925941e5b2f6da2efa8735788e09f78",
+      "executionMode": "EXECUTED",
+      "exitCode": 0,
+      "seconds": 0.24181804107502103,
+      "log": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/closeout-02/G4.log",
+        "sha256": "8c9b5d7c7b4144437b35c9d1c09745973700b966b9f96ba95860dd4d2f02f74d",
+        "bytes": 10000
+      }
+    }
+  ],
+  "independentReview": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/CONTINUATION_REVIEW/FINAL_BASELINE/RETURN.json",
+    "sha256": "7890a1420c92da828e0236206baeca591577058e0df9f2adfe44be09a5f80369",
+    "bytes": 248022
+  },
+  "rawCustody": "Original logs and sweep summary remain in the recorded local archive. This index creates no raw copies.",
+  "skipNotes": "The ordinary source-mode browser suite reports 20 skipped frozen-input, continuation and profile checks because their explicit external input bindings are absent. Their separately configured focused execution retains its owning manager/review evidence; this sweep does not claim fresh execution of those opt-in checks or a new timed cohort. The sweep log owns all counts and warnings.",
+  "upstreamObserved": "226a3658a894e0540e0a1365bbc89d9c80d2ef8c",
+  "upstreamNotice": "PR #791 narrows Desktop E2E triggers only. This tranche changes apps/desktop/e2e and still matches; local DEC-025 obligations are unchanged. No source overlap or rebase is required.",
+  "remainingPublicationGates": [
+    "Review the final metadata tail",
+    "Affected backchecks",
+    "Actual-head hosted CI",
+    "Scoped PR merge"
+  ]
+}

@@ -1,0 +1,1 @@
+{"headRefOid":"1c08fde56cce1766f89f13deaa8234de070656cf","mergeCommit":{"oid":"fc21b00d0b4233349c7fa8df433d6a82e9f7678e"},"mergedAt":"2026-09-17T23:05:02Z","state":"MERGED","url":"https://github.com/sgttomas/chirality/pull/790"}

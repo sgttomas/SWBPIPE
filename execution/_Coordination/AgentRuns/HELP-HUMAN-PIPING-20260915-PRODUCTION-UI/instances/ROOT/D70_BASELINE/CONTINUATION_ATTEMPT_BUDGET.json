@@ -1,0 +1,85 @@
+{
+  "schema": "chirality.piping.d70.attempt-budget/v1",
+  "ownerDirection": {
+    "path": "OWNER_CLARIFICATION_CONTINUE_20260917.md",
+    "sha256": "a5ba424fde8f8be92ae69b694a718452c9753b3ce2217df8f6b4b55e042c9730"
+  },
+  "limits": {
+    "1000": 5,
+    "10000": 5
+  },
+  "attempts": [
+    {
+      "fixtureSize": 1000,
+      "ordinal": 1,
+      "status": "INVALID_RETAINED",
+      "sourceEvidence": "instances/RUNNER/RETURN.json",
+      "instrumentRevision": "36e56f2d93f763296b09520fe9f7c8481dd6fd54"
+    },
+    {
+      "fixtureSize": 1000,
+      "ordinal": 2,
+      "status": "UNATTEMPTED",
+      "sourceEvidence": null,
+      "instrumentRevision": null
+    },
+    {
+      "fixtureSize": 1000,
+      "ordinal": 3,
+      "status": "UNATTEMPTED",
+      "sourceEvidence": null,
+      "instrumentRevision": null
+    },
+    {
+      "fixtureSize": 1000,
+      "ordinal": 4,
+      "status": "UNATTEMPTED",
+      "sourceEvidence": null,
+      "instrumentRevision": null
+    },
+    {
+      "fixtureSize": 1000,
+      "ordinal": 5,
+      "status": "UNATTEMPTED",
+      "sourceEvidence": null,
+      "instrumentRevision": null
+    },
+    {
+      "fixtureSize": 10000,
+      "ordinal": 1,
+      "status": "UNATTEMPTED",
+      "sourceEvidence": null,
+      "instrumentRevision": null
+    },
+    {
+      "fixtureSize": 10000,
+      "ordinal": 2,
+      "status": "UNATTEMPTED",
+      "sourceEvidence": null,
+      "instrumentRevision": null
+    },
+    {
+      "fixtureSize": 10000,
+      "ordinal": 3,
+      "status": "UNATTEMPTED",
+      "sourceEvidence": null,
+      "instrumentRevision": null
+    },
+    {
+      "fixtureSize": 10000,
+      "ordinal": 4,
+      "status": "UNATTEMPTED",
+      "sourceEvidence": null,
+      "instrumentRevision": null
+    },
+    {
+      "fixtureSize": 10000,
+      "ordinal": 5,
+      "status": "UNATTEMPTED",
+      "sourceEvidence": null,
+      "instrumentRevision": null
+    }
+  ],
+  "mutability": "Initial immutable budget cut; subsequent starts/returns append durable per-attempt records and aggregate references; do not rewrite failed evidence",
+  "acceptance": "At least one valid complete run at each size if achievable within this budget; original-target outcomes remain separate"
+}

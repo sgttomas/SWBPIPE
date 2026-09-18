@@ -1,0 +1,596 @@
+{
+  "status": "INCOMPLETE_ATTEMPT_REPORT_COMPLETE",
+  "closureVerdict": "Single authorized attempt ended with hard invalid-evidence abort; report complete, no performance acceptance",
+  "at": "2026-09-18T00:46:33.376753+00:00",
+  "parent": "/root",
+  "agent": "/root/d70_runner",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "attribution": "caller configuration; instruction/config asserted; no independent model introspection",
+  "acceptedUpstream": [
+    "D70/PR790 fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+    "product8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+    "COHORT_RELEASE.json fed0a0e58daed36c618d7e156562a49550ef014c6e62f26be8f90c633329b6ee"
+  ],
+  "derivativePackage": true,
+  "counts": {
+    "planned": 10,
+    "attempted": 1,
+    "validComplete": 0,
+    "invalidFailed": 1,
+    "unattempted": 9,
+    "retries": 0,
+    "replacements": 0,
+    "cohorts": 1
+  },
+  "collection": {
+    "mode": "characterization",
+    "evidenceValidity": "INVALID_OR_UNAVAILABLE",
+    "collectionCompleteness": "INCOMPLETE_ATTEMPT",
+    "targetOutcome": "FAIL_COHORT",
+    "attemptDisposition": "ABORTED",
+    "runs": [
+      {
+        "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.1",
+        "disposition": {
+          "mode": "characterization",
+          "evidenceValidity": "INVALID",
+          "collectionCompleteness": "INCOMPLETE",
+          "targetOutcome": "FAIL_INVALID_EVIDENCE",
+          "attemptDisposition": "ABORT_REMAINING",
+          "cohortContribution": 0
+        },
+        "error": null
+      },
+      {
+        "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.2",
+        "disposition": {
+          "evidenceValidity": "INVALID",
+          "collectionCompleteness": "INCOMPLETE",
+          "attemptDisposition": "UNATTEMPTED",
+          "targetOutcome": "UNAVAILABLE",
+          "cohortContribution": 0
+        },
+        "error": "Error: ENOENT: no such file or directory, open '/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/raw/run-02/1000/result.json'"
+      },
+      {
+        "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.3",
+        "disposition": {
+          "evidenceValidity": "INVALID",
+          "collectionCompleteness": "INCOMPLETE",
+          "attemptDisposition": "UNATTEMPTED",
+          "targetOutcome": "UNAVAILABLE",
+          "cohortContribution": 0
+        },
+        "error": "Error: ENOENT: no such file or directory, open '/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/raw/run-03/1000/result.json'"
+      },
+      {
+        "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.4",
+        "disposition": {
+          "evidenceValidity": "INVALID",
+          "collectionCompleteness": "INCOMPLETE",
+          "attemptDisposition": "UNATTEMPTED",
+          "targetOutcome": "UNAVAILABLE",
+          "cohortContribution": 0
+        },
+        "error": "Error: ENOENT: no such file or directory, open '/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/raw/run-04/1000/result.json'"
+      },
+      {
+        "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.5",
+        "disposition": {
+          "evidenceValidity": "INVALID",
+          "collectionCompleteness": "INCOMPLETE",
+          "attemptDisposition": "UNATTEMPTED",
+          "targetOutcome": "UNAVAILABLE",
+          "cohortContribution": 0
+        },
+        "error": "Error: ENOENT: no such file or directory, open '/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/raw/run-05/1000/result.json'"
+      },
+      {
+        "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.10000.1",
+        "disposition": {
+          "evidenceValidity": "INVALID",
+          "collectionCompleteness": "INCOMPLETE",
+          "attemptDisposition": "UNATTEMPTED",
+          "targetOutcome": "UNAVAILABLE",
+          "cohortContribution": 0
+        },
+        "error": "Error: ENOENT: no such file or directory, open '/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/raw/run-01/10000/result.json'"
+      },
+      {
+        "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.10000.2",
+        "disposition": {
+          "evidenceValidity": "INVALID",
+          "collectionCompleteness": "INCOMPLETE",
+          "attemptDisposition": "UNATTEMPTED",
+          "targetOutcome": "UNAVAILABLE",
+          "cohortContribution": 0
+        },
+        "error": "Error: ENOENT: no such file or directory, open '/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/raw/run-02/10000/result.json'"
+      },
+      {
+        "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.10000.3",
+        "disposition": {
+          "evidenceValidity": "INVALID",
+          "collectionCompleteness": "INCOMPLETE",
+          "attemptDisposition": "UNATTEMPTED",
+          "targetOutcome": "UNAVAILABLE",
+          "cohortContribution": 0
+        },
+        "error": "Error: ENOENT: no such file or directory, open '/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/raw/run-03/10000/result.json'"
+      },
+      {
+        "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.10000.4",
+        "disposition": {
+          "evidenceValidity": "INVALID",
+          "collectionCompleteness": "INCOMPLETE",
+          "attemptDisposition": "UNATTEMPTED",
+          "targetOutcome": "UNAVAILABLE",
+          "cohortContribution": 0
+        },
+        "error": "Error: ENOENT: no such file or directory, open '/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/raw/run-04/10000/result.json'"
+      },
+      {
+        "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.10000.5",
+        "disposition": {
+          "evidenceValidity": "INVALID",
+          "collectionCompleteness": "INCOMPLETE",
+          "attemptDisposition": "UNATTEMPTED",
+          "targetOutcome": "UNAVAILABLE",
+          "cohortContribution": 0
+        },
+        "error": "Error: ENOENT: no such file or directory, open '/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/raw/run-05/10000/result.json'"
+      }
+    ]
+  },
+  "originalScores": {
+    "status": "FAIL_INVALID_EVIDENCE",
+    "validityFailures": [
+      "RUN_NOT_FRESH_AND_QUALIFIED",
+      "INCOMPLETE_OR_INVALID_POINTS",
+      "INCOMPLETE_OR_INVALID_BOXES",
+      "INCOMPLETE_OR_INVALID_FILTERS",
+      "INCOMPLETE_OR_INVALID_ORBIT:centerline",
+      "INCOMPLETE_OR_INVALID_ORBIT:actual-od",
+      "SETTLED_OWNED_RAF_NOT_EXACT_ZERO"
+    ],
+    "targetFailures": [],
+    "scores": {
+      "assignment": 271.3380018234255,
+      "pointP95": null,
+      "boxP95": null,
+      "filterP95": null,
+      "centerlineP95": null,
+      "actualOdP95": null
+    },
+    "orbitPopulations": {},
+    "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.1",
+    "fixtureSize": 1000,
+    "bindings": {
+      "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+      "sourceSha256": "23206c0762ba7f8aabd7529587e4032f61894aec04a21556f4d75b6fcfd57779",
+      "buildSha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+      "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+      "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+      "oracleSha256": "1d483eb78f901abb84bc2e32678cf74b500d624bcd9e0f9b5bce29bdceba4d16",
+      "methodSha256": "c36048c44d14acdceb7b15a898c96e38a473e96adb985a07a9694496324426b1",
+      "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+    },
+    "observerDiagnostics": {
+      "evidenceRef": "observer-accounting.json",
+      "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+    },
+    "rawObserverReferences": {
+      "p95Ms": 0.5,
+      "maximumMs": 2,
+      "totalPercent": 3
+    },
+    "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+  },
+  "errors": [
+    {
+      "phase": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.1.point-selection.1:stop-persist",
+      "error": "Error: boundary profile/model/binding drift"
+    },
+    {
+      "phase": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.1.point-selection.1:work",
+      "error": "Error: boundary profile/model/binding drift"
+    },
+    {
+      "phase": "run",
+      "error": "Error: segment D70-8468a33c-20260917-CHARACTERIZATION-01.1000.1.point-selection.1 failed; canonical earlier evidence retained"
+    }
+  ],
+  "metadata": [
+    {
+      "id": "assignment-1-stopped",
+      "canvas": {
+        "cssLeft": 293,
+        "cssTop": 285.1953125,
+        "cssWidth": 794,
+        "cssHeight": 557,
+        "dpr": 2,
+        "bufferWidth": 1588,
+        "bufferHeight": 1114
+      },
+      "labels": {
+        "enabled": true,
+        "renderedCount": 1,
+        "budget": 80
+      },
+      "geometry": {
+        "mode": "schematic",
+        "odGeneration": 0,
+        "odStatus": "not-requested"
+      },
+      "camera": {
+        "sequence": 6,
+        "kind": "perspective",
+        "position": [
+          15.392304845413264,
+          11.022270845413264,
+          10.392319845413263
+        ],
+        "target": [
+          5,
+          0.629966,
+          1.5000000000000256e-05
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.4254937163375225,
+        "localRenderOrigin": [
+          5,
+          0.629966,
+          1.5000000000000256e-05
+        ]
+      },
+      "presentation": {
+        "browserDpr": 2,
+        "windowWidth": 1440,
+        "windowHeight": 920,
+        "theme": "light",
+        "density": "comfortable",
+        "panels": [
+          {
+            "selector": ".panel.model-tree",
+            "visible": true,
+            "width": 278,
+            "height": 570.1953125
+          },
+          {
+            "selector": ".panel.inspector",
+            "visible": true,
+            "width": 338,
+            "height": 299.96875
+          }
+        ]
+      }
+    },
+    {
+      "id": "initial-presentation",
+      "canvas": {
+        "cssLeft": 293,
+        "cssTop": 285.1953125,
+        "cssWidth": 794,
+        "cssHeight": 557,
+        "dpr": 2,
+        "bufferWidth": 1588,
+        "bufferHeight": 1114
+      },
+      "labels": {
+        "enabled": true,
+        "renderedCount": 1,
+        "budget": 80
+      },
+      "geometry": {
+        "mode": "schematic",
+        "odGeneration": 0,
+        "odStatus": "not-requested"
+      },
+      "camera": {
+        "sequence": 6,
+        "kind": "perspective",
+        "position": [
+          15.392304845413264,
+          11.022270845413264,
+          10.392319845413263
+        ],
+        "target": [
+          5,
+          0.629966,
+          1.5000000000000256e-05
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.4254937163375225,
+        "localRenderOrigin": [
+          5,
+          0.629966,
+          1.5000000000000256e-05
+        ]
+      },
+      "presentation": {
+        "browserDpr": 2,
+        "windowWidth": 1440,
+        "windowHeight": 920,
+        "theme": "light",
+        "density": "comfortable",
+        "panels": [
+          {
+            "selector": ".panel.model-tree",
+            "visible": true,
+            "width": 278,
+            "height": 570.1953125
+          },
+          {
+            "selector": ".panel.inspector",
+            "visible": true,
+            "width": 338,
+            "height": 299.96875
+          }
+        ]
+      }
+    },
+    {
+      "id": "point-selection-1-ready",
+      "canvas": {
+        "cssLeft": 293,
+        "cssTop": 285.1953125,
+        "cssWidth": 794,
+        "cssHeight": 557,
+        "dpr": 2,
+        "bufferWidth": 1588,
+        "bufferHeight": 1114
+      },
+      "labels": {
+        "enabled": false,
+        "renderedCount": 0,
+        "budget": 80
+      },
+      "geometry": {
+        "mode": "schematic",
+        "odGeneration": 0,
+        "odStatus": "not-requested"
+      },
+      "camera": {
+        "sequence": 7,
+        "kind": "perspective",
+        "position": [
+          16.232120013664673,
+          11.814889013664672,
+          11.182067013664671
+        ],
+        "target": [
+          5.05,
+          0.6327689999999999,
+          -5.299999999998448e-05
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.4254937163375225,
+        "localRenderOrigin": [
+          5,
+          0.629966,
+          1.5000000000000256e-05
+        ]
+      },
+      "presentation": {
+        "browserDpr": 2,
+        "windowWidth": 1440,
+        "windowHeight": 920,
+        "theme": "light",
+        "density": "comfortable",
+        "panels": [
+          {
+            "selector": ".panel.model-tree",
+            "visible": true,
+            "width": 278,
+            "height": 570.1953125
+          },
+          {
+            "selector": ".panel.inspector",
+            "visible": true,
+            "width": 338,
+            "height": 299.96875
+          }
+        ]
+      }
+    }
+  ],
+  "traceCustody": [
+    {
+      "segment": "assignment-001",
+      "eventCount": 6546,
+      "tracingComplete": {
+        "dataLossOccurred": false,
+        "stream": "1",
+        "traceFormat": "json",
+        "streamCompression": "none"
+      },
+      "traceCompletionError": null,
+      "traceDataLossOccurred": false,
+      "traceCompletenessValidation": "PASS_TRACING_COMPLETE_AND_NO_REPORTED_DATA_LOSS",
+      "rawTraceTransport": {
+        "transferMode": "ReturnAsStream",
+        "rawPath": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/raw/run-01/1000/assignment-001/trace-events.raw.json",
+        "rawUtf8Bytes": 1420444,
+        "rawCompleteThroughEof": true,
+        "rawByteLimit": 268435456,
+        "ioDeadlineMs": 30000,
+        "rawSha256": "76818c0e43426ec7dee26f418db2df276ae313803478d806c14fdb9c2e0a6921",
+        "receivedCompleteChunkBytes": 1420444,
+        "receivedCompleteChunkSha256": "76818c0e43426ec7dee26f418db2df276ae313803478d806c14fdb9c2e0a6921",
+        "finalSyncError": null,
+        "closeError": null,
+        "streamCloseError": null,
+        "preservedFileInspectionError": null,
+        "unsafeIntegerTokensConvertedToDecimalStrings": 395,
+        "joinIdentifierPolicy": "Unsafe integer JSON tokens are retained from raw browser UTF-8 and parsed as exact decimal strings; no Number fallback is allowed. Trace timestamps remain numeric only when represented as safe JSON numbers."
+      },
+      "appSurfaceMapping": {
+        "status": "GENERIC_FLOW_TOKEN_JOIN_DISABLED_FOR_QUALIFICATION",
+        "markerProcessIds": [
+          69346
+        ],
+        "appRendererPid": 69346,
+        "processName": "Renderer",
+        "measuredWindow": {
+          "startTraceTimestamp": null,
+          "endTraceTimestamp": null
+        },
+        "qualification": "N/A_EXACT_CAUSAL_EXTRACTOR_MUST_USE_PROCESS_SCOPED_MAIN_FRAME_AND_EXACT_SURFACE_REPORTER_OCCURRENCE"
+      }
+    },
+    {
+      "segment": "point-selection-001",
+      "eventCount": 8987,
+      "tracingComplete": {
+        "dataLossOccurred": false,
+        "stream": "2",
+        "traceFormat": "json",
+        "streamCompression": "none"
+      },
+      "traceCompletionError": null,
+      "traceDataLossOccurred": false,
+      "traceCompletenessValidation": "PASS_TRACING_COMPLETE_AND_NO_REPORTED_DATA_LOSS",
+      "rawTraceTransport": {
+        "transferMode": "ReturnAsStream",
+        "rawPath": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/raw/run-01/1000/point-selection-001/trace-events.raw.json",
+        "rawUtf8Bytes": 1964283,
+        "rawCompleteThroughEof": true,
+        "rawByteLimit": 268435456,
+        "ioDeadlineMs": 30000,
+        "rawSha256": "5c502c4f456f61f700ec507b7e73480f515cfbcf2e8d19f2750c4406d077172a",
+        "receivedCompleteChunkBytes": 1964283,
+        "receivedCompleteChunkSha256": "5c502c4f456f61f700ec507b7e73480f515cfbcf2e8d19f2750c4406d077172a",
+        "finalSyncError": null,
+        "closeError": null,
+        "streamCloseError": null,
+        "preservedFileInspectionError": null,
+        "unsafeIntegerTokensConvertedToDecimalStrings": 774,
+        "joinIdentifierPolicy": "Unsafe integer JSON tokens are retained from raw browser UTF-8 and parsed as exact decimal strings; no Number fallback is allowed. Trace timestamps remain numeric only when represented as safe JSON numbers."
+      },
+      "appSurfaceMapping": {
+        "status": "GENERIC_FLOW_TOKEN_JOIN_DISABLED_FOR_QUALIFICATION",
+        "markerProcessIds": [
+          69346
+        ],
+        "appRendererPid": 69346,
+        "processName": "Renderer",
+        "measuredWindow": {
+          "startTraceTimestamp": null,
+          "endTraceTimestamp": null
+        },
+        "qualification": "N/A_EXACT_CAUSAL_EXTRACTOR_MUST_USE_PROCESS_SCOPED_MAIN_FRAME_AND_EXACT_SURFACE_REPORTER_OCCURRENCE"
+      }
+    }
+  ],
+  "offline": {
+    "processExit": 0,
+    "observationCount": 0,
+    "unavailableCount": 20,
+    "population": "20 planned orbit windows unavailable; no attributable orbit population, not zero work"
+  },
+  "cleanup": {
+    "restore": {
+      "status": "PASS_FULL_RESTORE",
+      "restoredAt": 2733.7999997138977,
+      "pendingNativeHandlesUntouched": 0,
+      "listenersRemoved": [
+        "pointerdown",
+        "pointerup",
+        "input"
+      ],
+      "overflow": {
+        "total": 0,
+        "byCollection": {}
+      },
+      "errors": []
+    },
+    "errors": [
+      {
+        "phase": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.1.point-selection.1:stop-persist",
+        "error": "Error: boundary profile/model/binding drift"
+      },
+      {
+        "phase": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.1.point-selection.1:work",
+        "error": "Error: boundary profile/model/binding drift"
+      },
+      {
+        "phase": "run",
+        "error": "Error: segment D70-8468a33c-20260917-CHARACTERIZATION-01.1000.1.point-selection.1 failed; canonical earlier evidence retained"
+      }
+    ]
+  },
+  "settled": {
+    "status": "FAIL",
+    "ownedRafCount": null
+  },
+  "externalBindings": "PASS_BEFORE_AND_AFTER",
+  "processOutcome": "exit1;1failed9didnotrun; browser absent/port5176clear after process end",
+  "resources": {
+    "startup": "UNAVAILABLE_NATIVE_STARTUP_NOT_MEASURED",
+    "loading": "ORIGINAL_ASSIGNMENT_METRIC_PLUS_HOST_PREPARATION_IN_INITIALIZED_JSON",
+    "processMemory": "UNAVAILABLE_NOT_MEASURED",
+    "heap": "UNAVAILABLE_NOT_MEASURED",
+    "resources": "BOUNDARY_DIAGNOSTIC_COUNTS_ONLY_NOT_FULL_RESOURCE_PROOF"
+  },
+  "canonicalManifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CANONICAL_EVIDENCE_MANIFEST.json",
+    "sha256": "b7a254b9f84b43080244bc4bc8afb7c064bb31724066ac68ac66dd965e1c3adb",
+    "files": 46,
+    "bytes": 4908678
+  },
+  "frozenEnvironment": {
+    "UI_FOUNDATION_PHASE": "candidate",
+    "UI_FOUNDATION_COHORT_ID": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+    "UI_FOUNDATION_EVIDENCE_DIR": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01",
+    "UI_FOUNDATION_MANIFEST_SHA256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+    "UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/instances/VERIFY/PRODUCT_8468/candidate-bundle-manifest.json",
+    "UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST_SHA256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+    "UI_FOUNDATION_CANDIDATE_SOURCE_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping",
+    "UI_FOUNDATION_CANDIDATE_OUTPUT_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/dist",
+    "UI_FOUNDATION_CANDIDATE_SOURCE_STAGE": "final",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/chrome-for-testing/153.0.8010.36/mac-arm64/1f701ef60757c63c6ccf98afaf28291dd0c8d1457d3d738e81fd62201c230ad0/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_SHA256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+    "UI_FOUNDATION_REFERENCE_PROFILE": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/REFERENCE_PROFILE_V2.json",
+    "UI_FOUNDATION_REFERENCE_PROFILE_SHA256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922",
+    "PLAYWRIGHT_WORKERS": "1",
+    "UI_FOUNDATION_COLLECTION_MODE": "characterization",
+    "UI_FOUNDATION_PIPE_COUNTS": "1000,10000",
+    "UI_FOUNDATION_RUNS": "1,2,3,4,5",
+    "UI_FOUNDATION_METHOD_MANIFEST_PATH": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/METHOD_MANIFEST_SUCCESSOR.json",
+    "UI_FOUNDATION_METHOD_MANIFEST_SHA256": "c36048c44d14acdceb7b15a898c96e38a473e96adb985a07a9694496324426b1",
+    "UI_FOUNDATION_CANDIDATE_ORACLE_DIR": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-oracle-01",
+    "UI_FOUNDATION_CANDIDATE_ORACLE_MANIFEST_SHA256": "0b8a0b5239f10547c72907e32160db262288216ed1fb4818551782dc89b05b17"
+  },
+  "instrumentRevision": "36e56f2d93f763296b09520fe9f7c8481dd6fd54",
+  "rerunRequirements": "No replacement, retry, second cohort, repair or diagnostic authorized/performed; original D68 targets remain for redesigned product; ROOT owns acceptance/review/closeout",
+  "remainingBlockers": [
+    "No valid complete performance run; nine runs unattempted",
+    "Required boundary profile/model/binding drift at first point stopped-metadata validation",
+    "Settled-zero was not established; ownedRafCount null, not evidence of a measured positive count",
+    "Orbit/input latency/main-frame/GPU/presentation population observations unavailable"
+  ],
+  "claimFence": "F-PIP-2 / DEC-081; no engineering, native/resource, release or performance acceptance"
+}

@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-18T00:17:46.620068+00:00",
+  "parent": "/root/d70_manager",
+  "child": "/root/d70_manager/writer",
+  "mechanism": "collaboration.followup_task delegated-harness-native",
+  "requestedSettings": "gpt-6-astra/low retained existing instance",
+  "actualSettingsIndependentlyObserved": false,
+  "briefSha256": "8b2e7c1da500fbdc1d04abfbf9648d8988a3a563904f346d208066cc61c5887e",
+  "status": "running",
+  "scope": "two source files plus new WRITER/SMOKE_REPAIR evidence only",
+  "sourceRepairCycles": 1,
+  "runtime": "node-only tests and TypeScript; no browser/build/cohort"
+}

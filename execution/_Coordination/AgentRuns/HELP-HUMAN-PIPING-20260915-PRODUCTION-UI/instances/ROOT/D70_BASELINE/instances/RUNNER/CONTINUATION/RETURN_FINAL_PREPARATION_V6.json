@@ -1,0 +1,23 @@
+{
+  "status": "V6_AUTHORITY_PARSING_FIX_READY_FOR_BACKCHECK",
+  "at": "2026-09-18T02:29:49.582121+00:00",
+  "policy": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/POLICY_V5.json",
+    "sha256": "54874f7d4811bd3d3a2d5116b4f4634efe2e3199500ac49f96d2136c17e8b291"
+  },
+  "script": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/control_v6.py",
+    "sha256": "b6ebbc21519c25c7c84628ec5d86aa008072cccc18d37600bbea98d754ba6d63"
+  },
+  "commands": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/COMMANDS_V6.json",
+    "sha256": "7adc655594cf9194bd226a12cbb38f71368339b5c4fc8c9dc34420f0767b4636"
+  },
+  "delta": "Only historical authority validation: exact expected path/SHA and raw-file hash, no JSON parse; policy/registry/history still bound JSON",
+  "validation": [
+    "AST parse PASS",
+    "Extracted actual historical() executed against actual refs PASS; no main-mode execution"
+  ],
+  "noRuntimeReceiptsRegistryMutation": true,
+  "originalRegistryHash": "4b5843acc27e55e24b7d9ad2b86850eade669da1e143b396aa0ed800dd727877"
+}

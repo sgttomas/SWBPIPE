@@ -1,0 +1,89 @@
+{
+  "status": "STRUCTURAL_DRAFT_NOT_EXECUTABLE_NOT_FINAL_POLICY",
+  "ownerTransitionDraft": {
+    "schema": "ui-foundation.one-success-transition/v1",
+    "authority": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/OWNER_DIRECTION_ONE_SUCCESS_20260917.md",
+      "sha256": "ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"
+    },
+    "previousPolicy": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/POLICY_V4.json",
+      "sha256": "e4889e31c0d37c8fb056250b893c9691e1930b8e8e4a49af107ce89fc99f4f77"
+    },
+    "registry": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN.json.continuation-ledger.json",
+      "sha256": "4b5843acc27e55e24b7d9ad2b86850eade669da1e143b396aa0ed800dd727877"
+    },
+    "history": [
+      {
+        "claim": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/1000.2.json",
+          "sha256": "a05b72fe3b375abb96b75a7d9dcd245c1ddf0c1b05824adec3d472cb3dcb3f49"
+        },
+        "terminal": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/terminal-1000.2.json",
+          "sha256": "e465ad8e732f181e0e075aa282eed2bd53a1b1f06e8697b5a43178a735a7af54"
+        },
+        "return": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_1000.2.json",
+          "sha256": "3887cd9c059e51c10c0fb15cbd2b206541a52d294131a98803ffe0ed09702cae"
+        }
+      },
+      {
+        "claim": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/1000.3.json",
+          "sha256": "81aadbae9c2364534a75f31026e14e09683ff11aec8c925ec230547188eeb759"
+        },
+        "terminal": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/terminal-1000.3.json",
+          "sha256": "b615a6ebcf857886a86829fc6ea67b743be56abeeb8ccb639289b3dcc98cac43"
+        },
+        "return": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_1000.3.json",
+          "sha256": "61aba8a5f9ed1b0df056336b937e5d7766f23b2422e1351b0e7c18fe1d7e62b6"
+        }
+      },
+      {
+        "claim": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/1000.4.json",
+          "sha256": "de72c0ef4732e3a81abe5b02a7ca757cccd8622bb4a5ccfa69cbc2d96faa3c53"
+        },
+        "terminal": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/terminal-1000.4.json",
+          "sha256": "c2d53988f24268378c75c64f4e23881da04d5260bc55f7f2295ffece37d59bbe"
+        },
+        "return": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_1000.4_INTERRUPTED.json",
+          "sha256": "79d59d625353d84258daea4452cca0eed5dddb625cd24920c1a4cfde14b6e335"
+        }
+      }
+    ]
+  },
+  "selection": [
+    "10000.1",
+    "10000.2",
+    "10000.3",
+    "10000.4",
+    "10000.5"
+  ],
+  "firstPreviousClaim": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/1000.4.json",
+    "sha256": "de72c0ef4732e3a81abe5b02a7ca757cccd8622bb4a5ccfa69cbc2d96faa3c53"
+  },
+  "firstCleanupSemantics": "EXTERNAL_RECOVERY_VERIFIED; retain historical UNKNOWN terminal and actual recovery",
+  "wrapperDelta": [
+    "previous() validates existing1000.2/3/4 history and only contiguous10000claims; never includes1000.5",
+    "prepare-close SLOT checks latest actual valid/complete/process0 result, uses successful slot claim as previousClaimSha256 and fresh cleanup/binding proof",
+    "close SLOT RECEIPT SHA RELEASE SHA invokes close-one-success POLICY SHA RECEIPT SHA exactly once, records process return, no browser",
+    "launch rejects non10000, duplicate/out-of-order and any existing valid complete process success, delegates authoritative success/waiver checks to reviewed launcher",
+    "retain full external checks and exclusive writes; separate receipts vs close-receipts/process vs close-process paths",
+    "no auto loop, no more1000, stop after first validcomplete actual10000 independent of target misses"
+  ],
+  "pending": [
+    "Final instrument revision and method hash",
+    "One finalV5policy/command/script stamping",
+    "Affected review and separateROOTlaunch/close releases"
+  ],
+  "noRuntime": true,
+  "noReceiptRegistryLedgerMutation": true
+}

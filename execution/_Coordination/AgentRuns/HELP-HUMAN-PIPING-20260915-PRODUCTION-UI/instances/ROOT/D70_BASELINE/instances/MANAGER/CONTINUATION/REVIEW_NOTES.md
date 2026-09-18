@@ -1,0 +1,9 @@
+# Manager independent source review notes
+
+Compared to immutable36e56f2d preimages. Boundary capture changes confined to characterization: actual outer tree/inspector panes must be unique, visible, positive rectangles; both inner panel heights remain observed, while selector/visibility/width stay invariant. Missing outer geometry fails. Original canvas/model/generation/theme/density/DPR/window/binding checks remain. Rejected actual/prior/expected snapshots, exact field differences and persistence errors are retained outside measured action interval. Point and no-match/clear smoke witnesses use existing routes and frozen samples.
+
+Approved continuation isolates a single claimed ordinal per Playwright subprocess; strict/default full-plan serial route remains. Original perrun scoring and exception propagation retain nonzero failures. New subset summary explicitly disclaims cohortqualification. No alteration to canonical scorer, extractor, causal method, timeouts, action population, product source, fixture/oracle/camera or targets.
+
+Reviewed durable claim chain, canonicalseed hash/path binding, immutable policy registry preventing alternate ledger reset, exclusive per-slot output/claim/driverentry, fresh receipt validation and external file checks. An interrupted launcher leaves claim consumed; missing terminal requires external recovery proof. Caller controls fresh independent cleanup/profile evidence; launcher does not pretend a label alone observed the host. Existing driver retains fresh application-context and external pre/post validation.
+
+Review caught and writer corrected progress reader treating boundaryJSON files as directories, and registry initially binding only ledger location rather than policy/method plus canonicalseed path. Source tests use injected registry/spawn/file verification to avoid runtime/integration writes. Actual browser/process runtime remains unexecuted; ROOT owns affected review/witness/release.

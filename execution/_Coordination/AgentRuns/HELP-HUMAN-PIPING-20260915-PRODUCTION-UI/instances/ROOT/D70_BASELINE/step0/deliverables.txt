@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/tools/coordination/list_deliverable_status.py", line 306, in <module>
+    raise SystemExit(main(sys.argv[1:]))
+  File "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/tools/coordination/list_deliverable_status.py", line 290, in main
+    output_rows = rows(root, dag, discover_statuses(root))
+  File "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/tools/coordination/list_deliverable_status.py", line 153, in rows
+    dag_nodes = read_dag_nodes(root, dag)
+  File "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/tools/coordination/list_deliverable_status.py", line 135, in read_dag_nodes
+    with path.open(newline="", encoding="utf-8") as handle:
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1242, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1110, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_DAG/projects/chirality-piping/execution/_DAG/DAG-010/DeliverableNodes.csv'

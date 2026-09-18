@@ -1,0 +1,62 @@
+{
+  "timestamp": "2026-09-17T23:30:23.142345+00:00",
+  "base": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+  "checks": {
+    "receipts": {
+      "command": [
+        "python3",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "exit_code": 0,
+      "sha256": "5612818a65a529a83deb93248fda9f96f98be4027bc7ac0a8083f80c3170406b"
+    },
+    "deliverables": {
+      "command": [
+        "python3",
+        "projects/chirality-piping/tools/coordination/list_deliverable_status.py",
+        "--dag",
+        "projects/chirality-piping/execution/_DAG/DAG-010",
+        "--format",
+        "table",
+        "--summary"
+      ],
+      "exit_code": 1,
+      "sha256": "8084de2b697d29583153984b984519f3d236cf808c425c98198e10dcb06a2ad9"
+    },
+    "self_check": {
+      "command": [
+        "python3",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ],
+      "exit_code": 2,
+      "sha256": "4f871241eaea1c0df6e6cfb8af05d71b99d5ec79b9c18217ef0d9ef30ade5aa2"
+    },
+    "git_log": {
+      "command": [
+        "git",
+        "log",
+        "--oneline",
+        "306a74ba9d3ed0ac9ae58cceb744de133ebdd9ea..HEAD"
+      ],
+      "exit_code": 0,
+      "sha256": "05d417292ae5e0d706c89b1ea845bc2afeb735e656e0babe4f5675a0212a6040"
+    },
+    "pr790": {
+      "command": [
+        "gh",
+        "pr",
+        "view",
+        "790",
+        "--repo",
+        "sgttomas/chirality",
+        "--json",
+        "state,mergedAt,mergeCommit,headRefOid,url"
+      ],
+      "exit_code": 0,
+      "sha256": "ccdbd847ceefcca57bd68f2bfebde801271d84da41713493bb4b82a4e4ec5aa0"
+    }
+  }
+}

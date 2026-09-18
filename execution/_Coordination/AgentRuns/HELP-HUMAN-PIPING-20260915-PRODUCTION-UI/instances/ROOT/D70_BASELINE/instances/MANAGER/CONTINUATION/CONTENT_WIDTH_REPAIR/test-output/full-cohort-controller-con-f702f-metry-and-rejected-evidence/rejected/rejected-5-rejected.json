@@ -1,0 +1,226 @@
+{
+  "status": "REJECTED_BOUNDARY_METADATA",
+  "actual": {
+    "id": "rejected-5",
+    "runId": "r",
+    "referenceProfileSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "bindings": {
+      "source": "changed"
+    },
+    "snapshot": {
+      "model": {
+        "generation": 1,
+        "identityHash": "m"
+      },
+      "viewport": {
+        "canvas": {
+          "cssLeft": 0,
+          "cssTop": 0,
+          "cssWidth": 400,
+          "cssHeight": 300,
+          "bufferWidth": 800,
+          "bufferHeight": 600,
+          "dpr": 2
+        },
+        "labels": {
+          "enabled": false,
+          "renderedCount": 0,
+          "budget": 200
+        },
+        "geometry": {
+          "mode": "schematic",
+          "odGeneration": 0,
+          "odStatus": "idle"
+        },
+        "camera": {
+          "sequence": 1,
+          "kind": "perspective",
+          "position": [
+            1,
+            2,
+            3
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "localRenderOrigin": [
+            0,
+            0,
+            0
+          ],
+          "fovDegrees": 45,
+          "near": 0.1,
+          "far": 1000,
+          "aspect": 1.3333333333333333
+        }
+      }
+    },
+    "presentation": {
+      "browserDpr": 2,
+      "windowWidth": 1440,
+      "windowHeight": 920,
+      "theme": "light",
+      "density": "comfortable",
+      "panes": [
+        {
+          "selector": ".workspace-pane-tree",
+          "visible": true,
+          "x": 0,
+          "y": 0,
+          "width": 300,
+          "height": 500
+        },
+        {
+          "selector": ".workspace-pane-inspector",
+          "visible": true,
+          "x": 1000,
+          "y": 0,
+          "width": 300,
+          "height": 500
+        }
+      ],
+      "panels": [
+        {
+          "visible": true,
+          "width": 300,
+          "height": 400
+        },
+        {
+          "visible": true,
+          "width": 300,
+          "height": 299.96875
+        }
+      ]
+    }
+  },
+  "expected": {
+    "runId": "r",
+    "fixtureSize": 1000,
+    "runNumber": 2,
+    "bindings": {
+      "source": "s"
+    }
+  },
+  "reference": {
+    "id": "point-selection-1-ready",
+    "runId": "r",
+    "referenceProfileSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "bindings": {
+      "source": "s"
+    },
+    "snapshot": {
+      "model": {
+        "generation": 1,
+        "identityHash": "m"
+      },
+      "viewport": {
+        "canvas": {
+          "cssLeft": 0,
+          "cssTop": 0,
+          "cssWidth": 400,
+          "cssHeight": 300,
+          "bufferWidth": 800,
+          "bufferHeight": 600,
+          "dpr": 2
+        },
+        "labels": {
+          "enabled": false,
+          "renderedCount": 0,
+          "budget": 200
+        },
+        "geometry": {
+          "mode": "schematic",
+          "odGeneration": 0,
+          "odStatus": "idle"
+        },
+        "camera": {
+          "sequence": 1,
+          "kind": "perspective",
+          "position": [
+            1,
+            2,
+            3
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "localRenderOrigin": [
+            0,
+            0,
+            0
+          ],
+          "fovDegrees": 45,
+          "near": 0.1,
+          "far": 1000,
+          "aspect": 1.3333333333333333
+        }
+      }
+    },
+    "presentation": {
+      "browserDpr": 2,
+      "windowWidth": 1440,
+      "windowHeight": 920,
+      "theme": "light",
+      "density": "comfortable",
+      "panes": [
+        {
+          "selector": ".workspace-pane-tree",
+          "visible": true,
+          "x": 0,
+          "y": 0,
+          "width": 300,
+          "height": 500
+        },
+        {
+          "selector": ".workspace-pane-inspector",
+          "visible": true,
+          "x": 1000,
+          "y": 0,
+          "width": 300,
+          "height": 500
+        }
+      ],
+      "panels": [
+        {
+          "visible": true,
+          "width": 300,
+          "height": 400
+        },
+        {
+          "visible": true,
+          "width": 300,
+          "height": 299.96875
+        }
+      ]
+    }
+  },
+  "referenceId": "point-selection-1-ready",
+  "referenceSha256": "871710312cc05f1a90ef2284f2ad01973e4399ac05e35a218d12260c6d5797b9",
+  "fieldDifferences": [
+    {
+      "field": "id",
+      "before": "point-selection-1-ready",
+      "after": "rejected-5"
+    },
+    {
+      "field": "bindings.source",
+      "before": "s",
+      "after": "changed"
+    }
+  ],
+  "error": "Error: required boundary metadata invalid or unavailable"
+}

@@ -1,0 +1,14 @@
+{
+  "status": "HELD_SUPERSEDED_CANDIDATE_PREPARATION",
+  "at": "2026-09-18T01:26:30.294642+00:00",
+  "reason": "ROOT reports independent source review found phase-label rejected-evidence gap; repaired source/method successor pending",
+  "historicalFiles": [
+    "POLICY.json",
+    "COMMANDS.json",
+    "control.py",
+    "RETURN_FINAL_PREPARATION.json"
+  ],
+  "runtimeAuthorized": false,
+  "runtimeExecuted": false,
+  "next": "Preserve candidate bytes; prepare successor policy/script only upon final method/revision supply; affected review and separate releases required"
+}

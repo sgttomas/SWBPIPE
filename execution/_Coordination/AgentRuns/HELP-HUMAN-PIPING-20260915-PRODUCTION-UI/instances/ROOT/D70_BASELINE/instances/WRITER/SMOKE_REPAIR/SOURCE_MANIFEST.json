@@ -1,0 +1,10 @@
+[
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+    "sha256": "8f76a651907af658baf6bf273fffca75272bbcb8310d7431c8e22706d1af3659"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "sha256": "968a688ebd03b1cc36df1f3c0064f44323bcff8ff917e34dc9521387cd7a1c2b"
+  }
+]

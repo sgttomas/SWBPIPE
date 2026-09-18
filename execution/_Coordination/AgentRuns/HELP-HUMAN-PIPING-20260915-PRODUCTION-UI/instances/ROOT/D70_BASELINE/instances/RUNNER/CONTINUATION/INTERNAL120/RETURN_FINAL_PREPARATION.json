@@ -1,0 +1,42 @@
+{
+  "status": "PREPARED_NO_RUNTIME",
+  "policy": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/POLICY_V6.json",
+    "sha256": "c608c66ad9b04fb1a74018168ff3936b76b7cc6f1d6980e0fe2b58f0090b8163"
+  },
+  "script": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/control_v7.py",
+    "sha256": "846ccb0a48c8d032b04956df002c181f5a1c7c4504b7df78ba003435f0d730a0"
+  },
+  "commands": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/COMMANDS_V7.json",
+    "sha256": "a1855c478ccd1287401cad8b530771da14e9d9e301391cd7b9d29042d1bf46ed"
+  },
+  "instrumentRevision": "df1562e06c90653a96252e19f5730b19b8d4f66c",
+  "method": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/METHOD_MANIFEST_SUCCESSOR.json",
+    "sha256": "1e0ab8a4e4a57753084d7ceca695b0b4b952aa047923cb48e3dbd3074bf22a78"
+  },
+  "validation": {
+    "AST": "PASS",
+    "methodFiles": 34,
+    "actualHistoricalCustody": "PASS",
+    "externalBindings": "PASS",
+    "changedExternalKeys": [
+      "UI_FOUNDATION_REFERENCE_PROFILE",
+      "UI_FOUNDATION_REFERENCE_PROFILE_SHA256"
+    ],
+    "liveInternal120Profile": "PASS",
+    "cleanup": "PASS",
+    "registryUnchanged": true,
+    "unused10000Slots": 5,
+    "transitionSealAbsent": true,
+    "noMainModeExecution": true
+  },
+  "blockedPreflightReturn": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_10000.1_PRECONDITION_BLOCKED.json",
+    "sha256": "c4347730400ea6dc4323bf1fdd995de18711e49c65f20f55c0ea6d6c8d29a6cb"
+  },
+  "displayComparisonLimitation": "1000.2 was LG external60; upcoming10000 is internal120, not a same-display scaling comparison.",
+  "handoff": "Await independent review and explicit ROOT runtime release; no receipts or claims created."
+}

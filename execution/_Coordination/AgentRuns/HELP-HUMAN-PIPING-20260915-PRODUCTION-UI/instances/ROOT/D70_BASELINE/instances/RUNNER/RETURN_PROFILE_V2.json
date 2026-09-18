@@ -1,0 +1,32 @@
+{
+  "status": "PASS_PROFILE_COMPLETION_RUNTIME_HELD",
+  "at": "2026-09-17T23:50:40.987001+00:00",
+  "basis": "ROOT bounded profile completion; exact recorded main+online display identity",
+  "predecessorProfile": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/REFERENCE_PROFILE.json",
+    "sha256": "1eb807fdb3bdd2ac539208dec542083e06951e63b684494ed5756091b2392a9b"
+  },
+  "observation": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/DISPLAY_PROFILE_VERIFIED.json",
+    "sha256": "a730522a40132bfcf3a0819755d428c7dbbba996531c7c6850eb2c8bce14be30"
+  },
+  "profile": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/REFERENCE_PROFILE_V2.json",
+    "sha256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922"
+  },
+  "invocationPreparation": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/COHORT_INPUT_PREPARATION_V2.json",
+    "sha256": "38974e3f08d09116573f0fa8e773cbf9d56e19e39744930666467294b20ed960"
+  },
+  "display": {
+    "name": "LG ULTRAFINE",
+    "vendor": "1e6d",
+    "product": "5bcb",
+    "serial": "2011a",
+    "pixels": "3840 x 2160",
+    "resolution": "1920 x 1080 @ 60.00Hz",
+    "mirror": "spdisplays_off"
+  },
+  "actualProfileChanged": false,
+  "runtimeLaunched": false
+}

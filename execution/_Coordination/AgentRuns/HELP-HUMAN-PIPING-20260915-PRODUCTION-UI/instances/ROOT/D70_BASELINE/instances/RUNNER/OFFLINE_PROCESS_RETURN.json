@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-18T00:44:36.802805+00:00",
+  "argv": [
+    "/Users/ryan/.local/share/mise/installs/node/24/bin/node",
+    "apps/desktop/e2e/ui-foundation/characterization-observations.mjs",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/candidate-cohort-result.json",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01/offline-observations.json"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping",
+  "exit": 0,
+  "port5176Clear": true,
+  "pinnedBrowserAbsent": true
+}

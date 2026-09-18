@@ -1,0 +1,31 @@
+{
+  "schema": "chirality.task.dispatch/v1",
+  "parent": "/root",
+  "agent": "/root/d70_final_review",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "delegation": false,
+  "mechanism": "delegated-harness-native",
+  "enforcement": "instruction/config asserted",
+  "brief": "briefs/CONTINUATION_REVIEW.md",
+  "briefSha256": "7d88283706812ee83ceed064017f9f9963c8f2c1eae02478581022f06909549f",
+  "freeze": "ONE_SUCCESS_REVIEW_FREEZE.json",
+  "freezeSha256": "92da0cbf253415a6e5eb6b9a4a7f132c988e3deac8dc283c2592236e7762b632",
+  "candidate": "9721135ebf93eff6f61ebea2c6dff31fb88fe264",
+  "ownerDirection": {
+    "path": "OWNER_DIRECTION_ONE_SUCCESS_20260917.md",
+    "sha256": "ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"
+  },
+  "expectations": {
+    "path": "instances/EXPECTATIONS/ONE_SUCCESS/EXPECTATIONS.md",
+    "sha256": "7c895915cb178e88cc087f246ac80d60165a2c0d3d4cc68bdff9bd596e06ddc7"
+  },
+  "purpose": "Assess append-only owner-directed10000-only/one-success policy transition, immutable historical attribution, truthful waiver/consumption, valid-complete actual-process stopping and fresh close proof, final V5 controls and full affected evidence. Verify measured method unchanged.",
+  "allowedWrites": [
+    "instances/CONTINUATION_REVIEW/ONE_SUCCESS/REVIEW.md",
+    "instances/CONTINUATION_REVIEW/ONE_SUCCESS/RETURN.json"
+  ],
+  "tools": "Read-only Git/filesystem/bounded offline checks; no tests, builds, runtime, source or Git mutation. No heavy raw trace extraction; final evidence analysis remains deferred until timed sequence ends.",
+  "requiredReturn": "PASS/no actionable findings or concretefinding. Exact full coverage by carry-forward hashes and reviewed delta. No prospective runtime acceptance."
+}

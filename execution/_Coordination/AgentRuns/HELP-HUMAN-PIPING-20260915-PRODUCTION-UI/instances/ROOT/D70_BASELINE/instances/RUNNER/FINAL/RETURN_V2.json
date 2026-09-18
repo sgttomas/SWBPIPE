@@ -1,0 +1,115 @@
+{
+  "status": "EXHAUSTED_INCOMPLETE_10000_HANDOFF",
+  "derivative": true,
+  "qualificationClaim": false,
+  "counts": {
+    "attempted": 9,
+    "validComplete": 1,
+    "invalidIncomplete": 7,
+    "interrupted": 1,
+    "waivedUnattempted": 1,
+    "remainingEligibleSlots": 0
+  },
+  "valid1000Scores": {
+    "status": "PASS_METRIC_ACCEPTANCE",
+    "validityFailures": [],
+    "targetFailures": [],
+    "scores": {
+      "assignment": 261.6960021018984,
+      "pointP95": 46.699001407625126,
+      "boxP95": 47.07300148016076,
+      "filterP95": 43.69500169759851,
+      "centerlineP95": 16.668000000000003,
+      "actualOdP95": 16.668000000000003
+    },
+    "orbitPopulations": {
+      "centerline": [
+        {
+          "left": 117,
+          "right": 718,
+          "gapCount": 601,
+          "p95UpperMs": 16.668000000000003
+        }
+      ],
+      "actual-od": [
+        {
+          "left": 117,
+          "right": 718,
+          "gapCount": 601,
+          "p95UpperMs": 16.668000000000003
+        }
+      ]
+    },
+    "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.2",
+    "fixtureSize": 1000,
+    "bindings": {
+      "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+      "sourceSha256": "23206c0762ba7f8aabd7529587e4032f61894aec04a21556f4d75b6fcfd57779",
+      "buildSha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+      "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+      "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+      "oracleSha256": "1d483eb78f901abb84bc2e32678cf74b500d624bcd9e0f9b5bce29bdceba4d16",
+      "methodSha256": "6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a",
+      "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+    },
+    "observerDiagnostics": {
+      "evidenceRef": "observer-accounting.json",
+      "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+    },
+    "rawObserverReferences": {
+      "p95Ms": 0.5,
+      "maximumMs": 2,
+      "totalPercent": 3
+    },
+    "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+  },
+  "references": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/FINAL/ACCOUNTING.json",
+      "sha256": "5835dc321984635c28988a5a4581c445a17a399baf2bf25675823783bf65aa0c"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/FINAL/FINAL_BINDINGS.json",
+      "sha256": "a678072f7676309726bc149475b4d155407a001e9ecc234aa01a2b2e188a8eb2"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/FINAL/OFFLINE_COMMANDS.json",
+      "sha256": "482355012b8782bf382eb02577e16c0821794542fd4c284a868447152542a3ba"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/FINAL/ORBIT_SUMMARY.json",
+      "sha256": "9d391854e1f30e34e0bc9082dfaf10e0fe2eb8d87f7a5bf41f2c9c0fbac84075"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/FINAL/BOUNDARY_OBSERVATIONS.json",
+      "sha256": "a4b9a6b4c9800c2a612b23e997c044035d040999cd3a3489e67a570b1c9dda0b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/FINAL/CANONICAL_EVIDENCE_MANIFEST.json",
+      "sha256": "77d185ded59f4f7030ff5810926ced42319232b17d593de9ead9345551c30cb8"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/FINAL/BASELINE_REPORT_V2.md",
+      "sha256": "8557154c428657d70e5914ea363cccb707979710abe7bf20d96c2dba8dfff2f1"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/POINT58_CAUSE/DIAGNOSIS.md",
+      "sha256": "5ebda533507798034b1a7f75f3bd9d19a2c3cd5bb763c530319e6bc7892f4494"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/POINT58_CAUSE/RETURN.json",
+      "sha256": "54a8ed283f3b2bfc06393c9f94a60b2c3e7f715e5185937e8d45dfdc7673b878"
+    }
+  ],
+  "limits": [
+    "No valid complete10000 run",
+    "Different external60/internal120 profiles; no same-display scaling comparison",
+    "No new resource/native/redesign/usability acceptance",
+    "No successful-run close; no additional runtime authorized",
+    "Recorded-input numerical tie instability reproduced; exact historical quaternion/matrix bits unavailable; no repair applied"
+  ],
+  "supersedes": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/FINAL/RETURN.json",
+    "sha256": "072c9cd6be62f7358a01556997c952d89ca1889acec20b4b6da942816b7b25fd"
+  }
+}
