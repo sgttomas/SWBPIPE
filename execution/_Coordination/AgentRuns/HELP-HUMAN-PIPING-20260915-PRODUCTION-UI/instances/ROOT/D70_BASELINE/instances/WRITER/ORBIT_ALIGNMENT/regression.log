@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:67809) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:67809) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1075:1 › uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs (12ms)
+
+  1 passed (504ms)

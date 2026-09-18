@@ -7,7 +7,7 @@ import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { readCandidateDiagnostics, ensureViewportToggle, treeRowTestId, requireUniqueConnectedMainCanvas, projectCandidateAuthoredPoint,
   validateCandidateMeasuredCameraBinding, routeModelFixture, waitForFirstUsable, validateMainCanvasHitTarget, type LoadedFixture } from "./benchmark-harness";
-import { normalizedCanvasPoint, canvasLocalToClient, type HitTargetEvidence, type Rect } from "./causal-method-contract";
+import { normalizedCanvasPoint, canvasLocalToClient, ORBIT_START_NORMALIZED, type HitTargetEvidence, type Rect } from "./causal-method-contract";
 import { assertBoundCandidateDocumentResponse } from "./candidate-server-response";
 
 export const FILTER_STIMULUS = Object.freeze({ name: "browser-keyboard-insert-text/v1", command: "focus then page.keyboard.insertText(query)",
@@ -141,7 +141,7 @@ export async function runCharacterizationSmoke(page: Page, fixture: LoadedFixtur
       await page.waitForFunction(({mode})=>{const s=(globalThis as any).__openPipeStressUiDiagnosticsV1?.readCurrent?.();return s?.viewport?.geometry?.mode===(mode==="centerline"?"schematic":"actual-od") && (mode==="centerline" || (s.viewport.geometry.odStatus==="available"&&s.viewport.geometry.odGeneration>0));},{mode},{timeout,polling:50});
       await commands.camera(); await delay(500);
       const b=await captureBoundary(page,expected,`smoke-${mode}`,first); await persistBoundary(directory,b);
-      canvas=await requireUniqueConnectedMainCanvas(page); const s=normalizedCanvasPoint(canvas.box,{x:.5,y:.5});
+      canvas=await requireUniqueConnectedMainCanvas(page); const s=normalizedCanvasPoint(canvas.box,ORBIT_START_NORMALIZED);
       assertSmokeMainCanvasHitTarget(await validateMainCanvasHitTarget(page,s)); await page.mouse.move(s.x,s.y); await page.mouse.down(); await page.mouse.move(s.x+30,s.y+20,{steps:8}); await page.mouse.up(); await delay(500);
       after=(await commands.query()).snapshot; if(after.viewport.camera.sequence<=b.snapshot.viewport.camera.sequence)throw new Error("smoke orbit camera did not change");
       steps.push({action:"orbit",mode,labels:after.viewport.labels,conversion:after.viewport.geometry});
