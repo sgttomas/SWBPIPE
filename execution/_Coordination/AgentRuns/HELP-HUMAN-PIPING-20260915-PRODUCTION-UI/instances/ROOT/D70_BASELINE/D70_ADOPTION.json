@@ -1,0 +1,79 @@
+{
+  "schema": "chirality.piping.d70.adoption/v1",
+  "recorded_at": "2026-09-17T23:36:56.097874+00:00",
+  "role": "HELP_HUMAN Agent 0",
+  "configured_model": "gpt-6-astra",
+  "configured_effort": "high",
+  "basis": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+  "product_source": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "authority": {
+    "ruling": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-70_RULING_2026-09-17.md",
+    "sha256": "b374b2307d6eb4049803e336edd6e624dbb6688274ceae8a184c361e8fb335f6",
+    "notice_status": "coordination only; application of existing owner ruling"
+  },
+  "owner_execution_direction": {
+    "quote": "PLEASE IMPLEMENT THIS PLAN:",
+    "approved_contract": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/APPROVED_EXECUTION_CONTRACT.md",
+    "sha256": "22735b52f4a26ad1e6df005a8fa1118de500460251decacecc794e1affd1d63b",
+    "attribution": "in-session transcription and execution digest; not original transport bytes"
+  },
+  "effects": [
+    "one characterization attempt of five fresh runs per size; keep original targets and all failures",
+    "carry D68 performance acceptance to redesigned product; baseline report supplies performance handoff",
+    "no measurement-policy re-decision, capability probe or compositor investigation",
+    "update our controls and DEL07-01/02/06 Remaining only; design program record untouched"
+  ],
+  "preimages": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/WORK_GRAPH.json",
+      "git_revision": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+      "sha256": "b03aa6df9ba191fde33fb20e65f5bb8d62e76f4d0d1704a590077368d274bb4c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/ACCEPTANCE_MAP.md",
+      "git_revision": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+      "sha256": "0f2fccb77b6fd0848c111dc751570852268ec67b30ecdb335aa9b2eabff3efeb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "git_revision": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+      "sha256": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "git_revision": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+      "sha256": "7b7969fa4afc3c8513f201ee84fa9c03c3a0abf30a376ddea8089e9424b81097"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "git_revision": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+      "sha256": "435f9921010b945b04dd1c7873666fb02dbbbf8a339ab4d710531fed0e9350b4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
+      "git_revision": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+      "sha256": "aefe6a6826083209367db37b7498eeecb739ef38162ba1621187292d1fd77498"
+    }
+  ],
+  "upstream_product_equality": "No diff in product apps/core/package lock from 8468a33c to fc21b00d",
+  "preserved_local_handoff": {
+    "source": "original local worktree projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md",
+    "sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035"
+  },
+  "invariants": [
+    "OPS-K-ID-1",
+    "OPS-K-IP-1",
+    "OPS-K-AUTH-1",
+    "OPS-K-AUTH-2",
+    "OPS-K-UNIT-1",
+    "OPS-K-REPORT-1",
+    "OPS-K-PRIV-1",
+    "OPS-K-AGENT-1",
+    "OPS-K-AGENT-2",
+    "OPS-K-AGENT-3",
+    "OPS-K-AGENT-4"
+  ],
+  "formal_state": "Decomposition0.12/SCA009/DAG010/R5/lifecycle/release unchanged; PDU045/PDU046 holds unchanged",
+  "derivative_status": "Execution/adoption record referencing accepted upstream; not decomposition truth",
+  "baseline_status": "NOT_ATTEMPTED; preparation active"
+}

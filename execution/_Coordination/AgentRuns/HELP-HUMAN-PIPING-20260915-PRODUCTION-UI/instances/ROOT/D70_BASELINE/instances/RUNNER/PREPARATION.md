@@ -1,0 +1,11 @@
+# D70 runner preparation
+
+Preparation complete; runtime remains held for ROOT. Product checkout is clean at 8468a33c86adb622b25e98f98b0eaf28c7e9fa0e. Host snapshot confirms M5 Max, 128 GiB, macOS26.6.2, external LG ULTRAFINE main display 3840x2160/UI1920x1080@60Hz. This is a boundary observation, not continuous monitoring.
+
+Pinned Chrome for Testing153.0.8010.36 exists at the exact path in RETURN_PREPARATION.json, with matching bundle plist version. Its historical expected executable SHA is bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789; actual binary hashing is deferred. System Chrome153.0.8010.48 is ineligible for substitution.
+
+Candidate artifacts located: VERIFY/FINAL_CANDIDATE_V31/candidate-bundle-manifest.json (final stage, source aggregate442bcb2ef7c709a9405e57589e3a4be3b8103a46cb5a57cc478a71fcf277b941); NATIVE/AFFECTED_V15/runtime/BUNDLE_BINDING.json; older FINAL_LIFECYCLE_V6 final binding has GENERATED_DRIFT_REQUIRES_ROOT and is not an accepted final substitute. Absolute paths and small-file hashes are in RETURN_PREPARATION.json. No historical trace copied/read. These are candidate references, not fresh scores or proof of exact8468a33c build provenance.
+
+Established recipe runs Playwright candidate-performance config, one worker, 20min/run, production bound server on5176, viewport1440x920/deviceScaleFactor2. Controller resolves method inventory relative to project cwd and product source/dist relative to candidateSourceRoot: run from frozen instrument project, bind separate exact product root. Use explicit characterization, final stage, ten fresh runs ordered5x1000 then5x10000, point labelsOFF and orbit labelsON; preserve all original scores. Historical diagnostic launcher must not be reused as cohort entry.
+
+ROOT prerequisites: reviewed exact instrument/manifest; both-size/all-family smoke and camera/oracle freeze; final product source/build inventory and provenance; fresh pinned binary/profile check; exclusive lease; sealed literal invocation/plan with no preexisting run outputs. No runtime, tests, build, heavy archive hashing or new diagnosis performed. Return carries instruction hashes, actual configured parentage/settings and limitations. F-PIP-2/DEC-081 claim fence applies.

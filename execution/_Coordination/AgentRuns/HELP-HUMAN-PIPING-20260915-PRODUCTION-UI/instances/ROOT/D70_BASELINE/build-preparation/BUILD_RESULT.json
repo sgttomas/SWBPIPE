@@ -1,0 +1,47 @@
+{
+  "at": "2026-09-17T23:45:22.087790+00:00",
+  "product_head": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "source_root": "{PRODUCT_REPO_ROOT}/projects/chirality-piping",
+  "source_clean_after_build": true,
+  "commands": [
+    {
+      "command": "npm ci --no-audit --no-fund",
+      "checkout": "instrument",
+      "exit": 0
+    },
+    {
+      "command": "npm ci --no-audit --no-fund",
+      "checkout": "product",
+      "exit": 0
+    },
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/chirality-d70-product-target npm run build:wasm:desktop",
+      "checkout": "product",
+      "exit": 0
+    },
+    {
+      "command": "npm run build:desktop",
+      "checkout": "product",
+      "exit": 0
+    }
+  ],
+  "logs": [
+    {
+      "path": "build-preparation/instrument-npm-ci.log",
+      "sha256": "70183065a4e0378f804d08f60d3e8c2e22abfde61eee7e1124a799b684437573"
+    },
+    {
+      "path": "build-preparation/product-wasm-build.log",
+      "sha256": "92f41d0d0f0dc4152e86c0a98c6ff12da0d29d3a39dee5d398c6dcb4ed156811"
+    },
+    {
+      "path": "build-preparation/product-desktop-build.log",
+      "sha256": "4513bba5380d52877849bcf6177dcf387cb1945703bd1e4fc1b0f016fb199913"
+    },
+    {
+      "path": "build-preparation/product-npm-ci.log",
+      "sha256": "273c2a517f2cd52122be5c5df4ee17c9877b7a306c3445401254b5cdc65fc1e3"
+    }
+  ],
+  "warning": "Vite static chunk-size warning retained; no product repair in scope"
+}

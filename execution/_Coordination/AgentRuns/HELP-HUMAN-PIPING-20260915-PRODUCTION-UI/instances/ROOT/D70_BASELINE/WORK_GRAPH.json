@@ -1,0 +1,95 @@
+{
+  "schema": "chirality.agentruns.work_graph/lite-1",
+  "phase": "D70_BASELINE",
+  "basis": {
+    "ruling": "D-70",
+    "integration": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+    "product": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e"
+  },
+  "max_active_including_root": 5,
+  "actual_mechanism": "delegated-harness-native collaboration.spawn_agent",
+  "enforcement": "role/write scopes/Type2 non-delegation instruction+config asserted",
+  "runtime_lease": {
+    "status": "HELD",
+    "owner": "ROOT",
+    "scope": "Fresh complete-diff review before untimed preparation"
+  },
+  "nodes": [
+    {
+      "id": "ROOT",
+      "role": "HELP_HUMAN",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "status": "active"
+    },
+    {
+      "id": "MANAGER",
+      "parent": "ROOT",
+      "agent_name": "/root/d70_manager",
+      "role": "WORKING_ITEMS",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "brief": "briefs/MANAGER.md",
+      "brief_sha256": "46c6d6ee930b46a470b017c0980cc4e8312a522168537b38208074a795e38dea",
+      "status": "complete_pending_root_review"
+    },
+    {
+      "id": "EXPECTATIONS",
+      "parent": "ROOT",
+      "agent_name": "/root/d70_expectations",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "brief": "briefs/EXPECTATIONS.md",
+      "brief_sha256": "90a574ba09376d1c022f61e8c7111aa2a02a357dd4023653557b43cc6e461ac5",
+      "status": "complete_root_accepted",
+      "return": "instances/EXPECTATIONS/RETURN.json"
+    },
+    {
+      "id": "WRITER",
+      "parent": "MANAGER",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "status": "complete_pending_root_review",
+      "agent_name": "/root/d70_manager/writer"
+    },
+    {
+      "id": "REVIEW",
+      "parent": "ROOT",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "status": "pending"
+    },
+    {
+      "id": "RUNNER",
+      "parent": "ROOT",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "status": "preparation_complete_runtime_held",
+      "agent_name": "/root/d70_runner",
+      "return": "instances/RUNNER/RETURN_PROFILE_V2.json"
+    }
+  ],
+  "edges": [
+    [
+      "EXPECTATIONS",
+      "WRITER"
+    ],
+    [
+      "MANAGER",
+      "WRITER"
+    ],
+    [
+      "WRITER",
+      "REVIEW"
+    ],
+    [
+      "REVIEW",
+      "RUNNER"
+    ]
+  ],
+  "current_frontier": "Manager fan-in accepted; integrating source and own D70 adoption for independent review. No smoke or cohort attempted."
+}

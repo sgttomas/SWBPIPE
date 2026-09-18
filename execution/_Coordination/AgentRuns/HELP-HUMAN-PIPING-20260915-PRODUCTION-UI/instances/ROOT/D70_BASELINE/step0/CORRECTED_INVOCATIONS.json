@@ -1,0 +1,27 @@
+{
+  "reason": "Initial DAG argument was incorrectly a path, and default system Python lacks PyYAML. Corrected invocation uses DAG identity and the existing qualified project Python environment; no repository repair.",
+  "checks": {
+    "deliverables_corrected": {
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "projects/chirality-piping/tools/coordination/list_deliverable_status.py",
+        "--dag",
+        "DAG-010",
+        "--format",
+        "table",
+        "--summary"
+      ],
+      "exit_code": 0,
+      "sha256": "dc88b3c30616fab673535016818de57c085b4525fc08b986067caef085c2d12a"
+    },
+    "self_check_configured_python": {
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ],
+      "exit_code": 0,
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+    }
+  }
+}

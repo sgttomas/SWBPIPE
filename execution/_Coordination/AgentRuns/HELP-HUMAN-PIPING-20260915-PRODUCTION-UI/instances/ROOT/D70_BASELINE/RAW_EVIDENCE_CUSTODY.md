@@ -1,0 +1,4 @@
+# D70 canonical raw-evidence custody
+ROOT authorizes RUNNER to write the task-specific external RAW_EVIDENCE_ROOT supplied at dispatch, in addition to its declared instance directory. The subtree is exclusively this D70 attempt; it must be empty before smoke/cohort outputs are created. Raw traces, screenshots and large per-action records are kept once there, with immutable hashes and a locator/manifest in the owning RUNNER record. No raw historical trace is copied. Tracked code/evidence checkout stays suitable for clean registered checks. Final Git publication contains reports, binding/manifests and necessary small records, not redundant copies of the raw corpus.
+This is a storage-location implementation choice within the approved one-canonical-copy plan. It changes no sampling, stop rule, runtime release or interpretation. Smoke outputs and the one cohort attempt have distinct subdirectories and identities. Do not discard raw failed evidence.
+

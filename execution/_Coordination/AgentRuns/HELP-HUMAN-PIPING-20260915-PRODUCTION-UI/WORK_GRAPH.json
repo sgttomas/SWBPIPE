@@ -3,7 +3,7 @@
   "run_id": "HELP-HUMAN-PIPING-20260915-PRODUCTION-UI",
   "basis": "28ad73cc3f936872f8de1d5116c617db1290331b",
   "delegation": "delegated-harness-native",
-  "max_active_including_root": 6,
+  "max_active_including_root": 5,
   "nodes": [
     {
       "id": "ROOT",
@@ -522,20 +522,13 @@
     ]
   ],
   "runtime_lease": {
-    "status": "RELEASED",
-    "owner": null,
-    "record": {
-      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/NATIVE_V103_ACCEPTANCE_ARCHIVE_V31_LEASE.json",
-      "sha256": "594f93654b9d2424152d6c4bea1f95635ea989f49393a0c4038ba2c2dea22c65",
-      "bytes": 7225
-    }
+    "status": "CLOSED_PREPARATION",
+    "owner": null
   },
   "prospective_model_allocation": {
-    "owner_update": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/_run_records/OWNER_MODEL_ALLOCATION_UPDATE_20260916_V1.json",
-    "sha256": "98eea827274b8e4c7b44b87e4a271f850621d0db229bcf1a5dceb73f925f58b4",
-    "new_Type1": "gpt-6-astra/low",
-    "new_Type2_default": "gpt-6-astra/low",
-    "existing_instances": "finish current assignment unchanged; existing Astra reasoning retained"
+    "owner_update": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/APPROVED_EXECUTION_CONTRACT.md",
+    "new_Type1_WORKING_ITEMS": "gpt-6-astra/high",
+    "new_Type2_default": "gpt-6-astra/low"
   },
   "auxiliary_pure_node": {
     "owner": "/root/ui_full_method_qualification",
@@ -543,14 +536,16 @@
     "sha256": "ecf12d586c6e6dbe8ad50066949357ed29d4ab96edb6641d463d656eb00e7ae7",
     "status": "former_exception_closed_native_released"
   },
-  "current_frontier": "Owner adopted D-69 Option A and approves PR #789 functional merge. Functional source, native, V31 archive, V105 complete candidate/tail review, local checks and both required hosted checks at 306a74ba9d3ed0ac9ae58cceb744de133ebdd9ea passed. Complete the bounded owner-ruling metadata review and actual-candidate checks, then merge. Performance remains open; the owner reserves subsequent redesign/performance sequencing.",
+  "current_frontier": "Read-only independent expectations and manager inventory; ROOT applies D70. No harness implementation/runtime.",
   "active_dependency_path": [
-    "D-69 ruling and current-control metadata -> independent bounded review",
-    "Final committed metadata candidate -> affected clean-checkout checks -> required hosted CI",
-    "Merge PR #789 under explicit owner approval; preserve open performance follow-on",
-    "Owner chooses subsequent redesign/performance sequencing after Agent 0 recommendation"
+    "D70 application",
+    "independent expectations + instrument inventory",
+    "single writer",
+    "fresh review + smoke",
+    "single cohort",
+    "report + closeout"
   ],
-  "historical_node_interpretation": "Earlier node statuses describe original attribution, not active workers or fresh acceptance. Current frontier/runtime lease and active_dependency_path govern remaining sequencing. Historical failures stay preserved.",
+  "historical_node_interpretation": "All pre-D70 nodes/statuses in this original run graph are historical captures, not live-agent claims. Current phase WORK_GRAPH is the sole live descendant/lease view; preceding graph preimage bound by D70_ADOPTION.",
   "pause_direction": {
     "status": "RESUMED_BY_OWNER",
     "owner_request": "yes please, pause gracefully now",
@@ -712,11 +707,11 @@
     }
   },
   "owner_decision": {
-    "id": "D-69",
-    "status": "RULED_OPTION_A",
-    "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-69_RULING_2026-09-17.md",
-    "sha256": "bb0c5bacbe9ddf6ab23364a0258d188ec745d254e9b33deac7506b87c0a2ee1c",
-    "effect": "Functional merge authorized after other actual-candidate gates; original performance qualification remains open. No new metric/profile or follow-on execution selected."
+    "id": "D-70",
+    "status": "RULED_APPLIED",
+    "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-70_RULING_2026-09-17.md",
+    "sha256": "b374b2307d6eb4049803e336edd6e624dbb6688274ceae8a184c361e8fb335f6",
+    "effect": "One characterization attempt then report; D68 performance obligation carried to redesigned product"
   },
   "active_native_preparation": {
     "owner": "/root/ui_native_successor",
@@ -873,7 +868,9 @@
     }
   },
   "performance_follow_on": {
-    "status": "PROSPECTIVE_ONLY_OWNER_SEQUENCING_PENDING",
-    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/PERFORMANCE_FOLLOW_ON.md"
-  }
+    "status": "ADOPTED_PREPARATION_ACTIVE",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/PERFORMANCE_FOLLOW_ON_D70.md"
+  },
+  "current_phase": "D70_BASELINE",
+  "current_phase_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/WORK_GRAPH.json"
 }

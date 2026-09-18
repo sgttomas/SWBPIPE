@@ -1,0 +1,118 @@
+{
+  "schema": "chirality.piping.d70.runner-preparation/v1",
+  "status": "PREPARATION_COMPLETE_RUNTIME_HELD",
+  "createdAt": "2026-09-17T23:41:46.084515+00:00",
+  "role": "TASK Type2",
+  "parent": "/root",
+  "instance": "/root/d70_runner",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "attributionBasis": "caller configured; no independent model introspection",
+  "enforcement": "instruction/config asserted; no delegation",
+  "productRoot": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c",
+  "productCommit": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "productStatus": "",
+  "host": {
+    "os": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.2\nBuildVersion:\t\t25G83\n",
+    "memoryBytes": 137438953472,
+    "display": "Graphics/Displays:\n\n    Apple M5 Max:\n\n      Chipset Model: Apple M5 Max\n      Type: GPU\n      Bus: Built-In\n      Total Number of Cores: 40\n      Vendor: Apple (0x106b)\n      Metal Support: Metal 4\n      Displays:\n        LG ULTRAFINE:\n          Resolution: 3840 x 2160 (2160p/4K UHD 1 - Ultra High Definition)\n          UI Looks like: 1920 x 1080 @ 60.00Hz\n          Main Display: Yes\n          Mirror: Off\n          Online: Yes\n          Rotation: Supported\n\n"
+  },
+  "browser": {
+    "path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/chrome-for-testing/153.0.8010.36/mac-arm64/1f701ef60757c63c6ccf98afaf28291dd0c8d1457d3d738e81fd62201c230ad0/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "exists": true,
+    "expectedSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+    "hashVerified": false,
+    "plistVersion": "153.0.8010.36",
+    "systemChromeVersion": "153.0.8010.48"
+  },
+  "references": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-verification-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/VERIFY/FINAL_CANDIDATE_V31/candidate-bundle-manifest.json",
+      "sha256": "a1e64d45cca0fa7cb66fa1c7a1a12eff3182aa35e7fc6eefdc28ad6fe1ef41e7",
+      "bytes": 46994
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/AFFECTED_V15/runtime/BUNDLE_BINDING.json",
+      "sha256": "fae19286a19d1a84252c5e31a12ad1e4961641384378e315e65fa187ecc2f4e2",
+      "bytes": 46587
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/NATIVE/FINAL_LIFECYCLE_V6/runtime/final/FINAL_BUILD_BINDING.json",
+      "sha256": "12bebf5973c5598ef205e89cdacd19e6c5de2b840502f4a55fe8e19af0358c62",
+      "bytes": 9971
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-ui-foundation-20260915/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/PRIVATE_GPU_DIAGNOSTIC_PREPARATION_V76_R1/PROSPECTIVE_COMMAND.json",
+      "sha256": "ab5aedd652ae3b76d39fe8f4692c25d226623c3688f216a6f1ed9805d4b22978",
+      "bytes": 8643
+    }
+  ],
+  "context": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/ACTIVATION.md",
+      "sha256": "89433ac795a20222cf9a6984950dedd789e4f19815afac101277bb485611e380"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/APPROVED_EXECUTION_CONTRACT.md",
+      "sha256": "22735b52f4a26ad1e6df005a8fa1118de500460251decacecc794e1affd1d63b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/CONTEXT_BINDINGS.json",
+      "sha256": "47415e92d32aa7b226f9bf6883fc26970babb2c2b3126fd2bee4067650667d4a"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/D70_ADOPTION.json",
+      "sha256": "280b56423eaec90bca3822ef9484860752b2b494ebcdc93cb201b8b2cdac411f"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/RUNNER.md",
+      "sha256": "e14e6820a95e37ff20ab4c2f8909eb5f89e2ae78a4a33c49e52f042d4270d05d"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/EXPECTATIONS.md",
+      "sha256": "c9942be2e593424b46b607f614befb6ed2ec2fa823a7902c6b906a46ffa09b9e"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "sha256": "68676b676d3dc015390e549a41695ff8824e62cf0df1054626318753bf396d9a"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "ac189e2bb7d3628e46f10ff499bcea7e737e721593eef9fc78ed837ac3b3cced"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.performance.config.ts",
+      "sha256": "5b587689281763f4524c376e201dbc93e1d7307160769d95ded7abcaf6a7f190"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts",
+      "sha256": "d2ccd61de9343400d0d80e06ae8e3b13341828eed26935b8b8e3379239f44e3b"
+    }
+  ],
+  "runtimeStarted": false,
+  "historicalRawReadOrCopied": false,
+  "blockingPrerequisites": [
+    "ROOT lease; final reviewed instrument and exact manifest",
+    "Both-size all-family untimed smoke and frozen camera/oracles",
+    "Exact final product bundle provenance/inventory; historical V31 not accepted automatically",
+    "Browser executable hash verification and fresh precollection profile snapshot",
+    "Fresh explicit characterization invocation and ten-run plan; empty run outputs"
+  ],
+  "limits": [
+    "Host snapshot is outside runtime and not continuous foreground/occlusion/profile proof",
+    "No tests/build/browser/cohort/archive hashes performed",
+    "Historical native resource evidence retains original applicability only"
+  ]
+}

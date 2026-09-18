@@ -1,0 +1,65 @@
+{
+  "status": "ROOT_SCOPE_VALIDATED_EXPECTATIONS_ACCEPTED_IMPLEMENTATION_RELEASED",
+  "at": "2026-09-17T23:37:52.712560+00:00",
+  "manager": "/root/d70_manager",
+  "manager_model": "gpt-6-astra/high",
+  "authorized_child_model": "gpt-6-astra/low",
+  "inventory_sha256": "6c35aa31c241dec74c536a15b64f84c63b644edce6e3a4241bff212c73e59373",
+  "writer_brief_sha256": "c743c40d6731b8be8e3aad53ce9bbe941a5354c5454af5e66dbe66afd0b6de7d",
+  "expectations_sha256": "c9942be2e593424b46b607f614befb6ed2ec2fa823a7902c6b906a46ffa09b9e",
+  "exact_files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "preimageSha256": "ac189e2bb7d3628e46f10ff499bcea7e737e721593eef9fc78ed837ac3b3cced",
+      "operation": "modify"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "preimageSha256": "409a6444c200cf19fcd3417ff422f4ff234d2a41684a5b79d7b97a5cbee30717",
+      "operation": "modify"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+      "preimageSha256": "c19d16d00fc2cce9297f42b1fcf2baefa58c5427aedde5fd46f02ce068ef8bf7",
+      "operation": "modify"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts",
+      "preimageSha256": "d2ccd61de9343400d0d80e06ae8e3b13341828eed26935b8b8e3379239f44e3b",
+      "operation": "modify"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "preimageSha256": "68676b676d3dc015390e549a41695ff8824e62cf0df1054626318753bf396d9a",
+      "operation": "modify"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-mode.ts",
+      "preimageSha256": null,
+      "operation": "create"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+      "preimageSha256": null,
+      "operation": "create"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.mjs",
+      "preimageSha256": null,
+      "operation": "create"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.d.mts",
+      "preimageSha256": null,
+      "operation": "create"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-characterization-observations.mjs",
+      "preimageSha256": null,
+      "operation": "create"
+    }
+  ],
+  "smoke_route": "Untimed explicit smoke in listed characterization-commands + current driver; both sizes and all action families, no traces/scoring, no cohort contribution. Historical preflight remains untouched.",
+  "checks_permitted": "Focused node-only checks; no browser/build/cohort. Ask ROOT to reserve any heavy runtime.",
+  "runtime": "CLOSED_PREPARATION"
+}
