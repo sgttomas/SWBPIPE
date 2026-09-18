@@ -1,0 +1,53 @@
+{
+  "status": "INTERNAL120_PREPARED_FOR_REVIEW_NO_RUNTIME",
+  "policy": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/POLICY_V6.json",
+    "sha256": "c608c66ad9b04fb1a74018168ff3936b76b7cc6f1d6980e0fe2b58f0090b8163"
+  },
+  "script": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/control_v7.py",
+    "sha256": "846ccb0a48c8d032b04956df002c181f5a1c7c4504b7df78ba003435f0d730a0"
+  },
+  "python": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+  "prepare": [
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/control_v7.py",
+    "prepare",
+    "SLOT"
+  ],
+  "launch": [
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/control_v7.py",
+    "launch",
+    "SLOT",
+    "RECEIPT",
+    "RECEIPT_SHA",
+    "RELEASE",
+    "RELEASE_SHA"
+  ],
+  "prepareClose": [
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/control_v7.py",
+    "prepare-close",
+    "SUCCESSFUL_SLOT"
+  ],
+  "close": [
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/control_v7.py",
+    "close",
+    "SUCCESSFUL_SLOT",
+    "RECEIPT",
+    "RECEIPT_SHA",
+    "RELEASE",
+    "RELEASE_SHA"
+  ],
+  "eligibleSlots": [
+    "10000.1",
+    "10000.2",
+    "10000.3",
+    "10000.4",
+    "10000.5"
+  ],
+  "noAutomaticLoop": true,
+  "noOverallTimeout": true,
+  "predecessor": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/COMMANDS_V6.json",
+    "sha256": "7adc655594cf9194bd226a12cbb38f71368339b5c4fc8c9dc34420f0767b4636"
+  }
+}

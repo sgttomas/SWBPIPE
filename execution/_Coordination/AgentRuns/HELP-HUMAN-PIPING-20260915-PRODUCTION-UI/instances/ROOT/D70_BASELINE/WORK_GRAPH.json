@@ -10,9 +10,9 @@
   "actual_mechanism": "delegated-harness-native collaboration.spawn_agent",
   "enforcement": "role/write scopes/Type2 non-delegation instruction+config asserted",
   "runtime_lease": {
-    "status": "INTERNAL120_PREPARATION",
+    "status": "INTERNAL120_INDEPENDENT_REVIEW_PENDING",
     "owner": null,
-    "scope": "No timed runtime active. Profile-only implementation and launcher preparation; independent review required before release."
+    "scope": "No runtime active; implementation and launcher preparation complete."
   },
   "nodes": [
     {
@@ -31,7 +31,7 @@
       "effort": "high",
       "brief": "briefs/MANAGER.md",
       "brief_sha256": "46c6d6ee930b46a470b017c0980cc4e8312a522168537b38208074a795e38dea",
-      "status": "active_internal120_profile_binding",
+      "status": "complete_internal120_implementation_fan_in_pass",
       "continuation_brief": "briefs/MANAGER_CONTINUATION.md",
       "continuation_brief_sha256": "28524661f4cf075dc3aabed269ad9413c8374aef9442d1d9bb29877964e92ff4",
       "internal120_brief": "briefs/MANAGER_INTERNAL120.md",
@@ -79,7 +79,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "active_internal120_preparation_only",
+      "status": "complete_internal120_preparation_pending_review",
       "agent_name": "/root/d70_runner",
       "return": "instances/RUNNER/RETURN.json",
       "continuation_brief": "briefs/RUNNER_CONTINUATION.md",
@@ -93,11 +93,13 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "complete_one_success_review_pass_OS1closed",
+      "status": "pending_internal120_review",
       "agent_name": "/root/d70_final_review",
       "brief": "briefs/FINAL_REVIEW.md",
       "brief_sha256": "cde708fd9be5a2e67bdb808110c9722b4c04898aad8a3a057201044cb238e002",
-      "return": "instances/FINAL_REVIEW/RETURN.json"
+      "return": "instances/FINAL_REVIEW/RETURN.json",
+      "internal120_brief": "briefs/REVIEW_INTERNAL120.md",
+      "internal120_brief_sha256": "b31bd1ce0b203a5576ecceef86c23fca8e2777914ba8cc138d8c322a8138ad79"
     }
   ],
   "edges": [
@@ -122,7 +124,7 @@
       "FINAL_REVIEW"
     ]
   ],
-  "current_frontier": "Owner approved internal 120 Hz for the 10000-pipe attempts. External60 preflight blocked before consuming a slot. Preserve N1000.2 external60 success and all historical attempts; seal, review and release the internal120 successor with all five N10000 ordinals available.",
+  "current_frontier": "Internal120 source df1562e and launcher V7 are frozen for independent review. All five N10000 slots remain unused. Release one slot only after PASS.",
   "ownerClarification": {
     "path": "OWNER_CLARIFICATION_CONTINUE_20260917.md",
     "sha256": "a5ba424fde8f8be92ae69b694a718452c9753b3ce2217df8f6b4b55e042c9730"
