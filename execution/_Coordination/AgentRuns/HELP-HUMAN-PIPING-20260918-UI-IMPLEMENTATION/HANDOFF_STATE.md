@@ -15,12 +15,12 @@ Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, ROOT (HELP_HUMAN, Agent 0). 
 
 ## Open with the owner
 
-- ROOT chose the bundle identifier `com.swbpipe.desktop` for the brief, from the owner's registered domain. The owner may replace it; it should be settled before the App ID is created.
-- The acceptance sentence survives inside two emitted data constants (`core/rules/rule_check_runner` and `core/rules/rule_pack_document`, the `professional_boundary_notice` schema `const`). The app no longer renders it. Changing it is a schema change and is left for the owner to direct.
-- `DEC-102` needs a domain word for the two evidence labels; the product uses the design system's working word "Evidence".
-- The external-harness panel's neutral wording ("External run evidence") is the implementer's, for the owner to replace.
-- Not checked: whether webview local storage follows the bundle identifier on macOS; if it does, interface preferences reset once under the new identifier. No project data is involved.
-- The new Apple App ID for the renamed bundle identifier. It blocks signed builds only.
+- ~~ROOT chose the bundle identifier `com.swbpipe.desktop` for the brief, from the owner's registered domain. The owner may replace it; it should be settled before the App ID is created.~~ (closed by `DEC-106`: the owner registered `com.chirality.swbpipe`)
+- ~~The acceptance sentence survives inside two emitted data constants (`core/rules/rule_check_runner` and `core/rules/rule_pack_document`, the `professional_boundary_notice` schema `const`). The app no longer renders it. Changing it is a schema change and is left for the owner to direct.~~ (closed by `DEC-107`; the description here was inaccurate and is corrected in the dated entries below)
+- ~~`DEC-102` needs a domain word for the two evidence labels; the product uses the design system's working word "Evidence".~~ (closed by `DEC-108` (i): "Evidence" confirmed)
+- ~~The external-harness panel's neutral wording ("External run evidence") is the implementer's, for the owner to replace.~~ (closed by `DEC-108` (ii): "External prover run")
+- ~~Not checked: whether webview local storage follows the bundle identifier on macOS; if it does, interface preferences reset once under the new identifier. No project data is involved.~~ (checked and closed by `DEC-109`: the one-time reset is accepted, no migration)
+- ~~The new Apple App ID for the renamed bundle identifier. It blocks signed builds only.~~ (closed by `DEC-106`: the owner registered the App ID)
 
 ## Departures from the plan
 
@@ -42,5 +42,8 @@ Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, ROOT (HELP_HUMAN, Agent 0). 
 - For Tranche A2, noticed while taking this inventory: 37 download file names in `apps/desktop/src` still begin with the former product name. A saved file's name is visible to the user; A1's brief did not name them and the identity tranche should.
 
 - 2026-09-18T22:50Z, the owner confirmed ROOT's wider reading of the acceptance-text direction: "Your reading is correct; carry on." (recorded in `instances/ROOT/OWNER_DIRECTION_2026-09-18_THREE_ITEMS.md`; `DEC-107` amended before merge to say so). Nothing about it is open with the owner.
+
+- 2026-09-18T23:20Z: A1F-FOLLOWUPS returned and is accepted as returned (`briefs/_INDEX.md`); candidate `bb7c7a2e8`. A1F-REVIEW sealed and launched (Opus, read-only). After its PASS: this branch takes `origin/main` once slice B1 has merged, so that the DEC-025 sweep runs on the candidate as it will merge; then the closeout record, pull request, CI and merge.
+- Carried from the child's return, none blocking. (a) The root claims lint (`{REPO_ROOT}/tools/validation/validate_claims_language.py`) still advises `BS-ACCEPT` in one finding's message and says in comments that documents may carry the text; after `DEC-107` the registry's section 4 places it on no new artifact. The lint requires the text nowhere, so nothing fails; the wording is an instruction-surface edit and needs its own tranche manifest, so it waits for the next change that opens the lint. (b) Open copy item for the owner, with the handoff's section 7 items: the artifact label "External-run evidence" (the export review list, the report-lint template line, the user guide's prose) is Tranche A1's wording for the artifact; `DEC-108` (ii) names the panel only. (c) The run-result schema's top-level description still carries the prohibition litany `DEC-081` retired, with stale line citations; it takes its wording at the identity tranche, which rewrites the schema's header anyway.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

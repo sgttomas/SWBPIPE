@@ -89,14 +89,26 @@
     "A1F-FOLLOWUPS": {
       "role": "TASK Type 2 implementer",
       "model": "fable",
-      "status": "launched",
+      "status": "returned_accepted",
       "briefSha256": "5b08732e0e667a50e3b838b78941d1358febea65e93379464070d3e553b24cfa",
       "brief": "briefs/A1F-FOLLOWUPS_identifier_notices_documents.md",
-      "returnSha256": null,
-      "candidate": null,
+      "returnSha256": "d36704cc405e9b64a31996d4a87f93cfa049e342197907d9ce45f89051c272f7",
+      "candidate": "bb7c7a2e8e128c91b001d69734369f1b211c7122",
       "dependsOn": [
         "A1 merged 7866f0a3c"
       ],
+      "worktree": "second worktree, branch codex/swbpipe-a1-followups-20260918",
+      "model_ran": "Claude Fable 5.1",
+      "return": "instances/A1F-FOLLOWUPS/RETURN.md"
+    },
+    "A1F-REVIEW": {
+      "role": "TASK Type 2 software-code-review, read-only",
+      "model": "opus",
+      "status": "launched",
+      "briefSha256": "aa7c2bbc179f3340c4bf8a8bdc6169beee207d6292edb943267ba6f66e0269ad",
+      "brief": "briefs/A1F-REVIEW_code_review.md",
+      "candidate": "bb7c7a2e8e128c91b001d69734369f1b211c7122",
+      "returnSha256": null,
       "worktree": "second worktree, branch codex/swbpipe-a1-followups-20260918"
     }
   },
