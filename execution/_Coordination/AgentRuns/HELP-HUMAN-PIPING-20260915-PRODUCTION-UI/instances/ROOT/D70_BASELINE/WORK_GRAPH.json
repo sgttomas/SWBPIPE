@@ -10,9 +10,9 @@
   "actual_mechanism": "delegated-harness-native collaboration.spawn_agent",
   "enforcement": "role/write scopes/Type2 non-delegation instruction+config asserted",
   "runtime_lease": {
-    "status": "TIMED_EXCLUSIVE",
-    "owner": "RUNNER",
-    "scope": "Sole prescribed cohort; no competing runtime or heavy I/O"
+    "status": "RELEASED",
+    "owner": null,
+    "scope": "Cohort process ended; offline analysis complete; no further benchmark runtime authorized"
   },
   "nodes": [
     {
@@ -72,9 +72,20 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "sole_cohort_released",
+      "status": "complete_incomplete_attempt_report",
       "agent_name": "/root/d70_runner",
-      "return": "instances/RUNNER/RETURN_PROFILE_V2.json"
+      "return": "instances/RUNNER/RETURN.json"
+    },
+    {
+      "id": "FINAL_REVIEW",
+      "parent": "ROOT",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "status": "ready_for_dispatch",
+      "agent_name": "/root/d70_final_review",
+      "brief": "briefs/FINAL_REVIEW.md",
+      "brief_sha256": "cde708fd9be5a2e67bdb808110c9722b4c04898aad8a3a057201044cb238e002"
     }
   ],
   "edges": [
@@ -93,7 +104,15 @@
     [
       "REVIEW",
       "RUNNER"
+    ],
+    [
+      "RUNNER",
+      "FINAL_REVIEW"
+    ],
+    [
+      "FINAL_REVIEW",
+      "ROOT_CLOSEOUT"
     ]
   ],
-  "current_frontier": "Both-size smoke passed. Root verified canonical smoke evidence and releases sole fresh characterization cohort. After attempt: offline analysis/report, independent final review, registered checks and Git closeout."
+  "current_frontier": "Sole attempt ended on invalid required evidence. Report and raw custody complete; final independent review, registered sweep and Git closeout remain."
 }

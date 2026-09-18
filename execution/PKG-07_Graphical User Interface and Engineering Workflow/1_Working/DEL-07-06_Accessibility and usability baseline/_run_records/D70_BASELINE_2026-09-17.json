@@ -1,0 +1,15 @@
+{
+  "schema": "chirality.piping.deliverable-evidence-pointer/v1",
+  "owner": "DEL-07-06",
+  "ruling": "D-70",
+  "phase": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE",
+  "evidence": "instances/RUNNER/RETURN.json",
+  "evidenceSha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6",
+  "report": "instances/RUNNER/BASELINE_REPORT.md",
+  "reportSha256": "4ea51b6fcaeadaccf1bdb3ff401728a3b491dafec1d17bcd5a6f1f6cde8e2b72",
+  "handoff": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/PERFORMANCE_HANDOFF_D70.md",
+  "disposition": "Incomplete attempt report; performance acceptance carried to redesigned product",
+  "reviewAndGit": "Pending at this snapshot; consume final closeout acceptance and actual PR state",
+  "lifecycle": "IN_PROGRESS unchanged",
+  "derivativePackage": true
+}

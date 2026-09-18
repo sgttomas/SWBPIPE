@@ -476,3 +476,7 @@ Durable context preserved after reconciliation review:
 ## 2026-09-14 — Bounded result-integrity/design closeout
 
 Accepted UI successor-v3 supplies editable workspace wireframes and an offline simulated prototype with inspectable intent/state/backfill mappings. Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/UI_ACCEPTANCE_V1.json`; entry `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/successor-v3/prototype/index.html`. Production UI and personal owner visual alignment remain separate; mock interaction does not establish production Rust/model-hash equivalence.
+
+## 2026-09-17 — D-70 rendering baseline attempt and handoff
+
+The bounded characterization attempt is complete as an incomplete-attempt report, with its stopping reason and unavailable measurements preserved. The owning evidence is `HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN.json`; the successor `instances/ROOT/PERFORMANCE_HANDOFF_D70.md` carries the remaining obligations and final review/Git gates. No product source, dependency, lifecycle or independent-usability disposition changed. The original handoffs and accepted native/resource evidence retain their exact historical attribution.

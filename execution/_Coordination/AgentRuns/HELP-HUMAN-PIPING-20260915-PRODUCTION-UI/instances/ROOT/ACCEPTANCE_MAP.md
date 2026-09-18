@@ -5,12 +5,12 @@ Current sequencing is D-70, applied in [D70_ADOPTION.json](D70_BASELINE/D70_ADOP
 | Area | Current disposition |
 |---|---|
 | Functional foundation | Prior FINAL_ACCEPTANCE.json and native/source/registered evidence retain their exact accepted scopes and source attribution; PR #789 owns actual-candidate CI and merge. |
-| Current product performance | One fresh D70 characterization cohort pending after instrument freeze, smoke and fresh review. Original numeric targets and all failed/incomplete evidence preserved. Collection completeness is separate from target outcomes. |
+| Current product performance | Single D70 attempt ended incomplete at the first point-selection metadata check. Report and canonical raw evidence are preserved in D70_BASELINE/instances/RUNNER; no retry. Final independent report review and Git closeout remain. Original numeric targets and failures are unchanged. |
 | Future performance acceptance | D68 obligation carried to redesigned product; fresh criteria proposed by design program and ruled prospectively by owner. |
 | Settled and resources | Obligations preserved. Prior V56 evidence and later source/unit applicability remain attributed; no final-binary full resource cohort inferred. |
 | Redesign handoff | Baseline report, including exact incomplete-attempt limitations, supplies performance handoff condition. Design implementation approval/readiness remains separate. |
 | Independent usability | DEL07-06 PDU045/PDU046 and other unchanged holds survive; no whole-product accessibility acceptance inferred. |
 
-[PERFORMANCE_FOLLOW_ON_D70.md](PERFORMANCE_FOLLOW_ON_D70.md) succeeds the historical recommendation. [D70 phase graph](D70_BASELINE/WORK_GRAPH.json) owns live instances, frontier and runtime lease. Manager Astra/high; Type2 Astra/low; maximum five active including ROOT; one writer; no runtime during preparation. The earlier original plan/FINAL_HANDOFF/PERFORMANCE_FOLLOW_ON records remain preserved.
+[PERFORMANCE_HANDOFF_D70.md](PERFORMANCE_HANDOFF_D70.md) succeeds the prepared D70 follow-on; both prior recommendations remain historical. [D70 phase graph](D70_BASELINE/WORK_GRAPH.json) owns live instances, frontier and runtime lease. Manager Astra/high; Type2 Astra/low; maximum five active including ROOT; one writer; no runtime during preparation. The earlier original plan/FINAL_HANDOFF/PERFORMANCE_FOLLOW_ON records remain preserved.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

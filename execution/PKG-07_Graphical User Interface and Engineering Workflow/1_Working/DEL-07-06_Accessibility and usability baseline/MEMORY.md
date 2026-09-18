@@ -619,3 +619,7 @@ successor journey evidence. Next unblocked C5 tranche is
   protected-content source, network/telemetry feature, lifecycle,
   release-readiness, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-09-17 — D-70 rendering baseline attempt and handoff
+
+The bounded characterization attempt is complete as an incomplete-attempt report, with its stopping reason and unavailable measurements preserved. The owning evidence is `HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN.json`; the successor `instances/ROOT/PERFORMANCE_HANDOFF_D70.md` carries the remaining obligations and final review/Git gates. No product source, dependency, lifecycle or independent-usability disposition changed. The original handoffs and accepted native/resource evidence retain their exact historical attribution.
