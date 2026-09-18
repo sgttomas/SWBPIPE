@@ -20,7 +20,7 @@
       "role": "HELP_HUMAN",
       "model": "gpt-6-astra",
       "effort": "high",
-      "status": "active"
+      "status": "local_technical_close_complete_publication_pending"
     },
     {
       "id": "MANAGER",
@@ -46,11 +46,12 @@
       "effort": "low",
       "brief": "briefs/EXPECTATIONS.md",
       "brief_sha256": "90a574ba09376d1c022f61e8c7111aa2a02a357dd4023653557b43cc6e461ac5",
-      "status": "complete_point58_cause_calculation",
+      "status": "complete_point58_cause_and_portability_review",
       "return": "instances/EXPECTATIONS/RETURN.json",
       "continuation_brief": "briefs/EXPECTATIONS_CONTINUATION.md",
       "continuation_return": "instances/EXPECTATIONS/CONTINUATION/RETURN.json",
-      "continuation_expectations_sha256": "b820e8826815f22992b8bd3240d2aedccf333e4ec39a7016f25f42dab3b3601e"
+      "continuation_expectations_sha256": "b820e8826815f22992b8bd3240d2aedccf333e4ec39a7016f25f42dab3b3601e",
+      "portability_review_return": "_run_records/PORTABILITY_CLOSEOUT_V1/RETURN.json"
     },
     {
       "id": "WRITER",
@@ -93,13 +94,14 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "pending_final_report_diff_review",
+      "status": "complete_final_baseline_review_pass_metadata_tail_pending",
       "agent_name": "/root/d70_final_review",
       "brief": "briefs/FINAL_REVIEW.md",
       "brief_sha256": "cde708fd9be5a2e67bdb808110c9722b4c04898aad8a3a057201044cb238e002",
       "return": "instances/FINAL_REVIEW/RETURN.json",
       "internal120_brief": "briefs/REVIEW_INTERNAL120.md",
-      "internal120_brief_sha256": "b31bd1ce0b203a5576ecceef86c23fca8e2777914ba8cc138d8c322a8138ad79"
+      "internal120_brief_sha256": "b31bd1ce0b203a5576ecceef86c23fca8e2777914ba8cc138d8c322a8138ad79",
+      "final_baseline_return": "instances/CONTINUATION_REVIEW/FINAL_BASELINE/RETURN.json"
     }
   ],
   "edges": [
@@ -124,12 +126,12 @@
       "FINAL_REVIEW"
     ]
   ],
-  "current_frontier": "Offline report complete; numerical point58 cause reproduced and repair handoff proposed, no product repair. Freeze final complete diff/evidence for independent review, then registered sweep and scoped PR closeout. No further timed attempt.",
+  "current_frontier": "Incomplete characterization accepted under D70; full independent report/diff review and clean registered/local gates passed. Review final metadata tail, backcheck, then publish one scoped PR and merge after actual-head CI. No further timed attempt or product repair in this tranche.",
   "ownerClarification": {
     "path": "OWNER_CLARIFICATION_CONTINUE_20260917.md",
     "sha256": "a5ba424fde8f8be92ae69b694a718452c9753b3ce2217df8f6b4b55e042c9730"
   },
-  "closeoutStatus": "PENDING_FINAL_REVIEW_REGISTERED_CHECKS_AND_GIT",
+  "closeoutStatus": "LOCAL_TECHNICAL_CLOSE_COMPLETE_PUBLICATION_PENDING",
   "ownerOneSuccessDirection": {
     "path": "OWNER_DIRECTION_ONE_SUCCESS_20260917.md",
     "sha256": "ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"
@@ -137,5 +139,7 @@
   "ownerInternal120Direction": {
     "path": "OWNER_DIRECTION_INTERNAL120_20260917.md",
     "sha256": "6df272b7af0367b0083302229018143f8fa397a6bde0f5e368c6ec1e454157b9"
-  }
+  },
+  "closeoutSnapshot": "FINAL_ACCEPTANCE_AND_HANDOFF.md",
+  "closeoutChecks": "_run_records/CLOSEOUT_CHECKS.json"
 }
