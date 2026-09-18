@@ -1,0 +1,15 @@
+{
+  "at": "2026-09-18T00:28:05.964109+00:00",
+  "status": "RELEASE_ONE_UNTIMED_SMOKE_REQUALIFICATION",
+  "candidate": "418f22f677ff65677f396abbff754ac3378c9efe",
+  "accepted_review_sha256": "5dd3964a9cba8605c3b756221bff0f509dbfb91714bd6d1847f6a5c4e96011f6",
+  "script": "instances/RUNNER/run_smoke_v4.py",
+  "script_sha256": "deeabee87638050e89d9d7f7ea50fc90f331e865a4dbb0ebbbad8cc2c3e7e73f",
+  "method_sha256": "064195227bf8ef4c050757f280b2b5dc6b1b29e45154e2c5aa1833426410e123",
+  "oracle_sha256": "0b8a0b5239f10547c72907e32160db262288216ed1fb4818551782dc89b05b17",
+  "rationale": "Concrete smoke-only null epoch defect fixed with observed-payload regression. Source guard/controller/product/camera/freezer unchanged. Oracle-hash launcher finding fixed before any runtime use.",
+  "raw_destination": "instances/VERIFY/controls-smoke-02 under existing external canonical root",
+  "owner": "/root/d70_runner",
+  "timed_cohort": "UNATTEMPTED_AND_HELD",
+  "stop": "Return any failure, preserve evidence; no automatic retry/product changes."
+}

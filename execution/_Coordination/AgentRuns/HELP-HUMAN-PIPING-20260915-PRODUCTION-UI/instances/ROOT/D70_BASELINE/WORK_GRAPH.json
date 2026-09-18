@@ -10,9 +10,9 @@
   "actual_mechanism": "delegated-harness-native collaboration.spawn_agent",
   "enforcement": "role/write scopes/Type2 non-delegation instruction+config asserted",
   "runtime_lease": {
-    "status": "NODE_TESTS_ONLY",
-    "owner": "MANAGER",
-    "scope": "Smoke-only guard regression and TypeScript; browser/cohort held"
+    "status": "HELD",
+    "owner": "ROOT",
+    "scope": "Affected review of exact smoke orbit alignment and final invocation"
   },
   "nodes": [
     {
@@ -31,7 +31,7 @@
       "effort": "high",
       "brief": "briefs/MANAGER.md",
       "brief_sha256": "46c6d6ee930b46a470b017c0980cc4e8312a522168537b38208074a795e38dea",
-      "status": "bounded_smoke_repair"
+      "status": "orbit_alignment_complete_pending_review"
     },
     {
       "id": "EXPECTATIONS",
@@ -51,7 +51,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "complete_root_accepted",
+      "status": "complete_smoke_repair_accepted",
       "agent_name": "/root/d70_manager/writer"
     },
     {
@@ -60,7 +60,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "complete_preparation_pass",
+      "status": "complete_smoke_repair_and_tail_pass",
       "agent_name": "/root/d70_review",
       "brief": "briefs/REVIEW.md",
       "brief_sha256": "9a1a00ad58605888e66349583402b21c4c65cf9c1d6893c805bde08ab3642269",
@@ -95,5 +95,5 @@
       "RUNNER"
     ]
   ],
-  "current_frontier": "Camera/oracle preparation passed. First smoke exposed unarmed canvas assertion defect. Bounded source repair and affected independent review required; timed cohort unattempted."
+  "current_frontier": "One-file smoke alignment imported existing frozen orbit start. Source regression and TypeScript pass; affected review and one smoke requalification pending. No timed cohort attempted."
 }

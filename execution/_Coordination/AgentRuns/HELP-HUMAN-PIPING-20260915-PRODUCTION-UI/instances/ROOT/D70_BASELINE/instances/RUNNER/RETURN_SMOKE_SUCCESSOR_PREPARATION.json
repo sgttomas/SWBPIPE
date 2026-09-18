@@ -1,0 +1,32 @@
+{
+  "status": "PASS_SUCCESSOR_SMOKE_PREPARATION_RUNTIME_HELD",
+  "at": "2026-09-18T00:23:12.827015+00:00",
+  "instrumentRevision": "c5e9d53e4af07e9d3a26251474a331924f5e50f1",
+  "changedMethodMembers": [
+    "apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+    "apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts"
+  ],
+  "methodManifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/METHOD_MANIFEST_SUCCESSOR.json",
+    "sha256": "064195227bf8ef4c050757f280b2b5dc6b1b29e45154e2c5aa1833426410e123",
+    "memberCount": 34
+  },
+  "commands": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RUNTIME_COMMANDS_PREPARED_V3.json",
+    "sha256": "124dbf3324c16d34f8d718ca3bea27d7ea095bfdb9c04117601eba8fb12729c5"
+  },
+  "launcher": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/run_smoke_v3.py",
+    "sha256": "58e87ad67d577e3f3759355b10a5b27d94b838ddcaaf4ff2b72d4d4a4bf1f872"
+  },
+  "oracleManifest": {
+    "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-oracle-01/CANDIDATE_POINT_ORACLE_MANIFEST.json",
+    "sha256": "0b8a0b5239f10547c72907e32160db262288216ed1fb4818551782dc89b05b17"
+  },
+  "reuse": "Successful camera outputs/oracle bytes and camera/freezer method unchanged verified",
+  "profileSha256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922",
+  "smokeOutput": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-02",
+  "cohortOutput": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01",
+  "cohortAttempted": false,
+  "runtimeLaunched": false
+}
