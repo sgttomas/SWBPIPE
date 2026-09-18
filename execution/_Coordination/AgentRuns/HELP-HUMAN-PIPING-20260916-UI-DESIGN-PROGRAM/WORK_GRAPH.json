@@ -69,7 +69,8 @@
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/RESEARCH-E_caepipe_format.md",
       "return": "instances/RESEARCH/E_caepipe_format.md",
-      "status": "pending"
+      "status": "complete",
+      "accepted_by_root": "2026-09-17"
     },
     {
       "id": "OWNER-QA",

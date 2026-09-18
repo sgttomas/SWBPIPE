@@ -54,6 +54,8 @@ Return of CONCEPTS-01, retained under `../instances/CONCEPTS/` and accepted by R
 |---|---|---|---|---|---|
 | `RESEARCH-E_caepipe_format.md` | `928028d6507a00a630c6d5a0a981f3f7117c3cdf4b36ecf7957ebb4399ba8b5d` | 2026-09-18T05:16:45Z | `opus` (Claude Opus 5) | TASK, working alone | `../instances/RESEARCH/E_caepipe_format.md` |
 
+Return `../instances/RESEARCH/E_caepipe_format.md`, SHA-256 `334719ad3232506d53004c2f89bcdfb82f073e7366fd3fa9752259d3beba708d`, retained byte for byte and accepted by ROOT on 2026-09-17 against the brief's acceptance section: sources complete with URLs and UTC retrieval times (43 manual pages, two product pages, one third-party page; four unreachable sources listed as unreachable); every format statement cited; the layout record, attachment data and load-case records tabulated to the level the documentation supports; a mapping table with 16 named gaps and a separate list of 12 format contents the design does not yet name; 14 unknowns stated as TBD; no compatibility claim. The return's own relative paths (`../../briefs/…`) resolve from its location.
+
 Launched after the owner's direction of 2026-09-17 named export compatibility with CAEPIPE as a requirement (`../instances/ROOT/DIRECTION_DECISION_2026-09-17.md` §7). Opus because the result is objective: what a documented format contains.
 
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

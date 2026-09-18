@@ -98,4 +98,9 @@ ROOT proceeded on these readings; each is reversible.
 - (c) The views are called Table, Model and Mixed, the owner's words.
 - (d) The checked tag is a tag bound to row content, not a status, pending packet item 7.
 
+Added after RESEARCH-E returned ([`../RESEARCH/E_caepipe_format.md`](../RESEARCH/E_caepipe_format.md) §6.1, gaps 1 and 3), the same day:
+
+- (e) **Tees.** In CAEPIPE a tee is not an element type; it is a branch-connection kind recorded at the node (welding tee, sweepolet, weldolet, fabricated, extruded, radiused, thickened-pipe branch) and written to the file as a node code. The owner's answer 1 lists "tee" among element types. ROOT's reading, pending the owner's word: the element-type column carries the elements the file knows as elements (pipe, bend, valve, reducer, rigid, expansion joint and the rest), and the branch-connection kind lives in the node-data table with a mark on the node row, so that export stays a projection. The alternative is to keep tee kinds in the element-type column and translate them on export.
+- (f) **Node IDs.** The documented file uses numeric node numbers; the brief specifies alphanumeric IDs to beat the numeric-only complaint. ROOT's reading, pending the owner's word: IDs stay alphanumeric in the product, and export assigns numeric node numbers through a recorded map carried in the export metadata. The alternative is numeric IDs throughout, which removes one of the brief's departures from the target tools.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
