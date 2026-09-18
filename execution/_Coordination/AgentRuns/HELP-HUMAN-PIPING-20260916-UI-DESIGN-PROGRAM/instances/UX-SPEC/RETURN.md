@@ -193,4 +193,12 @@ Basis verified at commit `c3720bcfa` on `codex/swb-ui-contradictions`; design sy
 
 A limit that stands: the specification's other design-system references, those V1.2 did not touch, were verified against design system V1.2 and have not been re-checked against V1.3.
 
+## 12. UX-SPEC-03 correction 2 (ROOT, from REVIEW-04)
+
+Basis verified at commit `2145d3dcf`: `instances/REVIEW/REVIEW-04_RETURN.md`, findings M-1 and T-2, both accepted by ROOT and sent to this child.
+
+1. **M-1.** §2.8's ordering clause (summary first, the control with its key last) was this executor's addition when the tooltip ruling was applied, and row 45 did not name it. The clause is kept; its sentence now says the ruling ends with the form, and that the clause is the specification's own, not ruled and not in design system §7.6. New §13 row 50 records this, names the two frame tooltips that put the control first, and says the difference is open and carried in the handoff.
+2. **T-2.** Row 49 is left byte-identical; new row 51 says that row 36 does not carry the phrase and only row 38 does.
+3. **Files.** Changed: `UX_SPEC_V1.md`, `RETURN.md`. Not changed: `OPERATIONS_MAP.md`. §13 rows 1 to 49 are byte-identical to the committed file.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

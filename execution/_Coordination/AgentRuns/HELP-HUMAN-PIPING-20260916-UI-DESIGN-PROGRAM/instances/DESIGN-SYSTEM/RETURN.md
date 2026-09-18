@@ -296,4 +296,18 @@ closed accordingly and §9 row 111 records it; rows 1 to 110 are unchanged by ha
 `problems: []`, 111 change-log rows. The render check was not re-run because the specimen
 did not change.
 
+## 10 Correction after REVIEW-04: finding T-3
+
+Verified in `../REVIEW/REVIEW-04_RETURN.md` (T-3, accepted by ROOT). The owner's
+confirmation predates V1.3's text, so it covers the six functions and their addition to
+this system, not the copy I chose for them. The document's §8 item 19 now says so where
+the closure is asserted, and §9 row 112 records it; row 111 is not rewritten, and
+`tools/agree.mjs` pins rows 1 to 111 by hash and requires row 112. The copy stays mine and
+open to replacement, as §8 item 4 of this return lists. Agreement check: `problems: []`,
+112 rows. Not changed: `specimen.html`, `tokens.json`, the other tools; gen and splice
+were not needed and the render check was not re-run. Current hashes: `DESIGN_SYSTEM_V1.md`
+`5aef3bdf5746b0f93f9419b4c7ad459eb634a71db28a846f19133b225f277c81`, `tools/agree.mjs`
+`84bb30448eb68f510b218602d52175f3dd0fbb7ccad602d694f7a049303d5a27`; the table in §2 carries
+the values as of §9.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

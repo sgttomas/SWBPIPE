@@ -573,7 +573,7 @@
       "REVIEW-04"
     ]
   ],
-  "current_frontier": "Candidate complete: design system V1.3, specification V1.2, frames fourth pass, handoff refreshed. Next: REVIEW-04 and a pull request. With the owner: the handoff's §8. Nothing is implemented.",
+  "current_frontier": "REVIEW-04 returned with no blocking finding; its five findings are corrected. Next: the reviewer's backcheck, CI on the final revision, merge of PR #799. With the owner: the handoff's §8. Nothing is implemented.",
   "frontier_history": [
     {
       "until": "2026-09-18",
@@ -603,6 +603,10 @@
     {
       "until": "2026-09-18 handoff refresh",
       "frontier": "MOCKS-04 returned and retained. Next: the specification's citation correction (C-26) and section-reference re-check, the handoff's refresh, REVIEW-04 and a pull request. With the owner: the handoff's §8. Nothing is implemented."
+    },
+    {
+      "until": "2026-09-18 REVIEW-04 corrections",
+      "frontier": "Candidate complete: design system V1.3, specification V1.2, frames fourth pass, handoff refreshed. Next: REVIEW-04 and a pull request. With the owner: the handoff's §8. Nothing is implemented."
     }
   ]
 }

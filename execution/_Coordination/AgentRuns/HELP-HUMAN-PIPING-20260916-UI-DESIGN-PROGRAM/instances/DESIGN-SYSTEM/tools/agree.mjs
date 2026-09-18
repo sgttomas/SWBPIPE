@@ -102,6 +102,9 @@ if (crypto.createHash("sha256").update(first90).digest("hex") !== "e834e393087aa
 if (logRows.length < 111) push("section 9 lacks row 111, the owner's confirmation of the six additions");
 const first110 = log.split("\n").filter(l => { const m = l.match(/^\| (\d+) \| /); return m && Number(m[1]) <= 110; }).join("\n");
 if (crypto.createHash("sha256").update(first110).digest("hex") !== "459c050a49928790e3ec1573268e199798c7770f4eb9691295382096b52fc6de") push("section 9 rows 1 to 110 differ from V1.3 as accepted");
+if (logRows.length < 112) push("section 9 lacks row 112, the scope of the owner's confirmation");
+const first111 = log.split("\n").filter(l => { const m = l.match(/^\| (\d+) \| /); return m && Number(m[1]) <= 111; }).join("\n");
+if (crypto.createHash("sha256").update(first111).digest("hex") !== "6d2b7d6d21b25e212fde99f5a1630a2a24c110c2b89777dc73d5737571e15578") push("section 9 rows 1 to 111 differ from the state before REVIEW-04's correction");
 const v13 = log.split("\n").filter(l => { const m = l.match(/^\| (\d+) \| /); return m && Number(m[1]) >= 91; }).join("\n");
 for (const n of [1, 2, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16]) if (!new RegExp("contradiction " + n + "\\b").test(v13)) push("V1.3 rows do not cite contradiction " + n);
 for (const c of ["C-17", "C-20", "C-23", "C-24", "C-25"]) if (!v13.includes(c)) push("V1.3 rows do not cite " + c);

@@ -1,6 +1,6 @@
 # Implementation-ready handoff — SWBPIPE interface redesign
 
-Status: ROOT record (HELP_HUMAN, successor), 2026-09-18, corrected the same day after independent review (REVIEW-03; dispositions in `{RUN}/instances/REVIEW/REVIEW-03_RETURN.md`), and refreshed the same day after the owner directed how the twenty-five contradictions between the design system and the specification are settled (design system V1.3, specification V1.2, the frames' fourth pass; §1's hashes and §7 changed, §2 to §6 and §8 did not). This record hands the accepted design to implementation. **It starts no implementation and authorizes none.** One owner decision is asked for, in §8. It replaces the [preparation record](IMPLEMENTATION_HANDOFF_PREPARATION_2026-09-18.md), which is kept as history; every prerequisite that record listed is now met except the owner's authorization.
+Status: ROOT record (HELP_HUMAN, successor), 2026-09-18, corrected the same day after independent review (REVIEW-03; dispositions in `{RUN}/instances/REVIEW/REVIEW-03_RETURN.md`), and refreshed the same day after the owner directed how the twenty-five contradictions between the design system and the specification are settled (design system V1.3, specification V1.2, the frames' fourth pass; §1's hashes and §7 changed, §2 to §6 and §8 did not; independent review REVIEW-04, dispositions in `{RUN}/instances/REVIEW/REVIEW-04_RETURN.md`). This record hands the accepted design to implementation. **It starts no implementation and authorizes none.** One owner decision is asked for, in §8. It replaces the [preparation record](IMPLEMENTATION_HANDOFF_PREPARATION_2026-09-18.md), which is kept as history; every prerequisite that record listed is now met except the owner's authorization.
 
 Paths are relative to `{WORKING_ROOT}` (`{REPO_ROOT}/projects/chirality-piping`) unless they begin with `{RUN}` (`{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM`).
 
@@ -8,14 +8,14 @@ Paths are relative to `{WORKING_ROOT}` (`{REPO_ROOT}/projects/chirality-piping`)
 
 | Record | Path | SHA-256 |
 |---|---|---|
-| Design system V1.3 | `{RUN}/instances/DESIGN-SYSTEM/DESIGN_SYSTEM_V1.md` | `20b100bd9c979a9341b96431387bbf8ca45b01f10debfe0964b7a4f2d5c02e7e` |
+| Design system V1.3 | `{RUN}/instances/DESIGN-SYSTEM/DESIGN_SYSTEM_V1.md` | `5aef3bdf5746b0f93f9419b4c7ad459eb634a71db28a846f19133b225f277c81` |
 | Tokens 1.2 | `{RUN}/instances/DESIGN-SYSTEM/tokens.json` | `00c1afe97365973e6c05a2a5d938a25c46022a55c3cbc8d04ff3a9d2d68cf1e9` |
 | Specimen V1.3 | `{RUN}/instances/DESIGN-SYSTEM/specimen.html` | `f9ce15a26331177bdf78cf6dfb3e5ff568ef0756c02b17333ebc5b6807273a99` |
-| UX specification V1.2 | `{RUN}/instances/UX-SPEC/UX_SPEC_V1.md` | `cc0b843583ce313ceb96e2dcf13ca9109db877150f997f8644242e959f12fe43` |
+| UX specification V1.2 | `{RUN}/instances/UX-SPEC/UX_SPEC_V1.md` | `66927ea0cbf062f562cbddbe80f512de504ac4d72f0657cb470a7decfa8dc262` |
 | Operations map | `{RUN}/instances/UX-SPEC/OPERATIONS_MAP.md` | `47e2aa303a358b77fa89439aac198146dbc0a2a13cef9fb86521789888f111c2` |
-| Specification return (uncertainties) | `{RUN}/instances/UX-SPEC/RETURN.md` | `972aa7218e380a1995c25af51de1884190b269ca7081d5a0525f100a4c448ea1` |
+| Specification return (uncertainties) | `{RUN}/instances/UX-SPEC/RETURN.md` | `6a8c7d166122e0effed1a5fc541e12f1dc17954b920a1d1861d592c59be077e9` |
 | Frames record, fourth pass | `{RUN}/instances/MOCKS/MOCKS_V4.md` | `98da94b2dda5913eaec20ebc65e6de8ef981a460ad335a00e7c0f4d72dd80a10` |
-| Owner's direction on the contradictions | `{RUN}/instances/ROOT/OWNER_DIRECTION_2026-09-18_CONTRADICTIONS.md` | `b6f0681bc00efe3c51f46bdd2df62611648f5912a37ce04f78ec8bead8b5da8c` |
+| Owner's direction on the contradictions | `{RUN}/instances/ROOT/OWNER_DIRECTION_2026-09-18_CONTRADICTIONS.md` | `7ac9d16e97b67cf25d5f6f2b04cc70782c248ff02c93a91c4a3e5b1d35180df0` |
 | Frames return (per-frame hashes) | `{RUN}/instances/MOCKS/RETURN.md` | `1bfe236c1a71b41f7f2bc002244db8a817812c05353b98c951fcaab771a53779` |
 | Frames index | `{RUN}/instances/MOCKS/frames/index.html` | `de2e25efc45dcf852e55869e63105d428afc23b2aed3991e5447eea7a64b2456` |
 | Measured facts | `{RUN}/instances/MOCKS/shots/report.json` | `159ff9453145599887ef6460316869fc3f51e90ef95fde4a369389bc704ff8d2` |
@@ -93,8 +93,9 @@ The owning loop's registered checks (`software-workflow.json`); the DEC-025 swee
 
 ## 7. Open items carried
 
-- The twenty-five contradictions between the design system and the specification are settled by the owner's direction (the direction record in §1) and applied: design system change-log rows 91 to 111, specification §13 rows 35 onward. The owner ruled three directly (the tooltip form, the paste band's button faces, the Review page's three chips), confirmed the six functions the specification keeps and the design system gains, and adopted ROOT's approach for the rest. "Apply" on the edit chip is ROOT's word, chosen at the owner's direction to find one other than "Commit"; the owner may replace it.
+- The twenty-five contradictions between the design system and the specification are settled by the owner's direction (the direction record in §1) and applied: design system change-log rows 91 to 112, specification §13 rows 35 to 51. The owner ruled three directly (the tooltip form, the paste band's button faces, the Review page's three chips), confirmed the six functions the specification keeps and the design system gains, and adopted ROOT's approach for the rest. "Apply" on the edit chip is ROOT's word, chosen at the owner's direction to find one other than "Commit"; the owner may replace it.
 - The design system child chose the copy for the six additions (the units selector's "As entered" and "Entered", the View tool's menu entries, the stress components' captions, "All kinds", the run menu's tooltip "Runs", the drawer's "Filter"). It is listed in the design system's `RETURN.md` for replacement. The child also added one behaviour: under "As entered" a column holding mixed units drops the unit from its header.
+- One new difference, found by independent review (REVIEW-04, M-1) and open: the specification's §2.8 adds that a tooltip which also summarises content puts the summary first and the control with its key last. That clause is the specification child's, not ruled, and the design system's §7.6 does not carry it. The frames' marks tooltips follow it; two frame tooltips put the control first ("Agent (⌘⇧G) · 0 open proposals · opens the column", "Node labels (L): Budget"). All satisfy the ruled form. Whoever next touches the frames or the design system settles the order.
 - A reading by the specification child, not ruled: with no rule pack loaded, the Review page shows two chips, Solver and Human.
 - The specification's thirteen uncertainties (its `RETURN.md`), among them: hanger selection against a Stale run's values; undo of an accepted proposal row; the multi-change stale band wording; existing product controls not yet searched for rows 278 to 313.
 - "Evidence" as the domain word for the two evidence labels is a working word, the owner's to replace.
