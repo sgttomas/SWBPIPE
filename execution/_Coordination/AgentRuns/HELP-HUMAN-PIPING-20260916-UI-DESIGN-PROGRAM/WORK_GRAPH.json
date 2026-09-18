@@ -375,7 +375,7 @@
       "mechanism": "Claude Code Agent tool, general-purpose, background",
       "brief": "briefs/REVIEW-04_contradictions_pass_review.md",
       "return": "instances/REVIEW/REVIEW-04_RETURN.md",
-      "status": "returned; corrections in progress",
+      "status": "complete",
       "model_ran": "Claude Opus 5, by the child's return"
     }
   ],
@@ -573,7 +573,7 @@
       "REVIEW-04"
     ]
   ],
-  "current_frontier": "REVIEW-04 returned with no blocking finding; its five findings are corrected. Next: the reviewer's backcheck, CI on the final revision, merge of PR #799. With the owner: the handoff's §8. Nothing is implemented.",
+  "current_frontier": "The contradictions pass is complete and independently reviewed (REVIEW-04, PASS on backcheck). Next: CI on the final revision and merge of PR #799. With the owner: the handoff's §8. Nothing is implemented.",
   "frontier_history": [
     {
       "until": "2026-09-18",
@@ -607,6 +607,10 @@
     {
       "until": "2026-09-18 REVIEW-04 corrections",
       "frontier": "Candidate complete: design system V1.3, specification V1.2, frames fourth pass, handoff refreshed. Next: REVIEW-04 and a pull request. With the owner: the handoff's §8. Nothing is implemented."
+    },
+    {
+      "until": "2026-09-18 REVIEW-04 backcheck",
+      "frontier": "REVIEW-04 returned with no blocking finding; its five findings are corrected. Next: the reviewer's backcheck, CI on the final revision, merge of PR #799. With the owner: the handoff's §8. Nothing is implemented."
     }
   ]
 }

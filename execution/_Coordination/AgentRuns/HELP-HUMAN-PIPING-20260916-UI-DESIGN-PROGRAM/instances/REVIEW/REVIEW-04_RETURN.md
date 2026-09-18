@@ -1,6 +1,6 @@
 # REVIEW-04 — retained return
 
-Retained by ROOT (HELP_HUMAN, successor) on 2026-09-18. What follows under "The child's return" is the reviewer's final message as the host stored it, with the machine's repository path replaced by `{REPO_ROOT}`; nothing else is changed. Brief: `{RUN}/briefs/REVIEW-04_contradictions_pass_review.md`, SHA-256 `440e6a386b1283ee6d68f6af508da1cd6cd56acd60dc789dff10fa1999d0e605`. Model that ran, by the child's own statement: Claude Opus 5. Candidate: `80f122300bff3101570beb96b001231350589cd4`.
+Retained by ROOT (HELP_HUMAN, successor) on 2026-09-18. What follows under "The child's return" is the reviewer's final message as the host stored it, with its headings demoted so they nest under this record's; nothing else is changed (the message held no machine path, so none was replaced; corrected after the backcheck's N-3). Brief: `{RUN}/briefs/REVIEW-04_contradictions_pass_review.md`, SHA-256 `440e6a386b1283ee6d68f6af508da1cd6cd56acd60dc789dff10fa1999d0e605`. Model that ran, by the child's own statement: Claude Opus 5. Candidate: `80f122300bff3101570beb96b001231350589cd4`.
 
 ## ROOT's dispositions
 
@@ -52,6 +52,55 @@ Brief SHA-256 verified: `440e6a386b1283ee6d68f6af508da1cd6cd56acd60dc789dff10fa1
 ## What I did not check
 
 I did not open the other seventeen screenshots (only `s1_both_light.png`), and I verified no pixel measurement, wrap threshold, width or contrast ratio — I read the widths and the 737 px wrap only as prose claims. I did not re-render, re-build or re-lint the frames (`tools/render.mjs`, `tools/build.mjs`), and I did not diff the six `tools/*.mjs` files line by line beyond the tooltip and copy strings they emit. I did not re-verify the specification's source path-and-line citations against the product source, nor the operations map's rows. I did not read `MOCKS_V1`–`V3`, the earlier returns, the D-71/D-72 rulings or `DEC-099`–`DEC-105` beyond the quotations the candidate carries. I did not check the owner messages against any host transcript — I verified only that the quoted bytes reproduce the hashes the record states. I ran no build, test, dev server or state-changing git command; the only command I ran beyond reads was the brief's permitted `agree.mjs`.
+
+I am Claude Opus 5 (1M context), model ID `claude-opus-5[1m]`, running as a TASK read-only reviewer, working alone, with no delegation.
+
+## Backcheck
+
+At `faade343c532669358ebfd31c9aa26a33f62adf2`: PASS, all five findings cleared, M-1's disposition accepted as non-blocking, three new trivial observations. ROOT's dispositions: N-1 accepted, to the specification child (§13 row 52); N-2 accepted, the node's status is set to `complete`; N-3 accepted, the retention note above is corrected. The backcheck message follows as the host stored it, with headings demoted and nothing else changed.
+
+### REVIEW-04 backcheck — return
+
+Same brief and limits: read-only, working alone, no delegation, no build/test/dev server, no state-changing git. Reviewed `git diff 80f122300bff3101570beb96b001231350589cd4..faade343c532669358ebfd31c9aa26a33f62adf2` (three commits: `e5c05d84d`, `2145d3dcf`, `faade343c`). The worktree is at `faade343c` and clean. Every changed path is still under `{RUN}`; no product source, test, schema or root file changed; `instances/MOCKS/` (frames, shots, tools, `MOCKS_V4.md`, its return), `specimen.html` and `tokens.json` are untouched, so the fourth pass's frame hashes stand.
+
+#### Verdict: PASS — all five findings cleared; three new trivial observations, none blocking
+
+### M-1 — cleared
+
+`UX_SPEC_V1.md:156` (§2.8) now ends the ruled part explicitly ("That is the whole of the ruling") and labels the ordering clause "this specification's own addition, not ruled and not carried by design system §7.6". New `UX_SPEC_V1.md:1077` (§13 row 50) logs it, names both offending tooltips verbatim, states that they satisfy the ruled form, and points to the handoff. Handoff `IMPLEMENTATION_HANDOFF_2026-09-18.md:98` (§7) carries the difference as an open item and says who settles it. The frames are not redrawn.
+
+**I accept the disposition as non-blocking.** The owner ruled the form only; every tooltip in the frames, the specimen and both documents satisfies that form. The residue is a copy-ordering preference that one document states and the other does not — now attributed, logged in the change log, and carried open where an implementer will read it. Redrawing eighteen frames for it would cost more than it settles, and `MOCKS_V4.md` §1's "regenerated once" discipline argues against a second redraw for a non-ruled point.
+
+### T-1 — cleared
+`WORK_GRAPH.json:367` — the `MOCKS-04` node now carries `"model_ran": "Claude Fable 5.1 (claude-fable-5-1), by the child's return"`, and the provenance qualifier is an improvement on its siblings' bare value.
+
+### T-2 — cleared
+`UX_SPEC_V1.md:1078` (§13 row 51) records that row 36 does not carry the phrase and only row 38 does; row 49 is left byte-identical, as the pass's own convention requires.
+
+### T-3 — cleared
+`DESIGN_SYSTEM_V1.md:1069` (§8 item 19) now says the confirmation was sent before V1.3's text existed, covers the functions and their addition but not the copy, and lists the nine strings that remain the child's. New row 112 (`:1209`) records the same where the change log will be read, with row 111 not rewritten. `tools/agree.mjs` now requires row 112 and pins rows 1–111 by hash.
+
+### T-4 — cleared
+`OWNER_DIRECTION_2026-09-18_CONTRADICTIONS.md:11` now opens "ROOT's reading, labelled as such after independent review (REVIEW-04, T-4)" and states the alternative it excludes ("not to items numbered 1 to 13").
+
+#### Re-verifications you asked for
+
+- **Handoff §1 hashes.** All 19 recomputed at `faade343c`; all match. Four rows were updated for the four files whose bytes changed (design system, specification, specification return, direction record). The handoff itself is `bc5fcc288fb3c2efa0c069e49c6c68f0cec492796d0d7574995401183c9edff2`, as `briefs/_INDEX.md` records. The handoff diff still touches only the status paragraph, §1 and §7; §2–§6 and §8 are byte-identical.
+- **No earlier row changed.** Design system §9: 112 rows, of which rows 1–111 are byte-identical to the candidate (and so rows 1–90 remain byte-identical to `origin/main`). Specification §13: 51 rows, of which rows 1–49 are byte-identical to the candidate (rows 1–34 still byte-identical to `origin/main`). Only appends.
+- **The retained return.** `instances/REVIEW/REVIEW-04_RETURN.md` reproduces my final message **byte-for-byte** — I diffed it against my own text and it is identical apart from the one formatting change noted in N-3 below. ROOT's dispositions are stated separately above it and characterise each finding accurately.
+- **Other checks re-run.** `node tools/agree.mjs DESIGN_SYSTEM_V1.md tokens.json specimen.html` → `"problems": []`, 112 rows. The three owner-message quotes are untouched and still reproduce their recorded SHA-256 and byte counts (429/44/72). Every hash `briefs/_INDEX.md` records for the corrected files matches, including the REVIEW-04 brief's own `440e6a38…`. All twelve changed Markdown files end with the claim fence; no absolute machine path anywhere; no US spelling and no barred product word in the added text (the barred-word hits are the review brief's own check-8 wording and my quoted sweep, neither of which is product copy). The old direction-record hash `b6f0681b…` is cited nowhere, so no stale reference was left behind. `WORK_GRAPH.json` parses; `frontier_history` grew to 8 with the prior frontier moved in verbatim.
+
+#### New, all trivial
+
+**N-1. `UX_SPEC_V1.md:156` (§2.8) — the interpolated colon over-reaches.** After "not carried by design system §7.6:", the semicolon list resumes with "a toast, a band and an empty state name the control to click…" and "the hint strip lists a tool's accelerators…". Read literally, those now fall under "this specification's own addition, not ruled", but design system §7.6 carries both almost verbatim, and the same sentence ends by citing §7.6 for "Press". Only the one clause is the specification's own. A full stop after "…the control with its key last (§13 row 50 says where the frames differ)." before resuming the list would close it.
+
+**N-2. `WORK_GRAPH.json:378`** — the new `REVIEW-04` node reads `"status": "returned; corrections in progress"`, while the same file's `current_frontier` says "its five findings are corrected" and `briefs/_INDEX.md` records the corrections as made with their hashes. It is also the graph's first free-text status (the others are `complete`, `ruled`, `withdrawn`, `active`). Defensible if "in progress" means "pending this backcheck", but it does not say so.
+
+**N-3. `REVIEW-04_RETURN.md:3`** — the retention note says the child's message is reproduced "with the machine's repository path replaced by `{REPO_ROOT}`; nothing else is changed". My message contained no machine path, so no substitution occurred, and one thing was changed: the return's own title was demoted from `##` to `###` so it nests under "The child's return". Everything else is byte-identical; the note would be exact if it said so.
+
+#### What I did not check
+
+I did not re-run the frame or specimen renderers (`tools/render.mjs`, `tools/build.mjs`) and I opened no screenshot in this backcheck — the MOCKS tree is untouched, so I relied on the candidate-stage checks. I verified no pixel measurement, width, wrap or contrast ratio. I did not re-verify the specification's source path-and-line citations or the operations map (both unchanged in this range). I did not re-read the untouched bodies of the two documents beyond the diff, the change-log row comparison and the sections the findings touch; I did not re-audit copy rules across whole files, only across the added lines. I did not check the owner messages against any host transcript, only that the quoted bytes still reproduce the recorded hashes. I did not inspect PR #799, CI, or anything outside the repository. I ran no build, test or dev server and no state-changing git command; the only non-read command was the brief's permitted `agree.mjs`.
 
 I am Claude Opus 5 (1M context), model ID `claude-opus-5[1m]`, running as a TASK read-only reviewer, working alone, with no delegation.
 

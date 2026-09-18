@@ -201,4 +201,6 @@ Basis verified at commit `2145d3dcf`: `instances/REVIEW/REVIEW-04_RETURN.md`, fi
 2. **T-2.** Row 49 is left byte-identical; new row 51 says that row 36 does not carry the phrase and only row 38 does.
 3. **Files.** Changed: `UX_SPEC_V1.md`, `RETURN.md`. Not changed: `OPERATIONS_MAP.md`. §13 rows 1 to 49 are byte-identical to the committed file.
 
+**Correction 3 (ROOT, from the REVIEW-04 backcheck, N-1).** In §2.8 the ordering clause now closes with a full stop, and the sentence that follows says the rest is the design system's, so "own addition" covers that clause only; §13 row 52 records it, rows 1 to 51 are byte-identical, and `OPERATIONS_MAP.md` is unchanged.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
