@@ -119,11 +119,24 @@
       "id": "MOCKS",
       "role": "HELPS_HUMANS",
       "purpose": "Fifteen mock frames of the nine workflow states as offline HTML from the design system and one sample model; owner reviews",
-      "status": "active",
+      "status": "complete",
       "model_requested": "fable",
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/MOCKS-01_mock_drafts.md",
-      "return": "instances/MOCKS/"
+      "return": "instances/MOCKS/",
+      "accepted_by_root": "2026-09-18"
+    },
+    {
+      "id": "OWNER-MOCKS-REVIEW",
+      "role": "HUMAN",
+      "purpose": "Owner reviews the fifteen frames and answers the fourteen screen questions (instances/MOCKS/MOCKS_V1.md §4)",
+      "status": "pending"
+    },
+    {
+      "id": "DECISION-PACKET",
+      "role": "HELP_HUMAN",
+      "purpose": "One owner decision packet: maturity line, boundary-sentence placement, product rename, and items 4 to 9, with the mock frames as evidence",
+      "status": "pending"
     },
     {
       "id": "UX-SPEC",
@@ -217,12 +230,20 @@
     ],
     [
       "MOCKS",
+      "OWNER-MOCKS-REVIEW"
+    ],
+    [
+      "OWNER-MOCKS-REVIEW",
       "UX-SPEC"
+    ],
+    [
+      "OWNER-MOCKS-REVIEW",
+      "DECISION-PACKET"
     ],
     [
       "UX-SPEC",
       "ACCEPTANCE-PROPOSAL"
     ]
   ],
-  "current_frontier": "MOCKS"
+  "current_frontier": "OWNER-MOCKS-REVIEW"
 }

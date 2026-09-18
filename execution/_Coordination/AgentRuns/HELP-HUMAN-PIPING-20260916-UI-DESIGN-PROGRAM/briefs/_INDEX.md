@@ -65,6 +65,39 @@ Launched after the owner's direction of 2026-09-17 named export compatibility wi
 | `DESIGN-SYSTEM-01_design_system.md` | `e7d21c114c6794f26dd0a653b3c333814ba2f5f24c2cdcb7a5e00cd4b19d37b9` | 2026-09-18T06:23:55Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone | `../instances/DESIGN-SYSTEM/` |
 | `MOCKS-01_mock_drafts.md` | `c483bfb424140b6eab6df948e41bb68784bd18036e6160fc4b0f865f600d57e9` | 2026-09-18T07:22:07Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone | `../instances/MOCKS/` |
 
+Return of MOCKS-01, retained under `../instances/MOCKS/` and accepted by ROOT on 2026-09-18 against the brief's acceptance section: fifteen frames exist, open offline and scale to fit; each shows its state in the named view and theme with the whole shell; one sample model runs through all of them; every value traces to the token file (six gaps listed in `MOCKS_V1.md` §5 with the nearest token used); the child's lint found each mandatory disclosure once where the design system places it and no forbidden word; `MOCKS_V1.md` records each frame's decisions, departures and fourteen questions; RETURN states what was verified and what is uncertain. After the first return ROOT sent the child one instruction (recorded in RETURN §3 and MOCKS_V1 §6): inline the two shared stylesheets so each frame renders from its own bytes, because the owner's review surface renders a local file as a static snapshot; and rename the Review outline row "Review and sign-off block" to the registered report-content name "Review/signoff block" (RESEARCH-C §4, M-07). The child re-verified with no change in measured facts. ROOT opened frames in the browser pane after the fix and confirmed they render styled with no network request. Retention decision: of the child's `shots/`, the fifteen 1:1 stage screenshots, `index.png` and `report.json` are retained; the twenty-nine page screenshots at 1440 × 900 and 960 × 700 were not retained (derivable by re-running `tools/render.mjs`; the measured facts are in `report.json`). All retained files are byte for byte the child's.
+
+| Return file | SHA-256 |
+|---|---|
+| `MOCKS_V1.md` | `e59488d40f99b92d00f816230e426d66cb43ce0b0482f3ed40ed22116775f389` |
+| `RETURN.md` | `12b47f500ffa1d6ad9cb868697182a7ae07be3d20cace5c8bdd76e44595401c3` |
+| `sample_model.md` | `5e85d633bbf19316edec847b80fd93af75db79b11ffb081b4496657274469a76` |
+| `frames/index.html` | `d0ba6a195cf791cef2e180f3d307c8f0431085c6799ebdcfbe9a51be3870d519` |
+| `frames/s1_table_light.html` | `3863868cafc891b225bea5eaa17b0953672cb80a8b02f8df0fd0cd50af8ebc96` |
+| `frames/s2_model_dark.html` | `29f40011b30b27d2ed0546e61f0f84184a77d2a583df3c238f8e8c51b4654df8` |
+| `frames/s2_model_light.html` | `91e78608b6a665739497c040ff6e4bb306371846f63d8c3acb1a4adf14825105` |
+| `frames/s3_table_light.html` | `f10bf723d2866e4283839bbae74f6b47c0e2dead0637a8f36c0f2c9f06c0de07` |
+| `frames/s4_both_light.html` | `ac4159e4f703d518688395b663c9b940476f65856bff3ef945e4679b076846e0` |
+| `frames/s4_table_light.html` | `245c19e6dc2e12a199f91194c3b9fbb7a1ad5a79dd490f1d4e69c66a48b386dd` |
+| `frames/s5_table_light.html` | `f7b38eb5bd917d01c5f4e58f1b9049b4ae0d6e6e04f69055d7bfa51d9bf712e7` |
+| `frames/s6_both_light.html` | `b4aa6328dd7de0ac6999dcb1d99b13c0f42e3470527ede0440a52bfb67223948` |
+| `frames/s7_both_dark.html` | `849eb9e3b9723562dc19258c91214c08bd52b9a090329b4e54c8c4e1b123de81` |
+| `frames/s7_both_light.html` | `d9d8de647767875513c05a5b82edf766b77b165110a4b6098fcd7b41ab16adca` |
+| `frames/s7_table_light.html` | `e1279040855634c818bf920e7373f7eb9bd737e49149bfa2ef0c05ae63a0ee30` |
+| `frames/s8_model_light.html` | `0adc3c9139a4ba54572284c8503e67786cc0dc28410121c56a2a3df8bdc8fe49` |
+| `frames/s8_table_light.html` | `2c10947b81eff9efba33c5de9bdb4b1727426c6a98cb4fd493db16aff60ec6e3` |
+| `frames/s9_table_dark.html` | `133a9bd734b45f17b83cd36c9dbdc9e20227862d274e767683aac9aa7de5e903` |
+| `frames/s9_table_light.html` | `e03d32968e8bec129f3e1614d0dbb5e4e895a3dc2571e6d9daf74a202293affd` |
+| `frames/mocks.css` | `5803b1065e158cf4fb82590c9b17b366c3c80e1d3fd354e158d66669c5cc8eb7` |
+| `frames/tokens.css` | `4a1932db053d54d4b86baa987bfd98146e23c98b8596219737954bc72969aa5e` |
+| `tools/build.mjs` | `a20af376bb89221ead73c0a29e4711b6e71d4343e961d3e399177c0d0ecf341e` |
+| `tools/canvas.mjs` | `436074f0a770e27763e812d9acb5df138c4aa0533b78453eac5e837f58436b69` |
+| `tools/frames.mjs` | `b6ae9d98ca67f2df97957f39f3a0acaa9faf37974afb1cd8f710ad643c9ca090` |
+| `tools/model.mjs` | `6ad465ad1f0e395d04b9c30a2249f6c8c39eabdd4fb686837d0b540a884941b3` |
+| `tools/render.mjs` | `6de01eee4a5ee482b3e09bc2369925216441185811fd22ac5021eb8ac618b247` |
+| `tools/ui.mjs` | `df889a650a83bea338bea7f2b44fbdcea95f8d6c6e256b9da4658aa74581a797` |
+| `shots/report.json` | `be2eaf4873af494aa7debce34920f40e2ec937dca725b318b7018adb823b20d8` |
+
 Sealed on the owner's instruction of 2026-09-18 ("seal the design-system brief") after the direction was confirmed and the recommendations agreed (`../instances/ROOT/DIRECTION_DECISION_2026-09-17.md` §9 and §10).
 
 Return of DESIGN-SYSTEM-01, retained under `../instances/DESIGN-SYSTEM/` and accepted by ROOT on 2026-09-18 against the brief's acceptance section: every component colour, type and spacing value is a token with light and dark values (88 colour tokens, 85 plain); every mark has glyph, token, placement, tooltip and keyboard reveal (§4); the table is specified to the cell state with the layout columns named (§1.5, §5); the agent panel and Review page primitives are specified (§5); the presentation language is one specification with the alternatives stated (§6); the specimen renders offline and the child's agreement script found no difference between document, token file and specimen; the copy rules are stated (§7); contrast is reported as findings only (§2.9); RETURN lists what was read and what is uncertain. ROOT re-rendered the specimen headlessly in both themes with the child's own render script before accepting. One declared substitution: `tools/render.mjs` line 6 carried the ROOT worktree's absolute path to the piping project's `package.json`; ROOT replaced it with a path relative to the script, and the hash below is of the retained bytes. The `tools/` directory holds the child's generator and check scripts, retained as reproducibility evidence; it is under the run record, not the repository's instruction-surface `tools/` root.

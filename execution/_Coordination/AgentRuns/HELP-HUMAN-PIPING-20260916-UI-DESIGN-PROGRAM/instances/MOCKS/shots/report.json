@@ -1,0 +1,1533 @@
+{
+  "s1_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 52,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 1,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 52,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 1,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 52,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 1,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 64776,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s2_model_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 125,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 125,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 125,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 78519,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s2_model_dark": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 125,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 125,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 125,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "light",
+        "bodyBg": "rgb(238, 240, 243)",
+        "colorScheme": "light"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "dark"
+      }
+    },
+    "selfContained": {
+      "bytes": 78514,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s3_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 275,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 275,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 275,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 79080,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s4_both_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 215,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 215,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 215,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 100317,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s4_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 270,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 270,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 270,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 84481,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s5_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 92,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 92,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 92,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 67315,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s6_both_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 70,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 70,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 70,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 87913,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s7_both_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 170,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 1,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 170,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 1,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 170,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 1,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 93943,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s7_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 146,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 146,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 146,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 70607,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s7_both_dark": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 170,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 1,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 170,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 1,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 170,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 1,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "light",
+        "bodyBg": "rgb(238, 240, 243)",
+        "colorScheme": "light"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "dark"
+      }
+    },
+    "selfContained": {
+      "bytes": 93865,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s8_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 96,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 1,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 96,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 1,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 96,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 1,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 67937,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s8_model_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 136,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 1,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 136,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 1,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 136,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 0,
+      "maturityCount": 0,
+      "draftUntilAccepted": 1,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 92100,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s9_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 142,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 1,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 142,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 1,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 142,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 1,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 72049,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "s9_table_dark": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "textElements": 142,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 1,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "textElements": 142,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 1,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "textElements": 142,
+      "minFont": 11,
+      "fontsBelow11": 0,
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "forbiddenWord": null,
+      "acceptanceCount": 1,
+      "maturityCount": 0,
+      "draftUntilAccepted": 0,
+      "oldName": false,
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "light",
+        "bodyBg": "rgb(238, 240, 243)",
+        "colorScheme": "light"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "dark"
+      }
+    },
+    "selfContained": {
+      "bytes": 72066,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ]
+    }
+  },
+  "index.html": {
+    "links": 18,
+    "missingLinks": [],
+    "blockedRequests": [],
+    "consoleIssues": [],
+    "selfContained": {
+      "bytes": 55404,
+      "inlineStyleBlocks": 2,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "../sample_model.md",
+        "../MOCKS_V1.md",
+        "../RETURN.md",
+        "s1_table_light.html",
+        "s2_model_light.html",
+        "s2_model_dark.html",
+        "s3_table_light.html",
+        "s4_both_light.html",
+        "s4_table_light.html",
+        "s5_table_light.html",
+        "s6_both_light.html",
+        "s7_both_light.html",
+        "s7_table_light.html",
+        "s7_both_dark.html",
+        "s8_table_light.html",
+        "s8_model_light.html",
+        "s9_table_light.html",
+        "s9_table_dark.html"
+      ]
+    }
+  }
+}
