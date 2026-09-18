@@ -1,0 +1,138 @@
+{
+  "status": "FAIL_UNTIMED_WITNESS_EXPLICIT_PANEL_WIDTH_DRIFT",
+  "at": "2026-09-18T01:39:48.775359+00:00",
+  "processExit": 1,
+  "testOutcome": {
+    "failed": 1,
+    "unattempted": 1,
+    "failedSize": 1000,
+    "unattemptedSize": 10000
+  },
+  "results": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/raw/run-01/1000/smoke-result.json",
+      "sha256": "c56ed0baccfbfc844991fda795e95dcb8433a12a4dbb2eb5819a5173ba5f9982",
+      "result": {
+        "status": "FAIL_UNTIMED_SMOKE",
+        "qualification": false,
+        "cohortContribution": 0,
+        "fixtureSize": 1000,
+        "steps": [
+          {
+            "action": "assignment",
+            "status": "VISIBLE_FIRST_USABLE"
+          }
+        ],
+        "errors": [
+          "Error: boundary profile/model/binding drift: [{\"field\":\"panels.1.width\",\"before\":338,\"after\":323}]"
+        ],
+        "claim": "control-path smoke only; no timing, trace or performance score"
+      }
+    }
+  ],
+  "rejectedEvidence": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/raw/run-01/1000/smoke-point-stopped-rejected.json",
+      "sha256": "9d7b0d55113f13dec928ad44a7a383825021fc83d4cf9cbcae519d194f128169",
+      "bytes": 20983
+    }
+  ],
+  "cleanup": {
+    "browserProcessesRemaining": 0,
+    "serverListening": false,
+    "verificationStatus": "VERIFIED",
+    "verifiedAt": "2026-09-18T01:39:13.668469+00:00",
+    "portReadout": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "bindingStatus": "PASS_INDEPENDENT_EXTERNAL_REVALIDATION",
+  "processEvidence": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/smoke-process/launch.json",
+      "sha256": "e3759c0b096da383ae6155c663230ec3f72f1cae342918e06f8d3aa5dd6211d6"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/smoke-process/process-return.json",
+      "sha256": "21d41752ec1ebb33cc5875c4b4ee9f168d45b8153b23ae64254b2f1d4f0215cf"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/smoke-process/started.json",
+      "sha256": "34b9f891973a0ecac2069d3a814f2beb7b8758926ee837545433fd87eef6411d"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/smoke-process/stderr.log",
+      "sha256": "6afd3d5870bda145bfbd17a2af3b1a9c9c1bedd0585f69c8debdb255f99a1d54"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/smoke-process/stdout.log",
+      "sha256": "c94ce514ed03851c44d4a50dd2cc2119d2b2078f873c82b38f257139df9088b1"
+    }
+  ],
+  "canonicalEvidence": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/playwright-artifacts/.last-run.json",
+      "sha256": "7e674645a6d4c00cec7219924b9e3fd436643e6650d2b363e5483da19f5d7f0c",
+      "bytes": 96
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/playwright-artifacts/ui-foundation-performance.-3e006-mark-candidate-N-1000-run-1-chromium-ui-foundation-candidate-production/error-context.md",
+      "sha256": "8bc6829f835d19bb0742fc5f621644f02e32407386150abbe0727be94d9e7def",
+      "bytes": 15565
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/raw/run-01/1000/run-failure.json",
+      "sha256": "e3d7727cdb5d5b31861d902cc44175932fe30408d04c4528cc2793e79a12f3ba",
+      "bytes": 225
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/raw/run-01/1000/run-started.json",
+      "sha256": "5998a1c52d716d58da460006e0f5f05ba500ade4a9f761421847df8e0662b36f",
+      "bytes": 115
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/raw/run-01/1000/smoke-initial.json",
+      "sha256": "e744cb6f907bb002021819ab57e95fbda045b05f2bb27f13105a0c71a48846be",
+      "bytes": 6931
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/raw/run-01/1000/smoke-point-stopped-rejected.json",
+      "sha256": "9d7b0d55113f13dec928ad44a7a383825021fc83d4cf9cbcae519d194f128169",
+      "bytes": 20983
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/raw/run-01/1000/smoke-result.json",
+      "sha256": "c56ed0baccfbfc844991fda795e95dcb8433a12a4dbb2eb5819a5173ba5f9982",
+      "bytes": 421
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/smoke-plan.json",
+      "sha256": "6023d219bee94c269a8e9a4a73a7b5a567fb4ab44c855fb3e6e609db4de4e579",
+      "bytes": 1787
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-smoke-01/smoke-summary.json",
+      "sha256": "a2d931fff5e45a28ba1ab68e63ea8fa9400b4f2d5473174e5fadd12a96070235",
+      "bytes": 3032
+    }
+  ],
+  "timedSlotsConsumedBySmoke": 0,
+  "remainingSlots": [
+    "1000.2",
+    "1000.3",
+    "1000.4",
+    "1000.5",
+    "10000.1",
+    "10000.2",
+    "10000.3",
+    "10000.4",
+    "10000.5"
+  ],
+  "noAutomaticRetry": true,
+  "registryAbsent": true,
+  "ledgerAbsent": true,
+  "originalReturnSha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6",
+  "handoff": "ROOT disposition required; exact new rejected metadata available. No product/source repair or timed start authorized/performed."
+}
