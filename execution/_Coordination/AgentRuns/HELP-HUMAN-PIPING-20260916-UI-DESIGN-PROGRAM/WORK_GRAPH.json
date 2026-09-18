@@ -73,6 +73,16 @@
       "accepted_by_root": "2026-09-17"
     },
     {
+      "id": "RESEARCH-F",
+      "role": "TASK",
+      "purpose": "Inventory of the governed texts, registry entries, lint anchors and tests that bind the nine decision-packet items",
+      "model_requested": "opus",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/RESEARCH-F_packet_bindings.md",
+      "return": "instances/RESEARCH/F_packet_bindings.md",
+      "status": "active"
+    },
+    {
       "id": "OWNER-QA",
       "role": "HUMAN",
       "purpose": "Owner answers the seven opening questions",
@@ -116,6 +126,16 @@
       "accepted_by_root": "2026-09-18"
     },
     {
+      "id": "DESIGN-SYSTEM-02",
+      "role": "HELPS_HUMANS",
+      "purpose": "Design system revision V1.1: the fourteen mock-review decisions, the frames' proposals and departures, the six token gaps",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/DESIGN-SYSTEM-02_revision.md",
+      "return": "instances/DESIGN-SYSTEM/ (V1.1 in place)",
+      "status": "active"
+    },
+    {
       "id": "MOCKS",
       "role": "HELPS_HUMANS",
       "purpose": "Fifteen mock frames of the nine workflow states as offline HTML from the design system and one sample model; owner reviews",
@@ -127,22 +147,35 @@
       "accepted_by_root": "2026-09-18"
     },
     {
+      "id": "MOCKS-02",
+      "role": "HELPS_HUMANS",
+      "purpose": "Regenerate the fifteen frames from design system V1.1 with the fourteen decisions applied",
+      "status": "pending"
+    },
+    {
       "id": "OWNER-MOCKS-REVIEW",
       "role": "HUMAN",
       "purpose": "Owner reviews the fifteen frames and answers the fourteen screen questions (instances/MOCKS/MOCKS_V1.md §4)",
-      "status": "pending"
+      "status": "complete",
+      "return": "instances/ROOT/DIRECTION_DECISION_2026-09-17.md",
+      "note": "All fourteen recommendations approved 2026-09-18 (record §11)"
     },
     {
       "id": "DECISION-PACKET",
       "role": "HELP_HUMAN",
       "purpose": "One owner decision packet: maturity line, boundary-sentence placement, product rename, and items 4 to 9, with the mock frames as evidence",
-      "status": "pending"
+      "status": "pending",
+      "note": "Drafted by ROOT after RESEARCH-F returns the registry and anchor inventory"
     },
     {
       "id": "UX-SPEC",
       "role": "HELPS_HUMANS",
       "purpose": "UX specification mapped to typed interfaces and the constraints sheet",
-      "status": "pending"
+      "status": "active",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/UX-SPEC-01_ux_specification.md",
+      "return": "instances/UX-SPEC/"
     },
     {
       "id": "RENDERING-BRIEF",
@@ -241,9 +274,25 @@
       "DECISION-PACKET"
     ],
     [
+      "OWNER-MOCKS-REVIEW",
+      "DESIGN-SYSTEM-02"
+    ],
+    [
+      "DESIGN-SYSTEM-02",
+      "MOCKS-02"
+    ],
+    [
+      "ROOT",
+      "RESEARCH-F"
+    ],
+    [
+      "RESEARCH-F",
+      "DECISION-PACKET"
+    ],
+    [
       "UX-SPEC",
       "ACCEPTANCE-PROPOSAL"
     ]
   ],
-  "current_frontier": "OWNER-MOCKS-REVIEW"
+  "current_frontier": "DESIGN-SYSTEM-02, UX-SPEC, RESEARCH-F"
 }

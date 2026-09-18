@@ -115,4 +115,16 @@ Return of DESIGN-SYSTEM-01, retained under `../instances/DESIGN-SYSTEM/` and acc
 | `tools/render.mjs` (retained, path substituted) | `b3b1d101e875e19c4266f144dc30a1e03460ff644797ae2ecdd4955f6aa94888` |
 | `tools/splice.mjs` | `215d16e3fa56ea072a39c072902a649f9b5ecab9c4b52719e1b628c40f98272f` |
 
+## Phase 3 continuation briefs, sealed before launch
+
+Sealed by ROOT on 2026-09-18 after the owner approved the recommended approach on all fourteen mock-review questions (`../instances/ROOT/DIRECTION_DECISION_2026-09-17.md` §11). Three children launched together from the same host session, each from its own sealed brief, each working alone; parentage is ROOT for all three. Write targets are instruction-asserted (one return directory or file each), not sandbox-enforced. Launch UTC is the minute the three `Agent` calls were issued.
+
+| Brief | Sealed SHA-256 | Launched (UTC) | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `DESIGN-SYSTEM-02_revision.md` | `d1f064be8da73c76fcef150b1753cddd8561589917d29941923a819036595335` | 2026-09-18T10:14Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone | `../instances/DESIGN-SYSTEM/` (V1.1 in place) |
+| `UX-SPEC-01_ux_specification.md` | `2615865928e6c2feb0626b0c7795c9e50c7af3f4f255924623ad2d3c2cb99f74` | 2026-09-18T10:14Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone | `../instances/UX-SPEC/` |
+| `RESEARCH-F_packet_bindings.md` | `0ecadd55e7e995b0cf107474575e30866b3fe286f7fac62a4b5edf5031006aa2` | 2026-09-18T10:14Z | `opus` (Claude Opus 5) | TASK, bounded research | `../instances/RESEARCH/F_packet_bindings.md` |
+
+Returns pending.
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

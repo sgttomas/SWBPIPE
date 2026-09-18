@@ -140,4 +140,29 @@ Adopted into the brief as V1.4:
 10. HTML mocks: static, self-contained pages at 1440 × 900 with a light and dark switch, drawn from one small fictional sample model with values labelled as sample.
 11. The rendering brief to the piping session is cut after the design system defines the presentation language; the decision packet is prepared after the mocks, with the frames as evidence.
 
+## 11. Mock review decisions, 2026-09-18
+
+The fifteen frames ([`../MOCKS/frames/index.html`](../MOCKS/frames/index.html)) raised fourteen questions that only a screen can raise ([`../MOCKS/MOCKS_V1.md`](../MOCKS/MOCKS_V1.md) §4). ROOT recommended an answer to each; the owner's word, extracted from the session transcript, timestamp 2026-09-18T10:06:37.626Z, SHA-256 `be8fdfdf9b0ee00ed7e17d034cc296e6d7bcadaf67a1b3c2d43d04812bee7786`:
+
+> I approve your recommended approach for all fourteen, proceed accordingly.
+
+Adopted, numbered as the questions are:
+
+1. The inspector in Both view docks; the canvas shrinks while it is open; the table never reflows.
+2. No status chip when the model is complete but unsolved; an absent status is honest and no seventh label is added.
+3. Two chips after a solve, one per authority domain (mechanics, user rules). "Human review required" is shown on the Review page only, unless the registry requires it elsewhere, which decision-packet item 4 settles.
+4. After a model change the chips drop, the rail's Results caption reads Stale and the results header carries the band; as drawn.
+5. The run log stays a popover on the Run button, shorter; the full log lives on the run record.
+6. The failure banner appears once, on the page; the drawer's row carries the link.
+7. The required marks sit on the first element's row; the start node's row carries none; the CAEPIPE layout.
+8. With Envelope on, the case selector stays visible and disabled so the control never moves.
+9. The run identity stays inside the results header disclosure: provenance one click from the table.
+10. Report preview and Export stay on the Review page header; the report is produced from that page.
+11. The dark result scale is re-anchored one step down so its lightest step sits below the edge line: a token change.
+12. The engineer's draft ghost is a thin dashed centreline with a faint tube outline.
+13. Node labels default to Budget mode, with All on demand, as the design system says.
+14. The combination editor is a row expansion under the case, matching the joined-row pattern.
+
+Also adopted: the frames' decisions that the design system had not made (MOCKS_V1 §1 and §2) and their departures (§3) are folded into a design-system revision, and the six token gaps (§5) are closed there, so that specification, tokens, specimen and frames agree.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
