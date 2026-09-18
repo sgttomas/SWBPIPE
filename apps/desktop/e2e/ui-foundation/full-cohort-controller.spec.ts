@@ -1097,11 +1097,13 @@ test("uninstrumented smoke canvas guard accepts observed exact canvas without we
 test("continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence",async({},info)=>{
   const {validateBoundaryWithRejectionRecord,boundaryFieldDifferences}=await import("./characterization-commands");
   const before=metadataFixture(),expected={runId:before.runId,fixtureSize:1000,runNumber:2,bindings:before.bindings};
-  before.presentation.panels[1].height=299.96875; // retained initial/ready value
-  const selected=structuredClone(before);selected.presentation.panels[1].height=180; // constructed transition; rejected historical value is unavailable
+  // Exact inner dimensions from retained continuation-smoke-01, portable without its raw cache.
+  before.presentation.panels[1].width=338;before.presentation.panels[1].height=299.96875;
+  const selected=structuredClone(before);selected.presentation.panels[1].width=323;selected.presentation.panels[1].height=1530.625;
   (selected.snapshot.viewport as any).selection={primaryRef:{type:"pipe",id:"pipe:UIF-00205"}} as any;
   validateBoundaryMetadata(selected,expected,before);
-  expect((selected as any).contentGeometryTransitions).toContainEqual({field:"presentation.panels.1.height",before:299.96875,after:180});
+  expect((selected as any).contentGeometryTransitions).toContainEqual({field:"presentation.panels.1.width",before:338,after:323});
+  expect((selected as any).contentGeometryTransitions).toContainEqual({field:"presentation.panels.1.height",before:299.96875,after:1530.625});
   const empty=structuredClone(before);empty.presentation.panels[0].height=100;validateBoundaryMetadata(empty,expected,before);
   for(const size of [1000,10000]) {
     const fixture=await loadFixture(size);const sample=fixture.samples.tree_filters.find((s:any)=>s.sample===18);
