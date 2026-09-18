@@ -1,0 +1,250 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/CONTENT_WIDTH_REPAIR/node-only.config.ts",
+    "rootDir": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/CONTENT_WIDTH_REPAIR/test-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation",
+        "testIgnore": [],
+        "testMatch": [
+          "full-cohort-controller.spec.ts",
+          "performance-targets.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/CONTENT_WIDTH_REPAIR/test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "full-cohort-controller.spec.ts",
+      "file": "full-cohort-controller.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T01:42:26.567Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "42ecdf3bafb9dc779388-625220fd3fb87c1de894",
+          "file": "full-cohort-controller.spec.ts",
+          "line": 1023,
+          "column": 1
+        },
+        {
+          "title": "continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 867,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T01:42:26.592Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "42ecdf3bafb9dc779388-459b282a267e03690659",
+          "file": "full-cohort-controller.spec.ts",
+          "line": 1097,
+          "column": 1
+        },
+        {
+          "title": "phase label rejection preserves actual boundary metadata: point-selection-1-stopped",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T01:42:27.463Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "42ecdf3bafb9dc779388-d44128e4e64c5dd22699",
+          "file": "full-cohort-controller.spec.ts",
+          "line": 1192,
+          "column": 3
+        },
+        {
+          "title": "phase label rejection preserves actual boundary metadata: orbit-1-ready",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T01:42:27.469Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "42ecdf3bafb9dc779388-0ebd36f2e79232e3f5e6",
+          "file": "full-cohort-controller.spec.ts",
+          "line": 1192,
+          "column": 3
+        },
+        {
+          "title": "captured scrollable inspector dimensions remain observations while true layout drift rejects",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T01:42:27.475Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "42ecdf3bafb9dc779388-a5cbd0ac777e3fd3cc09",
+          "file": "full-cohort-controller.spec.ts",
+          "line": 1210,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-18T01:42:25.992Z",
+    "duration": 1512.1689999999999,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

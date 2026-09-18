@@ -66,7 +66,7 @@ export function validateBoundaryMetadata(value: any, expected: any, previous?: a
     const stable = (m: any) => ({ bindings:m.bindings, model:m.snapshot.model.identityHash, generation:m.snapshot.model.generation,
       canvas:m.snapshot.viewport.canvas, theme:m.presentation.theme, density:m.presentation.density, panes:m.presentation.panes,
       referenceProfileSha256:m.referenceProfileSha256,
-      panels:m.presentation.panels.map((panel:any)=>({...panel,height:undefined})),
+      panels:m.presentation.panels.map((panel:any)=>({...panel,width:undefined,height:undefined})),
       browserDpr:m.presentation.browserDpr, windowWidth:m.presentation.windowWidth, windowHeight:m.presentation.windowHeight });
     if (JSON.stringify(stable(previous)) !== JSON.stringify(stable(value))) throw new Error(`boundary profile/model/binding drift: ${JSON.stringify(boundaryFieldDifferences(stable(previous),stable(value)))}`);
     value.contentGeometryTransitions=boundaryFieldDifferences(previous.presentation.panels,value.presentation.panels,"presentation.panels");
@@ -104,7 +104,7 @@ export async function captureBoundary(page: Page, expected: any, id: string, pre
   });
   const metadata={ id, runId:expected.runId, fixtureSize:expected.fixtureSize, ordinal:expected.runNumber, methodSha256:expected.bindings?.methodSha256,
     referenceProfileSha256:process.env.UI_FOUNDATION_REFERENCE_PROFILE_SHA256, bindings:expected.bindings, snapshot, presentation,
-    limitations: "boundary snapshot only; inner panel content heights may change with selection/filtering; no continuous foreground/display monitoring" };
+    limitations: "boundary snapshot only; inner panel dimensions may change with content/scrollbars; no continuous foreground/display monitoring" };
   return directory ? validateBoundaryWithRejectionRecord(metadata,expected,previous,directory) : validateBoundaryMetadata(metadata,expected,previous);
 }
 export async function persistBoundary(directory: string, metadata: any) {

@@ -1,0 +1,759 @@
+{
+  "status": "REJECTED_BOUNDARY_METADATA",
+  "actual": {
+    "id": "content-width-negative-5",
+    "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.1",
+    "fixtureSize": 1000,
+    "ordinal": 1,
+    "methodSha256": "c130feec3c729adb71502ca60af32e3a37f137b3ef3b8e5291175985ddef7871",
+    "referenceProfileSha256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922",
+    "bindings": {
+      "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+      "sourceSha256": "23206c0762ba7f8aabd7529587e4032f61894aec04a21556f4d75b6fcfd57779",
+      "buildSha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+      "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+      "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+      "oracleSha256": "1d483eb78f901abb84bc2e32678cf74b500d624bcd9e0f9b5bce29bdceba4d16",
+      "methodSha256": "c130feec3c729adb71502ca60af32e3a37f137b3ef3b8e5291175985ddef7871",
+      "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+    },
+    "snapshot": {
+      "model": {
+        "projectId": "project:UIF-1000",
+        "generation": 1,
+        "indexGeneration": "1:1",
+        "projectSessionGeneration": 1,
+        "identityHash": "ui-model-fnv32x2:7ce27961ea685585:648922",
+        "assignment": {
+          "status": "committed",
+          "generation": 1,
+          "startedAt": 69.09999990463257,
+          "committedAt": 72.40000009536743
+        }
+      },
+      "tree": {
+        "generation": 1,
+        "publicationSequence": 1,
+        "query": "",
+        "visibleCount": 2069,
+        "publishedAt": 168
+      },
+      "viewport": {
+        "generation": 1,
+        "canvas": {
+          "cssLeft": 293,
+          "cssTop": 285.1953125,
+          "cssWidth": 794,
+          "cssHeight": 557,
+          "dpr": 2,
+          "bufferWidth": 1588,
+          "bufferHeight": 1114
+        },
+        "camera": {
+          "sequence": 8,
+          "kind": "perspective",
+          "position": [
+            16.232120013664673,
+            11.814889013664672,
+            11.182067013664673
+          ],
+          "target": [
+            5.05,
+            0.6327689999999999,
+            -0.0000529999999999845
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "fovDegrees": 42,
+          "near": 0.001,
+          "far": 1000,
+          "aspect": 1.4254937163375225,
+          "localRenderOrigin": [
+            5,
+            0.629966,
+            0.000015000000000000256
+          ]
+        },
+        "mainRender": {
+          "submissionSequence": 9,
+          "generation": 1,
+          "reason": "invalidation",
+          "submittedAt": 1229.6999998092651,
+          "selectionPresentation": {
+            "resourceGeneration": 1,
+            "modelGeneration": 1,
+            "revision": 10,
+            "appliedAfterSubmissionSequence": 7,
+            "renderedSubmissionSequence": 9,
+            "orderedRefs": [
+              {
+                "type": "pipe",
+                "id": "pipe:UIF-00205"
+              }
+            ]
+          },
+          "nextPaintOpportunity": null
+        },
+        "selection": {
+          "actionSequence": 4,
+          "generation": 1,
+          "inputKind": "pointer",
+          "pointerDownAt": 1213.4000000953674,
+          "orderedRefs": [
+            {
+              "type": "pipe",
+              "id": "pipe:UIF-00205"
+            }
+          ],
+          "primaryRef": {
+            "type": "pipe",
+            "id": "pipe:UIF-00205"
+          },
+          "publishedAt": 1215,
+          "renderSubmissionSequence": 9
+        },
+        "inspector": {
+          "generation": 1,
+          "ref": {
+            "type": "pipe",
+            "id": "pipe:UIF-00205"
+          },
+          "publicationSequence": 4,
+          "publishedAt": 1726.3000001907349
+        },
+        "filter": {
+          "actionSequence": 0,
+          "generation": 1,
+          "query": "",
+          "visibleCount": 2069,
+          "inputAt": null,
+          "inputEventTimeStamp": null,
+          "publishedAt": 168,
+          "renderSubmissionSequence": 9
+        },
+        "box": {
+          "status": "unavailable"
+        },
+        "labels": {
+          "enabled": false,
+          "renderedCount": 0,
+          "budget": 80
+        },
+        "geometry": {
+          "mode": "schematic",
+          "odGeneration": 0,
+          "odStatus": "not-requested"
+        },
+        "resources": {
+          "rendererInfo": {
+            "geometries": 11,
+            "textures": 4,
+            "calls": 56,
+            "triangles": 213488,
+            "points": 1,
+            "lines": 35
+          },
+          "ownedPendingRafCount": 0,
+          "owned": {
+            "generation": 1,
+            "live": {
+              "pipeMeshes": 12,
+              "nodeMeshes": 34,
+              "supportMeshes": 4,
+              "componentMeshes": 3,
+              "geometries": 14,
+              "materials": 15,
+              "textures": 3,
+              "instanceMatrices": 53,
+              "instanceColors": 53,
+              "controls": 1,
+              "eventBindings": 7,
+              "resizeObservers": 1
+            },
+            "created": {
+              "pipeMeshes": 12,
+              "nodeMeshes": 34,
+              "supportMeshes": 4,
+              "componentMeshes": 3,
+              "geometries": 14,
+              "materials": 15,
+              "textures": 3,
+              "instanceMatrices": 53,
+              "instanceColors": 53,
+              "controls": 1,
+              "eventBindings": 7,
+              "resizeObservers": 1
+            },
+            "disposed": {
+              "pipeMeshes": 0,
+              "nodeMeshes": 0,
+              "supportMeshes": 0,
+              "componentMeshes": 0,
+              "geometries": 0,
+              "materials": 0,
+              "textures": 0,
+              "instanceMatrices": 0,
+              "instanceColors": 0,
+              "controls": 0,
+              "eventBindings": 0,
+              "resizeObservers": 0
+            }
+          },
+          "context": {
+            "generation": 1,
+            "canvasConnected": true,
+            "lostCount": 0,
+            "restoredCount": 0
+          }
+        }
+      },
+      "schema": "openpipestress.ui-diagnostics/v1",
+      "snapshotSequence": 9,
+      "capturedAt": 1726.5999999046326
+    },
+    "presentation": {
+      "browserDpr": 2,
+      "windowWidth": 1440,
+      "windowHeight": 920,
+      "theme": "light",
+      "density": "comfortable",
+      "panes": [
+        {
+          "selector": ".workspace-pane-tree",
+          "visible": true,
+          "x": 6,
+          "y": 161.1953125,
+          "width": 280,
+          "height": 682.2109375
+        },
+        {
+          "selector": ".workspace-pane-inspector",
+          "visible": true,
+          "x": 1094,
+          "y": 161.1953125,
+          "width": 340,
+          "height": 682.2109375
+        }
+      ],
+      "panels": [
+        {
+          "selector": ".panel.model-tree",
+          "visible": true,
+          "width": 278,
+          "height": 570.1953125
+        },
+        {
+          "selector": ".panel.inspector",
+          "visible": true,
+          "width": 0,
+          "height": 1530.625
+        }
+      ]
+    },
+    "limitations": "boundary snapshot only; inner panel content heights may change with selection/filtering; no continuous foreground/display monitoring",
+    "contentGeometryTransitions": [
+      {
+        "field": "presentation.panels.1.width",
+        "before": 338,
+        "after": 323
+      },
+      {
+        "field": "presentation.panels.1.height",
+        "before": 299.96875,
+        "after": 1530.625
+      }
+    ]
+  },
+  "expected": {
+    "fixtureSize": 1000,
+    "runNumber": 1,
+    "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.1",
+    "sessionId": "e7327502-877f-479b-845b-601a92650023",
+    "bindings": {
+      "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+      "sourceSha256": "23206c0762ba7f8aabd7529587e4032f61894aec04a21556f4d75b6fcfd57779",
+      "buildSha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+      "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+      "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+      "oracleSha256": "1d483eb78f901abb84bc2e32678cf74b500d624bcd9e0f9b5bce29bdceba4d16",
+      "methodSha256": "c130feec3c729adb71502ca60af32e3a37f137b3ef3b8e5291175985ddef7871",
+      "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+    }
+  },
+  "reference": {
+    "id": "smoke-initial",
+    "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.1",
+    "fixtureSize": 1000,
+    "ordinal": 1,
+    "methodSha256": "c130feec3c729adb71502ca60af32e3a37f137b3ef3b8e5291175985ddef7871",
+    "referenceProfileSha256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922",
+    "bindings": {
+      "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+      "sourceSha256": "23206c0762ba7f8aabd7529587e4032f61894aec04a21556f4d75b6fcfd57779",
+      "buildSha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+      "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+      "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+      "oracleSha256": "1d483eb78f901abb84bc2e32678cf74b500d624bcd9e0f9b5bce29bdceba4d16",
+      "methodSha256": "c130feec3c729adb71502ca60af32e3a37f137b3ef3b8e5291175985ddef7871",
+      "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+    },
+    "snapshot": {
+      "model": {
+        "projectId": "project:UIF-1000",
+        "generation": 1,
+        "indexGeneration": "1:1",
+        "projectSessionGeneration": 1,
+        "identityHash": "ui-model-fnv32x2:7ce27961ea685585:648922",
+        "assignment": {
+          "status": "committed",
+          "generation": 1,
+          "startedAt": 69.09999990463257,
+          "committedAt": 72.40000009536743
+        }
+      },
+      "tree": {
+        "generation": 1,
+        "publicationSequence": 1,
+        "query": "",
+        "visibleCount": 2069,
+        "publishedAt": 168
+      },
+      "viewport": {
+        "generation": 1,
+        "canvas": {
+          "cssLeft": 293,
+          "cssTop": 285.1953125,
+          "cssWidth": 794,
+          "cssHeight": 557,
+          "dpr": 2,
+          "bufferWidth": 1588,
+          "bufferHeight": 1114
+        },
+        "camera": {
+          "sequence": 6,
+          "kind": "perspective",
+          "position": [
+            15.392304845413264,
+            11.022270845413264,
+            10.392319845413263
+          ],
+          "target": [
+            5,
+            0.629966,
+            0.000015000000000000256
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "fovDegrees": 42,
+          "near": 0.001,
+          "far": 1000,
+          "aspect": 1.4254937163375225,
+          "localRenderOrigin": [
+            5,
+            0.629966,
+            0.000015000000000000256
+          ]
+        },
+        "mainRender": {
+          "submissionSequence": 5,
+          "generation": 1,
+          "reason": "invalidation",
+          "submittedAt": 391.09999990463257,
+          "selectionPresentation": {
+            "resourceGeneration": 1,
+            "modelGeneration": 1,
+            "revision": 9,
+            "appliedAfterSubmissionSequence": 4,
+            "renderedSubmissionSequence": 5,
+            "orderedRefs": [
+              {
+                "type": "project",
+                "id": "project:UIF-1000"
+              }
+            ]
+          },
+          "nextPaintOpportunity": null
+        },
+        "selection": {
+          "actionSequence": 3,
+          "generation": 1,
+          "inputKind": "external",
+          "pointerDownAt": null,
+          "orderedRefs": [
+            {
+              "type": "project",
+              "id": "project:UIF-1000"
+            }
+          ],
+          "primaryRef": {
+            "type": "project",
+            "id": "project:UIF-1000"
+          },
+          "publishedAt": 385.19999980926514,
+          "renderSubmissionSequence": 5
+        },
+        "inspector": {
+          "generation": 1,
+          "ref": {
+            "type": "project",
+            "id": "project:UIF-1000"
+          },
+          "publicationSequence": 3,
+          "publishedAt": 395.5
+        },
+        "filter": {
+          "actionSequence": 0,
+          "generation": 1,
+          "query": "",
+          "visibleCount": 2069,
+          "inputAt": null,
+          "inputEventTimeStamp": null,
+          "publishedAt": 168,
+          "renderSubmissionSequence": 5
+        },
+        "box": {
+          "status": "unavailable"
+        },
+        "labels": {
+          "enabled": true,
+          "renderedCount": 1,
+          "budget": 80
+        },
+        "geometry": {
+          "mode": "schematic",
+          "odGeneration": 0,
+          "odStatus": "not-requested"
+        },
+        "resources": {
+          "rendererInfo": {
+            "geometries": 9,
+            "textures": 4,
+            "calls": 54,
+            "triangles": 213488,
+            "points": 0,
+            "lines": 34
+          },
+          "ownedPendingRafCount": 0,
+          "owned": {
+            "generation": 1,
+            "live": {
+              "pipeMeshes": 12,
+              "nodeMeshes": 34,
+              "supportMeshes": 4,
+              "componentMeshes": 3,
+              "geometries": 14,
+              "materials": 15,
+              "textures": 3,
+              "instanceMatrices": 53,
+              "instanceColors": 53,
+              "controls": 1,
+              "eventBindings": 7,
+              "resizeObservers": 1
+            },
+            "created": {
+              "pipeMeshes": 12,
+              "nodeMeshes": 34,
+              "supportMeshes": 4,
+              "componentMeshes": 3,
+              "geometries": 14,
+              "materials": 15,
+              "textures": 3,
+              "instanceMatrices": 53,
+              "instanceColors": 53,
+              "controls": 1,
+              "eventBindings": 7,
+              "resizeObservers": 1
+            },
+            "disposed": {
+              "pipeMeshes": 0,
+              "nodeMeshes": 0,
+              "supportMeshes": 0,
+              "componentMeshes": 0,
+              "geometries": 0,
+              "materials": 0,
+              "textures": 0,
+              "instanceMatrices": 0,
+              "instanceColors": 0,
+              "controls": 0,
+              "eventBindings": 0,
+              "resizeObservers": 0
+            }
+          },
+          "context": {
+            "generation": 1,
+            "canvasConnected": true,
+            "lostCount": 0,
+            "restoredCount": 0
+          }
+        }
+      },
+      "schema": "openpipestress.ui-diagnostics/v1",
+      "snapshotSequence": 6,
+      "capturedAt": 403
+    },
+    "presentation": {
+      "browserDpr": 2,
+      "windowWidth": 1440,
+      "windowHeight": 920,
+      "theme": "light",
+      "density": "comfortable",
+      "panes": [
+        {
+          "selector": ".workspace-pane-tree",
+          "visible": true,
+          "x": 6,
+          "y": 161.1953125,
+          "width": 280,
+          "height": 682.2109375
+        },
+        {
+          "selector": ".workspace-pane-inspector",
+          "visible": true,
+          "x": 1094,
+          "y": 161.1953125,
+          "width": 340,
+          "height": 682.2109375
+        }
+      ],
+      "panels": [
+        {
+          "selector": ".panel.model-tree",
+          "visible": true,
+          "width": 278,
+          "height": 570.1953125
+        },
+        {
+          "selector": ".panel.inspector",
+          "visible": true,
+          "width": 338,
+          "height": 299.96875
+        }
+      ]
+    },
+    "limitations": "boundary snapshot only; inner panel content heights may change with selection/filtering; no continuous foreground/display monitoring"
+  },
+  "referenceId": "smoke-initial",
+  "referenceSha256": "a25f4550718af6e67c9baf35aebb52fe45f09d5621e19b6d64a27bbeffab033c",
+  "fieldDifferences": [
+    {
+      "field": "id",
+      "before": "smoke-initial",
+      "after": "content-width-negative-5"
+    },
+    {
+      "field": "snapshot.viewport.camera.sequence",
+      "before": 6,
+      "after": 8
+    },
+    {
+      "field": "snapshot.viewport.camera.position.0",
+      "before": 15.392304845413264,
+      "after": 16.232120013664673
+    },
+    {
+      "field": "snapshot.viewport.camera.position.1",
+      "before": 11.022270845413264,
+      "after": 11.814889013664672
+    },
+    {
+      "field": "snapshot.viewport.camera.position.2",
+      "before": 10.392319845413263,
+      "after": 11.182067013664673
+    },
+    {
+      "field": "snapshot.viewport.camera.target.0",
+      "before": 5,
+      "after": 5.05
+    },
+    {
+      "field": "snapshot.viewport.camera.target.1",
+      "before": 0.629966,
+      "after": 0.6327689999999999
+    },
+    {
+      "field": "snapshot.viewport.camera.target.2",
+      "before": 0.000015000000000000256,
+      "after": -0.0000529999999999845
+    },
+    {
+      "field": "snapshot.viewport.mainRender.submissionSequence",
+      "before": 5,
+      "after": 9
+    },
+    {
+      "field": "snapshot.viewport.mainRender.submittedAt",
+      "before": 391.09999990463257,
+      "after": 1229.6999998092651
+    },
+    {
+      "field": "snapshot.viewport.mainRender.selectionPresentation.revision",
+      "before": 9,
+      "after": 10
+    },
+    {
+      "field": "snapshot.viewport.mainRender.selectionPresentation.appliedAfterSubmissionSequence",
+      "before": 4,
+      "after": 7
+    },
+    {
+      "field": "snapshot.viewport.mainRender.selectionPresentation.renderedSubmissionSequence",
+      "before": 5,
+      "after": 9
+    },
+    {
+      "field": "snapshot.viewport.mainRender.selectionPresentation.orderedRefs.0.type",
+      "before": "project",
+      "after": "pipe"
+    },
+    {
+      "field": "snapshot.viewport.mainRender.selectionPresentation.orderedRefs.0.id",
+      "before": "project:UIF-1000",
+      "after": "pipe:UIF-00205"
+    },
+    {
+      "field": "snapshot.viewport.selection.actionSequence",
+      "before": 3,
+      "after": 4
+    },
+    {
+      "field": "snapshot.viewport.selection.inputKind",
+      "before": "external",
+      "after": "pointer"
+    },
+    {
+      "field": "snapshot.viewport.selection.pointerDownAt",
+      "before": null,
+      "after": 1213.4000000953674
+    },
+    {
+      "field": "snapshot.viewport.selection.orderedRefs.0.type",
+      "before": "project",
+      "after": "pipe"
+    },
+    {
+      "field": "snapshot.viewport.selection.orderedRefs.0.id",
+      "before": "project:UIF-1000",
+      "after": "pipe:UIF-00205"
+    },
+    {
+      "field": "snapshot.viewport.selection.primaryRef.type",
+      "before": "project",
+      "after": "pipe"
+    },
+    {
+      "field": "snapshot.viewport.selection.primaryRef.id",
+      "before": "project:UIF-1000",
+      "after": "pipe:UIF-00205"
+    },
+    {
+      "field": "snapshot.viewport.selection.publishedAt",
+      "before": 385.19999980926514,
+      "after": 1215
+    },
+    {
+      "field": "snapshot.viewport.selection.renderSubmissionSequence",
+      "before": 5,
+      "after": 9
+    },
+    {
+      "field": "snapshot.viewport.inspector.ref.type",
+      "before": "project",
+      "after": "pipe"
+    },
+    {
+      "field": "snapshot.viewport.inspector.ref.id",
+      "before": "project:UIF-1000",
+      "after": "pipe:UIF-00205"
+    },
+    {
+      "field": "snapshot.viewport.inspector.publicationSequence",
+      "before": 3,
+      "after": 4
+    },
+    {
+      "field": "snapshot.viewport.inspector.publishedAt",
+      "before": 395.5,
+      "after": 1726.3000001907349
+    },
+    {
+      "field": "snapshot.viewport.filter.renderSubmissionSequence",
+      "before": 5,
+      "after": 9
+    },
+    {
+      "field": "snapshot.viewport.labels.enabled",
+      "before": true,
+      "after": false
+    },
+    {
+      "field": "snapshot.viewport.labels.renderedCount",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "field": "snapshot.viewport.resources.rendererInfo.geometries",
+      "before": 9,
+      "after": 11
+    },
+    {
+      "field": "snapshot.viewport.resources.rendererInfo.calls",
+      "before": 54,
+      "after": 56
+    },
+    {
+      "field": "snapshot.viewport.resources.rendererInfo.points",
+      "before": 0,
+      "after": 1
+    },
+    {
+      "field": "snapshot.viewport.resources.rendererInfo.lines",
+      "before": 34,
+      "after": 35
+    },
+    {
+      "field": "snapshot.snapshotSequence",
+      "before": 6,
+      "after": 9
+    },
+    {
+      "field": "snapshot.capturedAt",
+      "before": 403,
+      "after": 1726.5999999046326
+    },
+    {
+      "field": "presentation.panels.1.width",
+      "before": 338,
+      "after": 0
+    },
+    {
+      "field": "presentation.panels.1.height",
+      "before": 299.96875,
+      "after": 1530.625
+    },
+    {
+      "field": "contentGeometryTransitions",
+      "before": {
+        "unavailable": true
+      },
+      "after": [
+        {
+          "field": "presentation.panels.1.width",
+          "before": 338,
+          "after": 323
+        },
+        {
+          "field": "presentation.panels.1.height",
+          "before": 299.96875,
+          "after": 1530.625
+        }
+      ]
+    }
+  ],
+  "error": "Error: required boundary metadata invalid or unavailable"
+}

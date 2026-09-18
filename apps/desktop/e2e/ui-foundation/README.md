@@ -417,9 +417,11 @@ remains the full serial fail-fast route. Original `1000.1` is invalid and perman
 consumed; only `1000.2`–`1000.5`, then `10000.1`–`10000.5`, remain. One invocation runs
 one slot; ROOT supervises each next launch. There is no retry/replacement loop.
 
-Boundary metadata now retains inner tree/inspector heights as content observations;
-selection and the frozen empty-tree query can change those heights. Outer unique
-`.workspace-pane-tree` / `.workspace-pane-inspector` x/y/width/height, inner width and
+Boundary metadata retains positive inner tree/inspector widths and heights as content
+observations; selection, the frozen empty-tree query and overflow scrollbars can change
+those dimensions. The retained continuation smoke records inspector width338→323 and
+height299.96875→1530.625 with unchanged outer pane and canvas. Outer unique
+`.workspace-pane-tree` / `.workspace-pane-inspector` x/y/width/height, inner selector and
 visibility, canvas/DPR, model, theme/density and bindings stay invariant. The rejected
 historical snapshot was not saved, so the precise historical differing field is unproved.
 Future rejection writes the actual snapshot, reference identity/hash, field differences,

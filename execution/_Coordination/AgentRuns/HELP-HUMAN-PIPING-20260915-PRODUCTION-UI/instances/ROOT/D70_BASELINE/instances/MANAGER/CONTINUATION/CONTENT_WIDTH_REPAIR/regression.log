@@ -1,0 +1,14 @@
+
+Running 5 tests using 1 worker
+
+(node:76782) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:76782) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1023:1 › required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions (10ms)
+  ✓  2 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1097:1 › continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence (867ms)
+  ✓  3 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1192:3 › phase label rejection preserves actual boundary metadata: point-selection-1-stopped (2ms)
+  ✓  4 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1192:3 › phase label rejection preserves actual boundary metadata: orbit-1-ready (2ms)
+  ✓  5 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1210:1 › captured scrollable inspector dimensions remain observations while true layout drift rejects (15ms)
+
+  5 passed (1.5s)

@@ -1109,7 +1109,7 @@ test("continuation metadata allows truthful inner content heights but preserves 
   }
   const directory=info.outputPath("rejected");await mkdir(directory,{recursive:true});
   for(const [i,mutate] of [(v:any)=>v.presentation.panes[0].x++,(v:any)=>v.presentation.panes[1].height++,
-    (v:any)=>v.presentation.panels[0].width++,(v:any)=>v.snapshot.viewport.canvas.cssLeft++,
+    (v:any)=>v.presentation.panels[0].visible=false,(v:any)=>v.snapshot.viewport.canvas.cssLeft++,
     (v:any)=>v.snapshot.model.generation++,(v:any)=>v.bindings.source="changed",(v:any)=>v.referenceProfileSha256="b".repeat(64),
     (v:any)=>delete v.presentation.panes[0].width].entries()) {
     const bad=structuredClone(before);bad.id=`rejected-${i}`;mutate(bad);
@@ -1206,3 +1206,33 @@ for (const [id, expectedEnabled] of [["point-selection-1-stopped", false], ["orb
     expect(()=>validateBoundaryMetadata(allowed,expected,previous)).not.toThrow();
   });
 }
+
+test("captured scrollable inspector dimensions remain observations while true layout drift rejects", async ({}, info) => {
+  const file=process.env.D70_CONTENT_WIDTH_REJECTED;
+  test.skip(!file,"requires the hash-bound continuation-smoke-01 rejected snapshot");
+  const bytes=await readFile(file!);
+  expect(createHash("sha256").update(bytes).digest("hex")).toBe("9d7b0d55113f13dec928ad44a7a383825021fc83d4cf9cbcae519d194f128169");
+  const {actual,reference,expected}=JSON.parse(bytes.toString());
+  expect(reference.presentation.panels[1]).toMatchObject({width:338,height:299.96875});
+  expect(actual.presentation.panels[1]).toMatchObject({width:323,height:1530.625});
+  expect(actual.presentation.panes).toEqual(reference.presentation.panes);
+  expect(actual.snapshot.viewport.canvas).toEqual(reference.snapshot.viewport.canvas);
+  expect(actual.snapshot.viewport.selection.primaryRef).toEqual({type:"pipe",id:"pipe:UIF-00205"});
+  validateBoundaryMetadata(actual,expected,reference);
+  expect(actual.contentGeometryTransitions).toEqual([
+    {field:"presentation.panels.1.width",before:338,after:323},
+    {field:"presentation.panels.1.height",before:299.96875,after:1530.625}
+  ]);
+  const {validateBoundaryWithRejectionRecord}=await import("./characterization-commands");
+  const directory=info.outputPath("actual-layout-rejections");await mkdir(directory,{recursive:true});
+  const mutations=[(v:any)=>v.presentation.panes[1].width--,(v:any)=>v.presentation.panes[0].x++,
+    (v:any)=>v.snapshot.viewport.canvas.cssLeft++,(v:any)=>v.presentation.panels[1].selector=".other",
+    (v:any)=>v.presentation.panels[1].visible=false,(v:any)=>v.presentation.panels[1].width=0,
+    (v:any)=>v.presentation.panels[1].height=0];
+  for(const [index,mutate] of mutations.entries()) {
+    const bad=structuredClone(actual);bad.id=`content-width-negative-${index}`;mutate(bad);
+    await expect(validateBoundaryWithRejectionRecord(bad,expected,reference,directory)).rejects.toThrow();
+    const rejected=JSON.parse(await readFile(`${directory}/${bad.id}-rejected.json`,"utf8"));
+    expect(rejected.actual).toEqual(bad);expect(rejected.error).toMatch(/metadata|drift/);
+  }
+});
