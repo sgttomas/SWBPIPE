@@ -1,0 +1,16 @@
+{
+  "closure": "SOURCE_READY_PENDING_MANAGER_REVIEW_AND_ROOT_RUNTIME_RELEASE",
+  "derivativePackage": true,
+  "acceptedUpstream": "CONTEXT.json plus MANAGER/CONTINUATION/ROOT_SUPPLEMENT.md",
+  "methodManifestSha256": "79efe4a3915b270f5b00853032c59a740ac3284ee49984566c26d6895b557cbd",
+  "rerunRequirements": [
+    "independent review/freeze",
+    "affected untimed both-size smoke",
+    "ROOT supervised nine one-slot invocations with actual independently bound receipts"
+  ],
+  "policyRevision": "ROOT stamps final manager HEAD after fan-in; do not freeze against writer source commit",
+  "remainingBlockers": [
+    "runtime smoke and continuation have not been executed"
+  ],
+  "performanceAcceptance": false
+}

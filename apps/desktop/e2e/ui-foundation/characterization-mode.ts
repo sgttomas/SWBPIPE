@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -54,4 +55,20 @@ export async function bindReferenceProfile(env: NodeJS.ProcessEnv = process.env)
   if (createHash("sha256").update(bytes).digest("hex") !== sha256) throw new Error("reference profile bytes drift");
   const record = validateReferenceProfile(JSON.parse(bytes.toString()), env.UI_FOUNDATION_COHORT_ID ?? "", { model: os.cpus()[0]?.model, memoryBytes: os.totalmem() });
   return { file, sha256, record, observation: "external refresh verification plus host readback; boundary checks only" };
+}
+
+// Read-only at Playwright discovery time; the worker consumes its entry seal in beforeAll.
+export function continuationSelection(env: NodeJS.ProcessEnv = process.env) {
+  const file=env.UI_FOUNDATION_CONTINUATION_CLAIM;
+  if(!file) {
+    if(Object.keys(env).some(k=>k.startsWith("UI_FOUNDATION_CONTINUATION_")&&env[k]!==undefined))throw new Error("partial continuation inputs");
+    return null;
+  }
+  if(env.UI_FOUNDATION_COLLECTION_MODE!=="characterization" || env.UI_FOUNDATION_PHASE!=="candidate" || env.UI_FOUNDATION_SMOKE!==undefined || env.UI_FOUNDATION_DIAGNOSTIC_MODE!==undefined ||
+    !path.isAbsolute(file) || !/^[a-f0-9]{64}$/.test(env.UI_FOUNDATION_CONTINUATION_CLAIM_SHA256??""))throw new Error("unknown/conflicting continuation selection");
+  const bytes=readFileSync(file);if(createHash("sha256").update(bytes).digest("hex")!==env.UI_FOUNDATION_CONTINUATION_CLAIM_SHA256)throw new Error("continuation claim drift");
+  const claim=JSON.parse(bytes.toString()),parts=/^(1000|10000)\.([1-5])$/.exec(claim.slot);
+  if(!parts || claim.slot==="1000.1" || claim.executionToken!==env.UI_FOUNDATION_CONTINUATION_TOKEN || claim.evidenceRoot!==env.UI_FOUNDATION_EVIDENCE_DIR ||
+    claim.cohortId!==env.UI_FOUNDATION_COHORT_ID || claim.methodSha256!==env.UI_FOUNDATION_METHOD_MANIFEST_SHA256)throw new Error("continuation selection mismatch");
+  return {fixtureSize:Number(parts[1]) as 1000|10000,runNumber:Number(parts[2]),claim};
 }

@@ -1,0 +1,11 @@
+
+Running 2 tests using 1 worker
+
+(node:73000) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73000) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1097:1 › continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence (877ms)
+  ✓  2 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1125:1 › continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates (137ms)
+
+  2 passed (1.6s)

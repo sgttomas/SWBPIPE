@@ -1,0 +1,37 @@
+{
+  "basisRevision": "36e56f2d93f763296b09520fe9f7c8481dd6fd54",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "sha256": "8438e3c3d3a5ba76a265b96444c33745b54014962d7d5edfde5939745786dd51"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+      "sha256": "df81c1bb2bfc9673d760504971a166cc48529b4edaab65fb8ec0b91f510ce72d"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-mode.ts",
+      "sha256": "9e8a22893c89e9fb74d2d5bfc0dedf21fe7e42336dbaf4ea084a529b09aa1d59"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.d.mts",
+      "sha256": "7d10a944f0f02ed94deaa7f5cfc92c24db534f4d64b739970a646e51ce897f27"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.mjs",
+      "sha256": "4a0be1ae885412fbf89065e88058f51c85cebdcbfccb47b39367177f7a31508b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "a90648c9a2fdc7c72eb3e8c5bd4e43de6cb7a059e3553d318e08864131ec4eba"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "6689415ad54eda98e0a19647adaca1b7e3b4cff071a7bdfd4d32340804f4796f"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+      "sha256": "1c3d96e141c646f728e703e8a4f7bf01fb8be286e206090c5aa2790dbcdcfe09"
+    }
+  ]
+}

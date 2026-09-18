@@ -1016,10 +1016,10 @@ test("attempt separates complete characterization from FAIL_COHORT and lists fai
   const partial=attemptDisposition("characterization",plan,[records[0],{expected:plan[1],started:true,error:"timeout"}],score);
   expect(partial.runs[1].disposition.attemptDisposition).toBe("ABORT_REMAINING");expect(partial.runs[2].disposition.attemptDisposition).toBe("UNATTEMPTED");expect(JSON.stringify(score)).toBe(frozen);
 });
-function metadataFixture(){return {id:"point-selection-1-ready",runId:"r",bindings:{source:"s"},snapshot:{model:{generation:1,identityHash:"m"},viewport:{
+function metadataFixture(){return {id:"point-selection-1-ready",runId:"r",referenceProfileSha256:"a".repeat(64),bindings:{source:"s"},snapshot:{model:{generation:1,identityHash:"m"},viewport:{
   canvas:{cssLeft:0,cssTop:0,cssWidth:400,cssHeight:300,bufferWidth:800,bufferHeight:600,dpr:2},labels:{enabled:false,renderedCount:0,budget:200},
   geometry:{mode:"schematic",odGeneration:0,odStatus:"idle"},camera:{sequence:1,kind:"perspective",position:[1,2,3],target:[0,0,0],up:[0,1,0],localRenderOrigin:[0,0,0],fovDegrees:45,near:.1,far:1000,aspect:4/3}}},
-  presentation:{browserDpr:2,windowWidth:1440,windowHeight:920,theme:"light",density:"comfortable",panels:[{visible:true,width:300,height:400},{visible:true,width:300,height:400}]}};}
+  presentation:{browserDpr:2,windowWidth:1440,windowHeight:920,theme:"light",density:"comfortable",panes:[{selector:".workspace-pane-tree",visible:true,x:0,y:0,width:300,height:500},{selector:".workspace-pane-inspector",visible:true,x:1000,y:0,width:300,height:500}],panels:[{visible:true,width:300,height:400},{visible:true,width:300,height:400}]}};}
 test("required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions",()=>{
   const value=metadataFixture(),expected={runId:"r",bindings:value.bindings};validateBoundaryMetadata(value,expected);
   for(const mutate of [(v:any)=>v.snapshot.viewport.canvas.cssWidth=0,(v:any)=>v.snapshot.viewport.canvas.bufferWidth=999,
@@ -1092,4 +1092,98 @@ test("uninstrumented smoke canvas guard accepts observed exact canvas without we
   expect(()=>assertMainCanvasHitTarget(timed)).not.toThrow();
   expect(()=>assertMainCanvasHitTarget({...timed,canvasEpoch:8})).toThrow();
   expect(()=>assertMainCanvasHitTarget({...timed,exactArmedCanvas:false})).toThrow();
+});
+
+test("continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence",async({},info)=>{
+  const {validateBoundaryWithRejectionRecord,boundaryFieldDifferences}=await import("./characterization-commands");
+  const before=metadataFixture(),expected={runId:before.runId,fixtureSize:1000,runNumber:2,bindings:before.bindings};
+  before.presentation.panels[1].height=299.96875; // retained initial/ready value
+  const selected=structuredClone(before);selected.presentation.panels[1].height=180; // constructed transition; rejected historical value is unavailable
+  (selected.snapshot.viewport as any).selection={primaryRef:{type:"pipe",id:"pipe:UIF-00205"}} as any;
+  validateBoundaryMetadata(selected,expected,before);
+  expect((selected as any).contentGeometryTransitions).toContainEqual({field:"presentation.panels.1.height",before:299.96875,after:180});
+  const empty=structuredClone(before);empty.presentation.panels[0].height=100;validateBoundaryMetadata(empty,expected,before);
+  for(const size of [1000,10000]) {
+    const fixture=await loadFixture(size);const sample=fixture.samples.tree_filters.find((s:any)=>s.sample===18);
+    expect(sample.query).toBe("no-match-ui-foundation");expect(frozenTreeExpectation(fixture.model,sample.query).visibleCount).toBe(0);
+  }
+  const directory=info.outputPath("rejected");await mkdir(directory,{recursive:true});
+  for(const [i,mutate] of [(v:any)=>v.presentation.panes[0].x++,(v:any)=>v.presentation.panes[1].height++,
+    (v:any)=>v.presentation.panels[0].width++,(v:any)=>v.snapshot.viewport.canvas.cssLeft++,
+    (v:any)=>v.snapshot.model.generation++,(v:any)=>v.bindings.source="changed",(v:any)=>v.referenceProfileSha256="b".repeat(64),
+    (v:any)=>delete v.presentation.panes[0].width].entries()) {
+    const bad=structuredClone(before);bad.id=`rejected-${i}`;mutate(bad);
+    await expect(validateBoundaryWithRejectionRecord(bad,expected,before,directory)).rejects.toThrow();
+    const record=JSON.parse(await readFile(`${directory}/${bad.id}-rejected.json`,"utf8"));
+    expect(record.actual).toEqual(bad);expect(record.referenceId).toBe(before.id);expect(record.expected.runNumber).toBe(2);
+    expect(record.fieldDifferences).toEqual(boundaryFieldDifferences(before,bad));expect(record.error).toMatch(/metadata|drift/);
+  }
+  const bad=structuredClone(before);bad.presentation.panes[0].height++;
+  await expect(validateBoundaryWithRejectionRecord(bad,expected,before,directory,async()=>{throw new Error("disk failure");})).rejects.toThrow("rejected metadata persistence failed: Error: disk failure");
+});
+
+test("continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates",async({},info)=>{
+  const {launchContinuationSlot,continuationClaims,continuationBudgetReport,continuationExternalBindings,CONTINUATION_SLOTS,ORIGINAL_RETURN_SHA256}=await import("./characterization-observations.mjs");
+  const {rm}=await import("node:fs/promises");
+  const original=process.env.D70_WRITER_ORIGINAL_RETURN;
+  test.skip(!original,"hash-bound original return must be explicitly supplied");
+  const seedBytes=await readFile(original!);expect(createHash("sha256").update(seedBytes).digest("hex")).toBe(ORIGINAL_RETURN_SHA256);
+  const seed=JSON.parse(seedBytes.toString()),directory=info.outputPath("continuation");await mkdir(directory,{recursive:true});
+  const save=async(name:string,value:any)=>{const file=`${directory}/${name}`,bytes=typeof value==="string"?value:JSON.stringify(value);await writeFile(file,bytes,{flag:"wx"});return {path:file,sha256:createHash("sha256").update(bytes).digest("hex")};};
+  const seedRef={path:original!,sha256:ORIGINAL_RETURN_SHA256};
+  const policy={schema:"ui-foundation.continuation-policy/v1",seed:seedRef,cohortId:seed.frozenEnvironment.UI_FOUNDATION_COHORT_ID,
+    ledgerRoot:`${directory}/ledger`,instrumentProjectRoot:directory,instrumentRevision:"a".repeat(40),method:{path:`${directory}/method.json`,sha256:"b".repeat(64)},
+    attemptRoots:Object.fromEntries(CONTINUATION_SLOTS.map(slot=>[slot,`${directory}/attempt-${slot}`]))};
+  const policyRef=await save("policy.json",policy),calls:string[]=[],checks:string[]=[];
+  const receipt=async(slot:string,previous:string,recovery=false)=>{
+    const cleanup=await save(`cleanup-${slot}-${recovery}.json`,{previousClaimSha256:previous,browserProcessesRemaining:0,serverListening:false,verificationStatus:"VERIFIED",processDisposition:recovery?"EXTERNAL_RECOVERY_VERIFIED":"NORMAL_EXIT"});
+    const bindings=await save(`bindings-${slot}-${recovery}.json`,{status:"PASS_INDEPENDENT_EXTERNAL_REVALIDATION",externalBindings:continuationExternalBindings(seed)});
+    return save(`receipt-${slot}-${recovery}.json`,{schema:"ui-foundation.continuation-preconditions/v1",slot,previousClaimSha256:previous,verifiedAt:new Date().toISOString(),
+      cleanup:{status:"VERIFIED_NO_REMAINING_BROWSER_OR_SERVER",evidence:cleanup},bindingsStatus:"VERIFIED_UNCHANGED",externalBindings:continuationExternalBindings(seed),bindingEvidence:bindings,evidence:[cleanup,bindings]});
+  };
+  let registry:any=null;
+  const operations={bindRegistry:async(_file:string,value:any)=>{if(registry&&JSON.stringify(registry)!==JSON.stringify(value))throw new Error("approved ledger relocation/reset rejected");registry=value;},verifyFiles:async()=>{checks.push("external");return seed.frozenEnvironment;},spawn:async(_p:any,env:any)=>{
+    const claim=JSON.parse(await readFile(env.UI_FOUNDATION_CONTINUATION_CLAIM,"utf8"));calls.push(claim.slot);
+    if(claim.slot==="1000.2")throw new Error("interrupted spawn/process");return {exitCode:1,signal:null};
+  }};
+  const firstReceipt=await receipt("1000.2",ORIGINAL_RETURN_SHA256);
+  await expect(launchContinuationSlot(policyRef,"1000.2",firstReceipt,{...operations,verifyFiles:async()=>{throw new Error("actual binding hash drift");}})).rejects.toThrow("binding hash drift");
+  expect(await continuationClaims(policy)).toHaveLength(0);expect(calls).toEqual([]);
+  const receiptBody=JSON.parse(await readFile(firstReceipt.path,"utf8"));
+  const dirty=await save("dirty-cleanup.json",{previousClaimSha256:ORIGINAL_RETURN_SHA256,browserProcessesRemaining:1,serverListening:false,verificationStatus:"VERIFIED",processDisposition:"NORMAL_EXIT"});
+  const dirtyReceipt=await save("dirty-receipt.json",{...receiptBody,cleanup:{...receiptBody.cleanup,evidence:dirty}});
+  await expect(launchContinuationSlot(policyRef,"1000.2",dirtyReceipt,operations)).rejects.toThrow("cleanup evidence");
+  const wrongBindings=await save("wrong-bindings.json",{status:"PASS_INDEPENDENT_EXTERNAL_REVALIDATION",externalBindings:{...continuationExternalBindings(seed),UI_FOUNDATION_MANIFEST_SHA256:"wrong"}});
+  const wrongReceipt=await save("wrong-receipt.json",{...receiptBody,bindingEvidence:wrongBindings});
+  await expect(launchContinuationSlot(policyRef,"1000.2",wrongReceipt,operations)).rejects.toThrow("binding proof mismatch");
+  expect(await continuationClaims(policy)).toHaveLength(0);expect(calls).toEqual([]);
+  const copiedSeed=await save("copied-original.json",seedBytes.toString());
+  const copiedPolicy=await save("copied-policy.json",{...policy,seed:copiedSeed});
+  await expect(launchContinuationSlot(copiedPolicy,"1000.2",firstReceipt,operations)).rejects.toThrow("canonical original seed");
+  const first=await launchContinuationSlot(policyRef,"1000.2",firstReceipt,operations);
+  expect(first.exitCode).toBeNull();expect(first.launchError).toContain("interrupted");
+  await rm(`${policy.ledgerRoot}/terminal-1000.2.json`); // models launcher termination before terminal persistence
+  const claims=await continuationClaims(policy);expect(claims.map(c=>c.claim.slot)).toEqual(["1000.2"]);
+  const nextReceipt=await receipt("1000.3",claims[0].sha256);
+  await expect(launchContinuationSlot(policyRef,"1000.3",nextReceipt,operations)).rejects.toThrow("external recovery");expect(calls).toEqual(["1000.2"]);
+  for(const bad of ["1000.1","1000.2","1000.6","10000.1"])await expect(launchContinuationSlot(policyRef,bad,nextReceipt,operations)).rejects.toThrow();
+  for(const slot of CONTINUATION_SLOTS.slice(1)) {
+    const prior=(await continuationClaims(policy)).at(-1)!;const output=await launchContinuationSlot(policyRef,slot,await receipt(slot,prior.sha256,slot==="1000.3"),operations);
+    expect(output.exitCode).toBe(1);expect(output.cleanup).toBe("UNKNOWN_REQUIRES_INDEPENDENT_REVALIDATION");
+  }
+  expect(calls).toEqual(CONTINUATION_SLOTS);expect(checks).toHaveLength(9);expect(await continuationClaims(policy)).toHaveLength(9);
+  const budget=JSON.parse(await readFile(`${policy.ledgerRoot}/budget-after-10000.5.json`,"utf8"));expect(budget.consumed).toBe(10);
+  expect(budget.validCompleteBySize).toEqual({1000:0,10000:0});expect(budget.qualificationCohort).toBe(false);expect(budget.slots[0].originalScored).toEqual(seed.originalScores);
+  // Constructed results preserve target misses while reconciling process failure independently.
+  for(const slot of ["1000.3","1000.4"]) {
+    const dir=`${policy.attemptRoots[slot]}/raw/run-${slot.split(".")[1].padStart(2,"0")}/1000`;
+    await mkdir(dir,{recursive:true});await writeFile(`${dir}/result.json`,JSON.stringify({collection:{evidenceValidity:"VALID",collectionCompleteness:"COMPLETE"},scored:{targetOutcome:"FAIL"}}));
+  }
+  await writeFile(`${policy.ledgerRoot}/terminal-1000.4.json`,JSON.stringify({exitCode:0,signal:null}));
+  const reconciled=await continuationBudgetReport(policy,seed);
+  expect(reconciled.validCompleteBySize).toEqual({1000:1,10000:0});
+  expect(reconciled.slots.find((s:any)=>s.slot==="1000.3")?.runtimeDisposition).toBe("FAILED_OR_UNAVAILABLE");
+  expect(reconciled.slots.find((s:any)=>s.slot==="1000.4")?.originalScored).toEqual({targetOutcome:"FAIL"});
+  const altered={...policy,method:{...policy.method,sha256:"c".repeat(64)}};await expect(continuationClaims(altered)).rejects.toThrow("untracked method");
+  const moved=await save("moved-policy.json",{...policy,ledgerRoot:`${directory}/another-ledger`});await expect(launchContinuationSlot(moved,"1000.2",nextReceipt,operations)).rejects.toThrow("relocation/reset");
 });

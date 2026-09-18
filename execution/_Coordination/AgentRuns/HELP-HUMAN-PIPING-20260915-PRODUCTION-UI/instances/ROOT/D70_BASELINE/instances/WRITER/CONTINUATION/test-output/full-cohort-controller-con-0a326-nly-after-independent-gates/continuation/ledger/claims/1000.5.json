@@ -1,0 +1,18 @@
+{
+  "schema": "ui-foundation.started-slot/v1",
+  "slot": "1000.5",
+  "cohortId": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+  "seedSha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6",
+  "policySha256": "f090d05bd60327f9546f04f3b51baaf281a64f56d37dfa749dbd8a8c7a75d784",
+  "previousClaimSha256": "5a9316a36ed27c601dfa5f2f4beff68655ddcf53e85ba56d557e75f3edfe7a99",
+  "receipt": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/CONTINUATION/test-output/full-cohort-controller-con-0a326-nly-after-independent-gates/continuation/receipt-1000.5-false.json",
+    "sha256": "52b28e189622698716b028e6c14423d2c6febd0492e76afb87666bda5ca72f88"
+  },
+  "methodSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "instrumentRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidenceRoot": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/CONTINUATION/test-output/full-cohort-controller-con-0a326-nly-after-independent-gates/continuation/attempt-1000.5",
+  "executionToken": "ba96a3c8811d2d6086c28c6de7922f994835e1fd6f12c0a78db8f5786ad32df9",
+  "claimedAt": "2026-09-18T01:19:49.588Z",
+  "disposition": "CONSUMED_BEFORE_SUBPROCESS_LAUNCH"
+}

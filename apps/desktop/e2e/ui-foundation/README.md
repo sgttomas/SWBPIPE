@@ -407,3 +407,117 @@ when their unchanged transport is out of scope. Offline verifier:
 ```sh
 node apps/desktop/e2e/ui-foundation/verify-characterization-observations.mjs
 ```
+
+## Owner-authorized continuation of the original attempt budget
+
+The later owner clarification permits the next unattempted slot after an individual
+failure, subject to independent cleanup and unchanged external bindings. This applies
+only to the explicitly claimed characterization continuation. Strict/default collection
+remains the full serial fail-fast route. Original `1000.1` is invalid and permanently
+consumed; only `1000.2`–`1000.5`, then `10000.1`–`10000.5`, remain. One invocation runs
+one slot; ROOT supervises each next launch. There is no retry/replacement loop.
+
+Boundary metadata now retains inner tree/inspector heights as content observations;
+selection and the frozen empty-tree query can change those heights. Outer unique
+`.workspace-pane-tree` / `.workspace-pane-inspector` x/y/width/height, inner width and
+visibility, canvas/DPR, model, theme/density and bindings stay invariant. The rejected
+historical snapshot was not saved, so the precise historical differing field is unproved.
+Future rejection writes the actual snapshot, reference identity/hash, field differences,
+run/ordinal/method identity and error before propagation. Failed persistence is itself
+reported. The both-size untimed smoke now witnesses metadata immediately after point
+selection and after frozen sample18 filtering/clearing, without traces or consumed slots.
+
+Freeze and independently review a new 34-member method manifest before continuation.
+Create a policy JSON with these fields; all paths are absolute. `attemptRoots` keys must
+be in the exact listed order, with nine distinct new directories whose parents exist.
+`instrumentRevision` is the exact current instrument Git HEAD. `seed.path` must be the
+canonical original RUNNER/RETURN.json beside the reference-profile path already bound
+inside that original record; copying it elsewhere is rejected.
+
+```json
+{
+  "schema": "ui-foundation.continuation-policy/v1",
+  "seed": {"path": "/canonical/instances/RUNNER/RETURN.json", "sha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6"},
+  "cohortId": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+  "ledgerRoot": "/approved/shared/continuation-ledger",
+  "instrumentProjectRoot": "/instrument/projects/chirality-piping",
+  "instrumentRevision": "<reviewed 40-character Git revision>",
+  "method": {"path": "/absolute/successor-method.json", "sha256": "<64-character SHA256>"},
+  "attemptRoots": {
+    "1000.2": "/attempts/1000.2", "1000.3": "/attempts/1000.3",
+    "1000.4": "/attempts/1000.4", "1000.5": "/attempts/1000.5",
+    "10000.1": "/attempts/10000.1", "10000.2": "/attempts/10000.2",
+    "10000.3": "/attempts/10000.3", "10000.4": "/attempts/10000.4", "10000.5": "/attempts/10000.5"
+  }
+}
+```
+
+The launcher exclusively creates `<canonical seed path>.continuation-ledger.json` to
+pin policy hash, ledger path, method and revision. Existing mismatch fails; no reset or
+relocation is allowed. Each immutable `claims/<slot>.json` consumes its slot **before**
+subprocess launch. Missing result or terminal files cannot release it. Driver entry gets
+another exclusive `entered-<slot>.json` seal, preventing replay. Original full preflight
+still executes. Each subprocess retains its actual Playwright exit code/signal/error;
+a failed slot is never relabeled passed merely to allow a later invocation.
+
+ROOT provides a separately hash-bound receipt per next slot, from actual independent
+checks. Its shape is:
+
+```json
+{
+  "schema": "ui-foundation.continuation-preconditions/v1",
+  "slot": "1000.2",
+  "previousClaimSha256": "<seed SHA for1000.2; previous immutable claim SHA thereafter>",
+  "verifiedAt": "<fresh ISO timestamp after prior claim>",
+  "cleanup": {"status": "VERIFIED_NO_REMAINING_BROWSER_OR_SERVER", "evidence": {"path": "/cleanup-proof.json", "sha256": "<SHA>"}},
+  "bindingsStatus": "VERIFIED_UNCHANGED",
+  "externalBindings": {"<exact original frozenEnvironment entries, except the three keys below>": "<original values>"},
+  "bindingEvidence": {"path": "/binding-proof.json", "sha256": "<SHA>"},
+  "evidence": [{"path": "/independent-check-record.json", "sha256": "<SHA>"}]
+}
+```
+
+`externalBindings` is `seed.frozenEnvironment` excluding only
+`UI_FOUNDATION_EVIDENCE_DIR`, `UI_FOUNDATION_METHOD_MANIFEST_PATH` and
+`UI_FOUNDATION_METHOD_MANIFEST_SHA256` (the policy binds successor method separately).
+Preserve the original key order when generating this object. Cleanup proof has
+`previousClaimSha256`, `browserProcessesRemaining:0`, `serverListening:false`,
+`verificationStatus:"VERIFIED"`, and `processDisposition:"NORMAL_EXIT"` or
+`"EXTERNAL_RECOVERY_VERIFIED"`. Missing terminal record, interrupted process or signal
+requires the latter backed by real recovery checks. Binding proof has
+`status:"PASS_INDEPENDENT_EXTERNAL_REVALIDATION"` and the same `externalBindings`.
+These are evidence contracts, not permission to fabricate successful checks. The
+launcher additionally rehashes method, browser, fixture manifest, runtime oracle manifest,
+reference profile, source and build bytes before claiming. The normal controller rechecks
+full profile/display/fixture/oracle conditions before collecting.
+
+With `POLICY`/`POLICY_SHA` and each independently prepared `R_*` receipt path and `H_*`
+receipt hash assigned literally by ROOT, execute the following **separate commands**,
+only releasing the next after its independent checks. Do not put them in an automatic loop.
+
+```sh
+node apps/desktop/e2e/ui-foundation/characterization-observations.mjs launch-slot "$POLICY" "$POLICY_SHA" 1000.2 "$R_1000_2" "$H_1000_2"
+node apps/desktop/e2e/ui-foundation/characterization-observations.mjs launch-slot "$POLICY" "$POLICY_SHA" 1000.3 "$R_1000_3" "$H_1000_3"
+node apps/desktop/e2e/ui-foundation/characterization-observations.mjs launch-slot "$POLICY" "$POLICY_SHA" 1000.4 "$R_1000_4" "$H_1000_4"
+node apps/desktop/e2e/ui-foundation/characterization-observations.mjs launch-slot "$POLICY" "$POLICY_SHA" 1000.5 "$R_1000_5" "$H_1000_5"
+node apps/desktop/e2e/ui-foundation/characterization-observations.mjs launch-slot "$POLICY" "$POLICY_SHA" 10000.1 "$R_10000_1" "$H_10000_1"
+node apps/desktop/e2e/ui-foundation/characterization-observations.mjs launch-slot "$POLICY" "$POLICY_SHA" 10000.2 "$R_10000_2" "$H_10000_2"
+node apps/desktop/e2e/ui-foundation/characterization-observations.mjs launch-slot "$POLICY" "$POLICY_SHA" 10000.3 "$R_10000_3" "$H_10000_3"
+node apps/desktop/e2e/ui-foundation/characterization-observations.mjs launch-slot "$POLICY" "$POLICY_SHA" 10000.4 "$R_10000_4" "$H_10000_4"
+node apps/desktop/e2e/ui-foundation/characterization-observations.mjs launch-slot "$POLICY" "$POLICY_SHA" 10000.5 "$R_10000_5" "$H_10000_5"
+```
+
+Child environment is derived from the hash-bound original environment plus successor
+method/output and launcher-only `UI_FOUNDATION_CONTINUATION_{POLICY,POLICY_SHA256,
+CLAIM,CLAIM_SHA256,TOKEN}`. Stale inherited UI_FOUNDATION/PLAYWRIGHT variables are removed.
+The command is fixed headed Playwright, one worker, zero retries, one repetition. Original
+20-minute per-run and action/trace deadlines remain, with no new global cap. Launcher
+progress reads only existing prepared/stopped/derived/result file names every ten seconds;
+it installs no timed observer, reads no raw trace archives and changes no timing endpoint.
+
+Each root gets `selected-slot-plan.json` / `selected-slot-result.json`; original per-run
+scores remain in `raw/.../result.json`. The shared ledger gets actual terminal outcomes and
+immutable `budget-after-<slot>.json` reports covering original1000.1 plus all remaining
+slots. Consumed budget, valid complete workloads and original target outcomes are separate.
+Original aggregate failure is retained. Mixed methods never become one ten-run qualification
+cohort. Offline analysis accepts the closed selected-slot result via its existing CLI.

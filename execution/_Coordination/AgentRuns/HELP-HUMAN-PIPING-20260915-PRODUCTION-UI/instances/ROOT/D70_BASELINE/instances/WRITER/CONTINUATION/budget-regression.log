@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:73470) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73470) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1125:1 › continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates (164ms)
+
+  1 passed (711ms)

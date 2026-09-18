@@ -39,6 +39,11 @@ export function benchmarkCommands(page: Page, timeout: number) {
 }
 const positive = (n: unknown) => typeof n === "number" && Number.isFinite(n) && n > 0;
 const natural = (n: unknown) => Number.isSafeInteger(n) && (n as number) >= 0;
+export function boundaryFieldDifferences(before: any, after: any, field = ""): any[] {
+  if (Object.is(before,after)) return [];
+  if(before && after && typeof before==="object" && typeof after==="object") return [...new Set([...Object.keys(before),...Object.keys(after)])].flatMap(key=>boundaryFieldDifferences(before[key],after[key],field?`${field}.${key}`:key));
+  return [{field,before:before===undefined?{unavailable:true}:before,after:after===undefined?{unavailable:true}:after}];
+}
 export function validateBoundaryMetadata(value: any, expected: any, previous?: any) {
   const v = value?.snapshot?.viewport, c = v?.canvas, camera = v?.camera, model = value?.snapshot?.model, p = value?.presentation;
   if (!value?.id || value.runId !== expected.runId || JSON.stringify(value.bindings) !== JSON.stringify(expected.bindings) ||
@@ -53,29 +58,52 @@ export function validateBoundaryMetadata(value: any, expected: any, previous?: a
       ![camera.fovDegrees,camera.near,camera.far,camera.aspect].every(positive) || camera.far <= camera.near ||
       !Number.isSafeInteger(model?.generation) || model.generation <= 0 || typeof model.identityHash !== "string" || !model.identityHash ||
       !["light","dark"].includes(p?.theme) || !["comfortable","compact"].includes(p?.density) ||
-      !Array.isArray(p?.panels) || p.panels.length !== 2 || p.panels.some((panel: any) => typeof panel.visible !== "boolean" || !panel.visible || !positive(panel.width) || !positive(panel.height)))
+      !Array.isArray(p?.panels) || p.panels.length !== 2 || p.panels.some((panel: any) => typeof panel.visible !== "boolean" || !panel.visible || !positive(panel.width) || !positive(panel.height)) ||
+      !Array.isArray(p?.panes) || p.panes.length!==2 || p.panes.some((pane:any,i:number)=>pane.selector!==[".workspace-pane-tree",".workspace-pane-inspector"][i] || pane.visible!==true || !positive(pane.width) || !positive(pane.height) || ![pane.x,pane.y].every(Number.isFinite)) ||
+      !/^[a-f0-9]{64}$/.test(value.referenceProfileSha256??""))
     throw new Error("required boundary metadata invalid or unavailable");
   if (previous) {
     const stable = (m: any) => ({ bindings:m.bindings, model:m.snapshot.model.identityHash, generation:m.snapshot.model.generation,
-      canvas:m.snapshot.viewport.canvas, theme:m.presentation.theme, density:m.presentation.density, panels:m.presentation.panels,
+      canvas:m.snapshot.viewport.canvas, theme:m.presentation.theme, density:m.presentation.density, panes:m.presentation.panes,
+      referenceProfileSha256:m.referenceProfileSha256,
+      panels:m.presentation.panels.map((panel:any)=>({...panel,height:undefined})),
       browserDpr:m.presentation.browserDpr, windowWidth:m.presentation.windowWidth, windowHeight:m.presentation.windowHeight });
-    if (JSON.stringify(stable(previous)) !== JSON.stringify(stable(value))) throw new Error("boundary profile/model/binding drift");
+    if (JSON.stringify(stable(previous)) !== JSON.stringify(stable(value))) throw new Error(`boundary profile/model/binding drift: ${JSON.stringify(boundaryFieldDifferences(stable(previous),stable(value)))}`);
+    value.contentGeometryTransitions=boundaryFieldDifferences(previous.presentation.panels,value.presentation.panels,"presentation.panels");
   }
   return value;
 }
-export async function captureBoundary(page: Page, expected: any, id: string, previous?: any) {
+export async function validateBoundaryWithRejectionRecord(value:any, expected:any, previous:any, directory:string,
+  persist: (file:string,bytes:string)=>Promise<unknown> = (file,bytes)=>writeFile(file,bytes,{flag:"wx"})) {
+  try { return validateBoundaryMetadata(value,expected,previous); }
+  catch(error) {
+    const rejected={status:"REJECTED_BOUNDARY_METADATA",actual:value,expected,reference:previous??null,
+      referenceId:previous?.id??null,referenceSha256:previous?createHash("sha256").update(JSON.stringify(previous)).digest("hex"):null,
+      fieldDifferences:boundaryFieldDifferences(previous??expected,value),error:String(error)};
+    try { await persist(path.join(directory,`${value.id}-rejected.json`),`${JSON.stringify(rejected,null,2)}\n`); }
+    catch(persistenceError) {throw new AggregateError([error,persistenceError],`boundary rejected: ${String(error)}; rejected metadata persistence failed: ${String(persistenceError)}`);}
+    throw error;
+  }
+}
+export async function captureBoundary(page: Page, expected: any, id: string, previous?: any, directory?: string) {
   const { snapshot } = await readCandidateDiagnostics(page, true);
   const presentation = await page.evaluate(() => {
     const shell = document.querySelector(".app-shell");
     return { browserDpr: devicePixelRatio, windowWidth: innerWidth, windowHeight: innerHeight,
       theme: shell?.getAttribute("data-theme"), density: shell?.getAttribute("data-density"),
+      panes:[".workspace-pane-tree",".workspace-pane-inspector"].map(selector=>{
+        const nodes=document.querySelectorAll(selector),node=nodes.length===1?nodes[0]:null,r=node?.getBoundingClientRect();
+        return {selector,visible:Boolean(node&&r&&r.width>0&&r.height>0&&getComputedStyle(node).visibility!=="hidden"&&getComputedStyle(node).display!=="none"),x:r?.x,y:r?.y,width:r?.width,height:r?.height};
+      }),
       panels: [".panel.model-tree", ".panel.inspector"].map(selector => {
         const node = document.querySelector(selector), r = node?.getBoundingClientRect();
         return { selector, visible: Boolean(node && r && r.width > 0 && r.height > 0 && getComputedStyle(node).visibility !== "hidden" && getComputedStyle(node).display !== "none"), width:r?.width, height:r?.height };
       }) };
   });
-  return validateBoundaryMetadata({ id, runId:expected.runId, bindings:expected.bindings, snapshot, presentation,
-    limitations: "boundary snapshot only; not continuous foreground, display or occlusion monitoring" }, expected, previous);
+  const metadata={ id, runId:expected.runId, fixtureSize:expected.fixtureSize, ordinal:expected.runNumber, methodSha256:expected.bindings?.methodSha256,
+    referenceProfileSha256:process.env.UI_FOUNDATION_REFERENCE_PROFILE_SHA256, bindings:expected.bindings, snapshot, presentation,
+    limitations: "boundary snapshot only; inner panel content heights may change with selection/filtering; no continuous foreground/display monitoring" };
+  return directory ? validateBoundaryWithRejectionRecord(metadata,expected,previous,directory) : validateBoundaryMetadata(metadata,expected,previous);
 }
 export async function persistBoundary(directory: string, metadata: any) {
   const bytes = `${JSON.stringify(metadata,null,2)}\n`, file = path.join(directory, `${metadata.id}.json`);
@@ -104,7 +132,7 @@ export async function runCharacterizationSmoke(page: Page, fixture: LoadedFixtur
     await routeModelFixture(page,fixture);
     assertBoundCandidateDocumentResponse(await page.goto("/",{waitUntil:"domcontentloaded",timeout}));
     await waitForFirstUsable(page,fixture,timeout,"candidate"); steps.push({action:"assignment",status:"VISIBLE_FIRST_USABLE"});
-    const first=await captureBoundary(page,expected,"smoke-initial"); await persistBoundary(directory,first);
+    const first=await captureBoundary(page,expected,"smoke-initial",undefined,directory); await persistBoundary(directory,first);
     await commands.home(); await commands.select({type:"project",id:fixture.model.project.id});
     await commands.labels(false); await commands.camera(); await delay(500); await validateCandidateMeasuredCameraBinding(page,fixture.pointOracle);
     const before=(await commands.query()).snapshot, sample=fixture.samples.point_selection[0], probe=fixture.pointOracle.probes.find((p:any)=>p.sample===sample.sample);
@@ -113,6 +141,8 @@ export async function runCharacterizationSmoke(page: Page, fixture: LoadedFixtur
     if (projection.status!=="available" || !projection.insideCanvasCss) throw new Error("smoke point projection unavailable");
     let canvas=await requireUniqueConnectedMainCanvas(page); const point=canvasLocalToClient(projection.canvasCssPoint,canvas.box);
     assertSmokeMainCanvasHitTarget(await validateMainCanvasHitTarget(page,point)); await page.mouse.click(point.x,point.y); await delay(500);
+    const selectedBoundary=await captureBoundary(page,expected,"smoke-point-stopped",first,directory);
+    await persistBoundary(directory,selectedBoundary);
     let after=(await commands.query()).snapshot;
     if (JSON.stringify(after.viewport.selection.orderedRefs)!==JSON.stringify([probe.candidate_runtime.oracle.expectedHitRef])) throw new Error("smoke typed point selection mismatch");
     steps.push({action:"point",sample:sample.sample,expectedRef:probe.candidate_runtime.oracle.expectedHitRef});
@@ -126,7 +156,10 @@ export async function runCharacterizationSmoke(page: Page, fixture: LoadedFixtur
     after=(await commands.query()).snapshot;
     if (JSON.stringify(after.viewport.box.orderedRefs)!==JSON.stringify(box.orderedRefs) || JSON.stringify(after.viewport.box.primaryRef)!==JSON.stringify(box.primaryRef)) throw new Error("smoke box oracle mismatch");
     steps.push({action:"box",sample:boxSample.sample,expected:box});
-    const query=fixture.samples.tree_filters[0].query; await page.getByTestId("model-tree-filter-input").fill("",{timeout}); await commands.home(); await prepareFilterInput(page,timeout); await insertFilterQuery(page,query); await delay(500);
+    const noMatch=fixture.samples.tree_filters.find((entry:any)=>entry.sample===18);
+    if(noMatch?.query!=="no-match-ui-foundation" || treeExpectation(fixture.model,noMatch.query).visibleCount!==0)throw new Error("frozen no-match smoke witness unavailable");
+    for(const filterSample of [fixture.samples.tree_filters[0],noMatch]) {
+    const query=filterSample.query; await page.getByTestId("model-tree-filter-input").fill("",{timeout}); await commands.home(); await prepareFilterInput(page,timeout); await insertFilterQuery(page,query); await delay(500);
     after=(await commands.query()).snapshot; if(after.viewport.filter.query!==query)throw new Error("smoke keyboard insertion query mismatch");
     const expectedTree=treeExpectation(fixture.model,query);
     const visibleRows=await page.locator('.panel.model-tree [role="treeitem"]').evaluateAll(rows=>rows.map(row=>({testId:row.getAttribute("data-testid"),label:row.querySelector(".tree-item-label")?.textContent?.trim() ?? row.textContent?.trim(),
@@ -134,13 +167,16 @@ export async function runCharacterizationSmoke(page: Page, fixture: LoadedFixtur
     if(after.viewport.filter.visibleCount!==expectedTree.visibleCount || visibleRows.length!==expectedTree.mountedCount || visibleRows.some((row:any,i:number)=>{
       const expected=expectedTree.rows[i];return !expected || ["testId","level","position","setSize"].some(k=>row[k]!==expected[k]) || !row.label?.includes(expected.label);
     }))throw new Error("smoke filter full count/typed mounted content mismatch");
-    steps.push({action:"filter",query,stimulus:FILTER_STIMULUS,expectedTree,visibleRows}); await page.getByTestId("model-tree-filter-input").fill("",{timeout});
+    await persistBoundary(directory,await captureBoundary(page,expected,`smoke-filter-${filterSample.sample}-stopped`,first,directory));
+    steps.push({action:"filter",query,stimulus:FILTER_STIMULUS,expectedTree,visibleRows}); await page.getByTestId("model-tree-filter-input").fill("",{timeout});await delay(500);
+    await persistBoundary(directory,await captureBoundary(page,expected,`smoke-filter-${filterSample.sample}-cleared`,first,directory));
+    }
     for(const mode of ["centerline","actual-od"] as const) {
       const cold=(await commands.query()).snapshot; if(mode==="actual-od" && cold.viewport.geometry.odGeneration!==0)throw new Error("smoke OD cold precondition lost");
       await commands.labels(true); await commands.geometry(mode);
       await page.waitForFunction(({mode})=>{const s=(globalThis as any).__openPipeStressUiDiagnosticsV1?.readCurrent?.();return s?.viewport?.geometry?.mode===(mode==="centerline"?"schematic":"actual-od") && (mode==="centerline" || (s.viewport.geometry.odStatus==="available"&&s.viewport.geometry.odGeneration>0));},{mode},{timeout,polling:50});
       await commands.camera(); await delay(500);
-      const b=await captureBoundary(page,expected,`smoke-${mode}`,first); await persistBoundary(directory,b);
+      const b=await captureBoundary(page,expected,`smoke-${mode}`,first,directory); await persistBoundary(directory,b);
       canvas=await requireUniqueConnectedMainCanvas(page); const s=normalizedCanvasPoint(canvas.box,ORBIT_START_NORMALIZED);
       assertSmokeMainCanvasHitTarget(await validateMainCanvasHitTarget(page,s)); await page.mouse.move(s.x,s.y); await page.mouse.down(); await page.mouse.move(s.x+30,s.y+20,{steps:8}); await page.mouse.up(); await delay(500);
       after=(await commands.query()).snapshot; if(after.viewport.camera.sequence<=b.snapshot.viewport.camera.sequence)throw new Error("smoke orbit camera did not change");

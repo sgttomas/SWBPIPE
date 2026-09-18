@@ -1,4 +1,5 @@
-import { collectionMode, validateFixedSelection, attemptDisposition, executeCollectionRun } from "./characterization-mode";
+import { validateClaimedContinuation } from "./characterization-observations.mjs";
+import { collectionMode, validateFixedSelection, attemptDisposition, executeCollectionRun, continuationSelection } from "./characterization-mode";
 import { runCharacterizationSmoke } from "./characterization-commands";
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile, readFile } from "node:fs/promises";
@@ -46,8 +47,10 @@ const smokeValue = process.env.UI_FOUNDATION_SMOKE;
 if (smokeValue !== undefined && (smokeValue !== "controls" || phase !== "candidate" || mode !== "characterization" || process.env.UI_FOUNDATION_DIAGNOSTIC_MODE !== undefined)) throw new Error("unknown or conflicting smoke mode");
 const smoke = smokeValue === "controls";
 if (mode === "characterization") validateFixedSelection(configuredCounts, configuredRuns);
-const activeRuns = smoke ? [1] : configuredRuns;
-const candidatePlan = ([1000, 10000] as const).flatMap((fixtureSize) => (smoke ? [1] : [1, 2, 3, 4, 5]).map((runNumber) => ({
+const continuation=continuationSelection();
+const activeCounts=continuation?[continuation.fixtureSize]:configuredCounts;
+const activeRuns = continuation?[continuation.runNumber]:smoke ? [1] : configuredRuns;
+const candidatePlan = (continuation?[continuation.fixtureSize]:[1000, 10000] as const).flatMap((fixtureSize) => (continuation?[continuation.runNumber]:smoke ? [1] : [1, 2, 3, 4, 5]).map((runNumber) => ({
   fixtureSize, runNumber, runId: `${cohortId}.${fixtureSize}.${runNumber}`, sessionId: randomUUID() })));
 const diagnosticMode = phase === "candidate" ? candidateDiagnosticMode(process.env.UI_FOUNDATION_DIAGNOSTIC_MODE) : "full";
 const assignmentOnly = diagnosticMode === "assignment-collection";
@@ -55,11 +58,15 @@ if (assignmentOnly && (JSON.stringify(configuredCounts)!=="[1000,10000]" || JSON
 const candidateExpectations: RunExpectation[] = [];
 if (phase === "candidate") {
   test.beforeAll(async () => {
+    if(continuation) await validateClaimedContinuation(
+      {path:process.env.UI_FOUNDATION_CONTINUATION_POLICY,sha256:process.env.UI_FOUNDATION_CONTINUATION_POLICY_SHA256},
+      {path:process.env.UI_FOUNDATION_CONTINUATION_CLAIM,sha256:process.env.UI_FOUNDATION_CONTINUATION_CLAIM_SHA256},
+      process.env.UI_FOUNDATION_CONTINUATION_TOKEN!,evidenceRoot);
     await mkdir(evidenceRoot, { recursive: true });
     for (const identity of candidatePlan) {
       candidateExpectations.push(await performanceExpectation(await loadFixture(identity.fixtureSize), candidateDriverBinding!, identity));
     }
-    await writeFile(path.join(evidenceRoot, smoke ? "smoke-plan.json" : assignmentOnly ? "assignment-diagnostic-plan.json" : "candidate-cohort-plan.json"), `${JSON.stringify(assignmentOnly ? { scope: "ASSIGNMENT_ONLY_INCOMPLETE_WORKLOAD", cohortContribution: 0, plannedSessions: 10, expectations: candidateExpectations } : candidateExpectations, null, 2)}\n`, { flag: "wx" });
+    await writeFile(path.join(evidenceRoot, continuation ? "selected-slot-plan.json" : smoke ? "smoke-plan.json" : assignmentOnly ? "assignment-diagnostic-plan.json" : "candidate-cohort-plan.json"), `${JSON.stringify(assignmentOnly ? { scope: "ASSIGNMENT_ONLY_INCOMPLETE_WORKLOAD", cohortContribution: 0, plannedSessions: 10, expectations: candidateExpectations } : candidateExpectations, null, 2)}\n`, { flag: "wx" });
   });
   test.afterAll(async () => {
     const completed: any[] = [], missing: any[] = [], runRecords: any[] = [];
@@ -91,6 +98,13 @@ if (phase === "candidate") {
       if(result.status!=="PASS_TEN_ASSIGNMENT_COLLECTION_DIAGNOSTICS")throw new Error("incomplete or failed assignment diagnostics; zero cohort contribution");
       return;
     }
+    if(continuation) {
+      const record=runRecords[0],valid=record?.collection?.evidenceValidity==="VALID"&&record?.collection?.collectionCompleteness==="COMPLETE";
+      const collection={mode,attemptDisposition:valid?"COMPLETED":"ABORTED",collectionCompleteness:valid?"COMPLETE_ONE_SLOT":"INCOMPLETE_SLOT",evidenceValidity:valid?"VALID":"INVALID_OR_UNAVAILABLE",targetOutcome:record?.status??"UNAVAILABLE"};
+      await writeFile(path.join(evidenceRoot,"selected-slot-result.json"),`${JSON.stringify({schema:"ui-foundation.selected-slot/v1",claim:continuation.claim,collection,timedAttemptEnded:true,runRecords,missing,qualificationCohort:false,comparison:"separate instrument population; original1000.1 remains invalid and consumed"},null,2)}\n`,{flag:"wx"});
+      if(!valid)throw new Error("selected slot failed/incomplete; consumed ordinal retained, later slot requires independent cleanup/binding revalidation");
+      return;
+    }
     const result = scorePerformanceCohort(completed, candidateExpectations);
     const collection = attemptDisposition(mode, candidatePlan, runRecords, result);
     await writeFile(path.join(evidenceRoot, "candidate-cohort-result.json"), `${JSON.stringify({ ...result, collection, timedAttemptEnded:true, runRecords, missing }, null, 2)}\n`, { flag: "wx" });
@@ -99,7 +113,7 @@ if (phase === "candidate") {
 }
 
 test.describe.serial(`UI foundation ${phase} production benchmark`, () => {
-  for (const pipeCount of configuredCounts) {
+  for (const pipeCount of activeCounts) {
     for (const run of activeRuns) {
       test(`${phase} N=${pipeCount} run ${run}`, async ({ page, browserName }, testInfo) => {
         if (phase === "candidate") {
