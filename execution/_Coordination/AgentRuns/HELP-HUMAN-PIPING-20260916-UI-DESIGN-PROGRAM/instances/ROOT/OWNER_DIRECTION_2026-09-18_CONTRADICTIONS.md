@@ -29,4 +29,20 @@ Owner message of 2026-09-18T17:33:13.885Z, 429 bytes, SHA-256 `42122ea8e3a18c42b
 
 The frames are regenerated once, after the owner picks on 15, C-20 and C-23, so that they are not drawn twice.
 
+## Later the same day: the three open items ruled
+
+Owner message, 44 bytes, SHA-256 `0c32114aad6cc84b104a3c63f16a89d158141ba088127f774b50f023c37f586a`, first stored in the host's transcript at 2026-09-18T17:36:29.419Z (stored-transcript custody, not transport bytes; it arrived while ROOT was working, after the variants were shown in session):
+
+> My ruling for 15 is A, C-20 is A, C-23 is B.
+
+The variants were those ROOT showed in session. Effect:
+
+| # | Ruling | Effect |
+|---|---|---|
+| 15 | A | A tooltip names the control and then its accelerator in parentheses, everywhere: "Fit (F)", "Accept row (⌘⇧A)", "Open the row (⌘↩)". The design system's §4 tooltips that write a bare key, or the key first, change to this form |
+| C-20 | A | The paste band's buttons read their names only, "Paste 3 rows" and "Cancel"; the keys live in the tooltips |
+| C-23 | B | On the Review page after a solve the status bar shows three chips: Solver, Rule pack and Human. The "none, one or two" policy holds on every other page and is relaxed on Review |
+
+The rows above that say "open with the owner" are superseded by this section. Both running children were told by the host's message-to-agent mechanism.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

@@ -285,4 +285,6 @@ The owner directed in session how the twenty-five contradictions between the des
 | `DESIGN-SYSTEM-04_contradictions.md` | `90506b29c2658862140c2a47e25bfdb49c09388b880d11e043acefc64613a55c` | 2026-09-18T17:36Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone (the DESIGN-SYSTEM-03 child resumed) | `../instances/DESIGN-SYSTEM/` (V1.3 in place) |
 | `UX-SPEC-03_contradictions.md` | `2631c20c7e322feada6fd7f7f3c1c8c31b37baba91deb43ef4a096252de20c18` | 2026-09-18T17:36Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone (the UX-SPEC-02 child resumed) | `../instances/UX-SPEC/` (V1.2 in place) |
 
+Supplement to both running briefs, 2026-09-18, by the host's message-to-agent mechanism after sealing: the owner ruled the three open items (15 variant A, C-20 variant A, C-23 variant B; message SHA-256 `0c32114aad6cc84b104a3c63f16a89d158141ba088127f774b50f023c37f586a`, recorded in the direction record's last section). Each child applies them in the same pass; the sealed briefs are unchanged and their item that left the three open is superseded by this message.
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
