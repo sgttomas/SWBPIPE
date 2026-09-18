@@ -23,6 +23,13 @@
  * and form rows wrap (flex-wrap / auto-fit grids) rather than overflow.
  */
 
+/*
+ * The design tokens (generated; see design/TOKENS_SOURCE.md). The workspace variables near the end
+ * of this file are defined from them, so the dependency is declared here and every page that loads
+ * this stylesheet receives the tokens with it. An @import has to precede every rule.
+ */
+@import "./tokens.css";
+
 :root {
   color: #1d2424;
   background: #ecefeb;
@@ -3549,29 +3556,45 @@ body { min-width: 760px; min-height: 540px; }
 .status-pill[open] > div { position: absolute; bottom: 30px; left: 0; z-index: 30; min-width: 210px; max-width: 340px; padding: 10px; border: 1px solid #c8d0cb; border-radius: 5px; background: #fff; box-shadow: 0 -4px 20px #162d3026; }
 .status-pill[open] > div > strong, .status-pill[open] code { display: block; white-space: normal; overflow-wrap: anywhere; }
 
-/* Frozen workspace tokens. */
+/*
+ * Workspace variables, defined in terms of the design tokens (tokens.css, generated from
+ * design/tokens.json; design system V1.3 section 2). The token blocks follow the resolved theme
+ * through data-theme on the document root, which App.tsx keeps equal to the shell's data-theme,
+ * so each mapped variable is defined once and needs no dark override.
+ * Kept without a token, each with its dark value in the override below:
+ * --ui-canvas and --ui-viewport-selection-geometry mirror the viewport's own scene and selection
+ * colours (features/viewport), which the canvas slice re-tokens.
+ * --ui-border draws the boundary of buttons and inputs, which the product holds at 3:1 or better
+ * against the surface (WCAG 1.4.11; e2e resolved-style check); border.strong measures 2.0:1 to
+ * 2.4:1 (design system section 2.9).
+ * --ui-disabled-text keeps a disabled control's label findable, because a control that is
+ * disabled with its reason has to be found to be read. On disabled.fill (tokens 1.2) the kept
+ * values measure 3.94:1 in light and 5.71:1 in dark; text.disabled measures 1.94:1 and 2.28:1
+ * there. Section 2.9 names text.disabled as the one token to lift and section 8 item 6 leaves the
+ * contrast target open, so the mapping waits for the design system to settle it. --ui-disabled,
+ * the fill, is mapped.
+ */
 .app-shell {
-  --ui-bg: #f3f5f6; --ui-surface: #fff; --ui-raised: #e8edf0; --ui-canvas: #dfe5e8;
-  --ui-text: #182026; --ui-muted: #52606d; --ui-divider: #aebbc2; --ui-border: #71838d;
-  --ui-accent: #086f75; --ui-accent-text: #fff; --ui-selection: #c5eef0; --ui-selection-text: #102a2e;
-  --ui-info-surface: #e7f3f8; --ui-info-text: #173d4d; --ui-info-border: #5d8fa5;
-  --ui-warning-surface: #fff2cf; --ui-warning-text: #4a3500; --ui-warning-border: #9a7200;
-  --ui-error-surface: #fbe6e8; --ui-error-text: #581b24; --ui-error-border: #aa5260;
+  --ui-bg: var(--surface-base); --ui-surface: var(--surface-panel); --ui-raised: var(--surface-header);
+  --ui-canvas: #dfe5e8;
+  --ui-text: var(--text-primary); --ui-muted: var(--text-secondary);
+  --ui-divider: var(--border-hairline); --ui-border: #71838d;
+  --ui-accent: var(--selection-bar); --ui-accent-text: var(--text-inverse);
+  --ui-selection: var(--selection-band); --ui-selection-text: var(--text-primary);
+  --ui-info-surface: var(--issue-infoTint); --ui-info-text: var(--status-reviewInk); --ui-info-border: var(--issue-info);
+  --ui-warning-surface: var(--issue-warningTint); --ui-warning-text: var(--status-incompleteInk); --ui-warning-border: var(--issue-warning);
+  --ui-error-surface: var(--issue-blockingTint); --ui-error-text: var(--status-failedInk); --ui-error-border: var(--issue-blocking);
   --ui-viewport-selection-geometry: #a34400;
-  --ui-focus: #005fcc; --ui-disabled: #e1e6e9; --ui-disabled-text: #667680;
+  --ui-focus: var(--focus-ring); --ui-disabled: var(--disabled-fill); --ui-disabled-text: #667680;
   color: var(--ui-text); background: var(--ui-bg);
   font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 14px; line-height: 1.4;
 }
 .app-shell[data-theme="dark"] {
-  --ui-bg: #10161a; --ui-surface: #182026; --ui-raised: #22303a; --ui-canvas: #0c1114;
-  --ui-text: #f2f6f8; --ui-muted: #b6c4cc; --ui-divider: #4f606a; --ui-border: #70828c;
-  --ui-accent: #65d1d4; --ui-accent-text: #071315; --ui-selection: #164e52; --ui-selection-text: #eaffff;
-  --ui-info-surface: #16313f; --ui-info-text: #d8f3ff; --ui-info-border: #70adc9;
-  --ui-warning-surface: #382d10; --ui-warning-text: #ffe5a3; --ui-warning-border: #c99b32;
-  --ui-error-surface: #3b2025; --ui-error-text: #ffdce1; --ui-error-border: #d57985;
+  --ui-canvas: #0c1114;
+  --ui-border: #70828c;
   --ui-viewport-selection-geometry: #f08c22;
-  --ui-focus: #8ab4ff; --ui-disabled: #253038; --ui-disabled-text: #9baab2;
+  --ui-disabled-text: #9baab2;
 }
 .app-shell[data-density="compact"] { font-size: 13px; }
 .app-shell .workspace-toolbar, .app-shell .workspace-pane, .app-shell .workspace-dock,
