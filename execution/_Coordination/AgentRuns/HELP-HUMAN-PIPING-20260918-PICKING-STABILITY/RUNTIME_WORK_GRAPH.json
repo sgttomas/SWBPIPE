@@ -19,8 +19,8 @@
       },
       "status": "complete_valid_original_targets_met",
       "return": {
-        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-01/analysis/RETURN.json",
-        "sha256": "c37176df64fdf62e9dd209ac7edfddef4f415a264f5ace0b14dd57dd669abf46"
+        "evidenceRecord": "_run_records/RUNTIME_EVIDENCE.json",
+        "rawReturnSha256": "c37176df64fdf62e9dd209ac7edfddef4f415a264f5ace0b14dd57dd669abf46"
       },
       "phases": "root sequential setup, smoke, timed and offline releases; exclusive timed runtime; no Type2 delegation"
     },
