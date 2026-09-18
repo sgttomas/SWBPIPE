@@ -26,7 +26,8 @@
       "briefSha256": "19fe7ca236cd9681e799e138637cdc442e9274707dd313c3f9d54312ce1f6480",
       "brief": "briefs/A1-APP_desktop_visible_rename.md",
       "model_ran": "Claude Fable 5.1",
-      "returnSha256": "7d6fe1e6acaa01aefbd63a2fbd9a748bd8115f28003b942fbf26a8dd54082563"
+      "returnSha256": "7d6fe1e6acaa01aefbd63a2fbd9a748bd8115f28003b942fbf26a8dd54082563",
+      "correction3ReturnSha256": "7eff45017f95f2eb6ff5fad6311714c94d935005a285943ed02e67d4c8f8cb12"
     },
     "A1-DOCS": {
       "role": "TASK Type 2 implementer",
@@ -46,7 +47,8 @@
       "candidate": "8143645eacff25e56d685259301795f0c3a482cb",
       "model_ran": "Claude Opus 5",
       "returnSha256": "c2a39462510105e111f1445acf19dbc10523ff7c9f2e9495ba3cc9afbc130914",
-      "reviewedCandidate": "d7ff2e45a53096a324c25f6c0641bae5c6b36ebc"
+      "reviewedCandidate": "07ece3f9d3d7fdc0da4ceca1293ed5d634c9f687",
+      "backcheck2ReturnSha256": "9ebc85954c231b76f32987b923e63e15a7e35d4af88c56fa21e52a20f8b16dd7"
     }
   },
   "edges": [

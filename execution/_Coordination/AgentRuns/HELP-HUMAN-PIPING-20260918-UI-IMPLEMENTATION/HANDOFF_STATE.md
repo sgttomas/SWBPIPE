@@ -26,4 +26,6 @@ Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, ROOT (HELP_HUMAN, Agent 0). 
 
 - Tranche A1 is cut into three children by path (lint and registry; `apps/desktop/**`; documents, core and tools), not the plan's four by topic. The plan's children 2 and 3 would both have written `App.tsx`, `App.test.tsx` and several panels; one writer per path is the rule.
 
+- 2026-09-18, first sweep failed and was corrected: the dist-lane twin of the footer-geometry test was missed by the candidate; correction 3 and backcheck 2 are in `briefs/_INDEX.md`. Lesson for Tranche B briefs: every child that touches a `*.spec.ts` runs both Playwright lanes. Reviewer's observation, not acted on: the source and dist twins of the decorative-overlay test differ in wheel-target tolerance at `origin/main`; twin specs that drift are a maintenance risk. The design run's working handoff state now points here.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
