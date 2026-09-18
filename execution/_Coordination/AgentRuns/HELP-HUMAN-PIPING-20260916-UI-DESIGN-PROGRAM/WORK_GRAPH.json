@@ -260,6 +260,17 @@
       "status": "pending",
       "return": "instances/ROOT/IMPLEMENTATION_HANDOFF_PREPARATION_2026-09-18.md",
       "note": "Preparation record written; issued after the revision pass is accepted and the owner authorizes a tranche"
+    },
+    {
+      "id": "REVIEW-01",
+      "role": "TASK",
+      "purpose": "Independent read-only review of the successor ROOT's records over the complete branch diff, with a backcheck of the corrections",
+      "model_requested": "opus",
+      "mechanism": "Agent tool, general-purpose, background; backcheck by resuming the same child",
+      "brief": "briefs/REVIEW-01_successor_records_review.md",
+      "return": "instances/REVIEW/REVIEW-01_RETURN.md",
+      "status": "complete",
+      "note": "First pass FINDINGS (one major, corrected); backcheck passed all four items with one trivial finding against the reviewer's own first return"
     }
   ],
   "edges": [
@@ -406,6 +417,10 @@
     [
       "D71-RULING-RECORDS",
       "IMPLEMENTATION-HANDOFF"
+    ],
+    [
+      "ROOT",
+      "REVIEW-01"
     ]
   ],
   "current_frontier": "With the owner: D-71's nine rulings, Q-15 to Q-22, D-72's six items, and relay of the observation-brief notice. No child is running. The baseline tranche blocks nothing (condition satisfied 2026-09-18). Implementation is not authorized by this assignment.",

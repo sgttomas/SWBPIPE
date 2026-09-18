@@ -38,4 +38,19 @@ Reviewed SHA: `cd3dba125da109f1cc50314874725c154296ef0a` (branch `codex/swb-ui-d
 
 Original transport bytes of the owner message; 44 of RESEARCH-G's 50 rows against product source, the two absence searches and the memory-unavailable citation; any build, test, benchmark or CI state, and GitHub state beyond local ancestry; the design system, specification and frames beyond the values D-72 cites; prose quality beyond a pattern sweep; files outside the diff.
 
+## Backcheck of the corrected candidate
+
+Retained by ROOT on 2026-09-18 from the same reviewer's second final message; in-session transcription, condensed to its verdict, results and findings.
+
+Reviewed SHA: `202651a09ce87c8d87332f83f2d6e78595ca07db` (one commit over `cd3dba125`, 4 files, +48/−3). Verdict: FINDINGS, one trivial; all four backcheck items PASS.
+
+1. Finding 1 corrected: 50 rows and 10 / 8 / 32, with 34 / 8 / 8 by section, in the observation brief, the work graph and the brief index; no surviving live claim of 38, 7 or 21 anywhere in the branch diff; the correction and its cause are recorded in the index; the retained RESEARCH-G file is untouched and still hashes to `fcf6eb88bb43dbc28d32156b3766cf5a388dad0b96316ca8623c470dc0d2cc45`.
+2. Finding 2 corrected: the index now says 12 class 3 rows show a search and 20 do not, and states ROOT's acceptance judgment.
+3. Finding 3 resolved: this file exists, its link resolves, and the transcription is faithful in verdict, findings, order and severities. Three condensations named by the reviewer, none altering a claim: finding 3 no longer names the two index lines and the absent directory; finding 4 drops the supporting detail that RESEARCH-G spells "colour", "recognisable" and "centreline" elsewhere; the reviewer's separate not-checked item, that it did not verify the owner in fact sent the message recorded in the activation record, is folded into "original transport bytes".
+4. Nothing else changed in the commit; the earlier PASS results hold for the new lines; hygiene holds; the work graph parses with 27 nodes and 36 edges.
+
+Trivial finding, the reviewer's own error from its first return, transcribed faithfully above: "all six in the reconciliation record §1" should read five. That table has six rows and five SHA-256 values; the picking-repair row claims no hash. All five recompute. The first-pass text above is left as returned.
+
+Scope note from the reviewer: "every hash recomputed" means every hash cited in the reconciliation record, D-72 and the observation brief, and the brief index's three new hashes; hashes in the index's earlier sections were outside its scope. Not checked in the backcheck: the rest of the branch beyond targeted sweeps, which rests on the first pass; RESEARCH-G's rows against source beyond the first pass's three citations; byte-faithfulness of this transcription by independent custody; any build, test, CI or GitHub state.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
