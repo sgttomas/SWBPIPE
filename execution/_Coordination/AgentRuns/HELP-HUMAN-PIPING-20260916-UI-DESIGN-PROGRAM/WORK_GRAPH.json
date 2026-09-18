@@ -65,19 +65,24 @@
       "id": "OWNER-QA",
       "role": "HUMAN",
       "purpose": "Owner answers the seven opening questions",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "DESIGN-BRIEF",
       "role": "HELP_HUMAN",
       "purpose": "Design brief consuming the research and the owner's answers; owner checkpoint",
-      "status": "pending"
+      "return": "instances/ROOT/DESIGN_BRIEF_V1.md",
+      "status": "complete"
     },
     {
       "id": "CONCEPTS",
       "role": "HELPS_HUMANS",
       "purpose": "Two or three north-star concept directions with storyboards; owner chooses",
-      "status": "pending"
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/CONCEPTS-01_north_star_directions.md",
+      "return": "instances/CONCEPTS/",
+      "status": "active"
     },
     {
       "id": "DESIGN-SYSTEM",
@@ -127,5 +132,5 @@
     ["MOCKS", "UX-SPEC"],
     ["UX-SPEC", "ACCEPTANCE-PROPOSAL"]
   ],
-  "current_frontier": "OWNER-QA"
+  "current_frontier": "CONCEPTS"
 }

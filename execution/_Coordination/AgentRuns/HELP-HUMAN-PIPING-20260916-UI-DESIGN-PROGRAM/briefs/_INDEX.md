@@ -26,4 +26,10 @@ Model allocation followed the owner's rule for this program: Opus where the resu
 | Return C, `C_ui_constraints.md` | `9beb811ea8d9478033723678c644e71faff5bbf51050ef485001d1612dc57789` |
 | Return D, `D_domain_ux_research.md` | `37c6e392cd0b6b772ff692e4d4fc03a61d1fc1b6019815df5bd7abc3e0b0322f` |
 
+## Phase 2 brief, sealed before launch
+
+| Brief | Sealed SHA-256 | Launched (UTC) | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `CONCEPTS-01_north_star_directions.md` | `5e73a829af744a0708fae2dd9f62fe1e308636e43980aa57f9a64713d7132776` | 2026-09-18T03:46:50Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone | `../instances/CONCEPTS/` |
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
