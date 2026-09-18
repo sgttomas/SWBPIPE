@@ -210,4 +210,12 @@ Return of RESEARCH-G, retained at `../instances/RESEARCH/G_rendering_workload_cl
 |---|---|
 | `G_rendering_workload_classification.md` | `fcf6eb88bb43dbc28d32156b3766cf5a388dad0b96316ca8623c470dc0d2cc45` |
 
+## Successor ROOT, 2026-09-18: independent review brief, sealed before launch
+
+A fresh read-only reviewer over the complete branch diff, with no write target and none of the author's context; same mechanism and parentage as RESEARCH-G; supplied context is the sealed brief only. Its return is its final message, which ROOT retains at `../instances/REVIEW/REVIEW-01_RETURN.md`.
+
+| Brief | Sealed SHA-256 | Launched (UTC) | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `REVIEW-01_successor_records_review.md` | `7125b03e170d31d3efed4e5993ca25f47d1b2cdb295f38ffdc4fbfa8653ac3e8` | 2026-09-18T13:08Z | `opus` (Claude Opus 5) | TASK, read-only reviewer, working alone | `../instances/REVIEW/REVIEW-01_RETURN.md` (retained by ROOT from the child's final message) |
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
