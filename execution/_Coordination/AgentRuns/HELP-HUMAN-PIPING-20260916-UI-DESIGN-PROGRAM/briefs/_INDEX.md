@@ -133,6 +133,12 @@ Return of UX-SPEC-01, retained under `../instances/UX-SPEC/` and accepted by ROO
 | `OPERATIONS_MAP.md` | `891861bba08a52c43d05d7704b4d54dacd91a271a2f2d95dff39db53ea2b5105` |
 | `RETURN.md` | `d47553e4c5444102021825bfb9cf74374965e984c998b35c767102e527147178` |
 
-Returns of DESIGN-SYSTEM-02 and RESEARCH-F pending.
+Return of RESEARCH-F, retained at `../instances/RESEARCH/F_packet_bindings.md` and accepted by ROOT on 2026-09-18 against the brief's acceptance section: each of the nine items carries its governed text verbatim with source, its enforcement points with what each checks, its occurrences classified as registered placement, ordinary string or historical record, its redesign placements by file, and the owner act a change requires; the summary table is complete (96 enforcement points); unknowns are written as TBD. ROOT's check before accepting found one false statement in the first return: that the phrase "Human review required" has no occurrence under the desktop source. ROOT's own search found it inside two diagnostic remediation strings and sent the child the finding. The child re-ran the search for all six short-label phrases as case-insensitive substrings, corrected §0.3 row D-7, §4.2, §4.3, §4.5, §4.6, the summary row and the return, recorded the cause (a doubled path prefix with the error suppressed) in a "Correction after ROOT's check" note, and in doing so found a material fact the first pass had missed: the workspace status pills already render two curated short labels, "Review required" and "Inputs needed", with a lowercased de-underscored form for the other four tokens and the raw token beneath, pinned by seven Vitest assertions; ROOT verified the mapping at `apps/desktop/src/App.tsx:3766-3773`. One declared deviation from the brief's citation rule stands: `DESIGN_SYSTEM_V1.md` is cited by section and quotation, not by line, because the DESIGN-SYSTEM-02 revision was rewriting that file while the inventory ran; the return states this in its §0 and nothing the nine items depend on lives in that file. The retained file is byte for byte the child's corrected return.
+
+| Return file | SHA-256 |
+|---|---|
+| `F_packet_bindings.md` | `2c9fcb1716981123da8f9c78f8c70d6db77feb931b70936073159530bfb0292b` |
+
+Return of DESIGN-SYSTEM-02 pending.
 
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

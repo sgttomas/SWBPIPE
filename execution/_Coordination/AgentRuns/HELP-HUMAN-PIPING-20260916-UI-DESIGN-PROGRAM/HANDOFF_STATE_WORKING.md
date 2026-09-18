@@ -10,6 +10,8 @@ Updated 2026-09-17 by ROOT. Working surface; superseded lines are struck rather 
 
 ## Open with the owner
 
+Update 2026-09-18, bindings inventory accepted: RESEARCH-F's corrected return is retained with its hash; its material finding (two curated status labels already rendered, pinned by tests) is carried into decision packet D-71 item 4. D-71 is drafted at `../../_DECISIONS/D-71_interface_program_governed_text_decisions.md` (PROPOSAL, not yet registered) and waits for design system V1.1's final hash before the register row is added.
+
 Update 2026-09-18, UX specification accepted: UX-SPEC-01 returned `instances/UX-SPEC/` (UX_SPEC_V1.md, OPERATIONS_MAP.md with 277 rows and 29 classed gaps, RETURN.md); accepted by ROOT with its checks and decisions recorded in `briefs/_INDEX.md`. RESEARCH-F returned and was sent one correction (a false zero-occurrence claim for the phrase "Human review required" in desktop source); retention waits for the corrected file. DESIGN-SYSTEM-02 still running.
 
 Update 2026-09-18, mock review decided: the owner approved ROOT's recommendation on all fourteen screen questions (direction record §11). Three children launched in parallel from sealed briefs: DESIGN-SYSTEM-02 (Fable; revision V1.1 folding in the decisions, the frames' proposals and the token gaps), UX-SPEC-01 (Fable; the UX specification mapped to the product's operations and typed interfaces), RESEARCH-F (Opus; the inventory of governed texts, registry entries, lint anchors and tests binding the nine decision-packet items). After DESIGN-SYSTEM-02: MOCKS-02 regenerates the frames. After RESEARCH-F: ROOT drafts the decision packet with the frames as evidence.

@@ -80,7 +80,8 @@
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/RESEARCH-F_packet_bindings.md",
       "return": "instances/RESEARCH/F_packet_bindings.md",
-      "status": "active"
+      "status": "complete",
+      "note": "Accepted 2026-09-18 after one ROOT-found correction (see briefs/_INDEX.md)"
     },
     {
       "id": "OWNER-QA",
@@ -295,5 +296,5 @@
       "ACCEPTANCE-PROPOSAL"
     ]
   ],
-  "current_frontier": "DESIGN-SYSTEM-02, RESEARCH-F (correction), then MOCKS-02 and DECISION-PACKET"
+  "current_frontier": "DESIGN-SYSTEM-02 (reconciliation), then MOCKS-02 and DECISION-PACKET (D-71)"
 }
