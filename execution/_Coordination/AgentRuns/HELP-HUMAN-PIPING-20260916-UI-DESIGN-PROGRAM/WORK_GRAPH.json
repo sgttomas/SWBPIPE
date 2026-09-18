@@ -364,7 +364,8 @@
       "mechanism": "owning child resumed by message-to-agent",
       "brief": "briefs/MOCKS-04_contradictions.md",
       "return": "instances/MOCKS/RETURN.md",
-      "status": "complete"
+      "status": "complete",
+      "model_ran": "Claude Fable 5.1 (claude-fable-5-1), by the child's return"
     },
     {
       "id": "REVIEW-04",
@@ -374,7 +375,8 @@
       "mechanism": "Claude Code Agent tool, general-purpose, background",
       "brief": "briefs/REVIEW-04_contradictions_pass_review.md",
       "return": "instances/REVIEW/REVIEW-04_RETURN.md",
-      "status": "running"
+      "status": "returned; corrections in progress",
+      "model_ran": "Claude Opus 5, by the child's return"
     }
   ],
   "edges": [

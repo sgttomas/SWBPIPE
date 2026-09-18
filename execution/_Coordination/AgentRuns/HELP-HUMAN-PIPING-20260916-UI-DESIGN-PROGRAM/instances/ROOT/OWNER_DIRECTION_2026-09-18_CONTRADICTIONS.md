@@ -8,7 +8,7 @@ Owner message of 2026-09-18T17:33:13.885Z, 429 bytes, SHA-256 `42122ea8e3a18c42b
 
 > I adopt your approach for the list of the first 13 items that had an apparent resolution.  For 1, 2, 4 and 13 follow the reasonable reading.  For 5, find a new word other than "commit", for 15, and for C-20, you will need to show me the details in text terms at least, if not screenshots of what each variant looks like.  And for C-25, make the correction to Run 03.   C-22 should be framed as opening a new project in Both view.
 
-"Your approach" refers to ROOT's preceding message in session, which sorted thirteen items as resolvable from the specification side and advised: follow the design system on 7, C-18 and C-21; "think twice" on 9, 10, 11, 12, C-17 and C-24, because there the specification carries a function the design system did not draw. It gave no advice on 8, said 16 "can stay as is", said 3 was done, and said C-23 "needs your pick".
+ROOT's reading, labelled as such after independent review (REVIEW-04, T-4): "your approach" and "the first 13 items" refer to ROOT's preceding message in session, not to items numbered 1 to 13. That message sorted thirteen items as resolvable from the specification side and advised: follow the design system on 7, C-18 and C-21; "think twice" on 9, 10, 11, 12, C-17 and C-24, because there the specification carries a function the design system did not draw. It gave no advice on 8, said 16 "can stay as is", said 3 was done, and said C-23 "needs your pick".
 
 ## Effect, item by item
 
