@@ -35,4 +35,16 @@ A1-APP correction 3, retained at `../instances/A1-APP/CORRECTION_3_RETURN.md` `7
 
 Backcheck 2 of A1-REVIEW over `626fa91eb..07ece3f9d`, retained at `../instances/A1-REVIEW/BACKCHECK_2_RETURN.md` `9ebc85954c231b76f32987b923e63e15a7e35d4af88c56fa21e52a20f8b16dd7`; model that ran: Claude Opus 5; verdict PASS, no finding. The reviewer re-derived the 21 px figure from the dist lane's reported shortfall and found it agrees with the stylesheet derivation. One observation outside scope, not a finding: the twins' wheel-target assertions differ in tolerance at `origin/main` already; carried to `HANDOFF_STATE.md`. The reviewer ran nothing; the observed pass is the child's run and the second sweep.
 
+Tranche A1 merged: PR #800, merge commit `7866f0a3c2c846cf071f735ea9b263a44fb00ca9`; required CI passed on head `dd0c6d177e1d4d189d307335a2f8762f08c3a467`; passing DEC-025 sweep on `a762301be23b9f614a83ce50faa60c18db826a38` (`../_run_records/CLOSEOUT_CHECKS.json`).
+
+## Tranche B
+
+| Brief | SHA-256 | Sealed | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `B1-TOKENS_design_tokens.md` | `dd0e1da42fa32b20b9bbf24950deeef4e7ef94702354f5fc7e0418f47d27b71f` | 2026-09-18T22:01Z | `fable` (Claude Fable 5.1) | TASK Type 2, implementer | pending |
+| `B-SHELL_shell_lane.md` | `00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75` | 2026-09-18T22:01Z | `fable` (Claude Fable 5.1) | WORKING_ITEMS Type 1, lane manager | not launched; launches after B1 merges |
+| `B-CANVAS_canvas_lane.md` | `df89f5b622a63f206ccc0f879e7255642e4b9ee16174faf84e539ab51bc12084` | 2026-09-18T22:01Z | `fable` (Claude Fable 5.1) | WORKING_ITEMS Type 1, lane manager | not launched; launches after B1 merges |
+
+Mechanism for all three: Claude Code `Agent` tool, general-purpose type, background. Shared tool `../tools/with_e2e_lock.sh` `9defd858c86509765108b83f5b336cede8b04e9d13facb4f21d56dcf98e197d1`: the Playwright configurations use fixed ports and reuse a listening server, so concurrent runs from two worktrees would test each other's build; every browser run and ROOT's sweeps go through the lock. ROOT's departures from the plan, both recorded in the briefs: B1 runs first and flat because both lanes depend on it; the product owns a copy of `tokens.json` and the generator's logic instead of importing from the design run's folder. ROOT, not the lane managers, dispatches the independent reviews. Each lane manager works in its own git worktree named in ROOT's launch message.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

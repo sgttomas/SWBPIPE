@@ -28,4 +28,6 @@ Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, ROOT (HELP_HUMAN, Agent 0). 
 
 - 2026-09-18, first sweep failed and was corrected: the dist-lane twin of the footer-geometry test was missed by the candidate; correction 3 and backcheck 2 are in `briefs/_INDEX.md`. Lesson for Tranche B briefs: every child that touches a `*.spec.ts` runs both Playwright lanes. Reviewer's observation, not acted on: the source and dist twins of the decorative-overlay test differ in wheel-target tolerance at `origin/main`; twin specs that drift are a maintenance risk. The design run's working handoff state now points here.
 
+- 2026-09-18T22:01Z: Tranche A1 merged (PR #800, `7866f0a3c`). Tranche B opened on `codex/swbpipe-b1-tokens-20260918`: B1-TOKENS sealed and launched; the two lane-manager briefs sealed, launching after B1 merges. Frontier: B1's return, then its review, sweep, PR and merge.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

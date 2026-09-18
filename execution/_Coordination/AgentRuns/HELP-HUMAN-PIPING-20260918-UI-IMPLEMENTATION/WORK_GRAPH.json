@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "base": "04aefa9803a6a9d26dae39ad6bbc06c470963fad",
+  "base": "7866f0a3c2c846cf071f735ea9b263a44fb00ca9",
   "selectionAuthority": "owner authorization 2026-09-18 (instances/ROOT/ACTIVATION_2026-09-18.md)",
   "parent": "owner",
   "rootModel": "Claude Fable 5.1 (claude-fable-5-1)",
@@ -49,6 +49,42 @@
       "returnSha256": "c2a39462510105e111f1445acf19dbc10523ff7c9f2e9495ba3cc9afbc130914",
       "reviewedCandidate": "07ece3f9d3d7fdc0da4ceca1293ed5d634c9f687",
       "backcheck2ReturnSha256": "9ebc85954c231b76f32987b923e63e15a7e35d4af88c56fa21e52a20f8b16dd7"
+    },
+    "B1-TOKENS": {
+      "role": "TASK Type 2 implementer",
+      "model": "fable",
+      "status": "launched",
+      "briefSha256": "dd0e1da42fa32b20b9bbf24950deeef4e7ef94702354f5fc7e0418f47d27b71f",
+      "brief": "briefs/B1-TOKENS_design_tokens.md",
+      "returnSha256": null,
+      "candidate": null,
+      "dependsOn": [
+        "A1 merged 7866f0a3c"
+      ]
+    },
+    "B-SHELL": {
+      "role": "WORKING_ITEMS Type 1 lane manager",
+      "model": "fable",
+      "status": "sealed_not_launched",
+      "briefSha256": "00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75",
+      "brief": "briefs/B-SHELL_shell_lane.md",
+      "returnSha256": null,
+      "candidate": null,
+      "dependsOn": [
+        "B1-TOKENS"
+      ]
+    },
+    "B-CANVAS": {
+      "role": "WORKING_ITEMS Type 1 lane manager",
+      "model": "fable",
+      "status": "sealed_not_launched",
+      "briefSha256": "df89f5b622a63f206ccc0f879e7255642e4b9ee16174faf84e539ab51bc12084",
+      "brief": "briefs/B-CANVAS_canvas_lane.md",
+      "returnSha256": null,
+      "candidate": null,
+      "dependsOn": [
+        "B1-TOKENS"
+      ]
     }
   },
   "edges": [
