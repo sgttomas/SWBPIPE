@@ -1,0 +1,46 @@
+{
+  "schema": "chirality.piping.d70.one-success-slot-release/v1",
+  "at": "2026-09-18T02:34:06.255131+00:00",
+  "status": "RELEASE_ONE_ALLOTTED10000_SLOT",
+  "owner": "HELP_HUMAN /root",
+  "runtimeOwner": "/root/d70_runner",
+  "slot": "10000.1",
+  "candidate": "153a333e0a1689876cd14cd711f8199cc2ffc884",
+  "ownerDirection": {
+    "path": "OWNER_DIRECTION_ONE_SUCCESS_20260917.md",
+    "sha256": "ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"
+  },
+  "expectations": {
+    "path": "instances/EXPECTATIONS/ONE_SUCCESS/EXPECTATIONS.md",
+    "sha256": "7c895915cb178e88cc087f246ac80d60165a2c0d3d4cc68bdff9bd596e06ddc7"
+  },
+  "productRevision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "instrumentRevision": "c1266b8aa22a57bb608a97140ecdc97b098dd2ad",
+  "methodSha256": "29e22f296e569c2c20824f77403a6fdbac805ea9560f149fdcd9e24e4f93ca36",
+  "policy": {
+    "path": "instances/RUNNER/CONTINUATION/POLICY_V5.json",
+    "sha256": "54874f7d4811bd3d3a2d5116b4f4634efe2e3199500ac49f96d2136c17e8b291"
+  },
+  "script": {
+    "path": "instances/RUNNER/CONTINUATION/control_v6.py",
+    "sha256": "b6ebbc21519c25c7c84628ec5d86aa008072cccc18d37600bbea98d754ba6d63"
+  },
+  "commands": {
+    "path": "instances/RUNNER/CONTINUATION/COMMANDS_V6.json",
+    "sha256": "7adc655594cf9194bd226a12cbb38f71368339b5c4fc8c9dc34420f0767b4636"
+  },
+  "review": {
+    "path": "instances/CONTINUATION_REVIEW/ONE_SUCCESS/RETURN.json",
+    "sha256": "33472797e826607cd5c79eaffb62902e34cf703c7b5991126334f8f665073b31"
+  },
+  "priorInterruptedReturn": {
+    "path": "instances/RUNNER/CONTINUATION/RETURN_1000.4_INTERRUPTED.json",
+    "sha256": "79d59d625353d84258daea4452cca0eed5dddb625cd24920c1a4cfde14b6e335"
+  },
+  "measuredWorkloadCarryForward": "Both-size smoke02 accepted; review confirms measured method files byte-identical across one-success accounting transition. No additional smoke or measured-source repair.",
+  "operation": "Root explicitly authorizes fresh prepare10000.1 then immediate launch10000.1 using actualreceipt hash and thisrelease; first previousclaim1000.4 requires EXTERNAL_RECOVERY_VERIFIED and fresh full externalbindings. No further1000, automatic next/retry/replacement or sixth10000.",
+  "runtimeExclusivity": "Runner sole runtime owner; no competing builds/tests/GUI/native/heavy archives or offline traces. Root lightweight persisted progress only.",
+  "limits": "Existing action/trace and20minute per-run limits; no overall clock cap; original scores unchanged. Valid target misses continue collection.",
+  "stopRule": "After first valid complete actual10000run, halt timed collection; Root separately releases fresh success-close proof and immutable waivers. Failed slot consumed; later ordinal requires separate release and valid cleanup/source/profile.",
+  "returnRequirement": "Small actualexit/signal, completeness/validity, original score vector, settled, cleanup and externalbinding refs; no offline analysis until timed sequence is closed."
+}

@@ -1,0 +1,31 @@
+{
+  "status": "DRAFT_INTERFACE_AWAITING_FINAL_MANAGER_BINDINGS",
+  "displayTransition": {
+    "schema": "ui-foundation.internal120-transition/v1",
+    "authority": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/OWNER_DIRECTION_INTERNAL120_20260917.md",
+      "sha256": "6df272b7af0367b0083302229018143f8fa397a6bde0f5e368c6ec1e454157b9"
+    },
+    "previousProfile": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/REFERENCE_PROFILE_V2.json",
+      "sha256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922"
+    },
+    "profile": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/INTERNAL120/REFERENCE_PROFILE_INTERNAL120.json",
+      "sha256": "6de03bed447bc236b34295eabcdcd3957434aada022e368f1a4559e5f839ad8e"
+    }
+  },
+  "wrapperDelta": [
+    "Only approved reference-profile path/hash override from original external env",
+    "Validate internalconnection and exact sealed internal120 identity live before/after; no60fallback",
+    "Keep historical registry/one-success history checks and max5/stopaftervalidcomplete guards",
+    "No newsmoke or timed observer; no change to action/trace/scorer/product/fixture/oracle"
+  ],
+  "pending": [
+    "Final actual manager interface",
+    "Final sourceHEAD/methodmanifest",
+    "Extracted read-only helper validation and affectedreview",
+    "SeparateROOTrelease"
+  ],
+  "noRuntimeReceiptsClaimsRegistryMutation": true
+}

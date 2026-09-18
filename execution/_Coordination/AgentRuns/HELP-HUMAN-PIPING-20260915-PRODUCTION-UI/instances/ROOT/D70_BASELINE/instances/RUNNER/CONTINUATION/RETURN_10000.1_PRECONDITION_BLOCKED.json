@@ -1,0 +1,22 @@
+{
+  "status": "BLOCKED_BEFORE_10000_1_DISPLAY_PROFILE_DRIFT",
+  "at": "2026-09-18T02:35:23.735038+00:00",
+  "prepareExit": 1,
+  "failedGuard": "control_v6.py verify line41 actual main display equality against frozen profileV2",
+  "actualDisplay": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/BLOCKED_10000.1_DISPLAY.json",
+    "sha256": "b7ea332f9ca5c899d44319aa0ae816f4cf378f8149f4596b8317a5f73084d534"
+  },
+  "actual": "Only Color LCD internal main online3456x2234/UI1728x1117@120Hz",
+  "required": "LG ULTRAFINE external main online3840x2160/UI1920x1080@60Hz",
+  "receiptExists": false,
+  "claimExists": false,
+  "attemptRootExists": false,
+  "transitionSealExists": false,
+  "timed10000AttemptsConsumed": 0,
+  "all10000SlotsUntouched": true,
+  "profileSubstitution": false,
+  "sourceOrProfileChanges": false,
+  "handoff": "Required external display unavailable; no launch until actual original profile restored/revalidated under ROOT disposition",
+  "originalRegistrySha256": "4b5843acc27e55e24b7d9ad2b86850eade669da1e143b396aa0ed800dd727877"
+}

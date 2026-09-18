@@ -10,9 +10,9 @@
   "actual_mechanism": "delegated-harness-native collaboration.spawn_agent",
   "enforcement": "role/write scopes/Type2 non-delegation instruction+config asserted",
   "runtime_lease": {
-    "status": "ENDED_OWNER_INTERRUPTED1000.4",
-    "owner": "ROOT",
-    "scope": "No timed launch; prepare owner-directed10000-only successor with frozen measurements"
+    "status": "INTERNAL120_PREPARATION",
+    "owner": null,
+    "scope": "No timed runtime active. Profile-only implementation and launcher preparation; independent review required before release."
   },
   "nodes": [
     {
@@ -31,9 +31,11 @@
       "effort": "high",
       "brief": "briefs/MANAGER.md",
       "brief_sha256": "46c6d6ee930b46a470b017c0980cc4e8312a522168537b38208074a795e38dea",
-      "status": "active_one_success_accounting",
+      "status": "active_internal120_profile_binding",
       "continuation_brief": "briefs/MANAGER_CONTINUATION.md",
-      "continuation_brief_sha256": "28524661f4cf075dc3aabed269ad9413c8374aef9442d1d9bb29877964e92ff4"
+      "continuation_brief_sha256": "28524661f4cf075dc3aabed269ad9413c8374aef9442d1d9bb29877964e92ff4",
+      "internal120_brief": "briefs/MANAGER_INTERNAL120.md",
+      "internal120_addendum": "briefs/MANAGER_INTERNAL120_SCOPE_ADDENDUM.md"
     },
     {
       "id": "EXPECTATIONS",
@@ -77,11 +79,13 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "one_success_structural_preparation_complete_pending_final_method",
+      "status": "active_internal120_preparation_only",
       "agent_name": "/root/d70_runner",
       "return": "instances/RUNNER/RETURN.json",
       "continuation_brief": "briefs/RUNNER_CONTINUATION.md",
-      "continuation_brief_sha256": "34de9194f10a7dac5de50ad47fd2bb188a76b53448cecd3aef6bd2e818490b1d"
+      "continuation_brief_sha256": "34de9194f10a7dac5de50ad47fd2bb188a76b53448cecd3aef6bd2e818490b1d",
+      "internal120_brief": "briefs/RUNNER_INTERNAL120_PREPARATION.md",
+      "internal120_brief_sha256": "487ae8c8df88ff3df26d8b6453a0a8940fec658a6d148d1b0ac964125c3b4def"
     },
     {
       "id": "FINAL_REVIEW",
@@ -89,7 +93,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "complete_width_backcheck_pass",
+      "status": "complete_one_success_review_pass_OS1closed",
       "agent_name": "/root/d70_final_review",
       "brief": "briefs/FINAL_REVIEW.md",
       "brief_sha256": "cde708fd9be5a2e67bdb808110c9722b4c04898aad8a3a057201044cb238e002",
@@ -118,7 +122,7 @@
       "FINAL_REVIEW"
     ]
   ],
-  "current_frontier": "Owner requests one valid complete run each size.1000.2 satisfies1000;4 interrupted on steering;5waived/unattempted. Prepare explicit append-only transition to10000.1..5, stop after first success.",
+  "current_frontier": "Owner approved internal 120 Hz for the 10000-pipe attempts. External60 preflight blocked before consuming a slot. Preserve N1000.2 external60 success and all historical attempts; seal, review and release the internal120 successor with all five N10000 ordinals available.",
   "ownerClarification": {
     "path": "OWNER_CLARIFICATION_CONTINUE_20260917.md",
     "sha256": "a5ba424fde8f8be92ae69b694a718452c9753b3ce2217df8f6b4b55e042c9730"
@@ -127,5 +131,9 @@
   "ownerOneSuccessDirection": {
     "path": "OWNER_DIRECTION_ONE_SUCCESS_20260917.md",
     "sha256": "ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"
+  },
+  "ownerInternal120Direction": {
+    "path": "OWNER_DIRECTION_INTERNAL120_20260917.md",
+    "sha256": "6df272b7af0367b0083302229018143f8fa397a6bde0f5e368c6ec1e454157b9"
   }
 }

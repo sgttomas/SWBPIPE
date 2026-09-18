@@ -1,0 +1,27 @@
+{
+  "schema": "ui-foundation.reference-profile/v1",
+  "cohortId": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+  "productRevision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "hostModel": "Apple M5 Max",
+  "memoryBytes": 137438953472,
+  "refreshHz": 120,
+  "externallyVerified": true,
+  "verificationEvidence": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/INTERNAL120/DISPLAY_CAPTURE.json#sha256=b7ea332f9ca5c899d44319aa0ae816f4cf378f8149f4596b8317a5f73084d534",
+  "verifiedAt": "2026-09-18T02:45:06.724792+00:00",
+  "viewport": [
+    1440,
+    920
+  ],
+  "browserDpr": 2,
+  "effectiveDprCap": 2,
+  "display": {
+    "name": "Color LCD",
+    "vendor": "610",
+    "product": "a05f",
+    "serial": "fd626d62",
+    "pixels": "3456 x 2234",
+    "resolution": "1728 x 1117 @ 120.00Hz",
+    "mirror": "spdisplays_off",
+    "connection": "spdisplays_internal"
+  }
+}
