@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "base": "04aefa9803a6a9d26dae39ad6bbc06c470963fad",
+  "selectionAuthority": "owner authorization 2026-09-18 (instances/ROOT/ACTIVATION_2026-09-18.md)",
+  "parent": "owner",
+  "rootModel": "Claude Fable 5.1 (claude-fable-5-1)",
+  "nodes": {
+    "ROOT": {
+      "role": "HELP_HUMAN Type 0",
+      "model": "Claude Fable 5.1",
+      "status": "active"
+    },
+    "A1-LINT": {
+      "role": "TASK Type 2 implementer",
+      "model": "fable",
+      "status": "running",
+      "briefSha256": "3db45afb67197ce57b7dc52c6e871a4c15edf8f3f670b7fbe19d785789491cad",
+      "brief": "briefs/A1-LINT_registry_and_lint.md"
+    },
+    "A1-APP": {
+      "role": "TASK Type 2 implementer",
+      "model": "fable",
+      "status": "running",
+      "briefSha256": "19fe7ca236cd9681e799e138637cdc442e9274707dd313c3f9d54312ce1f6480",
+      "brief": "briefs/A1-APP_desktop_visible_rename.md"
+    },
+    "A1-DOCS": {
+      "role": "TASK Type 2 implementer",
+      "model": "sonnet",
+      "status": "running",
+      "briefSha256": "2a45a9731a1953c8907a76a8fce15b2adf26e114da73c2af3a7e4758c392c17d",
+      "brief": "briefs/A1-DOCS_sca010_core_docs.md"
+    }
+  },
+  "edges": [
+    [
+      "ROOT",
+      "A1-LINT"
+    ],
+    [
+      "ROOT",
+      "A1-APP"
+    ],
+    [
+      "ROOT",
+      "A1-DOCS"
+    ]
+  ],
+  "current_frontier": "Tranche A1: three implementers running (A1-LINT, A1-APP, A1-DOCS). Next: ROOT integration, tranche manifest, independent Opus code review of the frozen diff, DEC-025 sweep, PR.",
+  "frontier_history": [
+    {
+      "until": "2026-09-18T19:41Z",
+      "frontier": "Step 0: run opened; probes of nested delegation and host Playwright capability in progress. Next: Tranche A1 briefs."
+    }
+  ]
+}
