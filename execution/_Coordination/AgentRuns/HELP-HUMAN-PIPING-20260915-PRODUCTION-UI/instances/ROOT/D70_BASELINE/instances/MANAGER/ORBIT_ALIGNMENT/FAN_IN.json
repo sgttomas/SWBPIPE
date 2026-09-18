@@ -1,0 +1,25 @@
+{
+  "status": "PASS_MANAGER_ORBIT_ALIGNMENT_FAN_IN",
+  "writerCommit": "6351d270e87793a91be4f785c46a1a890ae74f71",
+  "baseCommit": "c5e9d53e4af07e9d3a26251474a331924f5e50f1",
+  "scope": "exact one-file import/use existing frozen constant",
+  "diff": "2 insertions and 2 deletions, no independent coordinate or math",
+  "tests": {
+    "TypeScript": "PASS",
+    "existingSmokeGuardRegression": "PASS",
+    "diffCheck": "PASS"
+  },
+  "methodManifest": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/METHOD_MANIFEST_SUCCESSOR.json",
+  "methodManifestSha256": "c36048c44d14acdceb7b15a898c96e38a473e96adb985a07a9694496324426b1",
+  "methodMembers": 34,
+  "changedMembers": [
+    "apps/desktop/e2e/ui-foundation/characterization-commands.ts"
+  ],
+  "timedConstantControllerGuardAndPriorEvidence": "unchanged",
+  "runtime": "NOT_EXECUTED",
+  "remaining": [
+    "ROOT affected review",
+    "one smoke requalification"
+  ],
+  "blockers": []
+}

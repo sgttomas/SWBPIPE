@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-18T00:32:25.621592+00:00",
+  "parent": "/root/d70_manager",
+  "child": "/root/d70_manager/writer",
+  "mechanism": "collaboration.followup_task",
+  "configuredSettings": "gpt-6-astra/low retained",
+  "actualSettingsIndependentObservation": false,
+  "briefSha256": "21c7b40c22594740ce1b7d57589924c5baef5bd2666e33542ce1048e44bf72c8",
+  "sourceScope": [
+    "characterization-commands.ts import/use existing ORBIT_START_NORMALIZED only"
+  ],
+  "runtime": "no browser/build/cohort; TypeScript and existing guard regression"
+}
