@@ -1,0 +1,51 @@
+{
+  "status": "PASS_ONE_SUCCESS_ACCOUNTING_PENDING_ROOT_REVIEW",
+  "instance": "/root/d70_manager",
+  "role": "WORKING_ITEMS Type1",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "execution": "direct ROOT grant, no child",
+  "baseRevision": "7306e2c6a435831c2f1457458516242decf88055",
+  "source": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "sha256": "3e189d1f2a0e0933ac6090f034d490af115f04b3364f938550556e860ee9eec2"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.d.mts",
+      "sha256": "0785828a6fb6c4ada59b125e27c275cc9c4417185dff590efbc0b6c66f2d1b0f"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.mjs",
+      "sha256": "eeebfcb14d1e72c332ede713b9bead3d3f6348c12c408c1f431c480b55a86aca"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "13f0bc22cea52b0a077ea5df70efd0375adbe55e2577f1f890bf57f62e63e7f6"
+    }
+  ],
+  "successorManifestSha256": "29e22f296e569c2c20824f77403a6fdbac805ea9560f149fdcd9e24e4f93ca36",
+  "manifestEntries": 34,
+  "parentManifestSha256": "6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a",
+  "measurements": "controller/scorer/actions/trace/fixtures/product/timeouts unchanged; predecessor measurement manifest entries revalidated",
+  "checks": {
+    "focusedFinal": 8,
+    "skipped": 0,
+    "typescript": "PASS",
+    "diffCheck": "PASS",
+    "actualHistoryReadOnly": "PASS",
+    "priorPolicyRegistryClaimsTerminalsReturnsHashesUnchanged": true
+  },
+  "runtimeExecuted": false,
+  "attemptsConsumed": 0,
+  "interface": "same launch-slot; new close-one-success POLICY_JSON POLICY_SHA RECEIPT_JSON RECEIPT_SHA",
+  "template": "POLICY_TEMPLATE.json, ROOT must replace instrumentRevision placeholder with final instrument HEAD and freeze externally",
+  "closure": "SOURCE_COMPLETE_PENDING_ROOT_INTEGRATION_REVIEW_RELEASE",
+  "remaining": [
+    "ROOT integrate and independent affected review",
+    "ROOT stamp/freezeV5 using successor method and final instrument HEAD",
+    "ROOT separately release next10000 launch and close after fresh proofs"
+  ],
+  "derivativePackage": true,
+  "claimFence": "F-PIP-2 / DEC081"
+}

@@ -9,3 +9,4 @@ export function validateContinuationReceipt(receipt: any, policy: any, slot: str
 export function validateClaimedContinuation(policyRef: any, claimRef: any, executionToken: string, evidenceRoot: string): Promise<any>;
 export function launchContinuationSlot(policyRef: any, slot: string, receiptRef: any, operations?: any): Promise<any>;
 export function continuationBudgetReport(policy: any, seed: any): Promise<any>;
+export function closeOneSuccess(policyRef: any, receiptRef: any, operations?: any): Promise<any>;

@@ -126,6 +126,61 @@ async function boundJson(ref) {
   const bytes=await readFile(ref.path);if(hash(bytes)!==ref.sha256)throw new Error(`bound JSON changed: ${ref.path}`);return JSON.parse(bytes.toString());
 }
 async function writeOnce(file,value){await writeFile(file,`${JSON.stringify(value,null,2)}\n`,{flag:"wx"});return {path:file,sha256:hash(await readFile(file))};}
+const ONE_SUCCESS_AUTHORITY_SHA256="ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2";
+const historicalSlots=["1000.2","1000.3","1000.4"];
+const eligibleSlots=policy=>policy.ownerTransition?CONTINUATION_SLOTS.filter(s=>s!=="1000.5"):CONTINUATION_SLOTS;
+const registryValue=(policy,policySha256)=>({seedSha256:policy.seed.sha256,cohortId:policy.cohortId,ledgerRoot:policy.ledgerRoot,policySha256,methodSha256:policy.method.sha256,instrumentRevision:policy.instrumentRevision});
+const resultPath=entry=>{const [size,ordinal]=entry.claim.slot.split(".");return path.join(entry.claim.evidenceRoot,"raw",`run-${ordinal.padStart(2,"0")}`,size,"result.json");};
+async function optionalJson(file){try{return JSON.parse(await readFile(file,"utf8"));}catch(error){if(error.code!=="ENOENT")throw error;return null;}}
+function validCompleteResult(result,entry) {
+  const [size,ordinal]=entry.claim.slot.split("."),expected=result?.expected,evidence=result?.evidence;
+  return result?.collection?.evidenceValidity==="VALID" && result.collection.collectionCompleteness==="COMPLETE" &&
+    expected?.runId===`${entry.claim.cohortId}.${entry.claim.slot}` && expected.fixtureSize===Number(size) && expected.runNumber===Number(ordinal) &&
+    expected.bindings?.methodSha256===entry.claim.methodSha256 && typeof expected.sessionId==="string" && expected.sessionId.length>0 && evidence?.runId===expected.runId && evidence.sessionId===expected.sessionId &&
+    evidence.freshSession===true && evidence.qualification==="PASS_QUALIFIED_RUN" && result.segmentCount===243 &&
+    evidence.points?.length===200 && evidence.boxes?.length===20 && evidence.filters?.length===20 &&
+    result.errors?.length===0 && result.scored?.validityFailures?.length===0 && ["PASS_METRIC_ACCEPTANCE","FAIL_TARGETS"].includes(result.scored?.status);
+}
+async function successfulEntry(policy,entry) {
+  const terminal=await optionalJson(path.join(policy.ledgerRoot,`terminal-${entry.claim.slot}.json`)),file=resultPath(entry),result=await optionalJson(file);
+  if(terminal?.exitCode!==0 || terminal.signal || terminal.launchError || terminal.claim?.sha256!==entry.sha256 || terminal.claim?.path!==entry.path || !validCompleteResult(result,entry))return null;
+  return {slot:entry.claim.slot,claim:{path:entry.path,sha256:entry.sha256},result:{path:file,sha256:hash(await readFile(file))},terminal:{path:path.join(policy.ledgerRoot,`terminal-${entry.claim.slot}.json`),sha256:hash(await readFile(path.join(policy.ledgerRoot,`terminal-${entry.claim.slot}.json`)))}};
+}
+async function oneSuccessHistory(policy) {
+  const t=policy.ownerTransition;if(!t)return null;
+  if(t.schema!=="ui-foundation.one-success-transition/v1" || t.authority?.sha256!==ONE_SUCCESS_AUTHORITY_SHA256 ||
+    t.authority.path!==path.resolve(path.dirname(policy.seed.path),"../../OWNER_DIRECTION_ONE_SUCCESS_20260917.md") ||
+    hash(await readFile(t.authority.path))!==t.authority.sha256)throw new Error("owner waiver authority mismatch");
+  const prior=await boundJson(t.previousPolicy),seed=await boundJson(policy.seed);validateContinuationPolicy(prior,seed);
+  if(prior.ownerTransition || !["seed","cohortId","ledgerRoot","instrumentProjectRoot","attemptRoots"].every(k=>jsonEqual(prior[k],policy[k])) ||
+    !jsonEqual(await boundJson(t.registry),registryValue(prior,t.previousPolicy.sha256)))throw new Error("historical policy/registry lineage or ledger relocation mismatch");
+  const oldMethod=await boundJson(prior.method),newMethod=await boundJson(policy.method);
+  const orchestration=new Set(["characterization-observations.mjs","characterization-observations.d.mts","characterization-mode.ts","full-cohort-controller.spec.ts","README.md"]);
+  if(oldMethod.files?.length!==34 || newMethod.files?.length!==34 || !jsonEqual(oldMethod.files.map(f=>f.path),newMethod.files.map(f=>f.path)) ||
+    oldMethod.files.some((f,i)=>!orchestration.has(path.basename(f.path))&&f.sha256!==newMethod.files[i].sha256))throw new Error("measurement method changed across accounting transition");
+  if(!Array.isArray(t.history)||t.history.length!==3)throw new Error("exact three historical claims required");
+  let previous=policy.seed.sha256;
+  const history=[];
+  for(const [i,record] of t.history.entries()) {
+    const slot=historicalSlots[i],claim=await boundJson(record.claim),terminal=await boundJson(record.terminal),returned=await boundJson(record.return);
+    if(record.claim.path!==path.join(policy.ledgerRoot,"claims",`${slot}.json`) || record.terminal.path!==path.join(policy.ledgerRoot,`terminal-${slot}.json`) ||
+      claim.slot!==slot || claim.previousClaimSha256!==previous || claim.policySha256!==t.previousPolicy.sha256 || claim.seedSha256!==policy.seed.sha256 ||
+      claim.cohortId!==policy.cohortId || claim.methodSha256!==prior.method.sha256 || claim.instrumentRevision!==prior.instrumentRevision ||
+      claim.evidenceRoot!==prior.attemptRoots[slot] || terminal.slot!==slot || !jsonEqual(terminal.claim,record.claim) || returned.slot!==slot ||
+      !Array.isArray(returned.evidence) || !returned.evidence.some(e=>jsonEqual(e,record.claim)) || !returned.evidence.some(e=>jsonEqual(e,record.terminal)))throw new Error("historical claim/terminal/return identity mismatch");
+    for(const ref of returned.evidence)await boundJson(ref);
+    if(i===0 && (returned.collection?.evidenceValidity!=="VALID" || returned.collection?.collectionCompleteness!=="COMPLETE" || returned.processExit!==0 ||
+      terminal.exitCode!==0 || terminal.signal || terminal.launchError || returned.cleanup?.verificationStatus!=="VERIFIED" || returned.cleanup.browserProcessesRemaining!==0 ||
+      returned.cleanup.serverListening!==false || returned.externalBindings!=="PASS_INDEPENDENT_EXTERNAL_REVALIDATION"))throw new Error("historical1000 success not verified");
+    if(i===1 && (returned.collection?.evidenceValidity!=="INVALID" || returned.collection.collectionCompleteness!=="INCOMPLETE" || returned.processExit!==1 || terminal.exitCode!==1))throw new Error("historical1000.3 invalid outcome changed");
+    if(i===2 && (returned.status!=="OWNER_CANCELLED_STARTED_SLOT_INTERRUPTED" || returned.startedBeforeSteering!==true || terminal.exitCode!==null || terminal.signal!=="SIGTERM" ||
+      returned.externalRecovery?.verificationStatus!=="VERIFIED" || returned.externalRecovery.browserProcessesRemaining!==0 || returned.externalRecovery.serverListening!==false))throw new Error("historical interrupted1000.4 recovery not verified");
+    const entry={claim,path:record.claim.path,sha256:record.claim.sha256,terminal,returned};
+    if(i===0 && (!returned.evidence.some(e=>e.path===resultPath(entry)) || !await successfulEntry(prior,entry)))throw new Error("historical success result does not match actual claim/workload");
+    history.push(entry);previous=record.claim.sha256;
+  }
+  return {prior,history};
+}
 export function validateContinuationPolicy(policy,seed) {
   if(policy.seed?.path!==path.join(path.dirname(seed.frozenEnvironment?.UI_FOUNDATION_REFERENCE_PROFILE??""),"RETURN.json"))throw new Error("canonical original seed path required");
   if(policy?.schema!=="ui-foundation.continuation-policy/v1" || policy.seed?.sha256!==ORIGINAL_RETURN_SHA256 || seed.counts?.attempted!==1 || seed.counts?.invalidFailed!==1 || seed.counts?.unattempted!==9 ||
@@ -136,20 +191,26 @@ export function validateContinuationPolicy(policy,seed) {
     Object.values(policy.attemptRoots).some(p=>!path.isAbsolute(p)||p===seed.frozenEnvironment.UI_FOUNDATION_EVIDENCE_DIR) || !/^[a-f0-9]{64}$/.test(policy.method?.sha256??""))throw new Error("invalid continuation policy/seed/ten lifetime slot budget");
 }
 export async function continuationClaims(policy) {
+  const transition=await oneSuccessHistory(policy),slots=eligibleSlots(policy);
   const directory=path.join(policy.ledgerRoot,"claims");await mkdir(directory,{recursive:true});
   const names=(await readdir(directory)).sort();
-  if(names.some(n=>!CONTINUATION_SLOTS.some(slot=>n===`${slot}.json`)))throw new Error("unknown ledger claim");
+  if(names.some(n=>!slots.some(slot=>n===`${slot}.json`)))throw new Error("unknown or owner-waived ledger claim");
   const claims=[];
-  for(const slot of CONTINUATION_SLOTS) {
+  for(const slot of slots) {
     const file=path.join(directory,`${slot}.json`);
     if(!names.includes(`${slot}.json`)) {
       if(names.length!==claims.length)throw new Error("ledger has gap/reordered slot");break;
     }
     const bytes=await readFile(file),claim=JSON.parse(bytes.toString());
-    if(claim.slot!==slot || claim.seedSha256!==ORIGINAL_RETURN_SHA256 || claim.cohortId!==policy.cohortId || claim.methodSha256!==policy.method.sha256 ||
-      claim.instrumentRevision!==policy.instrumentRevision || claim.evidenceRoot!==policy.attemptRoots[slot])throw new Error("untracked method or claim identity drift");
+    const attribution=transition&&historicalSlots.includes(slot)?transition.prior:policy;
+    if(claim.slot!==slot || claim.seedSha256!==ORIGINAL_RETURN_SHA256 || claim.cohortId!==policy.cohortId || claim.methodSha256!==attribution.method.sha256 ||
+      claim.instrumentRevision!==attribution.instrumentRevision || claim.evidenceRoot!==attribution.attemptRoots[slot])throw new Error("untracked method or claim identity drift");
+    if(transition && (claim.previousClaimSha256!==(claims.at(-1)?.sha256??policy.seed.sha256) ||
+      (historicalSlots.includes(slot)?hash(bytes)!==transition.history[claims.length]?.sha256:
+       claim.policySha256!==(await optionalJson(path.join(policy.ledgerRoot,"one-success-policy.json")))?.policySha256)))throw new Error("claim chain or historical/successor policy mismatch");
     claims.push({claim,path:file,sha256:hash(bytes)});
   }
+  if(transition&&claims.length<3)throw new Error("historical consumed claims missing");
   return claims;
 }
 export async function validateContinuationReceipt(receipt,policy,slot,previous,seed) {
@@ -200,6 +261,53 @@ export async function validateClaimedContinuation(policyRef,claimRef,executionTo
   await writeOnce(path.join(policy.ledgerRoot,`entered-${claim.slot}.json`),{slot:claim.slot,claimSha256:claimRef.sha256,executionToken,enteredAt:new Date().toISOString()});
   return {policy,claim,fixtureSize:Number(claim.slot.split(".")[0]),runNumber:Number(claim.slot.split(".")[1])};
 }
+async function bindContinuationRegistry(policyRef,policy,operations={}) {
+  const registryFile=`${await realpath(policy.seed.path)}.continuation-ledger.json`;
+  if(policy.ownerTransition) {
+    await oneSuccessHistory(policy);
+    if(operations.bindRegistry)await operations.bindRegistry(registryFile,await boundJson(policy.ownerTransition.registry));
+    else if(policy.ownerTransition.registry.path!==registryFile)throw new Error("canonical original registry path required");
+    const seal={...registryValue(policy,policyRef.sha256),previousRegistry:policy.ownerTransition.registry,authority:policy.ownerTransition.authority,waivedUnattempted:["1000.5"]};
+    const file=path.join(policy.ledgerRoot,"one-success-policy.json");
+    try{await writeOnce(file,seal);}catch(error){if(error.code!=="EEXIST")throw error;if(!jsonEqual(await optionalJson(file),seal))throw new Error("owner transition already sealed with different policy");}
+    return;
+  }
+  if(await optionalJson(path.join(policy.ledgerRoot,"one-success-policy.json")))throw new Error("superseded full-budget policy cannot launch");
+  const registry=registryValue(policy,policyRef.sha256);
+  if(operations.bindRegistry)await operations.bindRegistry(registryFile,registry);
+  else {try{await writeOnce(registryFile,registry);}catch(error){if(error.code!=="EEXIST")throw error;if(!jsonEqual(JSON.parse(await readFile(registryFile,"utf8")),registry))throw new Error("approved ledger relocation/reset rejected");}}
+}
+async function oneSuccessState(policy,claims) {
+  if(!policy.ownerTransition)return {candidate:null,completion:null};
+  let candidate=null;
+  for(const entry of claims.filter(e=>e.claim.slot.startsWith("10000."))) {
+    candidate=await successfulEntry(policy,entry);if(candidate)break;
+  }
+  const completion=await optionalJson(path.join(policy.ledgerRoot,"one-success-complete.json"));
+  if(completion) {
+    const seal=await optionalJson(path.join(policy.ledgerRoot,"one-success-policy.json"));
+    if(!candidate || !jsonEqual(candidate,completion.success) || completion.policySha256!==seal?.policySha256 ||
+      !jsonEqual(completion.waivedUnattempted,CONTINUATION_SLOTS.filter(s=>s.startsWith("10000.")&&!claims.some(e=>e.claim.slot===s))))throw new Error("completion identity or waiver mismatch");
+    for(const ref of [completion.success.result,completion.success.terminal])await boundJson(ref);
+    const seed=await boundJson(policy.seed),entry=claims.find(e=>e.claim.slot===candidate.slot);
+    await validateContinuationReceipt(await boundJson(completion.receipt),policy,candidate.slot,entry,seed);
+  }
+  return {candidate,completion};
+}
+export async function closeOneSuccess(policyRef,receiptRef,operations={}) {
+  const policy=await boundJson(policyRef),seed=await boundJson(policy.seed);validateContinuationPolicy(policy,seed);
+  if(!policy.ownerTransition)throw new Error("owner one-success transition required");
+  await bindContinuationRegistry(policyRef,policy,operations);
+  const claims=await continuationClaims(policy),state=await oneSuccessState(policy,claims),entry=claims.at(-1);
+  if(!state.candidate || state.candidate.slot!==entry?.claim.slot || state.completion)throw new Error("no unmatched valid complete successful actual10000 run to close");
+  await validateContinuationReceipt(await boundJson(receiptRef),policy,entry.claim.slot,entry,seed);
+  await (operations.verifyFiles??verifyContinuationFiles)(policy,seed);
+  const completion={schema:"ui-foundation.one-success-complete/v1",policySha256:policyRef.sha256,authority:policy.ownerTransition.authority,success:state.candidate,receipt:receiptRef,
+    waivedUnattempted:CONTINUATION_SLOTS.filter(s=>s.startsWith("10000.")&&!claims.some(e=>e.claim.slot===s)),completedAt:new Date().toISOString(),targetAcceptanceClaim:false};
+  await writeOnce(path.join(policy.ledgerRoot,"one-success-complete.json"),completion);
+  await writeOnce(path.join(policy.ledgerRoot,"one-success-final-budget.json"),await continuationBudgetReport(policy,seed));
+  return completion;
+}
 async function persistedProgress(root,emit) {
   let fingerprint="";
   return setInterval(async()=>{
@@ -225,37 +333,46 @@ async function spawnOne(policy,env) {
 }
 export async function continuationBudgetReport(policy,seed) {
   const claims=await continuationClaims(policy);
+  const state=await oneSuccessState(policy,claims);
   const slots=[{slot:"1000.1",consumed:true,instrumentRevision:seed.instrumentRevision,methodSha256:seed.originalScores.bindings.methodSha256,
     evidenceValidity:"INVALID",collectionCompleteness:"INCOMPLETE",originalScored:seed.originalScores,source:policy.seed}];
   for(const slot of CONTINUATION_SLOTS) {
     const entry=claims.find(c=>c.claim.slot===slot);
-    if(!entry){slots.push({slot,consumed:false,disposition:"UNATTEMPTED"});continue;}
+    if(!entry){slots.push({slot,consumed:false,disposition:policy.ownerTransition&&(slot==="1000.5"||state.completion?.waivedUnattempted.includes(slot))?"WAIVED_UNATTEMPTED_BY_OWNER":"UNATTEMPTED"});continue;}
     const [size,ordinal]=slot.split("."),resultFile=path.join(entry.claim.evidenceRoot,"raw",`run-${ordinal.padStart(2,"0")}`,size,"result.json");
     let result=null,terminal=null;
     try{result=JSON.parse(await readFile(resultFile,"utf8"));}catch(error){if(error.code!=="ENOENT")throw error;}
     try{terminal=JSON.parse(await readFile(path.join(policy.ledgerRoot,`terminal-${slot}.json`),"utf8"));}catch(error){if(error.code!=="ENOENT")throw error;}
     slots.push({slot,consumed:true,instrumentRevision:entry.claim.instrumentRevision,methodSha256:entry.claim.methodSha256,claimSha256:entry.sha256,
       evidenceValidity:result?.collection?.evidenceValidity??"INVALID_OR_UNAVAILABLE",collectionCompleteness:result?.collection?.collectionCompleteness??"INCOMPLETE",
-      originalScored:result?.scored??null,runtimeDisposition:terminal?.exitCode===0&&!terminal.signal&&!terminal.launchError?"PASSED":"FAILED_OR_UNAVAILABLE",terminal,resultFile});
+      originalScored:result?.scored??null,runtimeDisposition:terminal?.exitCode===0&&!terminal.signal&&!terminal.launchError?"PASSED":"FAILED_OR_UNAVAILABLE",terminal,resultFile,
+      ...(policy.ownerTransition?{matchedIdentityAndWorkload:validCompleteResult(result,entry)}:{}),
+      ...(policy.ownerTransition&&slot==="1000.4"?{ownerDisposition:"OWNER_INTERRUPTED_CONSUMED",historicalReturn:policy.ownerTransition.history[2].return}:{})});
   }
   return {schema:"ui-foundation.lifetime-attempt-budget-report/v1",seed:policy.seed,slots,consumed:slots.filter(s=>s.consumed).length,
-    validCompleteBySize:Object.fromEntries(["1000","10000"].map(size=>[size,slots.filter(s=>s.slot.startsWith(`${size}.`)&&s.runtimeDisposition==="PASSED"&&s.evidenceValidity==="VALID"&&s.collectionCompleteness==="COMPLETE").length])),
+    validCompleteBySize:Object.fromEntries(["1000","10000"].map(size=>[size,slots.filter(s=>s.slot.startsWith(`${size}.`)&&s.runtimeDisposition==="PASSED"&&s.evidenceValidity==="VALID"&&s.collectionCompleteness==="COMPLETE"&&(!policy.ownerTransition||s.matchedIdentityAndWorkload)).length])),
+    ...(policy.ownerTransition?{confirmedSuccessBySize:{1000:1,10000:state.completion?1:0},
+      interrupted:slots.filter(s=>s.consumed&&s.terminal&&(s.terminal.signal||s.terminal.launchError||s.terminal.exitCode===null)).length,
+      invalidFailed:slots.filter(s=>s.consumed&&s.ownerDisposition!=="OWNER_INTERRUPTED_CONSUMED"&&!(s.terminal&&(s.terminal.signal||s.terminal.launchError||s.terminal.exitCode===null))&&!(s.matchedIdentityAndWorkload&&s.runtimeDisposition==="PASSED")).length}:{}),
+    waived:slots.filter(s=>s.disposition==="WAIVED_UNATTEMPTED_BY_OWNER").length,eligible:slots.filter(s=>s.disposition==="UNATTEMPTED").length,
+    ownerStoppingStatus:policy.ownerTransition?(state.completion?"SUCCESS_CONFIRMED_AND_REMAINDER_WAIVED":state.candidate?"VALID_COMPLETE_PROCESS_SUCCESS_PENDING_CLEANUP":claims.filter(e=>e.claim.slot.startsWith("10000.")).length===5?"FIVE_ATTEMPTS_EXHAUSTED_NO_SUCCESS":"CONTINUE_NEXT10000_AFTER_PRECONDITIONS"):null,
     originalAggregateFailure:seed.collection.targetOutcome,qualificationCohort:false,comparison:"Original and successor methods remain separate; attempt budget completion is not valid-workload or metric acceptance."};
 }
 export async function launchContinuationSlot(policyRef,slot,receiptRef,operations={}) {
   const policy=await boundJson(policyRef),seed=await boundJson(policy.seed);validateContinuationPolicy(policy,seed);
-  if(!CONTINUATION_SLOTS.includes(slot))throw new Error("consumed/unknown/sixth slot rejected");
+  if(!CONTINUATION_SLOTS.includes(slot) || (policy.ownerTransition&&!slot.startsWith("10000.")))throw new Error("consumed/waived/unknown/sixth slot rejected");
   await mkdir(policy.ledgerRoot,{recursive:true});
-  // Registry next to immutable seed prevents silently resetting the ledger path.
-  const registryFile=`${await realpath(policy.seed.path)}.continuation-ledger.json`;
-  const registry={seedSha256:policy.seed.sha256,cohortId:policy.cohortId,ledgerRoot:policy.ledgerRoot,policySha256:policyRef.sha256,methodSha256:policy.method.sha256,instrumentRevision:policy.instrumentRevision};
-  if(operations.bindRegistry)await operations.bindRegistry(registryFile,registry);
-  else {try{await writeOnce(registryFile,registry);}catch(error){if(error.code!=="EEXIST")throw error;if(!jsonEqual(JSON.parse(await readFile(registryFile,"utf8")),registry))throw new Error("approved ledger relocation/reset rejected");}}
+  await bindContinuationRegistry(policyRef,policy,operations);
   const claims=await continuationClaims(policy);
-  if(slot!==CONTINUATION_SLOTS[claims.length])throw new Error("slot consumed or out of order");
+  if((await oneSuccessState(policy,claims)).candidate)throw new Error("valid complete10000 process success already exists; close with verified cleanup, no further launch");
+  if(slot!==eligibleSlots(policy)[claims.length])throw new Error("slot consumed or out of order");
   const previous=claims.at(-1)??{sha256:policy.seed.sha256};
   const receipt=await boundJson(receiptRef);await validateContinuationReceipt(receipt,policy,slot,previous,seed);
   const env=await (operations.verifyFiles??verifyContinuationFiles)(policy,seed);
+  if(policy.ownerTransition) {
+    const current=await continuationClaims(policy);
+    if(current.length!==claims.length || (await oneSuccessState(policy,current)).candidate)throw new Error("stale concurrent launch or successful run already present");
+  }
   const evidenceRoot=policy.attemptRoots[slot];await mkdir(evidenceRoot); // exclusive new output; never reuse
   const token=createHash("sha256").update(`${policyRef.sha256}:${slot}:${Date.now()}:${process.pid}`).digest("hex");
   const claim={schema:"ui-foundation.started-slot/v1",slot,cohortId:policy.cohortId,seedSha256:policy.seed.sha256,policySha256:policyRef.sha256,
@@ -278,7 +395,10 @@ export async function launchContinuationSlot(policyRef,slot,receiptRef,operation
 }
 
 if(process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
-  if(process.argv[2]==="launch-slot") {
+  if(process.argv[2]==="close-one-success") {
+    if(process.argv.length!==7)throw new Error("usage: node characterization-observations.mjs close-one-success POLICY_JSON POLICY_SHA256 RECEIPT_JSON RECEIPT_SHA256");
+    process.stdout.write(`${JSON.stringify(await closeOneSuccess({path:path.resolve(process.argv[3]),sha256:process.argv[4]},{path:path.resolve(process.argv[5]),sha256:process.argv[6]}))}\n`);
+  } else if(process.argv[2]==="launch-slot") {
     if(process.argv.length!==8)throw new Error("usage: node characterization-observations.mjs launch-slot POLICY_JSON POLICY_SHA256 SLOT RECEIPT_JSON RECEIPT_SHA256");
     const result=await launchContinuationSlot({path:path.resolve(process.argv[3]),sha256:process.argv[4]},process.argv[5],{path:path.resolve(process.argv[6]),sha256:process.argv[7]});
     process.stdout.write(`${JSON.stringify(result)}\n`);

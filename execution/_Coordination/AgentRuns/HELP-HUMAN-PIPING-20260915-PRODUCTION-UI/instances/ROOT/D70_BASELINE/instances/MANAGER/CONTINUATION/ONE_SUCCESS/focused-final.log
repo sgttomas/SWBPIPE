@@ -1,0 +1,17 @@
+
+Running 8 tests using 1 worker
+
+(node:80812) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:80812) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:991:1 › real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries (10ms)
+  ✓  2 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1127:1 › continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates (181ms)
+  ✓  3 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1243:3 › owner one-success transition preserves history and bounded dispatch: target-miss (99ms)
+  ✓  4 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1243:3 › owner one-success transition preserves history and bounded dispatch: invalid,valid (121ms)
+  ✓  5 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1243:3 › owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid (169ms)
+  ✓  6 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1243:3 › owner one-success transition preserves history and bounded dispatch: interrupted,valid (118ms)
+  ✓  7 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1243:3 › owner one-success transition preserves history and bounded dispatch: empty-exit0,valid (120ms)
+  ✓  8 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1243:3 › owner one-success transition preserves history and bounded dispatch: stale-success (105ms)
+
+  8 passed (1.5s)

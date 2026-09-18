@@ -523,3 +523,61 @@ immutable `budget-after-<slot>.json` reports covering original1000.1 plus all re
 slots. Consumed budget, valid complete workloads and original target outcomes are separate.
 Original aggregate failure is retained. Mixed methods never become one ten-run qualification
 cohort. Offline analysis accepts the closed selected-slot result via its existing CLI.
+
+### Owner-directed one-success transition
+
+The later `OWNER_DIRECTION_ONE_SUCCESS_20260917.md` supersedes exhaustive scheduling:
+1000.2 already provides one valid complete actual run; 1000.1/3 remain invalid and
+consumed, 1000.4 remains owner-interrupted and consumed, and 1000.5 is waived without
+a claim. Attempt only10000.1–5 in order until one valid complete actual run. A valid
+`FAIL_TARGETS` result satisfies characterization stopping without becoming metric PASS.
+
+Keep the v1 policy's seed/cohort/ledger/instrument project/attempt-root map unchanged.
+Set its new instrument revision and successor34 method, and add:
+
+```json
+{
+  "ownerTransition": {
+    "schema": "ui-foundation.one-success-transition/v1",
+    "authority": {"path": "/canonical/D70_BASELINE/OWNER_DIRECTION_ONE_SUCCESS_20260917.md", "sha256": "ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"},
+    "previousPolicy": {"path": "/canonical/CONTINUATION/POLICY_V4.json", "sha256": "<original policy SHA>"},
+    "registry": {"path": "/canonical/RETURN.json.continuation-ledger.json", "sha256": "<original registry SHA>"},
+    "history": [
+      {"claim": {"path": "/original/claims/1000.2.json", "sha256": "<SHA>"}, "terminal": {"path": "/original/terminal-1000.2.json", "sha256": "<SHA>"}, "return": {"path": "/original/RETURN_1000.2.json", "sha256": "<SHA>"}},
+      {"claim": {"path": "/original/claims/1000.3.json", "sha256": "<SHA>"}, "terminal": {"path": "/original/terminal-1000.3.json", "sha256": "<SHA>"}, "return": {"path": "/original/RETURN_1000.3.json", "sha256": "<SHA>"}},
+      {"claim": {"path": "/original/claims/1000.4.json", "sha256": "<SHA>"}, "terminal": {"path": "/original/terminal-1000.4.json", "sha256": "<SHA>"}, "return": {"path": "/original/RETURN_1000.4_INTERRUPTED.json", "sha256": "<SHA>"}}
+    ]
+  }
+}
+```
+
+All references are exact hash-bound original files. The original registry is read-only;
+`ledger/one-success-policy.json` exclusively seals the successor policy and waiver1000.5.
+Historical claims validate against V4 and its method. New10000 claims validate against
+the successor, preserving the same previous-claim chain across the explicit waiver.
+Measured method files must match the predecessor; only the authorized orchestration,
+declaration, tests and documentation entries may differ. No old claim/terminal/raw file
+is rebound, rewritten or replaced. Once sealed, the old full-budget route is rejected.
+
+Use the same five separate `launch-slot` commands for10000.1 through10000.5; never loop
+or launch after success. The first receipt's predecessor is actual1000.4's claim and
+requires `EXTERNAL_RECOVERY_VERIFIED`, plus fresh external binding checks. Each subsequent
+failed/interrupted slot requires the same independent prerequisites as before.
+
+A candidate success requires a matching launched run/session/method, complete243-segment
+workload with200/20/20 action records, valid scorer evidence and actual exit0 without
+signal/launch error. It blocks every further launch immediately, including stale commands.
+Then independently verify cleanup/bindings and issue a close receipt using the existing
+receipt schema, `slot` equal to the successful10000 slot and `previousClaimSha256` equal
+to **that same successful slot's claim**. Run once:
+
+```sh
+node apps/desktop/e2e/ui-foundation/characterization-observations.mjs close-one-success "$POLICY" "$POLICY_SHA" "$CLOSE_RECEIPT" "$CLOSE_RECEIPT_SHA"
+```
+
+Close launches no browser; it revalidates receipt and external files, exclusively writes
+`one-success-complete.json` and `one-success-final-budget.json`, and explicitly waives only
+remaining unattempted10000 slots. No valid actual run means close fails; allfive failed
+attempts report exhaustion without fabricated success. Original per-run targets and failures
+remain intact. Reports separate consumed, interrupted, invalid, valid/complete, confirmed
+success after cleanup, waived and eligible slots. Method populations remain distinct.

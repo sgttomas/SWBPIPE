@@ -1,0 +1,15 @@
+
+Running 6 tests using 1 worker
+
+(node:80454) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:80454) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1127:1 › continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates (184ms)
+  ✓  2 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1243:3 › owner one-success transition preserves history and bounded dispatch: target-miss (94ms)
+  ✓  3 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1243:3 › owner one-success transition preserves history and bounded dispatch: invalid,valid (119ms)
+  ✓  4 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1243:3 › owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid (172ms)
+  ✓  5 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1243:3 › owner one-success transition preserves history and bounded dispatch: interrupted,valid (116ms)
+  ✓  6 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1243:3 › owner one-success transition preserves history and bounded dispatch: empty-exit0,valid (116ms)
+
+  6 passed (1.4s)

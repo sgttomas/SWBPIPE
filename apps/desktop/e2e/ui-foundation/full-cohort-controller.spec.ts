@@ -1238,3 +1238,91 @@ test("captured scrollable inspector dimensions remain observations while true la
     expect(rejected.actual).toEqual(bad);expect(rejected.error).toMatch(/metadata|drift/);
   }
 });
+
+for (const outcomes of [["target-miss"],["invalid","valid"],["invalid","invalid","invalid","invalid","invalid"],["interrupted","valid"],["empty-exit0","valid"],["stale-success"]]) {
+  test(`owner one-success transition preserves history and bounded dispatch: ${outcomes.join(",")}`,async({},info)=>{
+    const original=process.env.D70_WRITER_ORIGINAL_RETURN;test.skip(!original,"requires hash-bound original seed");
+    const {launchContinuationSlot,closeOneSuccess,continuationClaims,continuationBudgetReport,continuationExternalBindings,CONTINUATION_SLOTS,ORIGINAL_RETURN_SHA256}=await import("./characterization-observations.mjs");
+    const {dirname,resolve}=await import("node:path");
+    const root=info.outputPath("one-success");await mkdir(`${root}/ledger/claims`,{recursive:true});
+    let sequence=0;
+    const save=async(file:string,value:any)=>{const bytes=JSON.stringify(value);await writeFile(file,bytes,{flag:"wx"});return {path:file,sha256:createHash("sha256").update(bytes).digest("hex")};};
+    const seed=JSON.parse(await readFile(original!,"utf8")),seedRef={path:original!,sha256:ORIGINAL_RETURN_SHA256};
+    const files=Array.from({length:34},(_,i)=>({path:`apps/desktop/e2e/ui-foundation/${i===0?"characterization-observations.mjs":`frozen-${i}.ts`}`,sha256:"a".repeat(64)}));
+    const oldMethod=await save(`${root}/old-method.json`,{files}),method=await save(`${root}/method.json`,{files:files.map((f,i)=>i?f:{...f,sha256:"b".repeat(64)})});
+    const prior:any={schema:"ui-foundation.continuation-policy/v1",seed:seedRef,cohortId:seed.frozenEnvironment.UI_FOUNDATION_COHORT_ID,ledgerRoot:`${root}/ledger`,instrumentProjectRoot:root,instrumentRevision:"a".repeat(40),method:oldMethod,
+      attemptRoots:Object.fromEntries(CONTINUATION_SLOTS.map(slot=>[slot,`${root}/attempt-${slot}`]))};
+    const priorRef=await save(`${root}/prior.json`,prior),history:any[]=[],originalHashes:any[]=[];
+    const resultFor=(claim:any,status:string)=>{
+      const [size,ordinal]=claim.slot.split("."),expected={runId:`${claim.cohortId}.${claim.slot}`,fixtureSize:Number(size),runNumber:Number(ordinal),sessionId:`session-${claim.slot}`,bindings:{methodSha256:claim.methodSha256}};
+      return {expected,evidence:{...expected,freshSession:true,qualification:"PASS_QUALIFIED_RUN",points:Array(200).fill({}),boxes:Array(20).fill({}),filters:Array(20).fill({})},segmentCount:243,errors:[],scored:{status:status==="target-miss"?"FAIL_TARGETS":"PASS_METRIC_ACCEPTANCE",validityFailures:[],targetFailures:status==="target-miss"?["POINT_TARGET"]:[]},collection:{evidenceValidity:"VALID",collectionCompleteness:"COMPLETE"}};
+    };
+    const persistResult=async(claim:any,status:string)=>{
+      const [size,ordinal]=claim.slot.split("."),dir=`${claim.evidenceRoot}/raw/run-${ordinal.padStart(2,"0")}/${size}`;await mkdir(dir,{recursive:true});return save(`${dir}/result.json`,resultFor(claim,status));
+    };
+    let previous=ORIGINAL_RETURN_SHA256;
+    for(const [i,slot] of ["1000.2","1000.3","1000.4"].entries()) {
+      const claim={slot,cohortId:prior.cohortId,seedSha256:ORIGINAL_RETURN_SHA256,policySha256:priorRef.sha256,methodSha256:prior.method.sha256,instrumentRevision:prior.instrumentRevision,evidenceRoot:prior.attemptRoots[slot],previousClaimSha256:previous,claimedAt:"2026-09-18T00:00:00Z"};
+      const c=await save(`${prior.ledgerRoot}/claims/${slot}.json`,claim),t=await save(`${prior.ledgerRoot}/terminal-${slot}.json`,{slot,claim:c,exitCode:i===2?null:i,signal:i===2?"SIGTERM":null,cleanup:"UNKNOWN_REQUIRES_INDEPENDENT_REVALIDATION"});
+      const evidence=[c,t];if(i===0)evidence.push(await persistResult(claim,"valid"));
+      const returned=await save(`${root}/return-${slot}.json`,{slot,processExit:i,collection:{evidenceValidity:i?"INVALID":"VALID",collectionCompleteness:i?"INCOMPLETE":"COMPLETE"},cleanup:{verificationStatus:"VERIFIED",browserProcessesRemaining:0,serverListening:false},externalBindings:"PASS_INDEPENDENT_EXTERNAL_REVALIDATION",evidence,
+        ...(i===2?{status:"OWNER_CANCELLED_STARTED_SLOT_INTERRUPTED",startedBeforeSteering:true,externalRecovery:{verificationStatus:"VERIFIED",browserProcessesRemaining:0,serverListening:false}}:{})});
+      history.push({claim:c,terminal:t,return:returned});originalHashes.push(c,t,returned);previous=c.sha256;
+    }
+    const registry=await save(`${root}/original-registry.json`,{seedSha256:ORIGINAL_RETURN_SHA256,cohortId:prior.cohortId,ledgerRoot:prior.ledgerRoot,policySha256:priorRef.sha256,methodSha256:prior.method.sha256,instrumentRevision:prior.instrumentRevision});
+    const authority={path:resolve(dirname(original!),"../../OWNER_DIRECTION_ONE_SUCCESS_20260917.md"),sha256:"ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"};
+    const policy:any={...prior,instrumentRevision:"b".repeat(40),method,ownerTransition:{schema:"ui-foundation.one-success-transition/v1",authority,previousPolicy:priorRef,registry,history}};
+    const policyRef=await save(`${root}/policy.json`,policy),calls:string[]=[];
+    const receipt=async(slot:string,previousHash:string,recovery:boolean,dirty=false)=>{
+      const n=sequence++,cleanup=await save(`${root}/cleanup-${n}.json`,{previousClaimSha256:previousHash,browserProcessesRemaining:dirty?1:0,serverListening:false,verificationStatus:"VERIFIED",processDisposition:recovery?"EXTERNAL_RECOVERY_VERIFIED":"NORMAL_EXIT"});
+      const bindings=await save(`${root}/bindings-${n}.json`,{status:"PASS_INDEPENDENT_EXTERNAL_REVALIDATION",externalBindings:continuationExternalBindings(seed)});
+      return save(`${root}/receipt-${n}.json`,{schema:"ui-foundation.continuation-preconditions/v1",slot,previousClaimSha256:previousHash,verifiedAt:new Date().toISOString(),cleanup:{status:"VERIFIED_NO_REMAINING_BROWSER_OR_SERVER",evidence:cleanup},bindingsStatus:"VERIFIED_UNCHANGED",externalBindings:continuationExternalBindings(seed),bindingEvidence:bindings,evidence:[cleanup,bindings]});
+    };
+    const operations={bindRegistry:async(_file:string,value:any)=>expect(value.policySha256).toBe(priorRef.sha256),verifyFiles:async()=>seed.frozenEnvironment,spawn:async(_p:any,env:any)=>{
+      const claim=JSON.parse(await readFile(env.UI_FOUNDATION_CONTINUATION_CLAIM,"utf8"));calls.push(claim.slot);
+      const outcome=outcomes[calls.length-1];if(outcome==="interrupted")throw new Error("interrupted actual process");
+      if(["valid","target-miss"].includes(outcome))await persistResult(claim,outcome);
+      return {exitCode:outcome==="invalid"?1:0,signal:null};
+    }};
+    const firstReceipt=await receipt("10000.1",history[2].claim.sha256,true);
+    const wrongAuthority=await save(`${root}/wrong-authority-policy.json`,{...policy,ownerTransition:{...policy.ownerTransition,authority:{...authority,sha256:"0".repeat(64)}}});
+    await expect(launchContinuationSlot(wrongAuthority,"10000.1",firstReceipt,operations)).rejects.toThrow("authority");
+    const wrongHistory=await save(`${root}/wrong-history-policy.json`,{...policy,ownerTransition:{...policy.ownerTransition,history:history.map((h,i)=>i===1?{...h,claim:{...h.claim,sha256:"0".repeat(64)}}:h)}});
+    await expect(launchContinuationSlot(wrongHistory,"10000.1",firstReceipt,operations)).rejects.toThrow("bound JSON changed");
+    await expect(launchContinuationSlot(policyRef,"10000.1",await receipt("10000.1",history[2].claim.sha256,false),operations)).rejects.toThrow("external recovery");
+    for(const bad of ["1000.5","1000.4","10000.2","10000.6"])await expect(launchContinuationSlot(policyRef,bad,firstReceipt,operations)).rejects.toThrow();
+    await expect(launchContinuationSlot(policyRef,"10000.1",firstReceipt,{...operations,verifyFiles:async()=>{throw new Error("binding drift");}})).rejects.toThrow("binding drift");
+    expect(await continuationClaims(policy)).toHaveLength(3);expect(calls).toEqual([]);
+    for(const [i,outcome] of outcomes.entries()) {
+      const slot=`10000.${i+1}`,last=(await continuationClaims(policy)).at(-1)!;
+      const output=await launchContinuationSlot(policyRef,slot,await receipt(slot,last.sha256,i===0||outcomes[i-1]==="interrupted"),operations);
+      expect(output.slot).toBe(slot);expect((await continuationClaims(policy)).at(-1)!.claim.methodSha256).toBe(method.sha256);
+      await expect(launchContinuationSlot(policyRef,slot,firstReceipt,operations)).rejects.toThrow();
+      if(outcome==="stale-success") {
+        const current=(await continuationClaims(policy)).at(-1)!;
+        await expect(launchContinuationSlot(policyRef,"10000.2",await receipt("10000.2",current.sha256,false),{
+          ...operations,verifyFiles:async()=>{await persistResult(current.claim,"valid");return seed.frozenEnvironment;}
+        })).rejects.toThrow("stale concurrent launch");
+        expect(await continuationClaims(policy)).toHaveLength(4);expect(calls).toEqual(["10000.1"]);
+      }
+      if(["valid","target-miss","stale-success"].includes(outcome)) {
+        const current=(await continuationClaims(policy)).at(-1)!;
+        await expect(launchContinuationSlot(policyRef,`10000.${i+2}`,firstReceipt,operations)).rejects.toThrow();
+        await expect(closeOneSuccess(policyRef,await receipt(slot,current.sha256,false,true),operations)).rejects.toThrow("cleanup");
+        const closed=await closeOneSuccess(policyRef,await receipt(slot,current.sha256,false),operations);
+        expect(closed.waivedUnattempted).toHaveLength(4-i);expect(closed.targetAcceptanceClaim).toBe(false);
+        await expect(launchContinuationSlot(policyRef,`10000.${i+2}`,firstReceipt,operations)).rejects.toThrow();
+      }
+    }
+    const report=await continuationBudgetReport(policy,seed);
+    expect(report.slots.find((s:any)=>s.slot==="1000.5")).toMatchObject({consumed:false,disposition:"WAIVED_UNATTEMPTED_BY_OWNER"});
+    expect(report.slots.find((s:any)=>s.slot==="1000.4")).toMatchObject({consumed:true,ownerDisposition:"OWNER_INTERRUPTED_CONSUMED"});
+    expect(report.consumed).toBe(4+outcomes.length);expect(calls).toEqual(outcomes.map((_,i)=>`10000.${i+1}`));
+    expect(report.interrupted).toBe(1+outcomes.filter(o=>o==="interrupted").length);
+    expect(report.invalidFailed).toBe(2+outcomes.filter(o=>["invalid","empty-exit0"].includes(o)).length);
+    expect(report.confirmedSuccessBySize).toEqual({1000:1,10000:outcomes.some(o=>["valid","target-miss","stale-success"].includes(o))?1:0});
+    if(outcomes.length===5){expect(report.ownerStoppingStatus).toBe("FIVE_ATTEMPTS_EXHAUSTED_NO_SUCCESS");expect(report.waived).toBe(1);await expect(closeOneSuccess(policyRef,firstReceipt,operations)).rejects.toThrow();}
+    else expect(report.ownerStoppingStatus).toBe("SUCCESS_CONFIRMED_AND_REMAINDER_WAIVED");
+    for(const ref of [...originalHashes,registry,priorRef])expect(createHash("sha256").update(await readFile(ref.path)).digest("hex")).toBe(ref.sha256);
+  });
+}
