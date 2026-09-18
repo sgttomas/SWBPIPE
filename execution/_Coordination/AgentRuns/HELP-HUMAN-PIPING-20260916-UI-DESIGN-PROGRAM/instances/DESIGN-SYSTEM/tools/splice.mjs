@@ -6,6 +6,7 @@
 //                    <script id="pairs" type="application/json">…</script>
 // Document markers:  <!-- GENERATED:COLOUR_TABLES:BEGIN --> … <!-- GENERATED:COLOUR_TABLES:END -->
 //                    <!-- GENERATED:CONTRAST_TABLE:BEGIN --> … <!-- GENERATED:CONTRAST_TABLE:END -->
+//                    <!-- GENERATED:LABEL_TABLE:BEGIN --> … <!-- GENERATED:LABEL_TABLE:END -->   (V1.2)
 import fs from "node:fs";
 import path from "node:path";
 const [gen, spec, doc] = process.argv.slice(2);
@@ -29,6 +30,7 @@ if (doc) {
   let d = fs.readFileSync(doc, "utf8");
   d = between(d, "<!-- GENERATED:COLOUR_TABLES:BEGIN -->", "<!-- GENERATED:COLOUR_TABLES:END -->", read("colour_tables.md"));
   d = between(d, "<!-- GENERATED:CONTRAST_TABLE:BEGIN -->", "<!-- GENERATED:CONTRAST_TABLE:END -->", read("contrast_table.md"));
+  d = between(d, "<!-- GENERATED:LABEL_TABLE:BEGIN -->", "<!-- GENERATED:LABEL_TABLE:END -->", read("label_table.md"));
   fs.writeFileSync(doc, d);
   console.log("spliced document", doc, "| bytes", d.length);
 }

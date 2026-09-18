@@ -7,7 +7,7 @@
 <title>SWBPIPE design system specimen</title>
 <style>
 /* GENERATED:TOKENS_CSS:BEGIN */
-/* Generated from tokens.json (98 colour tokens, version 1.1). Do not edit by hand. */
+/* Generated from tokens.json (99 colour tokens, version 1.2). Do not edit by hand. */
 :root {
   --font-ui: -apple-system, BlinkMacSystemFont, system-ui, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-numeric: -apple-system, BlinkMacSystemFont, system-ui, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -72,6 +72,13 @@
   --layout-cellPadding: 8px;
   --layout-headerPadding: 5px;
   --layout-hud-button: 28px;
+  --layout-hud-inset: 8px;
+  --layout-hud-width: 304px;
+  --layout-hud-widthWrapped: 154px;
+  --layout-hud-wrapBelow: 400px;
+  --layout-toast-width: 320px;
+  --layout-toast-inset: 8px;
+  --layout-runlog-width: 360px;
   --layout-probe-width: 300px;
   --layout-legend-width: 220px;
   --layout-sideGutter: 16px;
@@ -79,6 +86,8 @@
   --motion-drawer-ms: 180ms;
   --motion-proposalArrive-ms: 240ms;
   --motion-hover-ms: 80ms;
+  --motion-toast-ms: 6000ms;
+  --motion-toastAction-ms: 10000ms;
   --easing-standard: cubic-bezier(0.2, 0, 0, 1);
   --easing-exit: cubic-bezier(0.4, 0, 1, 1);
   --icon-stroke: 1.5px;
@@ -151,6 +160,7 @@
   --canvas-pipe: #a6abb1;
   --canvas-pipeShade: #81878d;
   --canvas-edge: #42484f;
+  --canvas-edgeAlt: #e5e8ec;
   --canvas-glyph: #30363c;
   --canvas-glyphFill: #dbdee2;
   --canvas-label: #22272c;
@@ -256,6 +266,7 @@
     --canvas-pipe: #757b81;
     --canvas-pipeShade: #53595f;
     --canvas-edge: #c7cbd0;
+    --canvas-edgeAlt: #2a2e33;
     --canvas-glyph: #dbdee2;
     --canvas-glyphFill: #34383d;
     --canvas-label: #e5e8ec;
@@ -361,6 +372,7 @@
   --canvas-pipe: #757b81;
   --canvas-pipeShade: #53595f;
   --canvas-edge: #c7cbd0;
+  --canvas-edgeAlt: #2a2e33;
   --canvas-glyph: #dbdee2;
   --canvas-glyphFill: #34383d;
   --canvas-label: #e5e8ec;
@@ -463,6 +475,9 @@ nav.toc a:hover { color: var(--text-primary); }
 .chip.hist { background: var(--historical-tint); color: var(--historical-ink); }
 .chip.outline { border: 1px solid var(--border-hairline); color: var(--text-secondary); background: transparent; }
 .chip .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+/* V1.2, ruling 4: a label chip shows its authority domain with the label; both come from the one table */
+.chip.lbl { gap: 4px; cursor: default; }
+.chip.lbl .dom, .chip.lbl .sep { font-weight: 400; }
 
 /* popover */
 .pop { background: var(--surface-raised); border: 1px solid var(--border-hairline); border-radius: var(--radius-card); box-shadow: var(--elevation-2); padding: 8px 10px; display: inline-block; min-width: 220px; }
@@ -664,6 +679,37 @@ table.ds tr.draft td .typed { color: var(--accent-text); font-weight: 500; }
 .hud button { width: 28px; height: 28px; border: 0; background: transparent; color: var(--text-secondary); border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; }
 .hud button[aria-pressed="true"] { background: var(--pressed-fill); color: var(--pressed-ink); }
 .hud button:hover { background: var(--hover-wash); }
+.hud button[disabled] { color: var(--text-disabled); }
+.hud.wrap { flex-wrap: wrap; width: var(--layout-hud-widthWrapped); }
+.hudcount { display: inline-flex; align-items: center; height: 22px; padding: 0 6px; font-size: 12px; color: var(--text-link); background: var(--surface-raised); border: 1px solid var(--border-hairline); border-radius: var(--radius-control); }
+/* V1.2: toast (G-8), issues drawer row (G-11), narrow canvas (G-10), footer selection group, expansion chevron */
+.toast { display: flex; align-items: flex-start; gap: 8px; width: var(--layout-toast-width); max-width: 100%; padding: 8px 12px; background: var(--surface-raised); border: 1px solid var(--border-hairline); border-radius: var(--radius-card); box-shadow: var(--elevation-2); color: var(--text-primary); }
+.toast .ic { color: var(--text-secondary); margin-top: 1px; }
+.toast .msg { flex: 1; min-width: 0; }
+.toast .act { color: var(--text-link); font-weight: 500; white-space: nowrap; }
+.issuerow { display: flex; align-items: center; gap: 8px; height: 26px; padding: 0 8px; border-bottom: 1px solid var(--border-hairline); white-space: nowrap; }
+.issuerow.sel { background: var(--selection-band); box-shadow: inset 3px 0 0 var(--selection-bar); }
+.issuerow .cls { flex: none; font-weight: 500; }
+.issuerow .msg { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); }
+.issuerow a, .issuerow .ent { flex: none; }
+.issuerow .mk { color: var(--issue-warning); }
+.narrow { position: relative; width: 303px; max-width: 100%; height: 236px; background: var(--canvas-bg); border: 1px solid var(--border-hairline); border-radius: var(--radius-control); overflow: hidden; }
+.narrow .hud { position: absolute; left: var(--layout-hud-inset); top: var(--layout-hud-inset); }
+.narrow .keys { position: absolute; left: 8px; right: 8px; top: 76px; background: var(--canvas-hint); border-radius: 3px; padding: 3px 8px; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+.narrow .ltitle { position: absolute; left: 8px; top: 118px; width: 220px; max-width: calc(100% - 16px); height: 26px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; background: var(--surface-raised); border: 1px solid var(--border-hairline); border-radius: var(--radius-card); box-shadow: var(--elevation-2); font-weight: 500; }
+.narrow .mockline { position: absolute; left: 8px; top: 148px; font-size: 11px; line-height: 14px; color: var(--text-muted); }
+.narrow .foot { position: absolute; left: 8px; right: 8px; bottom: 6px; display: flex; justify-content: space-between; font-size: 11px; line-height: 14px; color: var(--canvas-label); }
+.selgroup { display: inline-flex; align-items: center; gap: 2px; }
+.selgroup .iconbtn { margin-left: 0; }
+.editchip { display: inline-flex; align-items: center; gap: 4px; color: var(--text-primary); }
+.xchev { position: absolute; right: 4px; top: 7px; color: var(--text-secondary); }
+table.ds tr.addrow td { color: var(--text-muted); }
+.geo .slide { background: var(--surface-raised); border-left: 1px dashed var(--border-strong); box-shadow: var(--elevation-2); }
+.edgesteps { display: flex; gap: 4px; margin-top: 6px; }
+.edgesteps div { flex: 1; height: 26px; border-radius: 2px; position: relative; }
+.edgesteps div i { position: absolute; left: 0; right: 0; top: 12px; height: 1px; }
+.sendrow { display: flex; align-items: flex-end; gap: 6px; border: 1px solid var(--border-strong); border-radius: var(--radius-control); background: var(--surface-sunken); padding: 4px 4px 4px 8px; }
+.sendrow span { flex: 1; color: var(--text-muted); min-height: 22px; line-height: 22px; }
 
 /* icons showcase */
 .icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px 12px; }
@@ -775,14 +821,24 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   <symbol id="m-historical" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.8 1.3"/></symbol>
   <symbol id="m-stalerun" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.5" stroke-dasharray="2 1.5"/><circle cx="6" cy="6" r="1.2" fill="currentColor" stroke="none"/></symbol>
   <symbol id="m-displayonly" viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" rx="1" stroke-dasharray="1.5 1.2"/><path d="M3.5 4.5h5M3.5 6.5h5M3.5 8.5h3" stroke-width="1"/></symbol>
+  <symbol id="i-preview" viewBox="0 0 16 16"><path d="M8.5 14H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5l3 3v2"/><path d="M9 2v3h3"/><circle cx="10.8" cy="10.8" r="2.2"/><path d="M12.4 12.4 14.3 14.3"/></symbol>
+  <symbol id="i-export" viewBox="0 0 16 16"><path d="M2.5 9.5v3a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3"/><path d="M8 10V2.5"/><path d="M5 5.5 8 2.5l3 3"/></symbol>
+  <symbol id="i-snapshot" viewBox="0 0 16 16"><path d="M2.5 5.5a1 1 0 0 1 1-1h1.6l1-1.5h3.8l1 1.5h1.6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1z"/><circle cx="8" cy="8.4" r="2.3"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 16 16"><path d="M5.5 3 2.5 6l3 3"/><path d="M2.5 6H9a4 4 0 0 1 0 8H6"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 16 16"><path d="M10.5 3l3 3-3 3"/><path d="M13.5 6H7a4 4 0 0 0 0 8h3"/></symbol>
+  <symbol id="i-inspector" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M10 3v10"/><path d="M11.5 6h1M11.5 8h1" stroke-width="1"/></symbol>
+  <symbol id="i-send" viewBox="0 0 16 16"><path d="M2.5 8 13.5 2.5 10 13.5 7.8 9.2z"/><path d="M7.8 9.2 13.5 2.5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></symbol>
+  <symbol id="i-reverse" viewBox="0 0 16 16"><path d="M3 5.5h10M10.5 3 13 5.5 10.5 8"/><path d="M13 10.5H3M5.5 8 3 10.5 5.5 13"/></symbol>
+  <symbol id="i-collapse" viewBox="0 0 16 16"><path d="M3.5 6 8 10.5 12.5 6"/><path d="M3 13h10"/></symbol>
   <symbol id="m-comment" viewBox="0 0 12 12"><path d="M2 2.5h8a.8.8 0 0 1 .8.8v4.4a.8.8 0 0 1-.8.8H5.5L3.5 10.5V8.5H2a.8.8 0 0 1-.8-.8V3.3A.8.8 0 0 1 2 2.5z"/></symbol>
 </svg>
 
 <header class="spec-head">
   <div class="wrap">
     <div class="row">
-      <h1>SWBPIPE design system · specimen V1.1</h1>
-      <span class="sec">Self-contained. No network. System fonts. Every value is a token from <code>tokens.json</code> 1.1; the CSS, the token JSON and the contrast pairs are generated from it.</span>
+      <h1>SWBPIPE design system · specimen V1.2</h1>
+      <span class="sec">Self-contained. No network. System fonts. Every value is a token from <code>tokens.json</code> 1.2; the CSS, the token JSON and the contrast pairs are generated from it, and every status and evidence label is drawn from its one table.</span>
       <span class="grow"></span>
       <span class="sec">Theme</span>
       <div class="seg" role="group" aria-label="Theme">
@@ -793,7 +849,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <span class="sample">values are placeholders from one fictional model</span>
     </div>
     <nav class="toc">
-      <a href="#s1">1 Foundations</a><a href="#s2">2 Colour</a><a href="#s3">3 Icons</a><a href="#s4">4 Marks</a><a href="#s5">5 Table</a><a href="#s6">6 Status chips</a><a href="#s7">7 Proposal card</a><a href="#s8">8 Probe and legend</a><a href="#s9">9 Shell: rail, view switch, toolbar, status bar</a><a href="#s10">10 Review page primitives</a><a href="#s11">11 Canvas palette</a><a href="#s12">12 Contrast findings</a>
+      <a href="#s1">1 Foundations</a><a href="#s2">2 Colour</a><a href="#s3">3 Icons</a><a href="#s4">4 Marks</a><a href="#s5">5 Table</a><a href="#s6">6 Status and evidence labels</a><a href="#s7">7 Proposal card</a><a href="#s8">8 Probe and legend</a><a href="#s9">9 Shell: rail, view switch, toolbar, status bar</a><a href="#s10">10 Review page primitives</a><a href="#s11">11 Canvas palette</a><a href="#s12">12 Contrast findings</a>
     </nav>
   </div>
 </header>
@@ -811,7 +867,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <div class="typerow"><span class="lab">title · 15/20 · 600</span><span style="font-size:15px;line-height:20px;font-weight:600">Replace the rigid support at node 80 with a variable spring</span></div>
     <div class="typerow"><span class="lab">body · 13/18 · 400</span><span>From 10 to 20, 3000 mm in X. Section P1, material CS-A, load set OP1. <span class="n">124.6 MPa · 172.0 MPa · 0.72</span></span></div>
     <div class="typerow"><span class="lab">body · 13/18 · 500</span><span style="font-weight:500">Stress <span class="sec" style="font-weight:400">[MPa]</span> · Allowable <span class="sec" style="font-weight:400">[MPa]</span> · Ratio</span></div>
-    <div class="typerow"><span class="lab">chip · 12/16 · 500</span><span><span class="chip solved">Mechanics solved</span> <span class="chip outline">⌘↩ opens the joined row</span></span></div>
+    <div class="typerow"><span class="lab">chip · 12/16 · 500</span><span><span class="chip solved lbl" data-label="MECHANICS_SOLVED" title="MECHANICS_SOLVED"><span class="dom">Solver</span><span class="sep">·</span>Mechanics solved</span> <span class="chip outline">1 joined row open</span></span></div>
     <div class="typerow"><span class="lab">caption · 11/14 · 400</span><span class="sample">canvas tick labels, the sample label, compass axis names, header units, rail captions</span></div>
     <div class="typerow"><span class="lab">mono · 12</span><span class="mono">MECHANICS_SOLVED · sha256:4df0f798… · W + P1 + T1</span></div>
     <div class="typerow" style="border-bottom:0"><span class="lab">tabular numerals</span><span class="n" style="display:inline-block;text-align:right;width:120px">1111.11<br>2000.00<br>−1800.50</span></div>
@@ -837,7 +893,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
         <button class="btn">Accept</button>
         <button class="btn text">Reject</button>
         <button class="btn" disabled title="Run is unavailable — Section missing at node 20, Material missing at node 20">Run</button>
-        <button class="btn latched" aria-pressed="true" title="Agent · ⌘⇧G · latched while the column is open"><svg class="ic"><use href="#i-agent"/></svg>Agent</button>
+        <button class="btn latched" aria-pressed="true" title="Agent (⌘⇧G) · latched while the column is open"><svg class="ic"><use href="#i-agent"/></svg>Agent</button>
         <input class="input n" value="2500" aria-label="Length" style="width:96px">
       </div>
     </div>
@@ -857,6 +913,9 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <div class="scalebar"></div>
     <div class="steps" id="steps"></div>
     <p class="sec" style="margin-top:8px">Light: near-zero is the lightest step. Dark: the anchor flips, near-zero is the darkest teal, and in V1.1 the dark ramp is re-anchored one step down so that its brightest step sits below the edge line. Interpolation between anchors is in OKLCH.</p>
+    <h4>The edge line on a coloured element · <code>canvas.edge</code> or <code>canvas.edgeAlt</code>, whichever reads better on the fill</h4>
+    <div class="edgesteps" id="edgesteps"></div>
+    <p class="sec" style="margin-top:8px" id="edgenote"></p>
   </div>
   <div class="panel">
     <h4 style="margin-top:0">Categorical · load kinds and cases · fixed order, never cycled</h4>
@@ -867,7 +926,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
 
 <!-- ===================== 3 ICONS ===================== -->
 <h2 id="s3">3 Iconography</h2>
-<p class="sec">16 px grid, 1.5 px round strokes, currentColor, optical sizes 12 · 16 · 20. Every icon has a label or a tooltip.</p>
+<p class="sec">16 px grid, 1.5 px round strokes, currentColor, optical sizes 12 · 16 · 20. Every icon has a label or a tooltip; a tooltip names the control first and its accelerator after it. Every action has a control that a click operates: a key only ever accelerates one.</p>
 <div class="grid2">
   <div class="panel"><h4>Stage rail (20 px)</h4>
     <div class="icons">
@@ -880,10 +939,14 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <div><svg class="ic"><use href="#i-fit"/></svg>Fit <span>F</span></div><div><svg class="ic"><use href="#i-presets"/></svg>View presets</div><div><svg class="ic"><use href="#i-section"/></svg>Section</div><div><svg class="ic"><use href="#i-isolate"/></svg>Isolate <span>I</span></div><div><svg class="ic"><use href="#i-hide"/></svg>Hide <span>H</span></div><div><svg class="ic"><use href="#i-labels"/></svg>Node labels <span>L</span></div><div><svg class="ic"><use href="#i-deform"/></svg>Deformation <span>D</span></div><div><svg class="ic"><use href="#i-probe"/></svg>Probe <span>P</span></div><div><svg class="ic"><use href="#i-route"/></svg>Route <span>R</span></div><div><svg class="ic"><use href="#i-restrain"/></svg>Add restraint <span>S</span></div>
     </div>
     <div style="margin-top:8px" class="hud" aria-label="Canvas HUD sample"><button title="Fit (F)"><svg class="ic"><use href="#i-fit"/></svg></button><button title="View presets"><svg class="ic"><use href="#i-presets"/></svg></button><button title="Section"><svg class="ic"><use href="#i-section"/></svg></button><button title="Isolate selection (I)"><svg class="ic"><use href="#i-isolate"/></svg></button><button title="Hide selection (H)"><svg class="ic"><use href="#i-hide"/></svg></button><button title="Node labels (L)" aria-pressed="true"><svg class="ic"><use href="#i-labels"/></svg></button><button title="Deformation (D)"><svg class="ic"><use href="#i-deform"/></svg></button><button title="Probe (P)" aria-pressed="true"><svg class="ic"><use href="#i-probe"/></svg></button><button title="Route (R)"><svg class="ic"><use href="#i-route"/></svg></button><button title="Add restraint (S)"><svg class="ic"><use href="#i-restrain"/></svg></button></div>
+    <h4>The HUD in a canvas under 400 px · two rows of five, 154 by 64 px, Fit first · the hidden count is a button</h4>
+    <div class="demo-row" style="align-items:flex-start"><div class="hud wrap" aria-label="Canvas HUD, wrapped"><button title="Fit (F)"><svg class="ic"><use href="#i-fit"/></svg></button><button title="View presets"><svg class="ic"><use href="#i-presets"/></svg></button><button title="Section"><svg class="ic"><use href="#i-section"/></svg></button><button title="Isolate selection (I)"><svg class="ic"><use href="#i-isolate"/></svg></button><button title="Hide selection (H)"><svg class="ic"><use href="#i-hide"/></svg></button><button title="Node labels (L)" aria-pressed="true"><svg class="ic"><use href="#i-labels"/></svg></button><button title="Deformation (D) · Needs a current run" disabled><svg class="ic"><use href="#i-deform"/></svg></button><button title="Probe (P) · Needs a current run" disabled><svg class="ic"><use href="#i-probe"/></svg></button><button title="Route (R)"><svg class="ic"><use href="#i-route"/></svg></button><button title="Add restraint (S)"><svg class="ic"><use href="#i-restrain"/></svg></button></div><span class="hudcount" role="button" title="Show everything that is hidden">3 hidden · Show all</span></div>
+    <h4>Toolbar and panels</h4>
+    <div class="icons"><div><svg class="ic"><use href="#i-undo"/></svg>Undo <span>⌘Z</span></div><div><svg class="ic"><use href="#i-redo"/></svg>Redo <span>⇧⌘Z</span></div><div><svg class="ic"><use href="#i-inspector"/></svg>Inspector <span>⌘I</span></div><div><svg class="ic"><use href="#i-agent"/></svg>Agent <span>⌘⇧G</span></div><div><svg class="ic"><use href="#i-close"/></svg>Close <span>⎋</span></div><div><svg class="ic"><use href="#i-collapse"/></svg>Collapse</div></div>
   </div>
   <div class="panel"><h4>Table actions</h4>
     <div class="icons">
-      <div><svg class="ic"><use href="#i-addrow"/></svg>Add row <span>⌥↩</span></div><div><svg class="ic"><use href="#i-delrow"/></svg>Delete rows <span>⌫</span></div><div><svg class="ic"><use href="#i-sort"/></svg>Sort</div><div><svg class="ic"><use href="#i-filter"/></svg>Filter</div><div><svg class="ic"><use href="#i-columns"/></svg>Columns</div><div><svg class="ic"><use href="#i-paste"/></svg>Paste with mapping <span>⌘V</span></div><div><svg class="ic"><use href="#i-expand"/></svg>Open joined row <span>⌘↩</span></div><div><svg class="ic"><use href="#i-since"/></svg>Changed since…</div><div><svg class="ic"><use href="#i-unchecked"/></svg>Unchecked rows</div><div><svg class="ic"><use href="#i-origins"/></svg>Show origins</div><div><svg class="ic"><use href="#i-agent"/></svg>Agent <span>⌘⇧G</span></div><div><svg class="ic"><use href="#i-search"/></svg>Search or command <span>⌘K</span></div>
+      <div><svg class="ic"><use href="#i-addrow"/></svg>Add row <span>⌥↩</span></div><div><svg class="ic"><use href="#i-delrow"/></svg>Delete rows <span>⌫</span></div><div><svg class="ic"><use href="#i-sort"/></svg>Sort</div><div><svg class="ic"><use href="#i-filter"/></svg>Filter</div><div><svg class="ic"><use href="#i-columns"/></svg>Columns</div><div><svg class="ic"><use href="#i-copy"/></svg>Copy rows <span>⌘C</span></div><div><svg class="ic"><use href="#i-paste"/></svg>Paste with mapping <span>⌘V</span></div><div><svg class="ic"><use href="#i-check"/></svg>Check rows <span>⌘⇧K</span></div><div><svg class="ic"><use href="#i-expand"/></svg>Open joined row <span>⌘↩</span></div><div><svg class="ic"><use href="#i-since"/></svg>Changed since…</div><div><svg class="ic"><use href="#i-unchecked"/></svg>Unchecked rows</div><div><svg class="ic"><use href="#i-origins"/></svg>Show origins</div><div><svg class="ic"><use href="#i-agent"/></svg>Agent <span>⌘⇧G</span></div><div><svg class="ic"><use href="#i-search"/></svg>Search or command <span>⌘K</span></div>
     </div>
     <h4>Marks (12 px)</h4>
     <div class="icons">
@@ -906,6 +969,8 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <div><svg class="mk" style="color:var(--text-muted)"><use href="#m-displayonly"/></svg>Display-only</div>
       <div><svg class="mk" style="color:var(--text-secondary)"><use href="#m-comment"/></svg>Comment (Review page)</div>
     </div>
+    <h4>Review, agent and the routing compass</h4>
+    <div class="icons"><div><svg class="ic"><use href="#i-preview"/></svg>Report preview</div><div><svg class="ic"><use href="#i-export"/></svg>Export…</div><div><svg class="ic"><use href="#i-snapshot"/></svg>Snapshot…</div><div><svg class="ic"><use href="#i-send"/></svg>Send <span>⌘↩</span></div><div><svg class="ic"><use href="#i-reverse"/></svg>Reverse the axis <span>−</span></div><div><svg class="ic"><use href="#i-check"/></svg>Place node <span>↩</span></div><div><svg class="ic"><use href="#i-close"/></svg>Cancel the route <span>⎋</span></div></div>
   </div>
 </div>
 
@@ -921,7 +986,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <span style="display:inline-flex;gap:2px;align-items:center"><span style="width:0;height:12px;border-left:3px dashed var(--draft-bar)"></span><span style="width:9px"></span><span style="width:12px"></span></span><span class="sec">draft row · dashed bar in <code>draft.bar</code></span>
       <span style="display:inline-flex;gap:2px"><svg class="mk" style="color:var(--stale-ink)"><use href="#m-stalerun"/></svg><span style="width:12px"></span></span><span class="sec">stale results band and rail caption · <code>stale.ink</code></span>
     </div>
-    <p class="sec" style="margin-top:8px">Keyboard: ← from Node focuses the gutter; Space opens the slot's popover; ⌥I opens the row's marks popover.</p>
+    <p class="sec" style="margin-top:8px">Pointer: a click on a glyph opens its popover, whose last line is “All marks on this row”; a click beside the glyphs selects the row; an empty state slot offers a faint check on hover. Accelerators: ← from Node focuses the gutter; Space opens the slot's popover; ⌥I opens the row's marks popover.</p>
   </div>
   <div class="panel"><h4>Marks column · 72 px, three 20 px slots</h4>
     <div class="markrow">
@@ -937,13 +1002,13 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <tr class="prop"><td class="gut"><div class="slots"><span class="slot" style="color:var(--proposal-new)"><svg class="mk"><use href="#m-proposed"/></svg></span><span class="slot"></span></div></td><td class="n tick tprop"><span class="old">−1800</span><span class="new">−2000</span></td></tr>
       <tr><td class="n tick twarn">CS-B</td><td class="sec">warning · corner tick</td></tr>
     </tbody></table></div>
-    <div style="margin-top:10px" class="pop"><div class="kv"><dt>Checked</dt><dd>by R. Tufts · 2026-09-17 14:02</dd><dt></dt><dd class="sec">bound to this row's content · not a software status</dd></div></div>
+    <div style="margin-top:10px" class="pop"><div class="kv"><dt>Checked</dt><dd>by R. Tufts · 2026-09-17 14:02</dd><dt></dt><dd class="sec">bound to this row's content · not a software status</dd></div><div style="display:flex;gap:6px;margin-top:6px;align-items:center"><button class="btn compact" title="Clear check (⌘⇧K)">Clear check</button><a href="#s4" style="font-size:12px;margin-left:auto">All marks on this row</a></div></div>
   </div>
 </div>
 
 <!-- ===================== 5 TABLE ===================== -->
-<h2 id="s5">5 The table · layout table in the CAEPIPE grammar</h2>
-<p class="sec">Header with units at caption size and 5 px padding; the tab strip with counts; gutter with origin and state slots; the start node's row with "—" and no required mark; every cell state, including the editing cell's unit at its right edge and a draft row at the bottom; the marks column; a joined row expanded under node 20; the footer as the counts line with the Read-through and Origins switches; columns at their default widths. <span class="sample">nodes 10 to 110 of a fictional model, routing to 120</span></p>
+<h2 id="s5">5 The table · the layout table in the model batch file grammar</h2>
+<p class="sec">Header with units at caption size and 5 px padding; the tab strip with counts; gutter with origin and state slots; the start node's row with "—" and no required mark; every cell state, including the editing cell's unit at its right edge and a draft row at the bottom; the marks column; a joined row expanded under node 20, with its closing chevron and close control; the expansion chevron in the selected row's Type cell; the “Add row” line that ends the table; the footer as the counts line with the Read-through and Origins switches, and under the table its two other forms, the selection group and the edit chip; columns at their default widths. Type offers the engine's element kinds only. <span class="sample">nodes 10 to 110 of a fictional model, routing to 120</span></p>
 <div class="tblwrap fit">
   <div class="tblhead">
     <span class="name">Layout <span class="muted" style="font-weight:400">12</span></span><span class="chip outline">Restraints <span class="muted">3</span></span><span class="chip outline">Node data <span class="muted">2</span></span>
@@ -961,10 +1026,10 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <tbody>
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--mark-checked)" title="Checked by R. Tufts · 2026-09-17 14:02 · bound to this row's content · not a software status"><svg class="mk"><use href="#m-checked"/></svg></span></div></td><td class="n">10</td><td class="n muted">—</td><td class="muted">—</td><td class="n tick" title="Absolute coordinates">0</td><td class="n tick">0</td><td class="n tick">0</td><td class="muted" title="The start node carries no section; entered on the first element's row">—</td><td class="muted">—</td><td class="muted">—</td><td class="n"></td><td class="n"></td><td class="marks"><div class="slots"><span class="slot" title="Restraint · Anchor · ⌘↩ opens the row"><svg class="mk"><use href="#m-restraint"/></svg></span><span class="slot"></span><span class="slot"></span></div></td></tr>
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--mark-checked)"><svg class="mk"><use href="#m-checked"/></svg></span></div></td><td class="n">20</td><td class="n muted">10</td><td>Pipe</td><td class="n">3000</td><td class="n">0</td><td class="n">0</td><td>P1</td><td>CS-A</td><td>OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot" style="background:var(--selection-band)" title="Restraint · +Y, gap 3 mm, μ 0.3 · open"><svg class="mk"><use href="#m-restraint"/></svg></span><span class="slot"></span><span class="slot"></span></div></td></tr>
-      <tr class="expand"><td colspan="13"><div class="block"><table class="ds"><thead><tr><th>Restraints · node 20</th><th>Type</th><th>Direction</th><th class="n">Gap <span class="u">[mm]</span></th><th class="n">Friction μ</th><th class="n">Stiffness <span class="u">[N/mm]</span></th><th class="n">Connecting node</th></tr></thead><tbody><tr><td class="muted"><svg class="ic" style="vertical-align:-3px"><use href="#i-expanded"/></svg> joined row</td><td>+Y</td><td>Y</td><td class="n">3</td><td class="n">0.30</td><td class="n muted">rigid</td><td class="n muted">—</td></tr><tr><td class="muted" colspan="7">Add restraint…</td></tr></tbody></table></div></td></tr>
+      <tr class="expand"><td colspan="13"><div class="block"><table class="ds"><thead><tr><th>Restraints · node 20</th><th>Type</th><th>Direction</th><th class="n">Gap <span class="u">[mm]</span></th><th class="n">Friction μ</th><th class="n">Stiffness <span class="u">[N/mm]</span></th><th class="n">Connecting node</th></tr></thead><tbody><tr><td class="muted"><button class="iconbtn" style="width:18px;height:18px;border:0;margin:0" title="Close the joined row (⎋)"><svg class="ic s12"><use href="#i-expanded"/></svg></button> joined row</td><td>+Y</td><td>Y</td><td class="n">3</td><td class="n">0.30</td><td class="n muted">rigid</td><td class="n muted">—</td></tr><tr><td class="muted" colspan="7">Add restraint…</td></tr></tbody></table></div></td></tr>
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--mark-checkedStale)" title="Checked by R. Tufts · 2026-09-17 14:02 · the row changed since · Check again or Clear"><svg class="mk"><use href="#m-stale"/></svg></span></div></td><td class="n">30</td><td class="n muted">20</td><td>Bend</td><td class="n">0</td><td class="n">−2500</td><td class="n">0</td><td class="tick" title="Propagated from node 20">P1</td><td class="tick">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></div></td></tr>
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--issue-warning)" title="Provenance · Material source not recorded"><svg class="mk"><use href="#m-warning"/></svg></span></div></td><td class="n">40</td><td class="n muted">30</td><td>Pipe</td><td class="n">0</td><td class="n">0</td><td class="n">4000</td><td class="tick">P1</td><td class="tick twarn" title="Provenance · Material source not recorded">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot" title="Load · Force −2000 N in Y (W) · ⌘↩ opens the row"><svg class="mk"><use href="#m-load"/></svg></span><span class="slot"></span></div></td></tr>
-      <tr class="sel"><td class="gut"><div class="slots"><span class="slot" title="Imported from loop4.xlsx · 2026-09-16 09:12"><svg class="mk"><use href="#m-imported"/></svg></span><span class="slot"></span></div></td><td class="n">50</td><td class="n muted">40</td><td>Valve</td><td class="n selcell focuscell">600</td><td class="n">0</td><td class="n">0</td><td class="tick">P1</td><td class="tick">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot" title="Node data · Flange WN · ⌘↩ opens the row"><svg class="mk"><use href="#m-nodedata"/></svg></span></div></td></tr>
+      <tr class="sel"><td class="gut"><div class="slots"><span class="slot" title="Imported from loop4.xlsx · 2026-09-16 09:12"><svg class="mk"><use href="#m-imported"/></svg></span><span class="slot"></span></div></td><td class="n">50</td><td class="n muted">40</td><td>Valve<svg class="ic s12 xchev" role="button"><title>Element fields (⌘↩)</title><use href="#i-expand"/></svg></td><td class="n selcell focuscell">600</td><td class="n">0</td><td class="n">0</td><td class="tick">P1</td><td class="tick">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot" title="Node data · Flange WN · ⌘↩ opens the row"><svg class="mk"><use href="#m-nodedata"/></svg></span></div></td></tr>
       <tr><td class="gut"><div class="slots"><span class="slot" title="Accepted from proposal P-09 by R. Tufts · 2026-09-17 11:40"><svg class="mk"><use href="#m-accepted"/></svg></span><span class="slot" style="color:var(--issue-blocking)" title="Blocks solve · Section missing"><svg class="mk"><use href="#m-blocking"/></svg></span></div></td><td class="n">60</td><td class="n muted">50</td><td>Pipe</td><td class="n">2400</td><td class="n">0</td><td class="n">0</td><td title="Required to solve · Section"><svg class="mk req"><use href="#m-required"/></svg></td><td class="tick">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></div></td></tr>
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td class="n">70</td><td class="n muted">60</td><td>Reducer</td><td class="n edit"><input value="300" aria-label="DX in mm"><span class="unit">mm</span></td><td class="n">0</td><td class="n">0</td><td>P2</td><td class="tick">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></div></td></tr>
       <tr class="prop"><td class="gut"><div class="slots"><span class="slot" style="color:var(--proposal-new)" title="Proposed by the agent · P-12 · Accept ⌘⇧A · Reject ⌘⇧R"><svg class="mk"><use href="#m-proposed"/></svg></span><span class="slot"></span></div></td><td class="n">80</td><td class="n muted">70</td><td>Pipe</td><td class="n">0</td><td class="n">0</td><td class="n tick tprop" title="DZ: −1800 → −2000 mm · was −1800 · Accept this row"><span class="new">−2000</span></td><td class="tick">P2</td><td class="tick">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot" title="Restraint · Rigid → Variable spring (proposed)"><svg class="mk"><use href="#m-restraint"/></svg></span><span class="slot"></span><span class="slot"></span></div></td></tr>
@@ -972,6 +1037,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td class="n">100</td><td class="n muted">90</td><td>Pipe</td><td class="n">0</td><td class="n">0</td><td class="n">2000</td><td class="tick">P1</td><td class="tick">CS-B</td><td class="tick">OP2</td><td class="n rt tick">80</td><td class="n rt tick">6.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></div></td></tr>
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--issue-info)" title="Note · Assumption recorded for review: expansion joint stiffness from vendor sheet"><svg class="mk"><use href="#m-info"/></svg></span></div></td><td class="n">110</td><td class="n muted">100</td><td>Expansion joint</td><td class="n">400</td><td class="n">0</td><td class="n">0</td><td class="tick">P1</td><td class="tick">CS-B</td><td class="tick">OP2</td><td class="n rt tick">80</td><td class="n rt tick">6.00</td><td class="marks"><div class="slots"><span class="slot" title="Restraint · Guide"><svg class="mk"><use href="#m-restraint"/></svg></span><span class="slot"></span><span class="slot" title="Node data · Welding tee"><svg class="mk"><use href="#m-nodedata"/></svg></span></div></td></tr>
       <tr class="draft" title="Draft · ↩ places node 120 · ⎋ cancels"><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td class="n">120</td><td class="n">110</td><td>Pipe</td><td class="n">0</td><td class="n"><span class="typed">1500</span></td><td class="n">0</td><td class="tick">P1</td><td class="tick">CS-B</td><td class="tick">OP2</td><td class="n rt tick">80</td><td class="n rt tick">6.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></div></td></tr>
+      <tr class="addrow" title="Add a row with the next node number (⌥↩ inserts below the focused row)"><td class="gut"></td><td colspan="12">Add row</td></tr>
     </tbody>
   </table>
   <div class="pasteband" role="region" aria-label="Paste band">
@@ -980,12 +1046,14 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <div class="sec" style="margin-top:6px">Preview, drawn as draft rows in the table: <span class="n">120 · 110 · 0 · 0 · 1200</span> — <span class="n">130 · 120 · 800 · 0 · 0</span> — <span class="n">140 · 130 · 0 · 0 · −600</span> · the propagated Section, Material and Load shown with their ticks · one operation, one undo</div>
   </div>
   <div class="tfoot"><span class="f"><b>12 rows</b> · 1 selected</span><span class="f"><b>11</b> elements</span><span class="f"><b>1</b> bend</span><span class="f"><b>3</b> restraints</span><span class="f"><b>2</b> loads</span><span class="f"><b>2</b> node data</span><span class="f"><b>21</b> propagated</span><span class="f" style="color:var(--proposal-new)"><b style="color:inherit">1</b> proposed</span><span class="f"><b>2</b> checked · 1 stale</span><span class="f" style="color:var(--issue-blocking)"><b style="color:inherit">2</b> issues</span><span class="grow" style="flex:1"></span><span class="chip outline">Changed since: Run 03</span><span class="chip outline">1 joined row open</span><span class="chip outline">Read-through on</span><span class="chip outline">Origins</span></div>
+  <div class="tfoot" aria-label="Footer with a selection"><span class="f"><b>12 rows</b> · 1 selected <button class="iconbtn" style="width:18px;height:18px" title="Clear the selection (⎋)"><svg class="ic s12"><use href="#i-close"/></svg></button></span><span class="selgroup"><button class="iconbtn" title="Insert row below (⌥↩)"><svg class="ic"><use href="#i-addrow"/></svg></button><button class="iconbtn" title="Delete rows (⌫)"><svg class="ic"><use href="#i-delrow"/></svg></button><button class="iconbtn" title="Copy rows (⌘C)"><svg class="ic"><use href="#i-copy"/></svg></button><button class="iconbtn" title="Paste (⌘V)"><svg class="ic"><use href="#i-paste"/></svg></button><button class="iconbtn" title="Check rows (⌘⇧K)"><svg class="ic"><use href="#i-check"/></svg></button></span><span class="grow" style="flex:1"></span><span class="sample">the footer while rows are selected: the selection group takes the place of the counts</span></div>
+  <div class="tfoot" aria-label="Footer while editing"><span class="editchip">Editing DX · node 70 <button class="iconbtn" title="Commit (↩)"><svg class="ic s12"><use href="#i-check"/></svg></button><button class="iconbtn" title="Cancel the edit (⎋)"><svg class="ic s12"><use href="#i-close"/></svg></button></span><span class="grow" style="flex:1"></span><span class="sample">the footer while a cell is being edited: the edit chip</span></div>
 </div>
 
-<h3>Inspector rows · label 88 px · the routing block on top while a route is open</h3>
+<h3>Inspector rows · label 88 px · the routing block on top while a route is open, with its three buttons · the Both-view inspector's close control</h3>
 <div class="demo-row" style="align-items:flex-start;gap:24px">
   <div class="insp" aria-label="Inspector sample, routing">
-    <div class="blk"><div class="h">Routing from node 110</div><div class="r"><span class="l">Next node</span><span class="v">120</span></div><div class="r"><span class="l">Axis</span><span class="v">+Y</span></div><div class="r"><span class="l">Length</span><span class="v" style="color:var(--accent-text)">1500 mm</span></div><div class="r"><span class="l">Row carries</span><span class="v sec">P1 · CS-B · OP2 propagated</span></div><div class="r" style="justify-content:flex-end;gap:6px"><button class="btn compact">Bend at 110… B</button><button class="btn compact text">Cancel ⎋</button></div></div>
+    <div class="blk"><div class="h">Routing from node 110</div><div class="r"><span class="l">Next node</span><span class="v">120</span></div><div class="r"><span class="l">Axis</span><span class="v">+Y</span></div><div class="r"><span class="l">Length</span><span class="v" style="color:var(--accent-text)">1500 mm</span></div><div class="r"><span class="l">Row carries</span><span class="v sec">P1 · CS-B · OP2 propagated</span></div><div class="r" style="justify-content:flex-end;gap:6px"><button class="btn compact" title="Place node 120 (↩)">Place node 120</button><button class="btn compact" title="Bend at 110… (B)">Bend at 110…</button><button class="btn compact text" title="Cancel the route (⎋)">Cancel</button></div></div>
     <div class="r"><span class="l">Node</span><span class="v">110</span></div>
     <div class="r"><span class="l">Element</span><span class="v">100–110</span></div>
     <div class="r"><span class="l">Type</span><span class="v">Expansion joint</span></div>
@@ -995,33 +1063,56 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <div class="r"><span class="l">Load set</span><span class="v">OP2 · 80 °C · 6.00 bar</span></div>
     <div class="r"><span class="l">Restraint</span><span class="v">Guide X Z · gap 2 mm · μ 0.30</span></div>
     <div class="r"><span class="l">Entered by</span><span class="v">R. Tufts · 2026-09-17 14:02</span></div>
-    <div class="r"><span class="l">Checked</span><span class="v sec">not checked · <span style="color:var(--text-link)">Check ⌘⇧K</span></span></div>
+    <div class="r"><span class="l">Checked</span><span class="v sec">not checked</span><button class="btn compact" title="Check (⌘⇧K)">Check</button></div>
   </div>
   <div class="insp" aria-label="Inspector sample, proposal">
-    <div class="h">Node 80</div>
+    <div class="h" style="display:flex;align-items:center">Node 80<span style="flex:1"></span><button class="iconbtn" title="Close the inspector (⎋) · Both view"><svg class="ic s12"><use href="#i-close"/></svg></button></div>
     <div class="r"><span class="l">Element</span><span class="v">70–80</span></div>
     <div class="r"><span class="l">Restraint</span><span class="v">Rigid (Y) · RS-02</span></div>
     <div class="r" style="height:auto;min-height:26px;padding:4px 0"><span class="v" style="color:var(--proposal-new);text-align:left;white-space:normal;line-height:18px">◆ Proposed · P-12 · Variable spring · Vendor-A · 25 %</span></div>
     <div class="r"><span class="l">Load</span><span class="v">—</span></div>
     <div class="r"><span class="l">Entered by</span><span class="v">R. Tufts · 2026-09-16 09:12</span></div>
     <div class="r"><span class="l">Checked by</span><span class="v">R. Tufts · 2026-09-17 14:02</span></div>
-    <div class="r"><span class="l"></span><span class="v"><span style="color:var(--text-link)">Clear check ⌘⇧K</span></span></div>
+    <div class="r"><span class="l"></span><span class="v"><button class="btn compact" title="Clear check (⌘⇧K)">Clear check</button></span></div>
     <p class="sec" style="margin:8px 0 0;font-size:12px">The label column is 88 px in both the 340 px and the 300 px inspector; the value takes the rest.</p>
   </div>
 </div>
 
-<h3>Results table header · Envelope on with the case selector visible and disabled, evidence label, the acceptance disclosure with the run identity line, the stale band after a model change; ratio cells with data bars on their track; stale cells</h3>
+<h3>Results table header · run standing: Current, Stale, Historical · only a Current run drives an overlay, a chip or a readiness cue</h3>
+<p class="sec">Three header bands for the three standings. Current: the evidence chip, present only because this run record carries evidence, and the Run identity control with its disclosure open, which holds the run identity line and nothing else. Stale and Historical: no evidence chip, their own band, the legend a note card (section 8) and the canvas in its neutral drawing. The table under them is shown in the Stale standing, with one hatched row.</p>
+<div class="tblwrap fit" style="margin-bottom:12px">
+  <div class="tblhead">
+    <span class="name">Stresses</span><span class="sec">Run 03 · solved 15:21 · immutable</span>
+    <span class="combo disabled" title="Envelope is on: the governing case per row">Case: all</span>
+    <span class="switch on"><i></i>Envelope</span>
+    <span class="chip solved lbl" data-label="INTERNALLY_VERIFIED" title="INTERNALLY_VERIFIED"><span class="dom">Evidence</span><span class="sep">·</span>Internally verified</span>
+    <span class="grow"></span>
+    <button class="btn compact text" title="Run identity" aria-expanded="true"><svg class="ic"><use href="#i-info"/></svg>Run identity</button>
+  </div>
+  <div style="padding:8px"><div class="disc"><div class="mono sec">Run 03 · 2026-09-17 15:21 · sha256:4df0f798… · solver 0.2.0 · rule pack sample-rules 1.2 · sha256:9b1c4e02… · settings S-03</div></div></div>
+  <div class="tfoot"><span class="sample">Current · no band · the disclosure holds the run identity line only</span></div>
+</div>
+<div class="tblwrap fit" style="margin-bottom:12px">
+  <div class="tblhead">
+    <span class="name">Stresses</span><span class="sec">Run 02 · solved 2026-09-16 11:02 · immutable</span>
+    <span class="combo">Case: OPE1</span>
+    <span class="switch"><i></i>Envelope</span>
+    <span class="grow"></span>
+    <button class="btn compact text" title="Run identity"><svg class="ic"><use href="#i-info"/></svg>Run identity</button>
+  </div>
+  <div class="histband"><svg class="mk"><use href="#m-historical"/></svg><span><span style="font-weight:500">Historical saved run</span> · Run a fresh solve to establish current results.</span><button class="iconbtn" style="margin-left:auto" title="About historical runs" aria-expanded="true"><svg class="ic s12"><use href="#i-info"/></svg></button></div>
+  <div style="padding:8px"><div class="pop" style="max-width:520px"><div>Historical results cannot drive current overlays, rule checks, comparisons or report readiness.</div><div class="sec" style="font-size:12px;margin:6px 0 4px">Recorded on Run 02</div><div class="demo-row" style="gap:6px"><span class="chip solved lbl" data-label="MECHANICS_SOLVED" title="MECHANICS_SOLVED"><span class="dom">Solver</span><span class="sep">·</span>Mechanics solved</span><span class="chip solved lbl" data-label="USER_RULE_CHECKED" title="USER_RULE_CHECKED"><span class="dom">Rule pack</span><span class="sep">·</span>User-rule checked</span></div></div></div>
+  <div class="tfoot"><span class="sample">Historical · the band and its popover · the run's recorded statuses are read here and never in the status bar</span></div>
+</div>
 <div class="tblwrap fit">
   <div class="tblhead">
     <span class="name">Stresses</span><span class="sec">Run 03 · solved 15:21 · immutable</span>
     <span class="combo disabled" title="Envelope is on: the governing case per row">Case: all</span>
     <span class="switch on"><i></i>Envelope</span>
-    <span class="chip solved" title="INTERNALLY_VERIFIED">Internally verified</span>
     <span class="grow"></span>
-    <button class="btn compact text" title="Information" aria-expanded="true"><svg class="ic"><use href="#i-info"/></svg>Information</button>
+    <button class="btn compact text" title="Run identity"><svg class="ic"><use href="#i-info"/></svg>Run identity</button>
   </div>
-  <div style="padding:8px 8px 0"><div class="disc"><div class="sec" style="font-size:12px;margin-bottom:2px">Results surface · one placement</div>Results are engineering decision-support information. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.<div class="mono sec" style="margin-top:4px">Run 03 · 2026-09-17 15:21 · sha256:4df0f798… · solver 0.2.0 · rule pack sample-rules 1.2 · sha256:9b1c4e02… · settings S-03</div></div></div>
-  <div class="staleband" style="margin-top:8px"><svg class="mk"><use href="#m-stalerun"/></svg><b>Model changed since Run 03:</b><span class="body">proposal P-12 row 1 accepted at 16:31 (variable spring at node 80). The values below are from the model as solved; Run 03 stays the solve basis until the next run.</span><button class="btn compact" style="margin-left:auto">Run again</button></div>
+  <div class="staleband"><svg class="mk"><use href="#m-stalerun"/></svg><b>Model changed since Run 03:</b><span class="body">proposal P-12 row 1 accepted at 16:31 (variable spring at node 80). The values below are from the model as solved.</span><button class="btn compact" style="margin-left:auto">Run again</button></div>
   <table class="ds" aria-label="Stresses sample" style="width:684px">
     <colgroup><col style="width:32px"><col style="width:56px"><col style="width:80px"><col style="width:64px"><col style="width:96px"><col style="width:116px"><col style="width:120px"><col style="width:72px"><col style="width:48px"></colgroup>
     <thead><tr><th style="width:32px"></th><th class="n">Node</th><th>Element</th><th>Case</th><th class="n">Stress <span class="u">[MPa]</span></th><th class="n">Allowable <span class="u">[MPa]</span></th><th class="n">Ratio</th><th>Rule</th><th>Pack</th></tr></thead>
@@ -1034,11 +1125,35 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     </tbody>
   </table>
   <div class="tfoot"><span class="f"><b>5 elements</b> · 6 cases in the envelope</span><span class="f"><b>0.72</b> governing · OPE1 · node 40 · EXP-A1 · pack 1.2</span><span class="grow" style="flex:1"></span><span class="chip outline">Envelope: governing case per element</span><span class="chip outline">Sorted by ratio</span></div>
-  <div class="histband"><svg class="mk"><use href="#m-historical"/></svg><span style="font-weight:500">Historical saved run</span><span>Run 02 · reopening cannot establish a current solve basis</span><span class="sample" style="margin-left:auto">variant shown for a reopened run</span></div>
 </div>
 
-<h3>Load cases · the Loads header band with the pack identity and the single display-only caption; generated, edited and authored rows; the combination editor as a row expansion under OCC1</h3>
+<h3>Hanger selection · the row expansion under a hanger row · the library is the user's import, never bundled · the content boundary's short variant, once</h3>
 <div class="tblwrap" style="max-width:920px">
+  <div class="tblhead"><span class="name">Hangers</span><span class="sec">Vendor-A springs · user import 2026-09-15 · 24 sizes · source recorded in Libraries · max variation 25 %</span></div>
+  <table class="ds" aria-label="Hangers sample">
+    <thead><tr><th style="width:32px"></th><th class="n">Node</th><th>Tag</th><th>Type</th><th class="n">Design load <span class="u">[kN]</span></th><th class="n">Travel <span class="u">[mm]</span></th><th>Library</th><th>Size</th><th class="n">Rate <span class="u">[N/mm]</span></th><th class="n">Cold load <span class="u">[kN]</span></th><th class="n">Hot load <span class="u">[kN]</span></th><th class="n">Variation</th></tr></thead>
+    <tbody>
+      <tr class="sel"><td class="gut"></td><td class="n">80</td><td>SH-1</td><td>Variable spring</td><td class="n">4.20</td><td class="n">12.0</td><td>Vendor-A springs</td><td class="selcell">—<svg class="ic s12 xchev" role="button"><title>Hanger selection (⌘↩)</title><use href="#i-expanded"/></svg></td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr class="expand"><td colspan="12"><div class="block">
+        <div class="sec" style="height:26px;display:flex;align-items:center;gap:8px"><button class="iconbtn" style="width:18px;height:18px;border:0;margin:0" title="Close the hanger selection (⎋)"><svg class="ic s12"><use href="#i-expanded"/></svg></button>Hanger selection · node 80 · Vendor-A springs · user import 2026-09-15<span style="flex:1"></span><button class="iconbtn" title="Close (⎋)"><svg class="ic s12"><use href="#i-close"/></svg></button></div>
+        <div class="sec" style="font-size:12px;padding-bottom:4px">no protected standards content; code-specific data is user-supplied</div>
+        <table class="ds" aria-label="Candidate sizes" style="width:auto">
+          <thead><tr><th>Size</th><th class="n">Rate <span class="u">[N/mm]</span></th><th class="n">Cold load <span class="u">[kN]</span></th><th class="n">Hot load <span class="u">[kN]</span></th><th class="n">Variation</th><th>Working range</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>A-07</td><td class="n">26.0</td><td class="n">4.51</td><td class="n">4.20</td><td class="n">7 %</td><td class="sec">within</td><td><button class="btn compact text">Select</button></td></tr>
+            <tr><td>A-06</td><td class="n">52.0</td><td class="n">4.82</td><td class="n">4.20</td><td class="n">15 %</td><td class="sec">within</td><td><button class="btn compact text">Select</button></td></tr>
+            <tr><td style="color:var(--text-disabled)">A-05</td><td class="n" style="color:var(--text-disabled)">105.0</td><td class="n" style="color:var(--text-disabled)">5.46</td><td class="n" style="color:var(--text-disabled)">4.20</td><td class="n" style="color:var(--text-disabled)">30 %</td><td style="color:var(--text-disabled)">over the row's max variation, 25 %</td><td></td></tr>
+          </tbody>
+        </table>
+      </div></td></tr>
+    </tbody>
+  </table>
+  <div class="tfoot"><span class="f"><b>1 hanger</b> · 1 not yet designed</span><span class="grow" style="flex:1"></span><span class="chip outline">1 expansion open</span></div>
+</div>
+<p class="sec" style="font-size:12px">With no hanger library imported the caption reads “No hanger library imported · Import through Libraries” and the expansion offers no sizes. <span class="sample">sizes and values are invented</span></p>
+
+<h3>Load cases · the Loads header band with the pack identity and the single display-only caption; generated, edited and authored rows; the combination editor as a row expansion under OCC1</h3>
+<div class="tblwrap" style="max-width:1040px">
   <div class="tblhead"><span class="name">Cases</span><span class="sec">generated from rule pack sample-rules 1.2 · <span class="mono">sha256:9b1c4e02…</span> on 2026-09-17 10:05</span><button class="btn compact">Generate from rule pack…</button><span class="grow"></span><span class="dispo-cap"><svg class="mk" style="color:var(--text-muted)"><use href="#m-displayonly"/></svg> Rule expression: Display only, not accepted as input</span></div>
   <table class="ds" aria-label="Load cases sample">
     <thead><tr><th style="width:32px"></th><th>Case</th><th>Expression</th><th>Stress type</th><th>Rule</th><th>Origin</th><th>Rule expression</th></tr></thead>
@@ -1046,10 +1161,10 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <tr><td class="gut"><div class="slots"><span class="slot" title="Generated by rule pack sample-rules 1.2 · 2026-09-17 10:05"><svg class="mk"><use href="#m-generated"/></svg></span><span class="slot"></span></div></td><td>SUS</td><td class="n">W + P1</td><td>Sustained</td><td>SUS-A1</td><td class="sec">Generated · sample-rules 1.2</td><td><span class="dispo">W + P1</span></td></tr>
       <tr><td class="gut"><div class="slots"><span class="slot" title="Generated by rule pack sample-rules 1.2"><svg class="mk"><use href="#m-generated"/></svg></span><span class="slot"></span></div></td><td>OPE1</td><td class="n">W + P1 + T1</td><td>Operating</td><td>—</td><td class="sec">Generated · sample-rules 1.2</td><td><span class="dispo">W + P1 + T1</span></td></tr>
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td>EXP1</td><td class="n">OPE1 − SUS</td><td>Expansion</td><td>EXP-A1</td><td class="sec">Edited by R. Tufts · was T1 (generated)</td><td><span class="dispo">OPE1 − SUS</span></td></tr>
-      <tr class="sel"><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td>OCC1</td><td class="n selcell focuscell">W + P1 + U1</td><td>Occasional</td><td>OCC-A1</td><td class="sec">Authored by R. Tufts</td><td><span class="dispo">W + P1 + U1</span></td></tr>
+      <tr class="sel"><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td>OCC1</td><td class="n selcell focuscell">W + P1 + U1<svg class="ic s12 xchev" role="button"><title>Combination editor (⌘↩)</title><use href="#i-expanded"/></svg></td><td>Occasional</td><td>OCC-A1</td><td class="sec">Authored by R. Tufts</td><td><span class="dispo">W + P1 + U1</span></td></tr>
       <tr class="expand"><td colspan="7"><div class="block">
-        <div class="sec" style="height:26px;display:flex;align-items:center;gap:8px"><svg class="ic" style="vertical-align:-3px"><use href="#i-expanded"/></svg>Combination editor · OCC1 · row expansion · ⎋ closes</div>
-        <div class="demo-row" style="padding:2px 0 8px;gap:6px"><span class="chip outline" style="color:var(--text-primary)">W</span><span class="sec">+</span><span class="chip outline" style="color:var(--text-primary)">P1</span><span class="sec">+</span><span class="chip outline" style="color:var(--text-primary)">U1 (0.3 g X)</span><span class="sec" style="margin-left:10px">available</span><span class="chip outline muted">T1</span><span class="chip outline muted">T2</span><span class="chip outline muted">SE1</span><span class="grow" style="flex:1"></span><span class="combo">Stress type: Occasional</span><span class="combo">Rule: OCC-A1 · sample-rules 1.2</span><button class="btn compact text">Cancel ⎋</button><button class="btn compact primary">Done ↩</button></div>
+        <div class="sec" style="height:26px;display:flex;align-items:center;gap:8px"><button class="iconbtn" style="width:18px;height:18px;border:0;margin:0" title="Close the combination editor (⎋)"><svg class="ic s12"><use href="#i-expanded"/></svg></button>Combination editor · OCC1 · row expansion<span style="flex:1"></span><button class="iconbtn" title="Close (⎋)"><svg class="ic s12"><use href="#i-close"/></svg></button></div>
+        <div class="demo-row" style="padding:2px 0 8px;gap:6px"><span class="chip outline" style="color:var(--text-primary)">W</span><span class="sec">+</span><span class="chip outline" style="color:var(--text-primary)">P1</span><span class="sec">+</span><span class="chip outline" style="color:var(--text-primary)">U1 (0.3 g X)</span><span class="sec" style="margin-left:10px">available</span><span class="chip outline muted">T1</span><span class="chip outline muted">T2</span><span class="chip outline muted">SE1</span><span class="grow" style="flex:1"></span><span class="combo">Stress type: Occasional</span><span class="combo">Rule: OCC-A1 · sample-rules 1.2</span><button class="btn compact text" title="Cancel (⎋)">Cancel</button><button class="btn compact primary" title="Done (↩)">Done</button></div>
       </div></td></tr>
     </tbody>
   </table>
@@ -1057,27 +1172,32 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
 </div>
 
 <!-- ===================== 6 STATUS CHIPS ===================== -->
-<h2 id="s6">6 The six automatic statuses as chips · raw token one click away</h2>
+<h2 id="s6">6 Status and evidence labels · one table, three rules</h2>
+<p class="sec">Every label below is drawn from the <code>labels</code> table in the embedded tokens, and from nowhere else. The three rules: the raw token is reachable in place (the chip's tooltip, and its popover on a click); the authority domain is shown with the label, inside the chip; no label exists outside the table.</p>
+<div class="cbox" style="max-height:none;margin-bottom:16px"><table id="labeltable" aria-label="The label table"><thead><tr><th>Raw token</th><th>Chip</th><th>Label</th><th>Authority domain</th><th>Kind</th></tr></thead><tbody></tbody></table></div>
 <div class="grid2">
   <div class="panel">
     <div class="demo-row">
-      <span class="chip incomplete">Model incomplete</span><span class="chip solved">Mechanics solved</span><span class="chip incomplete">Rule inputs incomplete</span><span class="chip solved">User rules checked</span><span class="chip failed">User rule failed</span><span class="chip review">Human review required</span>
+      <span class="chip incomplete lbl" data-label="MODEL_INCOMPLETE" title="MODEL_INCOMPLETE"><span class="dom">Solver</span><span class="sep">·</span>Model incomplete</span><span class="chip solved lbl" data-label="MECHANICS_SOLVED" title="MECHANICS_SOLVED"><span class="dom">Solver</span><span class="sep">·</span>Mechanics solved</span><span class="chip incomplete lbl" data-label="RULE_INPUTS_INCOMPLETE" title="RULE_INPUTS_INCOMPLETE"><span class="dom">Rule pack</span><span class="sep">·</span>Rule inputs incomplete</span><span class="chip solved lbl" data-label="USER_RULE_CHECKED" title="USER_RULE_CHECKED"><span class="dom">Rule pack</span><span class="sep">·</span>User-rule checked</span><span class="chip failed lbl" data-label="USER_RULE_FAILED" title="USER_RULE_FAILED"><span class="dom">Rule pack</span><span class="sep">·</span>User-rule failed</span><span class="chip review lbl" data-label="HUMAN_REVIEW_REQUIRED" title="HUMAN_REVIEW_REQUIRED"><span class="dom">Human</span><span class="sep">·</span>Human review required</span>
     </div>
-    <p class="sec" style="margin-top:8px">Neutral for solved and checked: a solved model is information, not a green light. Amber for incomplete, red for a failed user rule, blue-grey for review required. Short labels are decision-packet item 4.</p>
-    <div class="demo-row" style="margin-top:8px"><span class="chip solved" title="INTERNALLY_VERIFIED">Internally verified</span><span class="chip solved" title="PROVER_CORRELATED">Prover correlated</span><span class="chip hist"><svg class="mk"><use href="#m-historical"/></svg>Historical saved run</span></div>
+    <p class="sec" style="margin-top:8px">Neutral for solved and checked: a solved model is information, not a green light. Amber for incomplete, red for a failed user rule, blue-grey for review required.</p>
+    <div class="demo-row" style="margin-top:8px"><span class="chip solved lbl" data-label="INTERNALLY_VERIFIED" title="INTERNALLY_VERIFIED"><span class="dom">Evidence</span><span class="sep">·</span>Internally verified</span><span class="chip solved lbl" data-label="PROVER_CORRELATED" title="PROVER_CORRELATED"><span class="dom">Evidence</span><span class="sep">·</span>Prover correlated</span><span class="sec" style="font-size:12px">evidence chips · drawn only when the run record carries evidence, and for a Current run only</span></div>
     <h4>When chips show · the status bar at each moment</h4>
     <div class="kv" style="grid-template-columns:200px 1fr;row-gap:6px">
-      <dt>Model cannot be solved</dt><dd><span class="chip incomplete">Model incomplete</span></dd>
+      <dt>Model cannot be solved</dt><dd><span class="chip incomplete lbl" data-label="MODEL_INCOMPLETE" title="MODEL_INCOMPLETE"><span class="dom">Solver</span><span class="sep">·</span>Model incomplete</span></dd>
       <dt>Complete, not yet solved</dt><dd class="muted">no chip · an absent status is honest</dd>
-      <dt>After a solved run</dt><dd><span class="chip solved">Mechanics solved</span> <span class="chip solved">User rules checked</span></dd>
-      <dt>After a run with a rule failure</dt><dd><span class="chip solved">Mechanics solved</span> <span class="chip failed">User rule failed</span></dd>
-      <dt>Review page</dt><dd><span class="chip solved">User rules checked</span> <span class="chip review">Human review required</span></dd>
+      <dt>After a solved run</dt><dd><span class="chip solved lbl" data-label="MECHANICS_SOLVED" title="MECHANICS_SOLVED"><span class="dom">Solver</span><span class="sep">·</span>Mechanics solved</span> <span class="chip solved lbl" data-label="USER_RULE_CHECKED" title="USER_RULE_CHECKED"><span class="dom">Rule pack</span><span class="sep">·</span>User-rule checked</span></dd>
+      <dt>After a run with a rule failure</dt><dd><span class="chip solved lbl" data-label="MECHANICS_SOLVED" title="MECHANICS_SOLVED"><span class="dom">Solver</span><span class="sep">·</span>Mechanics solved</span> <span class="chip failed lbl" data-label="USER_RULE_FAILED" title="USER_RULE_FAILED"><span class="dom">Rule pack</span><span class="sep">·</span>User-rule failed</span></dd>
+      <dt>After a stopped run</dt><dd class="muted">the statuses the run record carries; when it carries none, no chip · the rail caption <span style="color:var(--rail-captionFailed);font-weight:500">Failed</span> and the banner carry it</dd>
+      <dt>Review page, and the report</dt><dd><span class="chip solved lbl" data-label="USER_RULE_CHECKED" title="USER_RULE_CHECKED"><span class="dom">Rule pack</span><span class="sep">·</span>User-rule checked</span> <span class="chip review lbl" data-label="HUMAN_REVIEW_REQUIRED" title="HUMAN_REVIEW_REQUIRED"><span class="dom">Human</span><span class="sep">·</span>Human review required</span></dd>
       <dt>After a model change</dt><dd class="muted">no chip · the rail caption <span style="color:var(--rail-captionStale);font-weight:500">Stale</span> and the results header band carry it</dd>
+      <dt>Historical run on screen</dt><dd class="muted">no chip · the rail caption <span style="color:var(--rail-captionHistorical);font-weight:500">Historical</span>; the recorded statuses are read in the band's popover (section 5)</dd>
     </div>
   </div>
   <div class="panel">
-    <h4 style="margin-top:0">Chip popover</h4>
+    <h4 style="margin-top:0">Chip popover · a click on the chip</h4>
     <div class="pop"><div class="kv"><dt>Status</dt><dd class="mono">MECHANICS_SOLVED</dd><dt>Authority</dt><dd>Solver</dd><dt>Run</dt><dd>Run 03 · 2026-09-17 15:21 · immutable</dd><dt>Model state</dt><dd class="mono">7 · sha256:4df0f798…</dd></div></div>
+    <p class="sec" style="font-size:12px;margin-top:8px">Shown as it reads before the model changes; after a change the bar has no chip to open.</p>
   </div>
 </div>
 
@@ -1088,9 +1208,9 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   <div class="card prop">
     <p class="title">Replace the rigid support at node 80 with a variable spring</p>
     <div class="sec" style="font-size:12px;margin-bottom:4px">“Can the riser at 80 move without loading the nozzle?”</div>
-    <div class="meta">Proposal <b>P-12</b> · draft until accepted · 1 row in Layout, 1 row in Restraints · 16:22</div>
+    <div class="meta" data-agent-class="Proposal">Proposal <b>P-12</b> · draft until accepted · 1 row in Layout, 1 row in Restraints · 16:22</div>
     <div class="difftitle"><span>Layout · node 80</span><span>row 1 of 2 · accepted</span></div>
-    <div class="done"><svg class="mk"><use href="#m-checked"/></svg><span>DZ <span class="n">−1800 → −2000 mm</span></span><span class="r">accepted 16:31 · <a href="#s7">Undo</a></span></div>
+    <div class="done" title="DZ: −1800 mm → −2000 mm"><svg class="mk"><use href="#m-checked"/></svg><span>DZ <span class="n">−2000 mm</span></span><span class="r">accepted 16:31 · <a href="#s7">Undo</a></span></div>
     <div class="difftitle"><span>Restraints · node 80</span><span>row 2 of 2 · pending</span></div>
     <table class="diff"><colgroup><col style="width:74px"><col style="width:50px"><col><col style="width:60px"></colgroup><thead><tr><th>Field</th><th>Old</th><th>New</th><th></th></tr></thead><tbody>
       <tr><td>Type</td><td class="old">Rigid</td><td class="new">Variable spring</td><td class="acts"><button class="iconbtn" title="Accept row ⌘⇧A"><svg class="ic s12"><use href="#i-check"/></svg></button><button class="iconbtn" title="Reject row ⌘⇧R"><svg class="ic s12"><use href="#i-close"/></svg></button></td></tr>
@@ -1104,11 +1224,13 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <h5>TBD</h5>
     <ul><li>Vendor hanger table to select from (import through Libraries)</li></ul>
     <div class="sec" style="margin-top:8px">Schema and constraints: passed</div>
-    <div class="conseq">Accepting a row changes the model: current results are cleared and the run is kept as historical.</div>
+    <div class="conseq">Accepting a row changes the model. Results from Run 03 stay readable, marked stale, until the next run.</div>
     <div class="actions"><button class="btn compact text">Reject remaining</button><button class="btn compact primary">Accept remaining (1 row)</button></div>
   </div>
   <div class="sec" style="font-size:12px;margin-top:8px">Accepted: P-09 · 11:40 · P-12 row 1 · 16:31 <span class="sample">the record's last lines, under the open card</span></div>
-  <p class="sec" style="font-size:12px;margin-top:8px">Before any row is decided the actions read “Reject proposal” and “Accept all rows”; a decided row collapses to one line with Undo.</p>
+  <p class="sec" style="font-size:12px;margin-top:8px">Before any row is decided the actions read “Reject proposal” and “Accept all rows”; a decided row collapses to a one-line receipt: the done check, the first changed field with its new value, a count when more fields changed (“+4”), and the time with Undo. The old value is in the receipt's tooltip and in the diff.</p>
+  <h4>The engineer's input · the Send control</h4>
+  <div class="sendrow"><span>Ask about the model…</span><button class="iconbtn" title="Send (⌘↩)" disabled><svg class="ic s12"><use href="#i-send"/></svg></button></div>
   </div>
   <div>
     <div class="panel" style="margin-bottom:16px">
@@ -1116,9 +1238,12 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <div class="demo-row"><button class="btn">Accept all (2 rows)</button><button class="btn text">Reject all</button><span class="sec">each confirms with the count</span></div>
     </div>
     <div class="panel">
-      <h4 style="margin-top:0">Agent check · by reference, never altering the tables</h4>
-      <div class="comment"><div class="h"><span class="chip outline">Check</span><a href="#s5">Restraints row · node 20</a><span>Agent · 16:04</span></div>The support at node 20 has a 3 mm gap and μ 0.30; the OPE1 lift at 20 is 2.1 mm, so the support does not engage in OPE1. Confirm the gap is intended.<div style="margin-top:6px"><button class="btn compact">Resolve</button></div></div>
-      <div class="comment"><div class="h"><span class="chip outline">Open issue</span><a href="#s5">Stresses OPE1 · node 40</a><span>Agent · 16:06</span></div>Ratio 0.72 at node 40 depends on the SIF at the welding tee at 110, which has no provenance recorded.</div>
+      <h4 style="margin-top:0">Agent cards · exactly one of five class words · by reference, never altering the tables</h4>
+      <div class="demo-row" style="margin-bottom:8px" id="agentclasses"></div>
+      <div class="comment"><div class="h"><span class="chip outline" data-agent-class="Check">Check</span><a href="#s5">Restraints row · node 20</a><span>Agent · 16:04</span></div><div data-agent-text>The support at node 20 has a 3 mm gap and μ 0.30; the OPE1 lift at 20 is 2.1 mm, so the support does not engage in OPE1. Confirm the gap is intended.</div><div style="margin-top:6px"><button class="btn compact">Resolve</button></div></div>
+      <div class="comment"><div class="h"><span class="chip outline" data-agent-class="Open issue">Open issue</span><a href="#s5">Stresses OPE1 · node 40</a><span>Agent · 16:06</span></div><div data-agent-text>Ratio 0.72 at node 40 depends on the SIF at the welding tee at 110, which has no provenance recorded.</div><div style="margin-top:6px"><button class="btn compact">Resolve</button></div></div>
+      <div class="comment"><div class="h"><span class="chip outline" data-agent-class="Evidence summary">Evidence summary</span><a href="#s5">Run 03 · run record</a><span>Agent · 16:09</span></div><div data-agent-text>The record of Run 03 carries one evidence entry, INTERNALLY_VERIFIED, bound to solver 0.2.0 and model state 7. It carries no prover correlation entry.</div><div style="margin-top:6px"><button class="btn compact">Resolve</button></div></div>
+      <p class="sec" style="font-size:12px">The other two classes: Proposal opens the diff card's meta line (left); Draft is shown in the Review page's comment stream (section 10). An agent card never reads Note; Note is the engineer's own comment.</p>
     </div>
   </div>
 </div>
@@ -1126,8 +1251,9 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
 <!-- ===================== 8 PROBE AND LEGEND ===================== -->
 <h2 id="s8">8 The probe card and the legend</h2>
 <div class="demo-row" style="align-items:flex-start;gap:24px">
-  <div class="probe" role="dialog" aria-label="Probe">
-    <div class="r"><span>Node</span><span class="n">40</span></div>
+  <div class="probe" role="dialog" aria-label="Probe" style="position:relative">
+    <button class="iconbtn" style="position:absolute;right:4px;top:4px;width:18px;height:18px" title="Close the probe (⎋)"><svg class="ic s12"><use href="#i-close"/></svg></button>
+    <div class="r"><span>Node</span><span class="n" style="padding-right:22px">40</span></div>
     <div class="r"><span>Element</span><span class="n">30–40</span></div>
     <div class="r"><span>Case</span><span>OPE1</span></div>
     <div class="r"><span>Stress</span><span class="n">124.6 MPa</span></div>
@@ -1135,7 +1261,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <div class="r"><span>Ratio</span><span class="n">0.72<span class="bar" data-v="0.72"><i></i></span></span></div>
     <div class="r"><span>Rule</span><span>EXP-A1</span></div>
     <div class="r"><span>Pack</span><span class="n">1.2</span></div>
-    <div class="foot"><span>Run 03 · pinned</span><span class="chip solved" title="INTERNALLY_VERIFIED">Internally verified</span></div>
+    <div class="foot"><span>Run 03 · pinned</span><span class="chip solved lbl" data-label="INTERNALLY_VERIFIED" title="INTERNALLY_VERIFIED"><span class="dom">Evidence</span><span class="sep">·</span>Internally verified</span></div>
   </div>
   <div class="legend" aria-label="Legend">
     <div class="t"><span>Ratio · operating</span><span class="sec" style="font-weight:400">OPE1</span></div>
@@ -1150,23 +1276,36 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <div class="l"><span><span class="ghost"></span> Undeformed</span></div>
     <div class="l"><span class="sec">factor makes the maximum displacement one tenth of the model's extent</span></div>
   </div>
+  <div>
+    <div class="legend" aria-label="Legend, stale run" style="margin-bottom:8px"><div class="t"><span>Model changed since Run 03</span></div><div class="l"><span class="sec">No result colour on the current model</span></div></div>
+    <div class="legend" aria-label="Legend, historical run"><div class="t"><span>Historical saved run · Run 02</span></div><div class="l"><span class="sec">No result colour on the current model</span></div></div>
+    <p class="sec" style="font-size:12px;max-width:220px">The legend as a note card for a Stale and for a Historical run: no scale, no range, no marker, no control.</p>
+  </div>
+</div>
+<h3>The narrow canvas · 303 px · the HUD in two rows with Fit first, the hint strip, the legend's title row, the mock line under the stack</h3>
+<div class="narrow" aria-label="Narrow canvas">
+  <div class="hud wrap"><button title="Fit (F)"><svg class="ic"><use href="#i-fit"/></svg></button><button title="View presets"><svg class="ic"><use href="#i-presets"/></svg></button><button title="Section"><svg class="ic"><use href="#i-section"/></svg></button><button title="Isolate selection (I)"><svg class="ic"><use href="#i-isolate"/></svg></button><button title="Hide selection (H)"><svg class="ic"><use href="#i-hide"/></svg></button><button title="Node labels (L)" aria-pressed="true"><svg class="ic"><use href="#i-labels"/></svg></button><button title="Deformation (D) · Needs a current run" disabled><svg class="ic"><use href="#i-deform"/></svg></button><button title="Probe (P) · Needs a current run" disabled><svg class="ic"><use href="#i-probe"/></svg></button><button title="Route (R)"><svg class="ic"><use href="#i-route"/></svg></button><button title="Add restraint (S)"><svg class="ic"><use href="#i-restrain"/></svg></button></div>
+  <div class="keys">Route · ↩ places 50 · ⇥ next axis · − reverses · ⎋ cancels</div>
+  <div class="ltitle"><span>Ratio · operating</span><svg class="ic s12"><use href="#i-expand"/></svg></div>
+  <div class="mockline">mock rendering · not the product</div>
+  <div class="foot"><span>X Y Z</span><span class="n">1 m</span></div>
 </div>
 
 <!-- ===================== 9 SHELL ===================== -->
-<h2 id="s9">9 Shell · stage rail with captions, view switch, toolbar band, agent strip, status bar · the docked inspector's geometry</h2>
+<h2 id="s9">9 Shell · stage rail with captions, toolbar band with Undo, Redo and the two panel toggles, agent strip, status bar, run log, toast, issues row · the docked inspector's geometry</h2>
 <p class="sec">A 1440-wide shell at reduced height, after a model change: the rail's Results caption reads Stale, the status bar shows no chip. Toolbar 48, rail 56, agent strip 44, status bar 24. <span class="sample">counts and names</span></p>
 <div class="shell" aria-label="Shell mock">
   <div class="toolbar">
     <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
     <span class="wordmark">SWBPIPE</span>
     <span class="project">Loop 4 header <span class="st">· saved</span></span>
+    <button class="iconbtn" title="Undo: accept P-12 row 1 (⌘Z)"><svg class="ic"><use href="#i-undo"/></svg></button><button class="iconbtn" title="Nothing to redo" disabled><svg class="ic"><use href="#i-redo"/></svg></button>
     <div class="seg" role="group" aria-label="View"><button aria-pressed="false"><svg class="ic"><use href="#i-table"/></svg>Table</button><button aria-pressed="false"><svg class="ic"><use href="#i-cube"/></svg>Model</button><button aria-pressed="true"><svg class="ic"><use href="#i-both"/></svg>Both</button></div>
     <span class="grow"></span>
     <button class="btn primary"><svg class="ic"><use href="#i-run"/></svg>Run</button>
-    <button class="btn primary runbtn" title="Solving case 3 of 6"><span class="prog"></span><svg class="ic"><use href="#i-stop"/></svg>Running…</button>
-    <button class="btn" disabled title="Run is unavailable — Section missing at node 60, Material missing at node 60"><svg class="ic"><use href="#i-run"/></svg>Run</button>
     <button class="btn"><svg class="ic" style="color:var(--issue-blocking)"><use href="#i-issues"/></svg>Issues <span class="n">2</span></button>
-    <button class="btn"><svg class="ic"><use href="#i-agent"/></svg>Agent</button>
+    <button class="btn" title="Inspector (⌘I)"><svg class="ic"><use href="#i-inspector"/></svg>Inspector</button>
+    <button class="btn" title="Agent (⌘⇧G)"><svg class="ic"><use href="#i-agent"/></svg>Agent</button>
     <span class="combo">SI</span>
     <span class="search"><svg class="ic"><use href="#i-search"/></svg>Search or command… <span style="margin-left:auto;font-size:11px">⌘K</span></span>
   </div>
@@ -1188,6 +1327,8 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <div class="geo" aria-label="Both view, inspector docked"><div class="tbl" style="flex:737"><b>table</b><span class="n">737</span></div><div class="cv" style="flex:303"><b>canvas</b><span class="n">303</span></div><div class="in" style="flex:300"><b>inspector</b><span class="n">300</span></div></div>
       <div class="sec" style="text-align:left">With the agent column open (1044 wide): 574 / 470, and 170 with the inspector, below the 220 px minimum, so the agent column collapses to its strip first (⌘⇧G re-opens it) and the split is as with the strip; the canvas is never collapsed. Only when that is not enough does the inspector open as a slide-over for that window size, with the tooltip “Docked inspector needs a wider window”.</div>
       <div class="geo" aria-label="Both view, inspector docked after the agent column collapsed to its strip"><div class="tbl" style="flex:737"><b>table</b><span class="n">737</span></div><div class="cv" style="flex:303"><b>canvas</b><span class="n">303</span></div><div class="in" style="flex:300"><b>inspector</b><span class="n">300</span></div><div class="strip" style="flex:44"><b>strip</b><span class="n">44</span></div></div>
+      <div class="sec" style="text-align:left">The other order: with the inspector docked, the agent column is opened. The column opens, and the inspector becomes the slide-over over the 470 px canvas while the column is open; it re-docks when the column closes. Nothing is refused and nothing closes.</div>
+      <div class="geo" aria-label="Both view, the agent column opened while the inspector was docked"><div class="tbl" style="flex:574"><b>table</b><span class="n">574</span></div><div class="cv" style="flex:170"><b>canvas</b><span class="n">470</span></div><div class="in slide" style="flex:300"><b>inspector · slide-over</b><span class="n">300 over the canvas</span></div><div class="strip" style="flex:340"><b>agent column</b><span class="n">340</span></div></div>
     </div>
     <div class="agentstrip" title="Agent · 2 open proposals"><svg class="ic"><use href="#i-agent"/></svg><span class="badge n">2</span></div>
   </div>
@@ -1197,14 +1338,14 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <span>Node <span class="n">80</span> · 1 row · 2 proposed rows</span>
     <span class="grow"></span>
     <span>SI</span>
-    <svg class="ic" title="About and notices"><use href="#i-info"/></svg>
+    <button class="iconbtn" style="width:20px;height:20px;border:0" title="About SWBPIPE…"><svg class="ic s12"><use href="#i-info"/></svg></button>
   </div>
 </div>
 
 <div class="grid2" style="margin-top:16px">
   <div class="panel">
-    <h4 style="margin-top:0">Toolbar states · the latched Agent toggle on <code>pressed.fill</code> / <code>pressed.ink</code>, distinct from the segmented view switch</h4>
-    <div class="demo-row"><button class="btn primary"><svg class="ic"><use href="#i-run"/></svg>Run</button><button class="btn primary runbtn" title="Solving case 3 of 6"><span class="prog"></span><svg class="ic"><use href="#i-stop"/></svg>Running…</button><button class="btn" disabled title="Run is unavailable — Section missing at node 20, Material missing at node 20"><svg class="ic"><use href="#i-run"/></svg>Run</button><button class="btn"><svg class="ic"><use href="#i-agent"/></svg>Agent</button><button class="btn latched" aria-pressed="true" title="Agent · ⌘⇧G · open"><svg class="ic"><use href="#i-agent"/></svg>Agent</button><div class="hud"><button title="Fit (F)"><svg class="ic"><use href="#i-fit"/></svg></button><button aria-pressed="true" title="Route (R) · latched"><svg class="ic"><use href="#i-route"/></svg></button><button title="Probe (P)"><svg class="ic"><use href="#i-probe"/></svg></button></div></div>
+    <h4 style="margin-top:0">Toolbar states · the latched Agent and Inspector toggles on <code>pressed.fill</code> / <code>pressed.ink</code>, distinct from the segmented view switch</h4>
+    <div class="demo-row"><button class="btn primary"><svg class="ic"><use href="#i-run"/></svg>Run</button><button class="btn primary runbtn" title="Solving case 3 of 6"><span class="prog"></span><svg class="ic"><use href="#i-stop"/></svg>Running…</button><button class="btn" disabled title="Run is unavailable — Section missing at node 20, Material missing at node 20"><svg class="ic"><use href="#i-run"/></svg>Run</button><button class="btn"><svg class="ic"><use href="#i-agent"/></svg>Agent</button><button class="btn latched" aria-pressed="true" title="Agent (⌘⇧G) · open"><svg class="ic"><use href="#i-agent"/></svg>Agent</button><button class="btn latched" aria-pressed="true" title="Inspector (⌘I) · open"><svg class="ic"><use href="#i-inspector"/></svg>Inspector</button><button class="iconbtn" title="Inspector (⌘I) · below 1360 px the two toggles drop their labels"><svg class="ic"><use href="#i-inspector"/></svg></button><button class="iconbtn" title="Agent (⌘⇧G)"><svg class="ic"><use href="#i-agent"/></svg></button><div class="hud"><button title="Fit (F)"><svg class="ic"><use href="#i-fit"/></svg></button><button aria-pressed="true" title="Route (R) · latched"><svg class="ic"><use href="#i-route"/></svg></button><button title="Probe (P)"><svg class="ic"><use href="#i-probe"/></svg></button></div></div>
     <h4>Rail captions by state · caption size, their own tokens</h4>
     <div class="demo-row" style="gap:16px">
       <span class="capdemo"><svg class="ic s20"><use href="#i-results"/></svg>Results<span class="rail"><span style="color:var(--rail-captionFailed)">Failed</span></span></span>
@@ -1220,18 +1361,35 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     </div>
   </div>
   <div class="panel">
-    <h4 style="margin-top:0">Run log popover · shorter, on the Run button; the full log on the run record</h4>
+    <h4 style="margin-top:0">Run log popover · 360 px · its glyphs are marks of section 4: Entered for a completed step, Issue warning for the stopped one, none for a step not run</h4>
     <div class="pop runlog" style="min-width:360px">
       <div style="font-weight:500;margin-bottom:4px">Run 02 · <span class="n">15:02:14–15:02:41</span> · settings S-02</div>
-      <div class="r"><svg class="mk" style="color:var(--mark-checked)"><use href="#m-checked"/></svg><b>Assembled</b><span class="n">0.3 s</span></div>
-      <div class="r"><svg class="mk" style="color:var(--mark-checked)"><use href="#m-checked"/></svg><b>W, SUS solved</b><span class="n">0.8 s</span></div>
+      <div class="r"><svg class="mk" style="color:var(--mark-origin)"><use href="#m-entered"/></svg><b>Assembled</b><span class="n">0.3 s</span></div>
+      <div class="r"><svg class="mk" style="color:var(--mark-origin)"><use href="#m-entered"/></svg><b>W, SUS solved</b><span class="n">0.8 s</span></div>
       <div class="r"><svg class="mk" style="color:var(--issue-warning)"><use href="#m-warning"/></svg><b>OPE1 stopped</b><span>at iteration 50 · node 20</span><a href="#s9">Show node 20</a></div>
       <div class="r"><span style="width:12px;display:inline-block"></span><span>OPE2, EXP1, EXP2, OCC1, hangers, rules not run</span></div>
       <div class="foot"><button class="btn compact">Run settings…</button><button class="btn compact">Run record</button><span class="grow" style="flex:1"></span><button class="btn compact primary">Run again</button></div>
     </div>
-    <h4>Status chip popover · after a solve, two chips, one per authority domain</h4>
-    <div class="demo-row"><span class="chip solved" title="MECHANICS_SOLVED · Solver">Mechanics solved</span><span class="chip solved" title="USER_RULE_CHECKED · Rule pack">User rules checked</span><span class="sec">·</span><span class="chip incomplete" title="MODEL_INCOMPLETE · Solver">Model incomplete</span><span class="sec">before a run, while the model cannot be solved</span></div>
-    <div class="pop" style="margin-top:8px"><div class="kv"><dt>Status</dt><dd class="mono">MODEL_INCOMPLETE</dd><dt>Authority</dt><dd>Solver</dd><dt>Run</dt><dd>Run 02 · 2026-09-17 15:02 · stopped in OPE1</dd><dt>Reason</dt><dd>nonlinear support at node 20 did not converge</dd></div></div>
+    <p class="sec" style="font-size:12px;margin-top:6px">Placement: the popover's left edge sits at the Run button's left edge or at the canvas pane's left edge, whichever is further right, so in Both view it lies over the canvas's top edge and the table's tab strip and header rows stay uncovered.</p>
+    <h4>Status chips · after a solve, two chips, one per authority domain · before a run, while the model cannot be solved, one</h4>
+    <div class="demo-row"><span class="chip solved lbl" data-label="MECHANICS_SOLVED" title="MECHANICS_SOLVED"><span class="dom">Solver</span><span class="sep">·</span>Mechanics solved</span><span class="chip solved lbl" data-label="USER_RULE_CHECKED" title="USER_RULE_CHECKED"><span class="dom">Rule pack</span><span class="sep">·</span>User-rule checked</span><span class="sec">·</span><span class="chip incomplete lbl" data-label="MODEL_INCOMPLETE" title="MODEL_INCOMPLETE"><span class="dom">Solver</span><span class="sep">·</span>Model incomplete</span></div>
+    <div class="pop" style="margin-top:8px"><div class="kv"><dt>Status</dt><dd class="mono">MODEL_INCOMPLETE</dd><dt>Authority</dt><dd>Solver</dd><dt>Reason</dt><dd>Section missing at node 60 · Material missing at node 60</dd></div></div>
+    <p class="sec" style="font-size:12px;margin-top:6px">After a stopped run whose record carries no status the bar shows no chip; the rail caption and the banner carry the state.</p>
+  </div>
+</div>
+<div class="grid2" style="margin-top:16px">
+  <div class="panel">
+    <h4 style="margin-top:0">Toast · 320 px · bottom-right of the surfaces, 8 px above the status bar · 6 s, 10 s with an action · one at a time</h4>
+    <div class="toast" role="status"><svg class="ic"><use href="#i-agent"/></svg><span class="msg">Agent column collapsed to its strip: the docked inspector needs the width.</span><span class="act" role="button">Reopen</span><button class="iconbtn" title="Dismiss"><svg class="ic s12"><use href="#i-close"/></svg></button></div>
+    <div class="toast" role="status" style="margin-top:8px"><svg class="ic"><use href="#i-paste"/></svg><span class="msg">Pasted 6 rows into Layout.</span><span class="act" role="button">Undo</span><button class="iconbtn" title="Dismiss"><svg class="ic s12"><use href="#i-close"/></svg></button></div>
+    <p class="sec" style="font-size:12px;margin-top:8px">For the outcome of an act that no permanent surface records. Never for a failed run, a model change or a docked inspector: the banner, the captions and the bands carry those.</p>
+  </div>
+  <div class="panel">
+    <h4 style="margin-top:0">Issues drawer row · 26 px, never wraps · the message truncates, the class, the entity and the link do not · the full message is the tooltip</h4>
+    <div class="rowdemo" style="max-width:520px">
+      <div class="issuerow sel" title="Nonlinear support at node 20 did not converge in OPE1 (case 3 of 6) at the iteration limit of 50" style="padding-left:11px"><svg class="mk"><use href="#m-warning"/></svg><span class="cls">Nonlinear</span><span class="msg">Nonlinear support at node 20 did not converge in OPE1 (case 3 of 6) at the iteration limit of 50</span><span class="ent sec">node 20</span><a href="#s9">Show node 20</a></div>
+      <div class="issuerow" title="Section missing at node 60"><svg class="mk" style="color:var(--issue-blocking)"><use href="#m-blocking"/></svg><span class="cls">Blocks solve</span><span class="msg">Section missing at node 60</span><span class="ent sec">node 60</span></div>
+    </div>
   </div>
 </div>
 
@@ -1240,12 +1398,12 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
 <div class="panel">
   <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
     <span style="font-size:18px;line-height:24px;font-weight:600">Review · Loop 4 header · Run 04</span>
-    <span class="combo">Iteration 2 · 09:40 · Run 04</span><span class="sec">compared with Iteration 1 · 2026-09-17 15:40 · Run 03</span>
+    <span class="combo" title="Iteration · the menu lists the iterations and, after a separator, “Compare with…”">Iteration 2 · 09:40 · Run 04</span><span class="combo" title="Compared iteration · the menu changes it or clears the comparison">compared with Iteration 1 · 2026-09-17 15:40 · Run 03</span>
     <span class="switch on"><i></i>Show edits</span>
     <span style="flex:1"></span>
-    <button class="btn">Snapshot…</button><button class="btn">Report preview</button><button class="btn primary">Export…</button>
+    <button class="btn"><svg class="ic"><use href="#i-snapshot"/></svg>Snapshot…</button><button class="btn"><svg class="ic"><use href="#i-preview"/></svg>Report preview</button><button class="btn" id="exportbtn"><svg class="ic"><use href="#i-export"/></svg>Export…</button>
   </div>
-  <div class="sec" style="margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-hairline)">Results are engineering decision-support information. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority. <span class="sample">shown once, at the top</span></div>
+  <div class="demo-row" style="margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-hairline)"><span class="chip solved lbl" data-label="USER_RULE_CHECKED" title="USER_RULE_CHECKED"><span class="dom">Rule pack</span><span class="sep">·</span>User-rule checked</span><span class="chip review lbl" data-label="HUMAN_REVIEW_REQUIRED" title="HUMAN_REVIEW_REQUIRED"><span class="dom">Human</span><span class="sep">·</span>Human review required</span><span class="sample">the Review page's two chips; with nothing compared, the compared-with control and the switch are absent; three header buttons of one weight, none accent</span></div>
   <div class="reviewpage">
     <div class="outline">
       <div><span class="sec">1</span>Notice<span class="lock">fixed</span></div>
@@ -1262,24 +1420,27 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     </div>
     <div>
       <h3 style="margin-top:0">4 Model</h3>
-      <p>The header is a 3000 mm run from the pump nozzle at node 10 to the riser at node 30, <span class="del">restrained by a rigid support at node 80</span><span class="ins">carried by a variable spring at node 80 (proposal P-12, accepted)</span>, with a branch from node 60 to the bypass. Sections and materials are propagated from node 20.</p>
+      <p>The header is a 3000 mm run from the pump nozzle at node 10 to the riser at node 30, <span class="del">restrained by a rigid support at node 80</span><span class="ins">carried by a variable spring at node 80 (proposal P-12)</span>, with a branch from node 60 to the bypass. Sections and materials are propagated from node 20.</p>
       <div class="tblwrap" style="max-width:640px"><div class="tblhead"><span class="name">Live from Run 03 · Stresses · OPE1</span><span class="chip outline">not editable here</span><span class="grow"></span><span class="sec" style="font-size:12px"><span class="ins">inserted</span> · <span class="del">removed</span></span><span class="combo">Case: OPE1</span></div>
       <table class="ds"><thead><tr><th class="n">Node</th><th>Element</th><th class="n">Stress <span class="u">[MPa]</span></th><th class="n">Allowable <span class="u">[MPa]</span></th><th class="n">Ratio</th><th>Rule</th><th>Pack</th></tr></thead><tbody><tr><td class="n">40</td><td class="n">30–40</td><td class="n">124.6</td><td class="n">172.0</td><td class="n">0.72<span class="bar" data-v="0.72"><i></i></span></td><td>EXP-A1</td><td class="n">1.2</td></tr><tr><td class="n">60</td><td class="n">50–60</td><td class="n">113.5</td><td class="n">172.0</td><td class="n">0.66<span class="bar" data-v="0.66"><i></i></span></td><td>EXP-A1</td><td class="n">1.2</td></tr></tbody></table></div>
       <p style="margin-top:8px">The governing ratio is <span class="n">0.72 · EXP-A1 · pack 1.2</span> at node 40 in OPE1.</p>
     </div>
     <div>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span style="font-weight:600;font-size:15px;line-height:20px">Comments <span class="sec n" style="font-weight:400">3</span></span><span class="grow" style="flex:1"></span><button class="btn compact">+ Comment</button></div>
-      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap"><span class="chip solved">All 3</span><span class="chip outline">Open 2</span><span class="chip outline">Resolved 1</span><span class="chip outline">Checks 1</span><span class="chip outline">Notes 1</span><span class="chip outline">Mine 1</span></div>
-      <div class="comment"><div class="h"><span class="chip outline">Check</span><a href="#s5">Model · row node 20</a><span>Agent · 16:04</span></div>The support at node 20 does not engage in OPE1 (lift 2.1 mm, gap 3 mm). Confirm the gap is intended.<div style="margin-top:6px"><button class="btn compact">Resolve</button></div></div>
-      <div class="comment"><div class="h"><span class="chip outline">Open issue</span><a href="#s10">Report §4 · paragraph 1</a><span>Agent · 16:09</span></div>The paragraph says the spring is accepted; the Restraints row at 80 shows the second row of P-12 still pending.</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span style="font-weight:600;font-size:15px;line-height:20px">Comments <span class="sec n" style="font-weight:400">4</span></span><span class="grow" style="flex:1"></span><button class="btn compact">+ Comment</button></div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap"><span class="chip solved">All 4</span><span class="chip outline">Open 3</span><span class="chip outline">Resolved 1</span><span class="chip outline">Mine 1</span><span class="combo" title="Kind · Checks 1 · Open issues 1 · Drafts 1 · Evidence summaries 0">Kind: all</span></div>
+      <div class="comment"><div class="h"><span class="chip outline" data-agent-class="Check">Check</span><a href="#s5">Model · row node 20</a><span>Agent · 16:04</span></div><div data-agent-text>The support at node 20 does not engage in OPE1 (lift 2.1 mm, gap 3 mm). Confirm the gap is intended.</div><div style="margin-top:6px"><button class="btn compact">Resolve</button></div></div>
+      <div class="comment"><div class="h"><span class="chip outline" data-agent-class="Open issue">Open issue</span><a href="#s10">Report §4 · paragraph 1</a><span>Agent · 16:09</span></div><div data-agent-text>The paragraph describes the spring at node 80 as in the model; the Restraints row at 80 shows the second row of P-12 still pending.</div><div style="margin-top:6px"><button class="btn compact">Resolve</button></div></div>
+      <div class="comment"><div class="h"><span class="chip outline" data-agent-class="Draft">Draft</span><a href="#s10">Report §9 · Hanger selection</a><span>Agent · 16:10</span></div><div data-agent-text>One variable spring is located at node 80. No size is selected: no hanger library is imported in this project.</div><div style="margin-top:6px;display:flex;gap:6px"><button class="btn compact">Insert</button><button class="btn compact text">Discard</button></div></div>
       <div class="comment"><div class="h"><span class="chip outline">Note</span><a href="#s5">Stresses OPE1 · node 40</a><span>R. Tufts · 16:12</span></div>Re-run after the vendor table is imported.</div>
     </div>
   </div>
 </div>
 
+<p class="sec" style="font-size:12px;margin-top:8px">“Export…” opens the export sheet. The command in the File menu and the palette reads “Export model batch file (.mbf)…”, and the sheet's title, with that target chosen, is “Model batch file (.mbf)”. The export is named by what it writes.</p>
+
 <!-- ===================== 11 CANVAS ===================== -->
 <h2 id="s11">11 The canvas palette · the figure language, drawn schematically in 2D</h2>
-<p class="sec">Ground grid, pipe at real diameter with its edge line, a bend, restraint glyphs with direction arrows, a force and a moment vector with labels, neutral because result colour is on, node labels, a selection halo and a hover halo, the proposal ghost, the draft ghost as a thin dashed centreline with a faint tube outline and the hint strip on <code>canvas.hint</code>, the deformed shape with its undeformed ghost, result colour on two elements, an unsolved element, the triad and the scale reference. Every colour is a canvas token. <span class="sample">not rendered by the engine</span></p>
+<p class="sec">Ground grid, pipe at real diameter with its edge line, a bend, restraint glyphs with direction arrows, a force and a moment vector with labels, neutral because result colour is on, node labels, a selection halo and a hover halo, the proposal ghost, the draft ghost as a thin dashed centreline with a faint tube outline and the hint strip on <code>canvas.hint</code>, the deformed shape with its undeformed ghost, result colour on two elements, an unsolved element, the triad and the scale reference. The edge and the drawn lines on the two result-coloured elements take <code>canvas.edgeAlt</code>; the compass carries its three buttons, Reverse, Place and Cancel, beside the length field, and a click on an axis handle makes it active. Every colour is a canvas token. <span class="sample">not rendered by the engine</span></p>
 <div class="figure panel" style="padding:0;overflow:hidden">
 <svg viewBox="0 0 1200 420" role="img" aria-label="Canvas palette figure">
   <defs>
@@ -1301,9 +1462,9 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   </g>
   <!-- result-coloured elements 40-60 -->
   <g fill="none">
-    <path d="M540 150h180" stroke="var(--canvas-edge)" stroke-width="26"/>
+    <path d="M540 150h180" stroke="var(--canvas-edgeAlt)" stroke-width="26"/>
     <path d="M540 150h180" stroke="var(--result-scale-5)" stroke-width="24"/>
-    <path d="M720 150h140" stroke="var(--canvas-edge)" stroke-width="26"/>
+    <path d="M720 150h140" stroke="var(--canvas-edgeAlt)" stroke-width="26"/>
     <path d="M720 150h140" stroke="var(--result-scale-3)" stroke-width="24"/>
     <!-- unsolved element dimmed -->
     <g opacity=".6"><path d="M860 150h120" stroke="var(--canvas-edge)" stroke-width="26"/><path d="M860 150h120" stroke="var(--canvas-unsolved)" stroke-width="24"/></g>
@@ -1311,8 +1472,10 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   <!-- selection halo on 40-60 -->
   <path d="M540 150h180" fill="none" stroke="var(--canvas-selection)" stroke-width="30" opacity=".9"/>
   <path d="M540 150h180" fill="none" stroke="var(--result-scale-5)" stroke-width="24"/>
-  <path d="M540 150h180" fill="none" stroke="var(--canvas-edge)" stroke-width="1" transform="translate(0 -12.5)"/>
-  <path d="M540 150h180" fill="none" stroke="var(--canvas-edge)" stroke-width="1" transform="translate(0 12.5)"/>
+  <path d="M540 150h180" fill="none" stroke="var(--canvas-edgeAlt)" stroke-width="1" transform="translate(0 -12.5)"/>
+  <path d="M540 150h180" fill="none" stroke="var(--canvas-edgeAlt)" stroke-width="1" transform="translate(0 12.5)"/>
+  <!-- a flange face on the result-coloured element: a drawn line on a coloured tube takes canvas.edgeAlt from step 3 up -->
+  <path d="M630 138v24M636 138v24" fill="none" stroke="var(--canvas-edgeAlt)" stroke-width="1"/>
   <!-- hover halo on 60-70 -->
   <path d="M720 150h140" fill="none" stroke="var(--canvas-hover)" stroke-width="30" opacity=".8"/>
   <path d="M720 150h140" fill="none" stroke="var(--result-scale-3)" stroke-width="24"/>
@@ -1324,13 +1487,19 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   <!-- draft ghost from 110: a thin dashed centreline, a faint tube outline, the draft node's plate -->
   <path d="M980 138h120M980 162h120M1100 138v24" fill="none" stroke="var(--canvas-draft)" stroke-width="1" opacity=".3"/>
   <path d="M980 150h120" fill="none" stroke="var(--canvas-draft)" stroke-width="1.5" stroke-dasharray="6 4"/>
-  <rect x="1106" y="141" width="30" height="18" rx="2" fill="var(--canvas-labelBg)" stroke="var(--canvas-draft)" stroke-width="1.5"/><text x="1111" y="154" fill="var(--canvas-label)" font-size="12" font-family="var(--font-numeric)">120</text>
+  <rect x="1106" y="146" width="30" height="18" rx="2" fill="var(--canvas-labelBg)" stroke="var(--canvas-draft)" stroke-width="1.5"/><text x="1111" y="159" fill="var(--canvas-label)" font-size="12" font-family="var(--font-numeric)">120</text>
   <!-- compass at 110 -->
   <g font-size="11" font-family="var(--font-ui)">
     <path d="M980 150h60" stroke="var(--canvas-axisX)" stroke-width="2" marker-end="url(#arr)"/><text x="1044" y="168" fill="var(--canvas-axisX)">X</text>
     <path d="M980 150v-40" stroke="var(--canvas-axisY)" stroke-width="1" marker-end="url(#arr)"/><text x="985" y="108" fill="var(--canvas-axisY)">Y</text>
     <path d="M980 150l-24 24" stroke="var(--canvas-axisZ)" stroke-width="1" marker-end="url(#arr)"/><text x="948" y="186" fill="var(--canvas-axisZ)">Z</text>
     <rect x="1046" y="120" width="64" height="20" rx="3" fill="var(--surface-raised)" stroke="var(--focus-ring)" stroke-width="2"/><text x="1053" y="134" fill="var(--text-primary)" font-size="12" font-family="var(--font-numeric)">1500</text><text x="1085" y="134" fill="var(--text-muted)" font-size="11">mm</text>
+    <!-- the compass's three pointer controls: Reverse, Place, Cancel -->
+    <g color="var(--text-secondary)">
+      <g><title>Reverse the axis (−)</title><rect x="1116" y="119" width="22" height="22" rx="3" fill="var(--surface-raised)" stroke="var(--border-strong)"/><svg class="ic s12" x="1121" y="124" width="12" height="12"><use href="#i-reverse"/></svg></g>
+      <g><title>Place node 120 (↩)</title><rect x="1141" y="119" width="22" height="22" rx="3" fill="var(--surface-raised)" stroke="var(--border-strong)"/><svg class="ic s12" x="1146" y="124" width="12" height="12"><use href="#i-check"/></svg></g>
+      <g><title>Cancel the route (⎋)</title><rect x="1166" y="119" width="22" height="22" rx="3" fill="var(--surface-raised)" stroke="var(--border-strong)"/><svg class="ic s12" x="1171" y="124" width="12" height="12"><use href="#i-close"/></svg></g>
+    </g>
   </g>
   <!-- anchor glyph at 10 -->
   <g>
@@ -1386,7 +1555,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   </g>
   <!-- legend labels for the figure -->
   <g font-size="11" fill="var(--text-muted)">
-    <text x="130" y="404">undeformed ghost · dashed · deformed ×50</text><text x="590" y="62">selection halo · result colour 0.72 · vectors neutral</text><text x="740" y="200">hover halo</text><text x="870" y="254">unsolved · dimmed</text><text x="985" y="205">draft ghost · centreline, outline</text><text x="770" y="360">proposal ghost</text>
+    <text x="130" y="404">undeformed ghost · dashed · deformed ×50</text><text x="590" y="62">selection halo · result colour 0.72 · vectors neutral</text><text x="740" y="200">hover halo</text><text x="870" y="254">unsolved · dimmed</text><text x="985" y="205">draft ghost · centreline, outline</text><text x="1040" y="108">Reverse · Place · Cancel</text><text x="590" y="186">edge lines in canvas.edgeAlt</text><text x="770" y="360">proposal ghost</text>
   </g>
 </svg>
 </div>
@@ -1400,11 +1569,11 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   <div class="cbox"><table id="ctable"><thead><tr><th>Foreground</th><th>Background</th><th>Role</th><th class="n">Light</th><th class="n">Dark</th></tr></thead><tbody></tbody></table></div>
 </div>
 
-<footer class="spec">SWB Piping Designer · design system specimen V1.1 · 2026-09-18 · sample values are placeholders · this page makes no network request · Findings only: no conformance is claimed and no target is named.</footer>
+<footer class="spec">SWBPIPE · design system specimen V1.2 · 2026-09-18 · sample values are placeholders · this page makes no network request · Findings only: no conformance is claimed and no target is named.</footer>
 </main>
 
-<script id="pairs" type="application/json">[["text.primary","surface.panel","text"],["text.primary","surface.base","text"],["text.primary","surface.sunken","text"],["text.primary","surface.header","text"],["text.primary","surface.rowAlt","text"],["text.primary","surface.raised","text"],["text.primary","selection.band","text"],["text.primary","proposal.band","text"],["text.primary","hover.wash/surface.panel","text"],["text.primary","issue.blockingTint","text"],["text.primary","issue.warningTint","text"],["text.primary","issue.infoTint","text"],["text.primary","historical.tint","text"],["text.primary","stale.band","text"],["text.primary","disabled.fill","text"],["text.secondary","surface.panel","text"],["text.secondary","surface.base","text"],["text.secondary","surface.header","text"],["text.secondary","surface.sunken","text"],["text.secondary","selection.band","text"],["text.secondary","proposal.band","text"],["text.secondary","canvas.hint/canvas.bg","canvas hint text"],["text.muted","surface.panel","text"],["text.muted","surface.base","text"],["text.muted","surface.header","text"],["text.muted","surface.sunken","text"],["text.disabled","surface.panel","text (disabled)"],["text.disabled","surface.base","text (disabled)"],["text.disabled","surface.sunken","text (disabled)"],["text.link","surface.panel","text"],["text.link","surface.base","text"],["accent.text","surface.panel","text"],["accent.text","selection.band","text"],["text.inverse","accent.fill","text on button"],["text.inverse","accent.fillHover","text on button"],["pressed.ink","pressed.fill","latched toggle"],["pressed.fill","surface.base","latched toggle fill"],["proposal.new","surface.panel","text"],["proposal.new","proposal.band","text"],["proposal.new","surface.base","text"],["proposal.old","surface.panel","text (struck)"],["proposal.old","proposal.band","text (struck)"],["mark.checked","surface.panel","mark"],["mark.checkedStale","surface.panel","mark"],["mark.checkedStale","surface.base","mark"],["mark.origin","surface.panel","mark"],["mark.origin","surface.rowAlt","mark"],["mark.origin","surface.header","mark"],["mark.attachment","surface.panel","mark"],["mark.required","surface.panel","mark"],["mark.required","surface.sunken","mark"],["draft.bar","surface.panel","draft row bar"],["draft.bar","selection.band","draft row bar"],["issue.blocking","surface.panel","text"],["issue.blocking","issue.blockingTint","text"],["issue.blocking","surface.base","text"],["issue.warning","surface.panel","text"],["issue.warning","issue.warningTint","text"],["issue.warning","surface.base","text"],["issue.info","surface.panel","text"],["issue.info","issue.infoTint","text"],["status.incompleteInk","status.incompleteFill","chip text"],["status.solvedInk","status.solvedFill","chip text"],["status.failedInk","status.failedFill","chip text"],["status.reviewInk","status.reviewFill","chip text"],["status.incompleteInk","surface.panel","chip text"],["status.failedInk","surface.panel","chip text"],["status.reviewInk","surface.panel","chip text"],["rail.captionFailed","surface.base","rail caption"],["rail.captionStale","surface.base","rail caption"],["rail.captionHistorical","surface.base","rail caption"],["historical.ink","historical.tint","text"],["historical.ink","surface.panel","text"],["stale.ink","stale.band","band text"],["stale.ink","surface.panel","band text"],["border.hairline","surface.panel","hairline"],["border.hairline","surface.base","hairline"],["border.strong","surface.panel","border"],["border.strong","surface.base","border"],["focus.ring","surface.panel","focus ring"],["focus.ring","surface.base","focus ring"],["focus.ring","selection.band","focus ring"],["selection.bar","selection.band","mark"],["proposal.bar","proposal.band","mark"],["displayOnly.border","surface.sunken","border"],["stale.stripe","surface.panel","mark"],["bar.track","surface.panel","bar track"],["bar.track","selection.band","bar track"],["canvas.label","canvas.labelBg/canvas.bg","canvas text"],["canvas.label","canvas.bg","canvas text"],["canvas.gridMajor","canvas.bg","hairline"],["canvas.gridMinor","canvas.bg","hairline"],["canvas.pipe","canvas.bg","canvas mark"],["canvas.pipeShade","canvas.bg","canvas mark"],["canvas.edge","canvas.pipe","canvas mark"],["canvas.edge","canvas.bg","canvas mark"],["canvas.glyph","canvas.bg","canvas mark"],["canvas.glyph","canvas.glyphFill","canvas mark"],["canvas.glyphFill","canvas.bg","canvas mark"],["canvas.vector","canvas.bg","canvas mark"],["canvas.selection","canvas.bg","canvas mark"],["canvas.selection","canvas.pipe","canvas mark"],["canvas.hover","canvas.bg","canvas mark"],["canvas.draft","canvas.bg","canvas mark"],["canvas.proposalGhost","canvas.bg","canvas mark"],["canvas.deformGhost","canvas.bg","canvas mark"],["canvas.unsolved","canvas.bg","canvas mark"],["canvas.axisX","canvas.bg","canvas mark"],["canvas.axisY","canvas.bg","canvas mark"],["canvas.axisZ","canvas.bg","canvas mark"],["result.scale.1","canvas.bg","result scale on canvas"],["result.scale.2","canvas.bg","result scale on canvas"],["result.scale.3","canvas.bg","result scale on canvas"],["result.scale.4","canvas.bg","result scale on canvas"],["result.scale.5","canvas.bg","result scale on canvas"],["result.scale.6","canvas.bg","result scale on canvas"],["result.scale.7","canvas.bg","result scale on canvas"],["result.scale.1","canvas.unsolved","result scale beside unsolved"],["result.scale.7","canvas.unsolved","result scale beside unsolved"],["canvas.edge","result.scale.1","edge line on the near-zero step"],["canvas.edge","result.scale.7","edge line on the brightest step"],["result.scale.1","surface.raised","legend swatch"],["result.scale.2","surface.raised","legend swatch"],["result.scale.3","surface.raised","legend swatch"],["result.scale.4","surface.raised","legend swatch"],["result.scale.5","surface.raised","legend swatch"],["result.scale.6","surface.raised","legend swatch"],["result.scale.7","surface.raised","legend swatch"],["result.scale.1","bar.track","data bar on its track"],["result.scale.7","bar.track","data bar on its track"],["cat.1","canvas.bg","load vector on canvas"],["cat.2","canvas.bg","load vector on canvas"],["cat.3","canvas.bg","load vector on canvas"],["cat.4","canvas.bg","load vector on canvas"],["cat.5","canvas.bg","load vector on canvas"],["cat.6","canvas.bg","load vector on canvas"],["cat.7","canvas.bg","load vector on canvas"],["cat.8","canvas.bg","load vector on canvas"],["cat.1","surface.panel","case dot in table"],["cat.2","surface.panel","case dot in table"],["cat.3","surface.panel","case dot in table"],["cat.4","surface.panel","case dot in table"],["cat.5","surface.panel","case dot in table"],["cat.6","surface.panel","case dot in table"],["cat.7","surface.panel","case dot in table"],["cat.8","surface.panel","case dot in table"]]</script>
-<script id="tokens" type="application/json">{"name":"SWB Piping Designer design system tokens","version":"1.1","date":"2026-09-18","note":"Sample values in the specimen are placeholders. Colour tokens carry a light and a dark value; type, spacing and layout tokens are plain values in CSS px unless stated. V1.1: the dark result scale is re-anchored one step down (decision 11); stale.band, stale.ink, rail.caption*, draft.bar, canvas.hint, pressed.fill, pressed.ink and bar.track close the six token gaps of MOCKS_V1 section 5; layout gains canvas.min, inspector.label, headerPadding and cellPadding.","color":{"surface.base":{"light":"#eef0f3","dark":"#1b1e22"},"surface.panel":{"light":"#ffffff","dark":"#25282c"},"surface.raised":{"light":"#ffffff","dark":"#2e3236"},"surface.sunken":{"light":"#f5f7f9","dark":"#202327"},"surface.header":{"light":"#f0f3f5","dark":"#292d31"},"surface.rowAlt":{"light":"#f9fafb","dark":"#272a2e"},"surface.canvas":{"light":"#ebedef","dark":"#191c1f"},"text.primary":{"light":"#22272c","dark":"#e5e8ec"},"text.secondary":{"light":"#5b6168","dark":"#acb2b7"},"text.muted":{"light":"#7d848b","dark":"#878d93"},"text.disabled":{"light":"#a6abb1","dark":"#5f6469"},"text.inverse":{"light":"#ffffff","dark":"#13161a"},"text.link":{"light":"#1762b6","dark":"#87bafd"},"border.hairline":{"light":"#d5d8db","dark":"#393e42"},"border.strong":{"light":"#b3b8be","dark":"#53595f"},"border.focus":{"light":"#1a73d5","dark":"#70adfb"},"accent.fill":{"light":"#106dce","dark":"#4c94ec"},"accent.fillHover":{"light":"#0161bd","dark":"#59a0f9"},"accent.text":{"light":"#005bb3","dark":"#91c1ff"},"selection.band":{"light":"#e2eefe","dark":"#223e61"},"selection.bar":{"light":"#106dce","dark":"#65a7fa"},"hover.wash":{"light":"rgba(30,36,48,0.06)","dark":"rgba(255,255,255,0.06)"},"pressed.wash":{"light":"rgba(30,36,48,0.10)","dark":"rgba(255,255,255,0.10)"},"pressed.fill":{"light":"#d4e6ff","dark":"#254974"},"pressed.ink":{"light":"#0053a4","dark":"#a8ceff"},"disabled.fill":{"light":"#e9ebee","dark":"#2b2e32"},"focus.ring":{"light":"#1a73d5","dark":"#70adfb"},"scrim":{"light":"rgba(20,22,28,0.32)","dark":"rgba(0,0,0,0.55)"},"proposal.new":{"light":"#6b3baa","dark":"#c4a4fe"},"proposal.band":{"light":"#f2edfe","dark":"#3b2f51"},"proposal.bar":{"light":"#854ece","dark":"#ba93fb"},"proposal.old":{"light":"#7d848b","dark":"#878d93"},"mark.checked":{"light":"#5b6168","dark":"#acb2b7"},"mark.checkedStale":{"light":"#a46e01","dark":"#e9b452"},"mark.origin":{"light":"#7d848b","dark":"#878d93"},"mark.attachment":{"light":"#5b6168","dark":"#acb2b7"},"issue.blocking":{"light":"#ba2b2e","dark":"#fb817a"},"issue.blockingTint":{"light":"#feebe9","dark":"#4b2724"},"issue.warning":{"light":"#a46e01","dark":"#e9b452"},"issue.warningTint":{"light":"#fff1d5","dark":"#433215"},"issue.info":{"light":"#426882","dark":"#8fb7d4"},"issue.infoTint":{"light":"#e9f1f8","dark":"#27353e"},"mark.required":{"light":"#ba2b2e","dark":"#fb817a"},"status.incompleteFill":{"light":"#fff1d5","dark":"#433215"},"status.incompleteInk":{"light":"#774f02","dark":"#efc876"},"status.solvedFill":{"light":"#eef0f3","dark":"#32363a"},"status.solvedInk":{"light":"#353b42","dark":"#d4d8dd"},"status.failedFill":{"light":"#feebe9","dark":"#4b2724"},"status.failedInk":{"light":"#a21921","dark":"#ffaba3"},"status.reviewFill":{"light":"#e9f1f8","dark":"#27353e"},"status.reviewInk":{"light":"#25526f","dark":"#a8d1ee"},"historical.tint":{"light":"#f4efe7","dark":"#322d25"},"historical.ink":{"light":"#5e5443","dark":"#cec2af"},"displayOnly.border":{"light":"#b3b8be","dark":"#53595f"},"stale.stripe":{"light":"#ced1d5","dark":"#44484d"},"stale.band":{"light":"#fef6e7","dark":"#362c1c"},"stale.ink":{"light":"#7d5002","dark":"#e9ca89"},"rail.captionFailed":{"light":"#a21921","dark":"#ffaba3"},"rail.captionStale":{"light":"#7d5002","dark":"#e9ca89"},"rail.captionHistorical":{"light":"#5e5443","dark":"#cec2af"},"canvas.bg":{"light":"#ebedef","dark":"#191c1f"},"canvas.gridMajor":{"light":"#ced1d5","dark":"#2d3135"},"canvas.gridMinor":{"light":"#dfe1e4","dark":"#222629"},"canvas.pipe":{"light":"#a6abb1","dark":"#757b81"},"canvas.pipeShade":{"light":"#81878d","dark":"#53595f"},"canvas.edge":{"light":"#42484f","dark":"#c7cbd0"},"canvas.glyph":{"light":"#30363c","dark":"#dbdee2"},"canvas.glyphFill":{"light":"#dbdee2","dark":"#34383d"},"canvas.label":{"light":"#22272c","dark":"#e5e8ec"},"canvas.labelBg":{"light":"rgba(255,255,255,0.82)","dark":"rgba(28,31,37,0.82)"},"canvas.hint":{"light":"rgba(255,255,255,0.90)","dark":"rgba(46,50,54,0.92)"},"canvas.vector":{"light":"#42484f","dark":"#c7cbd0"},"canvas.selection":{"light":"#106dce","dark":"#6dadff"},"canvas.hover":{"light":"#5d94da","dark":"#5788c7"},"canvas.draft":{"light":"#106dce","dark":"#6dadff"},"canvas.proposalGhost":{"light":"#854ece","dark":"#ba93fb"},"canvas.deformGhost":{"light":"#81878d","dark":"#53595f"},"canvas.unsolved":{"light":"#a6abb1","dark":"#757b81"},"canvas.axisX":{"light":"#bd413f","dark":"#f07f77"},"canvas.axisY":{"light":"#308639","dark":"#73c076"},"canvas.axisZ":{"light":"#2171cc","dark":"#70adfb"},"draft.bar":{"light":"#106dce","dark":"#6dadff"},"result.scale.1":{"light":"#4ab9b2","dark":"#045c59"},"result.scale.2":{"light":"#15a6a0","dark":"#04706b"},"result.scale.3":{"light":"#05908b","dark":"#09847f"},"result.scale.4":{"light":"#087a76","dark":"#099993"},"result.scale.5":{"light":"#056662","dark":"#24ada7"},"result.scale.6":{"light":"#01524e","dark":"#52bfb9"},"result.scale.7":{"light":"#003e3c","dark":"#74d1cb"},"bar.track":{"light":"#e0e3e6","dark":"#3c4045"},"cat.1":{"light":"#cf630d","dark":"#d97230","hue":"orange"},"cat.2":{"light":"#b84999","dark":"#c960aa","hue":"magenta"},"cat.3":{"light":"#3b9555","dark":"#429c5a","hue":"green"},"cat.4":{"light":"#3f5bb8","dark":"#6280da","hue":"purple"},"cat.5":{"light":"#cb4f73","dark":"#db6686","hue":"rose"},"cat.6":{"light":"#098db2","dark":"#089ac3","hue":"azure"},"cat.7":{"light":"#8c8305","dark":"#97902a","hue":"olive"},"cat.8":{"light":"#0b959b","dark":"#009298","hue":"cyan"}},"type":{"family.ui":"-apple-system, BlinkMacSystemFont, system-ui, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif","family.numeric":"-apple-system, BlinkMacSystemFont, system-ui, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif","family.mono":"ui-monospace, \"SF Mono\", Menlo, Monaco, Consolas, monospace","numeric.feature":"font-variant-numeric: tabular-nums","size.caption":11,"size.chip":12,"size.body":13,"size.title":15,"size.heading":18,"size.figure":22,"lineHeight.caption":14,"lineHeight.chip":16,"lineHeight.body":18,"lineHeight.title":20,"lineHeight.heading":24,"lineHeight.figure":28,"weight.regular":400,"weight.medium":500,"weight.semibold":600,"minimumRepeatedlyRead":13,"letterSpacing.figure":-0.2},"space":{"0":0,"1":2,"2":4,"3":6,"4":8,"5":12,"6":16,"7":20,"8":24,"9":32,"10":40},"radius":{"none":0,"control":3,"card":6,"sheet":10,"pill":999},"border":{"hairline":1,"strong":1,"focusRing":2,"selectionBar":3,"proposalBar":3},"elevation":{"0":"none","1":{"light":"0 1px 2px rgba(20,24,30,0.08)","dark":"0 1px 2px rgba(0,0,0,0.40)"},"2":{"light":"0 4px 12px rgba(20,24,30,0.12), 0 1px 2px rgba(20,24,30,0.06)","dark":"0 4px 12px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.06)"},"3":{"light":"0 12px 32px rgba(20,24,30,0.18), 0 2px 4px rgba(20,24,30,0.08)","dark":"0 12px 32px rgba(0,0,0,0.60), 0 0 0 1px rgba(255,255,255,0.08)"}},"focus":{"ringWidth":2,"ringOffset":1,"ringColorToken":"focus.ring","cellInset":true},"motion":{"disclosure.ms":120,"drawer.ms":180,"proposalArrive.ms":240,"hover.ms":80,"easing.standard":"cubic-bezier(0.2, 0, 0, 1)","easing.exit":"cubic-bezier(0.4, 0, 1, 1)","reducedMotion":"all durations 0 under prefers-reduced-motion"},"layout":{"window.default":[1440,900],"window.min":[1280,800],"toolbar":48,"statusBar":24,"rail":56,"agent.open":340,"agent.strip":44,"inspector.both":300,"inspector.model":340,"inspector.label":88,"canvas.min":220,"drawer.table":280,"drawer.issues":200,"review.outline":280,"review.comments":320,"row":26,"headerRow":28,"control":26,"controlCompact":22,"gutter":32,"marksColumn":72,"cellPadding":8,"headerPadding":5,"hud.button":28,"probe.width":300,"legend.width":220,"sideGutter":16},"icon":{"grid":16,"stroke":1.5,"cornerRadius":1.5,"sizes":[12,16,20],"capsAndJoins":"round"}}</script>
+<script id="pairs" type="application/json">[["text.primary","surface.panel","text"],["text.primary","surface.base","text"],["text.primary","surface.sunken","text"],["text.primary","surface.header","text"],["text.primary","surface.rowAlt","text"],["text.primary","surface.raised","text"],["text.primary","selection.band","text"],["text.primary","proposal.band","text"],["text.primary","hover.wash/surface.panel","text"],["text.primary","issue.blockingTint","text"],["text.primary","issue.warningTint","text"],["text.primary","issue.infoTint","text"],["text.primary","historical.tint","text"],["text.primary","stale.band","text"],["text.primary","disabled.fill","text"],["text.secondary","surface.panel","text"],["text.secondary","surface.base","text"],["text.secondary","surface.header","text"],["text.secondary","surface.sunken","text"],["text.secondary","selection.band","text"],["text.secondary","proposal.band","text"],["text.secondary","canvas.hint/canvas.bg","canvas hint text"],["text.muted","surface.panel","text"],["text.muted","surface.base","text"],["text.muted","surface.header","text"],["text.muted","surface.sunken","text"],["text.disabled","surface.panel","text (disabled)"],["text.disabled","surface.base","text (disabled)"],["text.disabled","surface.sunken","text (disabled)"],["text.link","surface.panel","text"],["text.link","surface.base","text"],["accent.text","surface.panel","text"],["accent.text","selection.band","text"],["text.inverse","accent.fill","text on button"],["text.inverse","accent.fillHover","text on button"],["pressed.ink","pressed.fill","latched toggle"],["pressed.fill","surface.base","latched toggle fill"],["proposal.new","surface.panel","text"],["proposal.new","proposal.band","text"],["proposal.new","surface.base","text"],["proposal.old","surface.panel","text (struck)"],["proposal.old","proposal.band","text (struck)"],["mark.checked","surface.panel","mark"],["mark.checkedStale","surface.panel","mark"],["mark.checkedStale","surface.base","mark"],["mark.origin","surface.panel","mark"],["mark.origin","surface.rowAlt","mark"],["mark.origin","surface.header","mark"],["mark.attachment","surface.panel","mark"],["mark.required","surface.panel","mark"],["mark.required","surface.sunken","mark"],["draft.bar","surface.panel","draft row bar"],["draft.bar","selection.band","draft row bar"],["issue.blocking","surface.panel","text"],["issue.blocking","issue.blockingTint","text"],["issue.blocking","surface.base","text"],["issue.warning","surface.panel","text"],["issue.warning","issue.warningTint","text"],["issue.warning","surface.base","text"],["issue.info","surface.panel","text"],["issue.info","issue.infoTint","text"],["status.incompleteInk","status.incompleteFill","chip text"],["status.solvedInk","status.solvedFill","chip text"],["status.failedInk","status.failedFill","chip text"],["status.reviewInk","status.reviewFill","chip text"],["status.incompleteInk","surface.panel","chip text"],["status.failedInk","surface.panel","chip text"],["status.reviewInk","surface.panel","chip text"],["rail.captionFailed","surface.base","rail caption"],["rail.captionStale","surface.base","rail caption"],["rail.captionHistorical","surface.base","rail caption"],["historical.ink","historical.tint","text"],["historical.ink","surface.panel","text"],["stale.ink","stale.band","band text"],["stale.ink","surface.panel","band text"],["border.hairline","surface.panel","hairline"],["border.hairline","surface.base","hairline"],["border.strong","surface.panel","border"],["border.strong","surface.base","border"],["focus.ring","surface.panel","focus ring"],["focus.ring","surface.base","focus ring"],["focus.ring","selection.band","focus ring"],["selection.bar","selection.band","mark"],["proposal.bar","proposal.band","mark"],["displayOnly.border","surface.sunken","border"],["stale.stripe","surface.panel","mark"],["bar.track","surface.panel","bar track"],["bar.track","selection.band","bar track"],["canvas.label","canvas.labelBg/canvas.bg","canvas text"],["canvas.label","canvas.bg","canvas text"],["canvas.gridMajor","canvas.bg","hairline"],["canvas.gridMinor","canvas.bg","hairline"],["canvas.pipe","canvas.bg","canvas mark"],["canvas.pipeShade","canvas.bg","canvas mark"],["canvas.edge","canvas.pipe","canvas mark"],["canvas.edge","canvas.bg","canvas mark"],["canvas.glyph","canvas.bg","canvas mark"],["canvas.glyph","canvas.glyphFill","canvas mark"],["canvas.glyphFill","canvas.bg","canvas mark"],["canvas.vector","canvas.bg","canvas mark"],["canvas.selection","canvas.bg","canvas mark"],["canvas.selection","canvas.pipe","canvas mark"],["canvas.hover","canvas.bg","canvas mark"],["canvas.draft","canvas.bg","canvas mark"],["canvas.proposalGhost","canvas.bg","canvas mark"],["canvas.deformGhost","canvas.bg","canvas mark"],["canvas.unsolved","canvas.bg","canvas mark"],["canvas.axisX","canvas.bg","canvas mark"],["canvas.axisY","canvas.bg","canvas mark"],["canvas.axisZ","canvas.bg","canvas mark"],["result.scale.1","canvas.bg","result scale on canvas"],["result.scale.2","canvas.bg","result scale on canvas"],["result.scale.3","canvas.bg","result scale on canvas"],["result.scale.4","canvas.bg","result scale on canvas"],["result.scale.5","canvas.bg","result scale on canvas"],["result.scale.6","canvas.bg","result scale on canvas"],["result.scale.7","canvas.bg","result scale on canvas"],["result.scale.1","canvas.unsolved","result scale beside unsolved"],["result.scale.7","canvas.unsolved","result scale beside unsolved"],["canvas.edge","result.scale.1","edge line on the near-zero step"],["canvas.edge","result.scale.7","edge line on the brightest step"],["canvas.edge","result.scale.6","edge line on the step nearest its own lightness in light"],["canvas.edge","result.scale.2","edge line on the last step it keeps"],["canvas.edgeAlt","result.scale.2","alternate edge on the last step it leaves"],["canvas.edgeAlt","result.scale.3","alternate edge on the first step it takes"],["canvas.edgeAlt","result.scale.7","alternate edge on the far step"],["canvas.edgeAlt","canvas.bg","alternate edge against the ground"],["result.scale.1","surface.raised","legend swatch"],["result.scale.2","surface.raised","legend swatch"],["result.scale.3","surface.raised","legend swatch"],["result.scale.4","surface.raised","legend swatch"],["result.scale.5","surface.raised","legend swatch"],["result.scale.6","surface.raised","legend swatch"],["result.scale.7","surface.raised","legend swatch"],["result.scale.1","bar.track","data bar on its track"],["result.scale.7","bar.track","data bar on its track"],["cat.1","canvas.bg","load vector on canvas"],["cat.2","canvas.bg","load vector on canvas"],["cat.3","canvas.bg","load vector on canvas"],["cat.4","canvas.bg","load vector on canvas"],["cat.5","canvas.bg","load vector on canvas"],["cat.6","canvas.bg","load vector on canvas"],["cat.7","canvas.bg","load vector on canvas"],["cat.8","canvas.bg","load vector on canvas"],["cat.1","surface.panel","case dot in table"],["cat.2","surface.panel","case dot in table"],["cat.3","surface.panel","case dot in table"],["cat.4","surface.panel","case dot in table"],["cat.5","surface.panel","case dot in table"],["cat.6","surface.panel","case dot in table"],["cat.7","surface.panel","case dot in table"],["cat.8","surface.panel","case dot in table"]]</script>
+<script id="tokens" type="application/json">{"name":"SWBPIPE design system tokens","version":"1.2","date":"2026-09-18","note":"Sample values in the specimen are placeholders. Colour tokens carry a light and a dark value; type, spacing and layout tokens are plain values in CSS px unless stated. V1.1: the dark result scale is re-anchored one step down (decision 11); stale.band, stale.ink, rail.caption*, draft.bar, canvas.hint, pressed.fill, pressed.ink and bar.track close the six token gaps of MOCKS_V1 section 5; layout gains canvas.min, inspector.label, headerPadding and cellPadding. V1.2: canvas.edgeAlt is the alternate edge line for result-coloured fills (R-6); layout gains the narrow-canvas HUD, toast and run log sizes (G-8, G-10, Q-16) and motion the toast durations; labels is the one table of status and evidence labels (ruling 4) and agentCardClasses the five class words of agent cards (ruling 8).","color":{"surface.base":{"light":"#eef0f3","dark":"#1b1e22"},"surface.panel":{"light":"#ffffff","dark":"#25282c"},"surface.raised":{"light":"#ffffff","dark":"#2e3236"},"surface.sunken":{"light":"#f5f7f9","dark":"#202327"},"surface.header":{"light":"#f0f3f5","dark":"#292d31"},"surface.rowAlt":{"light":"#f9fafb","dark":"#272a2e"},"surface.canvas":{"light":"#ebedef","dark":"#191c1f"},"text.primary":{"light":"#22272c","dark":"#e5e8ec"},"text.secondary":{"light":"#5b6168","dark":"#acb2b7"},"text.muted":{"light":"#7d848b","dark":"#878d93"},"text.disabled":{"light":"#a6abb1","dark":"#5f6469"},"text.inverse":{"light":"#ffffff","dark":"#13161a"},"text.link":{"light":"#1762b6","dark":"#87bafd"},"border.hairline":{"light":"#d5d8db","dark":"#393e42"},"border.strong":{"light":"#b3b8be","dark":"#53595f"},"border.focus":{"light":"#1a73d5","dark":"#70adfb"},"accent.fill":{"light":"#106dce","dark":"#4c94ec"},"accent.fillHover":{"light":"#0161bd","dark":"#59a0f9"},"accent.text":{"light":"#005bb3","dark":"#91c1ff"},"selection.band":{"light":"#e2eefe","dark":"#223e61"},"selection.bar":{"light":"#106dce","dark":"#65a7fa"},"hover.wash":{"light":"rgba(30,36,48,0.06)","dark":"rgba(255,255,255,0.06)"},"pressed.wash":{"light":"rgba(30,36,48,0.10)","dark":"rgba(255,255,255,0.10)"},"pressed.fill":{"light":"#d4e6ff","dark":"#254974"},"pressed.ink":{"light":"#0053a4","dark":"#a8ceff"},"disabled.fill":{"light":"#e9ebee","dark":"#2b2e32"},"focus.ring":{"light":"#1a73d5","dark":"#70adfb"},"scrim":{"light":"rgba(20,22,28,0.32)","dark":"rgba(0,0,0,0.55)"},"proposal.new":{"light":"#6b3baa","dark":"#c4a4fe"},"proposal.band":{"light":"#f2edfe","dark":"#3b2f51"},"proposal.bar":{"light":"#854ece","dark":"#ba93fb"},"proposal.old":{"light":"#7d848b","dark":"#878d93"},"mark.checked":{"light":"#5b6168","dark":"#acb2b7"},"mark.checkedStale":{"light":"#a46e01","dark":"#e9b452"},"mark.origin":{"light":"#7d848b","dark":"#878d93"},"mark.attachment":{"light":"#5b6168","dark":"#acb2b7"},"issue.blocking":{"light":"#ba2b2e","dark":"#fb817a"},"issue.blockingTint":{"light":"#feebe9","dark":"#4b2724"},"issue.warning":{"light":"#a46e01","dark":"#e9b452"},"issue.warningTint":{"light":"#fff1d5","dark":"#433215"},"issue.info":{"light":"#426882","dark":"#8fb7d4"},"issue.infoTint":{"light":"#e9f1f8","dark":"#27353e"},"mark.required":{"light":"#ba2b2e","dark":"#fb817a"},"status.incompleteFill":{"light":"#fff1d5","dark":"#433215"},"status.incompleteInk":{"light":"#774f02","dark":"#efc876"},"status.solvedFill":{"light":"#eef0f3","dark":"#32363a"},"status.solvedInk":{"light":"#353b42","dark":"#d4d8dd"},"status.failedFill":{"light":"#feebe9","dark":"#4b2724"},"status.failedInk":{"light":"#a21921","dark":"#ffaba3"},"status.reviewFill":{"light":"#e9f1f8","dark":"#27353e"},"status.reviewInk":{"light":"#25526f","dark":"#a8d1ee"},"historical.tint":{"light":"#f4efe7","dark":"#322d25"},"historical.ink":{"light":"#5e5443","dark":"#cec2af"},"displayOnly.border":{"light":"#b3b8be","dark":"#53595f"},"stale.stripe":{"light":"#ced1d5","dark":"#44484d"},"stale.band":{"light":"#fef6e7","dark":"#362c1c"},"stale.ink":{"light":"#7d5002","dark":"#e9ca89"},"rail.captionFailed":{"light":"#a21921","dark":"#ffaba3"},"rail.captionStale":{"light":"#7d5002","dark":"#e9ca89"},"rail.captionHistorical":{"light":"#5e5443","dark":"#cec2af"},"canvas.bg":{"light":"#ebedef","dark":"#191c1f"},"canvas.gridMajor":{"light":"#ced1d5","dark":"#2d3135"},"canvas.gridMinor":{"light":"#dfe1e4","dark":"#222629"},"canvas.pipe":{"light":"#a6abb1","dark":"#757b81"},"canvas.pipeShade":{"light":"#81878d","dark":"#53595f"},"canvas.edge":{"light":"#42484f","dark":"#c7cbd0"},"canvas.edgeAlt":{"light":"#e5e8ec","dark":"#2a2e33"},"canvas.glyph":{"light":"#30363c","dark":"#dbdee2"},"canvas.glyphFill":{"light":"#dbdee2","dark":"#34383d"},"canvas.label":{"light":"#22272c","dark":"#e5e8ec"},"canvas.labelBg":{"light":"rgba(255,255,255,0.82)","dark":"rgba(28,31,37,0.82)"},"canvas.hint":{"light":"rgba(255,255,255,0.90)","dark":"rgba(46,50,54,0.92)"},"canvas.vector":{"light":"#42484f","dark":"#c7cbd0"},"canvas.selection":{"light":"#106dce","dark":"#6dadff"},"canvas.hover":{"light":"#5d94da","dark":"#5788c7"},"canvas.draft":{"light":"#106dce","dark":"#6dadff"},"canvas.proposalGhost":{"light":"#854ece","dark":"#ba93fb"},"canvas.deformGhost":{"light":"#81878d","dark":"#53595f"},"canvas.unsolved":{"light":"#a6abb1","dark":"#757b81"},"canvas.axisX":{"light":"#bd413f","dark":"#f07f77"},"canvas.axisY":{"light":"#308639","dark":"#73c076"},"canvas.axisZ":{"light":"#2171cc","dark":"#70adfb"},"draft.bar":{"light":"#106dce","dark":"#6dadff"},"result.scale.1":{"light":"#4ab9b2","dark":"#045c59"},"result.scale.2":{"light":"#15a6a0","dark":"#04706b"},"result.scale.3":{"light":"#05908b","dark":"#09847f"},"result.scale.4":{"light":"#087a76","dark":"#099993"},"result.scale.5":{"light":"#056662","dark":"#24ada7"},"result.scale.6":{"light":"#01524e","dark":"#52bfb9"},"result.scale.7":{"light":"#003e3c","dark":"#74d1cb"},"bar.track":{"light":"#e0e3e6","dark":"#3c4045"},"cat.1":{"light":"#cf630d","dark":"#d97230","hue":"orange"},"cat.2":{"light":"#b84999","dark":"#c960aa","hue":"magenta"},"cat.3":{"light":"#3b9555","dark":"#429c5a","hue":"green"},"cat.4":{"light":"#3f5bb8","dark":"#6280da","hue":"purple"},"cat.5":{"light":"#cb4f73","dark":"#db6686","hue":"rose"},"cat.6":{"light":"#098db2","dark":"#089ac3","hue":"azure"},"cat.7":{"light":"#8c8305","dark":"#97902a","hue":"olive"},"cat.8":{"light":"#0b959b","dark":"#009298","hue":"cyan"}},"type":{"family.ui":"-apple-system, BlinkMacSystemFont, system-ui, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif","family.numeric":"-apple-system, BlinkMacSystemFont, system-ui, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif","family.mono":"ui-monospace, \"SF Mono\", Menlo, Monaco, Consolas, monospace","numeric.feature":"font-variant-numeric: tabular-nums","size.caption":11,"size.chip":12,"size.body":13,"size.title":15,"size.heading":18,"size.figure":22,"lineHeight.caption":14,"lineHeight.chip":16,"lineHeight.body":18,"lineHeight.title":20,"lineHeight.heading":24,"lineHeight.figure":28,"weight.regular":400,"weight.medium":500,"weight.semibold":600,"minimumRepeatedlyRead":13,"letterSpacing.figure":-0.2},"space":{"0":0,"1":2,"2":4,"3":6,"4":8,"5":12,"6":16,"7":20,"8":24,"9":32,"10":40},"radius":{"none":0,"control":3,"card":6,"sheet":10,"pill":999},"border":{"hairline":1,"strong":1,"focusRing":2,"selectionBar":3,"proposalBar":3},"elevation":{"0":"none","1":{"light":"0 1px 2px rgba(20,24,30,0.08)","dark":"0 1px 2px rgba(0,0,0,0.40)"},"2":{"light":"0 4px 12px rgba(20,24,30,0.12), 0 1px 2px rgba(20,24,30,0.06)","dark":"0 4px 12px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.06)"},"3":{"light":"0 12px 32px rgba(20,24,30,0.18), 0 2px 4px rgba(20,24,30,0.08)","dark":"0 12px 32px rgba(0,0,0,0.60), 0 0 0 1px rgba(255,255,255,0.08)"}},"focus":{"ringWidth":2,"ringOffset":1,"ringColorToken":"focus.ring","cellInset":true},"motion":{"disclosure.ms":120,"drawer.ms":180,"proposalArrive.ms":240,"hover.ms":80,"toast.ms":6000,"toastAction.ms":10000,"easing.standard":"cubic-bezier(0.2, 0, 0, 1)","easing.exit":"cubic-bezier(0.4, 0, 1, 1)","reducedMotion":"all durations 0 under prefers-reduced-motion"},"layout":{"window.default":[1440,900],"window.min":[1280,800],"toolbar":48,"statusBar":24,"rail":56,"agent.open":340,"agent.strip":44,"inspector.both":300,"inspector.model":340,"inspector.label":88,"canvas.min":220,"drawer.table":280,"drawer.issues":200,"review.outline":280,"review.comments":320,"row":26,"headerRow":28,"control":26,"controlCompact":22,"gutter":32,"marksColumn":72,"cellPadding":8,"headerPadding":5,"hud.button":28,"hud.inset":8,"hud.width":304,"hud.widthWrapped":154,"hud.wrapBelow":400,"toast.width":320,"toast.inset":8,"runlog.width":360,"probe.width":300,"legend.width":220,"sideGutter":16},"labels":{"MODEL_INCOMPLETE":{"label":"Model incomplete","domain":"Solver","chip":"incomplete","kind":"status"},"MECHANICS_SOLVED":{"label":"Mechanics solved","domain":"Solver","chip":"solved","kind":"status"},"RULE_INPUTS_INCOMPLETE":{"label":"Rule inputs incomplete","domain":"Rule pack","chip":"incomplete","kind":"status"},"USER_RULE_CHECKED":{"label":"User-rule checked","domain":"Rule pack","chip":"solved","kind":"status"},"USER_RULE_FAILED":{"label":"User-rule failed","domain":"Rule pack","chip":"failed","kind":"status"},"HUMAN_REVIEW_REQUIRED":{"label":"Human review required","domain":"Human","chip":"review","kind":"status"},"INTERNALLY_VERIFIED":{"label":"Internally verified","domain":"Evidence","chip":"solved","kind":"evidence"},"PROVER_CORRELATED":{"label":"Prover correlated","domain":"Evidence","chip":"solved","kind":"evidence"}},"agentCardClasses":["Check","Open issue","Draft","Proposal","Evidence summary"],"icon":{"grid":16,"stroke":1.5,"cornerRadius":1.5,"sizes":[12,16,20],"capsAndJoins":"round"}}</script>
 <script>
 (function () {
   // ---- theme switch: follows the system preference; the manual switch wins both ways ----
@@ -1451,6 +1620,10 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     var cats = document.getElementById('cats'); cats.innerHTML = '';
     var kinds = ['force', 'moment', 'displacement', 'uniform / weight', 'wind', 'seismic', '(case 7)', '(case 8)'];
     for (var j = 1; j <= 8; j++) { var c = document.createElement('div'); c.innerHTML = '<span class="sw" style="background:var(--cat-' + j + ')"></span><span>' + j + ' · ' + C['cat.' + j].hue + ' <span class="sec">' + kinds[j - 1] + '</span></span>'; cats.appendChild(c); }
+    // edge lines on the seven steps: whichever of canvas.edge and canvas.edgeAlt has the higher contrast on the step
+    var es = document.getElementById('edgesteps'); es.innerHTML = ''; var th = dk ? 'dark' : 'light', alts = [];
+    for (var q = 1; q <= 7; q++) { var bg = C['result.scale.' + q][th]; var r1 = ratio(parse(C['canvas.edge'][th]).rgb, parse(bg).rgb), r2 = ratio(parse(C['canvas.edgeAlt'][th]).rgb, parse(bg).rgb); var useAlt = r2 > r1; if (useAlt) alts.push(q); var e = document.createElement('div'); e.style.background = bg; e.title = 'step ' + q + ' · ' + (useAlt ? 'canvas.edgeAlt ' + r2.toFixed(2) : 'canvas.edge ' + r1.toFixed(2)) + ':1'; e.innerHTML = '<i style="background:' + C[useAlt ? 'canvas.edgeAlt' : 'canvas.edge'][th] + '"></i>'; es.appendChild(e); }
+    document.getElementById('edgenote').textContent = 'A drawn line on a result-coloured element takes whichever of canvas.edge and canvas.edgeAlt has the higher contrast on the colour under it: in this theme canvas.edgeAlt on steps ' + alts.join(', ') + ' and canvas.edge on the rest. Hover a step for its ratio.';
     document.querySelectorAll('.bar[data-v]').forEach(function (b) { var v = parseFloat(b.dataset.v); var i = b.querySelector('i'); i.style.width = Math.round(v * 100) + '%'; i.style.background = scaleColor(v); });
   }
 
@@ -1484,6 +1657,14 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     tb.appendChild(tr);
   });
   document.getElementById('ccount').textContent = '· ' + pairs.length + ' pairings · both themes';
+
+  // ---- the label table: every label chip on the page is redrawn from it, so the table is the only source ----
+  var LAB = TOK.labels;
+  document.querySelectorAll('.chip.lbl[data-label]').forEach(function (el) { var r = LAB[el.dataset.label]; el.className = 'chip ' + r.chip + ' lbl'; el.title = el.dataset.label; el.innerHTML = '<span class="dom">' + r.domain + '</span><span class="sep">·</span>' + r.label; });
+  var ltb = document.querySelector('#labeltable tbody');
+  Object.keys(LAB).forEach(function (k) { var r = LAB[k]; var tr = document.createElement('tr'); tr.innerHTML = '<td><code>' + k + '</code></td><td><span class="chip ' + r.chip + ' lbl" title="' + k + '"><span class="dom">' + r.domain + '</span><span class="sep">·</span>' + r.label + '</span></td><td>' + r.label + '</td><td>' + r.domain + '</td><td class="sec">' + r.kind + '</td>'; ltb.appendChild(tr); });
+  var acl = document.getElementById('agentclasses');
+  TOK.agentCardClasses.forEach(function (w) { var c = document.createElement('span'); c.className = 'chip outline'; c.textContent = w; acl.appendChild(c); });
 
   // ---- motion demo ----
   var ab = document.getElementById('arriveBtn'), ac = document.getElementById('arriveChip');

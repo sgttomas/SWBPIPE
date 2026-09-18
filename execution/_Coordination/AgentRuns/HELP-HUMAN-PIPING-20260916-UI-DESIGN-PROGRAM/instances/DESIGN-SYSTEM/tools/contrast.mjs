@@ -26,7 +26,7 @@ function resolve(C, name, theme) {
   return acc.rgb;
 }
 
-// [fg, bg, role]. V1.1 rows are marked; the order is the document's.
+// [fg, bg, role]. The order is the document's. V1.2 adds five rows for canvas.edgeAlt (R-6).
 export const pairs = [
   ["text.primary", "surface.panel", "text"], ["text.primary", "surface.base", "text"], ["text.primary", "surface.sunken", "text"],
   ["text.primary", "surface.header", "text"], ["text.primary", "surface.rowAlt", "text"], ["text.primary", "surface.raised", "text"],
@@ -73,6 +73,9 @@ export const pairs = [
   ...[1,2,3,4,5,6,7].map(i => [`result.scale.${i}`, "canvas.bg", "result scale on canvas"]),
   ["result.scale.1", "canvas.unsolved", "result scale beside unsolved"], ["result.scale.7", "canvas.unsolved", "result scale beside unsolved"],
   ["canvas.edge", "result.scale.1", "edge line on the near-zero step"], ["canvas.edge", "result.scale.7", "edge line on the brightest step"],
+  ["canvas.edge", "result.scale.6", "edge line on the step nearest its own lightness in light"], ["canvas.edge", "result.scale.2", "edge line on the last step it keeps"], ["canvas.edgeAlt", "result.scale.2", "alternate edge on the last step it leaves"],
+  ["canvas.edgeAlt", "result.scale.3", "alternate edge on the first step it takes"], ["canvas.edgeAlt", "result.scale.7", "alternate edge on the far step"],
+  ["canvas.edgeAlt", "canvas.bg", "alternate edge against the ground"],
   ...[1,2,3,4,5,6,7].map(i => [`result.scale.${i}`, "surface.raised", "legend swatch"]),
   ["result.scale.1", "bar.track", "data bar on its track"], ["result.scale.7", "bar.track", "data bar on its track"],
   ...[1,2,3,4,5,6,7,8].map(i => [`cat.${i}`, "canvas.bg", "load vector on canvas"]),

@@ -1,4 +1,4 @@
-// Palette generator for the SWB Piping Designer design system, tokens V1.1.
+// Palette generator for the SWBPIPE design system, tokens V1.2.
 // Specifies every colour token in OKLCH, converts to sRGB hex, checks the result scale as an
 // ordinal ramp and the categorical set with the dataviz validator when one is supplied, and
 // writes tokens.json. No absolute path is stored here: the validator is located through
@@ -133,6 +133,9 @@ put("canvas.gridMinor", H(0.91, 0.004, N),   H(0.265, 0.008, N));
 put("canvas.pipe",      H(0.74, 0.010, N),   H(0.58, 0.012, N));
 put("canvas.pipeShade", H(0.62, 0.012, N),   H(0.46, 0.012, N));
 put("canvas.edge",      H(0.40, 0.014, N),   H(0.84, 0.008, N));
+// V1.2 (R-6): the alternate edge, the opposite polarity of canvas.edge in each theme. On a result-coloured
+// element the line takes whichever of the two reads better against the element's fill (section 6.7).
+put("canvas.edgeAlt",   H(0.93, 0.006, N),   H(0.30, 0.010, N));
 put("canvas.glyph",     H(0.33, 0.014, N),   H(0.90, 0.006, N));
 put("canvas.glyphFill", H(0.90, 0.006, N),   H(0.34, 0.010, N));
 put("canvas.label",     H(0.27, 0.012, N),   H(0.93, 0.006, N));
@@ -190,10 +193,10 @@ export function buildTokens(order = ORDER) {
 
 export function tokenFile() {
   return {
-    name: "SWB Piping Designer design system tokens",
-    version: "1.1",
+    name: "SWBPIPE design system tokens",
+    version: "1.2",
     date: "2026-09-18",
-    note: "Sample values in the specimen are placeholders. Colour tokens carry a light and a dark value; type, spacing and layout tokens are plain values in CSS px unless stated. V1.1: the dark result scale is re-anchored one step down (decision 11); stale.band, stale.ink, rail.caption*, draft.bar, canvas.hint, pressed.fill, pressed.ink and bar.track close the six token gaps of MOCKS_V1 section 5; layout gains canvas.min, inspector.label, headerPadding and cellPadding.",
+    note: "Sample values in the specimen are placeholders. Colour tokens carry a light and a dark value; type, spacing and layout tokens are plain values in CSS px unless stated. V1.1: the dark result scale is re-anchored one step down (decision 11); stale.band, stale.ink, rail.caption*, draft.bar, canvas.hint, pressed.fill, pressed.ink and bar.track close the six token gaps of MOCKS_V1 section 5; layout gains canvas.min, inspector.label, headerPadding and cellPadding. V1.2: canvas.edgeAlt is the alternate edge line for result-coloured fills (R-6); layout gains the narrow-canvas HUD, toast and run log sizes (G-8, G-10, Q-16) and motion the toast durations; labels is the one table of status and evidence labels (ruling 4) and agentCardClasses the five class words of agent cards (ruling 8).",
     color: buildTokens(),
     type: {
       "family.ui": "-apple-system, BlinkMacSystemFont, system-ui, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif",
@@ -217,7 +220,7 @@ export function tokenFile() {
     },
     focus: { "ringWidth": 2, "ringOffset": 1, "ringColorToken": "focus.ring", "cellInset": true },
     motion: {
-      "disclosure.ms": 120, "drawer.ms": 180, "proposalArrive.ms": 240, "hover.ms": 80,
+      "disclosure.ms": 120, "drawer.ms": 180, "proposalArrive.ms": 240, "hover.ms": 80, "toast.ms": 6000, "toastAction.ms": 10000,
       "easing.standard": "cubic-bezier(0.2, 0, 0, 1)", "easing.exit": "cubic-bezier(0.4, 0, 1, 1)",
       "reducedMotion": "all durations 0 under prefers-reduced-motion"
     },
@@ -229,8 +232,24 @@ export function tokenFile() {
       "review.outline": 280, "review.comments": 320,
       "row": 26, "headerRow": 28, "control": 26, "controlCompact": 22, "gutter": 32, "marksColumn": 72,
       "cellPadding": 8, "headerPadding": 5,
-      "hud.button": 28, "probe.width": 300, "legend.width": 220, "sideGutter": 16
+      "hud.button": 28, "hud.inset": 8, "hud.width": 304, "hud.widthWrapped": 154, "hud.wrapBelow": 400,
+      "toast.width": 320, "toast.inset": 8, "runlog.width": 360,
+      "probe.width": 300, "legend.width": 220, "sideGutter": 16
     },
+    // Ruling 4: the one table of status and evidence labels. A label is shown with its authority domain, its raw
+    // token is reachable in place, and no label exists outside this table. "chip" names the status.* token pair.
+    labels: {
+      "MODEL_INCOMPLETE":       { label: "Model incomplete",       domain: "Solver",    chip: "incomplete", kind: "status" },
+      "MECHANICS_SOLVED":       { label: "Mechanics solved",       domain: "Solver",    chip: "solved",     kind: "status" },
+      "RULE_INPUTS_INCOMPLETE": { label: "Rule inputs incomplete", domain: "Rule pack", chip: "incomplete", kind: "status" },
+      "USER_RULE_CHECKED":      { label: "User-rule checked",      domain: "Rule pack", chip: "solved",     kind: "status" },
+      "USER_RULE_FAILED":       { label: "User-rule failed",       domain: "Rule pack", chip: "failed",     kind: "status" },
+      "HUMAN_REVIEW_REQUIRED":  { label: "Human review required",  domain: "Human",     chip: "review",     kind: "status" },
+      "INTERNALLY_VERIFIED":    { label: "Internally verified",    domain: "Evidence",  chip: "solved",     kind: "evidence" },
+      "PROVER_CORRELATED":      { label: "Prover correlated",      domain: "Evidence",  chip: "solved",     kind: "evidence" }
+    },
+    // Ruling 8: an agent card carries exactly one of these five class words as its label.
+    agentCardClasses: ["Check", "Open issue", "Draft", "Proposal", "Evidence summary"],
     icon: { "grid": 16, "stroke": 1.5, "cornerRadius": 1.5, "sizes": [12, 16, 20], "capsAndJoins": "round" }
   };
 }

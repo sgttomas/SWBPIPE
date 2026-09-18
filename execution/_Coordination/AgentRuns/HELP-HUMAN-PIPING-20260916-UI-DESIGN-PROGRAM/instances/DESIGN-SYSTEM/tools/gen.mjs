@@ -4,6 +4,7 @@
 //   pairs.embed.json    the contrast pair list, for the specimen's <script id="pairs">
 //   colour_tables.md    the document's section 2.2 tables, one per token group
 //   contrast_table.md   the document's section 2.9 table
+//   label_table.md         the document's section 2.3 table of status and evidence labels (V1.2, ruling 4)
 //   node gen.mjs <tokens.json> <out dir>
 import fs from "node:fs";
 import path from "node:path";
@@ -68,6 +69,13 @@ export function colourTablesFrom(T) {
   return out.join("\n").trimEnd();
 }
 
+// Section 2.3: the one table of status and evidence labels, from tokens.json `labels`.
+export function labelTableFrom(T) {
+  const out = ["| Raw token | Label | Authority domain, shown with the label | Chip tokens | Kind |", "|---|---|---|---|---|"];
+  for (const [tok, e] of Object.entries(T.labels)) out.push(`| \`${tok}\` | ${e.label} | ${e.domain} | \`status.${e.chip}Fill\` / \`status.${e.chip}Ink\` | ${e.kind} |`);
+  return out.join("\n");
+}
+
 if (process.argv[1] && /gen\.mjs$/.test(process.argv[1])) {
   const T = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
   const outDir = process.argv[3] || ".";
@@ -77,5 +85,6 @@ if (process.argv[1] && /gen\.mjs$/.test(process.argv[1])) {
   fs.writeFileSync(path.join(outDir, "pairs.embed.json"), JSON.stringify(pairs));
   fs.writeFileSync(path.join(outDir, "colour_tables.md"), colourTablesFrom(T) + "\n");
   fs.writeFileSync(path.join(outDir, "contrast_table.md"), toMarkdown(computeRows(T)) + "\n");
+  fs.writeFileSync(path.join(outDir, "label_table.md"), labelTableFrom(T) + "\n");
   console.log("generated in", outDir, "| colour tokens", Object.keys(T.color).length, "| pairs", pairs.length, "| version", T.version);
 }

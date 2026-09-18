@@ -1,17 +1,26 @@
 // Renders the specimen with a headless Chromium (Playwright from the piping project's node_modules, used read-only),
 // with every non-file request blocked, in light and dark (system preference emulation and the manual switch),
 // at 1440 and 720 wide. Writes per-section PNGs and a JSON report of layout facts.
-//   node render.mjs <absolute path to specimen.html> [out dir, default ./shots]
+//   node render.mjs <path to specimen.html> [out dir, default ./shots] [--playwright-from <dir>]
+// Playwright is resolved from the piping project's package.json by relative path; when this instance sits in a
+// checkout whose node_modules is not installed, pass --playwright-from <dir> (or set PLAYWRIGHT_FROM) at run time
+// to name a directory that has it. The location is never stored in this file.
 // V1.1 adds checks for the revision's elements: the stale band, the disabled case selector, the latched toggle,
 // the draft row and draft ghost, the geometry strips, the run log, the banner, the outline's registered row,
 // the data bar's track, and that the page's pair list is the embedded one.
+// V1.2 adds: the label chips redrawn from the label table and equal to it, the label table's eight rows, the wrapped
+// HUD's size, the toast's width, the Review header's icons and plain Export, the three run standings, the five
+// agent card classes, the edge steps, and that the rendered text carries none of the retired strings.
+import { pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
-const require = createRequire(new URL("../../../../../../../package.json", import.meta.url));
+const args = process.argv.slice(2); const fromAt = args.indexOf("--playwright-from");
+const from = fromAt >= 0 ? args.splice(fromAt, 2)[1] : process.env.PLAYWRIGHT_FROM;
+const require = createRequire(from ? pathToFileURL(path.join(path.resolve(from), "package.json")) : new URL("../../../../../../../package.json", import.meta.url));
 const { chromium } = require("playwright");
-const file = "file://" + process.argv[2];
-const outDir = process.argv[3] || "shots";
+const file = pathToFileURL(path.resolve(args[0])).href;
+const outDir = args[1] || "shots";
 fs.mkdirSync(outDir, { recursive: true });
 const browser = await chromium.launch();
 const report = {};
@@ -55,6 +64,29 @@ for (const width of [1440, 720]) {
           reportPreview: [...document.querySelectorAll("button")].some(b => b.textContent.trim() === "Report preview"),
           barTrack: document.querySelector(".bar") && getComputedStyle(document.querySelector(".bar")).backgroundColor,
           combinationEditor: [...document.querySelectorAll(".expand")].some(e => e.textContent.includes("Combination editor")),
+          v12: (() => {
+            const LAB = tok.labels; const q = (s) => document.querySelector(s); const qa = (s) => [...document.querySelectorAll(s)];
+            const chips = qa(".chip.lbl[data-label]"); const text = document.body.innerText.toLowerCase();
+            const retired = [["pip", "ing designer"], ["open", "pipestress"], ["cae", "pipe"], ["technical ", "preview"], ["not a released ", "product"], ["decision-support ", "information"], ["remain with the responsible ", "engineer"]].map(p => p.join(""));
+            const wrap = q(".hud.wrap")?.getBoundingClientRect(); const narrowHud = q(".narrow .hud")?.getBoundingClientRect(); const narrow = q(".narrow")?.getBoundingClientRect();
+            return {
+              labelChips: chips.length,
+              labelChipsEqualTable: chips.every(c => { const r = LAB[c.dataset.label]; return r && c.textContent === r.domain + "·" + r.label && c.title === c.dataset.label && c.classList.contains(r.chip); }),
+              labelTableRows: qa("#labeltable tbody tr").length,
+              wrappedHud: wrap && { w: Math.round(wrap.width), h: Math.round(wrap.height), tools: qa(".hud.wrap")[0].children.length, first: qa(".hud.wrap")[0].children[0].title },
+              narrowHudInside: narrow && narrowHud && narrowHud.right <= narrow.right && narrowHud.left >= narrow.left,
+              toastWidth: q(".toast") && Math.round(q(".toast").getBoundingClientRect().width), toastExpected: tok.layout["toast.width"],
+              reviewHeaderIcons: ["Snapshot…", "Report preview", "Export…"].map(n => { const b = qa("#s10 ~ .panel button, button").find(x => x.textContent.trim() === n); return !!(b && b.querySelector("svg")); }),
+              exportIsPlain: q("#exportbtn") && !q("#exportbtn").classList.contains("primary"),
+              accentButtonsOnReviewHeader: qa("#exportbtn").length && [...q("#exportbtn").parentElement.querySelectorAll(".btn.primary")].length,
+              histband: q(".histband")?.textContent.replace(/\s+/g, " ").trim(), runIdentityButtons: qa("button").filter(b => b.textContent.trim() === "Run identity").length,
+              legendNoteCards: qa(".legend").filter(l => l.textContent.includes("No result colour on the current model")).length,
+              agentClasses: [...new Set(qa("[data-agent-class]").map(e => e.dataset.agentClass))].sort(), agentClassChips: qa("#agentclasses .chip").map(c => c.textContent),
+              edgeSteps: qa("#edgesteps div").map(d => d.title), edgeNote: q("#edgenote")?.textContent.length > 0,
+              addRow: !!q("tr.addrow"), selGroupButtons: qa(".selgroup button").length, editChip: !!q(".editchip"), sendControl: !!q(".sendrow button"), issueRowTruncates: (() => { const m = q(".issuerow.sel .msg"); return m ? m.scrollWidth > m.clientWidth : null; })(),
+              retiredFound: retired.filter(r => text.includes(r)),
+            };
+          })(),
           expected: { staleBand: tok.color["stale.band"][theme], pressedFill: tok.color["pressed.fill"][theme], captionStale: tok.color["rail.captionStale"][theme], barTrack: tok.color["bar.track"][theme] }
         }
       };
