@@ -72,7 +72,7 @@ export function BuildReadinessPanel({ model }: { model: PreviewModel }) {
       </div>
       <small className="report-note">
         Build/package readiness is local evidence only; it does not select CI, publish packages, sign binaries, or
-        authorize release. Technical preview — not a released product.
+        authorize release.
       </small>
     </section>
   );
@@ -152,14 +152,14 @@ function buildReadinessPacket(model: PreviewModel) {
       ]
     },
     tauri_shell: {
-      product_name: "OpenPipeStress Technical Preview",
+      product_name: "SWBPIPE",
       version: "0.1.0",
-      identifier: "org.openpipestress.technical-preview",
+      identifier: "com.swbpipe.desktop",
       before_dev_command: "npm run dev",
       dev_url: "http://127.0.0.1:5173",
       before_build_command: "npm run build",
       frontend_dist: "../dist",
-      window_title: "OpenPipeStress Technical Preview",
+      window_title: "SWBPIPE",
       window_width: 1440,
       window_height: 920,
       min_width: 1160,

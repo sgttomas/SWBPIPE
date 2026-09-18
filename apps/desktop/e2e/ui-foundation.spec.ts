@@ -1922,7 +1922,11 @@ test("empty ordered selection publishes independently from project inspector", a
 
 
 test("decorative viewport overlays pass real canvas gestures while view controls stay interactive", async ({ page }, testInfo) => {
-  await page.setViewportSize({ width: 1440, height: 920 });
+  // The frozen Box16 endpoints below were characterized against the canvas the
+  // shell gave a 1440 x 920 window while it still carried its footer (about 21 px).
+  // DEC-105 removed that footer, so the window is 21 px shorter here to keep
+  // the canvas, the gizmo and the frozen endpoints in the same geometry.
+  await page.setViewportSize({ width: 1440, height: 899 });
   const model = await gotoRoutedFixture(page);
   expect(model.components ?? []).toHaveLength(0);
   await activateWithKeyboard(page, page.getByTestId("toggle-viewport-labels"));

@@ -5,9 +5,9 @@ status: current_index
 created: 2026-04-30
 ---
 
-# OpenPipeStress Agentic Development Docs
+# SWBPIPE Agentic Development Docs
 
-This `docs/` package is a seed governance and decomposition set for agentic development of **OpenPipeStress**: a source-available noncommercial, code-neutral piping flexibility and stress-analysis platform.
+This `docs/` package is a seed governance and decomposition set for agentic development of **SWBPIPE**: a source-available noncommercial, code-neutral piping flexibility and stress-analysis platform.
 
 The central project stance is:
 
@@ -53,7 +53,7 @@ The project license selected by human governance decision is
 `PolyForm-Noncommercial-1.0.0`; see `../LICENSE.md`.
 
 This docs package remains a governance and coordination index for
-OpenPipeStress, which computes open, auditable piping mechanics; acceptance
+SWBPIPE, which computes open, auditable piping mechanics; acceptance
 and professional judgment remain with the responsible engineer (boundary
 vocabulary: `claims_registry.md`, DEC-081).
 

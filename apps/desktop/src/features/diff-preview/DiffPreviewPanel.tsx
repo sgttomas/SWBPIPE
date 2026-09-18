@@ -107,7 +107,7 @@ export function DiffPreviewPanel({
       )}
       <small className="report-note">
         Diff previews are local review evidence only; this panel does not apply operations or mutate accepted model
-        state. Acceptance and professional judgment remain with the responsible engineer.
+        state.
       </small>
     </section>
   );
@@ -180,7 +180,7 @@ function buildDiffPreviewPacket({
     previews,
     unresolved_tbd: [
       "hash-bound backend diff preview reference for GUI editor intents",
-      "controlled operation application outside technical preview",
+      "controlled operation application outside this preview panel",
       "durable accepted/rejected decision persistence"
     ],
     data_boundary: model.data_boundary,
@@ -225,10 +225,10 @@ function operationDiffUnitPreservationWitnesses(previews: Array<{ preview_id: st
           reference("Deliverable", "DEL-16-03")
         ],
         provenance: {
-          source_name: "OpenPipeStress desktop operation diff preview",
+          source_name: "SWBPIPE desktop operation diff preview",
           source_location: "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
           source_license: "project-governed",
-          contributor: "OpenPipeStress app integration tranche",
+          contributor: "SWBPIPE app integration tranche",
           contributor_certification: "Operation diff unit metadata only; no protected standards or private payloads.",
           redistribution_status: "public_permissive",
           review_status: "desktop_preview",
@@ -341,8 +341,7 @@ function diffBoundary(packet: ReturnType<typeof buildDiffPreviewPacket>): string
   return [
     `accepted model mutated=${String(packet.summary.accepted_model_state_mutated)}`,
     `private payload=${String(packet.private_payload_included)}`,
-    `protected content=${String(packet.protected_content_included)}`,
-    "acceptance and professional judgment remain with the responsible engineer"
+    `protected content=${String(packet.protected_content_included)}`
   ].join("; ");
 }
 

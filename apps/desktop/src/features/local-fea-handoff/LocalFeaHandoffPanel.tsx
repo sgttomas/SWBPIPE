@@ -406,7 +406,7 @@ function localFeaDiagnostics(selected: ReturnType<typeof selectedLocalRegion>) {
     diagnostic(
       "LOCAL-FEA-MESH-NOT-GENERATED",
       "LOCAL_HANDOFF_WARNING",
-      "Mesh generation is not performed by the desktop technical preview.",
+      "Mesh generation is not performed by the desktop app.",
       "Select a target-neutral or external-user workflow for mesh generation outside this package.",
       selected.regionId
     ),
@@ -549,10 +549,10 @@ function professionalBoundary() {
 
 function previewProvenance() {
   return {
-    source_name: "OpenPipeStress desktop technical preview",
+    source_name: "SWBPIPE desktop",
     source_location: "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
     source_license: "project-invented metadata only",
-    contributor: "OpenPipeStress app integration tranche",
+    contributor: "SWBPIPE app integration tranche",
     contributor_certification: "Invented local FEA handoff metadata; no mesh, external solver, protected standards, private project, or proprietary target payload.",
     redistribution_status: "invented_non_engineering_example",
     review_status: "pending"

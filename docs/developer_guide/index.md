@@ -8,14 +8,14 @@ package_id: PKG-11
 scope_item: SOW-033
 ---
 
-# OpenPipeStress Developer Guide
+# SWBPIPE Developer Guide
 
 This guide is for contributors extending the solver, rule-pack, report, and
-adapter surfaces of OpenPipeStress. It is documentation for the public project;
+adapter surfaces of SWBPIPE. It is documentation for the public project;
 it does not define protected rule content, private design bases, legal rights,
 or professional engineering acceptance.
 
-OpenPipeStress keeps three responsibilities separate:
+SWBPIPE keeps three responsibilities separate:
 
 - the open solver computes code-neutral mechanics;
 - user-supplied rule packs evaluate user-defined acceptability checks;
@@ -61,7 +61,7 @@ mechanics remain governed deliverable work or `TBD`.
 
 ## 2. Architecture Map
 
-OpenPipeStress is organized as a code-neutral workbench:
+SWBPIPE is organized as a code-neutral workbench:
 
 ```text
 GUI / UX Layer
@@ -226,7 +226,7 @@ Existing implementation surfaces include:
 `MECHANICS_SOLVED` means the mechanics result exists for the stated model and
 evidence set. It does not mean a user rule check is complete. `USER_RULE_CHECKED`
 and `USER_RULE_FAILED` are software computations using user-supplied rule-pack
-data. OpenPipeStress does not currently define `USER_RULE_PASSED`; a checked
+data. SWBPIPE does not currently define `USER_RULE_PASSED`; a checked
 outcome with no reported failures remains `USER_RULE_CHECKED` plus details, not
 a compliance result. `HUMAN_REVIEW_REQUIRED` remains visible for professional
 use.

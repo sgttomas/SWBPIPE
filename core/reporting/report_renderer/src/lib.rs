@@ -716,7 +716,7 @@ cannot appear inside the bytes it binds.",
                     "Professional Boundary And Human Review",
                     vec![
                         SectionBlock::BoundaryBox {
-                            text: "OpenPipeStress is decision-support software for piping \
+                            text: "SWBPIPE is decision-support software for piping \
 design, flexibility, and stress-analysis workflows. It computes mechanical results from \
 recorded user inputs and may evaluate user-supplied rule packs. It does not certify, seal, \
 approve, authenticate, or determine code compliance for professional reliance. Code-specific \

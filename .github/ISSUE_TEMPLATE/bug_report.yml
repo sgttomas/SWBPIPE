@@ -1,5 +1,5 @@
 name: Bug report
-description: Report incorrect behavior, an error, or a defect in OpenPipeStress.
+description: Report incorrect behavior, an error, or a defect in SWBPIPE.
 title: "[Bug]: "
 body:
   - type: markdown
@@ -25,7 +25,7 @@ body:
         redact any private values before posting. Content on this tracker is
         public.
 
-        OpenPipeStress is not affiliated with, endorsed by, certified by, or
+        SWBPIPE is not affiliated with, endorsed by, certified by, or
         approved by ASME or any other standards body. This tracker does not
         provide engineering advice; code-specific values and rules must be
         supplied and verified by the responsible engineer.
@@ -62,7 +62,7 @@ body:
     id: version
     attributes:
       label: Version or commit
-      description: The OpenPipeStress version or commit hash you were running.
+      description: The SWBPIPE version or commit hash you were running.
     validations:
       required: true
   - type: input

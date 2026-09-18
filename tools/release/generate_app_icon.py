@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Deterministic OpenPipeStress application-icon generator (DEC-057 / E5).
+"""Deterministic SWBPIPE application-icon generator (DEC-057 / E5).
 
-Renders the invented OpenPipeStress mark — a pipe cross-section (annulus)
+Renders the invented SWBPIPE mark — a pipe cross-section (annulus)
 with an amber stressed sector on a dark steel rounded square — procedurally
 from this file alone, then writes:
 
@@ -240,7 +240,7 @@ def generate(icon_dir: Path) -> list[Path]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Render the invented OpenPipeStress mark and write the desktop "
+            "Render the invented SWBPIPE mark and write the desktop "
             "icon assets (icon.png 512px + multi-resolution icon.icns)."
         )
     )

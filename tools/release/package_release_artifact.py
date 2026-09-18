@@ -84,7 +84,7 @@ BOUNDARY_NOTE = (
 
 PUBLICATION_POSTURE = (
     "not_published: DEC-057 rules GitHub Releases on the prospective public "
-    "sanitized-export OpenPipeStress repository (the D-05b surface); until "
+    "sanitized-export SWBPIPE repository (the D-05b surface); until "
     "that repository exists, artifacts are recorded locally per "
     "docs/BUILD_AND_RELEASE.md §8 and distributed directly by the owner."
 )
@@ -532,7 +532,7 @@ def main(argv: list[str] | None = None) -> int:
     checksum_path = output_dir / f"{basename}.zip.sha256"
 
     mode = "execute" if args.execute else "dry-run"
-    print(f"OpenPipeStress release-artifact packaging ({mode}) — {DECISION_BASIS}")
+    print(f"SWBPIPE release-artifact packaging ({mode}) — {DECISION_BASIS}")
     print(f"repo:            {root}")
     print(f"app bundle:      {app_path}")
     print(f"target triple:   {RELEASE_TARGET_TRIPLE} (ruled matrix)")

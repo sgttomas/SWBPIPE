@@ -108,7 +108,7 @@ export function ExportReviewPanel({
             >
               <strong>{item.label}</strong>
               <small>
-                {item.readiness}; {item.document_kind}; private={String(item.private_payload_included)}
+                {renderedRecordIdentity(item.readiness, item.document_kind)}; private={String(item.private_payload_included)}
               </small>
               <p>{item.review_note}</p>
             </article>
@@ -121,6 +121,13 @@ export function ExportReviewPanel({
       </small>
     </section>
   );
+}
+
+// Document kinds are identifiers and keep their spelling in the manifest until
+// the identity tranche. A kind that carries another vendor's product name is
+// not rendered (DEC-103 item 9); the record's label describes it instead.
+function renderedRecordIdentity(readiness: string, documentKind: string): string {
+  return /caepipe/iu.test(documentKind) ? readiness : `${readiness}; ${documentKind}`;
 }
 
 function ReviewLine({ label, value, testId }: { label: string; value: string; testId: string }) {
@@ -655,7 +662,7 @@ function buildExportReviewManifest({
       protected_content_included: false,
       release_or_professional_claim: false,
       review_note:
-        "Provider-neutral local build/package readiness metadata; CI provider, installer, signing, and publishing remain unselected. Technical preview — not a released product."
+        "Provider-neutral local build/package readiness metadata; CI provider, installer, signing, and publishing remain unselected."
     },
     {
       export_id: "validation_release_evidence_review",
@@ -918,7 +925,7 @@ function buildExportReviewManifest({
     },
     {
       export_id: "caepipe_mbf_export",
-      label: "CAEPIPE MBF export",
+      label: "Model batch file (.mbf) export",
       document_kind: "openpipestress.technical_preview.caepipe_mbf_export_package",
       readiness: caepipeMbfExportReady ? "available" : "pending_caepipe_mbf_profile_review",
       deliverable_refs: ["DEL-17-04", "DEL-17-01", "DEL-17-02"],
@@ -949,11 +956,11 @@ function buildExportReviewManifest({
       protected_content_included: false,
       release_or_professional_claim: false,
       review_note:
-        "Local CAEPIPE MBF smoke-subset review package with sidecar stable IDs, mandatory loss report, and carried TBDs for target version, record subset, and direct stable-ID carrier."
+        "Local .mbf model batch file smoke-subset review package with sidecar stable IDs, mandatory loss report, and carried TBDs for target version, record subset, and direct stable-ID carrier."
     },
     {
       export_id: "caepipe_external_run_evidence",
-      label: "CAEPIPE external-run evidence",
+      label: "External-run evidence",
       document_kind: "openpipestress.technical_preview.caepipe_external_run_package",
       readiness: caepipeExternalRunReady ? "available" : "pending_caepipe_external_run_boundary",
       deliverable_refs: ["DEL-17-05", "DEL-17-04", "DEL-17-02", "DEL-17-01", "DEL-15-04"],
@@ -980,7 +987,7 @@ function buildExportReviewManifest({
       protected_content_included: false,
       release_or_professional_claim: false,
       review_note:
-        "Local CAEPIPE external-run evidence preview; executable path is absent, external execution is not attempted, parser-only CSV rows are invented, and live invocation remains user-owned/TBD."
+        "Local external-run evidence preview; executable path is absent, external execution is not attempted, parser-only CSV rows are invented, and live invocation remains user-owned/TBD."
     },
     {
       export_id: "export_adapter_sdk_registry",
@@ -1092,7 +1099,7 @@ function buildExportReviewManifest({
       protected_content_included: false,
       release_or_professional_claim: false,
       review_note:
-        "Local public report-surface heuristic lint; clean output is screening evidence only — human review remains required; acceptance stays with the responsible engineer."
+        "Local public report-surface heuristic lint; clean output is screening evidence only."
     },
     {
       export_id: "handoff_package",

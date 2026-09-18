@@ -227,7 +227,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
   await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
   await expect(page.getByTestId("viewport-deformation-summary")).toBeVisible();
-  await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("blocked; mechanics=model incomplete; rows=0");
+  await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=0");
   await expect(page.getByTestId("viewport-deformation-boundary")).toHaveText("scale=not_generated; professional_claim=false");
   await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
   await expect(page.getByTestId("viewport-deformation-summary")).toBeHidden();

@@ -105,7 +105,7 @@ fn fixture_input() -> RenderableReportInput {
     let calculation_report = serde_json::from_value(fixture["calculation_report"].clone())
         .expect("calculation_report deserializes via the serde feature");
     RenderableReportInput {
-        report_title: "Invented Calculation Report (Technical Preview)".to_string(),
+        report_title: "Invented Calculation Report".to_string(),
         calculation_report,
         report_sections: invented_report_sections(),
         result_rows: vec![ResultRow {

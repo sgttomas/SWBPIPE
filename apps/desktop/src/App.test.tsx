@@ -410,7 +410,17 @@ function displacementComponentRows(
   }));
 }
 
-describe("OpenPipeStress desktop preview", () => {
+// DEC-103 item 9: the vendor's product name is rendered nowhere. The collapsed
+// redaction "Details" list prints raw JSON paths of the emitted data; the data
+// field names keep their spelling until the identity tranche, so that list is
+// excluded here and nothing else is.
+function renderedVendorNameMentions(panel: HTMLElement): string[] {
+  const copy = panel.cloneNode(true) as HTMLElement;
+  copy.querySelectorAll(".controlled-export-details").forEach((node) => node.remove());
+  return Array.from(new Set((copy.textContent ?? "").match(/[^\s;=]*caepipe[^\s;=]*/gi) ?? []));
+}
+
+describe("SWBPIPE desktop preview", () => {
   it("suppresses solve proof unless the completed job, result, and exact model version remain bound", async () => {
     const model = await loadPreviewModel();
     const result = await runPreviewMechanics(model);
@@ -1051,7 +1061,7 @@ describe("OpenPipeStress desktop preview", () => {
   it("renders the engineering workspace from invented local fixtures", async () => {
     render(<App />);
 
-    expect(await screen.findByText("OpenPipeStress")).toBeInTheDocument();
+    expect(await screen.findByText("SWBPIPE")).toBeInTheDocument();
     expect(
       await screen.findByTestId("desktop-preview-shell"),
     ).toBeInTheDocument();
@@ -1065,7 +1075,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("preview run not started");
     expect(
       within(initialReadiness).getByTestId("readiness-rule").textContent,
-    ).toContain("rule inputs incomplete");
+    ).toContain("Rule pack · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)");
     expect(
       within(initialReadiness).getByTestId("readiness-rule").textContent,
     ).toContain("mechanics results remain reviewable only");
@@ -1078,7 +1088,11 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(initialReadiness).getByTestId("readiness-professional")
         .textContent,
-    ).toContain("human review remains required");
+    ).toContain("Human · Human review required (HUMAN_REVIEW_REQUIRED)");
+    expect(
+      within(initialReadiness).getByTestId("readiness-professional")
+        .textContent,
+    ).not.toContain("responsible engineer");
     expect(solveJobSummary().textContent).toContain(
       "state=not_started",
     );
@@ -1237,9 +1251,8 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain(
       "Run mechanics preview to generate immutable model-state and analysis-run audit references",
     );
-    expect(runAudit.textContent).toContain(
-      "is stored locally; acceptance and professional judgment remain with the responsible engineer",
-    );
+    expect(runAudit.textContent).toContain("is stored locally.");
+    expect(runAudit.textContent).not.toContain("responsible engineer");
     const resultExport = resultExportAudit();
     expect(
       within(resultExport).getByTestId("result-export-empty").textContent,
@@ -1835,7 +1848,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(pcfPacket.solver_validation_claim).toBe("[REDACTED]");
     expect(pcfPacket.code_compliance_claim).toBe("[REDACTED]");
     expect(pcfPacket.professional_reliance_claim).toBe("[REDACTED]");
-    const caepipeMbfExport = await screen.findByLabelText("CAEPIPE MBF export");
+    const caepipeMbfExport = await screen.findByLabelText("Model batch file (.mbf) export");
+    expect(within(caepipeMbfExport).getByText("Model batch file (.mbf)")).toBeInTheDocument();
     expect(
       within(caepipeMbfExport).getByTestId("caepipe-mbf-summary").textContent,
     ).toContain("available");
@@ -1905,7 +1919,9 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("diagnostics=0");
     expect(
       within(caepipeMbfExport).getByTestId("caepipe-mbf-boundary").textContent,
-    ).toContain("caepipe_compatibility=false");
+    ).not.toContain("compatibility");
+    // DEC-103 item 9: the vendor's product name is rendered nowhere in the panel.
+    expect(renderedVendorNameMentions(caepipeMbfExport)).toEqual([]);
     expect(
       within(caepipeMbfExport).getByTestId("caepipe-mbf-boundary").textContent,
     ).toContain("external_tool_invoked=false");
@@ -2012,7 +2028,7 @@ describe("OpenPipeStress desktop preview", () => {
         .getAttribute("href");
     expect(caepipeMbfTextHref).toBeNull();
     const caepipeExternal = await screen.findByLabelText(
-      "CAEPIPE external harness",
+      "External run evidence",
     );
     expect(
       within(caepipeExternal).getByTestId("caepipe-external-summary")
@@ -2075,7 +2091,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(caepipeExternal).getByTestId("caepipe-external-boundary")
         .textContent,
-    ).toContain("compatibility=false");
+    ).not.toContain("compatibility");
+    expect(renderedVendorNameMentions(caepipeExternal)).toEqual([]);
     expect(
       within(caepipeExternal).getByTestId("caepipe-external-boundary")
         .textContent,
@@ -2408,7 +2425,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("bundle_active=false");
     expect(
       within(buildReadiness).getByTestId("build-readiness-shell").textContent,
-    ).toContain("OpenPipeStress Technical Preview");
+    ).toContain("SWBPIPE");
     expect(
       within(buildReadiness).getByTestId("build-readiness-commands")
         .textContent,
@@ -7133,17 +7150,16 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("professional_claim=false");
   });
 
-  it("does not claim professional or release acceptance", async () => {
+  it("renders no maturity sentence, acceptance sentence or shell footer (DEC-100, DEC-105)", async () => {
     render(<App />);
 
-    await screen.findAllByText(/Technical preview — not a released product/i);
-    const footer = document.querySelector("footer.app-footer");
-    expect(footer?.textContent).toContain(
-      "Technical preview — not a released product",
-    );
-    expect(footer?.textContent).toContain(
-      "Acceptance and professional judgment remain with the responsible engineer",
-    );
+    await screen.findByRole("heading", { name: "SWBPIPE" });
+    expect(document.querySelector("footer.app-footer")).toBeNull();
+    const shellText = document.body.textContent ?? "";
+    expect(shellText).not.toMatch(/not a released product/i);
+    expect(shellText).not.toMatch(/technical preview/i);
+    expect(shellText).not.toMatch(/remain with the responsible engineer/i);
+    expect(shellText).not.toMatch(/acceptance stays with the responsible engineer/i);
   });
 
   it("carries queued editor intents into the report packet as review-only operation context", async () => {
@@ -7251,9 +7267,10 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("accepted model mutated=false");
     expect(
       within(diffPreview).getByTestId("diff-preview-boundary").textContent,
-    ).toContain(
-      "acceptance and professional judgment remain with the responsible engineer",
-    );
+    ).toContain("protected content=false");
+    expect(
+      within(diffPreview).getByTestId("diff-preview-boundary").textContent,
+    ).not.toContain("responsible engineer");
     expect(
       within(diffPreview).getByTestId(
         "diff-preview-record-op-editor-intent-material-material-invented-carbon-steel-elastic-modulus-value",
@@ -8488,7 +8505,7 @@ describe("OpenPipeStress desktop preview", () => {
   it("round trips local create, save, and open project controls without external file copies", async () => {
     render(<App />);
 
-    expect(await screen.findByText("OpenPipeStress")).toBeInTheDocument();
+    expect(await screen.findByText("SWBPIPE")).toBeInTheDocument();
     const controls = screen.getByLabelText("Local project controls");
     let storageAudit = projectStorageAudit();
     const projectValidation = await screen.findByLabelText(
@@ -9074,7 +9091,7 @@ describe("OpenPipeStress desktop preview", () => {
   it("creates a blank local model document as the active authoring target", async () => {
     render(<App />);
 
-    expect(await screen.findByText("OpenPipeStress")).toBeInTheDocument();
+    expect(await screen.findByText("SWBPIPE")).toBeInTheDocument();
     const controls = screen.getByLabelText("Local project controls");
     fireEvent.click(
       within(controls).getByRole("button", { name: /New blank/i }),
@@ -9968,10 +9985,10 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("830 computed result rows");
     expect(
       within(solvedReadiness).getByTestId("readiness-mechanics").textContent,
-    ).toContain("mechanics solved");
+    ).toContain("Solver · Mechanics solved (MECHANICS_SOLVED)");
     expect(
       within(solvedReadiness).getByTestId("readiness-rule").textContent,
-    ).toContain("rule inputs incomplete");
+    ).toContain("Rule pack · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)");
     expect(
       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
     ).toContain("32 diagnostics");
@@ -9983,7 +10000,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("0 blocking/error");
     expect(
       within(solvedReadiness).getByTestId("readiness-professional").textContent,
-    ).toContain("no professional acceptance record");
+    ).toContain("Human · Human review required (HUMAN_REVIEW_REQUIRED)");
     const visibleSolveProof = screen.getByTestId("status-pill-solve-proof");
     expect(visibleSolveProof.textContent).toContain(
       "seam=browser_fixture_no_backend_job",
@@ -10172,7 +10189,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(resultExport).getByTestId("result-export-units")).toHaveTextContent("stress");
     expect(within(resultExport).getByTestId("result-export-unit-witnesses")).toHaveTextContent("conversion=false");
     expect(within(resultExport).getByTestId("result-export-reproducibility")).toHaveTextContent("deterministic_ordering=true; run_hashes=2");
-    expect(within(resultExport).getByTestId("result-export-boundary")).toHaveTextContent("human review remains required; acceptance stays with the responsible engineer");
+    expect(within(resultExport).getByTestId("result-export-boundary")).toHaveTextContent("human_review_required=true; professional_claim=false");
     expect(within(resultExport).getByTestId("result-export-link")).not.toHaveAttribute("href");
     expect(within(resultExport).getByTestId("result-export-link")).toHaveAttribute("aria-disabled", "true");
     const ownIntent = within(resultExport).getByTestId("result-export-link-local-private-intent");
@@ -11346,9 +11363,10 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("changes_create_new_immutable_record_revision");
     expect(
       within(runAudit).getByTestId("run-audit-boundary").textContent,
-    ).toContain(
-      "human review remains required; acceptance stays with the responsible engineer",
-    );
+    ).toContain("human_review_required=true; professional_claim=false");
+    expect(
+      within(runAudit).getByTestId("run-audit-boundary").textContent,
+    ).not.toContain("responsible engineer");
     const comparison = comparisonWorkspace();
     expect(
       within(comparison).getByTestId("comparison-summary").textContent,
@@ -11386,9 +11404,10 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("source_result_refs");
     expect(
       within(comparison).getByTestId("comparison-boundary").textContent,
-    ).toContain(
-      "review-only comparison; acceptance and professional judgment remain with the responsible engineer",
-    );
+    ).toContain("review-only comparison");
+    expect(
+      within(comparison).getByTestId("comparison-boundary").textContent,
+    ).not.toContain("responsible engineer");
     const comparisonRow = within(comparison).getByTestId(
       "comparison-row-result:combination:combination-C-OPER-ALT:reaction:support-S-120",
     );
@@ -12036,9 +12055,10 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(report).getByText(/result_envelope/i)).toBeInTheDocument();
     expect(
       within(report).getAllByText(
-        /human review remains required; acceptance stays with the responsible engineer/i,
+        /human_review_required=true; professional_claim=false/,
       ).length,
     ).toBeGreaterThan(0);
+    expect(report.textContent).not.toContain("responsible engineer");
     expect(
       within(report).getByTestId("report-comparison-summary").textContent,
     ).toContain("261 mapped pairs");
@@ -12916,9 +12936,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("does not mutate accepted model state");
     expect(
       within(report).getByTestId("report-proposal-boundary").textContent,
-    ).toContain(
-      "acceptance and professional judgment remain with the responsible engineer",
-    );
+    ).not.toContain("responsible engineer");
     }
 
     const proposalExportHref =
@@ -13278,9 +13296,10 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("0 hash-bound rows");
     expect(
       within(diffPreview).getByTestId("diff-preview-boundary").textContent,
-    ).toContain(
-      "acceptance and professional judgment remain with the responsible engineer",
-    );
+    ).toContain("protected content=false");
+    expect(
+      within(diffPreview).getByTestId("diff-preview-boundary").textContent,
+    ).not.toContain("responsible engineer");
     const proposalDiffRecord = within(diffPreview).getByTestId(
       "diff-preview-record-op-review-computed-diagnostic",
     );
@@ -13784,7 +13803,7 @@ describe("OpenPipeStress desktop preview", () => {
       within(screen.getByTestId("solve-readiness-summary")).getByTestId(
         "readiness-mechanics",
       ).textContent,
-    ).toContain("0 computed result rows; model incomplete");
+    ).toContain("0 computed result rows; Solver · Model incomplete (MODEL_INCOMPLETE)");
     expect(
       within(screen.getByTestId("solve-readiness-summary")).getByTestId(
         "readiness-diagnostics",
@@ -13807,7 +13826,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
     expect(
       screen.getByTestId("viewport-deformation-status").textContent,
-    ).toContain("blocked; mechanics=model incomplete; rows=0");
+    ).toContain("blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=0");
 
     fireEvent.click(screen.getByRole("button", { name: /Save local/i }));
     await waitFor(() =>
@@ -16967,7 +16986,7 @@ describe("workflow current and historical result boundaries", () => {
     await waitFor(() => expect(reviewControl("session-history-chip")).toHaveTextContent("1 undo / 0 redo"));
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MODEL_INCOMPLETE"));
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("blocked; mechanics=model incomplete; rows=0");
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=0");
     expect(screen.getByTestId("viewport-deformation-boundary")).toHaveTextContent("scale=not_generated");
     expect(solveJobSummary()).toHaveTextContent("result_rows=0");
     expect(renderedReportButton()).toBeDisabled();

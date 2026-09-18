@@ -112,7 +112,7 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
       </div>
       <small className="report-note">
         Missing-data warnings distinguish mechanics solve readiness from user-rule checking. They do not fill missing
-        engineering values; acceptance and professional judgment remain with the responsible engineer.
+        engineering values.
       </small>
     </section>
   );
@@ -531,12 +531,12 @@ function professionalBoundary() {
 
 function previewProvenance() {
   return {
-    source_name: "OpenPipeStress desktop technical preview",
+    source_name: "SWBPIPE desktop",
     source_location: "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
     source_license: "project-invented metadata only",
-    contributor: "OpenPipeStress app integration tranche",
+    contributor: "SWBPIPE app integration tranche",
     contributor_certification:
-      "Invented warning metadata only; no protected standards content — code-specific data is user-supplied; acceptance and professional judgment remain with the responsible engineer.",
+      "Invented warning metadata only; no protected standards content — code-specific data is user-supplied.",
     redistribution_status: "invented_non_engineering_example",
     review_status: "pending",
     privacy_classification: "public_metadata"

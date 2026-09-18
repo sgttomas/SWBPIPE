@@ -1,7 +1,7 @@
 [package]
 name = "openpipestress-desktop"
 version = "0.1.0"
-description = "OpenPipeStress macOS technical preview desktop shell"
+description = "SWBPIPE macOS desktop shell"
 authors = ["OpenPipeStress contributors"]
 edition = "2021"
 

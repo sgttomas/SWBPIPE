@@ -175,7 +175,7 @@ function buildReviewGeometryPacket({
       target_file_extension: ".gltf.json",
       glb_binary_writer_status: "TBD",
       linear_unit: model.project.units.length,
-      source_coordinate_basis: "OpenPipeStress preview fixture coordinates; source vertical axis treated as +Z",
+      source_coordinate_basis: "SWBPIPE preview fixture coordinates; source vertical axis treated as +Z",
       target_coordinate_basis: "glTF right-handed +Y-up meters",
       transform_policy: "preview_z_up_to_gltf_y_up_rotation_x_minus_90",
       primitive_topology: {
@@ -253,7 +253,7 @@ function buildReviewGeometryPacket({
     sidecar_id_map: {
       schema_version: "0.1.0",
       map_id: `review-geometry-id-map:${safeFileToken(model.project.id)}`,
-      canonical_id_authority: "OpenPipeStress preview model stable IDs",
+      canonical_id_authority: "SWBPIPE preview model stable IDs",
       entries: stableIdMap
     },
     coordinate_unit_witnesses: coordinateUnitWitnesses,
@@ -304,7 +304,7 @@ function buildGltfPositionGroups(model: PreviewModel): GltfPositionGroup[] {
 
   const groups: GltfPositionGroup[] = [
     {
-      name: "OpenPipeStress pipe centerline review geometry",
+      name: "SWBPIPE pipe centerline review geometry",
       mode: 1,
       positions: segmentPositions,
       extras: {
@@ -315,7 +315,7 @@ function buildGltfPositionGroups(model: PreviewModel): GltfPositionGroup[] {
       }
     },
     {
-      name: "OpenPipeStress node review markers",
+      name: "SWBPIPE node review markers",
       mode: 0,
       positions: model.nodes.flatMap((node) => gltfPosition(node.position)),
       extras: {
@@ -325,7 +325,7 @@ function buildGltfPositionGroups(model: PreviewModel): GltfPositionGroup[] {
       }
     },
     {
-      name: "OpenPipeStress support review markers",
+      name: "SWBPIPE support review markers",
       mode: 0,
       positions: model.supports.flatMap((support) => gltfPosition(nodeMap.get(support.node) ?? origin())),
       extras: {
@@ -340,7 +340,7 @@ function buildGltfPositionGroups(model: PreviewModel): GltfPositionGroup[] {
       }
     },
     {
-      name: "OpenPipeStress component review markers",
+      name: "SWBPIPE component review markers",
       mode: 0,
       positions: model.components.flatMap((component) => gltfPosition(nodeMap.get(component.node) ?? origin())),
       extras: {
@@ -432,7 +432,7 @@ function buildCoordinateUnitWitnesses(model: PreviewModel): CoordinateUnitWitnes
       refId: segment.id,
       sourceNodeRef: segment.from,
       fieldPrefix: "from.position",
-      groupName: "OpenPipeStress pipe centerline review geometry",
+      groupName: "SWBPIPE pipe centerline review geometry",
       vertexIndex: segmentIndex * 2,
       position: from
     });
@@ -441,7 +441,7 @@ function buildCoordinateUnitWitnesses(model: PreviewModel): CoordinateUnitWitnes
       refId: segment.id,
       sourceNodeRef: segment.to,
       fieldPrefix: "to.position",
-      groupName: "OpenPipeStress pipe centerline review geometry",
+      groupName: "SWBPIPE pipe centerline review geometry",
       vertexIndex: segmentIndex * 2 + 1,
       position: to
     });
@@ -453,7 +453,7 @@ function buildCoordinateUnitWitnesses(model: PreviewModel): CoordinateUnitWitnes
       refId: node.id,
       sourceNodeRef: node.id,
       fieldPrefix: "position",
-      groupName: "OpenPipeStress node review markers",
+      groupName: "SWBPIPE node review markers",
       vertexIndex: nodeIndex,
       position: node.position
     });
@@ -465,7 +465,7 @@ function buildCoordinateUnitWitnesses(model: PreviewModel): CoordinateUnitWitnes
       refId: support.id,
       sourceNodeRef: support.node,
       fieldPrefix: "node.position",
-      groupName: "OpenPipeStress support review markers",
+      groupName: "SWBPIPE support review markers",
       vertexIndex: supportIndex,
       position: nodeMap.get(support.node) ?? origin()
     });
@@ -477,7 +477,7 @@ function buildCoordinateUnitWitnesses(model: PreviewModel): CoordinateUnitWitnes
       refId: component.id,
       sourceNodeRef: component.node,
       fieldPrefix: "node.position",
-      groupName: "OpenPipeStress component review markers",
+      groupName: "SWBPIPE component review markers",
       vertexIndex: componentIndex,
       position: nodeMap.get(component.node) ?? origin()
     });
@@ -518,12 +518,12 @@ function buildGltfAsset({ model, groups }: { model: PreviewModel; groups: GltfPo
   return {
     asset: {
       version: "2.0",
-      generator: "OpenPipeStress desktop technical preview review geometry export"
+      generator: "SWBPIPE desktop review geometry export"
     },
     scene: 0,
     scenes: [
       {
-        name: "OpenPipeStress preview review geometry",
+        name: "SWBPIPE preview review geometry",
         nodes: groups.map((_group, index) => index)
       }
     ],

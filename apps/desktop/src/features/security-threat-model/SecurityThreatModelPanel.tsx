@@ -77,8 +77,7 @@ export function SecurityThreatModelPanel({
       </div>
       <small className="report-note">
         Threat model review is local evidence only. It summarizes known risks and required controls; it does not prove
-        security sufficiency or authorize telemetry. Acceptance and professional judgment remain with the responsible
-        engineer.
+        security sufficiency or authorize telemetry.
       </small>
     </section>
   );

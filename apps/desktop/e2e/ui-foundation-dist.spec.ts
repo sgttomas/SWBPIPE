@@ -969,7 +969,7 @@ for (const theme of APPEARANCE_THEMES) {
       }
       if (phase === "blocked") {
         await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
-        await expect(page.getByTestId("readiness-mechanics")).toContainText("0 computed result rows; model incomplete");
+        await expect(page.getByTestId("readiness-mechanics")).toContainText("0 computed result rows; Solver · Model incomplete (MODEL_INCOMPLETE)");
         await expect(page.getByTestId("readiness-diagnostics")).toHaveClass(/\bblocking\b/);
         await expect(page.getByTestId("readiness-diagnostics")).toContainText("1 blocking/error");
       }

@@ -95,8 +95,7 @@ export function RuleCheckPanel({ model, result }: { model: PreviewModel; result:
         </div>
       </div>
       <small className="report-note">
-        Completeness findings explain missing user/private rule-check data. Mechanics preview output is
-        decision-support information; acceptance and professional judgment remain with the responsible engineer.
+        Completeness findings explain missing user/private rule-check data.
       </small>
     </section>
   );

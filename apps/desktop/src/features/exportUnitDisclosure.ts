@@ -56,10 +56,10 @@ export function buildExportUnitSystemDisclosure({
     protected_content_included: false,
     private_payload_included: false,
     provenance: {
-      source_name: "OpenPipeStress desktop export unit disclosure",
+      source_name: "SWBPIPE desktop export unit disclosure",
       source_location: sourceLocation,
       source_license: "project-governed",
-      contributor: "OpenPipeStress app integration tranche",
+      contributor: "SWBPIPE app integration tranche",
       contributor_certification: "DEC-018 unit metadata disclosure only; no protected standards or private payloads.",
       redistribution_status: "public_permissive",
       review_status: "desktop_preview",

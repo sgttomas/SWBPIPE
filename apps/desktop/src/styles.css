@@ -1,9 +1,9 @@
 /*
- * OpenPipeStress desktop shell stylesheet.
+ * SWBPIPE desktop shell stylesheet.
  *
  * Structure (TP-APP-R2-UXSHELL-001):
  *   1. Base + chrome ......... :root, body, .loading-screen, .topbar,
- *      .project-toolbar, .boundary-strip, .app-footer
+ *      .project-toolbar, .boundary-strip
  *   2. Workspace layout ...... .workflow-ribbon (top-level workflow nav: ribbon
  *      stops + current-step summary + section switcher), then .workspace
  *      (column flex filling the shell) wrapping .modeling-workspace (persistent
@@ -61,7 +61,7 @@ button:focus-visible {
 
 .app-shell {
   display: grid;
-  grid-template-rows: auto auto auto 1fr auto auto;
+  grid-template-rows: auto auto auto 1fr auto;
   height: 100vh;
   min-height: 760px;
 }
@@ -69,7 +69,7 @@ button:focus-visible {
 /* Tauri shell: the native OS menu bar replaces the in-DOM menu row, so one
    fewer grid track keeps the workspace on the 1fr row. */
 .app-shell.native-menu {
-  grid-template-rows: auto auto 1fr auto auto;
+  grid-template-rows: auto auto 1fr auto;
 }
 
 .titlebar {
@@ -3019,15 +3019,6 @@ th {
   line-height: 1.35;
 }
 
-.app-footer {
-  min-height: 34px;
-  padding: 9px 18px;
-  color: #3f4a46;
-  background: #e0e5e1;
-  border-top: 1px solid #c7d0cb;
-  font-size: 12px;
-}
-
 @media (max-width: 1320px) {
   body {
     min-width: 960px;
@@ -3515,7 +3506,6 @@ body { min-width: 760px; min-height: 540px; }
 .status-pill { padding: 3px 5px; min-height: 24px; gap: 4px; font-size: 10px; }
 .status-drawer-button { min-height: 24px; padding: 3px 6px; font-size: 10px; }
 .status-drawer-button small { font-size: 9px; }
-.app-footer { flex: 0 0 auto; min-height: 21px; padding: 4px 10px; font-size: 10px; }
 .toolkit-palette { position: static; display: flex; align-items: center; min-width: 0; padding: 0; border: 0; }
 .toolkit-group-shortcuts { display: inline-flex; align-items: center; gap: 2px; margin-inline-start: 3px; }
 .toolkit-group-shortcuts button { min-height: 26px !important; padding-inline: 5px; font-size: 10px; }
@@ -3713,8 +3703,7 @@ body { min-width: 760px; min-height: 540px; }
 /* Theme-owned workspace surfaces. Keep each foreground paired with the
    surface it describes so legacy light literals cannot leak into Dark. */
 .app-shell .project-strip,
-.app-shell .status-bar,
-.app-shell .app-footer {
+.app-shell .status-bar {
   color: var(--ui-text);
   background: var(--ui-raised);
   border-color: var(--ui-divider);

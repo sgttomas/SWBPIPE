@@ -431,10 +431,10 @@ function professionalBoundary() {
 
 function previewProvenance() {
   return {
-    source_name: "OpenPipeStress desktop technical preview",
+    source_name: "SWBPIPE desktop",
     source_location: "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
     source_license: "project-invented-preview-data",
-    contributor: "OpenPipeStress app integration tranche",
+    contributor: "SWBPIPE app integration tranche",
     contributor_certification: "Invented metadata only; no protected standards, private project payloads, or commercial result payloads.",
     redistribution_status: "invented_non_engineering_example",
     review_status: "pending",

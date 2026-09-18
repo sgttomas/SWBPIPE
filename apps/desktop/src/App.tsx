@@ -62,6 +62,7 @@ import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHando
 import { MissingDataBlockingPanel, countMissingDataBlockers } from "./features/missing-data/MissingDataBlockingPanel";
 import { defaultSelection } from "./features/model-workspace/modelView";
 import { modelIndexFor } from "./features/workspace/modelIndex";
+import { professionalStatusToken, ruleCheckStatusToken, statusDisplay } from "./features/workspace/statusLabels";
 import {
   applyDisplayedRange,
   applyBoxSelection,
@@ -2402,7 +2403,7 @@ function AppSession() {
   const showInAppMenuBar = !isTauriRuntime();
 
   if (!model || !selection) {
-    return <div className="loading-screen">Loading local OpenPipeStress preview fixture.</div>;
+    return <div className="loading-screen">Loading local SWBPIPE preview fixture.</div>;
   }
 
   function resizeWorkspaceRail(side: "tree" | "inspector", delta: number) {
@@ -2543,7 +2544,7 @@ function AppSession() {
     >
       <header className="titlebar">
         <div>
-          <h1>OpenPipeStress</h1>
+          <h1>SWBPIPE</h1>
           <p>{projectSummary?.project_name ?? model.project.name}</p>
         </div>
         <div className="titlebar-actions" aria-label="Local project controls">
@@ -3277,10 +3278,6 @@ function AppSession() {
           onSelectDiagnostic={handleSelectDiagnostic}
         />
       ) : null}
-
-      <footer className="app-footer">
-        Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
-      </footer>
     </main>
   );
 }
@@ -3599,10 +3596,10 @@ function StatusBar({
     <section className="status-bar" aria-label="Workspace status" data-testid="workspace-status-bar">
       <div className="status-pill-group" aria-label="Analysis statuses">
         <StatusPill label="Mechanics" value={status.mechanics} testId="status-pill-mechanics" />
-        <StatusPill label="Rule check" value={ruleCheckStatusLabel(status.rule_check)} testId="status-pill-rule-check" />
+        <StatusPill label="Rule check" value={ruleCheckStatusToken(status.rule_check)} testId="status-pill-rule-check" />
         <StatusPill
           label="Professional"
-          value={professionalStatusLabel(status.professional_acceptance)}
+          value={professionalStatusToken(status.professional_acceptance)}
           testId="status-pill-professional"
         />
         {visibleSolveProof ? (
@@ -3752,38 +3749,18 @@ function IssuesHome({
   );
 }
 
+// The summary shows the registered display form with its authority domain
+// (features/workspace/statusLabels.ts, DEC-102); the recorded token stays
+// reachable in place in the pill's body.
 function StatusPill({ label, value, testId, summaryText }: {
   label: string; value: string; testId: string; summaryText?: string;
 }) {
   return (
     <details className="status-pill" data-testid={testId}>
-      <summary><strong>{label}</strong> {summaryText ?? readableWorkspaceStatus(value)}</summary>
+      <summary><strong>{label}</strong> {summaryText ?? statusDisplay(value)}</summary>
       <div><strong>Recorded status</strong><code>{value}</code></div>
     </details>
   );
-}
-
-function readableWorkspaceStatus(value: string): string {
-  const token = value.toLowerCase();
-  if (token === "human_review_required" || token === "not_provided") return "Review required";
-  if (token === "rule_inputs_incomplete" || token === "not_performed_user_rule_inputs_missing") return "Inputs needed";
-  if (token === "not_run" || token === "not_computed") return "Not run";
-  if (token === "computed_for_invented_demo") return "Demo computed";
-  return value.replace(/_/g, " ").toLowerCase();
-}
-
-function professionalStatusLabel(value: string) {
-  if (value.toLowerCase() === "not_provided") {
-    return "HUMAN_REVIEW_REQUIRED";
-  }
-  return value;
-}
-
-function ruleCheckStatusLabel(value: string) {
-  if (value.toLowerCase() === "not_performed_user_rule_inputs_missing") {
-    return "RULE_INPUTS_INCOMPLETE";
-  }
-  return value;
 }
 
 export function solveProofStatus(

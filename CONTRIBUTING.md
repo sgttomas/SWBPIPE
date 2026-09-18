@@ -13,9 +13,9 @@ refs:
     to: OPS-CONTRIBUTOR-CERTIFICATION-TEMPLATE
 ---
 
-# Contributing to OpenPipeStress
+# Contributing to SWBPIPE
 
-OpenPipeStress accepts contributions only within the project boundaries in
+SWBPIPE accepts contributions only within the project boundaries in
 `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and
 `docs/PROFESSIONAL_BOUNDARY.md`.
 

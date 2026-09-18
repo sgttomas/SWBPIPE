@@ -247,7 +247,7 @@ function adapterDiagnostic(item: Diagnostic) {
     source: reference("diagnostic", item.source ?? "apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx"),
     affected_object: reference("payload", affectedRef),
     message: item.message,
-    remediation: "Review adapter provenance, units, privacy, protected-content screening, and technical-preview limitations before sharing.",
+    remediation: "Review adapter provenance, units, privacy, protected-content screening, and limitations before sharing.",
     provenance: previewProvenance()
   };
 }
@@ -317,7 +317,7 @@ function previewProvenance() {
     source_name: "invented preview fixture",
     source_location: "fixtures/product_preview",
     source_license: "project-invented",
-    contributor: "OpenPipeStress project",
+    contributor: "SWBPIPE project",
     contributor_certification: "invented data; no protected or private payload",
     redistribution_status: "public_permissive",
     review_status: "accepted"

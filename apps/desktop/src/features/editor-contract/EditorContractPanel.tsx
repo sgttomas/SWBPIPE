@@ -102,8 +102,7 @@ export function EditorContractPanel({
       </div>
       <small className="report-note">
         Editor records are review-only command intent context. Private rule packs, private libraries, protected source
-        content, and durable mutation are not bundled or generated; acceptance and professional judgment remain with
-        the responsible engineer.
+        content, and durable mutation are not bundled or generated.
       </small>
     </section>
   );
@@ -519,7 +518,7 @@ function editorDiagnostics(model: PreviewModel): EditorDiagnostic[] {
       "RULE_PACK_WARNING",
       "warning",
       reference("rule_pack", "rule-pack:user-supplied:not-loaded"),
-      "Private rule-pack checksum is not available in the public technical preview.",
+      "Private rule-pack checksum is not available in the public build.",
       "Load a user-owned rule pack through a governed private path before rule-check reliance."
     ),
     diagnostic(
@@ -644,10 +643,10 @@ function professionalBoundary() {
 
 function previewProvenance() {
   return {
-    source_name: "OpenPipeStress desktop technical preview",
+    source_name: "SWBPIPE desktop",
     source_location: "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
     source_license: "project-invented metadata only",
-    contributor: "OpenPipeStress app integration tranche",
+    contributor: "SWBPIPE app integration tranche",
     contributor_certification:
       "Invented editor metadata only; no protected standards, private project payload, private rule pack, or proprietary library payload.",
     redistribution_status: "invented_non_engineering_example",

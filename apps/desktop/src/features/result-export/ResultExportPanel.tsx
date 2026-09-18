@@ -90,7 +90,7 @@ export function ResultExportPanel({
         </p>
       )}
       <small className="report-note">
-        Result export is a local technical-preview JSON envelope; stress-neutral CSV/JSON preview is available after a
+        Result export is a local JSON envelope; stress-neutral CSV/JSON preview is available after a
         mechanics run, while public transport and local FEA package formats remain TBD.
       </small>
     </section>
@@ -125,7 +125,7 @@ function boundarySummary(boundary: Record<string, boolean>): string {
     !boundary.software_makes_approval_claim &&
     !boundary.software_makes_authentication_claim
   ) {
-    return "human review remains required; acceptance stays with the responsible engineer";
+    return "human_review_required=true; professional_claim=false";
   }
   return "professional boundary requires attention";
 }

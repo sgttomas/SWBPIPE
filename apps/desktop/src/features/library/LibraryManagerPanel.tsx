@@ -964,7 +964,6 @@ export function LibraryManagerPanel({
             {validation.library_kind}; intended_visibility={validation.intended_visibility}
           </small>
           <LibraryFindingsList validation={validation} />
-          <small>{validation.professional_boundary_notice}</small>
         </div>
       ) : null}
 
@@ -974,8 +973,7 @@ export function LibraryManagerPanel({
         public artifacts. Only an accepted private import is stored; a suspected-protected or
         otherwise-blocked import is refused, not stored (DEC-036). Import validation reports
         software findings over an already-parsed payload; no protected standards content —
-        code-specific data is user-supplied. Acceptance and professional judgment remain with the
-        responsible engineer.
+        code-specific data is user-supplied.
       </small>
     </section>
   );
@@ -1325,7 +1323,7 @@ function sectionDraftProvenance(document: Record<string, unknown>): Record<strin
     source_name: String(provenance.source_name ?? "Invented local section quantity draft"),
     source_location: String(provenance.source_location ?? "user-authored private draft"),
     source_license: String(provenance.source_license ?? "private user basis"),
-    contributor: String(provenance.contributor ?? "OpenPipeStress user"),
+    contributor: String(provenance.contributor ?? "SWBPIPE user"),
     contributor_certification: String(
       provenance.contributor_certification ?? "invented non-engineering draft; not for project reliance"
     ),
@@ -1351,7 +1349,7 @@ function materialDraftProvenance(document: Record<string, unknown>): Record<stri
     source_name: String(provenance.source_name ?? "Invented local material property draft"),
     source_location: String(provenance.source_location ?? "user-authored private draft"),
     source_license: String(provenance.source_license ?? "private user basis"),
-    contributor: String(provenance.contributor ?? "OpenPipeStress user"),
+    contributor: String(provenance.contributor ?? "SWBPIPE user"),
     contributor_certification: String(
       provenance.contributor_certification ?? "invented non-engineering draft; not for project reliance"
     ),
@@ -1377,7 +1375,7 @@ function componentDraftProvenance(document: Record<string, unknown>): Record<str
     source_name: String(provenance.source_name ?? "Invented local component field draft"),
     source_location: String(provenance.source_location ?? "user-authored private draft"),
     source_license: String(provenance.source_license ?? "private user basis"),
-    contributor: String(provenance.contributor ?? "OpenPipeStress user"),
+    contributor: String(provenance.contributor ?? "SWBPIPE user"),
     contributor_certification: String(
       provenance.contributor_certification ?? "invented non-engineering draft; not for project reliance"
     ),

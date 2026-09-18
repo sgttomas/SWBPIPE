@@ -259,10 +259,6 @@ export function ReportPanel({
                 />
               </>
             ) : null}
-            <ReportLine
-              label="Boundary"
-              value="human review remains required; acceptance stays with the responsible engineer"
-            />
           </div>
           )}
         </>
@@ -274,8 +270,7 @@ export function ReportPanel({
         </p>
       )}
       <small className="report-note">
-        Uses invented or cleared preview data for {model.project.id}; private rule criteria are not bundled. Acceptance
-        and professional judgment remain with the responsible engineer.
+        Uses invented or cleared preview data for {model.project.id}; private rule criteria are not bundled.
       </small>
     </section>
   );
@@ -601,7 +596,7 @@ function boundarySummary(boundary: Record<string, boolean>): string {
     !boundary.software_makes_sealing_claim &&
     !boundary.software_makes_approval_claim
   ) {
-    return "human review remains required; acceptance stays with the responsible engineer";
+    return "human_review_required=true; professional_claim=false";
   }
   return "review boundary requires attention";
 }
@@ -624,7 +619,7 @@ function proposalBoundarySummary(proposal: AgentProposal): string {
     !proposal.professional_boundary.software_makes_compliance_claim &&
     !proposal.professional_boundary.software_makes_approval_claim
   ) {
-    return "review-only; requires user acceptance; does not mutate accepted model state; acceptance and professional judgment remain with the responsible engineer";
+    return "review-only; requires user acceptance; does not mutate accepted model state";
   }
   return "proposal boundary requires attention";
 }
@@ -1005,7 +1000,7 @@ function editorIntentBoundarySummary(intent: EditorOperationIntent): string {
     !intent.professional_boundary.software_makes_compliance_claim &&
     !intent.professional_boundary.software_makes_approval_claim
   ) {
-    return "review-only; requires user acceptance; does not mutate accepted model state; acceptance and professional judgment remain with the responsible engineer";
+    return "review-only; requires user acceptance; does not mutate accepted model state";
   }
   return "editor intent boundary requires attention";
 }

@@ -40,18 +40,18 @@ export function CaepipeExternalHarnessPanel({
   return (
     <section
       className="panel caepipe-external-panel"
-      aria-label="CAEPIPE external harness"
+      aria-label="External run evidence"
       data-testid="caepipe-external-panel"
     >
       <div className="panel-title">
         <FileOutput size={16} aria-hidden="true" />
-        CAEPIPE External Harness
+        External run evidence
       </div>
       <div className="report-actions">
         <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-external-export-link"
-          download={`openpipestress-preview-caepipe-external-${safeFileToken(model.project.id)}.json`}
+          download={`openpipestress-preview-external-run-${safeFileToken(model.project.id)}.json`}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -60,7 +60,7 @@ export function CaepipeExternalHarnessPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-external-csv-link"
-          download={`openpipestress-preview-caepipe-external-${safeFileToken(model.project.id)}.csv`}
+          download={`openpipestress-preview-external-run-${safeFileToken(model.project.id)}.csv`}
           href={textDataHref(packet.csv_text)}
         >
           <Download size={14} aria-hidden="true" />
@@ -80,7 +80,7 @@ export function CaepipeExternalHarnessPanel({
         />
         <CaePipeExternalLine
           label="State binding"
-          value={`${packet.mbf_package_ref.ref}; ${packet.model_state_ref.ref}; ${packet.analysis_run_ref.ref}`}
+          value={`${mbfPackageDisplayRef(packet.mbf_package_ref.ref)}; ${packet.model_state_ref.ref}; ${packet.analysis_run_ref.ref}`}
           testId="caepipe-external-state-binding"
         />
         <CaePipeExternalLine
@@ -109,16 +109,22 @@ export function CaepipeExternalHarnessPanel({
         />
         <CaePipeExternalLine
           label="Boundary"
-          value={`bundled=${String(packet.professional_boundary.software_bundles_caepipe)}; license_bypass=false; compatibility=${String(packet.professional_boundary.software_makes_caepipe_compatibility_claim)}; solver_validation=${String(packet.professional_boundary.software_makes_solver_validation_claim)}; code_compliance=${String(packet.professional_boundary.software_makes_compliance_claim)}; professional_reliance=${String(packet.professional_boundary.software_creates_professional_reliance_record)}`}
+          value={`bundled=${String(packet.professional_boundary.software_bundles_caepipe)}; license_bypass=false; solver_validation=${String(packet.professional_boundary.software_makes_solver_validation_claim)}; code_compliance=${String(packet.professional_boundary.software_makes_compliance_claim)}; professional_reliance=${String(packet.professional_boundary.software_creates_professional_reliance_record)}`}
           testId="caepipe-external-boundary"
         />
       </div>
       <small className="report-note">
-        CAEPIPE external harness output is parser-only browser preview evidence; executable path, license responsibility,
+        External run evidence is parser-only browser preview evidence; executable path, license responsibility,
         environment responsibility, invocation profile, live execution, and target compatibility remain user-owned or TBD.
       </small>
     </section>
   );
+}
+
+// The package ref is an identifier that keeps its spelling in the data until
+// the identity tranche; the display drops its vendor-named prefix (DEC-103).
+function mbfPackageDisplayRef(ref: string): string {
+  return ref.replace(/^caepipe-mbf:/u, "mbf:");
 }
 
 function CaePipeExternalLine({ label, value, testId }: { label: string; value: string; testId: string }) {
@@ -192,9 +198,9 @@ function buildCaePipeExternalHarnessPacket({
     run_directory: {
       run_directory_ref: `fixture:desktop-caepipe-external:${safeFileToken(model.project.id)}`,
       working_directory: "apps/desktop/browser-preview",
-      input_mbf_path: "download:openpipestress-preview-caepipe-mbf-package.json",
-      expected_csv_path: "openpipestress-preview-caepipe-external-results.csv",
-      observed_csv_path: "openpipestress-preview-caepipe-external-results.csv",
+      input_mbf_path: "download:openpipestress-preview-mbf-package.json",
+      expected_csv_path: "openpipestress-preview-external-run-results.csv",
+      observed_csv_path: "openpipestress-preview-external-run-results.csv",
       output_discovery_status: "fixture_generated_browser_preview"
     },
     execution_result: {
@@ -202,7 +208,7 @@ function buildCaePipeExternalHarnessPacket({
       exit_status: null,
       stdout_capture: "not_available",
       stderr_capture: "not_available",
-      skip_reason: "Parser-only desktop preview; external CAEPIPE execution was not attempted."
+      skip_reason: "Parser-only desktop preview; an external run was not attempted."
     },
     parser_coverage: parserCoverage(),
     unit_system_disclosure: unitSystemDisclosure,
@@ -237,10 +243,10 @@ function buildCaePipeExternalHarnessPacket({
       checksum(runId, "caepipe_external_diagnostics")
     ],
     boundary_notes: [
-      "CAEPIPE external execution is optional and user-owned.",
-      "This desktop preview does not configure, discover, invoke, bundle, download, install, or license CAEPIPE.",
+      "An external run is optional and user-owned.",
+      "This desktop preview does not configure, discover, invoke, bundle, download, install, or license an external tool.",
       "Parsed CSV rows are invented parser-only regression and handoff evidence.",
-      "Evidence does not assert CAEPIPE compatibility. Validation occurs in the user's accepted professional tools; this is screening and handoff evidence."
+      "Validation occurs in the user's accepted professional tools; this is screening and handoff evidence."
     ],
     privacy: {
       classification: "invented_public_example",
@@ -520,11 +526,11 @@ function professionalBoundaryIsClear(): boolean {
 
 function previewProvenance() {
   return {
-    source_name: "OpenPipeStress desktop technical preview",
+    source_name: "SWBPIPE desktop",
     source_location: "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
     source_license: "project-invented metadata only",
-    contributor: "OpenPipeStress app integration tranche",
-    contributor_certification: "Invented parser-only metadata; no CAEPIPE executable, commercial output, protected standards, or private project payloads.",
+    contributor: "SWBPIPE app integration tranche",
+    contributor_certification: "Invented parser-only metadata; no external executable, commercial output, protected standards, or private project payloads.",
     redistribution_status: "invented_non_engineering_example",
     review_status: "pending"
   };

@@ -124,16 +124,15 @@ describe("RulePackManagerPanel", () => {
     );
   });
 
-  it("keeps the DEC-037 and professional boundaries visible", () => {
+  it("keeps the DEC-037 boundary visible and carries no acceptance sentence", () => {
     render(<RulePackManagerPanel model={modelStub} />);
     const note = screen.getByTestId("rule-pack-boundary-note").textContent ?? "";
     expect(note).toContain("DEC-037");
     expect(note).toContain("read-only");
     expect(note).toContain("no expression text parser");
     expect(note).toContain("never committed to the repository");
-    expect(note).toContain(
-      "acceptance and professional judgment remain with the responsible engineer",
-    );
+    expect(note).toContain("software computation over user-supplied data");
+    expect(note).not.toContain("responsible engineer");
   });
 
   it("reveals the structured composer only with a draft and writes edits back into the document", () => {

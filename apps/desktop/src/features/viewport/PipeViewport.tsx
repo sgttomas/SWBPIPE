@@ -109,6 +109,7 @@ import {
   type UiDiagnosticsPublication
 } from "../workspace/uiDiagnostics";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
+import { statusDisplayWithToken } from "../workspace/statusLabels";
 
 function ViewportMeasurementQuantityReadout({ label, unit, value }: { label: string; unit: string; value: number }) {
   const display = useDisplayQuantity({ value, unit, dimension_id: "length" });
@@ -4409,7 +4410,7 @@ export function buildDeformationOverlay(model: PreviewModel, result: MechanicsRe
   if (result.status.mechanics !== "MECHANICS_SOLVED") {
     return {
       state: "blocked",
-      summary: `blocked; mechanics=${formatStatus(result.status.mechanics)}; rows=${result.results.length}`,
+      summary: `blocked; mechanics=${statusDisplayWithToken(result.status.mechanics)}; rows=${result.results.length}`,
       boundary: "scale=not_generated; professional_claim=false",
       nodePositions: new Map()
     };
@@ -4513,10 +4514,6 @@ function unitVector(vector: Vec3): Vec3 {
     return { x: 0, y: 0, z: 0 };
   }
   return { x: vector.x / length, y: vector.y / length, z: vector.z / length };
-}
-
-function formatStatus(value: string): string {
-  return value.replaceAll("_", " ").toLowerCase();
 }
 
 function formatNumber(value: number): string {

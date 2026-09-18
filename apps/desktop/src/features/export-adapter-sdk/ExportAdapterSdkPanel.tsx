@@ -367,7 +367,7 @@ function exportAdapterTargets(): ExportAdapterTarget[] {
     }),
     target({
       target_id: "caepipe_mbf_export",
-      label: "CAEPIPE MBF export",
+      label: "Model batch file (.mbf) export",
       document_kind: "openpipestress.technical_preview.caepipe_mbf_export_package",
       deliverable_refs: ["DEL-17-04", "DEL-17-02", "DEL-17-01"],
       target_family: "caepipe_mbf",
@@ -513,10 +513,10 @@ function professionalBoundary() {
 
 function previewProvenance() {
   return {
-    source_name: "OpenPipeStress desktop technical preview",
+    source_name: "SWBPIPE desktop",
     source_location: "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
     source_license: "project-invented metadata only",
-    contributor: "OpenPipeStress app integration tranche",
+    contributor: "SWBPIPE app integration tranche",
     contributor_certification: "Invented public metadata; no protected standards, proprietary target files, or private project payloads.",
     redistribution_status: "invented_non_engineering_example",
     review_status: "pending"

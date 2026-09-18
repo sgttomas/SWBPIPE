@@ -65,8 +65,8 @@ const SECTION_SPACE: f64 = 10.0;
 const SIGNOFF_MIN_ROW_HEIGHT: f64 = 26.0;
 
 /// Fixed, non-varying document metadata (no dates, no IDs).
-const PDF_INFO_TITLE: &str = "OpenPipeStress Calculation Report";
-const PDF_INFO_PRODUCER: &str = "OpenPipeStress deterministic PDF emitter DEC-061";
+const PDF_INFO_TITLE: &str = "SWBPIPE Calculation Report";
+const PDF_INFO_PRODUCER: &str = "SWBPIPE deterministic PDF emitter DEC-061";
 
 /// Closing note carried by the PDF emission. The HTML document keeps its own
 /// ruled derived-view note; this text names the PDF's evidence binding.

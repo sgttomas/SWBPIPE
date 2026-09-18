@@ -294,7 +294,7 @@ function buildStressNeutralExportPacketV01({
           category: "omitted",
           severity: "warning",
           affected_ref: reference("RulePack", "rule-pack:user-supplied:not-loaded"),
-          reason: "Private rule criteria and compliance inputs are not bundled in the public technical preview.",
+          reason: "Private rule criteria and compliance inputs are not bundled in the public build.",
           downstream_implication: "Completeness and code-rule interpretation require separate governed review."
         }
       ],
@@ -798,10 +798,10 @@ function reference(objectType: string, ref: string): StressNeutralRef {
 
 function previewProvenance() {
   return {
-    source_name: "OpenPipeStress desktop technical preview",
+    source_name: "SWBPIPE desktop",
     source_location: "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
     source_license: "PolyForm-Noncommercial-1.0.0 project license context",
-    contributor: "OpenPipeStress app integration tranche",
+    contributor: "SWBPIPE app integration tranche",
     contributor_certification: "Invented preview metadata only; no protected standards or private project payloads.",
     redistribution_status: "invented_non_engineering_example",
     review_status: "pending"

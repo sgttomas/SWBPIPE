@@ -114,8 +114,9 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
   await expect(page.getByTestId("readiness-mechanics")).toContainText("preview run not started");
-  await expect(page.getByTestId("readiness-rule")).toContainText("rule inputs incomplete");
-  await expect(page.getByTestId("readiness-professional")).toContainText("human review remains required");
+  await expect(page.getByTestId("readiness-rule")).toContainText("Rule pack · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)");
+  await expect(page.getByTestId("readiness-professional")).toContainText("Human · Human review required (HUMAN_REVIEW_REQUIRED)");
+  await expect(page.getByTestId("readiness-professional")).not.toContainText("responsible engineer");
   await expect(page.getByTestId("solve-job-boundary")).toContainText("private payload=false");
   await expect(page.getByTestId("solve-job-boundary")).toContainText("protected content=false");
   await expect(page.getByTestId("solve-job-boundary")).toContainText("human review required");
@@ -275,7 +276,7 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expectRecordedStatus(page, "status-pill-mechanics", "MODEL_INCOMPLETE");
   await setDisclosure(page.getByTestId("viewport-deformation-status"));
   await expect(page.getByTestId("viewport-deformation-status")).toContainText(
-    "blocked; mechanics=model incomplete; rows=0"
+    "blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=0"
   );
   await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
   await page.getByTestId("issues-drawer-toggle").click();

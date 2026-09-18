@@ -13,7 +13,7 @@ refs:
 
 # Report Notice Template
 
-This template defines baseline notice language for OpenPipeStress-generated
+This template defines baseline notice language for SWBPIPE-generated
 reports and public report-template examples. Report generators may format this
 content for the target output, but the professional-boundary meaning must be
 preserved. Boundary-statement vocabulary for all other surfaces is governed by
@@ -38,7 +38,7 @@ The required notice is the PRD §19.3 composite, quoted verbatim (changes
 require a PRD-level owner act):
 
 ```text
-OpenPipeStress is decision-support software for piping design, flexibility,
+SWBPIPE is decision-support software for piping design, flexibility,
 and stress-analysis workflows. It computes mechanical results from recorded
 user inputs and may evaluate user-supplied rule packs. It does not certify,
 seal, approve, authenticate, or determine code compliance for professional
@@ -65,7 +65,7 @@ metadata:
 
 | Field | Requirement |
 |---|---|
-| Software version | OpenPipeStress version or commit basis used to generate the report. |
+| Software version | SWBPIPE version or commit basis used to generate the report. |
 | Project license notice | `PolyForm-Noncommercial-1.0.0` where report packaging includes project governance notices. |
 | Model hash | Hash of the model basis used for the reported results. |
 | Input manifest hash | Hash or reference for the input manifest where implemented. |

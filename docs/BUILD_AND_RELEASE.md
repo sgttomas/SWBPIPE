@@ -18,7 +18,7 @@ refs:
 ## 1. Purpose
 
 This guide defines the provider-neutral build, packaging, and release-evidence
-skeleton for OpenPipeStress. It gives maintainers a reproducible local path for
+skeleton for SWBPIPE. It gives maintainers a reproducible local path for
 collecting software-quality evidence before a future CI provider, release
 matrix, signing process, and publishing workflow are selected.
 
@@ -201,7 +201,7 @@ The packaging checklist for a release candidate:
   (packaged build + recorded packaged-run smoke + §8 record per platform).
 - **Bundle:** `apps/desktop/src-tauri/tauri.conf.json` enables the bundler
   (`bundle.active: true`, explicit `targets: ["app"]`) with the invented
-  OpenPipeStress mark as a real multi-resolution `.icns`
+  SWBPIPE mark as a real multi-resolution `.icns`
   (`apps/desktop/src-tauri/icons/icon.icns`; regenerate deterministically
   with `python3 tools/release/generate_app_icon.py`). Build the `.app` with:
 

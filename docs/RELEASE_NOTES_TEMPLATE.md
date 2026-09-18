@@ -81,7 +81,7 @@ professional approval claims, or code-compliance claims (PRD §21.2 prohibited-c
 
 ## Professional Boundary Notice
 
-OpenPipeStress is decision-support software. It may compute mechanics, evaluate
+SWBPIPE is decision-support software. It may compute mechanics, evaluate
 user-supplied rule packs, record diagnostics, and assemble auditable reports.
 Competent human review remains required; acceptance and professional judgment
 for any project-specific piping calculation stay with the responsible engineer

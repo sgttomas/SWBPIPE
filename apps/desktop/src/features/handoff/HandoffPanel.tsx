@@ -340,10 +340,10 @@ function reference(objectType: string, ref: string) {
 
 function previewProvenance() {
   return {
-    source_name: "OpenPipeStress technical preview handoff package",
+    source_name: "SWBPIPE handoff package",
     source_location: "apps/desktop/src/features/handoff/HandoffPanel.tsx",
     source_license: "project-governed",
-    contributor: "OpenPipeStress app integration tranche",
+    contributor: "SWBPIPE app integration tranche",
     contributor_certification:
       "Invented preview result unit metadata only; no protected standards or private payloads.",
     redistribution_status: "public_permissive",

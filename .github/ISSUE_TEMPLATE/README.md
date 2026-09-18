@@ -15,7 +15,7 @@ refs:
 
 # Public Issue Templates (Future Public Repository)
 
-This directory holds the OpenPipeStress **public issue templates** named as a
+This directory holds the SWBPIPE **public issue templates** named as a
 PRD §22.6 deliverable ("Public issue templates"; completion-plan row E6 in
 `plans/PLAN_2026-06-17_prd_completion.md`). They are GitHub issue forms:
 
@@ -28,7 +28,7 @@ PRD §22.6 deliverable ("Public issue templates"; completion-plan row E6 in
 
 ## Where these templates live and where they apply
 
-The public OpenPipeStress repository **does not exist yet**; its creation is
+The public SWBPIPE repository **does not exist yet**; its creation is
 an owner-gated publication act. These templates are therefore authored
 in-project at `projects/chirality-piping/.github/ISSUE_TEMPLATE/` and are
 **inert here** — GitHub only reads `.github/` at a repository root, so nothing

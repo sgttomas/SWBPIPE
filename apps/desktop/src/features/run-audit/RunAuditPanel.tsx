@@ -75,7 +75,7 @@ export function RunAuditPanel({
         </p>
       )}
       <small className="report-note">
-        Audit evidence for {model.project.id} is stored locally; acceptance and professional judgment remain with the responsible engineer.
+        Audit evidence for {model.project.id} is stored locally.
       </small>
     </section>
   );
@@ -108,7 +108,7 @@ function boundarySummary(boundary: Record<string, boolean>): string {
     !boundary.software_makes_approval_claim &&
     !boundary.software_makes_authentication_claim
   ) {
-    return "human review remains required; acceptance stays with the responsible engineer";
+    return "human_review_required=true; professional_claim=false";
   }
   return "professional boundary requires attention";
 }

@@ -1,5 +1,5 @@
 name: Documentation feedback
-description: Report unclear, incorrect, or missing documentation in OpenPipeStress.
+description: Report unclear, incorrect, or missing documentation in SWBPIPE.
 title: "[Docs]: "
 body:
   - type: markdown

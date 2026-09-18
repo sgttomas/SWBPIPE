@@ -513,7 +513,6 @@ export function RulePackManagerPanel({
               </article>
             ))}
           </div>
-          <small>{validation.professional_boundary_notice}</small>
         </div>
       ) : null}
 
@@ -522,8 +521,7 @@ export function RulePackManagerPanel({
         storage only — never committed to the repository, transmitted, or bundled into public
         artifacts. Expressions are composed as a structured AST (DEC-022 grammar v1.0.0); the
         text preview is read-only per DEC-037 and no expression text parser is provided. Rule-check output is a
-        software computation over user-supplied data; acceptance and professional judgment remain
-        with the responsible engineer.
+        software computation over user-supplied data.
       </small>
     </section>
   );

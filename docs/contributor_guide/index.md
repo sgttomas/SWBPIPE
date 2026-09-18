@@ -17,7 +17,7 @@ refs:
 
 # Contributor Onboarding Guide
 
-This guide is a tutorial path through the existing OpenPipeStress governance
+This guide is a tutorial path through the existing SWBPIPE governance
 and deliverable workflow. It does not replace `CONTRIBUTING.md`,
 `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, `docs/CONTRACT.md`,
 `docs/IP_AND_DATA_BOUNDARY.md`, or `execution/_Coordination/_COORDINATION.md`.
@@ -52,7 +52,7 @@ repository and the current assignment.
 
 ## Repository Map
 
-OpenPipeStress uses a flat package and deliverable decomposition:
+SWBPIPE uses a flat package and deliverable decomposition:
 
 ```text
 execution/_Decomposition/SOFTWARE_DECOMP.md

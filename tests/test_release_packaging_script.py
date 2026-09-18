@@ -208,7 +208,7 @@ def test_checksum_line_is_shasum_compatible():
 def test_app_main_executable_honors_info_plist(tmp_path):
     """The Tauri bundle names its binary via CFBundleExecutable, not the
     product name (observed: openpipestress-desktop inside
-    'OpenPipeStress Technical Preview.app')."""
+    'SWBPIPE.app')."""
     packaging = load_module()
     app = tmp_path / "Pretty Name.app"
     (app / "Contents" / "MacOS").mkdir(parents=True)
@@ -428,9 +428,9 @@ def test_record_carries_section8_fields_and_caveat():
     }
     record = packaging.build_record(
         identity={
-            "product_name": "OpenPipeStress Technical Preview",
+            "product_name": "SWBPIPE",
             "version": "0.1.0",
-            "identifier": "org.openpipestress.technical-preview",
+            "identifier": "com.swbpipe.desktop",
         },
         git_state=clean_git_state(commit),
         runtime={"platform": "test"},
@@ -512,7 +512,7 @@ def test_execute_end_to_end_with_fake_app(tmp_path, monkeypatch, capsys):
     records = list(records_dir.glob("RELEASE_ARTIFACT_*.json"))
     assert len(zips) == len(checksums) == len(records) == 1
     assert zips[0].name == (
-        "OpenPipeStress-Technical-Preview_0.1.0_aarch64-apple-darwin.app.zip"
+        "SWBPIPE_0.1.0_aarch64-apple-darwin.app.zip"
     )
     digest = packaging.sha256_file(zips[0])
     assert checksums[0].read_text(encoding="utf-8") == packaging.checksum_line(

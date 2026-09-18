@@ -761,10 +761,10 @@ function reference(objectType: string, ref: string): PcfReference {
 
 function previewProvenance() {
   return {
-    source_name: "OpenPipeStress desktop PCF export preview",
+    source_name: "SWBPIPE desktop PCF export preview",
     source_location: "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
     source_license: "project-governed",
-    contributor: "OpenPipeStress desktop technical preview",
+    contributor: "SWBPIPE desktop",
     contributor_certification: "invented-public-preview-no-professional-claim",
     redistribution_status: "public_permissive",
     review_status: "desktop_preview",

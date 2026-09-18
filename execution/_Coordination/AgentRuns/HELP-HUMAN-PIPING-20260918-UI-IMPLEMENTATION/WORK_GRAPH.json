@@ -13,23 +13,29 @@
     "A1-LINT": {
       "role": "TASK Type 2 implementer",
       "model": "fable",
-      "status": "running",
+      "status": "returned_pending_independent_review",
       "briefSha256": "3db45afb67197ce57b7dc52c6e871a4c15edf8f3f670b7fbe19d785789491cad",
-      "brief": "briefs/A1-LINT_registry_and_lint.md"
+      "brief": "briefs/A1-LINT_registry_and_lint.md",
+      "model_ran": "Claude Fable 5.1",
+      "returnSha256": "5c3a4a7f21702a5dec253a63dafd5a234f36b9a146370c54f02d8c0ce7962e0d"
     },
     "A1-APP": {
       "role": "TASK Type 2 implementer",
       "model": "fable",
-      "status": "running",
+      "status": "returned_pending_independent_review",
       "briefSha256": "19fe7ca236cd9681e799e138637cdc442e9274707dd313c3f9d54312ce1f6480",
-      "brief": "briefs/A1-APP_desktop_visible_rename.md"
+      "brief": "briefs/A1-APP_desktop_visible_rename.md",
+      "model_ran": "Claude Fable 5.1",
+      "returnSha256": "7d6fe1e6acaa01aefbd63a2fbd9a748bd8115f28003b942fbf26a8dd54082563"
     },
     "A1-DOCS": {
       "role": "TASK Type 2 implementer",
       "model": "sonnet",
-      "status": "running",
+      "status": "returned_pending_independent_review",
       "briefSha256": "2a45a9731a1953c8907a76a8fce15b2adf26e114da73c2af3a7e4758c392c17d",
-      "brief": "briefs/A1-DOCS_sca010_core_docs.md"
+      "brief": "briefs/A1-DOCS_sca010_core_docs.md",
+      "model_ran": "Claude Sonnet 5",
+      "returnSha256": "297131b66278d4faac97c100e7eff8c5a74e7c66574ffa35eb09715122bec4d4"
     }
   },
   "edges": [
@@ -46,11 +52,15 @@
       "A1-DOCS"
     ]
   ],
-  "current_frontier": "Tranche A1: three implementers running (A1-LINT, A1-APP, A1-DOCS). Next: ROOT integration, tranche manifest, independent Opus code review of the frozen diff, DEC-025 sweep, PR.",
+  "current_frontier": "Tranche A1 integrated as one candidate commit. Next: independent Opus code review of the frozen diff, then the DEC-025 sweep, then the pull request.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
       "frontier": "Step 0: run opened; probes of nested delegation and host Playwright capability in progress. Next: Tranche A1 briefs."
+    },
+    {
+      "until": "A1 integration",
+      "frontier": "Tranche A1: three implementers running (A1-LINT, A1-APP, A1-DOCS). Next: ROOT integration, tranche manifest, independent Opus code review of the frozen diff, DEC-025 sweep, PR."
     }
   ]
 }

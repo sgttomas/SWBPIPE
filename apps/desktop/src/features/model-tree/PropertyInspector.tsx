@@ -1075,7 +1075,7 @@ function InlineValidationPreview({
       ))}
       {outcome.diagnostics.length === 0 ? (
         <small data-testid="editor-intent-inline-validation-boundary">
-          {intent.operation_id}; validate-only; no accepted model mutation; acceptance stays with the responsible engineer.
+          {intent.operation_id}; validate-only; no accepted model mutation.
         </small>
       ) : (
         outcome.diagnostics.map((diagnostic) => (

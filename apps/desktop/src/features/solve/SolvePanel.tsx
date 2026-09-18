@@ -1,6 +1,7 @@
 import { AlertTriangle, Download, Play, ShieldCheck, Square } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, SolveJobAuditState } from "../../types";
 import type { PreviewSolverMode } from "../../services/previewService";
+import { professionalStatusToken, ruleCheckStatusToken, statusDisplayWithToken } from "../workspace/statusLabels";
 
 export function SolvePanel({
   analysisRun,
@@ -129,8 +130,8 @@ function readinessSummary({
       id: "mechanics",
       label: "Mechanics readiness",
       value: result
-        ? `${result.results.length} computed result rows; ${formatStatus(mechanicsStatus)}`
-        : `preview run not started; ${formatStatus(mechanicsStatus)}`,
+        ? `${result.results.length} computed result rows; ${statusDisplayWithToken(mechanicsStatus)}`
+        : `preview run not started; ${statusDisplayWithToken(mechanicsStatus)}`,
       tone: result ? "ok" : "info"
     },
     {
@@ -172,22 +173,15 @@ function ReadinessRow({ item }: { item: ReadinessItem }) {
 
 function ruleReadiness(status: string): string {
   const normalized = status.toLowerCase();
+  const display = statusDisplayWithToken(ruleCheckStatusToken(status));
   if (normalized.includes("incomplete") || normalized.includes("missing") || normalized.includes("not_performed")) {
-    return `rule inputs incomplete; mechanics results remain reviewable only; ${formatStatus(status)}`;
+    return `${display}; mechanics results remain reviewable only`;
   }
-  return formatStatus(status);
+  return display;
 }
 
 function professionalReadiness(status: string): string {
-  const normalized = status.toLowerCase();
-  if (normalized.includes("not_provided") || normalized.includes("not provided")) {
-    return "no professional acceptance record; human review remains required; acceptance stays with the responsible engineer";
-  }
-  return formatStatus(status);
-}
-
-function formatStatus(value: string): string {
-  return value.replaceAll("_", " ").toLowerCase();
+  return statusDisplayWithToken(professionalStatusToken(status));
 }
 
 function plural(label: string, count: number): string {

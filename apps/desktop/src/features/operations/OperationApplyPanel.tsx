@@ -140,9 +140,8 @@ export function OperationApplyPanel({
         </div>
       ) : null}
       <small className="report-note">
-        Applying a structured operation records a user-initiated local-session acceptance only; acceptance and
-        professional judgment remain with the responsible engineer. Results of earlier solves are cleared because they
-        no longer describe the edited model.
+        Applying a structured operation records a user-initiated local-session acceptance only. Results of earlier
+        solves are cleared because they no longer describe the edited model.
       </small>
     </section>
   );

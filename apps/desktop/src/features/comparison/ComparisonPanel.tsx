@@ -128,7 +128,7 @@ function comparisonBoundary(comparison: PreviewComparison): string {
     !comparison.professional_boundary.software_makes_approval_claim &&
     !comparison.professional_boundary.software_makes_authentication_claim
   ) {
-    return "review-only comparison; acceptance and professional judgment remain with the responsible engineer";
+    return "review-only comparison";
   }
   return "comparison boundary requires attention";
 }

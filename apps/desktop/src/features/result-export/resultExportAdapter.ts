@@ -28,7 +28,7 @@ export function guardResultJson(value:unknown,seen=new Set<object>()):void {
 export async function resultDigest(value:unknown):Promise<string>{guardResultJson(value);return canonicalSha256Hex(value);}
 async function scopedChecksum(value:unknown,payload_scope:string,payload_ref:JsonObject){return {algorithm:'sha256',canonicalization,payload_scope,payload_ref,value:await resultDigest(value)};}
 async function checksum(value:unknown,payload_ref:JsonObject){return {algorithm:'sha256',canonicalization,payload_ref,value:await resultDigest(value)};}
-export const derivativeProvenance = {source_name:'local qualified result derivative',source_location:'apps/desktop/src/features/result-export/resultExportAdapter.ts',source_license:'project-local',contributor:'OpenPipeStress',contributor_certification:'local technical preview; human review required',redistribution_status:'private_only',review_status:'pending'};
+export const derivativeProvenance = {source_name:'local qualified result derivative',source_location:'apps/desktop/src/features/result-export/resultExportAdapter.ts',source_license:'project-local',contributor:'SWBPIPE',contributor_certification:'local desktop session; human review required',redistribution_status:'private_only',review_status:'pending'};
 
 /** Pure projection for already qualified evidence. It does not mint Current or
  * authentic producer proof and is not the product's canonical export entrypoint. */

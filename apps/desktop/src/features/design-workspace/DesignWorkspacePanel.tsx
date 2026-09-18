@@ -97,8 +97,7 @@ export function DesignWorkspacePanel({
       </div>
       <small className="report-note">
         Design workspace evidence is a local composition of GUI state, comparison context, and operation-review
-        metadata. It does not apply operations or mutate accepted model state; acceptance and professional judgment
-        remain with the responsible engineer.
+        metadata. It does not apply operations or mutate accepted model state.
       </small>
     </section>
   );

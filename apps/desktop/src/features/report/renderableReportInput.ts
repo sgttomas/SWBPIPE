@@ -344,7 +344,7 @@ export async function buildRenderableReportInput({
         source: { ref_type: "report_renderer", ref_id: `report:${result.run_id}` },
         affected_scope: { ref_type: "model", ref_id: result.model_ref },
         statement:
-          "Technical-preview output over invented or user-local data; not validated engineering output.",
+          "Output over invented or user-local data; not validated engineering output.",
         effect: {
           mechanics_solve_qualified: true,
           user_rule_check_qualified: false,
@@ -459,7 +459,7 @@ export async function buildRenderableReportInput({
   };
 
   return {
-    report_title: `${model.project.name} — Calculation Report (Technical Preview)`,
+    report_title: `${model.project.name} — Calculation Report`,
     calculation_report: calculationReport,
     report_sections: reportSections,
     result_rows: result.results.map((item) => ({

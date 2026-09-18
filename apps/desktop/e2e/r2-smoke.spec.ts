@@ -243,7 +243,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await page.goto("/");
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "OpenPipeStress" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "SWBPIPE" })).toBeVisible();
   // Engine-ready guard (DEC-020 / ADR-0001): browser mode answers operations
   // through the wasm32 operation_applier build; wait for init before edits.
   await ensureEngineReady(page);
@@ -700,12 +700,12 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText(
     "target_length=MM"
   );
-  const caepipeMbfExport = page.getByLabel("CAEPIPE MBF export");
+  const caepipeMbfExport = page.getByLabel("Model batch file (.mbf) export");
   await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText("count=15");
   await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText(
     "target_length=mm"
   );
-  const caepipeExternalHarness = page.getByLabel("CAEPIPE external harness");
+  const caepipeExternalHarness = page.getByLabel("External run evidence");
   await expect(caepipeExternalHarness.getByTestId("caepipe-external-units")).toContainText(
     "unit-system:dec-018-si-dual-display"
   );
@@ -1490,8 +1490,9 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("rule-check-run-panel")).toBeVisible();
   await expect(page.getByTestId("rule-check-boundary-note")).toContainText(
-    "acceptance stays with the responsible engineer",
+    "Rule checks run locally over user-supplied data only.",
   );
+  await expect(page.getByTestId("rule-check-boundary-note")).not.toContainText("responsible engineer");
 
   // Load the bundled invented demo pack through a visible control; the binding
   // plan is derived from the loaded document.

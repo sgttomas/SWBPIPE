@@ -12,11 +12,22 @@ authentication, or code-compliance claim.
 **Enforced by:** `tools/validation/validate_claims_language.py` (repo root),
 registered as self-check GEN-13; violations block closeout.
 
+**Amendment, 2026-09-18** — registry acts executing the owner's D-71 rulings
+codified as `DEC-100`, `DEC-101` (ii), `DEC-102` and `DEC-105`
+(`execution/_Decomposition/SOFTWARE_DECOMP.md` §12), in the owner-authorized
+implementation tranche A1 (the visible rename), with the lint and the product
+text changed in the same tranche: `BS-MATURITY` is retired (`DEC-105`;
+`DEC-099` was superseded the same day and never executed); the `BS-ACCEPT`
+placement clause is retired for product surfaces (`DEC-100`); the `BS-IP`
+canonical text takes the product name SWBPIPE (`DEC-101` (ii)); §2 gains the
+display-form table and its three rules (`DEC-102`). `DEC-081` is otherwise
+unchanged. Ruled history keeps its wording (§5).
+
 ## 1. Boundary statements
 
 ### BS-IP — content/IP boundary
 
-**Canonical:** "OpenPipeStress ships no protected standards content. All
+**Canonical:** "SWBPIPE ships no protected standards content. All
 code-specific values, tables, allowables, and factors are supplied by the
 user or user-controlled private sources, with provenance recorded."
 
@@ -27,6 +38,11 @@ standards content"
 **Belongs on:** import/library/contribution UI, redaction/export surfaces,
 contribution docs. **Not on:** results views (unless the surface genuinely
 handles imported content).
+
+**Former canonical text (2026-07-16 to 2026-09-18):** the same sentence with
+the product's former name, "OpenPipeStress", as its first word; replaced by
+`DEC-101` (ii). It is no longer a registered text. The short variants carry no
+product name and are unchanged.
 
 ### BS-ACCEPT — acceptance/authority boundary
 
@@ -43,11 +59,24 @@ responsible engineer" · "human review remains required; acceptance stays
 with the responsible engineer" · "decision-support information for review by
 the responsible engineer"
 
-**Belongs on:** results, rule-check, comparison, solve, report-preview
-surfaces; any place a computed outcome is shown. **Retires:** "not
-authoritative"-family phrasing and multi-noun prohibition litanies on
-product surfaces — BS-ACCEPT states who holds judgment instead of demoting
-the output.
+**Belongs on:** non-product surfaces only — the live `ScopeOfWork.md` files
+and project documents — where the canonical text and the listed short
+variants remain registered statements. **Not on:** any product surface. The former placement clause ("results, rule-check, comparison,
+solve, report-preview surfaces; any place a computed outcome is shown") is
+retired for product surfaces by `DEC-100`: no product surface (results,
+rule-check, comparison, solve, report-preview, Review page, report body,
+inspector, canvas, agent panel) carries the canonical text or any listed
+short variant, and the lint reports one found in product source
+(`RETIRED_ACCEPTANCE_SENTENCE`). On product surfaces the PRD §5.9 distinction
+is carried by the §2 display forms with their authority domains and by the
+PRD §19.3 report notice.
+
+**Retires (unchanged, still enforced):** "not authoritative"-family phrasing
+and multi-noun prohibition litanies on product surfaces.
+
+**Untouched by `DEC-100`:** the PRD §19.3 required report notice; PRD §5.9,
+§21.2 and §21.3; `docs/PROFESSIONAL_BOUNDARY.md`; `docs/CONTRACT.md`; the
+control word "Accept" for a proposed edit.
 
 ### BS-VALID — validation posture
 
@@ -64,14 +93,28 @@ for external validation, not a validation outcome"
 external-prover surfaces), validation manual, headless-runner evidence
 surfaces.
 
-### BS-MATURITY — release maturity
+### BS-MATURITY — release maturity (RETIRED 2026-09-18)
 
-**Canonical:** "Technical preview — not a released product." (One sentence,
-derived from the ruled stage record; updated only when the stage record
-changes. Never a compound litany.)
+**Status:** retired by `DEC-105`, the owner's superseding ruling on D-71
+item 1 (`DEC-099`, placement in the information popover and About, was ruled
+earlier the same day, superseded, and never executed). No live surface carries
+the sentence: not the product banner, footer, status bar, information popover
+or About; not packaging or build-readiness surfaces; not user-facing
+documentation; not the current design documents and frames. The lint no
+longer requires it in the app shell source (the `MISSING_MATURITY_BANNER`
+anchor is removed) and reports it when it appears on a scanned surface
+(`RETIRED_MATURITY_SENTENCE`). The retirement is a display decision: the ruled
+stage record from which the sentence was derived is unchanged, and no release,
+lifecycle promotion or maturity statement follows from it. Ruled history that
+contains the sentence is not rewritten (§5).
 
-**Belongs on:** the app shell banner/footer; packaging/build-readiness
-surfaces may reuse it.
+**Former canonical text (2026-07-16 to 2026-09-18), recorded here only:**
+"Technical preview — not a released product."
+
+**Former placement:** the app shell banner/footer; packaging/build-readiness
+surfaces could reuse it.
+
+**Belongs on:** nothing. There is no replacement statement.
 
 ### GF-TOKEN — governance fence token (agent-facing artifacts only)
 
@@ -92,6 +135,36 @@ replaced by this token. Never used on product surfaces.
 human-acceptance record per §21.3; no acceptance workflow exists in MVP.
 Labels attach to individual results, reports, and case pages instead of
 global hedging.
+
+### 2.1 Display forms (`DEC-102`)
+
+The six automatic analysis statuses (`docs/TYPES.md` §4) and the two emitted
+evidence-status labels take their displayed form from this table and from
+nowhere else. Authority domains are those of `docs/SPEC.md` §4.3.
+
+| Token | Display form | Authority domain (`docs/SPEC.md` §4.3) |
+|---|---|---|
+| `MODEL_INCOMPLETE` | Model incomplete | mechanics solve authority |
+| `MECHANICS_SOLVED` | Mechanics solved | mechanics solve authority |
+| `RULE_INPUTS_INCOMPLETE` | Rule inputs incomplete | user-rule-check authority |
+| `USER_RULE_CHECKED` | User-rule checked | user-rule-check authority |
+| `USER_RULE_FAILED` | User-rule failed | user-rule-check authority |
+| `HUMAN_REVIEW_REQUIRED` | Human review required | human acceptance authority |
+| `INTERNALLY_VERIFIED` | Internally verified | evidence status (this section); not one of the three §4.3 domains |
+| `PROVER_CORRELATED` | Prover correlated | evidence status (this section); not one of the three §4.3 domains |
+
+Rules:
+
+1. A label is never shown without its token reachable in place.
+2. A label is always shown with its authority domain.
+3. No label exists outside the table: there is no seventh status, and
+   `ENGINEER_ACCEPTED` stays reserved and has no display form.
+
+The registered forms replace the product's earlier curated labels "Review
+required" and "Inputs needed". The `docs/TYPES.md` §4 tokens and the
+`human_review_required: const true` data obligation are unchanged. The short
+word a surface uses to show a domain is a design-system matter, not registry
+vocabulary.
 
 `non-authoritative` (evidence-standing qualifier; owner-adopted by the
 D-49 ruling, `DEC-082`) — marks external-run, parsed, or invented-fixture

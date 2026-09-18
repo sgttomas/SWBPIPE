@@ -194,7 +194,7 @@ export function ProjectValidationPanel({
       </div>
       <small className="report-note">
         Validation preflight records version, migration, and round-trip review evidence locally without applying queued
-        operations. Acceptance and professional judgment remain with the responsible engineer.
+        operations.
       </small>
     </section>
   );
@@ -784,7 +784,7 @@ function validationDiagnostics({
     diagnostic(
       "PROJECT-VALIDATION-PREFLIGHT-ONLY",
       "info",
-      "Validation preflight is local evidence; acceptance and professional judgment remain with the responsible engineer."
+      "Validation preflight is local evidence."
     ),
     modelHashDiagnostic({ modelHash, modelHashIntegrity }),
     projectEnvelopeHashDiagnostic({
@@ -850,7 +850,7 @@ function modelHashDiagnostic({
   return diagnostic(
     "PROJECT-VALIDATION-MODEL-HASH-REVIEW-ONLY",
     "info",
-    "Canonical model hash is a local review-reproducibility signal only, scoped to the model payload; acceptance and professional judgment remain with the responsible engineer."
+    "Canonical model hash is a local review-reproducibility signal only, scoped to the model payload."
   );
 }
 
@@ -878,7 +878,7 @@ function projectEnvelopeHashDiagnostic({
   return diagnostic(
     "PROJECT-VALIDATION-ENVELOPE-HASH-REVIEW-ONLY",
     "info",
-    "Project-envelope hash is a local review-reproducibility signal over the persisted envelope payload (storage summary and hash carrier excluded); acceptance and professional judgment remain with the responsible engineer."
+    "Project-envelope hash is a local review-reproducibility signal over the persisted envelope payload (storage summary and hash carrier excluded)."
   );
 }
 
@@ -901,7 +901,7 @@ function storeMigrationDiagnostic({
   return diagnostic(
     "PROJECT-VALIDATION-STORE-MIGRATION-LEDGER-REVIEW-ONLY",
     "info",
-    "Store migration evidence covers the local store schema ledger only; model document migrations remain TBD and no migration claim exceeds the local technical preview."
+    "Store migration evidence covers the local store schema ledger only; model document migrations remain TBD and no migration claim exceeds the local store."
   );
 }
 

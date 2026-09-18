@@ -5,9 +5,9 @@ status: current_index
 created: 2026-04-30
 ---
 
-# OpenPipeStress Agentic Development Docs
+# SWBPIPE Agentic Development Docs
 
-This `docs/` package is a seed governance and decomposition set for agentic development of **OpenPipeStress**: a free and open-source, code-neutral piping flexibility and stress-analysis platform.
+This `docs/` package is a seed governance and decomposition set for agentic development of **SWBPIPE**: a free and open-source, code-neutral piping flexibility and stress-analysis platform.
 
 The central project stance is:
 
@@ -36,7 +36,7 @@ This package is written from the perspective of `SOFTWARE_DECOMP`: it converts t
 
 ## Status
 
-This package is the **v0.2 current downstream decomposition basis** for agentic preparation and sealed deliverable execution. OpenPipeStress computes open, auditable piping mechanics; acceptance and professional judgment remain with the responsible engineer (see `docs/claims_registry.md`).
+This package is the **v0.2 current downstream decomposition basis** for agentic preparation and sealed deliverable execution. SWBPIPE computes open, auditable piping mechanics; acceptance and professional judgment remain with the responsible engineer (see `docs/claims_registry.md`).
 
 ## How agents should use this package
 

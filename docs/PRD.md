@@ -1,11 +1,12 @@
-# Product Requirements Document: OpenPipeStress
+# Product Requirements Document: SWBPIPE
 
-**Working title:** OpenPipeStress  
+**Product name:** SWBPIPE  
+**Formerly:** OpenPipeStress (renamed by D-71 item 3 / DEC-101 / SCA-010, 2026-09-18)  
 **Product type:** Analysis-grade piping design engine and stress-model authoring environment  
-**Document version:** 0.3 Draft  
+**Document version:** 0.4 Draft  
 **Date:** 2026-05-02  
-**Amended:** 2026-07-16  
-**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16)  
+**Amended:** 2026-07-16; 2026-09-18  
+**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) and by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only)  
 **Intended audience:** Piping designers, piping stress engineers, software architects, numerical-method developers, open-source contributors, owner-operators, EPC engineering managers, and technical reviewers
 
 ---
@@ -20,17 +21,17 @@ No lifecycle advance, release-readiness claim, professional approval, certificat
 
 ## 1. Executive Summary
 
-OpenPipeStress is a proposed free and open-source, local-first, analysis-grade piping design engine with an integrated piping flexibility and stress-analysis core. It enables engineers and designers to create, modify, analyze, compare, and export piping route and support concepts in a schema-backed graphical environment.
+SWBPIPE is a proposed free and open-source, local-first, analysis-grade piping design engine with an integrated piping flexibility and stress-analysis core. It enables engineers and designers to create, modify, analyze, compare, and export piping route and support concepts in a schema-backed graphical environment.
 
 The product is not intended to become an industry-standard professional stress-analysis platform or to replace authenticated commercial stress-analysis software. Instead, it is intended to operate earlier in the design workflow, where routes, supports, constraints, equipment interfaces, and design assumptions are still evolving.
 
-OpenPipeStress shall maintain a robust physical model, apply user-supplied design knowledge and constraints, solve the piping flexibility/stress model using transparent analytical methods, and produce schema-compliant model data suitable for downstream 3D modeling and professional piping stress-analysis validation.
+SWBPIPE shall maintain a robust physical model, apply user-supplied design knowledge and constraints, solve the piping flexibility/stress model using transparent analytical methods, and produce schema-compliant model data suitable for downstream 3D modeling and professional piping stress-analysis validation.
 
 The software shall include a serious analytical engine. Its results must be as correct, deterministic, auditable, and useful as practical. However, those results are design-engine results. They may support engineering iteration, screening, comparison, and model authoring, but they are not professional reliance results. Final project reliance requires validation in accepted industry software and competent human review.
 
 The governing product distinction is:
 
-> **OpenPipeStress computes and helps design. The external prover tool validates for reliance. The responsible engineer accepts.**
+> **SWBPIPE computes and helps design. The external prover tool validates for reliance. The responsible engineer accepts.**
 
 The governing product philosophy is:
 
@@ -40,7 +41,7 @@ The governing product philosophy is:
 
 ## 2. Source Basis and Supersession
 
-This PRD supersedes the earlier product framing that described OpenPipeStress primarily as a free and open-source piping stress-analysis platform. It retains the valuable portions of that prior direction: the open analytical core, 3D line-element solver, rule-pack architecture, private data separation, unit safety, validation discipline, reporting, and professional boundary.
+This PRD supersedes the earlier product framing that described SWBPIPE primarily as a free and open-source piping stress-analysis platform. It retains the valuable portions of that prior direction: the open analytical core, 3D line-element solver, rule-pack architecture, private data separation, unit safety, validation discipline, reporting, and professional boundary.
 
 This PRD also incorporates the project intent that the software should implement open piping flexibility and stress-analysis mechanics while avoiding redistribution of protected standards data, proprietary code rules, copyrighted examples, and private company data.
 
@@ -52,7 +53,7 @@ This PRD was amended on 2026-07-16 under D-47 Option O-A (codified as DEC-080, e
 
 ## 3. Product Vision
 
-OpenPipeStress will be a transparent, auditable, analysis-grade piping design environment that lets users build and iterate piping route/support concepts before those concepts are finalized in professional 3D modeling and professional piping stress-analysis software.
+SWBPIPE will be a transparent, auditable, analysis-grade piping design environment that lets users build and iterate piping route/support concepts before those concepts are finalized in professional 3D modeling and professional piping stress-analysis software.
 
 The product shall allow a qualified user to:
 
@@ -67,7 +68,7 @@ The product shall allow a qualified user to:
 9. compare model states and analysis results deterministically;
 10. export schema-compliant handoff data to downstream modeling and professional stress-analysis workflows.
 
-OpenPipeStress shall be useful because its analytical results are right, not because it claims authority. The product shall prioritize correctness, transparency, reproducibility, and handoff quality while avoiding claims that it certifies, authenticates, seals, or approves engineering work.
+SWBPIPE shall be useful because its analytical results are right, not because it claims authority. The product shall prioritize correctness, transparency, reproducibility, and handoff quality while avoiding claims that it certifies, authenticates, seals, or approves engineering work.
 
 ---
 
@@ -75,7 +76,7 @@ OpenPipeStress shall be useful because its analytical results are right, not bec
 
 ### 4.1 What the Product Is
 
-OpenPipeStress is:
+SWBPIPE is:
 
 - an analysis-grade piping design engine;
 - a schema-backed physical modeling environment;
@@ -87,7 +88,7 @@ OpenPipeStress is:
 
 ### 4.2 What the Product Is Not
 
-OpenPipeStress is not:
+SWBPIPE is not:
 
 - an authenticated replacement for accepted commercial piping stress-analysis software;
 - a standards-body-approved or standards-body-certified application;
@@ -99,7 +100,7 @@ OpenPipeStress is not:
 
 ### 4.3 Product Boundary
 
-The product boundary is not defined by solver capability. OpenPipeStress shall have a full analytical engine. The boundary is defined by claim authority.
+The product boundary is not defined by solver capability. SWBPIPE shall have a full analytical engine. The boundary is defined by claim authority.
 
 The software may say:
 
@@ -126,7 +127,7 @@ The software must not say or imply:
 
 ### 5.1 Full Analytical Engine, Non-Authoritative Result
 
-OpenPipeStress shall implement a serious piping flexibility and stress-analysis engine. The analytical result must be useful enough to guide route selection, support placement, equipment-load reduction, expansion-loop sizing, model cleanup, and design iteration.
+SWBPIPE shall implement a serious piping flexibility and stress-analysis engine. The analytical result must be useful enough to guide route selection, support placement, equipment-load reduction, expansion-loop sizing, model cleanup, and design iteration.
 
 However, internal results are not authoritative for professional reliance. The intended validation pathway is export to an accepted professional stress-analysis tool and review by a competent engineer.
 
@@ -200,7 +201,7 @@ Reports, UI labels, agent output, examples, and documentation shall preserve the
 
 ## 7. Non-Goals
 
-OpenPipeStress shall not:
+SWBPIPE shall not:
 
 1. Claim to be an industry-standard professional stress-analysis prover tool.
 2. Claim ASME, API, ISO, EN, CSA, or other standards-body approval, certification, endorsement, or official interpretation.
@@ -213,7 +214,7 @@ OpenPipeStress shall not:
 9. Treat global piping stress analysis as routine 3D solid finite element analysis.
 10. Certify fabrication, construction, inspection, examination, testing, or operating fitness.
 
-In addition, the following special analysis domains are recorded as current non-goals per DEC-069 (D-37 ruling), so that their absence reads as a recorded scope decision rather than an omission; naming an item here neither schedules nor forecloses future work, and promoting any of them into scope follows the governed SCOPE_CHANGE path. OpenPipeStress shall not:
+In addition, the following special analysis domains are recorded as current non-goals per DEC-069 (D-37 ruling), so that their absence reads as a recorded scope decision rather than an omission; naming an item here neither schedules nor forecloses future work, and promoting any of them into scope follows the governed SCOPE_CHANGE path. SWBPIPE shall not:
 
 11. Model buried-pipe behavior or soil-spring restraint.
 12. Model jacketed (pipe-in-pipe) piping.
@@ -290,7 +291,7 @@ The comparison tool is generic. It is not, in the MVP, a comprehensive integrati
 
 An external prover tool is an accepted industry-standard professional stress-analysis platform used by the responsible engineer or organization to validate a design for project reliance.
 
-OpenPipeStress shall help produce handoff-ready data for such tools, but it shall not claim that internal results alone replace them.
+SWBPIPE shall help produce handoff-ready data for such tools, but it shall not claim that internal results alone replace them.
 
 ---
 
@@ -409,9 +410,9 @@ Key needs:
 ### 10.4 Validate Externally and Reflect Changes Internally
 
 1. User exports a handoff package or recreates the model in an external professional stress-analysis tool.
-2. User interprets the external tool output outside OpenPipeStress.
+2. User interprets the external tool output outside SWBPIPE.
 3. User determines what needs to change.
-4. User modifies the OpenPipeStress model through the GUI.
+4. User modifies the SWBPIPE model through the GUI.
 5. User saves a new model state.
 6. User runs the internal analysis again.
 7. User compares the pre-review and post-review states/runs using the generic comparison tool.
@@ -1044,12 +1045,12 @@ The product shall produce a handoff package that includes:
 The intended workflow is:
 
 ```text
-OpenPipeStress model state
+SWBPIPE model state
   -> internal analysis run
   -> handoff/export package
   -> external professional stress-analysis tool
   -> user interprets external results
-  -> user modifies OpenPipeStress model through GUI
+  -> user modifies SWBPIPE model through GUI
   -> new model state
   -> new internal analysis run
   -> generic comparison of states/runs
@@ -1246,7 +1247,7 @@ Reports shall include, where applicable:
 Reports shall include a notice substantially equivalent to:
 
 ```text
-OpenPipeStress is decision-support software for piping design, flexibility, and stress-analysis workflows. It computes mechanical results from recorded user inputs and may evaluate user-supplied rule packs. It does not certify, seal, approve, authenticate, or determine code compliance for professional reliance. Code-specific and project-specific data are supplied by the user or user-controlled private sources. Competent human review and, where required, validation in accepted professional tools remain the responsibility of the user and project authority.
+SWBPIPE is decision-support software for piping design, flexibility, and stress-analysis workflows. It computes mechanical results from recorded user inputs and may evaluate user-supplied rule packs. It does not certify, seal, approve, authenticate, or determine code compliance for professional reliance. Code-specific and project-specific data are supplied by the user or user-controlled private sources. Competent human review and, where required, validation in accepted professional tools remain the responsibility of the user and project authority.
 ```
 
 ### 19.4 Report Prohibitions
@@ -1350,7 +1351,7 @@ MVP shall not require a formal acceptance workflow.
 
 Verification proves the equations are implemented correctly. Validation demonstrates that the modeling approach produces credible engineering results within stated assumptions.
 
-OpenPipeStress shall earn trust through transparent benchmarks, regression tests, and documented tolerances, not through unsupported equivalence claims.
+SWBPIPE shall earn trust through transparent benchmarks, regression tests, and documented tolerances, not through unsupported equivalence claims.
 
 The internal verification and benchmark suite exists to develop and maintain the analytical engine: it proves the equations are implemented correctly and guards against regressions. Product-level validation credibility shall come from external-prover correlation (§22.5) and from the transparency of the procedures themselves, not from a claim that internal results were independently reproduced. Independent third-party reproduction of the validation manual is a publication-era credibility objective tied to the public-repository publication gates; it is not a milestone exit criterion.
 
@@ -1691,7 +1692,7 @@ Exit criteria:
 
 **Design knowledge:** User-supplied project, owner, routing, support, equipment, accessibility, constructability, and rule information that informs modeling and evaluation.
 
-**External prover tool:** An accepted professional stress-analysis platform used outside OpenPipeStress to validate results for project reliance.
+**External prover tool:** An accepted professional stress-analysis platform used outside SWBPIPE to validate results for project reliance.
 
 **Handoff package:** Exported schema-compliant model data and manifests intended for downstream modeling or professional stress-analysis workflows.
 
@@ -1783,5 +1784,5 @@ comparison:
 ## 32. Appendix D: Example Report Notice
 
 ```text
-OpenPipeStress is decision-support software for piping design, flexibility, and stress-analysis workflows. It computes mechanical results from recorded user inputs and may evaluate user-supplied rule packs. It does not certify, seal, approve, authenticate, or determine code compliance for professional reliance. Code-specific and project-specific data are supplied by the user or user-controlled private sources. Competent human review and, where required, validation in accepted professional tools remain the responsibility of the user and project authority.
+SWBPIPE is decision-support software for piping design, flexibility, and stress-analysis workflows. It computes mechanical results from recorded user inputs and may evaluate user-supplied rule packs. It does not certify, seal, approve, authenticate, or determine code compliance for professional reliance. Code-specific and project-specific data are supplied by the user or user-controlled private sources. Competent human review and, where required, validation in accepted professional tools remain the responsibility of the user and project authority.
 ```

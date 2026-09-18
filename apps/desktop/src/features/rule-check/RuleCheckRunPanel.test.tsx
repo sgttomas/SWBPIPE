@@ -354,9 +354,10 @@ describe("RuleCheckRunPanel", () => {
     // The acceptability relation the backend reported is surfaced (the runner now
     // derives this from the check's acceptability_relation; TP-C4-ACCEPTREL-001).
     expect(outcome.textContent).toContain("relation=less_than_or_equal");
-    expect(screen.getByTestId("rule-check-professional-boundary").textContent).toContain(
-      "acceptance and professional judgment remain with the responsible engineer"
-    );
+    // The emitted professional_boundary_notice stays in the data contract but is
+    // no longer rendered (DEC-100).
+    expect(screen.queryByTestId("rule-check-professional-boundary")).toBeNull();
+    expect(screen.getByTestId("rule-check-run-panel").textContent).not.toContain("responsible engineer");
     expect(invokeMock).toHaveBeenCalledWith("run_rule_checks", expect.objectContaining({ rulePackDocument: expect.anything() }));
   });
 

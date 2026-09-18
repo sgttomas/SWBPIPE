@@ -64,16 +64,16 @@ export function CaepipeMbfExportPanel({
   const packet = withCanonicalPackageHash(basePacket, packageHash);
 
   return (
-    <section className="panel caepipe-mbf-panel" aria-label="CAEPIPE MBF export" data-testid="caepipe-mbf-panel">
+    <section className="panel caepipe-mbf-panel" aria-label="Model batch file (.mbf) export" data-testid="caepipe-mbf-panel">
       <div className="panel-title">
         <FileText size={16} aria-hidden="true" />
-        CAEPIPE MBF Export
+        Model batch file (.mbf)
       </div>
       <div className="report-actions">
         <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-mbf-export-link"
-          download={`openpipestress-preview-caepipe-mbf-package-${safeFileToken(model.project.id)}.json`}
+          download={`openpipestress-preview-mbf-package-${safeFileToken(model.project.id)}.json`}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -97,7 +97,7 @@ export function CaepipeMbfExportPanel({
       <div className="report-list" data-testid="caepipe-mbf-body">
         <CaePipeMbfLine
           label="Profile"
-          value={`${packet.export_profile.target_family}; profile=${packet.export_profile.profile_id}; target_version=${packet.export_profile.target_version_basis}; subset=${packet.export_profile.record_subset_basis}`}
+          value={`model batch file (.mbf); target_version=${packet.export_profile.target_version_basis}; subset=${packet.export_profile.record_subset_basis}`}
           testId="caepipe-mbf-profile"
         />
         <CaePipeMbfLine
@@ -127,12 +127,12 @@ export function CaepipeMbfExportPanel({
         />
         <CaePipeMbfLine
           label="Boundary"
-          value={`caepipe_compatibility=${String(packet.professional_boundary.software_makes_caepipe_compatibility_claim)}; external_tool_invoked=${String(packet.professional_boundary.external_tool_invoked)}; solver_validation=${String(packet.professional_boundary.software_makes_solver_validation_claim)}; code_compliance=${String(packet.professional_boundary.software_makes_compliance_claim)}; professional_reliance=${String(packet.professional_boundary.software_creates_professional_reliance_record)}`}
+          value={`external_tool_invoked=${String(packet.professional_boundary.external_tool_invoked)}; solver_validation=${String(packet.professional_boundary.software_makes_solver_validation_claim)}; code_compliance=${String(packet.professional_boundary.software_makes_compliance_claim)}; professional_reliance=${String(packet.professional_boundary.software_creates_professional_reliance_record)}`}
           testId="caepipe-mbf-boundary"
         />
       </div>
       <small className="report-note">
-        CAEPIPE MBF export is a local invented smoke-subset package only; target version, record subset, direct stable-ID
+        The .mbf model batch file export is a local invented smoke-subset package only; target version, record subset, direct stable-ID
         carrying, external execution, and target result interpretation remain governed TBDs.
       </small>
     </section>
@@ -315,10 +315,10 @@ function caepipeMbfExportProfile() {
     ],
     carried_tbd_refs: [TARGET_VERSION_TBD, RECORD_SUBSET_TBD, DIRECT_STABLE_ID_TBD],
     boundary_notes: [
-      "CAEPIPE MBF output is a bounded desktop smoke-subset package.",
+      "The .mbf model batch file output is a bounded desktop smoke-subset package.",
       "Target version, record subset closure, and direct MBF stable-ID carrying remain TBD.",
       "Sidecar stable-ID mapping is the conservative default for this preview.",
-      "The package does not assert CAEPIPE compatibility. Validation occurs in the user's accepted professional tools; this package is screening and handoff evidence."
+      "Validation occurs in the user's accepted professional tools; this package is screening and handoff evidence."
     ]
   };
 }
@@ -452,7 +452,7 @@ function renderCaePipeMbfText(
   exportProfile: ReturnType<typeof caepipeMbfExportProfile>
 ): string {
   const lines = [
-    "$ OpenPipeStress invented CAEPIPE MBF smoke subset",
+    "$ SWBPIPE invented model batch file (.mbf) smoke subset",
     "$ Source basis: DEL-17-01 / DEL-17-02 / DEL-17-04",
     `$ Target version basis: ${exportProfile.target_version_basis}`,
     "$ Canonical IDs are preserved in sidecar mapping, not asserted as direct MBF fields",
@@ -510,7 +510,7 @@ function caepipeMbfLossReport({
       "warning",
       model.components.map((component) => reference("Component", component.id)),
       targetArtifactRef,
-      "Invented component markers are not emitted as CAEPIPE MBF target component records in this smoke subset.",
+      "Invented component markers are not emitted as .mbf target component records in this smoke subset.",
       reference("Deliverable", "DEL-17-04"),
       RECORD_SUBSET_TBD,
       "A later source-confirmed profile tranche must classify component records before target use."
@@ -532,7 +532,7 @@ function caepipeMbfLossReport({
       "warning",
       [analysisRunRef],
       reference("CaePipeMbfMember", `caepipe-mbf:${safeFileToken(model.project.id)}:manifest`),
-      "External CAEPIPE execution and target-side options are not invoked or interpreted by this desktop package.",
+      "External execution and target-side options are not invoked or interpreted by this desktop package.",
       reference("Deliverable", "DEL-17-04"),
       "TBD-17-04-004",
       result
@@ -545,7 +545,7 @@ function caepipeMbfLossReport({
       "warning",
       [reference("BoundaryCondition", "free_end_and_equipment_nozzle_semantics")],
       targetArtifactRef,
-      "Boundary-condition and equipment-connection semantics are not supported by the first CAEPIPE MBF smoke subset.",
+      "Boundary-condition and equipment-connection semantics are not supported by the first .mbf smoke subset.",
       reference("Deliverable", "DEL-17-04"),
       "TBD-17-04-004",
       "Unsupported boundary semantics must remain visible until a later profile tranche classifies support."
@@ -560,7 +560,7 @@ function caepipeMbfLossReport({
         reference("StableIdCarrier", DIRECT_STABLE_ID_TBD)
       ],
       reference("CaePipeMbfMember", `caepipe-mbf:${safeFileToken(model.project.id)}:stable_id_map`),
-      "CAEPIPE target version, MBF record-family subset, and direct stable-ID carrying remain open TBDs.",
+      "Target version, .mbf record-family subset, and direct stable-ID carrying remain open TBDs.",
       reference("Deliverable", "DEL-17-01"),
       DIRECT_STABLE_ID_TBD,
       "Downstream MBF work must keep sidecar mapping and source-basis TBDs until admitted evidence closes them."
@@ -585,7 +585,7 @@ function caepipeMbfDiagnostics({
 }) {
   const diagnostics = [];
   if (payload.nodes.length === 0 || payload.elements.length === 0) {
-    diagnostics.push(diagnostic("MBF-SMOKE-SUBSET-MISSING", "blocking", "EXPORT_BLOCKING", "CAEPIPE MBF smoke subset requires at least one node and one pipe element.", "Provide invented node and pipe element records or record an explicit omitted/unsupported loss.", reference("ExportProfile", exportProfile.profile_id)));
+    diagnostics.push(diagnostic("MBF-SMOKE-SUBSET-MISSING", "blocking", "EXPORT_BLOCKING", "The .mbf smoke subset requires at least one node and one pipe element.", "Provide invented node and pipe element records or record an explicit omitted/unsupported loss.", reference("ExportProfile", exportProfile.profile_id)));
   }
   if (!isAscii(mbfText)) {
     diagnostics.push(diagnostic("MBF-TEXT-NON-ASCII", "blocking", "EXPORT_BLOCKING", "Rendered MBF text contains non-ASCII characters.", "Use ASCII-safe invented labels for MBF text output.", reference("ExportProfile", exportProfile.profile_id)));
@@ -596,17 +596,17 @@ function caepipeMbfDiagnostics({
         "MBF-NODE-COORDINATE-UNIT-TBD",
         "blocking",
         "UNIT_WARNING",
-        `Preview model length unit ${model.project.units.length} is not mapped to the CAEPIPE MBF millimeter node-coordinate policy.`,
-        "Select an explicit coordinate conversion policy before exporting CAEPIPE MBF text.",
+        `Preview model length unit ${model.project.units.length} is not mapped to the .mbf millimeter node-coordinate policy.`,
+        "Select an explicit coordinate conversion policy before exporting .mbf text.",
         reference("Project", model.project.id)
       )
     );
   }
   if (stableIdMap.length === 0) {
-    diagnostics.push(diagnostic("MBF-STABLE-ID-SIDECAR-MISSING", "blocking", "TARGET_MAPPING_WARNING", "CAEPIPE MBF package has no sidecar stable ID map entries.", "Use sidecar mapping while direct MBF stable-ID carrying remains TBD-17-01-003.", reference("ExportProfile", exportProfile.profile_id)));
+    diagnostics.push(diagnostic("MBF-STABLE-ID-SIDECAR-MISSING", "blocking", "TARGET_MAPPING_WARNING", "The .mbf package has no sidecar stable ID map entries.", "Use sidecar mapping while direct MBF stable-ID carrying remains TBD-17-01-003.", reference("ExportProfile", exportProfile.profile_id)));
   }
   if (!requiredLossCategoriesPresent(lossReport)) {
-    diagnostics.push(diagnostic("MBF-LOSS-REPORT-MISSING", "blocking", "UNSUPPORTED_BEHAVIOR_WARNING", "CAEPIPE MBF package does not carry every required loss-report category.", "Record exported, omitted, approximated, delegated, unsupported, and tbd behavior explicitly.", reference("ExportProfile", exportProfile.profile_id)));
+    diagnostics.push(diagnostic("MBF-LOSS-REPORT-MISSING", "blocking", "UNSUPPORTED_BEHAVIOR_WARNING", "The .mbf package does not carry every required loss-report category.", "Record exported, omitted, approximated, delegated, unsupported, and tbd behavior explicitly.", reference("ExportProfile", exportProfile.profile_id)));
   }
   return diagnostics;
 }
@@ -715,10 +715,10 @@ function reference(objectType: string, ref: string): CaePipeMbfReference {
 
 function previewProvenance() {
   return {
-    source_name: "OpenPipeStress desktop CAEPIPE MBF export preview",
+    source_name: "SWBPIPE desktop .mbf export preview",
     source_location: "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
     source_license: "project-governed",
-    contributor: "OpenPipeStress desktop technical preview",
+    contributor: "SWBPIPE desktop",
     contributor_certification: "invented-public-preview-no-professional-claim",
     redistribution_status: "public_permissive",
     review_status: "desktop_preview",

@@ -50,8 +50,7 @@ import {
 // missing inputs. The pack comes from the bundled invented demo, a saved
 // local-store pack (the author -> save -> run journey), or pasted JSON; the
 // run itself is desktop-only (the service reports the explicit unavailable
-// route in browser preview). Acceptance and professional judgment remain
-// with the responsible engineer (docs/claims_registry.md, DEC-081).
+// route in browser preview).
 
 const NO_PACK_REASON = "No rule-pack document loaded; load the demo, open a saved pack, or paste a pack.";
 const NO_SOLVE_REASON =
@@ -1047,15 +1046,13 @@ export function RuleCheckRunPanel({
               );
             })}
           </div>
-          <small data-testid="rule-check-professional-boundary">{runResult.professional_boundary_notice}</small>
         </div>
       ) : null}
 
       <small className="report-note" data-testid="rule-check-boundary-note">
         <ShieldAlert size={12} aria-hidden="true" /> Rule checks run locally over user-supplied data only.
         The software emits user-defined check statuses (USER_RULE_CHECKED / USER_RULE_FAILED /
-        RULE_INPUTS_INCOMPLETE). Human review remains required; acceptance stays with the
-        responsible engineer.
+        RULE_INPUTS_INCOMPLETE).
       </small>
     </section>
   );

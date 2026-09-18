@@ -309,14 +309,13 @@ describe("LibraryManagerPanel (browser preview seam)", () => {
     );
   });
 
-  it("keeps the private-data and professional boundaries visible", () => {
+  it("keeps the private-data boundary visible and carries no acceptance sentence", () => {
     render(<LibraryManagerPanel model={modelStub} />);
     const note = screen.getByTestId("library-boundary-note").textContent ?? "";
     expect(note).toContain("never committed to the repository");
     expect(note).toContain("DEC-036");
-    expect(note).toContain(
-      "Acceptance and professional judgment remain with the responsible engineer",
-    );
+    expect(note).toContain("code-specific data is user-supplied");
+    expect(note).not.toContain("responsible engineer");
   });
 
   it("drafts component field units without synthesizing a browser catalog", async () => {

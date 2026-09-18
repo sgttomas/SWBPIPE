@@ -224,7 +224,7 @@ export function buildNativePackageReview({
     member(
       "maps/stable_id_map.json",
       "stable_id_map",
-      "canonical OpenPipeStress entity/result/operation refs",
+      "canonical SWBPIPE entity/result/operation refs",
       "TBD_id_map_hash_not_available"
     ),
     member(

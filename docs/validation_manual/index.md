@@ -17,7 +17,7 @@ refs:
 
 ## 1. Authority Boundary
 
-This manual organizes verification and validation evidence for OpenPipeStress
+This manual organizes verification and validation evidence for SWBPIPE
 software quality. Candidate designs are validated in the user's accepted
 professional tools (external-prover correlation, PRD §22.5). Internal
 benchmarks and rule checks are development verification and screening
@@ -252,7 +252,7 @@ owner data, private user models, or vendor data without documented rights.
 Private rule packs, private material libraries, owner requirements, and project
 models belong in user-controlled project records. They may be referenced in a
 private validation package, but they must not be copied into public
-OpenPipeStress artifacts.
+SWBPIPE artifacts.
 
 ## 9. Manual Review Checklist
 

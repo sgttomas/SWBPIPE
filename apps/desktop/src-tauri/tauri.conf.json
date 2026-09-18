@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "OpenPipeStress Technical Preview",
+  "productName": "SWBPIPE",
   "version": "0.1.0",
-  "identifier": "org.openpipestress.technical-preview",
+  "identifier": "com.swbpipe.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://127.0.0.1:5173",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "OpenPipeStress Technical Preview",
+        "title": "SWBPIPE",
         "width": 1440,
         "height": 920,
         "minWidth": 1024,

@@ -1,4 +1,4 @@
-# OpenPipeStress public issue-form configuration.
+# SWBPIPE public issue-form configuration.
 # Authored in-project for the FUTURE public repository export; see README.md
 # in this directory. Blank issues are disabled so every report passes through
 # a form that carries the public/private data-boundary caution.

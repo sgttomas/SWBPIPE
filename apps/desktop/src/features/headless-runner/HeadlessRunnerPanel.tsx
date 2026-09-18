@@ -245,7 +245,7 @@ function runnerDiagnostic(item: Diagnostic) {
     source: reference("Source", item.source ?? "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx"),
     affected_object: stableRef(affectedRef),
     message: item.message,
-    remediation: "Review preview inputs, diagnostics, private rule data, and the technical-preview runner limits before reliance.",
+    remediation: "Review preview inputs, diagnostics, private rule data, and the runner limits before reliance.",
     provenance: previewProvenance()
   };
 }
@@ -367,7 +367,7 @@ function previewProvenance() {
     source_name: "invented preview fixture",
     source_location: "fixtures/product_preview",
     source_license: "project-invented",
-    contributor: "OpenPipeStress project",
+    contributor: "SWBPIPE project",
     contributor_certification: "invented data; no protected or private payload",
     redistribution_status: "invented_non_engineering_example",
     review_status: "accepted"
