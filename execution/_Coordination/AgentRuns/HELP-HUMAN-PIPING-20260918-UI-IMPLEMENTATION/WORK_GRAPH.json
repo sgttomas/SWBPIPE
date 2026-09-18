@@ -91,11 +91,13 @@
     "B1-REVIEW": {
       "role": "TASK Type 2 software-code-review, read-only",
       "model": "opus",
-      "status": "launched",
+      "status": "returned_pass_no_actionable_finding",
       "briefSha256": "db1f5104f3a5c804fc52cc1fa50140bf023731c08693e66eef43a5102e83b515",
       "brief": "briefs/B1-REVIEW_code_review.md",
       "candidate": "bf1ad5662e7e21ee3ce065940ed29bbe50511f1c",
-      "returnSha256": null
+      "returnSha256": "f77dfbf4c03fa177c4a63494e575640bb60a61525544f9125476040f5e0e310b",
+      "model_ran": "Claude Opus 5",
+      "return": "instances/B1-REVIEW/RETURN.md"
     }
   },
   "edges": [
@@ -116,7 +118,7 @@
       "A1-REVIEW"
     ]
   ],
-  "current_frontier": "Tranche A1 reviewed (PASS on backcheck for the code). Next: DEC-025 sweep on the clean candidate, pull request, CI, merge. Then Tranche B.",
+  "current_frontier": "Slice B1 reviewed: PASS, no actionable finding (B1-REVIEW). Next: DEC-025 sweep on the clean commit through the browser-test lock, closeout record, pull request, CI, merge. The A1 follow-ups run on their own branch in a second worktree; the second branch to merge takes origin/main first and keeps both sets of records. Then the two lane managers and the design-system contrast amendment launch.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",

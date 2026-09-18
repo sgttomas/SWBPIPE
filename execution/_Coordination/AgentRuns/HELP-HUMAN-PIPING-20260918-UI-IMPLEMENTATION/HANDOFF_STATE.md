@@ -30,4 +30,8 @@ Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, ROOT (HELP_HUMAN, Agent 0). 
 
 - 2026-09-18T22:01Z: Tranche A1 merged (PR #800, `7866f0a3c`). Tranche B opened on `codex/swbpipe-b1-tokens-20260918`: B1-TOKENS sealed and launched; the two lane-manager briefs sealed, launching after B1 merges. Frontier: B1's return, then its review, sweep, PR and merge.
 
+- 2026-09-18, by 23:02Z: B1-TOKENS returned and was accepted after correction 1 (the disabled ink keeps its value); candidate `bf1ad5662`. Four workspace variables keep their values, with reasons, in `briefs/_INDEX.md`. B1-REVIEW sealed and launched.
+
+- 2026-09-18T23:19Z: B1-REVIEW returned PASS with no actionable finding. Its four observations are carried: the binding test for the token file's `labels` table, the divider that also frames three bordered things, and a comment's contrast floor go to the shell lane by addendum; the fourth is a note on reading B1's two retained returns together. Frontier: the DEC-025 sweep on the clean commit through the browser-test lock, which is also the first browser run of the corrected state; then the closeout record, pull request, CI and merge. The A1 follow-ups proceed on their own branch in the second worktree.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
