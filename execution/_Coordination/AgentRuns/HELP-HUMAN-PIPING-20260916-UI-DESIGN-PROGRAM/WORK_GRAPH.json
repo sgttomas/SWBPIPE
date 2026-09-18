@@ -62,6 +62,16 @@
       "status": "complete"
     },
     {
+      "id": "RESEARCH-E",
+      "role": "TASK",
+      "purpose": "CAEPIPE exchange format characterisation from public documentation (export compatibility requirement, owner answer 1 of 2026-09-17)",
+      "model_requested": "opus",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/RESEARCH-E_caepipe_format.md",
+      "return": "instances/RESEARCH/E_caepipe_format.md",
+      "status": "pending"
+    },
+    {
       "id": "OWNER-QA",
       "role": "HUMAN",
       "purpose": "Owner answers the seven opening questions",
@@ -88,8 +98,10 @@
     {
       "id": "OWNER-DIRECTION",
       "role": "HUMAN",
-      "purpose": "Owner chooses a concept direction from instances/CONCEPTS/CONCEPT_DIRECTIONS_V1.md; recommendation is advice",
-      "status": "pending"
+      "purpose": "Owner chooses the concept direction; answered 2026-09-17 as a synthesis (tables are the model, CAEPIPE grammar, stages as pages of tables, three views per stage, row-by-row acceptance, Review page)",
+      "status": "active",
+      "return": "instances/ROOT/DIRECTION_DECISION_2026-09-17.md",
+      "note": "ROOT transcription of the owner's answers awaits the owner's confirmation; the owner's words govern"
     },
     {
       "id": "DESIGN-SYSTEM",
@@ -160,6 +172,10 @@
       "DESIGN-BRIEF"
     ],
     [
+      "ROOT",
+      "RESEARCH-E"
+    ],
+    [
       "DESIGN-BRIEF",
       "CONCEPTS"
     ],
@@ -174,6 +190,14 @@
     [
       "OWNER-DIRECTION",
       "RENDERING-BRIEF"
+    ],
+    [
+      "RESEARCH-E",
+      "MOCKS"
+    ],
+    [
+      "RESEARCH-E",
+      "UX-SPEC"
     ],
     [
       "DESIGN-SYSTEM",

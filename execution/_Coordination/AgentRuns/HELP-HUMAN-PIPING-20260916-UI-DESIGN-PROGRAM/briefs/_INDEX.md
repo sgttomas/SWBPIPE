@@ -48,4 +48,12 @@ Return of CONCEPTS-01, retained under `../instances/CONCEPTS/` and accepted by R
 | `wireframes/run_book_grid.svg` | `31f8afce0a5ad1cc0b0c692623a34bb67ef80650c82aaa1d39dcf00c11da55b8` |
 | `wireframes/run_book_split.svg` | `99e0b78c11c55ae02b6b5e8e1144f3c9408d6243c4fafda1bf1839d063873798` |
 
+## Direction-phase research brief, sealed before launch
+
+| Brief | Sealed SHA-256 | Launched (UTC) | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `RESEARCH-E_caepipe_format.md` | `928028d6507a00a630c6d5a0a981f3f7117c3cdf4b36ecf7957ebb4399ba8b5d` | 2026-09-18T05:16:45Z | `opus` (Claude Opus 5) | TASK, working alone | `../instances/RESEARCH/E_caepipe_format.md` |
+
+Launched after the owner's direction of 2026-09-17 named export compatibility with CAEPIPE as a requirement (`../instances/ROOT/DIRECTION_DECISION_2026-09-17.md` §7). Opus because the result is objective: what a documented format contains.
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
