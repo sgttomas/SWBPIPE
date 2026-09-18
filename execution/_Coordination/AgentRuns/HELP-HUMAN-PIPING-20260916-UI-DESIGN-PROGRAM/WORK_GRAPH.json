@@ -340,7 +340,9 @@
       "mechanism": "owning child resumed by message-to-agent",
       "brief": "briefs/DESIGN-SYSTEM-04_contradictions.md",
       "return": "instances/DESIGN-SYSTEM/",
-      "status": "running"
+      "status": "complete",
+      "model_ran": "Claude Fable 5.1",
+      "note": "Accepted by ROOT 2026-09-18; hashes and checks in briefs/_INDEX.md"
     },
     {
       "id": "UX-SPEC-03",
@@ -350,6 +352,18 @@
       "mechanism": "owning child resumed by message-to-agent",
       "brief": "briefs/UX-SPEC-03_contradictions.md",
       "return": "instances/UX-SPEC/",
+      "status": "complete",
+      "model_ran": "Claude Fable 5.1",
+      "note": "Accepted by ROOT 2026-09-18; hashes and checks in briefs/_INDEX.md"
+    },
+    {
+      "id": "MOCKS-04",
+      "role": "HELPS_HUMANS",
+      "purpose": "Frames redrawn for the owner's direction on the contradictions",
+      "model_requested": "fable",
+      "mechanism": "owning child resumed by message-to-agent",
+      "brief": "briefs/MOCKS-04_contradictions.md",
+      "return": "instances/MOCKS/",
       "status": "running"
     }
   ],
@@ -533,9 +547,17 @@
     [
       "ROOT",
       "UX-SPEC-03"
+    ],
+    [
+      "DESIGN-SYSTEM-04",
+      "MOCKS-04"
+    ],
+    [
+      "UX-SPEC-03",
+      "MOCKS-04"
     ]
   ],
-  "current_frontier": "Running: DESIGN-SYSTEM-04 and UX-SPEC-03 on the owner's direction about the contradictions, all twenty-five now directed. Then the frames are regenerated once. With the owner: the handoff's §8. Nothing is implemented.",
+  "current_frontier": "Running: MOCKS-04. Then independent review, the handoff's refresh and a pull request. With the owner: the handoff's §8. Nothing is implemented.",
   "frontier_history": [
     {
       "until": "2026-09-18",
@@ -553,6 +575,10 @@
     {
       "until": "2026-09-18T17:36Z",
       "frontier": "With the owner: the handoff's §8, authorizing an implementation tranche. No child is running once the REVIEW-03 corrections land. Nothing is implemented."
+    },
+    {
+      "until": "2026-09-18T17:46Z",
+      "frontier": "Running: DESIGN-SYSTEM-04 and UX-SPEC-03 on the owner's direction about the contradictions, all twenty-five now directed. Then the frames are regenerated once. With the owner: the handoff's §8. Nothing is implemented."
     }
   ]
 }

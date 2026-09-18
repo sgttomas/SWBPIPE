@@ -1,4 +1,4 @@
-// Agreement check, V1.2: tokens.json is the source; the document's colour tables and contrast table, the
+// Agreement check, V1.3 (the document and specimen are V1.3; tokens.json stays 1.2): tokens.json is the source; the document's colour tables and contrast table, the
 // specimen's three CSS variable blocks, its embedded token JSON and its embedded pair list must all carry
 // the same names and values; the prose must carry the plain tokens it quotes; the change log must cite every
 // decision, frame decision, departure and token gap, and for V1.2 every ruling, question, gap and R item, with
@@ -73,9 +73,9 @@ for (const [phrase, ok] of [
   ["320 px wide (`layout.toast.width`)", L["toast.width"] === 320], ["8 px (`layout.toast.inset`)", L["toast.inset"] === 8],
   ["360 px wide (`layout.runlog.width`)", L["runlog.width"] === 360], ["Duration: 6 s, or 10 s", T.motion["toast.ms"] === 6000 && T.motion["toastAction.ms"] === 10000],
 ]) { if (!D.includes(phrase)) push("doc phrase not found: " + phrase); if (!ok) push("tokens.json disagrees with: " + phrase); }
-if (!D.includes("Status: V1.2")) push("doc status line is not V1.2");
+if (!D.includes("Status: V1.3")) push("doc status line is not V1.3");
 if (T.version !== "1.2") push("tokens.json version is not 1.2");
-if (!S.includes("specimen V1.2")) push("specimen heading is not V1.2");
+if (!S.includes("specimen V1.3")) push("specimen heading is not V1.3");
 if (!S.includes(`version ${T.version}`)) push("specimen CSS comment does not carry the token version");
 const dl = T.color["result.scale.7"].dark, edge = T.color["canvas.edge"].dark;
 if (!D.includes(dl) || !D.includes(edge)) push("doc 2.6 does not quote the re-anchored top step and the edge value");
@@ -95,6 +95,13 @@ if (logRows.length < 89) push("section 9 lacks the correction rows 88 and 89");
 if (logRows.length < 90) push("section 9 lacks correction 2's row 90");
 const first89 = log.split("\n").filter(l => { const m = l.match(/^\| (\d+) \| /); return m && Number(m[1]) <= 89; }).join("\n");
 if (crypto.createHash("sha256").update(first89).digest("hex") !== "11df7f507ea58430e14ca2058e606e21ea3675dbbeb730d2c88a727b70f16f09") push("section 9 rows 1 to 89 differ from V1.2 after correction 1");
+// V1.3: rows 91 on, rows 1 to 90 unchanged, every item of the brief DESIGN-SYSTEM-04 and its supplement cited
+if (logRows.length < 110) push("section 9 lacks the V1.3 rows 91 to 110");
+const first90 = log.split("\n").filter(l => { const m = l.match(/^\| (\d+) \| /); return m && Number(m[1]) <= 90; }).join("\n");
+if (crypto.createHash("sha256").update(first90).digest("hex") !== "e834e393087aab16dae7c0da260653c299a0d3ea6ef54dea2d7f0570be0f65db") push("section 9 rows 1 to 90 differ from V1.2 after correction 2");
+const v13 = log.split("\n").filter(l => { const m = l.match(/^\| (\d+) \| /); return m && Number(m[1]) >= 91; }).join("\n");
+for (const n of [1, 2, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16]) if (!new RegExp("contradiction " + n + "\\b").test(v13)) push("V1.3 rows do not cite contradiction " + n);
+for (const c of ["C-17", "C-20", "C-23", "C-24", "C-25"]) if (!v13.includes(c)) push("V1.3 rows do not cite " + c);
 if (/owner's amendment to Q-20; general/.test(D) || /exactly these and no others/.test(D)) push("doc carries a framing that correction 2 removed");
 const first87 = log.split("\n").filter(l => { const m = l.match(/^\| (\d+) \| /); return m && Number(m[1]) <= 87; }).join("\n");
 if (crypto.createHash("sha256").update(first87).digest("hex") !== "c95d0c9ce6b0999d76c63269628f901d56d52563c91d4bd5de41becb77037616") push("section 9 rows 1 to 87 differ from V1.2 as returned");
@@ -141,6 +148,14 @@ const retired = [["SWB Pip" + "ing Designer", "the longer name"], ["Pip" + "ing 
   ["stays the solve " + "basis", "the stale band's removed clause (correction 1)"]];
 const instanceDir = path.dirname(path.resolve(doc));
 for (const [n, txt] of [["doc", D], ["specimen", S], ["tokens", fs.readFileSync(tok, "utf8")]]) for (const [bad, what] of retired) if (txt.toLowerCase().includes(bad.toLowerCase())) push(`${n} carries ${what}`);
+
+// ---- V1.3: "Commit" is no button's copy, and every tooltip names the control and then its key in parentheses ----
+for (const m of S.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/g)) { const face = m[2].replace(/<title>[\s\S]*?<\/title>/g, "").replace(/<[^>]+>/g, ""); const tip = (m[1].match(/title="([^"]*)"/) || [, ""])[1]; if (/\bcommit\b/i.test(face) || /\bcommit\b/i.test(tip) || /aria-label="[^"]*\bcommit\b/i.test(m[1])) push("specimen shows Commit as button copy"); }
+if (/>\s*Commit\s*</.test(Sbody)) push("specimen shows Commit as a control's text");
+const KEYS = /[⌘⇧⌥↩⎋⇥⌫↓↑]/;
+for (const m of S.matchAll(/title="([^"]*)"|<title>([^<]*)<\/title>/g)) { const tip = m[1] ?? m[2]; if (KEYS.test(tip.replace(/\([^)]*\)/g, ""))) push("specimen tooltip writes a key outside parentheses: " + tip); }
+for (const m of S.matchAll(/<button\b[^>]*>([\s\S]*?)<\/button>/g)) { const face = m[1].replace(/<title>[\s\S]*?<\/title>/g, "").replace(/<[^>]+>/g, ""); if (KEYS.test(face)) push("specimen button face carries a key: " + face.trim()); }
+for (const old of ["Historical saved run · Run 02", "Recorded on Run 02"]) if (S.includes(old) || D.split("## 9. Change log")[0].includes(old)) push("a Historical example still reads Run 02: " + old);
 
 // ---- forbidden strings, sprite references and external references in the specimen ----
 for (const bad of ["F-PIP-2", "claim fence", "DEC-081", "GF-TOKEN"]) if (S.includes(bad)) push("specimen contains " + bad);
