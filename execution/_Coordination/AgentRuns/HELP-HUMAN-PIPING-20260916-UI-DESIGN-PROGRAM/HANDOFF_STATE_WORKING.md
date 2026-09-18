@@ -10,6 +10,8 @@ Updated 2026-09-17 by ROOT. Working surface; superseded lines are struck rather 
 
 ## Open with the owner
 
+Update 2026-09-17, phase 2 returned: the CONCEPTS-01 child returned three concept directions (A Layout Sheet, B Workbench, C Run Book) with nine state-7 wireframes at `instances/CONCEPTS/`. ROOT reviewed the return against the sealed brief's acceptance section and accepted it: three distinct organising ideas, eight states storyboarded for each, every mandatory disclosure M-01 to M-17 homed in each, wireframes present and matching the shell tables, recommendation reasoned. The child recommends C with A's sheet grammar and B's probe carried in; the owner chooses. Open with the owner now: the direction. After the choice: design system, mock drafts, the rendering brief to the piping session, and the decision packet (maturity line, boundary-sentence placement, product rename, plus the four further items the concept return names in its §6).
+
 Update 2026-09-17, later: the owner answered all seven questions in session and then accepted the brief with one correction and answered its open questions. `instances/ROOT/DESIGN_BRIEF_V1.md` is the accepted V1.1 brief; phase 1 checkpoint passed. Product name is now SWB Piping Designer (SWBPIPE). Phase 2, concept directions, is next. The list below is retained as history.
 
 The seven opening questions, as first put:

@@ -32,4 +32,20 @@ Model allocation followed the owner's rule for this program: Opus where the resu
 |---|---|---|---|---|---|
 | `CONCEPTS-01_north_star_directions.md` | `5e73a829af744a0708fae2dd9f62fe1e308636e43980aa57f9a64713d7132776` | 2026-09-18T03:46:50Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone | `../instances/CONCEPTS/` |
 
+Return of CONCEPTS-01, retained under `../instances/CONCEPTS/` and accepted by ROOT on 2026-09-17 against the brief's acceptance section (three distinct organising ideas; eight states storyboarded per direction; M-01 to M-17 homed per direction; nine wireframes present, parsed as XML and rendered by ROOT in the browser pane; reasoned recommendation). One declared substitution: in `RETURN.md` line 7 the child wrote the ROOT worktree's absolute path as the value of `{REPO_ROOT}`; ROOT replaced that path with a parenthetical note before retention, and the `RETURN.md` hash below is of the retained bytes after substitution (the bytes as returned hashed `6dd98ae07e5c8624d22e731549e757137e65d5c0b97fc3855edeb9885cc16639`). All other files are retained byte for byte.
+
+| Return file | SHA-256 |
+|---|---|
+| `CONCEPT_DIRECTIONS_V1.md` | `a79137f3678416285ac9e647136e195da33cea8502ffb1e27d6b65adae8fb4a6` |
+| `RETURN.md` (retained) | `11f61923720186cffbf682885a36e49f990a0646c66f638cc8a6cc57e03113a1` |
+| `wireframes/layout_sheet_model.svg` | `08a7a825d4420ac1e6e6eef575355972db9b3c9a6f7db1e2ecec37d140920483` |
+| `wireframes/layout_sheet_grid.svg` | `2bf2a343e17307091907588e6d37623269f66df82343e6be0d251ebd6e2c1091` |
+| `wireframes/layout_sheet_split.svg` | `ed96eb739b4e3c246f24de23d25a645347c6d4baf7bafe9ba569aec4b6798b33` |
+| `wireframes/workbench_model.svg` | `9cf7dd8ce1f4d104d8f36cde6148a8377493ff2e4d65422e3938e299f8250ad4` |
+| `wireframes/workbench_grid.svg` | `349bca8519b5df99c74a18fda68c9dfd022aa38b1f529b5ced615652f4cb0586` |
+| `wireframes/workbench_split.svg` | `a470500846b8bc88dcd7b81fac8af83ae3f38227ace974dbbcc5158dec5df0fe` |
+| `wireframes/run_book_model.svg` | `cab32044da6e98a9a8eb66308b80df055ebd2298bd84488bef757bce77a25681` |
+| `wireframes/run_book_grid.svg` | `31f8afce0a5ad1cc0b0c692623a34bb67ef80650c82aaa1d39dcf00c11da55b8` |
+| `wireframes/run_book_split.svg` | `99e0b78c11c55ae02b6b5e8e1144f3c9408d6243c4fafda1bf1839d063873798` |
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

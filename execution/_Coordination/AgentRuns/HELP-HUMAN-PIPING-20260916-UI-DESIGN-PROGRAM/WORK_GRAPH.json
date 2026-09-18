@@ -82,7 +82,14 @@
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/CONCEPTS-01_north_star_directions.md",
       "return": "instances/CONCEPTS/",
-      "status": "active"
+      "status": "complete",
+      "accepted_by_root": "2026-09-17"
+    },
+    {
+      "id": "OWNER-DIRECTION",
+      "role": "HUMAN",
+      "purpose": "Owner chooses a concept direction from instances/CONCEPTS/CONCEPT_DIRECTIONS_V1.md; recommendation is advice",
+      "status": "pending"
     },
     {
       "id": "DESIGN-SYSTEM",
@@ -116,21 +123,70 @@
     }
   ],
   "edges": [
-    ["ROOT", "RESEARCH-A"],
-    ["ROOT", "RESEARCH-B"],
-    ["ROOT", "RESEARCH-C"],
-    ["ROOT", "RESEARCH-D"],
-    ["RESEARCH-A", "DESIGN-BRIEF"],
-    ["RESEARCH-B", "DESIGN-BRIEF"],
-    ["RESEARCH-C", "DESIGN-BRIEF"],
-    ["RESEARCH-D", "DESIGN-BRIEF"],
-    ["OWNER-QA", "DESIGN-BRIEF"],
-    ["DESIGN-BRIEF", "CONCEPTS"],
-    ["CONCEPTS", "DESIGN-SYSTEM"],
-    ["CONCEPTS", "RENDERING-BRIEF"],
-    ["DESIGN-SYSTEM", "MOCKS"],
-    ["MOCKS", "UX-SPEC"],
-    ["UX-SPEC", "ACCEPTANCE-PROPOSAL"]
+    [
+      "ROOT",
+      "RESEARCH-A"
+    ],
+    [
+      "ROOT",
+      "RESEARCH-B"
+    ],
+    [
+      "ROOT",
+      "RESEARCH-C"
+    ],
+    [
+      "ROOT",
+      "RESEARCH-D"
+    ],
+    [
+      "RESEARCH-A",
+      "DESIGN-BRIEF"
+    ],
+    [
+      "RESEARCH-B",
+      "DESIGN-BRIEF"
+    ],
+    [
+      "RESEARCH-C",
+      "DESIGN-BRIEF"
+    ],
+    [
+      "RESEARCH-D",
+      "DESIGN-BRIEF"
+    ],
+    [
+      "OWNER-QA",
+      "DESIGN-BRIEF"
+    ],
+    [
+      "DESIGN-BRIEF",
+      "CONCEPTS"
+    ],
+    [
+      "CONCEPTS",
+      "OWNER-DIRECTION"
+    ],
+    [
+      "OWNER-DIRECTION",
+      "DESIGN-SYSTEM"
+    ],
+    [
+      "OWNER-DIRECTION",
+      "RENDERING-BRIEF"
+    ],
+    [
+      "DESIGN-SYSTEM",
+      "MOCKS"
+    ],
+    [
+      "MOCKS",
+      "UX-SPEC"
+    ],
+    [
+      "UX-SPEC",
+      "ACCEPTANCE-PROPOSAL"
+    ]
   ],
-  "current_frontier": "CONCEPTS"
+  "current_frontier": "OWNER-DIRECTION"
 }
