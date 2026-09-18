@@ -10,9 +10,9 @@
   "actual_mechanism": "delegated-harness-native collaboration.spawn_agent",
   "enforcement": "role/write scopes/Type2 non-delegation instruction+config asserted",
   "runtime_lease": {
-    "status": "HELD",
-    "owner": "ROOT",
-    "scope": "Fresh complete-diff review before untimed preparation"
+    "status": "UNTIMED_PREPARATION_ONLY",
+    "owner": "RUNNER",
+    "scope": "camera/oracle and both-size controls smoke; cohort held"
   },
   "nodes": [
     {
@@ -31,7 +31,7 @@
       "effort": "high",
       "brief": "briefs/MANAGER.md",
       "brief_sha256": "46c6d6ee930b46a470b017c0980cc4e8312a522168537b38208074a795e38dea",
-      "status": "complete_pending_root_review"
+      "status": "complete_root_accepted"
     },
     {
       "id": "EXPECTATIONS",
@@ -51,7 +51,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "complete_pending_root_review",
+      "status": "complete_root_accepted",
       "agent_name": "/root/d70_manager/writer"
     },
     {
@@ -60,7 +60,11 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "pending"
+      "status": "complete_preparation_pass",
+      "agent_name": "/root/d70_review",
+      "brief": "briefs/REVIEW.md",
+      "brief_sha256": "9a1a00ad58605888e66349583402b21c4c65cf9c1d6893c805bde08ab3642269",
+      "return": "instances/REVIEW/RETURN.json"
     },
     {
       "id": "RUNNER",
@@ -68,7 +72,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "preparation_complete_runtime_held",
+      "status": "untimed_preparation_released",
       "agent_name": "/root/d70_runner",
       "return": "instances/RUNNER/RETURN_PROFILE_V2.json"
     }
@@ -91,5 +95,5 @@
       "RUNNER"
     ]
   ],
-  "current_frontier": "Manager fan-in accepted; integrating source and own D70 adoption for independent review. No smoke or cohort attempted."
+  "current_frontier": "Independent preparation review PASS. Runner authorized for untimed qualification only; no competing builds/tests/native witnesses."
 }

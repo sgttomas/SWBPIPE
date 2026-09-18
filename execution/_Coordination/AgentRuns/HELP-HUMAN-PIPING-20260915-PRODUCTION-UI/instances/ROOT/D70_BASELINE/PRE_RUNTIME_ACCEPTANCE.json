@@ -1,0 +1,26 @@
+{
+  "schema": "chirality.piping.d70.runtime-release/v1",
+  "at": "2026-09-18T00:10:48.590277+00:00",
+  "status": "UNTIMED_PREPARATION_ONLY",
+  "reviewed_candidate": "3c9142dad05867b113a97cca150a0ec228f6f0d7",
+  "review_return_sha256": "6f208b0dc383e114ac4b90566f4af43464d09b1680c0cb80b556de34f967b690",
+  "root_acceptance": "PASS_FROZEN_PREPARATION",
+  "method_manifest_sha256": "98e5449b202b19eee841e8846200c885195770be73326bff61f9e6d45f83480e",
+  "commands_sha256": "9f7ecb872f46845f359a71099eb7fb91b6fcc06822522ef075fd88bbc30056e2",
+  "product": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "runtime_owner": "/root/d70_runner",
+  "authorized": [
+    "existing both-size camera preflight",
+    "offline independent oracle freeze",
+    "one both-size untimed controls smoke"
+  ],
+  "not_authorized": [
+    "timed cohort",
+    "product changes",
+    "compositor diagnostics",
+    "automatic repair or retry"
+  ],
+  "stop": "Return exact failed/partial evidence on failure; do not proceed to timed collection.",
+  "integration_product_equality": "src/src-tauri/core/package files exact8468; ROOT rechecked",
+  "enforcement": "exclusive runtime scheduling instruction asserted; other Root agents finished"
+}
