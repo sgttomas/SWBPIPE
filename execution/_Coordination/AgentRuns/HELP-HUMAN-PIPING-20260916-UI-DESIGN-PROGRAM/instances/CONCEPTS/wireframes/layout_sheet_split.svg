@@ -1,0 +1,272 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" font-family="Helvetica, Arial, sans-serif" fill="#222222">
+<title>Direction A Layout Sheet — Split layout — state 7 results</title>
+<rect x="0" y="0" width="1440" height="900" fill="#ffffff"/>
+<rect x="0" y="0" width="1440" height="52" fill="#dcdcdc" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="16" y="33" font-size="22" font-weight="bold" text-anchor="start" fill="#222222">SWBPIPE</text>
+<text x="128" y="33" font-size="18" font-weight="normal" text-anchor="start" fill="#666666">Loop 4 header · saved</text>
+<text x="360" y="33" font-size="16" font-weight="normal" text-anchor="start" fill="#666666">Layout</text>
+<rect x="422" y="11" width="76" height="30" fill="#ffffff" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="460.0" y="32" font-size="18" font-weight="normal" text-anchor="middle" fill="#222222">Model</text>
+<rect x="506" y="11" width="76" height="30" fill="#ffffff" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="544.0" y="32" font-size="18" font-weight="normal" text-anchor="middle" fill="#222222">Grid</text>
+<rect x="590" y="11" width="76" height="30" fill="#b8b8b8" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="628.0" y="32" font-size="18" font-weight="bold" text-anchor="middle" fill="#222222">Split</text>
+<rect x="698" y="11" width="90" height="30" fill="#ffffff" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="743.0" y="32" font-size="18" font-weight="normal" text-anchor="middle" fill="#222222">Run</text>
+<rect x="796" y="11" width="100" height="30" fill="#ffffff" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="846.0" y="32" font-size="18" font-weight="normal" text-anchor="middle" fill="#222222">Issues 0</text>
+<rect x="904" y="11" width="90" height="30" fill="#ffffff" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="949.0" y="32" font-size="18" font-weight="normal" text-anchor="middle" fill="#222222">Agent</text>
+<rect x="1002" y="11" width="100" height="30" fill="#ffffff" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="1052.0" y="32" font-size="18" font-weight="normal" text-anchor="middle" fill="#222222">Units: SI</text>
+<rect x="1180" y="11" width="244" height="30" fill="#ffffff" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="1192" y="32" font-size="18" font-weight="normal" text-anchor="start" fill="#666666">Search or command…</text>
+<rect x="0" y="52" width="720" height="824" fill="#f1f1f1" stroke="#8c8c8c" stroke-width="2"/>
+<rect x="0" y="52" width="720" height="34" fill="#dcdcdc" stroke="#8c8c8c" stroke-width="1.5"/>
+<rect x="6" y="56" width="77.19999999999999" height="26" fill="#f1f1f1" stroke="#8c8c8c" stroke-width="1"/>
+<text x="44.599999999999994" y="74" font-size="17" font-weight="normal" text-anchor="middle" fill="#222222">Layout</text>
+<rect x="87.19999999999999" y="56" width="114.0" height="26" fill="#f1f1f1" stroke="#8c8c8c" stroke-width="1"/>
+<text x="144.2" y="74" font-size="17" font-weight="normal" text-anchor="middle" fill="#222222">Restraints</text>
+<rect x="205.2" y="56" width="68.0" height="26" fill="#f1f1f1" stroke="#8c8c8c" stroke-width="1"/>
+<text x="239.2" y="74" font-size="17" font-weight="normal" text-anchor="middle" fill="#222222">Loads</text>
+<rect x="277.2" y="56" width="68.0" height="26" fill="#f1f1f1" stroke="#8c8c8c" stroke-width="1"/>
+<text x="311.2" y="74" font-size="17" font-weight="normal" text-anchor="middle" fill="#222222">Cases</text>
+<rect x="349.2" y="56" width="86.39999999999999" height="26" fill="#b8b8b8" stroke="#8c8c8c" stroke-width="1"/>
+<text x="392.4" y="74" font-size="17" font-weight="bold" text-anchor="middle" fill="#222222">Results</text>
+<rect x="439.59999999999997" y="56" width="86.39999999999999" height="26" fill="#f1f1f1" stroke="#8c8c8c" stroke-width="1"/>
+<text x="482.79999999999995" y="74" font-size="17" font-weight="normal" text-anchor="middle" fill="#222222">Hangers</text>
+<rect x="0" y="86" width="720" height="34" fill="#dcdcdc" stroke="#8c8c8c" stroke-width="1.5"/>
+<rect x="6" y="90" width="95.6" height="26" fill="#b8b8b8" stroke="#8c8c8c" stroke-width="1"/>
+<text x="53.8" y="108" font-size="15" font-weight="bold" text-anchor="middle" fill="#222222">Stresses</text>
+<rect x="105.6" y="90" width="141.6" height="26" fill="#f1f1f1" stroke="#8c8c8c" stroke-width="1"/>
+<text x="176.39999999999998" y="108" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">Displacements</text>
+<rect x="251.2" y="90" width="160.0" height="26" fill="#f1f1f1" stroke="#8c8c8c" stroke-width="1"/>
+<text x="331.2" y="108" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">Restraint loads</text>
+<rect x="415.2" y="90" width="178.39999999999998" height="26" fill="#f1f1f1" stroke="#8c8c8c" stroke-width="1"/>
+<text x="504.4" y="108" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">Restraint summary</text>
+<rect x="597.5999999999999" y="90" width="30" height="26" fill="#f1f1f1" stroke="#8c8c8c" stroke-width="1"/>
+<text x="612.5999999999999" y="109" font-size="17" font-weight="normal" text-anchor="middle" fill="#222222">›</text>
+<rect x="0" y="120" width="720" height="36" fill="#f1f1f1" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="10" y="144" font-size="17" font-weight="bold" text-anchor="start" fill="#222222">Run 03 · immutable</text>
+<rect x="210" y="125" width="130" height="26" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="275.0" y="143" font-size="16" font-weight="normal" text-anchor="middle" fill="#222222">Case: OPE1 ▾</text>
+<rect x="348" y="125" width="110" height="26" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="403.0" y="143" font-size="16" font-weight="normal" text-anchor="middle" fill="#222222">Envelope ☐</text>
+<rect x="542" y="125" width="138" height="26" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="611" y="143" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">Internally verified</text>
+<rect x="686" y="125" width="26" height="26" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="699" y="144" font-size="17" font-weight="bold" text-anchor="middle" fill="#222222">i</text>
+<rect x="0" y="156" width="720" height="694" fill="#ffffff" stroke="#8c8c8c" stroke-width="1.5"/>
+<rect x="0" y="156" width="720" height="30" fill="#f1f1f1" stroke="#8c8c8c" stroke-width="1"/>
+<text x="8" y="176" font-size="16" font-weight="bold" text-anchor="start" fill="#222222">Node</text>
+<text x="75.5" y="176" font-size="16" font-weight="bold" text-anchor="start" fill="#222222">Elem</text>
+<text x="161.0" y="176" font-size="16" font-weight="bold" text-anchor="start" fill="#222222">Case</text>
+<text x="237.5" y="176" font-size="16" font-weight="bold" text-anchor="start" fill="#222222">Stress [MPa]</text>
+<text x="341.0" y="176" font-size="16" font-weight="bold" text-anchor="start" fill="#222222">Allow. [MPa]</text>
+<text x="444.5" y="176" font-size="16" font-weight="bold" text-anchor="start" fill="#222222">Ratio</text>
+<text x="516.5" y="176" font-size="16" font-weight="bold" text-anchor="start" fill="#222222">Rule</text>
+<text x="624.5" y="176" font-size="16" font-weight="bold" text-anchor="start" fill="#222222">Pack</text>
+<rect x="0" y="186" width="720" height="28" fill="#b8b8b8" stroke="#8c8c8c" stroke-width="0.5"/>
+<text x="8" y="206" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">40</text>
+<text x="75.5" y="206" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">30–40</text>
+<text x="161.0" y="206" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">OPE1</text>
+<text x="237.5" y="206" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">124.6</text>
+<text x="341.0" y="206" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">172.0</text>
+<text x="444.5" y="206" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.72</text>
+<text x="516.5" y="206" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">EXP-A1</text>
+<text x="624.5" y="206" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="214" x2="720" y2="214" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="234" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">60</text>
+<text x="75.5" y="234" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">50–60</text>
+<text x="161.0" y="234" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">OPE1</text>
+<text x="237.5" y="234" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">113.5</text>
+<text x="341.0" y="234" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">172.0</text>
+<text x="444.5" y="234" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.66</text>
+<text x="516.5" y="234" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">EXP-A1</text>
+<text x="624.5" y="234" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="242" x2="720" y2="242" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="262" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">20</text>
+<text x="75.5" y="262" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">10–20</text>
+<text x="161.0" y="262" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">EXP1</text>
+<text x="237.5" y="262" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">141.8</text>
+<text x="341.0" y="262" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">258.0</text>
+<text x="444.5" y="262" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.55</text>
+<text x="516.5" y="262" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">EXP-A1</text>
+<text x="624.5" y="262" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="270" x2="720" y2="270" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="290" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">80</text>
+<text x="75.5" y="290" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">70–80</text>
+<text x="161.0" y="290" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">SUS</text>
+<text x="237.5" y="290" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">61.3</text>
+<text x="341.0" y="290" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">137.9</text>
+<text x="444.5" y="290" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.44</text>
+<text x="516.5" y="290" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">SUS-A1</text>
+<text x="624.5" y="290" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="298" x2="720" y2="298" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="318" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">30</text>
+<text x="75.5" y="318" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">20–30</text>
+<text x="161.0" y="318" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">SUS</text>
+<text x="237.5" y="318" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">48.2</text>
+<text x="341.0" y="318" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">137.9</text>
+<text x="444.5" y="318" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.35</text>
+<text x="516.5" y="318" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">SUS-A1</text>
+<text x="624.5" y="318" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="326" x2="720" y2="326" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="346" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">50</text>
+<text x="75.5" y="346" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">40–50</text>
+<text x="161.0" y="346" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">OPE1</text>
+<text x="237.5" y="346" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">52.9</text>
+<text x="341.0" y="346" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">172.0</text>
+<text x="444.5" y="346" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.31</text>
+<text x="516.5" y="346" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">EXP-A1</text>
+<text x="624.5" y="346" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="354" x2="720" y2="354" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="374" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">70</text>
+<text x="75.5" y="374" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">60–70</text>
+<text x="161.0" y="374" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">EXP1</text>
+<text x="237.5" y="374" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">72.4</text>
+<text x="341.0" y="374" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">258.0</text>
+<text x="444.5" y="374" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.28</text>
+<text x="516.5" y="374" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">EXP-A1</text>
+<text x="624.5" y="374" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="382" x2="720" y2="382" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="402" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">90</text>
+<text x="75.5" y="402" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">80–90</text>
+<text x="161.0" y="402" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">SUS</text>
+<text x="237.5" y="402" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">33.1</text>
+<text x="341.0" y="402" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">137.9</text>
+<text x="444.5" y="402" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.24</text>
+<text x="516.5" y="402" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">SUS-A1</text>
+<text x="624.5" y="402" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="410" x2="720" y2="410" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="430" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">100</text>
+<text x="75.5" y="430" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">90–100</text>
+<text x="161.0" y="430" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">OPE1</text>
+<text x="237.5" y="430" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">36.0</text>
+<text x="341.0" y="430" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">172.0</text>
+<text x="444.5" y="430" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.21</text>
+<text x="516.5" y="430" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">EXP-A1</text>
+<text x="624.5" y="430" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="438" x2="720" y2="438" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="458" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">110</text>
+<text x="75.5" y="458" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">100–110</text>
+<text x="161.0" y="458" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">SUS</text>
+<text x="237.5" y="458" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">22.7</text>
+<text x="341.0" y="458" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">137.9</text>
+<text x="444.5" y="458" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.16</text>
+<text x="516.5" y="458" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">SUS-A1</text>
+<text x="624.5" y="458" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="466" x2="720" y2="466" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="486" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">120</text>
+<text x="75.5" y="486" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">110–120</text>
+<text x="161.0" y="486" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">EXP1</text>
+<text x="237.5" y="486" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">31.9</text>
+<text x="341.0" y="486" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">258.0</text>
+<text x="444.5" y="486" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.12</text>
+<text x="516.5" y="486" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">EXP-A1</text>
+<text x="624.5" y="486" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="494" x2="720" y2="494" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="514" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">130</text>
+<text x="75.5" y="514" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">120–130</text>
+<text x="161.0" y="514" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">OPE1</text>
+<text x="237.5" y="514" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">18.4</text>
+<text x="341.0" y="514" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">172.0</text>
+<text x="444.5" y="514" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.11</text>
+<text x="516.5" y="514" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">EXP-A1</text>
+<text x="624.5" y="514" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="522" x2="720" y2="522" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="542" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">140</text>
+<text x="75.5" y="542" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">130–140</text>
+<text x="161.0" y="542" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">SUS</text>
+<text x="237.5" y="542" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">12.0</text>
+<text x="341.0" y="542" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">137.9</text>
+<text x="444.5" y="542" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.09</text>
+<text x="516.5" y="542" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">SUS-A1</text>
+<text x="624.5" y="542" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="550" x2="720" y2="550" stroke="#8c8c8c" stroke-width="0.6"/>
+<text x="8" y="570" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">150</text>
+<text x="75.5" y="570" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">140–150</text>
+<text x="161.0" y="570" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">OPE1</text>
+<text x="237.5" y="570" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">9.6</text>
+<text x="341.0" y="570" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">172.0</text>
+<text x="444.5" y="570" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">0.06</text>
+<text x="516.5" y="570" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">EXP-A1</text>
+<text x="624.5" y="570" font-size="16" font-weight="normal" text-anchor="start" fill="#222222">1.2</text>
+<line x1="0" y1="578" x2="720" y2="578" stroke="#8c8c8c" stroke-width="0.6"/>
+<rect x="0" y="850" width="720" height="26" fill="#dcdcdc" stroke="#8c8c8c" stroke-width="1"/>
+<text x="10" y="868" font-size="14" font-weight="normal" text-anchor="start" fill="#666666">14 rows · sorted by ratio · click a row to select the element in the model</text>
+<rect x="720" y="52" width="720" height="824" fill="#ffffff" stroke="#8c8c8c" stroke-width="2"/>
+<text x="732" y="78" font-size="17" font-weight="normal" text-anchor="start" fill="#666666">3D model · result colour by ratio</text>
+<polyline points="806.4,628.8 933.12,628.8" fill="none" stroke="#4a4a4a" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="933.12,628.8 933.12,467.29599999999994" fill="none" stroke="#7a7a7a" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="933.12,467.29599999999994 1091.52,467.29599999999994" fill="none" stroke="#9a9a9a" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="1091.52,467.29599999999994 1091.52,605.728" fill="none" stroke="#bdbdbd" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="1091.52,605.728 1234.08,605.728" fill="none" stroke="#a0a0a0" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="1234.08,605.728 1329.12,490.36799999999994" fill="none" stroke="#d0d0d0" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="1329.12,490.36799999999994 1392.48,490.36799999999994" fill="none" stroke="#e0e0e0" stroke-width="12.0" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="790.4" y="592.8" width="32" height="20" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="806.4" y="607.8" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">10</text>
+<rect x="917.12" y="592.8" width="32" height="20" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="933.12" y="607.8" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">20</text>
+<rect x="917.12" y="431.29599999999994" width="32" height="20" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="933.12" y="446.29599999999994" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">30</text>
+<rect x="1075.52" y="431.29599999999994" width="32" height="20" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="1091.52" y="446.29599999999994" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">40</text>
+<rect x="1075.52" y="569.728" width="32" height="20" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="1091.52" y="584.728" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">50</text>
+<rect x="1218.08" y="569.728" width="32" height="20" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="1234.08" y="584.728" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">60</text>
+<rect x="1313.12" y="454.36799999999994" width="32" height="20" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="1329.12" y="469.36799999999994" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">70</text>
+<rect x="1376.48" y="454.36799999999994" width="32" height="20" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="1392.48" y="469.36799999999994" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">80</text>
+<rect x="788.4" y="634.8" width="36" height="14" fill="#cfcfcf" stroke="#8c8c8c" stroke-width="1.5"/>
+<polygon points="1079.52,489.29599999999994 1103.52,489.29599999999994 1091.52,473.29599999999994" fill="#cfcfcf" stroke="#8c8c8c" stroke-width="1.5"/>
+<rect x="1228.08" y="587.728" width="4" height="36.0" fill="#cfcfcf" stroke="#8c8c8c" stroke-width="1"/>
+<rect x="1236.08" y="587.728" width="4" height="36.0" fill="#cfcfcf" stroke="#8c8c8c" stroke-width="1"/>
+<line x1="1091.52" y1="401.29599999999994" x2="1091.52" y2="435.29599999999994" stroke="#8c8c8c" stroke-width="2.5"/>
+<polygon points="1085.52,431.29599999999994 1097.52,431.29599999999994 1091.52,441.29599999999994" fill="#444444" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="1101.52" y="421.29599999999994" font-size="14" font-weight="normal" text-anchor="start" fill="#666666">−2.0 kN</text>
+<line x1="750" y1="846" x2="790" y2="846" stroke="#8c8c8c" stroke-width="2"/>
+<line x1="750" y1="846" x2="750" y2="806" stroke="#8c8c8c" stroke-width="2"/>
+<line x1="750" y1="846" x2="726" y2="866" stroke="#8c8c8c" stroke-width="2"/>
+<text x="794" y="851" font-size="13" font-weight="normal" text-anchor="start" fill="#222222">X</text>
+<text x="746" y="802" font-size="13" font-weight="normal" text-anchor="start" fill="#222222">Y</text>
+<text x="712" y="876" font-size="13" font-weight="normal" text-anchor="start" fill="#222222">Z</text>
+<rect x="1324" y="92" width="104" height="26" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="1376.0" y="110" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">Deform ×20</text>
+<rect x="1246" y="92" width="72" height="26" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="1282.0" y="110" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">Labels</text>
+<rect x="1164" y="92" width="76" height="26" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="1202.0" y="110" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">Isolate</text>
+<rect x="1078" y="92" width="80" height="26" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="1118.0" y="110" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">Section</text>
+<rect x="1006" y="92" width="66" height="26" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="1039.0" y="110" font-size="15" font-weight="normal" text-anchor="middle" fill="#222222">Iso ▾</text>
+<rect x="1276" y="692" width="150" height="170" fill="#ffffff" stroke="#8c8c8c" stroke-width="1"/>
+<text x="1286" y="714" font-size="15" font-weight="bold" text-anchor="start" fill="#222222">Ratio · OPE1</text>
+<rect x="1286" y="726" width="22" height="18" fill="#3c3c3c" stroke="#8c8c8c" stroke-width="0.5"/>
+<rect x="1286" y="744" width="22" height="18" fill="#606060" stroke="#8c8c8c" stroke-width="0.5"/>
+<rect x="1286" y="762" width="22" height="18" fill="#848484" stroke="#8c8c8c" stroke-width="0.5"/>
+<rect x="1286" y="780" width="22" height="18" fill="#a8a8a8" stroke="#8c8c8c" stroke-width="0.5"/>
+<rect x="1286" y="798" width="22" height="18" fill="#cccccc" stroke="#8c8c8c" stroke-width="0.5"/>
+<rect x="1286" y="816" width="22" height="18" fill="#eaeaea" stroke="#8c8c8c" stroke-width="0.5"/>
+<text x="1316" y="739" font-size="14" font-weight="normal" text-anchor="start" fill="#222222">1.00</text>
+<text x="1316" y="762" font-size="14" font-weight="normal" text-anchor="start" fill="#222222">0.80</text>
+<text x="1316" y="780" font-size="14" font-weight="normal" text-anchor="start" fill="#222222">0.60</text>
+<text x="1316" y="798" font-size="14" font-weight="normal" text-anchor="start" fill="#222222">0.40</text>
+<text x="1316" y="816" font-size="14" font-weight="normal" text-anchor="start" fill="#222222">0.20</text>
+<text x="1316" y="834" font-size="14" font-weight="normal" text-anchor="start" fill="#222222">0.00</text>
+<text x="1286" y="852" font-size="13" font-weight="normal" text-anchor="start" fill="#666666">Rule EXP-A1 · pack 1.2</text>
+<rect x="1115.52" y="267.29599999999994" width="250" height="118" fill="#ffffff" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="1125.52" y="289.29599999999994" font-size="15" font-weight="bold" text-anchor="start" fill="#222222">Probe · node 40 · 30–40 · OPE1</text>
+<text x="1125.52" y="313.29599999999994" font-size="15" font-weight="normal" text-anchor="start" fill="#222222">Stress 124.6 MPa</text>
+<text x="1125.52" y="335.29599999999994" font-size="15" font-weight="normal" text-anchor="start" fill="#222222">Allowable 172.0 MPa</text>
+<text x="1125.52" y="357.29599999999994" font-size="15" font-weight="normal" text-anchor="start" fill="#222222">Ratio 0.72 · rule EXP-A1</text>
+<text x="1125.52" y="377.29599999999994" font-size="14" font-weight="normal" text-anchor="start" fill="#666666">pack 1.2 · provenance ▸</text>
+<rect x="1412" y="404.0" width="28" height="120" fill="#dcdcdc" stroke="#8c8c8c" stroke-width="1.5"/>
+<text transform="translate(1432,464.0) rotate(-90)" font-size="15" text-anchor="middle" fill="#222222">Agent</text>
+<rect x="0" y="876" width="1440" height="24" fill="#dcdcdc" stroke="#8c8c8c" stroke-width="1.5"/>
+<text x="12" y="893" font-size="15" font-weight="normal" text-anchor="start" fill="#222222">Mechanics solved · User-rule checked   |   Issues 0   |   Selected: element 30–40   |   SI</text>
+<text x="1428" y="893" font-size="15" font-weight="normal" text-anchor="end" fill="#666666">Wireframe A · Layout Sheet · Split · canvas 720×824 (46%)</text>
+</svg>

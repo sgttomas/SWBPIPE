@@ -62,46 +62,137 @@
       "status": "complete"
     },
     {
+      "id": "RESEARCH-E",
+      "role": "TASK",
+      "purpose": "CAEPIPE exchange format characterisation from public documentation (export compatibility requirement, owner answer 1 of 2026-09-17)",
+      "model_requested": "opus",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/RESEARCH-E_caepipe_format.md",
+      "return": "instances/RESEARCH/E_caepipe_format.md",
+      "status": "complete",
+      "accepted_by_root": "2026-09-17"
+    },
+    {
+      "id": "RESEARCH-F",
+      "role": "TASK",
+      "purpose": "Inventory of the governed texts, registry entries, lint anchors and tests that bind the nine decision-packet items",
+      "model_requested": "opus",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/RESEARCH-F_packet_bindings.md",
+      "return": "instances/RESEARCH/F_packet_bindings.md",
+      "status": "complete",
+      "note": "Accepted 2026-09-18 after one ROOT-found correction (see briefs/_INDEX.md)"
+    },
+    {
       "id": "OWNER-QA",
       "role": "HUMAN",
       "purpose": "Owner answers the seven opening questions",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "DESIGN-BRIEF",
       "role": "HELP_HUMAN",
       "purpose": "Design brief consuming the research and the owner's answers; owner checkpoint",
-      "status": "pending"
+      "return": "instances/ROOT/DESIGN_BRIEF_V1.md",
+      "status": "complete"
     },
     {
       "id": "CONCEPTS",
       "role": "HELPS_HUMANS",
       "purpose": "Two or three north-star concept directions with storyboards; owner chooses",
-      "status": "pending"
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/CONCEPTS-01_north_star_directions.md",
+      "return": "instances/CONCEPTS/",
+      "status": "complete",
+      "accepted_by_root": "2026-09-17"
+    },
+    {
+      "id": "OWNER-DIRECTION",
+      "role": "HUMAN",
+      "purpose": "Owner chooses the concept direction; answered 2026-09-17 as a synthesis (tables are the model, CAEPIPE grammar, stages as pages of tables, three views per stage, row-by-row acceptance, Review page)",
+      "status": "complete",
+      "return": "instances/ROOT/DIRECTION_DECISION_2026-09-17.md",
+      "note": "Confirmed 2026-09-18 with corrections (views Table/Model/Both; numeric node IDs; tees as node data). Reading (d) settled the same day after discussion: the checked mark is kept. Eleven recommendations agreed (direction record §10); brief V1.4."
     },
     {
       "id": "DESIGN-SYSTEM",
       "role": "HELPS_HUMANS",
       "purpose": "Tokens, type, colour with dark mode, iconography, density, states; 3D presentation language",
-      "status": "pending"
+      "status": "complete",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/DESIGN-SYSTEM-01_design_system.md",
+      "return": "instances/DESIGN-SYSTEM/",
+      "accepted_by_root": "2026-09-18"
+    },
+    {
+      "id": "DESIGN-SYSTEM-02",
+      "role": "HELPS_HUMANS",
+      "purpose": "Design system revision V1.1: the fourteen mock-review decisions, the frames' proposals and departures, the six token gaps",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/DESIGN-SYSTEM-02_revision.md",
+      "return": "instances/DESIGN-SYSTEM/ (V1.1 in place)",
+      "status": "complete",
+      "note": "Accepted 2026-09-18 after ROOT review (narrow-case rule, spelling rule); V1.1 hashes in briefs/_INDEX.md"
     },
     {
       "id": "MOCKS",
       "role": "HELPS_HUMANS",
-      "purpose": "Mock drafts of the workflow states enumerated in the brief; owner reviews",
-      "status": "pending"
+      "purpose": "Fifteen mock frames of the nine workflow states as offline HTML from the design system and one sample model; owner reviews",
+      "status": "complete",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/MOCKS-01_mock_drafts.md",
+      "return": "instances/MOCKS/",
+      "accepted_by_root": "2026-09-18"
+    },
+    {
+      "id": "MOCKS-02",
+      "role": "HELPS_HUMANS",
+      "purpose": "Regenerate the fifteen frames from design system V1.1 with the fourteen decisions applied",
+      "status": "complete",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/MOCKS-02_regeneration.md",
+      "return": "instances/MOCKS/ (in place; MOCKS_V2.md)",
+      "note": "Accepted 2026-09-18; 18 frames incl. two D-71 decision aids; questions Q-15..Q-22 carried to the post-ruling revision pass"
+    },
+    {
+      "id": "OWNER-MOCKS-REVIEW",
+      "role": "HUMAN",
+      "purpose": "Owner reviews the fifteen frames and answers the fourteen screen questions (instances/MOCKS/MOCKS_V1.md §4)",
+      "status": "complete",
+      "return": "instances/ROOT/DIRECTION_DECISION_2026-09-17.md",
+      "note": "All fourteen recommendations approved 2026-09-18 (record §11)"
+    },
+    {
+      "id": "DECISION-PACKET",
+      "role": "HELP_HUMAN",
+      "purpose": "One owner decision packet: maturity line, boundary-sentence placement, product rename, and items 4 to 9, with the mock frames as evidence",
+      "status": "awaiting_owner",
+      "note": "D-71 PROPOSAL drafted 2026-09-18; register row AWAITING_RULING; nine items with recommendations",
+      "return": "../../_DECISIONS/D-71_interface_program_governed_text_decisions.md"
     },
     {
       "id": "UX-SPEC",
       "role": "HELPS_HUMANS",
       "purpose": "UX specification mapped to typed interfaces and the constraints sheet",
-      "status": "pending"
+      "status": "complete",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/UX-SPEC-01_ux_specification.md",
+      "return": "instances/UX-SPEC/",
+      "note": "Accepted 2026-09-18; reconcile names against design system V1.1 once accepted"
     },
     {
       "id": "RENDERING-BRIEF",
       "role": "HELP_HUMAN",
       "purpose": "Rendering brief for the piping session's overlay and deformation observations (D-70 effect 4)",
-      "status": "pending"
+      "status": "complete",
+      "return": "instances/ROOT/RENDERING_BRIEF_2026-09-18.md",
+      "note": "Delivered 2026-09-18 with notice ../../NOTICE_2026-09-18_RENDERING_BRIEF.md; relay to the piping session is the owner's"
     },
     {
       "id": "ACCEPTANCE-PROPOSAL",
@@ -111,21 +202,106 @@
     }
   ],
   "edges": [
-    ["ROOT", "RESEARCH-A"],
-    ["ROOT", "RESEARCH-B"],
-    ["ROOT", "RESEARCH-C"],
-    ["ROOT", "RESEARCH-D"],
-    ["RESEARCH-A", "DESIGN-BRIEF"],
-    ["RESEARCH-B", "DESIGN-BRIEF"],
-    ["RESEARCH-C", "DESIGN-BRIEF"],
-    ["RESEARCH-D", "DESIGN-BRIEF"],
-    ["OWNER-QA", "DESIGN-BRIEF"],
-    ["DESIGN-BRIEF", "CONCEPTS"],
-    ["CONCEPTS", "DESIGN-SYSTEM"],
-    ["CONCEPTS", "RENDERING-BRIEF"],
-    ["DESIGN-SYSTEM", "MOCKS"],
-    ["MOCKS", "UX-SPEC"],
-    ["UX-SPEC", "ACCEPTANCE-PROPOSAL"]
+    [
+      "ROOT",
+      "RESEARCH-A"
+    ],
+    [
+      "ROOT",
+      "RESEARCH-B"
+    ],
+    [
+      "ROOT",
+      "RESEARCH-C"
+    ],
+    [
+      "ROOT",
+      "RESEARCH-D"
+    ],
+    [
+      "RESEARCH-A",
+      "DESIGN-BRIEF"
+    ],
+    [
+      "RESEARCH-B",
+      "DESIGN-BRIEF"
+    ],
+    [
+      "RESEARCH-C",
+      "DESIGN-BRIEF"
+    ],
+    [
+      "RESEARCH-D",
+      "DESIGN-BRIEF"
+    ],
+    [
+      "OWNER-QA",
+      "DESIGN-BRIEF"
+    ],
+    [
+      "ROOT",
+      "RESEARCH-E"
+    ],
+    [
+      "DESIGN-BRIEF",
+      "CONCEPTS"
+    ],
+    [
+      "CONCEPTS",
+      "OWNER-DIRECTION"
+    ],
+    [
+      "OWNER-DIRECTION",
+      "DESIGN-SYSTEM"
+    ],
+    [
+      "OWNER-DIRECTION",
+      "RENDERING-BRIEF"
+    ],
+    [
+      "RESEARCH-E",
+      "MOCKS"
+    ],
+    [
+      "RESEARCH-E",
+      "UX-SPEC"
+    ],
+    [
+      "DESIGN-SYSTEM",
+      "MOCKS"
+    ],
+    [
+      "MOCKS",
+      "OWNER-MOCKS-REVIEW"
+    ],
+    [
+      "OWNER-MOCKS-REVIEW",
+      "UX-SPEC"
+    ],
+    [
+      "OWNER-MOCKS-REVIEW",
+      "DECISION-PACKET"
+    ],
+    [
+      "OWNER-MOCKS-REVIEW",
+      "DESIGN-SYSTEM-02"
+    ],
+    [
+      "DESIGN-SYSTEM-02",
+      "MOCKS-02"
+    ],
+    [
+      "ROOT",
+      "RESEARCH-F"
+    ],
+    [
+      "RESEARCH-F",
+      "DECISION-PACKET"
+    ],
+    [
+      "UX-SPEC",
+      "ACCEPTANCE-PROPOSAL"
+    ]
   ],
-  "current_frontier": "OWNER-QA"
+  "current_frontier": "D-71 awaiting the owner; post-ruling revision pass (design system, specification, frames); ACCEPTANCE-PROPOSAL waits for the piping session's observation report"
 }

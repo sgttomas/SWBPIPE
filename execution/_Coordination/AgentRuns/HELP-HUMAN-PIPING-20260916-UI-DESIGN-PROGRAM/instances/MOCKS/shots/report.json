@@ -1,0 +1,6422 @@
+{
+  "s1_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 11,
+          "12": 14,
+          "13": 27
+        },
+        "textElements": 52,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 1,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 11,
+          "12": 14,
+          "13": 27
+        },
+        "textElements": 52,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 1,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 11,
+          "12": 14,
+          "13": 27
+        },
+        "textElements": 52,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 1,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 68699,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 1,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 1
+    }
+  },
+  "s2_model_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 7,
+          "12": 32,
+          "13": 85,
+          "15": 1
+        },
+        "textElements": 125,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": {
+          "w": 1001,
+          "h": 548
+        },
+        "modelInspector": {
+          "w": 340,
+          "h": 829
+        },
+        "tableDrawer": {
+          "w": 1001,
+          "h": 280
+        },
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 7,
+          "12": 32,
+          "13": 85,
+          "15": 1
+        },
+        "textElements": 125,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": {
+          "w": 1000,
+          "h": 548
+        },
+        "modelInspector": {
+          "w": 340,
+          "h": 828
+        },
+        "tableDrawer": {
+          "w": 1000,
+          "h": 280
+        },
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 7,
+          "12": 32,
+          "13": 85,
+          "15": 1
+        },
+        "textElements": 125,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": {
+          "w": 1000,
+          "h": 548
+        },
+        "modelInspector": {
+          "w": 340,
+          "h": 828
+        },
+        "tableDrawer": {
+          "w": 1000,
+          "h": 280
+        },
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 82559,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 1
+    }
+  },
+  "s2_model_dark": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 7,
+          "12": 32,
+          "13": 85,
+          "15": 1
+        },
+        "textElements": 125,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": {
+          "w": 1001,
+          "h": 548
+        },
+        "modelInspector": {
+          "w": 340,
+          "h": 829
+        },
+        "tableDrawer": {
+          "w": 1001,
+          "h": 280
+        },
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#045c59",
+        "#04706b",
+        "#09847f",
+        "#099993",
+        "#24ada7",
+        "#52bfb9",
+        "#74d1cb"
+      ],
+      "tokens": {
+        "--pressed-fill": "#254974",
+        "--pressed-ink": "#a8ceff",
+        "--stale-band": "#362c1c",
+        "--stale-ink": "#e9ca89",
+        "--rail-captionFailed": "#ffaba3",
+        "--rail-captionStale": "#e9ca89",
+        "--rail-captionHistorical": "#cec2af",
+        "--canvas-hint": "rgba(46,50,54,0.92)",
+        "--draft-bar": "#6dadff",
+        "--bar-track": "#3c4045",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 7,
+          "12": 32,
+          "13": 85,
+          "15": 1
+        },
+        "textElements": 125,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": {
+          "w": 1000,
+          "h": 548
+        },
+        "modelInspector": {
+          "w": 340,
+          "h": 828
+        },
+        "tableDrawer": {
+          "w": 1000,
+          "h": 280
+        },
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#045c59",
+        "#04706b",
+        "#09847f",
+        "#099993",
+        "#24ada7",
+        "#52bfb9",
+        "#74d1cb"
+      ],
+      "tokens": {
+        "--pressed-fill": "#254974",
+        "--pressed-ink": "#a8ceff",
+        "--stale-band": "#362c1c",
+        "--stale-ink": "#e9ca89",
+        "--rail-captionFailed": "#ffaba3",
+        "--rail-captionStale": "#e9ca89",
+        "--rail-captionHistorical": "#cec2af",
+        "--canvas-hint": "rgba(46,50,54,0.92)",
+        "--draft-bar": "#6dadff",
+        "--bar-track": "#3c4045",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 7,
+          "12": 32,
+          "13": 85,
+          "15": 1
+        },
+        "textElements": 125,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": {
+          "w": 1000,
+          "h": 548
+        },
+        "modelInspector": {
+          "w": 340,
+          "h": 828
+        },
+        "tableDrawer": {
+          "w": 1000,
+          "h": 280
+        },
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#045c59",
+        "#04706b",
+        "#09847f",
+        "#099993",
+        "#24ada7",
+        "#52bfb9",
+        "#74d1cb"
+      ],
+      "tokens": {
+        "--pressed-fill": "#254974",
+        "--pressed-ink": "#a8ceff",
+        "--stale-band": "#362c1c",
+        "--stale-ink": "#e9ca89",
+        "--rail-captionFailed": "#ffaba3",
+        "--rail-captionStale": "#e9ca89",
+        "--rail-captionHistorical": "#cec2af",
+        "--canvas-hint": "rgba(46,50,54,0.92)",
+        "--draft-bar": "#6dadff",
+        "--bar-track": "#3c4045",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "light",
+        "bodyBg": "rgb(238, 240, 243)",
+        "colorScheme": "light",
+        "scale1": "#4ab9b2"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "dark"
+      }
+    },
+    "selfContained": {
+      "bytes": 82554,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 1
+    }
+  },
+  "s3_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 13,
+          "12": 19,
+          "13": 243
+        },
+        "textElements": 275,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 13,
+          "12": 19,
+          "13": 243
+        },
+        "textElements": 275,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 13,
+          "12": 19,
+          "13": 243
+        },
+        "textElements": 275,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 83027,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 1
+    }
+  },
+  "s4_both_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 7,
+          "12": 31,
+          "13": 176,
+          "15": 1
+        },
+        "textElements": 215,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 738,
+          "h": 829
+        },
+        "canvas": {
+          "w": 303,
+          "h": 829
+        },
+        "inspector": {
+          "w": 300,
+          "h": 829
+        },
+        "strip": {
+          "w": 44,
+          "h": 829
+        },
+        "camera": "603",
+        "pan": "0",
+        "hudRows": 2
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 7,
+          "12": 31,
+          "13": 176,
+          "15": 1
+        },
+        "textElements": 215,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 303,
+          "h": 828
+        },
+        "inspector": {
+          "w": 300,
+          "h": 828
+        },
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "camera": "603",
+        "pan": "0",
+        "hudRows": 2
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 7,
+          "12": 31,
+          "13": 176,
+          "15": 1
+        },
+        "textElements": 215,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 303,
+          "h": 828
+        },
+        "inspector": {
+          "w": 300,
+          "h": 828
+        },
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "camera": "603",
+        "pan": "0",
+        "hudRows": 2
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 103680,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 0
+    }
+  },
+  "s4_both_light_column": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 7,
+          "12": 31,
+          "13": 177,
+          "15": 1
+        },
+        "textElements": 216,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 738,
+          "h": 829
+        },
+        "canvas": {
+          "w": 303,
+          "h": 829
+        },
+        "inspector": {
+          "w": 300,
+          "h": 829
+        },
+        "strip": {
+          "w": 44,
+          "h": 829
+        },
+        "camera": "470",
+        "pan": "0",
+        "hudRows": 2
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 7,
+          "12": 31,
+          "13": 177,
+          "15": 1
+        },
+        "textElements": 216,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 303,
+          "h": 828
+        },
+        "inspector": {
+          "w": 300,
+          "h": 828
+        },
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "camera": "470",
+        "pan": "0",
+        "hudRows": 2
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 7,
+          "12": 31,
+          "13": 177,
+          "15": 1
+        },
+        "textElements": 216,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 303,
+          "h": 828
+        },
+        "inspector": {
+          "w": 300,
+          "h": 828
+        },
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "camera": "470",
+        "pan": "0",
+        "hudRows": 2
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 103939,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 0
+    }
+  },
+  "s4_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 12,
+          "12": 17,
+          "13": 241
+        },
+        "textElements": 270,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 12,
+          "12": 17,
+          "13": 241
+        },
+        "textElements": 270,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 12,
+          "12": 17,
+          "13": 241
+        },
+        "textElements": 270,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 88428,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 0
+    }
+  },
+  "s5_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system",
+          "ui-monospace"
+        ],
+        "sizes": {
+          "11": 3,
+          "12": 34,
+          "13": 49
+        },
+        "textElements": 86,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 1,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system",
+          "ui-monospace"
+        ],
+        "sizes": {
+          "11": 3,
+          "12": 34,
+          "13": 49
+        },
+        "textElements": 86,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 1,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system",
+          "ui-monospace"
+        ],
+        "sizes": {
+          "11": 3,
+          "12": 34,
+          "13": 49
+        },
+        "textElements": 86,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 1,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 70968,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 1,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 0
+    }
+  },
+  "s6_both_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 5,
+          "12": 24,
+          "13": 15
+        },
+        "textElements": 44,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": {
+          "w": 737,
+          "h": 200
+        },
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 738,
+          "h": 829
+        },
+        "canvas": {
+          "w": 603,
+          "h": 829
+        },
+        "inspector": null,
+        "strip": {
+          "w": 44,
+          "h": 829
+        },
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 5,
+          "12": 24,
+          "13": 15
+        },
+        "textElements": 44,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": {
+          "w": 736,
+          "h": 200
+        },
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 603,
+          "h": 828
+        },
+        "inspector": null,
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 5,
+          "12": 24,
+          "13": 15
+        },
+        "textElements": 44,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": {
+          "w": 736,
+          "h": 200
+        },
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 603,
+          "h": 828
+        },
+        "inspector": null,
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 90691,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 0
+    }
+  },
+  "s7_both_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system",
+          "ui-monospace"
+        ],
+        "sizes": {
+          "11": 12,
+          "12": 24,
+          "13": 134
+        },
+        "textElements": 170,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 738,
+          "h": 829
+        },
+        "canvas": {
+          "w": 603,
+          "h": 829
+        },
+        "inspector": null,
+        "strip": {
+          "w": 44,
+          "h": 829
+        },
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 1,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system",
+          "ui-monospace"
+        ],
+        "sizes": {
+          "11": 12,
+          "12": 24,
+          "13": 134
+        },
+        "textElements": 170,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 603,
+          "h": 828
+        },
+        "inspector": null,
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 1,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system",
+          "ui-monospace"
+        ],
+        "sizes": {
+          "11": 12,
+          "12": 24,
+          "13": 134
+        },
+        "textElements": 170,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 603,
+          "h": 828
+        },
+        "inspector": null,
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 1,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 97866,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 1,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 2
+    }
+  },
+  "s7_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 8,
+          "12": 19,
+          "13": 119
+        },
+        "textElements": 146,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 8,
+          "12": 19,
+          "13": 119
+        },
+        "textElements": 146,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 8,
+          "12": 19,
+          "13": 119
+        },
+        "textElements": 146,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 74520,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 2
+    }
+  },
+  "s7_both_dark": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system",
+          "ui-monospace"
+        ],
+        "sizes": {
+          "11": 12,
+          "12": 24,
+          "13": 134
+        },
+        "textElements": 170,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 738,
+          "h": 829
+        },
+        "canvas": {
+          "w": 603,
+          "h": 829
+        },
+        "inspector": null,
+        "strip": {
+          "w": 44,
+          "h": 829
+        },
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "scaleSteps": [
+        "#045c59",
+        "#04706b",
+        "#09847f",
+        "#099993",
+        "#24ada7",
+        "#52bfb9",
+        "#74d1cb"
+      ],
+      "tokens": {
+        "--pressed-fill": "#254974",
+        "--pressed-ink": "#a8ceff",
+        "--stale-band": "#362c1c",
+        "--stale-ink": "#e9ca89",
+        "--rail-captionFailed": "#ffaba3",
+        "--rail-captionStale": "#e9ca89",
+        "--rail-captionHistorical": "#cec2af",
+        "--canvas-hint": "rgba(46,50,54,0.92)",
+        "--draft-bar": "#6dadff",
+        "--bar-track": "#3c4045",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 1,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system",
+          "ui-monospace"
+        ],
+        "sizes": {
+          "11": 12,
+          "12": 24,
+          "13": 134
+        },
+        "textElements": 170,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 603,
+          "h": 828
+        },
+        "inspector": null,
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "scaleSteps": [
+        "#045c59",
+        "#04706b",
+        "#09847f",
+        "#099993",
+        "#24ada7",
+        "#52bfb9",
+        "#74d1cb"
+      ],
+      "tokens": {
+        "--pressed-fill": "#254974",
+        "--pressed-ink": "#a8ceff",
+        "--stale-band": "#362c1c",
+        "--stale-ink": "#e9ca89",
+        "--rail-captionFailed": "#ffaba3",
+        "--rail-captionStale": "#e9ca89",
+        "--rail-captionHistorical": "#cec2af",
+        "--canvas-hint": "rgba(46,50,54,0.92)",
+        "--draft-bar": "#6dadff",
+        "--bar-track": "#3c4045",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 1,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system",
+          "ui-monospace"
+        ],
+        "sizes": {
+          "11": 12,
+          "12": 24,
+          "13": 134
+        },
+        "textElements": 170,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 603,
+          "h": 828
+        },
+        "inspector": null,
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "scaleSteps": [
+        "#045c59",
+        "#04706b",
+        "#09847f",
+        "#099993",
+        "#24ada7",
+        "#52bfb9",
+        "#74d1cb"
+      ],
+      "tokens": {
+        "--pressed-fill": "#254974",
+        "--pressed-ink": "#a8ceff",
+        "--stale-band": "#362c1c",
+        "--stale-ink": "#e9ca89",
+        "--rail-captionFailed": "#ffaba3",
+        "--rail-captionStale": "#e9ca89",
+        "--rail-captionHistorical": "#cec2af",
+        "--canvas-hint": "rgba(46,50,54,0.92)",
+        "--draft-bar": "#6dadff",
+        "--bar-track": "#3c4045",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 1,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "light",
+        "bodyBg": "rgb(238, 240, 243)",
+        "colorScheme": "light",
+        "scale1": "#4ab9b2"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "dark"
+      }
+    },
+    "selfContained": {
+      "bytes": 97788,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 1,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 2
+    }
+  },
+  "s8_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 10,
+          "12": 38,
+          "13": 46,
+          "15": 2
+        },
+        "textElements": 96,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1045,
+          "h": 829
+        },
+        "agentStrip": null,
+        "agentColumn": {
+          "w": 340,
+          "h": 829
+        },
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 1,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 10,
+          "12": 38,
+          "13": 46,
+          "15": 2
+        },
+        "textElements": 96,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1044,
+          "h": 828
+        },
+        "agentStrip": null,
+        "agentColumn": {
+          "w": 340,
+          "h": 828
+        },
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 1,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 10,
+          "12": 38,
+          "13": 46,
+          "15": 2
+        },
+        "textElements": 96,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1044,
+          "h": 828
+        },
+        "agentStrip": null,
+        "agentColumn": {
+          "w": 340,
+          "h": 828
+        },
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 1,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 0,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 71931,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 1,
+      "aidLabel": 0,
+      "chips": 0
+    }
+  },
+  "s8_model_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 8,
+          "12": 28,
+          "13": 99,
+          "15": 1
+        },
+        "textElements": 136,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": {
+          "w": 1001,
+          "h": 548
+        },
+        "modelInspector": {
+          "w": 340,
+          "h": 829
+        },
+        "tableDrawer": {
+          "w": 1001,
+          "h": 280
+        },
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 1,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 8,
+          "12": 28,
+          "13": 99,
+          "15": 1
+        },
+        "textElements": 136,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": {
+          "w": 1000,
+          "h": 548
+        },
+        "modelInspector": {
+          "w": 340,
+          "h": 828
+        },
+        "tableDrawer": {
+          "w": 1000,
+          "h": 280
+        },
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 1,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 8,
+          "12": 28,
+          "13": 99,
+          "15": 1
+        },
+        "textElements": 136,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": {
+          "w": 1000,
+          "h": 548
+        },
+        "modelInspector": {
+          "w": 340,
+          "h": 828
+        },
+        "tableDrawer": {
+          "w": 1000,
+          "h": 280
+        },
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 1,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 96047,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 1,
+      "aidLabel": 0,
+      "chips": 2
+    }
+  },
+  "s9_table_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 17,
+          "12": 31,
+          "13": 97,
+          "18": 1
+        },
+        "textElements": 146,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": {
+          "w": 280,
+          "h": 744
+        },
+        "reviewComments": {
+          "w": 320,
+          "h": 744
+        }
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 1,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 1
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 17,
+          "12": 31,
+          "13": 97,
+          "18": 1
+        },
+        "textElements": 146,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": {
+          "w": 280,
+          "h": 743
+        },
+        "reviewComments": {
+          "w": 320,
+          "h": 743
+        }
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 1,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 1
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 17,
+          "12": 31,
+          "13": 97,
+          "18": 1
+        },
+        "textElements": 146,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": {
+          "w": 280,
+          "h": 743
+        },
+        "reviewComments": {
+          "w": 320,
+          "h": 743
+        }
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 1,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 1
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 76003,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 1,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 2
+    }
+  },
+  "s9_table_dark": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 17,
+          "12": 31,
+          "13": 97,
+          "18": 1
+        },
+        "textElements": 146,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": {
+          "w": 280,
+          "h": 744
+        },
+        "reviewComments": {
+          "w": 320,
+          "h": 744
+        }
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#045c59",
+        "#04706b",
+        "#09847f",
+        "#099993",
+        "#24ada7",
+        "#52bfb9",
+        "#74d1cb"
+      ],
+      "tokens": {
+        "--pressed-fill": "#254974",
+        "--pressed-ink": "#a8ceff",
+        "--stale-band": "#362c1c",
+        "--stale-ink": "#e9ca89",
+        "--rail-captionFailed": "#ffaba3",
+        "--rail-captionStale": "#e9ca89",
+        "--rail-captionHistorical": "#cec2af",
+        "--canvas-hint": "rgba(46,50,54,0.92)",
+        "--draft-bar": "#6dadff",
+        "--bar-track": "#3c4045",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 1,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 1
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 17,
+          "12": 31,
+          "13": 97,
+          "18": 1
+        },
+        "textElements": 146,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": {
+          "w": 280,
+          "h": 743
+        },
+        "reviewComments": {
+          "w": 320,
+          "h": 743
+        }
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#045c59",
+        "#04706b",
+        "#09847f",
+        "#099993",
+        "#24ada7",
+        "#52bfb9",
+        "#74d1cb"
+      ],
+      "tokens": {
+        "--pressed-fill": "#254974",
+        "--pressed-ink": "#a8ceff",
+        "--stale-band": "#362c1c",
+        "--stale-ink": "#e9ca89",
+        "--rail-captionFailed": "#ffaba3",
+        "--rail-captionStale": "#e9ca89",
+        "--rail-captionHistorical": "#cec2af",
+        "--canvas-hint": "rgba(46,50,54,0.92)",
+        "--draft-bar": "#6dadff",
+        "--bar-track": "#3c4045",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 1,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 1
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "dark",
+      "colorScheme": "dark",
+      "bodyBg": "rgb(27, 30, 34)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 17,
+          "12": 31,
+          "13": 97,
+          "18": 1
+        },
+        "textElements": 146,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": {
+          "w": 280,
+          "h": 743
+        },
+        "reviewComments": {
+          "w": 320,
+          "h": 743
+        }
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#045c59",
+        "#04706b",
+        "#09847f",
+        "#099993",
+        "#24ada7",
+        "#52bfb9",
+        "#74d1cb"
+      ],
+      "tokens": {
+        "--pressed-fill": "#254974",
+        "--pressed-ink": "#a8ceff",
+        "--stale-band": "#362c1c",
+        "--stale-ink": "#e9ca89",
+        "--rail-captionFailed": "#ffaba3",
+        "--rail-captionStale": "#e9ca89",
+        "--rail-captionHistorical": "#cec2af",
+        "--canvas-hint": "rgba(46,50,54,0.92)",
+        "--draft-bar": "#6dadff",
+        "--bar-track": "#3c4045",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 1,
+        "acceptanceShort": 0,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 0,
+        "chips": 2,
+        "reviewSignoffRow": 1
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "light",
+        "bodyBg": "rgb(238, 240, 243)",
+        "colorScheme": "light",
+        "scale1": "#4ab9b2"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "dark"
+      }
+    },
+    "selfContained": {
+      "bytes": 76020,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 1,
+      "acceptanceShort": 0,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 0,
+      "chips": 2
+    }
+  },
+  "d71_item1_status_bar_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 12,
+          "12": 15,
+          "13": 27
+        },
+        "textElements": 54,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 2,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 2,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 12,
+          "12": 15,
+          "13": 27
+        },
+        "textElements": 54,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 2,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 2,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system"
+        ],
+        "sizes": {
+          "11": 12,
+          "12": 15,
+          "13": 27
+        },
+        "textElements": 54,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": null,
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 0,
+        "maturity": 2,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 2,
+        "chips": 1,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 69046,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 0,
+      "maturity": 2,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 2,
+      "chips": 1
+    }
+  },
+  "d71_item2_results_caption_light": {
+    "960": {
+      "scale": 0.644,
+      "scrollWidth": 960,
+      "innerWidth": 960,
+      "scrollHeight": 700,
+      "innerHeight": 700,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 928,
+        "h": 580
+      },
+      "fonts": {
+        "families": [
+          "-apple-system",
+          "ui-monospace"
+        ],
+        "sizes": {
+          "11": 13,
+          "12": 25,
+          "13": 134
+        },
+        "textElements": 172,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1441,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1441,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 829
+        },
+        "surfaces": {
+          "w": 1341,
+          "h": 829
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 829
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 738,
+          "h": 829
+        },
+        "canvas": {
+          "w": 603,
+          "h": 829
+        },
+        "inspector": null,
+        "strip": {
+          "w": 44,
+          "h": 829
+        },
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 1,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 2,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "1440": {
+      "scale": 0.929,
+      "scrollWidth": 1440,
+      "innerWidth": 1440,
+      "scrollHeight": 900,
+      "innerHeight": 900,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1338,
+        "h": 836
+      },
+      "fonts": {
+        "families": [
+          "-apple-system",
+          "ui-monospace"
+        ],
+        "sizes": {
+          "11": 13,
+          "12": 25,
+          "13": 134
+        },
+        "textElements": 172,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 603,
+          "h": 828
+        },
+        "inspector": null,
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 1,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 2,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": []
+    },
+    "stage": {
+      "scale": 1,
+      "scrollWidth": 1472,
+      "innerWidth": 1472,
+      "scrollHeight": 964,
+      "innerHeight": 964,
+      "theme": "light",
+      "colorScheme": "light",
+      "bodyBg": "rgb(238, 240, 243)",
+      "stageBox": {
+        "w": 1440,
+        "h": 900
+      },
+      "fonts": {
+        "families": [
+          "-apple-system",
+          "ui-monospace"
+        ],
+        "sizes": {
+          "11": 13,
+          "12": 25,
+          "13": 134
+        },
+        "textElements": 172,
+        "minFont": 11,
+        "fontsBelow11": 0
+      },
+      "regions": {
+        "toolbar": {
+          "w": 1440,
+          "h": 48
+        },
+        "statusbar": {
+          "w": 1440,
+          "h": 24
+        },
+        "rail": {
+          "w": 56,
+          "h": 828
+        },
+        "surfaces": {
+          "w": 1340,
+          "h": 828
+        },
+        "agentStrip": {
+          "w": 44,
+          "h": 828
+        },
+        "agentColumn": null,
+        "modelCanvas": null,
+        "modelInspector": null,
+        "tableDrawer": null,
+        "issuesDrawer": null,
+        "reviewOutline": null,
+        "reviewComments": null
+      },
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 603,
+          "h": 828
+        },
+        "inspector": null,
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "scaleSteps": [
+        "#4ab9b2",
+        "#15a6a0",
+        "#05908b",
+        "#087a76",
+        "#056662",
+        "#01524e",
+        "#003e3c"
+      ],
+      "tokens": {
+        "--pressed-fill": "#d4e6ff",
+        "--pressed-ink": "#0053a4",
+        "--stale-band": "#fef6e7",
+        "--stale-ink": "#7d5002",
+        "--rail-captionFailed": "#a21921",
+        "--rail-captionStale": "#7d5002",
+        "--rail-captionHistorical": "#5e5443",
+        "--canvas-hint": "rgba(255,255,255,0.90)",
+        "--draft-bar": "#106dce",
+        "--bar-track": "#e0e3e6",
+        "--layout-canvas-min": "220px",
+        "--layout-inspector-both": "300px"
+      },
+      "outsideStage": [],
+      "clipped": [],
+      "tallRegions": [],
+      "lint": {
+        "forbiddenWordVisible": null,
+        "forbiddenWordSource": null,
+        "forbiddenLabelVisible": null,
+        "forbiddenLabelSource": null,
+        "acceptance": 0,
+        "acceptanceShort": 1,
+        "maturity": 0,
+        "draftUntilAccepted": 0,
+        "displayOnly": 0,
+        "aidLabel": 2,
+        "chips": 2,
+        "reviewSignoffRow": 0
+      },
+      "blockedRequests": [],
+      "consoleIssues": [],
+      "manualSwitch": {
+        "theme": "dark",
+        "bodyBg": "rgb(27, 30, 34)",
+        "colorScheme": "dark",
+        "scale1": "#045c59"
+      },
+      "systemSwitch": {
+        "theme": null,
+        "colorScheme": "light"
+      }
+    },
+    "selfContained": {
+      "bytes": 97959,
+      "inlineStyleBlocks": 1,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "index.html"
+      ],
+      "absolutePath": false
+    },
+    "expected": {
+      "acceptance": 0,
+      "acceptanceShort": 1,
+      "maturity": 0,
+      "displayOnly": 0,
+      "draftUntilAccepted": 0,
+      "aidLabel": 2,
+      "chips": 2
+    }
+  },
+  "index.html": {
+    "links": 22,
+    "frameLinks": 18,
+    "missingLinks": [],
+    "blockedRequests": [],
+    "consoleIssues": [],
+    "selfContained": {
+      "bytes": 65257,
+      "inlineStyleBlocks": 2,
+      "externalDependencies": [],
+      "navigationLinks": [
+        "../sample_model.md",
+        "../MOCKS_V2.md",
+        "../MOCKS_V1.md",
+        "../RETURN.md",
+        "s1_table_light.html",
+        "s2_model_light.html",
+        "s2_model_dark.html",
+        "s3_table_light.html",
+        "s4_both_light.html",
+        "s4_both_light_column.html",
+        "s4_table_light.html",
+        "s5_table_light.html",
+        "s6_both_light.html",
+        "s7_both_light.html",
+        "s7_table_light.html",
+        "s7_both_dark.html",
+        "s8_table_light.html",
+        "s8_model_light.html",
+        "s9_table_light.html",
+        "s9_table_dark.html",
+        "d71_item1_status_bar_light.html",
+        "d71_item2_results_caption_light.html"
+      ],
+      "absolutePath": false
+    }
+  },
+  "_summary": {
+    "generated": "2026-09-18T12:05",
+    "frames": 18,
+    "viewports": [
+      "1440 1440×900",
+      "stage 1472×964",
+      "960 960×700"
+    ],
+    "screenshots": "1:1 stage only",
+    "absolutePathsInShippedFiles": []
+  }
+}
