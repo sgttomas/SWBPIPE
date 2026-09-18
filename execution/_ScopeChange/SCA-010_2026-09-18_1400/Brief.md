@@ -2,7 +2,7 @@
 
 **Amendment ID:** SCA-010
 **Date:** 2026-09-18
-**Status:** PROPOSED — prepared for the owner's separate acceptance. Nothing in `docs/PRD.md` changes, and `execution/_ScopeChange/_LATEST.md` is not moved, before that acceptance.
+**Status:** ACCEPTED by the owner on 2026-09-18, execution pending (see `ACCEPTANCE_RECORD.md`; one declared departure on the pointer move). Status as prepared: PROPOSED — prepared for the owner's separate acceptance. Nothing in `docs/PRD.md` changes, and `execution/_ScopeChange/_LATEST.md` is not moved, before that acceptance.
 **Authority:** D-71 item 3, ruled by the owner on 2026-09-18 as option B with amendment (`execution/_Coordination/_DECISIONS/D-71_RULING_2026-09-18.md`), codified as `DEC-101` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12, which expressly leaves the PRD-level act to this bundle.
 **Precedent and form:** the SCA-007 bundle (`execution/_ScopeChange/SCA-007_2026-07-16_2026/`): brief, impact assessment, amendment preview, amendment actions.
 

@@ -133,4 +133,15 @@ Ruled in part by Ryan Tufts in session on 2026-09-18. The owner's complete messa
 
 Disposition: items 1 (B), 4 (A), 5, 6 and 8 ruled as the packet offered; items 2, 3 and 9 ruled with the owner's amendments, which govern over the packet's options; **item 7 not ruled**. The adopted effect, ROOT's stated readings of the amendments, the act each item requires and the `DEC` rows are in the ruling record.
 
+## Human Ruling, item 7, 2026-09-18 (appended)
+
+After ROOT put option B's implications to the owner, the owner ruled (stored transcript timestamp 2026-09-18T13:55:47.429Z, 70 bytes, SHA-256 of the extracted bytes `5cf6071cf15d7ccf43b91197e7a712019a2bb15c414ba6f777d65bfc48193bc8`; an in-session extraction from the host's stored transcript, not original transport bytes). The whole message:
+
+> D-71, item 7: A.
+> D-72, item 5: S-1, S-2 but not S-3.
+> I accept SCA-010.
+
+Disposition: item 7 is ruled **option A**. All nine items are now ruled. Effect and codification are in the [ruling addendum](D-71_RULING_ADDENDUM_2026-09-18.md).
+
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

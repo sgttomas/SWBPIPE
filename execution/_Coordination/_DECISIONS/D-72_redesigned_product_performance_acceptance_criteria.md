@@ -107,4 +107,9 @@ Disposition: items 1, 2, 3, 4 and 6 accepted as recommended; **item 5 not ruled*
 
 The owner may rule S-1, S-2 and S-3 separately. Until then item 5 is unruled, and items 2 and 3 stand as accepted.
 
+## Human Ruling, item 5, 2026-09-18 (appended)
+
+The owner ruled on the supplement (stored transcript timestamp 2026-09-18T13:55:47.429Z, 70 bytes, SHA-256 of the extracted bytes `5cf6071cf15d7ccf43b91197e7a712019a2bb15c414ba6f777d65bfc48193bc8`; an in-session extraction from the host's stored transcript, not original transport bytes): "D-72, item 5: S-1, S-2 but not S-3." Disposition: **S-1 and S-2 accepted; S-3 not accepted.** Item 5 as first written is replaced by S-1 and S-2. Items 2 and 3 stand exactly as accepted on the first ruling, including the external-display run as a published observation that does not gate, the Dark-theme observation and the device-pixel-ratio-1 observation. Effect in the [ruling addendum](D-72_RULING_ADDENDUM_2026-09-18.md).
+
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
