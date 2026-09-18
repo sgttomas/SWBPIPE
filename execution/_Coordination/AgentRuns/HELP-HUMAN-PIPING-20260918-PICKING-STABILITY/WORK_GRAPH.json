@@ -32,12 +32,21 @@
       "agent": "/root/picking_benchmark_prep"
     },
     "REVIEW": {
-      "agent": "pending",
+      "agent": "/root/picking_review",
       "role": "TASK Type2 software-code-review",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "brief_sealed",
-      "briefSha256": "ad7090911b28dee5f3ffabfab85fae0c0273e635c5b510802f551eac44fea007"
+      "status": "PASS_no_actionable_findings",
+      "briefSha256": "ad7090911b28dee5f3ffabfab85fae0c0273e635c5b510802f551eac44fea007",
+      "candidate": "683cd5ab26f7de5f700a5b9a979ea2993cbf747f"
+    },
+    "RUNNER": {
+      "agent": "/root/picking_runner",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "role": "Type2 independent runner",
+      "status": "offline_preparation_only",
+      "briefSha256": "c86f46762c0f47f0fe9b9d9ba391a5b30cf97406b917d73c9ff863672b650b12"
     }
   },
   "context": {
