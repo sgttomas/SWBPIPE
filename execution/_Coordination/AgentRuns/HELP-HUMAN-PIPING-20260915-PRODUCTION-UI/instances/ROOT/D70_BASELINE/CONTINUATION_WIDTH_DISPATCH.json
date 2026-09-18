@@ -1,0 +1,23 @@
+{
+  "schema": "chirality.task.dispatch/v1",
+  "parent": "/root",
+  "agent": "/root/d70_final_review",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "delegation": false,
+  "mechanism": "delegated-harness-native",
+  "enforcement": "instruction/config asserted",
+  "brief": "briefs/CONTINUATION_REVIEW.md",
+  "briefSha256": "7d88283706812ee83ceed064017f9f9963c8f2c1eae02478581022f06909549f",
+  "freeze": "CONTINUATION_WIDTH_FREEZE.json",
+  "freezeSha256": "ae72078ba5614e786a388c52c481f568c4be9aa1727cbd456fc541f4ff720974",
+  "candidate": "dbda13a46546ff20b959af4df7537b61e95f30eb",
+  "purpose": "Independently assess actual smoke width evidence, bounded content-dimension correction, ordinary CI regression, final V4 launcher binding delta, all new evidence and exact carry-forward coverage. Preserve historical original-field uncertainty and all failed attempts.",
+  "allowedWrites": [
+    "instances/CONTINUATION_REVIEW/WIDTH_BACKCHECK/REVIEW.md",
+    "instances/CONTINUATION_REVIEW/WIDTH_BACKCHECK/RETURN.json"
+  ],
+  "tools": "Read-only Git/filesystem/bounded offline checks; no tests, builds, runtime, source edits or Git mutations",
+  "requiredReturn": "PASS with no actionable findings or concrete finding; full coverage by exact hashes; no prospective runtime acceptance"
+}

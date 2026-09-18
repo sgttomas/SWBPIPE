@@ -1,0 +1,61 @@
+{
+  "status": "PASS_INDEPENDENT_EXTERNAL_REVALIDATION",
+  "externalBindings": {
+    "UI_FOUNDATION_PHASE": "candidate",
+    "UI_FOUNDATION_COHORT_ID": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+    "UI_FOUNDATION_MANIFEST_SHA256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+    "UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/instances/VERIFY/PRODUCT_8468/candidate-bundle-manifest.json",
+    "UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST_SHA256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+    "UI_FOUNDATION_CANDIDATE_SOURCE_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping",
+    "UI_FOUNDATION_CANDIDATE_OUTPUT_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/dist",
+    "UI_FOUNDATION_CANDIDATE_SOURCE_STAGE": "final",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/chrome-for-testing/153.0.8010.36/mac-arm64/1f701ef60757c63c6ccf98afaf28291dd0c8d1457d3d738e81fd62201c230ad0/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_SHA256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+    "UI_FOUNDATION_REFERENCE_PROFILE": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/REFERENCE_PROFILE_V2.json",
+    "UI_FOUNDATION_REFERENCE_PROFILE_SHA256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922",
+    "PLAYWRIGHT_WORKERS": "1",
+    "UI_FOUNDATION_COLLECTION_MODE": "characterization",
+    "UI_FOUNDATION_PIPE_COUNTS": "1000,10000",
+    "UI_FOUNDATION_RUNS": "1,2,3,4,5",
+    "UI_FOUNDATION_CANDIDATE_ORACLE_DIR": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-oracle-01",
+    "UI_FOUNDATION_CANDIDATE_ORACLE_MANIFEST_SHA256": "0b8a0b5239f10547c72907e32160db262288216ed1fb4818551782dc89b05b17"
+  },
+  "verifiedAt": "2026-09-18T02:05:47.973207+00:00",
+  "instrumentRevision": "7306e2c6a435831c2f1457458516242decf88055",
+  "method": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/CONTENT_WIDTH_REPAIR/PORTABLE_BACKCHECK/METHOD_MANIFEST_SUCCESSOR.json",
+    "sha256": "6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a"
+  },
+  "display": {
+    "SPDisplaysDataType": [
+      {
+        "_name": "Apple M5 Max",
+        "spdisplays_mtlgpufamilysupport": "spdisplays_metal4",
+        "spdisplays_ndrvs": [
+          {
+            "_name": "LG ULTRAFINE",
+            "_spdisplays_display-product-id": "5bcb",
+            "_spdisplays_display-serial-number": "2011a",
+            "_spdisplays_display-vendor-id": "1e6d",
+            "_spdisplays_display-week": "8",
+            "_spdisplays_display-year": "2024",
+            "_spdisplays_displayID": "5",
+            "_spdisplays_pixels": "3840 x 2160",
+            "_spdisplays_resolution": "1920 x 1080 @ 60.00Hz",
+            "spdisplays_main": "spdisplays_yes",
+            "spdisplays_mirror": "spdisplays_off",
+            "spdisplays_online": "spdisplays_yes",
+            "spdisplays_pixelresolution": "spdisplays_2160p",
+            "spdisplays_resolution": "1920 x 1080 @ 60.00Hz",
+            "spdisplays_rotation": "spdisplays_supported"
+          }
+        ],
+        "spdisplays_vendor": "sppci_vendor_Apple",
+        "sppci_bus": "spdisplays_builtin",
+        "sppci_cores": "40",
+        "sppci_device_type": "spdisplays_gpu",
+        "sppci_model": "Apple M5 Max"
+      }
+    ]
+  }
+}

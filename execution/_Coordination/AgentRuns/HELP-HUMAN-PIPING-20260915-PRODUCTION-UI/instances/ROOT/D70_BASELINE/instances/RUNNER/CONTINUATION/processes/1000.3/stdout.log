@@ -1,0 +1,42 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium-ui-foundation-candidate-production] › apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:118:7 › UI foundation candidate production benchmark › candidate N=1000 run 3 (7.4s)
+
+
+  1) [chromium-ui-foundation-candidate-production] › apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:118:7 › UI foundation candidate production benchmark › candidate N=1000 run 3 
+
+    Error: candidate causal run failed: {"errors":[{"phase":"D70-8468a33c-20260917-CHARACTERIZATION-01.1000.3.point-selection.3:work","error":"Error: winner cue capture state drift"},{"phase":"D70-8468a33c-20260917-CHARACTERIZATION-01.1000.3.point-selection.3:stop","error":"Error: page.evaluate: Error: causal feedback marker token is not active\n    at causal.stop (<anonymous>:891:136)\n    at eval (eval at evaluate (:302:30), <anonymous>:5:19)\n    at UtilityScript.evaluate (<anonymous>:304:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"},{"phase":"run","error":"Error: segment D70-8468a33c-20260917-CHARACTERIZATION-01.1000.3.point-selection.3 failed; canonical earlier evidence retained"}],"scored":{"status":"FAIL_INVALID_EVIDENCE","validityFailures":["RUN_NOT_FRESH_AND_QUALIFIED","INCOMPLETE_OR_INVALID_POINTS","INCOMPLETE_OR_INVALID_BOXES","INCOMPLETE_OR_INVALID_FILTERS","INCOMPLETE_OR_INVALID_ORBIT:centerline","INCOMPLETE_OR_INVALID_ORBIT:actual-od","SETTLED_OWNED_RAF_NOT_EXACT_ZERO"],"targetFailures":[],"scores":{"assignment":268.0240016937258,"pointP95":null,"boxP95":null,"filterP95":null,"centerlineP95":null,"actualOdP95":null},"orbitPopulations":{},"runId":"D70-8468a33c-20260917-CHARACTERIZATION-01.1000.3","fixtureSize":1000,"bindings":{"validationStatus":"PASS_CALLER_VALIDATED_BINDINGS","sourceSha256":"23206c0762ba7f8aabd7529587e4032f61894aec04a21556f4d75b6fcfd57779","buildSha256":"800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f","fixtureSha256":"40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70","browserSha256":"bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789","oracleSha256":"1d483eb78f901abb84bc2e32678cf74b500d624bcd9e0f9b5bce29bdceba4d16","methodSha256":"6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a","samplesSha256":"f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"},"observerDiagnostics":{"evidenceRef":"observer-accounting.json","status":"RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"},"rawObserverReferences":{"p95Ms":0.5,"maximumMs":2,"totalPercent":3},"scope":"Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."}}
+
+       at full-cohort-controller.ts:907
+
+      905 |     resourceNativeAcceptance: "SEPARATELY_OWNED_NOT_CLAIMED", trueCost: "UNPROVED_NO_UNINSTRUMENTED_HEADROOM_CLAIM" };
+      906 |   await immutable(path.join(directory, "result.json"), result);
+    > 907 |   if (errors.length || (!options.focused && collection.attemptDisposition === "ABORT_REMAINING")) throw new Error(`candidate causal run failed: ${JSON.stringify({ errors, scored })}`);
+          |                                                                                                         ^
+      908 |   return result;
+      909 | }
+      910 |
+        at runCandidateCausalPerformance (/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts:907:105)
+        at /Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:163:57
+        at executeCollectionRun (/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-mode.ts:28:18)
+        at /Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:163:18
+
+    Error: selected slot failed/incomplete; consumed ordinal retained, later slot requires independent cleanup/binding revalidation
+
+      103 |       const collection={mode,attemptDisposition:valid?"COMPLETED":"ABORTED",collectionCompleteness:valid?"COMPLETE_ONE_SLOT":"INCOMPLETE_SLOT",evidenceValidity:valid?"VALID":"INVALID_OR_UNAVAILABLE",targetOutcome:record?.status??"UNAVAILABLE"};
+      104 |       await writeFile(path.join(evidenceRoot,"selected-slot-result.json"),`${JSON.stringify({schema:"ui-foundation.selected-slot/v1",claim:continuation.claim,collection,timedAttemptEnded:true,runRecords,missing,qualificationCohort:false,comparison:"separate instrument population; original1000.1 remains invalid and consumed"},null,2)}\n`,{flag:"wx"});
+    > 105 |       if(!valid)throw new Error("selected slot failed/incomplete; consumed ordinal retained, later slot requires independent cleanup/binding revalidation");
+          |                       ^
+      106 |       return;
+      107 |     }
+      108 |     const result = scorePerformanceCohort(completed, candidateExpectations);
+        at /Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:105:23
+
+    Error Context: ../../../../../task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.3/playwright-artifacts/ui-foundation-performance.-f591e-mark-candidate-N-1000-run-3-chromium-ui-foundation-candidate-production/error-context.md
+
+    Error Context: ../../../../../task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.3/playwright-artifacts/ui-foundation-performance.-f591e-mark-candidate-N-1000-run-3-chromium-ui-foundation-candidate-production/error-context.md
+
+  1 failed
+    [chromium-ui-foundation-candidate-production] › apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:118:7 › UI foundation candidate production benchmark › candidate N=1000 run 3 
+{"exitCode":1,"signal":null,"slot":"1000.3","claim":{"path":"/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/1000.3.json","sha256":"81aadbae9c2364534a75f31026e14e09683ff11aec8c925ec230547188eeb759"},"finishedAt":"2026-09-18T02:06:18.936Z","cleanup":"UNKNOWN_REQUIRES_INDEPENDENT_REVALIDATION","comparison":"mixed-method attempt budget; not same-method cohort qualification"}

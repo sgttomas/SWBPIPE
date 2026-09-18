@@ -1,0 +1,31 @@
+{
+  "schema": "chirality.piping.d70.continuation-smoke-release/v1",
+  "at": "2026-09-18T01:52:00.647176+00:00",
+  "status": "RELEASE_UNTIMED_BOTH_SIZE_SMOKE_ONLY",
+  "owner": "HELP_HUMAN /root",
+  "runtimeOwner": "/root/d70_runner",
+  "candidate": "dbda13a46546ff20b959af4df7537b61e95f30eb",
+  "productRevision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "instrumentRevision": "7306e2c6a435831c2f1457458516242decf88055",
+  "methodSha256": "6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a",
+  "review": {
+    "path": "instances/CONTINUATION_REVIEW/WIDTH_BACKCHECK/RETURN.json",
+    "sha256": "da62c1a6914d6d1bc850b6ab6aa3d405d146ce2514f9e0d11632c4d8b834f0af"
+  },
+  "ownerDirection": {
+    "path": "OWNER_CLARIFICATION_CONTINUE_20260917.md",
+    "sha256": "a5ba424fde8f8be92ae69b694a718452c9753b3ce2217df8f6b4b55e042c9730"
+  },
+  "commands": {
+    "path": "instances/RUNNER/CONTINUATION/COMMANDS_V4.json",
+    "sha256": "3771cb2debac0435893d4d112baf539dbc22b79ea5e90b28348634ac6366dc24"
+  },
+  "script": {
+    "path": "instances/RUNNER/CONTINUATION/control_v4.py",
+    "sha256": "3c85a7b02fefad0f08438520bf7da919cc9902780840ece7de9823df992b60ce"
+  },
+  "operation": "One control_v4.py smoke invocation to fresh continuation-smoke-02 and smoke-process-02; both fixture sizes; no retry or timed attempt",
+  "runtimeExclusivity": "No competing build/test/browser/native witness during smoke; Root light monitoring only",
+  "returnRequirement": "Actual process exit, before/after cleanup and external bindings, both smoke result files and hash references; no timed launch or offline full trace analysis",
+  "predecessorSmoke": "Failed smoke01 remains immutable; followup follows reviewed actual content-width repair"
+}

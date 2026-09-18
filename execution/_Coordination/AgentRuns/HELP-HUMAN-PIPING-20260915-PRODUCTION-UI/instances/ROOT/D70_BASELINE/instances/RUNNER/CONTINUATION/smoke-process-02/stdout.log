@@ -1,0 +1,7 @@
+
+Running 2 tests using 1 worker
+
+  ✓  1 [chromium-ui-foundation-candidate-production] › apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:118:7 › UI foundation candidate production benchmark › candidate N=1000 run 1 (8.2s)
+  ✓  2 [chromium-ui-foundation-candidate-production] › apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:118:7 › UI foundation candidate production benchmark › candidate N=10000 run 1 (10.9s)
+
+  2 passed (20.4s)

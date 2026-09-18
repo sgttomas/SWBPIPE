@@ -1,0 +1,18 @@
+{
+  "schema": "ui-foundation.started-slot/v1",
+  "slot": "1000.2",
+  "cohortId": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+  "seedSha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6",
+  "policySha256": "e4889e31c0d37c8fb056250b893c9691e1930b8e8e4a49af107ce89fc99f4f77",
+  "previousClaimSha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6",
+  "receipt": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/receipts/1000.2/receipt.json",
+    "sha256": "1ca5c4d438f09097d8bd8585fb2698c9a4088b800d345b087cad6d0e5d8902d1"
+  },
+  "methodSha256": "6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a",
+  "instrumentRevision": "7306e2c6a435831c2f1457458516242decf88055",
+  "evidenceRoot": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.2",
+  "executionToken": "e94a339e8cd0728bc6da09dcd609d6f42b3e0ac8306351fdf73124399992e953",
+  "claimedAt": "2026-09-18T01:54:54.367Z",
+  "disposition": "CONSUMED_BEFORE_SUBPROCESS_LAUNCH"
+}

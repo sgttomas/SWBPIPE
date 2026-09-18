@@ -1,0 +1,6 @@
+{
+  "at": "2026-09-18T02:08:32.418957+00:00",
+  "exitCode": 1,
+  "signal": null,
+  "postconditionError": "AssertionError('browser or server remains')"
+}

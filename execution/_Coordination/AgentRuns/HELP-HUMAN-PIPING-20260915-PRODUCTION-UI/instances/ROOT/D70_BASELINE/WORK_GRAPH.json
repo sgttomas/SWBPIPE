@@ -10,9 +10,9 @@
   "actual_mechanism": "delegated-harness-native collaboration.spawn_agent",
   "enforcement": "role/write scopes/Type2 non-delegation instruction+config asserted",
   "runtime_lease": {
-    "status": "ENDED_UNTIMED_SMOKE_FAILED",
+    "status": "ENDED_OWNER_INTERRUPTED1000.4",
     "owner": "ROOT",
-    "scope": "Source repair under new exact width-transition evidence; no runtime released"
+    "scope": "No timed launch; prepare owner-directed10000-only successor with frozen measurements"
   },
   "nodes": [
     {
@@ -31,7 +31,7 @@
       "effort": "high",
       "brief": "briefs/MANAGER.md",
       "brief_sha256": "46c6d6ee930b46a470b017c0980cc4e8312a522168537b38208074a795e38dea",
-      "status": "active_content_width_repair",
+      "status": "active_one_success_accounting",
       "continuation_brief": "briefs/MANAGER_CONTINUATION.md",
       "continuation_brief_sha256": "28524661f4cf075dc3aabed269ad9413c8374aef9442d1d9bb29877964e92ff4"
     },
@@ -44,7 +44,7 @@
       "effort": "low",
       "brief": "briefs/EXPECTATIONS.md",
       "brief_sha256": "90a574ba09376d1c022f61e8c7111aa2a02a357dd4023653557b43cc6e461ac5",
-      "status": "complete_continuation_expectations_accepted",
+      "status": "active_one_success_expectations",
       "return": "instances/EXPECTATIONS/RETURN.json",
       "continuation_brief": "briefs/EXPECTATIONS_CONTINUATION.md",
       "continuation_return": "instances/EXPECTATIONS/CONTINUATION/RETURN.json",
@@ -77,7 +77,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "complete_continuation_smoke_failed_preserved",
+      "status": "complete1000.4_owner_interrupted_cleanup_recovered",
       "agent_name": "/root/d70_runner",
       "return": "instances/RUNNER/RETURN.json",
       "continuation_brief": "briefs/RUNNER_CONTINUATION.md",
@@ -89,7 +89,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "complete_continuation_backcheck_pass",
+      "status": "complete_width_backcheck_pass",
       "agent_name": "/root/d70_final_review",
       "brief": "briefs/FINAL_REVIEW.md",
       "brief_sha256": "cde708fd9be5a2e67bdb808110c9722b4c04898aad8a3a057201044cb238e002",
@@ -118,10 +118,14 @@
       "FINAL_REVIEW"
     ]
   ],
-  "current_frontier": "Untimed continuation smoke exposed inner inspector width change338\u2192323 with outer layout stable. All nine timed slots untouched; bounded source correction and backcheck before new smoke.",
+  "current_frontier": "Owner requests one valid complete run each size.1000.2 satisfies1000;4 interrupted on steering;5waived/unattempted. Prepare explicit append-only transition to10000.1..5, stop after first success.",
   "ownerClarification": {
     "path": "OWNER_CLARIFICATION_CONTINUE_20260917.md",
     "sha256": "a5ba424fde8f8be92ae69b694a718452c9753b3ce2217df8f6b4b55e042c9730"
   },
-  "closeoutStatus": "HELD_FOR_OWNER_CLARIFIED_CONTINUATION"
+  "closeoutStatus": "HELD_FOR_OWNER_CLARIFIED_CONTINUATION",
+  "ownerOneSuccessDirection": {
+    "path": "OWNER_DIRECTION_ONE_SUCCESS_20260917.md",
+    "sha256": "ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"
+  }
 }

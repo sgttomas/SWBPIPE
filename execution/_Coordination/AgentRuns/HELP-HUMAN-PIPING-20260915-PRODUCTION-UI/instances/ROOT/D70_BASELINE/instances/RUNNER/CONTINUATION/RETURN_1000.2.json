@@ -1,0 +1,130 @@
+{
+  "status": "SLOT_1000_2_COMPLETED",
+  "at": "2026-09-18T02:05:26.897106+00:00",
+  "slot": "1000.2",
+  "processExit": 0,
+  "postconditionError": null,
+  "collection": {
+    "mode": "characterization",
+    "evidenceValidity": "VALID",
+    "collectionCompleteness": "COMPLETE",
+    "targetOutcome": "PASS_METRIC_ACCEPTANCE",
+    "attemptDisposition": "CONTINUE",
+    "cohortContribution": 1
+  },
+  "scored": {
+    "status": "PASS_METRIC_ACCEPTANCE",
+    "validityFailures": [],
+    "targetFailures": [],
+    "scores": {
+      "assignment": 261.6960021018984,
+      "pointP95": 46.699001407625126,
+      "boxP95": 47.07300148016076,
+      "filterP95": 43.69500169759851,
+      "centerlineP95": 16.668000000000003,
+      "actualOdP95": 16.668000000000003
+    },
+    "orbitPopulations": {
+      "centerline": [
+        {
+          "left": 117,
+          "right": 718,
+          "gapCount": 601,
+          "p95UpperMs": 16.668000000000003
+        }
+      ],
+      "actual-od": [
+        {
+          "left": 117,
+          "right": 718,
+          "gapCount": 601,
+          "p95UpperMs": 16.668000000000003
+        }
+      ]
+    },
+    "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.2",
+    "fixtureSize": 1000,
+    "bindings": {
+      "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+      "sourceSha256": "23206c0762ba7f8aabd7529587e4032f61894aec04a21556f4d75b6fcfd57779",
+      "buildSha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+      "fixtureSha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+      "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+      "oracleSha256": "1d483eb78f901abb84bc2e32678cf74b500d624bcd9e0f9b5bce29bdceba4d16",
+      "methodSha256": "6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a",
+      "samplesSha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+    },
+    "observerDiagnostics": {
+      "evidenceRef": "observer-accounting.json",
+      "status": "RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"
+    },
+    "rawObserverReferences": {
+      "p95Ms": 0.5,
+      "maximumMs": 2,
+      "totalPercent": 3
+    },
+    "scope": "Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."
+  },
+  "errors": [],
+  "populations": {
+    "points": 200,
+    "boxes": 20,
+    "filters": 20
+  },
+  "settled": {
+    "status": "PASS_OBSERVED_SETTLED",
+    "ownedRafCount": 0,
+    "modelGeneration": 1,
+    "readAt": 568459.1000003815
+  },
+  "cleanup": {
+    "browserProcessesRemaining": 0,
+    "serverListening": false,
+    "verificationStatus": "VERIFIED",
+    "verifiedAt": "2026-09-18T02:04:26.125780+00:00",
+    "portReadout": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "externalBindings": "PASS_INDEPENDENT_EXTERNAL_REVALIDATION",
+  "evidence": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.2/raw/run-02/1000/result.json",
+      "sha256": "e8a03ec10535b9c74b5d73f6d7d4dd8df31404fe035e2460a687c6bdf9d3f575"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.2/selected-slot-result.json",
+      "sha256": "a07dd7128e8911843f22ee244d812126c3c13f4aea09affeb0cdceb7c31c02af"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/1000.2.json",
+      "sha256": "a05b72fe3b375abb96b75a7d9dcd245c1ddf0c1b05824adec3d472cb3dcb3f49"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/terminal-1000.2.json",
+      "sha256": "e465ad8e732f181e0e075aa282eed2bd53a1b1f06e8697b5a43178a735a7af54"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/budget-after-1000.2.json",
+      "sha256": "675d6ea28d040583a08ebf5a0dee3aa969dba862a3281129d2ef5423924ee4c5"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/processes/1000.2/process-return.json",
+      "sha256": "c7f9e79527c1570ace8e9003943f1c66372b332b39cb7f9afb049245012361be"
+    }
+  ],
+  "remainingSlots": [
+    "1000.3",
+    "1000.4",
+    "1000.5",
+    "10000.1",
+    "10000.2",
+    "10000.3",
+    "10000.4",
+    "10000.5"
+  ],
+  "offlineAnalysisPerformed": false,
+  "nextSlotLaunched": false
+}
