@@ -1,0 +1,44 @@
+{
+  "role": "TASK Type 2",
+  "parent": "/root/d70_manager",
+  "requestedModel": "gpt-6-astra",
+  "requestedReasoning": "low",
+  "actualModelIndependentlyObserved": false,
+  "delegation": "none",
+  "enforcement": "instruction/config asserted",
+  "inputs": {
+    "basisCommit": "ff15f43ca7238b6dee88bb22d42c2836b1818950",
+    "inputs": [
+      {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+        "sha256": "5cba35025b98142514f11780b92b838d63677de18dfc942ab1adab9c430b528e"
+      },
+      {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+        "sha256": "735ff455b1dac2eea10a6a265c66313b82c23331f378c74caecf10ff6378701e"
+      },
+      {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/benchmark-harness.ts",
+        "sha256": "0588824257de2c8a9d12631916938e46fd1f0119b49ecb98f0279b58638d90bf"
+      },
+      {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-method-contract.ts",
+        "sha256": "06979207212a2317a0d1a7e6883839f8502383d1e94928dd885e16f35f622944"
+      },
+      {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/MANAGER_REPAIR_SMOKE.md",
+        "sha256": "8b7f98c85e39dec6163f77d4130c97c36842e5267333da4c1739eb9688c3faf5"
+      },
+      {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN_UNTIMED_PREPARATION_V2.json",
+        "sha256": "bd0f314179783358fffe89912a891bdb5ada1e24cad9790f5f954a40bc2b6ca4"
+      },
+      {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/controls-smoke-01/raw/run-01/1000/smoke-result.json",
+        "sha256": "cb7d6ee426124bdc8214ddfa5c6be7b5a298b1c7b258b0eb2ead0d6c113e8f98"
+      }
+    ],
+    "status": "READ_ONLY_DIAGNOSIS_CONFIRMED"
+  },
+  "briefSha256": "8b2e7c1da500fbdc1d04abfbf9648d8988a3a563904f346d208066cc61c5887e"
+}

@@ -1,0 +1,36 @@
+{
+  "status": "SMOKE_GUARD_REPAIR_TESTED_PENDING_REVIEW",
+  "closure": "WRITER_REPAIR_SCOPE_COMPLETE",
+  "derivativePackage": true,
+  "acceptedUpstream": [
+    "MANAGER/SMOKE_REPAIR/WRITER_BRIEF.md",
+    "ROOT briefs/MANAGER_REPAIR_SMOKE.md"
+  ],
+  "role": "TASK Type 2",
+  "parent": "/root/d70_manager",
+  "settings": "gpt-6-astra/low as dispatched; no independent model introspection",
+  "delegation": "none",
+  "enforcement": "instruction/config asserted",
+  "sourcePaths": [
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts"
+  ],
+  "tests": {
+    "regression": 1,
+    "status": "PASS",
+    "typecheck": "PASS",
+    "diffCheck": "PASS"
+  },
+  "unchanged": [
+    "benchmark-harness.ts",
+    "causal-method-contract.ts",
+    "full-cohort-controller.ts"
+  ],
+  "runtime": "NOT_EXECUTED",
+  "remaining": [
+    "ROOT affected independent review",
+    "successor method freeze",
+    "one smoke requalification"
+  ],
+  "rerunRequirements": "Re-run affected checks after source changes; no timed cohort authorization."
+}

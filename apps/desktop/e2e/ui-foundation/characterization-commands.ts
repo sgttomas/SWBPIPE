@@ -7,7 +7,7 @@ import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { readCandidateDiagnostics, ensureViewportToggle, treeRowTestId, requireUniqueConnectedMainCanvas, projectCandidateAuthoredPoint,
   validateCandidateMeasuredCameraBinding, routeModelFixture, waitForFirstUsable, validateMainCanvasHitTarget, type LoadedFixture } from "./benchmark-harness";
-import { assertMainCanvasHitTarget, normalizedCanvasPoint, canvasLocalToClient } from "./causal-method-contract";
+import { normalizedCanvasPoint, canvasLocalToClient, type HitTargetEvidence, type Rect } from "./causal-method-contract";
 import { assertBoundCandidateDocumentResponse } from "./candidate-server-response";
 
 export const FILTER_STIMULUS = Object.freeze({ name: "browser-keyboard-insert-text/v1", command: "focus then page.keyboard.insertText(query)",
@@ -83,6 +83,18 @@ export async function persistBoundary(directory: string, metadata: any) {
   return { id:metadata.id, file, sha256:createHash("sha256").update(bytes).digest("hex"), runId:metadata.runId };
 }
 
+// Smoke deliberately has no causal instrumentation or epoch. Call only on the
+// fresh validateMainCanvasHitTarget read, which first requires one connected canvas.
+export function assertSmokeMainCanvasHitTarget(evidence: HitTargetEvidence & { canvasRect: Rect }): void {
+  const rect=evidence?.canvasRect, point=evidence?.clientPoint;
+  if(evidence?.status!=="PASS_ACTUAL_CONNECTED_MAIN_CANVAS_TARGET" || evidence.canvasConnected!==true ||
+      evidence.exactCanvasTarget!==true || evidence.targetTag!=="CANVAS" || evidence.targetTestId!=="viewport-canvas" ||
+      evidence.canvasEpoch!==null || evidence.armedCanvasEpoch!==null || evidence.exactArmedCanvas!==null ||
+      ![point?.x,point?.y,rect?.x,rect?.y,rect?.width,rect?.height].every(Number.isFinite) || rect.width<=0 || rect.height<=0 ||
+      point.x<rect.x || point.x>rect.x+rect.width || point.y<rect.y || point.y>rect.y+rect.height)
+    throw new Error(`smoke pointer target is not the uninstrumented current main canvas: ${JSON.stringify(evidence)}`);
+}
+
 // This separate route never starts tracing, arms the latency observer or calls a scorer.
 export async function runCharacterizationSmoke(page: Page, fixture: LoadedFixture, expected: any, directory: string, timeout: number, treeExpectation: (model: any, query: string) => any) {
   await mkdir(directory,{recursive:true});
@@ -100,7 +112,7 @@ export async function runCharacterizationSmoke(page: Page, fixture: LoadedFixtur
       authoredPoint:{x:probe.authored_anchor[0],y:probe.authored_anchor[1],z:probe.authored_anchor[2]}});
     if (projection.status!=="available" || !projection.insideCanvasCss) throw new Error("smoke point projection unavailable");
     let canvas=await requireUniqueConnectedMainCanvas(page); const point=canvasLocalToClient(projection.canvasCssPoint,canvas.box);
-    assertMainCanvasHitTarget(await validateMainCanvasHitTarget(page,point)); await page.mouse.click(point.x,point.y); await delay(500);
+    assertSmokeMainCanvasHitTarget(await validateMainCanvasHitTarget(page,point)); await page.mouse.click(point.x,point.y); await delay(500);
     let after=(await commands.query()).snapshot;
     if (JSON.stringify(after.viewport.selection.orderedRefs)!==JSON.stringify([probe.candidate_runtime.oracle.expectedHitRef])) throw new Error("smoke typed point selection mismatch");
     steps.push({action:"point",sample:sample.sample,expectedRef:probe.candidate_runtime.oracle.expectedHitRef});
@@ -109,7 +121,7 @@ export async function runCharacterizationSmoke(page: Page, fixture: LoadedFixtur
     await page.getByTestId("viewport-selection-filter").selectOption({label:({all:"All",pipes:"Pipes",nodes:"Nodes",supports:"Supports",components:"Components"} as any)[boxSample.filter]},{timeout});
     await ensureViewportToggle(page,"viewport-box-select",true,timeout); canvas=await requireUniqueConnectedMainCanvas(page);
     const start=normalizedCanvasPoint(canvas.box,{x:boxSample.start_normalized[0],y:boxSample.start_normalized[1]}), end=normalizedCanvasPoint(canvas.box,{x:boxSample.end_normalized[0],y:boxSample.end_normalized[1]});
-    assertMainCanvasHitTarget(await validateMainCanvasHitTarget(page,start)); assertMainCanvasHitTarget(await validateMainCanvasHitTarget(page,end));
+    assertSmokeMainCanvasHitTarget(await validateMainCanvasHitTarget(page,start)); assertSmokeMainCanvasHitTarget(await validateMainCanvasHitTarget(page,end));
     await page.mouse.move(start.x,start.y); await page.mouse.down(); await page.mouse.move(end.x,end.y,{steps:8}); await page.mouse.up(); await delay(500);
     after=(await commands.query()).snapshot;
     if (JSON.stringify(after.viewport.box.orderedRefs)!==JSON.stringify(box.orderedRefs) || JSON.stringify(after.viewport.box.primaryRef)!==JSON.stringify(box.primaryRef)) throw new Error("smoke box oracle mismatch");
@@ -130,7 +142,7 @@ export async function runCharacterizationSmoke(page: Page, fixture: LoadedFixtur
       await commands.camera(); await delay(500);
       const b=await captureBoundary(page,expected,`smoke-${mode}`,first); await persistBoundary(directory,b);
       canvas=await requireUniqueConnectedMainCanvas(page); const s=normalizedCanvasPoint(canvas.box,{x:.5,y:.5});
-      assertMainCanvasHitTarget(await validateMainCanvasHitTarget(page,s)); await page.mouse.move(s.x,s.y); await page.mouse.down(); await page.mouse.move(s.x+30,s.y+20,{steps:8}); await page.mouse.up(); await delay(500);
+      assertSmokeMainCanvasHitTarget(await validateMainCanvasHitTarget(page,s)); await page.mouse.move(s.x,s.y); await page.mouse.down(); await page.mouse.move(s.x+30,s.y+20,{steps:8}); await page.mouse.up(); await delay(500);
       after=(await commands.query()).snapshot; if(after.viewport.camera.sequence<=b.snapshot.viewport.camera.sequence)throw new Error("smoke orbit camera did not change");
       steps.push({action:"orbit",mode,labels:after.viewport.labels,conversion:after.viewport.geometry});
     }

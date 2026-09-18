@@ -1070,3 +1070,26 @@ test("frozen actual product/profile inputs validate read-only when explicitly su
   const changed=structuredClone(bundle);changed.mutableTestOnlySourceSnapshot[0].sha256="0".repeat(64);
   await expect(validateCharacterizationProduct(binding,changed)).rejects.toThrow("bytes drift");
 });
+
+
+test("uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs",async()=>{
+  const {assertSmokeMainCanvasHitTarget}=await import("./characterization-commands");
+  const {assertMainCanvasHitTarget}=await import("./causal-method-contract");
+  // Exact structural read from controls-smoke-01's canonical failure record.
+  const observed={status:"PASS_ACTUAL_CONNECTED_MAIN_CANVAS_TARGET" as const,
+    clientPoint:{x:576.3383298461134,y:510.83226543984887},canvasEpoch:null,armedCanvasEpoch:null,exactArmedCanvas:null,
+    canvasConnected:true,exactCanvasTarget:true,targetTag:"CANVAS",targetTestId:"viewport-canvas",
+    canvasRect:{x:293,y:285.1953125,width:794,height:557}};
+  const original=JSON.stringify(observed);
+  assertSmokeMainCanvasHitTarget(observed);
+  expect(()=>assertMainCanvasHitTarget(observed)).toThrow("prescribed pointer target");
+  expect(JSON.stringify(observed)).toBe(original);
+  for(const change of [{canvasConnected:false},{exactCanvasTarget:false},{targetTag:"DIV"},{targetTestId:"overlay"},
+    {status:"FAIL_MAIN_CANVAS_TARGET"},{clientPoint:{x:0,y:0}},{clientPoint:{x:NaN,y:500}},
+    {canvasRect:{...observed.canvasRect,width:0}},{canvasEpoch:1},{armedCanvasEpoch:1},{exactArmedCanvas:false}])
+    expect(()=>assertSmokeMainCanvasHitTarget({...observed,...change} as any)).toThrow("smoke pointer target");
+  const timed={...observed,canvasEpoch:7,armedCanvasEpoch:7,exactArmedCanvas:true};
+  expect(()=>assertMainCanvasHitTarget(timed)).not.toThrow();
+  expect(()=>assertMainCanvasHitTarget({...timed,canvasEpoch:8})).toThrow();
+  expect(()=>assertMainCanvasHitTarget({...timed,exactArmedCanvas:false})).toThrow();
+});
