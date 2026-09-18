@@ -1,0 +1,12 @@
+{
+  "at": "2026-09-18T00:12:53.675496+00:00",
+  "status": "BOUNDED_PREPARATION_REPAIR_AUTHORIZED",
+  "cycle": 1,
+  "authority": "Approved plan permits bounded preparation repair cycles; existing owner engineering/Git authority",
+  "evidence": "instances/RUNNER/CAMERA_PROCESS_RETURN.json; no tests ran",
+  "cause": "benchmark-harness.ts requireEvidenceRoot requires absolute path containing /instances/VERIFY/",
+  "change": "Use existing canonical external raw root with added instances/VERIFY subdirectory in new launch records for camera, oracle, smoke and unattempted cohort. Preserve earlier launch files verbatim.",
+  "limits": "No source/product/method changes. No timed attempt yet; no replacement sample/cohort. Still only untimed preparation release. On another failure return actual evidence, no automatic retry.",
+  "rationale": "Known invocation-path compatibility fix with new evidence, not measurement policy or compositor investigation.",
+  "OwnerCaseSelection": "NONE"
+}

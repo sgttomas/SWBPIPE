@@ -10,9 +10,9 @@
   "actual_mechanism": "delegated-harness-native collaboration.spawn_agent",
   "enforcement": "role/write scopes/Type2 non-delegation instruction+config asserted",
   "runtime_lease": {
-    "status": "UNTIMED_PREPARATION_ONLY",
-    "owner": "RUNNER",
-    "scope": "camera/oracle and both-size controls smoke; cohort held"
+    "status": "NODE_TESTS_ONLY",
+    "owner": "MANAGER",
+    "scope": "Smoke-only guard regression and TypeScript; browser/cohort held"
   },
   "nodes": [
     {
@@ -31,7 +31,7 @@
       "effort": "high",
       "brief": "briefs/MANAGER.md",
       "brief_sha256": "46c6d6ee930b46a470b017c0980cc4e8312a522168537b38208074a795e38dea",
-      "status": "complete_root_accepted"
+      "status": "bounded_smoke_repair"
     },
     {
       "id": "EXPECTATIONS",
@@ -72,7 +72,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "untimed_preparation_released",
+      "status": "untimed_blocker_preserved_runtime_released",
       "agent_name": "/root/d70_runner",
       "return": "instances/RUNNER/RETURN_PROFILE_V2.json"
     }
@@ -95,5 +95,5 @@
       "RUNNER"
     ]
   ],
-  "current_frontier": "Independent preparation review PASS. Runner authorized for untimed qualification only; no competing builds/tests/native witnesses."
+  "current_frontier": "Camera/oracle preparation passed. First smoke exposed unarmed canvas assertion defect. Bounded source repair and affected independent review required; timed cohort unattempted."
 }
