@@ -320,6 +320,16 @@
       "status": "complete",
       "model_ran": "Claude Fable 5.1",
       "note": "Eighteen frames accepted by ROOT 2026-09-18 after reading six screenshots; C-17 to C-25, Q-23 to Q-30 and the frames' own gap series carried to the handoff"
+    },
+    {
+      "id": "REVIEW-03",
+      "role": "TASK",
+      "purpose": "Independent read-only review of the revision pass and the implementation handoff",
+      "model_requested": "opus",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/REVIEW-03_revision_pass_review.md",
+      "return": "instances/REVIEW/REVIEW-03_RETURN.md",
+      "status": "running"
     }
   ],
   "edges": [
@@ -490,6 +500,10 @@
     [
       "DESIGN-SYSTEM-03",
       "UX-SPEC-02"
+    ],
+    [
+      "ROOT",
+      "REVIEW-03"
     ]
   ],
   "current_frontier": [

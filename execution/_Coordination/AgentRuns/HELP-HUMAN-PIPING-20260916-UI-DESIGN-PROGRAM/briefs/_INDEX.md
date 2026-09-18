@@ -264,4 +264,12 @@ Return of MOCKS-03, accepted by ROOT 2026-09-18. In place under `../instances/MO
 
 The handoff is issued at `../instances/ROOT/IMPLEMENTATION_HANDOFF_2026-09-18.md` and supersedes the preparation record.
 
+## Successor ROOT, 2026-09-18: independent review of the revision pass and the handoff, sealed before launch
+
+A fresh read-only reviewer over candidate `3e4cb3a1eeac12791498aec05fd912735d8f841b`. Mechanism and parentage as REVIEW-01; the return is the child's final message, retained by ROOT.
+
+| Brief | Sealed SHA-256 | Launched (UTC) | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `REVIEW-03_revision_pass_review.md` | `9b9d0c2067293a1ad2d6efafc67733916f9700c9a5213c61ec400184e4bee8b3` | 2026-09-18T15:39Z | `opus` (Claude Opus 5) | TASK, read-only reviewer, working alone | `../instances/REVIEW/REVIEW-03_RETURN.md` |
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
