@@ -1,0 +1,33 @@
+{
+  "status": "DRAFT_UNSEALED_NOT_EXECUTABLE",
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping",
+  "clearInheritedPrefixes": [
+    "UI_FOUNDATION_",
+    "PLAYWRIGHT_"
+  ],
+  "launcherShape": [
+    "node",
+    "apps/desktop/e2e/ui-foundation/characterization-observations.mjs",
+    "launch-slot",
+    "POLICY_JSON",
+    "POLICY_SHA256",
+    "SLOT",
+    "RECEIPT_JSON",
+    "RECEIPT_SHA256"
+  ],
+  "orderedSlots": [
+    "1000.2",
+    "1000.3",
+    "1000.4",
+    "1000.5",
+    "10000.1",
+    "10000.2",
+    "10000.3",
+    "10000.4",
+    "10000.5"
+  ],
+  "literalFinalCliSchemaPending": true,
+  "noOverallTimeout": true,
+  "noAutomaticRetry": true,
+  "runtimeRelease": null
+}

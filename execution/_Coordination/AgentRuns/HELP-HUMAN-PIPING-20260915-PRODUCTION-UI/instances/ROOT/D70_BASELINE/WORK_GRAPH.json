@@ -56,7 +56,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "complete_final_instrument_accepted",
+      "status": "continuation_writer_active",
       "agent_name": "/root/d70_manager/writer"
     },
     {
@@ -77,9 +77,11 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "complete_incomplete_attempt_report",
+      "status": "continuation_preparation_active_no_runtime",
       "agent_name": "/root/d70_runner",
-      "return": "instances/RUNNER/RETURN.json"
+      "return": "instances/RUNNER/RETURN.json",
+      "continuation_brief": "briefs/RUNNER_CONTINUATION.md",
+      "continuation_brief_sha256": "34de9194f10a7dac5de50ad47fd2bb188a76b53448cecd3aef6bd2e818490b1d"
     },
     {
       "id": "FINAL_REVIEW",

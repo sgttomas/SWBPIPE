@@ -1,0 +1,103 @@
+{
+  "status": "PREPARATION_DRAFT_READY_FINAL_INSTRUMENT_PENDING",
+  "at": "2026-09-18T01:18:24.722001+00:00",
+  "role": "TASK Type2",
+  "parent": "/root",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "enforcement": "instruction/config asserted",
+  "originalReturnSha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6",
+  "externalBindings": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/instances/VERIFY/PRODUCT_8468/candidate-bundle-manifest.json",
+      "sha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/chrome-for-testing/153.0.8010.36/mac-arm64/1f701ef60757c63c6ccf98afaf28291dd0c8d1457d3d738e81fd62201c230ad0/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+      "sha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/REFERENCE_PROFILE_V2.json",
+      "sha256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-oracle-01/CANDIDATE_POINT_ORACLE_MANIFEST.json",
+      "sha256": "0b8a0b5239f10547c72907e32160db262288216ed1fb4818551782dc89b05b17",
+      "status": "PASS"
+    }
+  ],
+  "productCommit": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "cleanProduct": true,
+  "verifiedInventoryCounts": {
+    "source": 142,
+    "files": 25
+  },
+  "oracleMembersVerified": 2,
+  "registryAbsent": true,
+  "newRawRootsAbsent": true,
+  "runtimeLaunched": false,
+  "finalMethodNotReadOrFrozen": true,
+  "remainingSlots": [
+    "1000.2",
+    "1000.3",
+    "1000.4",
+    "1000.5",
+    "10000.1",
+    "10000.2",
+    "10000.3",
+    "10000.4",
+    "10000.5"
+  ],
+  "context": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/RUNNER_CONTINUATION.md",
+      "sha256": "34de9194f10a7dac5de50ad47fd2bb188a76b53448cecd3aef6bd2e818490b1d"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/OWNER_CLARIFICATION_CONTINUE_20260917.md",
+      "sha256": "a5ba424fde8f8be92ae69b694a718452c9753b3ce2217df8f6b4b55e042c9730"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/CONTINUATION_ATTEMPT_BUDGET.json",
+      "sha256": "6bac0aa04fc7e1d4f85d9129b0b41d54233817b526721ac8dbb67287d88a9191"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/CONTINUATION/EXPECTATIONS.md",
+      "sha256": "b820e8826815f22992b8bd3240d2aedccf333e4ec39a7016f25f42dab3b3601e"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    }
+  ],
+  "pending": [
+    "Exact frozen successor instrument revision/method inventory",
+    "Final launcher policy/receipt/CLI schema",
+    "Independent affected source/runtime-context review",
+    "Separate ROOT untimed witness and timed releases",
+    "Fresh pre-slot cleanup/live-profile receipt at runtime"
+  ],
+  "historicalPreservation": "Original RETURN/report/raw manifest untouched; no ledger created",
+  "provisionalSchemaRead": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+    "section": "Owner-authorized continuation of the original attempt budget",
+    "status": "working schema consulted on ROOT instruction; not frozen method"
+  },
+  "proposedLedgerRoot": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger",
+  "externalBindingsExclusions": [
+    "UI_FOUNDATION_EVIDENCE_DIR",
+    "UI_FOUNDATION_METHOD_MANIFEST_PATH",
+    "UI_FOUNDATION_METHOD_MANIFEST_SHA256"
+  ]
+}
