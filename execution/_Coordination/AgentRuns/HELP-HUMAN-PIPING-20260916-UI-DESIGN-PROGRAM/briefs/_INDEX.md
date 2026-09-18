@@ -66,4 +66,19 @@ Launched after the owner's direction of 2026-09-17 named export compatibility wi
 
 Sealed on the owner's instruction of 2026-09-18 ("seal the design-system brief") after the direction was confirmed and the recommendations agreed (`../instances/ROOT/DIRECTION_DECISION_2026-09-17.md` §9 and §10).
 
+Return of DESIGN-SYSTEM-01, retained under `../instances/DESIGN-SYSTEM/` and accepted by ROOT on 2026-09-18 against the brief's acceptance section: every component colour, type and spacing value is a token with light and dark values (88 colour tokens, 85 plain); every mark has glyph, token, placement, tooltip and keyboard reveal (§4); the table is specified to the cell state with the layout columns named (§1.5, §5); the agent panel and Review page primitives are specified (§5); the presentation language is one specification with the alternatives stated (§6); the specimen renders offline and the child's agreement script found no difference between document, token file and specimen; the copy rules are stated (§7); contrast is reported as findings only (§2.9); RETURN lists what was read and what is uncertain. ROOT re-rendered the specimen headlessly in both themes with the child's own render script before accepting. One declared substitution: `tools/render.mjs` line 6 carried the ROOT worktree's absolute path to the piping project's `package.json`; ROOT replaced it with a path relative to the script, and the hash below is of the retained bytes. The `tools/` directory holds the child's generator and check scripts, retained as reproducibility evidence; it is under the run record, not the repository's instruction-surface `tools/` root.
+
+| Return file | SHA-256 |
+|---|---|
+| `DESIGN_SYSTEM_V1.md` | `39a9eb0d51c7f530c7fafb57968e558b354ccfeab1f127b7d81f9aff83a88103` |
+| `tokens.json` | `4c1252d75d4b455cb7e16cc0c612bcd6b64e391d07b92dc76831b867f59f2b0a` |
+| `specimen.html` | `dfb8eb4daab979766e9c35523d67076f19ced5ec8383325f300c1ee72fefae8b` |
+| `RETURN.md` | `e1c2a74402924f106ecfc4d8ddd8d5623203ddf03e97465f6032d4822b5ec275` |
+| `tools/agree.mjs` | `105b7270f364e7e8cbaac049d500616fbb461e3ea25cab81d173b4b9a7238702` |
+| `tools/contrast.mjs` | `e3fc3626643d80d754eef9165d2a48bb3678978428e33570c3dfaf2c21c5173a` |
+| `tools/gen.mjs` | `cb1ea65e634468b134e124bd7c92ca46a9296c1cb17165713dd3fe0a5eefdb8b` |
+| `tools/palette.mjs` | `96322649e38d5413b650cfbc5194be4e0135b4b428d8167bcd81db150046307c` |
+| `tools/render.mjs` (retained, path substituted) | `b3b1d101e875e19c4266f144dc30a1e03460ff644797ae2ecdd4955f6aa94888` |
+| `tools/splice.mjs` | `215d16e3fa56ea072a39c072902a649f9b5ecab9c4b52719e1b628c40f98272f` |
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

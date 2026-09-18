@@ -108,11 +108,12 @@
       "id": "DESIGN-SYSTEM",
       "role": "HELPS_HUMANS",
       "purpose": "Tokens, type, colour with dark mode, iconography, density, states; 3D presentation language",
-      "status": "active",
+      "status": "complete",
       "model_requested": "fable",
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/DESIGN-SYSTEM-01_design_system.md",
-      "return": "instances/DESIGN-SYSTEM/"
+      "return": "instances/DESIGN-SYSTEM/",
+      "accepted_by_root": "2026-09-18"
     },
     {
       "id": "MOCKS",
@@ -217,5 +218,5 @@
       "ACCEPTANCE-PROPOSAL"
     ]
   ],
-  "current_frontier": "DESIGN-SYSTEM"
+  "current_frontier": "MOCKS"
 }

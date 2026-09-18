@@ -1,0 +1,1335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>SWBPIPE design system specimen</title>
+<style>
+/* Generated from tokens.json (88 colour tokens, version 1.0). Do not edit by hand. */
+:root {
+  --font-ui: -apple-system, BlinkMacSystemFont, system-ui, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-numeric: -apple-system, BlinkMacSystemFont, system-ui, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  --type-size-caption: 11px;
+  --type-size-chip: 12px;
+  --type-size-body: 13px;
+  --type-size-title: 15px;
+  --type-size-heading: 18px;
+  --type-size-figure: 22px;
+  --type-lineHeight-caption: 14px;
+  --type-lineHeight-chip: 16px;
+  --type-lineHeight-body: 18px;
+  --type-lineHeight-title: 20px;
+  --type-lineHeight-heading: 24px;
+  --type-lineHeight-figure: 28px;
+  --type-weight-regular: 400;
+  --type-weight-medium: 500;
+  --type-weight-semibold: 600;
+  --type-minimumRepeatedlyRead: 13px;
+  --type-letterSpacing-figure: -0.2px;
+  --space-0: 0px;
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --space-5: 12px;
+  --space-6: 16px;
+  --space-7: 20px;
+  --space-8: 24px;
+  --space-9: 32px;
+  --space-10: 40px;
+  --radius-none: 0px;
+  --radius-control: 3px;
+  --radius-card: 6px;
+  --radius-sheet: 10px;
+  --radius-pill: 999px;
+  --border-width-hairline: 1px;
+  --border-width-strong: 1px;
+  --border-width-focusRing: 2px;
+  --border-width-selectionBar: 3px;
+  --border-width-proposalBar: 3px;
+  --layout-toolbar: 48px;
+  --layout-statusBar: 24px;
+  --layout-rail: 56px;
+  --layout-agent-open: 340px;
+  --layout-agent-strip: 44px;
+  --layout-inspector-both: 300px;
+  --layout-inspector-model: 340px;
+  --layout-drawer-table: 280px;
+  --layout-drawer-issues: 200px;
+  --layout-review-outline: 280px;
+  --layout-review-comments: 320px;
+  --layout-row: 26px;
+  --layout-headerRow: 28px;
+  --layout-control: 26px;
+  --layout-controlCompact: 22px;
+  --layout-gutter: 32px;
+  --layout-marksColumn: 72px;
+  --layout-hud-button: 28px;
+  --layout-probe-width: 300px;
+  --layout-legend-width: 220px;
+  --layout-sideGutter: 16px;
+  --motion-disclosure-ms: 120ms;
+  --motion-drawer-ms: 180ms;
+  --motion-proposalArrive-ms: 240ms;
+  --motion-hover-ms: 80ms;
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  --icon-stroke: 1.5px;
+}
+:root, :root[data-theme="light"] {
+  color-scheme: light;
+  --surface-base: #eef0f3;
+  --surface-panel: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f5f7f9;
+  --surface-header: #f0f3f5;
+  --surface-rowAlt: #f9fafb;
+  --surface-canvas: #ebedef;
+  --text-primary: #22272c;
+  --text-secondary: #5b6168;
+  --text-muted: #7d848b;
+  --text-disabled: #a6abb1;
+  --text-inverse: #ffffff;
+  --text-link: #1762b6;
+  --border-hairline: #d5d8db;
+  --border-strong: #b3b8be;
+  --border-focus: #1a73d5;
+  --accent-fill: #106dce;
+  --accent-fillHover: #0161bd;
+  --accent-text: #005bb3;
+  --selection-band: #e2eefe;
+  --selection-bar: #106dce;
+  --hover-wash: rgba(30,36,48,0.06);
+  --pressed-wash: rgba(30,36,48,0.10);
+  --disabled-fill: #e9ebee;
+  --focus-ring: #1a73d5;
+  --scrim: rgba(20,22,28,0.32);
+  --proposal-new: #6b3baa;
+  --proposal-band: #f2edfe;
+  --proposal-bar: #854ece;
+  --proposal-old: #7d848b;
+  --mark-checked: #5b6168;
+  --mark-checkedStale: #a46e01;
+  --mark-origin: #7d848b;
+  --mark-attachment: #5b6168;
+  --issue-blocking: #ba2b2e;
+  --issue-blockingTint: #feebe9;
+  --issue-warning: #a46e01;
+  --issue-warningTint: #fff1d5;
+  --issue-info: #426882;
+  --issue-infoTint: #e9f1f8;
+  --mark-required: #ba2b2e;
+  --status-incompleteFill: #fff1d5;
+  --status-incompleteInk: #774f02;
+  --status-solvedFill: #eef0f3;
+  --status-solvedInk: #353b42;
+  --status-failedFill: #feebe9;
+  --status-failedInk: #a21921;
+  --status-reviewFill: #e9f1f8;
+  --status-reviewInk: #25526f;
+  --historical-tint: #f4efe7;
+  --historical-ink: #5e5443;
+  --displayOnly-border: #b3b8be;
+  --stale-stripe: #ced1d5;
+  --canvas-bg: #ebedef;
+  --canvas-gridMajor: #ced1d5;
+  --canvas-gridMinor: #dfe1e4;
+  --canvas-pipe: #a6abb1;
+  --canvas-pipeShade: #81878d;
+  --canvas-edge: #42484f;
+  --canvas-glyph: #30363c;
+  --canvas-glyphFill: #dbdee2;
+  --canvas-label: #22272c;
+  --canvas-labelBg: rgba(255,255,255,0.82);
+  --canvas-vector: #42484f;
+  --canvas-selection: #106dce;
+  --canvas-hover: #5d94da;
+  --canvas-draft: #106dce;
+  --canvas-proposalGhost: #854ece;
+  --canvas-deformGhost: #81878d;
+  --canvas-unsolved: #a6abb1;
+  --canvas-axisX: #bd413f;
+  --canvas-axisY: #308639;
+  --canvas-axisZ: #2171cc;
+  --result-scale-1: #4ab9b2;
+  --result-scale-2: #15a6a0;
+  --result-scale-3: #05908b;
+  --result-scale-4: #087a76;
+  --result-scale-5: #056662;
+  --result-scale-6: #01524e;
+  --result-scale-7: #003e3c;
+  --cat-1: #cf630d;
+  --cat-2: #b84999;
+  --cat-3: #3b9555;
+  --cat-4: #3f5bb8;
+  --cat-5: #cb4f73;
+  --cat-6: #098db2;
+  --cat-7: #8c8305;
+  --cat-8: #0b959b;
+  --elevation-1: 0 1px 2px rgba(20,24,30,0.08);
+  --elevation-2: 0 4px 12px rgba(20,24,30,0.12), 0 1px 2px rgba(20,24,30,0.06);
+  --elevation-3: 0 12px 32px rgba(20,24,30,0.18), 0 2px 4px rgba(20,24,30,0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-base: #1b1e22;
+    --surface-panel: #25282c;
+    --surface-raised: #2e3236;
+    --surface-sunken: #202327;
+    --surface-header: #292d31;
+    --surface-rowAlt: #272a2e;
+    --surface-canvas: #191c1f;
+    --text-primary: #e5e8ec;
+    --text-secondary: #acb2b7;
+    --text-muted: #878d93;
+    --text-disabled: #5f6469;
+    --text-inverse: #13161a;
+    --text-link: #87bafd;
+    --border-hairline: #393e42;
+    --border-strong: #53595f;
+    --border-focus: #70adfb;
+    --accent-fill: #4c94ec;
+    --accent-fillHover: #59a0f9;
+    --accent-text: #91c1ff;
+    --selection-band: #223e61;
+    --selection-bar: #65a7fa;
+    --hover-wash: rgba(255,255,255,0.06);
+    --pressed-wash: rgba(255,255,255,0.10);
+    --disabled-fill: #2b2e32;
+    --focus-ring: #70adfb;
+    --scrim: rgba(0,0,0,0.55);
+    --proposal-new: #c4a4fe;
+    --proposal-band: #3b2f51;
+    --proposal-bar: #ba93fb;
+    --proposal-old: #878d93;
+    --mark-checked: #acb2b7;
+    --mark-checkedStale: #e9b452;
+    --mark-origin: #878d93;
+    --mark-attachment: #acb2b7;
+    --issue-blocking: #fb817a;
+    --issue-blockingTint: #4b2724;
+    --issue-warning: #e9b452;
+    --issue-warningTint: #433215;
+    --issue-info: #8fb7d4;
+    --issue-infoTint: #27353e;
+    --mark-required: #fb817a;
+    --status-incompleteFill: #433215;
+    --status-incompleteInk: #efc876;
+    --status-solvedFill: #32363a;
+    --status-solvedInk: #d4d8dd;
+    --status-failedFill: #4b2724;
+    --status-failedInk: #ffaba3;
+    --status-reviewFill: #27353e;
+    --status-reviewInk: #a8d1ee;
+    --historical-tint: #322d25;
+    --historical-ink: #cec2af;
+    --displayOnly-border: #53595f;
+    --stale-stripe: #44484d;
+    --canvas-bg: #191c1f;
+    --canvas-gridMajor: #2d3135;
+    --canvas-gridMinor: #222629;
+    --canvas-pipe: #757b81;
+    --canvas-pipeShade: #53595f;
+    --canvas-edge: #c7cbd0;
+    --canvas-glyph: #dbdee2;
+    --canvas-glyphFill: #34383d;
+    --canvas-label: #e5e8ec;
+    --canvas-labelBg: rgba(28,31,37,0.82);
+    --canvas-vector: #c7cbd0;
+    --canvas-selection: #6dadff;
+    --canvas-hover: #5788c7;
+    --canvas-draft: #6dadff;
+    --canvas-proposalGhost: #ba93fb;
+    --canvas-deformGhost: #53595f;
+    --canvas-unsolved: #757b81;
+    --canvas-axisX: #f07f77;
+    --canvas-axisY: #73c076;
+    --canvas-axisZ: #70adfb;
+    --result-scale-1: #02736e;
+    --result-scale-2: #028984;
+    --result-scale-3: #04a19b;
+    --result-scale-4: #28b8b1;
+    --result-scale-5: #51cec7;
+    --result-scale-6: #83e1db;
+    --result-scale-7: #b7f2ed;
+    --cat-1: #d97230;
+    --cat-2: #c960aa;
+    --cat-3: #429c5a;
+    --cat-4: #6280da;
+    --cat-5: #db6686;
+    --cat-6: #089ac3;
+    --cat-7: #97902a;
+    --cat-8: #009298;
+    --elevation-1: 0 1px 2px rgba(0,0,0,0.40);
+    --elevation-2: 0 4px 12px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.06);
+    --elevation-3: 0 12px 32px rgba(0,0,0,0.60), 0 0 0 1px rgba(255,255,255,0.08);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-base: #1b1e22;
+  --surface-panel: #25282c;
+  --surface-raised: #2e3236;
+  --surface-sunken: #202327;
+  --surface-header: #292d31;
+  --surface-rowAlt: #272a2e;
+  --surface-canvas: #191c1f;
+  --text-primary: #e5e8ec;
+  --text-secondary: #acb2b7;
+  --text-muted: #878d93;
+  --text-disabled: #5f6469;
+  --text-inverse: #13161a;
+  --text-link: #87bafd;
+  --border-hairline: #393e42;
+  --border-strong: #53595f;
+  --border-focus: #70adfb;
+  --accent-fill: #4c94ec;
+  --accent-fillHover: #59a0f9;
+  --accent-text: #91c1ff;
+  --selection-band: #223e61;
+  --selection-bar: #65a7fa;
+  --hover-wash: rgba(255,255,255,0.06);
+  --pressed-wash: rgba(255,255,255,0.10);
+  --disabled-fill: #2b2e32;
+  --focus-ring: #70adfb;
+  --scrim: rgba(0,0,0,0.55);
+  --proposal-new: #c4a4fe;
+  --proposal-band: #3b2f51;
+  --proposal-bar: #ba93fb;
+  --proposal-old: #878d93;
+  --mark-checked: #acb2b7;
+  --mark-checkedStale: #e9b452;
+  --mark-origin: #878d93;
+  --mark-attachment: #acb2b7;
+  --issue-blocking: #fb817a;
+  --issue-blockingTint: #4b2724;
+  --issue-warning: #e9b452;
+  --issue-warningTint: #433215;
+  --issue-info: #8fb7d4;
+  --issue-infoTint: #27353e;
+  --mark-required: #fb817a;
+  --status-incompleteFill: #433215;
+  --status-incompleteInk: #efc876;
+  --status-solvedFill: #32363a;
+  --status-solvedInk: #d4d8dd;
+  --status-failedFill: #4b2724;
+  --status-failedInk: #ffaba3;
+  --status-reviewFill: #27353e;
+  --status-reviewInk: #a8d1ee;
+  --historical-tint: #322d25;
+  --historical-ink: #cec2af;
+  --displayOnly-border: #53595f;
+  --stale-stripe: #44484d;
+  --canvas-bg: #191c1f;
+  --canvas-gridMajor: #2d3135;
+  --canvas-gridMinor: #222629;
+  --canvas-pipe: #757b81;
+  --canvas-pipeShade: #53595f;
+  --canvas-edge: #c7cbd0;
+  --canvas-glyph: #dbdee2;
+  --canvas-glyphFill: #34383d;
+  --canvas-label: #e5e8ec;
+  --canvas-labelBg: rgba(28,31,37,0.82);
+  --canvas-vector: #c7cbd0;
+  --canvas-selection: #6dadff;
+  --canvas-hover: #5788c7;
+  --canvas-draft: #6dadff;
+  --canvas-proposalGhost: #ba93fb;
+  --canvas-deformGhost: #53595f;
+  --canvas-unsolved: #757b81;
+  --canvas-axisX: #f07f77;
+  --canvas-axisY: #73c076;
+  --canvas-axisZ: #70adfb;
+  --result-scale-1: #02736e;
+  --result-scale-2: #028984;
+  --result-scale-3: #04a19b;
+  --result-scale-4: #28b8b1;
+  --result-scale-5: #51cec7;
+  --result-scale-6: #83e1db;
+  --result-scale-7: #b7f2ed;
+  --cat-1: #d97230;
+  --cat-2: #c960aa;
+  --cat-3: #429c5a;
+  --cat-4: #6280da;
+  --cat-5: #db6686;
+  --cat-6: #089ac3;
+  --cat-7: #97902a;
+  --cat-8: #009298;
+  --elevation-1: 0 1px 2px rgba(0,0,0,0.40);
+  --elevation-2: 0 4px 12px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.06);
+  --elevation-3: 0 12px 32px rgba(0,0,0,0.60), 0 0 0 1px rgba(255,255,255,0.08);
+}
+
+/* ---------- specimen page ---------- */
+* { box-sizing: border-box; }
+html { font-family: var(--font-ui); font-size: 13px; line-height: 18px; color: var(--text-primary); background: var(--surface-base); -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--surface-base); }
+.n, .num { font-family: var(--font-numeric); font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--font-mono); font-size: 12px; }
+h1 { font-size: 18px; line-height: 24px; font-weight: 600; margin: 0; }
+h2 { font-size: 18px; line-height: 24px; font-weight: 600; margin: 40px 0 12px; padding-top: 16px; border-top: 1px solid var(--border-hairline); }
+h3 { font-size: 15px; line-height: 20px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 13px; line-height: 18px; font-weight: 500; margin: 16px 0 6px; color: var(--text-secondary); }
+p { margin: 0 0 8px; max-width: 78ch; }
+a { color: var(--text-link); }
+code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-sunken); padding: 0 4px; border-radius: 2px; }
+.wrap { max-width: 1408px; margin: 0 auto; padding: 0 16px 48px; }
+.muted { color: var(--text-muted); } .sec { color: var(--text-secondary); }
+.sample { font-size: 11px; line-height: 14px; color: var(--text-muted); font-weight: 400; }
+.sample::before { content: "sample"; border: 1px solid var(--border-hairline); border-radius: 2px; padding: 0 4px; margin-right: 6px; }
+.spec-head { position: sticky; top: 0; z-index: 20; background: var(--surface-base); border-bottom: 1px solid var(--border-hairline); }
+.spec-head .row { display: flex; align-items: center; gap: 16px; min-height: 48px; flex-wrap: wrap; padding: 4px 0; }
+.spec-head .grow { flex: 1; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 8px 0 0; font-size: 12px; }
+nav.toc a { color: var(--text-secondary); text-decoration: none; }
+nav.toc a:hover { color: var(--text-primary); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 16px; align-items: start; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: start; }
+.panel { background: var(--surface-panel); border: 1px solid var(--border-hairline); border-radius: var(--radius-card); padding: 12px; }
+.panel h3:first-child, .panel h4:first-child { margin-top: 0; }
+.kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 12px; }
+.kv dt { color: var(--text-secondary); } .kv dd { margin: 0; }
+
+/* segmented control */
+.seg { display: inline-flex; border: 1px solid var(--border-strong); border-radius: var(--radius-control); background: var(--surface-sunken); padding: 2px; gap: 2px; }
+.seg button { height: 22px; padding: 0 10px; border: 0; background: transparent; color: var(--text-secondary); border-radius: 2px; font: inherit; font-size: 12px; font-weight: 500; line-height: 16px; display: inline-flex; align-items: center; gap: 6px; cursor: default; }
+.seg button[aria-pressed="true"] { background: var(--surface-panel); color: var(--text-primary); box-shadow: var(--elevation-1); }
+.seg button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+
+/* controls */
+.btn { height: 26px; padding: 0 10px; border-radius: var(--radius-control); border: 1px solid var(--border-strong); background: var(--surface-panel); color: var(--text-primary); font: inherit; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: default; }
+.btn:hover { background: var(--hover-wash); }
+.btn:active { background: var(--pressed-wash); }
+.btn:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+.btn.primary { background: var(--accent-fill); border-color: transparent; color: var(--text-inverse); }
+.btn.primary:hover { background: var(--accent-fillHover); }
+.btn.text { border-color: transparent; background: transparent; }
+.btn[disabled], .btn.disabled { background: var(--disabled-fill); color: var(--text-disabled); border-color: var(--border-hairline); }
+.btn.compact { height: 22px; padding: 0 8px; font-size: 12px; }
+.input { height: 26px; padding: 0 8px; border-radius: var(--radius-control); border: 1px solid var(--border-strong); background: var(--surface-sunken); color: var(--text-primary); font: inherit; }
+.input:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+.ic { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.ic.s20 { width: 20px; height: 20px; }
+.ic.s12 { width: 12px; height: 12px; stroke-width: 1.25; }
+.mk { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; flex: none; vertical-align: -2px; }
+
+/* chips */
+.chip { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: var(--radius-control); font-size: 12px; font-weight: 500; line-height: 16px; white-space: nowrap; gap: 6px; }
+.chip.incomplete { background: var(--status-incompleteFill); color: var(--status-incompleteInk); }
+.chip.solved { background: var(--status-solvedFill); color: var(--status-solvedInk); }
+.chip.failed { background: var(--status-failedFill); color: var(--status-failedInk); }
+.chip.review { background: var(--status-reviewFill); color: var(--status-reviewInk); }
+.chip.hist { background: var(--historical-tint); color: var(--historical-ink); }
+.chip.outline { border: 1px solid var(--border-hairline); color: var(--text-secondary); background: transparent; }
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* popover */
+.pop { background: var(--surface-raised); border: 1px solid var(--border-hairline); border-radius: var(--radius-card); box-shadow: var(--elevation-2); padding: 8px 10px; display: inline-block; min-width: 220px; }
+.pop .kv { grid-template-columns: 96px 1fr; }
+
+/* swatches */
+.tok { width: 100%; border-collapse: collapse; }
+.tok th { text-align: left; font-weight: 500; height: 28px; background: var(--surface-header); padding: 0 8px; border-bottom: 1px solid var(--border-hairline); position: sticky; top: 0; }
+.tok td { height: 26px; padding: 0 8px; border-bottom: 1px solid var(--border-hairline); white-space: nowrap; }
+.tok td.cur .sw { width: 28px; margin: 0; }
+.sw { display: inline-block; width: 36px; height: 18px; border-radius: 2px; vertical-align: middle; margin-right: 8px; box-shadow: inset 0 0 0 1px rgba(128,128,128,0.25); }
+.sw.light { background-color: var(--l); background-image: linear-gradient(var(--l), var(--l)), linear-gradient(#ffffff, #ffffff); }
+.sw.dark { background-color: var(--d); background-image: linear-gradient(var(--d), var(--d)), linear-gradient(#25282c, #25282c); }
+.sw.cur { background-image: linear-gradient(var(--c), var(--c)), linear-gradient(var(--surface-panel), var(--surface-panel)); }
+.tokgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(560px, 1fr)); gap: 16px; align-items: start; }
+.tokgrid .panel { overflow-x: auto; }
+@media (max-width: 760px) { .tokgrid { grid-template-columns: 1fr; } }
+
+/* result scale */
+.scalebar { height: 18px; border-radius: 2px; background: linear-gradient(90deg, var(--result-scale-1), var(--result-scale-2), var(--result-scale-3), var(--result-scale-4), var(--result-scale-5), var(--result-scale-6), var(--result-scale-7)); background: linear-gradient(in oklch 90deg, var(--result-scale-1), var(--result-scale-2), var(--result-scale-3), var(--result-scale-4), var(--result-scale-5), var(--result-scale-6), var(--result-scale-7)); }
+.steps { display: flex; gap: 4px; margin-top: 6px; }
+.steps div { flex: 1; height: 26px; border-radius: 2px; display: flex; align-items: flex-end; justify-content: center; font-size: 11px; line-height: 14px; }
+.cats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 12px; }
+.cats div { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cats .sw { margin: 0; width: 28px; }
+
+/* table component */
+.tblwrap { overflow: auto; border: 1px solid var(--border-strong); border-radius: var(--radius-control); background: var(--surface-panel); }
+.tblwrap.fit { display: inline-block; max-width: 100%; vertical-align: top; }
+.tblwrap.fit table.ds { table-layout: fixed; min-width: 0; }
+.tblhead { display: flex; align-items: center; gap: 12px; padding: 6px 8px; border-bottom: 1px solid var(--border-hairline); background: var(--surface-panel); flex-wrap: wrap; }
+.tblhead .name { font-weight: 500; }
+.tblhead .grow { flex: 1; }
+table.ds { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; }
+table.ds th { height: 28px; background: var(--surface-header); font-weight: 500; text-align: left; padding: 0 8px; border-bottom: 1px solid var(--border-hairline); white-space: nowrap; position: sticky; top: 0; z-index: 1; }
+table.ds th .u { color: var(--text-secondary); font-weight: 400; }
+table.ds th.n, table.ds td.n { text-align: right; }
+table.ds td { height: 26px; padding: 0 8px; border-bottom: 1px solid var(--border-hairline); white-space: nowrap; position: relative; background: var(--surface-panel); }
+table.ds tr:nth-child(even) td { background: var(--surface-rowAlt); }
+table.ds td.gut { width: 32px; padding: 0 4px; }
+table.ds td.gut .slots { display: flex; gap: 2px; align-items: center; justify-content: center; }
+table.ds td.gut .slot { width: 12px; height: 12px; display: inline-flex; align-items: center; justify-content: center; color: var(--mark-origin); }
+table.ds td.marks { width: 72px; padding: 0 6px; }
+table.ds td.marks .slots { display: flex; gap: 0; }
+table.ds td.marks .slot { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; color: var(--mark-attachment); border-radius: 2px; }
+table.ds td.marks .slot:hover { background: var(--hover-wash); }
+table.ds td.rt { background: var(--surface-sunken) !important; }
+table.ds tr.sel td { background: var(--selection-band) !important; }
+table.ds tr.sel td.gut::before, table.ds tr.prop td.gut::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--selection-bar); }
+table.ds tr.prop td { background: var(--proposal-band) !important; }
+table.ds tr.prop td.gut::before { background: var(--proposal-bar); }
+table.ds tr.sel.prop td { background: var(--selection-band) !important; }
+table.ds tr.sel.prop td.gut::before { background: var(--proposal-bar); }
+table.ds td.tick::after { content: ""; position: absolute; top: 0; right: 0; border-style: solid; border-width: 0 5px 5px 0; border-color: transparent var(--mark-origin) transparent transparent; }
+table.ds td.tick.tprop::after { border-color: transparent var(--proposal-new) transparent transparent; }
+table.ds td.tick.twarn::after { border-color: transparent var(--issue-warning) transparent transparent; }
+table.ds td.selcell { box-shadow: inset 0 0 0 1px var(--selection-bar); }
+table.ds td.edit { padding: 0; }
+table.ds td.edit input { width: 100%; height: 26px; border: 0; padding: 0 30px 0 8px; background: var(--surface-panel); color: var(--text-primary); font: inherit; font-family: var(--font-numeric); font-variant-numeric: tabular-nums; text-align: right; box-shadow: inset 0 0 0 2px var(--focus-ring); outline: none; }
+table.ds td.edit .unit { position: absolute; right: 8px; top: 0; line-height: 26px; color: var(--text-muted); pointer-events: none; }
+table.ds td.invalid { box-shadow: inset 0 0 0 2px var(--issue-blocking); }
+table.ds td.stale { background-image: repeating-linear-gradient(45deg, transparent 0 4px, var(--stale-stripe) 4px 5px) !important; }
+.old { color: var(--proposal-old); text-decoration: line-through; margin-right: 6px; }
+.new { color: var(--proposal-new); font-weight: 500; }
+.req { color: var(--mark-required); }
+.focuscell { box-shadow: inset 0 0 0 2px var(--focus-ring); z-index: 2; }
+.tfoot { min-height: 26px; background: var(--surface-header); border-top: 1px solid var(--border-hairline); display: flex; gap: 12px; align-items: center; padding: 2px 8px; font-size: 12px; font-weight: 500; flex-wrap: wrap; }
+.tfoot .f { color: var(--text-secondary); }
+.tfoot .f b { color: var(--text-primary); font-weight: 500; }
+.bar { display: inline-block; width: 48px; height: 8px; background: var(--surface-sunken); border-radius: 1px; vertical-align: middle; margin-left: 8px; position: relative; }
+.bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 1px; }
+.cellpop { position: absolute; left: 8px; top: 26px; z-index: 3; }
+.expand td { background: var(--surface-panel) !important; }
+.expand .block { margin: 6px 0 8px 32px; border-left: 2px solid var(--border-strong); padding-left: 8px; }
+.expand table.ds { min-width: 0; }
+.pasteband { background: var(--surface-raised); border: 1px solid var(--border-hairline); box-shadow: var(--elevation-1); border-radius: var(--radius-card); padding: 8px 10px; margin: 8px; }
+.maprow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.maprow .m { display: inline-flex; align-items: center; gap: 6px; padding: 2px 6px; border: 1px solid var(--border-hairline); border-radius: var(--radius-control); background: var(--surface-panel); }
+.maprow .m .src { color: var(--text-secondary); }
+.maprow .m .sel { border: 1px solid var(--border-strong); background: var(--surface-sunken); border-radius: 2px; padding: 0 6px; height: 20px; line-height: 20px; }
+.histband { display: flex; align-items: center; gap: 8px; padding: 4px 8px; background: var(--historical-tint); color: var(--historical-ink); background-image: repeating-linear-gradient(135deg, transparent 0 10px, rgba(128,120,100,0.08) 10px 11px); border-bottom: 1px solid var(--border-hairline); }
+.disc { border: 1px solid var(--border-hairline); background: var(--surface-raised); border-radius: var(--radius-card); box-shadow: var(--elevation-2); padding: 8px 10px; max-width: 520px; }
+.switch { display: inline-flex; align-items: center; gap: 6px; }
+.switch i { width: 26px; height: 16px; border-radius: 8px; background: var(--border-strong); position: relative; display: inline-block; }
+.switch i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface-panel); }
+.switch.on i { background: var(--accent-fill); } .switch.on i::after { left: 12px; }
+.combo { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 6px 0 8px; border: 1px solid var(--border-strong); border-radius: var(--radius-control); background: var(--surface-sunken); }
+.combo::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); color: var(--text-secondary); }
+
+/* display-only expression */
+.dispo { font-family: var(--font-mono); font-size: 12px; background: var(--surface-sunken); border: 1px dashed var(--displayOnly-border); border-radius: 2px; padding: 1px 6px; }
+.dispo-cap { font-size: 11px; line-height: 14px; color: var(--text-muted); }
+
+/* proposal card */
+.card { background: var(--surface-raised); border: 1px solid var(--border-hairline); border-radius: var(--radius-card); box-shadow: var(--elevation-1); padding: 12px; position: relative; overflow: hidden; }
+.card.prop::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--proposal-bar); }
+.card .title { font-size: 15px; line-height: 20px; font-weight: 600; margin: 0 0 2px; }
+.card .meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+.card .meta b { font-weight: 500; color: var(--proposal-new); }
+.diff { width: 100%; border-collapse: collapse; margin: 2px 0 6px; table-layout: fixed; }
+.diff td { overflow: hidden; text-overflow: ellipsis; }
+.difftitle { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin: 10px 0 0; display: flex; justify-content: space-between; }
+.iconbtn { width: 22px; height: 22px; border: 1px solid var(--border-hairline); background: transparent; border-radius: var(--radius-control); color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; padding: 0; margin-left: 2px; }
+.iconbtn:hover { background: var(--hover-wash); color: var(--text-primary); }
+.iconbtn:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+.diff th { font-weight: 500; color: var(--text-secondary); text-align: left; height: 22px; border-bottom: 1px solid var(--border-hairline); padding: 0 4px; }
+.diff td { height: 24px; padding: 0 4px; border-bottom: 1px solid var(--border-hairline); white-space: nowrap; }
+.diff td.acts { text-align: right; white-space: nowrap; overflow: visible; padding: 0 0 0 4px; }
+.card h5 { font-size: 13px; font-weight: 500; margin: 10px 0 2px; color: var(--text-secondary); }
+.card ul { margin: 0; padding-left: 18px; }
+.card .actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
+.tbd { display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); }
+.tbd .mk { color: var(--issue-warning); }
+.arrive { transition: opacity var(--motion-proposalArrive-ms) var(--easing-standard), transform var(--motion-proposalArrive-ms) var(--easing-standard); }
+.arrive.hidden { opacity: 0; transform: translateY(4px); }
+@media (prefers-reduced-motion: reduce) { .arrive { transition: none; } }
+
+/* probe card, legend */
+.probe { width: 300px; background: var(--surface-raised); border: 1px solid var(--border-hairline); border-radius: var(--radius-card); box-shadow: var(--elevation-2); padding: 8px 10px; }
+.probe .r { display: flex; justify-content: space-between; height: 22px; align-items: center; }
+.probe .r span:first-child { color: var(--text-secondary); }
+.probe .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-hairline); font-size: 12px; color: var(--text-secondary); }
+.legend { width: 220px; background: var(--surface-raised); border: 1px solid var(--border-hairline); border-radius: var(--radius-card); box-shadow: var(--elevation-2); padding: 10px; }
+.legend .t { font-weight: 500; display: flex; justify-content: space-between; }
+.legend .vbar { display: flex; gap: 8px; margin: 8px 0; }
+.legend .vbar .b { width: 14px; height: 150px; border-radius: 2px; background: linear-gradient(180deg, var(--result-scale-7), var(--result-scale-6), var(--result-scale-5), var(--result-scale-4), var(--result-scale-3), var(--result-scale-2), var(--result-scale-1)); background: linear-gradient(in oklch 180deg, var(--result-scale-7), var(--result-scale-6), var(--result-scale-5), var(--result-scale-4), var(--result-scale-3), var(--result-scale-2), var(--result-scale-1)); position: relative; }
+.legend .vbar .b i { position: absolute; left: -3px; right: -3px; height: 2px; background: var(--text-primary); }
+.legend .vbar .ticks { display: flex; flex-direction: column; justify-content: space-between; height: 150px; font-size: 11px; line-height: 14px; color: var(--text-secondary); }
+.legend .l { font-size: 12px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; min-height: 20px; }
+.legend .unsolved { width: 14px; height: 10px; background: var(--canvas-unsolved); opacity: .6; border-radius: 1px; display: inline-block; }
+.legend .ghost { width: 14px; height: 0; border-top: 1px dashed var(--canvas-deformGhost); display: inline-block; vertical-align: middle; }
+.stepper { display: inline-flex; border: 1px solid var(--border-strong); border-radius: var(--radius-control); overflow: hidden; }
+.stepper span { padding: 0 6px; height: 20px; line-height: 20px; }
+.stepper span + span { border-left: 1px solid var(--border-strong); }
+
+/* shell mock */
+.shell { border: 1px solid var(--border-strong); border-radius: var(--radius-card); overflow: hidden; background: var(--surface-base); }
+.toolbar { min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 4px 12px 4px 0; border-bottom: 1px solid var(--border-hairline); flex-wrap: wrap; }
+.lights { width: 78px; height: 40px; display: flex; align-items: center; gap: 8px; padding-left: 12px; flex: none; }
+.lights i { width: 12px; height: 12px; border-radius: 50%; background: var(--border-strong); display: inline-block; }
+.wordmark { font-weight: 500; letter-spacing: .04em; color: var(--text-secondary); }
+.project { color: var(--text-primary); } .project .st { color: var(--text-secondary); }
+.toolbar .grow { flex: 1; min-width: 8px; }
+.runbtn { position: relative; overflow: hidden; }
+.runbtn .prog { position: absolute; left: 0; top: 0; bottom: 0; width: 46%; background: rgba(255,255,255,0.22); }
+.search { display: inline-flex; align-items: center; gap: 6px; height: 26px; width: 220px; padding: 0 8px; border: 1px solid var(--border-strong); border-radius: var(--radius-control); background: var(--surface-sunken); color: var(--text-muted); }
+.shellbody { display: flex; min-height: 300px; }
+.rail { width: 56px; flex: none; background: var(--surface-base); border-right: 1px solid var(--border-hairline); display: flex; flex-direction: column; padding: 4px 0; }
+.rail .it { min-height: 44px; padding: 2px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--text-secondary); font-size: 11px; line-height: 12px; position: relative; }
+.rail .it.on { color: var(--text-primary); }
+.rail .it.on::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; background: var(--selection-bar); }
+.rail .it.on .ic { fill: currentColor; fill-opacity: .18; }
+.rail .it.off { color: var(--text-disabled); }
+.rail .it .cnt { position: absolute; top: 3px; right: 8px; min-width: 16px; height: 16px; border-radius: 8px; background: var(--issue-blockingTint); color: var(--issue-blocking); font-size: 11px; line-height: 16px; text-align: center; padding: 0 4px; font-weight: 500; }
+.rail .it .cap { font-size: 11px; color: var(--historical-ink); }
+.rail hr { width: 32px; border: 0; border-top: 1px solid var(--border-hairline); margin: 4px auto; }
+.rail .spacer { flex: 1; }
+.surf { flex: 1; background: var(--surface-panel); display: flex; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 16px; }
+.agentstrip { width: 44px; flex: none; border-left: 1px solid var(--border-hairline); background: var(--surface-base); display: flex; flex-direction: column; align-items: center; padding-top: 10px; gap: 8px; color: var(--text-secondary); }
+.agentstrip .badge { min-width: 18px; height: 18px; border-radius: 9px; background: var(--proposal-band); color: var(--proposal-new); font-size: 11px; line-height: 18px; text-align: center; font-weight: 500; padding: 0 5px; }
+.statusbar { height: 24px; display: flex; align-items: center; gap: 12px; padding: 0 8px; border-top: 1px solid var(--border-hairline); font-size: 12px; font-weight: 500; color: var(--text-secondary); overflow: hidden; white-space: nowrap; }
+.statusbar .grow { flex: 1; }
+.hud { display: inline-flex; gap: 2px; background: var(--surface-raised); border: 1px solid var(--border-hairline); border-radius: var(--radius-card); padding: 2px; box-shadow: var(--elevation-1); }
+.hud button { width: 28px; height: 28px; border: 0; background: transparent; color: var(--text-secondary); border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; }
+.hud button[aria-pressed="true"] { background: var(--selection-band); color: var(--accent-text); }
+.hud button:hover { background: var(--hover-wash); }
+
+/* icons showcase */
+.icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px 12px; }
+.icons div { display: flex; align-items: center; gap: 8px; height: 26px; color: var(--text-primary); }
+.icons div span { color: var(--text-secondary); font-size: 12px; }
+.markrow { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: center; }
+
+/* foundations */
+.typerow { display: grid; grid-template-columns: 180px 1fr; gap: 4px 16px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--border-hairline); }
+.typerow .lab { font-size: 12px; color: var(--text-secondary); }
+.spacing { display: flex; gap: 8px; align-items: flex-end; }
+.spacing div { background: var(--selection-band); border: 1px solid var(--selection-bar); border-radius: 1px; font-size: 11px; color: var(--text-secondary); text-align: center; }
+.radii { display: flex; gap: 12px; align-items: center; }
+.radii div { width: 56px; height: 36px; border: 1px solid var(--border-strong); background: var(--surface-sunken); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-secondary); }
+.elev { display: flex; gap: 16px; flex-wrap: wrap; }
+.elev div { width: 120px; height: 56px; border-radius: var(--radius-card); background: var(--surface-raised); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-secondary); border: 1px solid var(--border-hairline); }
+.demo-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.rowdemo { border: 1px solid var(--border-strong); border-radius: var(--radius-control); overflow: hidden; }
+.rowdemo div { height: 26px; display: flex; align-items: center; padding: 0 8px; border-bottom: 1px solid var(--border-hairline); position: relative; }
+.rowdemo div:last-child { border-bottom: 0; }
+.rowdemo .hov { background: var(--hover-wash); }
+.rowdemo .sel { background: var(--selection-band); }
+.rowdemo .sel::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--selection-bar); }
+.rowdemo .foc { box-shadow: inset 0 0 0 2px var(--focus-ring); }
+.rowdemo .dis { color: var(--text-disabled); background: var(--disabled-fill); }
+
+/* canvas figure */
+.figure svg { width: 100%; height: auto; display: block; background: var(--canvas-bg); border-radius: var(--radius-control); border: 1px solid var(--border-hairline); }
+.figure text { font-family: var(--font-numeric); font-variant-numeric: tabular-nums; font-size: 12px; }
+
+/* contrast table */
+.cbox { max-height: 360px; overflow: auto; border: 1px solid var(--border-strong); border-radius: var(--radius-control); }
+.cbox table { border-collapse: collapse; width: 100%; }
+.cbox th { position: sticky; top: 0; background: var(--surface-header); text-align: left; font-weight: 500; height: 28px; padding: 0 8px; border-bottom: 1px solid var(--border-hairline); }
+.cbox td { height: 24px; padding: 0 8px; border-bottom: 1px solid var(--border-hairline); white-space: nowrap; }
+.cbox td.n { text-align: right; }
+details.dt summary { cursor: default; font-weight: 500; }
+.reviewpage { display: grid; grid-template-columns: 280px 1fr 320px; gap: 16px; }
+@media (max-width: 1000px) { .reviewpage { grid-template-columns: 1fr; } }
+.outline div { height: 26px; display: flex; align-items: center; gap: 8px; padding: 0 8px; border-bottom: 1px solid var(--border-hairline); }
+.outline div.on { background: var(--selection-band); }
+.outline .lock { color: var(--text-muted); font-size: 11px; margin-left: auto; }
+.ins { text-decoration: underline; text-decoration-color: var(--accent-text); color: var(--text-primary); }
+.del { color: var(--proposal-old); text-decoration: line-through; }
+.comment { border: 1px solid var(--border-hairline); border-radius: var(--radius-card); padding: 8px 10px; margin-bottom: 8px; background: var(--surface-panel); }
+.comment .h { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.comment a { font-size: 12px; }
+footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border-hairline); color: var(--text-muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-model" viewBox="0 0 16 16"><circle cx="4" cy="12" r="1.6"/><circle cx="12" cy="4" r="1.6"/><path d="M4 10.4V7a3 3 0 0 1 3-3h3.4"/></symbol>
+  <symbol id="i-loads" viewBox="0 0 16 16"><path d="M2 13.5h12"/><path d="M8 2v8.5"/><path d="M5 7.5 8 10.5l3-3"/></symbol>
+  <symbol id="i-results" viewBox="0 0 16 16"><path d="M2.5 4h11"/><path d="M2.5 8h7"/><path d="M2.5 12h9"/></symbol>
+  <symbol id="i-review" viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="1.2"/><path d="M6 9.5 10.5 5"/><path d="M5.5 11l.5-1.5"/></symbol>
+  <symbol id="i-libraries" viewBox="0 0 16 16"><rect x="3" y="2.5" width="10" height="2.6" rx=".8"/><rect x="3" y="6.7" width="10" height="2.6" rx=".8"/><rect x="3" y="10.9" width="10" height="2.6" rx=".8"/></symbol>
+  <symbol id="i-rules" viewBox="0 0 16 16"><g transform="rotate(-45 8 8)"><rect x="1.5" y="6" width="13" height="4" rx=".8"/><path d="M4.5 6v1.5M7 6v2.5M9.5 6v1.5M12 6v2.5"/></g></symbol>
+  <symbol id="i-issues" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3.5"/><circle cx="8" cy="11" r=".7" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-table" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="1"/><path d="M2 6h12M2 10h12M6 2v12M10 2v12"/></symbol>
+  <symbol id="i-cube" viewBox="0 0 16 16"><path d="M8 2l6 3v6l-6 3-6-3V5z"/><path d="M8 8l6-3M8 8 2 5M8 8v6"/></symbol>
+  <symbol id="i-both" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="1"/><path d="M8 2v12M2 6h6M2 10h6"/><circle cx="11" cy="8" r="1.5"/></symbol>
+  <symbol id="i-fit" viewBox="0 0 16 16"><path d="M2 5.5V2h3.5M10.5 2H14v3.5M14 10.5V14h-3.5M5.5 14H2v-3.5"/></symbol>
+  <symbol id="i-presets" viewBox="0 0 16 16"><path d="M8 2l6 3v6l-6 3-6-3V5z"/><path d="M8 8l6-3M8 8 2 5M8 8v6"/><path d="M8 2l6 3-6 3-6-3z" fill="currentColor" fill-opacity=".28" stroke="none"/></symbol>
+  <symbol id="i-section" viewBox="0 0 16 16"><path d="M8 2l6 3v6l-6 3-6-3V5z"/><path d="M1.5 10 14.5 5.5" stroke-dasharray="2 1.5"/></symbol>
+  <symbol id="i-isolate" viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx=".8" fill="currentColor" stroke="none"/><rect x="9" y="2" width="5" height="5" rx=".8" stroke-dasharray="1.5 1.5"/><rect x="2" y="9" width="5" height="5" rx=".8" stroke-dasharray="1.5 1.5"/><rect x="9" y="9" width="5" height="5" rx=".8" stroke-dasharray="1.5 1.5"/></symbol>
+  <symbol id="i-hide" viewBox="0 0 16 16"><path d="M2 8s2.5-4 6-4 6 4 6 4-2.5 4-6 4-6-4-6-4z"/><circle cx="8" cy="8" r="1.8"/><path d="M3 13 13 3"/></symbol>
+  <symbol id="i-labels" viewBox="0 0 16 16"><path d="M2.5 3.5h7l4 4.5-4 4.5h-7z"/><circle cx="5.5" cy="8" r=".8" fill="currentColor" stroke="none"/><circle cx="8.5" cy="8" r=".8" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-deform" viewBox="0 0 16 16"><path d="M2 12c3 0 3-8 6-8s3 8 6 8"/><path d="M2 8h12" stroke-dasharray="1.5 2" stroke-width="1"/></symbol>
+  <symbol id="i-probe" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4.5"/><path d="M8 1.5v3M8 11.5v3M1.5 8h3M11.5 8h3"/><circle cx="8" cy="8" r=".9" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-route" viewBox="0 0 16 16"><path d="M2.5 13.5V7h5V3h5"/><path d="M10.5 1l2.5 2-2.5 2"/><circle cx="2.5" cy="13.5" r="1.2"/></symbol>
+  <symbol id="i-restrain" viewBox="0 0 16 16"><path d="M2 5h12"/><path d="M8 5.5 4.5 12h7z"/></symbol>
+  <symbol id="i-addrow" viewBox="0 0 16 16"><rect x="2" y="5" width="12" height="6" rx="1"/><path d="M8 5.8v4.4M5.8 8h4.4"/></symbol>
+  <symbol id="i-delrow" viewBox="0 0 16 16"><rect x="2" y="5" width="12" height="6" rx="1"/><path d="M5.8 8h4.4"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 16 16"><path d="M5 13V3M2.5 5.5 5 3l2.5 2.5"/><path d="M11 3v10M8.5 10.5 11 13l2.5-2.5"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 16 16"><path d="M2 3h12l-4.5 5.5v4l-3 1.5V8.5z"/></symbol>
+  <symbol id="i-columns" viewBox="0 0 16 16"><path d="M4 2.5v11M8 2.5v11M12 2.5v11"/></symbol>
+  <symbol id="i-paste" viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="11" rx="1"/><path d="M6 3V2h4v1"/><path d="M5.5 7.5h5M5.5 10.5h5M8 7.5v3" stroke-width="1"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5"/></symbol>
+  <symbol id="i-expanded" viewBox="0 0 16 16"><path d="M3.5 6 8 10.5 12.5 6"/></symbol>
+  <symbol id="i-since" viewBox="0 0 16 16"><path d="M3 8.5a5.5 5.5 0 1 0 1.6-3.9"/><path d="M3 2.5v2.5h2.5"/><path d="M8.5 5.5v3l2 1.5"/></symbol>
+  <symbol id="i-unchecked" viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/></symbol>
+  <symbol id="i-origins" viewBox="0 0 16 16"><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2M3.8 3.8l1.4 1.4M10.8 10.8l1.4 1.4M12.2 3.8l-1.4 1.4M5.2 10.8l-1.4 1.4" stroke-width="1"/></symbol>
+  <symbol id="i-agent" viewBox="0 0 16 16"><path d="M3 3h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H7l-3 2.5V11H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M8 5v4M6 7h4" stroke-width="1"/></symbol>
+  <symbol id="i-run" viewBox="0 0 16 16"><path d="M5 3l8 5-8 5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 16 16"><rect x="4" y="4" width="8" height="8" rx="1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></symbol>
+  <symbol id="i-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 7.5v4"/><circle cx="8" cy="5.2" r=".7" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-check" viewBox="0 0 16 16"><path d="M3 8.5 6.5 12 13 4.5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></symbol>
+  <symbol id="i-units" viewBox="0 0 16 16"><path d="M2 11h12"/><path d="M4 11V7M7 11V5M10 11V7M13 11V5" stroke-width="1"/></symbol>
+  <symbol id="m-entered" viewBox="0 0 12 12"><circle cx="6" cy="6" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="m-accepted" viewBox="0 0 12 12"><path d="M6 1.5 10.5 6 6 10.5 1.5 6z"/><circle cx="6" cy="6" r="1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="m-propagated" viewBox="0 0 12 12"><path d="M6 1.5v6M3.5 5 6 7.5 8.5 5"/><path d="M2.5 10.5h7"/></symbol>
+  <symbol id="m-generated" viewBox="0 0 12 12"><path d="M6 1.5 7.2 4.8 10.5 6 7.2 7.2 6 10.5 4.8 7.2 1.5 6l3.3-1.2z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="m-imported" viewBox="0 0 12 12"><path d="M6 1.5v6M3.5 5 6 7.5 8.5 5"/><path d="M1.5 8v2.5h9V8"/></symbol>
+  <symbol id="m-proposed" viewBox="0 0 12 12"><path d="M6 1.2 10.8 6 6 10.8 1.2 6z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="m-checked" viewBox="0 0 12 12"><path d="M2 6.5 5 9.5 10 3.5"/></symbol>
+  <symbol id="m-stale" viewBox="0 0 12 12"><path d="M2 6.5 5 9.5 10 3.5" stroke-dasharray="2 1.5"/><circle cx="10" cy="9.5" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="m-restraint" viewBox="0 0 12 12"><path d="M1.5 3.5h9"/><path d="M6 4 3.5 9.5h5z"/></symbol>
+  <symbol id="m-load" viewBox="0 0 12 12"><path d="M6 1v6M3.5 4.5 6 7l2.5-2.5"/><circle cx="6" cy="10" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="m-nodedata" viewBox="0 0 12 12"><path d="M1.5 8.5h9"/><path d="M6 8.5V3"/><circle cx="6" cy="8.5" r="1.3" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="m-blocking" viewBox="0 0 12 12"><path d="M4 1.5h4l2.5 2.5v4L8 10.5H4L1.5 8V4z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="m-warning" viewBox="0 0 12 12"><path d="M6 1.5 11 10.5H1z" fill="currentColor" stroke="none"/><path d="M6 4.6v2.8" stroke="var(--surface-panel)" stroke-width="1.4"/><circle cx="6" cy="9" r=".7" fill="var(--surface-panel)" stroke="none"/></symbol>
+  <symbol id="m-info" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.75"/><path d="M6 5.5v3"/><circle cx="6" cy="3.6" r=".6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="m-required" viewBox="0 0 12 12"><path d="M6 1.5v9M2.1 3.75l7.8 4.5M9.9 3.75l-7.8 4.5" stroke-width="1.4"/></symbol>
+  <symbol id="m-historical" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.8 1.3"/></symbol>
+  <symbol id="m-displayonly" viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" rx="1" stroke-dasharray="1.5 1.2"/><path d="M3.5 4.5h5M3.5 6.5h5M3.5 8.5h3" stroke-width="1"/></symbol>
+  <symbol id="m-comment" viewBox="0 0 12 12"><path d="M2 2.5h8a.8.8 0 0 1 .8.8v4.4a.8.8 0 0 1-.8.8H5.5L3.5 10.5V8.5H2a.8.8 0 0 1-.8-.8V3.3A.8.8 0 0 1 2 2.5z"/></symbol>
+</svg>
+
+<header class="spec-head">
+  <div class="wrap">
+    <div class="row">
+      <h1>SWBPIPE design system · specimen V1</h1>
+      <span class="sec">Self-contained. No network. System fonts. Every value is a token from <code>tokens.json</code>.</span>
+      <span class="grow"></span>
+      <span class="sec">Theme</span>
+      <div class="seg" role="group" aria-label="Theme">
+        <button type="button" data-theme="" aria-pressed="true">System</button>
+        <button type="button" data-theme="light" aria-pressed="false">Light</button>
+        <button type="button" data-theme="dark" aria-pressed="false">Dark</button>
+      </div>
+      <span class="sample">values are placeholders from one fictional model</span>
+    </div>
+    <nav class="toc">
+      <a href="#s1">1 Foundations</a><a href="#s2">2 Colour</a><a href="#s3">3 Icons</a><a href="#s4">4 Marks</a><a href="#s5">5 Table</a><a href="#s6">6 Status chips</a><a href="#s7">7 Proposal card</a><a href="#s8">8 Probe and legend</a><a href="#s9">9 Shell: rail, view switch, toolbar, status bar</a><a href="#s10">10 Review page primitives</a><a href="#s11">11 Canvas palette</a><a href="#s12">12 Contrast findings</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ===================== 1 FOUNDATIONS ===================== -->
+<h2 id="s1">1 Foundations</h2>
+<div class="grid2">
+  <div class="panel">
+    <h3>Type</h3>
+    <p class="sec">System interface face for chrome; the same face with tabular numerals for every number; monospace for raw tokens. 13 px is the smallest size read repeatedly.</p>
+    <div class="typerow"><span class="lab">figure · 22/28 · 500</span><span class="n" style="font-size:22px;line-height:28px;font-weight:500;letter-spacing:-0.2px">0.72 <span class="sec" style="font-size:13px;font-weight:400;letter-spacing:0">· EXP-A1 · pack 1.2</span></span></div>
+    <div class="typerow"><span class="lab">heading · 18/24 · 600</span><span style="font-size:18px;line-height:24px;font-weight:600">Review · Loop 4 header · Run 03</span></div>
+    <div class="typerow"><span class="lab">title · 15/20 · 600</span><span style="font-size:15px;line-height:20px;font-weight:600">Replace the rigid support at node 80 with a variable spring</span></div>
+    <div class="typerow"><span class="lab">body · 13/18 · 400</span><span>From 10 to 20, 3000 mm in X. Section P1, material CS-A, load set OP1. <span class="n">124.6 MPa · 172.0 MPa · 0.72</span></span></div>
+    <div class="typerow"><span class="lab">body · 13/18 · 500</span><span style="font-weight:500">Stress <span class="sec" style="font-weight:400">[MPa]</span> · Allowable <span class="sec" style="font-weight:400">[MPa]</span> · Ratio</span></div>
+    <div class="typerow"><span class="lab">chip · 12/16 · 500</span><span><span class="chip solved">Mechanics solved</span> <span class="chip outline">⌘↩ opens the joined row</span></span></div>
+    <div class="typerow"><span class="lab">caption · 11/14 · 400</span><span class="sample">canvas tick labels, the sample label, compass axis names</span></div>
+    <div class="typerow"><span class="lab">mono · 12</span><span class="mono">MECHANICS_SOLVED · sha256:4df0f798… · W + P1 + T1</span></div>
+    <div class="typerow" style="border-bottom:0"><span class="lab">tabular numerals</span><span class="n" style="display:inline-block;text-align:right;width:120px">1111.11<br>2000.00<br>−1800.50</span></div>
+  </div>
+  <div class="panel">
+    <h3>Spacing, radii, borders, elevation</h3>
+    <h4>Spacing · 4 px system</h4>
+    <div class="spacing">
+      <div style="width:2px;height:2px"></div><div style="width:4px;height:4px"></div><div style="width:6px;height:6px"></div><div style="width:8px;height:8px"></div><div style="width:12px;height:12px"></div><div style="width:16px;height:16px"></div><div style="width:20px;height:20px"></div><div style="width:24px;height:24px"></div><div style="width:32px;height:32px"></div><div style="width:40px;height:40px"></div>
+    </div>
+    <p class="sec" style="margin-top:4px">2 · 4 · 6 · 8 · 12 · 16 · 20 · 24 · 32 · 40</p>
+    <h4>Radii</h4>
+    <div class="radii"><div style="border-radius:var(--radius-control)">control 3</div><div style="border-radius:var(--radius-card)">card 6</div><div style="border-radius:var(--radius-sheet)">sheet 10</div></div>
+    <h4>Borders</h4>
+    <div class="demo-row"><span style="display:inline-block;width:120px;border-top:1px solid var(--border-hairline)"></span><span class="sec">hairline</span><span style="display:inline-block;width:120px;border-top:1px solid var(--border-strong)"></span><span class="sec">strong</span></div>
+    <h4>Elevation</h4>
+    <div class="elev"><div>0 flat</div><div style="box-shadow:var(--elevation-1)">1 drawer edge</div><div style="box-shadow:var(--elevation-2)">2 popover</div><div style="box-shadow:var(--elevation-3)">3 dialog</div></div>
+    <h4>Focus, selection, hover, disabled</h4>
+    <div class="demo-row">
+      <div class="rowdemo" style="width:220px"><div>row</div><div class="hov">row · hover wash</div><div class="sel">row · selected</div><div class="sel foc">row · selected and focused</div><div class="dis">row · disabled</div></div>
+      <div class="demo-row" style="flex-direction:column;align-items:flex-start">
+        <button class="btn primary"><svg class="ic"><use href="#i-run"/></svg>Run</button>
+        <button class="btn">Accept</button>
+        <button class="btn text">Reject</button>
+        <button class="btn" disabled title="Section missing at node 20">Run</button>
+        <input class="input n" value="2500" aria-label="Length" style="width:96px">
+      </div>
+    </div>
+    <h4>Motion</h4>
+    <div class="demo-row"><button class="btn compact" id="arriveBtn">Show a proposal arriving (240 ms)</button><span class="arrive hidden chip outline" id="arriveChip"><svg class="mk" style="color:var(--proposal-new)"><use href="#m-proposed"/></svg>Proposal P-12 · draft until accepted</span></div>
+  </div>
+</div>
+
+<!-- ===================== 2 COLOUR ===================== -->
+<h2 id="s2">2 Colour</h2>
+<p class="sec">Every colour token with its light and dark value, and the value in force under the current theme. Rendered from the token file embedded in this page.</p>
+<div class="tokgrid" id="tokgrid"></div>
+
+<h3>Result colour scale · sequential, one hue, seven anchors, a scale never a verdict</h3>
+<div class="grid2">
+  <div class="panel">
+    <div class="scalebar"></div>
+    <div class="steps" id="steps"></div>
+    <p class="sec" style="margin-top:8px">Light: near-zero is the lightest step. Dark: the anchor flips, near-zero is the darkest teal and no darker than the pipe neutral. Interpolation between anchors is in OKLCH.</p>
+  </div>
+  <div class="panel">
+    <h4 style="margin-top:0">Categorical · load kinds and cases · fixed order, never cycled</h4>
+    <div class="cats" id="cats"></div>
+    <p class="sec" style="margin-top:8px">Validated with the dataviz validator against the canvas surfaces in both themes (adjacent pairlist: pass; all-pairs: the first three slots). Colour is never the only carrier of a load's kind: the arrow's form and its label carry it too.</p>
+  </div>
+</div>
+
+<!-- ===================== 3 ICONS ===================== -->
+<h2 id="s3">3 Iconography</h2>
+<p class="sec">16 px grid, 1.5 px round strokes, currentColor, optical sizes 12 · 16 · 20. Every icon has a label or a tooltip.</p>
+<div class="grid2">
+  <div class="panel"><h4>Stage rail (20 px)</h4>
+    <div class="icons">
+      <div><svg class="ic s20"><use href="#i-model"/></svg>Model</div><div><svg class="ic s20"><use href="#i-loads"/></svg>Loads</div><div><svg class="ic s20"><use href="#i-results"/></svg>Results</div><div><svg class="ic s20"><use href="#i-review"/></svg>Review</div><div><svg class="ic s20"><use href="#i-libraries"/></svg>Libraries</div><div><svg class="ic s20"><use href="#i-rules"/></svg>Rules</div><div><svg class="ic s20"><use href="#i-issues"/></svg>Issues</div>
+    </div>
+    <h4>Views</h4>
+    <div class="icons"><div><svg class="ic"><use href="#i-table"/></svg>Table</div><div><svg class="ic"><use href="#i-cube"/></svg>Model</div><div><svg class="ic"><use href="#i-both"/></svg>Both</div></div>
+    <h4>Canvas HUD</h4>
+    <div class="icons">
+      <div><svg class="ic"><use href="#i-fit"/></svg>Fit <span>F</span></div><div><svg class="ic"><use href="#i-presets"/></svg>View presets</div><div><svg class="ic"><use href="#i-section"/></svg>Section</div><div><svg class="ic"><use href="#i-isolate"/></svg>Isolate <span>I</span></div><div><svg class="ic"><use href="#i-hide"/></svg>Hide <span>H</span></div><div><svg class="ic"><use href="#i-labels"/></svg>Node labels <span>L</span></div><div><svg class="ic"><use href="#i-deform"/></svg>Deformation <span>D</span></div><div><svg class="ic"><use href="#i-probe"/></svg>Probe <span>P</span></div><div><svg class="ic"><use href="#i-route"/></svg>Route <span>R</span></div><div><svg class="ic"><use href="#i-restrain"/></svg>Add restraint <span>S</span></div>
+    </div>
+    <div style="margin-top:8px" class="hud" aria-label="Canvas HUD sample"><button title="Fit (F)"><svg class="ic"><use href="#i-fit"/></svg></button><button title="View presets"><svg class="ic"><use href="#i-presets"/></svg></button><button title="Section"><svg class="ic"><use href="#i-section"/></svg></button><button title="Isolate selection (I)"><svg class="ic"><use href="#i-isolate"/></svg></button><button title="Hide selection (H)"><svg class="ic"><use href="#i-hide"/></svg></button><button title="Node labels (L)" aria-pressed="true"><svg class="ic"><use href="#i-labels"/></svg></button><button title="Deformation (D)"><svg class="ic"><use href="#i-deform"/></svg></button><button title="Probe (P)" aria-pressed="true"><svg class="ic"><use href="#i-probe"/></svg></button><button title="Route (R)"><svg class="ic"><use href="#i-route"/></svg></button><button title="Add restraint (S)"><svg class="ic"><use href="#i-restrain"/></svg></button></div>
+  </div>
+  <div class="panel"><h4>Table actions</h4>
+    <div class="icons">
+      <div><svg class="ic"><use href="#i-addrow"/></svg>Add row <span>⌥↩</span></div><div><svg class="ic"><use href="#i-delrow"/></svg>Delete rows <span>⌫</span></div><div><svg class="ic"><use href="#i-sort"/></svg>Sort</div><div><svg class="ic"><use href="#i-filter"/></svg>Filter</div><div><svg class="ic"><use href="#i-columns"/></svg>Columns</div><div><svg class="ic"><use href="#i-paste"/></svg>Paste with mapping <span>⌘V</span></div><div><svg class="ic"><use href="#i-expand"/></svg>Open joined row <span>⌘↩</span></div><div><svg class="ic"><use href="#i-since"/></svg>Changed since…</div><div><svg class="ic"><use href="#i-unchecked"/></svg>Unchecked rows</div><div><svg class="ic"><use href="#i-origins"/></svg>Show origins</div><div><svg class="ic"><use href="#i-agent"/></svg>Agent <span>⌘⇧G</span></div><div><svg class="ic"><use href="#i-search"/></svg>Search or command <span>⌘K</span></div>
+    </div>
+    <h4>Marks (12 px)</h4>
+    <div class="icons">
+      <div><svg class="mk" style="color:var(--mark-origin)"><use href="#m-entered"/></svg>Entered <span>on reveal</span></div>
+      <div><svg class="mk" style="color:var(--mark-origin)"><use href="#m-accepted"/></svg>Accepted from a proposal</div>
+      <div><svg class="mk" style="color:var(--mark-origin)"><use href="#m-propagated"/></svg>Propagated</div>
+      <div><svg class="mk" style="color:var(--mark-origin)"><use href="#m-generated"/></svg>Generated</div>
+      <div><svg class="mk" style="color:var(--mark-origin)"><use href="#m-imported"/></svg>Imported</div>
+      <div><svg class="mk" style="color:var(--proposal-new)"><use href="#m-proposed"/></svg>Proposed</div>
+      <div><svg class="mk" style="color:var(--mark-checked)"><use href="#m-checked"/></svg>Checked</div>
+      <div><svg class="mk" style="color:var(--mark-checkedStale)"><use href="#m-stale"/></svg>Checked, stale</div>
+      <div><svg class="mk" style="color:var(--mark-attachment)"><use href="#m-restraint"/></svg>Restraint</div>
+      <div><svg class="mk" style="color:var(--mark-attachment)"><use href="#m-load"/></svg>Load</div>
+      <div><svg class="mk" style="color:var(--mark-attachment)"><use href="#m-nodedata"/></svg>Node data</div>
+      <div><svg class="mk" style="color:var(--issue-blocking)"><use href="#m-blocking"/></svg>Blocking</div>
+      <div><svg class="mk" style="color:var(--issue-warning)"><use href="#m-warning"/></svg>Warning</div>
+      <div><svg class="mk" style="color:var(--issue-info)"><use href="#m-info"/></svg>Note</div>
+      <div><svg class="mk" style="color:var(--mark-required)"><use href="#m-required"/></svg>Required</div>
+      <div><svg class="mk" style="color:var(--historical-ink)"><use href="#m-historical"/></svg>Historical</div>
+      <div><svg class="mk" style="color:var(--text-muted)"><use href="#m-displayonly"/></svg>Display-only</div>
+      <div><svg class="mk" style="color:var(--text-secondary)"><use href="#m-comment"/></svg>Comment (Review page)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 4 MARKS ===================== -->
+<h2 id="s4">4 The marks vocabulary · placements</h2>
+<div class="grid3">
+  <div class="panel"><h4>Row gutter · 32 px, two 12 px slots</h4>
+    <div class="markrow">
+      <span style="display:inline-flex;gap:2px"><svg class="mk" style="color:var(--mark-origin)"><use href="#m-propagated"/></svg><svg class="mk" style="color:var(--mark-checked)"><use href="#m-checked"/></svg></span><span class="sec">origin slot · state slot</span>
+      <span style="display:inline-flex;gap:2px"><svg class="mk" style="color:var(--proposal-new)"><use href="#m-proposed"/></svg><svg class="mk" style="color:var(--issue-blocking)"><use href="#m-blocking"/></svg></span><span class="sec">proposed wins the origin slot; blocking wins the state slot</span>
+      <span style="display:inline-flex;gap:2px"><span style="width:12px"></span><svg class="mk" style="color:var(--mark-checkedStale)"><use href="#m-stale"/></svg></span><span class="sec">entered draws nothing; stale Checked</span>
+    </div>
+    <p class="sec" style="margin-top:8px">Keyboard: ← from Node focuses the gutter; Space opens the slot's popover; ⌥I opens the row's marks popover.</p>
+  </div>
+  <div class="panel"><h4>Marks column · 72 px, three 20 px slots</h4>
+    <div class="markrow">
+      <span style="display:inline-flex;gap:0;color:var(--mark-attachment)"><span style="width:20px;display:inline-flex;justify-content:center"><svg class="mk"><use href="#m-restraint"/></svg></span><span style="width:20px;display:inline-flex;justify-content:center"><svg class="mk"><use href="#m-load"/></svg></span><span style="width:20px;display:inline-flex;justify-content:center"><svg class="mk"><use href="#m-nodedata"/></svg></span></span><span class="sec">restraint · load · node data</span>
+      <span style="display:inline-flex;gap:0;color:var(--mark-attachment)"><span style="width:20px;display:inline-flex;justify-content:center"><svg class="mk"><use href="#m-restraint"/></svg></span><span style="width:20px"></span><span style="width:20px"></span></span><span class="sec">only the attachments the node has; ↩ on a slot opens that row</span>
+    </div>
+    <div style="margin-top:10px" class="pop"><div class="kv"><dt>Restraint</dt><dd>+Y, gap 3 mm, μ 0.3</dd><dt>Open</dt><dd>⌘↩ opens the row</dd></div></div>
+  </div>
+  <div class="panel"><h4>Cell corner and row band</h4>
+    <div class="tblwrap" style="border-color:var(--border-hairline)"><table class="ds"><tbody>
+      <tr><td class="n tick">CS-A</td><td class="sec">propagated · corner tick</td></tr>
+      <tr><td class="n rt tick">150</td><td class="sec">read-through · sunken with tick</td></tr>
+      <tr class="prop"><td class="gut"><div class="slots"><span class="slot" style="color:var(--proposal-new)"><svg class="mk"><use href="#m-proposed"/></svg></span><span class="slot"></span></div></td><td class="n tick tprop"><span class="old">−1800</span><span class="new">−2000</span></td></tr>
+      <tr><td class="n tick twarn">CS-B</td><td class="sec">warning · corner tick</td></tr>
+    </tbody></table></div>
+    <div style="margin-top:10px" class="pop"><div class="kv"><dt>Checked</dt><dd>by R. Tufts · 2026-09-17 14:02</dd><dt></dt><dd class="sec">bound to this row's content · not a software status</dd></div></div>
+  </div>
+</div>
+
+<!-- ===================== 5 TABLE ===================== -->
+<h2 id="s5">5 The table · layout table in the CAEPIPE grammar</h2>
+<p class="sec">Header with units, sort, filter; gutter with origin and state slots; every cell state; the marks column; a joined row expanded under node 20; the footer with counts as filters; columns at their default widths. <span class="sample">nodes 10 to 110 of a fictional model</span></p>
+<div class="tblwrap fit">
+  <div class="tblhead">
+    <span class="name">Layout</span><span class="chip outline">Restraints</span><span class="chip outline">Node data</span>
+    <span class="grow"></span>
+    <span class="seg"><button aria-pressed="true">DX DY DZ</button><button aria-pressed="false">X Y Z</button></span>
+    <button class="btn compact"><svg class="ic"><use href="#i-columns"/></svg>Columns</button>
+    <button class="btn compact"><svg class="ic"><use href="#i-filter"/></svg>Filter</button>
+    <button class="btn compact"><svg class="ic"><use href="#i-since"/></svg>Changed since…</button>
+  </div>
+  <table class="ds" aria-label="Layout table sample" style="width:852px">
+    <colgroup><col style="width:32px"><col style="width:56px"><col style="width:56px"><col style="width:100px"><col style="width:72px"><col style="width:72px"><col style="width:72px"><col style="width:72px"><col style="width:72px"><col style="width:64px"><col style="width:56px"><col style="width:56px"><col style="width:72px"></colgroup>
+    <thead><tr>
+      <th style="width:32px"></th><th class="n">Node</th><th class="n">From</th><th>Type</th><th class="n">DX <span class="u">[mm]</span></th><th class="n">DY <span class="u">[mm]</span></th><th class="n">DZ <span class="u">[mm]</span></th><th>Section</th><th>Material</th><th>Load</th><th class="n">T1 <span class="u">[°C]</span></th><th class="n">P1 <span class="u">[bar]</span></th><th style="width:72px">Marks</th>
+    </tr></thead>
+    <tbody>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--mark-checked)" title="Checked by R. Tufts · 2026-09-17 14:02 · bound to this row's content · not a software status"><svg class="mk"><use href="#m-checked"/></svg></span></div></td><td class="n">10</td><td class="n muted">—</td><td class="muted">—</td><td class="n tick" title="Absolute coordinates">0</td><td class="n tick">0</td><td class="n tick">0</td><td>P1</td><td>CS-A</td><td>OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot" title="Restraint · Anchor · ⌘↩ opens the row"><svg class="mk"><use href="#m-restraint"/></svg></span><span class="slot"></span><span class="slot"></span></div></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--mark-checked)"><svg class="mk"><use href="#m-checked"/></svg></span></div></td><td class="n">20</td><td class="n muted">10</td><td>Pipe</td><td class="n">3000</td><td class="n">0</td><td class="n">0</td><td>P1</td><td>CS-A</td><td>OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot" style="background:var(--selection-band)" title="Restraint · +Y, gap 3 mm, μ 0.3 · open"><svg class="mk"><use href="#m-restraint"/></svg></span><span class="slot"></span><span class="slot"></span></div></td></tr>
+      <tr class="expand"><td colspan="13"><div class="block"><table class="ds"><thead><tr><th>Restraints · node 20</th><th>Type</th><th>Direction</th><th class="n">Gap <span class="u">[mm]</span></th><th class="n">Friction μ</th><th class="n">Stiffness <span class="u">[N/mm]</span></th><th class="n">Connecting node</th></tr></thead><tbody><tr><td class="muted"><svg class="ic" style="vertical-align:-3px"><use href="#i-expanded"/></svg> joined row</td><td>+Y</td><td>Y</td><td class="n">3</td><td class="n">0.30</td><td class="n muted">rigid</td><td class="n muted">—</td></tr><tr><td class="muted" colspan="7">Add restraint…</td></tr></tbody></table></div></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--mark-checkedStale)" title="Checked by R. Tufts · 2026-09-17 14:02 · the row changed since · Check again or Clear"><svg class="mk"><use href="#m-stale"/></svg></span></div></td><td class="n">30</td><td class="n muted">20</td><td>Bend</td><td class="n">0</td><td class="n">−2500</td><td class="n">0</td><td class="tick" title="Propagated from node 20">P1</td><td class="tick">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></div></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--issue-warning)" title="Provenance · Material source not recorded"><svg class="mk"><use href="#m-warning"/></svg></span></div></td><td class="n">40</td><td class="n muted">30</td><td>Pipe</td><td class="n">0</td><td class="n">0</td><td class="n">4000</td><td class="tick">P1</td><td class="tick twarn" title="Provenance · Material source not recorded">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot" title="Load · Force −2000 N in Y (W) · ⌘↩ opens the row"><svg class="mk"><use href="#m-load"/></svg></span><span class="slot"></span></div></td></tr>
+      <tr class="sel"><td class="gut"><div class="slots"><span class="slot" title="Imported from loop4.xlsx · 2026-09-16 09:12"><svg class="mk"><use href="#m-imported"/></svg></span><span class="slot"></span></div></td><td class="n">50</td><td class="n muted">40</td><td>Valve</td><td class="n selcell focuscell">600</td><td class="n">0</td><td class="n">0</td><td class="tick">P1</td><td class="tick">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot" title="Node data · Flange WN · ⌘↩ opens the row"><svg class="mk"><use href="#m-nodedata"/></svg></span></div></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot" title="Accepted from proposal P-09 by R. Tufts · 2026-09-17 11:40"><svg class="mk"><use href="#m-accepted"/></svg></span><span class="slot" style="color:var(--issue-blocking)" title="Blocks solve · Section missing"><svg class="mk"><use href="#m-blocking"/></svg></span></div></td><td class="n">60</td><td class="n muted">50</td><td>Pipe</td><td class="n">2400</td><td class="n">0</td><td class="n">0</td><td title="Required to solve · Section"><svg class="mk req"><use href="#m-required"/></svg></td><td class="tick">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></div></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td class="n">70</td><td class="n muted">60</td><td>Reducer</td><td class="n edit"><input value="300" aria-label="DX in mm"><span class="unit">mm</span></td><td class="n">0</td><td class="n">0</td><td>P2</td><td class="tick">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></div></td></tr>
+      <tr class="prop"><td class="gut"><div class="slots"><span class="slot" style="color:var(--proposal-new)" title="Proposed by the agent · P-12 · Accept ⌘⇧A · Reject ⌘⇧R"><svg class="mk"><use href="#m-proposed"/></svg></span><span class="slot"></span></div></td><td class="n">80</td><td class="n muted">70</td><td>Pipe</td><td class="n">0</td><td class="n">0</td><td class="n tick tprop" title="DZ: −1800 → −2000 mm · was −1800 · Accept this row"><span class="new">−2000</span></td><td class="tick">P2</td><td class="tick">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot" title="Restraint · Rigid → Variable spring (proposed)"><svg class="mk"><use href="#m-restraint"/></svg></span><span class="slot"></span><span class="slot"></span></div></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td class="n">90</td><td class="n" title="A branch: From names an earlier node">60</td><td>Pipe</td><td class="n">0</td><td class="n invalid" title="Expected a length in mm">1500 m<div class="cellpop pop" style="min-width:0;padding:4px 8px;font-size:12px;color:var(--issue-blocking)">Expected a length in mm</div></td><td class="n">0</td><td>P1</td><td>CS-B</td><td>OP2</td><td class="n rt tick">80</td><td class="n rt tick">6.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot" title="Load · Force −900 N in Y (W)"><svg class="mk"><use href="#m-load"/></svg></span><span class="slot"></span></div></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td class="n">100</td><td class="n muted">90</td><td>Pipe</td><td class="n">0</td><td class="n">0</td><td class="n">2000</td><td class="tick">P1</td><td class="tick">CS-B</td><td class="tick">OP2</td><td class="n rt tick">80</td><td class="n rt tick">6.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></div></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--issue-info)" title="Note · Assumption recorded for review: expansion joint stiffness from vendor sheet"><svg class="mk"><use href="#m-info"/></svg></span></div></td><td class="n">110</td><td class="n muted">100</td><td>Expansion joint</td><td class="n">400</td><td class="n">0</td><td class="n">0</td><td class="tick">P1</td><td class="tick">CS-B</td><td class="tick">OP2</td><td class="n rt tick">80</td><td class="n rt tick">6.00</td><td class="marks"><div class="slots"><span class="slot" title="Restraint · Guide"><svg class="mk"><use href="#m-restraint"/></svg></span><span class="slot"></span><span class="slot" title="Node data · Welding tee"><svg class="mk"><use href="#m-nodedata"/></svg></span></div></td></tr>
+    </tbody>
+  </table>
+  <div class="pasteband" role="region" aria-label="Paste band">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:6px"><span style="font-weight:500"><svg class="ic" style="vertical-align:-3px"><use href="#i-paste"/></svg> Paste 42 rows after node 110</span><span class="sec">2 columns unmapped</span><span class="grow" style="flex:1"></span><button class="btn compact primary">Paste ↩</button><button class="btn compact text">Cancel ⎋</button></div>
+    <div class="maprow"><span class="m"><span class="src">A "Node"</span>→<span class="sel">Node</span></span><span class="m"><span class="src">B "From"</span>→<span class="sel">From</span></span><span class="m"><span class="src">C "DX"</span>→<span class="sel">DX [mm]</span></span><span class="m"><span class="src">D "DY"</span>→<span class="sel">DY [mm]</span></span><span class="m"><span class="src">E "DZ"</span>→<span class="sel">DZ [mm]</span></span><span class="m"><span class="src">F "Sched"</span>→<span class="sel muted">Ignore</span></span><span class="m"><span class="src">G "Note"</span>→<span class="sel muted">Ignore</span></span></div>
+    <div class="sec" style="margin-top:6px">Preview: <span class="n">120 · 110 · 0 · 0 · 1200</span> — <span class="n">130 · 120 · 800 · 0 · 0</span> — <span class="n">140 · 130 · 0 · 0 · −600</span> · one operation, one undo</div>
+  </div>
+  <div class="tfoot"><span class="f"><b>11 rows</b> · 1 selected</span><span class="f"><b>21</b> propagated</span><span class="f" style="color:var(--proposal-new)"><b style="color:inherit">1</b> proposed</span><span class="f"><b>8</b> unchecked</span><span class="f"><b>2</b> issues</span><span class="grow" style="flex:1"></span><span class="chip outline">Changed since: Run 03</span><span class="chip outline">sorted: file order</span></div>
+</div>
+
+<h3>Results table header · case selector, Envelope, evidence label, the acceptance disclosure; ratio cells with data bars; a stale cell</h3>
+<div class="tblwrap fit">
+  <div class="tblhead">
+    <span class="name">Stresses</span><span class="sec">Run 03 · immutable</span>
+    <span class="combo">Case: OPE1</span>
+    <span class="switch"><i></i>Envelope</span>
+    <span class="chip solved" title="INTERNALLY_VERIFIED">Internally verified</span>
+    <span class="grow"></span>
+    <button class="btn compact text" title="Information" aria-expanded="true"><svg class="ic"><use href="#i-info"/></svg>Information</button>
+  </div>
+  <div style="padding:8px 8px 0"><div class="disc"><div class="sec" style="font-size:12px;margin-bottom:2px">Results surface · one placement</div>Results are engineering decision-support information. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.<div class="mono sec" style="margin-top:4px">run 03 · model state 7 · solver 0.2.0 · rule pack sample-rules 1.2 · sha256:4df0f798…</div></div></div>
+  <table class="ds" aria-label="Stresses sample" style="margin-top:8px;width:664px">
+    <colgroup><col style="width:32px"><col style="width:56px"><col style="width:72px"><col style="width:64px"><col style="width:96px"><col style="width:104px"><col style="width:120px"><col style="width:72px"><col style="width:48px"></colgroup>
+    <thead><tr><th style="width:32px"></th><th class="n">Node</th><th>Element</th><th>Case</th><th class="n">Stress <span class="u">[MPa]</span></th><th class="n">Allowable <span class="u">[MPa]</span></th><th class="n">Ratio</th><th>Rule</th><th>Pack</th></tr></thead>
+    <tbody id="stressrows">
+      <tr><td class="gut"></td><td class="n">40</td><td class="n">30–40</td><td>OPE1</td><td class="n">124.6</td><td class="n">172.0</td><td class="n">0.72<span class="bar" data-v="0.72"><i></i></span></td><td>EXP-A1</td><td class="n">1.2</td></tr>
+      <tr><td class="gut"></td><td class="n">60</td><td class="n">50–60</td><td>OPE1</td><td class="n">113.5</td><td class="n">172.0</td><td class="n">0.66<span class="bar" data-v="0.66"><i></i></span></td><td>EXP-A1</td><td class="n">1.2</td></tr>
+      <tr><td class="gut"></td><td class="n">20</td><td class="n">10–20</td><td>EXP1</td><td class="n">141.8</td><td class="n">258.0</td><td class="n">0.55<span class="bar" data-v="0.55"><i></i></span></td><td>EXP-A1</td><td class="n">1.2</td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--issue-warning)" title="The model changed since this run; the value is stale"><svg class="mk"><use href="#m-warning"/></svg></span></div></td><td class="n">80</td><td class="n">70–80</td><td>SUS</td><td class="n stale">61.3</td><td class="n stale">137.9</td><td class="n stale">0.44<span class="bar" data-v="0.44"><i></i></span></td><td>SUS-A1</td><td class="n">1.2</td></tr>
+      <tr><td class="gut"></td><td class="n">30</td><td class="n">20–30</td><td>SUS</td><td class="n">48.2</td><td class="n">137.9</td><td class="n">0.35<span class="bar" data-v="0.35"><i></i></span></td><td>SUS-A1</td><td class="n">1.2</td></tr>
+    </tbody>
+  </table>
+  <div class="histband"><svg class="mk"><use href="#m-historical"/></svg><span style="font-weight:500">Historical saved run</span><span>Run 02 · reopening cannot establish a current solve basis</span><span class="sample" style="margin-left:auto">variant shown for a reopened run</span></div>
+</div>
+
+<h3>Load cases · generated, edited and authored rows; a display-only expression</h3>
+<div class="tblwrap" style="max-width:920px">
+  <table class="ds" aria-label="Load cases sample">
+    <thead><tr><th style="width:32px"></th><th>Case</th><th>Expression</th><th>Stress type</th><th>Origin</th><th>Rendered</th></tr></thead>
+    <tbody>
+      <tr><td class="gut"><div class="slots"><span class="slot" title="Generated by rule pack sample-rules 1.2 · 2026-09-17 10:05"><svg class="mk"><use href="#m-generated"/></svg></span><span class="slot"></span></div></td><td>SUS</td><td class="n">W + P1</td><td>Sustained</td><td class="sec">Generated · sample-rules 1.2</td><td><span class="dispo">W + P1</span> <span class="dispo-cap">display only, not accepted as input</span></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot" title="Generated by rule pack sample-rules 1.2"><svg class="mk"><use href="#m-generated"/></svg></span><span class="slot"></span></div></td><td>OPE1</td><td class="n">W + P1 + T1</td><td>Operating</td><td class="sec">Generated · sample-rules 1.2</td><td><span class="dispo">W + P1 + T1</span></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td>EXP1</td><td class="n">OPE1 − SUS</td><td>Expansion</td><td class="sec">Edited by R. Tufts</td><td><span class="dispo">OPE1 − SUS</span></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td>OCC1</td><td class="n">W + P1 + U1</td><td>Occasional</td><td class="sec">Authored by R. Tufts</td><td><span class="dispo">W + P1 + U1</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===================== 6 STATUS CHIPS ===================== -->
+<h2 id="s6">6 The six automatic statuses as chips · raw token one click away</h2>
+<div class="grid2">
+  <div class="panel">
+    <div class="demo-row">
+      <span class="chip incomplete">Model incomplete</span><span class="chip solved">Mechanics solved</span><span class="chip incomplete">Rule inputs incomplete</span><span class="chip solved">User rules checked</span><span class="chip failed">User rule failed</span><span class="chip review">Human review required</span>
+    </div>
+    <p class="sec" style="margin-top:8px">Neutral for solved and checked: a solved model is information, not a green light. Amber for incomplete, red for a failed user rule, blue-grey for review required. Short labels are decision-packet item 4.</p>
+    <div class="demo-row" style="margin-top:8px"><span class="chip solved" title="INTERNALLY_VERIFIED">Internally verified</span><span class="chip solved" title="PROVER_CORRELATED">Prover correlated</span><span class="chip hist"><svg class="mk"><use href="#m-historical"/></svg>Historical saved run</span></div>
+  </div>
+  <div class="panel">
+    <h4 style="margin-top:0">Chip popover</h4>
+    <div class="pop"><div class="kv"><dt>Status</dt><dd class="mono">MECHANICS_SOLVED</dd><dt>Authority</dt><dd>Solver</dd><dt>Run</dt><dd>Run 03 · 2026-09-17 15:21 · immutable</dd><dt>Model state</dt><dd class="mono">7 · sha256:4df0f798…</dd></div></div>
+  </div>
+</div>
+
+<!-- ===================== 7 PROPOSAL CARD ===================== -->
+<h2 id="s7">7 Proposal diff card · agent panel, 340 px column</h2>
+<div class="grid2">
+  <div class="card prop" style="max-width:316px">
+    <p class="title">Replace the rigid support at node 80 with a variable spring</p>
+    <div class="meta">Proposal <b>P-12</b> · draft until accepted · 1 row in Restraints, 1 row in Layout</div>
+    <div class="difftitle"><span>Restraints · node 80</span><span>row 1 of 2</span></div>
+    <table class="diff"><colgroup><col style="width:74px"><col style="width:50px"><col><col style="width:60px"></colgroup><thead><tr><th>Field</th><th>Old</th><th>New</th><th></th></tr></thead><tbody>
+      <tr><td>Type</td><td class="old">Rigid</td><td class="new">Variable spring</td><td class="acts"><button class="iconbtn" title="Accept row ⌘⇧A"><svg class="ic s12"><use href="#i-check"/></svg></button><button class="iconbtn" title="Reject row ⌘⇧R"><svg class="ic s12"><use href="#i-close"/></svg></button></td></tr>
+      <tr><td>Cold load</td><td class="old">—</td><td class="new n">4.2 kN</td><td class="acts"></td></tr>
+      <tr><td>Library</td><td class="old">—</td><td><span class="tbd"><svg class="mk"><use href="#m-warning"/></svg>TBD</span></td><td class="acts"></td></tr>
+    </tbody></table>
+    <div class="difftitle"><span>Layout · node 80</span><span>row 2 of 2</span></div>
+    <table class="diff"><colgroup><col style="width:74px"><col style="width:50px"><col><col style="width:60px"></colgroup><thead><tr><th>Field</th><th>Old</th><th>New</th><th></th></tr></thead><tbody>
+      <tr><td>DZ [mm]</td><td class="old n">−1800</td><td class="new n">−2000</td><td class="acts"><button class="iconbtn" title="Accept row ⌘⇧A"><svg class="ic s12"><use href="#i-check"/></svg></button><button class="iconbtn" title="Reject row ⌘⇧R"><svg class="ic s12"><use href="#i-close"/></svg></button></td></tr>
+    </tbody></table>
+    <h5>Rationale</h5>
+    <p>The rigid support at node 80 carries the thermal growth of the riser into the equipment nozzle. A variable spring at the design load lets the riser move and lowers the OPE1 ratio at node 40.</p>
+    <h5>Constraints considered</h5>
+    <ul><li>Design pass load at node 80 from Run 03</li><li>Travel from OPE1 displacement, 12 mm</li><li>No vendor table is imported in this project</li></ul>
+    <h5>TBD</h5>
+    <ul><li>Vendor hanger table to select from (import through Libraries)</li></ul>
+    <div class="sec" style="margin-top:8px">Schema and constraints: passed</div>
+    <div class="actions"><button class="btn text">Reject proposal</button><button class="btn primary">Accept all rows</button></div>
+  </div>
+  <div>
+    <div class="panel" style="margin-bottom:16px">
+      <h4 style="margin-top:0">Queue actions</h4>
+      <div class="demo-row"><button class="btn">Accept all (2 rows)</button><button class="btn text">Reject all</button><span class="sec">each confirms with the count</span></div>
+    </div>
+    <div class="panel">
+      <h4 style="margin-top:0">Agent check · by reference, never altering the tables</h4>
+      <div class="comment"><div class="h"><span class="chip outline">Check</span><a href="#s5">Restraints row · node 20</a><span>Agent · 16:04</span></div>The support at node 20 has a 3 mm gap and μ 0.30; the OPE1 lift at 20 is 2.1 mm, so the support does not engage in OPE1. Confirm the gap is intended.<div style="margin-top:6px"><button class="btn compact">Resolve</button></div></div>
+      <div class="comment"><div class="h"><span class="chip outline">Open issue</span><a href="#s5">Stresses OPE1 · node 40</a><span>Agent · 16:06</span></div>Ratio 0.72 at node 40 depends on the SIF at the welding tee at 110, which has no provenance recorded.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 8 PROBE AND LEGEND ===================== -->
+<h2 id="s8">8 The probe card and the legend</h2>
+<div class="demo-row" style="align-items:flex-start;gap:24px">
+  <div class="probe" role="dialog" aria-label="Probe">
+    <div class="r"><span>Node</span><span class="n">40</span></div>
+    <div class="r"><span>Element</span><span class="n">30–40</span></div>
+    <div class="r"><span>Case</span><span>OPE1</span></div>
+    <div class="r"><span>Stress</span><span class="n">124.6 MPa</span></div>
+    <div class="r"><span>Allowable</span><span class="n">172.0 MPa</span></div>
+    <div class="r"><span>Ratio</span><span class="n">0.72<span class="bar" data-v="0.72"><i></i></span></span></div>
+    <div class="r"><span>Rule</span><span>EXP-A1</span></div>
+    <div class="r"><span>Pack</span><span class="n">1.2</span></div>
+    <div class="foot"><span>Run 03</span><span class="chip solved" title="INTERNALLY_VERIFIED">Internally verified</span></div>
+  </div>
+  <div class="legend" aria-label="Legend">
+    <div class="t"><span>Ratio</span><span class="sec" style="font-weight:400">OPE1</span></div>
+    <div class="vbar"><div class="b"><i style="top:28%"></i></div><div class="ticks"><span class="n">1.00</span><span class="n">0.75</span><span class="n">0.50</span><span class="n">0.25</span><span class="n">0</span></div><div class="ticks" style="justify-content:flex-start;padding-top:calc(28% - 7px)"><span class="n" style="color:var(--text-primary)">0.72 · node 40</span></div></div>
+    <div class="l"><span>Rule EXP-A1 · pack 1.2</span></div>
+    <div class="l"><span>Range 0 – 1.00</span><span class="chip outline" style="height:18px">set</span></div>
+    <div class="l"><span><span class="unsolved"></span> Unsolved</span></div>
+  </div>
+  <div class="legend" aria-label="Deformation legend">
+    <div class="t"><span>Deformed</span><span class="stepper"><span>−</span><span class="n">×50</span><span>+</span></span></div>
+    <div class="l"><span>OPE1</span><button class="btn compact"><svg class="ic"><use href="#i-run"/></svg>Play</button></div>
+    <div class="l"><span><span class="ghost"></span> Undeformed</span></div>
+    <div class="l"><span class="sec">factor makes the maximum displacement one tenth of the model's extent</span></div>
+  </div>
+</div>
+
+<!-- ===================== 9 SHELL ===================== -->
+<h2 id="s9">9 Shell · stage rail with counts, view switch, toolbar band, agent strip, status bar</h2>
+<p class="sec">A 1440-wide shell at reduced height. Toolbar 48, rail 56, agent strip 44, status bar 24. <span class="sample">counts and names</span></p>
+<div class="shell" aria-label="Shell mock">
+  <div class="toolbar">
+    <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+    <span class="wordmark">SWBPIPE</span>
+    <span class="project">Loop 4 header <span class="st">· saved</span></span>
+    <div class="seg" role="group" aria-label="View"><button aria-pressed="false"><svg class="ic"><use href="#i-table"/></svg>Table</button><button aria-pressed="false"><svg class="ic"><use href="#i-cube"/></svg>Model</button><button aria-pressed="true"><svg class="ic"><use href="#i-both"/></svg>Both</button></div>
+    <span class="grow"></span>
+    <button class="btn primary"><svg class="ic"><use href="#i-run"/></svg>Run</button>
+    <button class="btn primary runbtn" title="Solving case 3 of 6"><span class="prog"></span><svg class="ic"><use href="#i-stop"/></svg>Running…</button>
+    <button class="btn" disabled title="Section missing at node 60"><svg class="ic"><use href="#i-run"/></svg>Run</button>
+    <button class="btn"><svg class="ic" style="color:var(--issue-blocking)"><use href="#i-issues"/></svg>Issues <span class="n">2</span></button>
+    <button class="btn"><svg class="ic"><use href="#i-agent"/></svg>Agent</button>
+    <span class="combo">SI</span>
+    <span class="search"><svg class="ic"><use href="#i-search"/></svg>Search or command… <span style="margin-left:auto;font-size:11px">⌘K</span></span>
+  </div>
+  <div class="shellbody">
+    <nav class="rail" aria-label="Stages">
+      <div class="it on"><svg class="ic s20"><use href="#i-model"/></svg>Model</div>
+      <div class="it"><svg class="ic s20"><use href="#i-loads"/></svg>Loads</div>
+      <div class="it"><svg class="ic s20"><use href="#i-results"/></svg>Results<span class="cap">Historical</span></div>
+      <div class="it off" title="No run yet"><svg class="ic s20"><use href="#i-review"/></svg>Review</div>
+      <div class="spacer"></div>
+      <hr>
+      <div class="it"><svg class="ic s20"><use href="#i-libraries"/></svg>Libraries</div>
+      <div class="it"><svg class="ic s20"><use href="#i-rules"/></svg>Rules</div>
+      <div class="it"><span class="cnt n">2</span><svg class="ic s20"><use href="#i-issues"/></svg>Issues</div>
+    </nav>
+    <div class="surf"><div>Surfaces · Both view<br><span class="n">737 × 828 table · 603 × 828 canvas</span><br><span class="sec">the tables and the model are the hero; the inspector is a 300 px slide-over on the canvas edge</span></div></div>
+    <div class="agentstrip" title="Agent · 2 open proposals"><svg class="ic"><use href="#i-agent"/></svg><span class="badge n">2</span></div>
+  </div>
+  <div class="statusbar">
+    <span class="chip solved" title="MECHANICS_SOLVED · Solver">Mechanics solved</span>
+    <span><svg class="ic s12" style="color:var(--issue-blocking);vertical-align:-2px"><use href="#i-issues"/></svg> Issues <span class="n">2</span></span>
+    <span>Node <span class="n">40</span> · 1 row</span>
+    <span class="grow"></span>
+    <span>SI</span>
+    <svg class="ic" title="About and notices"><use href="#i-info"/></svg>
+  </div>
+</div>
+
+<!-- ===================== 10 REVIEW ===================== -->
+<h2 id="s10">10 Review page primitives · outline, content with live tables and edits, comment stream</h2>
+<div class="panel">
+  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+    <span style="font-size:18px;line-height:24px;font-weight:600">Review · Loop 4 header · Run 03</span>
+    <span class="combo">Iteration 2 (current)</span><span class="sec">Compare with</span><span class="combo">Iteration 1 · 2026-09-17</span>
+    <span class="switch on"><i></i>Show edits</span>
+    <span style="flex:1"></span>
+    <button class="btn">Snapshot…</button><button class="btn">Preview report</button><button class="btn primary">Export…</button>
+  </div>
+  <div class="sec" style="margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-hairline)">Results are engineering decision-support information. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority. <span class="sample">shown once, at the top</span></div>
+  <div class="reviewpage">
+    <div class="outline">
+      <div><span class="sec">1</span>Notice<span class="lock">fixed</span></div>
+      <div><span class="sec">2</span>Identity<span class="lock">fixed</span></div>
+      <div><span class="sec">3</span>Libraries and rule packs<span class="lock">fixed</span></div>
+      <div class="on"><span class="sec">4</span>Model<span class="lock" style="color:var(--accent-text)">edited</span></div>
+      <div><span class="sec">5</span>Load cases</div>
+      <div><span class="sec">6</span>Assumptions and warnings<span class="lock">fixed</span></div>
+      <div><span class="sec">7</span>Results · Stresses</div>
+      <div><span class="sec">8</span>Hanger selection</div>
+      <div><span class="sec">9</span>Review and sign-off block<span class="lock">fixed</span></div>
+    </div>
+    <div>
+      <h3 style="margin-top:0">4 Model</h3>
+      <p>The header is a 3000 mm run from the pump nozzle at node 10 to the riser at node 30, <span class="del">restrained by a rigid support at node 80</span><span class="ins">carried by a variable spring at node 80 (proposal P-12, accepted)</span>, with a branch from node 60 to the bypass. Sections and materials are propagated from node 20.</p>
+      <div class="tblwrap" style="max-width:640px"><div class="tblhead"><span class="name">Live from Run 03 · Stresses · OPE1</span><span class="chip outline">not editable here</span><span class="grow"></span><span class="combo">Case: OPE1</span></div>
+      <table class="ds"><thead><tr><th class="n">Node</th><th>Element</th><th class="n">Stress <span class="u">[MPa]</span></th><th class="n">Allowable <span class="u">[MPa]</span></th><th class="n">Ratio</th><th>Rule</th><th>Pack</th></tr></thead><tbody><tr><td class="n">40</td><td class="n">30–40</td><td class="n">124.6</td><td class="n">172.0</td><td class="n">0.72<span class="bar" data-v="0.72"><i></i></span></td><td>EXP-A1</td><td class="n">1.2</td></tr><tr><td class="n">60</td><td class="n">50–60</td><td class="n">113.5</td><td class="n">172.0</td><td class="n">0.66<span class="bar" data-v="0.66"><i></i></span></td><td>EXP-A1</td><td class="n">1.2</td></tr></tbody></table></div>
+      <p style="margin-top:8px">The governing ratio is <span class="n">0.72 · EXP-A1 · pack 1.2</span> at node 40 in OPE1.</p>
+    </div>
+    <div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap"><span class="chip solved">All</span><span class="chip outline">Checks</span><span class="chip outline">Open issues</span><span class="chip outline">Resolved</span><span class="chip outline">Mine</span></div>
+      <div class="comment"><div class="h"><span class="chip outline">Check</span><a href="#s5">Model · row node 20</a><span>Agent · 16:04</span></div>The support at node 20 does not engage in OPE1 (lift 2.1 mm, gap 3 mm). Confirm the gap is intended.<div style="margin-top:6px"><button class="btn compact">Resolve</button></div></div>
+      <div class="comment"><div class="h"><span class="chip outline">Open issue</span><a href="#s10">Report §4 · paragraph 1</a><span>Agent · 16:09</span></div>The paragraph says the spring is accepted; the Restraints row at 80 shows the second row of P-12 still pending.</div>
+      <div class="comment"><div class="h"><span class="chip outline">Note</span><a href="#s5">Stresses OPE1 · node 40</a><span>R. Tufts · 16:12</span></div>Re-run after the vendor table is imported.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 11 CANVAS ===================== -->
+<h2 id="s11">11 The canvas palette · the figure language, drawn schematically in 2D</h2>
+<p class="sec">Ground grid, pipe at real diameter with its edge line, a bend, restraint glyphs with direction arrows, a force and a moment vector with labels, node labels, a selection halo and a hover halo, the proposal ghost, the draft ghost, the deformed shape with its undeformed ghost, result colour on two elements, an unsolved element, the triad and the scale reference. Every colour is a canvas token. <span class="sample">not rendered by the engine</span></p>
+<div class="figure panel" style="padding:0;overflow:hidden">
+<svg viewBox="0 0 1200 420" role="img" aria-label="Canvas palette figure">
+  <defs>
+    <pattern id="gminor" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--canvas-gridMinor)" stroke-width="1"/></pattern>
+    <pattern id="gmajor" width="100" height="100" patternUnits="userSpaceOnUse"><rect width="100" height="100" fill="url(#gminor)"/><path d="M100 0H0V100" fill="none" stroke="var(--canvas-gridMajor)" stroke-width="1"/></pattern>
+    <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0V6" stroke="var(--canvas-glyph)" stroke-width="1"/></pattern>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5 0 10z" fill="context-stroke"/></marker>
+  </defs>
+  <rect width="1200" height="420" fill="var(--canvas-bg)"/>
+  <rect x="0" y="0" width="1200" height="420" fill="url(#gmajor)"/>
+  <!-- main run: edge then tube then shade; the first span sags (deformed, exaggerated) -->
+  <g stroke-linecap="butt" stroke-linejoin="round" fill="none">
+    <path d="M120 296Q210 338 300 296V190a40 40 0 0 1 40-40H540" stroke="var(--canvas-edge)" stroke-width="26"/>
+    <path d="M120 296Q210 338 300 296V190a40 40 0 0 1 40-40H540" stroke="var(--canvas-pipe)" stroke-width="24"/>
+    <path d="M120 304Q210 346 300 304" stroke="var(--canvas-pipeShade)" stroke-width="6" opacity=".6"/>
+    <path d="M308 296V190" stroke="var(--canvas-pipeShade)" stroke-width="6" opacity=".6"/>
+  </g>
+  <!-- result-coloured elements 40-60 -->
+  <g fill="none">
+    <path d="M540 150h180" stroke="var(--canvas-edge)" stroke-width="26"/>
+    <path d="M540 150h180" stroke="var(--result-scale-5)" stroke-width="24"/>
+    <path d="M720 150h140" stroke="var(--canvas-edge)" stroke-width="26"/>
+    <path d="M720 150h140" stroke="var(--result-scale-3)" stroke-width="24"/>
+    <!-- unsolved element dimmed -->
+    <g opacity=".6"><path d="M860 150h120" stroke="var(--canvas-edge)" stroke-width="26"/><path d="M860 150h120" stroke="var(--canvas-unsolved)" stroke-width="24"/></g>
+  </g>
+  <!-- selection halo on 40-60 -->
+  <path d="M540 150h180" fill="none" stroke="var(--canvas-selection)" stroke-width="30" opacity=".9"/>
+  <path d="M540 150h180" fill="none" stroke="var(--result-scale-5)" stroke-width="24"/>
+  <path d="M540 150h180" fill="none" stroke="var(--canvas-edge)" stroke-width="1" transform="translate(0 -12.5)"/>
+  <path d="M540 150h180" fill="none" stroke="var(--canvas-edge)" stroke-width="1" transform="translate(0 12.5)"/>
+  <!-- hover halo on 60-70 -->
+  <path d="M720 150h140" fill="none" stroke="var(--canvas-hover)" stroke-width="30" opacity=".8"/>
+  <path d="M720 150h140" fill="none" stroke="var(--result-scale-3)" stroke-width="24"/>
+  <!-- branch from 60 downward -->
+  <path d="M720 163v110" fill="none" stroke="var(--canvas-edge)" stroke-width="18"/>
+  <path d="M720 163v110" fill="none" stroke="var(--canvas-pipe)" stroke-width="16"/>
+  <!-- proposal ghost: extend branch -->
+  <path d="M720 273v60h90" fill="none" stroke="var(--canvas-proposalGhost)" stroke-width="16" stroke-dasharray="8 6" opacity=".6"/>
+  <!-- draft ghost from 110 -->
+  <path d="M980 150h120" fill="none" stroke="var(--canvas-draft)" stroke-width="16" stroke-dasharray="8 6" opacity=".7"/>
+  <!-- compass at 110 -->
+  <g font-size="11" font-family="var(--font-ui)">
+    <path d="M980 150h60" stroke="var(--canvas-axisX)" stroke-width="2" marker-end="url(#arr)"/><text x="1044" y="140" fill="var(--canvas-axisX)">X</text>
+    <path d="M980 150v-40" stroke="var(--canvas-axisY)" stroke-width="1" marker-end="url(#arr)"/><text x="985" y="108" fill="var(--canvas-axisY)">Y</text>
+    <path d="M980 150l-24 24" stroke="var(--canvas-axisZ)" stroke-width="1" marker-end="url(#arr)"/><text x="948" y="186" fill="var(--canvas-axisZ)">Z</text>
+    <rect x="1010" y="160" width="74" height="20" rx="3" fill="var(--surface-raised)" stroke="var(--focus-ring)" stroke-width="2"/><text x="1018" y="174" fill="var(--text-primary)" font-size="12">2500 mm</text>
+  </g>
+  <!-- anchor glyph at 10 -->
+  <g>
+    <rect x="96" y="276" width="24" height="40" fill="url(#hatch)" stroke="var(--canvas-glyph)" stroke-width="1.5"/>
+    <path d="M84 276v40" stroke="var(--canvas-glyph)" stroke-width="1.5"/>
+  </g>
+  <!-- +Y resting support with a gap at 20 (node at 300,296) -->
+  <g>
+    <path d="M300 312l-14 26h28z" fill="var(--canvas-glyphFill)" stroke="var(--canvas-glyph)" stroke-width="1.5"/>
+    <path d="M280 346h40" stroke="var(--canvas-glyph)" stroke-width="1.5"/>
+    <path d="M300 372v-18" stroke="var(--canvas-glyph)" stroke-width="1.5" marker-end="url(#arr)"/>
+    <text x="318" y="336" fill="var(--canvas-label)" font-size="11">+Y · gap 3 mm · μ 0.30</text>
+  </g>
+  <!-- undeformed ghost drawn over the pipe -->
+  <path d="M120 296H300V190a40 40 0 0 1 40-40H540" fill="none" stroke="var(--canvas-deformGhost)" stroke-width="1" stroke-dasharray="4 3"/>
+  <!-- guide brackets at 100 (branch bottom 720,273) -->
+  <g>
+    <path d="M700 252v34h6M740 252v34h-6" fill="none" stroke="var(--canvas-glyph)" stroke-width="1.5"/>
+    <path d="M690 269h6M750 269h-6" stroke="var(--canvas-glyph)" stroke-width="1.5" marker-end="url(#arr)"/>
+  </g>
+  <!-- spring can at 80 proposal? skip; load vector at 40 (540,150) -->
+  <g>
+    <path d="M540 80v52" stroke="var(--cat-1)" stroke-width="2" marker-end="url(#arr)"/>
+    <rect x="548" y="74" width="72" height="20" rx="3" fill="var(--canvas-labelBg)"/><text x="554" y="88" fill="var(--canvas-label)" font-size="12">−2000 N · W</text>
+  </g>
+  <!-- moment vector at 70 (double head) -->
+  <g>
+    <path d="M860 230v-56" stroke="var(--cat-2)" stroke-width="2" marker-end="url(#arr)"/>
+    <path d="M860 230v-46" stroke="var(--cat-2)" stroke-width="2" marker-end="url(#arr)"/>
+    <rect x="866" y="212" width="60" height="20" rx="3" fill="var(--canvas-labelBg)"/><text x="872" y="226" fill="var(--canvas-label)" font-size="12">1.2 kN·m</text>
+  </g>
+  <!-- node labels -->
+  <g font-size="12" font-family="var(--font-numeric)">
+    <rect x="108" y="248" width="24" height="18" rx="2" fill="var(--canvas-labelBg)"/><text x="114" y="261" fill="var(--canvas-label)">10</text>
+    <rect x="250" y="314" width="24" height="18" rx="2" fill="var(--canvas-labelBg)"/><text x="256" y="327" fill="var(--canvas-label)">20</text>
+    <rect x="288" y="118" width="24" height="18" rx="2" fill="var(--canvas-labelBg)"/><text x="294" y="131" fill="var(--canvas-label)">30</text>
+    <rect x="528" y="172" width="24" height="18" rx="2" fill="var(--canvas-labelBg)" stroke="var(--canvas-selection)" stroke-width="1.5"/><text x="534" y="185" fill="var(--canvas-label)">40</text>
+    <rect x="708" y="118" width="24" height="18" rx="2" fill="var(--canvas-labelBg)"/><text x="714" y="131" fill="var(--canvas-label)">60</text>
+    <rect x="848" y="118" width="24" height="18" rx="2" fill="var(--canvas-labelBg)"/><text x="854" y="131" fill="var(--canvas-label)">70</text>
+    <rect x="968" y="118" width="30" height="18" rx="2" fill="var(--canvas-labelBg)"/><text x="973" y="131" fill="var(--canvas-label)">110</text>
+    <rect x="740" y="280" width="30" height="18" rx="2" fill="var(--canvas-labelBg)"/><text x="745" y="293" fill="var(--canvas-label)">100</text>
+    <rect x="800" y="322" width="30" height="18" rx="2" fill="var(--canvas-labelBg)" stroke="var(--canvas-proposalGhost)" stroke-width="1.5"/><text x="805" y="335" fill="var(--canvas-label)">130</text>
+  </g>
+  <!-- triad and scale reference -->
+  <g transform="translate(40 380)" font-size="11">
+    <path d="M0 0h40" stroke="var(--canvas-axisX)" stroke-width="2" marker-end="url(#arr)"/><text x="44" y="4" fill="var(--canvas-axisX)">X</text>
+    <path d="M0 0v-40" stroke="var(--canvas-axisY)" stroke-width="2" marker-end="url(#arr)"/><text x="-4" y="-46" fill="var(--canvas-axisY)">Y up</text>
+    <path d="M0 0l-22 22" stroke="var(--canvas-axisZ)" stroke-width="2" marker-end="url(#arr)"/><text x="-32" y="34" fill="var(--canvas-axisZ)">Z</text>
+  </g>
+  <g transform="translate(1040 386)" font-size="11">
+    <path d="M0 0h40" stroke="var(--canvas-vector)" stroke-width="2" marker-end="url(#arr)"/><text x="48" y="4" fill="var(--canvas-label)">1000 N</text>
+    <path d="M0 14h100" stroke="var(--canvas-edge)" stroke-width="1"/><path d="M0 10v8M100 10v8" stroke="var(--canvas-edge)" stroke-width="1"/><text x="0" y="32" fill="var(--canvas-label)">1 m</text>
+  </g>
+  <!-- legend labels for the figure -->
+  <g font-size="11" fill="var(--text-muted)">
+    <text x="130" y="404">undeformed ghost · dashed · deformed ×50</text><text x="590" y="62">selection halo · result colour 0.72</text><text x="740" y="200">hover halo</text><text x="870" y="254">unsolved · dimmed</text><text x="1000" y="205">draft ghost · compass</text><text x="770" y="360">proposal ghost</text>
+  </g>
+</svg>
+</div>
+
+<!-- ===================== 12 CONTRAST ===================== -->
+<h2 id="s12">12 Preferences · Appearance · Contrast findings</h2>
+<div class="panel">
+  <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><span class="sec">Theme</span><div class="seg" role="group" aria-label="Theme (preferences)"><button type="button" data-theme="" aria-pressed="true">System</button><button type="button" data-theme="light" aria-pressed="false">Light</button><button type="button" data-theme="dark" aria-pressed="false">Dark</button></div><span class="sec">Density: one, tuned for tables of numbers</span></div>
+  <h4 style="margin-top:8px">Contrast findings <span class="sec" style="font-weight:400" id="ccount"></span></h4>
+  <p class="sec">Findings only. No conformance is claimed; the target is set by the project authority. Ratios are computed in this page from the embedded tokens (WCAG 2.x relative luminance; translucent tokens composited over the named surface).</p>
+  <div class="cbox"><table id="ctable"><thead><tr><th>Foreground</th><th>Background</th><th>Role</th><th class="n">Light</th><th class="n">Dark</th></tr></thead><tbody></tbody></table></div>
+</div>
+
+<footer class="spec">SWB Piping Designer · design system specimen V1 · 2026-09-18 · sample values are placeholders · this page makes no network request · Findings only: no conformance is claimed and no target is named.</footer>
+</main>
+
+<script id="tokens" type="application/json">{"name":"SWB Piping Designer design system tokens","version":"1.0","date":"2026-09-18","note":"Sample values in the specimen are placeholders. Colour tokens carry a light and a dark value; type, spacing and layout tokens are plain values in CSS px unless stated.","color":{"surface.base":{"light":"#eef0f3","dark":"#1b1e22"},"surface.panel":{"light":"#ffffff","dark":"#25282c"},"surface.raised":{"light":"#ffffff","dark":"#2e3236"},"surface.sunken":{"light":"#f5f7f9","dark":"#202327"},"surface.header":{"light":"#f0f3f5","dark":"#292d31"},"surface.rowAlt":{"light":"#f9fafb","dark":"#272a2e"},"surface.canvas":{"light":"#ebedef","dark":"#191c1f"},"text.primary":{"light":"#22272c","dark":"#e5e8ec"},"text.secondary":{"light":"#5b6168","dark":"#acb2b7"},"text.muted":{"light":"#7d848b","dark":"#878d93"},"text.disabled":{"light":"#a6abb1","dark":"#5f6469"},"text.inverse":{"light":"#ffffff","dark":"#13161a"},"text.link":{"light":"#1762b6","dark":"#87bafd"},"border.hairline":{"light":"#d5d8db","dark":"#393e42"},"border.strong":{"light":"#b3b8be","dark":"#53595f"},"border.focus":{"light":"#1a73d5","dark":"#70adfb"},"accent.fill":{"light":"#106dce","dark":"#4c94ec"},"accent.fillHover":{"light":"#0161bd","dark":"#59a0f9"},"accent.text":{"light":"#005bb3","dark":"#91c1ff"},"selection.band":{"light":"#e2eefe","dark":"#223e61"},"selection.bar":{"light":"#106dce","dark":"#65a7fa"},"hover.wash":{"light":"rgba(30,36,48,0.06)","dark":"rgba(255,255,255,0.06)"},"pressed.wash":{"light":"rgba(30,36,48,0.10)","dark":"rgba(255,255,255,0.10)"},"disabled.fill":{"light":"#e9ebee","dark":"#2b2e32"},"focus.ring":{"light":"#1a73d5","dark":"#70adfb"},"scrim":{"light":"rgba(20,22,28,0.32)","dark":"rgba(0,0,0,0.55)"},"proposal.new":{"light":"#6b3baa","dark":"#c4a4fe"},"proposal.band":{"light":"#f2edfe","dark":"#3b2f51"},"proposal.bar":{"light":"#854ece","dark":"#ba93fb"},"proposal.old":{"light":"#7d848b","dark":"#878d93"},"mark.checked":{"light":"#5b6168","dark":"#acb2b7"},"mark.checkedStale":{"light":"#a46e01","dark":"#e9b452"},"mark.origin":{"light":"#7d848b","dark":"#878d93"},"mark.attachment":{"light":"#5b6168","dark":"#acb2b7"},"issue.blocking":{"light":"#ba2b2e","dark":"#fb817a"},"issue.blockingTint":{"light":"#feebe9","dark":"#4b2724"},"issue.warning":{"light":"#a46e01","dark":"#e9b452"},"issue.warningTint":{"light":"#fff1d5","dark":"#433215"},"issue.info":{"light":"#426882","dark":"#8fb7d4"},"issue.infoTint":{"light":"#e9f1f8","dark":"#27353e"},"mark.required":{"light":"#ba2b2e","dark":"#fb817a"},"status.incompleteFill":{"light":"#fff1d5","dark":"#433215"},"status.incompleteInk":{"light":"#774f02","dark":"#efc876"},"status.solvedFill":{"light":"#eef0f3","dark":"#32363a"},"status.solvedInk":{"light":"#353b42","dark":"#d4d8dd"},"status.failedFill":{"light":"#feebe9","dark":"#4b2724"},"status.failedInk":{"light":"#a21921","dark":"#ffaba3"},"status.reviewFill":{"light":"#e9f1f8","dark":"#27353e"},"status.reviewInk":{"light":"#25526f","dark":"#a8d1ee"},"historical.tint":{"light":"#f4efe7","dark":"#322d25"},"historical.ink":{"light":"#5e5443","dark":"#cec2af"},"displayOnly.border":{"light":"#b3b8be","dark":"#53595f"},"stale.stripe":{"light":"#ced1d5","dark":"#44484d"},"canvas.bg":{"light":"#ebedef","dark":"#191c1f"},"canvas.gridMajor":{"light":"#ced1d5","dark":"#2d3135"},"canvas.gridMinor":{"light":"#dfe1e4","dark":"#222629"},"canvas.pipe":{"light":"#a6abb1","dark":"#757b81"},"canvas.pipeShade":{"light":"#81878d","dark":"#53595f"},"canvas.edge":{"light":"#42484f","dark":"#c7cbd0"},"canvas.glyph":{"light":"#30363c","dark":"#dbdee2"},"canvas.glyphFill":{"light":"#dbdee2","dark":"#34383d"},"canvas.label":{"light":"#22272c","dark":"#e5e8ec"},"canvas.labelBg":{"light":"rgba(255,255,255,0.82)","dark":"rgba(28,31,37,0.82)"},"canvas.vector":{"light":"#42484f","dark":"#c7cbd0"},"canvas.selection":{"light":"#106dce","dark":"#6dadff"},"canvas.hover":{"light":"#5d94da","dark":"#5788c7"},"canvas.draft":{"light":"#106dce","dark":"#6dadff"},"canvas.proposalGhost":{"light":"#854ece","dark":"#ba93fb"},"canvas.deformGhost":{"light":"#81878d","dark":"#53595f"},"canvas.unsolved":{"light":"#a6abb1","dark":"#757b81"},"canvas.axisX":{"light":"#bd413f","dark":"#f07f77"},"canvas.axisY":{"light":"#308639","dark":"#73c076"},"canvas.axisZ":{"light":"#2171cc","dark":"#70adfb"},"result.scale.1":{"light":"#4ab9b2","dark":"#02736e"},"result.scale.2":{"light":"#15a6a0","dark":"#028984"},"result.scale.3":{"light":"#05908b","dark":"#04a19b"},"result.scale.4":{"light":"#087a76","dark":"#28b8b1"},"result.scale.5":{"light":"#056662","dark":"#51cec7"},"result.scale.6":{"light":"#01524e","dark":"#83e1db"},"result.scale.7":{"light":"#003e3c","dark":"#b7f2ed"},"cat.1":{"light":"#cf630d","dark":"#d97230","hue":"orange"},"cat.2":{"light":"#b84999","dark":"#c960aa","hue":"magenta"},"cat.3":{"light":"#3b9555","dark":"#429c5a","hue":"green"},"cat.4":{"light":"#3f5bb8","dark":"#6280da","hue":"purple"},"cat.5":{"light":"#cb4f73","dark":"#db6686","hue":"rose"},"cat.6":{"light":"#098db2","dark":"#089ac3","hue":"azure"},"cat.7":{"light":"#8c8305","dark":"#97902a","hue":"olive"},"cat.8":{"light":"#0b959b","dark":"#009298","hue":"cyan"}},"type":{"family.ui":"-apple-system, BlinkMacSystemFont, system-ui, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif","family.numeric":"-apple-system, BlinkMacSystemFont, system-ui, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif","family.mono":"ui-monospace, \"SF Mono\", Menlo, Monaco, Consolas, monospace","numeric.feature":"font-variant-numeric: tabular-nums","size.caption":11,"size.chip":12,"size.body":13,"size.title":15,"size.heading":18,"size.figure":22,"lineHeight.caption":14,"lineHeight.chip":16,"lineHeight.body":18,"lineHeight.title":20,"lineHeight.heading":24,"lineHeight.figure":28,"weight.regular":400,"weight.medium":500,"weight.semibold":600,"minimumRepeatedlyRead":13,"letterSpacing.figure":-0.2},"space":{"0":0,"1":2,"2":4,"3":6,"4":8,"5":12,"6":16,"7":20,"8":24,"9":32,"10":40},"radius":{"none":0,"control":3,"card":6,"sheet":10,"pill":999},"border":{"hairline":1,"strong":1,"focusRing":2,"selectionBar":3,"proposalBar":3},"elevation":{"0":"none","1":{"light":"0 1px 2px rgba(20,24,30,0.08)","dark":"0 1px 2px rgba(0,0,0,0.40)"},"2":{"light":"0 4px 12px rgba(20,24,30,0.12), 0 1px 2px rgba(20,24,30,0.06)","dark":"0 4px 12px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.06)"},"3":{"light":"0 12px 32px rgba(20,24,30,0.18), 0 2px 4px rgba(20,24,30,0.08)","dark":"0 12px 32px rgba(0,0,0,0.60), 0 0 0 1px rgba(255,255,255,0.08)"}},"focus":{"ringWidth":2,"ringOffset":1,"ringColorToken":"focus.ring","cellInset":true},"motion":{"disclosure.ms":120,"drawer.ms":180,"proposalArrive.ms":240,"hover.ms":80,"easing.standard":"cubic-bezier(0.2, 0, 0, 1)","easing.exit":"cubic-bezier(0.4, 0, 1, 1)","reducedMotion":"all durations 0 under prefers-reduced-motion"},"layout":{"window.default":[1440,900],"window.min":[1280,800],"toolbar":48,"statusBar":24,"rail":56,"agent.open":340,"agent.strip":44,"inspector.both":300,"inspector.model":340,"drawer.table":280,"drawer.issues":200,"review.outline":280,"review.comments":320,"row":26,"headerRow":28,"control":26,"controlCompact":22,"gutter":32,"marksColumn":72,"hud.button":28,"probe.width":300,"legend.width":220,"sideGutter":16},"icon":{"grid":16,"stroke":1.5,"cornerRadius":1.5,"sizes":[12,16,20],"capsAndJoins":"round"}}</script>
+<script>
+(function () {
+  // ---- theme switch: follows the system preference; the manual switch wins both ways ----
+  var root = document.documentElement;
+  var segs = document.querySelectorAll('.seg[aria-label^="Theme"]');
+  function applyTheme(t) {
+    if (t) root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+    segs.forEach(function (s) { s.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String((b.dataset.theme || '') === (t || ''))); }); });
+    try { if (t) localStorage.setItem('swbpipe-specimen-theme', t); else localStorage.removeItem('swbpipe-specimen-theme'); } catch (e) {}
+    renderTokens();
+  }
+  segs.forEach(function (s) { s.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) applyTheme(b.dataset.theme || ''); }); });
+  var saved = null; try { saved = localStorage.getItem('swbpipe-specimen-theme'); } catch (e) {}
+
+  // ---- tokens ----
+  var TOK = JSON.parse(document.getElementById('tokens').textContent);
+  var C = TOK.color;
+  function cssVar(k) { return '--' + k.replace(/\./g, '-'); }
+  function currentValue(k) { return getComputedStyle(root).getPropertyValue(cssVar(k)).trim(); }
+  function renderTokens() {
+    var grid = document.getElementById('tokgrid'); grid.innerHTML = '';
+    var groups = {};
+    var merge = { hover: 'interaction', pressed: 'interaction', disabled: 'interaction', focus: 'interaction', scrim: 'interaction', displayOnly: 'state overlays', stale: 'state overlays', historical: 'state overlays' };
+    Object.keys(C).forEach(function (k) { var g = k.split('.')[0]; g = merge[g] || g; (groups[g] = groups[g] || []).push(k); });
+    Object.keys(groups).forEach(function (g) {
+      var panel = document.createElement('div'); panel.className = 'panel'; panel.style.padding = '0'; panel.style.overflow = 'hidden';
+      var t = document.createElement('table'); t.className = 'tok';
+      t.innerHTML = '<thead><tr><th>' + g + '</th><th>Light</th><th>Dark</th><th>Current</th></tr></thead>';
+      var tb = document.createElement('tbody');
+      groups[g].forEach(function (k) {
+        var v = C[k]; var tr = document.createElement('tr');
+        tr.innerHTML = '<td><code>' + k + '</code>' + (v.hue ? ' <span class="sec">' + v.hue + '</span>' : '') + '</td>' +
+          '<td><span class="sw light" style="--l:' + v.light + '"></span><span class="mono">' + v.light + '</span></td>' +
+          '<td><span class="sw dark" style="--d:' + v.dark + '"></span><span class="mono">' + v.dark + '</span></td>' +
+          '<td class="cur"><span class="sw cur" style="--c:' + currentValue(k) + '"></span></td>';
+        tb.appendChild(tr);
+      });
+      t.appendChild(tb); panel.appendChild(t); grid.appendChild(panel);
+    });
+    // result steps and categorical
+    var steps = document.getElementById('steps'); steps.innerHTML = '';
+    for (var i = 1; i <= 7; i++) { var d = document.createElement('div'); d.style.background = 'var(--result-scale-' + i + ')'; d.textContent = i; d.style.color = i >= 4 ? '#ffffff' : '#0d1a1a'; if (root.getAttribute('data-theme') === 'dark' || (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches)) d.style.color = i >= 5 ? '#0d1a1a' : '#ffffff'; steps.appendChild(d); }
+    var cats = document.getElementById('cats'); cats.innerHTML = '';
+    var kinds = ['force', 'moment', 'displacement', 'uniform / weight', 'wind', 'seismic', '(case 7)', '(case 8)'];
+    for (var j = 1; j <= 8; j++) { var c = document.createElement('div'); c.innerHTML = '<span class="sw" style="background:var(--cat-' + j + ')"></span><span>' + j + ' · ' + C['cat.' + j].hue + ' <span class="sec">' + kinds[j - 1] + '</span></span>'; cats.appendChild(c); }
+    document.querySelectorAll('.bar[data-v]').forEach(function (b) { var v = parseFloat(b.dataset.v); var i = b.querySelector('i'); i.style.width = Math.round(v * 100) + '%'; i.style.background = scaleColor(v); });
+  }
+
+  // ---- OKLCH interpolation for the data bars ----
+  function hexToLin(h) { h = h.replace('#', ''); return [0, 2, 4].map(function (i) { var c = parseInt(h.substr(i, 2), 16) / 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }); }
+  function linToHex(rgb) { return '#' + rgb.map(function (c) { c = Math.max(0, Math.min(1, c)); c = c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055; return Math.round(c * 255).toString(16).padStart(2, '0'); }).join(''); }
+  function linToOklab(r, g, b) { var l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b), m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b), s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b); return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s, 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s]; }
+  function oklabToLin(L, a, b) { var l_ = L + 0.3963377774 * a + 0.2158037573 * b, m_ = L - 0.1055613458 * a - 0.0638541728 * b, s_ = L - 0.0894841775 * a - 1.2914855480 * b; var l = l_ * l_ * l_, m = m_ * m_ * m_, s = s_ * s_ * s_; return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s]; }
+  function scaleColor(v) {
+    var dark = root.getAttribute('data-theme') === 'dark' || (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+    var anchors = []; for (var i = 1; i <= 7; i++) anchors.push(C['result.scale.' + i][dark ? 'dark' : 'light']);
+    var t = Math.max(0, Math.min(1, v)) * 6, i0 = Math.min(5, Math.floor(t)), f = t - i0;
+    var a = linToOklab.apply(null, hexToLin(anchors[i0])), b = linToOklab.apply(null, hexToLin(anchors[i0 + 1]));
+    var L = a[0] + (b[0] - a[0]) * f, ca = Math.hypot(a[1], a[2]), cb = Math.hypot(b[1], b[2]), ha = Math.atan2(a[2], a[1]), hb = Math.atan2(b[2], b[1]);
+    var c = ca + (cb - ca) * f, h = ha + (hb - ha) * f;
+    return linToHex(oklabToLin(L, c * Math.cos(h), c * Math.sin(h)));
+  }
+
+  // ---- contrast findings, computed from the embedded tokens ----
+  function parse(s) { if (s[0] === '#') { var h = s.slice(1); return { rgb: [0, 2, 4].map(function (i) { return parseInt(h.substr(i, 2), 16); }), a: 1 }; } var m = s.match(/rgba?\(([^)]+)\)/); var p = m[1].split(',').map(Number); return { rgb: p.slice(0, 3), a: p.length > 3 ? p[3] : 1 }; }
+  function over(c, b) { return c.rgb.map(function (v, i) { return Math.round(c.a * v + (1 - c.a) * b.rgb[i]); }); }
+  function lum(rgb) { var x = rgb.map(function (v) { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * x[0] + 0.7152 * x[1] + 0.0722 * x[2]; }
+  function ratio(f, b) { var l1 = lum(f), l2 = lum(b), hi = Math.max(l1, l2), lo = Math.min(l1, l2); return (hi + 0.05) / (lo + 0.05); }
+  function resolve(name, theme) { var parts = name.split('/').reverse(); var acc = { rgb: [255, 255, 255], a: 1 }; parts.forEach(function (p) { acc = { rgb: over(parse(C[p][theme]), acc), a: 1 }; }); return acc.rgb; }
+  var pairs = [
+    ['text.primary','surface.panel','text'],['text.primary','surface.base','text'],['text.primary','surface.sunken','text'],['text.primary','surface.header','text'],['text.primary','surface.rowAlt','text'],['text.primary','surface.raised','text'],['text.primary','selection.band','text'],['text.primary','proposal.band','text'],['text.primary','hover.wash/surface.panel','text'],['text.primary','issue.blockingTint','text'],['text.primary','issue.warningTint','text'],['text.primary','issue.infoTint','text'],['text.primary','historical.tint','text'],['text.primary','disabled.fill','text'],
+    ['text.secondary','surface.panel','text'],['text.secondary','surface.base','text'],['text.secondary','surface.header','text'],['text.secondary','surface.sunken','text'],['text.secondary','selection.band','text'],['text.secondary','proposal.band','text'],
+    ['text.muted','surface.panel','text'],['text.muted','surface.base','text'],['text.muted','surface.header','text'],['text.muted','surface.sunken','text'],['text.disabled','surface.panel','text (disabled)'],['text.disabled','surface.base','text (disabled)'],
+    ['text.link','surface.panel','text'],['text.link','surface.base','text'],['accent.text','surface.panel','text'],['accent.text','selection.band','text'],['text.inverse','accent.fill','text on button'],['text.inverse','accent.fillHover','text on button'],
+    ['proposal.new','surface.panel','text'],['proposal.new','proposal.band','text'],['proposal.new','surface.base','text'],['proposal.old','surface.panel','text (struck)'],['proposal.old','proposal.band','text (struck)'],
+    ['mark.checked','surface.panel','mark'],['mark.checkedStale','surface.panel','mark'],['mark.checkedStale','surface.base','mark'],['mark.origin','surface.panel','mark'],['mark.origin','surface.rowAlt','mark'],['mark.origin','surface.header','mark'],['mark.attachment','surface.panel','mark'],['mark.required','surface.panel','mark'],['mark.required','surface.sunken','mark'],
+    ['issue.blocking','surface.panel','text'],['issue.blocking','issue.blockingTint','text'],['issue.blocking','surface.base','text'],['issue.warning','surface.panel','text'],['issue.warning','issue.warningTint','text'],['issue.warning','surface.base','text'],['issue.info','surface.panel','text'],['issue.info','issue.infoTint','text'],
+    ['status.incompleteInk','status.incompleteFill','chip text'],['status.solvedInk','status.solvedFill','chip text'],['status.failedInk','status.failedFill','chip text'],['status.reviewInk','status.reviewFill','chip text'],['status.incompleteInk','surface.panel','chip text'],['status.failedInk','surface.panel','chip text'],['status.reviewInk','surface.panel','chip text'],
+    ['historical.ink','historical.tint','text'],['historical.ink','surface.panel','text'],
+    ['border.hairline','surface.panel','hairline'],['border.hairline','surface.base','hairline'],['border.strong','surface.panel','border'],['border.strong','surface.base','border'],['focus.ring','surface.panel','focus ring'],['focus.ring','surface.base','focus ring'],['focus.ring','selection.band','focus ring'],['selection.bar','selection.band','mark'],['proposal.bar','proposal.band','mark'],['displayOnly.border','surface.sunken','border'],['stale.stripe','surface.panel','mark'],
+    ['canvas.label','canvas.labelBg/canvas.bg','canvas text'],['canvas.label','canvas.bg','canvas text'],['canvas.gridMajor','canvas.bg','hairline'],['canvas.gridMinor','canvas.bg','hairline'],['canvas.pipe','canvas.bg','canvas mark'],['canvas.pipeShade','canvas.bg','canvas mark'],['canvas.edge','canvas.pipe','canvas mark'],['canvas.edge','canvas.bg','canvas mark'],['canvas.glyph','canvas.bg','canvas mark'],['canvas.glyph','canvas.glyphFill','canvas mark'],['canvas.glyphFill','canvas.bg','canvas mark'],['canvas.vector','canvas.bg','canvas mark'],['canvas.selection','canvas.bg','canvas mark'],['canvas.selection','canvas.pipe','canvas mark'],['canvas.hover','canvas.bg','canvas mark'],['canvas.draft','canvas.bg','canvas mark'],['canvas.proposalGhost','canvas.bg','canvas mark'],['canvas.deformGhost','canvas.bg','canvas mark'],['canvas.unsolved','canvas.bg','canvas mark'],['canvas.axisX','canvas.bg','canvas mark'],['canvas.axisY','canvas.bg','canvas mark'],['canvas.axisZ','canvas.bg','canvas mark']
+  ];
+  for (var i = 1; i <= 7; i++) pairs.push(['result.scale.' + i, 'canvas.bg', 'result scale on canvas']);
+  pairs.push(['result.scale.1', 'canvas.unsolved', 'result scale beside unsolved'], ['result.scale.7', 'canvas.unsolved', 'result scale beside unsolved']);
+  for (i = 1; i <= 7; i++) pairs.push(['result.scale.' + i, 'surface.raised', 'legend swatch']);
+  for (i = 1; i <= 8; i++) pairs.push(['cat.' + i, 'canvas.bg', 'load vector on canvas']);
+  for (i = 1; i <= 8; i++) pairs.push(['cat.' + i, 'surface.panel', 'case dot in table']);
+  var tb = document.querySelector('#ctable tbody');
+  pairs.forEach(function (p) {
+    var l = ratio(resolve(p[0], 'light'), resolve(p[1], 'light')), d = ratio(resolve(p[0], 'dark'), resolve(p[1], 'dark'));
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><code>' + p[0] + '</code></td><td><code>' + p[1] + '</code></td><td class="sec">' + p[2] + '</td><td class="n">' + l.toFixed(2) + ':1</td><td class="n">' + d.toFixed(2) + ':1</td>';
+    tb.appendChild(tr);
+  });
+  document.getElementById('ccount').textContent = '· ' + pairs.length + ' pairings · both themes';
+
+  // ---- motion demo ----
+  var ab = document.getElementById('arriveBtn'), ac = document.getElementById('arriveChip');
+  ab.addEventListener('click', function () { ac.classList.add('hidden'); requestAnimationFrame(function () { requestAnimationFrame(function () { ac.classList.remove('hidden'); }); }); });
+
+  applyTheme(saved || '');
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () { renderTokens(); });
+})();
+</script>
+</body>
+</html>

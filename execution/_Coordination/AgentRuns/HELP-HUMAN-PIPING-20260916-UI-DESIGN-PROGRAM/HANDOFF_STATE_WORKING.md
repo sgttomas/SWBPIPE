@@ -10,6 +10,8 @@ Updated 2026-09-17 by ROOT. Working surface; superseded lines are struck rather 
 
 ## Open with the owner
 
+Update 2026-09-18, design system returned and accepted: `instances/DESIGN-SYSTEM/` holds the design system V1 (88 colour tokens with light and dark values, 85 plain tokens, the marks vocabulary, the components to the cell state, the presentation language chosen as the report figure with a theme-aware edge line and direction arrows on restraint glyphs, the copy rules), `tokens.json`, an offline specimen and the child's scripts. Eight open items are listed in its §8, each already an item of the decision packet or a question for the mocks. Next: the mocks brief (fifteen HTML frames from one sample model), then the rendering brief to the piping session from §6 of the design system, then the decision packet.
+
 Update 2026-09-18, later: the checked mark is settled (kept) and the owner agreed all eleven recommendations on the product shape, the mock states and the new work (direction record §10); brief at V1.4. Phase 3 opened: DESIGN-SYSTEM-01 sealed and launched (Fable). Next after its return: the mocks brief (fifteen HTML frames from one sample model), then the rendering brief to the piping session, then the decision packet after the mocks.
 
 Update 2026-09-18, direction confirmed: the owner confirmed readings (a), (b) and (e) of the direction record, corrected the view names to Table, Model and Both, and chose numeric node IDs throughout; reading (d), the checked mark, is under discussion (the owner asked for more) and is provisional in phase 3. Brief at V1.3. Phase 3 begins with the design-system brief.
