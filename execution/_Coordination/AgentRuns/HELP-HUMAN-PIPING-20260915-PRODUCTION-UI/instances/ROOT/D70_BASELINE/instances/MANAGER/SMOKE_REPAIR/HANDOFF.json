@@ -1,0 +1,19 @@
+{
+  "status": "MANAGER_SMOKE_REPAIR_COMPLETE_REVIEW_READY",
+  "closureVerdict": "source repair and node verification complete; runtime readiness remains open",
+  "writerCommit": "e5e5599f8a0d2977ff54708f2b9ad273c0b30547",
+  "acceptedUpstream": [
+    "briefs/MANAGER_REPAIR_SMOKE.md SHA8b7f98c85e39dec6163f77d4130c97c36842e5267333da4c1739eb9688c3faf5",
+    "RUNNER/RETURN_UNTIMED_PREPARATION_V2.json",
+    "canonical controls-smoke-01 failure SHA cb7d6ee426124bdc8214ddfa5c6be7b5a298b1c7b258b0eb2ead0d6c113e8f98"
+  ],
+  "derivativePackage": true,
+  "methodManifestSha256": "064195227bf8ef4c050757f280b2b5dc6b1b29e45154e2c5aa1833426410e123",
+  "rerunRequirements": "Use successor exact34-file manifest after affected independent review; one ROOT-authorized smoke requalification; no timed attempts yet",
+  "remaining": [
+    "ROOT integration/review",
+    "smoke requalification",
+    "timed cohort remains held"
+  ],
+  "blockers": []
+}

@@ -1,0 +1,59 @@
+{
+  "status": "PASS_MANAGER_SMOKE_REPAIR_FAN_IN",
+  "at": "2026-09-18T00:20:44.303236+00:00",
+  "writerCommit": "e5e5599f8a0d2977ff54708f2b9ad273c0b30547",
+  "sourceBase": "ff15f43ca7238b6dee88bb22d42c2836b1818950",
+  "sourceChanged": [
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts"
+  ],
+  "methodManifest": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/METHOD_MANIFEST_SUCCESSOR.json",
+  "methodManifestSha256": "064195227bf8ef4c050757f280b2b5dc6b1b29e45154e2c5aa1833426410e123",
+  "methodMemberCount": 34,
+  "methodChangedMembers": [
+    "apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+    "apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts"
+  ],
+  "protectedUnchanged": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-method-contract.ts",
+      "sha256": "06979207212a2317a0d1a7e6883839f8502383d1e94928dd885e16f35f622944"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/benchmark-harness.ts",
+      "sha256": "0588824257de2c8a9d12631916938e46fd1f0119b49ecb98f0279b58638d90bf"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "2139a094b075c307a7b5fa26fa3d4a7aa560f6e7e0d8820aa3e398c2455359d4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.ts",
+      "sha256": "cd76e8e9979d23cf460c5117aa4ce55fccd3639def6de4b132074e2f0e9e4a13"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+      "sha256": "732a234efeeda61d1eb83a3df49833a335ccbb202f357e6cdc2459d34ebcd241"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/freeze-candidate-point-oracle.mjs",
+      "sha256": "d8c7a0cdb8a129a1d710df4d420d6437d76d44d8fcc34bb5132a601add599937"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixture-manifest.json",
+      "sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739"
+    }
+  ],
+  "checks": {
+    "regression": "PASS exact observed unarmed record plus negative targets and unchanged timed epoch controls",
+    "typecheck": "PASS",
+    "diffCheck": "PASS"
+  },
+  "repairCycle": 1,
+  "runtime": "NOT_EXECUTED",
+  "remaining": [
+    "ROOT affected fresh review",
+    "ROOT smoke requalification release"
+  ],
+  "blockers": []
+}
