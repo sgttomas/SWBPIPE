@@ -102,13 +102,17 @@
       "purpose": "Owner chooses the concept direction; answered 2026-09-17 as a synthesis (tables are the model, CAEPIPE grammar, stages as pages of tables, three views per stage, row-by-row acceptance, Review page)",
       "status": "complete",
       "return": "instances/ROOT/DIRECTION_DECISION_2026-09-17.md",
-      "note": "Confirmed 2026-09-18 with corrections (views Table/Model/Both; numeric node IDs; tees as node data). Reading (d), the checked mark, remains under discussion and is provisional in phase 3."
+      "note": "Confirmed 2026-09-18 with corrections (views Table/Model/Both; numeric node IDs; tees as node data). Reading (d) settled the same day after discussion: the checked mark is kept. Eleven recommendations agreed (direction record §10); brief V1.4."
     },
     {
       "id": "DESIGN-SYSTEM",
       "role": "HELPS_HUMANS",
       "purpose": "Tokens, type, colour with dark mode, iconography, density, states; 3D presentation language",
-      "status": "pending"
+      "status": "active",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/DESIGN-SYSTEM-01_design_system.md",
+      "return": "instances/DESIGN-SYSTEM/"
     },
     {
       "id": "MOCKS",
@@ -213,5 +217,5 @@
       "ACCEPTANCE-PROPOSAL"
     ]
   ],
-  "current_frontier": "OWNER-DIRECTION"
+  "current_frontier": "DESIGN-SYSTEM"
 }

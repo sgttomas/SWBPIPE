@@ -58,4 +58,12 @@ Return `../instances/RESEARCH/E_caepipe_format.md`, SHA-256 `334719ad3232506d530
 
 Launched after the owner's direction of 2026-09-17 named export compatibility with CAEPIPE as a requirement (`../instances/ROOT/DIRECTION_DECISION_2026-09-17.md` §7). Opus because the result is objective: what a documented format contains.
 
+## Phase 3 brief, sealed before launch
+
+| Brief | Sealed SHA-256 | Launched (UTC) | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `DESIGN-SYSTEM-01_design_system.md` | `e7d21c114c6794f26dd0a653b3c333814ba2f5f24c2cdcb7a5e00cd4b19d37b9` | 2026-09-18T06:23:55Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone | `../instances/DESIGN-SYSTEM/` |
+
+Sealed on the owner's instruction of 2026-09-18 ("seal the design-system brief") after the direction was confirmed and the recommendations agreed (`../instances/ROOT/DIRECTION_DECISION_2026-09-17.md` §9 and §10).
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

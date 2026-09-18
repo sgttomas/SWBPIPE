@@ -1,6 +1,6 @@
 # Direction decision — the owner's synthesis, 2026-09-17
 
-Status: CONFIRMED by the owner on 2026-09-18 with corrections (§9): readings (a), (b) and (e) confirmed; (c) corrected to the view names Table, Model and Both; (f) corrected to numeric node IDs throughout; (d), the checked mark, open for discussion. The owner's direction was given in session on 2026-09-17 in two messages, transcribed verbatim in §1 from bytes extracted from the ROOT session transcript. §2 onward is ROOT's transcription of that direction into a design basis, updated for the corrections; where the transcription and the owner's words differ, the owner's words govern. This record supersedes the recommendation in [`../CONCEPTS/CONCEPT_DIRECTIONS_V1.md`](../CONCEPTS/CONCEPT_DIRECTIONS_V1.md) §5: none of the three directions is chosen as returned. The form follows [`DESIGN_BRIEF_V1.md`](DESIGN_BRIEF_V1.md) §1, the owner's words first and the consequences after, and the verbatim-extraction practice of the D-70 ruling record.
+Status: CONFIRMED by the owner on 2026-09-18 with corrections (§9): readings (a), (b) and (e) confirmed; (c) corrected to the view names Table, Model and Both; (f) corrected to numeric node IDs throughout; (d), the checked mark, settled on 2026-09-18 after discussion: kept (§10). The owner's direction was given in session on 2026-09-17 in two messages, transcribed verbatim in §1 from bytes extracted from the ROOT session transcript. §2 onward is ROOT's transcription of that direction into a design basis, updated for the corrections; where the transcription and the owner's words differ, the owner's words govern. This record supersedes the recommendation in [`../CONCEPTS/CONCEPT_DIRECTIONS_V1.md`](../CONCEPTS/CONCEPT_DIRECTIONS_V1.md) §5: none of the three directions is chosen as returned. The form follows [`DESIGN_BRIEF_V1.md`](DESIGN_BRIEF_V1.md) §1, the owner's words first and the consequences after, and the verbatim-extraction practice of the D-70 ruling record.
 
 ## 1. The owner's words
 
@@ -96,7 +96,7 @@ ROOT proceeded on these readings. The owner's word on each, given on 2026-09-18 
 - (a) The Review page is the fourth stage and replaces Report on the rail; the report is produced from the Review page. Owner: "approved."
 - (b) Export comes first; import of the same format is not assumed. The format is whatever RESEARCH-E finds CAEPIPE publicly documents. Owner: "correct."
 - (c) The views are called Table, Model and Mixed, the owner's words. Owner corrected the names to `Table`, `Model`, `Both`; applied throughout.
-- (d) The checked tag is a tag bound to row content, not a status, pending packet item 7. Owner: "I don't understand this one, we need to discuss more." Open; the mark is provisional in phase 3 until settled.
+- (d) The checked tag is a tag bound to row content, not a status, pending packet item 7. Owner: "I don't understand this one, we need to discuss more." Settled after discussion the same day, §10: "keep the checked mark."
 
 Added after RESEARCH-E returned ([`../RESEARCH/E_caepipe_format.md`](../RESEARCH/E_caepipe_format.md) §6.1, gaps 1 and 3), the same day:
 
@@ -114,6 +114,30 @@ Transcript timestamp 2026-09-18T06:08:18.062Z. SHA-256 of the extracted bytes: `
 > e) Your reading is correct.
 > f) change to numeric IDs throughout.
 
-Applied by ROOT the same day: the brief to V1.3 (views Table, Model, Both; numeric node IDs; tees as node data); §2 and §8 of this record; the phase 3 design-system brief sealed with the checked mark provisional.
+Applied by ROOT the same day: the brief to V1.3 (views Table, Model, Both; numeric node IDs; tees as node data); §2 and §8 of this record; the phase 3 design-system brief sealed after the recommendations in §10 were agreed.
+
+## 10. Recommendations agreed, 2026-09-18
+
+The owner asked (transcribed by ROOT in session on 2026-09-18; the session transcript had not yet stored these two messages when the record was written, so the hashes are of the transcribed text, not of extracted bytes), SHA-256 `ea6aa1864f3d43c7f458cd90b31c15d601fb8e554704724be52665f4347b9b0a`:
+
+> regarding section 4 and 7 of the direction decision, what makes sense to you and what would you recommend?
+
+ROOT explained the checked mark as a second act distinct from accepting a proposal (a human tag on a row, stale on change, with an unchecked filter) and recommended keeping it, and made the recommendations below on the product shape, the mock states and the new work. The owner answered, SHA-256 `db86dfb87c86a61f1e6df3fe7e3107cb4a6efda729c272e287b175ed08b58bb3`:
+
+> agreed on all, keep the checked mark, seal the design-system brief.
+
+Adopted into the brief as V1.4:
+
+1. Temperatures and pressures as named load sets: a Load column on the node row names the set, the set's values read through on the row, typing over them edits the set or forks a new one. Keeps export a projection and matches the CAEPIPE mental model; typing on the element remains possible.
+2. Loads never force a stage hop: the load mark on a node row opens the load row in place on the Model page; the Loads stage is where cases are authored and all loads seen together.
+3. First-open view per stage: Model opens in Both, Loads in Table, Results in Both, Review in Table; the per-stage memory rule governs after that.
+4. Origins quiet, proposals loud: origin is a small gutter glyph with a filter and a changes-since control, not a colour on every cell; proposed rows are the one thing shown strongly.
+5. The agent panel never covers the tables: a right column collapsible to a strip, present in every stage; proposals are read in the tables, the panel holds the conversation and the queue.
+6. Hanger design under Results, since the design pass needs a solve; vendor tables through Libraries.
+7. The Review page as three columns: report outline in the required order, section content with live tables from Results and authored text, and a comment stream with the agent's checks and open issues by reference; iterations as named snapshots with a diff toggle; the acceptance sentence once, at the top.
+8. The checked mark kept: called Checked, per row with multi-row, stale on change, with an unchecked filter. The governance standing and wording remain packet item 7.
+9. Fifteen mock frames rather than thirty-six: every state in its natural view in light; states 4 and 7 also in Table, state 8 also in Model; states 2, 7 and 9 also in dark. Light and dark as peers is proven by the tokens and the specimen.
+10. HTML mocks: static, self-contained pages at 1440 × 900 with a light and dark switch, drawn from one small fictional sample model with values labelled as sample.
+11. The rendering brief to the piping session is cut after the design system defines the presentation language; the decision packet is prepared after the mocks, with the frames as evidence.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
