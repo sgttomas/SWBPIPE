@@ -1326,3 +1326,52 @@ for (const outcomes of [["target-miss"],["invalid","valid"],["invalid","invalid"
     for(const ref of [...originalHashes,registry,priorRef])expect(createHash("sha256").update(await readFile(ref.path)).digest("hex")).toBe(ref.sha256);
   });
 }
+
+test("explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates",async({},info)=>{
+  const original=process.env.D70_WRITER_ORIGINAL_RETURN;test.skip(!original,"requires frozen seed and owner direction");
+  const {validateDisplayTransition,continuationProfileAuthorization,continuationExternalBindings,INTERNAL120_AUTHORITY_SHA256,ORIGINAL_RETURN_SHA256}=await import("./characterization-observations.mjs");
+  const {bindReferenceProfile}=await import("./characterization-mode");
+  const {dirname,resolve}=await import("node:path");
+  const directory=info.outputPath("internal120");await mkdir(directory,{recursive:true});
+  const save=async(name:string,value:any)=>{const file=`${directory}/${name}`,bytes=JSON.stringify(value);await writeFile(file,bytes,{flag:"wx"});return {path:file,sha256:createHash("sha256").update(bytes).digest("hex")};};
+  const seed=JSON.parse(await readFile(original!,"utf8"));
+  const previousProfile={path:seed.frozenEnvironment.UI_FOUNDATION_REFERENCE_PROFILE,sha256:seed.frozenEnvironment.UI_FOUNDATION_REFERENCE_PROFILE_SHA256};
+  const legacy=JSON.parse(await readFile(previousProfile.path,"utf8"));
+  const display={name:"Color LCD",vendor:"610",product:"a05f",serial:"fd626d62",pixels:"3456 x 2234",resolution:"1728 x 1117 @ 120.00Hz",mirror:"spdisplays_off",connection:"spdisplays_internal"};
+  const internal={...legacy,refreshHz:120,display}; // deterministic test profile; not a live verification claim
+  const profile=await save("profile.json",internal);
+  const authority={path:resolve(dirname(original!),"../../OWNER_DIRECTION_INTERNAL120_20260917.md"),sha256:INTERNAL120_AUTHORITY_SHA256};
+  const policy:any={seed:{path:original!,sha256:ORIGINAL_RETURN_SHA256},cohortId:legacy.cohortId,ownerTransition:{},method:{sha256:"c".repeat(64)},displayTransition:{schema:"ui-foundation.internal120-transition/v1",authority,previousProfile,profile}};
+  const transition=await validateDisplayTransition(policy,seed);expect(transition.record).toEqual(internal);
+  const base=continuationExternalBindings(seed),next=continuationExternalBindings(seed,policy);
+  expect(Object.keys(next).filter(k=>next[k]!==base[k])).toEqual(["UI_FOUNDATION_REFERENCE_PROFILE","UI_FOUNDATION_REFERENCE_PROFILE_SHA256"]);
+  expect(next.UI_FOUNDATION_REFERENCE_PROFILE).toBe(profile.path);expect(next.UI_FOUNDATION_REFERENCE_PROFILE_SHA256).toBe(profile.sha256);
+  const host={model:"Apple M5 Max",memoryBytes:128*1024**3};
+  expect(()=>validateReferenceProfile(internal,legacy.cohortId,host)).toThrow();
+  expect(()=>validateReferenceProfile(legacy,legacy.cohortId,host)).not.toThrow();
+  const policyRef=await save("policy.json",policy),claim=await save("claim.json",{slot:"10000.1",policySha256:policyRef.sha256,methodSha256:policy.method.sha256,executionToken:"token"});
+  const env={...seed.frozenEnvironment,...next,UI_FOUNDATION_CONTINUATION_POLICY:policyRef.path,UI_FOUNDATION_CONTINUATION_POLICY_SHA256:policyRef.sha256,
+    UI_FOUNDATION_CONTINUATION_CLAIM:claim.path,UI_FOUNDATION_CONTINUATION_CLAIM_SHA256:claim.sha256,UI_FOUNDATION_CONTINUATION_TOKEN:"token"};
+  const authorization=await continuationProfileAuthorization(env);
+  expect(()=>validateReferenceProfile(internal,legacy.cohortId,host,authorization)).not.toThrow();
+  expect(()=>validateReferenceProfile(legacy,legacy.cohortId,host,authorization)).toThrow();
+  expect((await bindReferenceProfile(env)).record.refreshHz).toBe(120);
+  await expect(bindReferenceProfile({...env,UI_FOUNDATION_CONTINUATION_POLICY:undefined,UI_FOUNDATION_CONTINUATION_POLICY_SHA256:undefined})).rejects.toThrow();
+  const oldClaim=await save("1000-claim.json",{slot:"1000.5",policySha256:policyRef.sha256,methodSha256:policy.method.sha256,executionToken:"token"});
+  await expect(continuationProfileAuthorization({...env,UI_FOUNDATION_CONTINUATION_CLAIM:oldClaim.path,UI_FOUNDATION_CONTINUATION_CLAIM_SHA256:oldClaim.sha256})).rejects.toThrow("authorized10000 claim");
+  await expect(validateDisplayTransition({...policy,displayTransition:{...policy.displayTransition,authority:{...authority,sha256:"0".repeat(64)}}},seed)).rejects.toThrow("owner/profile lineage");
+  await expect(validateDisplayTransition({...policy,displayTransition:{...policy.displayTransition,previousProfile:profile}},seed)).rejects.toThrow("lineage");
+  for(const [index,changed] of [{...internal,refreshHz:60},{...internal,viewport:[100,100]},{...internal,display:{...display,connection:"external"}}].entries()) {
+    const bad=await save(`bad-profile-${index}.json`,changed);
+    await expect(validateDisplayTransition({...policy,displayTransition:{...policy.displayTransition,profile:bad}},seed)).rejects.toThrow("reference profile mismatch");
+  }
+  const raw={SPDisplaysDataType:[{sppci_model:"Apple M5 Max",spdisplays_ndrvs:[{_name:display.name,"_spdisplays_display-vendor-id":display.vendor,"_spdisplays_display-product-id":display.product,
+    "_spdisplays_display-serial-number":display.serial,_spdisplays_pixels:display.pixels,_spdisplays_resolution:display.resolution,spdisplays_mirror:display.mirror,spdisplays_connection_type:display.connection,spdisplays_main:"spdisplays_yes",spdisplays_online:"spdisplays_yes"}]}]};
+  expect(validateDisplayProfile(raw,display)).toEqual(display);
+  expect(()=>validateDisplayProfile(raw,legacy.display)).toThrow();
+  for(const [key,value] of [["_spdisplays_resolution","1728 x 1117 @ 60.00Hz"],["_spdisplays_display-serial-number","wrong"],["spdisplays_connection_type","external"],["_spdisplays_pixels","999 x 999"]]) {
+    const drift=structuredClone(raw);(drift.SPDisplaysDataType[0].spdisplays_ndrvs[0] as any)[key]=value;
+    expect(()=>validateDisplayProfile(drift,display)).toThrow();
+  }
+  expect(()=>validateDisplayProfile(raw,display,{...display,resolution:"other"})).toThrow();
+});

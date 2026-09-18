@@ -581,3 +581,39 @@ remaining unattempted10000 slots. No valid actual run means close fails; allfive
 attempts report exhaustion without fabricated success. Original per-run targets and failures
 remain intact. Reports separate consumed, interrupted, invalid, valid/complete, confirmed
 success after cleanup, waived and eligible slots. Method populations remain distinct.
+
+### Explicit internal120 display successor
+
+The owner separately authorized the internal Color LCD120Hz after the externalLG60Hz
+became unavailable before any10000 claim. Retain all1000 evidence under its original60Hz
+profile; this is a different display profile, not a same-profile repeated cohort. Add to
+the one-success policy:
+
+```json
+{
+  "displayTransition": {
+    "schema": "ui-foundation.internal120-transition/v1",
+    "authority": {"path": "/canonical/D70_BASELINE/OWNER_DIRECTION_INTERNAL120_20260917.md", "sha256": "6df272b7af0367b0083302229018143f8fa397a6bde0f5e368c6ec1e454157b9"},
+    "previousProfile": {"path": "/canonical/RUNNER/REFERENCE_PROFILE_V2.json", "sha256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922"},
+    "profile": {"path": "/canonical/RUNNER/CONTINUATION/INTERNAL120/REFERENCE_PROFILE_INTERNAL120.json", "sha256": "<sealed actual profile SHA>"}
+  }
+}
+```
+
+Only `UI_FOUNDATION_REFERENCE_PROFILE` and its SHA override the original external-binding
+map; receipt/binding-proof `externalBindings` must carry precisely these two replacements.
+All other seed external values stay exact. The profile retains schema/cohort/product/host,
+M5Max128GiB, viewport1440×920 andDPR2; refreshHz is120. Its exact display identity contains
+name `Color LCD`, vendor610, producta05f, serialfd626d62, pixels3456×2234,
+resolution `1728 x 1117 @ 120.00Hz`, mirroroff and `connection:"spdisplays_internal"`.
+Use actual sealed readbacks, never a synthesized successful verification.
+
+Legacy profile validation remains60-only.120 is accepted only with the owner/hash-bound
+successor policy and matching current10000 claim. Live before/after display checks compare
+exact identity, connection, resolution/refresh and prior observation; missing, ambiguous,
+60Hz or drifting120 observations reject. New claims and reports carry the new profile;
+historical claims retain the old profile. The method transition permits only the display
+validator block of characterization-commands.ts to differ, checking all source outside
+that block byte-for-byte against V4; other measured files remain hash-identical. No new
+observer, target, timing endpoint, workload or product change follows. One-success stopping,
+remaining five-slot cap and fresh cleanup/source/profile prerequisites remain unchanged.

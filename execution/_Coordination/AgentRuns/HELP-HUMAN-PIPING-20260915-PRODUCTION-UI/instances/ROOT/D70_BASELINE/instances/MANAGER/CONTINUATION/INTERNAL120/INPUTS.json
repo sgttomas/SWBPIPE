@@ -1,0 +1,15 @@
+{
+  "upstream": {
+    "OWNER_DIRECTION_INTERNAL120_20260917.md": "6df272b7af0367b0083302229018143f8fa397a6bde0f5e368c6ec1e454157b9",
+    "briefs/MANAGER_INTERNAL120.md": "23c42ac0985f7e2891c83897e5e5d87005f4194eb5c9a87e4e99119864952e4f"
+  },
+  "base": "c1266b8aa22a57bb608a97140ecdc97b098dd2ad",
+  "role": "WORKING_ITEMS Type1",
+  "instance": "/root/d70_manager",
+  "parent": "/root",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "execution": "direct, no child",
+  "runtimeAuthorized": false,
+  "scopeExtensionRequested": "characterization-mode.ts reference validator/binder only"
+}

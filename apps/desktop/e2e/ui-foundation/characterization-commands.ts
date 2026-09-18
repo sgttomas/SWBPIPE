@@ -198,9 +198,11 @@ export function validateDisplayProfile(raw: any, expected: any, previous?: any) 
   const matches=online.filter((v:any)=>v.display.spdisplays_main==="spdisplays_yes");
   if(matches.length!==1 || !expected || matches[0].gpu!=="Apple M5 Max")throw new Error("missing or ambiguous main online display");
   const d=matches[0].display, identity={name:d._name,vendor:d["_spdisplays_display-vendor-id"],product:d["_spdisplays_display-product-id"],
-    serial:d["_spdisplays_display-serial-number"],pixels:d._spdisplays_pixels,resolution:d._spdisplays_resolution,mirror:d.spdisplays_mirror};
-  if(!Object.values(identity).every(v=>typeof v==="string"&&v.length>0) || !/@ 60\.00Hz$/.test(identity.resolution) || identity.mirror!=="spdisplays_off" ||
-    Object.keys(identity).some(k => (identity as any)[k] !== expected[k]) || (previous && Object.keys(identity).some(k => previous[k] !== (identity as any)[k])))throw new Error("external display profile drift or unavailable 60 Hz binding");
+    serial:d["_spdisplays_display-serial-number"],pixels:d._spdisplays_pixels,resolution:d._spdisplays_resolution,mirror:d.spdisplays_mirror,
+    ...(expected.connection==="spdisplays_internal"?{connection:d.spdisplays_connection_type}:{})};
+  const internal120=expected.connection==="spdisplays_internal" && expected.name==="Color LCD" && /@ 120\.00Hz$/.test(expected.resolution??"");
+  if(!Object.values(identity).every(v=>typeof v==="string"&&v.length>0) || !(internal120?/@ 120\.00Hz$/:/@ 60\.00Hz$/).test(identity.resolution) || identity.mirror!=="spdisplays_off" ||
+    Object.keys(identity).some(k => (identity as any)[k] !== expected[k]) || (previous && Object.keys(identity).some(k => previous[k] !== (identity as any)[k])))throw new Error("display profile drift or unavailable exact refresh binding");
   return identity;
 }
 export async function captureDisplayProfile(directory: string, label: string, expected: any, previous?: any) {

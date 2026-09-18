@@ -1,0 +1,115 @@
+{
+  "status": "PASS_INTERNAL120_PROFILE_SUCCESSOR_PENDING_ROOT_BACKCHECK",
+  "instance": "/root/d70_manager",
+  "role": "WORKING_ITEMS Type1",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "execution": "direct bounded ROOT grant; no child",
+  "baseRevision": "c1266b8aa22a57bb608a97140ecdc97b098dd2ad",
+  "successorManifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/METHOD_MANIFEST_SUCCESSOR.json",
+    "sha256": "1e0ab8a4e4a57753084d7ceca695b0b4b952aa047923cb48e3dbd3074bf22a78"
+  },
+  "manifestEntries": 34,
+  "policyTemplate": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/POLICY_TEMPLATE.json",
+    "sha256": "f31e402afbc7c7bf419b116eea4c235715dfe1902f90013bc2bd17efcce6b67a"
+  },
+  "templateInstruction": "Replace instrumentRevision with final instrument HEAD; freeze through ROOT. All other literal profile/authority/history bindings retained.",
+  "checks": {
+    "focused": 9,
+    "skipped": 0,
+    "typescript": "PASS",
+    "diffCheck": "PASS",
+    "actualProfileAndHistoricalReadOnlyAudit": "PASS",
+    "historicalClaimsAndHashesUnchanged": true,
+    "measuredControllerActionsTraceScorerProduct": "UNCHANGED"
+  },
+  "interface": {
+    "launch": "node apps/desktop/e2e/ui-foundation/characterization-observations.mjs launch-slot POLICY_JSON POLICY_SHA256 10000.1 RECEIPT_JSON RECEIPT_SHA256",
+    "close": "node apps/desktop/e2e/ui-foundation/characterization-observations.mjs close-one-success POLICY_JSON POLICY_SHA256 RECEIPT_JSON RECEIPT_SHA256",
+    "laterOrdinals": "10000.2\u20135 only after previous failure and fresh cleanup/bindings; stop first actual exit0 + valid complete result, target miss allowed",
+    "externalBindings": "Original seed map with exactly UI_FOUNDATION_REFERENCE_PROFILE and UI_FOUNDATION_REFERENCE_PROFILE_SHA256 replaced; receipt and independent proof must match. Actual launch env uses same overrides.",
+    "claimAttribution": "New10000 claims include complete displayTransition; historical reports retain previous60Hz reference profile."
+  },
+  "evidence": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/ACTUAL_PROFILE_HISTORY_AUDIT.json",
+      "sha256": "e3a73d048f3b343dea0f9fc9e2482c3b880df5d710bdcd76fd13278d5c13cde2"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/INPUTS.json",
+      "sha256": "5349ed347e7ac5690d596b82ec0a12bf5a54dab90880a396f09b15c4954c05e4"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/METHOD_MANIFEST_SUCCESSOR.json",
+      "sha256": "1e0ab8a4e4a57753084d7ceca695b0b4b952aa047923cb48e3dbd3074bf22a78"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/POLICY_TEMPLATE.json",
+      "sha256": "f31e402afbc7c7bf419b116eea4c235715dfe1902f90013bc2bd17efcce6b67a"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/SCOPE_ADDENDUM.json",
+      "sha256": "d046883dc86903df3fcb730f5de93b131fe8b563740e2b40177f6a9f4a55f206"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/SOURCE_FENCE.json",
+      "sha256": "0e7fd4629aa1fea19014e2c2e505e46c8cc7bc27ed2a7fb20964cab6781795ba"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/final-focused.log",
+      "sha256": "0e2c6bc200b8da3b9940f7e0be5e0822cbde137c06875be5215280a2884ff6e5"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/final-node-only.config.ts",
+      "sha256": "1d283bcddfb496cc63457c70f66bf0afa41eafb9f978d8b70d2c23ab95cdfc27"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/final-test-output.tar.gz",
+      "sha256": "c48593ceff9d3f6af4b4974fad00ace96af7d348816ca677e2f2908143bd4aed"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/final-test-results.json",
+      "sha256": "c85c941981ee23b7b3c448dd3395473167aeac1e10b1545549f669fcb1cdbe83"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/final-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/focused.log",
+      "sha256": "6e900de06cfd651615ad4f4cbd48f301fb9f1fbf0a2c968e64aef9ab8cee6535"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/node-only.config.ts",
+      "sha256": "060bf68952e53e8cca361ba8228b033503f34986e4bcb0267aae9ef7b3520406"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/test-output.tar.gz",
+      "sha256": "562419d196606bf1f98aa23c9da6d8d9b425a13238355336d2fcbd284844060d"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/test-results.json",
+      "sha256": "1c4b0f79239ba4fd48ed945c2920b3c0cc44fb79d473fd362922172673d522fb"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/tsconfig.json",
+      "sha256": "fd2a193faeee2869ad86a4c5c3eff7ce348442f95c894fe482ec97230e3b8867"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "runtimeExecuted": false,
+  "attemptsConsumed": 0,
+  "derivativePackage": true,
+  "closure": "SOURCE_COMPLETE_PENDING_ROOT_INTEGRATION_REVIEW_RELEASE",
+  "remaining": [
+    "ROOT integrate and independent affected backcheck",
+    "Runner freeze successor policy with final instrument revision and fresh external proof",
+    "ROOT runtime release separately"
+  ],
+  "comparison": "Historical external60 and successor internal120 retain separate method/profile attribution; no homogeneous cohort claim"
+}

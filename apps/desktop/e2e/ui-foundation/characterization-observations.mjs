@@ -119,7 +119,8 @@ export async function observeAttempt(attemptFile, outputFile) {
 export const CONTINUATION_SLOTS=Object.freeze(["1000.2","1000.3","1000.4","1000.5","10000.1","10000.2","10000.3","10000.4","10000.5"]);
 export const ORIGINAL_RETURN_SHA256="b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6";
 const excludedExternalKeys=new Set(["UI_FOUNDATION_EVIDENCE_DIR","UI_FOUNDATION_METHOD_MANIFEST_PATH","UI_FOUNDATION_METHOD_MANIFEST_SHA256"]);
-export const continuationExternalBindings=seed=>Object.fromEntries(Object.entries(seed.frozenEnvironment).filter(([key])=>!excludedExternalKeys.has(key)));
+export const continuationExternalBindings=(seed,policy)=>({...Object.fromEntries(Object.entries(seed.frozenEnvironment).filter(([key])=>!excludedExternalKeys.has(key))),
+  ...(policy?.displayTransition?{UI_FOUNDATION_REFERENCE_PROFILE:policy.displayTransition.profile.path,UI_FOUNDATION_REFERENCE_PROFILE_SHA256:policy.displayTransition.profile.sha256}:{})});
 const jsonEqual=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 async function boundJson(ref) {
   if(!ref || !path.isAbsolute(ref.path) || !/^[a-f0-9]{64}$/.test(ref.sha256??""))throw new Error("absolute hash-bound JSON reference required");
@@ -127,6 +128,32 @@ async function boundJson(ref) {
 }
 async function writeOnce(file,value){await writeFile(file,`${JSON.stringify(value,null,2)}\n`,{flag:"wx"});return {path:file,sha256:hash(await readFile(file))};}
 const ONE_SUCCESS_AUTHORITY_SHA256="ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2";
+export const INTERNAL120_AUTHORITY_SHA256="6df272b7af0367b0083302229018143f8fa397a6bde0f5e368c6ec1e454157b9";
+export async function validateDisplayTransition(policy,seed) {
+  const t=policy.displayTransition;if(!t)return null;
+  if(!policy.ownerTransition || t.schema!=="ui-foundation.internal120-transition/v1" || t.authority?.sha256!==INTERNAL120_AUTHORITY_SHA256 ||
+    t.authority.path!==path.resolve(path.dirname(policy.seed.path),"../../OWNER_DIRECTION_INTERNAL120_20260917.md") ||
+    hash(await readFile(t.authority.path))!==t.authority.sha256 ||
+    !jsonEqual(t.previousProfile,{path:seed.frozenEnvironment.UI_FOUNDATION_REFERENCE_PROFILE,sha256:seed.frozenEnvironment.UI_FOUNDATION_REFERENCE_PROFILE_SHA256}))throw new Error("internal120 owner/profile lineage mismatch");
+  const previous=await boundJson(t.previousProfile),record=await boundJson(t.profile);
+  if(previous.refreshHz!==60 || record.schema!==previous.schema || record.refreshHz!==120 || record.cohortId!==policy.cohortId || record.productRevision!==previous.productRevision ||
+    !["hostModel","memoryBytes","viewport","browserDpr","effectiveDprCap"].every(k=>jsonEqual(record[k],previous[k])) || record.externallyVerified!==true ||
+    typeof record.verificationEvidence!=="string" || !record.verificationEvidence || !Number.isFinite(Date.parse(record.verifiedAt)) || record.display?.name!=="Color LCD" || record.display?.connection!=="spdisplays_internal" ||
+    !/@ 120\.00Hz$/.test(record.display.resolution??"") || record.display.mirror!=="spdisplays_off" ||
+    !["vendor","product","serial","pixels","resolution"].every(k=>typeof record.display[k]==="string"&&record.display[k]))throw new Error("authorized internal120 reference profile mismatch");
+  return {authority:t.authority,previousProfile:t.previousProfile,profile:t.profile,record};
+}
+export async function continuationProfileAuthorization(env) {
+  const policyRef={path:env.UI_FOUNDATION_CONTINUATION_POLICY,sha256:env.UI_FOUNDATION_CONTINUATION_POLICY_SHA256};
+  if(!policyRef.path)return null;
+  const policy=await boundJson(policyRef),seed=await boundJson(policy.seed),transition=await validateDisplayTransition(policy,seed);
+  if(!transition)return null;
+  const claim=await boundJson({path:env.UI_FOUNDATION_CONTINUATION_CLAIM,sha256:env.UI_FOUNDATION_CONTINUATION_CLAIM_SHA256});
+  if(env.UI_FOUNDATION_PHASE!=="candidate" || env.UI_FOUNDATION_COLLECTION_MODE!=="characterization" || !/^10000\.[1-5]$/.test(claim.slot) ||
+    claim.policySha256!==policyRef.sha256 || claim.methodSha256!==policy.method.sha256 || claim.executionToken!==env.UI_FOUNDATION_CONTINUATION_TOKEN ||
+    env.UI_FOUNDATION_REFERENCE_PROFILE!==transition.profile.path || env.UI_FOUNDATION_REFERENCE_PROFILE_SHA256!==transition.profile.sha256)throw new Error("internal120 profile requires matching authorized10000 claim");
+  return {refreshHz:120,authoritySha256:transition.authority.sha256,profileSha256:transition.profile.sha256};
+}
 const historicalSlots=["1000.2","1000.3","1000.4"];
 const eligibleSlots=policy=>policy.ownerTransition?CONTINUATION_SLOTS.filter(s=>s!=="1000.5"):CONTINUATION_SLOTS;
 const registryValue=(policy,policySha256)=>({seedSha256:policy.seed.sha256,cohortId:policy.cohortId,ledgerRoot:policy.ledgerRoot,policySha256,methodSha256:policy.method.sha256,instrumentRevision:policy.instrumentRevision});
@@ -152,10 +179,20 @@ async function oneSuccessHistory(policy) {
     t.authority.path!==path.resolve(path.dirname(policy.seed.path),"../../OWNER_DIRECTION_ONE_SUCCESS_20260917.md") ||
     hash(await readFile(t.authority.path))!==t.authority.sha256)throw new Error("owner waiver authority mismatch");
   const prior=await boundJson(t.previousPolicy),seed=await boundJson(policy.seed);validateContinuationPolicy(prior,seed);
+  const displayTransition=await validateDisplayTransition(policy,seed);
   if(prior.ownerTransition || !["seed","cohortId","ledgerRoot","instrumentProjectRoot","attemptRoots"].every(k=>jsonEqual(prior[k],policy[k])) ||
     !jsonEqual(await boundJson(t.registry),registryValue(prior,t.previousPolicy.sha256)))throw new Error("historical policy/registry lineage or ledger relocation mismatch");
   const oldMethod=await boundJson(prior.method),newMethod=await boundJson(policy.method);
   const orchestration=new Set(["characterization-observations.mjs","characterization-observations.d.mts","characterization-mode.ts","full-cohort-controller.spec.ts","README.md"]);
+  if(displayTransition) {
+    const relative="apps/desktop/e2e/ui-foundation/characterization-commands.ts";
+    const prefix=execFileSync("git",["rev-parse","--show-prefix"],{cwd:policy.instrumentProjectRoot,encoding:"utf8"}).trim();
+    const oldSource=execFileSync("git",["show",`${prior.instrumentRevision}:${prefix}${relative}`],{cwd:policy.instrumentProjectRoot,encoding:"utf8"});
+    const newSource=await readFile(path.join(policy.instrumentProjectRoot,relative),"utf8");
+    const outsideProfileValidator=source=>source.replace(/export function validateDisplayProfile\([\s\S]*?(?=export async function captureDisplayProfile\()/,"PROFILE_VALIDATOR_ONLY\n");
+    if(!oldSource.includes("export function validateDisplayProfile(") || outsideProfileValidator(oldSource)!==outsideProfileValidator(newSource))throw new Error("display transition changed commands outside profile validator");
+    orchestration.add("characterization-commands.ts");
+  }
   if(oldMethod.files?.length!==34 || newMethod.files?.length!==34 || !jsonEqual(oldMethod.files.map(f=>f.path),newMethod.files.map(f=>f.path)) ||
     oldMethod.files.some((f,i)=>!orchestration.has(path.basename(f.path))&&f.sha256!==newMethod.files[i].sha256))throw new Error("measurement method changed across accounting transition");
   if(!Array.isArray(t.history)||t.history.length!==3)throw new Error("exact three historical claims required");
@@ -208,13 +245,15 @@ export async function continuationClaims(policy) {
     if(transition && (claim.previousClaimSha256!==(claims.at(-1)?.sha256??policy.seed.sha256) ||
       (historicalSlots.includes(slot)?hash(bytes)!==transition.history[claims.length]?.sha256:
        claim.policySha256!==(await optionalJson(path.join(policy.ledgerRoot,"one-success-policy.json")))?.policySha256)))throw new Error("claim chain or historical/successor policy mismatch");
+    if(slot.startsWith("10000.") && !jsonEqual(claim.displayTransition,policy.displayTransition))throw new Error("claim display profile attribution mismatch");
     claims.push({claim,path:file,sha256:hash(bytes)});
   }
   if(transition&&claims.length<3)throw new Error("historical consumed claims missing");
   return claims;
 }
 export async function validateContinuationReceipt(receipt,policy,slot,previous,seed) {
-  const external=continuationExternalBindings(seed);
+  await validateDisplayTransition(policy,seed);
+  const external=continuationExternalBindings(seed,policy);
   if(receipt?.schema!=="ui-foundation.continuation-preconditions/v1" || receipt.slot!==slot || receipt.previousClaimSha256!==previous.sha256 ||
     receipt.cleanup?.status!=="VERIFIED_NO_REMAINING_BROWSER_OR_SERVER" || receipt.bindingsStatus!=="VERIFIED_UNCHANGED" ||
     !jsonEqual(receipt.externalBindings,external) || !Number.isFinite(Date.parse(receipt.verifiedAt)) || Date.parse(receipt.verifiedAt)<Date.parse(previous.claim?.claimedAt??seed.at) ||
@@ -231,7 +270,8 @@ export async function validateContinuationReceipt(receipt,policy,slot,previous,s
   if(bindingProof.status!=="PASS_INDEPENDENT_EXTERNAL_REVALIDATION" || !jsonEqual(bindingProof.externalBindings,external))throw new Error("independent external binding proof mismatch");
 }
 async function verifyContinuationFiles(policy,seed) {
-  const env={...seed.frozenEnvironment,UI_FOUNDATION_METHOD_MANIFEST_PATH:policy.method.path,UI_FOUNDATION_METHOD_MANIFEST_SHA256:policy.method.sha256};
+  await validateDisplayTransition(policy,seed);
+  const env={...seed.frozenEnvironment,...continuationExternalBindings(seed,policy),UI_FOUNDATION_METHOD_MANIFEST_PATH:policy.method.path,UI_FOUNDATION_METHOD_MANIFEST_SHA256:policy.method.sha256};
   const head=execFileSync("git",["rev-parse","HEAD"],{cwd:policy.instrumentProjectRoot,encoding:"utf8"}).trim();
   if(head!==policy.instrumentRevision)throw new Error("instrument revision drift");
   const method=await boundJson(policy.method);
@@ -335,7 +375,8 @@ export async function continuationBudgetReport(policy,seed) {
   const claims=await continuationClaims(policy);
   const state=await oneSuccessState(policy,claims);
   const slots=[{slot:"1000.1",consumed:true,instrumentRevision:seed.instrumentRevision,methodSha256:seed.originalScores.bindings.methodSha256,
-    evidenceValidity:"INVALID",collectionCompleteness:"INCOMPLETE",originalScored:seed.originalScores,source:policy.seed}];
+    evidenceValidity:"INVALID",collectionCompleteness:"INCOMPLETE",originalScored:seed.originalScores,source:policy.seed,
+    referenceProfile:{path:seed.frozenEnvironment.UI_FOUNDATION_REFERENCE_PROFILE,sha256:seed.frozenEnvironment.UI_FOUNDATION_REFERENCE_PROFILE_SHA256}}];
   for(const slot of CONTINUATION_SLOTS) {
     const entry=claims.find(c=>c.claim.slot===slot);
     if(!entry){slots.push({slot,consumed:false,disposition:policy.ownerTransition&&(slot==="1000.5"||state.completion?.waivedUnattempted.includes(slot))?"WAIVED_UNATTEMPTED_BY_OWNER":"UNATTEMPTED"});continue;}
@@ -344,6 +385,7 @@ export async function continuationBudgetReport(policy,seed) {
     try{result=JSON.parse(await readFile(resultFile,"utf8"));}catch(error){if(error.code!=="ENOENT")throw error;}
     try{terminal=JSON.parse(await readFile(path.join(policy.ledgerRoot,`terminal-${slot}.json`),"utf8"));}catch(error){if(error.code!=="ENOENT")throw error;}
     slots.push({slot,consumed:true,instrumentRevision:entry.claim.instrumentRevision,methodSha256:entry.claim.methodSha256,claimSha256:entry.sha256,
+      referenceProfile:entry.claim.displayTransition?.profile??{path:seed.frozenEnvironment.UI_FOUNDATION_REFERENCE_PROFILE,sha256:seed.frozenEnvironment.UI_FOUNDATION_REFERENCE_PROFILE_SHA256},
       evidenceValidity:result?.collection?.evidenceValidity??"INVALID_OR_UNAVAILABLE",collectionCompleteness:result?.collection?.collectionCompleteness??"INCOMPLETE",
       originalScored:result?.scored??null,runtimeDisposition:terminal?.exitCode===0&&!terminal.signal&&!terminal.launchError?"PASSED":"FAILED_OR_UNAVAILABLE",terminal,resultFile,
       ...(policy.ownerTransition?{matchedIdentityAndWorkload:validCompleteResult(result,entry)}:{}),
@@ -376,6 +418,7 @@ export async function launchContinuationSlot(policyRef,slot,receiptRef,operation
   const evidenceRoot=policy.attemptRoots[slot];await mkdir(evidenceRoot); // exclusive new output; never reuse
   const token=createHash("sha256").update(`${policyRef.sha256}:${slot}:${Date.now()}:${process.pid}`).digest("hex");
   const claim={schema:"ui-foundation.started-slot/v1",slot,cohortId:policy.cohortId,seedSha256:policy.seed.sha256,policySha256:policyRef.sha256,
+    ...(policy.displayTransition?{displayTransition:policy.displayTransition}:{}),
     previousClaimSha256:previous.sha256,receipt:receiptRef,methodSha256:policy.method.sha256,instrumentRevision:policy.instrumentRevision,
     evidenceRoot,executionToken:token,claimedAt:new Date().toISOString(),disposition:"CONSUMED_BEFORE_SUBPROCESS_LAUNCH"};
   const claimRef=await writeOnce(path.join(policy.ledgerRoot,"claims",`${slot}.json`),claim);
