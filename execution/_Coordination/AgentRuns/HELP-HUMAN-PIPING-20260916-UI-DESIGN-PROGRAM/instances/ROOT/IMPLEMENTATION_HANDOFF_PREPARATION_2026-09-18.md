@@ -7,11 +7,11 @@ Status: ROOT record, 2026-09-18, successor ROOT. **The design work is not ready 
 | # | Prerequisite | State |
 |---|---|---|
 | P-1 | D-70's performance handoff condition | Satisfied ([reconciliation](PIPING_HANDOFF_RECONCILIATION_2026-09-18.md)) |
-| P-2 | D-71 ruled, item by item; deferred items named as deferred | Open with the owner |
-| P-3 | Q-15 to Q-22 answered ([preparation](REVISION_PASS_PREPARATION_2026-09-18.md) §2) | Open with the owner |
-| P-4 | Revision pass accepted: design system V1.2, UX specification V1.1, frames; operations map re-checked against the then-current `HEAD` | Waits on P-2 and P-3 |
-| P-5 | D-72 ruled (performance acceptance criteria), or the owner states that implementation may start before it and qualification waits for it | Open with the owner |
-| P-6 | If D-71 item 3(i) is ruled: the scope-change bundle for PRD §19.3 accepted separately, or the rename sequenced after the first tranche | Waits on P-2 |
+| P-2 | D-71 ruled, item by item; deferred items named as deferred | Ruled 2026-09-18 except item 7 (`DEC-099` to `DEC-103`); item 7 open with the owner and not blocking: the mark can be left out of a first tranche |
+| P-3 | Q-15 to Q-22 answered ([preparation](REVISION_PASS_PREPARATION_2026-09-18.md) §2) | Answered 2026-09-18; Q-20 amended |
+| P-4 | Revision pass accepted: design system V1.2, UX specification V1.1, frames; operations map re-checked against the then-current `HEAD` | Running: DESIGN-SYSTEM-03 launched 2026-09-18 |
+| P-5 | D-72 ruled (performance acceptance criteria), or the owner states that implementation may start before it and qualification waits for it | Ruled in part 2026-09-18; the cohort and pass rule (item 5, supplement S-1 to S-3) open |
+| P-6 | If D-71 item 3(i) is ruled: the scope-change bundle for PRD §19.3 accepted separately, or the rename sequenced after the first tranche | SCA-010 prepared 2026-09-18; awaits the owner's acceptance |
 | P-7 | The owner's decision to authorize the implementation tranche, naming the owning loop | Reserved to the owner |
 
 ## 2. Constraints every implementation brief carries

@@ -76,4 +76,35 @@ The owner rules item by item, in chat or on this packet. Agent 0 appends the rul
 - Successor demonstration: `../AgentRuns/HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/RUNTIME_REPORT.md`, SHA-256 `e8acb49bce189f15ddf6958e16ffdc34f8ddc502de51df2065f0502c18dc4a40`; `../AgentRuns/HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/_run_records/RUNTIME_EVIDENCE.json`, `ac2892d5f3b9f06a4f47db5a39390cf1fe6a7bd3f9ebc2440a338a5ab43e9ba7`.
 - Design geometry and label budget: design system V1.1 §0 and §6 (`34ba3f1fadacbd1c3854e7bb654098b5525e25b9734b4106dfdd39fc94f0cf1f`); rendering brief §1, §3, §4.
 
+## Human Ruling, 2026-09-18 (appended; the packet above is unchanged)
+
+Ruled in part by Ryan Tufts in session on 2026-09-18, in the same message that ruled D-71; the complete message is reproduced once, with custody and hash, in the [D-71 ruling record](D-71_RULING_2026-09-18.md) (SHA-256 of the extracted bytes `711ca05ef7cb9bcaf6b7f0e6812ad002be58d8f9793aa68a08d0f19bceaf7944`). Its D-72 lines, verbatim, spelling the owner's:
+
+> Item 1: Recommendation accepted.
+> Item 2: I want this app to work on people's laptops or when connected to an external monitor.  I don't understand all the technical implications here but I also don't want performative governance or testing with no real value.  I am willing to accept your recommendation after considering this.
+> Item 3: Same again.   want this app to work on people's laptops or when connected to an external monitor.  I don't understand all the technical implications here but I also don't want performative governance or testing with no real value.  I am willing to accept your recommendation after considering this.
+> Item 4: Recommendation accepted, we need not pin ourselves to previous test results or methods.  Those are just evidence to know what was the case before changes are made.
+> Item 5: I'm not convinced this testing is necessary.  I don't know that for certain, it just seems like overkill.  I need more of a rationale to rule on this.
+> Item 6: Recommendation accepted.
+
+Disposition: items 1, 2, 3, 4 and 6 accepted as recommended; **item 5 not ruled**. The owner's stated intent governs how the accepted items are read: the product must work on a laptop's own display and on an external monitor, and testing must earn its keep. The [ruling record](D-72_RULING_2026-09-18.md) states the effect. The supplement below answers the owner's request for a rationale on item 5 and, taking the owner's intent at its word, proposes to make the whole plan lighter.
+
+## Supplement, 2026-09-18 — item 5's rationale, and a lighter plan for the owner's ruling
+
+**What the testing is for, in one sentence.** The redesign adds work to every frame (more labels, edge lines, result colour, halos, a table beside the canvas), and the only way to know that a 10,000-pipe model still feels immediate afterwards is to drive the real interface with real pointer input and time it; the instrument that does this already exists, runs unattended, and costs machine time, not the owner's.
+
+**What five runs buy, and when they buy nothing.** Within one run, the p95 over 200 selections already covers variation between actions. Repeating the run covers variation between runs: thermal state, garbage collection, whatever else the machine was doing. That matters only when a result is near its limit. If selection feedback takes 45 ms against a 100 ms limit, a second run cannot change the conclusion and four more are ceremony. If it takes 95 ms, one run proves nothing and repeats are the whole point. The packet's item 5 treated both cases alike, and the fresh five-run baseline cohort on the old interface measures a product nobody will use again. The owner's objection is right about both.
+
+**S-1, replacing item 5 — repeat only when it is close.** One run per fixture size (1,000 and 10,000 pipes) per canvas configuration on the laptop's display: four runs. A run whose every gated quantity is at or under 80 % of its limit settles that configuration. If any gated quantity lands between 80 % and 100 % of its limit, that configuration is run twice more and all three runs must meet every limit. Any quantity over its limit is a failure: the product is fixed and the changed product is tested as a new candidate. A run the instrument itself marks invalid is repeated and the invalid run is kept on record. The 80 % line is fixed now, before any run of the redesigned product exists; no tolerance, oracle or limit is changed to obtain a result. The picking regression tests pass first.
+
+**S-2 — no fresh baseline cohort.** The recorded demonstration on the repaired product is the before-picture, with its recorded conditions. This follows the owner's word on item 4: earlier results are evidence of what was the case before the change, not something to pin to. It sets aside, by owner act, D-70 effect 6's phrase "applied identically to baseline and candidate" so far as it would require re-measuring the old interface; the criteria themselves still come from perception bounds and not from either product's scores.
+
+**S-3, refining items 2 and 3 for "laptops and external monitors".** The external-monitor check becomes real rather than decorative: one run per size on an external monitor at that monitor's own resolution and pixel ratio, in the larger canvas configuration, with the latency and assignment limits applied as gates there too, since those limits do not depend on the display. The orbit interval on that monitor is reported, and a result over its limit opens an investigation into whether product work or the browser's display-time estimate caused it, because on a 60 Hz monitor the 16.7 ms limit equals the refresh period and leaves no margin for the estimate. The separate Dark-theme run and the separate device-pixel-ratio-1 run on the laptop display are dropped: the themes differ only in colour values, and the external monitor already exercises a second pixel ratio where one exists.
+
+**Cost if S-1 to S-3 are ruled:** six unattended runs in the ordinary case (four on the laptop display, two on the external monitor), against thirty in the packet as first written, plus repeats only where a result is close.
+
+**Alternatives.** Keep item 5 as written (five runs, every run passes). Or go further and accept a single run per configuration with no repeat rule, which is cheaper still but leaves a near-limit pass indistinguishable from luck.
+
+The owner may rule S-1, S-2 and S-3 separately. Until then item 5 is unruled, and items 2 and 3 stand as accepted.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

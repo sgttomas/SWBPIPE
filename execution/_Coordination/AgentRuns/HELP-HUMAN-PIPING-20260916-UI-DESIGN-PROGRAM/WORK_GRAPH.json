@@ -175,7 +175,7 @@
       "id": "DECISION-PACKET",
       "role": "HELP_HUMAN",
       "purpose": "One owner decision packet: maturity line, boundary-sentence placement, product rename, and items 4 to 9, with the mock frames as evidence",
-      "status": "awaiting_owner",
+      "status": "ruled_in_part",
       "note": "D-71 PROPOSAL drafted 2026-09-18; register row AWAITING_RULING; nine items with recommendations",
       "return": "../../_DECISIONS/D-71_interface_program_governed_text_decisions.md"
     },
@@ -202,9 +202,9 @@
       "id": "ACCEPTANCE-PROPOSAL",
       "role": "HELP_HUMAN",
       "purpose": "Proposed acceptance criteria for the redesigned product, for owner ruling (D-70 effect 6)",
-      "status": "awaiting_owner",
+      "status": "ruled_in_part",
       "return": "../../_DECISIONS/D-72_redesigned_product_performance_acceptance_criteria.md",
-      "note": "D-72 PROPOSAL drafted 2026-09-18; register row AWAITING_RULING. No longer waits for an observation report: item 6 names what is left unfrozen until it can be observed. History: status was \"pending\" behind the piping session's observation report until 2026-09-18."
+      "note": "D-72 PROPOSAL drafted 2026-09-18; register row AWAITING_RULING. No longer waits for an observation report: item 6 names what is left unfrozen until it can be observed. History: status was \"pending\" behind the piping session's observation report until 2026-09-18. Ruled in part 2026-09-18 (../../_DECISIONS/D-72_RULING_2026-09-18.md): items 1-4 and 6 accepted; item 5 open with supplement S-1 to S-3."
     },
     {
       "id": "PIPING-BASELINE-HANDOFF",
@@ -229,29 +229,31 @@
       "id": "OBSERVATION-BRIEF",
       "role": "HELP_HUMAN",
       "purpose": "Bounded observation brief to the piping session for supported behaviour only; future observations listed separately",
-      "status": "complete",
+      "status": "withdrawn",
       "return": "instances/ROOT/OBSERVATION_BRIEF_2026-09-18.md",
-      "note": "Prepared 2026-09-18 with notice ../../NOTICE_2026-09-18_OBSERVATION_BRIEF.md; delivery to the piping session is through the owner; blocks nothing"
+      "note": "Withdrawn as a request 2026-09-18 after the owner's question; not relayed; retained as a record of what is observable"
     },
     {
       "id": "OWNER-D71-RULING",
       "role": "HUMAN",
       "purpose": "Owner rules D-71's nine items; owner answers Q-15 to Q-22",
-      "status": "awaiting_owner",
-      "note": "No ruling received as of 2026-09-18; none inferred from the handoff message"
+      "status": "complete_in_part",
+      "note": "Ruled 2026-09-18: items 1-6, 8, 9 (2, 3, 9 with amendments); item 7 NOT ruled. Q-15 to Q-22 accepted, Q-20 amended.",
+      "return": "../../_DECISIONS/D-71_RULING_2026-09-18.md"
     },
     {
       "id": "D71-RULING-RECORDS",
       "role": "HELP_HUMAN",
       "purpose": "Human Ruling section, D-71 ruling record, register row, DEC rows in SOFTWARE_DECOMP §12, scope-change bundle for PRD §19.3 if item 3(i) is ruled, notice to the piping session",
-      "status": "blocked_on_owner"
+      "status": "complete",
+      "note": "Human Ruling section, ruling record, register row, DEC-099 to DEC-103, SCA-010 bundle (awaiting separate acceptance), notice ../../NOTICE_2026-09-18_D71_RULINGS.md. Item 7 outstanding."
     },
     {
       "id": "REVISION-PASS",
       "role": "HELPS_HUMANS",
       "purpose": "One pass from sealed briefs: design system V1.2, UX specification V1.1, regenerated frames",
-      "status": "blocked_on_owner",
-      "note": "Prepared at instances/ROOT/REVISION_PASS_PREPARATION_2026-09-18.md; briefs DESIGN-SYSTEM-03, UX-SPEC-02, MOCKS-03 sealed after the owner answers"
+      "status": "running",
+      "note": "DESIGN-SYSTEM-03 launched 2026-09-18T13:37Z; UX-SPEC-02 and MOCKS-03 follow; item 7 carried unchanged"
     },
     {
       "id": "IMPLEMENTATION-HANDOFF",
@@ -271,6 +273,16 @@
       "return": "instances/REVIEW/REVIEW-01_RETURN.md",
       "status": "complete",
       "note": "First pass FINDINGS (one major, corrected); backcheck passed all four items with one trivial finding against the reviewer's own first return"
+    },
+    {
+      "id": "DESIGN-SYSTEM-03",
+      "role": "HELPS_HUMANS",
+      "purpose": "Design system V1.2: the D-71 rulings, Q-15 to Q-22 with the pointer-control rule, G-7 to G-12",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/DESIGN-SYSTEM-03_revision.md",
+      "return": "instances/DESIGN-SYSTEM/ (V1.2 in place)",
+      "status": "running"
     }
   ],
   "edges": [
@@ -421,13 +433,25 @@
     [
       "ROOT",
       "REVIEW-01"
+    ],
+    [
+      "OWNER-D71-RULING",
+      "DESIGN-SYSTEM-03"
+    ],
+    [
+      "DESIGN-SYSTEM-03",
+      "REVISION-PASS"
     ]
   ],
-  "current_frontier": "With the owner: D-71's nine rulings, Q-15 to Q-22, D-72's six items, and relay of the observation-brief notice. No child is running. The baseline tranche blocks nothing (condition satisfied 2026-09-18). Implementation is not authorized by this assignment.",
+  "current_frontier": "Running: DESIGN-SYSTEM-03, then UX-SPEC-02 and MOCKS-03. With the owner: D-71 item 7; D-72 S-1 to S-3 (item 5); acceptance of SCA-010. The piping session is on hold by the owner; nothing is asked of it. Implementation is not authorized by this assignment.",
   "frontier_history": [
     {
       "until": "2026-09-18",
       "frontier": "D-71 awaiting the owner; post-ruling revision pass (design system, specification, frames); ACCEPTANCE-PROPOSAL waits for the piping session's observation report"
+    },
+    {
+      "until": "2026-09-18 rulings",
+      "frontier": "With the owner: D-71's nine rulings, Q-15 to Q-22, D-72's six items, and relay of the observation-brief notice. No child is running. The baseline tranche blocks nothing (condition satisfied 2026-09-18). Implementation is not authorized by this assignment."
     }
   ]
 }

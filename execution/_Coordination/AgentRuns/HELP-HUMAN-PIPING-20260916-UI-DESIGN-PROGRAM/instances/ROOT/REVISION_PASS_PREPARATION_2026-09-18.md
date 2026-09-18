@@ -65,4 +65,9 @@ Items 6 and 9 are R-7 and R-8 above.
 
 Each brief is sealed, hashed and recorded with its launch time before launch, as the brief index requires.
 
+## 6. The owner's answers, 2026-09-18 (appended; the sections above are as first written)
+
+The owner accepted the recommendations of §2 as defaults that may change in use, and amended Q-20: no action may depend on a key alone; a keyboard input is an accelerator for a control with a primary mouse-click form. D-71 was ruled except item 7; the ruling differs from §4's "as recommended" column in four places, and the rulings govern: item 1 is option B (popover and About; no permanent status-bar sentence); item 2 removes the acceptance sentence from the product altogether, so G-9 closes unused and R-7's neighbour, the results caption, never exists; item 3 names the product SWBPIPE only; item 9 removes every mention of the other vendor's product from product copy, so R-8's rendered flag and grammar line are dropped. The words and their custody are in the [D-71 ruling record](../../../../_DECISIONS/D-71_RULING_2026-09-18.md). The three briefs of §5 are sealed from the rulings, one after another; item 7 is carried through the pass unchanged.
+
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

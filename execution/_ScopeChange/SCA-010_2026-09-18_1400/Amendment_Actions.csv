@@ -1,0 +1,11 @@
+ActionID,Type,Category,Authority,Description,Targets,Status,Notes
+SCA-010-A001,MODIFY,PRD_TEXT,D-71_DEC-101,"Retitle the PRD and replace the working-title line with the product name SWBPIPE",docs/PRD.md,PROPOSED_PENDING_ACCEPTANCE,"Amendment_Preview.md header"
+SCA-010-A002,MODIFY,PRD_TEXT,D-71_DEC-101,"Replace the first word of the section 19.3 required notice and of its appendix copy with SWBPIPE; no other word of the notice changes",docs/PRD.md,PROPOSED_PENDING_ACCEPTANCE,"Lines 1249 and 1786 at 0d0021db7"
+SCA-010-A003,MODIFY,PRD_TEXT,D-71_DEC-101,"Replace the remaining body occurrences of OpenPipeStress with SWBPIPE; sentences otherwise unchanged; section numbers unchanged",docs/PRD.md,PROPOSED_PENDING_ACCEPTANCE,"20 occurrences"
+SCA-010-A004,MODIFY,PRD_HEADER,D-71_DEC-101,"Advance the document version 0.3 to 0.4; add the amended date, the authority reference and the Formerly line",docs/PRD.md,PROPOSED_PENDING_ACCEPTANCE,"Amendment_Preview.md header"
+SCA-010-A005,MODIFY,TEMPLATE,D-71_DEC-101,"Replace the name in the report notice template's three occurrences, including the metadata slot",docs/report_notice_template.md,PROPOSED_PENDING_ACCEPTANCE,"Lines 16, 41, 68; DEC-101 (ii) names the metadata slot"
+SCA-010-A006,MODIFY,POINTER,D-71_DEC-101,"Move the latest-scope-change pointer to SCA-010 with status accepted",execution/_ScopeChange/_LATEST.md,PROPOSED_PENDING_ACCEPTANCE,"Only at acceptance"
+SCA-010-A007,NO_CHANGE,LINT,D-71_DEC-101,"Verify the claims lint's PRD and renderer notice anchors match fragments without the name",tools/validation/validate_claims_language.py,NO_CHANGE_VERIFIED,"RESEARCH-F section 3.2"
+SCA-010-A008,NO_CHANGE,DECOMPOSITION,D-71_DEC-101,"No scope, package or deliverable row changes; decomposition revision 0.12 stands",execution/_Decomposition/SOFTWARE_DECOMP.md,NO_CHANGE_VERIFIED,"DEC-101 already codified by the D-71 ruling"
+SCA-010-A009,NO_CHANGE,DAG,D-71_DEC-101,"No dependency node or edge changes",execution/_DAG/_LATEST.md,NO_CHANGE_VERIFIED,""
+SCA-010-A010,NO_CHANGE,CITATIONS,D-71_DEC-101,"PRD section numbers are unchanged so existing citations resolve",docs/PRD.md,NO_CHANGE_VERIFIED,""

@@ -117,4 +117,20 @@ The owner rules item by item, in chat or on this packet. Agent 0 then appends th
 
 Two statements above describe sequencing as it stood when the packet was prepared: "implementation of the redesign stays behind the baseline characterization tranche under D-70" and "all of it becomes tranche work behind the D-70 baseline". The piping session has since delivered the baseline report (PR #793), the picking repair (PR #794) and a fresh 10,000-pipe demonstration (PR #795), so D-70's baseline-report condition is satisfied ([reconciliation](../AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/ROOT/PIPING_HANDOFF_RECONCILIATION_2026-09-18.md)). Read those statements as: implementation of any ruled item waits for the owner's authorization of an implementation tranche, not for the baseline. Nothing else in the packet changes. The frames now number eighteen, including two decision aids for items 1 and 2 (`d71_item1_status_bar_light`, `d71_item2_results_caption_light`). As of this note no item has been ruled; the successor ROOT's handoff message from the owner supplied no ruling and said not to infer one.
 
+## Human Ruling, 2026-09-18 (appended; the packet above is unchanged)
+
+Ruled in part by Ryan Tufts in session on 2026-09-18. The owner's complete message is reproduced once, with custody and hash, in the [D-71 ruling record](D-71_RULING_2026-09-18.md) (stored transcript timestamp 2026-09-18T13:32:54.672Z, SHA-256 of the extracted bytes `711ca05ef7cb9bcaf6b7f0e6812ad002be58d8f9793aa68a08d0f19bceaf7944`; an in-session extraction from the host's stored transcript, not original transport bytes). Its D-71 lines, verbatim, spelling the owner's:
+
+> 1. B
+> 2. Remove any such mention of "acceptance" this no longer serves any purpose. It was there just to keep you restrained when first defining the product.  Now we just need to build out the app and the workflows within it.  The checkbox for the user to accept the nodes is sufficient.
+> 3. B. If you need any clearance it is given to you here with this. Do not call it a "Technical Preview" just give it the app name.  We should just call it "SWBPIPE" and forego the longer product name.  I have registered `swbpipe.com`.
+> 4. A
+> 5. Confirmed.
+> 6. Confirmed.
+> 7. I may want option B here but need to understand the implications further before answering.
+> 8. Both confirmed.
+> 9. Do not mentioned `CAEPIPE` anywhere in the product or user guide.  Just indicate the export of a `.mbf` model batch file.
+
+Disposition: items 1 (B), 4 (A), 5, 6 and 8 ruled as the packet offered; items 2, 3 and 9 ruled with the owner's amendments, which govern over the packet's options; **item 7 not ruled**. The adopted effect, ROOT's stated readings of the amendments, the act each item requires and the `DEC` rows are in the ruling record.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

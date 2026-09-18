@@ -14,4 +14,9 @@ Nothing is blocked by it. It asks for no product change, no target, tolerance or
 
 Whether and when to run it, which of O-5 to O-7 to keep, and the corrections to RESEARCH-G that only a runtime reading can make, in particular whether the in-product mechanics preview solves the benchmark fixtures.
 
+## Withdrawn, 2026-09-18 (appended)
+
+Not relayed, and withdrawn by the design program after the owner's question in session: the piping session is on hold, no part of the brief must be performed by it, and none of its observations would change a design decision. The reason is recorded at the end of the observation brief. No action is asked of any session.
+
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

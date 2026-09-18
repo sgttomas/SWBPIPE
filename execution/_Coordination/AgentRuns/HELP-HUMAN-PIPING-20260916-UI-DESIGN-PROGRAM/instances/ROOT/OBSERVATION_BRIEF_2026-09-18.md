@@ -34,4 +34,9 @@ Each waits for its subject to be implemented, and none is a prerequisite for imp
 
 No product change, no tolerance, oracle or target change, no change to the frozen point, box, filter or orbit populations, no rerun of the baseline cohort or the demonstration, and no claim. The observation report states what was measured under the standard claim fence; the original failures and the successor demonstration keep their attribution.
 
+## Withdrawn as a request, 2026-09-18 (appended; the text above is unchanged)
+
+The owner asked in session what this brief was for, noted that the piping session is on hold while the design program completes its work, and asked whether anything in it must be done by that session. ROOT's answer, recorded here: the brief existed because D-70 effect 4 provides for a separate observation run and because the benchmark instrument belongs to the piping session; its adaptations are changes to product test code, which the design program's design-only assignment does not cover. But nothing in it has to be done now, by anyone. None of its seven observations would change a design decision: the facts that do (what the product draws and does not, where isolate, selection and theme differ from the design) came from reading the source, and the measurements that matter are those of the redesigned product under D-72. Most of what it would measure, today's selection cue and the 80-label cap, is replaced by the redesign. **ROOT therefore withdraws the request. The notice was not relayed and needs no relay.** The classification in RESEARCH-G and the lists in §3 and §4 remain useful to whoever writes the implementation and qualification briefs; the row for the static deformed overlay (O-7) records an open question for that work, whether the in-product preview can solve the benchmark fixtures.
+
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
