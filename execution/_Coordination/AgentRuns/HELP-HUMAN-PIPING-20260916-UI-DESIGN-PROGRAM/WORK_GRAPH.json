@@ -252,16 +252,16 @@
       "id": "REVISION-PASS",
       "role": "HELPS_HUMANS",
       "purpose": "One pass from sealed briefs: design system V1.2, UX specification V1.1, regenerated frames",
-      "status": "running",
-      "note": "DESIGN-SYSTEM-03 and UX-SPEC-02 complete; MOCKS-03 launched 2026-09-18T14:59Z"
+      "status": "complete",
+      "note": "Design system V1.2, specification V1.1 and eighteen frames accepted by ROOT 2026-09-18"
     },
     {
       "id": "IMPLEMENTATION-HANDOFF",
       "role": "HELP_HUMAN",
       "purpose": "Implementation-ready handoff; no implementation under this assignment",
-      "status": "pending",
-      "return": "instances/ROOT/IMPLEMENTATION_HANDOFF_PREPARATION_2026-09-18.md",
-      "note": "Preparation record written; issued after the revision pass is accepted and the owner authorizes a tranche"
+      "status": "complete",
+      "return": "instances/ROOT/IMPLEMENTATION_HANDOFF_2026-09-18.md",
+      "note": "Issued 2026-09-18; asks the owner one decision (authorize the piping loop, Tranche A then B); nothing implemented"
     },
     {
       "id": "REVIEW-01",
@@ -317,7 +317,9 @@
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/MOCKS-03_regeneration.md",
       "return": "instances/MOCKS/ (third pass in place)",
-      "status": "running"
+      "status": "complete",
+      "model_ran": "Claude Fable 5.1",
+      "note": "Eighteen frames accepted by ROOT 2026-09-18 after reading six screenshots; C-17 to C-25, Q-23 to Q-30 and the frames' own gap series carried to the handoff"
     }
   ],
   "edges": [
@@ -491,7 +493,7 @@
     ]
   ],
   "current_frontier": [
-    "MOCKS-03"
+    "OWNER: authorize an implementation tranche (handoff §8)"
   ],
   "frontier_history": [
     {

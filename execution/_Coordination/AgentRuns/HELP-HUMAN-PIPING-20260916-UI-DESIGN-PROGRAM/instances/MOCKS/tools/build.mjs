@@ -1,5 +1,5 @@
-// Builds the static frames, the contact page and the sample-model document (second pass, MOCKS-02:
-// design system V1.1, tokens.json 1.1). Reads the design system's tokens.json (read-only) and
+// Builds the static frames, the contact page and the sample-model document (third pass, MOCKS-03:
+// design system V1.2, tokens.json 1.2). Reads the design system's tokens.json (read-only) and
 // writes only under instances/MOCKS/.
 import fs from "node:fs";
 import path from "node:path";
@@ -78,7 +78,7 @@ function page(f, inner) {
 ${styleBlock()}
 </head>
 <body>
-<div class="mockbar"><b>SWB Piping Designer · mock frame ${f.file}</b>${f.aid ? `<span class="aid">${f.aid}</span>` : ""}<span>State ${f.state} · ${f.stateName}</span><span>${f.stage} · ${f.view} view · ${f.theme}</span><span class="grow"></span><span>Theme</span><div class="seg" id="themeseg" role="group" aria-label="Theme"><span data-theme="light">Light</span><span data-theme="dark">Dark</span><span data-theme="system">System</span></div><a href="index.html">All frames</a></div>
+<div class="mockbar"><b>SWBPIPE · mock frame ${f.file}</b><span>State ${f.state} · ${f.stateName}</span><span>${f.stage} · ${f.view} view · ${f.theme}</span><span class="grow"></span><span>Theme</span><div class="seg" id="themeseg" role="group" aria-label="Theme"><span data-theme="light">Light</span><span data-theme="dark">Dark</span><span data-theme="system">System</span></div><a href="index.html">All frames</a></div>
 <div class="viewport"><div class="scalebox" id="scalebox"><div class="scaler" id="scaler"><div class="stage" id="stage">${sprite()}${inner}</div></div></div></div>
 <script>
 (function () {
@@ -108,7 +108,7 @@ ${styleBlock()}
 
 // ---- index.html ----
 function index() {
-  const rows = frames.map((f) => `<tr><td class="n">${f.state}</td><td><a href="${f.file}.html">${f.file}</a>${f.aid ? `<div class="aid" style="margin-top:4px">${f.aid}</div>` : ""}</td><td>${f.stage}</td><td>${f.view}</td><td>${f.theme}</td><td>${f.tests}</td><td>${f.look}</td></tr>`).join("\n");
+  const rows = frames.map((f) => `<tr><td class="n">${f.state}</td><td><a href="${f.file}.html">${f.file}</a></td><td>${f.stage}</td><td>${f.view}</td><td>${f.theme}</td><td>${f.tests}</td><td>${f.look}</td></tr>`).join("\n");
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -124,20 +124,19 @@ ${styleBlock()}
   table.ds td { white-space: normal; height: auto; padding: 6px 8px; vertical-align: top; }
   table.ds th.n, table.ds td.n { text-align: right; }
   table.ds td a { font-weight: 500; overflow-wrap: anywhere; }
-  table.ds td .aid { display: inline-block; height: auto; white-space: normal; line-height: 14px; padding: 2px 6px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>SWB Piping Designer · mock frames</h1>
-<p class="sec">Second pass (MOCKS-02): eighteen static frames of the nine workflow states, drawn from design system V1.1 (tokens.json 1.1, specimen.html V1.1) with the fourteen decisions of the direction record §11 applied and the UX specification's behaviour, on one sample model. Sixteen frames draw the design; the two frames labelled "Decision aid" draw alternatives for decision packet D-71 items 1 and 2 and are not the design system's rule. Each frame is the whole 1440 × 900 window and scales down as a whole in a narrower pane. Nothing in a frame works except the theme switch in the caption bar. Every value is a placeholder: the sample model and its results are illustrative, not engine output.</p>
-<p><a href="../sample_model.md">The sample model</a> · <a href="../MOCKS_V2.md">MOCKS_V2.md</a> (what changed per frame, departures, questions, gaps) · <a href="../MOCKS_V1.md">MOCKS_V1.md</a> (the first pass, history) · <a href="../RETURN.md">RETURN.md</a></p>
+<h1>SWBPIPE · mock frames</h1>
+<p class="sec">Third pass (MOCKS-03): ${frames.length} static frames of the nine workflow states, drawn from design system V1.2 (tokens.json ${T.version}, specimen.html V1.2) and showing the behaviour of UX specification V1.1, with the owner's rulings of 2026-09-18 applied, on one sample model. Sixteen frames are the second pass's design frames regenerated; two are new, the slide-over inspector of state 4 and the Historical run of state 7. The second pass's two decision-aid frames are retired: what they asked is ruled. Each frame is the whole 1440 × 900 window and scales down as a whole in a narrower pane. Nothing in a frame works except the theme switch in the caption bar. Every value is a placeholder: the sample model and its results are illustrative, not engine output.</p>
+<p><a href="../sample_model.md">The sample model</a> · <a href="../MOCKS_V3.md">MOCKS_V3.md</a> (what changed per frame, departures, contradictions, questions, gaps) · <a href="../MOCKS_V2.md">MOCKS_V2.md</a> and <a href="../MOCKS_V1.md">MOCKS_V1.md</a> (the earlier passes, history) · <a href="../RETURN.md">RETURN.md</a></p>
 <h2>Frames</h2>
 <table class="ds"><colgroup><col style="width:44px"><col style="width:200px"><col style="width:66px"><col style="width:56px"><col style="width:62px"><col style="width:300px"><col></colgroup><thead><tr><th class="n">State</th><th>Frame</th><th>Stage</th><th>View</th><th>Theme</th><th>What it tests</th><th>What to look at</th></tr></thead><tbody>
 ${rows}
 </tbody></table>
 <h2>Reading a frame</h2>
-<p>The caption bar above the window is not product chrome. The window is the toolbar band, the stage rail, the surfaces in the named view, the agent column or strip and the status bar, at the geometry of design system §0; in Both view the inspector docks on the canvas's right edge and the canvas shrinks while it is open (decision 1). The canvas in a frame is a schematic figure drawn in the design system's figure language and labelled as a mock rendering. A frame carrying the label "Decision aid · D-71 item n · option A" in its caption bar and its toolbar band draws one option of the owner's decision packet and not the design's rule.</p>
+<p>The caption bar above the window is not product chrome. The window is the toolbar band, the stage rail, the surfaces in the named view, the agent column or strip and the status bar, at the geometry of design system §0; in Both view the inspector docks on the canvas's right edge and the canvas shrinks while it is open (decision 1). The canvas in a frame is a schematic figure drawn in the design system's figure language and labelled as a mock rendering. Every action a frame shows has a visible control; a key named in a tooltip or on the hint strip accelerates a control that is drawn. A status or evidence chip reads its authority domain, a middle dot and its label, and carries its raw token as its tooltip.</p>
 </div>
 </body>
 </html>
@@ -220,6 +219,11 @@ Restraint loads used in the story (Run 03): node 80 W +4.18 kN, OPE1 −9.8 kN; 
 Library: ${M.hangerLibrary.name} (${M.hangerLibrary.provenance}, ${M.hangerLibrary.sizes} sizes, imported ${M.hangerLibrary.imported}).
 
 ${t(["Node", "Tag", "Type", "Design load [N]", "Travel [mm]", "Library", "Size", "Rate [N/mm]", "Cold load [N]", "Hot load [N]", "Variation [%]"], M.hangers.map((h) => [h.node, h.tag, h.type, h.designLoad, "+" + h.travel.toFixed(1), h.library, h.size, h.rate, h.coldLoad, h.hotLoad, h.variation.toFixed(1)]))}
+## Hanger selection candidates (state 8)
+
+Added in the third pass: the sizes of the imported library offered in the hanger selection under H1 (node 60), sorted by variation. Cold load = hot load + rate × travel (5 980 N, +5.9 mm); a size is eligible when its working range contains the hot load and its variation is within the row's Max variation (25 %).
+
+${t(["Size", "Rate [N/mm]", "Cold load [N]", "Hot load [N]", "Variation [%]", "Working range [N]", "Eligible"], M.hangerCandidates[60].map((c) => [c.size, c.rate, c.coldLoad, c.hotLoad, c.variation.toFixed(1), c.range.replace(" · within", ""), c.reason ? "no: " + c.reason : c.size === "A-3" ? "yes · selected" : "yes"]))}
 ## Proposals
 
 ${M.proposals.map((p) => `**${p.id} — ${p.title}** (${p.when}${p.state ? `, ${p.state}` : ""})${p.asked ? `\nAsked by ${p.asked.who} at ${p.asked.when}: "${p.asked.text}"` : ""}\n\n${t(["Row", "Table", "Node", "Field", "Old", "New"], p.rows.flatMap((r, i) => r.fields.map((f, j) => [j === 0 ? i + 1 : "", j === 0 ? r.table : "", j === 0 ? r.node : "", f[0], f[1], f[2]])))}${p.rationale ? `Rationale: ${p.rationale}\n` : ""}${p.constraints ? `\nConstraints considered: ${p.constraints.join("; ")}.\n` : ""}${p.tbd ? `\nTBD: ${p.tbd.join("; ")}.\n` : ""}`).join("\n")}
@@ -236,7 +240,9 @@ fs.mkdirSync(framesDir, { recursive: true });
 TOKENS_CSS = tokensCss();
 fs.writeFileSync(path.join(framesDir, "tokens.css"), TOKENS_CSS);
 MOCKS_CSS = fs.readFileSync(path.join(framesDir, "mocks.css"), "utf8");
-for (const f of frames) fs.writeFileSync(path.join(framesDir, `${f.file}.html`), page(f, f.body()));
+for (const f of frames) fs.writeFileSync(path.join(framesDir, `${f.file}.html`), page(f, f.body(f)));
+// Frames the passes retired are removed from frames/ and shots/ (git history keeps them; MOCKS_V3.md records why).
+for (const dir of [framesDir, path.join(root, "shots")]) if (fs.existsSync(dir)) for (const name of fs.readdirSync(dir)) { const base = name.replace(/\.(html|png)$/, ""); if (/\.(html|png)$/.test(name) && base !== "index" && !frames.some((f) => f.file === base)) { fs.unlinkSync(path.join(dir, name)); console.log("removed retired " + path.join(path.basename(dir), name)); } }
 fs.writeFileSync(path.join(framesDir, "index.html"), index());
 fs.writeFileSync(path.join(root, "sample_model.md"), sampleModel());
 console.log(`built ${frames.length} self-contained frames, index.html, tokens.css (${Object.keys(T.color).length} colour tokens, version ${T.version}), sample_model.md`);

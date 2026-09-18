@@ -1,7 +1,41 @@
 // Draws the sample model as a schematic figure in inline SVG: the design system's figure
 // language (§6) rendered in 2D by a fixed isometric projection. Every colour is a canvas
 // token; the drawing is a mock rendering, not the engine's.
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { rows, coordinates, sections, restraints, loads, nodeData } from "./model.mjs";
+
+// The edge line on a result-coloured element (V1.2 §6.7, R-6): whichever of canvas.edge and
+// canvas.edgeAlt has the higher contrast against the element's fill, computed here from
+// tokens.json for each theme. The result is one of four stroke variables that mocks.css resolves
+// per theme: ee (edge in both), aa (edgeAlt in both), ea (edge in light, edgeAlt in dark), ae.
+const TOK = JSON.parse(fs.readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "DESIGN-SYSTEM", "tokens.json"), "utf8")).color;
+const lin = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+const hexLin = (hex) => [1, 3, 5].map((i) => lin(parseInt(hex.slice(i, i + 2), 16) / 255));
+const lum = ([r, g, b]) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+const toLch = ([r, g, b]) => {
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b), m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b), s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const L = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, a = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, bb = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+  return [L, Math.hypot(a, bb), Math.atan2(bb, a)];
+};
+const fromLch = ([L, C, h]) => {
+  const a = C * Math.cos(h), b = C * Math.sin(h);
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s].map((v) => Math.max(0, Math.min(1, v)));
+};
+const contrast = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+export function edgeChoice(ratio) {
+  const t = Math.max(0, Math.min(1, ratio)) * 6, i = Math.min(5, Math.floor(t)), f = t - i;
+  const pick = (theme) => {
+    const A = toLch(hexLin(TOK[`result.scale.${i + 1}`][theme])), B = toLch(hexLin(TOK[`result.scale.${i + 2}`][theme]));
+    const fill = lum(fromLch([A[0] + (B[0] - A[0]) * f, A[1] + (B[1] - A[1]) * f, A[2] + (B[2] - A[2]) * f]));
+    const e = contrast(fill, lum(hexLin(TOK["canvas.edge"][theme]))), alt = contrast(fill, lum(hexLin(TOK["canvas.edgeAlt"][theme])));
+    return { line: alt > e ? "a" : "e", contrast: Math.max(e, alt) };
+  };
+  const l = pick("light"), d = pick("dark");
+  return { key: l.line + d.line, light: l, dark: d };
+}
 
 const DEG = Math.PI / 180;
 export const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -88,6 +122,13 @@ export function figure(o) {
   }
   const startOf = (e) => (tp[e.from] && !e.row.branch ? S(tp[e.from].out) : P[e.from]);
   const endOf = (e) => (tp[e.to] ? S(tp[e.to].in) : P[e.to]);
+  const edgeLog = [];
+  const edgeOf = (e) => {
+    if (!(o.colorBy && o.colorBy.ratios[e.to] != null)) return `stroke="var(--canvas-edge)"`;
+    const c = edgeChoice(o.colorBy.ratios[e.to]);
+    edgeLog.push({ element: `${e.from}-${e.to}`, ratio: o.colorBy.ratios[e.to], light: c.light.line === "a" ? "canvas.edgeAlt" : "canvas.edge", lightContrast: Math.round(c.light.contrast * 100) / 100, dark: c.dark.line === "a" ? "canvas.edgeAlt" : "canvas.edge", darkContrast: Math.round(c.dark.contrast * 100) / 100 });
+    return `class="rc-edge" data-edge="${c.key}" style="stroke:var(--mock-edge-${c.key})"`;
+  };
   const colorOf = (e) => {
     if (o.colorBy && o.colorBy.ratios[e.to] != null) return scaleColor(o.colorBy.ratios[e.to]);
     if (e.row.type === "Rigid") return "var(--canvas-pipeShade)";
@@ -120,6 +161,7 @@ export function figure(o) {
     const a = startOf(e), b = endOf(e);
     const d = dia(e.row.section);
     const col = colorOf(e);
+    const edge = edgeOf(e);
     const u = dirOf(a, b), n = norm(u);
     tubeSegs.push([a, b, d / 2]);
     if (tp[e.to]) { const t = P[e.to], q = S(tp[e.to].out); tubeSegs.push([b, t, d / 2], [t, q, d / 2]); }
@@ -128,16 +170,16 @@ export function figure(o) {
       const nextRow = rows.find((r) => r.from === e.to);
       const d2 = nextRow ? dia(nextRow.section) : d1 * 0.77;
       const pts4 = [[a.x + n.x * d1 / 2, a.y + n.y * d1 / 2], [b.x + n.x * d2 / 2, b.y + n.y * d2 / 2], [b.x - n.x * d2 / 2, b.y - n.y * d2 / 2], [a.x - n.x * d1 / 2, a.y - n.y * d1 / 2]];
-      tubes.push(`<polygon points="${pts4.map((p) => f1(p[0]) + "," + f1(p[1])).join(" ")}" style="fill:${col}" stroke="var(--canvas-edge)" stroke-width="1"/>`);
+      tubes.push(`<polygon points="${pts4.map((p) => f1(p[0]) + "," + f1(p[1])).join(" ")}" ${edge.startsWith("stroke=") ? `style="fill:${col}" ${edge}` : edge.replace('style="', `style="fill:${col};`)} stroke-width="1"/>`);
       continue;
     }
-    tubes.push(`<line x1="${f1(a.x)}" y1="${f1(a.y)}" x2="${f1(b.x)}" y2="${f1(b.y)}" stroke="var(--canvas-edge)" stroke-width="${f1(d + 2)}" stroke-linecap="butt"/>`);
+    tubes.push(`<line x1="${f1(a.x)}" y1="${f1(a.y)}" x2="${f1(b.x)}" y2="${f1(b.y)}" ${edge} stroke-width="${f1(d + 2)}" stroke-linecap="butt"/>`);
     tubes.push(`<line x1="${f1(a.x)}" y1="${f1(a.y)}" x2="${f1(b.x)}" y2="${f1(b.y)}" style="stroke:${col}" stroke-width="${f1(d)}" stroke-linecap="butt"/>`);
     const so = d * 0.3;
     tubes.push(`<line x1="${f1(a.x + n.x * so)}" y1="${f1(a.y + n.y * so)}" x2="${f1(b.x + n.x * so)}" y2="${f1(b.y + n.y * so)}" stroke="var(--canvas-pipeShade)" stroke-width="${f1(Math.max(1.5, d * 0.22))}" stroke-linecap="butt" opacity=".45"/>`);
     if (tp[e.to]) {
       const t = P[e.to], q = S(tp[e.to].out);
-      tubes.push(`<path d="M${f1(b.x)} ${f1(b.y)}Q${f1(t.x)} ${f1(t.y)} ${f1(q.x)} ${f1(q.y)}" fill="none" stroke="var(--canvas-edge)" stroke-width="${f1(d + 2)}" stroke-linecap="butt"/>`);
+      tubes.push(`<path d="M${f1(b.x)} ${f1(b.y)}Q${f1(t.x)} ${f1(t.y)} ${f1(q.x)} ${f1(q.y)}" fill="none" ${edge} stroke-width="${f1(d + 2)}" stroke-linecap="butt"/>`);
       tubes.push(`<path d="M${f1(b.x)} ${f1(b.y)}Q${f1(t.x)} ${f1(t.y)} ${f1(q.x)} ${f1(q.y)}" fill="none" style="stroke:${col}" stroke-width="${f1(d)}" stroke-linecap="butt"/>`);
       // tangent ticks
       const n2 = norm(dirOf(t, q));
@@ -174,6 +216,8 @@ export function figure(o) {
     const ww = 8 + text.length * (opts.size === 11 ? 6.1 : 7.2);
     // A plate whose anchor (the node it names) is outside the visible canvas is not drawn, so that
     // a panned camera (docked inspector) does not clamp the plates of hidden nodes to the edges.
+    // A narrow canvas keeps the selected node's plate alone: the others collide at the fitted scale (MOCKS_V3 departures).
+    if (o.plates === "selected" && opts.anchor && !(o.selection && o.selection.node != null && opts.anchor === P[o.selection.node])) return "";
     if (opts.anchor && (opts.anchor.x < -4 || opts.anchor.x > w + 4 || opts.anchor.y < -4 || opts.anchor.y > h + 4)) return "";
     x = Math.max(2, Math.min(w - ww - 2, x)); y = Math.max(2, Math.min(h - 20, y));
     occupy(x, y, ww, 18);
@@ -294,6 +338,8 @@ export function figure(o) {
       const a = unit(axis[ax]); const active = ax === o.draft.axis; const L = active ? 56 : 40;
       const col = `var(--canvas-axis${ax})`;
       comp.push(arrow(p.x, p.y, p.x + a.x * L, p.y + a.y * L, col, active ? 2 : 1, active ? 7 : 5));
+      // The short stub the active axis draws on its opposite side: a click on it reverses the axis (V1.2 §5.6).
+      if (active) comp.push(`<line x1="${f1(p.x)}" y1="${f1(p.y)}" x2="${f1(p.x - a.x * 16)}" y2="${f1(p.y - a.y * 16)}" style="stroke:${col}" stroke-width="2" stroke-linecap="round"><title>Reverse the axis (−)</title></line>`);
       comp.push(`<text x="${f1(p.x + a.x * (L + 10) - 3)}" y="${f1(p.y + a.y * (L + 10) + 4)}" font-size="11" style="fill:${col}">${ax}</text>`);
       if (active) overlaysHTML.lengthField = { x: p.x + a.x * L + 26, y: p.y + a.y * L - 30 };
     }
@@ -305,7 +351,7 @@ export function figure(o) {
 
   // The triad and the scale reference occupy the canvas's bottom corners before the labels are placed.
   const scaleRefL = 1000 * scale * Math.hypot(axis.X.x, axis.X.y);
-  const scaleRefX = w - 24 - Math.max(scaleRefL, 60);
+  const scaleRefX = w - 24 - Math.max(scaleRefL, o.loads !== false ? 86 : 60);
   occupy(0, h - 92, 96, 92);
   if (o.scaleRef !== false) occupy(scaleRefX - 6, h - (o.loads !== false ? 46 : 36), Math.max(scaleRefL, 60) + 100, 40);
 
@@ -347,5 +393,5 @@ export function figure(o) {
   }
 
   const svg = `<svg class="fig" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="Model figure, mock rendering"><defs>${defs.join("")}</defs><rect width="${w}" height="${h}" fill="var(--canvas-bg)"/>${out.join("")}</svg>`;
-  return { svg, P, scale, overlays: overlaysHTML, w, h };
+  return { svg, P, scale, overlays: overlaysHTML, w, h, edges: edgeLog };
 }

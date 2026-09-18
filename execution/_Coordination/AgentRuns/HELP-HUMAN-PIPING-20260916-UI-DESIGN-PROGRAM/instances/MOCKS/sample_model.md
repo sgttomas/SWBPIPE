@@ -170,6 +170,17 @@ Library: Vendor-A springs (user import · source recorded in Libraries, 24 sizes
 | ---: | --- | --- | ---: | ---: | --- | --- | ---: | ---: | ---: | ---: |
 | 60 | H1 | Variable spring | 5980 | +5.9 | Vendor-A springs | A-3 | 120 | 6688 | 5980 | 11.8 |
 
+## Hanger selection candidates (state 8)
+
+Added in the third pass: the sizes of the imported library offered in the hanger selection under H1 (node 60), sorted by variation. Cold load = hot load + rate × travel (5 980 N, +5.9 mm); a size is eligible when its working range contains the hot load and its variation is within the row's Max variation (25 %).
+
+| Size | Rate [N/mm] | Cold load [N] | Hot load [N] | Variation [%] | Working range [N] | Eligible |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| A-2 | 60 | 6334 | 5980 | 5.9 | 2 700 – 5 100 | no: hot load over the working range, 2 700 – 5 100 N |
+| A-3 | 120 | 6688 | 5980 | 11.8 | 3 900 – 7 300 | yes · selected |
+| A-4 | 240 | 7396 | 5980 | 23.7 | 5 600 – 10 400 | yes |
+| A-5 | 480 | 8812 | 5980 | 47.4 | 8 000 – 14 900 | no: over the row's max variation, 25 % |
+
 ## Proposals
 
 **P-09 — Add a variable spring hanger at node 60** (2026-09-17 11:40, accepted)

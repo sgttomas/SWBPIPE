@@ -1,68 +1,83 @@
-# RETURN — MOCKS-02, the frames regenerated from design system V1.1
+# RETURN — MOCKS-03, the frames regenerated from design system V1.2 and UX specification V1.1
 
-Child: HELPS_HUMANS design manager, phase 3, working alone (no delegation). Brief: `{RUN}/briefs/MOCKS-02_regeneration.md` (2026-09-18). Model actually used: Claude Fable 5.1 (`claude-fable-5-1`) at the session's maximum reasoning effort, in one Claude Code `Agent` session that was continued more than once across context compactions. Writes only under `{RUN}/instances/MOCKS/`; no other file in the repository was modified; no git command that changes state was run (`git status`, `git diff --quiet` and `git show` of committed bytes only). `MOCKS_V1.md` and `sample_model.md` are byte-for-byte as committed.
+Child: HELPS_HUMANS design manager, working alone (no delegation). Brief: `{RUN}/briefs/MOCKS-03_regeneration.md`, SHA-256 `46343a8ce53ea3b6d6fba50ce46f384391d9c171f5100aefb29e30a2c6a7992b`, checked before any work and found to match. Model actually used: Claude Fable 5.1 (`claude-fable-5-1`), in one Claude Code agent session that was continued across context compactions. Writes only under `{RUN}/instances/MOCKS/`; no other file in the repository was modified; no agent was spawned; no product build, test or dev server was run; no git command that changes state was run (`git rev-parse`, `git status`, `git diff --stat` and `git grep` only). `MOCKS_V1.md` and `MOCKS_V2.md` are byte-for-byte as committed.
 
-## 1. What was read, in the brief's order
+## 1. What was read
 
-1. `{RUN}/briefs/MOCKS-02_regeneration.md` — whole.
-2. `{RUN}/instances/DESIGN-SYSTEM/DESIGN_SYSTEM_V1.md` (V1.1) — §9 whole (the 49 change-log rows, each traced to its source); §0, §2.3, §2.6, §3.2, §5.1 to §5.6, §6.5, §6.9, §7.1, §7.4 and §8; the other sections by grep as the build needed them. `tokens.json` 1.1 — whole (98 colour tokens; the ten added since 1.0 and the four layout values). `specimen.html` — its CSS rules and the sections V1.1 changed (the docked Both-view geometry, the chip moments, the stale band and the rail captions, the draft row and the draft ghost, the row expansion with the combination editor, the latched toggle, the run log popover, the banner and the empty state, the Review header and outline) and its glyph sprite; `tools/gen.mjs` for the token mapping the frames' `tokens.css` reuses.
-3. `{RUN}/instances/ROOT/DIRECTION_DECISION_2026-09-17.md` — §11 (the fourteen decisions) and §12 (the decision packet, items 1 and 2 of D-71).
-4. `{RUN}/instances/UX-SPEC/UX_SPEC_V1.md` — §2.3, §2.6, §4.2, §5.1, §5.3 to §5.5, §6.3, §7.1 to §7.6, §9.3, §10.3, §10.9 and §11 (Q11); §3 by grep for widths and strings.
-5. `{RUN}/instances/MOCKS/` — `MOCKS_V1.md` §1 and §3 to §6 (the departures, questions, gaps and composition the second pass answers or carries), `RETURN.md` of MOCKS-01 whole, `tools/` whole (the generator is revised in place), `sample_model.md` (unchanged), the first pass's `shots/report.json` for comparison.
-6. `{RUN}/instances/ROOT/DESIGN_BRIEF_V1.md` (V1.4) — §6, the constraints.
+1. The brief — whole.
+2. `{RUN}/../../_DECISIONS/D-71_RULING_2026-09-18.md` and its two addenda — whole.
+3. `{RUN}/instances/ROOT/REVISION_PASS_PREPARATION_2026-09-18.md` — whole.
+4. `{RUN}/instances/DESIGN-SYSTEM/DESIGN_SYSTEM_V1.md` (V1.2) — §0, §1, §2.1, §2.3 to §2.8, §3, §4, §5 whole, §6, §7, §8, and §9 rows 48 to 89; §2.2's tables and §2.9 by grep only. `tokens.json` 1.2 — whole. `specimen.html` V1.2 — its icon sprite and the markup and rules of the V1.2 components. `tools/render.mjs` (how Playwright's location is taken at run time) and `tools/agree.mjs` (the retired-string list).
+5. `{RUN}/instances/UX-SPEC/RETURN.md` — whole, including the sixteen contradictions of its §6. `UX_SPEC_V1.md` (V1.1) — §1, §2, §3.1, §3.6, §3.7, §4.3 to §4.7, §5.3 to §5.5, §6, §7 and §10; §3.2 to §3.5, §8, §9 and §11 to §13 by grep only, as the build needed a string or a width.
+6. `{RUN}/instances/MOCKS/` — `MOCKS_V2.md`, `tools/` whole, `frames/mocks.css`, `sample_model.md`.
 
-Nothing under `apps/` or any product source was read or written.
+Nothing under `apps/` or any product source was read or written. The sections read by grep only are an uncertainty (§5).
 
 ## 2. What was produced
 
 Under `{RUN}/instances/MOCKS/`, revised in place:
 
-- `frames/` — eighteen frames: the fifteen of the first pass regenerated (`s1_table_light`, `s2_model_light`, `s2_model_dark`, `s3_table_light`, `s4_both_light`, `s4_table_light`, `s5_table_light`, `s6_both_light`, `s7_both_light`, `s7_both_dark`, `s7_table_light`, `s8_table_light`, `s8_model_light`, `s9_table_light`, `s9_table_dark`) and three new (`s4_both_light_column`, `d71_item1_status_bar_light`, `d71_item2_results_caption_light`); `index.html` regenerated with state, stage, view, theme, what each frame tests and what to look at; `tokens.css` regenerated from `tokens.json` 1.1 (98 colour tokens, version 1.1, the design system's mapping); `mocks.css` revised to V1.1's specimen. Each frame is one self-contained file (69–104 KB): a single `<style>` block carrying the generated `tokens.css` and `mocks.css`, the figure and the glyph sprite as inline SVG, and one inline script for the theme switch and the scaling; no `<link>`, no script `src`, no `@import`, no `url()`, no `src` attribute. The caption bar's link to `index.html` and the index's 22 links are navigation, not resources. The two decision-aid frames carry the label "Decision aid · D-71 item n · option A" in the caption bar and in the toolbar band.
-- `MOCKS_V2.md` — per frame what changed and its source (decision number, V1.1 §9 row, specification section) for all eighteen; eleven departures (D2-1 to D2-11) with reasons, including the failed-run chip (none drawn, per the specification §5.4 item 5 and the open engine question §11 Q11); fourteen frame decisions neither document states (F-1 to F-14); eight questions only a screen can raise (Q-15 to Q-22); six token or component gaps (G-7 to G-12); how the frames were composed. `MOCKS_V1.md` is unchanged as the history of the first pass.
-- `tools/` — `canvas.mjs` (the camera option for the docked canvas, the three-part draft ghost, the label budget and the occupied triad and scale reference), `ui.mjs` (the V1.1 components: docked inspector, stale band, latched toggle, row expansion, disabled combobox, filtered drawer row, wrapping HUD, caption band, maturity span, aid label), `frames.mjs` (the eighteen specifications), `build.mjs` (tokens.css, the inlining page wrapper, the index with its "What it tests" column, the sample model), `render.mjs` (the verification below). `model.mjs` and `sample_model.md` are unchanged; no new state needed a value.
-- `shots/` — one 1:1 screenshot of every frame's stage (eighteen, light and dark as the frame is), `index.png`, and `report.json` with the measured facts. No page screenshot at another size is retained.
+- `frames/` — eighteen self-contained frames: the sixteen design frames regenerated and two new (`s4_both_light_slideover`, `s7_both_light_historical`); the two decision-aid frames deleted with their screenshots, the retirement and its reason recorded in `MOCKS_V3.md` §1; `index.html`, `tokens.css` (from `tokens.json` 1.2, 99 colour tokens) and `mocks.css` regenerated or revised.
+- `MOCKS_V3.md` — per frame what changed and its source; eight departures (D3-1 to D3-8); seven frame decisions (F3-1 to F3-7); nine contradictions beyond the sixteen (C-17 to C-25); eight questions (Q-23 to Q-30); eight gaps (G-13 to G-20).
+- `tools/` — all six modules revised; `render.mjs` takes Playwright's location from `--playwright-from` or `PLAYWRIGHT_FROM` at run time and no machine path is written in any file.
+- `sample_model.md` — one section added, "Hanger selection candidates (state 8)"; nothing else changed (`MOCKS_V3.md` §8).
+- `shots/` — one 1:1 screenshot of every frame's stage (eighteen), `index.png`, and `report.json`.
 
-## 3. The lint
+SHA-256 of the frames and their shared files:
 
-Recorded per frame and per viewport in `shots/report.json` (`lint`) and checked against the expected count for each file by `tools/render.mjs`:
+```
+8ec686b82d597ae645efd74c2a2921500e7670c4d82a2936bb89d2739204571b  s1_table_light.html
+d61f1fbd26b6bce38b9edbc55f99176b5efd9c13c8d096b121d3d20dabe26406  s2_model_dark.html
+a8c94fc89541de67385f9ab1ddb8971a47e72e12e8c30d4be5f196881e172614  s2_model_light.html
+439c14efb988bc0bd0163d647ef14044df3c036e4afb5e313bf4dc0bcb1f5ec4  s3_table_light.html
+8f13d0969a183390b52eaffd366a0fe522e4e6bb6910681bac091f3ee0284cab  s4_both_light.html
+9e37355094d40bc8b8501107c8ced26bc874d8f57e6a2ee562e20aac6b0ec8a8  s4_both_light_column.html
+5acd7baca2c09a78727a3c3adce14f74cbe69d6cf821157d220ece9724c3c7f1  s4_both_light_slideover.html
+f1e749cfc4cfc3c50836fb1a8f4a021befab06e0710cafbd467924dc920a93fd  s4_table_light.html
+63e8c22ccd593ba48ccdaf91f1e4585139a478ac035170f1417697dc1c4f0bf9  s5_table_light.html
+42b4062148e5a772fd3ca38f91135e56877f05791f1814b90b5208b4681780a1  s6_both_light.html
+5bb35742ccfca10cb3bbbe7cee5c78f6c79dc60e964c8edb24478224a120de2d  s7_both_dark.html
+a3034fb5eb7223b65d9819b6bec123e3cfa6871222903c0cbf4046b8e5391059  s7_both_light.html
+cab293cd5db11d034918e0a8a77def3417a4b410bd4be942f5b458bfa89e382d  s7_both_light_historical.html
+da68f2ea9ad1ab616b32b14fb9f4b5cfd586b7e79a15794e859e3964a561822a  s7_table_light.html
+7bc3ff9a22f673fb7065cdd9d35c57b990e84f51c5820f4559940ef830849ad9  s8_model_light.html
+f12c219115fd175cea23894afd31bd4a5509f30487a65210a765bdc27c797e00  s8_table_light.html
+755d81f178a5b822673f1f09654a5a2cd6bafca37cbf89479d2caa9ae3e5f967  s9_table_dark.html
+fca69134a56415caa432f8fe92e93f7b3b05cdbb030087631d9c96843ef19b5b  s9_table_light.html
+ee3b4a078cb55175e7952ced1e23c444a18146e2964030dd105a5331e0f10ee9  index.html
+8da987bf7e43f86f1971979b826f0a372d03e34a99b999cbced82c653cc07ac2  tokens.css
+9445d34d7a3a735b9f51963972edd165e6b3a421d290a227e9281eed91e1f7d8  mocks.css
+```
 
-- The acceptance sentence (M-02) once in `s7_both_light`, `s7_both_dark`, `s9_table_light` and `s9_table_dark` — the results header disclosure and the Review page head, where V1.1 §7.4 places it — and nowhere else. The listed short variant once in `d71_item2_results_caption_light` only, as the caption under the run identity the brief describes, with the canonical sentence absent from that frame (the aid draws the replacement; U-2).
-- The maturity sentence (M-01) once in `s1_table_light`, in the status bar's information popover where §7.4 places it until packet item 1 is ruled; twice in `d71_item1_status_bar_light` (the popover and the aid's status-bar placement, as the brief asks); nowhere else.
-- "Display only, not accepted as input" once in `s5_table_light`; "draft until accepted" once on each state-8 frame; "Review/signoff block" once in each state-9 frame as the outline's registered heading (M-07) and nowhere else; the aid label visible twice in each decision-aid frame and in no other.
-- Status chips: one in states 1 to 3, none in states 4 and 5, none after the failed run, two after the solve (states 7 and 8 Model), none after the model changed (state 8 Table), two on the Review page — each frame's count matches the policy of V1.1 §2.3 and the specification §5.4.
-- Forbidden words: two word lists in `tools/render.mjs`. `forbidden` is V1.1 §7.1's "Anywhere" row plus the old product name, case-insensitive, run over the stage's visible text with the registered sentence removed and over the whole source (attributes and tooltips included) with the sentence and the registered heading removed. `forbidden71` is the table's forbidden labels, case as the table writes them, plus the fence token, run over the visible text and over the source without its style and script blocks. Both find nothing in any of the eighteen frames at any of the three viewports. The old product name appears nowhere.
-- Absolute paths: the render scans every shipped file (`frames/*.html`, `frames/*.css`, `tools/*.mjs`, the root documents and the report) for a home-directory path and records none (`_summary.absolutePathsInShippedFiles: []`); an independent grep over the whole instance agrees. Scripts locate the piping project's `node_modules` relative to their own location.
-- Spelling: the frames' strings and both documents use Canadian English as V1.1 §7.1 rules; the registered sentences keep their own spelling verbatim.
+## 3. The lint and its result
+
+`tools/render.mjs` loads every frame at 1440 × 900, at the stage's own size and at 960 × 700 with the network blocked, and reports a finding for any of: an element outside the stage; clipped text in cells, buttons, chips, bands, cards, toasts and popovers; a bar's child that runs past the bar's right edge; a region whose content is taller than the region; a font under 11 px; a forbidden word of the design brief's §6 list, visible or in an attribute; the word that asks the reader to press a key; a status or evidence label outside a chip, or a chip that differs from the `labels` table of `tokens.json`; an agent card whose class is not one of the five; the HUD at other than 304 × 34 or 154 × 64; a toast not 320 px or a run log not 360 px wide; a canvas under 220 px; an expectation per frame (the display-only caption, "draft until accepted", the boundary's short variant, the number of chips, the standing facts); a blocked request, a console message, an external dependency or an absolute path; a disagreement between the frame list, the files in `frames/`, the files in `shots/` and the index; and any retired string, searched case-insensitively over every shipped file except `MOCKS_V1.md`, `MOCKS_V2.md` and `report.json` (the list is built by concatenation so that the tool does not contain what it searches for).
+
+Final result: no findings in eighteen frames and the index; retired strings searched in 30 files, none found; index links 23, none missing; no network request attempted by any frame; minimum font 11 px.
+
+What the lint found on the way, each fixed at its cause: the paste band wider than its table (`s3`); the hanger candidates' reason cells clipped (`s8_table`); another vendor's product named in a source comment of `tools/model.mjs`; the Review page's comment column 24 px too tall (both `s9`); and, once the bar check was added, the results header's Run identity control cut off in the 737 px pane (both `s7_both`).
 
 ## 4. How the frames were verified
 
-`tools/render.mjs` opens every frame with Playwright's headless Chromium from the piping project's `node_modules` (read-only; Node 24), with `page.route("**/*")` aborting every request that is not `file://`, with `colorScheme` set to the frame's theme, at three viewports: 1440 × 900 (the nominal window; the stage scales to 0.929 inside the page's padding), 1472 × 964 (the stage at exactly 1.0, captured 1:1) and 960 × 700 (a narrower pane; the stage scales to 0.644). For each it records: blocked requests (none were attempted in any frame or the index), console warnings and errors and page errors (none), the page's scroll size against the viewport (no scroll in any case), the computed scale, `data-theme` and the resolved `color-scheme` and body background (light `rgb(238, 240, 243)`, dark `rgb(27, 30, 34)`), the font families in use (the system stack and the numeric monospace face) and the size histogram (11, 12, 13, 15 and 18 px; the smallest 11 px, the caption token; nothing below), every element whose box leaves the 1440 × 900 stage (none), every cell, header, control, tooltip, popover, banner, band, toast, inspector value, legend, probe, card or comment whose content is wider than its box (none), every region whose content is taller than its box (none), and the region boxes against V1.1 §0: toolbar 1440 × 48, status bar 1440 × 24, rail 56 × 828, surfaces 1340 × 828, agent strip 44, agent column 340, Model-view canvas 1000 × 548 and inspector 340, table drawer 280 tall, issues drawer 200 tall, Review outline 280 and comment column 320.
-
-The facts the brief asks for: in `s4_both_light` and `s4_both_light_column` the tables measure 737, the canvas 303, the docked inspector 300 and the strip 44, with the camera set at 603 and at 470 respectively, no pan needed (node 20 in view) and the HUD in two rows. The result scale steps read from the tokens are light `#4ab9b2 #15a6a0 #05908b #087a76 #056662 #01524e #003e3c` and dark `#045c59 #04706b #09847f #099993 #24ada7 #52bfb9 #74d1cb`, and the ten tokens V1.1 added resolve to their 1.1 values in every frame. At 1.0 the render clicks the caption bar's other theme and records that `data-theme`, the body background and `--result-scale-1` flip (light to dark: `rgb(27, 30, 34)`, `#045c59`; dark to light: `rgb(238, 240, 243)`, `#4ab9b2`), then "System" and records that the attribute is removed and the emulated scheme applies. A source scan of every HTML file records one `<style>` block per frame (two in the index, which keeps its own page rules) and no external dependency. `index.html` is opened the same way: offline, no request attempted, no error, its 22 links (18 frames, the sample model, the two documents and this file) all resolve to files. The run ends "no findings".
-
-Every 1:1 screenshot was read and judged by eye, twice, and the frames fixed between passes: the issues drawer's selected row wrapping to two lines with the new link (message now truncates with its full text in the tooltip); a node label landing on the "1000 N" scale text (the triad and the scale reference are now occupied before labels are placed); the stale band breaking into three rows (its lead-in now flows with the sentence and Run again stays on the first line); the collapse toast covering the table footer (moved over the docked inspector's empty foot and narrowed); the "80" label overlapping the Guide plate in the 303 px canvas (the budget rule now drops a label that cannot be placed, except the current row's); the decision-aid caption pushing the Information control to a second line (a caption band under the header instead); the index's "Theme" header truncating and long names clipping (columns widened, wrapping allowed). The last pass over all eighteen found nothing further to fix; what it still shows is recorded as questions Q-16, Q-18, Q-19, Q-20 and Q-22 in `MOCKS_V2.md`.
+Every one of the eighteen screenshots and `index.png` was opened and looked at after rendering, and what they showed was fixed before returning: the Review header cutting "Export…" short, which the lint at that time had not caught (the bar check was added because of it); nested tables that had lost their cell padding, so that From and Type touched in the paste preview; the wrapped Run identity control sitting at the left; colliding restraint plates and a cut force reference in the 303 px canvas; a tooltip left pointing at a column outside the 574 px pane in the slide-over frame. Measured facts are in `shots/report.json`: fonts and sizes; no network request; no overflow; the docked frame at tables 737, canvas 303, inspector 300, strip 44; the slide-over frame at tables 574, canvas 470, slide-over 300, column 340; the HUD at 154 × 64 in the 303 px canvas and 304 × 34 elsewhere; the toast at 320 px; the run log at 360 px with its left edge at 793 against the Run button's 687; the scale steps' colours per theme (`scaleSteps`) and the edge-line choices (`edges`, `edgePlan`); the standing facts of the Current, Stale and Historical frames.
 
 ## 5. Uncertainties
 
-- U-1 The measurements are for headless Chromium on this Mac with the tokens' system font stack resolving to SF; another platform's fallback face changes text widths by a few pixels. The result scale uses `color-mix(in oklch, …)`, which needs a current Chromium, Safari or Firefox; an older browser would draw the tubes uncoloured (the legend gradient has a plain fallback).
-- U-2 D-71 item 2, option A, is drawn as the brief words it: the short variant "in place of the disclosure placement", so the canonical sentence is absent from that one frame. If option A means the caption in addition to the disclosure, the frame understates the count by one; the change is one flag in `frames.mjs`.
-- U-3 D-71 item 1, option A: "the right end of the status bar" is drawn left of the units combobox and the information control so the information control stays last (F-6); the sentence at the very end, after the information control, is the other reading.
-- U-4 The camera rule's implementation (the 72 px threshold, F-1) and the column frame's camera (the fit the engineer had at 470 px, F-2) are the frames' readings of V1.1 §0's "keeps its camera scale and centre, panned only as far as needed to keep the selected node in view"; both frames needed no pan.
-- U-5 The toast in `s4_both_light_column` is a frame element with the frame's wording (F-3, G-8); V1.1 §7.1 gives toasts' wording and no anatomy. What ⌘⇧G does while the inspector is docked at 303 px is Q-15.
-- U-6 The hover card on the restraint mark is drawn together with the docked inspector in both state-4 Both frames, as the first pass composed them; a hover is not strictly the state the storyboard describes (D2-11).
-- U-7 The empty status bar after the failed run rests on the specification §5.4 item 5 ("a stopped run that carries none shows no chip") pending the engine's answer to §11 Q11 (Q-21).
-- U-8 The §7.1 label lint checks the table's words with the case the table writes them; lowercase occurrences in allowed wording ("released" in the registered sentence, "accepted" in "draft until accepted", "Applied" in a toast) are not matched, by design.
-- U-9 Static frames draw several moments together; each is named in `MOCKS_V2.md` §7 so the owner can discount it.
-- U-10 The results header disclosure is 520 px wide as the specimen's rule sets it; V1.1's text does not state the width (D2-10); the identity line wraps to two lines.
-- U-11 The row citations in `MOCKS_V2.md` were checked against V1.1 §9's table after writing; where a change has several sources the first-listed row is the one the frame drew from.
+1. The specification's §3.2 to §3.5, §8, §9 and §11 to §13 and DS §2.2 and §2.9 were read by grep and not in full; a string or a rule there that bears on a frame may have been missed, and more contradictions than the nine reported may exist.
+2. C-17 to C-25 are reported as found from the sections read; C-19, C-20 and C-25 are as much inconsistencies inside one document or with the brief as between the two documents, and are listed so that ROOT can decide where they belong.
+3. D3-1 (the results header wrapping to two lines in the 737 px pane) is a layout neither document draws; it was preferred to removing a required item. Q-26 asks for the rule.
+4. Q-23: the selection group on read-only results tables follows the letter of the footer rule; ruling 7 may mean Check rows should not be there.
+5. The Historical frame keeps the table's data bars in the result colour (Q-29).
+6. The slide-over frame is drawn to DS §0's widths literally; the result hides the selected node and most of the HUD (Q-24). That is a finding about the rule and not a rendering defect.
+7. The status bar's chips in the light theme have so little fill that they read as plain text; they are drawn from the tokens as given, and the dark theme shows the chip shape clearly.
+8. The iteration menu no longer lists a "Current" working-state entry, which the second pass drew: DS §5.5 and spec §7.1 list the iterations and "Compare with…" only, while spec §7.4 says "Current" is the working state (G-19).
+9. Fonts: the frames name the system UI and mono stacks; the rendering machine resolved them to its own system faces, so glyph widths on another machine may differ by a pixel or two from the measured boxes.
+10. The frames remain composed moments (D3-7), and the canvas remains a schematic figure labelled as a mock rendering, not the engine's canvas.
 
 ## 6. Where the brief could not be satisfied, or only in part
 
-- N-1 "Compare with…" (specification §7.1) is not drawn in the Review header for want of room at 1440 (D2-2, Q-17).
-- N-2 The shorter run log popover (decision 5) still covers the tab strip's right end and the HUD's first buttons in Both view (D2-4, Q-16); V1.1 §5.2's "only the toolbar's neighbourhood" is not met at 164 px tall.
-- N-3 "Edits shown and hidden" (state 9): one static screen shows edits on; the hidden state is described and not drawn, as in MOCKS-01.
-- N-4 "Running, then the failure banner" (state 6): the running moment is evidenced by the run log popover's rows and the OPE1 stop, as in MOCKS-01.
-- N-5 The About page is not drawn; M-01 stays in the information popover as §7.4 places it, and the packet's option A is drawn in the aid frame only.
-- N-6 The rail caption "Historical" (rows 16, 39) is shown by no frame, since no frame draws the reopened historical run of the specification §10.4; its token is the caption's default colour in `mocks.css`.
+- "The sixteen design frames": eighteen are delivered; the two additions and why are in `MOCKS_V3.md` §1. The sixteen are all present.
+- "`sample_model.md` unchanged unless a state needs a value": one section added for hanger selection; listed in `MOCKS_V3.md` §8.
+- Nothing else is known to be unmet.
 
-Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). The frames are proposals for the owner's judgement; the sample values are placeholders and not engine output; nothing here establishes acceptance, qualification or release.
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

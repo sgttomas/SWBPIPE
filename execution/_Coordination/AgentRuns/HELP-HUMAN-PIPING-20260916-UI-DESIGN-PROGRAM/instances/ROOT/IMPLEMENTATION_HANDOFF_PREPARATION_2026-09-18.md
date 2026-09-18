@@ -1,5 +1,7 @@
 # Implementation-ready handoff — preparation (not yet ready)
 
+Superseded 2026-09-18 by [the handoff](IMPLEMENTATION_HANDOFF_2026-09-18.md); kept as history.
+
 Status: ROOT record, 2026-09-18, successor ROOT. **The design work is not ready to hand to implementation, and this record authorizes nothing.** It fixes, now, the constraints and the shape the handoff will have, so that the revision pass and the owner's rulings fill it in rather than reshape it. This program's assignment is design only; product implementation needs the owner's separate authorization of an implementation tranche.
 
 ## 1. What must be true before the handoff is issued

@@ -26,7 +26,7 @@ export const loadSets = [
   { name: "OP2", T1: 80, P1: 6.0, T2: 40, P2: 6.0, sg: 1.0, note: "branch, operating / standby" },
 ];
 
-// One row per node, carrying the element that arrives at it (the CAEPIPE grammar).
+// One row per node, carrying the element that arrives at it (the model batch file grammar).
 // `entered` lists the columns typed on that row; the rest of Section, Material and
 // Load propagate from the row above by connectivity. The start node (10) carries no
 // element, so its Section, Material and Load are empty; the first element (10–20) is
@@ -164,6 +164,18 @@ export const hangers = [
 ];
 
 export const hangerLibrary = { name: "Vendor-A springs", imported: "2026-09-15", sizes: 24, provenance: "user import · source recorded in Libraries" };
+// Hanger selection candidates for the location at node 60 (third pass, state 8): the sizes of the user's
+// imported library around the design load, sorted by variation. Cold load = hot load + rate × travel
+// (5 980 N, +5.9 mm); variation = (cold − hot) / hot. A size is eligible when its working range contains
+// the hot load and its variation is within the row's Max variation (25 %). Placeholder values.
+export const hangerCandidates = {
+  60: [
+    { size: "A-2", rate: 60, coldLoad: 6334, hotLoad: 5980, variation: 5.9, range: "2 700 – 5 100", reason: "hot load over the working range, 2 700 – 5 100 N" },
+    { size: "A-3", rate: 120, coldLoad: 6688, hotLoad: 5980, variation: 11.8, range: "3 900 – 7 300 · within" },
+    { size: "A-4", rate: 240, coldLoad: 7396, hotLoad: 5980, variation: 23.7, range: "5 600 – 10 400 · within" },
+    { size: "A-5", rate: 480, coldLoad: 8812, hotLoad: 5980, variation: 47.4, range: "8 000 – 14 900", reason: "over the row's max variation, 25 %" },
+  ],
+};
 
 // Run 04 (after P-12 row 1): the stress rows the Review page's live table shows (Envelope).
 export const run04Envelope = [
@@ -229,9 +241,10 @@ export const review = {
     { n: 10, name: "Review/signoff block", fixed: true, state: "empty" },
   ],
   comments: [
-    { kind: "Check", ref: "Cases · EXP1, EXP2", who: "Agent", when: "09:31", text: "EXP1 is the algebraic OPE1 − SUS while EXP2 is the pure thermal T2. If the lift-off at 20 is meant to be captured, EXP2 would follow the same form. Which is intended?", state: "open" },
-    { kind: "Open issue", ref: "Restraints · node 20", who: "Agent", when: "09:33", text: "P-12 row 2 (close the 3 mm gap at 20) is still pending. §4 says the gap is as surveyed; if that stands, reject the row so the proposal closes.", state: "open" },
-    { kind: "Check", ref: "Stresses · 70 · EXP1", who: "Agent", when: "09:35", text: "The governing ratio fell from 0.72 (Run 03) to 0.58 with the spring at 80. The SIF at the welding tee comes from sample-rules 1.2; its provenance is recorded.", state: "resolved" },
+    { kind: "Check", ref: "Cases · EXP1, EXP2", who: "Agent", when: "09:31", text: "EXP1 is the algebraic OPE1 − SUS while EXP2 is the pure thermal T2. If the lift-off at 20 is meant to be captured, EXP2 follows the same form.", state: "open" },
+    { kind: "Open issue", ref: "Restraints · node 20", who: "Agent", when: "09:33", text: "P-12 row 2 (close the 3 mm gap at 20) is pending. §4 says the gap is as surveyed; rejecting the row closes the proposal.", state: "open" },
+    { kind: "Evidence summary", ref: "Stresses · 70 · EXP1", who: "Agent", when: "09:35", text: "The governing ratio reads 0.72 in Run 03 and 0.58 in Run 04, with the spring at 80; both runs cite sample-rules 1.2.", state: "resolved" },
+    { kind: "Draft", ref: "Report §9 · Hanger selection", who: "Agent", when: "09:36", text: "H1 at node 60 is size A-3 from the imported Vendor-A springs table: cold load 6 688 N, hot load 5 980 N, variation 11.8 %.", state: "open" },
     { kind: "Note", ref: "Hangers · node 80", who: "R. Tufts", when: "09:38", text: "Re-check the cold load at 80 once the vendor confirms size A-4.", state: "open" },
   ],
 };
