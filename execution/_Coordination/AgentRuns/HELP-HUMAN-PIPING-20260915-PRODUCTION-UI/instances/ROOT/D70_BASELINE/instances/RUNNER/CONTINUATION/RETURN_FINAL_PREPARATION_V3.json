@@ -1,0 +1,41 @@
+{
+  "status": "V3_PREPARATION_READY_FOR_AFFECTED_REVIEW",
+  "at": "2026-09-18T01:44:53.933470+00:00",
+  "instrumentRevision": "fbde75721c86547b877221f394cdc96d38d2ead7",
+  "method": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/CONTENT_WIDTH_REPAIR/METHOD_MANIFEST_SUCCESSOR.json",
+    "sha256": "d1b04c4e279081d0e0b2e9e45702f0aab1adb157f7537f2c8a46fd8eebcccf52"
+  },
+  "verifiedMethodMembers": 34,
+  "policy": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/POLICY_V3.json",
+    "sha256": "28a8eb2007dd9c57f81a728c729861d4c5b2fef4628ee7efb312fca77f01c39e"
+  },
+  "script": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/control_v3.py",
+    "sha256": "da30e1e703b7a90a83c354adb2d31fce6ef6c1c1b824cebabd406180823855f4"
+  },
+  "commands": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/COMMANDS_V3.json",
+    "sha256": "09ab3e03a7a8d0eae28a274189cd74694df0e9a82e80613c6aca7832a2425e83"
+  },
+  "preciseDelta": [
+    "Policy instrumentRevision and method path/hash",
+    "Script POLICY_V3 path and policy SHA",
+    "Script smoke-process\u2192smoke-process-02",
+    "Script continuation-smoke-01\u2192continuation-smoke-02",
+    "Command references and predecessor metadata"
+  ],
+  "unchanged": [
+    "V2 guards",
+    "canonical original seed",
+    "fixed ledger",
+    "nine slot order and attempt roots",
+    "receipt and launcher CLI",
+    "no overall timeout/no retry"
+  ],
+  "validation": "AST parse and read-only committed hash checks only",
+  "registryLedgerAttemptRootsAbsent": true,
+  "runtimeLaunched": false,
+  "receiptsPrepared": false
+}
