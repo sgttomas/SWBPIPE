@@ -305,4 +305,10 @@ UX-SPEC-03 correction 1, 2026-09-18, by the host's message-to-agent mechanism: �
 
 The handoff is refreshed for this pass (`../instances/ROOT/IMPLEMENTATION_HANDOFF_2026-09-18.md` `24bd4b9ade6e50ee57820cc7a68221447867ca6c48b11b217b0f5896484bbe38`): the status paragraph, §1 and §7 changed; §2 to §6 and §8 did not.
 
+| Brief | SHA-256 | Sealed | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `REVIEW-04_contradictions_pass_review.md` | `440e6a386b1283ee6d68f6af508da1cd6cd56acd60dc789dff10fa1999d0e605` | 2026-09-18T18:06Z | `opus` (Claude Opus 5) | TASK, read-only reviewer, working alone | `../instances/REVIEW/REVIEW-04_RETURN.md` |
+
+REVIEW-04 reviews candidate `80f122300bff3101570beb96b001231350589cd4`. Mechanism: Claude Code `Agent` tool, general-purpose type, background; a fresh child with no prior context.
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

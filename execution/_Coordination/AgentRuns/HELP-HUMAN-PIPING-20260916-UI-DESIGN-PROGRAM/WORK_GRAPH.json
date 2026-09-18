@@ -365,6 +365,16 @@
       "brief": "briefs/MOCKS-04_contradictions.md",
       "return": "instances/MOCKS/RETURN.md",
       "status": "complete"
+    },
+    {
+      "id": "REVIEW-04",
+      "role": "TASK",
+      "purpose": "Independent read-only review of the contradictions pass and the refreshed handoff",
+      "model_requested": "opus",
+      "mechanism": "Claude Code Agent tool, general-purpose, background",
+      "brief": "briefs/REVIEW-04_contradictions_pass_review.md",
+      "return": "instances/REVIEW/REVIEW-04_RETURN.md",
+      "status": "running"
     }
   ],
   "edges": [
@@ -555,6 +565,10 @@
     [
       "UX-SPEC-03",
       "MOCKS-04"
+    ],
+    [
+      "ROOT",
+      "REVIEW-04"
     ]
   ],
   "current_frontier": "Candidate complete: design system V1.3, specification V1.2, frames fourth pass, handoff refreshed. Next: REVIEW-04 and a pull request. With the owner: the handoff's §8. Nothing is implemented.",
