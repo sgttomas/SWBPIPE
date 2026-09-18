@@ -40,10 +40,12 @@
     "A1-REVIEW": {
       "role": "TASK Type 2 software-code-review, read-only",
       "model": "opus",
-      "status": "running",
+      "status": "returned_findings_corrected_pending_backcheck",
       "briefSha256": "98cf6915bfe37c32fd17bf49ebf873e4b6a5a5297f2ac997794f9e2e8c8e750a",
       "brief": "briefs/A1-REVIEW_code_review.md",
-      "candidate": "8143645eacff25e56d685259301795f0c3a482cb"
+      "candidate": "8143645eacff25e56d685259301795f0c3a482cb",
+      "model_ran": "Claude Opus 5",
+      "returnSha256": "c2a39462510105e111f1445acf19dbc10523ff7c9f2e9495ba3cc9afbc130914"
     }
   },
   "edges": [

@@ -25,4 +25,6 @@ ROOT's checks at integration: every changed path is inside a child's write scope
 
 A1-REVIEW reviews candidate `8143645eacff25e56d685259301795f0c3a482cb`. Mechanism: Claude Code `Agent` tool, general-purpose type, background.
 
+Return of A1-REVIEW, retained at `../instances/A1-REVIEW/RETURN.md` `c2a39462510105e111f1445acf19dbc10523ff7c9f2e9495ba3cc9afbc130914`; model that ran: Claude Opus 5; reviewed `8143645eacff25e56d685259301795f0c3a482cb`, all 105 files; verdict FINDINGS: no blocking, no major, one minor, one trivial, both accepted. Finding 1 (the store carry-forward copied the write-ahead log before the main file and could pair a stale sidecar with a fresh main file) went to A1-APP as correction 2: the carry-forward now opens the legacy store read-only and produces the new store with `VACUUM INTO` a temporary file renamed into place; seven unit tests; `cargo test --lib` 97 passed. Finding 2 (the manifest's candidate paths omitted three changed paths): ROOT added them. The reviewer judged the 1440 × 899 test change an honest preservation of the characterized geometry.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

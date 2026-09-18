@@ -589,41 +589,70 @@ fn legacy_project_store_source(new_dir: &Path) -> Option<PathBuf> {
     legacy_store.is_file().then_some(legacy_store)
 }
 
-/// Copies (never moves or deletes) the legacy store and its SQLite sidecars to
-/// the new directory when `legacy_project_store_source` says so. Sidecars are
-/// copied first and the main file last, through a temporary name, so an
-/// interrupted copy never leaves a main store file that was not fully written.
-/// Returns whether a store was copied.
+const CARRY_FORWARD_TEMPORARY_SUFFIX: &str = ".carry-forward-partial";
+
+/// Carries a legacy store forward when `legacy_project_store_source` says so.
+/// The legacy store is opened read-only and SQLite writes one consistent copy
+/// with `VACUUM INTO` a temporary sibling, which is then renamed into place.
+/// The read takes a proper lock, so a store in WAL mode (including one the
+/// former app still has open) is carried with its committed, uncheckpointed
+/// rows, and no sidecar file is ever copied. The legacy store is never moved,
+/// deleted or modified, and its journal mode is not changed. A store already
+/// at the new location is never overwritten. Returns whether a store was
+/// carried forward.
 fn carry_forward_legacy_project_store(new_dir: &Path) -> Result<bool, String> {
     let Some(legacy_store) = legacy_project_store_source(new_dir) else {
         return Ok(false);
     };
     let new_store = new_dir.join(PROJECT_STORE_FILE);
-    let mut created: Vec<PathBuf> = Vec::new();
-    let outcome = (|| -> Result<(), String> {
-        for suffix in STORE_SIDECAR_SUFFIXES {
-            let source = store_sidecar_path(&legacy_store, suffix);
-            let destination = store_sidecar_path(&new_store, suffix);
-            if source.is_file() && !destination.exists() {
-                fs::copy(&source, &destination).map_err(|error| error.to_string())?;
-                created.push(destination);
-            }
+    let temporary = store_sidecar_path(&new_store, CARRY_FORWARD_TEMPORARY_SUFFIX);
+
+    // Leftovers of a killed earlier attempt. No main store exists at the new
+    // location (the decision function checked), so a temporary file or a
+    // sidecar here is never user data, and a stale sidecar must not be paired
+    // with the fresh main file.
+    let mut leftovers = vec![temporary.clone()];
+    for suffix in STORE_SIDECAR_SUFFIXES {
+        leftovers.push(store_sidecar_path(&new_store, suffix));
+        leftovers.push(store_sidecar_path(&temporary, suffix));
+    }
+    leftovers.push(store_sidecar_path(&temporary, "-journal"));
+    for leftover in &leftovers {
+        if leftover.exists() {
+            fs::remove_file(leftover).map_err(|error| error.to_string())?;
         }
-        let partial = store_sidecar_path(&new_store, ".carry-forward-partial");
-        fs::copy(&legacy_store, &partial).map_err(|error| error.to_string())?;
-        created.push(partial.clone());
+    }
+
+    let outcome = (|| -> Result<(), String> {
+        let legacy = Connection::open_with_flags(
+            &legacy_store,
+            rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
+        )
+        .map_err(|error| error.to_string())?;
+        legacy
+            .busy_timeout(std::time::Duration::from_secs(5))
+            .map_err(|error| error.to_string())?;
+        let target = temporary
+            .to_str()
+            .ok_or_else(|| "the new store path is not valid UTF-8".to_string())?;
+        legacy
+            .execute("VACUUM INTO ?1", [target])
+            .map_err(|error| error.to_string())?;
+        drop(legacy);
         if new_store.exists() {
             return Err("a store appeared at the new location during the copy".to_string());
         }
-        fs::rename(&partial, &new_store).map_err(|error| error.to_string())?;
-        created.retain(|path| path != &partial);
-        Ok(())
+        fs::rename(&temporary, &new_store).map_err(|error| error.to_string())
     })();
     if let Err(error) = outcome {
-        // Remove only the files this attempt created; the legacy store and any
-        // store already at the new location are never touched.
-        for path in created {
-            let _ = fs::remove_file(path);
+        // Remove only what this attempt created; the legacy store and any store
+        // at the new location are never touched.
+        for leftover in &leftovers {
+            if leftover != &store_sidecar_path(&new_store, "-wal")
+                && leftover != &store_sidecar_path(&new_store, "-shm")
+            {
+                let _ = fs::remove_file(leftover);
+            }
         }
         return Err(error);
     }
@@ -4358,47 +4387,92 @@ mod legacy_store_carry_forward_tests {
         let new_dir = root.join("com.swbpipe.desktop");
         let legacy_dir = root.join(LEGACY_BUNDLE_IDENTIFIER);
         fs::create_dir_all(&new_dir).expect("new dir");
+        fs::create_dir_all(&legacy_dir).expect("legacy dir");
         (new_dir, legacy_dir)
+    }
+
+    /// A legacy store in WAL mode whose rows are committed but not
+    /// checkpointed. The returned connection stays open, as the former app's
+    /// would, so the rows live only in the -wal file.
+    fn legacy_wal_store(legacy_dir: &Path, rows: &[&str]) -> (PathBuf, Connection) {
+        let legacy_store = legacy_dir.join(PROJECT_STORE_FILE);
+        let writer = Connection::open(&legacy_store).expect("legacy open");
+        writer
+            .execute_batch("PRAGMA journal_mode = WAL; PRAGMA wal_autocheckpoint = 0; CREATE TABLE marker (name TEXT NOT NULL);")
+            .expect("legacy schema");
+        for row in rows {
+            writer
+                .execute("INSERT INTO marker (name) VALUES (?1)", [row])
+                .expect("legacy row");
+        }
+        let wal = store_sidecar_path(&legacy_store, "-wal");
+        assert!(fs::metadata(&wal).expect("wal exists").len() > 0, "rows must be uncheckpointed");
+        (legacy_store, writer)
+    }
+
+    fn marker_rows(store: &Path) -> Vec<String> {
+        let reader = Connection::open_with_flags(store, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)
+            .expect("read new store");
+        let mut statement = reader.prepare("SELECT name FROM marker ORDER BY rowid").expect("prepare");
+        let rows = statement
+            .query_map([], |row| row.get::<_, String>(0))
+            .expect("query")
+            .collect::<Result<Vec<_>, _>>()
+            .expect("rows");
+        rows
     }
 
     #[test]
     fn new_store_present_copies_nothing_and_is_never_overwritten() {
         let root = unique_root("a");
         let (new_dir, legacy_dir) = dirs(&root);
-        fs::create_dir_all(&legacy_dir).expect("legacy dir");
         fs::write(new_dir.join(PROJECT_STORE_FILE), b"new").expect("new store");
-        fs::write(legacy_dir.join(PROJECT_STORE_FILE), b"legacy").expect("legacy store");
-        fs::write(store_sidecar_path(&legacy_dir.join(PROJECT_STORE_FILE), "-wal"), b"wal").expect("wal");
+        let (_legacy_store, _writer) = legacy_wal_store(&legacy_dir, &["legacy"]);
+        // A sidecar beside an existing new store belongs to that store and stays.
+        let new_wal = store_sidecar_path(&new_dir.join(PROJECT_STORE_FILE), "-wal");
+        fs::write(&new_wal, b"new-wal").expect("new wal");
 
         assert_eq!(legacy_project_store_source(&new_dir), None);
         assert_eq!(carry_forward_legacy_project_store(&new_dir), Ok(false));
         assert_eq!(fs::read(new_dir.join(PROJECT_STORE_FILE)).expect("read"), b"new");
-        assert!(!store_sidecar_path(&new_dir.join(PROJECT_STORE_FILE), "-wal").exists());
+        assert_eq!(fs::read(&new_wal).expect("read wal"), b"new-wal");
         let _ = fs::remove_dir_all(root);
     }
 
     #[test]
-    fn new_absent_and_legacy_present_copies_and_leaves_legacy_untouched() {
+    fn new_absent_and_legacy_present_carries_uncheckpointed_wal_rows_and_leaves_legacy_byte_identical() {
         let root = unique_root("b");
         let (new_dir, legacy_dir) = dirs(&root);
-        fs::create_dir_all(&legacy_dir).expect("legacy dir");
-        let legacy_store = legacy_dir.join(PROJECT_STORE_FILE);
-        fs::write(&legacy_store, b"legacy").expect("legacy store");
+        let (legacy_store, writer) = legacy_wal_store(&legacy_dir, &["first", "second"]);
+        let legacy_wal = store_sidecar_path(&legacy_store, "-wal");
+        let main_before = fs::read(&legacy_store).expect("legacy main");
+        let wal_before = fs::read(&legacy_wal).expect("legacy wal");
 
         assert_eq!(legacy_project_store_source(&new_dir), Some(legacy_store.clone()));
         assert_eq!(carry_forward_legacy_project_store(&new_dir), Ok(true));
-        assert_eq!(fs::read(new_dir.join(PROJECT_STORE_FILE)).expect("read"), b"legacy");
-        assert_eq!(fs::read(&legacy_store).expect("legacy read"), b"legacy");
-        assert!(!store_sidecar_path(&new_dir.join(PROJECT_STORE_FILE), ".carry-forward-partial").exists());
-        // A second call finds the new store and copies nothing.
+
+        let new_store = new_dir.join(PROJECT_STORE_FILE);
+        assert_eq!(marker_rows(&new_store), vec!["first".to_string(), "second".to_string()]);
+        assert!(!store_sidecar_path(&new_store, CARRY_FORWARD_TEMPORARY_SUFFIX).exists());
+        // The legacy main file and its write-ahead log are byte-identical, and
+        // the legacy store is still in WAL mode with its rows readable.
+        assert_eq!(fs::read(&legacy_store).expect("legacy main after"), main_before);
+        assert_eq!(fs::read(&legacy_wal).expect("legacy wal after"), wal_before);
+        let mode: String = writer
+            .query_row("PRAGMA journal_mode", [], |row| row.get(0))
+            .expect("journal mode");
+        assert_eq!(mode, "wal");
+        // A second call finds the new store and carries nothing.
         assert_eq!(carry_forward_legacy_project_store(&new_dir), Ok(false));
+        drop(writer);
         let _ = fs::remove_dir_all(root);
     }
 
     #[test]
     fn both_absent_copies_nothing() {
         let root = unique_root("c");
-        let (new_dir, _legacy_dir) = dirs(&root);
+        let new_dir = root.join("com.swbpipe.desktop");
+        fs::create_dir_all(&new_dir).expect("new dir");
         assert_eq!(legacy_project_store_source(&new_dir), None);
         assert_eq!(carry_forward_legacy_project_store(&new_dir), Ok(false));
         assert!(!new_dir.join(PROJECT_STORE_FILE).exists());
@@ -4406,22 +4480,50 @@ mod legacy_store_carry_forward_tests {
     }
 
     #[test]
-    fn sidecars_are_copied_with_the_main_file() {
+    fn leftovers_of_a_killed_attempt_neither_corrupt_nor_block_the_carry_forward() {
         let root = unique_root("d");
         let (new_dir, legacy_dir) = dirs(&root);
-        fs::create_dir_all(&legacy_dir).expect("legacy dir");
-        let legacy_store = legacy_dir.join(PROJECT_STORE_FILE);
-        fs::write(&legacy_store, b"legacy").expect("legacy store");
-        fs::write(store_sidecar_path(&legacy_store, "-wal"), b"wal").expect("wal");
-        fs::write(store_sidecar_path(&legacy_store, "-shm"), b"shm").expect("shm");
+        let (_legacy_store, writer) = legacy_wal_store(&legacy_dir, &["kept"]);
+        let new_store = new_dir.join(PROJECT_STORE_FILE);
+        // A stale WAL and shared-memory file with no main store, and a partial
+        // temporary file: none of them is user data.
+        let stale_wal = store_sidecar_path(&new_store, "-wal");
+        let stale_shm = store_sidecar_path(&new_store, "-shm");
+        let stale_temporary = store_sidecar_path(&new_store, CARRY_FORWARD_TEMPORARY_SUFFIX);
+        fs::write(&stale_wal, b"stale write-ahead log from a killed attempt").expect("stale wal");
+        fs::write(&stale_shm, b"stale shm").expect("stale shm");
+        fs::write(&stale_temporary, b"partial").expect("stale temporary");
 
         assert_eq!(carry_forward_legacy_project_store(&new_dir), Ok(true));
-        let new_store = new_dir.join(PROJECT_STORE_FILE);
-        assert_eq!(fs::read(&new_store).expect("main"), b"legacy");
-        assert_eq!(fs::read(store_sidecar_path(&new_store, "-wal")).expect("wal"), b"wal");
-        assert_eq!(fs::read(store_sidecar_path(&new_store, "-shm")).expect("shm"), b"shm");
-        assert!(store_sidecar_path(&legacy_store, "-wal").exists());
-        assert!(store_sidecar_path(&legacy_store, "-shm").exists());
+        assert!(!stale_temporary.exists());
+        assert_ne!(
+            fs::read(&stale_wal).unwrap_or_default(),
+            b"stale write-ahead log from a killed attempt".to_vec()
+        );
+        assert_eq!(marker_rows(&new_store), vec!["kept".to_string()]);
+        let check = Connection::open(&new_store).expect("open new store");
+        let integrity: String = check
+            .query_row("PRAGMA integrity_check", [], |row| row.get(0))
+            .expect("integrity");
+        assert_eq!(integrity, "ok");
+        drop(writer);
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn an_unreadable_legacy_store_fails_without_leaving_files_or_touching_the_legacy_store() {
+        let root = unique_root("f");
+        let (new_dir, legacy_dir) = dirs(&root);
+        let legacy_store = legacy_dir.join(PROJECT_STORE_FILE);
+        fs::write(&legacy_store, b"this is not a sqlite database file at all").expect("legacy bytes");
+
+        assert!(carry_forward_legacy_project_store(&new_dir).is_err());
+        assert!(!new_dir.join(PROJECT_STORE_FILE).exists());
+        assert!(!store_sidecar_path(&new_dir.join(PROJECT_STORE_FILE), CARRY_FORWARD_TEMPORARY_SUFFIX).exists());
+        assert_eq!(
+            fs::read(&legacy_store).expect("legacy after"),
+            b"this is not a sqlite database file at all"
+        );
         let _ = fs::remove_dir_all(root);
     }
 
@@ -4430,7 +4532,6 @@ mod legacy_store_carry_forward_tests {
         let root = unique_root("e");
         let legacy_dir = root.join(LEGACY_BUNDLE_IDENTIFIER);
         fs::create_dir_all(&legacy_dir).expect("legacy dir");
-        // Running under the former identifier: the directory is not its own legacy source.
         assert_eq!(legacy_project_store_source(&legacy_dir), None);
         let _ = fs::remove_dir_all(root);
     }
