@@ -1,0 +1,39 @@
+{
+  "artifact": "CLOSEOUT_CHECKS",
+  "tranche": "SWBPIPE-A1",
+  "date": "2026-09-18",
+  "base": "04aefa9803a6a9d26dae39ad6bbc06c470963fad",
+  "code_reviewed": {
+    "reviewer_model": "Claude Opus 5",
+    "initial_candidate": "8143645eacff25e56d685259301795f0c3a482cb",
+    "backcheck_1": "d7ff2e45a53096a324c25f6c0641bae5c6b36ebc",
+    "backcheck_2_range": "626fa91ebea74f63edee7a55c4b7502237fc4624..07ece3f9d3d7fdc0da4ceca1293ed5d634c9f687",
+    "verdict": "PASS on backcheck; no actionable code finding open",
+    "last_code_commit": "07ece3f9d3d7fdc0da4ceca1293ed5d634c9f687"
+  },
+  "sweeps": [
+    {
+      "commit": "626fa91ebea74f63edee7a55c4b7502237fc4624",
+      "status": "fail",
+      "summary": "{WORKING_ROOT}/validation/evidence/sweeps/SWEEP_20260918T204011Z_626fa91ebea7.json",
+      "sha256": "75e746b99ad768ad820c1c7f70399d3e3253d427c5ebed2bd21c4e1ce89a11a5",
+      "note": "dist Playwright lane, one test; corrected by 07ece3f9d"
+    },
+    {
+      "commit": "a762301be23b9f614a83ce50faa60c18db826a38",
+      "status": "pass",
+      "summary": "{WORKING_ROOT}/validation/evidence/sweeps/SWEEP_20260918T211832Z_a762301be23b.json",
+      "sha256": "13ad59cf664129ee2213cf89a62c3c223567fd0c9536acc398080e7825c2be90",
+      "command": "PLAYWRIGHT_WORKERS=1 python3 tools/release/run_evidence_sweep.py --execute --require-capability host",
+      "surfaces": 5
+    }
+  ],
+  "commits_after_tested": "records only (this file, the sweep summary, index and handoff state); no product source, test or tool changes after a762301be",
+  "validators": {
+    "path_anchors": "PASS",
+    "claims_language": "VALID, 321 files",
+    "tranche_manifest": "see PR checks"
+  },
+  "boundary": "Checks ran on the owner's host. No usability acceptance, review acceptance or release is established.",
+  "claim_fence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)."
+}
