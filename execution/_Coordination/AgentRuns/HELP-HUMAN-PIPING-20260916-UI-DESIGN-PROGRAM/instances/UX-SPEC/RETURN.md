@@ -183,4 +183,14 @@ Brief: `briefs/UX-SPEC-03_contradictions.md`, sealed SHA-256 `2631c20c7e322feada
 3. **Row 44 is beyond the brief.** It can be reverted by three anchored replacements if ROOT wants the specification's example left alone.
 4. **"Design system" still means V1.2** by section and number throughout; V1.3 is named only where a kept function depends on it. When V1.3 is sealed the section references want one re-check.
 
+## 11. UX-SPEC-03 correction 1 (ROOT)
+
+Basis verified at commit `c3720bcfa` on `codex/swb-ui-contradictions`; design system V1.3 `DESIGN_SYSTEM_V1.md` SHA-256 `20b100bd9c979a9341b96431387bbf8ca45b01f10debfe0964b7a4f2d5c02e7e`, matched before checking. `briefs/_INDEX.md` has the "Return of MOCKS-04" paragraph; a search of it for C-26 or "crossed" found nothing, so the authority taken for this correction is ROOT's message and the direction record's effect table, which puts the Kind button at C-18 and the State column at C-21 (as `instances/MOCKS/MOCKS_V3.md` §6 does).
+
+1. **C-26, the crossed citations.** §13 rows 36 and 37 are left byte-identical; new row 48 says row 36 should cite C-18 and row 37 C-21. The crossing is in those two rows only: the specification's body, the operations map and this return cite neither number anywhere else (§10's table above names brief items, not contradiction numbers).
+2. **Section references against V1.3.** Every design-system reference on the lines V1.2 added or changed was listed from the diff against the V1.1 commit and checked against V1.3's headings: §2.3, §5.1, §5.5, §7.1, §7.4, §7.6. All resolve, and no number changed. The known example does not occur: the "§5.5" beside the status bar in row 47 and in the body is the specification's own §5.5, and no line cites the design system's status bar as §5.5. One wording fix: "in revision" is dropped from the three body mentions of V1.3. Row 49 records all of this. The operations map carries no design-system section reference on its four touched rows.
+3. **Files.** Changed: `UX_SPEC_V1.md`, `RETURN.md`. Not changed: `OPERATIONS_MAP.md`. §13 rows 1 to 47 are byte-identical to the committed file.
+
+A limit that stands: the specification's other design-system references, those V1.2 did not touch, were verified against design system V1.2 and have not been re-checked against V1.3.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

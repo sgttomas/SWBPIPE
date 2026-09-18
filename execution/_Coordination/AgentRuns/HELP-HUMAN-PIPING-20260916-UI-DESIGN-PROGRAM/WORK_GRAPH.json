@@ -557,7 +557,7 @@
       "MOCKS-04"
     ]
   ],
-  "current_frontier": "MOCKS-04 returned and retained. Next: the specification's citation correction (C-26) and section-reference re-check, the handoff's refresh, REVIEW-04 and a pull request. With the owner: the handoff's §8. Nothing is implemented.",
+  "current_frontier": "Candidate complete: design system V1.3, specification V1.2, frames fourth pass, handoff refreshed. Next: REVIEW-04 and a pull request. With the owner: the handoff's §8. Nothing is implemented.",
   "frontier_history": [
     {
       "until": "2026-09-18",
@@ -583,6 +583,10 @@
     {
       "until": "2026-09-18 MOCKS-04 return",
       "frontier": "Running: MOCKS-04. Then independent review, the handoff's refresh and a pull request. With the owner: the handoff's §8. Nothing is implemented."
+    },
+    {
+      "until": "2026-09-18 handoff refresh",
+      "frontier": "MOCKS-04 returned and retained. Next: the specification's citation correction (C-26) and section-reference re-check, the handoff's refresh, REVIEW-04 and a pull request. With the owner: the handoff's §8. Nothing is implemented."
     }
   ]
 }

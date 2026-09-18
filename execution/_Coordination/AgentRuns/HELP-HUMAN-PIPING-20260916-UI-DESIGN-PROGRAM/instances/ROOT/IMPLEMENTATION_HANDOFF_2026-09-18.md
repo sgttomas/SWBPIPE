@@ -1,6 +1,6 @@
 # Implementation-ready handoff — SWBPIPE interface redesign
 
-Status: ROOT record (HELP_HUMAN, successor), 2026-09-18, corrected the same day after independent review (REVIEW-03; dispositions in `{RUN}/instances/REVIEW/REVIEW-03_RETURN.md`). This record hands the accepted design to implementation. **It starts no implementation and authorizes none.** One owner decision is asked for, in §8. It replaces the [preparation record](IMPLEMENTATION_HANDOFF_PREPARATION_2026-09-18.md), which is kept as history; every prerequisite that record listed is now met except the owner's authorization.
+Status: ROOT record (HELP_HUMAN, successor), 2026-09-18, corrected the same day after independent review (REVIEW-03; dispositions in `{RUN}/instances/REVIEW/REVIEW-03_RETURN.md`), and refreshed the same day after the owner directed how the twenty-five contradictions between the design system and the specification are settled (design system V1.3, specification V1.2, the frames' fourth pass; §1's hashes and §7 changed, §2 to §6 and §8 did not). This record hands the accepted design to implementation. **It starts no implementation and authorizes none.** One owner decision is asked for, in §8. It replaces the [preparation record](IMPLEMENTATION_HANDOFF_PREPARATION_2026-09-18.md), which is kept as history; every prerequisite that record listed is now met except the owner's authorization.
 
 Paths are relative to `{WORKING_ROOT}` (`{REPO_ROOT}/projects/chirality-piping`) unless they begin with `{RUN}` (`{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM`).
 
@@ -8,16 +8,17 @@ Paths are relative to `{WORKING_ROOT}` (`{REPO_ROOT}/projects/chirality-piping`)
 
 | Record | Path | SHA-256 |
 |---|---|---|
-| Design system V1.2 | `{RUN}/instances/DESIGN-SYSTEM/DESIGN_SYSTEM_V1.md` | `efa22d497772e717b4cc19bc2a703ed765d0ac158fa177efbf39f373e0acfc1f` |
+| Design system V1.3 | `{RUN}/instances/DESIGN-SYSTEM/DESIGN_SYSTEM_V1.md` | `20b100bd9c979a9341b96431387bbf8ca45b01f10debfe0964b7a4f2d5c02e7e` |
 | Tokens 1.2 | `{RUN}/instances/DESIGN-SYSTEM/tokens.json` | `00c1afe97365973e6c05a2a5d938a25c46022a55c3cbc8d04ff3a9d2d68cf1e9` |
-| Specimen | `{RUN}/instances/DESIGN-SYSTEM/specimen.html` | `219fa8ee78c44507fcfc0b6a199298c8f4a4026abe798f4166eeda2eb607941b` |
-| UX specification V1.1 | `{RUN}/instances/UX-SPEC/UX_SPEC_V1.md` | `ad91a456541b2486581f40fa600a0ceef564df432e9133726ae0f806d4c7139c` |
-| Operations map | `{RUN}/instances/UX-SPEC/OPERATIONS_MAP.md` | `a64ba8bed5216de533ba804748102bf7bbaa18cd17473ce52179aa3f4bf599e4` |
-| Specification return (contradictions, uncertainties) | `{RUN}/instances/UX-SPEC/RETURN.md` | `7a43a53f93cbb8f14eb254811e1f70db3d03bc0e2da1984fdf5f2e6140807a81` |
-| Frames record, third pass | `{RUN}/instances/MOCKS/MOCKS_V3.md` | `805f78d7cae0190a8723e9110667cd7b2a31cba5d65016335cbadb9f574fbf1a` |
-| Frames return (per-frame hashes) | `{RUN}/instances/MOCKS/RETURN.md` | `45807f8f8c786802ed6742f15db8b05fa43ff7751f822a05e53cc1bc17fcfc3d` |
-| Frames index | `{RUN}/instances/MOCKS/frames/index.html` | `ee3b4a078cb55175e7952ced1e23c444a18146e2964030dd105a5331e0f10ee9` |
-| Measured facts | `{RUN}/instances/MOCKS/shots/report.json` | `884e0136c3ffaebb7fd609ca0fec650434f65ab48857027f06d393f6e45cc740` |
+| Specimen V1.3 | `{RUN}/instances/DESIGN-SYSTEM/specimen.html` | `f9ce15a26331177bdf78cf6dfb3e5ff568ef0756c02b17333ebc5b6807273a99` |
+| UX specification V1.2 | `{RUN}/instances/UX-SPEC/UX_SPEC_V1.md` | `cc0b843583ce313ceb96e2dcf13ca9109db877150f997f8644242e959f12fe43` |
+| Operations map | `{RUN}/instances/UX-SPEC/OPERATIONS_MAP.md` | `47e2aa303a358b77fa89439aac198146dbc0a2a13cef9fb86521789888f111c2` |
+| Specification return (uncertainties) | `{RUN}/instances/UX-SPEC/RETURN.md` | `972aa7218e380a1995c25af51de1884190b269ca7081d5a0525f100a4c448ea1` |
+| Frames record, fourth pass | `{RUN}/instances/MOCKS/MOCKS_V4.md` | `98da94b2dda5913eaec20ebc65e6de8ef981a460ad335a00e7c0f4d72dd80a10` |
+| Owner's direction on the contradictions | `{RUN}/instances/ROOT/OWNER_DIRECTION_2026-09-18_CONTRADICTIONS.md` | `b6f0681bc00efe3c51f46bdd2df62611648f5912a37ce04f78ec8bead8b5da8c` |
+| Frames return (per-frame hashes) | `{RUN}/instances/MOCKS/RETURN.md` | `1bfe236c1a71b41f7f2bc002244db8a817812c05353b98c951fcaab771a53779` |
+| Frames index | `{RUN}/instances/MOCKS/frames/index.html` | `de2e25efc45dcf852e55869e63105d428afc23b2aed3991e5447eea7a64b2456` |
+| Measured facts | `{RUN}/instances/MOCKS/shots/report.json` | `159ff9453145599887ef6460316869fc3f51e90ef95fde4a369389bc704ff8d2` |
 | Rendering workload classification | `{RUN}/instances/RESEARCH/G_rendering_workload_classification.md` | `fcf6eb88bb43dbc28d32156b3766cf5a388dad0b96316ca8623c470dc0d2cc45` |
 | Baseline reconciliation | `{RUN}/instances/ROOT/PIPING_HANDOFF_RECONCILIATION_2026-09-18.md` | `c0f6a6e182ec35d97683bf1be9444f5c01868e46e5150a344857863481d4ac41` |
 | D-70 ruling | `execution/_Coordination/_DECISIONS/D-70_RULING_2026-09-17.md` | `b374b2307d6eb4049803e336edd6e624dbb6688274ceae8a184c361e8fb335f6` |
@@ -27,11 +28,11 @@ Paths are relative to `{WORKING_ROOT}` (`{REPO_ROOT}/projects/chirality-piping`)
 | D-72 ruling | `execution/_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md` | `76f2eff773d75b2ee1d9facc1f0dcf8196635e5f520d0dbf7abc66b09063e62b` |
 | D-72 addendum | `execution/_Coordination/_DECISIONS/D-72_RULING_ADDENDUM_2026-09-18.md` | `e44fb50e244c614689c8ed98f0db87ac65f8fa899f0aee90d2a499d22e49e2cd` |
 
-The eighteen frames are under `{RUN}/instances/MOCKS/frames/`, each a self-contained HTML file, with 1:1 screenshots under `shots/`: the sixteen design frames regenerated, a slide-over frame and a Historical frame added, and the two D-71 decision-aid frames retired. The frames were drawn before the design system's correction 2 and the specification's correction 1, which changed attribution and wording in prose only and no appearance, string or behaviour a frame draws.
+The eighteen frames are under `{RUN}/instances/MOCKS/frames/`, each a self-contained HTML file, with 1:1 screenshots under `shots/`. The fourth pass redrew them for the owner's direction: `s1_both_light` replaces `s1_table_light`, because a new project opens in Both view; the edit chip's button reads "Apply"; a tooltip names its control and then the key in parentheses; the Review page shows three status chips. The third pass's record (`MOCKS_V3.md`) is kept as history.
 
 The design documents were produced by delegated children under sealed briefs and accepted by ROOT; the briefs, the models that ran and ROOT's checks are in `{RUN}/briefs/_INDEX.md`. ROOT's acceptance is a program-internal check against the brief. It is not the owner's review of the design, and the owner has said these details are subject to change once the product is in use.
 
-Reading order for an implementer: specification §2 (the model of the interface, the one route, run standing, the pointer rule), then §12 (what changes in meaning), then the operations map's gap list, then the design system for appearance, then the frames as worked examples. Where the specification and the design system differ on one of the sixteen points the specification's return lists, the specification governs; those sixteen are candidates for a design system correction and are not blocking.
+Reading order for an implementer: specification §2 (the model of the interface, the one route, run standing, the pointer rule), then §12 (what changes in meaning), then the operations map's gap list, then the design system for appearance, then the frames as worked examples. The twenty-five differences earlier found between the specification and the design system are settled by the owner's direction and applied in both documents; where a new difference is found, it is reported as one and neither document silently governs.
 
 ## 2. Decisions in force
 
@@ -92,12 +93,15 @@ The owning loop's registered checks (`software-workflow.json`); the DEC-025 swee
 
 ## 7. Open items carried
 
-- The sixteen contradictions between the design system and the specification, read in the specification's favour; a design system correction is owed before the frames are used as a pixel reference for those points.
+- The twenty-five contradictions between the design system and the specification are settled by the owner's direction (the direction record in §1) and applied: design system change-log rows 91 to 111, specification §13 rows 35 onward. The owner ruled three directly (the tooltip form, the paste band's button faces, the Review page's three chips), confirmed the six functions the specification keeps and the design system gains, and adopted ROOT's approach for the rest. "Apply" on the edit chip is ROOT's word, chosen at the owner's direction to find one other than "Commit"; the owner may replace it.
+- The design system child chose the copy for the six additions (the units selector's "As entered" and "Entered", the View tool's menu entries, the stress components' captions, "All kinds", the run menu's tooltip "Runs", the drawer's "Filter"). It is listed in the design system's `RETURN.md` for replacement. The child also added one behaviour: under "As entered" a column holding mixed units drops the unit from its header.
+- A reading by the specification child, not ruled: with no rule pack loaded, the Review page shows two chips, Solver and Human.
 - The specification's thirteen uncertainties (its `RETURN.md`), among them: hanger selection against a Stale run's values; undo of an accepted proposal row; the multi-change stale band wording; existing product controls not yet searched for rows 278 to 313.
 - "Evidence" as the domain word for the two evidence labels is a working word, the owner's to replace.
 - The dataviz palette validator was not run on tokens 1.2. Every colour value of 1.1 is unchanged, and the validator ran on 1.1. The two values 1.2 adds, `canvas.edgeAlt` in light and dark, have never been assessed by it.
 - All renders are Chromium only.
-- The frames' return lists nine further contradictions between the two documents (C-17 to C-25), eight questions only a screen raises (Q-23 to Q-30) and eight component gaps (frames gaps G-13 to G-20, numbered in the frames' own series and not the operations map's). None blocks a first tranche. Three are worth the owner's eye when the product is first used: the slide-over inspector over a 470 px canvas leaves 170 px of canvas visible (Q-24); the Review header needs more width than the 1440 window gives, and the results header more than the 737 px Both-view pane gives (Q-25, Q-26); and under a Historical run the table's ratio bars keep their colour while the canvas is neutral (Q-29).
+- From the frames' fourth pass (`MOCKS_V4.md` §4 to §7; the frames' gap numbers are the frames' own series and not the operations map's): questions Q-23 to Q-25 and Q-27 to Q-33 are open, and frames gaps G-13 to G-17, G-19 and G-21. Design system V1.3 closed Q-26, G-18 and G-20. None blocks a first tranche. Worth the owner's eye when the product is first used: the slide-over inspector over a 470 px canvas leaves 170 px of canvas visible (Q-24); the Review header needs more width than the 1440 window gives (Q-25); under a Historical run the table's ratio bars keep their colour while the canvas is neutral (Q-29); the hanger table's state now lives in footer counts that give way when a row is selected (Q-30); the Review page's filter row does not hold in 320 px once a kind is chosen (Q-31); whether a reserved column is drawn empty or absent (Q-32); and what an empty model's canvas is fitted to (frames gap G-21). The frames child's four departures (D4-1 to D4-4) are drawn choices, not rules.
+- No frame opens the units menu, the View tool's menu or the stress components' expansion; those three additions are drawn only in the design system's specimen.
 - Whether SCA-010 needs re-confirmation after ROOT narrowed it (line 15's path excepted) following review is the owner's call. ROOT has treated the acceptance as standing.
 
 ## 8. The one decision asked of the owner
