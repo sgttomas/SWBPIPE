@@ -3231,3 +3231,12 @@
   - Model-Attribution: HELP_HUMAN Astra/high; direct Type2 implementation, independent expectations, benchmark adapter, fresh review and independent runner configured Astra/low. Parentage, scopes, supplied hashes and instruction/config enforcement limits are in the owning work graph/briefs/returns.
   - Checks: Fresh complete-diff review, clean complete registered DEC-025 sweep, practitioner harness, self-check, receipt and local gates: PASS. Final metadata backcheck and actual-head CI/merge remain separate prepublication gates.
   - Gate-Outcome: `EXECUTED` — root accepts the bounded technical repair under the exact owner direction recorded in the run. A separately bound post-merge N10000 demonstration is prepared, not executed or passed. Historical D70 verdicts, redesigned-product performance obligations, independent-usability holds, decomposition/DAG/stage/lifecycle/release state remain unchanged. Standard F-PIP-2/DEC-081 fence applies.
+
+- **2026-09-18 — Receipt 146** (landed picking repair and fresh N10000 demonstration).
+  - Receipt-ID: `Receipt-146`
+  - Examined-Through: `362dcffc0f66d52c58689a58f268891461db0346`
+  - Parent-Receipt: `Receipt-145`
+  - Pointers: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/RUNTIME_REPORT.md`; same run `RUNTIME_WORK_GRAPH.json`, `_run_records/RUNTIME_EVIDENCE.json` and `instances/REVIEW/RUNTIME_BRIEF.md`; PR #794 owns landed source and actual-head CI evidence.
+  - Model-Attribution: HELP_HUMAN Astra/high, independent runner and read-only review TASK Astra/low; parentage, sealed briefs, returns and instruction/config enforcement limits in the successor runtime graph.
+  - Checks: Landed source CI, both-size untimed smoke and the fresh single N10000 full-workload run passed; exact completeness, validity, targets, binding/cleanup and offline observations are in the owning report. Metadata-only review, affected local checks and actual-head publication CI remain separate before merge.
+  - Gate-Outcome: `EXECUTED` — root accepts the bounded landed repair and valid single demonstration under the recorded owner direction. Historical D70 verdicts and redesigned-product performance/resource and independent-usability duties remain; no five-run qualification, decomposition/DAG/stage/lifecycle/release change or professional reliance is inferred. Standard F-PIP-2/DEC-081 fence applies.

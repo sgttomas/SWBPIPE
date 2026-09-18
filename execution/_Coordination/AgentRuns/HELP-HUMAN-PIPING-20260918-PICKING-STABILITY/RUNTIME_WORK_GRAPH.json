@@ -1,0 +1,41 @@
+{
+  "schema": "piping.picking-runtime-work-graph/v1",
+  "parentGraph": {
+    "path": "WORK_GRAPH.json",
+    "sha256": "26e8759e0028b69b73fc07ecc15df46181e07235aefde65b83577c587e31448c"
+  },
+  "acceptedProduct": "362dcffc0f66d52c58689a58f268891461db0346",
+  "parent": "/root",
+  "rootModel": "gpt-6-astra/high",
+  "nodes": {
+    "RUNNER": {
+      "agent": "/root/picking_runner",
+      "role": "Type2 independent runner",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "brief": {
+        "path": "instances/RUNNER/LAUNCH_BRIEF.md",
+        "sha256": "c86f46762c0f47f0fe9b9d9ba391a5b30cf97406b917d73c9ff863672b650b12"
+      },
+      "status": "complete_valid_original_targets_met",
+      "return": {
+        "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-01/analysis/RETURN.json",
+        "sha256": "c37176df64fdf62e9dd209ac7edfddef4f415a264f5ace0b14dd57dd669abf46"
+      },
+      "phases": "root sequential setup, smoke, timed and offline releases; exclusive timed runtime; no Type2 delegation"
+    },
+    "REVIEW": {
+      "agent": "/root/picking_review",
+      "role": "Type2 read-only TASK software-code-review",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "brief": {
+        "path": "instances/REVIEW/RUNTIME_BRIEF.md",
+        "sha256": "b739ec75e251acc8260e5bcca2c731fc7d51443f1e397021379bc306cf45751e"
+      },
+      "status": "candidate_review_then_affected_checks_pending"
+    }
+  },
+  "enforcement": "Role, scopes, non-delegation instruction+configuration asserted; no mechanism-proven claim",
+  "closure": "Landed repair and valid single demonstration accepted by root; metadata review, affected checks and publication remain separate; historical D70 verdicts unchanged"
+}

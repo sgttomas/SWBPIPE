@@ -1,0 +1,247 @@
+{
+  "schema": "piping.picking-runtime-evidence/v1",
+  "productAndInstrumentRevision": "362dcffc0f66d52c58689a58f268891461db0346",
+  "canonicalRawCustody": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-01",
+  "references": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-01/state.json",
+      "sha256": "3fadce47ed47c6af70cb8a374d5a62bf2b03360f1c7c4bd6d401690be9226898"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-01/smoke-complete.json",
+      "sha256": "c1e4e5c842ee9532dc0ee445834013599d759b43e7d497072f457374cbd65583"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-01/instances/VERIFY/timed/fresh-demo-result.json",
+      "sha256": "ca8bce26d7dea5536b3e3069f8b6e5bfc920e50323e32d071da40409baed8f86"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-01/instances/VERIFY/timed/raw/run-01/10000/result.json",
+      "sha256": "dc155de6db4ff8fe6336aab5f9febe0806b6dd473fd0aaa56a4048ff7fd3bde7"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-01/analysis/RETURN.json",
+      "sha256": "c37176df64fdf62e9dd209ac7edfddef4f415a264f5ace0b14dd57dd669abf46"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-01/analysis/offline-observations.json",
+      "sha256": "0ebbe2d36ddc9a27238670ffee0e9ebda0874bbae6b55738f989b443e7ee9337"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-01/analysis/RAW_MANIFEST.json",
+      "sha256": "d3b7710ed49ec3acfe77544d3d32bc19763e612594c4b4bb853355464f4a0c65"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-01/commands/timed/terminal.json",
+      "sha256": "7e58426175c2069ff692ba333eebd149a4cdde16e1452c5faf54b647b514a9c0"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/PR_MERGED.json",
+      "sha256": "a8e2b23e03352940208bc64ff6c64f1e9e1ac2c98e5dc426da2247afeef0e53b"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runner-preparation/run.py",
+      "sha256": "6d616d648ea5309684ff4719309a3dc4efd89937309139f4e59b47f06b45dc18"
+    }
+  ],
+  "bindings": {
+    "validationStatus": "PASS_CALLER_VALIDATED_BINDINGS",
+    "sourceSha256": "712f495875dfc68ec747a6e6e25ff92f1349f1f076e62f7637ebe2970ab45cbe",
+    "buildSha256": "585db6d8679d5fd652f00435c171c5ccbdc5462ad258fe5df464bff7bd7e73ab",
+    "fixtureSha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+    "browserSha256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+    "oracleSha256": "47f52cbc49b03a3202f1f9247bf146f0e765557b5ce54c3f97723519a1c58a8f",
+    "methodSha256": "e6e57b1daecbdcd6a7270c2800e10373f5ae2d815ab09809d04f99c0f0a3cae0",
+    "samplesSha256": "590fc0c7a0ab50f1f255150ce522a4a6626393d0ba8469ac62bdae2afdce29da"
+  },
+  "boundaryMetadata": {
+    "assignment": {
+      "count": 1,
+      "uniqueMetadata": [
+        {
+          "count": 1,
+          "browserDpr": 2,
+          "canvas": {
+            "bufferHeight": 1114,
+            "bufferWidth": 1588,
+            "cssHeight": 557,
+            "cssLeft": 293,
+            "cssTop": 285.1953125,
+            "cssWidth": 794,
+            "dpr": 2
+          },
+          "geometry": {
+            "mode": "schematic",
+            "odGeneration": 0,
+            "odStatus": "not-requested"
+          },
+          "labels": {
+            "budget": 80,
+            "enabled": true,
+            "renderedCount": 1
+          },
+          "window": [
+            1440,
+            920
+          ]
+        }
+      ]
+    },
+    "point-selection": {
+      "count": 200,
+      "uniqueMetadata": [
+        {
+          "count": 200,
+          "browserDpr": 2,
+          "canvas": {
+            "bufferHeight": 1114,
+            "bufferWidth": 1588,
+            "cssHeight": 557,
+            "cssLeft": 293,
+            "cssTop": 285.1953125,
+            "cssWidth": 794,
+            "dpr": 2
+          },
+          "geometry": {
+            "mode": "schematic",
+            "odGeneration": 0,
+            "odStatus": "not-requested"
+          },
+          "labels": {
+            "budget": 80,
+            "enabled": false,
+            "renderedCount": 0
+          },
+          "window": [
+            1440,
+            920
+          ]
+        }
+      ]
+    },
+    "box-selection": {
+      "count": 20,
+      "uniqueMetadata": [
+        {
+          "count": 20,
+          "browserDpr": 2,
+          "canvas": {
+            "bufferHeight": 1114,
+            "bufferWidth": 1588,
+            "cssHeight": 557,
+            "cssLeft": 293,
+            "cssTop": 285.1953125,
+            "cssWidth": 794,
+            "dpr": 2
+          },
+          "geometry": {
+            "mode": "schematic",
+            "odGeneration": 0,
+            "odStatus": "not-requested"
+          },
+          "labels": {
+            "budget": 80,
+            "enabled": false,
+            "renderedCount": 0
+          },
+          "window": [
+            1440,
+            920
+          ]
+        }
+      ]
+    },
+    "tree-filter": {
+      "count": 20,
+      "uniqueMetadata": [
+        {
+          "count": 20,
+          "browserDpr": 2,
+          "canvas": {
+            "bufferHeight": 1114,
+            "bufferWidth": 1588,
+            "cssHeight": 557,
+            "cssLeft": 293,
+            "cssTop": 285.1953125,
+            "cssWidth": 794,
+            "dpr": 2
+          },
+          "geometry": {
+            "mode": "schematic",
+            "odGeneration": 0,
+            "odStatus": "not-requested"
+          },
+          "labels": {
+            "budget": 80,
+            "enabled": false,
+            "renderedCount": 0
+          },
+          "window": [
+            1440,
+            920
+          ]
+        }
+      ]
+    },
+    "orbit": {
+      "count": 2,
+      "uniqueMetadata": [
+        {
+          "count": 1,
+          "browserDpr": 2,
+          "canvas": {
+            "bufferHeight": 1114,
+            "bufferWidth": 1588,
+            "cssHeight": 557,
+            "cssLeft": 293,
+            "cssTop": 285.1953125,
+            "cssWidth": 794,
+            "dpr": 2
+          },
+          "geometry": {
+            "mode": "schematic",
+            "odGeneration": 0,
+            "odStatus": "not-requested"
+          },
+          "labels": {
+            "budget": 80,
+            "enabled": true,
+            "renderedCount": 3
+          },
+          "window": [
+            1440,
+            920
+          ]
+        },
+        {
+          "count": 1,
+          "browserDpr": 2,
+          "canvas": {
+            "bufferHeight": 1114,
+            "bufferWidth": 1588,
+            "cssHeight": 557,
+            "cssLeft": 293,
+            "cssTop": 285.1953125,
+            "cssWidth": 794,
+            "dpr": 2
+          },
+          "geometry": {
+            "mode": "actual-od",
+            "odGeneration": 1,
+            "odStatus": "available"
+          },
+          "labels": {
+            "budget": 80,
+            "enabled": true,
+            "renderedCount": 3
+          },
+          "window": [
+            1440,
+            920
+          ]
+        }
+      ]
+    }
+  },
+  "rawManifestPolicy": "One canonical raw copy. Manifest inventories all runtime files except itself; no later runtime writes. Derived report is not raw evidence or decomposition authority."
+}

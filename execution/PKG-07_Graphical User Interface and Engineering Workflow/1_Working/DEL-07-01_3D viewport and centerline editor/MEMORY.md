@@ -499,3 +499,7 @@ The incomplete characterization report and bounded instrument passed complete in
 ## 2026-09-18 — shared-endpoint picking stability
 
 The owner directed implementation of the recorded point58 repair and a fresh N10000 run after landing. Stable sphere/capsule residuals and endpoint handling preserve selection policy; focused independent expectations and full registered verification are bound in [the owning run](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/HANDOFF_STATE.md). The new instrument route is a separate single demonstration, retaining frozen oracle/workload/targets and original D70 outcomes. Current source/CI/merge and later runtime outcomes remain separately attributed. No lifecycle, dependency, redesign-performance or usability closure.
+
+## 2026-09-18 — landed picking repair and fresh runtime
+
+PR794 merged as362dcffc after actual-head CI. The owner-requested fresh N10000 demonstration completed valid and met the unchanged original timing targets; all point selections including point58 passed. The owning `HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/RUNTIME_REPORT.md` and `_run_records/RUNTIME_EVIDENCE.json` retain exact raw custody, bindings, metric/observation distinctions and limits. Previous failed attempts, original local handoff, Remaining duties and IN_PROGRESS lifecycle remain unchanged. Metadata review/checks/publication are distinct gates; no five-run or redesigned-product acceptance is inferred.
