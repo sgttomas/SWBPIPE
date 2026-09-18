@@ -1,0 +1,53 @@
+
+Running 1 test using 1 worker
+
+persisted progress: run-05/10000/point-selection-001:derived, run-05/10000/point-selection-002:derived, run-05/10000/point-selection-003:stopped (4 existing records)
+persisted progress: run-05/10000/point-selection-007:derived, run-05/10000/point-selection-008:derived, run-05/10000/point-selection-009:prepared (10 existing records)
+persisted progress: run-05/10000/point-selection-012:derived, run-05/10000/point-selection-013:derived, run-05/10000/point-selection-014:prepared (15 existing records)
+persisted progress: run-05/10000/point-selection-018:derived, run-05/10000/point-selection-019:derived, run-05/10000/point-selection-020:prepared (21 existing records)
+persisted progress: run-05/10000/point-selection-023:derived, run-05/10000/point-selection-024:derived, run-05/10000/point-selection-025:prepared (26 existing records)
+persisted progress: run-05/10000/point-selection-028:derived, run-05/10000/point-selection-029:derived, run-05/10000/point-selection-030:prepared (31 existing records)
+persisted progress: run-05/10000/point-selection-033:derived, run-05/10000/point-selection-034:derived, run-05/10000/point-selection-035:stopped (36 existing records)
+persisted progress: run-05/10000/point-selection-038:derived, run-05/10000/point-selection-039:derived, run-05/10000/point-selection-040:stopped (41 existing records)
+persisted progress: run-05/10000/point-selection-044:derived, run-05/10000/point-selection-045:derived, run-05/10000/point-selection-046:prepared (47 existing records)
+persisted progress: run-05/10000/point-selection-049:derived, run-05/10000/point-selection-050:derived, run-05/10000/point-selection-051:prepared (52 existing records)
+persisted progress: run-05/10000/point-selection-054:derived, run-05/10000/point-selection-055:derived, run-05/10000/point-selection-056:prepared (57 existing records)
+  ✘  1 [chromium-ui-foundation-candidate-production] › apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:118:7 › UI foundation candidate production benchmark › candidate N=10000 run 5 (1.9m)
+
+
+  1) [chromium-ui-foundation-candidate-production] › apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:118:7 › UI foundation candidate production benchmark › candidate N=10000 run 5 
+
+    Error: candidate causal run failed: {"errors":[{"phase":"D70-8468a33c-20260917-CHARACTERIZATION-01.10000.5.point-selection.58:work","error":"Error: winner cue transition/typed capture binding failed"},{"phase":"run","error":"Error: segment D70-8468a33c-20260917-CHARACTERIZATION-01.10000.5.point-selection.58 failed; canonical earlier evidence retained"}],"scored":{"status":"FAIL_INVALID_EVIDENCE","validityFailures":["RUN_NOT_FRESH_AND_QUALIFIED","INCOMPLETE_OR_INVALID_POINTS","INCOMPLETE_OR_INVALID_BOXES","INCOMPLETE_OR_INVALID_FILTERS","INCOMPLETE_OR_INVALID_ORBIT:centerline","INCOMPLETE_OR_INVALID_ORBIT:actual-od","SETTLED_OWNED_RAF_NOT_EXACT_ZERO"],"targetFailures":[],"scores":{"assignment":652.1140018463138,"pointP95":null,"boxP95":null,"filterP95":null,"centerlineP95":null,"actualOdP95":null},"orbitPopulations":{},"runId":"D70-8468a33c-20260917-CHARACTERIZATION-01.10000.5","fixtureSize":10000,"bindings":{"validationStatus":"PASS_CALLER_VALIDATED_BINDINGS","sourceSha256":"23206c0762ba7f8aabd7529587e4032f61894aec04a21556f4d75b6fcfd57779","buildSha256":"800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f","fixtureSha256":"dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85","browserSha256":"bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789","oracleSha256":"47f52cbc49b03a3202f1f9247bf146f0e765557b5ce54c3f97723519a1c58a8f","methodSha256":"1e0ab8a4e4a57753084d7ceca695b0b4b952aa047923cb48e3dbd3074bf22a78","samplesSha256":"590fc0c7a0ab50f1f255150ce522a4a6626393d0ba8469ac62bdae2afdce29da"},"observerDiagnostics":{"evidenceRef":"observer-accounting.json","status":"RAW_REFERENCES_DIAGNOSTIC_TRUE_COST_UNPROVED"},"rawObserverReferences":{"p95Ms":0.5,"maximumMs":2,"totalPercent":3},"scope":"Metric acceptance for supplied qualified instrumented evidence only; no resource/native/product/project closure."}}
+
+       at full-cohort-controller.ts:907
+
+      905 |     resourceNativeAcceptance: "SEPARATELY_OWNED_NOT_CLAIMED", trueCost: "UNPROVED_NO_UNINSTRUMENTED_HEADROOM_CLAIM" };
+      906 |   await immutable(path.join(directory, "result.json"), result);
+    > 907 |   if (errors.length || (!options.focused && collection.attemptDisposition === "ABORT_REMAINING")) throw new Error(`candidate causal run failed: ${JSON.stringify({ errors, scored })}`);
+          |                                                                                                         ^
+      908 |   return result;
+      909 | }
+      910 |
+        at runCandidateCausalPerformance (/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts:907:105)
+        at /Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:163:57
+        at executeCollectionRun (/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-mode.ts:29:18)
+        at /Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:163:18
+
+    Error: selected slot failed/incomplete; consumed ordinal retained, later slot requires independent cleanup/binding revalidation
+
+      103 |       const collection={mode,attemptDisposition:valid?"COMPLETED":"ABORTED",collectionCompleteness:valid?"COMPLETE_ONE_SLOT":"INCOMPLETE_SLOT",evidenceValidity:valid?"VALID":"INVALID_OR_UNAVAILABLE",targetOutcome:record?.status??"UNAVAILABLE"};
+      104 |       await writeFile(path.join(evidenceRoot,"selected-slot-result.json"),`${JSON.stringify({schema:"ui-foundation.selected-slot/v1",claim:continuation.claim,collection,timedAttemptEnded:true,runRecords,missing,qualificationCohort:false,comparison:"separate instrument population; original1000.1 remains invalid and consumed"},null,2)}\n`,{flag:"wx"});
+    > 105 |       if(!valid)throw new Error("selected slot failed/incomplete; consumed ordinal retained, later slot requires independent cleanup/binding revalidation");
+          |                       ^
+      106 |       return;
+      107 |     }
+      108 |     const result = scorePerformanceCohort(completed, candidateExpectations);
+        at /Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:105:23
+
+    Error Context: ../../../../../task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.5/playwright-artifacts/ui-foundation-performance.-c3301-ark-candidate-N-10000-run-5-chromium-ui-foundation-candidate-production/error-context.md
+
+    Error Context: ../../../../../task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.5/playwright-artifacts/ui-foundation-performance.-c3301-ark-candidate-N-10000-run-5-chromium-ui-foundation-candidate-production/error-context.md
+
+  1 failed
+    [chromium-ui-foundation-candidate-production] › apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts:118:7 › UI foundation candidate production benchmark › candidate N=10000 run 5 
+{"exitCode":1,"signal":null,"slot":"10000.5","claim":{"path":"/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger/claims/10000.5.json","sha256":"05d023e73afd061f98d62c4b111149fb7bf117b7417db0fcf472e032efdf54c7"},"finishedAt":"2026-09-18T03:24:00.312Z","cleanup":"UNKNOWN_REQUIRES_INDEPENDENT_REVALIDATION","comparison":"mixed-method attempt budget; not same-method cohort qualification"}

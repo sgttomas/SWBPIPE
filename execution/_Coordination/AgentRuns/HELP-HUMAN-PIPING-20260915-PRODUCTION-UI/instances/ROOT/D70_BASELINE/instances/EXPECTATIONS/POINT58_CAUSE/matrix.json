@@ -1,0 +1,5755 @@
+{
+  "rows": [
+    {
+      "attempt": 1,
+      "phase": "before",
+      "pointKind": "intended",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.36824485813818636,
+            -0.6635951768412065,
+            -0.651181361625066
+          ],
+          "cosTheta": 0.9716928563814842,
+          "tNear": 0.00102913178113085,
+          "tFar": 1029.13178113085
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697588593334,
+          "normalizedMiss": 0.8971662857784751,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857856163
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857873554
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857856163
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857873554
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857873554
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857856163
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 1,
+      "phase": "before",
+      "pointKind": "delivered",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.36824481461960934,
+            -0.6635951993613876,
+            -0.6511813632854443
+          ],
+          "cosTheta": 0.9716928452166745,
+          "tNear": 0.0010291317929556365,
+          "tFar": 1029.1317929556365
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706977520837565,
+          "normalizedMiss": 0.8971722704825292,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704697218
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704714609
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704697218
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704714609
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704714609
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704697218
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520837565,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520837565,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520837565,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 1,
+      "phase": "before",
+      "pointKind": "xOnly",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.36824483140027536,
+            -0.6635951722947198,
+            -0.6511813813785865
+          ],
+          "cosTheta": 0.9716928497241291,
+          "tNear": 0.0010291317881817362,
+          "tFar": 1029.1317881817363
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706976787838908,
+          "normalizedMiss": 0.8971695873058179,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872846597
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872898766
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872846597
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872863987
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872898766
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872846597
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 1,
+      "phase": "before",
+      "pointKind": "yOnly",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.36824484135752006,
+            -0.6635952039078745,
+            -0.6511813435319238
+          ],
+          "cosTheta": 0.9716928518740295,
+          "tNear": 0.0010291317859047503,
+          "tFar": 1029.1317859047504
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697661892083,
+          "normalizedMiss": 0.8971689689656482,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689735963
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689753353
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689735963
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689753353
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689753353
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689735963
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 1,
+      "phase": "after",
+      "pointKind": "intended",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "node",
+        "id": "node:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.36824485813818614,
+            -0.6635951768412064,
+            -0.651181361625066
+          ],
+          "cosTheta": 0.971692856381484,
+          "tNear": 0.0010291317811308503,
+          "tFar": 1029.1317811308502
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706975885933815,
+          "normalizedMiss": 0.8971662857784738,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857873556
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857856165
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857873556
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857873556
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857856165
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857856165
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706975885933815,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706975885933815,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706975885933815,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 1,
+      "phase": "after",
+      "pointKind": "delivered",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.36824481461960923,
+            -0.6635951993613876,
+            -0.6511813632854444
+          ],
+          "cosTheta": 0.9716928452166745,
+          "tNear": 0.0010291317929556365,
+          "tFar": 1029.1317929556365
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706977520838038,
+          "normalizedMiss": 0.8971722704825187,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270469722
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270469722
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 1,
+      "phase": "after",
+      "pointKind": "xOnly",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.3682448314002753,
+            -0.6635951722947198,
+            -0.6511813813785866
+          ],
+          "cosTheta": 0.9716928497241291,
+          "tNear": 0.0010291317881817362,
+          "tFar": 1029.1317881817363
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697678783843,
+          "normalizedMiss": 0.8971695873058065,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872881378
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872881378
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697678783843,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697678783843,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697678783843,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 1,
+      "phase": "after",
+      "pointKind": "yOnly",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.3682448413575199,
+            -0.6635952039078745,
+            -0.6511813435319239
+          ],
+          "cosTheta": 0.9716928518740295,
+          "tNear": 0.0010291317859047503,
+          "tFar": 1029.1317859047504
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697661892035,
+          "normalizedMiss": 0.8971689689656489,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689718575
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689788135
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689718575
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689770744
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689788135
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689718575
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 1,
+      "float32": {
+        "intended": {
+          "x": 839.3801013839062,
+          "y": 657.5079070039999
+        },
+        "delivered": {
+          "x": 839.380126953125,
+          "y": 657.5079345703125
+        },
+        "rounded": {
+          "x": 839.380126953125,
+          "y": 657.5079345703125
+        },
+        "matches": true
+      }
+    },
+    {
+      "attempt": 2,
+      "phase": "before",
+      "pointKind": "intended",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.36824485813818636,
+            -0.6635951768412065,
+            -0.651181361625066
+          ],
+          "cosTheta": 0.9716928563814842,
+          "tNear": 0.00102913178113085,
+          "tFar": 1029.13178113085
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697588593334,
+          "normalizedMiss": 0.8971662857784751,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857856163
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857873554
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857856163
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857873554
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857873554
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857856163
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 2,
+      "phase": "before",
+      "pointKind": "delivered",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.36824481461960934,
+            -0.6635951993613876,
+            -0.6511813632854443
+          ],
+          "cosTheta": 0.9716928452166745,
+          "tNear": 0.0010291317929556365,
+          "tFar": 1029.1317929556365
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706977520837565,
+          "normalizedMiss": 0.8971722704825292,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704697218
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704714609
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704697218
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704714609
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704714609
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704697218
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520837565,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520837565,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520837565,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 2,
+      "phase": "before",
+      "pointKind": "xOnly",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.36824483140027536,
+            -0.6635951722947198,
+            -0.6511813813785865
+          ],
+          "cosTheta": 0.9716928497241291,
+          "tNear": 0.0010291317881817362,
+          "tFar": 1029.1317881817363
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706976787838908,
+          "normalizedMiss": 0.8971695873058179,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872846597
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872898766
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872846597
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872863987
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872898766
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872846597
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 2,
+      "phase": "before",
+      "pointKind": "yOnly",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.36824484135752006,
+            -0.6635952039078745,
+            -0.6511813435319238
+          ],
+          "cosTheta": 0.9716928518740295,
+          "tNear": 0.0010291317859047503,
+          "tFar": 1029.1317859047504
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697661892083,
+          "normalizedMiss": 0.8971689689656482,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689735963
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689753353
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689735963
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689753353
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689753353
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689735963
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 2,
+      "phase": "after",
+      "pointKind": "intended",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "node",
+        "id": "node:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.36824485813818614,
+            -0.6635951768412064,
+            -0.651181361625066
+          ],
+          "cosTheta": 0.971692856381484,
+          "tNear": 0.0010291317811308503,
+          "tFar": 1029.1317811308502
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706975885933815,
+          "normalizedMiss": 0.8971662857784738,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857873556
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857856165
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857873556
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857873556
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857856165
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857856165
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706975885933815,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706975885933815,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706975885933815,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 2,
+      "phase": "after",
+      "pointKind": "delivered",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.36824481461960923,
+            -0.6635951993613876,
+            -0.6511813632854444
+          ],
+          "cosTheta": 0.9716928452166745,
+          "tNear": 0.0010291317929556365,
+          "tFar": 1029.1317929556365
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706977520838038,
+          "normalizedMiss": 0.8971722704825187,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270469722
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270469722
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 2,
+      "phase": "after",
+      "pointKind": "xOnly",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.3682448314002753,
+            -0.6635951722947198,
+            -0.6511813813785866
+          ],
+          "cosTheta": 0.9716928497241291,
+          "tNear": 0.0010291317881817362,
+          "tFar": 1029.1317881817363
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697678783843,
+          "normalizedMiss": 0.8971695873058065,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872881378
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872881378
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697678783843,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697678783843,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697678783843,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 2,
+      "phase": "after",
+      "pointKind": "yOnly",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.3682448413575199,
+            -0.6635952039078745,
+            -0.6511813435319239
+          ],
+          "cosTheta": 0.9716928518740295,
+          "tNear": 0.0010291317859047503,
+          "tFar": 1029.1317859047504
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697661892035,
+          "normalizedMiss": 0.8971689689656489,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689718575
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689788135
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689718575
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689770744
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689788135
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689718575
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 2,
+      "float32": {
+        "intended": {
+          "x": 839.3801013839062,
+          "y": 657.5079070039999
+        },
+        "delivered": {
+          "x": 839.380126953125,
+          "y": 657.5079345703125
+        },
+        "rounded": {
+          "x": 839.380126953125,
+          "y": 657.5079345703125
+        },
+        "matches": true
+      }
+    },
+    {
+      "attempt": 4,
+      "phase": "before",
+      "pointKind": "intended",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.36824485813818636,
+            -0.6635951768412065,
+            -0.651181361625066
+          ],
+          "cosTheta": 0.9716928563814842,
+          "tNear": 0.00102913178113085,
+          "tFar": 1029.13178113085
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697588593334,
+          "normalizedMiss": 0.8971662857784751,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857856163
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857873554
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857856163
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857873554
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857873554
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857856163
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 4,
+      "phase": "before",
+      "pointKind": "delivered",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.36824481461960934,
+            -0.6635951993613876,
+            -0.6511813632854443
+          ],
+          "cosTheta": 0.9716928452166745,
+          "tNear": 0.0010291317929556365,
+          "tFar": 1029.1317929556365
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706977520837565,
+          "normalizedMiss": 0.8971722704825292,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704697218
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704714609
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704697218
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704714609
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704714609
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704697218
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520837565,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520837565,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520837565,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 4,
+      "phase": "before",
+      "pointKind": "xOnly",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.36824483140027536,
+            -0.6635951722947198,
+            -0.6511813813785865
+          ],
+          "cosTheta": 0.9716928497241291,
+          "tNear": 0.0010291317881817362,
+          "tFar": 1029.1317881817363
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706976787838908,
+          "normalizedMiss": 0.8971695873058179,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872846597
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872898766
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872846597
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872863987
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872898766
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872846597
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 4,
+      "phase": "before",
+      "pointKind": "yOnly",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.36824484135752006,
+            -0.6635952039078745,
+            -0.6511813435319238
+          ],
+          "cosTheta": 0.9716928518740295,
+          "tNear": 0.0010291317859047503,
+          "tFar": 1029.1317859047504
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697661892083,
+          "normalizedMiss": 0.8971689689656482,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689735963
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689753353
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689735963
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689753353
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689753353
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689735963
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 4,
+      "phase": "after",
+      "pointKind": "intended",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "node",
+        "id": "node:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.36824485813818614,
+            -0.6635951768412064,
+            -0.651181361625066
+          ],
+          "cosTheta": 0.971692856381484,
+          "tNear": 0.0010291317811308503,
+          "tFar": 1029.1317811308502
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706975885933815,
+          "normalizedMiss": 0.8971662857784738,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857873556
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857856165
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857873556
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857873556
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857856165
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857856165
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706975885933815,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706975885933815,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706975885933815,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 4,
+      "phase": "after",
+      "pointKind": "delivered",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.36824481461960923,
+            -0.6635951993613876,
+            -0.6511813632854444
+          ],
+          "cosTheta": 0.9716928452166745,
+          "tNear": 0.0010291317929556365,
+          "tFar": 1029.1317929556365
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706977520838038,
+          "normalizedMiss": 0.8971722704825187,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270469722
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270469722
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 4,
+      "phase": "after",
+      "pointKind": "xOnly",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.3682448314002753,
+            -0.6635951722947198,
+            -0.6511813813785866
+          ],
+          "cosTheta": 0.9716928497241291,
+          "tNear": 0.0010291317881817362,
+          "tFar": 1029.1317881817363
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697678783843,
+          "normalizedMiss": 0.8971695873058065,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872881378
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872881378
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697678783843,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697678783843,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697678783843,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 4,
+      "phase": "after",
+      "pointKind": "yOnly",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.3682448413575199,
+            -0.6635952039078745,
+            -0.6511813435319239
+          ],
+          "cosTheta": 0.9716928518740295,
+          "tNear": 0.0010291317859047503,
+          "tFar": 1029.1317859047504
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697661892035,
+          "normalizedMiss": 0.8971689689656489,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689718575
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689788135
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689718575
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689770744
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689788135
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689718575
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 4,
+      "float32": {
+        "intended": {
+          "x": 839.3801013839062,
+          "y": 657.5079070039999
+        },
+        "delivered": {
+          "x": 839.380126953125,
+          "y": 657.5079345703125
+        },
+        "rounded": {
+          "x": 839.380126953125,
+          "y": 657.5079345703125
+        },
+        "matches": true
+      }
+    },
+    {
+      "attempt": 5,
+      "phase": "before",
+      "pointKind": "intended",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.36824485813818636,
+            -0.6635951768412065,
+            -0.651181361625066
+          ],
+          "cosTheta": 0.9716928563814842,
+          "tNear": 0.00102913178113085,
+          "tFar": 1029.13178113085
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697588593334,
+          "normalizedMiss": 0.8971662857784751,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857856163
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857873554
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857856163
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857873554
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857873554
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706975885935996,
+            "miss": 0.8971662857856163
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784751
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 5,
+      "phase": "before",
+      "pointKind": "delivered",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.36824481461960934,
+            -0.6635951993613876,
+            -0.6511813632854443
+          ],
+          "cosTheta": 0.9716928452166745,
+          "tNear": 0.0010291317929556365,
+          "tFar": 1029.1317929556365
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706977520837565,
+          "normalizedMiss": 0.8971722704825292,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704697218
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704714609
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704697218
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704714609
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704714609
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697752083452,
+            "miss": 0.8971722704697218
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520837565,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520837565,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520837565,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697752083709,
+            "miss": 0.8971722704825292
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 5,
+      "phase": "before",
+      "pointKind": "xOnly",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.36824483140027536,
+            -0.6635951722947198,
+            -0.6511813813785865
+          ],
+          "cosTheta": 0.9716928497241291,
+          "tNear": 0.0010291317881817362,
+          "tFar": 1029.1317881817363
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706976787838908,
+          "normalizedMiss": 0.8971695873058179,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872846597
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872898766
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872846597
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872863987
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872898766
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976787834915,
+            "miss": 0.8971695872846597
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838908,
+            "miss": 0.8971695873058179
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 5,
+      "phase": "before",
+      "pointKind": "yOnly",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.36824484135752006,
+            -0.6635952039078745,
+            -0.6511813435319238
+          ],
+          "cosTheta": 0.9716928518740295,
+          "tNear": 0.0010291317859047503,
+          "tFar": 1029.1317859047504
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697661892083,
+          "normalizedMiss": 0.8971689689656482,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871306,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689735963
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689753353
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689735963
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689753353
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689753353
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618923488,
+            "miss": 0.8971689689735963
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892083,
+            "miss": 0.8971689689656482
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 5,
+      "phase": "after",
+      "pointKind": "intended",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "node",
+        "id": "node:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.36824485813818614,
+            -0.6635951768412064,
+            -0.651181361625066
+          ],
+          "cosTheta": 0.971692856381484,
+          "tNear": 0.0010291317811308503,
+          "tFar": 1029.1317811308502
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706975885933815,
+          "normalizedMiss": 0.8971662857784738,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857873556
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857856165
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857873556
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857873556
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857856165
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697588593552,
+            "miss": 0.8971662857856165
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706975885933815,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706975885933815,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706975885933815,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697588593334,
+            "miss": 0.8971662857784738
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 5,
+      "phase": "after",
+      "pointKind": "delivered",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.36824481461960923,
+            -0.6635951993613876,
+            -0.6511813632854444
+          ],
+          "cosTheta": 0.9716928452166745,
+          "tNear": 0.0010291317929556365,
+          "tFar": 1029.1317929556365
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.706977520838038,
+          "normalizedMiss": 0.8971722704825187,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270469722
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270469722
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706977520834045,
+            "miss": 0.897172270467983
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706977520838038,
+            "miss": 0.8971722704825187
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 5,
+      "phase": "after",
+      "pointKind": "xOnly",
+      "point": {
+        "x": 839.380126953125,
+        "y": 657.5079070039999
+      },
+      "ndc": [
+        0.37627236008343834,
+        -0.3368495314326747
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627236008343834,
+          -0.3368495314326747
+        ],
+        "ray": {
+          "direction": [
+            -0.3682448314002753,
+            -0.6635951722947198,
+            -0.6511813813785866
+          ],
+          "cosTheta": 0.9716928497241291,
+          "tNear": 0.0010291317881817362,
+          "tFar": 1029.1317881817363
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697678783843,
+          "normalizedMiss": 0.8971695873058065,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872881378
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872881378
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.70697678783444,
+            "miss": 0.8971695872863988
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697678783843,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697678783843,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697678783843,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.706976787838904,
+            "miss": 0.8971695873058065
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 5,
+      "phase": "after",
+      "pointKind": "yOnly",
+      "point": {
+        "x": 839.3801013839062,
+        "y": 657.5079345703125
+      },
+      "ndc": [
+        0.37627229567734566,
+        -0.3368496304140485
+      ],
+      "product": {
+        "type": "pipe",
+        "id": "pipe:UIF-08786"
+      },
+      "oracle": {
+        "status": "HIT",
+        "origin": [
+          5,
+          0.6299935,
+          0.4950015
+        ],
+        "ndc": [
+          0.37627229567734566,
+          -0.3368496304140485
+        ],
+        "ray": {
+          "direction": [
+            -0.3682448413575199,
+            -0.6635952039078745,
+            -0.6511813435319239
+          ],
+          "cosTheta": 0.9716928518740295,
+          "tNear": 0.0010291317859047503,
+          "tFar": 1029.1317859047504
+        },
+        "expectedHitRef": {
+          "type": "node",
+          "id": "node:UIF-08786"
+        },
+        "winner": {
+          "clippedEntry": 16.70697661892035,
+          "normalizedMiss": 0.8971689689656489,
+          "radius": 0.1349697880223381,
+          "depth": 16.320486132871302,
+          "displayedModelOrder": 8786
+        },
+        "candidateCount": 108,
+        "frontGroupCount": 3,
+        "missGroupCount": 3
+      },
+      "productDetails": {
+        "winner": {
+          "type": "pipe",
+          "id": "pipe:UIF-08786"
+        },
+        "broadPhaseKeys": [
+          "[\"pipe\",\"pipe:UIF-08786\"]",
+          "[\"node\",\"node:UIF-08786\"]"
+        ],
+        "candidates": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689718575
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689788135
+          }
+        ],
+        "front": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689718575
+          },
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08787"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689770744
+          },
+          {
+            "ref": {
+              "type": "node",
+              "id": "node:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689788135
+          }
+        ],
+        "missGroup": [
+          {
+            "ref": {
+              "type": "pipe",
+              "id": "pipe:UIF-08786"
+            },
+            "entry": 16.706976618924436,
+            "miss": 0.8971689689718575
+          }
+        ],
+        "broadPhaseCount": 20601
+      },
+      "oracleDetails": {
+        "candidates": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          }
+        ],
+        "front": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          }
+        ],
+        "missGroup": [
+          {
+            "type": "node",
+            "id": "node:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08786",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          },
+          {
+            "type": "pipe",
+            "id": "pipe:UIF-08787",
+            "entry": 16.70697661892035,
+            "miss": 0.8971689689656489
+          }
+        ]
+      },
+      "detailMatchesActual": true
+    },
+    {
+      "attempt": 5,
+      "float32": {
+        "intended": {
+          "x": 839.3801013839062,
+          "y": 657.5079070039999
+        },
+        "delivered": {
+          "x": 839.380126953125,
+          "y": 657.5079345703125
+        },
+        "rounded": {
+          "x": 839.380126953125,
+          "y": 657.5079345703125
+        },
+        "matches": true
+      }
+    }
+  ],
+  "inputHashes": {
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.ts": "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e",
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/src/features/workspace/modelIndex.ts": "7daf63de7e0f4834b8dba7252065a528438b5fe7dd558d3107350e7855b30bd9",
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/src/features/workspace/selectionState.ts": "e6eb8cb213692f94b2fa1fe21a0a7de17c9954e3038a90889dca20d631d3dbb2",
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/point-hit-oracle.mjs": "d9f4e01f80b62c777b3b48645b3d2180e7327fb0e335358c5aba6b4f96b992b4",
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.model.json": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1/raw/run-01/10000/point-selection-058/point-stopped.json": "a01bab184b13528e1b0490dcafcc584f72bfdb6b62955c84b6c4cc498d2af5c7",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1/raw/run-01/10000/point-selection-058/action-stopped.json": "78741746a77210dc624cffe2736a171f7d5a9a8ba187db9243fc28833585124d",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2/raw/run-02/10000/point-selection-058/point-stopped.json": "5f1e46adece16a63a52624a440a7d12a53851eb85906076411ef7825a8fd486e",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2/raw/run-02/10000/point-selection-058/action-stopped.json": "fef868343340dfe61fb697568ca301b82461292926fd84c7f2065c833e903da8",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.4/raw/run-04/10000/point-selection-058/point-stopped.json": "194979c461a92621a56cb313d210ee088b8a26f12fdf989cb2ccb4d9e80d38a6",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.4/raw/run-04/10000/point-selection-058/action-stopped.json": "aeee25a435cedad9cd3399e24a3ab1668474ab35225b3c595f29e742a5cf0f81",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.5/raw/run-05/10000/point-selection-058/point-stopped.json": "cf35fc80770f6dc6f32d39ef13459288de36abd77ac1c172c1acfa18577a53d3",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.5/raw/run-05/10000/point-selection-058/action-stopped.json": "f624a45db3cfcf7685281202d9207664229085729ca8b687f7f29c14dff319a2"
+  }
+}

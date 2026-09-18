@@ -1,0 +1,19 @@
+{
+  "seedSha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6",
+  "cohortId": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+  "ledgerRoot": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/ledger",
+  "policySha256": "c608c66ad9b04fb1a74018168ff3936b76b7cc6f1d6980e0fe2b58f0090b8163",
+  "methodSha256": "1e0ab8a4e4a57753084d7ceca695b0b4b952aa047923cb48e3dbd3074bf22a78",
+  "instrumentRevision": "df1562e06c90653a96252e19f5730b19b8d4f66c",
+  "previousRegistry": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN.json.continuation-ledger.json",
+    "sha256": "4b5843acc27e55e24b7d9ad2b86850eade669da1e143b396aa0ed800dd727877"
+  },
+  "authority": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/OWNER_DIRECTION_ONE_SUCCESS_20260917.md",
+    "sha256": "ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"
+  },
+  "waivedUnattempted": [
+    "1000.5"
+  ]
+}

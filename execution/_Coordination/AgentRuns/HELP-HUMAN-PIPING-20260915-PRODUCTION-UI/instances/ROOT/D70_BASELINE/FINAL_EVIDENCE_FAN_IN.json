@@ -1,0 +1,44 @@
+{
+  "schema": "chirality.piping.d70.final-evidence-fan-in/v1",
+  "at": "2026-09-18T03:37:01.489448+00:00",
+  "derivative": true,
+  "parent": "HELP_HUMAN /root",
+  "technicalDisposition": "EXHAUSTED_INCOMPLETE_10000_CHARACTERIZATION",
+  "reviewAndRepositoryGates": "PENDING_FINAL_REVIEW_AND_REGISTERED_CHECKS",
+  "runner": {
+    "agent": "/root/d70_runner",
+    "role": "TASK Type2",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/FINAL/RETURN_V2.json",
+    "sha256": "094edfcb8ac7e41c2b69a9bffe11a36455229d5b5d8c8773d80ad72904943e68",
+    "referencedFilesHashVerified": true
+  },
+  "cause": {
+    "agent": "/root/d70_expectations",
+    "role": "TASK Type2",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/POINT58_CAUSE/RETURN.json",
+    "sha256": "54a8ed283f3b2bfc06393c9f94a60b2c3e7f715e5185937e8d45dfdc7673b878",
+    "rootVerifiedInputs": true,
+    "matrixDisagreements": 28,
+    "matrixTotal": 32,
+    "repairApplied": false
+  },
+  "ownerReport": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/BASELINE_CHARACTERIZATION_REPORT.md",
+    "sha256": "56aa2f08de5ed0b5935d507c22d34d6aa22cda22d24e6b7227cadb4f64caffb7"
+  },
+  "repairHandoff": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/POINT58_REPAIR_HANDOFF.md",
+    "sha256": "3a3490f7fe8cc542088ce60e5c33a52c0163c5d7cb0c1dd000ae6242082ad7a4"
+  },
+  "closureLimits": [
+    "No further timed attempt",
+    "No product performance or resource/native qualification",
+    "D70 report supplies performance handoff condition; redesign approvals remain with design program",
+    "Full local/CI/PR closeout remains"
+  ],
+  "enforcement": "model configuration/role/Type2 non-delegation instruction+config asserted; no independent model introspection"
+}

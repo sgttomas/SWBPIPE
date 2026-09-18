@@ -1,0 +1,60 @@
+{
+  "schema": "chirality.piping.d70.one-success-slot-release/v1",
+  "at": "2026-09-18T03:01:47.578791+00:00",
+  "status": "RELEASE_ONE_ALLOTTED10000_SLOT",
+  "owner": "HELP_HUMAN /root",
+  "runtimeOwner": "/root/d70_runner",
+  "slot": "10000.1",
+  "candidate": "6ea94143c65871f3763ed61682afc009700bd805",
+  "ownerDirection": {
+    "path": "OWNER_DIRECTION_ONE_SUCCESS_20260917.md",
+    "sha256": "ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"
+  },
+  "expectations": {
+    "path": "instances/EXPECTATIONS/ONE_SUCCESS/EXPECTATIONS.md",
+    "sha256": "7c895915cb178e88cc087f246ac80d60165a2c0d3d4cc68bdff9bd596e06ddc7"
+  },
+  "productRevision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "instrumentRevision": "df1562e06c90653a96252e19f5730b19b8d4f66c",
+  "methodSha256": "1e0ab8a4e4a57753084d7ceca695b0b4b952aa047923cb48e3dbd3074bf22a78",
+  "policy": {
+    "path": "instances/RUNNER/CONTINUATION/POLICY_V6.json",
+    "sha256": "c608c66ad9b04fb1a74018168ff3936b76b7cc6f1d6980e0fe2b58f0090b8163"
+  },
+  "script": {
+    "path": "instances/RUNNER/CONTINUATION/control_v7.py",
+    "sha256": "846ccb0a48c8d032b04956df002c181f5a1c7c4504b7df78ba003435f0d730a0"
+  },
+  "commands": {
+    "path": "instances/RUNNER/CONTINUATION/COMMANDS_V7.json",
+    "sha256": "a1855c478ccd1287401cad8b530771da14e9d9e301391cd7b9d29042d1bf46ed"
+  },
+  "review": {
+    "path": "instances/CONTINUATION_REVIEW/INTERNAL120/RETURN.json",
+    "sha256": "3f8d9e5dcdaf63f32e65c8a685e4820f17d3c39b9df0569a91df94a10364a185"
+  },
+  "priorInterruptedReturn": {
+    "path": "instances/RUNNER/CONTINUATION/RETURN_1000.4_INTERRUPTED.json",
+    "sha256": "79d59d625353d84258daea4452cca0eed5dddb625cd24920c1a4cfde14b6e335"
+  },
+  "measuredWorkloadCarryForward": "Both-size smoke02 accepted. Review confirms same controller, actions, trace and scorer; successor profile guards only. No additional smoke or measured-source repair.",
+  "operation": "Root explicitly authorizes fresh prepare10000.1 then immediate launch10000.1 using actualreceipt hash and thisrelease; first previousclaim1000.4 requires EXTERNAL_RECOVERY_VERIFIED and fresh full externalbindings. No further1000, automatic next/retry/replacement or sixth10000.",
+  "runtimeExclusivity": "Runner sole runtime owner; no competing builds/tests/GUI/native/heavy archives or offline traces. Root lightweight persisted progress only.",
+  "limits": "Existing action/trace and20minute per-run limits; no overall clock cap; original scores unchanged. Valid target misses continue collection.",
+  "stopRule": "After first valid complete actual10000run, halt timed collection; Root separately releases fresh success-close proof and immutable waivers. Failed slot consumed; later ordinal requires separate release and valid cleanup/source/profile.",
+  "returnRequirement": "Small actualexit/signal, completeness/validity, original score vector, settled, cleanup and externalbinding refs; no offline analysis until timed sequence is closed.",
+  "displayAuthority": {
+    "path": "OWNER_DIRECTION_INTERNAL120_20260917.md",
+    "sha256": "6df272b7af0367b0083302229018143f8fa397a6bde0f5e368c6ec1e454157b9"
+  },
+  "referenceProfile": {
+    "path": "instances/RUNNER/CONTINUATION/INTERNAL120/REFERENCE_PROFILE_INTERNAL120.json",
+    "sha256": "6de03bed447bc236b34295eabcdcd3957434aada022e368f1a4559e5f839ad8e"
+  },
+  "profileComparability": "New10000 uses owner-authorized internal120. N1000.2 remains on LG external60; no same-display scaling comparison.",
+  "supersedesBlockedRelease": {
+    "path": "releases/ONE_SUCCESS_10000.1.json",
+    "sha256": "36aad674e3ef74294599e61f4bd45a49ff3036f5545c1f4beb492f0f7aec3fa2",
+    "disposition": "blocked before claim/receipt; no slot consumed"
+  }
+}

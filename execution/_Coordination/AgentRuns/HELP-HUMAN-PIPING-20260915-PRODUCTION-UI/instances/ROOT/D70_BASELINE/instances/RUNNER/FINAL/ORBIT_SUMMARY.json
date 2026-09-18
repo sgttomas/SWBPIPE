@@ -1,0 +1,191 @@
+{
+  "schema": "ui-foundation.offline-attempt-observations/v1",
+  "attemptFile": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.2/selected-slot-result.json",
+  "attemptSha256": "a07dd7128e8911843f22ee244d812126c3c13f4aea09affeb0cdceb7c31c02af",
+  "observations": [
+    {
+      "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.2",
+      "mode": "orbit-001",
+      "rawPath": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.2/raw/run-02/1000/orbit-001/trace-events.raw.json",
+      "derivedSha256": "f157f6ad4c1448a3e028707b15491adc55ef23c77809d79b1a250c70ba8ece1e",
+      "finalizedSha256": "eedc2a5b0411678e57c1e9ae31aee3583aec61dffbad004eea1aef8be6bbf54a",
+      "schema": "ui-foundation.offline-orbit-observations/v1",
+      "rawSha256": "859badf48874028f3a80e34d5d2fc1bfc1a18432827a2f2b9714b167340a6a78",
+      "rawBytes": 49952636,
+      "losslessUnsafeIntegerConversions": 21033,
+      "actionEventIndex": 2578,
+      "window": {
+        "startUs": "2359986198531",
+        "endUs": "2359996198531",
+        "inclusive": true,
+        "definition": "action trace timestamp + 2000000 through + 12000000 us; start-event membership"
+      },
+      "attribution": {
+        "pid": "78726",
+        "tid": "61136922",
+        "documentFrame": "0EF3CFA6FDA6204EFFA14A0BED42623E",
+        "actionToken": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.2.orbit.1",
+        "status": "EXACT_SAME_TRACE_RENDERER_MAIN_THREAD"
+      },
+      "mainFrame": {
+        "eventName": "ProxyMain::BeginMainFrame",
+        "populationCount": 1800,
+        "knownDurationCount": 600,
+        "missingDurationCount": 0,
+        "ambiguousOrInvalidDurationCount": 1200,
+        "rejected": {
+          "wrongProcessOrThread": 0,
+          "invalidTimestamp": 0,
+          "unknownPhase": 1200
+        },
+        "statistics": {
+          "status": "AVAILABLE_TRACE_DURATION_STATISTICS",
+          "count": 600,
+          "p50Us": "1429",
+          "p95Us": "2168",
+          "maxUs": "2865"
+        }
+      },
+      "gpuRelatedTraceSpans": {
+        "status": "AVAILABLE_UNBOUND_GPU_THREAD_CONTEXT",
+        "pid": "78720",
+        "tid": "61136826",
+        "populationCount": 1200,
+        "knownDurationCount": 828,
+        "missingDurationCount": 0,
+        "ambiguousOrInvalidDurationCount": 372,
+        "rejected": {
+          "wrongProcessOrThread": 11748,
+          "invalidTimestamp": 0,
+          "unknownPhase": 372
+        },
+        "statistics": null,
+        "byEventName": {
+          "SkiaOutputSurfaceImplOnGpu::SwapBuffers": {
+            "populationCount": 600,
+            "missingDurationCount": 0,
+            "statistics": {
+              "status": "AVAILABLE_TRACE_DURATION_STATISTICS",
+              "count": 600,
+              "p50Us": "370",
+              "p95Us": "522",
+              "maxUs": "728"
+            }
+          },
+          "SkiaOutputSurfaceImplOnGpu::EndAccessImages": {
+            "populationCount": 600,
+            "missingDurationCount": 372,
+            "statistics": {
+              "status": "AVAILABLE_TRACE_DURATION_STATISTICS",
+              "count": 228,
+              "p50Us": "1",
+              "p95Us": "1",
+              "maxUs": "4"
+            }
+          }
+        }
+      },
+      "originalExtractionSha256": "3510228b85fe820492b5eaa3c916859d0e37f93763bf2e76e88819f247c22585",
+      "limits": [
+        "All attributable main-frame occurrences, including ties; not feedback-selected frames.",
+        "Durations are recorded trace spans, not hardware GPU time; missing duration is never zero.",
+        "GPU spans are same-window thread context, never causal per-frame joins or nearest-time cross-process attribution.",
+        "Original input latency and Chromium-reported presentation scores are unchanged; presentation is not scanout."
+      ]
+    },
+    {
+      "runId": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.2",
+      "mode": "orbit-002",
+      "rawPath": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/1000.2/raw/run-02/1000/orbit-002/trace-events.raw.json",
+      "derivedSha256": "e798370ac158986c2b7bd5e80837b9045da2635bb3071a4da4178e0f5ea197bb",
+      "finalizedSha256": "1ca697cbd530450c2bd542c87b72a7d7b3a9e865b49ff5603b07a175c84352cc",
+      "schema": "ui-foundation.offline-orbit-observations/v1",
+      "rawSha256": "88366bf7f423ed4f2f57fef1622f912cae263c76b5c1d13d3cc543c20e04f5da",
+      "rawBytes": 49397672,
+      "losslessUnsafeIntegerConversions": 20797,
+      "actionEventIndex": 2352,
+      "window": {
+        "startUs": "2360014699299",
+        "endUs": "2360024699299",
+        "inclusive": true,
+        "definition": "action trace timestamp + 2000000 through + 12000000 us; start-event membership"
+      },
+      "attribution": {
+        "pid": "78726",
+        "tid": "61136922",
+        "documentFrame": "0EF3CFA6FDA6204EFFA14A0BED42623E",
+        "actionToken": "D70-8468a33c-20260917-CHARACTERIZATION-01.1000.2.orbit.2",
+        "status": "EXACT_SAME_TRACE_RENDERER_MAIN_THREAD"
+      },
+      "mainFrame": {
+        "eventName": "ProxyMain::BeginMainFrame",
+        "populationCount": 1800,
+        "knownDurationCount": 600,
+        "missingDurationCount": 0,
+        "ambiguousOrInvalidDurationCount": 1200,
+        "rejected": {
+          "wrongProcessOrThread": 0,
+          "invalidTimestamp": 0,
+          "unknownPhase": 1200
+        },
+        "statistics": {
+          "status": "AVAILABLE_TRACE_DURATION_STATISTICS",
+          "count": 600,
+          "p50Us": "1456",
+          "p95Us": "2225",
+          "maxUs": "2815"
+        }
+      },
+      "gpuRelatedTraceSpans": {
+        "status": "AVAILABLE_UNBOUND_GPU_THREAD_CONTEXT",
+        "pid": "78720",
+        "tid": "61136826",
+        "populationCount": 1200,
+        "knownDurationCount": 826,
+        "missingDurationCount": 0,
+        "ambiguousOrInvalidDurationCount": 374,
+        "rejected": {
+          "wrongProcessOrThread": 11668,
+          "invalidTimestamp": 0,
+          "unknownPhase": 374
+        },
+        "statistics": null,
+        "byEventName": {
+          "SkiaOutputSurfaceImplOnGpu::SwapBuffers": {
+            "populationCount": 600,
+            "missingDurationCount": 0,
+            "statistics": {
+              "status": "AVAILABLE_TRACE_DURATION_STATISTICS",
+              "count": 600,
+              "p50Us": "368",
+              "p95Us": "539",
+              "maxUs": "630"
+            }
+          },
+          "SkiaOutputSurfaceImplOnGpu::EndAccessImages": {
+            "populationCount": 600,
+            "missingDurationCount": 374,
+            "statistics": {
+              "status": "AVAILABLE_TRACE_DURATION_STATISTICS",
+              "count": 226,
+              "p50Us": "1",
+              "p95Us": "1",
+              "maxUs": "2"
+            }
+          }
+        }
+      },
+      "originalExtractionSha256": "6c6598a07b2985517f65b9190868ba5087176595c8bbbc5cbe970d5ad0b6ae42",
+      "limits": [
+        "All attributable main-frame occurrences, including ties; not feedback-selected frames.",
+        "Durations are recorded trace spans, not hardware GPU time; missing duration is never zero.",
+        "GPU spans are same-window thread context, never causal per-frame joins or nearest-time cross-process attribution.",
+        "Original input latency and Chromium-reported presentation scores are unchanged; presentation is not scanout."
+      ]
+    }
+  ],
+  "unavailable": [],
+  "derivative": true,
+  "canonicalRawPolicy": "References only; canonical raw bytes never rewritten",
+  "qualificationClaim": false
+}

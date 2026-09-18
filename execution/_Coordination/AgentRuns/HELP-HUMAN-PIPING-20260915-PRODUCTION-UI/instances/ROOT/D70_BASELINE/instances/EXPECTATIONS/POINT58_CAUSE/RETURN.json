@@ -1,0 +1,117 @@
+{
+  "status": "RECORDED_INPUT_CAUSE_ISOLATION_COMPLETE",
+  "classification": "PRODUCT_NORMALIZED_MISS_NUMERICAL_TIE_INSTABILITY_REPRODUCED",
+  "confidence": "high immediate reproduced mechanism; runtime camera internal bits not preserved",
+  "float32_equality_confirmed": true,
+  "float32_sole_cause": false,
+  "matrix_cases": 32,
+  "actual_export_diagnostic_copy_winner_agreement": true,
+  "oracle_winner_all_cases": "node:UIF-08786",
+  "repair_applied": false,
+  "repair_recommendation": "Separately authorize stable consistent sphere/capsule endpoint miss computation preserving semantics/tolerances; regression against retained matrix.",
+  "parent": "/root",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "enforcement": "instruction/config asserted; caller model configuration",
+  "source_build_tests_browser_timed_run_trace_parsing": "none",
+  "input_hashes": {
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.ts": "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e",
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/src/features/workspace/modelIndex.ts": "7daf63de7e0f4834b8dba7252065a528438b5fe7dd558d3107350e7855b30bd9",
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/src/features/workspace/selectionState.ts": "e6eb8cb213692f94b2fa1fe21a0a7de17c9954e3038a90889dca20d631d3dbb2",
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/point-hit-oracle.mjs": "d9f4e01f80b62c777b3b48645b3d2180e7327fb0e335358c5aba6b4f96b992b4",
+    "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.model.json": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1/raw/run-01/10000/point-selection-058/point-stopped.json": "a01bab184b13528e1b0490dcafcc584f72bfdb6b62955c84b6c4cc498d2af5c7",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1/raw/run-01/10000/point-selection-058/action-stopped.json": "78741746a77210dc624cffe2736a171f7d5a9a8ba187db9243fc28833585124d",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2/raw/run-02/10000/point-selection-058/point-stopped.json": "5f1e46adece16a63a52624a440a7d12a53851eb85906076411ef7825a8fd486e",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2/raw/run-02/10000/point-selection-058/action-stopped.json": "fef868343340dfe61fb697568ca301b82461292926fd84c7f2065c833e903da8",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.4/raw/run-04/10000/point-selection-058/point-stopped.json": "194979c461a92621a56cb313d210ee088b8a26f12fdf989cb2ccb4d9e80d38a6",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.4/raw/run-04/10000/point-selection-058/action-stopped.json": "aeee25a435cedad9cd3399e24a3ab1668474ab35225b3c595f29e742a5cf0f81",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.5/raw/run-05/10000/point-selection-058/point-stopped.json": "cf35fc80770f6dc6f32d39ef13459288de36abd77ac1c172c1acfa18577a53d3",
+    "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.5/raw/run-05/10000/point-selection-058/action-stopped.json": "f624a45db3cfcf7685281202d9207664229085729ca8b687f7f29c14dff319a2"
+  },
+  "additional_context_hashes": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/POINT58_ROOT_CAUSE.md",
+      "sha256": "bf185f11d29d3bae3acff51986941c26c8745fd4295147e3c37b988d086cd3fa"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/POINT58/RETURN.json",
+      "sha256": "df233f84025c2984d3a1b36b6af306d5db3a971a98391dd72a3b4026d29c5328"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/POINT58/DIAGNOSIS.md",
+      "sha256": "eab439eac9bace6fda2a7a31a85fda8e2e43155ae2671cabe87d2bf162879fc8"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_10000.1.json",
+      "sha256": "d322e9d42f3add347dbac84e1df5052c1b460c1eda18df4c0eb29732bb29f40a"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_10000.2.json",
+      "sha256": "f8e5d299af67cf55477d22bc13b96be53584e1d07dbc262119d6fdf869d0cc18"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_10000.4.json",
+      "sha256": "ea67475a269f39c471349ff639a16f790ab13cb689d99e6dcf91fc381dad5cfe"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/RETURN_10000.5.json",
+      "sha256": "363b1bf374a9f4831e526c5224f0ca2857ca8aa6df19fc6a394da343f97df372"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/node_modules/three/build/three.cjs",
+      "sha256": "5642a94df08df0af65dcf21595100f4b69c50180cf1f084faef7a63f944d8bdf"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/node_modules/three/package.json",
+      "sha256": "4333673f9eedf7a62072f781a8eae5ac673a160fbe253ca1a3d08238469f7145"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/node_modules/typescript/package.json",
+      "sha256": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6"
+    }
+  ],
+  "result_hash_verifications": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.1/raw/run-01/10000/result.json",
+      "sha256": "fabc4c45f8ec9dfaaa6ad13fbe7af087b12a047052d00baf1a2b8a4da2bad989",
+      "verified_against_return": true
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.2/raw/run-02/10000/result.json",
+      "sha256": "61ea6831a211d273b074eb28f122466005eb9e70cc65d0f9ca7b22907bd03b52",
+      "verified_against_return": true
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.4/raw/run-04/10000/result.json",
+      "sha256": "ef9c94e1ca0758a1cc4bea8e1348ab63ffe4be952296df19ade17668f1c26a9f",
+      "verified_against_return": true
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.5/raw/run-05/10000/result.json",
+      "sha256": "c4977f3c399c5fef6d13e8ea1fad2f7a0da3a728862aa94adcb89c8104e94791",
+      "verified_against_return": true
+    }
+  ],
+  "outputs": [
+    {
+      "path": "compare.cjs",
+      "sha256": "716e8bb746739de398107faeb27ffecf490712042bc7e8e0b6b9d690e136f50c"
+    },
+    {
+      "path": "oracle-detail.mjs",
+      "sha256": "751b54a3bd26cc3d8c2574c036de96a7b8790585b6e234b4513dc3f82029ef45"
+    },
+    {
+      "path": "matrix.json",
+      "sha256": "08456c7abc10f96b443807718d229e8999cc84076e77e85f0a653fb178e09af8"
+    },
+    {
+      "path": "DIAGNOSIS.md",
+      "sha256": "5ebda533507798034b1a7f75f3bd9d19a2c3cd5bb763c530319e6bc7892f4494"
+    }
+  ],
+  "product_oracle_disagreements": 28,
+  "product_oracle_agreements": 4
+}

@@ -1,0 +1,48 @@
+{
+  "schema": "ui-foundation.continuation-preconditions/v1",
+  "slot": "10000.1",
+  "previousClaimSha256": "de72c0ef4732e3a81abe5b02a7ca757cccd8622bb4a5ccfa69cbc2d96faa3c53",
+  "verifiedAt": "2026-09-18T03:02:17.168726+00:00",
+  "cleanup": {
+    "status": "VERIFIED_NO_REMAINING_BROWSER_OR_SERVER",
+    "evidence": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/receipts/10000.1/cleanup.json",
+      "sha256": "9de38d549dc3642d89b4f1116bf972ee7e11b624196a150887b49601d4b16d7b"
+    }
+  },
+  "bindingsStatus": "VERIFIED_UNCHANGED",
+  "externalBindings": {
+    "UI_FOUNDATION_PHASE": "candidate",
+    "UI_FOUNDATION_COHORT_ID": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+    "UI_FOUNDATION_MANIFEST_SHA256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+    "UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/instances/VERIFY/PRODUCT_8468/candidate-bundle-manifest.json",
+    "UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST_SHA256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+    "UI_FOUNDATION_CANDIDATE_SOURCE_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping",
+    "UI_FOUNDATION_CANDIDATE_OUTPUT_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-product-8468a33c/projects/chirality-piping/apps/desktop/dist",
+    "UI_FOUNDATION_CANDIDATE_SOURCE_STAGE": "final",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/.codex/task-runtime-cache/chirality-ui-foundation-20260915/chrome-for-testing/153.0.8010.36/mac-arm64/1f701ef60757c63c6ccf98afaf28291dd0c8d1457d3d738e81fd62201c230ad0/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_SHA256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+    "UI_FOUNDATION_REFERENCE_PROFILE": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/INTERNAL120/REFERENCE_PROFILE_INTERNAL120.json",
+    "UI_FOUNDATION_REFERENCE_PROFILE_SHA256": "6de03bed447bc236b34295eabcdcd3957434aada022e368f1a4559e5f839ad8e",
+    "PLAYWRIGHT_WORKERS": "1",
+    "UI_FOUNDATION_COLLECTION_MODE": "characterization",
+    "UI_FOUNDATION_PIPE_COUNTS": "1000,10000",
+    "UI_FOUNDATION_RUNS": "1,2,3,4,5",
+    "UI_FOUNDATION_CANDIDATE_ORACLE_DIR": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/camera-oracle-01",
+    "UI_FOUNDATION_CANDIDATE_ORACLE_MANIFEST_SHA256": "0b8a0b5239f10547c72907e32160db262288216ed1fb4818551782dc89b05b17"
+  },
+  "bindingEvidence": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/receipts/10000.1/bindings.json",
+    "sha256": "d9734cb2a6d2e8b079d4072ce0584e55db0c22a81e8fb29a63de066f67857374"
+  },
+  "evidence": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/receipts/10000.1/cleanup.json",
+      "sha256": "9de38d549dc3642d89b4f1116bf972ee7e11b624196a150887b49601d4b16d7b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/receipts/10000.1/bindings.json",
+      "sha256": "d9734cb2a6d2e8b079d4072ce0584e55db0c22a81e8fb29a63de066f67857374"
+    }
+  ]
+}

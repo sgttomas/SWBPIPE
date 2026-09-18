@@ -1,0 +1,33 @@
+{
+  "schema": "ui-foundation.started-slot/v1",
+  "slot": "10000.5",
+  "cohortId": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+  "seedSha256": "b9cd6955f39698ee611e1375153b81a9714e41c9320de745e099f93b5d91fee6",
+  "policySha256": "c608c66ad9b04fb1a74018168ff3936b76b7cc6f1d6980e0fe2b58f0090b8163",
+  "displayTransition": {
+    "schema": "ui-foundation.internal120-transition/v1",
+    "authority": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/OWNER_DIRECTION_INTERNAL120_20260917.md",
+      "sha256": "6df272b7af0367b0083302229018143f8fa397a6bde0f5e368c6ec1e454157b9"
+    },
+    "previousProfile": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/REFERENCE_PROFILE_V2.json",
+      "sha256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922"
+    },
+    "profile": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/INTERNAL120/REFERENCE_PROFILE_INTERNAL120.json",
+      "sha256": "6de03bed447bc236b34295eabcdcd3957434aada022e368f1a4559e5f839ad8e"
+    }
+  },
+  "previousClaimSha256": "0f31b0a2966899058cd3d671a70450c373a702ddc4990215dfd7d7df42e7bd03",
+  "receipt": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/receipts/10000.5/receipt.json",
+    "sha256": "af10f460a7053ec2d280cbc50f775ca3a06b3094e3e25bffb032eac9c69764fa"
+  },
+  "methodSha256": "1e0ab8a4e4a57753084d7ceca695b0b4b952aa047923cb48e3dbd3074bf22a78",
+  "instrumentRevision": "df1562e06c90653a96252e19f5730b19b8d4f66c",
+  "evidenceRoot": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/continuation-01/10000.5",
+  "executionToken": "d5796778d3d6c2b83beb2f46baf716b269c588ea9431fa243c445257cd00208d",
+  "claimedAt": "2026-09-18T03:22:04.424Z",
+  "disposition": "CONSUMED_BEFORE_SUBPROCESS_LAUNCH"
+}

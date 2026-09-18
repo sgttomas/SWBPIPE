@@ -10,9 +10,9 @@
   "actual_mechanism": "delegated-harness-native collaboration.spawn_agent",
   "enforcement": "role/write scopes/Type2 non-delegation instruction+config asserted",
   "runtime_lease": {
-    "status": "INTERNAL120_INDEPENDENT_REVIEW_PENDING",
+    "status": "TIMED_COLLECTION_ENDED_BUDGET_EXHAUSTED",
     "owner": null,
-    "scope": "No runtime active; implementation and launcher preparation complete."
+    "scope": "No further benchmark runtime. Offline evidence analysis and bounded deterministic root-cause calculation permitted."
   },
   "nodes": [
     {
@@ -46,7 +46,7 @@
       "effort": "low",
       "brief": "briefs/EXPECTATIONS.md",
       "brief_sha256": "90a574ba09376d1c022f61e8c7111aa2a02a357dd4023653557b43cc6e461ac5",
-      "status": "complete_one_success_expectations_accepted",
+      "status": "complete_point58_cause_calculation",
       "return": "instances/EXPECTATIONS/RETURN.json",
       "continuation_brief": "briefs/EXPECTATIONS_CONTINUATION.md",
       "continuation_return": "instances/EXPECTATIONS/CONTINUATION/RETURN.json",
@@ -79,7 +79,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "complete_internal120_preparation_pending_review",
+      "status": "complete_final_offline_report",
       "agent_name": "/root/d70_runner",
       "return": "instances/RUNNER/RETURN.json",
       "continuation_brief": "briefs/RUNNER_CONTINUATION.md",
@@ -93,7 +93,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "pending_internal120_review",
+      "status": "pending_final_report_diff_review",
       "agent_name": "/root/d70_final_review",
       "brief": "briefs/FINAL_REVIEW.md",
       "brief_sha256": "cde708fd9be5a2e67bdb808110c9722b4c04898aad8a3a057201044cb238e002",
@@ -124,12 +124,12 @@
       "FINAL_REVIEW"
     ]
   ],
-  "current_frontier": "Internal120 source df1562e and launcher V7 are frozen for independent review. All five N10000 slots remain unused. Release one slot only after PASS.",
+  "current_frontier": "Offline report complete; numerical point58 cause reproduced and repair handoff proposed, no product repair. Freeze final complete diff/evidence for independent review, then registered sweep and scoped PR closeout. No further timed attempt.",
   "ownerClarification": {
     "path": "OWNER_CLARIFICATION_CONTINUE_20260917.md",
     "sha256": "a5ba424fde8f8be92ae69b694a718452c9753b3ce2217df8f6b4b55e042c9730"
   },
-  "closeoutStatus": "HELD_FOR_OWNER_CLARIFIED_CONTINUATION",
+  "closeoutStatus": "PENDING_FINAL_REVIEW_REGISTERED_CHECKS_AND_GIT",
   "ownerOneSuccessDirection": {
     "path": "OWNER_DIRECTION_ONE_SUCCESS_20260917.md",
     "sha256": "ba5e8bceea55838cc0d23e815cc9a890ed543534085a9e9bdd932d133fb37fa2"
