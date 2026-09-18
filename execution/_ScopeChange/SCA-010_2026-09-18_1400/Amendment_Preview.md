@@ -35,7 +35,7 @@ Only the first word differs from the adopted text.
 
 ## Every other occurrence
 
-Each of the remaining body occurrences of "OpenPipeStress" becomes "SWBPIPE" with no other change to its sentence, for example the boundary statement at the head of the PRD: "SWBPIPE computes and helps design. The external prover tool validates for reliance. The responsible engineer accepts."
+Each of the remaining body occurrences of "OpenPipeStress" becomes "SWBPIPE" with no other change to its sentence, with one exception: on line 15 the name is part of the path `docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md`, a pointer to a preserved historical file, and stays as it is. For the rest, for example the boundary statement at the head of the PRD: "SWBPIPE computes and helps design. The external prover tool validates for reliance. The responsible engineer accepts."
 
 ## `docs/report_notice_template.md`
 

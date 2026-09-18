@@ -238,4 +238,6 @@ A fresh read-only reviewer over the ruling-records candidate `fe0b86e12`, exclud
 |---|---|---|---|---|---|
 | `REVIEW-02_ruling_records_review.md` | `e742f2e8ac46d0bbe0a1db4e96fec857aedb8154162de7dcffb9d9364a1b80f7` | 2026-09-18T14:05Z | `opus` (Claude Opus 5) | TASK, read-only reviewer, working alone | `../instances/REVIEW/REVIEW-02_RETURN.md` |
 
+Return of REVIEW-02, retained at `../instances/REVIEW/REVIEW-02_RETURN.md` (ROOT's transcription of the child's final message), reviewed SHA `fe0b86e12319265155aa87c9d0e293d13036e913`, verdict FINDINGS: one major (the SCA-010 bundle would have renamed a path to a preserved historical file; verified by ROOT and corrected to 23 replacements and one exception), six minor and five trivial, each with ROOT's disposition in the retained return. The owner's remaining rulings (D-71 item 7, D-72 item 5, SCA-010) arrived while the review ran and are recorded in commit `733c24397`; the corrections and those addenda go back to the same reviewer for a backcheck.
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

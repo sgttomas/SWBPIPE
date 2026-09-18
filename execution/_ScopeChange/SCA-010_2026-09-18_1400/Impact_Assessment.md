@@ -4,7 +4,7 @@ Compiled by the design program's ROOT on 2026-09-18 from RESEARCH-F §3 (the ren
 
 ## Live surfaces requiring edits (covered by A001 to A006)
 
-- `docs/PRD.md`: title (line 1), working title (line 3), and 22 body occurrences, among them the §19.3 notice (line 1249) and its appendix copy (line 1786). None is a quotation of a historical record; line 43 refers to the product's own earlier framing and takes the new name like the rest. A001 to A003.
+- `docs/PRD.md`: title (line 1), working title (line 3), and 22 body occurrences, among them the §19.3 notice (line 1249) and its appendix copy (line 1786). **One occurrence is excepted:** line 15 carries the name only inside the path `docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md`, a live pointer to a preserved historical file that exists under that name; it is not renamed, since ruled history keeps its original tokens. Line 43 refers to the product's own earlier framing and takes the new name like the rest. So 23 of the 24 occurrences are replaced: title, working title, two notice copies and 19 others. A001 to A003. (Corrected after independent review REVIEW-02, which found that the first wording cleared all 24 and would have broken that path.)
 - `docs/PRD.md` header: version 0.3 to 0.4, an "Amended" date, the authority line extended with D-71, `DEC-101` and SCA-010, and one new line "Formerly: OpenPipeStress". A004.
 - `docs/report_notice_template.md`: lines 16, 41 and 68. A005.
 - `execution/_ScopeChange/_LATEST.md`: moved to SCA-010 at acceptance. A006.

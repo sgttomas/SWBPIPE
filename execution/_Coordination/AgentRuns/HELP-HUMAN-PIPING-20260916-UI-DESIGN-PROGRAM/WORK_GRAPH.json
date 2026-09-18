@@ -176,7 +176,7 @@
       "role": "HELP_HUMAN",
       "purpose": "One owner decision packet: maturity line, boundary-sentence placement, product rename, and items 4 to 9, with the mock frames as evidence",
       "status": "ruled",
-      "note": "D-71 PROPOSAL drafted 2026-09-18; register row AWAITING_RULING; nine items with recommendations",
+      "note": "D-71 PROPOSAL drafted 2026-09-18; RULED 2026-09-18 (ruling record and addendum under ../../_DECISIONS/; DEC-099 to DEC-104). History: register row read AWAITING_RULING until the ruling.",
       "return": "../../_DECISIONS/D-71_interface_program_governed_text_decisions.md"
     },
     {
@@ -204,7 +204,7 @@
       "purpose": "Proposed acceptance criteria for the redesigned product, for owner ruling (D-70 effect 6)",
       "status": "ruled",
       "return": "../../_DECISIONS/D-72_redesigned_product_performance_acceptance_criteria.md",
-      "note": "D-72 PROPOSAL drafted 2026-09-18; register row AWAITING_RULING. No longer waits for an observation report: item 6 names what is left unfrozen until it can be observed. History: status was \"pending\" behind the piping session's observation report until 2026-09-18. Ruled in part 2026-09-18 (../../_DECISIONS/D-72_RULING_2026-09-18.md): items 1-4 and 6 accepted; item 5 open with supplement S-1 to S-3. Completed by addendum: S-1 and S-2 accepted, S-3 not."
+      "note": "D-72 PROPOSAL drafted 2026-09-18; register row AWAITING_RULING until ruled 2026-09-18. No longer waits for an observation report: item 6 names what is left unfrozen until it can be observed. History: status was \"pending\" behind the piping session's observation report until 2026-09-18. Ruled in part 2026-09-18 (../../_DECISIONS/D-72_RULING_2026-09-18.md): items 1-4 and 6 accepted; item 5 open with supplement S-1 to S-3. Completed by addendum: S-1 and S-2 accepted, S-3 not."
     },
     {
       "id": "PIPING-BASELINE-HANDOFF",
@@ -283,6 +283,16 @@
       "brief": "briefs/DESIGN-SYSTEM-03_revision.md",
       "return": "instances/DESIGN-SYSTEM/ (V1.2 in place)",
       "status": "running"
+    },
+    {
+      "id": "REVIEW-02",
+      "role": "TASK",
+      "purpose": "Independent read-only review of the D-71 and D-72 ruling records against the owner's hash-bound message",
+      "model_requested": "opus",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/REVIEW-02_ruling_records_review.md",
+      "return": "instances/REVIEW/REVIEW-02_RETURN.md",
+      "status": "findings_corrected_backcheck_pending"
     }
   ],
   "edges": [
@@ -441,6 +451,10 @@
     [
       "DESIGN-SYSTEM-03",
       "REVISION-PASS"
+    ],
+    [
+      "ROOT",
+      "REVIEW-02"
     ]
   ],
   "current_frontier": "Running: DESIGN-SYSTEM-03 and REVIEW-02; then UX-SPEC-02 and MOCKS-03, then the implementation-ready handoff. Nothing is with the owner: D-71 and D-72 are fully ruled and SCA-010 is accepted (execution pending with an implementation tranche). The piping session is on hold by the owner. Implementation is not authorized by this assignment.",

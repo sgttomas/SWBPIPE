@@ -81,10 +81,15 @@ The owner rules item by item, in chat or on this packet. Agent 0 appends the rul
 Ruled in part by Ryan Tufts in session on 2026-09-18, in the same message that ruled D-71; the complete message is reproduced once, with custody and hash, in the [D-71 ruling record](D-71_RULING_2026-09-18.md) (SHA-256 of the extracted bytes `711ca05ef7cb9bcaf6b7f0e6812ad002be58d8f9793aa68a08d0f19bceaf7944`). Its D-72 lines, verbatim, spelling the owner's:
 
 > Item 1: Recommendation accepted.
+>
 > Item 2: I want this app to work on people's laptops or when connected to an external monitor.  I don't understand all the technical implications here but I also don't want performative governance or testing with no real value.  I am willing to accept your recommendation after considering this.
+>
 > Item 3: Same again.   want this app to work on people's laptops or when connected to an external monitor.  I don't understand all the technical implications here but I also don't want performative governance or testing with no real value.  I am willing to accept your recommendation after considering this.
+>
 > Item 4: Recommendation accepted, we need not pin ourselves to previous test results or methods.  Those are just evidence to know what was the case before changes are made.
+>
 > Item 5: I'm not convinced this testing is necessary.  I don't know that for certain, it just seems like overkill.  I need more of a rationale to rule on this.
+>
 > Item 6: Recommendation accepted.
 
 Disposition: items 1, 2, 3, 4 and 6 accepted as recommended; **item 5 not ruled**. The owner's stated intent governs how the accepted items are read: the product must work on a laptop's own display and on an external monitor, and testing must earn its keep. The [ruling record](D-72_RULING_2026-09-18.md) states the effect. The supplement below answers the owner's request for a rationale on item 5 and, taking the owner's intent at its word, proposes to make the whole plan lighter.

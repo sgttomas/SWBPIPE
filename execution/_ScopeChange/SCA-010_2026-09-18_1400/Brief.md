@@ -8,7 +8,7 @@
 
 ## Scope
 
-1. Amend the adopted PRD v0.3 to v0.4 by replacing the product name "OpenPipeStress" with "SWBPIPE" at its 24 occurrences, including the §19.3 required report notice and its appendix copy, retitling the document, and adding one header line recording the former name. No requirement, section number, claim, non-goal or notice wording other than the name changes.
+1. Amend the adopted PRD v0.3 to v0.4 by replacing the product name "OpenPipeStress" with "SWBPIPE" at 23 of its 24 occurrences (the 24th is part of a historical file path on line 15 and stays; corrected after REVIEW-02), including the §19.3 required report notice and its appendix copy, retitling the document, and adding one header line recording the former name. No requirement, section number, claim, non-goal or notice wording other than the name changes.
 2. Propagate the same replacement into the notice's template home, `docs/report_notice_template.md` (three occurrences).
 3. Record the amendment: `execution/_ScopeChange/_LATEST.md` moved to SCA-010 at acceptance; PRD header amended with the date and authority.
 
@@ -22,6 +22,6 @@ None yet. The owner ruled the rename itself; the governing instructions for the 
 
 ## Execution form
 
-Docs-only. One branch, one PR, the claims-language lint (its `MISSING_PRD_NOTICE` anchor matches a fragment that does not contain the name, so it is unaffected), the path-anchor check and the owning loop's self-check. No multi-agent run is warranted for a mechanical replacement of 27 occurrences in two files.
+Docs-only. One branch, one PR, the claims-language lint (its `MISSING_PRD_NOTICE` anchor matches a fragment that does not contain the name, so it is unaffected), the path-anchor check and the owning loop's self-check. No multi-agent run is warranted for a mechanical replacement of 26 occurrences in two files.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
