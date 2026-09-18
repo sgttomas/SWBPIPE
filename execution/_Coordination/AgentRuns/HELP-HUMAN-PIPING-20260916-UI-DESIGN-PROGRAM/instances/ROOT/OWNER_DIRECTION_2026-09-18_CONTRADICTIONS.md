@@ -45,4 +45,12 @@ The variants were those ROOT showed in session. Effect:
 
 The rows above that say "open with the owner" are superseded by this section. Both running children were told by the host's message-to-agent mechanism.
 
+## The six kept functions, confirmed
+
+Owner message, 72 bytes, SHA-256 `2f5b98d1c8689516a977d0f6777f57d543e25223ca0b1993363ab4baa95bf3da`, stored at 2026-09-18T17:44:12.949Z (stored-transcript custody, not transport bytes):
+
+> Keep the six functions; the design system additions are fine.  Carry on.
+
+This confirms ROOT's reading of items 9, 10, 11, 12, C-17 and C-24: the specification keeps the six functions and the design system gains them by addition. The reading is no longer open to the alternative stated in the table above.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
