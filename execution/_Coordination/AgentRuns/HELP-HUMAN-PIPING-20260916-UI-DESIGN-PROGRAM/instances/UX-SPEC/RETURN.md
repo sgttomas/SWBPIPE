@@ -141,4 +141,13 @@ Where the specification could follow V1.2 it does; these are the places where fo
 3. The acceptance search: the three files contain neither the longer product name, nor the maturity sentence or either half of it, nor the removed clause about the solve basis, nor an acceptance sentence or variant, nor an absolute path. The other vendor's product name appears only inside source file paths and identifiers, in the map's provider column and once in the specification's §12 (row 19, a file path on the "today" side). The product's former name does not appear at all. The phrases "acceptance sentence" and "maturity sentence" appear as names of the removed things.
 4. `contributor_certification` still appears once in the specification (§8.1), in code font, as the name of an existing provenance field; and "Review/signoff block" remains as the registered section name.
 
+## 9. Correction 1, after the independent review (REVIEW-03)
+
+ROOT sent two wording fixes; both are applied in `UX_SPEC_V1.md` and logged in its §13 rows 33 and 34.
+
+1. **The pointer rule's source.** §2.8 had called the rule "the owner's amendment to Q-20, general". The owner's words were about Q-20 only; the generalization is ROOT's reading, stated in the D-71 ruling record so it can be corrected. §2.8 now quotes the owner's words, attributes them to Q-20, and attributes the general rule to ROOT's reading; §13 rows 15 and 18 cite their source the same way. Checked for the same framing and found none to change: the status paragraph (it says only that the rule is applied), §12 item 20, the operations map's G-33, and this return's §2, §4 and §5.
+2. **The Checked mark's control names.** §6.7 and §9.3 had put "Check rows", "Check again" and "Clear check" under `DEC-104`. `DEC-104`'s list is Check, Checked, the tooltip, the stale text and "Unchecked rows". The three control names are now attributed to their derivation: "Check rows" from the addendum's "set on one row or many", "Check again" and "Clear check" from its stale text "Check again or Clear"; they are named as this design's and the design system's, not as ruled words.
+
+The uncertainty count: §7 lists thirteen, and no sentence in this return says twelve; nothing needed changing. `OPERATIONS_MAP.md` is unchanged by this correction. The thirty-two changes cited in §2 are now thirty-four.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

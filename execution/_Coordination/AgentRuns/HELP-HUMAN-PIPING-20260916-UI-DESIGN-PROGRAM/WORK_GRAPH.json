@@ -329,7 +329,8 @@
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/REVIEW-03_revision_pass_review.md",
       "return": "instances/REVIEW/REVIEW-03_RETURN.md",
-      "status": "running"
+      "status": "complete",
+      "note": "FINDINGS: no blocking, no major, five minor, five trivial; all accepted and corrected; dispositions in the retained return"
     }
   ],
   "edges": [
@@ -506,9 +507,7 @@
       "REVIEW-03"
     ]
   ],
-  "current_frontier": [
-    "OWNER: authorize an implementation tranche (handoff §8)"
-  ],
+  "current_frontier": "With the owner: the handoff's §8, authorizing an implementation tranche. No child is running once the REVIEW-03 corrections land. Nothing is implemented.",
   "frontier_history": [
     {
       "until": "2026-09-18",
@@ -517,6 +516,11 @@
     {
       "until": "2026-09-18 rulings",
       "frontier": "With the owner: D-71's nine rulings, Q-15 to Q-22, D-72's six items, and relay of the observation-brief notice. No child is running. The baseline tranche blocks nothing (condition satisfied 2026-09-18). Implementation is not authorized by this assignment."
+    },
+    {
+      "until": "2026-09-18 revision pass",
+      "frontier": "Running: DESIGN-SYSTEM-03 and REVIEW-02; then UX-SPEC-02 and MOCKS-03, then the implementation-ready handoff. Nothing is with the owner: D-71 and D-72 are fully ruled and SCA-010 is accepted (execution pending with an implementation tranche). The piping session is on hold by the owner. Implementation is not authorized by this assignment.",
+      "note": "Retired after the fact on REVIEW-03 finding M-3; text taken verbatim from origin/main"
     }
   ]
 }

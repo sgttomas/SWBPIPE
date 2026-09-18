@@ -92,6 +92,10 @@ const logRows = log.split("\n").map(l => (l.match(/^\| (\d+) \| /) || [])[1]).fi
 logRows.forEach((n, i) => { if (n !== i + 1) push(`section 9 rows are not contiguous at position ${i + 1} (found ${n})`); });
 if (logRows.length < 50) push("section 9 has no V1.2 rows");
 if (logRows.length < 89) push("section 9 lacks the correction rows 88 and 89");
+if (logRows.length < 90) push("section 9 lacks correction 2's row 90");
+const first89 = log.split("\n").filter(l => { const m = l.match(/^\| (\d+) \| /); return m && Number(m[1]) <= 89; }).join("\n");
+if (crypto.createHash("sha256").update(first89).digest("hex") !== "11df7f507ea58430e14ca2058e606e21ea3675dbbeb730d2c88a727b70f16f09") push("section 9 rows 1 to 89 differ from V1.2 after correction 1");
+if (/owner's amendment to Q-20; general/.test(D) || /exactly these and no others/.test(D)) push("doc carries a framing that correction 2 removed");
 const first87 = log.split("\n").filter(l => { const m = l.match(/^\| (\d+) \| /); return m && Number(m[1]) <= 87; }).join("\n");
 if (crypto.createHash("sha256").update(first87).digest("hex") !== "c95d0c9ce6b0999d76c63269628f901d56d52563c91d4bd5de41becb77037616") push("section 9 rows 1 to 87 differ from V1.2 as returned");
 const first49 = log.split("\n").filter(l => /^\| ([1-9]|[1-4][0-9]) \| /.test(l)).join("\n");

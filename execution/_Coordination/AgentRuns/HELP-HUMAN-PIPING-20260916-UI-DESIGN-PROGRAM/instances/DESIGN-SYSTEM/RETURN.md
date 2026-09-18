@@ -26,13 +26,13 @@ All in place under this directory; nothing outside it was written.
 
 | File | Change | sha256 |
 |---|---|---|
-| `DESIGN_SYSTEM_V1.md` | V1.2. Every change is a numbered row of §9, rows 50 to 87, and rows 88 and 89 for correction 1; rows 1 to 49 are byte-identical to V1.1 and rows 1 to 87 to V1.2 as first returned (both checked by hash). The §9 heading now covers V1 to V1.1 and V1.1 to V1.2. Ends with the fence line. | `1a7ffe40409889d78105e05d5f8849e02bbb0209c0aa1b0eaceae1108b215bf5` (after correction 1; as first returned `2e0db6bc…`) |
+| `DESIGN_SYSTEM_V1.md` | V1.2. Every change is a numbered row of §9, rows 50 to 87, and rows 88 and 89 for correction 1; rows 1 to 49 are byte-identical to V1.1 and rows 1 to 87 to V1.2 as first returned (both checked by hash). The §9 heading now covers V1 to V1.1 and V1.1 to V1.2. Ends with the fence line. | `efa22d497772e717b4cc19bc2a703ed765d0ac158fa177efbf39f373e0acfc1f` (after correction 2; after correction 1 `1a7ffe40…`; as first returned `2e0db6bc…`) |
 | `tokens.json` | 1.2. Adds `canvas.edgeAlt`, the toast, HUD and run log values, the `labels` table (eight rows) and `agentCardClasses` (five words); the name is the product's name alone. Every colour value of 1.1 is unchanged (diffed). | `00c1afe97365973e6c05a2a5d938a25c46022a55c3cbc8d04ff3a9d2d68cf1e9` |
 | `specimen.html` | V1.2, one self-contained file, inline styles and script, no network reference, light and dark. | `219fa8ee78c44507fcfc0b6a199298c8f4a4026abe798f4166eeda2eb607941b` (after correction 1; as first returned `c390e7e6…`) |
 | `tools/palette.mjs` | the new tokens and groups; `--write` reproduces `tokens.json` byte for byte (checked) | `de73ecb9…` |
 | `tools/contrast.mjs` | six pairings for the edge lines on the result scale: 152 pairings | `7a3f2653…` |
 | `tools/gen.mjs`, `tools/splice.mjs` | generate the label table and splice it into §2.3 between markers | `f936d18a…`, `34e986a1…` |
-| `tools/agree.mjs` | V1.2 checks, §3 below; after correction 1 also rows 88 and 89 present, rows 1 to 87 unchanged by hash, and the stale band's removed clause absent | `d69f7c0f…` |
+| `tools/agree.mjs` | V1.2 checks, §3 below; after correction 1 also rows 88 and 89 present, rows 1 to 87 unchanged by hash, and the stale band's removed clause absent; after correction 2 also row 90 present, rows 1 to 89 unchanged by hash, and the two removed framings absent | `e02a7180…` |
 | `tools/render.mjs` | V1.2 checks; takes a relative specimen path; takes the Playwright location at run time (`--playwright-from <dir>` or `PLAYWRIGHT_FROM`), default the relative path to the piping project as before | `b886e708…` |
 
 No file in the instance carries an absolute machine path; `agree.mjs` now walks the
@@ -99,7 +99,7 @@ passes in both themes. No product build or test was run, by instruction. `git st
 
 ## 4 The key-only actions of V1.1 and their pointer controls
 
-The rule is stated at the head of §5 and, for copy, in §7.6. The audit table is in §5; in
+The rule is stated at the head of §5 and, for copy, in §7.6. The owner's words were about Q-20 only; the general rule is ROOT's reading of them, open to the owner's correction (correction 2, §7 below). The audit table is in §5; in
 summary ("found" means the control existed in V1.1 and is now named):
 
 | Action (V1.1 key) | Primary control in V1.2 |
@@ -194,5 +194,25 @@ which said the run remained the basis until the next run, was wrong.
 One thing did not apply cleanly: ROOT asked for the owner records to be cited in rows 51
 and 58, and also for rows 1 to 87 to stay byte-identical. Both cannot hold, so rows 51 and
 58 are untouched and row 89 carries the citations for them.
+
+## 7 Correction 2, from the independent review (REVIEW-03)
+
+Two wording fixes in `DESIGN_SYSTEM_V1.md`, recorded as §9 row 90; rows 1 to 89 are
+unchanged by hash. `tokens.json` and `specimen.html` are unchanged.
+
+1. The pointer rule's heading at the head of §5, and the sentence in §0 that called the
+   general rule the owner's amendment, now attribute the owner's words to Q-20 and the
+   generalization to ROOT's reading, as the D-71 ruling record states it, open to the
+   owner's correction. §7.6 refers to "the pointer rule of §5" without attribution and
+   needed no change. Rows 61 to 67 give "Q-20 as amended by the owner" as their source and
+   are frozen; the §9 sources paragraph now says how to read that.
+2. §7.3 no longer says the Checked mark's words are "exactly these and no others". The
+   ruled words are used exactly where they apply; "Check rows", "Check again" and "Clear
+   check" are shown to derive from the ruling's "set on one row or many" and its stale
+   text "Check again or Clear".
+
+`tools/agree.mjs` requires row 90, checks rows 1 to 89 by hash, and fails if either removed
+framing returns. Re-run: gen, splice, agree: `problems: []`, 90 change-log rows. The render
+check was not re-run for this correction because the specimen did not change (same hash).
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
