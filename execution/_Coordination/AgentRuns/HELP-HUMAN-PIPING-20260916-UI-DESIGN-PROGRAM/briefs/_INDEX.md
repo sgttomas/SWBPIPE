@@ -276,4 +276,13 @@ Return of REVIEW-03, retained at `../instances/REVIEW/REVIEW-03_RETURN.md` (ROOT
 
 Backcheck of REVIEW-03 at `2fedf4a1034618078ab8f52ecd05b81e25f10bf0`: PASS; all ten findings cleared; one new minor (the handoff's constraint 5 had dropped the owner's "unless separately justified and authorized") and two trivial findings against the retained return, corrected in the next commit and recorded in the retained return. That commit carries only those corrections and this record.
 
+## Successor ROOT, 2026-09-18: the owner's direction on the contradictions
+
+The owner directed in session how the twenty-five contradictions between the design system and the specification are settled (message of 2026-09-18T17:33:13.885Z, SHA-256 `42122ea8e3a18c42b6df3c4e62c44e8afa4e1c6a9f3509808bf55dad9d3717ea`; record with ROOT's readings labelled at `../instances/ROOT/OWNER_DIRECTION_2026-09-18_CONTRADICTIONS.md`). Three items stay open with the owner (the tooltip accelerator format, the paste band's button faces, the Review page's chip count) and were shown as variants in session. The two briefs below run in parallel; each resumes the child that owns the document, by the host's message-to-agent mechanism, so its context is kept. The frames are regenerated once, after the owner picks on the three open items.
+
+| Brief | Sealed SHA-256 | Launched (UTC) | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `DESIGN-SYSTEM-04_contradictions.md` | `90506b29c2658862140c2a47e25bfdb49c09388b880d11e043acefc64613a55c` | 2026-09-18T17:36Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone (the DESIGN-SYSTEM-03 child resumed) | `../instances/DESIGN-SYSTEM/` (V1.3 in place) |
+| `UX-SPEC-03_contradictions.md` | `2631c20c7e322feada6fd7f7f3c1c8c31b37baba91deb43ef4a096252de20c18` | 2026-09-18T17:36Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone (the UX-SPEC-02 child resumed) | `../instances/UX-SPEC/` (V1.2 in place) |
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

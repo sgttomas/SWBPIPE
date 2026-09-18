@@ -331,6 +331,26 @@
       "return": "instances/REVIEW/REVIEW-03_RETURN.md",
       "status": "complete",
       "note": "FINDINGS: no blocking, no major, five minor, five trivial; all accepted and corrected; dispositions in the retained return"
+    },
+    {
+      "id": "DESIGN-SYSTEM-04",
+      "role": "HELPS_HUMANS",
+      "purpose": "Design system V1.3: the owner's direction on the contradictions",
+      "model_requested": "fable",
+      "mechanism": "owning child resumed by message-to-agent",
+      "brief": "briefs/DESIGN-SYSTEM-04_contradictions.md",
+      "return": "instances/DESIGN-SYSTEM/",
+      "status": "running"
+    },
+    {
+      "id": "UX-SPEC-03",
+      "role": "HELPS_HUMANS",
+      "purpose": "Specification V1.2: the owner's direction on the contradictions",
+      "model_requested": "fable",
+      "mechanism": "owning child resumed by message-to-agent",
+      "brief": "briefs/UX-SPEC-03_contradictions.md",
+      "return": "instances/UX-SPEC/",
+      "status": "running"
     }
   ],
   "edges": [
@@ -505,9 +525,17 @@
     [
       "ROOT",
       "REVIEW-03"
+    ],
+    [
+      "ROOT",
+      "DESIGN-SYSTEM-04"
+    ],
+    [
+      "ROOT",
+      "UX-SPEC-03"
     ]
   ],
-  "current_frontier": "With the owner: the handoff's §8, authorizing an implementation tranche. No child is running once the REVIEW-03 corrections land. Nothing is implemented.",
+  "current_frontier": "Running: DESIGN-SYSTEM-04 and UX-SPEC-03 on the owner's direction about the contradictions. With the owner: picks on the tooltip accelerator format, the paste band's button faces and the Review page's chip count; and the handoff's §8. The frames are regenerated once after the picks. Nothing is implemented.",
   "frontier_history": [
     {
       "until": "2026-09-18",
@@ -521,6 +549,10 @@
       "until": "2026-09-18 revision pass",
       "frontier": "Running: DESIGN-SYSTEM-03 and REVIEW-02; then UX-SPEC-02 and MOCKS-03, then the implementation-ready handoff. Nothing is with the owner: D-71 and D-72 are fully ruled and SCA-010 is accepted (execution pending with an implementation tranche). The piping session is on hold by the owner. Implementation is not authorized by this assignment.",
       "note": "Retired after the fact on REVIEW-03 finding M-3; text taken verbatim from origin/main"
+    },
+    {
+      "until": "2026-09-18T17:36Z",
+      "frontier": "With the owner: the handoff's §8, authorizing an implementation tranche. No child is running once the REVIEW-03 corrections land. Nothing is implemented."
     }
   ]
 }
