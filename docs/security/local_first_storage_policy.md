@@ -26,9 +26,6 @@ This policy defines OpenPipeStress local-first storage and private path posture
 for `DEL-12-01`. It is a privacy and product-boundary artifact, not a
 filesystem layout, cloud-service design, encryption claim, secret storage
 design, security certification, or compliance attestation (PRD §21.2).
-Acceptance, professional judgment, and any certification, sealing, or
-code-compliance determination remain with the responsible engineer and
-project authority.
 
 ## Scope
 

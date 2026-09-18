@@ -67,13 +67,6 @@ RULE_CHECK_REQUIRED_DEFS = {
     "CheckOutcome",
 }
 
-# Mirrors core/rules/rule_check_runner/src/lib.rs PROFESSIONAL_BOUNDARY_NOTICE.
-RULE_CHECK_BOUNDARY_NOTICE = (
-    "Software rule-check evidence only; not a professional, certification, "
-    "sealing, authentication, approval, or code-compliance claim. Human "
-    "review remains required."
-)
-
 PROFESSIONAL_BOUNDARY_FALSE_CLAIMS = {
     "software_makes_compliance_claim",
     "software_makes_certification_claim",
@@ -170,9 +163,15 @@ def test_rule_check_run_result_closed_vocabularies():
     schema = load(RULE_CHECK_SCHEMA_PATH)
     props = schema["properties"]
     assert props["document_kind"]["const"] == "openpipestress.rule_check.run"
-    assert props["professional_boundary_notice"]["const"] == (
-        RULE_CHECK_BOUNDARY_NOTICE
-    )
+    # The notice wording is the producer's (PROFESSIONAL_BOUNDARY_NOTICE in
+    # core/rules/rule_check_runner/src/lib.rs) and is not pinned by the schema,
+    # so no copy of it is kept here: the schema requires a non-empty string, and
+    # documents emitted under earlier wordings stay valid (DEC-107).
+    notice = props["professional_boundary_notice"]
+    assert notice["type"] == "string"
+    assert notice["minLength"] == 1
+    assert "const" not in notice
+    assert "enum" not in notice
     assert schema["$defs"]["RuleCheckStatus"]["enum"] == [
         "RULE_INPUTS_INCOMPLETE",
         "USER_RULE_CHECKED",

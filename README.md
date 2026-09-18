@@ -36,7 +36,7 @@ This package is written from the perspective of `SOFTWARE_DECOMP`: it converts t
 
 ## Status
 
-This package is the **v0.2 current downstream decomposition basis** for agentic preparation and sealed deliverable execution. SWBPIPE computes open, auditable piping mechanics; acceptance and professional judgment remain with the responsible engineer (see `docs/claims_registry.md`).
+This package is the **v0.2 current downstream decomposition basis** for agentic preparation and sealed deliverable execution. SWBPIPE computes open, auditable piping mechanics.
 
 ## How agents should use this package
 

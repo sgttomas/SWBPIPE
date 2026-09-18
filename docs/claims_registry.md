@@ -23,6 +23,19 @@ canonical text takes the product name SWBPIPE (`DEC-101` (ii)); §2 gains the
 display-form table and its three rules (`DEC-102`). `DEC-081` is otherwise
 unchanged. Ruled history keeps its wording (§5).
 
+**Amendment, 2026-09-18 (`DEC-107`)** — registry act executing the owner's
+direction extending `DEC-100`, codified as `DEC-107`
+(`execution/_Decomposition/SOFTWARE_DECOMP.md` §12), in the owner-authorized
+follow-up to tranche A1, with the emitted notices, the documents and the tests
+that pinned the text changed together: the `BS-ACCEPT` canonical text and
+every listed short variant are withdrawn from every emitted notice and from
+the project's user-, contributor- and agent-facing documents, in addition to
+`DEC-100`'s product surfaces, and nothing is put in their place; the texts
+stay registered for the live `ScopeOfWork.md` files that already carry them;
+§4 places `BS-ACCEPT` on no new artifact. The lint is not edited: it requires
+the sentence nowhere. `DEC-081` is otherwise unchanged. Ruled history keeps
+its wording (§5).
+
 ## 1. Boundary statements
 
 ### BS-IP — content/IP boundary
@@ -59,17 +72,28 @@ responsible engineer" · "human review remains required; acceptance stays
 with the responsible engineer" · "decision-support information for review by
 the responsible engineer"
 
-**Belongs on:** non-product surfaces only — the live `ScopeOfWork.md` files
-and project documents — where the canonical text and the listed short
-variants remain registered statements. **Not on:** any product surface. The former placement clause ("results, rule-check, comparison,
-solve, report-preview surfaces; any place a computed outcome is shown") is
-retired for product surfaces by `DEC-100`: no product surface (results,
-rule-check, comparison, solve, report-preview, Review page, report body,
-inspector, canvas, agent panel) carries the canonical text or any listed
-short variant, and the lint reports one found in product source
-(`RETIRED_ACCEPTANCE_SENTENCE`). On product surfaces the PRD §5.9 distinction
-is carried by the §2 display forms with their authority domains and by the
-PRD §19.3 report notice.
+**Belongs on:** the live `ScopeOfWork.md` files that already carry it, as
+existing placements only; there the canonical text and the listed short
+variants remain registered statements. The PRD, the anchor document
+`docs/PROFESSIONAL_BOUNDARY.md`, `docs/CONTRACT.md` and `docs/SPEC.md` state
+the boundary in their own words, carry no registered text, and are untouched.
+
+**Not on:** any product surface, any emitted notice, or the project's user-,
+contributor- and agent-facing documents; and no new artifact (§4). The former
+placement clause ("results, rule-check, comparison, solve, report-preview
+surfaces; any place a computed outcome is shown") is retired for product
+surfaces by `DEC-100`: no product surface (results, rule-check, comparison,
+solve, report-preview, Review page, report body, inspector, canvas, agent
+panel) carries the canonical text or any listed short variant, and the lint
+reports one found in product source (`RETIRED_ACCEPTANCE_SENTENCE`).
+`DEC-107` extends the withdrawal to the emitted notices — the rule-check run
+notice, the rule-pack document validation notice and the report package's
+first boundary note, which keep their first clause and the human-review
+sentence — and to the project documents, where the rest of each sentence or
+paragraph stays and nothing is put in the text's place. The lint is not edited
+by `DEC-107`: it reports the texts in product source only and requires them
+nowhere. On product surfaces the PRD §5.9 distinction is carried by the §2
+display forms with their authority domains and by the PRD §19.3 report notice.
 
 **Retires (unchanged, still enforced):** "not authoritative"-family phrasing
 and multi-noun prohibition litanies on product surfaces.
@@ -189,6 +213,9 @@ appears on product surfaces.
 
 When an artifact needs boundary language, use the applicable registry
 statement (or a listed short variant) verbatim — one surface, one boundary.
+`BS-ACCEPT` is placed on no new artifact (`DEC-107`): it stays registered only
+for the live `ScopeOfWork.md` files that already carry it, and where it has
+been withdrawn nothing is written in its place.
 Do not compose ad-hoc prohibition lists; do not restate F-PIP-2 or
 OPS-K-AUTH-1 as a litany — cite GF-TOKEN. Deliverable-specific exclusions
 ("does not implement a parser/harness/API...") are scope statements, not

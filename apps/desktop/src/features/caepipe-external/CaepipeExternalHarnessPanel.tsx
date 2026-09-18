@@ -40,12 +40,12 @@ export function CaepipeExternalHarnessPanel({
   return (
     <section
       className="panel caepipe-external-panel"
-      aria-label="External run evidence"
+      aria-label="External prover run"
       data-testid="caepipe-external-panel"
     >
       <div className="panel-title">
         <FileOutput size={16} aria-hidden="true" />
-        External run evidence
+        External prover run
       </div>
       <div className="report-actions">
         <ControlledExportLink
@@ -114,7 +114,7 @@ export function CaepipeExternalHarnessPanel({
         />
       </div>
       <small className="report-note">
-        External run evidence is parser-only browser preview evidence; executable path, license responsibility,
+        External prover run evidence is parser-only browser preview evidence; executable path, license responsibility,
         environment responsibility, invocation profile, live execution, and target compatibility remain user-owned or TBD.
       </small>
     </section>
@@ -208,7 +208,7 @@ function buildCaePipeExternalHarnessPacket({
       exit_status: null,
       stdout_capture: "not_available",
       stderr_capture: "not_available",
-      skip_reason: "Parser-only desktop preview; an external run was not attempted."
+      skip_reason: "Parser-only desktop preview; an external prover run was not attempted."
     },
     parser_coverage: parserCoverage(),
     unit_system_disclosure: unitSystemDisclosure,
@@ -243,7 +243,7 @@ function buildCaePipeExternalHarnessPacket({
       checksum(runId, "caepipe_external_diagnostics")
     ],
     boundary_notes: [
-      "An external run is optional and user-owned.",
+      "An external prover run is optional and user-owned.",
       "This desktop preview does not configure, discover, invoke, bundle, download, install, or license an external tool.",
       "Parsed CSV rows are invented parser-only regression and handoff evidence.",
       "Validation occurs in the user's accepted professional tools; this is screening and handoff evidence."

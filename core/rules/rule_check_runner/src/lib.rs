@@ -77,8 +77,7 @@ pub const DOCUMENT_KIND: &str = "openpipestress.rule_check.run";
 /// claim is made anywhere in this crate.
 pub const PROFESSIONAL_BOUNDARY_NOTICE: &str =
     "Rule-check results are engineering decision-support information computed from \
-     user-supplied rules and data; acceptance and professional judgment remain with the \
-     responsible engineer. Human review remains required.";
+     user-supplied rules and data. Human review remains required.";
 
 /// One solver value the caller resolved from a solved mechanics envelope for a
 /// `solver_result` required input.

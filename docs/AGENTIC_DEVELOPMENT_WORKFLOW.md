@@ -334,9 +334,6 @@ rule packs, company design bases, credentials, or real secrets.
 
 Maintainer acceptance of a repository contribution is project governance
 only. It is not professional engineering approval of a piping calculation.
-Per DEC-081, acceptance, professional judgment, and any certification,
-sealing, or code-compliance determination remain with the responsible
-engineer and project authority (PRD §21.2).
 
 The project license has been selected as `PolyForm-Noncommercial-1.0.0`.
 The final contributor legal mechanism, maintainer roster/quorum, release

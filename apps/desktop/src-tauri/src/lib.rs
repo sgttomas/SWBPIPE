@@ -4384,7 +4384,7 @@ mod legacy_store_carry_forward_tests {
     }
 
     fn dirs(root: &Path) -> (PathBuf, PathBuf) {
-        let new_dir = root.join("com.swbpipe.desktop");
+        let new_dir = root.join("com.chirality.swbpipe");
         let legacy_dir = root.join(LEGACY_BUNDLE_IDENTIFIER);
         fs::create_dir_all(&new_dir).expect("new dir");
         fs::create_dir_all(&legacy_dir).expect("legacy dir");
@@ -4471,7 +4471,7 @@ mod legacy_store_carry_forward_tests {
     #[test]
     fn both_absent_copies_nothing() {
         let root = unique_root("c");
-        let new_dir = root.join("com.swbpipe.desktop");
+        let new_dir = root.join("com.chirality.swbpipe");
         fs::create_dir_all(&new_dir).expect("new dir");
         assert_eq!(legacy_project_store_source(&new_dir), None);
         assert_eq!(carry_forward_legacy_project_store(&new_dir), Ok(false));
@@ -7276,7 +7276,10 @@ mod tests {
         let notice = outcome["professional_boundary_notice"]
             .as_str()
             .expect("notice present");
-        assert!(notice.contains("acceptance and professional judgment remain with the responsible engineer"));
+        assert!(notice.contains(
+            "Document validation results are engineering decision-support information \
+             computed from user-supplied rule-pack content."
+        ));
         assert!(notice.contains("Human review remains required."));
 
         // A draft missing its grammar_version is a blocking software finding

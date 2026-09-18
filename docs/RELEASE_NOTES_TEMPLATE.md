@@ -33,10 +33,7 @@ with an owner or gate.
 `[Short summary of implemented software changes and review state.]`
 
 This release evidence describes software behavior, validation status, known
-limitations, and data-boundary controls. Results are engineering
-decision-support information. Acceptance, professional judgment, and any
-certification, sealing, or code-compliance determination remain with the
-responsible engineer and project authority.
+limitations, and data-boundary controls.
 
 ## Changed Surfaces
 
@@ -83,9 +80,7 @@ professional approval claims, or code-compliance claims (PRD §21.2 prohibited-c
 
 SWBPIPE is decision-support software. It may compute mechanics, evaluate
 user-supplied rule packs, record diagnostics, and assemble auditable reports.
-Competent human review remains required; acceptance and professional judgment
-for any project-specific piping calculation stay with the responsible engineer
-(`docs/claims_registry.md`).
+Competent human review remains required.
 
 ## Reproducibility Manifest
 

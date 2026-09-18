@@ -16,12 +16,14 @@ def test_user_guide_lists_external_human_approval_status_without_software_claim(
     assert "external human acceptance record" in lower
     assert "exact reviewed hashes" in lower
     assert "not emitted by the solver or rule-pack evaluator" in lower
-    # DEC-081 claims taxonomy: the row carries the registry BS-ACCEPT
-    # standalone variant instead of an ad-hoc prohibition litany.
+    # DEC-107: the registered acceptance text (BS-ACCEPT) is withdrawn from the
+    # user guide, so the row no longer carries its standalone variant. What the
+    # row still says is pinned above; the former requirement is kept as a guard
+    # against the sentence's return anywhere in the guide, across wrapped lines.
     assert (
         "acceptance, professional judgment, and any certification, sealing, "
         "or code-compliance determination remain with the responsible "
-        "engineer and project authority" in lower
+        "engineer and project authority" not in " ".join(lower.split())
     )
 
 

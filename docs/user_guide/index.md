@@ -40,12 +40,9 @@ Keep these responsibilities separate:
 | Human review | A competent person reviews the model, inputs, rule basis, diagnostics, reports, assumptions, and limitations before professional reliance. |
 | Public examples | Invented or public-permissive demonstration content only. Public examples are not design bases. |
 
-Results are engineering decision-support information. Acceptance,
-professional judgment, and any certification, sealing, or code-compliance
-determination remain with the responsible engineer and project authority
-(`docs/claims_registry.md`). Any human acceptance record, if used in a future
-workflow, is external to automatic solver and rule-pack output and must bind
-to specific reviewed hashes.
+Any human acceptance record, if used in a future workflow, is external to
+automatic solver and rule-pack output and must bind to specific reviewed
+hashes.
 
 ## 2. Current Repository Surfaces
 
@@ -62,7 +59,7 @@ The guide should refer to these current surfaces when explaining behavior:
 | GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer`, `apps/desktop` | The Tauri/React/Vite desktop shell, package manifest, and bounded runtime navigation now exist alongside the contract/support surfaces. Current packaged-journey evidence is bounded; complete journey integration, supported-release acceptance, and broader platform coverage remain `TBD`. |
 | Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/report_renderer`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. A deterministic hash-bound single-file HTML renderer, desktop preview, and native report-package save path exist. Final styling/layout, deterministic hash-bound PDF policy, portable replay, and release-template integration remain `TBD`. |
 | Privacy and export controls | `docs/security/local_first_storage_policy.md`, `docs/security/redaction_export_controls.md`, `docs/security/telemetry_policy.md`, `core/security/redaction` | Private data is local/user-controlled by default. Project storage is local-only and offline-capable. Telemetry is off by default. Redaction/export behavior is metadata-driven. |
-| Export interoperability | `schemas/native_json_export.schema.json`, `schemas/stress_neutral_export.schema.json`, `schemas/pcf_export.schema.json`, `schemas/review_geometry_export.schema.json`, `schemas/export_adapter_sdk.schema.json`, `schemas/target_mapping.schema.json`, `core/handoff/*` | SCA-004 makes native JSON, the export of a `.mbf` model batch file, optional user-owned external-run evidence, stress-neutral CSV/JSON, conservative PCF, glTF review geometry, stable ID maps, loss reports, and adapter SDK surfaces explicit. These are bounded package surfaces: handoff evidence for external validation, not a validation outcome; acceptance stays with the responsible engineer. |
+| Export interoperability | `schemas/native_json_export.schema.json`, `schemas/stress_neutral_export.schema.json`, `schemas/pcf_export.schema.json`, `schemas/review_geometry_export.schema.json`, `schemas/export_adapter_sdk.schema.json`, `schemas/target_mapping.schema.json`, `core/handoff/*` | SCA-004 makes native JSON, the export of a `.mbf` model batch file, optional user-owned external-run evidence, stress-neutral CSV/JSON, conservative PCF, glTF review geometry, stable ID maps, loss reports, and adapter SDK surfaces explicit. These are bounded package surfaces: handoff evidence for external validation, not a validation outcome. |
 | Interop and local analysis | `schemas/adapter_framework.schema.yaml`, `api/api_boundary_contract.yaml`, `schemas/local_fea_handoff.schema.yaml`, `docs/local_analysis/local_fea_handoff_guidance.md`, `core/adapters/framework`, `core/handoff/*` | Public API transport, endpoint syntax, plugin runtime/loading/signing, concrete target field coverage, and local FEA package format remain `TBD`. Adapters cannot bypass units, provenance, privacy, protected-content screening, diagnostics, rule sandboxing, report controls, or human-review boundaries. |
 
 ## 3. Setup And Project Storage
@@ -183,7 +180,7 @@ Use the status vocabulary exactly:
 | `USER_RULE_CHECKED` | A user-defined rule pack evaluated available results and inputs. |
 | `USER_RULE_FAILED` | A user-defined rule pack produced at least one failing result. |
 | `HUMAN_REVIEW_REQUIRED` | Professional use still requires competent human review. |
-| `HUMAN_APPROVED_FOR_PROJECT` | Reserved for an external human acceptance record bound to the exact reviewed hashes and scope. It is not emitted by the solver or rule-pack evaluator. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority. |
+| `HUMAN_APPROVED_FOR_PROJECT` | Reserved for an external human acceptance record bound to the exact reviewed hashes and scope. It is not emitted by the solver or rule-pack evaluator. |
 
 Solver diagnostics should distinguish singular or invalid topology/restraints,
 numeric invalidity, conditioning, nonconvergence, unsupported solver settings,
@@ -244,8 +241,7 @@ Reports are structured review artifacts. A report should include or reference:
 Public report templates and public examples must not embed protected standards
 content, private rule-pack payloads, private project values, proprietary values,
 or real secrets. A clean protected-content linter run is development review
-evidence, not legal clearance; acceptance and professional judgment remain
-with the responsible engineer.
+evidence, not legal clearance.
 
 ## 11. Review Workflow
 
@@ -279,8 +275,7 @@ where target limitations exist.
 Export evidence must not bundle commercial solvers, bypass licenses, reverse
 engineer protected formats, or embed proprietary examples. Export packages are
 handoff evidence for external validation, not a validation outcome; validation
-occurs in the user's accepted professional tools, and acceptance stays with
-the responsible engineer. Public API transport, endpoint
+occurs in the user's accepted professional tools. Public API transport, endpoint
 syntax, target field coverage, source confirmations, plugin loader mechanics,
 redaction workflow details, and local FEA handoff package format remain `TBD`
 unless a later accepted deliverable resolves them.
