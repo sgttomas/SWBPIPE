@@ -34,4 +34,6 @@ Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, ROOT (HELP_HUMAN, Agent 0). 
 
 - 2026-09-18T23:19Z: B1-REVIEW returned PASS with no actionable finding. Its four observations are carried: the binding test for the token file's `labels` table, the divider that also frames three bordered things, and a comment's contrast floor go to the shell lane by addendum; the fourth is a note on reading B1's two retained returns together. Frontier: the DEC-025 sweep on the clean commit through the browser-test lock, which is also the first browser run of the corrected state; then the closeout record, pull request, CI and merge. The A1 follow-ups proceed on their own branch in the second worktree.
 
+- 2026-09-18T23:36Z: slice B1's DEC-025 sweep passed on `9e806691f` (all five surfaces; `_run_records/CLOSEOUT_CHECKS_B1.json`). Frontier: pull request, CI, merge; then the lane managers and the design-system contrast amendment.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

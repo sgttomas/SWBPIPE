@@ -1,0 +1,41 @@
+{
+  "artifact": "CLOSEOUT_CHECKS",
+  "tranche": "SWBPIPE-B, slice B1 (design tokens)",
+  "date": "2026-09-18",
+  "base": "7866f0a3c2c846cf071f735ea9b263a44fb00ca9",
+  "code_reviewed": {
+    "reviewer_model": "Claude Opus 5",
+    "candidate": "bf1ad5662e7e21ee3ce065940ed29bbe50511f1c",
+    "verdict": "PASS; no actionable finding; four observations carried (see briefs/_INDEX.md)",
+    "return": "{RUN}/instances/B1-REVIEW/RETURN.md",
+    "return_sha256": "f77dfbf4c03fa177c4a63494e575640bb60a61525544f9125476040f5e0e310b",
+    "last_code_commit": "bf1ad5662e7e21ee3ce065940ed29bbe50511f1c"
+  },
+  "sweeps": [
+    {
+      "commit": "9e806691f64a0adbf3556c19c202afa31ab08cc0",
+      "status": "pass",
+      "summary": "{WORKING_ROOT}/validation/evidence/sweeps/SWEEP_20260918T231932Z_9e806691f64a.json",
+      "sha256": "f20e550512ad26397eaa63c3e4933459bfe55fb1213b90dbc222023a6f3bad0f",
+      "command": "PLAYWRIGHT_WORKERS=1 sh {RUN}/tools/with_e2e_lock.sh python3 tools/release/run_evidence_sweep.py --execute --require-capability host",
+      "surfaces": 5,
+      "note": "first browser run of the state after correction 1; the implementer's two green Playwright lanes predate it",
+      "results": {
+        "python_tests": "1105 passed",
+        "desktop_unit_tests": "1190 passed in 75 files",
+        "playwright_source_lane": "374 passed, 20 skipped (environment-gated)",
+        "playwright_dist_lane": "53 passed"
+      }
+    }
+  ],
+  "commits_between_reviewed_and_tested": "records only (the retained returns, the sealed review brief, index, work graph and handoff state); no product source, test or tool change after bf1ad5662",
+  "commits_after_tested": "records only (this file, the sweep summary, the deliverable run record and status line, index, work graph and handoff state)",
+  "root_observation": "ROOT opened the corrected product in both themes before review: the document root and the shell agree and the variables resolve.",
+  "validators": {
+    "path_anchors": "PASS",
+    "claims_language": "VALID, 321 files",
+    "tranche_manifest": "PASS; 0 changed paths on the instruction surface, no manifest required"
+  },
+  "boundary": "Checks ran on the owner's host. No usability acceptance, accessibility conformance, review acceptance or release is established. PDU-045 and PDU-046 remain holds.",
+  "claim_fence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)."
+}
