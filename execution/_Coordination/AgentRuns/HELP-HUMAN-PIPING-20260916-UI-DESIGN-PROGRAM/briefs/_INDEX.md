@@ -172,6 +172,28 @@ Return of MOCKS-02, retained in place under `../instances/MOCKS/` (the frames, b
 | `frames/tokens.css` | `f49d23c696ff343dd683c14533cb21f8b93b38ed1738f121fb45be78cd1d4dca` |
 | `shots/report.json` | `25e3c0398d91b82674facf9fae0998f4b1760085ee9650c35c9f81a6ea5c4a09` |
 
-The eighteen 1:1 stage screenshots and `index.png` under `shots/` are retained as the child produced them (their hashes are in `shots/report.json`'s companion listing where the child recorded them, else derivable by re-rendering).
+The eighteen 1:1 stage screenshots and `index.png` under `shots/` are retained as the child produced them; `report.json` does not record their hashes, so ROOT recorded them here at retention (they are also derivable by re-running `tools/render.mjs`).
+
+| Retained screenshot | SHA-256 |
+|---|---|
+| `shots/d71_item1_status_bar_light.png` | `672ac46e0adf3c292b856c1910fcb660fd979492d5440259ad011b4cab98a9e9` |
+| `shots/d71_item2_results_caption_light.png` | `f3b66d0b1e7a761b3f02d56ac4427e40204f65e44e80423febb26c2b4b613519` |
+| `shots/index.png` | `3bf2c1d6a9ff7dafe7e23e6f1997c0dc07cda92bd9cade3c836d84565fbc1985` |
+| `shots/s1_table_light.png` | `da986a87be947eebd603bc3a6b8c76bf126a3f7b4a7344efc62dd96ab1b9ff86` |
+| `shots/s2_model_dark.png` | `0bf84544c86e626d48654fab898ffc231b6d7a00fb915403445ed0b8d42a0c90` |
+| `shots/s2_model_light.png` | `b805a40913c281c643998576780484d14a25fb2704e8feb3862631f44acf7544` |
+| `shots/s3_table_light.png` | `a89f8b0b4a7af92280c209462d88b69fce1856afdf392d19680e1f8f5824bc4b` |
+| `shots/s4_both_light.png` | `cc9b64bdb6b2b441d9c019e689be6fff8ec516726c5a8533a9ef04f51b4bd801` |
+| `shots/s4_both_light_column.png` | `2bbe912393b276f3fd195c744836bf4c47dde645a991b674ebae1d5903ca2b48` |
+| `shots/s4_table_light.png` | `45525f76e5b8f0609b3a852dd6ad917637c6e1593fe0a58bed609b28079d11dc` |
+| `shots/s5_table_light.png` | `50247a5240b6e64df5c33cbb44fcfacd39147a35b4c045c674f7348d6762006e` |
+| `shots/s6_both_light.png` | `bb9ae8046bc6c66cee9c726be969f71119bca22cc8a06f8b41b68cc6e85686f3` |
+| `shots/s7_both_dark.png` | `6e1a7e18ea3127b1e814a4c36eddb976d26cf78784aa34e5ebfe5f5f257a048c` |
+| `shots/s7_both_light.png` | `24f77d83a89837750b6498adb8ae8296bf35520a7f6aa006e4f68a682e21df1d` |
+| `shots/s7_table_light.png` | `67457750ea18bdff2d653b49fe6508057f5c5218b5f00bcb253ca5fe93a75dba` |
+| `shots/s8_model_light.png` | `2ee3f5b3aab85c196968a7a2768417f9dbf1129607d0fd043979c6aea69fa6b7` |
+| `shots/s8_table_light.png` | `852b00080aab02073495a3be4326ed24d02555e39d5d918b0509c8cf989207d9` |
+| `shots/s9_table_dark.png` | `67cf36a9ea18de376a616cac370a6b2907f2dd5c3eea8b7ecfa2cf452d60355e` |
+| `shots/s9_table_light.png` | `63449568cfdadf9ad03af32e1164102ab5208fc57ad0d1b043f5053c25e20dc7` |
 
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
