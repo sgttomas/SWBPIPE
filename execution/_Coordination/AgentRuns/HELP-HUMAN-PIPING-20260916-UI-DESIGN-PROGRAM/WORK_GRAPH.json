@@ -253,7 +253,7 @@
       "role": "HELPS_HUMANS",
       "purpose": "One pass from sealed briefs: design system V1.2, UX specification V1.1, regenerated frames",
       "status": "running",
-      "note": "DESIGN-SYSTEM-03 launched 2026-09-18T13:37Z; UX-SPEC-02 and MOCKS-03 follow; item 7 carried unchanged"
+      "note": "DESIGN-SYSTEM-03 complete; UX-SPEC-02 launched 2026-09-18T14:30Z; MOCKS-03 follows"
     },
     {
       "id": "IMPLEMENTATION-HANDOFF",
@@ -282,7 +282,9 @@
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/DESIGN-SYSTEM-03_revision.md",
       "return": "instances/DESIGN-SYSTEM/ (V1.2 in place)",
-      "status": "running"
+      "status": "complete",
+      "model_ran": "Claude Fable 5.1",
+      "note": "V1.2 accepted by ROOT 2026-09-18 after one correction to the owning child (the stale band no longer says the run stays the solve basis; rows 88 and 89). Hashes in briefs/_INDEX.md. Dataviz validator not run; colour values unchanged from 1.1."
     },
     {
       "id": "REVIEW-02",
@@ -294,6 +296,16 @@
       "return": "instances/REVIEW/REVIEW-02_RETURN.md",
       "status": "complete",
       "note": "First pass FINDINGS (one major in SCA-010, corrected); backcheck at 48d3d3af6 cleared all twelve and found four minor and three trivial stale-pointer items, corrected"
+    },
+    {
+      "id": "UX-SPEC-02",
+      "role": "HELPS_HUMANS",
+      "purpose": "UX specification V1.1 and operations map: the rulings, Q-15 to Q-22, the pointer-control rule, R-1 to R-9 with the Stale standing, the one mutation route, named semantic changes, citations re-verified at HEAD",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/UX-SPEC-02_revision.md",
+      "return": "instances/UX-SPEC/ (V1.1 in place)",
+      "status": "running"
     }
   ],
   "edges": [
@@ -458,7 +470,9 @@
       "REVIEW-02"
     ]
   ],
-  "current_frontier": "Running: DESIGN-SYSTEM-03 and REVIEW-02; then UX-SPEC-02 and MOCKS-03, then the implementation-ready handoff. Nothing is with the owner: D-71 and D-72 are fully ruled and SCA-010 is accepted (execution pending with an implementation tranche). The piping session is on hold by the owner. Implementation is not authorized by this assignment.",
+  "current_frontier": [
+    "UX-SPEC-02"
+  ],
   "frontier_history": [
     {
       "until": "2026-09-18",
