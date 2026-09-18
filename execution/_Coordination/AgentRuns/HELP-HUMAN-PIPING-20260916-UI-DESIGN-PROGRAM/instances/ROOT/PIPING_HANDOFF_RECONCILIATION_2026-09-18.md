@@ -6,14 +6,14 @@ Status: ROOT record, 2026-09-18, by the successor ROOT ([activation](SUCCESSOR_A
 
 All three are ancestors of `origin/main` at `451c5f595e0488a0d6064d9b0f972c5e8fc1d09d`, verified at activation.
 
-| PR | Merge | What it published | Owning record (relative to `../../../`, the AgentRuns directory) | SHA-256 at `451c5f595` |
+| PR | Merge | What it published | Owning record (paths relative to this file) | SHA-256 at `451c5f595` |
 |---|---|---|---|---|
-| #793 | `1f977a9352ddd370ed54b8cb363b2a2777f56213` | The original D-70 baseline characterization and its limitations | `HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/BASELINE_CHARACTERIZATION_REPORT.md` | `56aa2f08de5ed0b5935d507c22d34d6aa22cda22d24e6b7227cadb4f64caffb7` |
-| | | Its technical acceptance and redesign handoff | `…/D70_BASELINE/FINAL_ACCEPTANCE_AND_HANDOFF.md` | `aa68529b9141bb771fc413671d603ddb20ae31cc8bccba633e45f0ab73f596f9` |
-| #794 | `362dcffc0f66d52c58689a58f268891461db0346` | The bounded shared-endpoint picking repair (stable shared sphere and capsule closest-point residuals; grouping, priority and tolerances preserved) | `HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/HANDOFF_STATE.md` | — |
-| #795 | `ea1de1a45f25e208f877813c5a88222cea59fedd` | The reviewed evidence of one fresh 10,000-pipe demonstration on the repaired product | `HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/RUNTIME_REPORT.md` | `e8acb49bce189f15ddf6958e16ffdc34f8ddc502de51df2065f0502c18dc4a40` |
-| | | Evidence custody and bindings | `…/_run_records/RUNTIME_EVIDENCE.json` | `ac2892d5f3b9f06a4f47db5a39390cf1fe6a7bd3f9ebc2440a338a5ab43e9ba7` |
-| | | Verification and closeout | `…/_run_records/RUNTIME_CLOSEOUT.json` | `0226b6209c145f93078a85762e0b54a1bed65fd66609fdd34d62a18274f869fa` |
+| #793 | `1f977a9352ddd370ed54b8cb363b2a2777f56213` | The original D-70 baseline characterization and its limitations | `../../../HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/BASELINE_CHARACTERIZATION_REPORT.md` | `56aa2f08de5ed0b5935d507c22d34d6aa22cda22d24e6b7227cadb4f64caffb7` |
+| | | Its technical acceptance and redesign handoff | `../../../HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/FINAL_ACCEPTANCE_AND_HANDOFF.md` | `aa68529b9141bb771fc413671d603ddb20ae31cc8bccba633e45f0ab73f596f9` |
+| #794 | `362dcffc0f66d52c58689a58f268891461db0346` | The bounded shared-endpoint picking repair (stable shared sphere and capsule closest-point residuals; grouping, priority and tolerances preserved) | `../../../HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/HANDOFF_STATE.md` | — |
+| #795 | `ea1de1a45f25e208f877813c5a88222cea59fedd` | The reviewed evidence of one fresh 10,000-pipe demonstration on the repaired product | `../../../HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/RUNTIME_REPORT.md` | `e8acb49bce189f15ddf6958e16ffdc34f8ddc502de51df2065f0502c18dc4a40` |
+| | | Evidence custody and bindings | `../../../HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/_run_records/RUNTIME_EVIDENCE.json` | `ac2892d5f3b9f06a4f47db5a39390cf1fe6a7bd3f9ebc2440a338a5ab43e9ba7` |
+| | | Verification and closeout | `../../../HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/_run_records/RUNTIME_CLOSEOUT.json` | `0226b6209c145f93078a85762e0b54a1bed65fd66609fdd34d62a18274f869fa` |
 
 The raw evidence stays in its one canonical copy under the piping session's custody; this program refers to it by these hashes and copies none of it.
 
