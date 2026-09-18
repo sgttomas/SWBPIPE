@@ -1,0 +1,30 @@
+{
+  "status": "PASS_FINAL_LAUNCHERS_PREPARED_RUNTIME_HELD",
+  "at": "2026-09-18T00:35:03.082265+00:00",
+  "instrumentRevision": "36e56f2d93f763296b09520fe9f7c8481dd6fd54",
+  "method": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/METHOD_MANIFEST_SUCCESSOR.json",
+    "sha256": "c36048c44d14acdceb7b15a898c96e38a473e96adb985a07a9694496324426b1",
+    "members": 34
+  },
+  "changedMembers": [
+    "apps/desktop/e2e/ui-foundation/characterization-commands.ts"
+  ],
+  "commands": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RUNTIME_COMMANDS_PREPARED_V4.json",
+    "sha256": "04bd20156fefb44163d4d9143a50b2c966d9a1eca73fa7e734c4aa268d986d08"
+  },
+  "launchers": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/run_smoke_v5.py",
+      "sha256": "a167cf3eb33a4164e8cc7e479300e12210221e74201801cf2c301ec0ca67f04a"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/run_cohort_v1.py",
+      "sha256": "29c9817d417b7a128a8cc86a27886cb11f146b017e264dc1290f2df3959b1e19"
+    }
+  ],
+  "bindings": "V4 fixed oracle manifest and member checks retained before/after; source/method/product/browser/profile checks retained; exact instrument revision checked before/after",
+  "runtime": "No launches; no retry/repeat beyond1; existing per-test timeout only; no overall timeout",
+  "next": "Independent review, separate ROOT smoke and cohort releases; orbit obstruction returns blocker, no coordinate search"
+}

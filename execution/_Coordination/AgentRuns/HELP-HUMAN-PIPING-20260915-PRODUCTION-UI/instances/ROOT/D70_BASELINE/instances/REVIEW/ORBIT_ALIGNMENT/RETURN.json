@@ -1,0 +1,1081 @@
+{
+  "schema": "chirality.piping.d70.orbit-alignment-review/v1",
+  "verdict": "PASS",
+  "frozenCandidateVerdict": "PASS",
+  "successorRuntimeContextVerdict": "PASS_SMOKE_V5_AND_COHORT_V1_PREPARATION_ONLY",
+  "findings": [],
+  "closedFindings": [
+    {
+      "id": "SMOKE-ORBIT-START",
+      "status": "CLOSED_SOURCE_RUNTIME_PENDING",
+      "repair": "Smoke imports and uses the existing ORBIT_START_NORMALIZED used by the timed method; no target search or method alteration."
+    },
+    {
+      "id": "ORACLE-REBIND",
+      "status": "REMAINS_CLOSED",
+      "repair": "Final smoke V5 and cohort V1 retain V4 fixed-hash compare, member containment/size/hash and post-run verification."
+    }
+  ],
+  "base": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+  "candidate": "97c6e556eb4bc88c13b33e0667d208c7dbb2cf97",
+  "priorReviewCandidate": "418f22f677ff65677f396abbff754ac3378c9efe",
+  "priorReturnSha256": "5dd3964a9cba8605c3b756221bff0f509dbfb91714bd6d1847f6a5c4e96011f6",
+  "freezeSha256": "56e8624a666c5b073e529cd5ff5829781b77b3456b509f28f0af10261d3db5e0",
+  "binaryDiffSha256": "27d53a901fba12c073d9a4cea430f38257b141b01b57efcc48c9c2e24e74f72f",
+  "inventorySha256": "cc57d97bf54c284c508fda59d591555eacd789a51488bc842a283cff27ceac87",
+  "coveragePercent": 100,
+  "fullPathCount": 166,
+  "unchangedCarryForwardCount": 133,
+  "reviewedDeltaCount": 33,
+  "coverage": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "sha256": "5c14bea4e6bcc84f808bf066564d1eb373861c8ef4a8a5dfd9664f45d0749f08",
+      "bytes": 24819,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+      "sha256": "25cfe122fd24d8d25dd348c00e3a64d828dc2f9118c53225ac010b74673a94f3",
+      "bytes": 17219,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-mode.ts",
+      "sha256": "f1ae0ef786854f8cf2ce2a7dcefc25f0029910030cacf9d262a8a493964a80c1",
+      "bytes": 5007,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.d.mts",
+      "sha256": "e1f64817f7b4264b0edec49c83efc1cb3cf3976066d10eff275e80770e184b2b",
+      "bytes": 175,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.mjs",
+      "sha256": "3729ea10f5b3f4f2f11af954b2c4438bf20c4cd6737f8aef02f9b10951e82558",
+      "bytes": 10449,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "968a688ebd03b1cc36df1f3c0064f44323bcff8ff917e34dc9521387cd7a1c2b",
+      "bytes": 93676,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "2139a094b075c307a7b5fa26fa3d4a7aa560f6e7e0d8820aa3e398c2455359d4",
+      "bytes": 73612,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts",
+      "sha256": "7cad30cbc11ab3c536af658b70e30cd7fba94f719e2ca26ea017011ded0690e4",
+      "bytes": 812,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+      "sha256": "ffb08f121b36fbeb7fa6c3fdad5528a662d830be1eccda8562d8a544ba7d06c5",
+      "bytes": 21453,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-characterization-observations.mjs",
+      "sha256": "50055988ca0e3e633bf35ad90d2e27f3ee57b4571204f9b00a72430305475fd3",
+      "bytes": 4843,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "sha256": "c230b2275650b42374f5b77d971d7610f0ae581413a097b0c3d68a117e6211d8",
+      "bytes": 8932,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "sha256": "60e6e18cfd67fb877c42822b2ae9248e1a76922678c3d5e49ee1542fc5a06e61",
+      "bytes": 10149,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
+      "sha256": "59f004398b99ea4ce9675af1925d8a66c20831c84fdd13043ad179eed34b36c5",
+      "bytes": 7239,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/WORK_GRAPH.json",
+      "sha256": "760d082b49a63392f26a591c15ddae6f3a7952facc4ceed38bf9d05817dd7dcc",
+      "bytes": 42258,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/ACCEPTANCE_MAP.md",
+      "sha256": "2ef55f2f5ac9e648bd4bbd67cb2092a86772ce1c6adb396fae2035b3271da564",
+      "bytes": 1972,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/ACTIVATION.md",
+      "sha256": "89433ac795a20222cf9a6984950dedd789e4f19815afac101277bb485611e380",
+      "bytes": 1856,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/APPROVED_EXECUTION_CONTRACT.md",
+      "sha256": "22735b52f4a26ad1e6df005a8fa1118de500460251decacecc794e1affd1d63b",
+      "bytes": 6549,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/CONTEXT_BINDINGS.json",
+      "sha256": "47415e92d32aa7b226f9bf6883fc26970babb2c2b3126fd2bee4067650667d4a",
+      "bytes": 8269,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/D70_ADOPTION.json",
+      "sha256": "280b56423eaec90bca3822ef9484860752b2b494ebcdc93cb201b8b2cdac411f",
+      "bytes": 4228,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/HANDOFF_PREPARATION.json",
+      "sha256": "de6d518f103ae3ab7e7a2d8164be6d8516222cfcee3c57e863c9b6bace73016f",
+      "bytes": 737,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/IMPLEMENTATION_RELEASE.json",
+      "sha256": "4bbfdf0e61499f47bcf6bb53b280c4a883f3454bd29ea6f0655215a2d777fa7a",
+      "bytes": 2988,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/PREPARATION_REPAIR_1.json",
+      "sha256": "c9a98221bd46701891d6601f69ae6b79971fa4520441f8ee9f6e823c2b548cab",
+      "bytes": 987,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/PRE_RUNTIME_ACCEPTANCE.json",
+      "sha256": "ef7fe72aedb65687a3468e6cdf81b0785eaeadfd478ea2badaeebea32025044a",
+      "bytes": 1207,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/PRE_RUNTIME_REQUALIFICATION.json",
+      "sha256": "95abc9a0ea0bf9e94985a26b86230d7a3479763f046f6f5ed4a98d4a5722f5b0",
+      "bytes": 1040,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/RAW_EVIDENCE_CUSTODY.md",
+      "sha256": "062d2c6f8213407cebaad70fc2c19236124c05ac91e8ec4632383b3a10fbe10f",
+      "bytes": 959,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/REVIEW_FREEZE.json",
+      "sha256": "dd582f2fb40c2ba2b276edf6c6f8eeee56c22ae66b74b47a2db3d18fb86a1d12",
+      "bytes": 27185,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/REVIEW_SMOKE_REPAIR_FREEZE.json",
+      "sha256": "3a3201e12dc965f9ffb9305e0844ce780aa0148600d25222a4dc410a1846034a",
+      "bytes": 47823,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/RUNTIME_LOCATIONS.json",
+      "sha256": "236c69c6333d205bf0afbca9b04246efadc9dc085bad8d1651ed3565a7731bf4",
+      "bytes": 587,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/WORK_GRAPH.json",
+      "sha256": "e5745b28e2b7cc526fd89d47ce85398c7715ac6fbb8c142f0c89467cf5b095dc",
+      "bytes": 2870,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/EXPECTATIONS.md",
+      "sha256": "90a574ba09376d1c022f61e8c7111aa2a02a357dd4023653557b43cc6e461ac5",
+      "bytes": 3129,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/MANAGER.md",
+      "sha256": "46c6d6ee930b46a470b017c0980cc4e8312a522168537b38208074a795e38dea",
+      "bytes": 4350,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/MANAGER_REPAIR_ORBIT.md",
+      "sha256": "0b4030d6efd8a6f59b3d58e38a2b0409619e794b5545a832be91152afce060da",
+      "bytes": 1517,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/MANAGER_REPAIR_SMOKE.md",
+      "sha256": "8b7f98c85e39dec6163f77d4130c97c36842e5267333da4c1739eb9688c3faf5",
+      "bytes": 2434,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/REVIEW.md",
+      "sha256": "9a1a00ad58605888e66349583402b21c4c65cf9c1d6893c805bde08ab3642269",
+      "bytes": 2990,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/briefs/RUNNER.md",
+      "sha256": "e14e6820a95e37ff20ab4c2f8909eb5f89e2ae78a4a33c49e52f042d4270d05d",
+      "bytes": 3883,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/BUILD_RESULT.json",
+      "sha256": "a4d3f1ea7ef6f965482346d8cd21ac1fb1bb755f99f0a800c94c3218eb4fff34",
+      "bytes": 1424,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/PRODUCT_BUNDLE_BINDING.json",
+      "sha256": "85764577678740949c4d52112b6d565fd3373b1f3ec9f6f8fcd2a7ac5f481b92",
+      "bytes": 835,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/display-profile.json",
+      "sha256": "a730522a40132bfcf3a0819755d428c7dbbba996531c7c6850eb2c8bce14be30",
+      "bytes": 1168,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/instances/VERIFY/PRODUCT_8468/candidate-bundle-manifest.json",
+      "sha256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+      "bytes": 47624,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/instrument-npm-ci.log",
+      "sha256": "70183065a4e0378f804d08f60d3e8c2e22abfde61eee7e1124a799b684437573",
+      "bytes": 609,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/integration-npm-ci.log",
+      "sha256": "70183065a4e0378f804d08f60d3e8c2e22abfde61eee7e1124a799b684437573",
+      "bytes": 609,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/product-desktop-build.log",
+      "sha256": "4513bba5380d52877849bcf6177dcf387cb1945703bd1e4fc1b0f016fb199913",
+      "bytes": 1730,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/product-npm-ci.log",
+      "sha256": "273c2a517f2cd52122be5c5df4ee17c9877b7a306c3445401254b5cdc65fc1e3",
+      "bytes": 609,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/build-preparation/product-wasm-build.log",
+      "sha256": "92f41d0d0f0dc4152e86c0a98c6ff12da0d29d3a39dee5d398c6dcb4ed156811",
+      "bytes": 860,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/EXPECTATIONS.md",
+      "sha256": "c9942be2e593424b46b607f614befb6ed2ec2fa823a7902c6b906a46ffa09b9e",
+      "bytes": 11931,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/RETURN.json",
+      "sha256": "8a0ef47aa3bfeaa408352478ffd796585a58e465461bc1a507490e556ce40156",
+      "bytes": 10934,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTEXT_HASHES.json",
+      "sha256": "bc144515b763ea2c6f79a3c7bf8f276e541f8638997373d643d5287abff689c0",
+      "bytes": 1133,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/DISPATCH.json",
+      "sha256": "4e2c53ece7159aa17ae409d9b08d7df66055cb61f2b463c3c1d248da6910ef60",
+      "bytes": 683,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/FAN_IN.json",
+      "sha256": "47760b2bb99f52591b4d90f13de35e37a5847aa375a391e8d909a9afe2c79eee",
+      "bytes": 5164,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/FAN_IN_CHECKLIST.md",
+      "sha256": "dc9d2ef6e3549fa237632730e1b75c11109e569f71f7f6ed054aacb64a0fef3d",
+      "bytes": 1755,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/FILE_INVENTORY.json",
+      "sha256": "6c35aa31c241dec74c536a15b64f84c63b644edce6e3a4241bff212c73e59373",
+      "bytes": 2810,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/HANDOFF.json",
+      "sha256": "230af4a7842990ad415c7630caefbccc7d94d285c3679e02aa8b8b3318021671",
+      "bytes": 1180,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/INPUT_ROUTE_INTERPRETATION.json",
+      "sha256": "6ac35af69fb97f436ad6cf2b0c3769b8f74eb1f627ffd5bd1ecd691b96e56cd3",
+      "bytes": 1081,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/INPUT_ROUTE_INTERPRETATION_R2.json",
+      "sha256": "067c6c2217ae3c02055a85eeb593ebb54d5233ae29630b733292fcecd1b5a48e",
+      "bytes": 1264,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/INSPECTION.md",
+      "sha256": "cb0f12c66bac7247b4f5e69c76842b64e55c6bd3f5c7c9322ed173d14579c72c",
+      "bytes": 1737,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/ORBIT_ALIGNMENT/DISPATCH.json",
+      "sha256": "077b2682c964e495bfee4604ecaf1f4a5f02ac943e7def021de0ce92dd6cf300",
+      "bytes": 540,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/ORBIT_ALIGNMENT/FAN_IN.json",
+      "sha256": "f29d70321fdb7648b82f5e9446dc54ca1c015d826d5e32766c2864f5da5296ef",
+      "bytes": 1122,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/ORBIT_ALIGNMENT/HANDOFF.json",
+      "sha256": "9a54cdb846d62afb32cc3cf8b99b2157e23ac8eb508518df339aaf612cd81f71",
+      "bytes": 782,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/ORBIT_ALIGNMENT/INPUTS.json",
+      "sha256": "b52ee20421a3666cdd4e1b9ffa5806df77529dc6419cd15f14c52cfcbfe78e43",
+      "bytes": 1491,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/ORBIT_ALIGNMENT/WRITER_BRIEF.md",
+      "sha256": "21c7b40c22594740ce1b7d57589924c5baef5bd2666e33542ce1048e44bf72c8",
+      "bytes": 1257,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/PHASE_CONTEXT_VERIFICATION.json",
+      "sha256": "063d29e4ead3ba3595ae37c857052bf5c6f9d9174d099a332c60b6c5c1adaedf",
+      "bytes": 16779,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/RETURN.md",
+      "sha256": "dc4cc626e546cab24d3cd38e526bfa86cc9114afbd8efb38746ebf423e741291",
+      "bytes": 1986,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/SMOKE_REPAIR/DISPATCH.json",
+      "sha256": "ec127bbff97793fdcd7ff0966eeebb8708cf7abe0cd1fe7c1fdaa1b2cd7c3f9c",
+      "bytes": 588,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/SMOKE_REPAIR/FAN_IN.json",
+      "sha256": "e8bf87fc9a7b6b81ca98eb1d165e82e3ee2fe062a941b7e6358f20dc8a7d6ef0",
+      "bytes": 2757,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/SMOKE_REPAIR/HANDOFF.json",
+      "sha256": "0ca2f065e32448a7b55c6d049033c9e0111fbc1454fb1e426e55c5638dd44bab",
+      "bytes": 935,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/SMOKE_REPAIR/INPUTS.json",
+      "sha256": "9b88b15459fdbf0c9c51a6f1ac14f8a7b5aa24796b9deb715583ab8983852cc7",
+      "bytes": 2173,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/SMOKE_REPAIR/RETURN.md",
+      "sha256": "ecc93e8cb6447bf4201141fa1f3b80ae1c936b0191aeb09b4dfc831bf4360381",
+      "bytes": 1242,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/SMOKE_REPAIR/WRITER_BRIEF.md",
+      "sha256": "8b2e7c1da500fbdc1d04abfbf9648d8988a3a563904f346d208066cc61c5887e",
+      "bytes": 2212,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/WORK_GRAPH.json",
+      "sha256": "74d0f68be3d3790a66eb11061e55330210564aca0ebebefba84a58817398fecb",
+      "bytes": 844,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/WRITER_BRIEF.md",
+      "sha256": "c743c40d6731b8be8e3aad53ce9bbe941a5354c5454af5e66dbe66afd0b6de7d",
+      "bytes": 5630,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/REVIEW/RETURN.json",
+      "sha256": "6f208b0dc383e114ac4b90566f4af43464d09b1680c0cb80b556de34f967b690",
+      "bytes": 37879,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/REVIEW/REVIEW.md",
+      "sha256": "626880d0eb2d3846c9bef369830cf7f039e9270e97861c57d9126b121bb65dd7",
+      "bytes": 8224,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/REVIEW/SMOKE_REPAIR/RETURN.json",
+      "sha256": "5dd3964a9cba8605c3b756221bff0f509dbfb91714bd6d1847f6a5c4e96011f6",
+      "bytes": 52062,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/REVIEW/SMOKE_REPAIR/REVIEW.md",
+      "sha256": "2de21c57d4ac4c7d7e294ef887df4cbcbd11d9f5fdb56a6a59935700f076c68b",
+      "bytes": 7179,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CAMERA_LAUNCH.json",
+      "sha256": "f1d16ed39faab6529d573f4ca08e5edb6dbf48e0b4b3b8ce35f3e444505df52c",
+      "bytes": 3232,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CAMERA_PROCESS_RETURN.json",
+      "sha256": "209b1c6079b2e8af3fdf9990a039b0751fc19d9d4035afe46899ae6d0841fafa",
+      "bytes": 3325,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CAMERA_V2_LAUNCH.json",
+      "sha256": "da04eae76eaedc788332b929699f40dfb8cafff7677cf45a78e5f2af1043d7c8",
+      "bytes": 3249,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CAMERA_V2_PROCESS_RETURN.json",
+      "sha256": "5e9c5129f007a996c3a9297912001d67629f2903a0e798244cfcb3b6c36a4117",
+      "bytes": 3342,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/COHORT_INPUT_PREPARATION.json",
+      "sha256": "835bf5b97da75488c083c61124d5c1d42cedd75c8a34ed3c3745641be2ad3bc2",
+      "bytes": 3841,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/COHORT_INPUT_PREPARATION_V2.json",
+      "sha256": "38974e3f08d09116573f0fa8e773cbf9d56e19e39744930666467294b20ed960",
+      "bytes": 4212,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/COHORT_LAUNCH_INPUTS_HELD.json",
+      "sha256": "ddfd3eab76f5428614d26d0e184bc6fa4d127747707cbb2836134d8ea428c3e7",
+      "bytes": 4470,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/DISPLAY_PROFILE_VERIFIED.json",
+      "sha256": "a730522a40132bfcf3a0819755d428c7dbbba996531c7c6850eb2c8bce14be30",
+      "bytes": 1168,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/FREEZEORACLE_V2_LAUNCH.json",
+      "sha256": "f9fe7ded6ca7b67a8bcfa9d3d156ea40a9d9dc95f30db685d1417b41ea66d209",
+      "bytes": 1357,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/FREEZEORACLE_V2_PROCESS_RETURN.json",
+      "sha256": "3a7cfa3a2ddaca90d8c514d684cd6b199180ed799e4806fdb9f8cc6dc849f823",
+      "bytes": 1450,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/PREPARATION.md",
+      "sha256": "13790d873133ffafef06a3f76f70d0c5ccdff416585bfb9bb27b25619ece4370",
+      "bytes": 2245,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/REFERENCE_PROFILE.json",
+      "sha256": "1eb807fdb3bdd2ac539208dec542083e06951e63b684494ed5756091b2392a9b",
+      "bytes": 771,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/REFERENCE_PROFILE_V2.json",
+      "sha256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922",
+      "bytes": 990,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN_INPUT_VERIFICATION.json",
+      "sha256": "920ee29e62a4790ea72080ede527fbf8911e44ae077b05afede9d801dbd9b0ed",
+      "bytes": 4331,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN_PREPARATION.json",
+      "sha256": "7ba4f6884b1f2d9f1595a0afd0cae1b2bef79d05fe5370a53ca767ca0e88aa34",
+      "bytes": 7769,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN_PROFILE_V2.json",
+      "sha256": "627ea6c74f6961b9c83bf1e507cf4db4b93dbe8cc19a204f1bd6152ee05ae4c1",
+      "bytes": 1947,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN_RUNTIME_PREPARATION.json",
+      "sha256": "bc8035caf83008a6e4df3cbfb91d89b940f176cb7f19a0695f8fd75b8a2fb295",
+      "bytes": 2434,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN_SMOKE_LAUNCHER_V4.json",
+      "sha256": "7d4279f11008d33a8cce28cbfa3ed3d510e285a6fc2cf271b2cbf632138ae213",
+      "bytes": 1598,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN_SMOKE_REQUALIFICATION.json",
+      "sha256": "15c0c4d5bca002d6f66d52add7c4dcdc7a0ba175432ab9295df925cd000c4d49",
+      "bytes": 5096,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN_SMOKE_SUCCESSOR_PREPARATION.json",
+      "sha256": "d69342085fbb0cd7e91cde347daa0f8f23da03e80df39a78df901bd130e346a8",
+      "bytes": 2261,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN_UNTIMED_PREPARATION.json",
+      "sha256": "cd8c4ff65177e9f3f27197a55ebd6d69682c55696b0d34943370d9158a96a1e2",
+      "bytes": 2432,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN_UNTIMED_PREPARATION_V2.json",
+      "sha256": "bd0f314179783358fffe89912a891bdb5ada1e24cad9790f5f954a40bc2b6ca4",
+      "bytes": 11120,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RUNTIME_COMMANDS_PREPARED.json",
+      "sha256": "9f7ecb872f46845f359a71099eb7fb91b6fcc06822522ef075fd88bbc30056e2",
+      "bytes": 15860,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RUNTIME_COMMANDS_PREPARED_V2.json",
+      "sha256": "433ccca909d2eacb8e6fed9d22ee69651aeb498234f0dee292fc766042898a9f",
+      "bytes": 16505,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RUNTIME_COMMANDS_PREPARED_V3.json",
+      "sha256": "124dbf3324c16d34f8d718ca3bea27d7ea095bfdb9c04117601eba8fb12729c5",
+      "bytes": 12384,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/SMOKE_V2_LAUNCH.json",
+      "sha256": "a318ce01c1dbf130b12da3423cecf4957a7daf7d3e424b090dee7488973f4d92",
+      "bytes": 3495,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/SMOKE_V2_PROCESS_RETURN.json",
+      "sha256": "b47672312b70dd1c6cb24cbc7270cce32d068c064310890f68bc21009514c767",
+      "bytes": 3588,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/SMOKE_V4_LAUNCH.json",
+      "sha256": "470ec6a1899a587d9a35b27b9f2a5860023e5a98acfdf3d42405b36edb972f3b",
+      "bytes": 3508,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/SMOKE_V4_PROCESS_RETURN.json",
+      "sha256": "afea4836e379ab589334730b48f4766d7ccf8d13f693717525d77ede6f7b9525",
+      "bytes": 3601,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/run_smoke_v3.py",
+      "sha256": "58e87ad67d577e3f3759355b10a5b27d94b838ddcaaf4ff2b72d4d4a4bf1f872",
+      "bytes": 3616,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/run_smoke_v4.py",
+      "sha256": "deeabee87638050e89d9d7f7ea50fc90f331e865a4dbb0ebbbad8cc2c3e7e73f",
+      "bytes": 4027,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/run_untimed.py",
+      "sha256": "4bde285f9fbf6d124072bb4aef883f84b45a37e2c44c5d5b1060a98b3ecadd67",
+      "bytes": 3616,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/run_untimed_v2.py",
+      "sha256": "a002bef89634ebf3e32078dcad2de2c8ae4ae525918c12e3244d3c5c1ccb80ce",
+      "bytes": 3642,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/COMMANDS.md",
+      "sha256": "ad7d0bcf5ce6ea9c4db64d523624ca5ae597fc8d8fc8a375326fa080999e2482",
+      "bytes": 3758,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/CONTEXT.json",
+      "sha256": "cdc6ddf754df0ab16a61450aaaa85deab331388e80415bcabccd41d5b17a51c8",
+      "bytes": 14498,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/HANDOFF.json",
+      "sha256": "c6611cd8cd4c9551d3a8676384b6252121841f687b90a7bcd50fd3e59a60aed1",
+      "bytes": 2037,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/METHOD_MANIFEST_CANDIDATE.json",
+      "sha256": "98e5449b202b19eee841e8846200c885195770be73326bff61f9e6d45f83480e",
+      "bytes": 6094,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/COMMANDS.md",
+      "sha256": "6d845e15aadb51de4d78074e115258b63e995d7b7636c81d6cd31e1e7dcfaa3e",
+      "bytes": 993,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/CONTEXT.json",
+      "sha256": "6cc7e9bf822f686ac891223c76cce9fd11f14aa4b7658e87ef42b6bae49780f5",
+      "bytes": 1881,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/HANDOFF.json",
+      "sha256": "f3130164dd92fba34321d09d22cb3f6409d1a5f47e8e4f762f8f7dbefe3dde90",
+      "bytes": 796,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/METHOD_MANIFEST_SUCCESSOR.json",
+      "sha256": "c36048c44d14acdceb7b15a898c96e38a473e96adb985a07a9694496324426b1",
+      "bytes": 6560,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/RETURN.md",
+      "sha256": "7dc69300fc5c4f1a232486ceffd336a726c04c4e7779230ca4f3a3211f893628",
+      "bytes": 787,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/SOURCE_DIFF.patch.gz",
+      "sha256": "f0fdf9f049af472b8daf2d07c6a54906318a7eb9704440c46f9cbfb5aee105cf",
+      "bytes": 1141,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/SOURCE_MANIFEST.json",
+      "sha256": "ea2f77cb1c82e9e1873c27ce1f9e4c0203fda53e9ee87c18dcba205e52634a91",
+      "bytes": 194,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/node-only.config.ts",
+      "sha256": "fc2e7fffca76a9140ce75bdffe586c5ccc3d7bf849a1004da83823683ef98ec9",
+      "bytes": 1032,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/regression.log",
+      "sha256": "203bcdd5a3b67c6d11c9b2dc2b51c1f9b2dd5cad47674f9161043f8c797c3cfc",
+      "bytes": 564,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/test-output/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/test-results.json",
+      "sha256": "41232224cd6e726a1cef69450baf8e44d288f4a66145face8f61fbd93e1e8196",
+      "bytes": 3627,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/tsconfig.json",
+      "sha256": "fd2a193faeee2869ad86a4c5c3eff7ce348442f95c894fe482ec97230e3b8867",
+      "bytes": 1476,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "review": "AFFECTED_DELTA_REVIEW"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/RETURN.md",
+      "sha256": "f7f8c6ba7e6a295471b7a3f93d68bc04c38716102faf566695858a1b5fe3668b",
+      "bytes": 2623,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/COMMANDS.md",
+      "sha256": "92597b57ae4c45f845e274367506dffa3f759fefe72ff6f003209717f71f43f6",
+      "bytes": 1193,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/CONTEXT.json",
+      "sha256": "4d54326e5fab6568cdfd734f3a4a97f071eeadf5220ba9a092b27dea0270fbea",
+      "bytes": 2581,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/HANDOFF.json",
+      "sha256": "c5f190a776fbef24c37ff5fe66cbe84c6ed340a6f8692e46419875fad547d523",
+      "bytes": 1153,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/METHOD_MANIFEST_SUCCESSOR.json",
+      "sha256": "064195227bf8ef4c050757f280b2b5dc6b1b29e45154e2c5aa1833426410e123",
+      "bytes": 6600,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/RETURN.md",
+      "sha256": "22526435317be87fadfe0b395d06701198d037fb2a85a26688a958eef712e9c1",
+      "bytes": 1428,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/SOURCE_DIFF.patch.gz",
+      "sha256": "adc69d119cb418e53dda7d2c4cba7c0bb05a28a873d91d64990956da810338c7",
+      "bytes": 2844,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/SOURCE_MANIFEST.json",
+      "sha256": "f0293797942f94909edb0412a965d2ec45c7c4e95311691833ee6044597027dd",
+      "bytes": 387,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/node-only.config.ts",
+      "sha256": "a51bbebf215ea59b3c8df8931e971b7eab057fbcc5ee5ac368bd2ede514df819",
+      "bytes": 1026,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/regression.log",
+      "sha256": "5f7d0861f593aaf5a832a4a79e7fb161ed9630c39019c0e15d576e1be6ca5e9e",
+      "bytes": 564,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/test-output/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/test-results.json",
+      "sha256": "316088a07443691acb4c5357bd6ba1dd22a126ae3efb7071e95b55575542189e",
+      "bytes": 3628,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/tsconfig.json",
+      "sha256": "fd2a193faeee2869ad86a4c5c3eff7ce348442f95c894fe482ec97230e3b8867",
+      "bytes": 1476,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SOURCE_DIFF.patch.gz",
+      "sha256": "6e5454531b97afd89f4dc8e8670cacd74e5f7dfdc45d98192cce0ba347448027",
+      "bytes": 26658,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SOURCE_MANIFEST.json",
+      "sha256": "993e7a17ccbf9d190cf596b2a6d09f8967f8d6b5adaf1ce78dfa87ad18944e91",
+      "bytes": 2797,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/VERIFICATION.json",
+      "sha256": "3779496a702e4c808bbee7fd1ab3bb81cfa9d5dc65cb875c87421d41511eeb1a",
+      "bytes": 698,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/binding-1.log",
+      "sha256": "846563e1aff01386ee516f0a302487ecc66bce25cdd9dad61e3253116d9bd93a",
+      "bytes": 727,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/focused-1.log",
+      "sha256": "e1520cd09f9e6261211a3434e6074c61d59a628a44a660e7d9d1c9314c532127",
+      "bytes": 1939,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/focused-final.log",
+      "sha256": "77adbf83e573fdaaaac3e96671c7ff1f32f1dacf6307b4dbe7176babe71ffcfd",
+      "bytes": 6535,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/node-only.config.ts",
+      "sha256": "c9d3ee4d56dc9f4d5872d6477290b4aeee7edd0347928c20f15de59e743d9b24",
+      "bytes": 1000,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/offline-1.log",
+      "sha256": "8e3dd7a959e20dcba7665b6fce7f912a9ae0072afd8b3ab90b067ce01b00329c",
+      "bytes": 174,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/offline-final.log",
+      "sha256": "8e3dd7a959e20dcba7665b6fce7f912a9ae0072afd8b3ab90b067ce01b00329c",
+      "bytes": 174,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/test-output/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/test-results.json",
+      "sha256": "7dce99c5445747e26b71cf5103cf4d19992c3ecd9cc9173aff06d1c30ebb0e51",
+      "bytes": 41493,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/tsconfig.json",
+      "sha256": "fd2a193faeee2869ad86a4c5c3eff7ce348442f95c894fe482ec97230e3b8867",
+      "bytes": 1476,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/typecheck-1.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/typecheck-2.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/typecheck-3.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/typecheck-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/typecheck-initial.log",
+      "sha256": "a5ece1b8ea6af8c68062ded2c087f5aa9420d6eb794d2c4635914c176d3ff153",
+      "bytes": 859,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/step0/CORRECTED_INVOCATIONS.json",
+      "sha256": "2d30c5c9b10d4fb5869227252a28c21bf06ad75fd62f80f95120647a4473c2f2",
+      "bytes": 967,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/step0/RESULT.json",
+      "sha256": "af21b9b3cc7008b724989a8dc3760f5c6eb0de40cb17406f1f45207977062567",
+      "bytes": 1643,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/step0/deliverables.txt",
+      "sha256": "8084de2b697d29583153984b984519f3d236cf808c425c98198e10dcb06a2ad9",
+      "bytes": 1596,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/step0/deliverables_corrected.txt",
+      "sha256": "dc88b3c30616fab673535016818de57c085b4525fc08b986067caef085c2d12a",
+      "bytes": 26415,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/step0/git_log.txt",
+      "sha256": "05d417292ae5e0d706c89b1ea845bc2afeb735e656e0babe4f5675a0212a6040",
+      "bytes": 495,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/step0/pr790.txt",
+      "sha256": "ccdbd847ceefcca57bd68f2bfebde801271d84da41713493bb4b82a4e4ec5aa0",
+      "bytes": 229,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/step0/receipts.txt",
+      "sha256": "5612818a65a529a83deb93248fda9f96f98be4027bc7ac0a8083f80c3170406b",
+      "bytes": 191,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/step0/self_check.txt",
+      "sha256": "4f871241eaea1c0df6e6cfb8af05d71b99d5ec79b9c18217ef0d9ef30ade5aa2",
+      "bytes": 128,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/step0/self_check_configured_python.txt",
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+      "bytes": 41362,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/PERFORMANCE_FOLLOW_ON_D70.md",
+      "sha256": "9c0ca1d3b83c114bb81aa95997c7663b03316d683b71ef4ff8bfb9931efbf3e0",
+      "bytes": 1208,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "f5707fbd9421f0e43fd150cd2962aa51b4c48c4eb8629a817b663038360ecb17",
+      "bytes": 245303,
+      "review": "PRIOR_REVIEW_UNCHANGED_HASH_CARRY_FORWARD"
+    }
+  ],
+  "additionalPostFreezeContext": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN_ORBIT_ALIGNMENT_PREPARATION.json",
+      "sha256": "bd8c01beb377a0a56153bc9fabeee8d9d0b17cd242d89295368395ec437deb61",
+      "bytes": 2172,
+      "review": "POST_FREEZE_RUNTIME_CONTEXT"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RUNTIME_COMMANDS_PREPARED_V4.json",
+      "sha256": "04bd20156fefb44163d4d9143a50b2c966d9a1eca73fa7e734c4aa268d986d08",
+      "bytes": 12403,
+      "review": "POST_FREEZE_RUNTIME_CONTEXT"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/run_smoke_v5.py",
+      "sha256": "a167cf3eb33a4164e8cc7e479300e12210221e74201801cf2c301ec0ca67f04a",
+      "bytes": 4418,
+      "review": "POST_FREEZE_RUNTIME_CONTEXT"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/run_cohort_v1.py",
+      "sha256": "29c9817d417b7a128a8cc86a27886cb11f146b017e264dc1290f2df3959b1e19",
+      "bytes": 4419,
+      "review": "POST_FREEZE_RUNTIME_CONTEXT"
+    }
+  ],
+  "methodManifestSha256": "c36048c44d14acdceb7b15a898c96e38a473e96adb985a07a9694496324426b1",
+  "productRevision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "instrumentRevision": "36e56f2d93f763296b09520fe9f7c8481dd6fd54",
+  "canonicalSmoke02EvidenceFilesVerified": 14,
+  "runtimeExecutedByReviewer": false,
+  "testsExecutedByReviewer": false,
+  "buildsExecutedByReviewer": false,
+  "remainingBlockers": [
+    "Smoke03 has not been requalified. Any obstruction at the frozen gesture is a blocker; no coordinate adjustment is authorized.",
+    "Timed cohort remains held for ROOT release after smoke disposition; no runtime acceptance or D70 closure is claimed."
+  ],
+  "handoff": "Derivative review evidence of the named frozen candidate and explicitly additional runtime context. Prior reviews and failed attempts remain immutable. ROOT owns releases and subsequent runtime acceptance.",
+  "role": {
+    "agent": "TASK",
+    "type": 2,
+    "parent": "HELP_HUMAN /root",
+    "skill": "software-code-review",
+    "skillSha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+    "sealedBriefSha256": "9a1a00ad58605888e66349583402b21c4c65cf9c1d6893c805bde08ab3642269",
+    "nonDelegation": "instruction+config asserted",
+    "delegated": false
+  },
+  "limitations": [
+    "Static independent affected review; writer test/TypeScript evidence inspected but not rerun.",
+    "Previously reviewed unchanged source semantics and camera/oracle raw evidence carried forward by exact hashes and dependency applicability.",
+    "Runtime authorization remains instruction-asserted ROOT sequencing, separate from launcher content binding."
+  ]
+}

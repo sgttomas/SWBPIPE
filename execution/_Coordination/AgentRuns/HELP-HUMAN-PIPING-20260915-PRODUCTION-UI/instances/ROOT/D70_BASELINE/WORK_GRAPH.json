@@ -10,9 +10,9 @@
   "actual_mechanism": "delegated-harness-native collaboration.spawn_agent",
   "enforcement": "role/write scopes/Type2 non-delegation instruction+config asserted",
   "runtime_lease": {
-    "status": "HELD",
-    "owner": "ROOT",
-    "scope": "Affected review of exact smoke orbit alignment and final invocation"
+    "status": "TIMED_EXCLUSIVE",
+    "owner": "RUNNER",
+    "scope": "Sole prescribed cohort; no competing runtime or heavy I/O"
   },
   "nodes": [
     {
@@ -31,7 +31,7 @@
       "effort": "high",
       "brief": "briefs/MANAGER.md",
       "brief_sha256": "46c6d6ee930b46a470b017c0980cc4e8312a522168537b38208074a795e38dea",
-      "status": "orbit_alignment_complete_pending_review"
+      "status": "complete_final_instrument_accepted"
     },
     {
       "id": "EXPECTATIONS",
@@ -51,7 +51,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "complete_smoke_repair_accepted",
+      "status": "complete_final_instrument_accepted",
       "agent_name": "/root/d70_manager/writer"
     },
     {
@@ -60,7 +60,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "complete_smoke_repair_and_tail_pass",
+      "status": "complete_instrument_and_launch_review_pass",
       "agent_name": "/root/d70_review",
       "brief": "briefs/REVIEW.md",
       "brief_sha256": "9a1a00ad58605888e66349583402b21c4c65cf9c1d6893c805bde08ab3642269",
@@ -72,7 +72,7 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "untimed_blocker_preserved_runtime_released",
+      "status": "sole_cohort_released",
       "agent_name": "/root/d70_runner",
       "return": "instances/RUNNER/RETURN_PROFILE_V2.json"
     }
@@ -95,5 +95,5 @@
       "RUNNER"
     ]
   ],
-  "current_frontier": "One-file smoke alignment imported existing frozen orbit start. Source regression and TypeScript pass; affected review and one smoke requalification pending. No timed cohort attempted."
+  "current_frontier": "Both-size smoke passed. Root verified canonical smoke evidence and releases sole fresh characterization cohort. After attempt: offline analysis/report, independent final review, registered checks and Git closeout."
 }

@@ -1,0 +1,32 @@
+{
+  "schema": "chirality.piping.d70.cohort-release/v1",
+  "at": "2026-09-18T00:43:26.928533+00:00",
+  "status": "RELEASE_SINGLE_CHARACTERIZATION_ATTEMPT",
+  "owner": "HELP_HUMAN /root",
+  "runtime_owner": "/root/d70_runner",
+  "cohort_id": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+  "source_candidate": "97c6e556eb4bc88c13b33e0667d208c7dbb2cf97",
+  "instrument_revision": "36e56f2d93f763296b09520fe9f7c8481dd6fd54",
+  "product_revision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "review_return_sha256": "be4ba93f2f33a207458908d090f279f5931efbf86e6e676db26f4aec2efd1d4f",
+  "smoke_return_sha256": "44fcfd42eaf6374974378f746652540c6c33e77b81542d725bcfe1f1a19f794f",
+  "commands_sha256": "04bd20156fefb44163d4d9143a50b2c966d9a1eca73fa7e734c4aa268d986d08",
+  "launcher_sha256": "29c9817d417b7a128a8cc86a27886cb11f146b017e264dc1290f2df3959b1e19",
+  "final_inputs": {
+    "UI_FOUNDATION_COHORT_ID": "D70-8468a33c-20260917-CHARACTERIZATION-01",
+    "UI_FOUNDATION_EVIDENCE_DIR": "/Users/ryan/.codex/task-runtime-cache/chirality-d70-baseline-20260917/instances/VERIFY/cohort/D70-8468a33c-20260917-CHARACTERIZATION-01",
+    "UI_FOUNDATION_MANIFEST_SHA256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+    "UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST_SHA256": "800ec17958e47de299e39e3da1942dbbef0093eeed3c5c4311b5e9bcfa66567f",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_SHA256": "bfe18f25f912e28e567164f823efbcbf0a87c5292bd66566b6cce7861086d789",
+    "UI_FOUNDATION_REFERENCE_PROFILE_SHA256": "117aac9e5792d3274cbe5e5d710612bce374fb091dc32d28d4dc2190326b5922",
+    "UI_FOUNDATION_METHOD_MANIFEST_SHA256": "c36048c44d14acdceb7b15a898c96e38a473e96adb985a07a9694496324426b1",
+    "UI_FOUNDATION_CANDIDATE_ORACLE_MANIFEST_SHA256": "0b8a0b5239f10547c72907e32160db262288216ed1fb4818551782dc89b05b17"
+  },
+  "plan": "Five fresh1000 runs then five fresh10000, exact original populations and windows; no pooling/replacements/retries.",
+  "continue": "Only valid original-target timing misses.",
+  "stop": "Invalid required evidence, source/profile drift, cleanup or settled violation, existing action/trace or20minute per-run timeout.",
+  "overall_clock_cap": null,
+  "exclusive": "No competing builds/tests/GUI witnesses/heavy archives until timed attempt ends. Root light monitoring only.",
+  "after_attempt": "Reconcile process/test/teardown/bindings. Once fully closed, perform frozen offline extraction and canonical manifest/report; no further runtime.",
+  "acceptance_limit": "Characterization; not performance acceptance. D70 report supplies redesign performance handoff; future criteria/usability holds remain."
+}
