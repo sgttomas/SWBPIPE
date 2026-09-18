@@ -297,4 +297,6 @@ Return of UX-SPEC-03, accepted by ROOT 2026-09-18. Specification V1.2 in place: 
 |---|---|---|---|---|---|
 | `MOCKS-04_contradictions.md` | `c9631183ce65421f0926e5d8fd8e297457c460a699e02e2f3be80aa912b843a1` | 2026-09-18T17:46Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone (the MOCKS-03 child resumed) | `../instances/MOCKS/` (fourth pass in place) |
 
+DESIGN-SYSTEM-04 follow-up, 2026-09-18: change-log row 111 records the owner's confirmation of the six additions and closes §8 item 19. Superseding hashes: `DESIGN_SYSTEM_V1.md` `20b100bd9c979a9341b96431387bbf8ca45b01f10debfe0964b7a4f2d5c02e7e`, `tools/agree.mjs` `ef312774a7050a0a5bab3508de8698612f1ab338559442c767cc01f61877b54f`, `RETURN.md` `242307f3406a9621f2036314b75a9ba5c1f07743f8563a0028df9ef3a598b048`; specimen and tokens unchanged; agreement check re-run by ROOT, no problem. The child noted that the owner's confirmation landed in commit `4c6da92ed`, one before the commit ROOT named; the text is present at both.
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

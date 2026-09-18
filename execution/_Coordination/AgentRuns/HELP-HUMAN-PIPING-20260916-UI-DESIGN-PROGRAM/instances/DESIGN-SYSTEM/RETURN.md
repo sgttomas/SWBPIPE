@@ -28,13 +28,13 @@ All in place under this directory; nothing outside it was written.
 
 | File | Change | sha256 |
 |---|---|---|
-| `DESIGN_SYSTEM_V1.md` | **Now V1.3, `f476989357b12d079f12fece45b8000513d559a65c1e597e3c4c897c2f08b139` (§8).** At V1.2: Every change is a numbered row of §9, rows 50 to 87, and rows 88 and 89 for correction 1; rows 1 to 49 are byte-identical to V1.1 and rows 1 to 87 to V1.2 as first returned (both checked by hash). The §9 heading now covers V1 to V1.1 and V1.1 to V1.2. Ends with the fence line. | `efa22d497772e717b4cc19bc2a703ed765d0ac158fa177efbf39f373e0acfc1f` (after correction 2; after correction 1 `1a7ffe40…`; as first returned `2e0db6bc…`) |
+| `DESIGN_SYSTEM_V1.md` | **Now V1.3 with row 111, `20b100bd9c979a9341b96431387bbf8ca45b01f10debfe0964b7a4f2d5c02e7e` (§8, §9; V1.3 as accepted `f4769893…`).** At V1.2: Every change is a numbered row of §9, rows 50 to 87, and rows 88 and 89 for correction 1; rows 1 to 49 are byte-identical to V1.1 and rows 1 to 87 to V1.2 as first returned (both checked by hash). The §9 heading now covers V1 to V1.1 and V1.1 to V1.2. Ends with the fence line. | `efa22d497772e717b4cc19bc2a703ed765d0ac158fa177efbf39f373e0acfc1f` (after correction 2; after correction 1 `1a7ffe40…`; as first returned `2e0db6bc…`) |
 | `tokens.json` | 1.2. Adds `canvas.edgeAlt`, the toast, HUD and run log values, the `labels` table (eight rows) and `agentCardClasses` (five words); the name is the product's name alone. Every colour value of 1.1 is unchanged (diffed). | `00c1afe97365973e6c05a2a5d938a25c46022a55c3cbc8d04ff3a9d2d68cf1e9` |
 | `specimen.html` | **Now V1.3, `f9ce15a26331177bdf78cf6dfb3e5ff568ef0756c02b17333ebc5b6807273a99` (§8).** At V1.2: one self-contained file, inline styles and script, no network reference, light and dark. | `219fa8ee78c44507fcfc0b6a199298c8f4a4026abe798f4166eeda2eb607941b` (after correction 1; as first returned `c390e7e6…`) |
 | `tools/palette.mjs` | the new tokens and groups; `--write` reproduces `tokens.json` byte for byte (checked) | `de73ecb9…` |
 | `tools/contrast.mjs` | six pairings for the edge lines on the result scale: 152 pairings | `7a3f2653…` |
 | `tools/gen.mjs`, `tools/splice.mjs` | generate the label table and splice it into §2.3 between markers | `f936d18a…`, `34e986a1…` |
-| `tools/agree.mjs` | **Now `0df98d6b760bfe1f1cefedb66ecc01b1ee34d8d62351ca8d90e7148a7efcd097` (§8).** V1.2 checks, §3 below; after correction 1 also rows 88 and 89 present, rows 1 to 87 unchanged by hash, and the stale band's removed clause absent; after correction 2 also row 90 present, rows 1 to 89 unchanged by hash, and the two removed framings absent | `e02a7180…` |
+| `tools/agree.mjs` | **Now `ef312774a7050a0a5bab3508de8698612f1ab338559442c767cc01f61877b54f` (§9; at V1.3's acceptance `0df98d6b…`).** V1.2 checks, §3 below; after correction 1 also rows 88 and 89 present, rows 1 to 87 unchanged by hash, and the stale band's removed clause absent; after correction 2 also row 90 present, rows 1 to 89 unchanged by hash, and the two removed framings absent | `e02a7180…` |
 | `tools/render.mjs` | **Now `0fb28c40cbf9293cb4d43331b4edcc9abc1840a1820917fe240e7192a392d14c` (§8).** V1.2 checks; takes a relative specimen path; takes the Playwright location at run time (`--playwright-from <dir>` or `PLAYWRIGHT_FROM`), default the relative path to the piping project as before | `b886e708…` |
 
 No file in the instance carries an absolute machine path; `agree.mjs` now walks the
@@ -280,9 +280,20 @@ What did not apply cleanly, and uncertainties:
 5. "As entered" with a column whose rows were entered in different units: I specified
    that the header drops its unit and the cells carry theirs. The specification says only
    that the choice exists; this is my addition of the least that makes the header honest.
-6. The six additions rest on ROOT's reading (the document's §8 item 19); "Apply" is ROOT's
+6. Settled (§9 below): the owner confirmed the six additions. As first returned: the six additions rest on ROOT's reading (the document's §8 item 19); "Apply" is ROOT's
    word (item 20).
 7. The report-readiness row was added to the run-standing table, which is not a change-log
    row, so rows 1 to 90 are untouched.
+
+## 9 Follow-up to V1.3: the owner's confirmation of the six additions
+
+ROOT accepted V1.3 and relayed the owner's confirmation ("Keep the six functions; the
+design system additions are fine."). I verified it in the last section of
+`../ROOT/OWNER_DIRECTION_2026-09-18_CONTRADICTIONS.md`. The document's §8 item 19 is
+closed accordingly and §9 row 111 records it; rows 1 to 110 are unchanged by hash, and
+`tools/agree.mjs` now requires row 111 and pins rows 1 to 110. Nothing else was touched:
+`specimen.html` and `tokens.json` keep their hashes. Re-run: gen, splice, agree:
+`problems: []`, 111 change-log rows. The render check was not re-run because the specimen
+did not change.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
