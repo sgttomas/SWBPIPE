@@ -196,4 +196,12 @@ The eighteen 1:1 stage screenshots and `index.png` under `shots/` are retained a
 | `shots/s9_table_dark.png` | `67cf36a9ea18de376a616cac370a6b2907f2dd5c3eea8b7ecfa2cf452d60355e` |
 | `shots/s9_table_light.png` | `63449568cfdadf9ad03af32e1164102ab5208fc57ad0d1b043f5053c25e20dc7` |
 
+## Successor ROOT, 2026-09-18: workload classification brief, sealed before launch
+
+From this section on, ROOT is a successor session (Claude Code, `claude-fable-5-1`, HELP_HUMAN), activated by the owner's handoff message recorded at `../instances/ROOT/SUCCESSOR_ACTIVATION_2026-09-18.md`, working on branch `codex/swb-ui-design-handoff-reconciliation` from `origin/main` at `451c5f595e0488a0d6064d9b0f972c5e8fc1d09d`. The program continues in its original design harness, so the established allocation holds: Opus for objective or quantitative work, Fable for design-quality and judgment work. Mechanism is unchanged: Claude Code `Agent` tool, `general-purpose` subagent type, harness-native descendants of ROOT, not Chirality-managed `delegate_agent` sessions; write targets instruction-asserted, not sandbox-enforced; supplied context is the sealed brief only; Type 2 children do not delegate.
+
+| Brief | Sealed SHA-256 | Launched (UTC) | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `RESEARCH-G_rendering_workload_classification.md` | `0c9ea3a46d5115588fdab3c891d47c8e76b204e87cc63d7d98e511c399ba23e7` | 2026-09-18T12:52Z | `opus` (Claude Opus 5) | TASK, bounded read-only research, working alone; tools: file reading and search only by instruction, no build, test or benchmark | `../instances/RESEARCH/G_rendering_workload_classification.md` |
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

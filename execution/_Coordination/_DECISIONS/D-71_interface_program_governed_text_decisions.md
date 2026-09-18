@@ -113,4 +113,8 @@ The owner rules item by item, in chat or on this packet. Agent 0 then appends th
 - The direction record §5, §6, §8 (d) and §11; the design brief V1.4 §6.
 - Governance: `docs/claims_registry.md`; `docs/PRD.md` §5.9, §11.8, §16.3, §19.3, §21; `docs/PROFESSIONAL_BOUNDARY.md` §3, §6, §7; `docs/CONTRACT.md`; `docs/TYPES.md` §4; `docs/report_notice_template.md`; `D-48`; `DEC-049`, `DEC-081`, `DEC-089`, `DEC-094`; SCA-007 and SCA-009.
 
+## Successor note, 2026-09-18 (appended; the packet above is unchanged)
+
+Two statements above describe sequencing as it stood when the packet was prepared: "implementation of the redesign stays behind the baseline characterization tranche under D-70" and "all of it becomes tranche work behind the D-70 baseline". The piping session has since delivered the baseline report (PR #793), the picking repair (PR #794) and a fresh 10,000-pipe demonstration (PR #795), so D-70's baseline-report condition is satisfied ([reconciliation](../AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/ROOT/PIPING_HANDOFF_RECONCILIATION_2026-09-18.md)). Read those statements as: implementation of any ruled item waits for the owner's authorization of an implementation tranche, not for the baseline. Nothing else in the packet changes. The frames now number eighteen, including two decision aids for items 1 and 2 (`d71_item1_status_bar_light`, `d71_item2_results_caption_light`). As of this note no item has been ruled; the successor ROOT's handoff message from the owner supplied no ruling and said not to infer one.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

@@ -5,7 +5,10 @@
     "research_revision": "28ad73cc3f936872f8de1d5116c617db1290331b",
     "current_revision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
     "sequencing_ruling": "../../_DECISIONS/D-70_RULING_2026-09-17.md",
-    "activation": "ACTIVATION.md"
+    "activation": "ACTIVATION.md",
+    "successor_start_revision": "451c5f595e0488a0d6064d9b0f972c5e8fc1d09d",
+    "successor_branch": "codex/swb-ui-design-handoff-reconciliation",
+    "successor_activation": "instances/ROOT/SUCCESSOR_ACTIVATION_2026-09-18.md"
   },
   "delegation": "Claude Code Agent tool subagents launched by ROOT in the same host session; harness-native descendants, not Chirality-managed delegate_agent sessions. Write targets instruction-asserted, not sandbox-enforced. Type 2 does not delegate.",
   "max_active_including_root": 5,
@@ -15,7 +18,8 @@
       "role": "HELP_HUMAN",
       "model": "claude-fable-5-1",
       "host": "Claude Code",
-      "status": "active"
+      "status": "active",
+      "note": "Successor ROOT from 2026-09-18 (Claude Code, claude-fable-5-1, HELP_HUMAN), activated by the owner's handoff message; the previous ROOT (same host and model) handed over after PR #792."
     },
     {
       "id": "RESEARCH-A",
@@ -192,13 +196,69 @@
       "purpose": "Rendering brief for the piping session's overlay and deformation observations (D-70 effect 4)",
       "status": "complete",
       "return": "instances/ROOT/RENDERING_BRIEF_2026-09-18.md",
-      "note": "Delivered 2026-09-18 with notice ../../NOTICE_2026-09-18_RENDERING_BRIEF.md; relay to the piping session is the owner's"
+      "note": "Delivered 2026-09-18 with notice ../../NOTICE_2026-09-18_RENDERING_BRIEF.md; relay to the piping session is the owner's. Successor note 2026-09-18: the owner states the piping session has read the brief and the notice; no observation run has been performed."
     },
     {
       "id": "ACCEPTANCE-PROPOSAL",
       "role": "HELP_HUMAN",
       "purpose": "Proposed acceptance criteria for the redesigned product, for owner ruling (D-70 effect 6)",
-      "status": "pending"
+      "status": "awaiting_owner",
+      "return": "../../_DECISIONS/D-72_redesigned_product_performance_acceptance_criteria.md",
+      "note": "D-72 PROPOSAL drafted 2026-09-18; register row AWAITING_RULING. No longer waits for an observation report: item 6 names what is left unfrozen until it can be observed. History: status was \"pending\" behind the piping session's observation report until 2026-09-18."
+    },
+    {
+      "id": "PIPING-BASELINE-HANDOFF",
+      "role": "EXTERNAL",
+      "purpose": "The piping session's D-70 baseline report (PR #793), picking repair (PR #794 at 362dcffc0f66d52c58689a58f268891461db0346) and fresh 10,000-pipe demonstration (PR #795)",
+      "status": "complete",
+      "return": "instances/ROOT/PIPING_HANDOFF_RECONCILIATION_2026-09-18.md",
+      "note": "Owned by the piping session; read and reconciled here, not edited. D-70 performance handoff condition satisfied. Does not authorize implementation. Redesigned-product performance and independent-usability obligations remain open."
+    },
+    {
+      "id": "RESEARCH-G",
+      "role": "TASK",
+      "purpose": "Class the rendering brief's behaviours and observations: observable now, needing a bounded harness adaptation, or needing implementation first",
+      "model_requested": "opus",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/RESEARCH-G_rendering_workload_classification.md",
+      "return": "instances/RESEARCH/G_rendering_workload_classification.md",
+      "status": "running"
+    },
+    {
+      "id": "OBSERVATION-BRIEF",
+      "role": "HELP_HUMAN",
+      "purpose": "Bounded observation brief to the piping session for supported behaviour only; future observations listed separately",
+      "status": "pending",
+      "return": "instances/ROOT/OBSERVATION_BRIEF_2026-09-18.md",
+      "note": "Blocks neither the completed baseline handoff nor redesign progress"
+    },
+    {
+      "id": "OWNER-D71-RULING",
+      "role": "HUMAN",
+      "purpose": "Owner rules D-71's nine items; owner answers Q-15 to Q-22",
+      "status": "awaiting_owner",
+      "note": "No ruling received as of 2026-09-18; none inferred from the handoff message"
+    },
+    {
+      "id": "D71-RULING-RECORDS",
+      "role": "HELP_HUMAN",
+      "purpose": "Human Ruling section, D-71 ruling record, register row, DEC rows in SOFTWARE_DECOMP §12, scope-change bundle for PRD §19.3 if item 3(i) is ruled, notice to the piping session",
+      "status": "blocked_on_owner"
+    },
+    {
+      "id": "REVISION-PASS",
+      "role": "HELPS_HUMANS",
+      "purpose": "One pass from sealed briefs: design system V1.2, UX specification V1.1, regenerated frames",
+      "status": "blocked_on_owner",
+      "note": "Prepared at instances/ROOT/REVISION_PASS_PREPARATION_2026-09-18.md; briefs DESIGN-SYSTEM-03, UX-SPEC-02, MOCKS-03 sealed after the owner answers"
+    },
+    {
+      "id": "IMPLEMENTATION-HANDOFF",
+      "role": "HELP_HUMAN",
+      "purpose": "Implementation-ready handoff; no implementation under this assignment",
+      "status": "pending",
+      "return": "instances/ROOT/IMPLEMENTATION_HANDOFF_PREPARATION_2026-09-18.md",
+      "note": "Preparation record written; issued after the revision pass is accepted and the owner authorizes a tranche"
     }
   ],
   "edges": [
@@ -301,7 +361,57 @@
     [
       "UX-SPEC",
       "ACCEPTANCE-PROPOSAL"
+    ],
+    [
+      "PIPING-BASELINE-HANDOFF",
+      "ACCEPTANCE-PROPOSAL"
+    ],
+    [
+      "ROOT",
+      "RESEARCH-G"
+    ],
+    [
+      "RENDERING-BRIEF",
+      "RESEARCH-G"
+    ],
+    [
+      "RESEARCH-G",
+      "OBSERVATION-BRIEF"
+    ],
+    [
+      "DECISION-PACKET",
+      "OWNER-D71-RULING"
+    ],
+    [
+      "OWNER-D71-RULING",
+      "D71-RULING-RECORDS"
+    ],
+    [
+      "OWNER-D71-RULING",
+      "REVISION-PASS"
+    ],
+    [
+      "MOCKS-02",
+      "REVISION-PASS"
+    ],
+    [
+      "REVISION-PASS",
+      "IMPLEMENTATION-HANDOFF"
+    ],
+    [
+      "ACCEPTANCE-PROPOSAL",
+      "IMPLEMENTATION-HANDOFF"
+    ],
+    [
+      "D71-RULING-RECORDS",
+      "IMPLEMENTATION-HANDOFF"
     ]
   ],
-  "current_frontier": "D-71 awaiting the owner; post-ruling revision pass (design system, specification, frames); ACCEPTANCE-PROPOSAL waits for the piping session's observation report"
+  "current_frontier": "With the owner: D-71's nine rulings, Q-15 to Q-22, D-72's six items. Running: RESEARCH-G, then the observation brief. The baseline tranche blocks nothing (condition satisfied 2026-09-18). Implementation is not authorized by this assignment.",
+  "frontier_history": [
+    {
+      "until": "2026-09-18",
+      "frontier": "D-71 awaiting the owner; post-ruling revision pass (design system, specification, frames); ACCEPTANCE-PROPOSAL waits for the piping session's observation report"
+    }
+  ]
 }
