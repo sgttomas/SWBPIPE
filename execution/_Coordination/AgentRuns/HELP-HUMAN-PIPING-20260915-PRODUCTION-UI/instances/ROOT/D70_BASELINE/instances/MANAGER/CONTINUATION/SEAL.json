@@ -1,0 +1,10 @@
+{
+  "parent": "/root/d70_manager",
+  "child": "/root/d70_manager/writer",
+  "role": "TASK Type 2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "briefSha256": "c1df0df3fb8fd07327288dc2bf258562a21a4881582d6dc305024c8ec84bc4af",
+  "status": "SEALED_READY_FOR_DISPATCH",
+  "runtimeAuthorized": false
+}
