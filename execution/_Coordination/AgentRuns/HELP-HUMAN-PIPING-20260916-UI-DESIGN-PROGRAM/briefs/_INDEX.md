@@ -222,4 +222,12 @@ Correction after REVIEW-01, 2026-09-18. As first written, the RESEARCH-G accepta
 
 Return of REVIEW-01, retained at `../instances/REVIEW/REVIEW-01_RETURN.md` as the child's final message, reviewed SHA `cd3dba125da109f1cc50314874725c154296ef0a`, verdict FINDINGS: one major (the counts above, corrected), two minor (the class 3 searches wording, corrected above; the return's own retention path not yet existing, resolved by retaining it), one trivial (a product identifier's spelling echoed in RESEARCH-G's prose, left as the child wrote it). Checks 1, 3, 4 and 5 (no invented ruling, attribution kept apart, history preserved, no circular prerequisite) passed, with every hash cited in the reconciliation record, D-72 and the observation brief, the three new hashes of this index, the merge SHAs, the PR numbers and the arithmetic recomputed; hashes in this index's earlier sections were outside the review's scope. The corrections went back to the same reviewer, whose backcheck of `202651a09ce87c8d87332f83f2d6e78595ca07db` passed all four items with one trivial finding against its own first return (five hashes in the reconciliation table, not six), recorded in the retained return.
 
+## Successor ROOT, 2026-09-18: the revision pass, sealed brief by brief
+
+Sealed after the owner ruled D-71 in part and answered the frames' questions in session (owner message of 2026-09-18T13:32:54.672Z, SHA-256 `711ca05ef7cb9bcaf6b7f0e6812ad002be58d8f9793aa68a08d0f19bceaf7944`, recorded in the D-71 ruling record). Item 7 of D-71, the Checked mark's classification, is still with the owner and is carried unchanged through the pass. Mechanism, parentage and write-scope assertion as for RESEARCH-G; the briefs run in sequence because each revises from the one before.
+
+| Brief | Sealed SHA-256 | Launched (UTC) | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `DESIGN-SYSTEM-03_revision.md` | `e0af1bda062a3ad6c67693ef394c6825cecbea4a3268ebcd4bd6bdf2e2b61be2` | 2026-09-18T13:37Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone | `../instances/DESIGN-SYSTEM/` (V1.2 in place) |
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
