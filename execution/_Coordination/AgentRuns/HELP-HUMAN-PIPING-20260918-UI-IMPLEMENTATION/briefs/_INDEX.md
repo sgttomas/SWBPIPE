@@ -47,4 +47,12 @@ Tranche A1 merged: PR #800, merge commit `7866f0a3c2c846cf071f735ea9b263a44fb00c
 
 Mechanism for all three: Claude Code `Agent` tool, general-purpose type, background. Shared tool `../tools/with_e2e_lock.sh` `9defd858c86509765108b83f5b336cede8b04e9d13facb4f21d56dcf98e197d1`: the Playwright configurations use fixed ports and reuse a listening server, so concurrent runs from two worktrees would test each other's build; every browser run and ROOT's sweeps go through the lock. ROOT's departures from the plan, both recorded in the briefs: B1 runs first and flat because both lanes depend on it; the product owns a copy of `tokens.json` and the generator's logic instead of importing from the design run's folder. ROOT, not the lane managers, dispatches the independent reviews. Each lane manager works in its own git worktree named in ROOT's launch message.
 
+## Tranche A1 follow-ups (the owner's directions of 2026-09-18, `DEC-106` to `DEC-109`)
+
+| Brief | SHA-256 | Sealed | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `A1F-FOLLOWUPS_identifier_notices_documents.md` | `5b08732e0e667a50e3b838b78941d1358febea65e93379464070d3e553b24cfa` | 2026-09-18T22:40Z | `fable` (Claude Fable 5.1) | TASK Type 2, implementer | pending |
+
+Mechanism: Claude Code `Agent` tool, general-purpose type, background. The child works in a second git worktree of this repository on branch `codex/swbpipe-a1-followups-20260918`, cut from the Tranche B opening commit `8e445533c` so that the browser-test lock exists there; B1-TOKENS keeps the first worktree. ROOT made three of the four identifier edits itself before the brief was written (`tauri.conf.json`, two path names in the carry-forward tests, the packaging test) and the brief says so. Shared tool `../tools/find_acceptance_texts.py` `caff3fd0c19ccaa1ff22240cc4bf4c5723593dbc3686fc51438b16308e44e3d6`: a whitespace-normalized search for all five registered acceptance texts, written after ROOT's first inventory, made with a plain search for one variant, under-counted what it reported to the owner (`../instances/ROOT/OWNER_DIRECTION_2026-09-18_THREE_ITEMS.md`).
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

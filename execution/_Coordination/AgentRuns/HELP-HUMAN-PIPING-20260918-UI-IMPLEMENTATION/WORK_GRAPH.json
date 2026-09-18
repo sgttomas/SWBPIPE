@@ -85,6 +85,19 @@
       "dependsOn": [
         "B1-TOKENS"
       ]
+    },
+    "A1F-FOLLOWUPS": {
+      "role": "TASK Type 2 implementer",
+      "model": "fable",
+      "status": "launched",
+      "briefSha256": "5b08732e0e667a50e3b838b78941d1358febea65e93379464070d3e553b24cfa",
+      "brief": "briefs/A1F-FOLLOWUPS_identifier_notices_documents.md",
+      "returnSha256": null,
+      "candidate": null,
+      "dependsOn": [
+        "A1 merged 7866f0a3c"
+      ],
+      "worktree": "second worktree, branch codex/swbpipe-a1-followups-20260918"
     }
   },
   "edges": [
