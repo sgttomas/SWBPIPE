@@ -53,14 +53,16 @@
     "B1-TOKENS": {
       "role": "TASK Type 2 implementer",
       "model": "fable",
-      "status": "launched",
+      "status": "returned_accepted_after_correction_1",
       "briefSha256": "dd0e1da42fa32b20b9bbf24950deeef4e7ef94702354f5fc7e0418f47d27b71f",
       "brief": "briefs/B1-TOKENS_design_tokens.md",
-      "returnSha256": null,
-      "candidate": null,
+      "returnSha256": "bf372185b1ad9f0bd2342bb350d7f750a73ac27389ea43f8bf6ad1ce64e38db2",
+      "candidate": "bf1ad5662e7e21ee3ce065940ed29bbe50511f1c",
       "dependsOn": [
         "A1 merged 7866f0a3c"
-      ]
+      ],
+      "correction1ReturnSha256": "5cbe4c0e8a3a9be61cd8fca5ccdf0f67e961f8cd603aa2047664e17c7ba5662e",
+      "model_ran": "Claude Fable 5.1"
     },
     "B-SHELL": {
       "role": "WORKING_ITEMS Type 1 lane manager",
@@ -85,6 +87,15 @@
       "dependsOn": [
         "B1-TOKENS"
       ]
+    },
+    "B1-REVIEW": {
+      "role": "TASK Type 2 software-code-review, read-only",
+      "model": "opus",
+      "status": "launched",
+      "briefSha256": "db1f5104f3a5c804fc52cc1fa50140bf023731c08693e66eef43a5102e83b515",
+      "brief": "briefs/B1-REVIEW_code_review.md",
+      "candidate": "bf1ad5662e7e21ee3ce065940ed29bbe50511f1c",
+      "returnSha256": null
     }
   },
   "edges": [
