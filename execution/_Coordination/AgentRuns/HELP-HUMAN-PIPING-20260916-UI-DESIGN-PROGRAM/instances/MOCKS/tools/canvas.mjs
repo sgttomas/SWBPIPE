@@ -41,9 +41,14 @@ export function figure(o) {
   const minx = Math.min(...pts.map((p) => p.x)), maxx = Math.max(...pts.map((p) => p.x));
   const miny = Math.min(...pts.map((p) => p.y)), maxy = Math.max(...pts.map((p) => p.y));
   const m = Object.assign({ top: 56, right: 40, bottom: 56, left: 40 }, o.margin || {});
-  const scale = Math.min((w - m.left - m.right) / (maxx - minx || 1), (h - m.top - m.bottom) / (maxy - miny || 1)) * (o.zoom ?? 1);
-  const ox = m.left + ((w - m.left - m.right) - (maxx - minx) * scale) / 2 - minx * scale;
-  const oy = m.top + ((h - m.top - m.bottom) - (maxy - miny) * scale) / 2 - miny * scale;
+  // The camera. The fit is computed for the canvas the engineer set it in (o.camera.w × o.camera.h;
+  // by default this canvas) and the figure is drawn into w × h at that scale with the same world
+  // point at the centre, shifted by o.camera.pan: the docked inspector keeps the camera scale and
+  // centre and pans only as far as needed to keep the selected node in view (V1.1 §0, decision 1).
+  const cw = o.camera?.w ?? w, ch = o.camera?.h ?? h;
+  const scale = Math.min((cw - m.left - m.right) / (maxx - minx || 1), (ch - m.top - m.bottom) / (maxy - miny || 1)) * (o.zoom ?? 1);
+  const ox = m.left + ((cw - m.left - m.right) - (maxx - minx) * scale) / 2 - minx * scale - (cw - w) / 2 + (o.camera?.pan?.x ?? 0);
+  const oy = m.top + ((ch - m.top - m.bottom) - (maxy - miny) * scale) / 2 - miny * scale - (ch - h) / 2 + (o.camera?.pan?.y ?? 0);
   const S = (p) => { const q = proj(p); return { x: ox + q.x * scale, y: oy + q.y * scale }; };
   const P = {}; for (const r of nodes) P[r.node] = S(C[r.node]);
   const unit = (v) => { const l = Math.hypot(v.x, v.y) || 1; return { x: v.x / l, y: v.y / l }; };
@@ -167,6 +172,9 @@ export function figure(o) {
   };
   const plate = (x, y, text, opts = {}) => {
     const ww = 8 + text.length * (opts.size === 11 ? 6.1 : 7.2);
+    // A plate whose anchor (the node it names) is outside the visible canvas is not drawn, so that
+    // a panned camera (docked inspector) does not clamp the plates of hidden nodes to the edges.
+    if (opts.anchor && (opts.anchor.x < -4 || opts.anchor.x > w + 4 || opts.anchor.y < -4 || opts.anchor.y > h + 4)) return "";
     x = Math.max(2, Math.min(w - ww - 2, x)); y = Math.max(2, Math.min(h - 20, y));
     occupy(x, y, ww, 18);
     return `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(ww)}" height="18" rx="2" fill="var(--canvas-labelBg)"${opts.edge ? ` stroke="${opts.edge}" stroke-width="1.5"` : ""}/><text x="${f1(x + 4)}" y="${f1(y + 13)}" font-size="${opts.size || 12}" fill="var(--canvas-label)">${esc(text)}</text>`;
@@ -194,7 +202,7 @@ export function figure(o) {
       glyphs.push(arrow(p.x, top + 32, p.x, top + 19, G, 1.5, 5));
       if (r.gap) glyphs.push(`<line x1="${f1(p.x - 3)}" y1="${f1(p.y + rr)}" x2="${f1(p.x + 3)}" y2="${f1(p.y + rr)}" stroke="${G}" stroke-width="1"/>`);
       occupy(p.x - 14, p.y + rr, 28, 36);
-      { const txt = `+Y · gap ${r.gap} mm · μ ${r.mu.toFixed(2)}`; const ww = 8 + txt.length * 6.1; glyphs.push(plate(o.plateSide === "left" ? p.x - 12 - ww : p.x + 12, top + 12, txt, { size: 11 })); }
+      { const txt = `+Y · gap ${r.gap} mm · μ ${r.mu.toFixed(2)}`; const ww = 8 + txt.length * 6.1; glyphs.push(plate(o.plateSide === "left" ? p.x - 12 - ww : p.x + 12, top + 12, txt, { size: 11, anchor: p })); }
     } else if (r.type === "Rigid (Y)") {
       const top = p.y - rr - 30;
       glyphs.push(`<line x1="${f1(p.x)}" y1="${f1(p.y - rr)}" x2="${f1(p.x)}" y2="${f1(top)}" stroke="${G}" stroke-width="2"/>`);
@@ -202,7 +210,7 @@ export function figure(o) {
       glyphs.push(arrow(p.x + 7, p.y - rr - 4, p.x + 7, p.y - rr - 16, G, 1.5, 5));
       glyphs.push(arrow(p.x + 7, p.y - rr - 16, p.x + 7, p.y - rr - 4, G, 1.5, 5));
       occupy(p.x - 9, top - 4, 18, rr + 34);
-      glyphs.push(plate(p.x + 14, top - 2, `Rigid Y · ${r.tag}`, { size: 11 }));
+      glyphs.push(plate(p.x + 14, top - 2, `Rigid Y · ${r.tag}`, { size: 11, anchor: p }));
     } else if (r.type === "Variable spring") {
       const top = p.y - rr - 40;
       glyphs.push(`<line x1="${f1(p.x)}" y1="${f1(p.y - rr)}" x2="${f1(p.x)}" y2="${f1(top + 22)}" stroke="${G}" stroke-width="1.5"/>`);
@@ -211,7 +219,7 @@ export function figure(o) {
       glyphs.push(`<line x1="${f1(p.x)}" y1="${f1(top)}" x2="${f1(p.x)}" y2="${f1(top - 8)}" stroke="${G}" stroke-width="1.5"/><line x1="${f1(p.x - 8)}" y1="${f1(top - 8)}" x2="${f1(p.x + 8)}" y2="${f1(top - 8)}" stroke="${G}" stroke-width="2"/>`);
       glyphs.push(arrow(p.x + 11, p.y - rr - 2, p.x + 11, p.y - rr - 14, G, 1.5, 5));
       occupy(p.x - 9, top - 10, 24, rr + 52);
-      glyphs.push(plate(p.x + 14, top + 2, `VS · ${r.tag}`, { size: 11 }));
+      glyphs.push(plate(p.x + 14, top + 2, `VS · ${r.tag}`, { size: 11, anchor: p }));
     } else if (r.type === "Guide") {
       const gap = r.gap ? 4 : 0; const L = rr + 6;
       const side = (s) => {
@@ -222,7 +230,7 @@ export function figure(o) {
       };
       glyphs.push(side(1) + side(-1));
       occupy(p.x - rr - 22, p.y - L - 4, 2 * rr + 44, 2 * L + 8);
-      glyphs.push(plate(p.x + rr + 18, p.y + 4, `Guide X Z · gap ${r.gap} mm · μ ${r.mu.toFixed(2)}`, { size: 11 }));
+      glyphs.push(plate(p.x + rr + 18, p.y + 4, `Guide X Z · gap ${r.gap} mm · μ ${r.mu.toFixed(2)}`, { size: 11, anchor: p }));
     }
   }
   // Node data: flange discs.
@@ -245,7 +253,7 @@ export function figure(o) {
     // removed current glyph: dashed outline stays as the rigid rod (drawn solid above); ghost label
     out.push(`<g opacity=".7">${g.join("")}</g>`);
     occupy(x - 9, top - 10, 24, rr + 52);
-    out.push(plate(x + 12, top + 30, `Variable spring · ${o.ghost.id}`, { size: 11, edge: GH }));
+    out.push(plate(x + 12, top + 30, `Variable spring · ${o.ghost.id}`, { size: 11, edge: GH, anchor: p }));
   }
 
   // Load vectors.
@@ -256,13 +264,13 @@ export function figure(o) {
     if (l.kind === "Force") {
       vec.push(arrow(p.x, p.y - rr - 48, p.x, p.y - rr - 2, col, 2, 8));
       occupy(p.x - 5, p.y - rr - 50, 10, 50);
-      vec.push(plate(p.x + 8, p.y - rr - 52, `${l.value} N · ${l.case}`));
+      vec.push(plate(p.x + 8, p.y - rr - 52, `${l.value} N · ${l.case}`, { anchor: p }));
     } else {
       const base = p.y + rr + 40;
       vec.push(`<line x1="${f1(p.x - 7)}" y1="${f1(base)}" x2="${f1(p.x + 7)}" y2="${f1(base)}" style="stroke:${col}" stroke-width="2"/>`);
       vec.push(arrow(p.x, base, p.x, p.y + rr + 4, col, 2, 8));
       occupy(p.x - 8, p.y + rr, 16, 42);
-      vec.push(plate(p.x + 10, base - 10, `+${l.value.toFixed(1)} mm · ${l.case}`));
+      vec.push(plate(p.x + 10, base - 10, `+${l.value.toFixed(1)} mm · ${l.case}`, { anchor: p }));
     }
   }
   out.push(`<g>${vec.join("")}</g>`);
@@ -273,7 +281,13 @@ export function figure(o) {
     const s = C[o.draft.from]; const dv = { X: [1, 0, 0], Y: [0, 1, 0], Z: [0, 0, 1] }[o.draft.axis];
     const e = S({ x: s.x + dv[0] * o.draft.len, y: s.y + dv[1] * o.draft.len, z: s.z + dv[2] * o.draft.len });
     const p = P[o.draft.from]; const d = diaAt(o.draft.from);
-    out.push(`<line x1="${f1(p.x)}" y1="${f1(p.y)}" x2="${f1(e.x)}" y2="${f1(e.y)}" stroke="var(--canvas-draft)" stroke-width="${f1(d)}" stroke-dasharray="8 6" opacity=".7" stroke-linecap="butt"/>`);
+    // The draft ghost (decision 12; V1.1 §5.6): a faint tube outline at the draft's diameter
+    // (canvas.draft at 30%, 1 px), a thin dashed centreline (1.5 px, 6/4 dash) and the draft
+    // node's plate with a canvas.draft edge at the tip.
+    { const u = dirOf(p, e), n = norm(u), r = d / 2;
+      const L = (a, b) => `M${f1(a.x)} ${f1(a.y)}L${f1(b.x)} ${f1(b.y)}`;
+      const a1 = { x: p.x + n.x * r, y: p.y + n.y * r }, a2 = { x: e.x + n.x * r, y: e.y + n.y * r }, b1 = { x: p.x - n.x * r, y: p.y - n.y * r }, b2 = { x: e.x - n.x * r, y: e.y - n.y * r };
+      out.push(`<g fill="none" stroke="var(--canvas-draft)"><path d="${L(a1, a2)}${L(b1, b2)}${L(a2, b2)}" stroke-width="1" opacity=".3"/><line x1="${f1(p.x)}" y1="${f1(p.y)}" x2="${f1(e.x)}" y2="${f1(e.y)}" stroke-width="1.5" stroke-dasharray="6 4"/></g>`); }
     tubeSegs.push([p, e, d / 2]);
     const comp = [];
     for (const ax of ["X", "Y", "Z"]) {
@@ -284,10 +298,16 @@ export function figure(o) {
       if (active) overlaysHTML.lengthField = { x: p.x + a.x * L + 26, y: p.y + a.y * L - 30 };
     }
     out.push(`<g>${comp.join("")}</g>`);
-    out.push(`<circle cx="${f1(p.x)}" cy="${f1(p.y)}" r="4" fill="var(--canvas-draft)"/>`);
+    out.push(`<circle cx="${f1(p.x)}" cy="${f1(p.y)}" r="3" fill="var(--canvas-draft)"/>`);
     overlaysHTML.draftEnd = e;
-    out.push(plate(e.x + 8, e.y - 22, String(o.draft.next), { edge: "var(--canvas-draft)" }));
+    out.push(plate(e.x + 8, e.y - 22, String(o.draft.next), { edge: "var(--canvas-draft)", anchor: e }));
   }
+
+  // The triad and the scale reference occupy the canvas's bottom corners before the labels are placed.
+  const scaleRefL = 1000 * scale * Math.hypot(axis.X.x, axis.X.y);
+  const scaleRefX = w - 24 - Math.max(scaleRefL, 60);
+  occupy(0, h - 92, 96, 92);
+  if (o.scaleRef !== false) occupy(scaleRefX - 6, h - (o.loads !== false ? 46 : 36), Math.max(scaleRefL, 60) + 100, 40);
 
   // Node labels with a placement search.
   const labels = [];
@@ -298,13 +318,18 @@ export function figure(o) {
   const onTube = (box) => { const cx = box.x + box.w / 2, cy = box.y + box.h / 2; for (const [a, b, rr] of tubeSegs) { if (segDist(cx, cy, a, b) < rr + 11) return true; const c1 = segDist(box.x, cy, a, b), c2 = segDist(box.x + box.w, cy, a, b); if (Math.min(c1, c2) < rr + 4) return true; } return false; };
   for (const nd of labelNodes) {
     const p = P[nd]; const text = String(nd); const ww = 8 + text.length * 7.2; const rr = diaAt(nd) / 2;
+    if (p.x < -8 || p.x > w + 8 || p.y < -8 || p.y > h + 8) continue; // outside the panned camera's view
     const ds = dirsAt(nd); const away = unit({ x: -ds.reduce((s, v) => s + v.x, 0), y: -ds.reduce((s, v) => s + v.y, 0) });
     const cands = [[rr + 6, -rr - 20], [rr + 6, -9], [rr + 6, rr + 4], [-ww - rr - 6, -rr - 20], [-ww - rr - 6, -9], [-ww - rr - 6, rr + 4], [-ww / 2, -rr - 24], [-ww / 2, rr + 8], [rr + 14, -rr - 32], [-ww - rr - 14, rr + 14], [rr + 22, -9], [-ww - rr - 22, -9], [-ww / 2, -rr - 40], [-ww / 2, rr + 24]];
     cands.sort((a, b) => { const ca = unit({ x: a[0] + ww / 2, y: a[1] + 9 }), cb = unit({ x: b[0] + ww / 2, y: b[1] + 9 }); return (cb.x * away.x + cb.y * away.y) - (ca.x * away.x + ca.y * away.y); });
     let placed = null;
     for (const c of cands) { const box = { x: p.x + c[0], y: p.y + c[1], w: ww, h: 18 }; if (box.x < 2 || box.y < 2 || box.x + ww > w - 2 || box.y + 18 > h - 2) continue; if (!occupied.some((b) => overlap(box, b)) && !onTube(box)) { placed = box; break; } }
     if (!placed) for (const c of cands) { const box = { x: p.x + c[0], y: p.y + c[1], w: ww, h: 18 }; if (box.x < 2 || box.y < 2 || box.x + ww > w - 2 || box.y + 18 > h - 2) continue; if (!occupied.some((b) => overlap(box, b))) { placed = box; break; } }
-    if (!placed) { const c = cands[0]; placed = { x: p.x + c[0], y: p.y + c[1], w: ww, h: 18 }; }
+    // Budget (decision 13; V1.1 §6.5): a plate that cannot be placed without overlap yields, except
+    // the current row's node, which is always labelled.
+    const isCurrent = o.selection?.node === nd || (o.selection?.element && o.selection.element[1] === nd);
+    if (!placed) { if (!isCurrent) continue; const c = cands[0]; placed = { x: p.x + c[0], y: p.y + c[1], w: ww, h: 18 }; }
+    occupy(placed.x, placed.y, placed.w, placed.h);
     const edge = (o.selection?.node === nd || (o.selection?.element && o.selection.element[1] === nd)) ? "var(--canvas-selection)" : (o.ghost?.node === nd ? "var(--canvas-proposalGhost)" : (o.issueNode === nd ? "var(--issue-warning)" : null));
     labels.push(plate(placed.x, placed.y, text, { edge }));
   }
@@ -316,8 +341,8 @@ export function figure(o) {
   for (const ax of ["X", "Y", "Z"]) { const a = unit(axis[ax]); tri.push(arrow(tx, ty, tx + a.x * 34, ty + a.y * 34, `var(--canvas-axis${ax})`, 2, 6)); tri.push(`<text x="${f1(tx + a.x * 46 - 4)}" y="${f1(ty + a.y * 46 + 4)}" font-size="11" style="fill:var(--canvas-axis${ax})">${ax === "Y" ? "Y up" : ax}</text>`); }
   out.push(`<g>${tri.join("")}</g>`);
   if (o.scaleRef !== false) {
-    const L = 1000 * scale * Math.hypot(axis.X.x, axis.X.y);
-    const sx = w - 24 - Math.max(L, 60), sy = h - 22;
+    const L = scaleRefL;
+    const sx = scaleRefX, sy = h - 22;
     out.push(`<g><line x1="${f1(sx)}" y1="${f1(sy)}" x2="${f1(sx + L)}" y2="${f1(sy)}" stroke="var(--canvas-edge)" stroke-width="1"/><line x1="${f1(sx)}" y1="${f1(sy - 4)}" x2="${f1(sx)}" y2="${f1(sy + 4)}" stroke="var(--canvas-edge)" stroke-width="1"/><line x1="${f1(sx + L)}" y1="${f1(sy - 4)}" x2="${f1(sx + L)}" y2="${f1(sy + 4)}" stroke="var(--canvas-edge)" stroke-width="1"/><text x="${f1(sx)}" y="${f1(sy - 8)}" font-size="11" fill="var(--canvas-label)">1 m</text>${o.loads !== false ? `${arrow(sx, sy - 30, sx + 40, sy - 30, "var(--canvas-vector)", 2, 6)}<text x="${f1(sx + 46)}" y="${f1(sy - 26)}" font-size="11" fill="var(--canvas-label)">1000 N</text>` : ""}</g>`);
   }
 

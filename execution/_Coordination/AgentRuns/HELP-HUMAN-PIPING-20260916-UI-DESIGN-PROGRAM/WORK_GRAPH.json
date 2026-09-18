@@ -152,11 +152,12 @@
       "id": "MOCKS-02",
       "role": "HELPS_HUMANS",
       "purpose": "Regenerate the fifteen frames from design system V1.1 with the fourteen decisions applied",
-      "status": "active",
+      "status": "complete",
       "model_requested": "fable",
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/MOCKS-02_regeneration.md",
-      "return": "instances/MOCKS/ (in place; MOCKS_V2.md)"
+      "return": "instances/MOCKS/ (in place; MOCKS_V2.md)",
+      "note": "Accepted 2026-09-18; 18 frames incl. two D-71 decision aids; questions Q-15..Q-22 carried to the post-ruling revision pass"
     },
     {
       "id": "OWNER-MOCKS-REVIEW",
@@ -302,5 +303,5 @@
       "ACCEPTANCE-PROPOSAL"
     ]
   ],
-  "current_frontier": "MOCKS-02 (running); D-71 awaiting the owner; ACCEPTANCE-PROPOSAL waits for the piping session's observation report"
+  "current_frontier": "D-71 awaiting the owner; post-ruling revision pass (design system, specification, frames); ACCEPTANCE-PROPOSAL waits for the piping session's observation report"
 }

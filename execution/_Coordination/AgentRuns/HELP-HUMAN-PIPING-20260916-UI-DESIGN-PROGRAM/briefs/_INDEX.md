@@ -162,6 +162,16 @@ Sealed by ROOT on 2026-09-18 after accepting design system V1.1 and the UX speci
 |---|---|---|---|---|---|
 | `MOCKS-02_regeneration.md` | `9a0c67e0b129b7e85e1e12b0fdb298afd716fcde5dd26827e4807fbf9aa59c2f` | 2026-09-18T11:15Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone | `../instances/MOCKS/` (frames regenerated in place; `MOCKS_V2.md`) |
 
-Return pending.
+Return of MOCKS-02, retained in place under `../instances/MOCKS/` (the frames, build sources, tools and shots replace the first pass's; `MOCKS_V1.md`, `sample_model.md` and the first pass's hashes above remain its record) and accepted by ROOT on 2026-09-18 against the brief's acceptance section: the fifteen frames are regenerated from `tokens.json` 1.1 and V1.1's components; every second-pass state of V1.1 §8 is drawn, including the new `s4_both_light_column`; the two decision-aid frames exist and carry their label in the caption bar and the toolbar band; the failed-run frame shows no chip, as the specification's §5.4 item 5 says pending its §11 Q11; the child's lint finds each disclosure once where V1.1 §7.4 places it (the acceptance sentence in the four results and Review frames only; its short variant in the item 2 aid frame only; the maturity sentence in state 1 and twice in the item 1 aid frame) and no forbidden word at any viewport; every value traces to the token file or is a listed gap; `MOCKS_V2.md` records every change with its source, eleven departures with reasons, fourteen frame decisions, eight questions (Q-15 to Q-22) and six gaps (G-7 to G-12); the eighteen 1:1 shots, `index.png` and `report.json` exist; RETURN is complete. ROOT's checks before accepting: no absolute path and no external reference in any shipped file; nothing changed outside `instances/MOCKS/`; six frames judged by eye from their shots (`s4_both_light_column`, both decision aids, `s7_both_dark`, `s6_both_light`, `s9_table_light`); one frame opened in the App's browser pane, which renders a local file as a static snapshot, and confirmed styled with no network request. ROOT's reading of the child's uncertainties: the item 2 aid frame correctly draws option A as the caption in place of the disclosure's sentence, since option A gives the results surface class one placement; the item 1 aid frame's placement left of the units control is one of the two readings and the owner sees it. The eight questions are carried to the revision pass that follows the owner's ruling on D-71; none blocks the packet. All files are byte for byte the child's.
+
+| Return file | SHA-256 |
+|---|---|
+| `MOCKS_V2.md` | `f1883ffd04acaeb8974ff0270745eef7dd7887b6d1f020f8c4410aae832f42eb` |
+| `RETURN.md` | `a440ffd114aee6c5ebfde1bd70868fa6e522a97201942567e37bef90ca25d4ab` |
+| `frames/mocks.css` | `81cb4f5f218949136d649873e4d95309e582ce1aadde52f493b2a8a26d2a4803` |
+| `frames/tokens.css` | `f49d23c696ff343dd683c14533cb21f8b93b38ed1738f121fb45be78cd1d4dca` |
+| `shots/report.json` | `25e3c0398d91b82674facf9fae0998f4b1760085ee9650c35c9f81a6ea5c4a09` |
+
+The eighteen 1:1 stage screenshots and `index.png` under `shots/` are retained as the child produced them (their hashes are in `shots/report.json`'s companion listing where the child recorded them, else derivable by re-rendering).
 
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

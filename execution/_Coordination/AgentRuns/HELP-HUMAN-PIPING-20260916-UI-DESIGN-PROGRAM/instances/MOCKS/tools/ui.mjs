@@ -56,6 +56,7 @@ export function sprite() {
   <symbol id="m-proposed" viewBox="0 0 12 12"><path d="M6 1.2 10.8 6 6 10.8 1.2 6z" fill="currentColor" stroke="none"/></symbol>
   <symbol id="m-checked" viewBox="0 0 12 12"><path d="M2 6.5 5 9.5 10 3.5"/></symbol>
   <symbol id="m-stale" viewBox="0 0 12 12"><path d="M2 6.5 5 9.5 10 3.5" stroke-dasharray="2 1.5"/><circle cx="10" cy="9.5" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="m-stalerun" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.5" stroke-dasharray="2 1.5"/><circle cx="6" cy="6" r="1.2" fill="currentColor" stroke="none"/></symbol>
   <symbol id="m-restraint" viewBox="0 0 12 12"><path d="M1.5 3.5h9"/><path d="M6 4 3.5 9.5h5z"/></symbol>
   <symbol id="m-load" viewBox="0 0 12 12"><path d="M6 1v6M3.5 4.5 6 7l2.5-2.5"/><circle cx="6" cy="10" r="1.4" fill="currentColor" stroke="none"/></symbol>
   <symbol id="m-nodedata" viewBox="0 0 12 12"><path d="M1.5 8.5h9"/><path d="M6 8.5V3"/><circle cx="6" cy="8.5" r="1.3" fill="currentColor" stroke="none"/></symbol>
@@ -84,9 +85,9 @@ export function toolbar(o) {
   <span class="wordmark">SWBPIPE</span>
   <span class="project">${esc(o.project)} <span class="st">· ${esc(o.saveState)}</span></span>
   <div class="seg" role="group" aria-label="View">${seg}</div>
-  <div class="centre">${run}${issuesBtn}<span class="btn${o.agentOpen ? " pressed" : ""}"${o.agentOpen ? ' style="background:var(--selection-band);color:var(--accent-text);border-color:transparent"' : ""}>${icon("agent")}Agent</span></div>
+  <div class="centre">${run}${issuesBtn}<span class="btn${o.agentOpen ? " latched" : ""}" aria-pressed="${!!o.agentOpen}" title="Agent · ⌘⇧G${o.agentOpen ? " · open" : ""}">${icon("agent")}Agent</span></div>
   <span class="grow"></span>
-  <span class="combo">${esc(o.units || "SI")}</span>
+  ${o.aid ? `<span class="aid" title="A decision aid for the owner's packet, not the design's rule">${esc(o.aid)}</span>` : ""}<span class="combo">${esc(o.units || "SI")}</span>
   <span class="search">${icon("search")}Search or command… <span class="k">⌘K</span></span>
 </div>`;
 }
@@ -94,7 +95,7 @@ export function toolbar(o) {
 export function rail(o) {
   const it = (name, ic, extra = "") => {
     const on = o.current === name; const off = o.disabled?.[name];
-    return `<div class="it${on ? " on" : ""}${off ? " off" : ""}"${off ? ` title="${esc(off)}"` : ""}>${extra}${icon(ic, "s20")}${name}${o.caps?.[name] ? `<span class="cap${o.caps[name].stale ? " stale" : ""}">${esc(o.caps[name].text)}</span>` : ""}</div>`;
+    return `<div class="it${on ? " on" : ""}${off ? " off" : ""}"${off ? ` title="${esc(off)}"` : ""}>${extra}${icon(ic, "s20")}${name}${o.caps?.[name] ? `<span class="cap${o.caps[name].stale ? " stale" : ""}${o.caps[name].failed ? " failed" : ""}">${esc(o.caps[name].text)}</span>` : ""}</div>`;
   };
   const cnt = o.issues?.count ? `<span class="cnt n${o.issues.worst === "warning" ? " warn" : ""}">${o.issues.count}</span>` : "";
   return `<nav class="rail" aria-label="Stages">${it("Model", "model")}${it("Loads", "loads")}${it("Results", "results")}${it("Review", "review")}<div class="spacer"></div><hr>${it("Libraries", "libraries")}${it("Rules", "rules")}${it("Issues", "issues", cnt)}</nav>`;
@@ -103,7 +104,9 @@ export function rail(o) {
 export function statusbar(o) {
   const left = (o.chips || []).map((c) => `<span class="chip ${c.cls}" title="${esc(c.title)}">${esc(c.label)}</span>`).join("") + (o.leftText ? `<span>${o.leftText}</span>` : "");
   const worst = o.issues?.worst;
-  return `<div class="statusbar">${left}<span>${worst ? `<svg class="ic s12" style="color:var(--issue-${worst})"><use href="#i-issues"/></svg> ` : ""}Issues <span class="n">${o.issues?.count ?? 0}</span></span><span>${o.selection || ""}</span><span class="grow"></span><span>${esc(o.units || "SI")}</span>${icon("info")}</div>`;
+  // o.maturity draws decision packet D-71 item 1's option A: the maturity sentence permanently at the
+  // bar's right end in the secondary text style. It is a decision aid, not the design's rule.
+  return `<div class="statusbar">${left}<span>${worst ? `<svg class="ic s12" style="color:var(--issue-${worst})"><use href="#i-issues"/></svg> ` : ""}Issues <span class="n">${o.issues?.count ?? 0}</span></span><span>${o.selection || ""}</span><span class="grow"></span>${o.maturity ? `<span class="maturity">Technical preview — not a released product.</span>` : ""}<span>${esc(o.units || "SI")}</span>${icon("info")}</div>`;
 }
 
 export function agentStrip(o) {
@@ -226,8 +229,10 @@ export function casesTable(o) {
     const sel = o.selected === c.name;
     const originText = c.origin === "generated" ? `Generated · ${c.who}` : c.origin === "edited" ? `Edited by ${c.who} · was ${c.was} (generated)` : `Authored by ${c.who}`;
     const rule = c.rule ? ruleOf(c.rule) : null;
-    const exprCell = o.editing === c.name ? `<td class="focuscell${sel ? " selcell" : ""}" style="overflow:visible"><span class="n">${esc(c.expr)}</span>${o.composer || ""}</td>` : `<td class="n">${esc(c.expr)}</td>`;
-    return `<tr class="${sel ? "sel" : ""}">${gutter(c.origin === "generated" ? "generated" : null, null, { origin: `Generated by rule pack ${c.who} · ${c.when}` })}<td>${esc(c.name)}</td>${exprCell}<td>${esc(c.type)}</td><td>${c.rule ? esc(c.rule) : '<span class="muted">—</span>'}</td><td class="sec" title="${esc(originText)} · ${esc(c.when)}">${esc(originText)}</td>${o.noRuleExpr ? "" : `<td>${rule ? `<span class="dispo">${esc(rule.expr)}</span>` : '<span class="muted">no rule</span>'}</td>`}</tr>`;
+    const exprCell = o.editing === c.name ? `<td class="n focuscell${sel ? " selcell" : ""}">${esc(c.expr)}</td>` : `<td class="n">${esc(c.expr)}</td>`;
+    // The combination editor is a row expansion under the case (decision 14; V1.1 §5.1), never a popover.
+    const expansion = o.editing === c.name && o.expansion ? `<tr class="expand"><td colspan="${cols.length}"><div class="block">${o.expansion}</div></td></tr>` : "";
+    return `<tr class="${sel ? "sel" : ""}">${gutter(c.origin === "generated" ? "generated" : null, null, { origin: `Generated by rule pack ${c.who} · ${c.when}` })}<td>${esc(c.name)}</td>${exprCell}<td>${esc(c.type)}</td><td>${c.rule ? esc(c.rule) : '<span class="muted">—</span>'}</td><td class="sec" title="${esc(originText)} · ${esc(c.when)}">${esc(originText)}</td>${o.noRuleExpr ? "" : `<td>${rule ? `<span class="dispo">${esc(rule.expr)}</span>` : '<span class="muted">no rule</span>'}</td>`}</tr>${expansion}`;
   });
   return { html: `<table class="ds" style="width:${width}px" aria-label="Load cases"><colgroup>${cols.map((c) => `<col style="width:${c[1]}px">`).join("")}</colgroup><thead><tr>${cols.map((c) => c[0] === "gut" ? `<th class="gut"></th>` : `<th>${esc(c[0])}</th>`).join("")}</tr></thead><tbody>${rows.join("")}${o.noAdd ? "" : `<tr><td class="gut"></td><td class="muted" colspan="${cols.length - 1}">Add case… <span class="muted">⌥↩</span></td></tr>`}</tbody></table>`, width };
 }
@@ -256,8 +261,15 @@ export function hangerTable(o) {
 
 // ---------- results header ----------
 export function resultsHead(o) {
-  const disc = o.discOpen ? `<div style="padding:8px 8px 0"><div class="disc" style="max-width:640px">Results are engineering decision-support information. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.<div class="mono sec" style="margin-top:4px">${esc(o.identity)}</div></div></div>` : "";
-  return `<div class="tblhead"><span class="name">${esc(o.name)}</span><span class="sec">${esc(o.run)}</span>${o.caseSel ? `<span class="combo">Case: ${esc(o.caseSel)}</span>` : ""}${o.envelope != null ? `<span class="switch${o.envelope ? " on" : ""}"><i></i>Envelope</span>` : ""}${o.evidence ? `<span class="chip solved" title="${o.evidence}">${o.evidence === "INTERNALLY_VERIFIED" ? "Internally verified" : "Prover correlated"}</span>` : ""}${o.extra || ""}<span class="grow"></span>${o.controls || ""}<span class="btn compact text" aria-expanded="${!!o.discOpen}">${icon("info")}Information</span></div>${disc}`;
+  // The disclosure under the band (V1.1 §5.1; decision 9): the acceptance sentence, once for the
+  // results surface class, and the run identity line under it. o.captionVariant (decision packet
+  // D-71 item 2, option A) moves the sentence out of the disclosure onto a caption line under the
+  // run identity in the band, as the listed short variant; the disclosure then keeps the identity only.
+  const sentence = o.captionVariant ? "" : `Results are engineering decision-support information. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.`;
+  const disc = o.discOpen ? `<div style="padding:8px 8px 0"><div class="disc">${sentence}<div class="mono sec"${sentence ? ' style="margin-top:4px"' : ""}>${esc(o.identity)}</div></div></div>` : "";
+  const caseSel = o.caseSel ? (o.envelope ? `<span class="combo disabled" title="Envelope is on: the governing case per row">Case: all</span>` : `<span class="combo">Case: ${esc(o.caseSel)}</span>`) : "";
+  const capline = o.captionVariant ? `<div class="tblcap">${esc(o.captionVariant)}</div>` : "";
+  return `<div class="tblhead${capline ? " hascap" : ""}"><span class="name">${esc(o.name)}</span><span class="sec">${esc(o.run)}</span>${caseSel}${o.envelope != null ? `<span class="switch${o.envelope ? " on" : ""}"><i></i>Envelope</span>` : ""}${o.evidence ? `<span class="chip solved" title="${o.evidence}">${o.evidence === "INTERNALLY_VERIFIED" ? "Internally verified" : "Prover correlated"}</span>` : ""}${o.extra || ""}<span class="grow"></span>${o.controls || ""}<span class="btn compact text" aria-expanded="${!!o.discOpen}">${icon("info")}Information</span></div>${capline}${disc}`;
 }
 
 // ---------- inspector ----------
@@ -269,7 +281,7 @@ export function inspector(o) {
   const ls = M.loadSets.find((s) => s.name === row.load);
   const rs = o.noAttach ? [] : M.restraints.filter((x) => x.node === o.node), lds = o.noAttach ? [] : M.loads.filter((x) => x.node === o.node), nds = o.noAttach ? [] : M.nodeData.filter((x) => x.node === o.node);
   const parts = [];
-  parts.push(`<div class="hd"><span class="ttl">Node ${o.node}</span><span class="sec">${row.from != null ? `Element ${row.from}–${row.node} · ${esc(row.type)}` : "Start node"}</span><span style="flex:1"></span>${o.slide ? icon("close") : ""}</div>`);
+  parts.push(`<div class="hd"><span class="ttl">Node ${o.node}</span><span class="sec">${row.from != null ? `Element ${row.from}–${row.node} · ${esc(row.type)}` : "Start node"}</span><span style="flex:1"></span>${o.slide || o.docked ? `<span title="Close · ⌘I · ⎋">${icon("close")}</span>` : ""}</div>`);
   parts.push(`<div class="body">`);
   if (o.routing) parts.push(o.routing);
   parts.push(`<div class="sec-t">Geometry</div>${r("DX DY DZ", `<span class="n">${num(row.dx)} · ${num(row.dy)} · ${num(row.dz)}</span> <span class="muted">mm</span>`)}${r("X Y Z", `<span class="n">${num(c.x)} · ${num(c.y)} · ${num(c.z)}</span> <span class="muted">mm</span>`)}${row.bendR ? r("Bend radius", `<span class="n">${row.bendR}</span> <span class="muted">mm</span>`) : ""}`);
@@ -284,7 +296,7 @@ export function inspector(o) {
   parts.push(`<div class="sec-t">Origin and Checked</div>${r("Entered", `<span class="sec">R. Tufts · ${o.when || "2026-09-17 10:31"}</span>`)}${o.checked ? `<div class="r"><span class="l">Checked ${mark("checked", "var(--mark-checked)")}</span><span class="v"><span class="sec">R. Tufts · 2026-09-17 14:02</span></span></div>` : r("Checked", '<span class="muted">not checked</span>')}<div class="acts"><span class="btn compact">${o.checked ? "Clear check" : "Check"} <span class="muted">⌘⇧K</span></span></div>`);
   parts.push(`<div class="sec-t">${icon("expand")} Provenance <span class="muted" style="font-weight:400">· section and material records</span></div>`);
   parts.push(`</div>`);
-  return `<div class="insp${o.slide ? " slideover" : ""}">${parts.join("")}</div>`;
+  return `<div class="insp${o.slide ? " slideover" : ""}${o.docked ? " docked" : ""}">${parts.join("")}</div>`;
 }
 
 // ---------- issues drawer ----------
@@ -293,14 +305,16 @@ export function issuesDrawer(issues, o = {}) {
   const shown = o.filter ? issues.filter((i) => i.cls === o.filter) : issues;
   for (const i of shown) (groups[i.cls] = groups[i.cls] || []).push(i);
   const order = ["Invalid model", "Blocks solve", "Blocks rule check", "Provenance", "Assumption", "Nonlinear", "Content boundary", "Note"];
-  const g = order.filter((k) => groups[k]).map((k) => `<div class="grp">${mark(groups[k][0].sev === "blocking" ? "blocking" : groups[k][0].sev === "warning" ? "warning" : "info", `var(--issue-${groups[k][0].sev})`)}${esc(k)}<span class="muted n">${groups[k].length}</span></div>${groups[k].map((i) => `<div class="row${o.selected === i ? " sel" : ""}"><span class="cls">${esc(i.cls)}</span><span>${esc(i.msg)}</span><span class="ent">${esc(i.entity)}</span></div>`).join("")}`).join("");
+  // The selected row carries the same link as the page's banner (decision 6; V1.1 §5.3).
+  const g = order.filter((k) => groups[k]).map((k) => `<div class="grp">${mark(groups[k][0].sev === "blocking" ? "blocking" : groups[k][0].sev === "warning" ? "warning" : "info", `var(--issue-${groups[k][0].sev})`)}${esc(k)}<span class="muted n">${groups[k].length}</span></div>${groups[k].map((i) => `<div class="row${o.selected === i ? " sel" : ""}"><span class="cls">${esc(i.cls)}</span><span class="msg" title="${esc(i.msg)}">${esc(i.msg)}</span>${o.selected === i && o.link ? `<a>${esc(o.link)}</a>` : ""}<span class="ent">${esc(i.entity)}</span></div>`).join("")}`).join("");
   return `<div class="issues"><div class="hd">Issues <span class="n">${issues.length}</span>${o.filter ? `<span class="chip outline" style="background:var(--selection-band);color:var(--accent-text);border-color:transparent">${esc(o.filter)} ${shown.length} ×</span><span class="chip outline">All classes ${issues.length}</span>` : `<span class="chip outline">All classes</span>`}<span class="chip outline">Unchecked rows</span><span style="flex:1"></span>${icon("close")}</div><div style="overflow:hidden;flex:1">${g}</div></div>`;
 }
 
 // ---------- canvas overlays ----------
 export function hud(o = {}) {
   const b = [["fit", "Fit (F)"], ["presets", "View: Iso"], ["section", "Section"], ["isolate", "Isolate selection (I)"], ["hide", "Hide selection (H)"], ["labels", "Node labels (L)"], ["deform", "Deformation (D)"], ["probe", "Probe (P)"], ["route", "Route (R)"], ["restrain", "Add restraint (S)"]];
-  return `<div class="hud" aria-label="Canvas HUD">${b.map(([k, t]) => `<span title="${t}" aria-pressed="${(o.pressed || []).includes(k)}"${(o.off || []).includes(k) ? ' class="off"' : ""}>${icon(k)}</span>`).join("")}</div>`;
+  // o.wrap: in a canvas narrower than 400 px the HUD wraps to two rows (V1.1 §0, §5.6).
+  return `<div class="hud${o.wrap ? " wrap" : ""}" aria-label="Canvas HUD">${b.map(([k, t]) => `<span title="${t}" aria-pressed="${(o.pressed || []).includes(k)}"${(o.off || []).includes(k) ? ' class="off"' : ""}>${icon(k)}</span>`).join("")}</div>`;
 }
 
 export function legend(o) {
@@ -322,7 +336,7 @@ export function proposalCard(p, o = {}) {
     return `<div class="difftitle"><span>${esc(r.table)} · node ${r.node}</span><span>row ${i + 1} of ${p.rows.length}${d ? ` · ${d}` : " · pending"}</span></div><table class="diff"><colgroup><col style="width:76px"><col style="width:58px"><col><col style="width:54px"></colgroup><thead><tr><th>Field</th><th>Old</th><th>New</th><th></th></tr></thead><tbody>${r.fields.map((f, j) => `<tr><td>${esc(f[0])}</td><td class="old">${esc(f[1])}</td><td class="${f[2] === "TBD" ? "" : "new"}">${f[2] === "TBD" ? `<span class="tbd">${mark("warning")}TBD</span>` : esc(f[2])}</td><td class="acts">${j === 0 ? acts : ""}</td></tr>`).join("")}</tbody></table>`;
   }).join("");
   const remaining = p.rows.filter((_, i) => !decisions[i]).length;
-  return `<div class="card prop"><p class="title">${esc(p.title)}</p>${p.asked ? `<div class="asked">Asked by ${esc(p.asked.who)} · ${p.asked.when}: “${esc(p.asked.text)}”</div>` : ""}<div class="meta"><b>${p.id}</b> · draft until accepted · ${p.rows.length} rows · ${p.when.slice(11)}</div>${rowsHtml}<h5>Rationale</h5><p>${esc(p.rationale)}</p><h5>Constraints considered</h5><ul>${p.constraints.map((c) => `<li>${esc(c)}</li>`).join("")}</ul><h5>TBD</h5><ul>${p.tbd.map((c) => `<li><span class="tbd">${mark("warning")}${esc(c)}</span></li>`).join("")}</ul><div class="sec" style="margin-top:6px;font-size:12px">${esc(p.validation)}</div><div class="consequence">Accepting a row changes the model: current results are cleared and the run is kept as historical.</div><div class="actions"><span class="btn compact text">Reject ${remaining === p.rows.length ? "proposal" : "remaining"}</span><span class="btn compact primary">Accept ${remaining === p.rows.length ? "all rows" : `remaining (${remaining} row${remaining === 1 ? "" : "s"})`}</span></div></div>`;
+  return `<div class="card prop"><p class="title">${esc(p.title)}</p>${p.asked ? `<div class="asked">Asked by ${esc(p.asked.who)} · ${p.asked.when}: “${esc(p.asked.text)}”</div>` : ""}<div class="meta"><b>${p.id}</b> · draft until accepted · ${p.rows.length} rows · ${p.when.slice(11)}</div>${rowsHtml}<h5>Rationale</h5><p>${esc(p.rationale)}</p><h5>Constraints considered</h5><ul>${p.constraints.map((c) => `<li>${esc(c)}</li>`).join("")}</ul><h5>TBD</h5><ul>${p.tbd.map((c) => `<li><span class="tbd">${mark("warning")}${esc(c)}</span></li>`).join("")}</ul><div class="sec" style="margin-top:6px;font-size:12px">${esc(p.validation)}</div><div class="consequence">Accepting a row changes the model. Run 03 stops being the solve basis and is kept as a historical run; its results stay readable as stale until the next run.</div><div class="actions"><span class="btn compact text">Reject ${remaining === p.rows.length ? "proposal" : "remaining"}</span><span class="btn compact primary">Accept ${remaining === p.rows.length ? "all rows" : `remaining (${remaining} row${remaining === 1 ? "" : "s"})`}</span></div></div>`;
 }
 
 export function commentCard(c) {
