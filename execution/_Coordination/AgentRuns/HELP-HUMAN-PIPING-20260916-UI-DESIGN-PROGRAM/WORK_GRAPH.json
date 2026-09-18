@@ -223,7 +223,7 @@
       "brief": "briefs/RESEARCH-G_rendering_workload_classification.md",
       "return": "instances/RESEARCH/G_rendering_workload_classification.md",
       "status": "complete",
-      "note": "Accepted 2026-09-18: 38 rows; 10 observable now, 7 needing a harness adaptation, 21 needing implementation first; hash in briefs/_INDEX.md"
+      "note": "Accepted 2026-09-18: 50 rows; 10 observable now, 8 needing a harness adaptation, 32 needing implementation first (counts corrected after REVIEW-01); hash in briefs/_INDEX.md"
     },
     {
       "id": "OBSERVATION-BRIEF",
