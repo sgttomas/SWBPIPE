@@ -47,13 +47,13 @@ Two acts in `DEC-101` and `DEC-105` are not the implementing loop's to take alon
 
 ## 3. Constraints every implementation brief carries
 
-The owner's ten implementation-handoff constraints, from the preparation record §2, restated as checks a reviewer applies. Where a sentence is ROOT's and not the owner's, it says so.
+The owner's ten implementation-handoff constraints, from the preparation record §2, restated as checks a reviewer applies. Constraint 3 separates the owner's obligation from ROOT's decisions. The test in constraint 1 and the absent-or-disabled rule in constraint 6 are ROOT's operational wording of the owner's obligations, not additions to them.
 
 1. **One mutation route.** Every engineering action, by table cell, canvas gesture, paste, accepted proposal or future harness, is a typed operation through the existing Rust applier (`applyModelOperation`, `applyOperationBatch`). A human's and an agent's action are the same operation; that equivalence is a test.
 2. **Projections, not rivals.** Tables and canvas are projections and editors of the canonical model. Neither holds state the model does not.
 3. **Result integrity.** Current and Historical designation, the exact solve-input basis, stale-response guards, reviewed application, undo and redo, and persistence compatibility are preserved. A Historical record never acquires a current-model overlay or a readiness claim through a presentation change. ROOT's decisions for this pass, not owner rulings, extend that: after a model change the run stops being the current solve basis (as the product already behaves), a Stale run is held on a Historical record's terms, and only a Current run drives an overlay, a chip or a readiness cue (specification §2.6). The owner may reverse the Stale treatment; it is one column of one table.
 4. **Picking repair preserved.** PR #794's shared closest-point computation and its regression tests stay. Tolerances and oracle expectations are never altered to obtain a benchmark result.
-5. **Rendering foundation retained**: persistent renderer, instancing and chunking, invalidation scheduling, resource ownership, typed model index, selection and picking.
+5. **Rendering foundation retained** unless separately justified and authorized: persistent renderer, instancing and chunking, invalidation scheduling, resource ownership, typed model index, selection and picking.
 6. **Every control maps to an operation or a classed gap.** A control whose gap is outside the tranche is absent, or disabled with its reason. It is never faked.
 7. **Semantic changes are named as changes** (§5), never delivered as restyling.
 8. **The benchmark stays a reusable instrument** with named setup and query actions, typed entity identities, and real pointer and keyboard stimuli.

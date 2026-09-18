@@ -1,6 +1,6 @@
 # REVIEW-03 — return, retained by ROOT
 
-Retained 2026-09-18 by ROOT from the child's final message (ROOT's transcription; the child had no write target). The findings are given in full as returned. The "what passed" and "what I did not check" sections are condensed; the one machine path in the message is replaced by `{REPO_ROOT}`. Brief: `../../briefs/REVIEW-03_revision_pass_review.md`, sealed `9b9d0c2067293a1ad2d6efafc67733916f9700c9a5213c61ec400184e4bee8b3`, verified by the child before starting. Candidate `3e4cb3a1eeac12791498aec05fd912735d8f841b` against `origin/main`. Model requested: Claude Opus 5. The child wrote no file and ran no build, test, dev server or state-changing git command.
+Retained 2026-09-18 by ROOT from the child's final message (ROOT's transcription; the child had no write target). The minor findings keep their substance and primary locators; the trivial findings, some line numbers and evidence quotes, and the "what passed" and "what I did not check" sections are condensed; the one machine path in the message is replaced by `{REPO_ROOT}`. Brief: `../../briefs/REVIEW-03_revision_pass_review.md`, sealed `9b9d0c2067293a1ad2d6efafc67733916f9700c9a5213c61ec400184e4bee8b3`, verified by the child before starting. Candidate `3e4cb3a1eeac12791498aec05fd912735d8f841b` against `origin/main`. Model requested: Claude Opus 5. The child wrote no file and ran no build, test, dev server or state-changing git command.
 
 ## Verdict: FINDINGS — no blocking, no major; five minor, five trivial
 
@@ -18,7 +18,7 @@ Retained 2026-09-18 by ROOT from the child's final message (ROOT's transcription
 
 ### Trivial
 
-**T-1.** The handoff's §4 has six gap classes where the operations map has five; G-34 is split out. **T-2.** Constraint 10 omits "coordinate shared solver and result contracts" (carried in §4's Engine row). **T-3.** `current_frontier` changed type from a string to a list. **T-4.** The handoff groups Q-25 and Q-26 as window-width problems; Q-26 concerns the 737 px Both pane. **T-5.** The design system says the Checked mark's words are "exactly these and no others" and then uses derived control names; the specification attributes the expanded list to `DEC-104`.
+**T-1.** The handoff's §4 has six gap classes where the operations map has five; G-34 is split out. **T-2.** Constraint 10 omits the owner's "Coordinate shared solver/result contracts" (carried in §4's Engine row). **T-3.** `current_frontier` changed type from a string to a list. **T-4.** The handoff groups Q-25 and Q-26 as window-width problems; Q-26 concerns the 737 px Both pane. **T-5.** The design system says the Checked mark's words are "exactly these and no others" and then uses derived control names; the specification attributes the expanded list to `DEC-104`.
 
 ## What passed (condensed)
 
@@ -39,5 +39,17 @@ The children's tools were not run. One of nineteen screenshots was read. `shots/
 | M-5 | Accepted. Handoff §3 constraint 3 now separates the owner's constraint from ROOT's decisions for the pass |
 | T-1, T-2, T-4 | Accepted. Handoff corrected |
 | T-5 | Accepted. Corrected by the owning children with M-1 |
+
+## Backcheck, 2026-09-18
+
+At `2fedf4a1034618078ab8f52ecd05b81e25f10bf0` against the first candidate: **PASS with one new minor finding.** All ten first-pass findings cleared; the handoff's eighteen hashes and the index's superseding hashes recomputed and matching; design system rows 1 to 89 unchanged; the restored frontier verbatim from `origin/main`; the index append-only; scope still the run directory only; no statement attributes ROOT's reading to the owner or the owner's words to ROOT. The reviewer did not re-run the children's tools or re-inspect frames.
+
+| Backcheck finding | Disposition |
+|---|---|
+| B-1, minor: the handoff's constraint 5 dropped the owner's "unless separately justified and authorized" while §3 promised to flag ROOT's sentences | Accepted. The owner's clause is restored, and §3's intro now says exactly which sentences are ROOT's wording |
+| B-2, trivial: this file said the findings were given in full while condensing the trivial ones | Accepted. The preamble now says what is condensed |
+| B-3, trivial: a paraphrase of the owner's words inside quotation marks in T-2 | Accepted. The owner's words are quoted as written |
+
+Observation recorded, no change: the specification return's §2 says thirty-two changes and its appended §9 corrects that to thirty-four, by the same append-only handling the index uses.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
