@@ -1,0 +1,88 @@
+{
+  "schema": "piping.picking-runtime-closeout/v1",
+  "testedCandidate": "31803297675e24da51528d52857496afa0fd10fb",
+  "status": "PASS_all_11_affected_local_checks",
+  "priorFailure": "One live portability check failed for a raw absolute path in an unclassified graph surface; corrected to the relative evidence record. Product, instrument and measured evidence unchanged. Failed log retained.",
+  "verification": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks/EXECUTION_RESULT.json",
+      "sha256": "0c0197d56a7c38c37dec70200af1574a0d1ad5509ba98f30d3d974380c13cc98"
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks-v2/EXECUTION_RESULT.json",
+      "sha256": "d4859e2df4d6919170bf579d2a174064fcdc11eccff628dfd186df977348d84b"
+    }
+  ],
+  "reviewBackcheck": {
+    "agent": "/root/picking_review",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "candidate": "31803297675e24da51528d52857496afa0fd10fb",
+    "verbatimReturn": "PASS \u2014 no actionable findings.\n\nReviewed both changed paths from `b409c35e3b18fe5718b0e83a641f7177686c70c8` through `31803297675e24da51528d52857496afa0fd10fb`.\n\nThe relative evidence-record reference preserves the previously verified raw-return identity. Persisted `RUNTIME_RETURN.md` faithfully reproduces my return. Prior seven-path review carries forward; no product, instrument or runtime evidence changed.\n\nNo writes, tests or runtime executed. The failed portability check remains historical evidence; affected check rerun, actual-head CI and publication remain required."
+  },
+  "publication": "Owning evidence PR supplies actual-head CI and merge; this record does not imply them.",
+  "failedLogs": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks/routed_tools_tests.log",
+      "sha256": "0e1f4b565f51506e8b399d9e0434ce6ca368809e5b79d4e2b9dd95833326990f",
+      "exitCode": 1
+    }
+  ],
+  "passedLogs": [
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks-v2/routed_tools_tests.log",
+      "sha256": "ec2919da39de5523ce60d9d0e8f17f08fdebc86509a7aab7e530432c8b71d50b",
+      "exitCode": 0
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks-v2/self_check.log",
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+      "exitCode": 0
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks-v2/receipt.log",
+      "sha256": "07f82849e9326e82bc30b735e7427e85e5975d277e644d4bf300f984da3d5363",
+      "exitCode": 0
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks-v2/agent_contract.log",
+      "sha256": "74e955ec260140f91d03643f678c994fcd26c7d5bb29008e0b04fbcda71456a6",
+      "exitCode": 0
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks-v2/workflow_contract.log",
+      "sha256": "275b16c8086cd5aca35563635a124b38fa1e750929bc45b140dbfa9b083d52b4",
+      "exitCode": 0
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks-v2/conflict_markers.log",
+      "sha256": "77e86fa18dd10ff92a9b2ba59fe74a0ae6d5a364749064e44aa2301c274b6df8",
+      "exitCode": 0
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks-v2/G0.log",
+      "sha256": "19878a424b48ca671d3e758269df15cb764f6158b2626ff8670d80c93cd9b11c",
+      "exitCode": 0
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks-v2/G1.log",
+      "sha256": "a446575a34e6896cb92123eab0cfd5c4e0180db7ff62699e5db07b438fe9be37",
+      "exitCode": 0
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks-v2/G2.log",
+      "sha256": "8a2425c5d13c122eb51b2482911778315724f5d3854922916c43f49cc6247618",
+      "exitCode": 0
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks-v2/G3.log",
+      "sha256": "02ef198ca71b3d832101ae4e4fd358f9e4c65732da5f0bc0d77b8f2bdd7ab0b6",
+      "exitCode": 0
+    },
+    {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/runtime-closeout-checks-v2/G4.log",
+      "sha256": "b1ceb30a1cb482d5a161a87eec7c95448e2ce867dd3fe138b8c04626583ccd50",
+      "exitCode": 0
+    }
+  ]
+}
