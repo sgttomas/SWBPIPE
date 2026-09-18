@@ -11,6 +11,8 @@ Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, ROOT (HELP_HUMAN, Agent 0). 
 
 - 2026-09-18, Tranche A1 integrated (returns in `briefs/_INDEX.md`). One addition beyond the brief, by ROOT's correction: a copy-forward of the local project store from the former bundle identifier's directory, because the renamed identifier would otherwise have orphaned existing stores.
 
+- 2026-09-18, A1-REVIEW: PASS for the code on backcheck. Reviewer's observations kept for a later tidy, none actionable: the carry-forward needs write access to the former directory for SQLite's wal-index and otherwise starts with an empty store, leaving the former store intact; a first-launch pause proportional to store size; `-journal` beside the new store is not in the pre-cleanup list.
+
 ## Open with the owner
 
 - ROOT chose the bundle identifier `com.swbpipe.desktop` for the brief, from the owner's registered domain. The owner may replace it; it should be settled before the App ID is created.
