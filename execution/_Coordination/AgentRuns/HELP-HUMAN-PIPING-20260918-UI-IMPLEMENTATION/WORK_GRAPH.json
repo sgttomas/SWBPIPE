@@ -36,6 +36,14 @@
       "brief": "briefs/A1-DOCS_sca010_core_docs.md",
       "model_ran": "Claude Sonnet 5",
       "returnSha256": "297131b66278d4faac97c100e7eff8c5a74e7c66574ffa35eb09715122bec4d4"
+    },
+    "A1-REVIEW": {
+      "role": "TASK Type 2 software-code-review, read-only",
+      "model": "opus",
+      "status": "running",
+      "briefSha256": "98cf6915bfe37c32fd17bf49ebf873e4b6a5a5297f2ac997794f9e2e8c8e750a",
+      "brief": "briefs/A1-REVIEW_code_review.md",
+      "candidate": "8143645eacff25e56d685259301795f0c3a482cb"
     }
   },
   "edges": [
@@ -50,6 +58,10 @@
     [
       "ROOT",
       "A1-DOCS"
+    ],
+    [
+      "ROOT",
+      "A1-REVIEW"
     ]
   ],
   "current_frontier": "Tranche A1 integrated as one candidate commit. Next: independent Opus code review of the frozen diff, then the DEC-025 sweep, then the pull request.",

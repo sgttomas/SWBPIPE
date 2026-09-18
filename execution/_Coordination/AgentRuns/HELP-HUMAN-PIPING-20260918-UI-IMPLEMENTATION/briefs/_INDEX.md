@@ -19,4 +19,10 @@ Returns of Tranche A1, retained by ROOT 2026-09-18 (each is the child's final me
 
 ROOT's checks at integration: every changed path is inside a child's write scope or is ROOT's (the run directory and the tranche manifest `{REPO_ROOT}/docs/governance_harness/tranche_manifests/PIPING-SWBPIPE-A1-CLAIMS-LINT-20260918.yaml`); the claims lint reports VALID over 321 files with the new guards; the lint's 24 tests pass; the manifest corpus validates.
 
+| Brief | SHA-256 | Sealed | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `A1-REVIEW_code_review.md` | `98cf6915bfe37c32fd17bf49ebf873e4b6a5a5297f2ac997794f9e2e8c8e750a` | 2026-09-18T20:16Z | `opus` (Claude Opus 5) | TASK with `software-code-review`, read-only, fresh context | `../instances/A1-REVIEW/RETURN.md` |
+
+A1-REVIEW reviews candidate `8143645eacff25e56d685259301795f0c3a482cb`. Mechanism: Claude Code `Agent` tool, general-purpose type, background.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
