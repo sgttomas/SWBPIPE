@@ -165,4 +165,8 @@ Adopted, numbered as the questions are:
 
 Also adopted: the frames' decisions that the design system had not made (MOCKS_V1 §1 and §2) and their departures (§3) are folded into a design-system revision, and the six token gaps (§5) are closed there, so that specification, tokens, specimen and frames agree.
 
+## 12. The decision packet
+
+The nine items of the brief §6 are prepared as decision packet [D-71](../../../../_DECISIONS/D-71_interface_program_governed_text_decisions.md), a PROPOSAL awaiting the owner's ruling item by item, with RESEARCH-F as its inventory and the frames as its evidence.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

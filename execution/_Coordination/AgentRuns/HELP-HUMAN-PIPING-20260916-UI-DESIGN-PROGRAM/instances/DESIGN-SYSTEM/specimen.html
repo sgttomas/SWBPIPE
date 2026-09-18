@@ -6,7 +6,8 @@
 <meta name="color-scheme" content="light dark">
 <title>SWBPIPE design system specimen</title>
 <style>
-/* Generated from tokens.json (88 colour tokens, version 1.0). Do not edit by hand. */
+/* GENERATED:TOKENS_CSS:BEGIN */
+/* Generated from tokens.json (98 colour tokens, version 1.1). Do not edit by hand. */
 :root {
   --font-ui: -apple-system, BlinkMacSystemFont, system-ui, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-numeric: -apple-system, BlinkMacSystemFont, system-ui, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -56,6 +57,8 @@
   --layout-agent-strip: 44px;
   --layout-inspector-both: 300px;
   --layout-inspector-model: 340px;
+  --layout-inspector-label: 88px;
+  --layout-canvas-min: 220px;
   --layout-drawer-table: 280px;
   --layout-drawer-issues: 200px;
   --layout-review-outline: 280px;
@@ -66,6 +69,8 @@
   --layout-controlCompact: 22px;
   --layout-gutter: 32px;
   --layout-marksColumn: 72px;
+  --layout-cellPadding: 8px;
+  --layout-headerPadding: 5px;
   --layout-hud-button: 28px;
   --layout-probe-width: 300px;
   --layout-legend-width: 220px;
@@ -103,6 +108,8 @@
   --selection-bar: #106dce;
   --hover-wash: rgba(30,36,48,0.06);
   --pressed-wash: rgba(30,36,48,0.10);
+  --pressed-fill: #d4e6ff;
+  --pressed-ink: #0053a4;
   --disabled-fill: #e9ebee;
   --focus-ring: #1a73d5;
   --scrim: rgba(20,22,28,0.32);
@@ -133,6 +140,11 @@
   --historical-ink: #5e5443;
   --displayOnly-border: #b3b8be;
   --stale-stripe: #ced1d5;
+  --stale-band: #fef6e7;
+  --stale-ink: #7d5002;
+  --rail-captionFailed: #a21921;
+  --rail-captionStale: #7d5002;
+  --rail-captionHistorical: #5e5443;
   --canvas-bg: #ebedef;
   --canvas-gridMajor: #ced1d5;
   --canvas-gridMinor: #dfe1e4;
@@ -143,6 +155,7 @@
   --canvas-glyphFill: #dbdee2;
   --canvas-label: #22272c;
   --canvas-labelBg: rgba(255,255,255,0.82);
+  --canvas-hint: rgba(255,255,255,0.90);
   --canvas-vector: #42484f;
   --canvas-selection: #106dce;
   --canvas-hover: #5d94da;
@@ -153,6 +166,7 @@
   --canvas-axisX: #bd413f;
   --canvas-axisY: #308639;
   --canvas-axisZ: #2171cc;
+  --draft-bar: #106dce;
   --result-scale-1: #4ab9b2;
   --result-scale-2: #15a6a0;
   --result-scale-3: #05908b;
@@ -160,6 +174,7 @@
   --result-scale-5: #056662;
   --result-scale-6: #01524e;
   --result-scale-7: #003e3c;
+  --bar-track: #e0e3e6;
   --cat-1: #cf630d;
   --cat-2: #b84999;
   --cat-3: #3b9555;
@@ -198,6 +213,8 @@
     --selection-bar: #65a7fa;
     --hover-wash: rgba(255,255,255,0.06);
     --pressed-wash: rgba(255,255,255,0.10);
+    --pressed-fill: #254974;
+    --pressed-ink: #a8ceff;
     --disabled-fill: #2b2e32;
     --focus-ring: #70adfb;
     --scrim: rgba(0,0,0,0.55);
@@ -228,6 +245,11 @@
     --historical-ink: #cec2af;
     --displayOnly-border: #53595f;
     --stale-stripe: #44484d;
+    --stale-band: #362c1c;
+    --stale-ink: #e9ca89;
+    --rail-captionFailed: #ffaba3;
+    --rail-captionStale: #e9ca89;
+    --rail-captionHistorical: #cec2af;
     --canvas-bg: #191c1f;
     --canvas-gridMajor: #2d3135;
     --canvas-gridMinor: #222629;
@@ -238,6 +260,7 @@
     --canvas-glyphFill: #34383d;
     --canvas-label: #e5e8ec;
     --canvas-labelBg: rgba(28,31,37,0.82);
+    --canvas-hint: rgba(46,50,54,0.92);
     --canvas-vector: #c7cbd0;
     --canvas-selection: #6dadff;
     --canvas-hover: #5788c7;
@@ -248,13 +271,15 @@
     --canvas-axisX: #f07f77;
     --canvas-axisY: #73c076;
     --canvas-axisZ: #70adfb;
-    --result-scale-1: #02736e;
-    --result-scale-2: #028984;
-    --result-scale-3: #04a19b;
-    --result-scale-4: #28b8b1;
-    --result-scale-5: #51cec7;
-    --result-scale-6: #83e1db;
-    --result-scale-7: #b7f2ed;
+    --draft-bar: #6dadff;
+    --result-scale-1: #045c59;
+    --result-scale-2: #04706b;
+    --result-scale-3: #09847f;
+    --result-scale-4: #099993;
+    --result-scale-5: #24ada7;
+    --result-scale-6: #52bfb9;
+    --result-scale-7: #74d1cb;
+    --bar-track: #3c4045;
     --cat-1: #d97230;
     --cat-2: #c960aa;
     --cat-3: #429c5a;
@@ -293,6 +318,8 @@
   --selection-bar: #65a7fa;
   --hover-wash: rgba(255,255,255,0.06);
   --pressed-wash: rgba(255,255,255,0.10);
+  --pressed-fill: #254974;
+  --pressed-ink: #a8ceff;
   --disabled-fill: #2b2e32;
   --focus-ring: #70adfb;
   --scrim: rgba(0,0,0,0.55);
@@ -323,6 +350,11 @@
   --historical-ink: #cec2af;
   --displayOnly-border: #53595f;
   --stale-stripe: #44484d;
+  --stale-band: #362c1c;
+  --stale-ink: #e9ca89;
+  --rail-captionFailed: #ffaba3;
+  --rail-captionStale: #e9ca89;
+  --rail-captionHistorical: #cec2af;
   --canvas-bg: #191c1f;
   --canvas-gridMajor: #2d3135;
   --canvas-gridMinor: #222629;
@@ -333,6 +365,7 @@
   --canvas-glyphFill: #34383d;
   --canvas-label: #e5e8ec;
   --canvas-labelBg: rgba(28,31,37,0.82);
+  --canvas-hint: rgba(46,50,54,0.92);
   --canvas-vector: #c7cbd0;
   --canvas-selection: #6dadff;
   --canvas-hover: #5788c7;
@@ -343,13 +376,15 @@
   --canvas-axisX: #f07f77;
   --canvas-axisY: #73c076;
   --canvas-axisZ: #70adfb;
-  --result-scale-1: #02736e;
-  --result-scale-2: #028984;
-  --result-scale-3: #04a19b;
-  --result-scale-4: #28b8b1;
-  --result-scale-5: #51cec7;
-  --result-scale-6: #83e1db;
-  --result-scale-7: #b7f2ed;
+  --draft-bar: #6dadff;
+  --result-scale-1: #045c59;
+  --result-scale-2: #04706b;
+  --result-scale-3: #09847f;
+  --result-scale-4: #099993;
+  --result-scale-5: #24ada7;
+  --result-scale-6: #52bfb9;
+  --result-scale-7: #74d1cb;
+  --bar-track: #3c4045;
   --cat-1: #d97230;
   --cat-2: #c960aa;
   --cat-3: #429c5a;
@@ -362,6 +397,7 @@
   --elevation-2: 0 4px 12px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.06);
   --elevation-3: 0 12px 32px rgba(0,0,0,0.60), 0 0 0 1px rgba(255,255,255,0.08);
 }
+/* GENERATED:TOKENS_CSS:END */
 
 /* ---------- specimen page ---------- */
 * { box-sizing: border-box; }
@@ -409,6 +445,8 @@ nav.toc a:hover { color: var(--text-primary); }
 .btn.text { border-color: transparent; background: transparent; }
 .btn[disabled], .btn.disabled { background: var(--disabled-fill); color: var(--text-disabled); border-color: var(--border-hairline); }
 .btn.compact { height: 22px; padding: 0 8px; font-size: 12px; }
+.btn.latched { background: var(--pressed-fill); color: var(--pressed-ink); border-color: transparent; }
+.btn.latched:hover { background: var(--pressed-fill); }
 .input { height: 26px; padding: 0 8px; border-radius: var(--radius-control); border: 1px solid var(--border-strong); background: var(--surface-sunken); color: var(--text-primary); font: inherit; }
 .input:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
 .ic { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
@@ -459,8 +497,8 @@ nav.toc a:hover { color: var(--text-primary); }
 .tblhead .name { font-weight: 500; }
 .tblhead .grow { flex: 1; }
 table.ds { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; }
-table.ds th { height: 28px; background: var(--surface-header); font-weight: 500; text-align: left; padding: 0 8px; border-bottom: 1px solid var(--border-hairline); white-space: nowrap; position: sticky; top: 0; z-index: 1; }
-table.ds th .u { color: var(--text-secondary); font-weight: 400; }
+table.ds th { height: 28px; background: var(--surface-header); font-weight: 500; text-align: left; padding: 0 5px; border-bottom: 1px solid var(--border-hairline); white-space: nowrap; position: sticky; top: 0; z-index: 1; }
+table.ds th .u { color: var(--text-secondary); font-weight: 400; font-size: 11px; line-height: 14px; }
 table.ds th.n, table.ds td.n { text-align: right; }
 table.ds td { height: 26px; padding: 0 8px; border-bottom: 1px solid var(--border-hairline); white-space: nowrap; position: relative; background: var(--surface-panel); }
 table.ds tr:nth-child(even) td { background: var(--surface-rowAlt); }
@@ -484,9 +522,14 @@ table.ds td.tick.twarn::after { border-color: transparent var(--issue-warning) t
 table.ds td.selcell { box-shadow: inset 0 0 0 1px var(--selection-bar); }
 table.ds td.edit { padding: 0; }
 table.ds td.edit input { width: 100%; height: 26px; border: 0; padding: 0 30px 0 8px; background: var(--surface-panel); color: var(--text-primary); font: inherit; font-family: var(--font-numeric); font-variant-numeric: tabular-nums; text-align: right; box-shadow: inset 0 0 0 2px var(--focus-ring); outline: none; }
-table.ds td.edit .unit { position: absolute; right: 8px; top: 0; line-height: 26px; color: var(--text-muted); pointer-events: none; }
+table.ds td.edit .unit { position: absolute; right: 8px; top: 0; line-height: 26px; font-size: 11px; color: var(--text-muted); pointer-events: none; }
 table.ds td.invalid { box-shadow: inset 0 0 0 2px var(--issue-blocking); }
 table.ds td.stale { background-image: repeating-linear-gradient(45deg, transparent 0 4px, var(--stale-stripe) 4px 5px) !important; }
+table.ds tr.draft td { color: var(--text-muted); }
+table.ds tr.draft td.gut::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-left: 3px dashed var(--draft-bar); }
+table.ds tr.draft td .typed { color: var(--accent-text); font-weight: 500; }
+.combo.disabled { color: var(--text-disabled); background: var(--disabled-fill); border-color: var(--border-hairline); }
+.combo.disabled::after { color: var(--text-disabled); }
 .old { color: var(--proposal-old); text-decoration: line-through; margin-right: 6px; }
 .new { color: var(--proposal-new); font-weight: 500; }
 .req { color: var(--mark-required); }
@@ -494,7 +537,7 @@ table.ds td.stale { background-image: repeating-linear-gradient(45deg, transpare
 .tfoot { min-height: 26px; background: var(--surface-header); border-top: 1px solid var(--border-hairline); display: flex; gap: 12px; align-items: center; padding: 2px 8px; font-size: 12px; font-weight: 500; flex-wrap: wrap; }
 .tfoot .f { color: var(--text-secondary); }
 .tfoot .f b { color: var(--text-primary); font-weight: 500; }
-.bar { display: inline-block; width: 48px; height: 8px; background: var(--surface-sunken); border-radius: 1px; vertical-align: middle; margin-left: 8px; position: relative; }
+.bar { display: inline-block; width: 48px; height: 8px; background: var(--bar-track); border-radius: 1px; vertical-align: middle; margin-left: 8px; position: relative; }
 .bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 1px; }
 .cellpop { position: absolute; left: 8px; top: 26px; z-index: 3; }
 .expand td { background: var(--surface-panel) !important; }
@@ -506,6 +549,15 @@ table.ds td.stale { background-image: repeating-linear-gradient(45deg, transpare
 .maprow .m .src { color: var(--text-secondary); }
 .maprow .m .sel { border: 1px solid var(--border-strong); background: var(--surface-sunken); border-radius: 2px; padding: 0 6px; height: 20px; line-height: 20px; }
 .histband { display: flex; align-items: center; gap: 8px; padding: 4px 8px; background: var(--historical-tint); color: var(--historical-ink); background-image: repeating-linear-gradient(135deg, transparent 0 10px, rgba(128,120,100,0.08) 10px 11px); border-bottom: 1px solid var(--border-hairline); }
+.staleband { display: flex; align-items: center; gap: 8px; padding: 4px 8px; background: var(--stale-band); color: var(--stale-ink); border-bottom: 1px solid var(--border-hairline); flex-wrap: wrap; }
+.staleband b { font-weight: 500; }
+.staleband .body { color: var(--text-primary); }
+.banner { display: flex; align-items: center; gap: 8px; padding: 4px 8px; background: var(--issue-warningTint); color: var(--text-primary); border-bottom: 1px solid var(--border-hairline); flex-wrap: wrap; }
+.banner .mk { color: var(--issue-warning); }
+.emptystate { padding: 16px 12px; color: var(--text-secondary); max-width: 62ch; }
+.runlog .r { display: flex; align-items: center; gap: 8px; height: 22px; font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+.runlog .r b { color: var(--text-primary); font-weight: 500; }
+.runlog .foot { display: flex; gap: 6px; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-hairline); }
 .disc { border: 1px solid var(--border-hairline); background: var(--surface-raised); border-radius: var(--radius-card); box-shadow: var(--elevation-2); padding: 8px 10px; max-width: 520px; }
 .switch { display: inline-flex; align-items: center; gap: 6px; }
 .switch i { width: 26px; height: 16px; border-radius: 8px; background: var(--border-strong); position: relative; display: inline-block; }
@@ -535,7 +587,12 @@ table.ds td.stale { background-image: repeating-linear-gradient(45deg, transpare
 .diff td.acts { text-align: right; white-space: nowrap; overflow: visible; padding: 0 0 0 4px; }
 .card h5 { font-size: 13px; font-weight: 500; margin: 10px 0 2px; color: var(--text-secondary); }
 .card ul { margin: 0; padding-left: 18px; }
-.card .actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
+.card .actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; flex-wrap: wrap; }
+.card .actions .btn { white-space: nowrap; }
+.card .done { display: flex; align-items: center; gap: 8px; height: 24px; font-size: 12px; color: var(--text-secondary); border-bottom: 1px solid var(--border-hairline); margin: 2px 0 6px; white-space: nowrap; overflow: hidden; }
+.card .done .mk { color: var(--mark-checked); flex: none; }
+.card .done .r { margin-left: auto; }
+.card .conseq { font-size: 12px; color: var(--text-secondary); margin-top: 10px; }
 .tbd { display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); }
 .tbd .mk { color: var(--issue-warning); }
 .arrive { transition: opacity var(--motion-proposalArrive-ms) var(--easing-standard), transform var(--motion-proposalArrive-ms) var(--easing-standard); }
@@ -560,6 +617,20 @@ table.ds td.stale { background-image: repeating-linear-gradient(45deg, transpare
 .stepper span { padding: 0 6px; height: 20px; line-height: 20px; }
 .stepper span + span { border-left: 1px solid var(--border-strong); }
 
+/* inspector rows, both-view geometry, rail captions */
+.insp { width: 300px; background: var(--surface-panel); border: 1px solid var(--border-hairline); border-radius: var(--radius-card); padding: 8px 10px; }
+.insp .h { font-weight: 600; font-size: 15px; line-height: 20px; margin-bottom: 4px; }
+.insp .r { display: flex; align-items: center; height: 26px; gap: 8px; }
+.insp .r .l { width: 88px; flex: none; color: var(--text-secondary); white-space: nowrap; }
+.insp .r .v { flex: 1; text-align: right; font-family: var(--font-numeric); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.insp .blk { border-bottom: 1px solid var(--border-hairline); padding-bottom: 6px; margin-bottom: 6px; }
+.geo { display: flex; height: 56px; border: 1px solid var(--border-strong); border-radius: var(--radius-control); overflow: hidden; font-size: 11px; line-height: 14px; }
+.geo div { display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border-hairline); color: var(--text-secondary); text-align: center; min-width: 0; overflow: hidden; white-space: nowrap; }
+.geo div:last-child { border-right: 0; }
+.geo .tbl { background: var(--surface-panel); } .geo .cv { background: var(--canvas-bg); } .geo .in { background: var(--surface-panel); border-left: 1px solid var(--border-strong); } .geo .strip { background: var(--surface-base); border-left: 1px solid var(--border-strong); }
+.capdemo { display: inline-flex; flex-direction: column; align-items: center; width: 64px; font-size: 11px; line-height: 12px; color: var(--text-secondary); gap: 2px; padding: 4px 0; }
+.capdemo .ic { color: var(--text-secondary); }
+
 /* shell mock */
 .shell { border: 1px solid var(--border-strong); border-radius: var(--radius-card); overflow: hidden; background: var(--surface-base); }
 .toolbar { min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 4px 12px 4px 0; border-bottom: 1px solid var(--border-hairline); flex-wrap: wrap; }
@@ -579,7 +650,9 @@ table.ds td.stale { background-image: repeating-linear-gradient(45deg, transpare
 .rail .it.on .ic { fill: currentColor; fill-opacity: .18; }
 .rail .it.off { color: var(--text-disabled); }
 .rail .it .cnt { position: absolute; top: 3px; right: 8px; min-width: 16px; height: 16px; border-radius: 8px; background: var(--issue-blockingTint); color: var(--issue-blocking); font-size: 11px; line-height: 16px; text-align: center; padding: 0 4px; font-weight: 500; }
-.rail .it .cap { font-size: 11px; color: var(--historical-ink); }
+.rail .it .cap { font-size: 11px; line-height: 14px; color: var(--rail-captionHistorical); }
+.rail .it .cap.failed { color: var(--rail-captionFailed); }
+.rail .it .cap.stale { color: var(--rail-captionStale); }
 .rail hr { width: 32px; border: 0; border-top: 1px solid var(--border-hairline); margin: 4px auto; }
 .rail .spacer { flex: 1; }
 .surf { flex: 1; background: var(--surface-panel); display: flex; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 16px; }
@@ -589,7 +662,7 @@ table.ds td.stale { background-image: repeating-linear-gradient(45deg, transpare
 .statusbar .grow { flex: 1; }
 .hud { display: inline-flex; gap: 2px; background: var(--surface-raised); border: 1px solid var(--border-hairline); border-radius: var(--radius-card); padding: 2px; box-shadow: var(--elevation-1); }
 .hud button { width: 28px; height: 28px; border: 0; background: transparent; color: var(--text-secondary); border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; }
-.hud button[aria-pressed="true"] { background: var(--selection-band); color: var(--accent-text); }
+.hud button[aria-pressed="true"] { background: var(--pressed-fill); color: var(--pressed-ink); }
 .hud button:hover { background: var(--hover-wash); }
 
 /* icons showcase */
@@ -633,6 +706,8 @@ details.dt summary { cursor: default; font-weight: 500; }
 .outline div { height: 26px; display: flex; align-items: center; gap: 8px; padding: 0 8px; border-bottom: 1px solid var(--border-hairline); }
 .outline div.on { background: var(--selection-band); }
 .outline .lock { color: var(--text-muted); font-size: 11px; margin-left: auto; }
+.outline .st { color: var(--text-muted); font-size: 11px; margin-left: auto; }
+.outline .note { height: auto; padding: 6px 8px; font-size: 11px; line-height: 14px; color: var(--text-muted); border-bottom: 0; }
 .ins { text-decoration: underline; text-decoration-color: var(--accent-text); color: var(--text-primary); }
 .del { color: var(--proposal-old); text-decoration: line-through; }
 .comment { border: 1px solid var(--border-hairline); border-radius: var(--radius-card); padding: 8px 10px; margin-bottom: 8px; background: var(--surface-panel); }
@@ -698,6 +773,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   <symbol id="m-info" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.75"/><path d="M6 5.5v3"/><circle cx="6" cy="3.6" r=".6" fill="currentColor" stroke="none"/></symbol>
   <symbol id="m-required" viewBox="0 0 12 12"><path d="M6 1.5v9M2.1 3.75l7.8 4.5M9.9 3.75l-7.8 4.5" stroke-width="1.4"/></symbol>
   <symbol id="m-historical" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.8 1.3"/></symbol>
+  <symbol id="m-stalerun" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.5" stroke-dasharray="2 1.5"/><circle cx="6" cy="6" r="1.2" fill="currentColor" stroke="none"/></symbol>
   <symbol id="m-displayonly" viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" rx="1" stroke-dasharray="1.5 1.2"/><path d="M3.5 4.5h5M3.5 6.5h5M3.5 8.5h3" stroke-width="1"/></symbol>
   <symbol id="m-comment" viewBox="0 0 12 12"><path d="M2 2.5h8a.8.8 0 0 1 .8.8v4.4a.8.8 0 0 1-.8.8H5.5L3.5 10.5V8.5H2a.8.8 0 0 1-.8-.8V3.3A.8.8 0 0 1 2 2.5z"/></symbol>
 </svg>
@@ -705,8 +781,8 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
 <header class="spec-head">
   <div class="wrap">
     <div class="row">
-      <h1>SWBPIPE design system · specimen V1</h1>
-      <span class="sec">Self-contained. No network. System fonts. Every value is a token from <code>tokens.json</code>.</span>
+      <h1>SWBPIPE design system · specimen V1.1</h1>
+      <span class="sec">Self-contained. No network. System fonts. Every value is a token from <code>tokens.json</code> 1.1; the CSS, the token JSON and the contrast pairs are generated from it.</span>
       <span class="grow"></span>
       <span class="sec">Theme</span>
       <div class="seg" role="group" aria-label="Theme">
@@ -736,7 +812,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <div class="typerow"><span class="lab">body · 13/18 · 400</span><span>From 10 to 20, 3000 mm in X. Section P1, material CS-A, load set OP1. <span class="n">124.6 MPa · 172.0 MPa · 0.72</span></span></div>
     <div class="typerow"><span class="lab">body · 13/18 · 500</span><span style="font-weight:500">Stress <span class="sec" style="font-weight:400">[MPa]</span> · Allowable <span class="sec" style="font-weight:400">[MPa]</span> · Ratio</span></div>
     <div class="typerow"><span class="lab">chip · 12/16 · 500</span><span><span class="chip solved">Mechanics solved</span> <span class="chip outline">⌘↩ opens the joined row</span></span></div>
-    <div class="typerow"><span class="lab">caption · 11/14 · 400</span><span class="sample">canvas tick labels, the sample label, compass axis names</span></div>
+    <div class="typerow"><span class="lab">caption · 11/14 · 400</span><span class="sample">canvas tick labels, the sample label, compass axis names, header units, rail captions</span></div>
     <div class="typerow"><span class="lab">mono · 12</span><span class="mono">MECHANICS_SOLVED · sha256:4df0f798… · W + P1 + T1</span></div>
     <div class="typerow" style="border-bottom:0"><span class="lab">tabular numerals</span><span class="n" style="display:inline-block;text-align:right;width:120px">1111.11<br>2000.00<br>−1800.50</span></div>
   </div>
@@ -760,7 +836,8 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
         <button class="btn primary"><svg class="ic"><use href="#i-run"/></svg>Run</button>
         <button class="btn">Accept</button>
         <button class="btn text">Reject</button>
-        <button class="btn" disabled title="Section missing at node 20">Run</button>
+        <button class="btn" disabled title="Run is unavailable — Section missing at node 20, Material missing at node 20">Run</button>
+        <button class="btn latched" aria-pressed="true" title="Agent · ⌘⇧G · latched while the column is open"><svg class="ic"><use href="#i-agent"/></svg>Agent</button>
         <input class="input n" value="2500" aria-label="Length" style="width:96px">
       </div>
     </div>
@@ -779,7 +856,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   <div class="panel">
     <div class="scalebar"></div>
     <div class="steps" id="steps"></div>
-    <p class="sec" style="margin-top:8px">Light: near-zero is the lightest step. Dark: the anchor flips, near-zero is the darkest teal and no darker than the pipe neutral. Interpolation between anchors is in OKLCH.</p>
+    <p class="sec" style="margin-top:8px">Light: near-zero is the lightest step. Dark: the anchor flips, near-zero is the darkest teal, and in V1.1 the dark ramp is re-anchored one step down so that its brightest step sits below the edge line. Interpolation between anchors is in OKLCH.</p>
   </div>
   <div class="panel">
     <h4 style="margin-top:0">Categorical · load kinds and cases · fixed order, never cycled</h4>
@@ -840,6 +917,9 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <span style="display:inline-flex;gap:2px"><svg class="mk" style="color:var(--mark-origin)"><use href="#m-propagated"/></svg><svg class="mk" style="color:var(--mark-checked)"><use href="#m-checked"/></svg></span><span class="sec">origin slot · state slot</span>
       <span style="display:inline-flex;gap:2px"><svg class="mk" style="color:var(--proposal-new)"><use href="#m-proposed"/></svg><svg class="mk" style="color:var(--issue-blocking)"><use href="#m-blocking"/></svg></span><span class="sec">proposed wins the origin slot; blocking wins the state slot</span>
       <span style="display:inline-flex;gap:2px"><span style="width:12px"></span><svg class="mk" style="color:var(--mark-checkedStale)"><use href="#m-stale"/></svg></span><span class="sec">entered draws nothing; stale Checked</span>
+      <span style="display:inline-flex;gap:2px"><span style="width:12px"></span><svg class="mk" style="color:var(--mark-origin)"><use href="#m-comment"/></svg></span><span class="sec">comment on a referenced row · Review page only</span>
+      <span style="display:inline-flex;gap:2px;align-items:center"><span style="width:0;height:12px;border-left:3px dashed var(--draft-bar)"></span><span style="width:9px"></span><span style="width:12px"></span></span><span class="sec">draft row · dashed bar in <code>draft.bar</code></span>
+      <span style="display:inline-flex;gap:2px"><svg class="mk" style="color:var(--stale-ink)"><use href="#m-stalerun"/></svg><span style="width:12px"></span></span><span class="sec">stale results band and rail caption · <code>stale.ink</code></span>
     </div>
     <p class="sec" style="margin-top:8px">Keyboard: ← from Node focuses the gutter; Space opens the slot's popover; ⌥I opens the row's marks popover.</p>
   </div>
@@ -863,10 +943,10 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
 
 <!-- ===================== 5 TABLE ===================== -->
 <h2 id="s5">5 The table · layout table in the CAEPIPE grammar</h2>
-<p class="sec">Header with units, sort, filter; gutter with origin and state slots; every cell state; the marks column; a joined row expanded under node 20; the footer with counts as filters; columns at their default widths. <span class="sample">nodes 10 to 110 of a fictional model</span></p>
+<p class="sec">Header with units at caption size and 5 px padding; the tab strip with counts; gutter with origin and state slots; the start node's row with "—" and no required mark; every cell state, including the editing cell's unit at its right edge and a draft row at the bottom; the marks column; a joined row expanded under node 20; the footer as the counts line with the Read-through and Origins switches; columns at their default widths. <span class="sample">nodes 10 to 110 of a fictional model, routing to 120</span></p>
 <div class="tblwrap fit">
   <div class="tblhead">
-    <span class="name">Layout</span><span class="chip outline">Restraints</span><span class="chip outline">Node data</span>
+    <span class="name">Layout <span class="muted" style="font-weight:400">12</span></span><span class="chip outline">Restraints <span class="muted">3</span></span><span class="chip outline">Node data <span class="muted">2</span></span>
     <span class="grow"></span>
     <span class="seg"><button aria-pressed="true">DX DY DZ</button><button aria-pressed="false">X Y Z</button></span>
     <button class="btn compact"><svg class="ic"><use href="#i-columns"/></svg>Columns</button>
@@ -879,7 +959,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <th style="width:32px"></th><th class="n">Node</th><th class="n">From</th><th>Type</th><th class="n">DX <span class="u">[mm]</span></th><th class="n">DY <span class="u">[mm]</span></th><th class="n">DZ <span class="u">[mm]</span></th><th>Section</th><th>Material</th><th>Load</th><th class="n">T1 <span class="u">[°C]</span></th><th class="n">P1 <span class="u">[bar]</span></th><th style="width:72px">Marks</th>
     </tr></thead>
     <tbody>
-      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--mark-checked)" title="Checked by R. Tufts · 2026-09-17 14:02 · bound to this row's content · not a software status"><svg class="mk"><use href="#m-checked"/></svg></span></div></td><td class="n">10</td><td class="n muted">—</td><td class="muted">—</td><td class="n tick" title="Absolute coordinates">0</td><td class="n tick">0</td><td class="n tick">0</td><td>P1</td><td>CS-A</td><td>OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot" title="Restraint · Anchor · ⌘↩ opens the row"><svg class="mk"><use href="#m-restraint"/></svg></span><span class="slot"></span><span class="slot"></span></div></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--mark-checked)" title="Checked by R. Tufts · 2026-09-17 14:02 · bound to this row's content · not a software status"><svg class="mk"><use href="#m-checked"/></svg></span></div></td><td class="n">10</td><td class="n muted">—</td><td class="muted">—</td><td class="n tick" title="Absolute coordinates">0</td><td class="n tick">0</td><td class="n tick">0</td><td class="muted" title="The start node carries no section; entered on the first element's row">—</td><td class="muted">—</td><td class="muted">—</td><td class="n"></td><td class="n"></td><td class="marks"><div class="slots"><span class="slot" title="Restraint · Anchor · ⌘↩ opens the row"><svg class="mk"><use href="#m-restraint"/></svg></span><span class="slot"></span><span class="slot"></span></div></td></tr>
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--mark-checked)"><svg class="mk"><use href="#m-checked"/></svg></span></div></td><td class="n">20</td><td class="n muted">10</td><td>Pipe</td><td class="n">3000</td><td class="n">0</td><td class="n">0</td><td>P1</td><td>CS-A</td><td>OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot" style="background:var(--selection-band)" title="Restraint · +Y, gap 3 mm, μ 0.3 · open"><svg class="mk"><use href="#m-restraint"/></svg></span><span class="slot"></span><span class="slot"></span></div></td></tr>
       <tr class="expand"><td colspan="13"><div class="block"><table class="ds"><thead><tr><th>Restraints · node 20</th><th>Type</th><th>Direction</th><th class="n">Gap <span class="u">[mm]</span></th><th class="n">Friction μ</th><th class="n">Stiffness <span class="u">[N/mm]</span></th><th class="n">Connecting node</th></tr></thead><tbody><tr><td class="muted"><svg class="ic" style="vertical-align:-3px"><use href="#i-expanded"/></svg> joined row</td><td>+Y</td><td>Y</td><td class="n">3</td><td class="n">0.30</td><td class="n muted">rigid</td><td class="n muted">—</td></tr><tr><td class="muted" colspan="7">Add restraint…</td></tr></tbody></table></div></td></tr>
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--mark-checkedStale)" title="Checked by R. Tufts · 2026-09-17 14:02 · the row changed since · Check again or Clear"><svg class="mk"><use href="#m-stale"/></svg></span></div></td><td class="n">30</td><td class="n muted">20</td><td>Bend</td><td class="n">0</td><td class="n">−2500</td><td class="n">0</td><td class="tick" title="Propagated from node 20">P1</td><td class="tick">CS-A</td><td class="tick">OP1</td><td class="n rt tick">150</td><td class="n rt tick">12.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></div></td></tr>
@@ -891,52 +971,89 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td class="n">90</td><td class="n" title="A branch: From names an earlier node">60</td><td>Pipe</td><td class="n">0</td><td class="n invalid" title="Expected a length in mm">1500 m<div class="cellpop pop" style="min-width:0;padding:4px 8px;font-size:12px;color:var(--issue-blocking)">Expected a length in mm</div></td><td class="n">0</td><td>P1</td><td>CS-B</td><td>OP2</td><td class="n rt tick">80</td><td class="n rt tick">6.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot" title="Load · Force −900 N in Y (W)"><svg class="mk"><use href="#m-load"/></svg></span><span class="slot"></span></div></td></tr>
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td class="n">100</td><td class="n muted">90</td><td>Pipe</td><td class="n">0</td><td class="n">0</td><td class="n">2000</td><td class="tick">P1</td><td class="tick">CS-B</td><td class="tick">OP2</td><td class="n rt tick">80</td><td class="n rt tick">6.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></div></td></tr>
       <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--issue-info)" title="Note · Assumption recorded for review: expansion joint stiffness from vendor sheet"><svg class="mk"><use href="#m-info"/></svg></span></div></td><td class="n">110</td><td class="n muted">100</td><td>Expansion joint</td><td class="n">400</td><td class="n">0</td><td class="n">0</td><td class="tick">P1</td><td class="tick">CS-B</td><td class="tick">OP2</td><td class="n rt tick">80</td><td class="n rt tick">6.00</td><td class="marks"><div class="slots"><span class="slot" title="Restraint · Guide"><svg class="mk"><use href="#m-restraint"/></svg></span><span class="slot"></span><span class="slot" title="Node data · Welding tee"><svg class="mk"><use href="#m-nodedata"/></svg></span></div></td></tr>
+      <tr class="draft" title="Draft · ↩ places node 120 · ⎋ cancels"><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td class="n">120</td><td class="n">110</td><td>Pipe</td><td class="n">0</td><td class="n"><span class="typed">1500</span></td><td class="n">0</td><td class="tick">P1</td><td class="tick">CS-B</td><td class="tick">OP2</td><td class="n rt tick">80</td><td class="n rt tick">6.00</td><td class="marks"><div class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></div></td></tr>
     </tbody>
   </table>
   <div class="pasteband" role="region" aria-label="Paste band">
-    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:6px"><span style="font-weight:500"><svg class="ic" style="vertical-align:-3px"><use href="#i-paste"/></svg> Paste 42 rows after node 110</span><span class="sec">2 columns unmapped</span><span class="grow" style="flex:1"></span><button class="btn compact primary">Paste ↩</button><button class="btn compact text">Cancel ⎋</button></div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:6px"><span style="font-weight:500"><svg class="ic" style="vertical-align:-3px"><use href="#i-paste"/></svg> Paste · 3 rows from the clipboard · after node 110</span><span class="sec">2 columns ignored · node IDs taken from the source</span><span class="grow" style="flex:1"></span><button class="btn compact primary">Paste 3 rows ↩</button><button class="btn compact text">Cancel ⎋</button></div>
     <div class="maprow"><span class="m"><span class="src">A "Node"</span>→<span class="sel">Node</span></span><span class="m"><span class="src">B "From"</span>→<span class="sel">From</span></span><span class="m"><span class="src">C "DX"</span>→<span class="sel">DX [mm]</span></span><span class="m"><span class="src">D "DY"</span>→<span class="sel">DY [mm]</span></span><span class="m"><span class="src">E "DZ"</span>→<span class="sel">DZ [mm]</span></span><span class="m"><span class="src">F "Sched"</span>→<span class="sel muted">Ignore</span></span><span class="m"><span class="src">G "Note"</span>→<span class="sel muted">Ignore</span></span></div>
-    <div class="sec" style="margin-top:6px">Preview: <span class="n">120 · 110 · 0 · 0 · 1200</span> — <span class="n">130 · 120 · 800 · 0 · 0</span> — <span class="n">140 · 130 · 0 · 0 · −600</span> · one operation, one undo</div>
+    <div class="sec" style="margin-top:6px">Preview, drawn as draft rows in the table: <span class="n">120 · 110 · 0 · 0 · 1200</span> — <span class="n">130 · 120 · 800 · 0 · 0</span> — <span class="n">140 · 130 · 0 · 0 · −600</span> · the propagated Section, Material and Load shown with their ticks · one operation, one undo</div>
   </div>
-  <div class="tfoot"><span class="f"><b>11 rows</b> · 1 selected</span><span class="f"><b>21</b> propagated</span><span class="f" style="color:var(--proposal-new)"><b style="color:inherit">1</b> proposed</span><span class="f"><b>8</b> unchecked</span><span class="f"><b>2</b> issues</span><span class="grow" style="flex:1"></span><span class="chip outline">Changed since: Run 03</span><span class="chip outline">sorted: file order</span></div>
+  <div class="tfoot"><span class="f"><b>12 rows</b> · 1 selected</span><span class="f"><b>11</b> elements</span><span class="f"><b>1</b> bend</span><span class="f"><b>3</b> restraints</span><span class="f"><b>2</b> loads</span><span class="f"><b>2</b> node data</span><span class="f"><b>21</b> propagated</span><span class="f" style="color:var(--proposal-new)"><b style="color:inherit">1</b> proposed</span><span class="f"><b>2</b> checked · 1 stale</span><span class="f" style="color:var(--issue-blocking)"><b style="color:inherit">2</b> issues</span><span class="grow" style="flex:1"></span><span class="chip outline">Changed since: Run 03</span><span class="chip outline">1 joined row open</span><span class="chip outline">Read-through on</span><span class="chip outline">Origins</span></div>
 </div>
 
-<h3>Results table header · case selector, Envelope, evidence label, the acceptance disclosure; ratio cells with data bars; a stale cell</h3>
+<h3>Inspector rows · label 88 px · the routing block on top while a route is open</h3>
+<div class="demo-row" style="align-items:flex-start;gap:24px">
+  <div class="insp" aria-label="Inspector sample, routing">
+    <div class="blk"><div class="h">Routing from node 110</div><div class="r"><span class="l">Next node</span><span class="v">120</span></div><div class="r"><span class="l">Axis</span><span class="v">+Y</span></div><div class="r"><span class="l">Length</span><span class="v" style="color:var(--accent-text)">1500 mm</span></div><div class="r"><span class="l">Row carries</span><span class="v sec">P1 · CS-B · OP2 propagated</span></div><div class="r" style="justify-content:flex-end;gap:6px"><button class="btn compact">Bend at 110… B</button><button class="btn compact text">Cancel ⎋</button></div></div>
+    <div class="r"><span class="l">Node</span><span class="v">110</span></div>
+    <div class="r"><span class="l">Element</span><span class="v">100–110</span></div>
+    <div class="r"><span class="l">Type</span><span class="v">Expansion joint</span></div>
+    <div class="r"><span class="l">DX DY DZ</span><span class="v">400 · 0 · 0 mm</span></div>
+    <div class="r"><span class="l">Section</span><span class="v">P1 <span class="sec">· propagated</span></span></div>
+    <div class="r"><span class="l">Material</span><span class="v">CS-B</span></div>
+    <div class="r"><span class="l">Load set</span><span class="v">OP2 · 80 °C · 6.00 bar</span></div>
+    <div class="r"><span class="l">Restraint</span><span class="v">Guide X Z · gap 2 mm · μ 0.30</span></div>
+    <div class="r"><span class="l">Entered by</span><span class="v">R. Tufts · 2026-09-17 14:02</span></div>
+    <div class="r"><span class="l">Checked</span><span class="v sec">not checked · <span style="color:var(--text-link)">Check ⌘⇧K</span></span></div>
+  </div>
+  <div class="insp" aria-label="Inspector sample, proposal">
+    <div class="h">Node 80</div>
+    <div class="r"><span class="l">Element</span><span class="v">70–80</span></div>
+    <div class="r"><span class="l">Restraint</span><span class="v">Rigid (Y) · RS-02</span></div>
+    <div class="r" style="height:auto;min-height:26px;padding:4px 0"><span class="v" style="color:var(--proposal-new);text-align:left;white-space:normal;line-height:18px">◆ Proposed · P-12 · Variable spring · Vendor-A · 25 %</span></div>
+    <div class="r"><span class="l">Load</span><span class="v">—</span></div>
+    <div class="r"><span class="l">Entered by</span><span class="v">R. Tufts · 2026-09-16 09:12</span></div>
+    <div class="r"><span class="l">Checked by</span><span class="v">R. Tufts · 2026-09-17 14:02</span></div>
+    <div class="r"><span class="l"></span><span class="v"><span style="color:var(--text-link)">Clear check ⌘⇧K</span></span></div>
+    <p class="sec" style="margin:8px 0 0;font-size:12px">The label column is 88 px in both the 340 px and the 300 px inspector; the value takes the rest.</p>
+  </div>
+</div>
+
+<h3>Results table header · Envelope on with the case selector visible and disabled, evidence label, the acceptance disclosure with the run identity line, the stale band after a model change; ratio cells with data bars on their track; stale cells</h3>
 <div class="tblwrap fit">
   <div class="tblhead">
-    <span class="name">Stresses</span><span class="sec">Run 03 · immutable</span>
-    <span class="combo">Case: OPE1</span>
-    <span class="switch"><i></i>Envelope</span>
+    <span class="name">Stresses</span><span class="sec">Run 03 · solved 15:21 · immutable</span>
+    <span class="combo disabled" title="Envelope is on: the governing case per row">Case: all</span>
+    <span class="switch on"><i></i>Envelope</span>
     <span class="chip solved" title="INTERNALLY_VERIFIED">Internally verified</span>
     <span class="grow"></span>
     <button class="btn compact text" title="Information" aria-expanded="true"><svg class="ic"><use href="#i-info"/></svg>Information</button>
   </div>
-  <div style="padding:8px 8px 0"><div class="disc"><div class="sec" style="font-size:12px;margin-bottom:2px">Results surface · one placement</div>Results are engineering decision-support information. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.<div class="mono sec" style="margin-top:4px">run 03 · model state 7 · solver 0.2.0 · rule pack sample-rules 1.2 · sha256:4df0f798…</div></div></div>
-  <table class="ds" aria-label="Stresses sample" style="margin-top:8px;width:664px">
-    <colgroup><col style="width:32px"><col style="width:56px"><col style="width:72px"><col style="width:64px"><col style="width:96px"><col style="width:104px"><col style="width:120px"><col style="width:72px"><col style="width:48px"></colgroup>
+  <div style="padding:8px 8px 0"><div class="disc"><div class="sec" style="font-size:12px;margin-bottom:2px">Results surface · one placement</div>Results are engineering decision-support information. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.<div class="mono sec" style="margin-top:4px">Run 03 · 2026-09-17 15:21 · sha256:4df0f798… · solver 0.2.0 · rule pack sample-rules 1.2 · sha256:9b1c4e02… · settings S-03</div></div></div>
+  <div class="staleband" style="margin-top:8px"><svg class="mk"><use href="#m-stalerun"/></svg><b>Model changed since Run 03:</b><span class="body">proposal P-12 row 1 accepted at 16:31 (variable spring at node 80). The values below are from the model as solved; Run 03 stays the solve basis until the next run.</span><button class="btn compact" style="margin-left:auto">Run again</button></div>
+  <table class="ds" aria-label="Stresses sample" style="width:684px">
+    <colgroup><col style="width:32px"><col style="width:56px"><col style="width:80px"><col style="width:64px"><col style="width:96px"><col style="width:116px"><col style="width:120px"><col style="width:72px"><col style="width:48px"></colgroup>
     <thead><tr><th style="width:32px"></th><th class="n">Node</th><th>Element</th><th>Case</th><th class="n">Stress <span class="u">[MPa]</span></th><th class="n">Allowable <span class="u">[MPa]</span></th><th class="n">Ratio</th><th>Rule</th><th>Pack</th></tr></thead>
     <tbody id="stressrows">
       <tr><td class="gut"></td><td class="n">40</td><td class="n">30–40</td><td>OPE1</td><td class="n">124.6</td><td class="n">172.0</td><td class="n">0.72<span class="bar" data-v="0.72"><i></i></span></td><td>EXP-A1</td><td class="n">1.2</td></tr>
       <tr><td class="gut"></td><td class="n">60</td><td class="n">50–60</td><td>OPE1</td><td class="n">113.5</td><td class="n">172.0</td><td class="n">0.66<span class="bar" data-v="0.66"><i></i></span></td><td>EXP-A1</td><td class="n">1.2</td></tr>
       <tr><td class="gut"></td><td class="n">20</td><td class="n">10–20</td><td>EXP1</td><td class="n">141.8</td><td class="n">258.0</td><td class="n">0.55<span class="bar" data-v="0.55"><i></i></span></td><td>EXP-A1</td><td class="n">1.2</td></tr>
-      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--issue-warning)" title="The model changed since this run; the value is stale"><svg class="mk"><use href="#m-warning"/></svg></span></div></td><td class="n">80</td><td class="n">70–80</td><td>SUS</td><td class="n stale">61.3</td><td class="n stale">137.9</td><td class="n stale">0.44<span class="bar" data-v="0.44"><i></i></span></td><td>SUS-A1</td><td class="n">1.2</td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot" style="color:var(--stale-ink)" title="Model changed since Run 03 · the values are from the model as solved"><svg class="mk"><use href="#m-stalerun"/></svg></span></div></td><td class="n">80</td><td class="n">70–80</td><td>SUS</td><td class="n stale">61.3</td><td class="n stale">137.9</td><td class="n stale">0.44<span class="bar" data-v="0.44"><i></i></span></td><td>SUS-A1</td><td class="n">1.2</td></tr>
       <tr><td class="gut"></td><td class="n">30</td><td class="n">20–30</td><td>SUS</td><td class="n">48.2</td><td class="n">137.9</td><td class="n">0.35<span class="bar" data-v="0.35"><i></i></span></td><td>SUS-A1</td><td class="n">1.2</td></tr>
     </tbody>
   </table>
+  <div class="tfoot"><span class="f"><b>5 elements</b> · 6 cases in the envelope</span><span class="f"><b>0.72</b> governing · OPE1 · node 40 · EXP-A1 · pack 1.2</span><span class="grow" style="flex:1"></span><span class="chip outline">Envelope: governing case per element</span><span class="chip outline">Sorted by ratio</span></div>
   <div class="histband"><svg class="mk"><use href="#m-historical"/></svg><span style="font-weight:500">Historical saved run</span><span>Run 02 · reopening cannot establish a current solve basis</span><span class="sample" style="margin-left:auto">variant shown for a reopened run</span></div>
 </div>
 
-<h3>Load cases · generated, edited and authored rows; a display-only expression</h3>
+<h3>Load cases · the Loads header band with the pack identity and the single display-only caption; generated, edited and authored rows; the combination editor as a row expansion under OCC1</h3>
 <div class="tblwrap" style="max-width:920px">
+  <div class="tblhead"><span class="name">Cases</span><span class="sec">generated from rule pack sample-rules 1.2 · <span class="mono">sha256:9b1c4e02…</span> on 2026-09-17 10:05</span><button class="btn compact">Generate from rule pack…</button><span class="grow"></span><span class="dispo-cap"><svg class="mk" style="color:var(--text-muted)"><use href="#m-displayonly"/></svg> Rule expression: Display only, not accepted as input</span></div>
   <table class="ds" aria-label="Load cases sample">
-    <thead><tr><th style="width:32px"></th><th>Case</th><th>Expression</th><th>Stress type</th><th>Origin</th><th>Rendered</th></tr></thead>
+    <thead><tr><th style="width:32px"></th><th>Case</th><th>Expression</th><th>Stress type</th><th>Rule</th><th>Origin</th><th>Rule expression</th></tr></thead>
     <tbody>
-      <tr><td class="gut"><div class="slots"><span class="slot" title="Generated by rule pack sample-rules 1.2 · 2026-09-17 10:05"><svg class="mk"><use href="#m-generated"/></svg></span><span class="slot"></span></div></td><td>SUS</td><td class="n">W + P1</td><td>Sustained</td><td class="sec">Generated · sample-rules 1.2</td><td><span class="dispo">W + P1</span> <span class="dispo-cap">display only, not accepted as input</span></td></tr>
-      <tr><td class="gut"><div class="slots"><span class="slot" title="Generated by rule pack sample-rules 1.2"><svg class="mk"><use href="#m-generated"/></svg></span><span class="slot"></span></div></td><td>OPE1</td><td class="n">W + P1 + T1</td><td>Operating</td><td class="sec">Generated · sample-rules 1.2</td><td><span class="dispo">W + P1 + T1</span></td></tr>
-      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td>EXP1</td><td class="n">OPE1 − SUS</td><td>Expansion</td><td class="sec">Edited by R. Tufts</td><td><span class="dispo">OPE1 − SUS</span></td></tr>
-      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td>OCC1</td><td class="n">W + P1 + U1</td><td>Occasional</td><td class="sec">Authored by R. Tufts</td><td><span class="dispo">W + P1 + U1</span></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot" title="Generated by rule pack sample-rules 1.2 · 2026-09-17 10:05"><svg class="mk"><use href="#m-generated"/></svg></span><span class="slot"></span></div></td><td>SUS</td><td class="n">W + P1</td><td>Sustained</td><td>SUS-A1</td><td class="sec">Generated · sample-rules 1.2</td><td><span class="dispo">W + P1</span></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot" title="Generated by rule pack sample-rules 1.2"><svg class="mk"><use href="#m-generated"/></svg></span><span class="slot"></span></div></td><td>OPE1</td><td class="n">W + P1 + T1</td><td>Operating</td><td>—</td><td class="sec">Generated · sample-rules 1.2</td><td><span class="dispo">W + P1 + T1</span></td></tr>
+      <tr><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td>EXP1</td><td class="n">OPE1 − SUS</td><td>Expansion</td><td>EXP-A1</td><td class="sec">Edited by R. Tufts · was T1 (generated)</td><td><span class="dispo">OPE1 − SUS</span></td></tr>
+      <tr class="sel"><td class="gut"><div class="slots"><span class="slot"></span><span class="slot"></span></div></td><td>OCC1</td><td class="n selcell focuscell">W + P1 + U1</td><td>Occasional</td><td>OCC-A1</td><td class="sec">Authored by R. Tufts</td><td><span class="dispo">W + P1 + U1</span></td></tr>
+      <tr class="expand"><td colspan="7"><div class="block">
+        <div class="sec" style="height:26px;display:flex;align-items:center;gap:8px"><svg class="ic" style="vertical-align:-3px"><use href="#i-expanded"/></svg>Combination editor · OCC1 · row expansion · ⎋ closes</div>
+        <div class="demo-row" style="padding:2px 0 8px;gap:6px"><span class="chip outline" style="color:var(--text-primary)">W</span><span class="sec">+</span><span class="chip outline" style="color:var(--text-primary)">P1</span><span class="sec">+</span><span class="chip outline" style="color:var(--text-primary)">U1 (0.3 g X)</span><span class="sec" style="margin-left:10px">available</span><span class="chip outline muted">T1</span><span class="chip outline muted">T2</span><span class="chip outline muted">SE1</span><span class="grow" style="flex:1"></span><span class="combo">Stress type: Occasional</span><span class="combo">Rule: OCC-A1 · sample-rules 1.2</span><button class="btn compact text">Cancel ⎋</button><button class="btn compact primary">Done ↩</button></div>
+      </div></td></tr>
     </tbody>
   </table>
+  <div class="tfoot"><span class="f"><b>4 cases</b> · 2 generated · 1 edited · 1 authored</span><span class="f"><b>3</b> with a rule</span><span class="f"><b>2</b> load sets</span><span class="grow" style="flex:1"></span><span class="chip outline">1 expansion open</span><span class="chip outline">Origins</span></div>
 </div>
 
 <!-- ===================== 6 STATUS CHIPS ===================== -->
@@ -948,6 +1065,15 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     </div>
     <p class="sec" style="margin-top:8px">Neutral for solved and checked: a solved model is information, not a green light. Amber for incomplete, red for a failed user rule, blue-grey for review required. Short labels are decision-packet item 4.</p>
     <div class="demo-row" style="margin-top:8px"><span class="chip solved" title="INTERNALLY_VERIFIED">Internally verified</span><span class="chip solved" title="PROVER_CORRELATED">Prover correlated</span><span class="chip hist"><svg class="mk"><use href="#m-historical"/></svg>Historical saved run</span></div>
+    <h4>When chips show · the status bar at each moment</h4>
+    <div class="kv" style="grid-template-columns:200px 1fr;row-gap:6px">
+      <dt>Model cannot be solved</dt><dd><span class="chip incomplete">Model incomplete</span></dd>
+      <dt>Complete, not yet solved</dt><dd class="muted">no chip · an absent status is honest</dd>
+      <dt>After a solved run</dt><dd><span class="chip solved">Mechanics solved</span> <span class="chip solved">User rules checked</span></dd>
+      <dt>After a run with a rule failure</dt><dd><span class="chip solved">Mechanics solved</span> <span class="chip failed">User rule failed</span></dd>
+      <dt>Review page</dt><dd><span class="chip solved">User rules checked</span> <span class="chip review">Human review required</span></dd>
+      <dt>After a model change</dt><dd class="muted">no chip · the rail caption <span style="color:var(--rail-captionStale);font-weight:500">Stale</span> and the results header band carry it</dd>
+    </div>
   </div>
   <div class="panel">
     <h4 style="margin-top:0">Chip popover</h4>
@@ -958,18 +1084,18 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
 <!-- ===================== 7 PROPOSAL CARD ===================== -->
 <h2 id="s7">7 Proposal diff card · agent panel, 340 px column</h2>
 <div class="grid2">
-  <div class="card prop" style="max-width:316px">
+  <div style="max-width:316px">
+  <div class="card prop">
     <p class="title">Replace the rigid support at node 80 with a variable spring</p>
-    <div class="meta">Proposal <b>P-12</b> · draft until accepted · 1 row in Restraints, 1 row in Layout</div>
-    <div class="difftitle"><span>Restraints · node 80</span><span>row 1 of 2</span></div>
+    <div class="sec" style="font-size:12px;margin-bottom:4px">“Can the riser at 80 move without loading the nozzle?”</div>
+    <div class="meta">Proposal <b>P-12</b> · draft until accepted · 1 row in Layout, 1 row in Restraints · 16:22</div>
+    <div class="difftitle"><span>Layout · node 80</span><span>row 1 of 2 · accepted</span></div>
+    <div class="done"><svg class="mk"><use href="#m-checked"/></svg><span>DZ <span class="n">−1800 → −2000 mm</span></span><span class="r">accepted 16:31 · <a href="#s7">Undo</a></span></div>
+    <div class="difftitle"><span>Restraints · node 80</span><span>row 2 of 2 · pending</span></div>
     <table class="diff"><colgroup><col style="width:74px"><col style="width:50px"><col><col style="width:60px"></colgroup><thead><tr><th>Field</th><th>Old</th><th>New</th><th></th></tr></thead><tbody>
       <tr><td>Type</td><td class="old">Rigid</td><td class="new">Variable spring</td><td class="acts"><button class="iconbtn" title="Accept row ⌘⇧A"><svg class="ic s12"><use href="#i-check"/></svg></button><button class="iconbtn" title="Reject row ⌘⇧R"><svg class="ic s12"><use href="#i-close"/></svg></button></td></tr>
       <tr><td>Cold load</td><td class="old">—</td><td class="new n">4.2 kN</td><td class="acts"></td></tr>
       <tr><td>Library</td><td class="old">—</td><td><span class="tbd"><svg class="mk"><use href="#m-warning"/></svg>TBD</span></td><td class="acts"></td></tr>
-    </tbody></table>
-    <div class="difftitle"><span>Layout · node 80</span><span>row 2 of 2</span></div>
-    <table class="diff"><colgroup><col style="width:74px"><col style="width:50px"><col><col style="width:60px"></colgroup><thead><tr><th>Field</th><th>Old</th><th>New</th><th></th></tr></thead><tbody>
-      <tr><td>DZ [mm]</td><td class="old n">−1800</td><td class="new n">−2000</td><td class="acts"><button class="iconbtn" title="Accept row ⌘⇧A"><svg class="ic s12"><use href="#i-check"/></svg></button><button class="iconbtn" title="Reject row ⌘⇧R"><svg class="ic s12"><use href="#i-close"/></svg></button></td></tr>
     </tbody></table>
     <h5>Rationale</h5>
     <p>The rigid support at node 80 carries the thermal growth of the riser into the equipment nozzle. A variable spring at the design load lets the riser move and lowers the OPE1 ratio at node 40.</p>
@@ -978,7 +1104,11 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <h5>TBD</h5>
     <ul><li>Vendor hanger table to select from (import through Libraries)</li></ul>
     <div class="sec" style="margin-top:8px">Schema and constraints: passed</div>
-    <div class="actions"><button class="btn text">Reject proposal</button><button class="btn primary">Accept all rows</button></div>
+    <div class="conseq">Accepting a row changes the model: current results are cleared and the run is kept as historical.</div>
+    <div class="actions"><button class="btn compact text">Reject remaining</button><button class="btn compact primary">Accept remaining (1 row)</button></div>
+  </div>
+  <div class="sec" style="font-size:12px;margin-top:8px">Accepted: P-09 · 11:40 · P-12 row 1 · 16:31 <span class="sample">the record's last lines, under the open card</span></div>
+  <p class="sec" style="font-size:12px;margin-top:8px">Before any row is decided the actions read “Reject proposal” and “Accept all rows”; a decided row collapses to one line with Undo.</p>
   </div>
   <div>
     <div class="panel" style="margin-bottom:16px">
@@ -1005,10 +1135,10 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <div class="r"><span>Ratio</span><span class="n">0.72<span class="bar" data-v="0.72"><i></i></span></span></div>
     <div class="r"><span>Rule</span><span>EXP-A1</span></div>
     <div class="r"><span>Pack</span><span class="n">1.2</span></div>
-    <div class="foot"><span>Run 03</span><span class="chip solved" title="INTERNALLY_VERIFIED">Internally verified</span></div>
+    <div class="foot"><span>Run 03 · pinned</span><span class="chip solved" title="INTERNALLY_VERIFIED">Internally verified</span></div>
   </div>
   <div class="legend" aria-label="Legend">
-    <div class="t"><span>Ratio</span><span class="sec" style="font-weight:400">OPE1</span></div>
+    <div class="t"><span>Ratio · operating</span><span class="sec" style="font-weight:400">OPE1</span></div>
     <div class="vbar"><div class="b"><i style="top:28%"></i></div><div class="ticks"><span class="n">1.00</span><span class="n">0.75</span><span class="n">0.50</span><span class="n">0.25</span><span class="n">0</span></div><div class="ticks" style="justify-content:flex-start;padding-top:calc(28% - 7px)"><span class="n" style="color:var(--text-primary)">0.72 · node 40</span></div></div>
     <div class="l"><span>Rule EXP-A1 · pack 1.2</span></div>
     <div class="l"><span>Range 0 – 1.00</span><span class="chip outline" style="height:18px">set</span></div>
@@ -1023,8 +1153,8 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
 </div>
 
 <!-- ===================== 9 SHELL ===================== -->
-<h2 id="s9">9 Shell · stage rail with counts, view switch, toolbar band, agent strip, status bar</h2>
-<p class="sec">A 1440-wide shell at reduced height. Toolbar 48, rail 56, agent strip 44, status bar 24. <span class="sample">counts and names</span></p>
+<h2 id="s9">9 Shell · stage rail with captions, view switch, toolbar band, agent strip, status bar · the docked inspector's geometry</h2>
+<p class="sec">A 1440-wide shell at reduced height, after a model change: the rail's Results caption reads Stale, the status bar shows no chip. Toolbar 48, rail 56, agent strip 44, status bar 24. <span class="sample">counts and names</span></p>
 <div class="shell" aria-label="Shell mock">
   <div class="toolbar">
     <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -1034,7 +1164,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <span class="grow"></span>
     <button class="btn primary"><svg class="ic"><use href="#i-run"/></svg>Run</button>
     <button class="btn primary runbtn" title="Solving case 3 of 6"><span class="prog"></span><svg class="ic"><use href="#i-stop"/></svg>Running…</button>
-    <button class="btn" disabled title="Section missing at node 60"><svg class="ic"><use href="#i-run"/></svg>Run</button>
+    <button class="btn" disabled title="Run is unavailable — Section missing at node 60, Material missing at node 60"><svg class="ic"><use href="#i-run"/></svg>Run</button>
     <button class="btn"><svg class="ic" style="color:var(--issue-blocking)"><use href="#i-issues"/></svg>Issues <span class="n">2</span></button>
     <button class="btn"><svg class="ic"><use href="#i-agent"/></svg>Agent</button>
     <span class="combo">SI</span>
@@ -1044,24 +1174,64 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <nav class="rail" aria-label="Stages">
       <div class="it on"><svg class="ic s20"><use href="#i-model"/></svg>Model</div>
       <div class="it"><svg class="ic s20"><use href="#i-loads"/></svg>Loads</div>
-      <div class="it"><svg class="ic s20"><use href="#i-results"/></svg>Results<span class="cap">Historical</span></div>
-      <div class="it off" title="No run yet"><svg class="ic s20"><use href="#i-review"/></svg>Review</div>
+      <div class="it"><svg class="ic s20"><use href="#i-results"/></svg>Results<span class="cap stale">Stale</span></div>
+      <div class="it"><svg class="ic s20"><use href="#i-review"/></svg>Review</div>
       <div class="spacer"></div>
       <hr>
       <div class="it"><svg class="ic s20"><use href="#i-libraries"/></svg>Libraries</div>
       <div class="it"><svg class="ic s20"><use href="#i-rules"/></svg>Rules</div>
       <div class="it"><span class="cnt n">2</span><svg class="ic s20"><use href="#i-issues"/></svg>Issues</div>
     </nav>
-    <div class="surf"><div>Surfaces · Both view<br><span class="n">737 × 828 table · 603 × 828 canvas</span><br><span class="sec">the tables and the model are the hero; the inspector is a 300 px slide-over on the canvas edge</span></div></div>
+    <div class="surf" style="flex-direction:column;align-items:stretch;gap:10px;padding:16px 24px">
+      <div class="sec" style="text-align:left">Surfaces · Both view · 1340 wide with the strip · the inspector docks on the canvas's right edge and the canvas shrinks; the table never reflows</div>
+      <div class="geo" aria-label="Both view, inspector closed"><div class="tbl" style="flex:737"><b>table</b><span class="n">737</span></div><div class="cv" style="flex:603"><b>canvas</b><span class="n">603</span></div></div>
+      <div class="geo" aria-label="Both view, inspector docked"><div class="tbl" style="flex:737"><b>table</b><span class="n">737</span></div><div class="cv" style="flex:303"><b>canvas</b><span class="n">303</span></div><div class="in" style="flex:300"><b>inspector</b><span class="n">300</span></div></div>
+      <div class="sec" style="text-align:left">With the agent column open (1044 wide): 574 / 470, and 170 with the inspector, below the 220 px minimum, so the agent column collapses to its strip first (⌘⇧G re-opens it) and the split is as with the strip; the canvas is never collapsed. Only when that is not enough does the inspector open as a slide-over for that window size, with the tooltip “Docked inspector needs a wider window”.</div>
+      <div class="geo" aria-label="Both view, inspector docked after the agent column collapsed to its strip"><div class="tbl" style="flex:737"><b>table</b><span class="n">737</span></div><div class="cv" style="flex:303"><b>canvas</b><span class="n">303</span></div><div class="in" style="flex:300"><b>inspector</b><span class="n">300</span></div><div class="strip" style="flex:44"><b>strip</b><span class="n">44</span></div></div>
+    </div>
     <div class="agentstrip" title="Agent · 2 open proposals"><svg class="ic"><use href="#i-agent"/></svg><span class="badge n">2</span></div>
   </div>
   <div class="statusbar">
-    <span class="chip solved" title="MECHANICS_SOLVED · Solver">Mechanics solved</span>
+    <span class="muted" title="No chip after a model change: the rail caption and the results header carry it">no chip</span>
     <span><svg class="ic s12" style="color:var(--issue-blocking);vertical-align:-2px"><use href="#i-issues"/></svg> Issues <span class="n">2</span></span>
-    <span>Node <span class="n">40</span> · 1 row</span>
+    <span>Node <span class="n">80</span> · 1 row · 2 proposed rows</span>
     <span class="grow"></span>
     <span>SI</span>
     <svg class="ic" title="About and notices"><use href="#i-info"/></svg>
+  </div>
+</div>
+
+<div class="grid2" style="margin-top:16px">
+  <div class="panel">
+    <h4 style="margin-top:0">Toolbar states · the latched Agent toggle on <code>pressed.fill</code> / <code>pressed.ink</code>, distinct from the segmented view switch</h4>
+    <div class="demo-row"><button class="btn primary"><svg class="ic"><use href="#i-run"/></svg>Run</button><button class="btn primary runbtn" title="Solving case 3 of 6"><span class="prog"></span><svg class="ic"><use href="#i-stop"/></svg>Running…</button><button class="btn" disabled title="Run is unavailable — Section missing at node 20, Material missing at node 20"><svg class="ic"><use href="#i-run"/></svg>Run</button><button class="btn"><svg class="ic"><use href="#i-agent"/></svg>Agent</button><button class="btn latched" aria-pressed="true" title="Agent · ⌘⇧G · open"><svg class="ic"><use href="#i-agent"/></svg>Agent</button><div class="hud"><button title="Fit (F)"><svg class="ic"><use href="#i-fit"/></svg></button><button aria-pressed="true" title="Route (R) · latched"><svg class="ic"><use href="#i-route"/></svg></button><button title="Probe (P)"><svg class="ic"><use href="#i-probe"/></svg></button></div></div>
+    <h4>Rail captions by state · caption size, their own tokens</h4>
+    <div class="demo-row" style="gap:16px">
+      <span class="capdemo"><svg class="ic s20"><use href="#i-results"/></svg>Results<span class="rail"><span style="color:var(--rail-captionFailed)">Failed</span></span></span>
+      <span class="capdemo"><svg class="ic s20"><use href="#i-results"/></svg>Results<span style="color:var(--rail-captionStale)">Stale</span></span>
+      <span class="capdemo"><svg class="ic s20"><use href="#i-results"/></svg>Results<span style="color:var(--rail-captionHistorical)">Historical</span></span>
+      <span class="capdemo" style="color:var(--text-disabled)" title="No run yet"><svg class="ic s20" style="color:var(--text-disabled)"><use href="#i-review"/></svg>Review</span>
+      <span class="sec">disabled items carry “No run yet” or “No solved run” in the tooltip</span>
+    </div>
+    <h4>Failure banner · once, on the Results page; the drawer's row carries the link</h4>
+    <div class="tblwrap" style="max-width:640px">
+      <div class="banner"><svg class="mk"><use href="#m-warning"/></svg><span><b style="font-weight:500">Run 02 failed:</b> nonlinear support at node 20 did not converge.</span><a href="#s9">Show node 20</a></div>
+      <div class="emptystate">No results — Run 02 stopped in OPE1 (case 3 of 6) at the iteration limit. A run's results are one immutable set, so a stopped run has none. Change the support at node 20 or the iteration limit in Run settings, then Run again.</div>
+    </div>
+  </div>
+  <div class="panel">
+    <h4 style="margin-top:0">Run log popover · shorter, on the Run button; the full log on the run record</h4>
+    <div class="pop runlog" style="min-width:360px">
+      <div style="font-weight:500;margin-bottom:4px">Run 02 · <span class="n">15:02:14–15:02:41</span> · settings S-02</div>
+      <div class="r"><svg class="mk" style="color:var(--mark-checked)"><use href="#m-checked"/></svg><b>Assembled</b><span class="n">0.3 s</span></div>
+      <div class="r"><svg class="mk" style="color:var(--mark-checked)"><use href="#m-checked"/></svg><b>W, SUS solved</b><span class="n">0.8 s</span></div>
+      <div class="r"><svg class="mk" style="color:var(--issue-warning)"><use href="#m-warning"/></svg><b>OPE1 stopped</b><span>at iteration 50 · node 20</span><a href="#s9">Show node 20</a></div>
+      <div class="r"><span style="width:12px;display:inline-block"></span><span>OPE2, EXP1, EXP2, OCC1, hangers, rules not run</span></div>
+      <div class="foot"><button class="btn compact">Run settings…</button><button class="btn compact">Run record</button><span class="grow" style="flex:1"></span><button class="btn compact primary">Run again</button></div>
+    </div>
+    <h4>Status chip popover · after a solve, two chips, one per authority domain</h4>
+    <div class="demo-row"><span class="chip solved" title="MECHANICS_SOLVED · Solver">Mechanics solved</span><span class="chip solved" title="USER_RULE_CHECKED · Rule pack">User rules checked</span><span class="sec">·</span><span class="chip incomplete" title="MODEL_INCOMPLETE · Solver">Model incomplete</span><span class="sec">before a run, while the model cannot be solved</span></div>
+    <div class="pop" style="margin-top:8px"><div class="kv"><dt>Status</dt><dd class="mono">MODEL_INCOMPLETE</dd><dt>Authority</dt><dd>Solver</dd><dt>Run</dt><dd>Run 02 · 2026-09-17 15:02 · stopped in OPE1</dd><dt>Reason</dt><dd>nonlinear support at node 20 did not converge</dd></div></div>
   </div>
 </div>
 
@@ -1069,11 +1239,11 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
 <h2 id="s10">10 Review page primitives · outline, content with live tables and edits, comment stream</h2>
 <div class="panel">
   <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
-    <span style="font-size:18px;line-height:24px;font-weight:600">Review · Loop 4 header · Run 03</span>
-    <span class="combo">Iteration 2 (current)</span><span class="sec">Compare with</span><span class="combo">Iteration 1 · 2026-09-17</span>
+    <span style="font-size:18px;line-height:24px;font-weight:600">Review · Loop 4 header · Run 04</span>
+    <span class="combo">Iteration 2 · 09:40 · Run 04</span><span class="sec">compared with Iteration 1 · 2026-09-17 15:40 · Run 03</span>
     <span class="switch on"><i></i>Show edits</span>
     <span style="flex:1"></span>
-    <button class="btn">Snapshot…</button><button class="btn">Preview report</button><button class="btn primary">Export…</button>
+    <button class="btn">Snapshot…</button><button class="btn">Report preview</button><button class="btn primary">Export…</button>
   </div>
   <div class="sec" style="margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-hairline)">Results are engineering decision-support information. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority. <span class="sample">shown once, at the top</span></div>
   <div class="reviewpage">
@@ -1081,22 +1251,25 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
       <div><span class="sec">1</span>Notice<span class="lock">fixed</span></div>
       <div><span class="sec">2</span>Identity<span class="lock">fixed</span></div>
       <div><span class="sec">3</span>Libraries and rule packs<span class="lock">fixed</span></div>
-      <div class="on"><span class="sec">4</span>Model<span class="lock" style="color:var(--accent-text)">edited</span></div>
-      <div><span class="sec">5</span>Load cases</div>
+      <div class="on"><span class="sec">4</span>Model<span class="st" style="color:var(--accent-text)">edited</span></div>
+      <div><span class="sec">5</span>Load cases<span class="st">drafted</span></div>
       <div><span class="sec">6</span>Assumptions and warnings<span class="lock">fixed</span></div>
-      <div><span class="sec">7</span>Results · Stresses</div>
-      <div><span class="sec">8</span>Hanger selection</div>
-      <div><span class="sec">9</span>Review and sign-off block<span class="lock">fixed</span></div>
+      <div><span class="sec">7</span>Results · Stresses<span class="st">live</span></div>
+      <div><span class="sec">8</span>Results · Restraint loads<span class="st">live</span></div>
+      <div><span class="sec">9</span>Hanger selection<span class="st">empty</span></div>
+      <div><span class="sec">10</span>Review/signoff block<span class="lock">fixed</span></div>
+      <div class="note">fixed sections come from the record · “Review/signoff block” is the registered name of the report item (RESEARCH-C §4 row M-07)</div>
     </div>
     <div>
       <h3 style="margin-top:0">4 Model</h3>
       <p>The header is a 3000 mm run from the pump nozzle at node 10 to the riser at node 30, <span class="del">restrained by a rigid support at node 80</span><span class="ins">carried by a variable spring at node 80 (proposal P-12, accepted)</span>, with a branch from node 60 to the bypass. Sections and materials are propagated from node 20.</p>
-      <div class="tblwrap" style="max-width:640px"><div class="tblhead"><span class="name">Live from Run 03 · Stresses · OPE1</span><span class="chip outline">not editable here</span><span class="grow"></span><span class="combo">Case: OPE1</span></div>
+      <div class="tblwrap" style="max-width:640px"><div class="tblhead"><span class="name">Live from Run 03 · Stresses · OPE1</span><span class="chip outline">not editable here</span><span class="grow"></span><span class="sec" style="font-size:12px"><span class="ins">inserted</span> · <span class="del">removed</span></span><span class="combo">Case: OPE1</span></div>
       <table class="ds"><thead><tr><th class="n">Node</th><th>Element</th><th class="n">Stress <span class="u">[MPa]</span></th><th class="n">Allowable <span class="u">[MPa]</span></th><th class="n">Ratio</th><th>Rule</th><th>Pack</th></tr></thead><tbody><tr><td class="n">40</td><td class="n">30–40</td><td class="n">124.6</td><td class="n">172.0</td><td class="n">0.72<span class="bar" data-v="0.72"><i></i></span></td><td>EXP-A1</td><td class="n">1.2</td></tr><tr><td class="n">60</td><td class="n">50–60</td><td class="n">113.5</td><td class="n">172.0</td><td class="n">0.66<span class="bar" data-v="0.66"><i></i></span></td><td>EXP-A1</td><td class="n">1.2</td></tr></tbody></table></div>
       <p style="margin-top:8px">The governing ratio is <span class="n">0.72 · EXP-A1 · pack 1.2</span> at node 40 in OPE1.</p>
     </div>
     <div>
-      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap"><span class="chip solved">All</span><span class="chip outline">Checks</span><span class="chip outline">Open issues</span><span class="chip outline">Resolved</span><span class="chip outline">Mine</span></div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span style="font-weight:600;font-size:15px;line-height:20px">Comments <span class="sec n" style="font-weight:400">3</span></span><span class="grow" style="flex:1"></span><button class="btn compact">+ Comment</button></div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap"><span class="chip solved">All 3</span><span class="chip outline">Open 2</span><span class="chip outline">Resolved 1</span><span class="chip outline">Checks 1</span><span class="chip outline">Notes 1</span><span class="chip outline">Mine 1</span></div>
       <div class="comment"><div class="h"><span class="chip outline">Check</span><a href="#s5">Model · row node 20</a><span>Agent · 16:04</span></div>The support at node 20 does not engage in OPE1 (lift 2.1 mm, gap 3 mm). Confirm the gap is intended.<div style="margin-top:6px"><button class="btn compact">Resolve</button></div></div>
       <div class="comment"><div class="h"><span class="chip outline">Open issue</span><a href="#s10">Report §4 · paragraph 1</a><span>Agent · 16:09</span></div>The paragraph says the spring is accepted; the Restraints row at 80 shows the second row of P-12 still pending.</div>
       <div class="comment"><div class="h"><span class="chip outline">Note</span><a href="#s5">Stresses OPE1 · node 40</a><span>R. Tufts · 16:12</span></div>Re-run after the vendor table is imported.</div>
@@ -1106,7 +1279,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
 
 <!-- ===================== 11 CANVAS ===================== -->
 <h2 id="s11">11 The canvas palette · the figure language, drawn schematically in 2D</h2>
-<p class="sec">Ground grid, pipe at real diameter with its edge line, a bend, restraint glyphs with direction arrows, a force and a moment vector with labels, node labels, a selection halo and a hover halo, the proposal ghost, the draft ghost, the deformed shape with its undeformed ghost, result colour on two elements, an unsolved element, the triad and the scale reference. Every colour is a canvas token. <span class="sample">not rendered by the engine</span></p>
+<p class="sec">Ground grid, pipe at real diameter with its edge line, a bend, restraint glyphs with direction arrows, a force and a moment vector with labels, neutral because result colour is on, node labels, a selection halo and a hover halo, the proposal ghost, the draft ghost as a thin dashed centreline with a faint tube outline and the hint strip on <code>canvas.hint</code>, the deformed shape with its undeformed ghost, result colour on two elements, an unsolved element, the triad and the scale reference. Every colour is a canvas token. <span class="sample">not rendered by the engine</span></p>
 <div class="figure panel" style="padding:0;overflow:hidden">
 <svg viewBox="0 0 1200 420" role="img" aria-label="Canvas palette figure">
   <defs>
@@ -1117,6 +1290,8 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   </defs>
   <rect width="1200" height="420" fill="var(--canvas-bg)"/>
   <rect x="0" y="0" width="1200" height="420" fill="url(#gmajor)"/>
+  <!-- hint strip under the HUD, on canvas.hint -->
+  <g font-family="var(--font-ui)"><rect x="16" y="16" width="344" height="22" rx="3" fill="var(--canvas-hint)"/><text x="26" y="31" fill="var(--text-secondary)" font-size="12">Route · ↩ places 120 · ⇥ next axis · − reverses · ⎋ cancels</text></g>
   <!-- main run: edge then tube then shade; the first span sags (deformed, exaggerated) -->
   <g stroke-linecap="butt" stroke-linejoin="round" fill="none">
     <path d="M120 296Q210 338 300 296V190a40 40 0 0 1 40-40H540" stroke="var(--canvas-edge)" stroke-width="26"/>
@@ -1146,14 +1321,16 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   <path d="M720 163v110" fill="none" stroke="var(--canvas-pipe)" stroke-width="16"/>
   <!-- proposal ghost: extend branch -->
   <path d="M720 273v60h90" fill="none" stroke="var(--canvas-proposalGhost)" stroke-width="16" stroke-dasharray="8 6" opacity=".6"/>
-  <!-- draft ghost from 110 -->
-  <path d="M980 150h120" fill="none" stroke="var(--canvas-draft)" stroke-width="16" stroke-dasharray="8 6" opacity=".7"/>
+  <!-- draft ghost from 110: a thin dashed centreline, a faint tube outline, the draft node's plate -->
+  <path d="M980 138h120M980 162h120M1100 138v24" fill="none" stroke="var(--canvas-draft)" stroke-width="1" opacity=".3"/>
+  <path d="M980 150h120" fill="none" stroke="var(--canvas-draft)" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <rect x="1106" y="141" width="30" height="18" rx="2" fill="var(--canvas-labelBg)" stroke="var(--canvas-draft)" stroke-width="1.5"/><text x="1111" y="154" fill="var(--canvas-label)" font-size="12" font-family="var(--font-numeric)">120</text>
   <!-- compass at 110 -->
   <g font-size="11" font-family="var(--font-ui)">
-    <path d="M980 150h60" stroke="var(--canvas-axisX)" stroke-width="2" marker-end="url(#arr)"/><text x="1044" y="140" fill="var(--canvas-axisX)">X</text>
+    <path d="M980 150h60" stroke="var(--canvas-axisX)" stroke-width="2" marker-end="url(#arr)"/><text x="1044" y="168" fill="var(--canvas-axisX)">X</text>
     <path d="M980 150v-40" stroke="var(--canvas-axisY)" stroke-width="1" marker-end="url(#arr)"/><text x="985" y="108" fill="var(--canvas-axisY)">Y</text>
     <path d="M980 150l-24 24" stroke="var(--canvas-axisZ)" stroke-width="1" marker-end="url(#arr)"/><text x="948" y="186" fill="var(--canvas-axisZ)">Z</text>
-    <rect x="1010" y="160" width="74" height="20" rx="3" fill="var(--surface-raised)" stroke="var(--focus-ring)" stroke-width="2"/><text x="1018" y="174" fill="var(--text-primary)" font-size="12">2500 mm</text>
+    <rect x="1046" y="120" width="64" height="20" rx="3" fill="var(--surface-raised)" stroke="var(--focus-ring)" stroke-width="2"/><text x="1053" y="134" fill="var(--text-primary)" font-size="12" font-family="var(--font-numeric)">1500</text><text x="1085" y="134" fill="var(--text-muted)" font-size="11">mm</text>
   </g>
   <!-- anchor glyph at 10 -->
   <g>
@@ -1165,7 +1342,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     <path d="M300 312l-14 26h28z" fill="var(--canvas-glyphFill)" stroke="var(--canvas-glyph)" stroke-width="1.5"/>
     <path d="M280 346h40" stroke="var(--canvas-glyph)" stroke-width="1.5"/>
     <path d="M300 372v-18" stroke="var(--canvas-glyph)" stroke-width="1.5" marker-end="url(#arr)"/>
-    <text x="318" y="336" fill="var(--canvas-label)" font-size="11">+Y · gap 3 mm · μ 0.30</text>
+    <rect x="312" y="324" width="128" height="18" rx="2" fill="var(--canvas-labelBg)"/><text x="318" y="337" fill="var(--canvas-label)" font-size="11">+Y · gap 3 mm · μ 0.30</text>
   </g>
   <!-- undeformed ghost drawn over the pipe -->
   <path d="M120 296H300V190a40 40 0 0 1 40-40H540" fill="none" stroke="var(--canvas-deformGhost)" stroke-width="1" stroke-dasharray="4 3"/>
@@ -1176,13 +1353,13 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   </g>
   <!-- spring can at 80 proposal? skip; load vector at 40 (540,150) -->
   <g>
-    <path d="M540 80v52" stroke="var(--cat-1)" stroke-width="2" marker-end="url(#arr)"/>
+    <path d="M540 80v52" stroke="var(--canvas-vector)" stroke-width="2" marker-end="url(#arr)"/>
     <rect x="548" y="74" width="72" height="20" rx="3" fill="var(--canvas-labelBg)"/><text x="554" y="88" fill="var(--canvas-label)" font-size="12">−2000 N · W</text>
   </g>
   <!-- moment vector at 70 (double head) -->
   <g>
-    <path d="M860 230v-56" stroke="var(--cat-2)" stroke-width="2" marker-end="url(#arr)"/>
-    <path d="M860 230v-46" stroke="var(--cat-2)" stroke-width="2" marker-end="url(#arr)"/>
+    <path d="M860 230v-56" stroke="var(--canvas-vector)" stroke-width="2" marker-end="url(#arr)"/>
+    <path d="M860 230v-46" stroke="var(--canvas-vector)" stroke-width="2" marker-end="url(#arr)"/>
     <rect x="866" y="212" width="60" height="20" rx="3" fill="var(--canvas-labelBg)"/><text x="872" y="226" fill="var(--canvas-label)" font-size="12">1.2 kN·m</text>
   </g>
   <!-- node labels -->
@@ -1209,7 +1386,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   </g>
   <!-- legend labels for the figure -->
   <g font-size="11" fill="var(--text-muted)">
-    <text x="130" y="404">undeformed ghost · dashed · deformed ×50</text><text x="590" y="62">selection halo · result colour 0.72</text><text x="740" y="200">hover halo</text><text x="870" y="254">unsolved · dimmed</text><text x="1000" y="205">draft ghost · compass</text><text x="770" y="360">proposal ghost</text>
+    <text x="130" y="404">undeformed ghost · dashed · deformed ×50</text><text x="590" y="62">selection halo · result colour 0.72 · vectors neutral</text><text x="740" y="200">hover halo</text><text x="870" y="254">unsolved · dimmed</text><text x="985" y="205">draft ghost · centreline, outline</text><text x="770" y="360">proposal ghost</text>
   </g>
 </svg>
 </div>
@@ -1223,10 +1400,11 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   <div class="cbox"><table id="ctable"><thead><tr><th>Foreground</th><th>Background</th><th>Role</th><th class="n">Light</th><th class="n">Dark</th></tr></thead><tbody></tbody></table></div>
 </div>
 
-<footer class="spec">SWB Piping Designer · design system specimen V1 · 2026-09-18 · sample values are placeholders · this page makes no network request · Findings only: no conformance is claimed and no target is named.</footer>
+<footer class="spec">SWB Piping Designer · design system specimen V1.1 · 2026-09-18 · sample values are placeholders · this page makes no network request · Findings only: no conformance is claimed and no target is named.</footer>
 </main>
 
-<script id="tokens" type="application/json">{"name":"SWB Piping Designer design system tokens","version":"1.0","date":"2026-09-18","note":"Sample values in the specimen are placeholders. Colour tokens carry a light and a dark value; type, spacing and layout tokens are plain values in CSS px unless stated.","color":{"surface.base":{"light":"#eef0f3","dark":"#1b1e22"},"surface.panel":{"light":"#ffffff","dark":"#25282c"},"surface.raised":{"light":"#ffffff","dark":"#2e3236"},"surface.sunken":{"light":"#f5f7f9","dark":"#202327"},"surface.header":{"light":"#f0f3f5","dark":"#292d31"},"surface.rowAlt":{"light":"#f9fafb","dark":"#272a2e"},"surface.canvas":{"light":"#ebedef","dark":"#191c1f"},"text.primary":{"light":"#22272c","dark":"#e5e8ec"},"text.secondary":{"light":"#5b6168","dark":"#acb2b7"},"text.muted":{"light":"#7d848b","dark":"#878d93"},"text.disabled":{"light":"#a6abb1","dark":"#5f6469"},"text.inverse":{"light":"#ffffff","dark":"#13161a"},"text.link":{"light":"#1762b6","dark":"#87bafd"},"border.hairline":{"light":"#d5d8db","dark":"#393e42"},"border.strong":{"light":"#b3b8be","dark":"#53595f"},"border.focus":{"light":"#1a73d5","dark":"#70adfb"},"accent.fill":{"light":"#106dce","dark":"#4c94ec"},"accent.fillHover":{"light":"#0161bd","dark":"#59a0f9"},"accent.text":{"light":"#005bb3","dark":"#91c1ff"},"selection.band":{"light":"#e2eefe","dark":"#223e61"},"selection.bar":{"light":"#106dce","dark":"#65a7fa"},"hover.wash":{"light":"rgba(30,36,48,0.06)","dark":"rgba(255,255,255,0.06)"},"pressed.wash":{"light":"rgba(30,36,48,0.10)","dark":"rgba(255,255,255,0.10)"},"disabled.fill":{"light":"#e9ebee","dark":"#2b2e32"},"focus.ring":{"light":"#1a73d5","dark":"#70adfb"},"scrim":{"light":"rgba(20,22,28,0.32)","dark":"rgba(0,0,0,0.55)"},"proposal.new":{"light":"#6b3baa","dark":"#c4a4fe"},"proposal.band":{"light":"#f2edfe","dark":"#3b2f51"},"proposal.bar":{"light":"#854ece","dark":"#ba93fb"},"proposal.old":{"light":"#7d848b","dark":"#878d93"},"mark.checked":{"light":"#5b6168","dark":"#acb2b7"},"mark.checkedStale":{"light":"#a46e01","dark":"#e9b452"},"mark.origin":{"light":"#7d848b","dark":"#878d93"},"mark.attachment":{"light":"#5b6168","dark":"#acb2b7"},"issue.blocking":{"light":"#ba2b2e","dark":"#fb817a"},"issue.blockingTint":{"light":"#feebe9","dark":"#4b2724"},"issue.warning":{"light":"#a46e01","dark":"#e9b452"},"issue.warningTint":{"light":"#fff1d5","dark":"#433215"},"issue.info":{"light":"#426882","dark":"#8fb7d4"},"issue.infoTint":{"light":"#e9f1f8","dark":"#27353e"},"mark.required":{"light":"#ba2b2e","dark":"#fb817a"},"status.incompleteFill":{"light":"#fff1d5","dark":"#433215"},"status.incompleteInk":{"light":"#774f02","dark":"#efc876"},"status.solvedFill":{"light":"#eef0f3","dark":"#32363a"},"status.solvedInk":{"light":"#353b42","dark":"#d4d8dd"},"status.failedFill":{"light":"#feebe9","dark":"#4b2724"},"status.failedInk":{"light":"#a21921","dark":"#ffaba3"},"status.reviewFill":{"light":"#e9f1f8","dark":"#27353e"},"status.reviewInk":{"light":"#25526f","dark":"#a8d1ee"},"historical.tint":{"light":"#f4efe7","dark":"#322d25"},"historical.ink":{"light":"#5e5443","dark":"#cec2af"},"displayOnly.border":{"light":"#b3b8be","dark":"#53595f"},"stale.stripe":{"light":"#ced1d5","dark":"#44484d"},"canvas.bg":{"light":"#ebedef","dark":"#191c1f"},"canvas.gridMajor":{"light":"#ced1d5","dark":"#2d3135"},"canvas.gridMinor":{"light":"#dfe1e4","dark":"#222629"},"canvas.pipe":{"light":"#a6abb1","dark":"#757b81"},"canvas.pipeShade":{"light":"#81878d","dark":"#53595f"},"canvas.edge":{"light":"#42484f","dark":"#c7cbd0"},"canvas.glyph":{"light":"#30363c","dark":"#dbdee2"},"canvas.glyphFill":{"light":"#dbdee2","dark":"#34383d"},"canvas.label":{"light":"#22272c","dark":"#e5e8ec"},"canvas.labelBg":{"light":"rgba(255,255,255,0.82)","dark":"rgba(28,31,37,0.82)"},"canvas.vector":{"light":"#42484f","dark":"#c7cbd0"},"canvas.selection":{"light":"#106dce","dark":"#6dadff"},"canvas.hover":{"light":"#5d94da","dark":"#5788c7"},"canvas.draft":{"light":"#106dce","dark":"#6dadff"},"canvas.proposalGhost":{"light":"#854ece","dark":"#ba93fb"},"canvas.deformGhost":{"light":"#81878d","dark":"#53595f"},"canvas.unsolved":{"light":"#a6abb1","dark":"#757b81"},"canvas.axisX":{"light":"#bd413f","dark":"#f07f77"},"canvas.axisY":{"light":"#308639","dark":"#73c076"},"canvas.axisZ":{"light":"#2171cc","dark":"#70adfb"},"result.scale.1":{"light":"#4ab9b2","dark":"#02736e"},"result.scale.2":{"light":"#15a6a0","dark":"#028984"},"result.scale.3":{"light":"#05908b","dark":"#04a19b"},"result.scale.4":{"light":"#087a76","dark":"#28b8b1"},"result.scale.5":{"light":"#056662","dark":"#51cec7"},"result.scale.6":{"light":"#01524e","dark":"#83e1db"},"result.scale.7":{"light":"#003e3c","dark":"#b7f2ed"},"cat.1":{"light":"#cf630d","dark":"#d97230","hue":"orange"},"cat.2":{"light":"#b84999","dark":"#c960aa","hue":"magenta"},"cat.3":{"light":"#3b9555","dark":"#429c5a","hue":"green"},"cat.4":{"light":"#3f5bb8","dark":"#6280da","hue":"purple"},"cat.5":{"light":"#cb4f73","dark":"#db6686","hue":"rose"},"cat.6":{"light":"#098db2","dark":"#089ac3","hue":"azure"},"cat.7":{"light":"#8c8305","dark":"#97902a","hue":"olive"},"cat.8":{"light":"#0b959b","dark":"#009298","hue":"cyan"}},"type":{"family.ui":"-apple-system, BlinkMacSystemFont, system-ui, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif","family.numeric":"-apple-system, BlinkMacSystemFont, system-ui, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif","family.mono":"ui-monospace, \"SF Mono\", Menlo, Monaco, Consolas, monospace","numeric.feature":"font-variant-numeric: tabular-nums","size.caption":11,"size.chip":12,"size.body":13,"size.title":15,"size.heading":18,"size.figure":22,"lineHeight.caption":14,"lineHeight.chip":16,"lineHeight.body":18,"lineHeight.title":20,"lineHeight.heading":24,"lineHeight.figure":28,"weight.regular":400,"weight.medium":500,"weight.semibold":600,"minimumRepeatedlyRead":13,"letterSpacing.figure":-0.2},"space":{"0":0,"1":2,"2":4,"3":6,"4":8,"5":12,"6":16,"7":20,"8":24,"9":32,"10":40},"radius":{"none":0,"control":3,"card":6,"sheet":10,"pill":999},"border":{"hairline":1,"strong":1,"focusRing":2,"selectionBar":3,"proposalBar":3},"elevation":{"0":"none","1":{"light":"0 1px 2px rgba(20,24,30,0.08)","dark":"0 1px 2px rgba(0,0,0,0.40)"},"2":{"light":"0 4px 12px rgba(20,24,30,0.12), 0 1px 2px rgba(20,24,30,0.06)","dark":"0 4px 12px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.06)"},"3":{"light":"0 12px 32px rgba(20,24,30,0.18), 0 2px 4px rgba(20,24,30,0.08)","dark":"0 12px 32px rgba(0,0,0,0.60), 0 0 0 1px rgba(255,255,255,0.08)"}},"focus":{"ringWidth":2,"ringOffset":1,"ringColorToken":"focus.ring","cellInset":true},"motion":{"disclosure.ms":120,"drawer.ms":180,"proposalArrive.ms":240,"hover.ms":80,"easing.standard":"cubic-bezier(0.2, 0, 0, 1)","easing.exit":"cubic-bezier(0.4, 0, 1, 1)","reducedMotion":"all durations 0 under prefers-reduced-motion"},"layout":{"window.default":[1440,900],"window.min":[1280,800],"toolbar":48,"statusBar":24,"rail":56,"agent.open":340,"agent.strip":44,"inspector.both":300,"inspector.model":340,"drawer.table":280,"drawer.issues":200,"review.outline":280,"review.comments":320,"row":26,"headerRow":28,"control":26,"controlCompact":22,"gutter":32,"marksColumn":72,"hud.button":28,"probe.width":300,"legend.width":220,"sideGutter":16},"icon":{"grid":16,"stroke":1.5,"cornerRadius":1.5,"sizes":[12,16,20],"capsAndJoins":"round"}}</script>
+<script id="pairs" type="application/json">[["text.primary","surface.panel","text"],["text.primary","surface.base","text"],["text.primary","surface.sunken","text"],["text.primary","surface.header","text"],["text.primary","surface.rowAlt","text"],["text.primary","surface.raised","text"],["text.primary","selection.band","text"],["text.primary","proposal.band","text"],["text.primary","hover.wash/surface.panel","text"],["text.primary","issue.blockingTint","text"],["text.primary","issue.warningTint","text"],["text.primary","issue.infoTint","text"],["text.primary","historical.tint","text"],["text.primary","stale.band","text"],["text.primary","disabled.fill","text"],["text.secondary","surface.panel","text"],["text.secondary","surface.base","text"],["text.secondary","surface.header","text"],["text.secondary","surface.sunken","text"],["text.secondary","selection.band","text"],["text.secondary","proposal.band","text"],["text.secondary","canvas.hint/canvas.bg","canvas hint text"],["text.muted","surface.panel","text"],["text.muted","surface.base","text"],["text.muted","surface.header","text"],["text.muted","surface.sunken","text"],["text.disabled","surface.panel","text (disabled)"],["text.disabled","surface.base","text (disabled)"],["text.disabled","surface.sunken","text (disabled)"],["text.link","surface.panel","text"],["text.link","surface.base","text"],["accent.text","surface.panel","text"],["accent.text","selection.band","text"],["text.inverse","accent.fill","text on button"],["text.inverse","accent.fillHover","text on button"],["pressed.ink","pressed.fill","latched toggle"],["pressed.fill","surface.base","latched toggle fill"],["proposal.new","surface.panel","text"],["proposal.new","proposal.band","text"],["proposal.new","surface.base","text"],["proposal.old","surface.panel","text (struck)"],["proposal.old","proposal.band","text (struck)"],["mark.checked","surface.panel","mark"],["mark.checkedStale","surface.panel","mark"],["mark.checkedStale","surface.base","mark"],["mark.origin","surface.panel","mark"],["mark.origin","surface.rowAlt","mark"],["mark.origin","surface.header","mark"],["mark.attachment","surface.panel","mark"],["mark.required","surface.panel","mark"],["mark.required","surface.sunken","mark"],["draft.bar","surface.panel","draft row bar"],["draft.bar","selection.band","draft row bar"],["issue.blocking","surface.panel","text"],["issue.blocking","issue.blockingTint","text"],["issue.blocking","surface.base","text"],["issue.warning","surface.panel","text"],["issue.warning","issue.warningTint","text"],["issue.warning","surface.base","text"],["issue.info","surface.panel","text"],["issue.info","issue.infoTint","text"],["status.incompleteInk","status.incompleteFill","chip text"],["status.solvedInk","status.solvedFill","chip text"],["status.failedInk","status.failedFill","chip text"],["status.reviewInk","status.reviewFill","chip text"],["status.incompleteInk","surface.panel","chip text"],["status.failedInk","surface.panel","chip text"],["status.reviewInk","surface.panel","chip text"],["rail.captionFailed","surface.base","rail caption"],["rail.captionStale","surface.base","rail caption"],["rail.captionHistorical","surface.base","rail caption"],["historical.ink","historical.tint","text"],["historical.ink","surface.panel","text"],["stale.ink","stale.band","band text"],["stale.ink","surface.panel","band text"],["border.hairline","surface.panel","hairline"],["border.hairline","surface.base","hairline"],["border.strong","surface.panel","border"],["border.strong","surface.base","border"],["focus.ring","surface.panel","focus ring"],["focus.ring","surface.base","focus ring"],["focus.ring","selection.band","focus ring"],["selection.bar","selection.band","mark"],["proposal.bar","proposal.band","mark"],["displayOnly.border","surface.sunken","border"],["stale.stripe","surface.panel","mark"],["bar.track","surface.panel","bar track"],["bar.track","selection.band","bar track"],["canvas.label","canvas.labelBg/canvas.bg","canvas text"],["canvas.label","canvas.bg","canvas text"],["canvas.gridMajor","canvas.bg","hairline"],["canvas.gridMinor","canvas.bg","hairline"],["canvas.pipe","canvas.bg","canvas mark"],["canvas.pipeShade","canvas.bg","canvas mark"],["canvas.edge","canvas.pipe","canvas mark"],["canvas.edge","canvas.bg","canvas mark"],["canvas.glyph","canvas.bg","canvas mark"],["canvas.glyph","canvas.glyphFill","canvas mark"],["canvas.glyphFill","canvas.bg","canvas mark"],["canvas.vector","canvas.bg","canvas mark"],["canvas.selection","canvas.bg","canvas mark"],["canvas.selection","canvas.pipe","canvas mark"],["canvas.hover","canvas.bg","canvas mark"],["canvas.draft","canvas.bg","canvas mark"],["canvas.proposalGhost","canvas.bg","canvas mark"],["canvas.deformGhost","canvas.bg","canvas mark"],["canvas.unsolved","canvas.bg","canvas mark"],["canvas.axisX","canvas.bg","canvas mark"],["canvas.axisY","canvas.bg","canvas mark"],["canvas.axisZ","canvas.bg","canvas mark"],["result.scale.1","canvas.bg","result scale on canvas"],["result.scale.2","canvas.bg","result scale on canvas"],["result.scale.3","canvas.bg","result scale on canvas"],["result.scale.4","canvas.bg","result scale on canvas"],["result.scale.5","canvas.bg","result scale on canvas"],["result.scale.6","canvas.bg","result scale on canvas"],["result.scale.7","canvas.bg","result scale on canvas"],["result.scale.1","canvas.unsolved","result scale beside unsolved"],["result.scale.7","canvas.unsolved","result scale beside unsolved"],["canvas.edge","result.scale.1","edge line on the near-zero step"],["canvas.edge","result.scale.7","edge line on the brightest step"],["result.scale.1","surface.raised","legend swatch"],["result.scale.2","surface.raised","legend swatch"],["result.scale.3","surface.raised","legend swatch"],["result.scale.4","surface.raised","legend swatch"],["result.scale.5","surface.raised","legend swatch"],["result.scale.6","surface.raised","legend swatch"],["result.scale.7","surface.raised","legend swatch"],["result.scale.1","bar.track","data bar on its track"],["result.scale.7","bar.track","data bar on its track"],["cat.1","canvas.bg","load vector on canvas"],["cat.2","canvas.bg","load vector on canvas"],["cat.3","canvas.bg","load vector on canvas"],["cat.4","canvas.bg","load vector on canvas"],["cat.5","canvas.bg","load vector on canvas"],["cat.6","canvas.bg","load vector on canvas"],["cat.7","canvas.bg","load vector on canvas"],["cat.8","canvas.bg","load vector on canvas"],["cat.1","surface.panel","case dot in table"],["cat.2","surface.panel","case dot in table"],["cat.3","surface.panel","case dot in table"],["cat.4","surface.panel","case dot in table"],["cat.5","surface.panel","case dot in table"],["cat.6","surface.panel","case dot in table"],["cat.7","surface.panel","case dot in table"],["cat.8","surface.panel","case dot in table"]]</script>
+<script id="tokens" type="application/json">{"name":"SWB Piping Designer design system tokens","version":"1.1","date":"2026-09-18","note":"Sample values in the specimen are placeholders. Colour tokens carry a light and a dark value; type, spacing and layout tokens are plain values in CSS px unless stated. V1.1: the dark result scale is re-anchored one step down (decision 11); stale.band, stale.ink, rail.caption*, draft.bar, canvas.hint, pressed.fill, pressed.ink and bar.track close the six token gaps of MOCKS_V1 section 5; layout gains canvas.min, inspector.label, headerPadding and cellPadding.","color":{"surface.base":{"light":"#eef0f3","dark":"#1b1e22"},"surface.panel":{"light":"#ffffff","dark":"#25282c"},"surface.raised":{"light":"#ffffff","dark":"#2e3236"},"surface.sunken":{"light":"#f5f7f9","dark":"#202327"},"surface.header":{"light":"#f0f3f5","dark":"#292d31"},"surface.rowAlt":{"light":"#f9fafb","dark":"#272a2e"},"surface.canvas":{"light":"#ebedef","dark":"#191c1f"},"text.primary":{"light":"#22272c","dark":"#e5e8ec"},"text.secondary":{"light":"#5b6168","dark":"#acb2b7"},"text.muted":{"light":"#7d848b","dark":"#878d93"},"text.disabled":{"light":"#a6abb1","dark":"#5f6469"},"text.inverse":{"light":"#ffffff","dark":"#13161a"},"text.link":{"light":"#1762b6","dark":"#87bafd"},"border.hairline":{"light":"#d5d8db","dark":"#393e42"},"border.strong":{"light":"#b3b8be","dark":"#53595f"},"border.focus":{"light":"#1a73d5","dark":"#70adfb"},"accent.fill":{"light":"#106dce","dark":"#4c94ec"},"accent.fillHover":{"light":"#0161bd","dark":"#59a0f9"},"accent.text":{"light":"#005bb3","dark":"#91c1ff"},"selection.band":{"light":"#e2eefe","dark":"#223e61"},"selection.bar":{"light":"#106dce","dark":"#65a7fa"},"hover.wash":{"light":"rgba(30,36,48,0.06)","dark":"rgba(255,255,255,0.06)"},"pressed.wash":{"light":"rgba(30,36,48,0.10)","dark":"rgba(255,255,255,0.10)"},"pressed.fill":{"light":"#d4e6ff","dark":"#254974"},"pressed.ink":{"light":"#0053a4","dark":"#a8ceff"},"disabled.fill":{"light":"#e9ebee","dark":"#2b2e32"},"focus.ring":{"light":"#1a73d5","dark":"#70adfb"},"scrim":{"light":"rgba(20,22,28,0.32)","dark":"rgba(0,0,0,0.55)"},"proposal.new":{"light":"#6b3baa","dark":"#c4a4fe"},"proposal.band":{"light":"#f2edfe","dark":"#3b2f51"},"proposal.bar":{"light":"#854ece","dark":"#ba93fb"},"proposal.old":{"light":"#7d848b","dark":"#878d93"},"mark.checked":{"light":"#5b6168","dark":"#acb2b7"},"mark.checkedStale":{"light":"#a46e01","dark":"#e9b452"},"mark.origin":{"light":"#7d848b","dark":"#878d93"},"mark.attachment":{"light":"#5b6168","dark":"#acb2b7"},"issue.blocking":{"light":"#ba2b2e","dark":"#fb817a"},"issue.blockingTint":{"light":"#feebe9","dark":"#4b2724"},"issue.warning":{"light":"#a46e01","dark":"#e9b452"},"issue.warningTint":{"light":"#fff1d5","dark":"#433215"},"issue.info":{"light":"#426882","dark":"#8fb7d4"},"issue.infoTint":{"light":"#e9f1f8","dark":"#27353e"},"mark.required":{"light":"#ba2b2e","dark":"#fb817a"},"status.incompleteFill":{"light":"#fff1d5","dark":"#433215"},"status.incompleteInk":{"light":"#774f02","dark":"#efc876"},"status.solvedFill":{"light":"#eef0f3","dark":"#32363a"},"status.solvedInk":{"light":"#353b42","dark":"#d4d8dd"},"status.failedFill":{"light":"#feebe9","dark":"#4b2724"},"status.failedInk":{"light":"#a21921","dark":"#ffaba3"},"status.reviewFill":{"light":"#e9f1f8","dark":"#27353e"},"status.reviewInk":{"light":"#25526f","dark":"#a8d1ee"},"historical.tint":{"light":"#f4efe7","dark":"#322d25"},"historical.ink":{"light":"#5e5443","dark":"#cec2af"},"displayOnly.border":{"light":"#b3b8be","dark":"#53595f"},"stale.stripe":{"light":"#ced1d5","dark":"#44484d"},"stale.band":{"light":"#fef6e7","dark":"#362c1c"},"stale.ink":{"light":"#7d5002","dark":"#e9ca89"},"rail.captionFailed":{"light":"#a21921","dark":"#ffaba3"},"rail.captionStale":{"light":"#7d5002","dark":"#e9ca89"},"rail.captionHistorical":{"light":"#5e5443","dark":"#cec2af"},"canvas.bg":{"light":"#ebedef","dark":"#191c1f"},"canvas.gridMajor":{"light":"#ced1d5","dark":"#2d3135"},"canvas.gridMinor":{"light":"#dfe1e4","dark":"#222629"},"canvas.pipe":{"light":"#a6abb1","dark":"#757b81"},"canvas.pipeShade":{"light":"#81878d","dark":"#53595f"},"canvas.edge":{"light":"#42484f","dark":"#c7cbd0"},"canvas.glyph":{"light":"#30363c","dark":"#dbdee2"},"canvas.glyphFill":{"light":"#dbdee2","dark":"#34383d"},"canvas.label":{"light":"#22272c","dark":"#e5e8ec"},"canvas.labelBg":{"light":"rgba(255,255,255,0.82)","dark":"rgba(28,31,37,0.82)"},"canvas.hint":{"light":"rgba(255,255,255,0.90)","dark":"rgba(46,50,54,0.92)"},"canvas.vector":{"light":"#42484f","dark":"#c7cbd0"},"canvas.selection":{"light":"#106dce","dark":"#6dadff"},"canvas.hover":{"light":"#5d94da","dark":"#5788c7"},"canvas.draft":{"light":"#106dce","dark":"#6dadff"},"canvas.proposalGhost":{"light":"#854ece","dark":"#ba93fb"},"canvas.deformGhost":{"light":"#81878d","dark":"#53595f"},"canvas.unsolved":{"light":"#a6abb1","dark":"#757b81"},"canvas.axisX":{"light":"#bd413f","dark":"#f07f77"},"canvas.axisY":{"light":"#308639","dark":"#73c076"},"canvas.axisZ":{"light":"#2171cc","dark":"#70adfb"},"draft.bar":{"light":"#106dce","dark":"#6dadff"},"result.scale.1":{"light":"#4ab9b2","dark":"#045c59"},"result.scale.2":{"light":"#15a6a0","dark":"#04706b"},"result.scale.3":{"light":"#05908b","dark":"#09847f"},"result.scale.4":{"light":"#087a76","dark":"#099993"},"result.scale.5":{"light":"#056662","dark":"#24ada7"},"result.scale.6":{"light":"#01524e","dark":"#52bfb9"},"result.scale.7":{"light":"#003e3c","dark":"#74d1cb"},"bar.track":{"light":"#e0e3e6","dark":"#3c4045"},"cat.1":{"light":"#cf630d","dark":"#d97230","hue":"orange"},"cat.2":{"light":"#b84999","dark":"#c960aa","hue":"magenta"},"cat.3":{"light":"#3b9555","dark":"#429c5a","hue":"green"},"cat.4":{"light":"#3f5bb8","dark":"#6280da","hue":"purple"},"cat.5":{"light":"#cb4f73","dark":"#db6686","hue":"rose"},"cat.6":{"light":"#098db2","dark":"#089ac3","hue":"azure"},"cat.7":{"light":"#8c8305","dark":"#97902a","hue":"olive"},"cat.8":{"light":"#0b959b","dark":"#009298","hue":"cyan"}},"type":{"family.ui":"-apple-system, BlinkMacSystemFont, system-ui, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif","family.numeric":"-apple-system, BlinkMacSystemFont, system-ui, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif","family.mono":"ui-monospace, \"SF Mono\", Menlo, Monaco, Consolas, monospace","numeric.feature":"font-variant-numeric: tabular-nums","size.caption":11,"size.chip":12,"size.body":13,"size.title":15,"size.heading":18,"size.figure":22,"lineHeight.caption":14,"lineHeight.chip":16,"lineHeight.body":18,"lineHeight.title":20,"lineHeight.heading":24,"lineHeight.figure":28,"weight.regular":400,"weight.medium":500,"weight.semibold":600,"minimumRepeatedlyRead":13,"letterSpacing.figure":-0.2},"space":{"0":0,"1":2,"2":4,"3":6,"4":8,"5":12,"6":16,"7":20,"8":24,"9":32,"10":40},"radius":{"none":0,"control":3,"card":6,"sheet":10,"pill":999},"border":{"hairline":1,"strong":1,"focusRing":2,"selectionBar":3,"proposalBar":3},"elevation":{"0":"none","1":{"light":"0 1px 2px rgba(20,24,30,0.08)","dark":"0 1px 2px rgba(0,0,0,0.40)"},"2":{"light":"0 4px 12px rgba(20,24,30,0.12), 0 1px 2px rgba(20,24,30,0.06)","dark":"0 4px 12px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.06)"},"3":{"light":"0 12px 32px rgba(20,24,30,0.18), 0 2px 4px rgba(20,24,30,0.08)","dark":"0 12px 32px rgba(0,0,0,0.60), 0 0 0 1px rgba(255,255,255,0.08)"}},"focus":{"ringWidth":2,"ringOffset":1,"ringColorToken":"focus.ring","cellInset":true},"motion":{"disclosure.ms":120,"drawer.ms":180,"proposalArrive.ms":240,"hover.ms":80,"easing.standard":"cubic-bezier(0.2, 0, 0, 1)","easing.exit":"cubic-bezier(0.4, 0, 1, 1)","reducedMotion":"all durations 0 under prefers-reduced-motion"},"layout":{"window.default":[1440,900],"window.min":[1280,800],"toolbar":48,"statusBar":24,"rail":56,"agent.open":340,"agent.strip":44,"inspector.both":300,"inspector.model":340,"inspector.label":88,"canvas.min":220,"drawer.table":280,"drawer.issues":200,"review.outline":280,"review.comments":320,"row":26,"headerRow":28,"control":26,"controlCompact":22,"gutter":32,"marksColumn":72,"cellPadding":8,"headerPadding":5,"hud.button":28,"probe.width":300,"legend.width":220,"sideGutter":16},"icon":{"grid":16,"stroke":1.5,"cornerRadius":1.5,"sizes":[12,16,20],"capsAndJoins":"round"}}</script>
 <script>
 (function () {
   // ---- theme switch: follows the system preference; the manual switch wins both ways ----
@@ -1249,7 +1427,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   function renderTokens() {
     var grid = document.getElementById('tokgrid'); grid.innerHTML = '';
     var groups = {};
-    var merge = { hover: 'interaction', pressed: 'interaction', disabled: 'interaction', focus: 'interaction', scrim: 'interaction', displayOnly: 'state overlays', stale: 'state overlays', historical: 'state overlays' };
+    var merge = { hover: 'interaction', pressed: 'interaction', disabled: 'interaction', focus: 'interaction', scrim: 'interaction', draft: 'interaction', displayOnly: 'state overlays', stale: 'state overlays', historical: 'state overlays', rail: 'status', bar: 'result' };
     Object.keys(C).forEach(function (k) { var g = k.split('.')[0]; g = merge[g] || g; (groups[g] = groups[g] || []).push(k); });
     Object.keys(groups).forEach(function (g) {
       var panel = document.createElement('div'); panel.className = 'panel'; panel.style.padding = '0'; panel.style.overflow = 'hidden';
@@ -1268,7 +1446,8 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
     });
     // result steps and categorical
     var steps = document.getElementById('steps'); steps.innerHTML = '';
-    for (var i = 1; i <= 7; i++) { var d = document.createElement('div'); d.style.background = 'var(--result-scale-' + i + ')'; d.textContent = i; d.style.color = i >= 4 ? '#ffffff' : '#0d1a1a'; if (root.getAttribute('data-theme') === 'dark' || (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches)) d.style.color = i >= 5 ? '#0d1a1a' : '#ffffff'; steps.appendChild(d); }
+    var dk = root.getAttribute('data-theme') === 'dark' || (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+    for (var i = 1; i <= 7; i++) { var d = document.createElement('div'); var hx = C['result.scale.' + i][dk ? 'dark' : 'light']; d.style.background = hx; d.textContent = i; d.style.color = linToOklab.apply(null, hexToLin(hx))[0] > 0.62 ? '#0d1a1a' : '#ffffff'; steps.appendChild(d); }
     var cats = document.getElementById('cats'); cats.innerHTML = '';
     var kinds = ['force', 'moment', 'displacement', 'uniform / weight', 'wind', 'seismic', '(case 7)', '(case 8)'];
     for (var j = 1; j <= 8; j++) { var c = document.createElement('div'); c.innerHTML = '<span class="sw" style="background:var(--cat-' + j + ')"></span><span>' + j + ' · ' + C['cat.' + j].hue + ' <span class="sec">' + kinds[j - 1] + '</span></span>'; cats.appendChild(c); }
@@ -1296,24 +1475,7 @@ footer.spec { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--b
   function lum(rgb) { var x = rgb.map(function (v) { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * x[0] + 0.7152 * x[1] + 0.0722 * x[2]; }
   function ratio(f, b) { var l1 = lum(f), l2 = lum(b), hi = Math.max(l1, l2), lo = Math.min(l1, l2); return (hi + 0.05) / (lo + 0.05); }
   function resolve(name, theme) { var parts = name.split('/').reverse(); var acc = { rgb: [255, 255, 255], a: 1 }; parts.forEach(function (p) { acc = { rgb: over(parse(C[p][theme]), acc), a: 1 }; }); return acc.rgb; }
-  var pairs = [
-    ['text.primary','surface.panel','text'],['text.primary','surface.base','text'],['text.primary','surface.sunken','text'],['text.primary','surface.header','text'],['text.primary','surface.rowAlt','text'],['text.primary','surface.raised','text'],['text.primary','selection.band','text'],['text.primary','proposal.band','text'],['text.primary','hover.wash/surface.panel','text'],['text.primary','issue.blockingTint','text'],['text.primary','issue.warningTint','text'],['text.primary','issue.infoTint','text'],['text.primary','historical.tint','text'],['text.primary','disabled.fill','text'],
-    ['text.secondary','surface.panel','text'],['text.secondary','surface.base','text'],['text.secondary','surface.header','text'],['text.secondary','surface.sunken','text'],['text.secondary','selection.band','text'],['text.secondary','proposal.band','text'],
-    ['text.muted','surface.panel','text'],['text.muted','surface.base','text'],['text.muted','surface.header','text'],['text.muted','surface.sunken','text'],['text.disabled','surface.panel','text (disabled)'],['text.disabled','surface.base','text (disabled)'],
-    ['text.link','surface.panel','text'],['text.link','surface.base','text'],['accent.text','surface.panel','text'],['accent.text','selection.band','text'],['text.inverse','accent.fill','text on button'],['text.inverse','accent.fillHover','text on button'],
-    ['proposal.new','surface.panel','text'],['proposal.new','proposal.band','text'],['proposal.new','surface.base','text'],['proposal.old','surface.panel','text (struck)'],['proposal.old','proposal.band','text (struck)'],
-    ['mark.checked','surface.panel','mark'],['mark.checkedStale','surface.panel','mark'],['mark.checkedStale','surface.base','mark'],['mark.origin','surface.panel','mark'],['mark.origin','surface.rowAlt','mark'],['mark.origin','surface.header','mark'],['mark.attachment','surface.panel','mark'],['mark.required','surface.panel','mark'],['mark.required','surface.sunken','mark'],
-    ['issue.blocking','surface.panel','text'],['issue.blocking','issue.blockingTint','text'],['issue.blocking','surface.base','text'],['issue.warning','surface.panel','text'],['issue.warning','issue.warningTint','text'],['issue.warning','surface.base','text'],['issue.info','surface.panel','text'],['issue.info','issue.infoTint','text'],
-    ['status.incompleteInk','status.incompleteFill','chip text'],['status.solvedInk','status.solvedFill','chip text'],['status.failedInk','status.failedFill','chip text'],['status.reviewInk','status.reviewFill','chip text'],['status.incompleteInk','surface.panel','chip text'],['status.failedInk','surface.panel','chip text'],['status.reviewInk','surface.panel','chip text'],
-    ['historical.ink','historical.tint','text'],['historical.ink','surface.panel','text'],
-    ['border.hairline','surface.panel','hairline'],['border.hairline','surface.base','hairline'],['border.strong','surface.panel','border'],['border.strong','surface.base','border'],['focus.ring','surface.panel','focus ring'],['focus.ring','surface.base','focus ring'],['focus.ring','selection.band','focus ring'],['selection.bar','selection.band','mark'],['proposal.bar','proposal.band','mark'],['displayOnly.border','surface.sunken','border'],['stale.stripe','surface.panel','mark'],
-    ['canvas.label','canvas.labelBg/canvas.bg','canvas text'],['canvas.label','canvas.bg','canvas text'],['canvas.gridMajor','canvas.bg','hairline'],['canvas.gridMinor','canvas.bg','hairline'],['canvas.pipe','canvas.bg','canvas mark'],['canvas.pipeShade','canvas.bg','canvas mark'],['canvas.edge','canvas.pipe','canvas mark'],['canvas.edge','canvas.bg','canvas mark'],['canvas.glyph','canvas.bg','canvas mark'],['canvas.glyph','canvas.glyphFill','canvas mark'],['canvas.glyphFill','canvas.bg','canvas mark'],['canvas.vector','canvas.bg','canvas mark'],['canvas.selection','canvas.bg','canvas mark'],['canvas.selection','canvas.pipe','canvas mark'],['canvas.hover','canvas.bg','canvas mark'],['canvas.draft','canvas.bg','canvas mark'],['canvas.proposalGhost','canvas.bg','canvas mark'],['canvas.deformGhost','canvas.bg','canvas mark'],['canvas.unsolved','canvas.bg','canvas mark'],['canvas.axisX','canvas.bg','canvas mark'],['canvas.axisY','canvas.bg','canvas mark'],['canvas.axisZ','canvas.bg','canvas mark']
-  ];
-  for (var i = 1; i <= 7; i++) pairs.push(['result.scale.' + i, 'canvas.bg', 'result scale on canvas']);
-  pairs.push(['result.scale.1', 'canvas.unsolved', 'result scale beside unsolved'], ['result.scale.7', 'canvas.unsolved', 'result scale beside unsolved']);
-  for (i = 1; i <= 7; i++) pairs.push(['result.scale.' + i, 'surface.raised', 'legend swatch']);
-  for (i = 1; i <= 8; i++) pairs.push(['cat.' + i, 'canvas.bg', 'load vector on canvas']);
-  for (i = 1; i <= 8; i++) pairs.push(['cat.' + i, 'surface.panel', 'case dot in table']);
+  var pairs = JSON.parse(document.getElementById('pairs').textContent); // the same list contrast.mjs uses; agree.mjs checks both
   var tb = document.querySelector('#ctable tbody');
   pairs.forEach(function (p) {
     var l = ratio(resolve(p[0], 'light'), resolve(p[1], 'light')), d = ratio(resolve(p[0], 'dark'), resolve(p[1], 'dark'));

@@ -10,6 +10,8 @@ Updated 2026-09-17 by ROOT. Working surface; superseded lines are struck rather 
 
 ## Open with the owner
 
+Update 2026-09-18, design system V1.1 accepted; second mocks pass launched; decision packet D-71 prepared: V1.1 accepted after ROOT's review (hashes in `briefs/_INDEX.md`); MOCKS-02 sealed and launched (Fable) to regenerate the fifteen frames from V1.1, draw the second-pass states and two decision-aid frames for D-71 items 1 and 2; D-71 finalized as PROPOSAL / AWAITING_RULING with its register row. Next: accept MOCKS-02; the owner rules D-71 item by item; then the ruling record, DEC rows, the SCA bundle for item 3(i) if ruled, and the revision pass over the design system, the specification and the frames.
+
 Update 2026-09-18, bindings inventory accepted: RESEARCH-F's corrected return is retained with its hash; its material finding (two curated status labels already rendered, pinned by tests) is carried into decision packet D-71 item 4. D-71 is drafted at `../../_DECISIONS/D-71_interface_program_governed_text_decisions.md` (PROPOSAL, not yet registered) and waits for design system V1.1's final hash before the register row is added.
 
 Update 2026-09-18, UX specification accepted: UX-SPEC-01 returned `instances/UX-SPEC/` (UX_SPEC_V1.md, OPERATIONS_MAP.md with 277 rows and 29 classed gaps, RETURN.md); accepted by ROOT with its checks and decisions recorded in `briefs/_INDEX.md`. RESEARCH-F returned and was sent one correction (a false zero-occurrence claim for the phrase "Human review required" in desktop source); retention waits for the corrected file. DESIGN-SYSTEM-02 still running.

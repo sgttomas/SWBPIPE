@@ -139,6 +139,29 @@ Return of RESEARCH-F, retained at `../instances/RESEARCH/F_packet_bindings.md` a
 |---|---|
 | `F_packet_bindings.md` | `2c9fcb1716981123da8f9c78f8c70d6db77feb931b70936073159530bfb0292b` |
 
-Return of DESIGN-SYSTEM-02 pending.
+Return of DESIGN-SYSTEM-02, retained in place under `../instances/DESIGN-SYSTEM/` (V1.1 replaces V1; the V1 hashes above remain the record of what V1 was) and accepted by ROOT on 2026-09-18 against the brief's acceptance section: all fourteen decisions are applied and traceable in the new §9 (49 rows, each with its source); every MOCKS_V1 §1 to §3 item is adopted or overruled with a reason (P-5 and P-9 superseded by decisions 1 and 12, P-8 adopted for the frames and overruled as a preset, the s5 cell popover overruled by decision 14); the six token gaps are closed by ten new tokens with light and dark values and contrast findings; the dark result scale is re-anchored and re-validated with the dataviz ordinal validator in both themes; the child's agreement check reports zero differences between document, token file and specimen; the specimen renders offline in both themes; RETURN is complete. ROOT re-ran the agreement check (98 colour tokens, 146 contrast rows, `problems: []`) and the child's render script headlessly at 1440 and 720 in light and dark with the manual switch (0 requests, 0 console issues, no horizontal scroll) before accepting. ROOT's review sent the child two points, applied as §9 rows 48 and 49: the Both-view narrow case follows the UX specification's rule (the agent column collapses to its strip first, then a slide-over for that window size only; the canvas is never collapsed to an edge tab), and product copy uses Canadian English spelling. ROOT's decisions on the child's uncertainties: the reading of decision 11 (the ramp's bottom one step down and its top under the edge line) is confirmed as the decision's purpose; "Review/signoff block" is registered text (`docs/PRD.md:1242`); the design system's 220 px canvas minimum governs the geometry and the UX specification's §10.9 floors are reconciled to it in that document's next revision; the edge line's 1.10:1 on the brightest dark step is carried as an input to the contrast open item, and the next revision may consider an edge token that switches by fill lightness. The `tools/` scripts locate the validator and Playwright by argument or relative path; no absolute path exists in the instance.
+
+| Return file | SHA-256 |
+|---|---|
+| `DESIGN_SYSTEM_V1.md` | `34ba3f1fadacbd1c3854e7bb654098b5525e25b9734b4106dfdd39fc94f0cf1f` |
+| `tokens.json` | `b6a382727728845c7cafe3d9e66b4bf87df888c9a6bebaae8c1f9f59dbbafe59` |
+| `specimen.html` | `5be4f482069225de0f35c2bbce57e4046d4ebae6095a9ed8970f7bb6611ef6b7` |
+| `RETURN.md` | `82fa203f5b83a83cb06cf3e7eb9bdf91f53f03d995c9b0feab1b94319587bc56` |
+| `tools/agree.mjs` | `f2794b78d648a09ec2df49cd63e526f1055e0c9ff8782adae42430338c45fac3` |
+| `tools/contrast.mjs` | `e0afa387535a5f4070d812977db010f1652205d1a7805f4151f5633dbd7c264b` |
+| `tools/gen.mjs` | `8179b401e3f230634ef71f50995e9c96e52b4580d8adbb502a595433a7b6a998` |
+| `tools/palette.mjs` | `57d9e34049cd391fe3d06426f023968ac5b3b950aa2d86451a1205d123f40131` |
+| `tools/render.mjs` | `edc4aa2f85a635d1a2a889f4b2697419947cff4a546908543abbf530ce28267c` |
+| `tools/splice.mjs` | `82872b084ffbda52d58defbdfc4f1e34ce16be33571594819a2ccf8ecde9563b` |
+
+## Phase 3 second mocks pass, sealed before launch
+
+Sealed by ROOT on 2026-09-18 after accepting design system V1.1 and the UX specification. One child, working alone; parentage ROOT; write target instruction-asserted (`../instances/MOCKS/`).
+
+| Brief | Sealed SHA-256 | Launched (UTC) | Model requested | Role | Return |
+|---|---|---|---|---|---|
+| `MOCKS-02_regeneration.md` | `9a0c67e0b129b7e85e1e12b0fdb298afd716fcde5dd26827e4807fbf9aa59c2f` | 2026-09-18T11:15Z | `fable` (Claude Fable 5.1) | HELPS_HUMANS design manager, working alone | `../instances/MOCKS/` (frames regenerated in place; `MOCKS_V2.md`) |
+
+Return pending.
 
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

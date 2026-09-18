@@ -134,7 +134,8 @@
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/DESIGN-SYSTEM-02_revision.md",
       "return": "instances/DESIGN-SYSTEM/ (V1.1 in place)",
-      "status": "active"
+      "status": "complete",
+      "note": "Accepted 2026-09-18 after ROOT review (narrow-case rule, spelling rule); V1.1 hashes in briefs/_INDEX.md"
     },
     {
       "id": "MOCKS",
@@ -151,7 +152,11 @@
       "id": "MOCKS-02",
       "role": "HELPS_HUMANS",
       "purpose": "Regenerate the fifteen frames from design system V1.1 with the fourteen decisions applied",
-      "status": "pending"
+      "status": "active",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/MOCKS-02_regeneration.md",
+      "return": "instances/MOCKS/ (in place; MOCKS_V2.md)"
     },
     {
       "id": "OWNER-MOCKS-REVIEW",
@@ -165,8 +170,9 @@
       "id": "DECISION-PACKET",
       "role": "HELP_HUMAN",
       "purpose": "One owner decision packet: maturity line, boundary-sentence placement, product rename, and items 4 to 9, with the mock frames as evidence",
-      "status": "pending",
-      "note": "Drafted by ROOT after RESEARCH-F returns the registry and anchor inventory"
+      "status": "awaiting_owner",
+      "note": "D-71 PROPOSAL drafted 2026-09-18; register row AWAITING_RULING; nine items with recommendations",
+      "return": "../../_DECISIONS/D-71_interface_program_governed_text_decisions.md"
     },
     {
       "id": "UX-SPEC",
@@ -296,5 +302,5 @@
       "ACCEPTANCE-PROPOSAL"
     ]
   ],
-  "current_frontier": "DESIGN-SYSTEM-02 (reconciliation), then MOCKS-02 and DECISION-PACKET (D-71)"
+  "current_frontier": "MOCKS-02 (running); D-71 awaiting the owner; ACCEPTANCE-PROPOSAL waits for the piping session's observation report"
 }
