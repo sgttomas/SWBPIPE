@@ -1,0 +1,27 @@
+{
+  "status": "FINAL_SUCCESSOR_PREPARATION_READY_FOR_AFFECTED_REVIEW",
+  "at": "2026-09-18T01:28:54.386397+00:00",
+  "instrumentRevision": "b50c12370d493cf2bab42f27a6b468880e691052",
+  "method": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/LABEL_POLICY_REPAIR/METHOD_MANIFEST_SUCCESSOR.json",
+    "sha256": "c130feec3c729adb71502ca60af32e3a37f137b3ef3b8e5291175985ddef7871"
+  },
+  "methodMembersIndependentlyVerified": 34,
+  "policy": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/POLICY_V2.json",
+    "sha256": "11c633980ae3608131a327ca8dd027a11db8a055ac83a925e25f59d2f6dddf1d"
+  },
+  "script": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/control_v2.py",
+    "sha256": "c8e48902d3f3820a7ebf9f6ce1398af59aa320c4f4504b5d6d4b605cafdc9464"
+  },
+  "commands": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/COMMANDS_V2.json",
+    "sha256": "acd177f4a182a3418fcc313b4320d2cb95e7c908240395929e48e5d475affe79"
+  },
+  "validation": "Python AST parse and read-only committed method34 hash verification only; no script execution",
+  "priorPreparationPreserved": true,
+  "originalReturnUnchanged": true,
+  "registryLedgerAttemptRootsAbsent": true,
+  "runtimeLaunched": false
+}

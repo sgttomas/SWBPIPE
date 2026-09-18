@@ -1,0 +1,44 @@
+{
+  "status": "FROZEN_PREPARED_NO_RUNTIME",
+  "policy": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/POLICY.json",
+    "sha256": "5a678e578d5add3ead7d16e966d922eba60d209650bb78f171ffb5c10b810e08"
+  },
+  "script": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-baseline-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/CONTINUATION/control.py",
+    "sha256": "9be6e2b5012250a604a5b654504bae9a711bfe076332cc10c1e9a6c8d54fa75b"
+  },
+  "python": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+  "prepareShape": [
+    "control.py",
+    "prepare",
+    "SLOT"
+  ],
+  "launchShape": [
+    "control.py",
+    "launch",
+    "SLOT",
+    "RECEIPT_PATH",
+    "RECEIPT_SHA",
+    "ROOT_RELEASE_PATH",
+    "ROOT_RELEASE_SHA"
+  ],
+  "smokeShape": [
+    "control.py",
+    "smoke",
+    "ROOT_RELEASE_PATH",
+    "ROOT_RELEASE_SHA"
+  ],
+  "slots": [
+    "1000.2",
+    "1000.3",
+    "1000.4",
+    "1000.5",
+    "10000.1",
+    "10000.2",
+    "10000.3",
+    "10000.4",
+    "10000.5"
+  ],
+  "note": "No loop; ROOT separately releases each operation; runtime-supplied receipt/release hashes are not guessed; prepare creates fresh proofs only, no registry/ledger/attempt root."
+}
