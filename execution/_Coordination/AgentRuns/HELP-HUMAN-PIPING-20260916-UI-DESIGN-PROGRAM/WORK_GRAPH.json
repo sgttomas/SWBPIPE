@@ -253,7 +253,7 @@
       "role": "HELPS_HUMANS",
       "purpose": "One pass from sealed briefs: design system V1.2, UX specification V1.1, regenerated frames",
       "status": "running",
-      "note": "DESIGN-SYSTEM-03 complete; UX-SPEC-02 launched 2026-09-18T14:30Z; MOCKS-03 follows"
+      "note": "DESIGN-SYSTEM-03 and UX-SPEC-02 complete; MOCKS-03 launched 2026-09-18T14:59Z"
     },
     {
       "id": "IMPLEMENTATION-HANDOFF",
@@ -305,6 +305,18 @@
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/UX-SPEC-02_revision.md",
       "return": "instances/UX-SPEC/ (V1.1 in place)",
+      "status": "complete",
+      "model_ran": "Claude Fable 5.1",
+      "note": "V1.1 accepted by ROOT 2026-09-18; hashes and checks in briefs/_INDEX.md; sixteen contradictions with V1.2 read in the specification's favour and carried to the handoff"
+    },
+    {
+      "id": "MOCKS-03",
+      "role": "HELPS_HUMANS",
+      "purpose": "Regenerate the sixteen design frames from design system V1.2 and specification V1.1; retire the two D-71 decision-aid frames",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/MOCKS-03_regeneration.md",
+      "return": "instances/MOCKS/ (third pass in place)",
       "status": "running"
     }
   ],
@@ -468,10 +480,18 @@
     [
       "ROOT",
       "REVIEW-02"
+    ],
+    [
+      "UX-SPEC-02",
+      "MOCKS-03"
+    ],
+    [
+      "DESIGN-SYSTEM-03",
+      "UX-SPEC-02"
     ]
   ],
   "current_frontier": [
-    "UX-SPEC-02"
+    "MOCKS-03"
   ],
   "frontier_history": [
     {
