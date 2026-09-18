@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { PreviewModel } from "../../types";
+import type { PreviewModel, Vec3 } from "../../types";
 import { buildModelIndex } from "../workspace/modelIndex";
 import { entityKey } from "../workspace/selectionState";
 import {
@@ -25,6 +25,7 @@ import {
   visibilityEligibleSelectionKeys
 } from "./viewportSelection";
 import * as THREE from "three";
+import sharedEndpointFixture from "./viewportSelection.sharedEndpoint.fixture.json";
 
 function largeModel(pipeCount = 2): PreviewModel {
   const nodes = Array.from({ length: pipeCount + 1 }, (_, index) => ({
@@ -428,5 +429,128 @@ describe("captured Box model/session admission", () => {
     expect(boxGestureContextIsCurrent(context, { ...context, model: structuredClone(model) })).toBe(false);
     expect(boxGestureContextIsCurrent(context, { ...context, indexGeneration: "2:8" })).toBe(false);
     expect(boxGestureContextIsCurrent(context, { ...context, sessionGeneration: 3 })).toBe(false);
+  });
+});
+
+// Maintained reduced geometry and input records; no dependency on dated run artifacts.
+
+function pickingCanvas(left: number, top: number, width: number, height: number): HTMLCanvasElement {
+  const canvas = document.createElement("canvas");
+  canvas.getBoundingClientRect = () => ({
+    x: left, y: top, left, top, right: left + width, bottom: top + height, width, height,
+    toJSON: () => ({})
+  });
+  return canvas;
+}
+
+describe("stable shared-endpoint picking", () => {
+  const cases = sharedEndpointFixture.records.flatMap((record) =>
+    (["before", "after"] as const).flatMap((phase) =>
+      (["intended", "delivered", "xOnly", "yOnly"] as const).map((pointKind) => ({
+        name: `attempt ${record.attempt} ${phase} ${pointKind}`,
+        record,
+        cameraRecord: record[phase],
+        point: {
+          x: pointKind === "delivered" || pointKind === "xOnly" ? record.delivered.x : record.intended.x,
+          y: pointKind === "delivered" || pointKind === "yOnly" ? record.delivered.y : record.intended.y
+        }
+      }))
+    )
+  );
+
+  it.each(cases)("keeps the analytic endpoint tie for $name", ({ record, cameraRecord, point }) => {
+    const model = largeModel(0);
+    model.nodes = structuredClone(sharedEndpointFixture.nodes);
+    model.pipe_segments = structuredClone(sharedEndpointFixture.pipe_segments);
+    const index = buildModelIndex(model, 1, 1);
+    const [x, y, z] = cameraRecord.localRenderOrigin;
+    const renderOrigin = { x, y, z };
+    const camera = new THREE.PerspectiveCamera(cameraRecord.fovDegrees, cameraRecord.aspect, cameraRecord.near, cameraRecord.far);
+    camera.position.fromArray(cameraRecord.position.map((value, axis) => value - cameraRecord.localRenderOrigin[axis]));
+    camera.up.fromArray(cameraRecord.up);
+    camera.lookAt(new THREE.Vector3().fromArray(cameraRecord.target.map((value, axis) => value - cameraRecord.localRenderOrigin[axis])));
+    const canvas = pickingCanvas(record.canvas.cssLeft, record.canvas.cssTop, record.canvas.cssWidth, record.canvas.cssHeight);
+    const primitives = pointPickPrimitives(index, model, renderOrigin);
+    const options = { index, renderOrigin, camera, canvas, clientX: point.x, clientY: point.y };
+    expect(pickPointPrimitive(primitives, options)).toEqual({ type: "node", id: "node:UIF-08786" });
+    expect(pickPointPrimitive([...primitives].reverse(), options)).toEqual({ type: "node", id: "node:UIF-08786" });
+  });
+});
+
+
+describe("analytic ray and capsule picking controls", () => {
+  const frontZ = (miss: number) => 10 + Math.sqrt(1 - miss * miss);
+  const controls = [
+    { name: "endpoint tie", node: [0.6, 0, 10.8], a: [0.6, 0, 10.8], b: [2.6, 0, 10.8], winner: "node" },
+    { name: "distinct pipe", node: [0.6, 0, 10.8], a: [0.2, 0, frontZ(0.2)], b: [2.2, 0, frontZ(0.2)], winner: "pipe" },
+    { name: "distinct node", node: [0.2, 0, frontZ(0.2)], a: [0.6, 0, 10.8], b: [2.6, 0, 10.8], winner: "node" },
+    { name: "interior pipe", node: [0.6, 0, 10.8], a: [-2, 0.2, frontZ(0.2)], b: [2, 0.2, frontZ(0.2)], winner: "pipe" },
+    { name: "front entry precedes miss", node: [0, 0, 12], a: [0.6, 0, 10.8], b: [2.6, 0, 10.8], winner: "pipe" },
+    { name: "near-distinct pipe", node: [0.600001, 0, frontZ(0.600001)], a: [0.6, 0, 10.8], b: [2.6, 0, 10.8], winner: "pipe" },
+    { name: "near-distinct node", node: [0.6, 0, 10.8], a: [0.600001, 0, frontZ(0.600001)], b: [2.600001, 0, frontZ(0.600001)], winner: "node" },
+    { name: "parallel axis", node: [0.6, 0, 10.8], a: [0.6, 0, 10.8], b: [0.6, 0, 12.8], winner: "node" },
+    { name: "nearly parallel axis", node: [0.6, 0, 10.8], a: [0.6, 0, 10.8], b: [0.600000000001, 0, 12.8], winner: "node" },
+    { name: "behind ray", node: [0.6, 0, -10.8], a: [0.6, 0, -10.8], b: [2.6, 0, -10.8], winner: null }
+  ] as const;
+
+  function pickControl(control: { node: readonly number[]; a: readonly number[]; b: readonly number[] },
+    reverse: boolean, shift: Vec3 = { x: 0, y: 0, z: 0 }, origin: Vec3 = shift, zeroLength = false) {
+    const translated = (point: readonly number[]): Vec3 => ({ x: point[0] + shift.x, y: point[1] + shift.y, z: point[2] + shift.z });
+    const model = largeModel(0);
+    model.nodes = [
+      { id: "node", label: "Node", position: translated(control.node), provenance: "invented analytic geometry" },
+      { id: "a", label: "A", position: translated(control.a), provenance: "invented analytic geometry" },
+      { id: "b", label: "B", position: translated(control.b), provenance: "invented analytic geometry" }
+    ];
+    model.pipe_segments = [{ id: "pipe", label: "Pipe", from: reverse ? "b" : "a", to: reverse ? "a" : "b", section: {}, material: "test", provenance: "invented analytic geometry" }];
+    const index = buildModelIndex(model, 1, 1);
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.001, 100);
+    camera.position.set(shift.x - origin.x, shift.y - origin.y, shift.z - origin.z);
+    camera.lookAt(camera.position.clone().add(new THREE.Vector3(0, 0, 1)));
+    const primitives = pointPickPrimitives(index, model, origin)
+      .filter((primitive) => primitive.ref.id === "node" || primitive.ref.id === "pipe")
+      .map((primitive) => ({ ...primitive, radius: 1,
+        // Exercise the degenerate capsule fallback without admitting invalid model geometry.
+        ...(zeroLength && primitive.kind === "pipe" ? { start: authoredToLocal(translated(control.a), origin), end: authoredToLocal(translated(control.a), origin) } : {})
+      }));
+    return pickPointPrimitive(primitives, {
+      index, renderOrigin: origin, camera, canvas: pickingCanvas(0, 0, 1000, 1000), clientX: 500, clientY: 500,
+      actualOdRadiusByPipe: new Map([[entityKey({ type: "pipe", id: "pipe" }), 1]])
+    });
+  }
+
+  it.each(controls)("preserves $name with either endpoint order", (control) => {
+    for (const reverse of [false, true]) {
+      expect(pickControl(control, reverse)).toEqual(control.winner ? { type: control.winner, id: control.winner } : null);
+    }
+  });
+
+  it("preserves exact common translations and alternate local origins", () => {
+    // Binary-exact geometry keeps authored coordinates representable after a large shift.
+    const control = { node: [0.5, 0, 10], a: [0.5, 0, 10], b: [2.5, 0, 10] };
+    const shift = { x: 2 ** 30, y: -(2 ** 29), z: 2 ** 28 };
+    for (const reverse of [false, true]) {
+      expect(pickControl(control, reverse, shift)).toEqual({ type: "node", id: "node" });
+      expect(pickControl(control, reverse, shift, { x: shift.x - 16, y: shift.y + 8, z: shift.z - 4 })).toEqual({ type: "node", id: "node" });
+      expect(pickControl(control, reverse)).toEqual({ type: "node", id: "node" });
+    }
+  });
+
+  it("treats a zero-length capsule as its endpoint sphere", () => {
+    expect(pickControl(controls[0], false, undefined, undefined, true)).toEqual({ type: "node", id: "node" });
+  });
+
+  it("preserves positive-depth eligibility after reoptimizing against the ray origin", () => {
+    // The infinite line crosses this segment behind O. Its forward-ray minimum
+    // lies in the segment interior at the origin projection, rather than at that crossing.
+    const control = { node: [0.8, 0, 0.1], a: [-0.5, 0, -0.5], b: [0.5, 0, 0.1] };
+    // Its closest point has negative camera depth, so the existing eligibility
+    // rule excludes the capsule; the visible node remains selectable.
+    for (const reverse of [false, true]) expect(pickControl(control, reverse)).toEqual({ type: "node", id: "node" });
+  });
+
+  it("clips signed intervals for shapes containing the ray origin", () => {
+    const control = { node: [0.8, 0, 0.1], a: [-0.5, 0, 0.1], b: [0.5, 0, 0.1] };
+    for (const reverse of [false, true]) expect(pickControl(control, reverse)).toEqual({ type: "pipe", id: "pipe" });
   });
 });

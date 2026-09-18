@@ -1,0 +1,21 @@
+{
+  "rawRoot": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/benchmark-adapter",
+  "manifest": {
+    "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/benchmark-adapter/MANIFEST.json",
+    "sha256": "d49a2c1f2cf898e6565d0954e20456c107257ae14bc563556e8338086be6bc1a"
+  },
+  "fileCount": 119,
+  "finalUnit": {
+    "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/benchmark-adapter/unit-hermetic.log",
+    "sha256": "40d04d1533e58999a4e5eedc982596491223dec8aa820f4aca3eeb6142c8c389",
+    "passed": 47,
+    "skipped": 10,
+    "failed": 0
+  },
+  "typecheck": {
+    "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/benchmark-adapter/typecheck-final.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "exitCode": 0
+  },
+  "custody": "Moved once from repo _run_records; no duplicate raw corpus retained. Config absolute paths record actual execution location before move."
+}

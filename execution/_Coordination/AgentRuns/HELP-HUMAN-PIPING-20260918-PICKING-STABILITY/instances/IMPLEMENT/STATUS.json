@@ -1,0 +1,23 @@
+{
+  "status": "COMPLETE_BOUNDED_IMPLEMENTATION_PENDING_ROOT_REVIEW",
+  "role": "Type2 ephemeral implementation specialist",
+  "parent": "HELP_HUMAN /root",
+  "delegation": "delegated-harness-native; scope/non-delegation instruction+config asserted",
+  "configured_model": "gpt-6-astra",
+  "configured_reasoning": "low",
+  "basis": "1f977a9352ddd370ed54b8cb363b2a2777f56213",
+  "scope": [
+    "DEL-07-01",
+    "PKG-07",
+    "SOW-020",
+    "OBJ-006"
+  ],
+  "source_hashes": {
+    "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.ts": "fdf3eaa49b9685b932bce404421086c45a82fa22e5c8abc3f8146fc09cb846d5",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.test.ts": "bff08f70bdf0259e94e56eaac2e8911c76f1e7be77f3adc9f8335eb6b36b1aa0",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.sharedEndpoint.fixture.json": "0963adf53b0d5a23f133abec44e498df2eea0f761c6159ac6eeffde722cd7b40"
+  },
+  "evidence": "_run_records/FOCUSED_TEST_EVIDENCE.json",
+  "next_owner": "root HELP_HUMAN",
+  "blockers": []
+}

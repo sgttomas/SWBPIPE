@@ -1,3 +1,4 @@
+import { freshDemoPolicy, enterFreshDemo, freshDemoDisposition } from "./fresh-demo-policy.mjs";
 import { validateClaimedContinuation } from "./characterization-observations.mjs";
 import { collectionMode, validateFixedSelection, attemptDisposition, executeCollectionRun, continuationSelection } from "./characterization-mode";
 import { runCharacterizationSmoke } from "./characterization-commands";
@@ -46,11 +47,14 @@ const mode = collectionMode(process.env.UI_FOUNDATION_COLLECTION_MODE, phase, pr
 const smokeValue = process.env.UI_FOUNDATION_SMOKE;
 if (smokeValue !== undefined && (smokeValue !== "controls" || phase !== "candidate" || mode !== "characterization" || process.env.UI_FOUNDATION_DIAGNOSTIC_MODE !== undefined)) throw new Error("unknown or conflicting smoke mode");
 const smoke = smokeValue === "controls";
-if (mode === "characterization") validateFixedSelection(configuredCounts, configuredRuns);
+const freshAuthorization=freshDemoPolicy();
+const freshDemo=freshAuthorization?.purpose === "timed" ? freshAuthorization : null;
+let freshEntered=false;
+if (mode === "characterization" && !freshDemo) validateFixedSelection(configuredCounts, configuredRuns);
 const continuation=continuationSelection();
-const activeCounts=continuation?[continuation.fixtureSize]:configuredCounts;
-const activeRuns = continuation?[continuation.runNumber]:smoke ? [1] : configuredRuns;
-const candidatePlan = (continuation?[continuation.fixtureSize]:[1000, 10000] as const).flatMap((fixtureSize) => (continuation?[continuation.runNumber]:smoke ? [1] : [1, 2, 3, 4, 5]).map((runNumber) => ({
+const activeCounts=freshDemo?[10000]:continuation?[continuation.fixtureSize]:configuredCounts;
+const activeRuns = freshDemo?[1]:continuation?[continuation.runNumber]:smoke ? [1] : configuredRuns;
+const candidatePlan = (freshDemo?[10000] as const:continuation?[continuation.fixtureSize]:[1000, 10000] as const).flatMap((fixtureSize) => (freshDemo?[1]:continuation?[continuation.runNumber]:smoke ? [1] : [1, 2, 3, 4, 5]).map((runNumber) => ({
   fixtureSize, runNumber, runId: `${cohortId}.${fixtureSize}.${runNumber}`, sessionId: randomUUID() })));
 const diagnosticMode = phase === "candidate" ? candidateDiagnosticMode(process.env.UI_FOUNDATION_DIAGNOSTIC_MODE) : "full";
 const assignmentOnly = diagnosticMode === "assignment-collection";
@@ -58,6 +62,7 @@ if (assignmentOnly && (JSON.stringify(configuredCounts)!=="[1000,10000]" || JSON
 const candidateExpectations: RunExpectation[] = [];
 if (phase === "candidate") {
   test.beforeAll(async () => {
+    if(freshDemo) { enterFreshDemo(); freshEntered=true; }
     if(continuation) await validateClaimedContinuation(
       {path:process.env.UI_FOUNDATION_CONTINUATION_POLICY,sha256:process.env.UI_FOUNDATION_CONTINUATION_POLICY_SHA256},
       {path:process.env.UI_FOUNDATION_CONTINUATION_CLAIM,sha256:process.env.UI_FOUNDATION_CONTINUATION_CLAIM_SHA256},
@@ -66,9 +71,10 @@ if (phase === "candidate") {
     for (const identity of candidatePlan) {
       candidateExpectations.push(await performanceExpectation(await loadFixture(identity.fixtureSize), candidateDriverBinding!, identity));
     }
-    await writeFile(path.join(evidenceRoot, continuation ? "selected-slot-plan.json" : smoke ? "smoke-plan.json" : assignmentOnly ? "assignment-diagnostic-plan.json" : "candidate-cohort-plan.json"), `${JSON.stringify(assignmentOnly ? { scope: "ASSIGNMENT_ONLY_INCOMPLETE_WORKLOAD", cohortContribution: 0, plannedSessions: 10, expectations: candidateExpectations } : candidateExpectations, null, 2)}\n`, { flag: "wx" });
+    await writeFile(path.join(evidenceRoot, freshDemo ? "fresh-demo-plan.json" : continuation ? "selected-slot-plan.json" : smoke ? "smoke-plan.json" : assignmentOnly ? "assignment-diagnostic-plan.json" : "candidate-cohort-plan.json"), `${JSON.stringify(assignmentOnly ? { scope: "ASSIGNMENT_ONLY_INCOMPLETE_WORKLOAD", cohortContribution: 0, plannedSessions: 10, expectations: candidateExpectations } : candidateExpectations, null, 2)}\n`, { flag: "wx" });
   });
   test.afterAll(async () => {
+    if(freshDemo && !freshEntered) return;
     const completed: any[] = [], missing: any[] = [], runRecords: any[] = [];
     // Use the original full plan even when preparation fails before expectations exist.
     for (const identity of candidatePlan) {
@@ -96,6 +102,12 @@ if (phase === "candidate") {
       const result=assignmentDiagnosticSummary(completed,candidateExpectations);
       await writeFile(path.join(evidenceRoot,"assignment-diagnostic-summary.json"),`${JSON.stringify({...result,missing},null,2)}\n`,{flag:"wx"});
       if(result.status!=="PASS_TEN_ASSIGNMENT_COLLECTION_DIAGNOSTICS")throw new Error("incomplete or failed assignment diagnostics; zero cohort contribution");
+      return;
+    }
+    if(freshDemo) {
+      const collection=freshDemoDisposition(runRecords[0]);
+      await writeFile(path.join(evidenceRoot,"fresh-demo-result.json"),`${JSON.stringify({schema:"ui-foundation.fresh-demo-result/v1",policy:freshDemo,collection,timedAttemptEnded:true,runRecords,missing,qualificationCohort:false,comparison:"Fresh owner-authorized single demonstration; historical D70 attempts unchanged"},null,2)}\n`,{flag:"wx"});
+      if(collection.attemptDisposition!=="COMPLETED")throw new Error("fresh demonstration invalid/incomplete; no replacement authorized");
       return;
     }
     if(continuation) {

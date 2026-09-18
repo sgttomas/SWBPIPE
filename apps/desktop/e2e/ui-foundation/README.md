@@ -617,3 +617,73 @@ validator block of characterization-commands.ts to differ, checking all source o
 that block byte-for-byte against V4; other measured files remain hash-identical. No new
 observer, target, timing endpoint, workload or product change follows. One-success stopping,
 remaining five-slot cap and fresh cleanup/source/profile prerequisites remain unchanged.
+
+## Fresh owner-authorized N10000 demonstration
+
+This separate route runs exactly one complete N10000/run1 workload and never reopens
+or replaces D70 continuation slots. It retains the same controller, 243 segments,
+actions, independent oracle, validity gates, targets and timeouts. Its result is a
+single demonstration, not a qualification cohort. Valid target misses retain
+`FAIL_TARGETS`. Invalid/incomplete evidence stops; no retry is authorized.
+
+Freeze a new policy JSON and its SHA256 before launch:
+
+```json
+{
+  "schema": "ui-foundation.fresh-demo-policy/v1",
+  "purpose": "timed",
+  "fixtureSize": 10000,
+  "runNumber": 1,
+  "productRevision": "<actual merged 40-character commit>",
+  "refreshHz": 120,
+  "qualificationCohort": false,
+  "authority": "<accepted owner direction and ROOT release reference>",
+  "bindings": {"<each exact FRESH_DEMO_BINDINGS key>": "<literal environment value>"}
+}
+```
+
+`FRESH_DEMO_BINDINGS` in `fresh-demo-policy.mjs` is the exact binding inventory.
+Use independently frozen final source/build, method (including all new helpers and
+spec), browser, fixture, oracle and reference-profile hashes. The product manifest
+and fresh internal120 profile must name that actual merged product revision;
+the product root remains distinct from the instrument root. Runtime host/display
+checks and all before/after binding checks remain active. Do not reuse historical
+profile verification as current evidence. The policy's authority text records the
+accepted human/root decision; a hash alone does not confer authorization.
+
+From the instrument Piping root, use the common frozen environment documented above,
+with a fresh cohort ID and empty evidence root, then these explicit additions:
+
+```sh
+UI_FOUNDATION_PIPE_COUNTS=10000 UI_FOUNDATION_RUNS=1 \
+UI_FOUNDATION_FRESH_DEMO_POLICY="$POLICY" \
+UI_FOUNDATION_FRESH_DEMO_POLICY_SHA256="$POLICY_SHA256" \
+node node_modules/@playwright/test/cli.js test \
+  --config apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts \
+  --headed --workers=1 --retries=0 --repeat-each=1
+```
+
+Clear inherited UI_FOUNDATION/PLAYWRIGHT keys before setting the frozen environment.
+Smoke, diagnostic, continuation and timeout override keys conflict with timed entry.
+The worker creates `fresh-demo-entered.json` exclusively before measurement and
+rejects existing run evidence; preserve this marker on failure. Only Playwright's
+own precreated `playwright-artifacts` folder is allowed at entry. A rejected entry
+never overwrites or appends a terminal result to previous evidence.
+
+Before the timed release, run the existing both-size untimed controls smoke using a
+separate policy with `purpose: "smoke"`, a separate fresh evidence root bound in that
+policy, counts `1000,10000`, runs `1,2,3,4,5`, and `UI_FOUNDATION_SMOKE=controls`.
+The same policy path/hash environment names authorize the new product/profile during
+smoke. Smoke does not consume the timed marker and has zero timed contribution.
+
+The timed terminal record is `fresh-demo-result.json`. After the actual process ends,
+use the existing offline command with this file; it has the existing closed-attempt
+`timedAttemptEnded`, `collection` and `runRecords` contract. Preserve stdout/stderr,
+actual process exit, all raw evidence and before/after cleanup records separately.
+
+The test-only `fixtures/frozen-oracle-geometry.ts.txt` preserves the exact
+`viewportSelection.ts` bytes from product revision `8468a33c86adb622b25e98f98b0eaf28c7e9fa0e`
+(SHA256 `c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e`).
+The self-contained source-pin admission test reads these bytes as historical data;
+it never imports or executes this fixture. Current repaired source is independently
+bound by the new product manifest and is no longer the historical oracle preimage.

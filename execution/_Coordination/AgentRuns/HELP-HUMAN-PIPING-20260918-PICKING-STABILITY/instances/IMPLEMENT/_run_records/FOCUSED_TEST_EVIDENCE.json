@@ -1,0 +1,46 @@
+{
+  "schema": "bounded-test-evidence/v1",
+  "command": "npm test --workspace apps/desktop -- --run src/features/viewport/viewportSelection.test.ts",
+  "cwd": "projects/chirality-piping",
+  "runtime": "Node 24 (root-configured mise installation), normal project Vitest setup with root-built WASM",
+  "baseline": {
+    "source_sha256": "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e",
+    "test_sha256": "b7f4f24e772c75256ea7c1ce5fd0bc1805095cb7849ff751790d4db7e78a5725",
+    "fixture_sha256": "0963adf53b0d5a23f133abec44e498df2eea0f761c6159ac6eeffde722cd7b40",
+    "failed": 28,
+    "passed": 27,
+    "explanation": "32 recorded matrix cases: 28 fail, 4 pass. All 23 existing tests pass. Frozen before first product edit."
+  },
+  "postfix01": {
+    "failed": 7,
+    "passed": 61,
+    "explanation": "All32 recorded cases passed. Six analytic controls failed because test radius1 was not advertised to existing broadphase; one expected pipe although its constrained closest point has negative depth and remains ineligible. Corrected test setup/expectation only; no source change."
+  },
+  "postfix02": {
+    "failed": 0,
+    "passed": 69
+  },
+  "logs": {
+    "postfix-02.log": {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/implementation/postfix-02.log",
+      "sha256": "e9acc476b0d9b0f55394d974cf231c35e21ef405cf131c1b02f01597db3e56db"
+    },
+    "postfix-01.log": {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/implementation/postfix-01.log",
+      "sha256": "c8f37caf41b09712d2095775685ff57744d37eefdd3b6a0b92e3f45eebb77e1f"
+    },
+    "baseline.log": {
+      "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/implementation/baseline.log",
+      "sha256": "f73536e5b6e5ae24386e1b4e7c5f23a0ac67e64bcd22359af0e3a8cc8db6ced3"
+    }
+  },
+  "source_hashes": {
+    "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.ts": "fdf3eaa49b9685b932bce404421086c45a82fa22e5c8abc3f8146fc09cb846d5",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.test.ts": "bff08f70bdf0259e94e56eaac2e8911c76f1e7be77f3adc9f8335eb6b36b1aa0",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.sharedEndpoint.fixture.json": "0963adf53b0d5a23f133abec44e498df2eea0f761c6159ac6eeffde722cd7b40"
+  },
+  "setup_attempts": [
+    "Initial test invocation stopped in global WASM setup before collecting tests; root built required WASM.",
+    "An accidental repository-root npm invocation failed ENOENT before execution. No product result inferred."
+  ]
+}

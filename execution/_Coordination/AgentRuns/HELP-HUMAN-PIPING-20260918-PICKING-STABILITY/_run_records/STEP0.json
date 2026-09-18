@@ -1,0 +1,54 @@
+{
+  "base": "1f977a9352ddd370ed54b8cb363b2a2777f56213",
+  "checks": [
+    {
+      "name": "receipt",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/receipt.log",
+      "sha256": "07f82849e9326e82bc30b735e7427e85e5975d277e644d4bf300f984da3d5363"
+    },
+    {
+      "name": "self-check",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ],
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/self-check.log",
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+    },
+    {
+      "name": "deliverables",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "projects/chirality-piping/tools/coordination/list_deliverable_status.py",
+        "--dag",
+        "DAG-010",
+        "--format",
+        "table",
+        "--summary"
+      ],
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/deliverables.log",
+      "sha256": "71e3f5c5d6215a798719ec0fb8cb2b28077668dadb26f5c72e789d70cb191c04"
+    }
+  ],
+  "selectedPlan": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+  "planSha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b",
+  "receiptCursor": "Receipt-144",
+  "graph": "DAG-010",
+  "stage": "R5",
+  "limitations": [
+    "Initial loader sorted full ls-tree entries instead of paths; corrected and committed selected bytes read before dispatch. No historical plan executed.",
+    "Initial system python self-check lacked PyYAML; configured verification venv used. Initial list --dag full path failed; corrected DAG-010 argument.",
+    "Self-check review/warnings in external historical surfaces preserved; no unrelated edits.",
+    "Local dependency shard still names DAG007; current approved DAG010 takes precedence. Canonical status tool reports DEL-07-01 unblocked; formal dependency dispositions unchanged."
+  ]
+}

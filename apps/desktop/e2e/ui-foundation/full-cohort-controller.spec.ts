@@ -578,7 +578,10 @@ test("runtime geometry pin checks self-contained manifests and actual disk sourc
   const methodRoot = new URL("./", import.meta.url);
   const sourceRoot = process.env.UI_FOUNDATION_CANDIDATE_SOURCE_ROOT ?? new URL("../../../../", import.meta.url).pathname;
   const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
-  const geometryPath = `${sourceRoot}/apps/desktop/src/features/viewport/viewportSelection.ts`;
+  // Historical oracle preimage; never imported or executed as the current product.
+  const geometryPath = process.env.UI_FOUNDATION_CANDIDATE_SOURCE_ROOT
+    ? `${sourceRoot}/apps/desktop/src/features/viewport/viewportSelection.ts`
+    : new URL("fixtures/frozen-oracle-geometry.ts.txt", methodRoot);
   const cuePath = `${sourceRoot}/apps/desktop/src/features/viewport/viewportSelectionPresentation.ts`;
   const geometry = await readFile(geometryPath);
   expect(hash(geometry)).toBe(CUE_GEOMETRY_SOURCE_SHA256);
@@ -1374,4 +1377,21 @@ test("explicit internal120 transition changes only authorized profile bindings a
     expect(()=>validateDisplayProfile(drift,display)).toThrow();
   }
   expect(()=>validateDisplayProfile(raw,display,{...display,resolution:"other"})).toThrow();
+});
+
+test('fresh demonstration provenance accepts only its bound revision and internal120 profile', async()=>{
+  const {validateFinalProductProvenance}=await import('./full-cohort-controller');
+  const revision='b'.repeat(40);
+  expect(()=>validateFinalProductProvenance('final',revision,revision,false)).toThrow();
+  expect(()=>validateFinalProductProvenance('final',revision,revision,false,revision)).not.toThrow();
+  expect(()=>validateFinalProductProvenance('final',revision,CHARACTERIZATION_PRODUCT_REVISION,false,revision)).toThrow();
+  expect(()=>validateFinalProductProvenance('final',revision,revision,true,revision)).toThrow();
+  const profile={schema:'ui-foundation.reference-profile/v1',cohortId:'fresh',productRevision:revision,hostModel:'Apple M5 Max',memoryBytes:128*1024**3,
+    refreshHz:120,externallyVerified:true,verificationEvidence:'frozen evidence hash',verifiedAt:'2026-09-18T00:00:00Z',viewport:[1440,920],browserDpr:2,effectiveDprCap:2,
+    display:{name:'Color LCD',connection:'spdisplays_internal',resolution:'1728 x 1117 @ 120.00Hz'}};
+  const host={model:profile.hostModel,memoryBytes:profile.memoryBytes},authorization={refreshHz:120,freshProductRevision:revision};
+  expect(()=>validateReferenceProfile(profile,'fresh',host,authorization)).not.toThrow();
+  expect(()=>validateReferenceProfile(profile,'fresh',host)).toThrow();
+  expect(()=>validateReferenceProfile({...profile,productRevision:CHARACTERIZATION_PRODUCT_REVISION},'fresh',host,authorization)).toThrow();
+  expect(()=>validateReferenceProfile({...profile,refreshHz:60},'fresh',host,authorization)).toThrow();
 });

@@ -1,0 +1,63 @@
+{
+  "version": 2,
+  "base": "1f977a9352ddd370ed54b8cb363b2a2777f56213",
+  "selectionAuthority": "owner current direction",
+  "parent": "/root",
+  "rootModel": "gpt-6-astra/high",
+  "nodes": {
+    "IMPLEMENT": {
+      "role": "Type2 ephemeral bounded specialist",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "status": "returned_focused_pass_pending_independent_review",
+      "briefSha256": "ce178497cbc1a2c06dee181ea01b861557cfa3644aab6c52ddd7480f76cfe118",
+      "agent": "/root/picking_implementation"
+    },
+    "EXPECTATIONS": {
+      "role": "Type2 ephemeral bounded specialist",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "status": "accepted_frozen",
+      "briefSha256": "05ce3b6c61ed8f4393c04bf411bbb2f8831b6878776910e861893095d4bfdc4a",
+      "agent": "/root/picking_expectations",
+      "returnSha256": "66889c190a4434b9ad70de5fbce00f764994e60605ecfbacb574299c2c466033"
+    },
+    "BENCHMARK_PREP": {
+      "role": "Type2 ephemeral bounded specialist",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "status": "returned_focused_pass_pending_independent_review",
+      "briefSha256": "74102efd0bff80319fb60d8d02436942bda2eced64d0d6757cdeb1054cc2ef58",
+      "amendmentSha256": "378b3e191371b6603e7c3ff89ffd0bc53c894b9f48762c3a3d4a4e26d6d94163",
+      "agent": "/root/picking_benchmark_prep"
+    },
+    "REVIEW": {
+      "agent": "pending",
+      "role": "TASK Type2 software-code-review",
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "status": "brief_sealed",
+      "briefSha256": "ad7090911b28dee5f3ffabfab85fae0c0273e635c5b510802f551eac44fea007"
+    }
+  },
+  "context": {
+    "AGENTS.md": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+    "projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/POINT58_REPAIR_HANDOFF.md": "3a3490f7fe8cc542088ce60e5c33a52c0163c5d7cb0c1dd000ae6242082ad7a4",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/EXPECTATIONS/POINT58_CAUSE/DIAGNOSIS.md": "5ebda533507798034b1a7f75f3bd9d19a2c3cd5bb763c530319e6bc7892f4494",
+    "projectContract": {
+      "path": "projects/chirality-piping/docs/CONTRACT.md",
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3"
+    }
+  },
+  "sequence": [
+    "step0",
+    "expectations+fixture+benchmark-preparation",
+    "implement",
+    "independent-full-diff-review",
+    "DEC025+local-checks",
+    "PR+CI+merge",
+    "single-new-N10000",
+    "report"
+  ]
+}

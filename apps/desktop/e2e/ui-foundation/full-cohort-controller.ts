@@ -1,3 +1,4 @@
+import { freshDemoPolicy } from "./fresh-demo-policy.mjs";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { collectionMode, runCollectionDisposition, bindReferenceProfile, CHARACTERIZATION_PRODUCT_REVISION } from "./characterization-mode";
@@ -328,6 +329,7 @@ async function cameraRecipe(page: Page, fixture: LoadedFixture, timeout: number)
 }
 
 export const requiredMethodFiles = [
+    "fresh-demo-policy.mjs", "fresh-demo-policy.d.mts", "fresh-demo-policy.spec.ts", "fixtures/frozen-oracle-geometry.ts.txt",
     "characterization-mode.ts", "characterization-commands.ts", "characterization-observations.mjs",
     "characterization-observations.d.mts", "verify-characterization-observations.mjs", "README.md",
     "benchmark-harness.ts",
@@ -360,12 +362,12 @@ export function validateInventoryCoverage(declared: readonly {path:string}[], ac
   const names=declared.map(e=>e.path).filter(name=>name.startsWith(`${root}/`)).sort();
   if(new Set(declared.map(e=>e.path)).size!==declared.length || JSON.stringify(names)!==JSON.stringify([...actual].sort())) throw new Error(`incomplete or duplicate product inventory: ${root}`);
 }
-export function validateFinalProductProvenance(stage: string, revision: string, gitHead: string, sameRoot: boolean) {
-  if(stage!=="final" || revision!==CHARACTERIZATION_PRODUCT_REVISION || gitHead!==CHARACTERIZATION_PRODUCT_REVISION || sameRoot)throw new Error("separate frozen final product provenance required");
+export function validateFinalProductProvenance(stage: string, revision: string, gitHead: string, sameRoot: boolean, expectedRevision = CHARACTERIZATION_PRODUCT_REVISION) {
+  if(stage!=="final" || revision!==expectedRevision || gitHead!==expectedRevision || sameRoot)throw new Error("separate frozen final product provenance required");
 }
 export async function validateCharacterizationProduct(binding: CandidateDriverBinding, bundle: any) {
   const {stdout}=await promisify(execFile)("git",["rev-parse","HEAD"],{cwd:binding.candidateSourceRoot});
-  validateFinalProductProvenance(binding.sourceStage,bundle.productRevision,stdout.trim(),await realpath(binding.candidateSourceRoot)===await realpath(process.cwd()));
+  validateFinalProductProvenance(binding.sourceStage,bundle.productRevision,stdout.trim(),await realpath(binding.candidateSourceRoot)===await realpath(process.cwd()),freshDemoPolicy()?.productRevision ?? CHARACTERIZATION_PRODUCT_REVISION);
   const inventory = async (relative: string): Promise<string[]> => {
     const entries = await readdir(path.join(binding.candidateSourceRoot, relative), { withFileTypes: true });
     const result: string[] = [];

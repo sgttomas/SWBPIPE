@@ -1,3 +1,4 @@
+import { freshDemoPolicy } from "./fresh-demo-policy.mjs";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -41,10 +42,10 @@ export function attemptDisposition(mode: CollectionMode, plan: readonly { runId:
   return { mode, evidenceValidity: complete ? "VALID" : "INVALID_OR_UNAVAILABLE", collectionCompleteness: complete ? "COMPLETE_TEN_RUNS" : "INCOMPLETE_ATTEMPT",
     targetOutcome: cohort.status, attemptDisposition: complete && (mode === "characterization" || cohort.status === "PASS_COHORT_METRICS") ? "COMPLETED" : "ABORTED", runs };
 }
-export function validateReferenceProfile(record: any, cohortId: string, host: { model: string; memoryBytes: number }, authorization?: {refreshHz:number;authoritySha256:string} | null) {
-  const internal120=authorization?.refreshHz===120 && authorization.authoritySha256===INTERNAL120_AUTHORITY_SHA256;
+export function validateReferenceProfile(record: any, cohortId: string, host: { model: string; memoryBytes: number }, authorization?: {refreshHz:number;authoritySha256?:string;freshProductRevision?:string} | null) {
+  const internal120=authorization?.refreshHz===120 && (authorization.authoritySha256===INTERNAL120_AUTHORITY_SHA256 || /^[a-f0-9]{40}$/.test(authorization.freshProductRevision??""));
   if(authorization && !internal120)throw new Error("unsupported reference profile authorization");
-  if (record?.schema !== "ui-foundation.reference-profile/v1" || record.cohortId !== cohortId || record.productRevision !== CHARACTERIZATION_PRODUCT_REVISION ||
+  if (record?.schema !== "ui-foundation.reference-profile/v1" || record.cohortId !== cohortId || record.productRevision !== (authorization?.freshProductRevision ?? CHARACTERIZATION_PRODUCT_REVISION) ||
       record.hostModel !== "Apple M5 Max" || host.model !== record.hostModel || record.memoryBytes !== 128 * 1024 ** 3 || host.memoryBytes !== record.memoryBytes ||
       record.refreshHz !== (internal120?120:60) || (internal120&&(record.display?.connection!=="spdisplays_internal"||record.display?.name!=="Color LCD"||!/@ 120\.00Hz$/.test(record.display?.resolution??""))) || record.externallyVerified !== true || typeof record.verificationEvidence !== "string" || !record.verificationEvidence ||
       !Number.isFinite(Date.parse(record.verifiedAt)) || JSON.stringify(record.viewport) !== "[1440,920]" || record.browserDpr !== 2 || record.effectiveDprCap !== 2)
@@ -56,7 +57,8 @@ export async function bindReferenceProfile(env: NodeJS.ProcessEnv = process.env)
   if (!file || !path.isAbsolute(file) || !/^[a-f0-9]{64}$/.test(sha256 ?? "")) throw new Error("reference profile path/hash required");
   const bytes = await readFile(file);
   if (createHash("sha256").update(bytes).digest("hex") !== sha256) throw new Error("reference profile bytes drift");
-  const authorization=await continuationProfileAuthorization(env);
+  const fresh=freshDemoPolicy(env);
+  const authorization=fresh ? {refreshHz:120,freshProductRevision:fresh.productRevision} : await continuationProfileAuthorization(env);
   const record = validateReferenceProfile(JSON.parse(bytes.toString()), env.UI_FOUNDATION_COHORT_ID ?? "", { model: os.cpus()[0]?.model, memoryBytes: os.totalmem() },authorization);
   return { file, sha256, record, observation: "external refresh verification plus host readback; boundary checks only" };
 }

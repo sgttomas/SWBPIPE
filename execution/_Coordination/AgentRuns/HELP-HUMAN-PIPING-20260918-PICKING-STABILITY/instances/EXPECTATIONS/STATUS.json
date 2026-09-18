@@ -1,0 +1,12 @@
+{
+  "status": "COMPLETE",
+  "verdict": "ANALYTIC_EXPECTATIONS_FROZEN",
+  "release_recommendation": "PROCEED_TO_IMPLEMENTATION",
+  "basis": "1f977a9352ddd370ed54b8cb363b2a2777f56213",
+  "next_owner": "/root HELP_HUMAN",
+  "blockers": [],
+  "configured_model": "gpt-6-astra",
+  "reasoning": "low",
+  "enforcement": "instruction+config asserted",
+  "tests_run": false
+}

@@ -745,10 +745,17 @@ function intersectSphere(
 ): { entry: number; exit: number; miss: number } | null {
   const toCenter = new THREE.Vector3(center.x, center.y, center.z).sub(ray.origin);
   const along = toCenter.dot(ray.direction);
-  const missSquared = Math.max(0, toCenter.lengthSq() - along * along);
+  // Evaluate the small perpendicular residual directly, avoiding cancellation
+  // between camera-distance-sized squared lengths. Keep the signed projection
+  // for the line intersection interval; the forward-ray miss is separate.
+  const missSquared = toCenter.clone().addScaledVector(ray.direction, -along).lengthSq();
   if (missSquared > radius * radius) return null;
   const halfSpan = Math.sqrt(radius * radius - missSquared);
-  return { entry: along - halfSpan, exit: along + halfSpan, miss: Math.sqrt(missSquared) / radius };
+  return {
+    entry: along - halfSpan,
+    exit: along + halfSpan,
+    miss: Math.sqrt(pointRayMissSquared(ray, center)) / radius
+  };
 }
 
 function intersectCapsule(
@@ -786,9 +793,8 @@ function intersectCapsule(
   if (pointInsideCapsule(ray.origin, a, b, radius)) intersections.push(0);
   const finite = intersections.filter(Number.isFinite).sort((left, right) => left - right);
   if (finite.length === 0) return null;
-  const pointOnRay = new THREE.Vector3();
-  const pointOnSegment = new THREE.Vector3();
-  const missSquared = ray.distanceSqToSegment(a, b, pointOnRay, pointOnSegment);
+  const pointOnSegment = closestPointOnSegmentToRay(start, end, ray);
+  const missSquared = pointRayMissSquared(ray, pointOnSegment);
   return {
     entry: finite[0],
     exit: finite.at(-1)!,
@@ -876,19 +882,36 @@ function closestPointOnSegmentToRay(
   end: Readonly<Vec3>,
   ray: THREE.Ray
 ): THREE.Vector3 {
-  const a = new THREE.Vector3(start.x, start.y, start.z);
   const segment = new THREE.Vector3(end.x - start.x, end.y - start.y, end.z - start.z);
   const lengthSquared = segment.lengthSq();
-  if (!(lengthSquared > 0)) return a;
-  const fromStart = ray.origin.clone().sub(a);
-  const raySegment = ray.direction.dot(segment);
-  const rayStart = ray.direction.dot(fromStart);
-  const segmentStart = segment.dot(fromStart);
-  const denominator = lengthSquared - raySegment * raySegment;
-  const fraction = denominator > Number.EPSILON
-    ? THREE.MathUtils.clamp((segmentStart - raySegment * rayStart) / denominator, 0, 1)
+  if (!(lengthSquared > 0)) return new THREE.Vector3(start.x, start.y, start.z);
+  const fromOrigin = new THREE.Vector3(start.x, start.y, start.z).sub(ray.origin);
+  const along = fromOrigin.dot(ray.direction);
+  const segmentAlong = segment.dot(ray.direction);
+  const perpendicular = segment.clone().addScaledVector(ray.direction, -segmentAlong);
+  const denominator = perpendicular.lengthSq();
+  const residual = fromOrigin.clone().addScaledVector(ray.direction, -along);
+  let fraction = denominator > 0
+    ? THREE.MathUtils.clamp(-residual.dot(perpendicular) / denominator, 0, 1)
     : 0;
-  return a.addScaledVector(segment, fraction);
+  // If the line minimum is behind the ray, minimize against its origin instead.
+  // Clamping both unconstrained parameters independently is not sufficient.
+  if (along + fraction * segmentAlong < 0) {
+    fraction = THREE.MathUtils.clamp(-fromOrigin.dot(segment) / lengthSquared, 0, 1);
+  }
+  // Literal endpoints share exactly the same residual as a coincident node.
+  if (fraction === 0) return new THREE.Vector3(start.x, start.y, start.z);
+  if (fraction === 1) return new THREE.Vector3(end.x, end.y, end.z);
+  return fraction <= 0.5
+    ? new THREE.Vector3(start.x, start.y, start.z).addScaledVector(segment, fraction)
+    : new THREE.Vector3(end.x, end.y, end.z).addScaledVector(segment, fraction - 1);
+}
+
+/** Shared sphere/capsule forward-ray miss, evaluated in origin-relative space. */
+function pointRayMissSquared(ray: THREE.Ray, point: Readonly<Vec3>): number {
+  const relative = new THREE.Vector3(point.x, point.y, point.z).sub(ray.origin);
+  const along = Math.max(0, relative.dot(ray.direction));
+  return relative.addScaledVector(ray.direction, -along).lengthSq();
 }
 
 function pointRayBroadPhaseKeys(
