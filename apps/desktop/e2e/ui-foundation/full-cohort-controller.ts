@@ -533,8 +533,6 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
   const boundary = async (id: string) => {
     if (!characterization) return undefined;
     const metadata = await captureBoundary(page, expected, id, initialBoundary, directory);
-    if ((id.startsWith("point-selection-") && metadata.snapshot.viewport.labels.enabled !== false) ||
-        (id.startsWith("orbit-") && metadata.snapshot.viewport.labels.enabled !== true)) throw new Error("phase label policy mismatch");
     initialBoundary ??= metadata;
     const ref = await persistBoundary(directory, metadata); boundaries.push(ref); return ref;
   };

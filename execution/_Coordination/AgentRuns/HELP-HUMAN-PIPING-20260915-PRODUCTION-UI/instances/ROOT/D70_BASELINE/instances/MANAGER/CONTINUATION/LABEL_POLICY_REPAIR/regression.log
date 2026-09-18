@@ -1,0 +1,12 @@
+
+Running 3 tests using 1 worker
+
+(node:74706) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:74706) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1023:1 › required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions (9ms)
+  ✓  2 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1192:3 › phase label rejection preserves actual boundary metadata: point-selection-1-stopped (5ms)
+  ✓  3 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1192:3 › phase label rejection preserves actual boundary metadata: orbit-1-ready (2ms)
+
+  3 passed (639ms)

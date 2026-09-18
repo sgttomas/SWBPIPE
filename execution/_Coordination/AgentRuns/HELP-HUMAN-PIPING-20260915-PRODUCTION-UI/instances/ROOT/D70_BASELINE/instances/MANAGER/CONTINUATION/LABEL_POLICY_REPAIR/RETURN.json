@@ -1,0 +1,43 @@
+{
+  "status": "PASS_BOUNDED_LABEL_POLICY_REPAIR_PENDING_ROOT_REVIEW",
+  "parent": "/root",
+  "instance": "/root/d70_manager",
+  "role": "WORKING_ITEMS Type 1",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "implementation": "direct under explicit ROOT grant",
+  "childDispatched": false,
+  "base": "5aba132e6176a55bf07ba116ccdf3c7b003d7c9e",
+  "parentMethodSha256": "79efe4a3915b270f5b00853032c59a740ac3284ee49984566c26d6895b557cbd",
+  "manifestSha256": "c130feec3c729adb71502ca60af32e3a37f137b3ef3b8e5291175985ddef7871",
+  "manifestEntries": 34,
+  "source": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+      "sha256": "c0617b53648ffb150f9ff24a290211c383c65b285edf54f675a30c8a2a6ac586"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "b7753c04a42c7378c16494d811f414673f86e25b2522f92c434d4f3d1febb44a"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "6174c3ecd6f9732eefd00b8db50bcb0a0f3ce59b28ec217c3b189f3ef2e526a4"
+    }
+  ],
+  "checks": {
+    "focusedTests": 3,
+    "typescript": "PASS",
+    "diffCheck": "PASS"
+  },
+  "runtimeExecuted": false,
+  "attemptsConsumed": 0,
+  "strictMode": "UNCHANGED; existing characterization guard still returns before boundary capture",
+  "remaining": [
+    "ROOT affected review and integration",
+    "ROOT successor freeze and runtime release"
+  ],
+  "additionalOutOfScopeFindings": [],
+  "derivativePackage": true,
+  "claimFence": "F-PIP-2 / DEC081"
+}

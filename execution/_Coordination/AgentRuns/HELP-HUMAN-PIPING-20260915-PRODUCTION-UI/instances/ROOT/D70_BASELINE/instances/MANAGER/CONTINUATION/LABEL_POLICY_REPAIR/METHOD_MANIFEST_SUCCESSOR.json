@@ -1,0 +1,147 @@
+{
+  "schema": "d70-writer-method-manifest/v1",
+  "status": "LABEL_POLICY_REPAIR_PENDING_ROOT_REVIEW",
+  "parentManifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-rendering-instrument-20260917/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/CONTINUATION/METHOD_MANIFEST_SUCCESSOR.json",
+    "sha256": "79efe4a3915b270f5b00853032c59a740ac3284ee49984566c26d6895b557cbd"
+  },
+  "basisRevision": "5aba132e6176a55bf07ba116ccdf3c7b003d7c9e",
+  "files": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation/characterization-mode.ts",
+      "sha256": "9e8a22893c89e9fb74d2d5bfc0dedf21fe7e42336dbaf4ea084a529b09aa1d59"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+      "sha256": "c0617b53648ffb150f9ff24a290211c383c65b285edf54f675a30c8a2a6ac586"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/characterization-observations.mjs",
+      "sha256": "4a0be1ae885412fbf89065e88058f51c85cebdcbfccb47b39367177f7a31508b"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/characterization-observations.d.mts",
+      "sha256": "7d10a944f0f02ed94deaa7f5cfc92c24db534f4d64b739970a646e51ce897f27"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/verify-characterization-observations.mjs",
+      "sha256": "50055988ca0e3e633bf35ad90d2e27f3ee57b4571204f9b00a72430305475fd3"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/README.md",
+      "sha256": "8438e3c3d3a5ba76a265b96444c33745b54014962d7d5edfde5939745786dd51"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/benchmark-harness.ts",
+      "sha256": "0588824257de2c8a9d12631916938e46fd1f0119b49ecb98f0279b58638d90bf"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/candidate-server-response.ts",
+      "sha256": "3e687668fe8c21b22679de9fec010a7456594543a2b1734813a681a97837ab5c"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/chromium-compositor-trace.ts",
+      "sha256": "aa98659b9283bd490e180698ece87567ea301918e983782a62bf367ffe7ee460"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/lossless-trace-json.mjs",
+      "sha256": "de7e87219debfaf750b6bf707adc68c60a2c1d316bea53850c26742dbec97175"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/lossless-trace-json.d.mts",
+      "sha256": "79a19df1e2cabf9c67acb05cf8d25733b3f557da49c075933ae570df77dc5833"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+      "sha256": "732a234efeeda61d1eb83a3df49833a335ccbb202f357e6cdc2459d34ebcd241"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-presentation-extractor.d.mts",
+      "sha256": "fd0b1dbfc36229248191560c84ca8a104353556c84fbcec4d40da412d4bf08e8"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-presentation-preflight.benchmark.ts",
+      "sha256": "cd47c44deae1da5aab4ad77e737a7a95213fa5a473722cb530494131002b667c"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+      "sha256": "08dead09a3674515127ab5ac4296571857220fa1133591f1740b3045d67bf8f9"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.causal-presentation-preflight.config.ts",
+      "sha256": "a8d60bb10b9d6dddeaf2bc77ba27c1ee77d6468e136df6a6e250135d243a8bff"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.candidate-causal-presentation-preflight.config.ts",
+      "sha256": "2601abbcf5064aba023ee3104f36a0b5b362c2d5ae77ae568c235c3d19eb4714"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/fixture-manifest.json",
+      "sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-method-contract.ts",
+      "sha256": "06979207212a2317a0d1a7e6883839f8502383d1e94928dd885e16f35f622944"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-phase-journal.ts",
+      "sha256": "c2d66aa4f54434a0131a12ac49caa83d4ed0544c81e7ac573e7a2fc53597c053"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/causal-method-contract.spec.ts",
+      "sha256": "572bf26e6185bf229f6d140308e6efede40f45b5b710c76dfbf138505e7b7807"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.causal-method-contract.config.ts",
+      "sha256": "0e78e16cfd53f88d2bed50bf8c1e9dee1d1d496f99e6c8a9efc6c0a643f04dd2"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/tsconfig.causal-method.json",
+      "sha256": "15376dbf50b04fae22683d2849e0a451eafc5d999ca9379a640905d09dbcc8a4"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/performance-targets.ts",
+      "sha256": "cd76e8e9979d23cf460c5117aa4ce55fccd3639def6de4b132074e2f0e9e4a13"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/performance-targets.spec.ts",
+      "sha256": "e645adbc092a8f432e7f69c3b955944f31eff7bae485e6ab5b7a5349aaeebe18"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+      "sha256": "1c3d96e141c646f728e703e8a4f7bf01fb8be286e206090c5aa2790dbcdcfe09"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts",
+      "sha256": "7cad30cbc11ab3c536af658b70e30cd7fba94f719e2ca26ea017011ded0690e4"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "sha256": "6174c3ecd6f9732eefd00b8db50bcb0a0f3ce59b28ec217c3b189f3ef2e526a4"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "sha256": "b7753c04a42c7378c16494d811f414673f86e25b2522f92c434d4f3d1febb44a"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/playwright.performance.config.ts",
+      "sha256": "5b587689281763f4524c376e201dbc93e1d7307160769d95ded7abcaf6a7f190"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/serve-bound-candidate-output.mjs",
+      "sha256": "1def765af80b49bf0cb35f5be16a20430862dde3fc7622d70b95805ea51599ab"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/freeze-candidate-point-oracle.mjs",
+      "sha256": "d8c7a0cdb8a129a1d710df4d420d6437d76d44d8fcc34bb5132a601add599937"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/point-hit-oracle.mjs",
+      "sha256": "d9f4e01f80b62c777b3b48645b3d2180e7327fb0e335358c5aba6b4f96b992b4"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation/box-selection-oracle.mjs",
+      "sha256": "74180e4c9d90bd2d7563afd8f70c5edd88d41c24c0d2aebba128746a064d5b49"
+    }
+  ]
+}

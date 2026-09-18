@@ -71,6 +71,8 @@ export function validateBoundaryMetadata(value: any, expected: any, previous?: a
     if (JSON.stringify(stable(previous)) !== JSON.stringify(stable(value))) throw new Error(`boundary profile/model/binding drift: ${JSON.stringify(boundaryFieldDifferences(stable(previous),stable(value)))}`);
     value.contentGeometryTransitions=boundaryFieldDifferences(previous.presentation.panels,value.presentation.panels,"presentation.panels");
   }
+  if ((value.id.startsWith("point-selection-") && v.labels.enabled !== false) ||
+      (value.id.startsWith("orbit-") && v.labels.enabled !== true)) throw new Error("phase label policy mismatch");
   return value;
 }
 export async function validateBoundaryWithRejectionRecord(value:any, expected:any, previous:any, directory:string,

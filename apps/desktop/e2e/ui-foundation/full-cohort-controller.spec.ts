@@ -1027,7 +1027,7 @@ test("required metadata rejects missing fields and profile/model/binding drift w
     (v:any)=>v.snapshot.viewport.camera.position=[0,Infinity,0],(v:any)=>v.presentation.theme=null,(v:any)=>v.presentation.panels[0].visible=false,
     (v:any)=>v.snapshot.viewport.geometry={mode:"actual-od",odStatus:"idle",odGeneration:0},(v:any)=>v.bindings.source="drift"]){const bad=structuredClone(value);mutate(bad);expect(()=>validateBoundaryMetadata(bad,expected)).toThrow();}
   for(const mutate of [(v:any)=>v.presentation.theme="dark",(v:any)=>v.snapshot.model.generation++,(v:any)=>v.snapshot.viewport.canvas.cssLeft++]){const bad=structuredClone(value);mutate(bad);expect(()=>validateBoundaryMetadata(bad,expected,value)).toThrow("drift");}
-  const changed=structuredClone(value);changed.snapshot.viewport.camera.position=[4,5,6];changed.snapshot.viewport.labels.enabled=true;changed.snapshot.viewport.labels.renderedCount=3;validateBoundaryMetadata(changed,expected,value);
+  const changed=structuredClone(value);changed.id="orbit-1-ready";changed.snapshot.viewport.camera.position=[4,5,6];changed.snapshot.viewport.labels.enabled=true;changed.snapshot.viewport.labels.renderedCount=3;validateBoundaryMetadata(changed,expected,value);
 });
 test("keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers",async()=>{
   const calls:string[]=[],page:any={getByTestId:()=>({inputValue:async()=>"",focus:async()=>calls.push("focus")}),keyboard:{insertText:async(q:string)=>calls.push(`insert:${q}`)}};
@@ -1187,3 +1187,22 @@ test("continuation launcher consumes failed/interrupted slots and executes later
   const altered={...policy,method:{...policy.method,sha256:"c".repeat(64)}};await expect(continuationClaims(altered)).rejects.toThrow("untracked method");
   const moved=await save("moved-policy.json",{...policy,ledgerRoot:`${directory}/another-ledger`});await expect(launchContinuationSlot(moved,"1000.2",nextReceipt,operations)).rejects.toThrow("relocation/reset");
 });
+
+for (const [id, expectedEnabled] of [["point-selection-1-stopped", false], ["orbit-1-ready", true]] as const) {
+  test(`phase label rejection preserves actual boundary metadata: ${id}`, async ({}, info) => {
+    const {validateBoundaryWithRejectionRecord} = await import("./characterization-commands");
+    const previous=metadataFixture();previous.id="initial-presentation";
+    const expected={runId:previous.runId,fixtureSize:1000,runNumber:2,bindings:previous.bindings};
+    const value=structuredClone(previous);value.id=id;value.snapshot.viewport.labels.enabled=!expectedEnabled;
+    const directory=info.outputPath("phase-label-rejection");await mkdir(directory,{recursive:true});
+    await expect(validateBoundaryWithRejectionRecord(value,expected,previous,directory)).rejects.toThrow("phase label policy mismatch");
+    const rejected=JSON.parse(await readFile(`${directory}/${id}-rejected.json`,"utf8"));
+    expect(rejected.status).toBe("REJECTED_BOUNDARY_METADATA");
+    expect(rejected.actual).toEqual(value);
+    expect(rejected.actual.snapshot.viewport.labels.enabled).toBe(!expectedEnabled);
+    expect(rejected.expected).toEqual(expected);expect(rejected.reference).toEqual(previous);
+    expect(rejected.error).toBe("Error: phase label policy mismatch");
+    const allowed=structuredClone(value);allowed.snapshot.viewport.labels.enabled=expectedEnabled;
+    expect(()=>validateBoundaryMetadata(allowed,expected,previous)).not.toThrow();
+  });
+}
