@@ -10,7 +10,7 @@ Updated 2026-09-17 by ROOT. Working surface; superseded lines are struck rather 
 
 ## Open with the owner
 
-Update 2026-09-17, later: the owner answered all seven questions in session; the answers are transcribed in `instances/ROOT/DESIGN_BRIEF_V1.md` §1, and that draft brief is awaiting the phase 1 checkpoint. Answer 5 is unfinished. The brief's §8 lists the questions now open. The list below is retained as history.
+Update 2026-09-17, later: the owner answered all seven questions in session and then accepted the brief with one correction and answered its open questions. `instances/ROOT/DESIGN_BRIEF_V1.md` is the accepted V1.1 brief; phase 1 checkpoint passed. Product name is now SWB Piping Designer (SWBPIPE). Phase 2, concept directions, is next. The list below is retained as history.
 
 The seven opening questions, as first put:
 
