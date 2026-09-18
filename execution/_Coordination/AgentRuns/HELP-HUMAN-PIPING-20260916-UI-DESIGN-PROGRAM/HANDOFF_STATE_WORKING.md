@@ -10,7 +10,9 @@ Updated 2026-09-17 by ROOT. Working surface; superseded lines are struck rather 
 
 ## Open with the owner
 
-The seven opening questions, unanswered as of this update:
+Update 2026-09-17, later: the owner answered all seven questions in session; the answers are transcribed in `instances/ROOT/DESIGN_BRIEF_V1.md` §1, and that draft brief is awaiting the phase 1 checkpoint. Answer 5 is unfinished. The brief's §8 lists the questions now open. The list below is retained as history.
+
+The seven opening questions, as first put:
 
 1. What was the session that made you say "I don't like it"? What were you trying to do and where did it fall apart?
 2. Who is the one user whose delight matters most: you running a real analysis, a stress engineer at a firm deciding whether to trust it, or a layout designer routing pipe?
