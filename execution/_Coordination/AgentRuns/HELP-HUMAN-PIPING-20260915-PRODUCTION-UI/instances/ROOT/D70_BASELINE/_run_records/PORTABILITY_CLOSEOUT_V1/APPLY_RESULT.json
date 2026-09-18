@@ -1,0 +1,14 @@
+{
+  "status": "APPLIED_REVIEWED_EXACT_CLASSIFICATIONS",
+  "appliedAt": "2026-09-18T04:17:18.821581+00:00",
+  "policyBeforeSha256": "2864b8591621b8732ad5e79dfa9e22f751fb661040530ed5ed40aba31ae4a042",
+  "policyAfterSha256": "113684aaed4e12facb6d2968c2ee3ed4264dc45933555ee92789f6a95fc3a837",
+  "proposalSha256": "8794b7a4557a9dd53df6fd4af9eb2dac25daa18e61c26a5b79f85ad7c17c57b9",
+  "reviewReturnSha256": "05eb5f28e83e15787583766ae3430114ff5fc2533e4e67b66b3dfa672e31cca3",
+  "historicalEvidenceAdded": 269,
+  "historicalControlExceptionsAdded": 1,
+  "existingEntriesPreserved": true,
+  "allTargetBytesUnchanged": true,
+  "classifierOrProductChanged": false,
+  "schemaIssues": []
+}
