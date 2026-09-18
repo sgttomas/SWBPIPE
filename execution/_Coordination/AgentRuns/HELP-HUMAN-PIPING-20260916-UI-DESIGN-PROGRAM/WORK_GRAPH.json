@@ -100,9 +100,9 @@
       "id": "OWNER-DIRECTION",
       "role": "HUMAN",
       "purpose": "Owner chooses the concept direction; answered 2026-09-17 as a synthesis (tables are the model, CAEPIPE grammar, stages as pages of tables, three views per stage, row-by-row acceptance, Review page)",
-      "status": "active",
+      "status": "complete",
       "return": "instances/ROOT/DIRECTION_DECISION_2026-09-17.md",
-      "note": "ROOT transcription of the owner's answers awaits the owner's confirmation; the owner's words govern"
+      "note": "Confirmed 2026-09-18 with corrections (views Table/Model/Both; numeric node IDs; tees as node data). Reading (d), the checked mark, remains under discussion and is provisional in phase 3."
     },
     {
       "id": "DESIGN-SYSTEM",
