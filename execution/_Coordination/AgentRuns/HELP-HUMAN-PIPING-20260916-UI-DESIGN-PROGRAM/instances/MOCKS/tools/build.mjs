@@ -1,5 +1,5 @@
-// Builds the static frames, the contact page and the sample-model document (third pass, MOCKS-03:
-// design system V1.2, tokens.json 1.2). Reads the design system's tokens.json (read-only) and
+// Builds the static frames, the contact page and the sample-model document (fourth pass, MOCKS-04:
+// design system V1.3, tokens.json 1.2). Reads the design system's tokens.json (read-only) and
 // writes only under instances/MOCKS/.
 import fs from "node:fs";
 import path from "node:path";
@@ -129,8 +129,8 @@ ${styleBlock()}
 <body>
 <div class="wrap">
 <h1>SWBPIPE · mock frames</h1>
-<p class="sec">Third pass (MOCKS-03): ${frames.length} static frames of the nine workflow states, drawn from design system V1.2 (tokens.json ${T.version}, specimen.html V1.2) and showing the behaviour of UX specification V1.1, with the owner's rulings of 2026-09-18 applied, on one sample model. Sixteen frames are the second pass's design frames regenerated; two are new, the slide-over inspector of state 4 and the Historical run of state 7. The second pass's two decision-aid frames are retired: what they asked is ruled. Each frame is the whole 1440 × 900 window and scales down as a whole in a narrower pane. Nothing in a frame works except the theme switch in the caption bar. Every value is a placeholder: the sample model and its results are illustrative, not engine output.</p>
-<p><a href="../sample_model.md">The sample model</a> · <a href="../MOCKS_V3.md">MOCKS_V3.md</a> (what changed per frame, departures, contradictions, questions, gaps) · <a href="../MOCKS_V2.md">MOCKS_V2.md</a> and <a href="../MOCKS_V1.md">MOCKS_V1.md</a> (the earlier passes, history) · <a href="../RETURN.md">RETURN.md</a></p>
+<p class="sec">Fourth pass (MOCKS-04): ${frames.length} static frames of the nine workflow states, drawn from design system V1.3 (tokens.json ${T.version}, specimen.html V1.3) and showing the behaviour of UX specification V1.2, after the owner's direction of 2026-09-18 on the contradictions between the two documents, on one sample model. State 1 is now a Both-view frame, because a new project opens the Model stage in Both view; the Table-view frame of state 1 is retired. Each frame is the whole 1440 × 900 window and scales down as a whole in a narrower pane. Nothing in a frame works except the theme switch in the caption bar. Every value is a placeholder: the sample model and its results are illustrative, not engine output.</p>
+<p><a href="../sample_model.md">The sample model</a> · <a href="../MOCKS_V4.md">MOCKS_V4.md</a> (what changed per frame in this pass, the contradictions' outcomes, questions, gaps) · <a href="../MOCKS_V3.md">MOCKS_V3.md</a>, <a href="../MOCKS_V2.md">MOCKS_V2.md</a> and <a href="../MOCKS_V1.md">MOCKS_V1.md</a> (the earlier passes, history) · <a href="../RETURN.md">RETURN.md</a></p>
 <h2>Frames</h2>
 <table class="ds"><colgroup><col style="width:44px"><col style="width:200px"><col style="width:66px"><col style="width:56px"><col style="width:62px"><col style="width:300px"><col></colgroup><thead><tr><th class="n">State</th><th>Frame</th><th>Stage</th><th>View</th><th>Theme</th><th>What it tests</th><th>What to look at</th></tr></thead><tbody>
 ${rows}
@@ -241,7 +241,7 @@ TOKENS_CSS = tokensCss();
 fs.writeFileSync(path.join(framesDir, "tokens.css"), TOKENS_CSS);
 MOCKS_CSS = fs.readFileSync(path.join(framesDir, "mocks.css"), "utf8");
 for (const f of frames) fs.writeFileSync(path.join(framesDir, `${f.file}.html`), page(f, f.body(f)));
-// Frames the passes retired are removed from frames/ and shots/ (git history keeps them; MOCKS_V3.md records why).
+// Frames the passes retired are removed from frames/ and shots/ (git history keeps them; MOCKS_V3.md and MOCKS_V4.md record why).
 for (const dir of [framesDir, path.join(root, "shots")]) if (fs.existsSync(dir)) for (const name of fs.readdirSync(dir)) { const base = name.replace(/\.(html|png)$/, ""); if (/\.(html|png)$/.test(name) && base !== "index" && !frames.some((f) => f.file === base)) { fs.unlinkSync(path.join(dir, name)); console.log("removed retired " + path.join(path.basename(dir), name)); } }
 fs.writeFileSync(path.join(framesDir, "index.html"), index());
 fs.writeFileSync(path.join(root, "sample_model.md"), sampleModel());

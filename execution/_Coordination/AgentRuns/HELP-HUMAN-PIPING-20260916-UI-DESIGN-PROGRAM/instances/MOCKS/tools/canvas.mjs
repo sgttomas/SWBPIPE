@@ -72,6 +72,8 @@ export function figure(o) {
   // Fit.
   const pts = nodes.map((r) => proj(C[r.node]));
   if (o.draft) { const s = C[o.draft.from]; const d = { X: [1, 0, 0], Y: [0, 1, 0], Z: [0, 0, 1] }[o.draft.axis]; pts.push(proj({ x: s.x + d[0] * o.draft.len, y: s.y + d[1] * o.draft.len, z: s.z + d[2] * o.draft.len })); }
+  // An empty model has nothing to fit: o.fitAll fits the camera to the whole sample model's extent, so state 1 opens on the ground the later states stand on.
+  if (o.fitAll) for (const r of rows) pts.push(proj(C[r.node]));
   const minx = Math.min(...pts.map((p) => p.x)), maxx = Math.max(...pts.map((p) => p.x));
   const miny = Math.min(...pts.map((p) => p.y)), maxy = Math.max(...pts.map((p) => p.y));
   const m = Object.assign({ top: 56, right: 40, bottom: 56, left: 40 }, o.margin || {});
@@ -355,6 +357,8 @@ export function figure(o) {
   occupy(0, h - 92, 96, 92);
   if (o.scaleRef !== false) occupy(scaleRefX - 6, h - (o.loads !== false ? 46 : 36), Math.max(scaleRefL, 60) + 100, 40);
 
+  // A node with no element yet is drawn as a point (UX_SPEC §10.1: "node 10 as a point").
+  if (!elements.length) for (const r of nodes) out.push(`<circle cx="${f1(P[r.node].x)}" cy="${f1(P[r.node].y)}" r="3.5" fill="var(--canvas-edge)"/>`);
   // Node labels with a placement search.
   const labels = [];
   const labelNodes = o.labels === "off" ? [] : nodes.map((r) => r.node);

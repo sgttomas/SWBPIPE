@@ -1,5 +1,5 @@
 {
-  "s1_table_light": {
+  "s1_both_light": {
     "960": {
       "scale": 0.644,
       "scrollWidth": 960,
@@ -18,11 +18,11 @@
           "-apple-system"
         ],
         "sizes": {
-          "11": 11,
-          "12": 14,
+          "11": 8,
+          "12": 16,
           "13": 25
         },
-        "textElements": 50,
+        "textElements": 49,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -55,10 +55,44 @@
         "reviewOutline": null,
         "reviewComments": null
       },
-      "docked": null,
-      "canvasBox": null,
-      "hud": null,
-      "mockLine": null,
+      "docked": {
+        "tables": {
+          "w": 738,
+          "h": 829
+        },
+        "canvas": {
+          "w": 603,
+          "h": 829
+        },
+        "inspector": null,
+        "slideOver": null,
+        "strip": {
+          "w": 44,
+          "h": 829
+        },
+        "column": null,
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "canvasBox": {
+        "x": 794,
+        "y": 48,
+        "w": 603,
+        "h": 829
+      },
+      "hud": {
+        "x": 802,
+        "y": 56,
+        "w": 304,
+        "h": 34
+      },
+      "mockLine": {
+        "x": 916,
+        "y": 855,
+        "w": 358,
+        "h": 14
+      },
       "toast": null,
       "runLog": null,
       "runButton": {
@@ -105,12 +139,12 @@
         "agentToggle": true,
         "togglesAfterIssues": "runbtn,Issues,insptoggle,agenttoggle",
         "aboutOpensDirectly": true,
-        "hudFitFirst": null,
-        "hudTools": null,
+        "hudFitFirst": true,
+        "hudTools": 10,
         "compass": null,
         "footerSelectionGroup": [],
         "footerEditChip": [
-          2
+          0
         ],
         "addRowLines": 1,
         "expansionChevrons": 1,
@@ -135,7 +169,10 @@
         "legend": null,
         "legendText": "",
         "probe": false,
-        "toolsNeedingRun": []
+        "toolsNeedingRun": [
+          "Deformation (D) · Needs a current run",
+          "Probe (P) · Needs a current run"
+        ]
       },
       "outsideStage": [],
       "clipped": [],
@@ -149,6 +186,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MODEL_INCOMPLETE"
         ],
@@ -179,11 +219,11 @@
           "-apple-system"
         ],
         "sizes": {
-          "11": 11,
-          "12": 14,
+          "11": 8,
+          "12": 16,
           "13": 25
         },
-        "textElements": 50,
+        "textElements": 49,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -216,10 +256,44 @@
         "reviewOutline": null,
         "reviewComments": null
       },
-      "docked": null,
-      "canvasBox": null,
-      "hud": null,
-      "mockLine": null,
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 603,
+          "h": 828
+        },
+        "inspector": null,
+        "slideOver": null,
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "column": null,
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "canvasBox": {
+        "x": 793,
+        "y": 48,
+        "w": 603,
+        "h": 828
+      },
+      "hud": {
+        "x": 801,
+        "y": 56,
+        "w": 304,
+        "h": 34
+      },
+      "mockLine": {
+        "x": 915,
+        "y": 854,
+        "w": 358,
+        "h": 14
+      },
       "toast": null,
       "runLog": null,
       "runButton": {
@@ -266,12 +340,12 @@
         "agentToggle": true,
         "togglesAfterIssues": "runbtn,Issues,insptoggle,agenttoggle",
         "aboutOpensDirectly": true,
-        "hudFitFirst": null,
-        "hudTools": null,
+        "hudFitFirst": true,
+        "hudTools": 10,
         "compass": null,
         "footerSelectionGroup": [],
         "footerEditChip": [
-          2
+          0
         ],
         "addRowLines": 1,
         "expansionChevrons": 1,
@@ -296,7 +370,10 @@
         "legend": null,
         "legendText": "",
         "probe": false,
-        "toolsNeedingRun": []
+        "toolsNeedingRun": [
+          "Deformation (D) · Needs a current run",
+          "Probe (P) · Needs a current run"
+        ]
       },
       "outsideStage": [],
       "clipped": [],
@@ -310,6 +387,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MODEL_INCOMPLETE"
         ],
@@ -340,11 +420,11 @@
           "-apple-system"
         ],
         "sizes": {
-          "11": 11,
-          "12": 14,
+          "11": 8,
+          "12": 16,
           "13": 25
         },
-        "textElements": 50,
+        "textElements": 49,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -377,10 +457,44 @@
         "reviewOutline": null,
         "reviewComments": null
       },
-      "docked": null,
-      "canvasBox": null,
-      "hud": null,
-      "mockLine": null,
+      "docked": {
+        "tables": {
+          "w": 737,
+          "h": 828
+        },
+        "canvas": {
+          "w": 603,
+          "h": 828
+        },
+        "inspector": null,
+        "slideOver": null,
+        "strip": {
+          "w": 44,
+          "h": 828
+        },
+        "column": null,
+        "camera": null,
+        "pan": null,
+        "hudRows": 1
+      },
+      "canvasBox": {
+        "x": 793,
+        "y": 48,
+        "w": 603,
+        "h": 828
+      },
+      "hud": {
+        "x": 801,
+        "y": 56,
+        "w": 304,
+        "h": 34
+      },
+      "mockLine": {
+        "x": 915,
+        "y": 854,
+        "w": 358,
+        "h": 14
+      },
       "toast": null,
       "runLog": null,
       "runButton": {
@@ -427,12 +541,12 @@
         "agentToggle": true,
         "togglesAfterIssues": "runbtn,Issues,insptoggle,agenttoggle",
         "aboutOpensDirectly": true,
-        "hudFitFirst": null,
-        "hudTools": null,
+        "hudFitFirst": true,
+        "hudTools": 10,
         "compass": null,
         "footerSelectionGroup": [],
         "footerEditChip": [
-          2
+          0
         ],
         "addRowLines": 1,
         "expansionChevrons": 1,
@@ -457,7 +571,10 @@
         "legend": null,
         "legendText": "",
         "probe": false,
-        "toolsNeedingRun": []
+        "toolsNeedingRun": [
+          "Deformation (D) · Needs a current run",
+          "Probe (P) · Needs a current run"
+        ]
       },
       "outsideStage": [],
       "clipped": [],
@@ -471,6 +588,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MODEL_INCOMPLETE"
         ],
@@ -494,7 +614,7 @@
       }
     },
     "selfContained": {
-      "bytes": 78490,
+      "bytes": 85434,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -688,6 +808,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MODEL_INCOMPLETE"
         ],
@@ -877,6 +1000,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MODEL_INCOMPLETE"
         ],
@@ -1066,6 +1192,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MODEL_INCOMPLETE"
         ],
@@ -1089,7 +1218,7 @@
       }
     },
     "selfContained": {
-      "bytes": 94027,
+      "bytes": 94336,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -1283,6 +1412,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MODEL_INCOMPLETE"
         ],
@@ -1472,6 +1604,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MODEL_INCOMPLETE"
         ],
@@ -1661,6 +1796,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MODEL_INCOMPLETE"
         ],
@@ -1684,7 +1822,7 @@
       }
     },
     "selfContained": {
-      "bytes": 94022,
+      "bytes": 94331,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -1720,10 +1858,10 @@
         ],
         "sizes": {
           "11": 13,
-          "12": 14,
+          "12": 16,
           "13": 243
         },
-        "textElements": 270,
+        "textElements": 272,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -1811,7 +1949,7 @@
         "compass": null,
         "footerSelectionGroup": [],
         "footerEditChip": [
-          2
+          0
         ],
         "addRowLines": 1,
         "expansionChevrons": 1,
@@ -1850,6 +1988,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MODEL_INCOMPLETE"
         ],
@@ -1881,10 +2022,10 @@
         ],
         "sizes": {
           "11": 13,
-          "12": 14,
+          "12": 16,
           "13": 243
         },
-        "textElements": 270,
+        "textElements": 272,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -1972,7 +2113,7 @@
         "compass": null,
         "footerSelectionGroup": [],
         "footerEditChip": [
-          2
+          0
         ],
         "addRowLines": 1,
         "expansionChevrons": 1,
@@ -2011,6 +2152,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MODEL_INCOMPLETE"
         ],
@@ -2042,10 +2186,10 @@
         ],
         "sizes": {
           "11": 13,
-          "12": 14,
+          "12": 16,
           "13": 243
         },
-        "textElements": 270,
+        "textElements": 272,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -2133,7 +2277,7 @@
         "compass": null,
         "footerSelectionGroup": [],
         "footerEditChip": [
-          2
+          0
         ],
         "addRowLines": 1,
         "expansionChevrons": 1,
@@ -2172,6 +2316,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MODEL_INCOMPLETE"
         ],
@@ -2195,7 +2342,7 @@
       }
     },
     "selfContained": {
-      "bytes": 92925,
+      "bytes": 93152,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -2402,6 +2549,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -2602,6 +2752,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -2802,6 +2955,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -2823,7 +2979,7 @@
       }
     },
     "selfContained": {
-      "bytes": 113610,
+      "bytes": 113931,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -3035,6 +3191,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -3240,6 +3399,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -3445,6 +3607,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -3466,7 +3631,7 @@
       }
     },
     "selfContained": {
-      "bytes": 113863,
+      "bytes": 114184,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -3675,6 +3840,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -3877,6 +4045,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -4079,6 +4250,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -4100,7 +4274,7 @@
       }
     },
     "selfContained": {
-      "bytes": 115551,
+      "bytes": 115871,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -4269,6 +4443,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -4431,6 +4608,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -4593,6 +4773,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -4614,7 +4797,7 @@
       }
     },
     "selfContained": {
-      "bytes": 99139,
+      "bytes": 99437,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -4783,6 +4966,9 @@
         "displayOnly": 1,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -4945,6 +5131,9 @@
         "displayOnly": 1,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -5107,6 +5296,9 @@
         "displayOnly": 1,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -5128,7 +5320,7 @@
       }
     },
     "selfContained": {
-      "bytes": 81252,
+      "bytes": 81550,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -5164,8 +5356,8 @@
         ],
         "sizes": {
           "11": 5,
-          "12": 24,
-          "13": 15
+          "12": 25,
+          "13": 14
         },
         "textElements": 44,
         "minFont": 11,
@@ -5337,6 +5529,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -5366,8 +5561,8 @@
         ],
         "sizes": {
           "11": 5,
-          "12": 24,
-          "13": 15
+          "12": 25,
+          "13": 14
         },
         "textElements": 44,
         "minFont": 11,
@@ -5539,6 +5734,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -5568,8 +5766,8 @@
         ],
         "sizes": {
           "11": 5,
-          "12": 24,
-          "13": 15
+          "12": 25,
+          "13": 14
         },
         "textElements": 44,
         "minFont": 11,
@@ -5741,6 +5939,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -5762,7 +5963,7 @@
       }
     },
     "selfContained": {
-      "bytes": 100432,
+      "bytes": 100929,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -5800,9 +6001,9 @@
         "sizes": {
           "11": 12,
           "12": 27,
-          "13": 134
+          "13": 133
         },
-        "textElements": 173,
+        "textElements": 172,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -6097,6 +6298,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "INTERNALLY_VERIFIED",
           "INTERNALLY_VERIFIED",
@@ -6133,9 +6337,9 @@
         "sizes": {
           "11": 12,
           "12": 27,
-          "13": 134
+          "13": 133
         },
-        "textElements": 173,
+        "textElements": 172,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -6430,6 +6634,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "INTERNALLY_VERIFIED",
           "INTERNALLY_VERIFIED",
@@ -6466,9 +6673,9 @@
         "sizes": {
           "11": 12,
           "12": 27,
-          "13": 134
+          "13": 133
         },
-        "textElements": 173,
+        "textElements": 172,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -6763,6 +6970,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "INTERNALLY_VERIFIED",
           "INTERNALLY_VERIFIED",
@@ -6789,7 +6999,7 @@
       }
     },
     "selfContained": {
-      "bytes": 111224,
+      "bytes": 111568,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -6826,9 +7036,9 @@
         "sizes": {
           "11": 8,
           "12": 21,
-          "13": 119
+          "13": 118
         },
-        "textElements": 148,
+        "textElements": 147,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -6955,6 +7165,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "INTERNALLY_VERIFIED",
           "MECHANICS_SOLVED",
@@ -6989,9 +7202,9 @@
         "sizes": {
           "11": 8,
           "12": 21,
-          "13": 119
+          "13": 118
         },
-        "textElements": 148,
+        "textElements": 147,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -7118,6 +7331,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "INTERNALLY_VERIFIED",
           "MECHANICS_SOLVED",
@@ -7152,9 +7368,9 @@
         "sizes": {
           "11": 8,
           "12": 21,
-          "13": 119
+          "13": 118
         },
-        "textElements": 148,
+        "textElements": 147,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -7281,6 +7497,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "INTERNALLY_VERIFIED",
           "MECHANICS_SOLVED",
@@ -7306,7 +7525,7 @@
       }
     },
     "selfContained": {
-      "bytes": 84844,
+      "bytes": 85188,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -7344,9 +7563,9 @@
         "sizes": {
           "11": 12,
           "12": 27,
-          "13": 134
+          "13": 133
         },
-        "textElements": 173,
+        "textElements": 172,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -7641,6 +7860,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "INTERNALLY_VERIFIED",
           "INTERNALLY_VERIFIED",
@@ -7677,9 +7899,9 @@
         "sizes": {
           "11": 12,
           "12": 27,
-          "13": 134
+          "13": 133
         },
-        "textElements": 173,
+        "textElements": 172,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -7974,6 +8196,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "INTERNALLY_VERIFIED",
           "INTERNALLY_VERIFIED",
@@ -8010,9 +8235,9 @@
         "sizes": {
           "11": 12,
           "12": 27,
-          "13": 134
+          "13": 133
         },
-        "textElements": 173,
+        "textElements": 172,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -8307,6 +8532,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "INTERNALLY_VERIFIED",
           "INTERNALLY_VERIFIED",
@@ -8333,7 +8561,7 @@
       }
     },
     "selfContained": {
-      "bytes": 111151,
+      "bytes": 111495,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -8371,9 +8599,9 @@
         "sizes": {
           "11": 7,
           "12": 20,
-          "13": 120
+          "13": 119
         },
-        "textElements": 147,
+        "textElements": 146,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -8537,6 +8765,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MECHANICS_SOLVED",
           "USER_RULE_CHECKED"
@@ -8571,9 +8802,9 @@
         "sizes": {
           "11": 7,
           "12": 20,
-          "13": 120
+          "13": 119
         },
-        "textElements": 147,
+        "textElements": 146,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -8737,6 +8968,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MECHANICS_SOLVED",
           "USER_RULE_CHECKED"
@@ -8771,9 +9005,9 @@
         "sizes": {
           "11": 7,
           "12": 20,
-          "13": 120
+          "13": 119
         },
-        "textElements": 147,
+        "textElements": 146,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -8937,6 +9171,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MECHANICS_SOLVED",
           "USER_RULE_CHECKED"
@@ -8961,7 +9198,7 @@
       }
     },
     "selfContained": {
-      "bytes": 106371,
+      "bytes": 106715,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -8997,8 +9234,8 @@
         ],
         "sizes": {
           "11": 15,
-          "12": 38,
-          "13": 74,
+          "12": 39,
+          "13": 73,
           "15": 2
         },
         "textElements": 129,
@@ -9135,6 +9372,9 @@
         "displayOnly": 0,
         "boundaryShort": 1,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -9164,8 +9404,8 @@
         ],
         "sizes": {
           "11": 15,
-          "12": 38,
-          "13": 74,
+          "12": 39,
+          "13": 73,
           "15": 2
         },
         "textElements": 129,
@@ -9302,6 +9542,9 @@
         "displayOnly": 0,
         "boundaryShort": 1,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -9331,8 +9574,8 @@
         ],
         "sizes": {
           "11": 15,
-          "12": 38,
-          "13": 74,
+          "12": 39,
+          "13": 73,
           "15": 2
         },
         "textElements": 129,
@@ -9469,6 +9712,9 @@
         "displayOnly": 0,
         "boundaryShort": 1,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [],
         "labelProblems": [],
         "kindProblems": [],
@@ -9490,7 +9736,7 @@
       }
     },
     "selfContained": {
-      "bytes": 84508,
+      "bytes": 84901,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -9681,6 +9927,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MECHANICS_SOLVED",
           "USER_RULE_CHECKED"
@@ -9868,6 +10117,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MECHANICS_SOLVED",
           "USER_RULE_CHECKED"
@@ -10055,6 +10307,9 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
           "MECHANICS_SOLVED",
           "USER_RULE_CHECKED"
@@ -10079,7 +10334,7 @@
       }
     },
     "selfContained": {
-      "bytes": 106873,
+      "bytes": 107194,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -10115,11 +10370,11 @@
         ],
         "sizes": {
           "11": 17,
-          "12": 34,
+          "12": 36,
           "13": 94,
           "18": 1
         },
-        "textElements": 146,
+        "textElements": 148,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -10229,7 +10484,7 @@
         "band": null,
         "bandText": "",
         "railCaption": null,
-        "statusChips": 2,
+        "statusChips": 3,
         "evidenceChipInHeader": false,
         "hatchedCells": 0,
         "resultColouredElements": 0,
@@ -10250,14 +10505,18 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
+          "MECHANICS_SOLVED",
           "USER_RULE_CHECKED",
           "HUMAN_REVIEW_REQUIRED"
         ],
         "labelProblems": [],
         "kindProblems": [],
         "labelWordsOutsideChips": [],
-        "chips": 2,
+        "chips": 3,
         "reviewSignoffRow": 1
       },
       "blockedRequests": [],
@@ -10282,11 +10541,11 @@
         ],
         "sizes": {
           "11": 17,
-          "12": 34,
+          "12": 36,
           "13": 94,
           "18": 1
         },
-        "textElements": 146,
+        "textElements": 148,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -10396,7 +10655,7 @@
         "band": null,
         "bandText": "",
         "railCaption": null,
-        "statusChips": 2,
+        "statusChips": 3,
         "evidenceChipInHeader": false,
         "hatchedCells": 0,
         "resultColouredElements": 0,
@@ -10417,14 +10676,18 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
+          "MECHANICS_SOLVED",
           "USER_RULE_CHECKED",
           "HUMAN_REVIEW_REQUIRED"
         ],
         "labelProblems": [],
         "kindProblems": [],
         "labelWordsOutsideChips": [],
-        "chips": 2,
+        "chips": 3,
         "reviewSignoffRow": 1
       },
       "blockedRequests": [],
@@ -10449,11 +10712,11 @@
         ],
         "sizes": {
           "11": 17,
-          "12": 34,
+          "12": 36,
           "13": 94,
           "18": 1
         },
-        "textElements": 146,
+        "textElements": 148,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -10563,7 +10826,7 @@
         "band": null,
         "bandText": "",
         "railCaption": null,
-        "statusChips": 2,
+        "statusChips": 3,
         "evidenceChipInHeader": false,
         "hatchedCells": 0,
         "resultColouredElements": 0,
@@ -10584,14 +10847,18 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
+          "MECHANICS_SOLVED",
           "USER_RULE_CHECKED",
           "HUMAN_REVIEW_REQUIRED"
         ],
         "labelProblems": [],
         "kindProblems": [],
         "labelWordsOutsideChips": [],
-        "chips": 2,
+        "chips": 3,
         "reviewSignoffRow": 1
       },
       "blockedRequests": [],
@@ -10608,7 +10875,7 @@
       }
     },
     "selfContained": {
-      "bytes": 86245,
+      "bytes": 86670,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -10619,7 +10886,7 @@
     "expected": {
       "displayOnly": 0,
       "draftUntilAccepted": 0,
-      "chips": 2,
+      "chips": 3,
       "boundaryShort": 0,
       "standing": null
     }
@@ -10644,11 +10911,11 @@
         ],
         "sizes": {
           "11": 21,
-          "12": 34,
-          "13": 95,
+          "12": 36,
+          "13": 94,
           "18": 1
         },
-        "textElements": 151,
+        "textElements": 152,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -10758,7 +11025,7 @@
         "band": null,
         "bandText": "",
         "railCaption": null,
-        "statusChips": 2,
+        "statusChips": 3,
         "evidenceChipInHeader": false,
         "hatchedCells": 0,
         "resultColouredElements": 0,
@@ -10779,14 +11046,18 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
+          "MECHANICS_SOLVED",
           "USER_RULE_CHECKED",
           "HUMAN_REVIEW_REQUIRED"
         ],
         "labelProblems": [],
         "kindProblems": [],
         "labelWordsOutsideChips": [],
-        "chips": 2,
+        "chips": 3,
         "reviewSignoffRow": 1
       },
       "blockedRequests": [],
@@ -10811,11 +11082,11 @@
         ],
         "sizes": {
           "11": 21,
-          "12": 34,
-          "13": 95,
+          "12": 36,
+          "13": 94,
           "18": 1
         },
-        "textElements": 151,
+        "textElements": 152,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -10925,7 +11196,7 @@
         "band": null,
         "bandText": "",
         "railCaption": null,
-        "statusChips": 2,
+        "statusChips": 3,
         "evidenceChipInHeader": false,
         "hatchedCells": 0,
         "resultColouredElements": 0,
@@ -10946,14 +11217,18 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
+          "MECHANICS_SOLVED",
           "USER_RULE_CHECKED",
           "HUMAN_REVIEW_REQUIRED"
         ],
         "labelProblems": [],
         "kindProblems": [],
         "labelWordsOutsideChips": [],
-        "chips": 2,
+        "chips": 3,
         "reviewSignoffRow": 1
       },
       "blockedRequests": [],
@@ -10978,11 +11253,11 @@
         ],
         "sizes": {
           "11": 21,
-          "12": 34,
-          "13": 95,
+          "12": 36,
+          "13": 94,
           "18": 1
         },
-        "textElements": 151,
+        "textElements": 152,
         "minFont": 11,
         "fontsBelow11": 0
       },
@@ -11092,7 +11367,7 @@
         "band": null,
         "bandText": "",
         "railCaption": null,
-        "statusChips": 2,
+        "statusChips": 3,
         "evidenceChipInHeader": false,
         "hatchedCells": 0,
         "resultColouredElements": 0,
@@ -11113,14 +11388,18 @@
         "displayOnly": 0,
         "boundaryShort": 0,
         "pressWord": false,
+        "bareKeyTips": [],
+        "keyFaces": [],
+        "commitCopy": [],
         "labelChips": [
+          "MECHANICS_SOLVED",
           "USER_RULE_CHECKED",
           "HUMAN_REVIEW_REQUIRED"
         ],
         "labelProblems": [],
         "kindProblems": [],
         "labelWordsOutsideChips": [],
-        "chips": 2,
+        "chips": 3,
         "reviewSignoffRow": 1
       },
       "blockedRequests": [],
@@ -11137,7 +11416,7 @@
       }
     },
     "selfContained": {
-      "bytes": 86295,
+      "bytes": 86893,
       "inlineStyleBlocks": 1,
       "externalDependencies": [],
       "navigationLinks": [
@@ -11148,28 +11427,29 @@
     "expected": {
       "displayOnly": 0,
       "draftUntilAccepted": 0,
-      "chips": 2,
+      "chips": 3,
       "boundaryShort": 0,
       "standing": null
     }
   },
   "index.html": {
-    "links": 23,
+    "links": 24,
     "frameLinks": 18,
     "missingLinks": [],
     "blockedRequests": [],
     "consoleIssues": [],
     "selfContained": {
-      "bytes": 72661,
+      "bytes": 73469,
       "inlineStyleBlocks": 2,
       "externalDependencies": [],
       "navigationLinks": [
         "../sample_model.md",
+        "../MOCKS_V4.md",
         "../MOCKS_V3.md",
         "../MOCKS_V2.md",
         "../MOCKS_V1.md",
         "../RETURN.md",
-        "s1_table_light.html",
+        "s1_both_light.html",
         "s2_model_light.html",
         "s2_model_dark.html",
         "s3_table_light.html",
@@ -11192,7 +11472,7 @@
     }
   },
   "_summary": {
-    "generated": "2026-09-18T15:36",
+    "generated": "2026-09-18T18:01",
     "frames": 18,
     "viewports": [
       "1440 1440×900",
@@ -11205,7 +11485,7 @@
     "retiredStringsSearchedIn": [
       "frames/index.html",
       "frames/mocks.css",
-      "frames/s1_table_light.html",
+      "frames/s1_both_light.html",
       "frames/s2_model_dark.html",
       "frames/s2_model_light.html",
       "frames/s3_table_light.html",
@@ -11230,14 +11510,14 @@
       "tools/model.mjs",
       "tools/render.mjs",
       "tools/ui.mjs",
-      "MOCKS_V3.md",
+      "MOCKS_V4.md",
       "RETURN.md",
       "sample_model.md"
     ],
     "retiredStringsFound": {},
     "inventory": {
       "frames": [
-        "s1_table_light",
+        "s1_both_light",
         "s2_model_dark",
         "s2_model_light",
         "s3_table_light",
@@ -11257,7 +11537,7 @@
         "s9_table_light"
       ],
       "shots": [
-        "s1_table_light",
+        "s1_both_light",
         "s2_model_dark",
         "s2_model_light",
         "s3_table_light",
@@ -11277,7 +11557,7 @@
         "s9_table_light"
       ],
       "listed": [
-        "s1_table_light",
+        "s1_both_light",
         "s2_model_dark",
         "s2_model_light",
         "s3_table_light",

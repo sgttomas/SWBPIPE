@@ -455,9 +455,15 @@ table.ds tr.offrow td, table.ds tr.offrow td.sec { color: var(--text-disabled); 
    takes a second line at the right (Q-26). The run text is the run menu (spec §3.6, §5.3). */
 .tblhead { flex-wrap: wrap; row-gap: 4px; }
 .tblhead > .btn.text:last-child { margin-left: auto; }
-.tblhead .runmenu { display: inline-flex; align-items: center; gap: 6px; }
-.tblhead .runmenu::after { content: ""; width: 5px; height: 5px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); }
-.filters { flex-wrap: nowrap; align-items: center; }
+.tblhead .runtext { display: inline-flex; align-items: center; gap: 4px; border-radius: var(--radius-control); padding: 0 4px; margin: 0 -4px; }
+/* the display units selector keeps one width whatever it reads (V1.3 §5.2, row 91) */
+.combo.unitsbtn { width: 80px; justify-content: space-between; }
+.editchip .btn { margin-left: 2px; }
+.filters { flex-wrap: nowrap; align-items: center; gap: 4px; }
+/* "Kind: all" is wider than V1.2's "Kind": the row holds in 320 px with tighter chips (MOCKS_V4 D4-2) */
+.filters .chip { padding: 0 5px; }
+.filters .combo { padding: 0 4px 0 6px; gap: 4px; }
+.filters > * { flex: none; }
 .pop .row .sel { width: 12px; flex: none; display: inline-flex; color: var(--text-primary); }
 /* the header's one element that gives way at 1440 with the strip is the compared-with combobox (Q-25) */
 .reviewpage .hd > * { flex: none; }

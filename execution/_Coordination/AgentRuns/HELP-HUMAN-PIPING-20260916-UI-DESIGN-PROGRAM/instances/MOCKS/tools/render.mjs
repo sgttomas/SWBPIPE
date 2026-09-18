@@ -33,7 +33,7 @@ const viewports = [{ tag: "1440", width: 1440, height: 900 }, { tag: "stage", wi
 
 // The strings the rulings removed from the product, built by concatenation so that this file does not
 // carry them. The search is case-insensitive and runs over every frame's source, index.html, MOCKS_V3.md,
-// RETURN.md, sample_model.md, the stylesheets and the tools. MOCKS_V1.md and MOCKS_V2.md are history.
+// RETURN.md, sample_model.md, the stylesheets and the tools. MOCKS_V1.md to MOCKS_V3.md are history.
 const RETIRED = [["SWB Pip" + "ing Designer", "the longer product name"], ["Pip" + "ing Designer", "the longer product name"], ["Open" + "Pipe", "the former product name"],
   ["Technical " + "preview", "the maturity sentence"], ["not a released " + "product", "the maturity sentence"],
   ["decision-support " + "information", "the acceptance sentence"], ["remain with the responsible " + "engineer", "the acceptance sentence"], ["professional " + "judgment", "the acceptance sentence or a variant"],
@@ -45,7 +45,7 @@ const retiredIn = (text) => RETIRED.filter(([s]) => text.toLowerCase().includes(
 const expect = (file) => ({
   displayOnly: file === "s5_table_light" ? 1 : 0,
   draftUntilAccepted: file.startsWith("s8_") ? 1 : 0,
-  chips: { s1_table_light: 1, s2_model_light: 1, s2_model_dark: 1, s3_table_light: 1, s7_both_light: 2, s7_both_dark: 2, s7_table_light: 2, s8_model_light: 2, s9_table_light: 2, s9_table_dark: 2 }[file] ?? 0,
+  chips: { s1_both_light: 1, s2_model_light: 1, s2_model_dark: 1, s3_table_light: 1, s7_both_light: 2, s7_both_dark: 2, s7_table_light: 2, s8_model_light: 2, s9_table_light: 3, s9_table_dark: 3 }[file] ?? 0,
   boundaryShort: file === "s8_table_light" ? 1 : 0,
   standing: { s8_table_light: "stale", s7_both_light_historical: "historical" }[file] || null,
 });
@@ -90,7 +90,7 @@ for (const f of list) {
         if (e.scrollWidth > e.clientWidth + 1 && getComputedStyle(e).overflow !== "visible") clipped.push(`${e.tagName.toLowerCase()}${e.className && typeof e.className === "string" ? "." + e.className.split(" ").slice(0, 2).join(".") : ""} ${e.scrollWidth}>${e.clientWidth} "${e.textContent.trim().slice(0, 40)}"`);
       }
       // a bar's children that run past the bar's own right edge (a clipped last button does not show as scrollWidth)
-      for (const bar of stage.querySelectorAll(".reviewpage .hd, .toolbar, .statusbar, .tfoot, .tblhead, .agentcol .hd, .insp .hd")) {
+      for (const bar of stage.querySelectorAll(".reviewpage .hd, .toolbar, .statusbar, .tfoot, .tblhead, .agentcol .hd, .insp .hd, .filters, .issues .hd")) {
         const br = bar.getBoundingClientRect();
         for (const c of bar.children) { const cr = c.getBoundingClientRect(); if (cr.width && cr.right > br.right + 1) clipped.push(`past ${bar.className.split(" ")[0]}: ${c.className || c.tagName} ${Math.round(cr.right - br.right)}px`); }
       }
@@ -109,10 +109,19 @@ for (const f of list) {
       // the source without its style and script blocks. "Commit" is not in this list: §7.1 forbids it under Tables and
       // the canvas while §5.1 names the edit chip's button Commit; ROOT accepted the specification's reading (its
       // RETURN §6 item 5), so the edit chip's tooltip reads Commit.
-      const forbidden71 = /\b(Pass|Passed|Fail|OK|Ready|Safe|Acceptable|Verified|Validated|validated|Validate|Apply|Approve|Approved|Confirm|Lock|Final|Finalise|Release|Released|Aborted|Error|Sign off|Signed|Certified|Compliant|Complies|Code compliant|Exceeds code|Invalid results|Check model|Engineer accepted|recommended by|reviewed and approved|F-PIP-2)\b/;
+      const forbidden71 = /\b(Pass|Passed|Fail|OK|Ready|Safe|Acceptable|Verified|Validated|validated|Validate|Commit|Approve|Approved|Confirm|Lock|Final|Finalise|Release|Released|Aborted|Error|Sign off|Signed|Certified|Compliant|Complies|Code compliant|Exceeds code|Invalid results|Check model|Engineer accepted|recommended by|reviewed and approved|F-PIP-2)\b/;
       const words71 = (visible.match(forbidden71) || [])[0] || null;
       const sourceWord71 = (source.replace(/<style>[\s\S]*?<\/style>|<script>[\s\S]*?<\/script>/g, "").match(forbidden71) || [])[0] || null;
       // "Press" is not a word the product uses to tell the engineer what to do (V1.2 §7.6)
+      // V1.3 (contradiction 5; 15, variant A): "Commit" is no control's copy, no tooltip writes a key outside
+      // parentheses, and no button face carries a key. The hint strip (.keys) is not a tooltip and keeps its keys.
+      const KEYS = /[⌘⇧⌥↩⎋⇥⌫↓↑]/;
+      const tips = [...stage.querySelectorAll("[title]")].map((e) => e.getAttribute("title")).concat([...stage.querySelectorAll("svg title")].map((e) => e.textContent), [...stage.querySelectorAll(".tip")].map((e) => e.textContent));
+      const bareKeyTips = [...new Set(tips.filter((t) => KEYS.test(t.replace(/\([^)]*\)/g, ""))))];
+      const face = (e) => { const c = e.cloneNode(true); c.querySelectorAll("title").forEach((t) => t.remove()); return c.textContent; };
+      const controls = [...stage.querySelectorAll('[role="button"], .btn, .iconbtn, .chip.act')];
+      const keyFaces = [...new Set(controls.filter((e) => !e.closest(".keys") && !e.closest(".search") && KEYS.test(face(e))).map((e) => face(e).trim().slice(0, 40)))];
+      const commitCopy = [...new Set(controls.filter((e) => /\bcommit\b/i.test(face(e) + " " + (e.getAttribute("title") || "") + " " + (e.getAttribute("aria-label") || ""))).map((e) => (e.textContent.trim() || e.getAttribute("title")).slice(0, 40)))];
       const pressWord = /\bPress(es|ed|ing)?\b/.test(visible.replace(/pressed\.fill|pressed\.ink/g, ""));
       const count = (re) => (visible.match(re) || []).length;
       // the seven result scale steps in this theme, read from the tokens
@@ -193,7 +202,7 @@ for (const f of list) {
           forbiddenWordVisible: words, forbiddenWordSource: sourceWord, forbiddenLabelVisible: words71, forbiddenLabelSource: sourceWord71,
           draftUntilAccepted: count(/draft until accepted/g), displayOnly: count(/Display only, not accepted as input/g),
           boundaryShort: count(/no protected standards content; code-specific data is user-supplied/g),
-          pressWord, labelChips: lbl.map((c) => c.getAttribute("data-label")), labelProblems, kindProblems,
+          pressWord, bareKeyTips, keyFaces, commitCopy, labelChips: lbl.map((c) => c.getAttribute("data-label")), labelProblems, kindProblems,
           labelWordsOutsideChips: labelWords.filter((w) => { let n = 0, i = -1; while ((i = visible.indexOf(w, i + 1)) >= 0) n++; return n > lbl.filter((c) => c.textContent.endsWith(w)).length; }),
           chips: stage.querySelectorAll(".statusbar .chip").length, reviewSignoffRow: count(/Review\/signoff block/g),
         },
@@ -247,7 +256,7 @@ const shipped = [];
 for (const dir of ["frames", "tools", "."]) for (const name of fs.readdirSync(path.join(root, dir))) { const p = path.join(root, dir, name); if (fs.statSync(p).isFile() && /\.(html|css|mjs|md|json)$/.test(name)) shipped.push(path.join(dir, name)); }
 const absolutePaths = shipped.filter((p) => /\/Users\//.test(fs.readFileSync(path.join(root, p), "utf8")));
 // the retired-strings scan: every shipped file except the two history documents of the earlier passes
-const HISTORY = new Set(["MOCKS_V1.md", "MOCKS_V2.md"]);
+const HISTORY = new Set(["MOCKS_V1.md", "MOCKS_V2.md", "MOCKS_V3.md"]);
 const retiredStrings = {};
 for (const p of shipped) { if (HISTORY.has(path.basename(p)) || p === path.join("shots", "report.json")) continue; const hit = retiredIn(fs.readFileSync(path.join(root, p), "utf8")); if (hit.length) retiredStrings[p] = [...new Set(hit)]; }
 const searched = shipped.filter((p) => !HISTORY.has(path.basename(p)));
@@ -280,6 +289,9 @@ for (const [file, byVp] of Object.entries(report)) {
     const ex = byVp.expected;
     for (const k of ["displayOnly", "draftUntilAccepted", "boundaryShort", "chips"]) if (r.lint[k] !== ex[k]) flags.push(`LINT ${k} ${r.lint[k]} expected ${ex[k]}`);
     if (r.lint.pressWord) flags.push("LINT the word Press is visible");
+    if (r.lint.bareKeyTips.length) flags.push(`LINT tooltip with a key outside parentheses: ${r.lint.bareKeyTips.join(" | ")}`);
+    if (r.lint.keyFaces.length) flags.push(`LINT control face carries a key: ${r.lint.keyFaces.join(" | ")}`);
+    if (r.lint.commitCopy.length) flags.push(`LINT Commit as control copy: ${r.lint.commitCopy.join(" | ")}`);
     if (r.lint.labelProblems.length) flags.push(`LABELS ${r.lint.labelProblems.join(" | ")}`);
     if (r.lint.kindProblems.length) flags.push(`CARD CLASSES ${r.lint.kindProblems.join(" | ")}`);
     if (r.lint.labelWordsOutsideChips.length) flags.push(`LABEL WORDS outside a chip: ${r.lint.labelWordsOutsideChips.join(", ")}`);

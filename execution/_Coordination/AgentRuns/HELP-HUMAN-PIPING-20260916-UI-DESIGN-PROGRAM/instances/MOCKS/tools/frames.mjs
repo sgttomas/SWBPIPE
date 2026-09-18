@@ -30,13 +30,19 @@ const toast = (ic, msg, act, right) => `<div class="toast" role="status" style="
 // ---------- state 1 ----------
 function s1() {
   const issues = { count: 3, worst: "blocking" };
-  const tbl = U.layoutTable({ nodes: [10, 20], readThrough: true, blank: { 10: ["section", "material", "load"] }, required: { 20: ["section", "material", "load"] }, edit: { node: 20, col: "DX", value: "3000", unit: "mm" }, selected: 20, zebra: false, marks: false });
+  // A new project opens the Model stage in Both view (the owner's direction on C-22; UX_SPEC V1.2 §10.1):
+  // the layout table at 737 px with read-through off, the canvas at 603 px with the grid, the triad and node 10 as a point.
+  const tbl = U.layoutTable({ nodes: [10, 20], readThrough: false, blank: { 10: ["section", "material", "load"] }, required: { 20: ["section", "material", "load"] }, edit: { node: 20, col: "DX", value: "3000", unit: "mm" }, selected: 20, zebra: false, marks: false });
   // The hint line names controls first and keys after them (UX_SPEC_V1 §3.2; V1.2 §7.6).
   const hint = `Click a cell to type · Add row adds row 30 (↩ on the last cell) · Paste in the footer pastes rows (⌘V) · Section, Material and Load propagate from the row above once entered · the asterisk marks what the solve needs`;
-  const surfaces = `<div class="tableview"><div class="region">${U.tabs(MODEL_TABS({ layout: 2, restraints: 0, nodeData: 0 }), "Layout")}<div class="tblscroll">${tbl.html}<div class="emptyhint">${hint}</div></div>${U.tfoot([{ n: 1, label: "element" }, { n: 3, label: "issues", color: "var(--issue-blocking)", keep: true }], ["Read-through on", "Origins"], { editSel: { rows: 2, selected: 1 }, edit: "Editing DX · node 20" })}</div></div>`;
-  const overlays = U.tip(`Run is unavailable — Section missing at node 20, Material missing at node 20`, "left:686px;top:54px");
+  const tables = `<div class="tables">${U.tabs(MODEL_TABS({ layout: 2, restraints: 0, nodeData: 0 }), "Layout")}<div class="tblscroll">${tbl.html}<div class="emptyhint">${hint}</div></div>${U.tfoot([{ n: 1, label: "element" }, { n: 3, label: "issues", color: "var(--issue-blocking)", keep: true }], ["Read-through off", "Origins"], { editSel: { rows: 2, selected: 1 }, edit: "Editing DX · node 20" })}</div>`;
+  const fig = figure({ id: "s1", w: 603, h: 828, view: { A: 200, E: 28 }, nodes: [10], fitAll: true, restraints: false, loads: false, nodeData: false, margin: { top: 110, right: 40, bottom: 80, left: 40 } });
+  const canvas = `<div class="canvas" style="width:603px;position:relative">${fig.svg}${U.hud({ needsRun: true })}${MOCK_LABEL}</div>`;
+  const surfaces = `<div class="bothview">${tables}${canvas}</div>`;
+  // The Run tooltip hangs under the button, right-aligned to it, so that it lies over the table and not over the HUD.
+  const overlays = U.tip(`Run is unavailable — Section missing at node 20, Material missing at node 20`, "right:685px;top:42px");
   return shell({
-    toolbar: { project: "Loop 4 header", saveState: "not saved", view: "Table", run: "disabled", issues },
+    toolbar: { project: "Loop 4 header", saveState: "not saved", view: "Both", run: "disabled", issues },
     rail: { current: "Model", disabled: noRun, issues },
     surfaces,
     status: { chips: [CH.incomplete], issues, selection: "Node 20 · DX" },
@@ -119,7 +125,7 @@ function s4both(mode = "docked") {
   const surfaces = `<div class="bothview">${tables}${canvas}${slide ? "" : `<div class="inspector">${inspector}</div>`}</div>`;
   // The hover card on the open restraint mark, in the marks vocabulary's words (V1.2 §4).
   // The Marks column lies beyond the 574 px pane's right edge in the slide-over frame, so its tooltip is not drawn there.
-  let overlays = slide ? "" : U.tip(`<span class="t">Restraint</span> · +Y, gap 3 mm, μ 0.30 · ⌘↩ opens the row`, "left:604px;top:158px");
+  let overlays = slide ? "" : U.tip(`<span class="t">Restraint</span> · +Y, gap 3 mm, μ 0.30 · Open the row (⌘↩)`, "left:604px;top:158px");
   if (mode === "column") overlays += toast("agent", "Agent column collapsed to its strip: the docked inspector needs the width.", "Reopen", 52);
   const conversation = `<div class="msgs"><div class="msg me"><div class="who">R. Tufts · 10:58</div>Read the restraint at node 20 back to me against the survey note.</div><div class="msg"><div class="who">Agent · 10:58</div>The <a>Restraints row, node 20</a> reads +Y, gap 3 mm, μ 0.30, tag RS-01, entered 2026-09-17 10:31. The survey note is not in the record.<div class="tbdlist"><span class="tbd">${mark("warning")}Survey note for the gap at 20: TBD</span></div></div></div>`;
   return shell({
@@ -150,7 +156,7 @@ function s5() {
   const issues = { count: 1, worst: "warning" };
   // The combination editor as a row expansion under OCC1 (decision 14; V1.2 §5.1): the closing chevron and the
   // close control on its caption, and two buttons that read their names with the keys in their tooltips.
-  const expansion = U.blockCap("Combination editor · OCC1", "· row expansion · ⎋ closes", "the combination editor") +
+  const expansion = U.blockCap("Combination editor · OCC1", "· row expansion", "the combination editor") +
     `<div class="comprow"><span class="chip outline term">W</span><span class="sec">+</span><span class="chip outline term">P1</span><span class="sec">+</span><span class="chip outline term">SE1 <span class="sec">0.3 g X</span></span><span class="sec" style="margin-left:10px">available</span>${["P2", "T1", "T2", "SUS", "OPE1", "OPE2"].map((t) => `<span class="chip outline dim" role="button">${t}</span>`).join("")}</div>` +
     `<div class="comprow"><span class="combo">Stress type: Occasional</span><span class="combo">Rule: OCC-A1 · sample-rules 1.2</span><span class="grow"></span><span class="btn compact text" role="button" title="Cancel (⎋)">Cancel</span><span class="btn compact primary" role="button" title="Done (↩)">Done</span></div>`;
   const tbl = U.casesTable({ selected: "OCC1", editing: "OCC1", expansion });
@@ -171,7 +177,7 @@ function s6() {
   // the same link (decision 6; V1.2 §5.3). No status chip and an empty left end (Q-21): the stopped run's record
   // carries no status, and Model incomplete is not carried over from before the run.
   const banner = `<div class="banner warn">${mark("warning")}<span><b>Run 02 failed:</b> nonlinear support at node 20 did not converge.</span><a>Show node 20</a></div>`;
-  const head = `<div class="tblhead" data-standing="failed"><span class="name">Stresses</span><span class="sec">Run 02 · 15:02 · stopped in OPE1</span><span class="grow"></span><span class="btn compact text" role="button" title="Run identity" aria-expanded="false">${icon("info")}Run identity</span></div>`;
+  const head = `<div class="tblhead" data-standing="failed"><span class="name">Stresses</span><span class="sec runtext" role="button" aria-haspopup="menu" title="Runs">Run 02 · 15:02 · stopped in OPE1${icon("expanded", "s12")}</span><span class="grow"></span><span class="btn compact text" role="button" title="Run identity" aria-expanded="false">${icon("info")}Run identity</span></div>`;
   const empty = `<div class="emptystate"><div class="es">No results — Run 02 stopped in OPE1 (case 3 of 6) at the iteration limit. A run's results are one immutable set, so a stopped run has none. Change the support at node 20 or the iteration limit in Run settings, then Run again.</div></div>`;
   const tables = `<div class="tables">${banner}${head}${U.tabs(RESULT_TABS, "Stresses")}${empty}${U.issuesDrawer(M.issuesAt.s6, { selected: M.issuesAt.s6[0], filter: "Nonlinear", link: "Show node 20" })}</div>`;
   const fig = figure({ id: "s6", w: 603, h: 828, view: { A: 200, E: 28 }, selection: { node: 20 }, issueNode: 20, loadsNeutral: true, margin: { top: 110, right: 40, bottom: 80, left: 40 } });
@@ -255,11 +261,11 @@ function s8table() {
   // The run is Stale (V1.2 §5.1, run standing): the stale band in ROOT's settled wording, the values hatched, the
   // rail caption Stale, no status chip and no evidence chip. The hanger selection is open under H1 as the row's
   // expansion, with the content boundary's short variant once (ruling 5).
-  const tbl = U.hangerTable({ stale: true, selected: 80, pending: true, selection: 60 });
+  const tbl = U.hangerTable({ stale: true, selected: 80, pending: true, selection: 60, selectionState: "Stale" });
   const band = U.staleBand({ run: "Run 03", change: "proposal P-12 row 1 accepted at 16:31 (variable spring at node 80)" });
   const head = U.resultsHead({ name: "Hangers", run: "Run 03 · solved 15:21 · immutable", evidence: "INTERNALLY_VERIFIED", standing: "stale", discOpen: false, identity: ID03, band });
   const lib = `<div class="stagecap">${icon("libraries", "s12")}Hanger library <b style="font-weight:500;color:var(--text-primary)">Vendor-A springs</b> · user import 2026-09-15 · 24 sizes · source recorded in Libraries · max variation 25 %</div>`;
-  const surfaces = `<div class="tableview"><div class="region">${head}${U.tabs(RESULT_TABS, "Hangers")}${lib}<div class="tblscroll">${tbl.html}</div>${U.tfoot([{ n: 1, label: "designed in Run 03" }, { n: 1, label: "not yet designed", keep: true }, { n: 1, label: "proposal row pending", color: "var(--proposal-new)", keep: true }], ["1 expansion open"], { sel: { rows: 2, unit: "hanger locations", selected: 1, readOnly: true } })}</div></div>`;
+  const surfaces = `<div class="tableview"><div class="region">${head}${U.tabs(RESULT_TABS, "Hangers")}${lib}<div class="tblscroll">${tbl.html}</div>${U.tfoot([{ n: 1, label: "stale", keep: true }, { n: 1, label: "not yet designed", keep: true }, { n: 1, label: "proposal row pending", color: "var(--proposal-new)", keep: true }], ["1 expansion open"], { sel: { rows: 2, unit: "hanger locations", selected: 1, readOnly: true } })}</div></div>`;
   const card = U.proposalCard(M.proposals[1], { decisions: { 0: "accepted" } });
   const body = `${card}<div class="qa">${mark("accepted", "var(--mark-origin)")}Accepted: P-09 · 11:40 · P-12 row 1 · 16:31</div>`;
   return shell({
@@ -311,8 +317,8 @@ function s9(o = {}) {
   const cnt = (fn) => C.filter(fn).length;
   const filters = [["All", C.length, true], ["Open", cnt((c) => c.state === "open")], ["Resolved", cnt((c) => c.state === "resolved")], ["Mine", cnt((c) => c.who === "R. Tufts")]].map(([n, c, on]) => `<span class="chip outline${on ? " on" : ""}" role="button">${n} ${c}</span>`).join("");
   const kinds = [["Checks", "Check"], ["Open issues", "Open issue"], ["Drafts", "Draft"], ["Evidence summaries", "Evidence summary"]].map(([label, k]) => [label, cnt((c) => c.kind === k)]).filter(([, n]) => n > 0);
-  const kindMenu = o.open === "kind" ? `<div class="pop kindmenu">${kinds.map(([l, n]) => `<div class="row" role="button">${l}<span class="key n">${n}</span></div>`).join("")}<hr><div class="row" role="button">All kinds</div></div>` : "";
-  const comments = `<div class="comments"><div class="hd">Comments <span class="n">${C.length}</span><span class="grow" style="flex:1"></span><span class="btn compact text" role="button">+ Comment</span></div><div class="filters">${filters}<span class="kindwrap"><span class="combo" role="button" aria-expanded="${o.open === "kind"}" title="${kinds.map(([l, n]) => `${l} ${n}`).join(" · ")}">Kind</span>${kindMenu}</span></div>${C.map(U.commentCard).join("")}</div>`;
+  const kindMenu = o.open === "kind" ? `<div class="pop kindmenu"><div class="row" role="button"><span class="sel">${icon("check", "s12")}</span>All kinds</div><hr>${kinds.map(([l, n]) => `<div class="row" role="button"><span class="sel"></span>${l}<span class="key n">${n}</span></div>`).join("")}</div>` : "";
+  const comments = `<div class="comments"><div class="hd">Comments <span class="n">${C.length}</span><span class="grow" style="flex:1"></span><span class="btn compact text" role="button">+ Comment</span></div><div class="filters">${filters}<span class="kindwrap"><span class="combo" role="button" aria-expanded="${o.open === "kind"}" title="Kind">Kind: all</span>${kindMenu}</span></div>${C.map(U.commentCard).join("")}</div>`;
   // The header (decision 10; Q-17, Q-19, G-7; V1.2 §5.5): the iteration combobox, whose menu ends in "Compare with…";
   // while something is compared, the compared-with combobox and Show edits; three plain buttons of one weight with icons.
   const it = M.review.iterations;
@@ -323,14 +329,14 @@ function s9(o = {}) {
     toolbar: { project: "Loop 4 header", saveState: "saved", view: "Table", run: "enabled", issues, undo: "edit report §4" },
     rail: { current: "Review", issues },
     surfaces: page,
-    status: { chips: [CH.rules, CH.review], issues, selection: "Section 4 · Model" },
+    status: { chips: [CH.solved, CH.rules, CH.review], issues, selection: "Section 4 · Model" },
   });
 }
 
 export const frames = [
-  { file: "s1_table_light", state: 1, stateName: "New project, the first node row", stage: "Model", view: "Table", theme: "light", body: s1,
-    tests: "State 1 (Table): an empty model's first row with the required marks and the Run button's reason; the one chip drawn from the label table with its domain; the footer's edit chip; the status bar's About control with no popover.",
-    look: "Solver · Model incomplete as the one chip; the toolbar's Undo and Redo disabled and the Inspector toggle disabled in Table view; the footer's edit chip (Editing DX · node 20) with Commit and Cancel; the Add row line and the hint line that names controls before keys; the information glyph at the status bar's right end, which opens About and hangs no popover." },
+  { file: "s1_both_light", state: 1, stateName: "New project, the first node row", stage: "Model", view: "Both", theme: "light", body: s1,
+    tests: "State 1 (Both; C-22, UX_SPEC V1.2 §10.1): a new project opens the Model stage in Both view: an empty model's first row with the required marks and the Run button's reason; the canvas with the grid, the triad and node 10 as a point; the one chip; the footer's edit chip with Apply (V1.3 row 102).",
+    look: "Solver · Model incomplete as the one chip; the toolbar's Undo and Redo disabled and the Inspector toggle available in Both view; the canvas pane holding node 10 alone on the ground grid with Deformation and Probe disabled; the footer's edit chip (Editing DX · node 20) with its Apply and Cancel buttons; the Add row line and the hint line that names controls before keys; the information glyph at the status bar's right end, which opens About and hangs no popover." },
   { file: "s2_model_light", state: 2, stateName: "Routing in the canvas with direct distance entry", stage: "Model", view: "Model", theme: "light", body: s2,
     tests: "V1.2 §8: state 2 with the compass's Reverse, Place and Cancel beside the length field and Place node 50 in the routing block (the pointer rule).",
     look: "The three 22 px buttons to the right of the length field and the short stub opposite the active +Y axis; the routing block's three named buttons; the hint strip, whose every key now has a control; the footer's selection group; the drawer's collapse chevron; Deformation and Probe disabled with Needs a current run." },
@@ -339,7 +345,7 @@ export const frames = [
     look: "The same moment under the dark tokens: the raised compass buttons on the dark canvas, the draft ghost's centreline and outline, the latched Route tool on pressed.fill." },
   { file: "s3_table_light", state: 3, stateName: "Editing the layout table: propagation, keyboard entry, the paste band", stage: "Model", view: "Table", theme: "light", body: s3,
     tests: "State 3 (Table): propagation marks after keyboard entry; the paste band above the rows it will create, with two unmapped columns; the footer's edit chip.",
-    look: "The paste band between row 130 and the Add row line, its two buttons reading Cancel and Paste 3 rows with the keys in their tooltips; the edit cell on row 130 DY and the edit chip in the footer, which takes the place of the counts while the cell is edited." },
+    look: "The paste band between row 130 and the Add row line, its two buttons reading Cancel and Paste 3 rows, names only, with the keys in their tooltips (C-20, variant A); the edit cell on row 130 DY and the edit chip in the footer, which takes the place of the counts while the cell is edited." },
   { file: "s4_both_light", state: 4, stateName: "Restraint and load tables; marks on the node rows; glyphs; the inspector docked", stage: "Model", view: "Both", theme: "light", body: () => s4both("docked"),
     tests: "V1.2 §8: state 4 Both with the inspector docked, the Inspector toggle latched, the two-row HUD at 303 px with Fit first and the mock line under the stack (G-10); the fitted camera refitting on dock (Q-20).",
     look: "The canvas at 303 px with the whole model in view, because the camera was fitted and docking refits by itself; the HUD as two rows of five, 154 px wide, Fit first; the Inspector toggle latched beside the Agent toggle; the inspector's close control; the footer's selection group with Clear check, since the selected row is Checked." },
@@ -357,7 +363,7 @@ export const frames = [
     look: "The expanded chevron in OCC1's Expression cell; the editor's caption with its close control; Cancel and Done without key glyphs; the Add case line; the rule-expression column in its dashed display-only frame with the caption once in the header." },
   { file: "s6_both_light", state: 6, stateName: "After a failed run: the run log over the canvas, the single failure banner, the drawer filtered", stage: "Results", view: "Both", theme: "light", body: s6,
     tests: "V1.2 §8: state 6 with the run log over the canvas's top edge and the dot and triangle glyphs (Q-16, G-12); the empty left end of the status bar (Q-21); the drawer row's overflow (G-11).",
-    look: "The run log's left edge at the canvas pane's left edge, the table's tab strip and banner uncovered; the Entered dot on the two completed steps, the triangle on the stopped one, none on the step not run; no chip at the status bar's left end; the drawer's selected row with its message truncated and the entity and the link right-aligned; the drawer's close control." },
+    look: "The run log's left edge at the canvas pane's left edge, the table's tab strip and banner uncovered; the Entered dot on the two completed steps, the triangle on the stopped one, none on the step not run; no chip at the status bar's left end; the drawer's selected row with its message truncated and the entity and the link right-aligned; the drawer's Filter menu button beside the class chips (C-24; V1.3 row 96) and its close control." },
   { file: "s7_both_light", state: 7, stateName: "Results: the stress table, the case selector and Envelope, the evidence chip, the run identity; the coloured model", stage: "Results", view: "Both", theme: "light", body: () => s7both("current"),
     tests: "State 7 (Both), a Current run: chips with their domains in the status bar, the results header and the probe; the Run identity disclosure holding the identity line alone; canvas.edgeAlt on the result-coloured elements (R-6).",
     look: "Solver · Mechanics solved and Rule pack · User-rule checked; Evidence · Internally verified beside the run name and in the probe's footer; the disclosure with one mono line and no sentence; the pale edge line on the darker teal elements and the dark edge on the two palest; the pinned probe's close control." },
@@ -371,15 +377,15 @@ export const frames = [
     tests: "V1.2 §8 (ruling 6; R-9): the historical band in the product's rendered text with its popover, the neutral canvas, the legend's note card, no status chip.",
     look: "The warm hatched band and its information control, the popover with the second sentence and the run's recorded statuses as label chips with their raw tokens; no evidence chip in the header; the rail caption Historical and Review disabled; the figure in the neutral pipe colour; the note card in the legend's place; Deformation and Probe disabled." },
   { file: "s8_table_light", state: 8, stateName: "Hanger design against a user library; a proposal accepted row by row; the model changed since the run", stage: "Results", view: "Table", theme: "light", body: s8table,
-    tests: "V1.2 §8: state 8 under a Stale run: the stale band in ROOT's settled wording, hatched values, the rail caption Stale, no chip; the receipt line (Q-18); the consequence line; the toast with an action (G-8); hanger selection with the content boundary's short variant (ruling 5).",
+    tests: "V1.2 §8: state 8 under a Stale run: the stale band in ROOT's settled wording, hatched values, the rail caption Stale, no chip; the receipt line (Q-18); the consequence line; the toast with an action (G-8); hanger selection with the content boundary's short variant (ruling 5); no State column, the state said in the footer and the expansion's caption (C-21).",
     look: "The band's two sentences and Run again; no evidence chip beside the run name; the hanger selection open under H1 with its one boundary line and the candidate sizes sorted by variation; the receipt line on the card, one line with the new value and +4; the consequence line; the toast Accepted P-12 row 1 with Undo beside the agent column; the Send control under the card." },
   { file: "s8_model_light", state: 8, stateName: "A proposal landing as proposed rows and as a ghost in the canvas", stage: "Model", view: "Model", theme: "light", body: s8model,
     tests: "State 8 (Model): a proposal landing as banded rows with old and new values and as a ghost in the canvas; the footer's Accept row and Reject row chips joining the selection group.",
     look: "The selected proposed row with the band, the bar and the diamond; the footer with the selection group and the two chips; the two chips of the Current run, because this is the moment before row 1 is accepted." },
   { file: "s9_table_light", state: 9, stateName: "The Review page", stage: "Review", view: "Table", theme: "light", body: () => s9({ open: "iteration" }),
-    tests: "V1.2 §8: state 9 with the header's icons and plain Export… (Q-19, G-7), Compare with… in the iteration menu (Q-17), the four chips and the Kind menu (Q-22), an Evidence summary card and a Draft card (ruling 8), Human review required in the status bar.",
-    look: "The columns beginning directly under the header's hairline; the iteration menu open with Compare with… after its separator; three buttons of one weight with their icons and no accent on the page; the comment stream's one filter row; the Draft card's Insert and Discard; Rule pack · User-rule checked and Human · Human review required." },
+    tests: "V1.2 §8: state 9 with the header's icons and plain Export… (Q-19, G-7), Compare with… in the iteration menu (Q-17), the four chips and the Kind menu (Q-22), an Evidence summary card and a Draft card (ruling 8), and the Review page's three status chips (C-23, variant B).",
+    look: "The columns beginning directly under the header's hairline; the iteration menu open with Compare with… after its separator; three buttons of one weight with their icons and no accent on the page; the comment stream's one filter row; the Kind button reading Kind: all; the Draft card's Insert and Discard; Solver · Mechanics solved, Rule pack · User-rule checked and Human · Human review required." },
   { file: "s9_table_dark", state: 9, stateName: "The Review page under the dark tokens", stage: "Review", view: "Table", theme: "dark", body: () => s9({ open: "kind" }),
     tests: "State 9 (dark): the Review page in the dark theme, with the Kind menu open (Q-22).",
-    look: "The Kind menu listing the agent's four kinds with their counts and All kinds; the five class chips on the cards; the inserted and removed text and the live tables under the dark tokens." },
+    look: "The Kind menu with All kinds first and checked, a separator, then the agent's four kinds with their counts (V1.3 row 94); three status chips; the five class chips on the cards; the inserted and removed text and the live tables under the dark tokens." },
 ];
