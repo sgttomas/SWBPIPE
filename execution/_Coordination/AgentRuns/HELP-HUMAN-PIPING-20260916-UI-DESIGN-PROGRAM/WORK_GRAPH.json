@@ -118,8 +118,12 @@
     {
       "id": "MOCKS",
       "role": "HELPS_HUMANS",
-      "purpose": "Mock drafts of the workflow states enumerated in the brief; owner reviews",
-      "status": "pending"
+      "purpose": "Fifteen mock frames of the nine workflow states as offline HTML from the design system and one sample model; owner reviews",
+      "status": "active",
+      "model_requested": "fable",
+      "mechanism": "Agent tool, general-purpose, background",
+      "brief": "briefs/MOCKS-01_mock_drafts.md",
+      "return": "instances/MOCKS/"
     },
     {
       "id": "UX-SPEC",
@@ -131,7 +135,9 @@
       "id": "RENDERING-BRIEF",
       "role": "HELP_HUMAN",
       "purpose": "Rendering brief for the piping session's overlay and deformation observations (D-70 effect 4)",
-      "status": "pending"
+      "status": "complete",
+      "return": "instances/ROOT/RENDERING_BRIEF_2026-09-18.md",
+      "note": "Delivered 2026-09-18 with notice ../../NOTICE_2026-09-18_RENDERING_BRIEF.md; relay to the piping session is the owner's"
     },
     {
       "id": "ACCEPTANCE-PROPOSAL",
