@@ -1,0 +1,36 @@
+{
+  "manager": "/root/d70_manager",
+  "role": "WORKING_ITEMS",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "mechanism": "delegated-harness-native",
+  "enforcement": "instruction/config asserted",
+  "nodes": [
+    {
+      "id": "inspect",
+      "status": "complete"
+    },
+    {
+      "id": "writer",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "reasoning": "low",
+      "status": "complete",
+      "dependsOn": [
+        "inspect",
+        "ROOT_expectations"
+      ],
+      "instance": "/root/d70_manager/writer",
+      "commit": "c9cbec96e5877e307d8895ab51c2d1d9928ea10f"
+    },
+    {
+      "id": "fan-in",
+      "status": "complete",
+      "dependsOn": [
+        "writer"
+      ]
+    }
+  ],
+  "runtime": "No browser/build/cohort; manager returns before timed runtime.",
+  "release": "ROOT IMPLEMENTATION_RELEASE.json"
+}

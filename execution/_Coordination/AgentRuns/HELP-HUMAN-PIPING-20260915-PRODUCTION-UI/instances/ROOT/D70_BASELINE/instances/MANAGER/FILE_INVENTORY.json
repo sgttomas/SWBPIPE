@@ -1,0 +1,62 @@
+{
+  "schema": "d70-instrument-write-fence/v1",
+  "status": "SEALED_PENDING_ROOT_SCOPE_AND_EXPECTATIONS_RELEASE",
+  "base": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+      "preimageSha256": "ac189e2bb7d3628e46f10ff499bcea7e737e721593eef9fc78ed837ac3b3cced",
+      "operation": "modify"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "preimageSha256": "409a6444c200cf19fcd3417ff422f4ff234d2a41684a5b79d7b97a5cbee30717",
+      "operation": "modify"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+      "preimageSha256": "c19d16d00fc2cce9297f42b1fcf2baefa58c5427aedde5fd46f02ce068ef8bf7",
+      "operation": "modify"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts",
+      "preimageSha256": "d2ccd61de9343400d0d80e06ae8e3b13341828eed26935b8b8e3379239f44e3b",
+      "operation": "modify"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+      "preimageSha256": "68676b676d3dc015390e549a41695ff8824e62cf0df1054626318753bf396d9a",
+      "operation": "modify"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-mode.ts",
+      "preimageSha256": null,
+      "operation": "create"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+      "preimageSha256": null,
+      "operation": "create"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.mjs",
+      "preimageSha256": null,
+      "operation": "create"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.d.mts",
+      "preimageSha256": null,
+      "operation": "create"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-characterization-observations.mjs",
+      "preimageSha256": null,
+      "operation": "create"
+    }
+  ],
+  "evidenceWriteRoots": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER"
+  ],
+  "excluded": "All paths outside listed sources and instance evidence; notably src/core, fixture/sample/oracle bytes, performance-targets and causal extractor/trace-category semantics, historical/shared records."
+}
