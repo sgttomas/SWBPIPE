@@ -971,3 +971,7 @@ Accepted UI successor-v3 supplies editable workspace wireframes and an offline s
 ## 2026-09-17 — D-70 rendering baseline attempt and handoff
 
 The bounded characterization attempt is complete as an incomplete-attempt report, with its stopping reason and unavailable measurements preserved. The owning evidence is `HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/RUNNER/RETURN.json`; the successor `instances/ROOT/PERFORMANCE_HANDOFF_D70.md` carries the remaining obligations and final review/Git gates. No product source, dependency, lifecycle or independent-usability disposition changed. The original handoffs and accepted native/resource evidence retain their exact historical attribution.
+
+## 2026-09-17 — Owner clarification of the D-70 attempt budget
+
+After the first invalid N1000 attempt, the owner clarified that failures should not prevent later allotted attempts and directed continuation to seek a complete run at each size within five total attempts per size. The initial report and review remain historical cuts. The current frontier is `D70_BASELINE/WORK_GRAPH.json`; the exact direction is `D70_BASELINE/OWNER_CLARIFICATION_CONTINUE_20260917.md` and its application is DEC-096. No extra or replacement attempt, performance threshold change or product repair is included.

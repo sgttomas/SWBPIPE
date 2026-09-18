@@ -5,7 +5,7 @@ Current sequencing is D-70, applied in [D70_ADOPTION.json](D70_BASELINE/D70_ADOP
 | Area | Current disposition |
 |---|---|
 | Functional foundation | Prior FINAL_ACCEPTANCE.json and native/source/registered evidence retain their exact accepted scopes and source attribution; PR #789 owns actual-candidate CI and merge. |
-| Current product performance | Single D70 attempt ended incomplete at the first point-selection metadata check. Report and canonical raw evidence are preserved in D70_BASELINE/instances/RUNNER; no retry. Final independent report review and Git closeout remain. Original numeric targets and failures are unchanged. |
+| Current product performance | N1000 attempt 1 failed its first point-selection metadata check and remains preserved. The owner clarified continuation within five total attempts per size: N1000 2–5 and N10000 1–5 remain. Bounded harness repair and affected review precede continuation; the original incomplete report does not close this revised assignment. See D70_BASELINE/OWNER_CLARIFICATION_CONTINUE_20260917.md and CONTINUATION_ATTEMPT_BUDGET.json. Original numeric targets and failures are unchanged. |
 | Future performance acceptance | D68 obligation carried to redesigned product; fresh criteria proposed by design program and ruled prospectively by owner. |
 | Settled and resources | Obligations preserved. Prior V56 evidence and later source/unit applicability remain attributed; no final-binary full resource cohort inferred. |
 | Redesign handoff | Baseline report, including exact incomplete-attempt limitations, supplies performance handoff condition. Design implementation approval/readiness remains separate. |

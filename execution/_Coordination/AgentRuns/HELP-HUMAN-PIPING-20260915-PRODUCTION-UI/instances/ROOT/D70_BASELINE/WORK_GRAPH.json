@@ -10,9 +10,9 @@
   "actual_mechanism": "delegated-harness-native collaboration.spawn_agent",
   "enforcement": "role/write scopes/Type2 non-delegation instruction+config asserted",
   "runtime_lease": {
-    "status": "RELEASED",
-    "owner": null,
-    "scope": "Cohort process ended; offline analysis complete; no further benchmark runtime authorized"
+    "status": "PREPARATION_ONLY",
+    "owner": "ROOT",
+    "scope": "No timed collection until affected instrument review and explicit release"
   },
   "nodes": [
     {
@@ -31,7 +31,9 @@
       "effort": "high",
       "brief": "briefs/MANAGER.md",
       "brief_sha256": "46c6d6ee930b46a470b017c0980cc4e8312a522168537b38208074a795e38dea",
-      "status": "complete_final_instrument_accepted"
+      "status": "active_continuation_analysis",
+      "continuation_brief": "briefs/MANAGER_CONTINUATION.md",
+      "continuation_brief_sha256": "28524661f4cf075dc3aabed269ad9413c8374aef9442d1d9bb29877964e92ff4"
     },
     {
       "id": "EXPECTATIONS",
@@ -42,8 +44,11 @@
       "effort": "low",
       "brief": "briefs/EXPECTATIONS.md",
       "brief_sha256": "90a574ba09376d1c022f61e8c7111aa2a02a357dd4023653557b43cc6e461ac5",
-      "status": "complete_root_accepted",
-      "return": "instances/EXPECTATIONS/RETURN.json"
+      "status": "complete_continuation_expectations_accepted",
+      "return": "instances/EXPECTATIONS/RETURN.json",
+      "continuation_brief": "briefs/EXPECTATIONS_CONTINUATION.md",
+      "continuation_return": "instances/EXPECTATIONS/CONTINUATION/RETURN.json",
+      "continuation_expectations_sha256": "b820e8826815f22992b8bd3240d2aedccf333e4ec39a7016f25f42dab3b3601e"
     },
     {
       "id": "WRITER",
@@ -82,10 +87,11 @@
       "role": "TASK",
       "model": "gpt-6-astra",
       "effort": "low",
-      "status": "ready_for_dispatch",
+      "status": "complete_historical_candidate_review_pass",
       "agent_name": "/root/d70_final_review",
       "brief": "briefs/FINAL_REVIEW.md",
-      "brief_sha256": "cde708fd9be5a2e67bdb808110c9722b4c04898aad8a3a057201044cb238e002"
+      "brief_sha256": "cde708fd9be5a2e67bdb808110c9722b4c04898aad8a3a057201044cb238e002",
+      "return": "instances/FINAL_REVIEW/RETURN.json"
     }
   ],
   "edges": [
@@ -108,11 +114,12 @@
     [
       "RUNNER",
       "FINAL_REVIEW"
-    ],
-    [
-      "FINAL_REVIEW",
-      "ROOT_CLOSEOUT"
     ]
   ],
-  "current_frontier": "Sole attempt ended on invalid required evidence. Report and raw custody complete; final independent review, registered sweep and Git closeout remain."
+  "current_frontier": "Owner clarified attempt budget: first N1000 invalid attempt retained; prepare bounded harness fix then continue remaining four N1000 and five N10000 attempts.",
+  "ownerClarification": {
+    "path": "OWNER_CLARIFICATION_CONTINUE_20260917.md",
+    "sha256": "a5ba424fde8f8be92ae69b694a718452c9753b3ce2217df8f6b4b55e042c9730"
+  },
+  "closeoutStatus": "HELD_FOR_OWNER_CLARIFIED_CONTINUATION"
 }
