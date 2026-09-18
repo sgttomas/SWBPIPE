@@ -104,12 +104,14 @@
     "A1F-REVIEW": {
       "role": "TASK Type 2 software-code-review, read-only",
       "model": "opus",
-      "status": "launched",
+      "status": "returned_pass_no_actionable_finding",
       "briefSha256": "aa7c2bbc179f3340c4bf8a8bdc6169beee207d6292edb943267ba6f66e0269ad",
       "brief": "briefs/A1F-REVIEW_code_review.md",
       "candidate": "bb7c7a2e8e128c91b001d69734369f1b211c7122",
-      "returnSha256": null,
-      "worktree": "second worktree, branch codex/swbpipe-a1-followups-20260918"
+      "returnSha256": "3e640e232c8b3437411c0f579ab6e446f68dadee4d685644d16640f7fee8ada8",
+      "worktree": "second worktree, branch codex/swbpipe-a1-followups-20260918",
+      "model_ran": "Claude Opus 5",
+      "return": "instances/A1F-REVIEW/RETURN.md"
     }
   },
   "edges": [
