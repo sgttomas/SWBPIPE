@@ -1,3 +1,5 @@
+import { collectionMode, validateFixedSelection, attemptDisposition, executeCollectionRun } from "./characterization-mode";
+import { runCharacterizationSmoke } from "./characterization-commands";
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile, readFile } from "node:fs/promises";
 import path from "node:path";
@@ -25,7 +27,7 @@ import {
   waitForFirstUsable,
   writeJson
 } from "./benchmark-harness";
-import { performanceExpectation, runCandidateCausalPerformance, candidateDiagnosticMode, assignmentDiagnosticSummary } from "./full-cohort-controller";
+import { performanceExpectation, runCandidateCausalPerformance, candidateDiagnosticMode, assignmentDiagnosticSummary, frozenTreeExpectation } from "./full-cohort-controller";
 import { scorePerformanceCohort, type RunExpectation } from "./performance-targets";
 import { bindCandidateDriverEntry } from "./candidate-server-response";
 
@@ -39,7 +41,13 @@ const benchmarkDir = path.dirname(fileURLToPath(import.meta.url));
 
 const cohortId = process.env.UI_FOUNDATION_COHORT_ID;
 if (phase === "candidate" && (!cohortId || !/^[A-Za-z0-9._:-]{1,48}$/.test(cohortId))) throw new Error("fresh explicit candidate cohort ID required");
-const candidatePlan = ([1000, 10000] as const).flatMap((fixtureSize) => [1, 2, 3, 4, 5].map((runNumber) => ({
+const mode = collectionMode(process.env.UI_FOUNDATION_COLLECTION_MODE, phase, process.env.UI_FOUNDATION_DIAGNOSTIC_MODE);
+const smokeValue = process.env.UI_FOUNDATION_SMOKE;
+if (smokeValue !== undefined && (smokeValue !== "controls" || phase !== "candidate" || mode !== "characterization" || process.env.UI_FOUNDATION_DIAGNOSTIC_MODE !== undefined)) throw new Error("unknown or conflicting smoke mode");
+const smoke = smokeValue === "controls";
+if (mode === "characterization") validateFixedSelection(configuredCounts, configuredRuns);
+const activeRuns = smoke ? [1] : configuredRuns;
+const candidatePlan = ([1000, 10000] as const).flatMap((fixtureSize) => (smoke ? [1] : [1, 2, 3, 4, 5]).map((runNumber) => ({
   fixtureSize, runNumber, runId: `${cohortId}.${fixtureSize}.${runNumber}`, sessionId: randomUUID() })));
 const diagnosticMode = phase === "candidate" ? candidateDiagnosticMode(process.env.UI_FOUNDATION_DIAGNOSTIC_MODE) : "full";
 const assignmentOnly = diagnosticMode === "assignment-collection";
@@ -51,14 +59,31 @@ if (phase === "candidate") {
     for (const identity of candidatePlan) {
       candidateExpectations.push(await performanceExpectation(await loadFixture(identity.fixtureSize), candidateDriverBinding!, identity));
     }
-    await writeFile(path.join(evidenceRoot, assignmentOnly ? "assignment-diagnostic-plan.json" : "candidate-cohort-plan.json"), `${JSON.stringify(assignmentOnly ? { scope: "ASSIGNMENT_ONLY_INCOMPLETE_WORKLOAD", cohortContribution: 0, plannedSessions: 10, expectations: candidateExpectations } : candidateExpectations, null, 2)}\n`, { flag: "wx" });
+    await writeFile(path.join(evidenceRoot, smoke ? "smoke-plan.json" : assignmentOnly ? "assignment-diagnostic-plan.json" : "candidate-cohort-plan.json"), `${JSON.stringify(assignmentOnly ? { scope: "ASSIGNMENT_ONLY_INCOMPLETE_WORKLOAD", cohortContribution: 0, plannedSessions: 10, expectations: candidateExpectations } : candidateExpectations, null, 2)}\n`, { flag: "wx" });
   });
   test.afterAll(async () => {
-    const completed = [], missing = [];
-    for (const expected of candidateExpectations) {
-      const file = path.join(evidenceRoot, "raw", `run-${String(expected.runNumber).padStart(2, "0")}`, String(expected.fixtureSize), assignmentOnly ? "assignment-diagnostic-result.json" : "result.json");
-      try { const result=JSON.parse(await readFile(file,"utf8"));completed.push(assignmentOnly ? result : result.evidence); }
-      catch (error) { missing.push({ runId: expected.runId, error: String(error) }); }
+    const completed: any[] = [], missing: any[] = [], runRecords: any[] = [];
+    // Use the original full plan even when preparation fails before expectations exist.
+    for (const identity of candidatePlan) {
+      const expected = candidateExpectations.find(e => e.runId === identity.runId) ?? identity;
+      const directory = path.join(evidenceRoot, "raw", `run-${String(expected.runNumber).padStart(2, "0")}`, String(expected.fixtureSize));
+      const file = path.join(directory, smoke ? "smoke-result.json" : assignmentOnly ? "assignment-diagnostic-result.json" : "result.json");
+      try {
+        const result = JSON.parse(await readFile(file, "utf8"));
+        completed.push(assignmentOnly || smoke ? result : result.evidence);
+        runRecords.push({ expected, resultFile:file, collection:result.collection, status:result.status });
+      } catch (error) {
+        let started=false, failure:any=null;
+        try { await readFile(path.join(directory,"run-started.json")); started=true; } catch { /* unattempted */ }
+        try { failure=JSON.parse(await readFile(path.join(directory,"run-failure.json"),"utf8")); } catch { /* early timeout may leave only started */ }
+        const record={expected,resultFile:file,started,error:String(error),failure};
+        runRecords.push(record);missing.push({runId:expected.runId,started,error:String(error),failure});
+      }
+    }
+    if(smoke) {
+      const pass=completed.length===2 && completed.every(r=>r.status==="PASS_UNTIMED_SMOKE");
+      await writeFile(path.join(evidenceRoot,"smoke-summary.json"),`${JSON.stringify({status:pass?"PASS_BOTH_SIZE_UNTIMED_SMOKE":"FAIL_UNTIMED_SMOKE",cohortContribution:0,runRecords,missing},null,2)}\n`,{flag:"wx"});
+      if(!pass)throw new Error("both-size smoke incomplete or failed");return;
     }
     if(assignmentOnly) {
       const result=assignmentDiagnosticSummary(completed,candidateExpectations);
@@ -67,15 +92,22 @@ if (phase === "candidate") {
       return;
     }
     const result = scorePerformanceCohort(completed, candidateExpectations);
-    await writeFile(path.join(evidenceRoot, "candidate-cohort-result.json"), `${JSON.stringify({ ...result, missing }, null, 2)}\n`, { flag: "wx" });
-    if (result.status !== "PASS_COHORT_METRICS") throw new Error("complete five-by-two cohort did not qualify; immutable outcomes retained");
+    const collection = attemptDisposition(mode, candidatePlan, runRecords, result);
+    await writeFile(path.join(evidenceRoot, "candidate-cohort-result.json"), `${JSON.stringify({ ...result, collection, timedAttemptEnded:true, runRecords, missing }, null, 2)}\n`, { flag: "wx" });
+    if (collection.attemptDisposition !== "COMPLETED") throw new Error("incomplete or invalid collection; original scores and outcomes retained");
   });
 }
 
 test.describe.serial(`UI foundation ${phase} production benchmark`, () => {
   for (const pipeCount of configuredCounts) {
-    for (const run of configuredRuns) {
-      test(`${phase} N=${pipeCount} run ${run}`, async ({ page, browserName }) => {
+    for (const run of activeRuns) {
+      test(`${phase} N=${pipeCount} run ${run}`, async ({ page, browserName }, testInfo) => {
+        if (phase === "candidate") {
+          const directory = path.join(evidenceRoot,"raw",`run-${String(run).padStart(2,"0")}`,String(pipeCount));
+          await mkdir(directory,{recursive:true});
+          await writeFile(path.join(directory,"run-started.json"),`${JSON.stringify({mode,smoke,pipeCount,run,startedAt:new Date().toISOString(),retry:testInfo.retry})}\n`,{flag:"wx"});
+          if(testInfo.retry!==0)throw new Error("cohort retry forbidden");
+        }
         const fixture = await loadFixture(pipeCount);
         const candidateOracleBinding = phase === "candidate"
           ? await validateCandidateOracleBinding(fixture, pipeCount)
@@ -111,7 +143,14 @@ test.describe.serial(`UI foundation ${phase} production benchmark`, () => {
         if (phase === "candidate") {
           const expected = candidateExpectations.find((e) => e.fixtureSize === pipeCount && e.runNumber === run);
           if (!expected) throw new Error("run is outside the frozen five-by-two cohort plan");
-          await runCandidateCausalPerformance(page, fixture, expected, runDir, { timeoutMs, binding: candidateDriverBinding!, assignmentOnly });
+          try {
+            if (smoke) await runCharacterizationSmoke(page, fixture, expected, runDir, timeoutMs, frozenTreeExpectation);
+            else if (assignmentOnly) await runCandidateCausalPerformance(page, fixture, expected, runDir, { timeoutMs, binding: candidateDriverBinding!, assignmentOnly });
+            else await executeCollectionRun(async () => await runCandidateCausalPerformance(page, fixture, expected, runDir, { timeoutMs, binding: candidateDriverBinding! }) as any);
+          } catch(error) {
+            await writeFile(path.join(runDir,"run-failure.json"),`${JSON.stringify({error:String(error),mode,status:"ABORT_REMAINING",at:new Date().toISOString()})}\n`,{flag:"wx"});
+            throw error;
+          }
           return;
         }
         // Candidate runs returned above; this historical proxy path is baseline only.

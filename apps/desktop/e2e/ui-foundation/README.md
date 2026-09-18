@@ -261,3 +261,149 @@ with focused mode reject. The existing eight-segment focused proof is separate.
 Chromium-reported timestamps retain their future-estimate limitation; neither this
 collection tail nor diagnostic success establishes hardware timing or full-cohort
 acceptance. Historical failed/unrun attempts remain unchanged.
+
+## Explicit D-70 characterization (one attempt)
+
+Qualification remains the default. Set `UI_FOUNDATION_COLLECTION_MODE=characterization`
+only for the separately authorized candidate attempt. A valid original-target miss keeps
+`FAIL_TARGETS` / `FAIL_COHORT` and its original numeric score, but permits the next run.
+Invalid evidence, incomplete workload, binding/profile drift, cleanup failure, nonzero
+settled owned rAF, or an existing timeout aborts the serial attempt. There are no retries
+or replacement runs. The plan is five 1000-pipe sessions then five 10000-pipe sessions;
+200 point, 20 box, 20 filter actions and both 2 s + 10 s orbits in each fresh session.
+The baseline proxy and legacy focused/assignment routes are unchanged. Explicit
+characterization conflicts with those diagnostics, unknown values and partial selections.
+
+The characterization filter performs focus before arming, then
+`page.keyboard.insertText(query)`: one whole-query browser input through Chromium's
+`Input.insertText`, with no claim of keydown/keyup or physical keyboard events. The
+existing first-input listener and final stopped-content witness remain unchanged.
+Historical strict mode still calls Playwright `fill`, whose locked text-input
+implementation also uses insertText. No clipboard, synthetic event, application handler,
+or production mutation hook is used. Points keep labels off; boxes/filters inherit their
+existing state; both orbit modes turn labels on. Boundary records retain actual labels,
+canvas CSS and drawing-buffer dimensions, effective/browser DPR, camera, geometry,
+conversion, theme/density/panels, model and run bindings. They do not prove continuous
+foreground, occlusion or display placement.
+
+Before launch, ROOT must provide the frozen final product build/source manifest for
+`8468a33c86adb622b25e98f98b0eaf28c7e9fa0e`, distinct from the instrument checkout;
+complete source inventory is the union of `source` and `mutableTestOnlySourceSnapshot`.
+The manifest must include `productRevision`; the controller checks Git HEAD, final stage,
+recursive src/src-tauri/dist/public-wasm coverage and all listed bytes. Freeze a method
+manifest containing the **exact** `requiredMethodFiles` exported from
+`full-cohort-controller.ts` (34 entries, including these new helpers/tests/declarations and
+this README). Each `files` entry has `path` relative to the Piping project root and
+`sha256`. Do not replace product source bindings with the instrument revision. Camera,
+point/box/tree oracles, fixture manifest and browser executable must be independently
+frozen and checked before the one timed attempt. Fresh complete-diff review, successful
+smoke and ROOT's exclusive runtime lease remain required. The original 1000-only focused
+preflight is not the both-size smoke below.
+
+Reference profile JSON (`UI_FOUNDATION_REFERENCE_PROFILE`, absolute path, plus its
+`UI_FOUNDATION_REFERENCE_PROFILE_SHA256`) has this exact field contract:
+
+```json
+{
+  "schema": "ui-foundation.reference-profile/v1",
+  "cohortId": "THE_FRESH_COHORT_ID",
+  "productRevision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "hostModel": "Apple M5 Max",
+  "memoryBytes": 137438953472,
+  "refreshHz": 60,
+  "externallyVerified": true,
+  "verificationEvidence": "/absolute/path/to/external-verification.json",
+  "verifiedAt": "2026-09-17T23:00:00Z",
+  "viewport": [1440, 920],
+  "browserDpr": 2,
+  "effectiveDprCap": 2,
+  "display": {
+    "name": "LG ULTRAFINE", "vendor": "1e6d", "product": "5bcb", "serial": "2011a",
+    "pixels": "3840 x 2160", "resolution": "1920 x 1080 @ 60.00Hz", "mirror": "spdisplays_off"
+  }
+}
+```
+
+This is a schema example, not verification evidence. Use the actual externally verified
+record bound to the attempt. Host CPU/RAM are read back; `/usr/sbin/system_profiler
+SPDisplaysDataType -json` is persisted before the first trace and after each run.
+Exactly one main online display must match the externally frozen identity and 60 Hz.
+Missing or ambiguous profile is an abort, never a substitute machine or CPU acceptance gate.
+
+Run from the instrument **Piping project root**. The runner's frozen input JSON must
+supply these literal environment keys (never inherit stale values):
+
+```text
+UI_FOUNDATION_PHASE=candidate
+UI_FOUNDATION_COHORT_ID=<fresh explicit ID>
+UI_FOUNDATION_EVIDENCE_DIR=<new absolute empty attempt directory>
+UI_FOUNDATION_COLLECTION_MODE=characterization
+UI_FOUNDATION_PIPE_COUNTS=1000,10000
+UI_FOUNDATION_RUNS=1,2,3,4,5
+UI_FOUNDATION_MANIFEST_SHA256=<unchanged fixture-manifest hash>
+UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST=<absolute final bundle manifest>
+UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST_SHA256=<manifest hash>
+UI_FOUNDATION_CANDIDATE_SOURCE_ROOT=<frozen product Piping root>
+UI_FOUNDATION_CANDIDATE_OUTPUT_ROOT=<product root>/apps/desktop/dist
+UI_FOUNDATION_CANDIDATE_SOURCE_STAGE=final
+UI_FOUNDATION_CANDIDATE_ORACLE_DIR=<absolute frozen runtime oracle directory>
+UI_FOUNDATION_CANDIDATE_ORACLE_MANIFEST_SHA256=<runtime oracle manifest hash>
+UI_FOUNDATION_METHOD_MANIFEST_PATH=<absolute final method manifest>
+UI_FOUNDATION_METHOD_MANIFEST_SHA256=<method manifest hash>
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=<absolute pinned Chromium executable>
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_SHA256=<executable hash>
+UI_FOUNDATION_REFERENCE_PROFILE=<absolute externally verified profile>
+UI_FOUNDATION_REFERENCE_PROFILE_SHA256=<profile hash>
+```
+
+First run the non-qualifying smoke with a separate empty evidence directory. It opens
+fresh sessions for **both sizes**, performs assignment, typed point selection, box drag,
+whole-query keyboard insertion and both orbit controls against the actual frozen
+production artifact. It validates camera/oracle controls and records observations;
+it starts no trace/latency observer and calls no scorer. Keep its cohort contribution zero.
+With the frozen environment above loaded, these are the literal invocations:
+
+```sh
+UI_FOUNDATION_SMOKE=controls UI_FOUNDATION_EVIDENCE_DIR="$SMOKE_EVIDENCE_DIR" \
+  node node_modules/@playwright/test/cli.js test \
+  --config apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts \
+  --headed --workers=1 --retries=0 --repeat-each=1
+
+# Only after smoke/review/final freeze and ROOT's exclusive timed lease:
+env -u UI_FOUNDATION_SMOKE -u UI_FOUNDATION_DIAGNOSTIC_MODE \
+  node node_modules/@playwright/test/cli.js test \
+  --config apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts \
+  --headed --workers=1 --retries=0 --repeat-each=1
+
+# Only after candidate-cohort-result.json declares timedAttemptEnded=true:
+node apps/desktop/e2e/ui-foundation/characterization-observations.mjs \
+  "$UI_FOUNDATION_EVIDENCE_DIR/candidate-cohort-result.json" \
+  "$UI_FOUNDATION_EVIDENCE_DIR/offline-observations.json"
+```
+
+`candidate-cohort-result.json` retains the original cohort score, independent collection
+status, and every attempted/failed/unattempted run. A fatal process kill may prevent that
+final file: stop and produce an explicit incomplete-attempt report from canonical partial
+files; never restart a timed run. The implementation does not automate pause/resume.
+Original 20-minute run, 30-second trace IO/completion and 256 MiB trace limits remain.
+
+Offline observations hash and losslessly parse the canonical raw traces without rewriting
+them. Every attributable `ProxyMain::BeginMainFrame` start in inclusive
+[action + 2 s, action + 12 s] enters the population, independently of selected feedback
+frames. PID/TID, raw occurrence indices, ties and missing durations remain explicit.
+GPU-related spans, when uniquely identifiable, are separate unbound thread context and
+are summarized by event name, never pooled hardware timing or nearest-time causal joins.
+Input latency, main-frame work and Chromium-reported presentation remain different
+quantities; presentation is not scanout. Startup, loading, heap/process memory and resource
+findings have separate applicability/unavailable labels; no resource or performance
+acceptance is implied by completed characterization.
+
+Focused node-only checks (no browser/build) use a run-owned Playwright config selecting
+`full-cohort-controller.spec.ts`, one worker and zero retries, with output under that run's
+evidence directory. Run the new characterization/inventory/metadata/profile tests plus
+existing lifecycle controls; the raw-transfer >64/256 MiB stress tests need not be repeated
+when their unchanged transport is out of scope. Offline verifier:
+
+```sh
+node apps/desktop/e2e/ui-foundation/verify-characterization-observations.mjs
+```

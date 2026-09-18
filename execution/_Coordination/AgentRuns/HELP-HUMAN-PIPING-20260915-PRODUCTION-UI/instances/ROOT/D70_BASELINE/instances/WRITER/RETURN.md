@@ -1,0 +1,13 @@
+# TASK writer return — executable characterization candidate
+
+Implemented exact ten-source-file fence. Strict qualification and baseline proxy behavior remain default; characterization preserves original scores while separately collecting valid target misses, aborting hard failures, recording all planned dispositions, and prohibiting retries/partial plans. Original scorer/extractor/trace categories/fixtures are byte-unchanged.
+
+The characterization filter uses focused `page.keyboard.insertText` through the browser protocol: one whole-query input, no keydown/up claim, existing first-input/final-content witness. This follows ROOT's superseding source-grounded interpretation; the earlier clipboard proposal was removed before runtime and no clipboard was accessed. Historical strict fill remains unchanged.
+
+Metadata snapshots occur outside action timing, reference each sample group, and capture required view/model/binding state. Host/display checks occur before first trace and after the run. Both-size smoke is a separate no-trace/no-score route using existing controls and oracle checks. Offline analysis preserves canonical trace bytes, all attributable main-frame occurrences including ties, and explicit missing/ambiguous durations; GPU context is separately grouped by event name.
+
+Validation: 36 focused node tests PASS, final focused TypeScript PASS, offline verifier PASS, diff check PASS. Actual final product/profile prepared inputs PASS read-only, including negative test-only hash drift. The unchanged large raw-transfer stress cases were not rerun. See VERIFICATION.json and COMMANDS.md for exact scope and failures of initial path-only setup commands.
+
+README provides literal smoke/cohort/offline commands and all required environment keys, including runtime oracle directory/manifest. Method candidate contains exactly 34 members; final reviewed freeze and hash belong to ROOT. There is no UI_FOUNDATION_CAMERA_RECIPE environment reader in benchmark-harness; measured camera remains bound by frozen oracle content.
+
+Remaining prerequisites: final reviewed method manifest; camera/runtime oracle preparation and frozen hashes; actual untimed both-size smoke; fresh complete-diff PASS review; ROOT runtime lease; one actual attempt; offline analysis and independent report review. Writer ran no browser, build, GUI, timed cohort or network. It claims executable preparation evidence only, not runtime success, performance acceptance, full resources, engineering certification or product release. Native scope/nondelegation is instruction/config asserted. Parent owns fan-in and governed closeout.

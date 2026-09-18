@@ -5,6 +5,8 @@ import base from "./playwright.performance.config";
 const chromium = bindRequiredChromiumExecutable();
 export default defineConfig({
   ...base,
+  retries: 0,
+  repeatEach: 1,
   testMatch: "ui-foundation-performance.benchmark.ts",
   use: {
     ...base.use,

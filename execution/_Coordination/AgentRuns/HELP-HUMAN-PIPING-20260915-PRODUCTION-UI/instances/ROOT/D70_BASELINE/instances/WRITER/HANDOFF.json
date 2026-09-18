@@ -1,0 +1,44 @@
+{
+  "status": "IMPLEMENTED_TESTED_REVIEW_READY",
+  "closure": "WRITER_SCOPE_COMPLETE_PENDING_MANAGER_FAN_IN",
+  "acceptedUpstream": [
+    "D-70",
+    "IMPLEMENTATION_RELEASE.json",
+    "EXPECTATIONS.md c9942be2e593424b46b607f614befb6ed2ec2fa823a7902c6b906a46ffa09b9e"
+  ],
+  "derivativePackage": true,
+  "productRevision": "8468a33c86adb622b25e98f98b0eaf28c7e9fa0e",
+  "governedBasis": "fc21b00d0b4233349c7fa8df433d6a82e9f7678e",
+  "role": "TASK Type 2",
+  "parent": "/root/d70_manager",
+  "requestedSettings": "gpt-6-astra/low",
+  "actualModelIndependentlyObserved": false,
+  "delegation": "none",
+  "sourceFiles": [
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/ui-foundation-performance.benchmark.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/playwright.candidate-performance.config.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-mode.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-commands.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.mjs",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.d.mts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-characterization-observations.mjs"
+  ],
+  "tests": {
+    "node": 36,
+    "typecheck": "PASS",
+    "offline": "PASS"
+  },
+  "blockingSourceIssues": [],
+  "remaining": [
+    "manager fan-in",
+    "fresh independent full-diff review",
+    "final method/oracle freeze",
+    "both-size untimed smoke",
+    "ROOT exclusive attempt",
+    "offline report/review"
+  ],
+  "rerunRequirements": "Recheck affected tests after any edits; final freeze must match reviewed bytes; no timed retries or replacements."
+}

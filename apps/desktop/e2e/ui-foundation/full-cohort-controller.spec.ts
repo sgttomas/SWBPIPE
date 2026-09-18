@@ -974,3 +974,99 @@ test("assignment diagnostics freeze ten fresh identities and cannot qualify full
   expect(scorePerformanceRun(results[0] as any,expected[0]).status).toBe("FAIL_INVALID_EVIDENCE");
   expect(scorePerformanceCohort(results as any,expected).status).toBe("FAIL_COHORT");
 });
+
+import { collectionMode, validateFixedSelection, runCollectionDisposition, executeCollectionRun, attemptDisposition, validateReferenceProfile, CHARACTERIZATION_PRODUCT_REVISION } from "./characterization-mode";
+import { validateBoundaryMetadata, validateDisplayProfile, prepareFilterInput, insertFilterQuery, FILTER_STIMULUS } from "./characterization-commands";
+
+test("characterization rejects malformed/conflicting modes and every partial/reordered plan", () => {
+  expect(collectionMode(undefined)).toBe("qualification"); expect(collectionMode("characterization")).toBe("characterization");
+  for(const value of ["", "CHARACTERIZATION", "true", "unknown"])expect(()=>collectionMode(value)).toThrow();
+  for(const [phase,diagnostic,focused] of [["baseline",undefined,false],["candidate","assignment-collection",false],["candidate",undefined,true]] as const)
+    expect(()=>collectionMode("characterization",phase,diagnostic,focused)).toThrow();
+  validateFixedSelection([1000,10000],[1,2,3,4,5]);
+  for(const counts of [[1000],[10000,1000],[1000,1000],[1000,10000,1000],[NaN,10000]])expect(()=>validateFixedSelection(counts,[1,2,3,4,5])).toThrow();
+  for(const runs of [[1],[5,4,3,2,1],[1,2,3,4,4],[1,2,3,4,5,6],[1,2,NaN,4,5]])expect(()=>validateFixedSelection([1000,10000],runs)).toThrow();
+});
+const targetMiss={status:"FAIL_TARGETS",validityFailures:[],targetFailures:["TARGET_EXCEEDED:centerlineP95"]};
+test("real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries", async () => {
+  const plan=[1000,10000].flatMap(size=>[1,2,3,4,5].map(run=>`${size}.${run}`));
+  for(const mode of ["characterization","qualification"] as const) {
+    const calls:string[]=[];
+    const sequence=async()=>{for(const id of plan)await executeCollectionRun(async()=>{
+      calls.push(id);return {scored:targetMiss,collection:runCollectionDisposition(mode,targetMiss,[],243)};
+    });};
+    if(mode==="qualification")await expect(sequence()).rejects.toThrow();else await sequence();
+    expect(calls).toEqual(mode==="qualification"?plan.slice(0,1):plan);
+  }
+  for(const failure of ["SETTLED_OWNED_RAF_NOT_EXACT_ZERO","INVALID_OR_MISMATCHED_BINDINGS","INCOMPLETE_OR_INVALID_ORBIT:actual-od"]){
+    const calls:string[]=[];await expect((async()=>{for(const id of plan)await executeCollectionRun(async()=>{
+      calls.push(id);const score={...targetMiss,validityFailures:calls.length===2?[failure]:[]};
+      return {collection:runCollectionDisposition("characterization",score,[],243)};
+    });})()).rejects.toThrow();expect(calls).toEqual(plan.slice(0,2));
+  }
+  for(const [errors,count] of [[["cleanup"],243],[[],242]] as const)expect(runCollectionDisposition("characterization",targetMiss,errors,count).attemptDisposition).toBe("ABORT_REMAINING");
+  const original=new Error("original timeout");await expect(executeCollectionRun(async()=>{throw original;})).rejects.toBe(original);
+});
+test("attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs",()=>{
+  const plan=Array.from({length:10},(_,i)=>({runId:`r${i}`}));
+  const records=plan.map(expected=>({expected,collection:runCollectionDisposition("characterization",targetMiss,[],243)}));
+  const score={status:"FAIL_COHORT",validityFailures:[]};const frozen=JSON.stringify(score);
+  expect(attemptDisposition("characterization",plan,records,score)).toMatchObject({attemptDisposition:"COMPLETED",targetOutcome:"FAIL_COHORT",collectionCompleteness:"COMPLETE_TEN_RUNS"});
+  expect(attemptDisposition("qualification",plan,records,score).attemptDisposition).toBe("ABORTED");
+  const partial=attemptDisposition("characterization",plan,[records[0],{expected:plan[1],started:true,error:"timeout"}],score);
+  expect(partial.runs[1].disposition.attemptDisposition).toBe("ABORT_REMAINING");expect(partial.runs[2].disposition.attemptDisposition).toBe("UNATTEMPTED");expect(JSON.stringify(score)).toBe(frozen);
+});
+function metadataFixture(){return {id:"point-selection-1-ready",runId:"r",bindings:{source:"s"},snapshot:{model:{generation:1,identityHash:"m"},viewport:{
+  canvas:{cssLeft:0,cssTop:0,cssWidth:400,cssHeight:300,bufferWidth:800,bufferHeight:600,dpr:2},labels:{enabled:false,renderedCount:0,budget:200},
+  geometry:{mode:"schematic",odGeneration:0,odStatus:"idle"},camera:{sequence:1,kind:"perspective",position:[1,2,3],target:[0,0,0],up:[0,1,0],localRenderOrigin:[0,0,0],fovDegrees:45,near:.1,far:1000,aspect:4/3}}},
+  presentation:{browserDpr:2,windowWidth:1440,windowHeight:920,theme:"light",density:"comfortable",panels:[{visible:true,width:300,height:400},{visible:true,width:300,height:400}]}};}
+test("required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions",()=>{
+  const value=metadataFixture(),expected={runId:"r",bindings:value.bindings};validateBoundaryMetadata(value,expected);
+  for(const mutate of [(v:any)=>v.snapshot.viewport.canvas.cssWidth=0,(v:any)=>v.snapshot.viewport.canvas.bufferWidth=999,
+    (v:any)=>v.presentation.browserDpr=NaN,(v:any)=>v.snapshot.viewport.labels.renderedCount=1,(v:any)=>v.snapshot.viewport.labels.renderedCount=-1,
+    (v:any)=>v.snapshot.viewport.camera.position=[0,Infinity,0],(v:any)=>v.presentation.theme=null,(v:any)=>v.presentation.panels[0].visible=false,
+    (v:any)=>v.snapshot.viewport.geometry={mode:"actual-od",odStatus:"idle",odGeneration:0},(v:any)=>v.bindings.source="drift"]){const bad=structuredClone(value);mutate(bad);expect(()=>validateBoundaryMetadata(bad,expected)).toThrow();}
+  for(const mutate of [(v:any)=>v.presentation.theme="dark",(v:any)=>v.snapshot.model.generation++,(v:any)=>v.snapshot.viewport.canvas.cssLeft++]){const bad=structuredClone(value);mutate(bad);expect(()=>validateBoundaryMetadata(bad,expected,value)).toThrow("drift");}
+  const changed=structuredClone(value);changed.snapshot.viewport.camera.position=[4,5,6];changed.snapshot.viewport.labels.enabled=true;changed.snapshot.viewport.labels.renderedCount=3;validateBoundaryMetadata(changed,expected,value);
+});
+test("keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers",async()=>{
+  const calls:string[]=[],page:any={getByTestId:()=>({inputValue:async()=>"",focus:async()=>calls.push("focus")}),keyboard:{insertText:async(q:string)=>calls.push(`insert:${q}`)}};
+  await prepareFilterInput(page,100);calls.push("arm-first-input");await insertFilterQuery(page,"pipe 42");calls.push("stop-final-content");
+  expect(calls).toEqual(["focus","arm-first-input","insert:pipe 42","stop-final-content"]);expect(FILTER_STIMULUS.expectedInputEvents).toBe(1);
+  page.getByTestId=()=>({inputValue:async()=>"stale"});await expect(prepareFilterInput(page,100)).rejects.toThrow();
+});
+test("reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles",()=>{
+  const profile={schema:"ui-foundation.reference-profile/v1",cohortId:"c",productRevision:CHARACTERIZATION_PRODUCT_REVISION,hostModel:"Apple M5 Max",memoryBytes:128*1024**3,
+    refreshHz:60,externallyVerified:true,verificationEvidence:"external.json",verifiedAt:"2026-09-17T23:00:00Z",viewport:[1440,920],browserDpr:2,effectiveDprCap:2};
+  const host={model:"Apple M5 Max",memoryBytes:profile.memoryBytes};validateReferenceProfile(profile,"c",host);
+  for(const bad of [{...profile,refreshHz:120},{...profile,externallyVerified:false},{...profile,cohortId:"other"}])expect(()=>validateReferenceProfile(bad,"c",host)).toThrow();
+  expect(()=>validateReferenceProfile(profile,"c",{...host,memoryBytes:1})).toThrow();
+  const identity={name:"LG",vendor:"v",product:"p",serial:"s",pixels:"3840 x 2160",resolution:"1920 x 1080 @ 60.00Hz",mirror:"spdisplays_off"};
+  const display={_name:identity.name,"_spdisplays_display-vendor-id":"v","_spdisplays_display-product-id":"p","_spdisplays_display-serial-number":"s",_spdisplays_pixels:identity.pixels,_spdisplays_resolution:identity.resolution,spdisplays_mirror:identity.mirror,spdisplays_main:"spdisplays_yes",spdisplays_online:"spdisplays_yes"};
+  const raw={SPDisplaysDataType:[{sppci_model:"Apple M5 Max",spdisplays_ndrvs:[display]}]};
+  expect(validateDisplayProfile(raw,Object.fromEntries(Object.entries(identity).reverse()))).toEqual(identity);
+  for(const bad of [{SPDisplaysDataType:[]},{SPDisplaysDataType:[{sppci_model:"Apple M5 Max",spdisplays_ndrvs:[display,display]}]}])expect(()=>validateDisplayProfile(bad,identity)).toThrow();
+  expect(()=>validateDisplayProfile(raw,{...identity,resolution:"120 Hz"})).toThrow();
+});
+
+test("product inventory rejects omission duplicates split overlap and wrong final provenance",async()=>{
+  const {validateInventoryCoverage,validateFinalProductProvenance}=await import("./full-cohort-controller");
+  const root="apps/desktop/src",actual=[`${root}/App.tsx`,`${root}/App.test.tsx`],production=[{path:actual[0]}],testOnly=[{path:actual[1]}];
+  validateInventoryCoverage([...production,...testOnly],actual,root);
+  for(const bad of [production,[...production,...testOnly,...testOnly],[...production,{path:`${root}/omitted.ts`} ]])expect(()=>validateInventoryCoverage(bad,actual,root)).toThrow();
+  validateFinalProductProvenance("final",CHARACTERIZATION_PRODUCT_REVISION,CHARACTERIZATION_PRODUCT_REVISION,false);
+  for(const [stage,revision,head,same] of [["preliminary",CHARACTERIZATION_PRODUCT_REVISION,CHARACTERIZATION_PRODUCT_REVISION,false],["final","wrong",CHARACTERIZATION_PRODUCT_REVISION,false],["final",CHARACTERIZATION_PRODUCT_REVISION,"wrong",false],["final",CHARACTERIZATION_PRODUCT_REVISION,CHARACTERIZATION_PRODUCT_REVISION,true]] as const)expect(()=>validateFinalProductProvenance(stage,revision,head,same)).toThrow();
+});
+test("frozen actual product/profile inputs validate read-only when explicitly supplied",async()=>{
+  test.skip(!process.env.D70_WRITER_PREPARED_INPUTS,"runner input file not supplied");
+  const prepared=JSON.parse(await readFile(process.env.D70_WRITER_PREPARED_INPUTS!,"utf8"));
+  const env=prepared.environment;const {bindReferenceProfile}=await import("./characterization-mode");
+  expect((await bindReferenceProfile(env)).record.cohortId).toBe(env.UI_FOUNDATION_COHORT_ID);
+  const {validateCharacterizationProduct}=await import("./full-cohort-controller");
+  const bytes=await readFile(env.UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST);
+  expect(createHash("sha256").update(bytes).digest("hex")).toBe(env.UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST_SHA256);
+  const bundle=JSON.parse(bytes.toString());const binding:any={sourceStage:env.UI_FOUNDATION_CANDIDATE_SOURCE_STAGE,candidateSourceRoot:env.UI_FOUNDATION_CANDIDATE_SOURCE_ROOT};
+  await validateCharacterizationProduct(binding,bundle);
+  const changed=structuredClone(bundle);changed.mutableTestOnlySourceSnapshot[0].sha256="0".repeat(64);
+  await expect(validateCharacterizationProduct(binding,changed)).rejects.toThrow("bytes drift");
+});

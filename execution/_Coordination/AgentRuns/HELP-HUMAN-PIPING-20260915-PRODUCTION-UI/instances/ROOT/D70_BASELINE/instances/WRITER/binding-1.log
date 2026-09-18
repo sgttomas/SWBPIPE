@@ -1,0 +1,11 @@
+
+Running 2 tests using 1 worker
+
+(node:63938) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63938) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1052:1 › product inventory rejects omission duplicates split overlap and wrong final provenance (11ms)
+  ✓  2 apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1060:1 › frozen actual product/profile inputs validate read-only when explicitly supplied (93ms)
+
+  2 passed (705ms)
