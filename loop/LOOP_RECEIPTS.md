@@ -3222,3 +3222,12 @@
   - Model-Attribution: Actual HELP_HUMAN, WORKING_ITEMS and TASK allocations, parentage, supplied context, scopes, returns and instruction/config enforcement limits are recorded in the owning phase graph and sealed dispatch/return records.
   - Checks: Complete independent candidate/evidence review, clean registered DEC-025 sweep, full practitioner harness, self-check, receipt validation and local governance gates: PASS. Final metadata review and affected backchecks are required before publication; actual-head hosted CI and merge remain pending at this receipt commit.
   - Gate-Outcome: `EXECUTED` — HELP_HUMAN accepts the truthful incomplete characterization and bounded instrument under D-70 and the recorded owner continuation/profile directions. The report supplies D-70's performance handoff condition; product picking repair, redesigned-product performance acceptance and independent-usability duties remain open in their owning handoffs. Formal decomposition, DAG, lifecycle, stage and release state are unchanged. Standard claim fence F-PIP-2 applies.
+
+- **2026-09-18 — Receipt 145** (bounded picking repair and fresh demonstration route).
+  - Receipt-ID: `Receipt-145`
+  - Examined-Through: `1f977a9352ddd370ed54b8cb363b2a2777f56213`
+  - Parent-Receipt: `Receipt-144`
+  - Pointers: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/ORCHESTRATION_PLAN.md`; same run `HANDOFF_STATE.md`, `instances/REVIEW/RETURN.md` and `_run_records/CLOSEOUT_CHECKS.json`. The scoped PR owns final candidate CI and merge history.
+  - Model-Attribution: HELP_HUMAN Astra/high; direct Type2 implementation, independent expectations, benchmark adapter, fresh review and independent runner configured Astra/low. Parentage, scopes, supplied hashes and instruction/config enforcement limits are in the owning work graph/briefs/returns.
+  - Checks: Fresh complete-diff review, clean complete registered DEC-025 sweep, practitioner harness, self-check, receipt and local gates: PASS. Final metadata backcheck and actual-head CI/merge remain separate prepublication gates.
+  - Gate-Outcome: `EXECUTED` — root accepts the bounded technical repair under the exact owner direction recorded in the run. A separately bound post-merge N10000 demonstration is prepared, not executed or passed. Historical D70 verdicts, redesigned-product performance obligations, independent-usability holds, decomposition/DAG/stage/lifecycle/release state remain unchanged. Standard F-PIP-2/DEC-081 fence applies.

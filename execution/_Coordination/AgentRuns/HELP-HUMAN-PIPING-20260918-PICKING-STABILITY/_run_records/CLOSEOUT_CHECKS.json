@@ -1,0 +1,86 @@
+{
+  "schema": "piping.picking-stability-closeout/v1",
+  "testedCandidate": "d0177367c5c240edce5e9867b6a339fa9faf9890",
+  "reviewedSourceCandidate": "683cd5ab26f7de5f700a5b9a979ea2993cbf747f",
+  "requiredChecks": "PASS",
+  "rawResult": {
+    "path": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/EXECUTION_RESULT.json",
+    "sha256": "2e04c59f8ec285dea4e256814f573b7f88ae48fce7106ac6ba3e1d28b4d6b947"
+  },
+  "checks": [
+    {
+      "name": "DEC025_sweep",
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/DEC025_sweep.log",
+      "sha256": "74b3f920239de614857fb9e264a2d6e94406517c975fded58b6ecf36cf198531"
+    },
+    {
+      "name": "routed_tools_tests",
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/routed_tools_tests.log",
+      "sha256": "6a69c81eae09ea3ed230eabd7d4aa6f7c4f95f34a0d59df57f8ee4f9caef03b0"
+    },
+    {
+      "name": "self_check",
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/self_check.log",
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+    },
+    {
+      "name": "receipt",
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/receipt.log",
+      "sha256": "07f82849e9326e82bc30b735e7427e85e5975d277e644d4bf300f984da3d5363"
+    },
+    {
+      "name": "agent_contract",
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/agent_contract.log",
+      "sha256": "74e955ec260140f91d03643f678c994fcd26c7d5bb29008e0b04fbcda71456a6"
+    },
+    {
+      "name": "workflow_contract",
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/workflow_contract.log",
+      "sha256": "275b16c8086cd5aca35563635a124b38fa1e750929bc45b140dbfa9b083d52b4"
+    },
+    {
+      "name": "conflict_markers",
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/conflict_markers.log",
+      "sha256": "77e86fa18dd10ff92a9b2ba59fe74a0ae6d5a364749064e44aa2301c274b6df8"
+    },
+    {
+      "name": "G0",
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/G0.log",
+      "sha256": "19878a424b48ca671d3e758269df15cb764f6158b2626ff8670d80c93cd9b11c"
+    },
+    {
+      "name": "G1",
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/G1.log",
+      "sha256": "a446575a34e6896cb92123eab0cfd5c4e0180db7ff62699e5db07b438fe9be37"
+    },
+    {
+      "name": "G2",
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/G2.log",
+      "sha256": "8a2425c5d13c122eb51b2482911778315724f5d3854922916c43f49cc6247618"
+    },
+    {
+      "name": "G3",
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/G3.log",
+      "sha256": "02ef198ca71b3d832101ae4e4fd358f9e4c65732da5f0bc0d77b8f2bdd7ab0b6"
+    },
+    {
+      "name": "G4",
+      "exitCode": 0,
+      "log": "/Users/ryan/.codex/task-runtime-cache/chirality-picking-stability-20260918/verification/G4.log",
+      "sha256": "351294bead70acfb7b29b36d7f301fb62d66ae82b6f5997411df5ffda85cf2b4"
+    }
+  ],
+  "actualHeadCiAndMerge": "pending; owning PR records final state",
+  "postMergeDemonstration": "pending distinct owner-requested N10000 attempt"
+}

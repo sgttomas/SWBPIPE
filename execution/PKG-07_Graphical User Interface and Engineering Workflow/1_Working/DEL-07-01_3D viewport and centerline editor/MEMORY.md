@@ -495,3 +495,7 @@ The report and canonical evidence are owned by `execution/_Coordination/AgentRun
 ## 2026-09-17 — D-70 local technical closeout
 
 The incomplete characterization report and bounded instrument passed complete independent review and the clean registered/local gates. The owning `D70_BASELINE/FINAL_ACCEPTANCE_AND_HANDOFF.md` and `_run_records/CLOSEOUT_CHECKS.json` preserve exact source/evidence attribution and remaining publication gates. No picking repair, new timing run, performance acceptance, independent-usability closure or lifecycle change is implied.
+
+## 2026-09-18 — shared-endpoint picking stability
+
+The owner directed implementation of the recorded point58 repair and a fresh N10000 run after landing. Stable sphere/capsule residuals and endpoint handling preserve selection policy; focused independent expectations and full registered verification are bound in [the owning run](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-PICKING-STABILITY/HANDOFF_STATE.md). The new instrument route is a separate single demonstration, retaining frozen oracle/workload/targets and original D70 outcomes. Current source/CI/merge and later runtime outcomes remain separately attributed. No lifecycle, dependency, redesign-performance or usability closure.

@@ -45,7 +45,7 @@
       "model": "gpt-6-astra",
       "effort": "low",
       "role": "Type2 independent runner",
-      "status": "offline_preparation_only",
+      "status": "offline_preparation_complete_runtime_held_until_merge",
       "briefSha256": "c86f46762c0f47f0fe9b9d9ba391a5b30cf97406b917d73c9ff863672b650b12"
     }
   },
@@ -57,7 +57,13 @@
     "projectContract": {
       "path": "projects/chirality-piping/docs/CONTRACT.md",
       "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3"
-    }
+    },
+    "agents/AGENT_HELP_HUMAN.md": "0c2fe7a3097ad26c93c0267e4da6aaf90c9264489df8dc368fad657bcac69183",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    ".agents/skills/chirality-change/SKILL.md": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba",
+    ".agents/skills/software-code-review/SKILL.md": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+    "projects/chirality-piping/docs/CONTRACT.md": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+    "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b"
   },
   "sequence": [
     "step0",
@@ -68,5 +74,11 @@
     "PR+CI+merge",
     "single-new-N10000",
     "report"
-  ]
+  ],
+  "technicalAcceptance": {
+    "status": "PASS_required_local_checks",
+    "candidate": "d0177367c5c240edce5e9867b6a339fa9faf9890",
+    "scope": "bounded picking repair and fresh-demo adapter",
+    "hostedCiAndMerge": "owning PR; pending at metadata preparation"
+  }
 }

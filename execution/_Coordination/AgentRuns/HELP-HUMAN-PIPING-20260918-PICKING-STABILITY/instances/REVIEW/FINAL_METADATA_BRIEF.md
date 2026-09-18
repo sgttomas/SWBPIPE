@@ -1,0 +1,3 @@
+# Final metadata backcheck
+
+Same read-only TASK review scope/settings as LAUNCH_BRIEF; no writes or delegation. Root supplies new frozen candidate. Carry prior32-path source review from683cd5ab26f7de5f700a5b9a979ea2993cbf747f and reviewed runner-brief hash; independently verify exact source equality and inspect every additive/changed metadata path through new candidate. Check full clean DEC025/local check result raw references and hashes, handoff claims, DEL-07-01 Remaining/MEMORY state, receipt145 and actual model/context attribution. No new runtime; actual-head CI/merge and post-merge one-run demonstration remain pending. Return PASS/no-actionable or concrete findings; root persists exact return.
