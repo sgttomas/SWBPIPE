@@ -171,11 +171,12 @@
       "id": "UX-SPEC",
       "role": "HELPS_HUMANS",
       "purpose": "UX specification mapped to typed interfaces and the constraints sheet",
-      "status": "active",
+      "status": "complete",
       "model_requested": "fable",
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/UX-SPEC-01_ux_specification.md",
-      "return": "instances/UX-SPEC/"
+      "return": "instances/UX-SPEC/",
+      "note": "Accepted 2026-09-18; reconcile names against design system V1.1 once accepted"
     },
     {
       "id": "RENDERING-BRIEF",
@@ -294,5 +295,5 @@
       "ACCEPTANCE-PROPOSAL"
     ]
   ],
-  "current_frontier": "DESIGN-SYSTEM-02, UX-SPEC, RESEARCH-F"
+  "current_frontier": "DESIGN-SYSTEM-02, RESEARCH-F (correction), then MOCKS-02 and DECISION-PACKET"
 }
