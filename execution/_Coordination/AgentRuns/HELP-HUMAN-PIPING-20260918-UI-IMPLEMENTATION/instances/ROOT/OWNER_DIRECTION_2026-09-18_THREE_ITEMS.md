@@ -82,4 +82,14 @@ ROOT told the owner that the acceptance clause survived in two emitted notices a
 - The claims lint is not edited. It requires the sentence nowhere, so nothing in this change needs an instruction-surface authorization.
 - Codified as `DEC-107` (the acceptance text), `DEC-108` (the two wordings) and `DEC-109` (the preference reset).
 
+## The owner's confirmation of ROOT's reading
+
+ROOT reported the corrected inventory and its reading to the owner (three notices, thirteen documents, the two assertions that move; the PRD, `docs/CONTRACT.md`, `docs/PROFESSIONAL_BOUNDARY.md`, `docs/SPEC.md` and the `ScopeOfWork.md` files left as they are). The owner answered at 2026-09-18T22:50:46Z, SHA-256 `6ee969ab3fb1c77e691ecf91367e094201641c9b7e0380a6663f3a63b0597197` (stored-transcript custody, not transport bytes), verbatim:
+
+~~~
+Your reading is correct; carry on.
+~~~
+
+The wider application is therefore the owner's direction and no longer only ROOT's reading. The nine documents need no separate commit for the purpose ROOT gave; ROOT keeps the change in one reviewed candidate.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

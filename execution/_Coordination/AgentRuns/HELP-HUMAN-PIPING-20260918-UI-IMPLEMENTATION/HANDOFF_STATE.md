@@ -41,4 +41,6 @@ Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, ROOT (HELP_HUMAN, Agent 0). 
 - 2026-09-18T22:40Z: A1F-FOLLOWUPS sealed and launched in a second worktree on `codex/swbpipe-a1-followups-20260918`. It goes to its own reviewed pull request with the full sweep (`core/**` and `schemas/**` change). B1-TOKENS continues in the first worktree. Both pull requests edit this file, the index and the work graph; the second to merge takes `origin/main` first and keeps both sets of entries.
 - For Tranche A2, noticed while taking this inventory: 37 download file names in `apps/desktop/src` still begin with the former product name. A saved file's name is visible to the user; A1's brief did not name them and the identity tranche should.
 
+- 2026-09-18T22:50Z, the owner confirmed ROOT's wider reading of the acceptance-text direction: "Your reading is correct; carry on." (recorded in `instances/ROOT/OWNER_DIRECTION_2026-09-18_THREE_ITEMS.md`; `DEC-107` amended before merge to say so). Nothing about it is open with the owner.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
