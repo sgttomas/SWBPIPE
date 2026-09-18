@@ -222,15 +222,16 @@
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/RESEARCH-G_rendering_workload_classification.md",
       "return": "instances/RESEARCH/G_rendering_workload_classification.md",
-      "status": "running"
+      "status": "complete",
+      "note": "Accepted 2026-09-18: 38 rows; 10 observable now, 7 needing a harness adaptation, 21 needing implementation first; hash in briefs/_INDEX.md"
     },
     {
       "id": "OBSERVATION-BRIEF",
       "role": "HELP_HUMAN",
       "purpose": "Bounded observation brief to the piping session for supported behaviour only; future observations listed separately",
-      "status": "pending",
+      "status": "complete",
       "return": "instances/ROOT/OBSERVATION_BRIEF_2026-09-18.md",
-      "note": "Blocks neither the completed baseline handoff nor redesign progress"
+      "note": "Prepared 2026-09-18 with notice ../../NOTICE_2026-09-18_OBSERVATION_BRIEF.md; delivery to the piping session is through the owner; blocks nothing"
     },
     {
       "id": "OWNER-D71-RULING",
@@ -407,7 +408,7 @@
       "IMPLEMENTATION-HANDOFF"
     ]
   ],
-  "current_frontier": "With the owner: D-71's nine rulings, Q-15 to Q-22, D-72's six items. Running: RESEARCH-G, then the observation brief. The baseline tranche blocks nothing (condition satisfied 2026-09-18). Implementation is not authorized by this assignment.",
+  "current_frontier": "With the owner: D-71's nine rulings, Q-15 to Q-22, D-72's six items, and relay of the observation-brief notice. No child is running. The baseline tranche blocks nothing (condition satisfied 2026-09-18). Implementation is not authorized by this assignment.",
   "frontier_history": [
     {
       "until": "2026-09-18",

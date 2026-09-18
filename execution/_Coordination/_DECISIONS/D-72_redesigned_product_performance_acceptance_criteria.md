@@ -22,6 +22,8 @@ Six items, ruled separately. The owner may accept, amend, choose an alternative 
 
 **Rationale.** A limit and the display it is read on are one statement (D-70, second correction). The internal display is the one display every unit of the reference host has; an external monitor is whatever the office supplies. That makes the internal display the reproducible reference, a reason that holds whatever any run scored. The internal profile entered the record because the external display was unavailable before any 10,000-pipe launch ([owner direction](../AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/OWNER_DIRECTION_INTERNAL120_20260917.md)), not to obtain a result. The 60 Hz observation is kept because V79 cautions against treating 60 Hz as unsuitable, and because a 16.7 ms limit read on a 16.67 ms refresh has no margin: Chromium's future-display estimate alone can move an interval across it. Publishing that run, rather than dropping the display, keeps the limitation visible instead of deciding it silently.
 
+**Instrument consequence.** The instrument's boundary validator today admits device pixel ratio 2 at 1440 × 920 only (RESEARCH-G §3.2). The 1440 × 900 window, the two canvas configurations of item 3 and the device pixel ratio 1 observation each need a second frozen boundary profile, bound before the cohort and applied to baseline and candidate alike.
+
 **Alternatives.** B: gate on both displays. C: gate on 60 Hz only, as D-68 first ran. Under B or C the owner should also rule whether a p95 interval equal to the refresh period is the intended concept at 60 Hz, or a missed-refresh ratio is; this packet does not propose that change.
 
 ### Item 3 — freeze the redesigned product's geometry and label populations

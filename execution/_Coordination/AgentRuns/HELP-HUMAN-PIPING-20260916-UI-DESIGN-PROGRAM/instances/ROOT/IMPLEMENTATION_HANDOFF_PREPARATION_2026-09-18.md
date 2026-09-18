@@ -45,14 +45,16 @@ A first tranche that stays inside the first two rows can deliver the shell, the 
 
 ## 4. Proposed semantic changes already identified
 
-To be completed from RESEARCH-G §2 and the revision pass. Known now:
+From [RESEARCH-G](../RESEARCH/G_rendering_workload_classification.md) §2 and the operations map; completed by the revision pass. Source paths are relative to `{WORKING_ROOT}`.
 
 | Change | Today | Proposed | Needs |
 |---|---|---|---|
-| Isolate | To be cited from RESEARCH-G | Dims everything else to 20 % opacity; Hide removes and the HUD shows the count | A decision that dimming replaces, or joins, the current behaviour |
+| Isolate | Hides: the complement goes to the same hidden-key mask as Hide, which removes geometry (`apps/desktop/src/features/viewport/viewportSelection.ts:246-276`; `viewportResource.ts:322-341`) | Dims everything else to 20 % opacity; Hide removes and the HUD shows the count | A decision that dimming replaces, or joins, the current behaviour |
 | Camera and interface state | Not persisted with the project (G-17) | Per-stage view memory, camera, report-figure preset, label mode, hidden sets persisted | Saved-state requirement; G-17 |
 | Results after a model change | Run cleared on any change (G-11) | Kept as Historical basis, hatched, chips dropped | Typed-interface change with result-integrity review under constraint 3 |
 | Proposal review | One proposal slot, session receipts (G-18) | Per-row decisions, multi-row and batch, persisted receipts | G-18; live arrival is G-19 and held |
+| Selection presentation | Replaces the instance colour (`apps/desktop/src/features/viewport/viewportResource.ts:981-985`), which would destroy result colour | A halo over unchanged colour | Rendering change; the selection and picking foundation itself is kept |
+| Theme on the canvas | The switch changes background, gizmo and selection colour; model colours are literals | Every canvas colour a token with light and dark values, repainted live | Rendering change; G-16 |
 | Checked mark | None | Human row tag outside the model payload | D-71 item 7 ruling; G-08 |
 | Fitted camera state | None | Refit on dock only if unmoved since Fit (Q-20, if the owner agrees) | New interface state |
 | Label mode | Cap of 80 | Budget of one per 3,600 square pixels, with All and Off | Rendering; workload change under D-72 item 3 |
