@@ -4,7 +4,7 @@ Status: RULED — explicit in-session owner direction, 2026-09-18. With this add
 
 ## Owner act
 
-Stored transcript timestamp 2026-09-18t13:55:47.429z, 70 bytes, sha-256 of the extracted bytes `5cf6071cf15d7ccf43b91197e7a712019a2bb15c414ba6f777d65bfc48193bc8`; an in-session extraction from the host's stored transcript, not original transport bytes. The owner's words on this packet: "D-72, item 5: S-1, S-2 but not S-3." The whole message is reproduced in the [D-71 ruling addendum](D-71_RULING_ADDENDUM_2026-09-18.md).
+Stored transcript timestamp 2026-09-18T13:55:47.429Z, 70 bytes, SHA-256 of the extracted bytes `5cf6071cf15d7ccf43b91197e7a712019a2bb15c414ba6f777d65bfc48193bc8`; an in-session extraction from the host's stored transcript, not original transport bytes. The owner's words on this packet: "D-72, item 5: S-1, S-2 but not S-3." The whole message is reproduced in the [D-71 ruling addendum](D-71_RULING_ADDENDUM_2026-09-18.md).
 
 ## Adopted bounded effect
 

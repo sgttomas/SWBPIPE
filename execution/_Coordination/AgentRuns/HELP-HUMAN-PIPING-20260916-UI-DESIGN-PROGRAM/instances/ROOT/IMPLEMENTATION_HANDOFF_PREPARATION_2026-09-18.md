@@ -7,7 +7,7 @@ Status: ROOT record, 2026-09-18, successor ROOT. **The design work is not ready 
 | # | Prerequisite | State |
 |---|---|---|
 | P-1 | D-70's performance handoff condition | Satisfied ([reconciliation](PIPING_HANDOFF_RECONCILIATION_2026-09-18.md)) |
-| P-2 | D-71 ruled, item by item; deferred items named as deferred | Ruled 2026-09-18, all nine items (`DEC-099` to `DEC-104`) |
+| P-2 | D-71 ruled, item by item; deferred items named as deferred | Ruled 2026-09-18, all nine items (`DEC-099` to `DEC-105`; `DEC-105` supersedes `DEC-099`: the maturity sentence is removed everywhere, and the claims lint's `MISSING_MATURITY_BANNER` anchor changes in the same tranche) |
 | P-3 | Q-15 to Q-22 answered ([preparation](REVISION_PASS_PREPARATION_2026-09-18.md) §2) | Answered 2026-09-18; Q-20 amended |
 | P-4 | Revision pass accepted: design system V1.2, UX specification V1.1, frames; operations map re-checked against the then-current `HEAD` | Running: DESIGN-SYSTEM-03 launched 2026-09-18 |
 | P-5 | D-72 ruled (performance acceptance criteria), or the owner states that implementation may start before it and qualification waits for it | Ruled 2026-09-18, complete and frozen (ruling and addendum) |

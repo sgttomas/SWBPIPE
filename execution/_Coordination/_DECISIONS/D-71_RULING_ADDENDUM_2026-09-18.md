@@ -7,7 +7,9 @@ Status: RULED — explicit in-session owner direction, 2026-09-18. With this add
 The first ruling left item 7 open at the owner's request. ROOT put option B's implications to the owner in session (summarised in the ruling record, "Item 7"). The owner answered, stored transcript timestamp 2026-09-18T13:55:47.429Z, 70 bytes, SHA-256 of the extracted bytes `5cf6071cf15d7ccf43b91197e7a712019a2bb15c414ba6f777d65bfc48193bc8`; an in-session extraction from the host's stored transcript, not original transport bytes:
 
 > D-71, item 7: A.
+>
 > D-72, item 5: S-1, S-2 but not S-3.
+>
 > I accept SCA-010.
 
 ## Adopted bounded effect

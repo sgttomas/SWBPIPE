@@ -176,7 +176,7 @@
       "role": "HELP_HUMAN",
       "purpose": "One owner decision packet: maturity line, boundary-sentence placement, product rename, and items 4 to 9, with the mock frames as evidence",
       "status": "ruled",
-      "note": "D-71 PROPOSAL drafted 2026-09-18; RULED 2026-09-18 (ruling record and addendum under ../../_DECISIONS/; DEC-099 to DEC-104). History: register row read AWAITING_RULING until the ruling.",
+      "note": "D-71 PROPOSAL drafted 2026-09-18; RULED 2026-09-18 (ruling record and addendum under ../../_DECISIONS/; DEC-099 to DEC-105; second addendum D-71_RULING_ADDENDUM_2_2026-09-18.md removes the maturity sentence). History: register row read AWAITING_RULING until the ruling.",
       "return": "../../_DECISIONS/D-71_interface_program_governed_text_decisions.md"
     },
     {
@@ -246,7 +246,7 @@
       "role": "HELP_HUMAN",
       "purpose": "Human Ruling section, D-71 ruling record, register row, DEC rows in SOFTWARE_DECOMP §12, scope-change bundle for PRD §19.3 if item 3(i) is ruled, notice to the piping session",
       "status": "complete",
-      "note": "Human Ruling section, ruling record, register row, DEC-099 to DEC-103, SCA-010 bundle (awaiting separate acceptance), notice ../../NOTICE_2026-09-18_D71_RULINGS.md. Item 7 outstanding."
+      "note": "Human Ruling sections, ruling record and two addenda, register row RULED, DEC-099 to DEC-105 (DEC-105 supersedes DEC-099), SCA-010 accepted by the owner with execution pending, notice ../../NOTICE_2026-09-18_D71_RULINGS.md. All nine items ruled."
     },
     {
       "id": "REVISION-PASS",
@@ -292,7 +292,8 @@
       "mechanism": "Agent tool, general-purpose, background",
       "brief": "briefs/REVIEW-02_ruling_records_review.md",
       "return": "instances/REVIEW/REVIEW-02_RETURN.md",
-      "status": "findings_corrected_backcheck_pending"
+      "status": "complete",
+      "note": "First pass FINDINGS (one major in SCA-010, corrected); backcheck at 48d3d3af6 cleared all twelve and found four minor and three trivial stale-pointer items, corrected"
     }
   ],
   "edges": [

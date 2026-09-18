@@ -242,4 +242,6 @@ Return of REVIEW-02, retained at `../instances/REVIEW/REVIEW-02_RETURN.md` (ROOT
 
 Message to the running DESIGN-SYSTEM-03 child, 2026-09-18 about 14:03Z, by the host's message-to-agent mechanism, after its brief was sealed: two later owner rulings to apply under the same rules, write scope and acceptance. First, the maturity sentence is removed entirely (the owner: "No, remove "Technical preview — not a released product." in all instances of it."), superseding ruling 2 of the sealed brief, with the acceptance search extended to find no "Technical preview" and no "not a released product". Second, the Checked mark is ruled option A with the addendum's exact words, superseding ruling 7 of the sealed brief. The sealed brief's bytes and hash are unchanged; this paragraph is the record of the supplement.
 
+Backcheck of REVIEW-02 at `48d3d3af68d54cd92ac70281035e92db1d49140e`: all twelve first-pass findings cleared; four minor and three trivial stale-pointer findings, corrected in the next commit and recorded in the retained return. The final commit carries only those corrections and this record.
+
 The returns are research inputs to the design program. They are not accepted findings, not decomposition truth and not product claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
