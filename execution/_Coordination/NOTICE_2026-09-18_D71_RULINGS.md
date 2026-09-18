@@ -4,16 +4,16 @@ Date: 2026-09-18. From: the interface design program (HELP_HUMAN successor ROOT 
 
 ## What changed
 
-The owner ruled [D-71](_DECISIONS/D-71_RULING_2026-09-18.md) on 2026-09-18, codified as `DEC-099` to `DEC-103`:
+The owner ruled [D-71](_DECISIONS/D-71_RULING_2026-09-18.md) on 2026-09-18, with two addenda the same day, codified as `DEC-099` to `DEC-105`:
 
-- The maturity sentence lives in the shell's information popover and About only (`DEC-099`).
+- The maturity sentence is removed from every live surface (`DEC-105`, superseding `DEC-099`'s popover-and-About placement the same day); the claims lint's `MISSING_MATURITY_BANNER` anchor and embedded text change in the same tranche.
 - The acceptance sentence and its variants are removed from every product surface (`DEC-100`): 53 placements in 21 files with their test assertions.
 - The product is named SWBPIPE and only SWBPIPE, in the display layer and the identity layer alike, and is not called a "Technical Preview" as part of its name (`DEC-101`). Carried obligations: the product keeps reading documents with the former kinds and namespace; the renamed bundle identifier needs a new App ID, an owner act; the PRD's text changes only through SCA-010 on the owner's separate acceptance.
 - Status and evidence labels come from one registered table (`DEC-102`); the seven pinned label assertions move with it.
 - Hanger libraries, historical-run wording and agent card labels are confirmed; the vendor name "CAEPIPE" appears nowhere in the product or the user guide, and the export is described only as a `.mbf` model batch file (`DEC-103`).
-- **Not ruled:** item 7, the Checked mark's classification.
+- The Checked mark is a PRD §16.3 tag, option A (`DEC-104`).
 
-The owner ruled [D-72](_DECISIONS/D-72_RULING_2026-09-18.md) in part: the limits, gated quantities, reference profile, redesigned geometry, label populations and workloads are accepted; the cohort and pass rule is open, with a lighter plan proposed.
+The owner ruled [D-72](_DECISIONS/D-72_RULING_2026-09-18.md) in part: the limits, gated quantities, reference profile, redesigned geometry, label populations and workloads are accepted; the run plan is one run per size per canvas configuration, repeated only when a result is within 20 % of its limit, with no fresh baseline cohort ([addendum](_DECISIONS/D-72_RULING_ADDENDUM_2026-09-18.md)). SCA-010, the PRD name amendment, is accepted by the owner with execution pending.
 
 ## What it does not change
 

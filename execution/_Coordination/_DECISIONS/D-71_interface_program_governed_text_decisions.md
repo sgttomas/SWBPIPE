@@ -144,4 +144,13 @@ After ROOT put option B's implications to the owner, the owner ruled (stored tra
 Disposition: item 7 is ruled **option A**. All nine items are now ruled. Effect and codification are in the [ruling addendum](D-71_RULING_ADDENDUM_2026-09-18.md).
 
 
+## Human Ruling, item 1 superseded, 2026-09-18 (appended)
+
+The owner corrected ROOT's reading that the maturity sentence stays under item 1 B (stored transcript timestamp 2026-09-18T14:01:23.493Z, 82 bytes of UTF-8, SHA-256 `5c01428f3a49a383e95b1a5a6871fd5f8ad05c031f148e057f886b11101d0f78`; an in-session extraction from the host's stored transcript, not original transport bytes):
+
+> No, remove "Technical preview — not a released product." in all instances of it.
+
+Disposition: item 1's option B is superseded. The maturity sentence is removed from every live surface. Effect, boundary and the lint obligation are in the [second ruling addendum](D-71_RULING_ADDENDUM_2_2026-09-18.md); codified as `DEC-105`.
+
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
