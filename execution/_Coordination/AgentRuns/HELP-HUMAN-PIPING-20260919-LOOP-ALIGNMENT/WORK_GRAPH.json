@@ -11,7 +11,7 @@
   "slices": [
     {
       "id": "LOOP-ALIGNMENT",
-      "state": "initial independent review passed; owner-directed entrypoint amendment awaiting backcheck",
+      "state": "instructions and amendment reviewed; local checks complete; final metadata backcheck and PR CI/merge pending",
       "dependencies": [],
       "blockers": [],
       "semantic_changes": [
@@ -35,8 +35,11 @@
       "evidence": [
         "OWNER_ACCEPTANCE.md",
         "ADOPTION_TRANSFORMS.json",
-        "STEERING_AMENDMENT.md"
+        "STEERING_AMENDMENT.md",
+        "RETURN_BINDINGS.json",
+        "FINAL_CHECKS.json"
       ]
     }
-  ]
+  ],
+  "closure_pointer": "The scoped PR head, checks, final metadata review and merge event own final publication disposition; historical record states above retain their candidate attribution."
 }

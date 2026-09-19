@@ -23,3 +23,15 @@ review covers this amendment and metadata. No test, numerical criterion, product
 source, lane head or existing run record changes.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+## Owner clarification (verbatim)
+
+~~~
+in our case, the handoff prompt is the steering (mostly - it also included elements of a loop instruction).
+~~~
+
+SHA-256 without trailing newline: `245ae7cb93a9f09f5277369c0f368286b220295c5fef71f629f735d19b8c84f4`.
+
+Agent 0 reading: the handoff prompt is this session's steering and state
+navigation; reusable rules belong in the standing instructions. No additional
+steering file or separate approval layer is introduced.
