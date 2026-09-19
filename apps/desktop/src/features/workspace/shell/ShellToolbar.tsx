@@ -111,7 +111,7 @@ export function ShellToolbar({ issueCount, children }: { issueCount: number; chi
           aria-label={`Issues, ${issueCount}`}
           title="Issues"
           onClick={() => setIssuesDrawerOpen((open) => !open)}
-        ><Flag size={14} aria-hidden="true" /><span>{issueCount}</span></button>
+        ><Flag size={14} aria-hidden="true" /><span className="shell-toolbar-label">Issues</span><span>{issueCount}</span></button>
       </div>
       <div className="shell-toolbar-group shell-panel-toggles" role="group" aria-label="Panels">
         <span className="shell-reason-anchor">

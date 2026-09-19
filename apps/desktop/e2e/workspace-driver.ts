@@ -57,9 +57,10 @@ export async function closeWorkspacePanels(page: Page): Promise<void> {
 /** The model tree is the Model stage's first tab. */
 export async function showModelTree(page: Page): Promise<void> {
   const host = page.getByTestId("shell-tree-host");
+  // An open page lies over the tree without hiding it from the layout: close it first.
+  const close = page.getByTestId("workspace-dock-close");
+  if (await close.isVisible()) await close.click();
   if (!await host.isVisible()) {
-    const close = page.getByTestId("workspace-dock-close");
-    if (await close.isVisible()) await close.click();
     if (await page.getByTestId("rail-stage-model").getAttribute("aria-current") !== "page") await page.getByTestId("rail-stage-model").click();
     const tab = page.getByTestId("stage-tab-model-tree");
     if (await tab.getAttribute("aria-pressed") !== "true") await tab.click();

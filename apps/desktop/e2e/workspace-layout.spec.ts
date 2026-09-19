@@ -202,6 +202,122 @@ test("D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the
   await testInfo.attach("shell-geometry-1440x900", { body: JSON.stringify({ browserBoth, native: { model, collapsed, both, docked, table } }, null, 2), contentType: "application/json" });
 });
 
+// INTERIM rule (ROOT, slice B3; retires when the routing block moves into the inspector). With the
+// canvas's own authoring panel on screen, the Both view's docked inspector takes its 300 px from the
+// table pane and not from the canvas pane; with no tool armed and nothing pending the specification's
+// rule holds and the table does not move.
+for (const [width, height, table, canvas] of [[1440, 900, 737, 603], [1280, 800, 649, 531]] as const) {
+  test(`interim: an armed drawing tool makes the docked inspector take from the table pane, ${width} x ${height}, native-runtime class`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height });
+    await page.goto("/");
+    await expect(page.getByTestId("viewport-canvas").locator("canvas").first()).toBeVisible();
+    await page.evaluate(() => { (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {}; });
+    await chooseView(page, "model"); await chooseView(page, "both");
+    await expect(page.getByTestId("app-menu-bar")).toHaveCount(0);
+    const surfacesHeight = height - 48 - 24;
+    const intents = page.getByTestId("viewport-editor-intents");
+    const surfaces = page.getByTestId("modeling-workspace");
+
+    await page.getByTestId("toggle-inspector").click();
+    const spec = await readShellGeometry(page);
+    await expect(intents).toHaveClass(/collapsed/);
+    await expect(surfaces).not.toHaveAttribute("data-canvas-authoring", "true");
+    expect(spec.tablePane).toEqual({ x: 56, y: 48, width: table, height: surfacesHeight });
+    expect(spec.canvasPane).toEqual({ x: 56 + table, y: 48, width: canvas - 300, height: surfacesHeight });
+
+    // Arm the pipe tool: the canvas's authoring panel comes on screen, and the session's own reading
+    // of that state (data-canvas-authoring) agrees with the component's class.
+    await page.getByTestId("command-pipe").click();
+    await expect(intents).toHaveClass(/active/);
+    await expect(surfaces).toHaveAttribute("data-canvas-authoring", "true");
+    const armed = await readShellGeometry(page);
+    expect(armed.tablePane).toEqual({ x: 56, y: 48, width: table - 300, height: surfacesHeight });
+    expect(armed.canvasPane).toEqual({ x: 56 + table - 300, y: 48, width: canvas, height: surfacesHeight });
+    expect(armed.inspector).toEqual({ x: width - 44 - 300, y: 48, width: 300, height: surfacesHeight });
+    const drawn = (await page.locator(".viewport-canvas canvas").first().boundingBox())!;
+    expect(drawn.width).toBeGreaterThanOrEqual(200);
+    expect(drawn.height).toBeGreaterThanOrEqual(200);
+    // Nothing closes and nothing is disarmed.
+    await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
+    await expect(page.getByTestId("command-pipe")).toHaveAttribute("aria-pressed", "true");
+    // The splitter follows the table pane's edge and keeps the engineer's stored split.
+    const splitter = (await page.getByTestId("resize-model-tree").boundingBox())!;
+    expect(splitter.x + splitter.width / 2).toBeCloseTo(56 + table - 300, 0);
+    await expect(page.getByTestId("resize-model-tree")).toHaveAttribute("aria-valuenow", "55");
+
+    // The table pane lends down to 320 px and no further; past that the canvas gives the rest.
+    await page.getByTestId("resize-model-tree").focus();
+    for (let press = 0; press < 13; press += 1) await page.keyboard.press("ArrowLeft");
+    await expect(page.getByTestId("resize-model-tree")).toHaveAttribute("aria-valuenow", "29");
+    const lendingMinimum = await readShellGeometry(page);
+    expect(Math.round(lendingMinimum.tablePane!.width)).toBe(320);
+    expect(Math.round(lendingMinimum.canvasPane!.width)).toBe(width - 100 - 320 - 300);
+    for (let press = 0; press < 13; press += 1) await page.keyboard.press("ArrowRight");
+
+    // Disarm (Select): the specification's rule returns.
+    await page.getByTestId("workspace-select").click();
+    await expect(intents).toHaveClass(/collapsed/);
+    const disarmed = await readShellGeometry(page);
+    expect(disarmed.tablePane).toEqual(spec.tablePane);
+    expect(disarmed.canvasPane).toEqual(spec.canvasPane);
+    await testInfo.attach(`interim-inspector-rule-${width}x${height}`, { body: JSON.stringify({ spec, armed, lendingMinimum, disarmed, drawn }, null, 2), contentType: "application/json" });
+  });
+}
+
+test("the collapsed table strip lies over the canvas's foot without covering the scale bar or the axis triad", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.getByTestId("viewport-canvas").locator("canvas").first()).toBeVisible();
+  const rects = () => page.evaluate(() => {
+    const rect = (selector: string) => { const r = document.querySelector(selector)!.getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }; };
+    return { strip: rect('[data-testid="stage-tab-strip"]'), pane: rect(".workspace-pane-tree"), scaleBar: rect(".viewport-scale-bar"), triad: rect('[data-testid="viewport-axis-triad"]'), canvasPane: rect(".workspace-pane-viewport") };
+  });
+  const intersects = (a: { left: number; top: number; right: number; bottom: number }, b: typeof a) =>
+    a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  const check = async (label: string) => {
+    const measured = await rects();
+    for (const furniture of ["scaleBar", "triad"] as const) {
+      expect(intersects(measured[furniture], measured.pane), `${label}: ${furniture} ${JSON.stringify(measured[furniture])} against the table pane ${JSON.stringify(measured.pane)}`).toBe(false);
+      expect(measured[furniture].bottom).toBeLessThanOrEqual(measured.canvasPane.bottom);
+    }
+    return measured;
+  };
+  await chooseView(page, "model");
+  await check("Model view, drawer open");
+  await page.getByTestId("toggle-tree").click();
+  await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "false");
+  const collapsed = await check("Model view, drawer collapsed");
+  expect(collapsed.canvasPane.bottom).toBeCloseTo(collapsed.pane.bottom, 0);
+  await page.getByTestId("toggle-tree").click();
+  // The narrow fallback's equivalent: the drawer, open or collapsed, lies over the canvas's foot.
+  await chooseView(page, "both");
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await ensureRail(page, "tree", true);
+  await check("below 1280 px, drawer open");
+  await ensureRail(page, "tree", false);
+  await check("below 1280 px, drawer collapsed");
+});
+
+test("a switch to Table view hides the canvas without resizing its renderer", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const canvas = page.getByTestId("viewport-canvas").locator("canvas").first();
+  await expect(canvas).toBeVisible();
+  const buffer = () => canvas.evaluate((element) => { const c = element as HTMLCanvasElement; const r = c.getBoundingClientRect(); return { bufferWidth: c.width, bufferHeight: c.height, cssWidth: r.width, cssHeight: r.height }; });
+  const camera = () => page.evaluate(() => { const snapshot = globalThis.__openPipeStressUiDiagnosticsV1.readCurrent(); if ("status" in snapshot.viewport) throw new Error("Viewport unavailable"); return snapshot.viewport.camera; });
+  const before = { buffer: await buffer(), camera: await camera() };
+  expect(before.buffer.bufferWidth).toBeGreaterThan(1);
+  await chooseView(page, "table");
+  await expect(page.getByTestId("viewport-canvas")).toBeHidden();
+  await page.waitForTimeout(300);
+  expect(await buffer()).toEqual(before.buffer);
+  expect(await camera()).toEqual(before.camera);
+  await chooseView(page, "both");
+  await expect(canvas).toBeVisible();
+  expect(await buffer()).toEqual(before.buffer);
+  expect(await camera()).toEqual(before.camera);
+});
+
 for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800 }]) {
   for (const [theme, density] of [["light", "comfortable"], ["dark", "compact"]] as const) {
     test(`the split and the drawer resize actual panes, persist, and keep the inspector's controls contained ${theme} ${viewport.width}`, async ({ page }, testInfo) => {

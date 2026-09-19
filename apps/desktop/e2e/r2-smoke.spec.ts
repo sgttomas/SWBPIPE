@@ -4,7 +4,6 @@ import { inflateSync } from "node:zlib";
 import {
   chooseVirtualTarget,
   closeWorkspacePanels,
-  ensureInspectorCollapsed,
   ensureInspectorExpanded,
   ensureTreeExpanded,
   expectNoStatusChip,
@@ -190,6 +189,8 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await expect(page.getByTestId("operation-apply-row-editor-intent-2")).toContainText(
     "op:grid-intent-node:N-100-position-y"
   );
+  // Slice B3: queueing summoned the Review changes tab; the tree's layout switch is on the tree's tab.
+  await ensureTreeExpanded(page);
   await page.getByTestId("layout-mode-tree").click();
   await expect(page.getByTestId("audit-boundary-drawer")).toHaveCount(0);
   await page.getByTestId("audit-drawer-toggle").click();
@@ -519,10 +520,6 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   const canvas = page.locator(".viewport-canvas canvas");
   await expect(canvas).toBeVisible();
   await expect(page.getByTestId("viewport-editor-intents")).toHaveClass(/collapsed/);
-  // Slice B3: the docked inspector takes its 300 px from the canvas (603 to 303 px at 1440), and the
-  // canvas's own authoring panel then covers the point this gesture uses. Close the inspector so the
-  // gesture lands on the canvas, as it did beside the old rails.
-  await ensureInspectorCollapsed(page);
   await ensureCreationToolArmed(page, "command-node", "Node tool armed");
   await openNamedDisclosure(page.getByTestId("viewport-editor-intents"), "Unit source");
   await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText(
@@ -584,6 +581,8 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("N*m/rad,N/m");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=830");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
+  // Slice B3: the Analyze page lies over the stage's surfaces; close it to reach the canvas.
+  await showCanvas(page);
   await setDisclosure(page.getByTestId("viewport-deformation-status"));
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=4.927112 mm");
   await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(

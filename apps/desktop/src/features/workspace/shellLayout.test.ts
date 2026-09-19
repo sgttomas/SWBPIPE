@@ -8,6 +8,7 @@ import {
   SHELL_REGIONS,
   SHELL_STAGES,
   STAGE_TABS,
+  canvasAuthoringPanelActive,
   clampBothSplit,
   inspectorToggleState,
   railStageState,
@@ -486,6 +487,34 @@ describe("the regions' designed geometry", () => {
     expect(table.tablePane).toEqual({ x: 56, y: 48, width: 1340, height: 848 });
     expect(table.canvas).toBeNull();
     expect(table.inspector).toBeNull();
+  });
+
+  it("INTERIM: with the canvas's authoring panel on screen, the docked inspector takes its width from the table pane", () => {
+    for (const [width, height, table, canvas] of [[1440, 900, 437, 603], [1280, 800, 349, 531]] as const) {
+      const lent = shellGeometry({ width, height }, "both", { inspectorOpen: true, canvasAuthoringPanel: true });
+      expect([lent.tablePane.width, lent.canvas?.width, lent.inspector?.width]).toEqual([table, canvas, 300]);
+      // No tool armed and nothing pending: the specification's rule, the table does not move.
+      const spec = shellGeometry({ width, height }, "both", { inspectorOpen: true });
+      expect([spec.tablePane.width, spec.canvas?.width]).toEqual([table + 300, canvas - 300]);
+      // Inspector closed: the panel changes nothing.
+      expect(shellGeometry({ width, height }, "both", { canvasAuthoringPanel: true }).tablePane.width).toBe(table + 300);
+    }
+    // The table pane lends down to 320 px and no further; the canvas gives the rest.
+    const tight = shellGeometry({ width: 1440, height: 900 }, "both", { bothSplit: 0.3, inspectorOpen: true, canvasAuthoringPanel: true });
+    expect([tight.tablePane.width, tight.canvas?.width]).toEqual([320, 720]);
+    const tighter = shellGeometry({ width: 1440, height: 900 }, "both", { bothSplit: 0.2, inspectorOpen: true, canvasAuthoringPanel: true });
+    expect([tighter.tablePane.width, tighter.canvas?.width]).toEqual([268, 772]);
+    expect(SHELL_REGIONS.tablePaneLendingMinPx).toBe(320);
+  });
+
+  it("INTERIM: knows the canvas's authoring panel from the session's cells", () => {
+    expect(canvasAuthoringPanelActive(null, [])).toBe(false);
+    for (const tool of ["node", "pipe", "component"]) expect(canvasAuthoringPanelActive(tool, [])).toBe(true);
+    // Support opens the inspector and Load opens the Loads stage: neither shows the canvas's panel.
+    for (const tool of ["support", "load"]) expect(canvasAuthoringPanelActive(tool, [])).toBe(false);
+    expect(canvasAuthoringPanelActive(null, [{ operation_id: "op:inspector-1" }])).toBe(false);
+    expect(canvasAuthoringPanelActive(null, [{ operation_id: "op:viewport-intent-3" }])).toBe(true);
+    expect(canvasAuthoringPanelActive(null, [{ operation_id: "op:x", source: { source_role: "viewport_editor" } }])).toBe(true);
   });
 
   it("stops the splitter where the canvas would fall under 220 px", () => {

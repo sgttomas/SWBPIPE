@@ -462,6 +462,8 @@ export const SHELL_REGIONS = Object.freeze({
   tableDrawerTabStripPx: 28,
   bothSplitDefault: 0.55,
   canvasMinPx: 220,
+  /** The least the table pane keeps while it lends the docked inspector its width (the interim rule below). */
+  tablePaneLendingMinPx: 320,
   /** Below this window width the two panel toggles drop their labels and keep their tooltips. */
   toggleLabelsMinWindowPx: 1360
 });
@@ -475,6 +477,23 @@ export type ShellGeometry = {
   canvas: ShellRect | null;
   inspector: ShellRect | null;
 };
+
+/**
+ * INTERIM (ROOT, 2026-09-19; retires when the routing block moves into the inspector, as the design
+ * has it). The canvas's own authoring panel takes 265 px from inside the canvas pane. It is on screen
+ * while a node, pipe or component tool is armed, or while an intent queued from the canvas is pending.
+ * In that state the Both view's docked inspector takes its 300 px from the table pane, not from the
+ * canvas pane, so the drawn canvas keeps its usable width. This is what the session honestly knows of
+ * `PipeViewport`'s `viewportIntentPanelActive`; the predicate is restated here because that component
+ * is mounted, not modified, and an e2e test holds the two together.
+ */
+export function canvasAuthoringPanelActive(
+  armedCreationTool: string | null,
+  editorIntents: ReadonlyArray<{ operation_id: string; source?: { source_role?: string } | undefined }>
+): boolean {
+  if (armedCreationTool === "node" || armedCreationTool === "pipe" || armedCreationTool === "component") return true;
+  return editorIntents.some((intent) => intent.source?.source_role === "viewport_editor" || intent.operation_id.startsWith("op:viewport-intent-"));
+}
 
 /** The largest table share of the Both view's split that still leaves the canvas its minimum. */
 export function clampBothSplit(split: number, surfaceWidth: number, inspectorOpen: boolean): number {
@@ -493,7 +512,7 @@ export function clampBothSplit(split: number, surfaceWidth: number, inspectorOpe
 export function shellGeometry(
   window: { width: number; height: number },
   view: ShellView,
-  options: { bothSplit?: number; inspectorOpen?: boolean; drawerCollapsed?: boolean; drawerPx?: number } = {}
+  options: { bothSplit?: number; inspectorOpen?: boolean; drawerCollapsed?: boolean; drawerPx?: number; canvasAuthoringPanel?: boolean } = {}
 ): ShellGeometry {
   const r = SHELL_REGIONS;
   const surfaces: ShellRect = {
@@ -506,9 +525,16 @@ export function shellGeometry(
   if (view === "both") {
     const inspectorOpen = options.inspectorOpen ?? false;
     const split = clampBothSplit(options.bothSplit ?? r.bothSplitDefault, surfaces.width, inspectorOpen);
-    const tableWidth = Math.round(surfaces.width * split);
-    const right = surfaces.width - tableWidth;
     const inspectorWidth = inspectorOpen ? r.inspectorBothPx : 0;
+    const splitWidth = Math.round(surfaces.width * split);
+    // The interim rule: with the canvas's authoring panel on screen the inspector's width comes from
+    // the table pane, down to the pane's lending minimum; past that the canvas gives the rest, and
+    // the canvas's own 220 px minimum still wins over everything.
+    const lent = inspectorOpen && options.canvasAuthoringPanel
+      ? Math.max(0, Math.min(inspectorWidth, splitWidth - r.tablePaneLendingMinPx))
+      : 0;
+    const tableWidth = Math.max(0, Math.min(splitWidth - lent, surfaces.width - inspectorWidth - r.canvasMinPx));
+    const right = surfaces.width - tableWidth;
     return {
       surfaces,
       tablePane: { x: surfaces.x, y: surfaces.y, width: tableWidth, height: surfaces.height },

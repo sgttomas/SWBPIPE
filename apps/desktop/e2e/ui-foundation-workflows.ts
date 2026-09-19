@@ -126,9 +126,10 @@ export async function ensureRail(page: Page, side: "tree" | "inspector", open: b
 /** The model tree is the Model stage's first tab. */
 export async function showModelTree(page: Page): Promise<void> {
   const host = page.getByTestId("shell-tree-host");
+  // An open page lies over the tree without hiding it from the layout: close it first.
+  const close = page.getByTestId("workspace-dock-close");
+  if (await close.isVisible()) await activateWithKeyboard(page, close);
   if (!await host.isVisible()) {
-    const close = page.getByTestId("workspace-dock-close");
-    if (await close.isVisible()) await activateWithKeyboard(page, close);
     const stage = page.getByTestId("rail-stage-model");
     if (await stage.getAttribute("aria-current") !== "page") await activateWithKeyboard(page, stage);
     const tab = page.getByTestId("stage-tab-model-tree");

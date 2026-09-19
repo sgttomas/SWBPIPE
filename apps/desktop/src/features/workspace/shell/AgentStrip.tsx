@@ -19,7 +19,7 @@ export function AgentStrip() {
           aria-disabled="true"
           aria-describedby="agent-strip-reason"
           title={AGENT_UNAVAILABLE_REASON}
-        ><Bot size={20} aria-hidden="true" /></button>
+        ><Bot size={20} aria-hidden="true" /><span className="shell-rail-label">Agent</span></button>
         <DisabledReason id="agent-strip-reason" text={AGENT_UNAVAILABLE_REASON} />
       </span>
     </aside>

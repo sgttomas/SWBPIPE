@@ -30,6 +30,7 @@ import { StageRail } from "./features/workspace/shell/StageRail";
 import { StageTabStrip } from "./features/workspace/shell/StageTabStrip";
 import {
   SHELL_STAGE_LABELS,
+  canvasAuthoringPanelActive,
   inspectorToggleState,
   railStageStates,
   runPresenceFromCells,
@@ -364,6 +365,7 @@ function AppSession() {
           data-stage={shell.stage}
           data-view={stageView}
           data-narrow={narrowWindow ? "true" : undefined}
+          data-canvas-authoring={canvasAuthoringPanelActive(armedCreationTool, editorIntents) ? "true" : undefined}
           style={{
             "--shell-both-split": `${uiPreferences.bothSplitPct}%`,
             "--shell-drawer-height": `${uiPreferences.tableDrawerPx}px`

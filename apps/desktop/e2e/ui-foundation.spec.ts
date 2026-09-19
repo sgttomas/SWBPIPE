@@ -21,6 +21,7 @@ import {
   revealTreeRow,
   selectTreeRow,
   setAppearance,
+  showModelTree,
   typedTreeRow,
   waitForSettledGlobalRaf,
   withOneInvalidOd,
@@ -59,9 +60,8 @@ test("[preflight] maintained fixture supports typed selection and a keyboard-aut
   await expect(readout.getByText(`Measure · pipe: ${pipe.id}`, { exact: true })).toBeVisible();
   await expectMeasurementQuantities(readout, expectedMetres, "m", "entered");
 
-  const unitPreference = page.locator("details.display-preference-control");
-  await unitPreference.locator("summary").click();
-  const unitSelector = unitPreference.getByRole("combobox", { name: "Display units", exact: true });
+  // Slice B3: the display units selector is a toolbar control, no longer inside a Units disclosure.
+  const unitSelector = page.getByTestId("workspace-toolbar").getByRole("combobox", { name: "Display units", exact: true });
   await unitSelector.selectOption("SI");
   await expect(unitSelector).toHaveValue("SI");
   await expectMeasurementQuantities(readout, expectedMetres, "m", "converted");
@@ -382,6 +382,8 @@ test("Grid drafts survive Tree round-trips and a filtered queue clears only its 
   await expect(queued).toContainText("position.x");
   await expect(queued).not.toContainText(retainedNode.id);
 
+  // Slice B3: the model tree and Review changes are two tabs of one pane; return to the tree's tab.
+  await showModelTree(page);
   await filter.fill("");
   await expect(visibleInput).toHaveValue(visibleBase);
   await expect(retainedInput).toHaveValue(retainedDraft);
@@ -768,8 +770,6 @@ for (const theme of APPEARANCE_THEMES) {
         } else {
           await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
           await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
-          // The docked inspector takes its width from the canvas; close it to compare like with like.
-          await ensureRail(page, "inspector", false);
         }
         expect(await measure("after footer navigation; task/dock restored")).toEqual(beforeSelection);
         await closePage();
@@ -1081,7 +1081,9 @@ test("a property task keeps its typed target and entered value through filter, c
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("Frozen task value");
   await activateWithKeyboard(page, inspector.getByTestId("queue-editor-intent"));
   await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
-  await expect(page.getByTestId("workspace-dock-header")).toContainText("Review changes");
+  // Slice B3: Review changes is the Model stage's second tab; its name is on the latched tab.
+  await expect(page.getByTestId("workspace-review")).toContainText("Review changes");
+  await expect(page.getByTestId("workspace-review")).toHaveAttribute("aria-pressed", "true");
 });
 
 test("live Properties routes follow catalogue target B while frozen Task A remains unchanged", async ({ page }) => {
@@ -1236,6 +1238,10 @@ test("selected-pipe actions copy a stable draft target snapshot instead of follo
   await expect(geometry.getByText("Frozen source snapshot: 2 pipes.", { exact: true })).toBeVisible();
 
   await selectTreeRow(page, "pipe", third.id);
+  // Slice B3: selecting in the tree shows the tree's tab; the geometry tools stay mounted on the
+  // Review changes tab (its Geometry sub-tab) and are read again there.
+  await openWorkspaceSection(page, "operations");
+  await activateWithKeyboard(page, page.getByTestId("operation-tab-geometry"));
   await expect(geometry.getByText("Frozen source snapshot: 2 pipes.", { exact: true })).toBeVisible();
   const thirdOption = geometry.getByTestId("geometry-source-pipes").getByRole("option", { name: new RegExp(`${escapeRegExp(third.id)}$`) });
   await geometry.getByTestId("geometry-source-pipes").getByRole("combobox").fill(third.id);
@@ -1248,6 +1254,9 @@ test("selected-pipe actions copy a stable draft target snapshot instead of follo
   await activateWithKeyboard(page, selfWeight.getByRole("button", { name: "Use selected pipes", exact: true }));
   await expect(selfWeight.getByText(`Frozen selected-pipe snapshot: ${third.id}`, { exact: true })).toBeVisible();
   await selectTreeRow(page, "pipe", first.id);
+  // Slice B3: as above, the plan stays mounted on the Review changes tab (its Self weight sub-tab).
+  await openWorkspaceSection(page, "operations");
+  await activateWithKeyboard(page, page.getByTestId("operation-tab-weight"));
   await expect(selfWeight.getByText(`Frozen selected-pipe snapshot: ${third.id}`, { exact: true })).toBeVisible();
 });
 
@@ -1407,25 +1416,31 @@ test("ordinary typed edit preserves view state and same-ID project replacement c
 test("keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 920 });
   await gotoRoutedFixture(page);
-  for (const name of ["Resize model tree", "Resize property inspector"] as const) {
+  // Slice B3: the shell's splitters are the Both view's split and the Model view's table drawer;
+  // the docked inspector has a fixed width and no splitter.
+  await expect(page.getByRole("separator", { name: "Resize property inspector" })).toHaveCount(0);
+  for (const name of ["Resize table and canvas"] as const) {
     const separator = page.getByRole("separator", { name });
     const before = Number(await separator.getAttribute("aria-valuenow"));
     await separator.focus();
-    await page.keyboard.press(name.includes("tree") ? "ArrowRight" : "ArrowLeft");
+    await page.keyboard.press("ArrowRight");
     const after = Number(await separator.getAttribute("aria-valuenow"));
     expect(after).not.toBe(before);
     expect(after).toBeGreaterThanOrEqual(Number(await separator.getAttribute("aria-valuemin")));
     expect(after).toBeLessThanOrEqual(Number(await separator.getAttribute("aria-valuemax")));
   }
   await openWorkspaceSection(page, "operations");
-  const dock = page.getByRole("separator", { name: "Resize task dock" });
+  await activateWithKeyboard(page, page.getByTestId("view-switch-model"));
+  const dock = page.getByRole("separator", { name: "Resize table drawer" });
   await dock.focus();
   const dockBefore = Number(await dock.getAttribute("aria-valuenow"));
   await page.keyboard.press("ArrowUp");
   expect(Number(await dock.getAttribute("aria-valuenow"))).toBeGreaterThan(dockBefore);
+  expect(Number(await dock.getAttribute("aria-valuenow"))).toBeLessThanOrEqual(Number(await dock.getAttribute("aria-valuemax")));
+  await activateWithKeyboard(page, page.getByTestId("view-switch-both"));
 
   await page.setViewportSize({ width: 1024, height: 768 });
-  await activateWithKeyboard(page, page.getByTestId("workspace-dock-close"));
+  await showModelTree(page);
   await ensureRail(page, "tree", false);
   await ensureRail(page, "inspector", false);
   const treeToggle = page.getByTestId("toggle-tree");
@@ -1817,7 +1832,8 @@ test("empty ordered selection publishes independently from project inspector", a
   await ensureRail(page, "inspector", true);
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toHaveCount(1);
-  await activateWithKeyboard(page, page.getByTestId("workspace-dock-close"));
+  // Slice B3: Results is a stage surface with no close control; return to the Model stage's tree.
+  await showModelTree(page);
   const read = async () => page.evaluate(() => {
     const snapshot = globalThis.__openPipeStressUiDiagnosticsV1.readCurrent();
     if ("status" in snapshot.viewport) throw new Error("Committed viewport unavailable");
