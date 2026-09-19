@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "lane": "B-CANVAS",
+  "parentGraph": "../../WORK_GRAPH.json",
+  "base": "4dcab750501d039af5b2973991cbe0f3f423b80a",
+  "branch": "codex/swbpipe-b-canvas-20260918",
+  "nodes": {
+    "B-CANVAS": {
+      "role": "WORKING_ITEMS Type 1 lane manager",
+      "model": "fable",
+      "status": "paused clean at the pause point 3a5f7c103 (2026-09-19); the manager of 2026-09-19 cannot be resumed from another session; a new manager starts from addenda 4 and 5",
+      "launched": "2026-09-19T00:04Z",
+      "briefSha256": "df89f5b622a63f206ccc0f879e7255642e4b9ee16174faf84e539ab51bc12084",
+      "brief": "../../briefs/B-CANVAS_canvas_lane.md",
+      "addendum1Sha256": "4d5af33abf5b916ab3ddae09214e0d98070f6f2a984f0604d953e5381cd25ad5",
+      "addendum1": "briefs/B-CANVAS_addendum_1.md",
+      "returnSha256": null
+    },
+    "B-CANVAS-ADDENDUM-2": {
+      "role": "ROOT's sealed addendum to the lane's brief",
+      "model": "n/a (ROOT, Claude Fable 5.1)",
+      "status": "sealed",
+      "sealed": "2026-09-19T02:06Z",
+      "briefSha256": "a5b11b94b23a3eaaabc69680ee03f8dcdb6377ddcce6ea5a44b08fa6b54bdc74",
+      "brief": "briefs/B-CANVAS_addendum_2.md",
+      "candidate": null,
+      "returnSha256": null
+    },
+    "C1-REVIEW": {
+      "role": "TASK Type 2 read-only reviewer (software-code-review), fresh context",
+      "model": "opus",
+      "status": "returned: FINDINGS (two minor, two trivial; none blocking)",
+      "sealed": "2026-09-19T02:07Z",
+      "briefSha256": "228a9490e9e37e6eb3af77ab8236ca574d555c495e23af1361c391327d39c324",
+      "brief": "briefs/C1-REVIEW_code_review.md",
+      "candidate": "beb69d603d74fea326f64ab663e076bc2cd8ba9d",
+      "returnSha256": "5f87c173e0a9f6373de5991eb31bfbedffcffdaea0ee6ba4752e8af7b7b3e08f",
+      "return": "reviews/C1-REVIEW_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
+    },
+    "B-CANVAS-C1A": {
+      "role": "WORKING_ITEMS Type 1 lane manager",
+      "model": "fable",
+      "status": "returned (slice C1, first part, with proposals P1 to P3)",
+      "returnSha256": "170ab03db6b0533c54087d60a3f456ec647433fdf3ebe255b01b2a4b9bfc05b1",
+      "return": "returns/C1A_RETURN.md",
+      "modelThatRan": "manager: Claude Fable 5.1 requested, no self-report in the return; its implementer child C1A-PALETTE reports claude-fable-5-1; its inventory child INV1-INSTRUMENT reports Claude Sonnet 5",
+      "candidate": "beb69d603d74fea326f64ab663e076bc2cd8ba9d"
+    },
+    "B-CANVAS-ADDENDUM-3": {
+      "role": "ROOT's sealed addendum to the lane's brief",
+      "model": "n/a (ROOT, Claude Fable 5.1)",
+      "status": "sealed",
+      "sealed": "2026-09-19T03:46Z",
+      "briefSha256": "a86cb318bb0b49a49df1c13526999ae0a8115849d2f032f45450e88c10dfb210",
+      "brief": "briefs/B-CANVAS_addendum_3.md",
+      "candidate": null,
+      "returnSha256": null
+    },
+    "B-CANVAS-ADDENDUM-4": {
+      "role": "ROOT's sealed addendum to the lane's brief",
+      "model": "n/a (ROOT, Claude Fable 5.1)",
+      "status": "sealed",
+      "sealed": "2026-09-19T05:16Z",
+      "briefSha256": "1bf6d1e58547bd826f587aa729cc60d93df4a464a8c0b3f409b2d83337192323",
+      "brief": "briefs/B-CANVAS_addendum_4.md",
+      "candidate": null,
+      "returnSha256": null
+    },
+    "B-CANVAS-PAUSE-2026-09-19": {
+      "role": "WORKING_ITEMS Type 1 lane manager (a pause status, not a slice return)",
+      "model": "fable",
+      "status": "paused clean at 3a5f7c103bde915d800792112dec2dea19a0813e",
+      "returnSha256": "ab2e08d3437daea1b913a47615c537f9bf8bddba3dabb3650af8421d3d0e556d",
+      "return": "returns/B-CANVAS_PAUSE_STATUS_2026-09-19.md",
+      "modelThatRan": "Claude Fable 5.1, as launched; the status does not state its model",
+      "candidate": "3a5f7c103bde915d800792112dec2dea19a0813e"
+    },
+    "B-CANVAS-ADDENDUM-5": {
+      "role": "ROOT's sealed addendum to the lane's brief",
+      "model": "n/a (ROOT, Claude Fable 5.1)",
+      "status": "sealed",
+      "sealed": "2026-09-19T05:37Z",
+      "briefSha256": "9bb00659a2656e5de1b2ef85c330042e9d193aff1089205a6f846f251b7dddd2",
+      "brief": "briefs/B-CANVAS_addendum_5.md",
+      "candidate": null,
+      "returnSha256": null
+    },
+    "B-CANVAS-PR1": {
+      "role": "WORKING_ITEMS Type 1",
+      "model": "fable",
+      "status": "returned",
+      "returnSha256": "1bf98445a8d26f4560f0ee8cdc53edb70add22ffbe48cee14d2ec1c769b47e8a",
+      "return": "returns/PR1_RETURN.md",
+      "modelThatRan": "Claude Fable 5.1 (claude-fable-5-1), by its own statement; both children report Claude Fable 5.1",
+      "candidate": "4e267d02bccd320607cf6ccab4c52f05cf4048b3"
+    },
+    "C-PR1-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "status": "returned: PASS, no actionable finding",
+      "sealed": "2026-09-19T10:14Z",
+      "briefSha256": "1e71331109c9e748162ce65f407cc38445bf8531c8241045a02e3fee9c64176d",
+      "brief": "briefs/PR1-REVIEW_code_review.md",
+      "candidate": "4e267d02bccd320607cf6ccab4c52f05cf4048b3",
+      "returnSha256": "eebd23af3e001c81d46c32bd7258fd11a7e16fcbdccaf287dc38f99b2073b7b5",
+      "return": "reviews/PR1-REVIEW_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
+    }
+  },
+  "slices": [],
+  "current_frontier": "Paused clean at 3a5f7c103 under the owner's word of 2026-09-19. Addendum 4 sealed (control layer first). Next, for the manager: merge origin/main and re-run the picking tests; F3, tests first; finish the T1 probe; seal and launch C1E; C1b; return the first pull request's candidate to ROOT for its complete Opus review, ROOT's look, the sweep, the pull request, CI and merge; then C2 to C5.",
+  "decisions": [
+    {
+      "id": "C1-D1",
+      "by": "ROOT (HELP_HUMAN, Agent 0)",
+      "openTo": "the owner",
+      "date": "2026-09-19",
+      "decision": "deformedShape stays bound to canvas.vector as a named provisional binding until design system 6.8's deformation view is built with the results work",
+      "record": "briefs/B-CANVAS_addendum_3.md"
+    }
+  ]
+}

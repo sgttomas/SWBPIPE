@@ -1137,6 +1137,8 @@ button:focus-visible {
   display: grid;
   grid-template-rows: auto minmax(520px, 1fr) auto auto;
   min-height: 100%;
+  border-color: var(--ui-divider);
+  background: var(--ui-canvas);
 }
 
 .viewport-frame {
@@ -1178,8 +1180,8 @@ button:focus-visible {
   min-height: 320px;
   place-items: center;
   padding: 24px;
-  color: #44504c;
-  background: #f4f6f4;
+  color: var(--ui-muted);
+  background: var(--ui-canvas);
   font-size: 13px;
   text-align: center;
 }
@@ -1259,9 +1261,9 @@ button:focus-visible {
   bottom: calc(14px + var(--shell-canvas-foot-inset, 0px));
   min-width: 90px;
   padding: 5px 8px 7px;
-  border-bottom: 4px solid #31403d;
-  color: #31403d;
-  background: rgb(255 255 255 / 80%);
+  border-bottom: 4px solid var(--canvas-label);
+  color: var(--canvas-label);
+  background: var(--canvas-labelBg);
   font-size: 12px;
   font-weight: 700;
   text-align: center;
@@ -3383,9 +3385,9 @@ body { min-width: 760px; min-height: 540px; }
  * through data-theme on the document root, which the session (features/workspace/workspaceSession.ts)
  * keeps equal to the shell's data-theme,
  * so each mapped variable is defined once and needs no dark override.
- * Kept without a token, each with its dark value in the override below:
  * --ui-canvas and --ui-viewport-selection-geometry mirror the viewport's own scene and selection
- * colours (features/viewport), which the canvas slice re-tokens.
+ * colours (features/viewport), which read canvas.bg and canvas.selection; the tokens carry the theme.
+ * Kept without a token, each with its dark value in the override below:
  * --ui-border draws the boundary of buttons and inputs, which the product holds at 3:1 or better
  * against the surface (WCAG 1.4.11; e2e resolved-style check); border.strong measures 1.75:1 to
  * 2.36:1 (design system section 2.9).
@@ -3398,7 +3400,7 @@ body { min-width: 760px; min-height: 540px; }
  */
 .app-shell {
   --ui-bg: var(--surface-base); --ui-surface: var(--surface-panel); --ui-raised: var(--surface-header);
-  --ui-canvas: #dfe5e8;
+  --ui-canvas: var(--canvas-bg);
   --ui-text: var(--text-primary); --ui-muted: var(--text-secondary);
   --ui-divider: var(--border-hairline); --ui-border: #71838d;
   --ui-accent: var(--selection-bar); --ui-accent-text: var(--text-inverse);
@@ -3406,16 +3408,14 @@ body { min-width: 760px; min-height: 540px; }
   --ui-info-surface: var(--issue-infoTint); --ui-info-text: var(--status-reviewInk); --ui-info-border: var(--issue-info);
   --ui-warning-surface: var(--issue-warningTint); --ui-warning-text: var(--status-incompleteInk); --ui-warning-border: var(--issue-warning);
   --ui-error-surface: var(--issue-blockingTint); --ui-error-text: var(--status-failedInk); --ui-error-border: var(--issue-blocking);
-  --ui-viewport-selection-geometry: #a34400;
+  --ui-viewport-selection-geometry: var(--canvas-selection);
   --ui-focus: var(--focus-ring); --ui-disabled: var(--disabled-fill); --ui-disabled-text: #667680;
   color: var(--ui-text); background: var(--ui-bg);
   font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 14px; line-height: 1.4;
 }
 .app-shell[data-theme="dark"] {
-  --ui-canvas: #0c1114;
   --ui-border: #70828c;
-  --ui-viewport-selection-geometry: #f08c22;
   --ui-disabled-text: #9baab2;
 }
 .app-shell[data-density="compact"] { font-size: 13px; }
