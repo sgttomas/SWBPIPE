@@ -208,6 +208,16 @@
       "return": "instances/ROOT/PROBE_NESTED_FOREGROUND_2026-09-19.md",
       "returnSha256": "8aa9ba6f25ab351165e7a0432183c3f4e69ee81befd4e2135ee0401bb2268fc9",
       "briefSha256": null
+    },
+    "HANDOFF-REVIEW": {
+      "role": "TASK Type 2 read-only reviewer, fresh context",
+      "model": "opus",
+      "status": "sealed",
+      "sealed": "2026-09-19T05:26Z",
+      "brief": "briefs/HANDOFF-REVIEW_records_review.md",
+      "briefSha256": "5156efe17a9c3aa5f3efc387528b57b7166a91a6a35d9266f3d99de4986a7e49",
+      "candidate": "b45b6e27e",
+      "returnSha256": null
     }
   },
   "edges": [
@@ -242,6 +252,10 @@
     [
       "ROOT",
       "PROBE-NESTED-FOREGROUND"
+    ],
+    [
+      "ROOT",
+      "HANDOFF-REVIEW"
     ]
   ],
   "current_frontier": "Paused at the owner's word; handed off on 2026-09-19 under amendment 1 (the control layer first). Merged: PRs #800 to #803. Next, for a successor ROOT: start a manager per lane from the lanes' records. Shell lane: slice B2F, then B3 to B7, each with one Opus code review, the sweep, PR, CI and merge; a structure-only fidelity review on B3's candidate. Canvas lane: merge main, F3, the T1 probe, slice C1E, slice C1b, then the first pull request's complete review and merge; then C2 to C5. Then the closing visual pass, D-72 qualification, and Tranche A2 with its own plan.",

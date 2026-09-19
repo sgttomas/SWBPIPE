@@ -115,4 +115,6 @@ Unsealed drafts, kept for the closing visual pass and for B3's structure review:
 
 The state of the run for whoever continues it: `../instances/ROOT/SESSION_HANDOFF_2026-09-19.md`; the prompt that starts that session: `../instances/ROOT/SUCCESSOR_PROMPT_2026-09-19.md`.
 
+Independent review of this candidate, sealed 2026-09-19T05:26Z: `HANDOFF-REVIEW_records_review.md`, SHA-256 `5156efe17a9c3aa5f3efc387528b57b7166a91a6a35d9266f3d99de4986a7e49`; model requested `opus` (Claude Opus 5); TASK Type 2, read-only, fresh context; candidate `b45b6e27e` against `origin/main` `b9a07040857d2e6d3ec0f6a530697720801c7b59`; return to be retained at `../instances/HANDOFF-REVIEW/RETURN.md`.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
