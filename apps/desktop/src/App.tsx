@@ -79,6 +79,51 @@ import {
   type SelectionModifiers
 } from "./features/workspace/selectionState";
 import { publishUiModelAssignmentStarted } from "./features/workspace/uiDiagnostics";
+import {
+  RuleRevisionGenerationGate,
+  SolveRunGenerationGate,
+  commitModelAfterSolveInvalidation
+} from "./features/workspace/solveGates";
+import { solveProofStatus, type SolveProofEvidence } from "./features/workspace/solveProof";
+import {
+  awaitBackendSolveJob,
+  blankProjectCreatedSolveJob,
+  cancelledBeforeBackendStartSolveJob,
+  cancelledSolveJob,
+  cancelledWithoutBackendSolveJob,
+  completeSolveJob,
+  failSolveJob,
+  initialSolveJob,
+  modelChangedSolveJob,
+  pendingBackendStartCancellationSolveJob,
+  recordBackendCancellationFailure,
+  recordBackendCancellationReceipt,
+  requestSolveCancellation,
+  sessionHistoryChangedSolveJob,
+  startSolveJob
+} from "./features/workspace/solveJobAudit";
+import {
+  deriveModelHashIntegrity,
+  deriveProjectEnvelopeHashIntegrity,
+  isSupportedChangedModelPersistenceResponse
+} from "./features/workspace/projectPersistenceIntegrity";
+import {
+  EXPENSIVE_LIFECYCLE_SECTIONS,
+  WORKSPACE_SECTIONS,
+  type WorkspaceSectionId
+} from "./features/workspace/workspaceSections";
+import {
+  isMenuCommandId,
+  type MenuCommandId,
+  type MenuId,
+  type MenuItemSpec
+} from "./features/workspace/menuCommands";
+import {
+  clonePreviewModel,
+  selectionForOperationOutcome,
+  uiModelIdentityHash,
+  type SessionModelCheckpoint
+} from "./features/workspace/sessionModel";
 import { ModelTree } from "./features/model-tree/ModelTree";
 import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
 import { intentKey, OperationApplyPanel } from "./features/operations/OperationApplyPanel";
@@ -129,16 +174,10 @@ import {
   loadDesignKnowledge,
   loadPreviewModel,
   loadSampleProposal,
-  pollPreviewMechanicsJob,
   runPreviewMechanics,
   startPreviewMechanicsJob
 } from "./services/previewService";
-import type {
-  BackendSolveJobCancellationReceipt,
-  BackendSolveJobStatus,
-  PreviewSolverMode,
-  SolveJobStartReceipt
-} from "./services/previewService";
+import type { PreviewSolverMode } from "./services/previewService";
 import {
   applyModelOperation,
   initialOperationEngineStatus,
@@ -190,304 +229,19 @@ import type {
   SolveJobAuditState
 } from "./types";
 
-type SessionModelCheckpoint = {
-  checkpoint_id: string;
-  operation_id: string;
-  model: PreviewModel;
-  selection: EntityRef;
-};
-
-export type SolveProofEvidence = {
-  state: "completed";
-  run_generation: number;
-  job_id: string;
-  backend_job_seam: SolveJobAuditState["backend_job_seam"];
-  project_ref: string;
-  model_sha256: string;
-  input_manifest_sha256: string;
-  result_run_id: string;
-  result_model_ref: string;
-  result_row_count: number;
-};
-
-// A run token is acquired synchronously before the first await. This closes the
-// native-menu double-dispatch window and also lets model/open invalidation make
-// every callback from an older solve inert, even when an adapter reuses a job
-// identifier.
-export class SolveRunGenerationGate {
-  private generation = 0;
-  private active: number | null = null;
-  private cancelRequested = false;
-
-  tryStart(): number | null {
-    if (this.active !== null) return null;
-    this.active = ++this.generation;
-    this.cancelRequested = false;
-    return this.active;
-  }
-
-  current(): number | null {
-    return this.active;
-  }
-
-  isCurrent(token: number): boolean {
-    return this.active === token;
-  }
-
-  requestCancellation(token: number): boolean {
-    if (!this.isCurrent(token)) return false;
-    this.cancelRequested = true;
-    return true;
-  }
-
-  isCancellationRequested(token: number): boolean {
-    return this.isCurrent(token) && this.cancelRequested;
-  }
-
-  invalidate(): void {
-    this.generation += 1;
-    this.active = null;
-    this.cancelRequested = false;
-  }
-
-  finish(token: number): boolean {
-    if (!this.isCurrent(token)) return false;
-    this.active = null;
-    this.cancelRequested = false;
-    return true;
-  }
-}
-
-export class RuleRevisionGenerationGate {
-  private generation = 0;
-
-  start(): number {
-    return ++this.generation;
-  }
-
-  isCurrent(token: number): boolean {
-    return token === this.generation;
-  }
-
-  invalidate(): void {
-    this.generation += 1;
-  }
-}
-
-export function commitModelAfterSolveInvalidation(
-  gate: SolveRunGenerationGate,
-  revision: { current: number },
-  commit: () => void
-): void {
-  revision.current += 1;
-  gate.invalidate();
-  commit();
-}
-
-const SUPPORTED_MODEL_NORMALIZATION_ID =
-  "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop";
+// These moved to features/workspace. App.tsx keeps exporting them: tests import
+// them from "./App".
+export {
+  SolveRunGenerationGate,
+  RuleRevisionGenerationGate,
+  commitModelAfterSolveInvalidation
+} from "./features/workspace/solveGates";
+export { isSupportedChangedModelPersistenceResponse } from "./features/workspace/projectPersistenceIntegrity";
+export { solveProofStatus } from "./features/workspace/solveProof";
+export type { SolveProofEvidence } from "./features/workspace/solveProof";
 
 // Diagnostics generations must not repeat across real same-page App remounts.
 let nextUiModelPublicationGeneration = 0;
-
-export function isSupportedChangedModelPersistenceResponse(
-  envelope: LocalProjectEnvelope,
-  requestModelHash: ModelHashEvidence | null,
-  returnedModelHash: ModelHashEvidence | null,
-  recomputedReturnedEnvelopeHash: ProjectEnvelopeHashEvidence | null,
-  priorLedgerCount: number
-): boolean {
-  if (
-    !requestModelHash ||
-    !returnedModelHash ||
-    !recomputedReturnedEnvelopeHash ||
-    requestModelHash.value === returnedModelHash.value
-  ) return false;
-  const migration = envelope.model_document_migration;
-  const ledger = envelope.model_migration_ledger;
-  if (
-    migration?.status !== "migrated" ||
-    migration.persistence_state !== "persisted_with_ledger_record" ||
-    migration.source_schema_version !== "0.1.0" ||
-    migration.target_schema_version !== "0.2.0" ||
-    envelope.model.schema_version !== "0.2.0" ||
-    ledger.length <= priorLedgerCount
-  ) return false;
-  const record = ledger.at(-1);
-  const evidence = record?.hash_evidence;
-  return Boolean(
-    record &&
-    evidence?.schema === "model_migration_hash_evidence_v1" &&
-    evidence.source_payload_basis === "incoming_pre_migration_model" &&
-    evidence.received_claim_verification === "not_asserted" &&
-    record.source_schema_version === "0.1.0" &&
-    record.target_schema_version === "0.2.0" &&
-    record.applied_migration_ids.length === 1 &&
-    record.applied_migration_ids[0] === SUPPORTED_MODEL_NORMALIZATION_ID &&
-    migration.applied_migration_ids.length === 1 &&
-    migration.applied_migration_ids[0] === SUPPORTED_MODEL_NORMALIZATION_ID &&
-    record.pre_migration_model_hash === requestModelHash.value &&
-    evidence.computed.pre_migration_model_hash === requestModelHash.value &&
-    record.post_migration_model_hash === returnedModelHash.value &&
-    evidence.computed.post_migration_model_hash === returnedModelHash.value &&
-    envelope.model_hash?.algorithm === returnedModelHash.algorithm &&
-    envelope.model_hash.canonicalization === returnedModelHash.canonicalization &&
-    envelope.model_hash.payload_scope === returnedModelHash.payload_scope &&
-    envelope.model_hash.payload_ref === returnedModelHash.payload_ref &&
-    envelope.model_hash.value === returnedModelHash.value &&
-    envelope.model_hash.hash_status === returnedModelHash.hash_status &&
-    evidence.computed.post_migration_project_envelope_hash === recomputedReturnedEnvelopeHash.value &&
-    envelope.project_envelope_hash?.algorithm === recomputedReturnedEnvelopeHash.algorithm &&
-    envelope.project_envelope_hash.canonicalization === recomputedReturnedEnvelopeHash.canonicalization &&
-    envelope.project_envelope_hash.payload_scope === recomputedReturnedEnvelopeHash.payload_scope &&
-    envelope.project_envelope_hash.payload_excludes === recomputedReturnedEnvelopeHash.payload_excludes &&
-    envelope.project_envelope_hash.payload_ref === recomputedReturnedEnvelopeHash.payload_ref &&
-    envelope.project_envelope_hash.value === recomputedReturnedEnvelopeHash.value &&
-    envelope.project_envelope_hash.hash_status === recomputedReturnedEnvelopeHash.hash_status
-  );
-}
-
-// TP-APP-R2-UXSHELL-001 workspace information architecture.
-//
-// PRD section 14.1 names the workspace surfaces; the A12 journey (SMOKE.md
-// TP-MAC-141) orders them: model entities -> loads -> solve -> results ->
-// report. The shell therefore keeps a persistent spatial core (model tree +
-// 3D centerline viewport + property inspector, per PRD 14.1/14.3 and
-// DEL-07-02) always on screen, and organizes every other panel behind this
-// always-visible section navigation, listed in journey order. The rule-pack
-// manager landed as Phase C2 slice 1 (TP-C2-EDITOR-001), placed between
-// loads and solve because user rule checks consume authored loads and feed
-// the solve/check journey (PRD §22.4). The private library manager landed as
-// Phase C3 (TP-C3-LIBGUI-001, PRD §13/§14.6), placed immediately before the
-// rule-pack manager because both are private local-only asset managers and
-// rule packs reference imported library allowables.
-type WorkspaceSectionId =
-  | "operations"
-  | "loads"
-  | "libraries"
-  | "rule-packs"
-  | "solve"
-  | "results"
-  | "report"
-  | "project"
-  | "exports"
-  | "evidence";
-
-// CAD-shell menu model (TP-R3UX-CADSHELL). The in-DOM menu bar is the tested
-// source of truth; the native macOS menu (Tauri) emits these same command ids.
-type MenuId = "file" | "edit" | "view" | "insert" | "analyze";
-
-type MenuCommandId =
-  | "file.new-local"
-  | "file.new-blank"
-  | "file.open-local"
-  | "file.list-local"
-  | "file.save-local"
-  | "file.save-report-package"
-  | "edit.undo"
-  | "edit.redo"
-  | "view.tree"
-  | "view.inspector"
-  | "view.issues"
-  | "view.audit"
-  | "view.close-panels"
-  | `view.section.${WorkspaceSectionId}`
-  | "insert.node"
-  | "insert.pipe"
-  | "insert.support"
-  | "insert.component"
-  | "insert.load"
-  | "analyze.run"
-  | "analyze.cancel"
-  | "analyze.rule-checks";
-
-type MenuItemSpec =
-  | { kind: "command"; id: MenuCommandId; label: string; disabled?: boolean; active?: boolean }
-  | { kind: "separator" };
-
-const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string; description: string }> = [
-  {
-    id: "operations",
-    label: "Review changes",
-    description: "Queued structured operations, apply/undo/redo, diffs, and the operation review ledger"
-  },
-  {
-    id: "loads",
-    label: "Load Cases",
-    description: "Load-case manager: create load cases, primitive loads, and combinations"
-  },
-  {
-    id: "libraries",
-    label: "Libraries",
-    description:
-      "Private, local-only library manager: import material/section/component libraries with provenance, validation findings, and the local store"
-  },
-  {
-    id: "rule-packs",
-    label: "Rules",
-    description:
-      "Private, local-only rule-pack manager: drafts, validation findings, checksum generation, and the local store"
-  },
-  {
-    id: "solve",
-    label: "Analyze",
-    description: "Run the mechanics preview, solve job audit, diagnostics, and missing-data review"
-  },
-  {
-    id: "results",
-    label: "Results",
-    description: "Results browser, comparison workspace, and design-authoring state"
-  },
-  {
-    id: "report",
-    label: "Report",
-    description: "Rendered calculation report, report packet, and report content lint"
-  },
-  {
-    id: "project",
-    label: "Project",
-    description: "Local project storage audit and validation preflight"
-  },
-  {
-    id: "exports",
-    label: "Exports",
-    description: "Result/geometry exports, exchange adapters, handoff packages, and export review"
-  },
-  {
-    id: "evidence",
-    label: "Audit & Boundaries",
-    description: "Run audit, validation evidence, telemetry/privacy/security boundary reviews"
-  }
-];
-
-const NATIVE_MENU_COMMAND_IDS: ReadonlySet<string> = new Set([
-  "file.new-local",
-  "file.new-blank",
-  "file.open-local",
-  "file.list-local",
-  "file.save-local",
-  "file.save-report-package",
-  "edit.undo",
-  "edit.redo",
-  "view.tree",
-  "view.inspector",
-  "view.issues",
-  "view.audit",
-  "view.close-panels",
-  ...WORKSPACE_SECTIONS.map((section) => `view.section.${section.id}`),
-  "insert.node",
-  "insert.pipe",
-  "insert.support",
-  "insert.component",
-  "insert.load",
-  "analyze.run",
-  "analyze.cancel",
-  "analyze.rule-checks"
-]);
-
-function isMenuCommandId(value: string): value is MenuCommandId {
-  return NATIVE_MENU_COMMAND_IDS.has(value);
-}
 
 function formatPackageSaveError(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -3294,24 +3048,6 @@ function AppSession() {
   );
 }
 
-const EXPENSIVE_LIFECYCLE_SECTIONS: ReadonlySet<WorkspaceSectionId> = new Set(
-  WORKSPACE_SECTIONS.map((section) => section.id)
-);
-
-function uiModelIdentityHash(model: PreviewModel): string {
-  const text = JSON.stringify(model);
-  let first = 0x811c9dc5;
-  let second = 0x9e3779b9;
-  for (let index = 0; index < text.length; index += 1) {
-    const unit = text.charCodeAt(index);
-    first = Math.imul(first ^ unit, 0x01000193);
-    second = Math.imul(second ^ unit, 0x85ebca6b);
-  }
-  return `ui-model-fnv32x2:${(first >>> 0).toString(16).padStart(8, "0")}${
-    (second >>> 0).toString(16).padStart(8, "0")
-  }:${text.length}`;
-}
-
 // Once activated, sections stay mounted so form drafts and queue previews
 // survive navigation; expensive sections defer their first model scan until
 // the user opens them. CSS removes inactive sections from the accessibility tree.
@@ -3775,44 +3511,6 @@ function StatusPill({ label, value, testId, summaryText }: {
   );
 }
 
-export function solveProofStatus(
-  model: PreviewModel,
-  modelHash: ModelHashEvidence | null,
-  result: MechanicsResult | null,
-  solveJob: SolveJobAuditState,
-  proof: SolveProofEvidence | null
-): string | null {
-  if (
-    !modelHash ||
-    !result ||
-    result.status.mechanics !== "MECHANICS_SOLVED" ||
-    !proof ||
-    solveJob.state !== "completed" ||
-    proof.state !== "completed" ||
-    solveJob.job_id !== proof.job_id ||
-    solveJob.backend_job_seam !== proof.backend_job_seam ||
-    model.project.id !== proof.project_ref ||
-    modelHash.value !== proof.model_sha256 ||
-    result.run_id !== proof.result_run_id ||
-    result.model_ref !== proof.result_model_ref ||
-    result.results.length !== proof.result_row_count ||
-    result.model_ref !== model.project.id
-  ) {
-    return null;
-  }
-  return [
-    `seam=${proof.backend_job_seam}`,
-    `project=${model.project.id}`,
-    `result_model=${result.model_ref}`,
-    "identity=match",
-    `rows=${result.results.length}`,
-    `generation=${proof.run_generation}`,
-    `job=${proof.job_id}`,
-    `model_sha256=${proof.model_sha256}`,
-    `input_manifest_sha256=${proof.input_manifest_sha256}`
-  ].join("; ");
-}
-
 function issueCountFor(
   model: PreviewModel,
   knowledge: DesignKnowledge | null,
@@ -3895,462 +3593,4 @@ function projectReviewContext(
   const total = editorIntents.length + proposalCount;
   const label = total === 1 ? "operation" : "operations";
   return ` Review context: ${total} pending ${label}; applied_operations=${appliedOperationCount}; editor_intents=${editorIntents.length}; agent_proposals=${proposalCount}.`;
-}
-
-function selectionForOperationOutcome(outcome: OperationOutcome): EntityRef | null {
-  const selectionTypeByObjectType: Record<string, EntityRef["type"]> = {
-    Material: "material",
-    Section: "section",
-    Node: "node",
-    Element: "pipe",
-    Component: "component",
-    Support: "support",
-    Load: "load",
-    Combination: "combination"
-  };
-  const type = selectionTypeByObjectType[outcome.target_object_type];
-  return type ? { type, id: outcome.target_ref } : null;
-}
-
-function clonePreviewModel(model: PreviewModel): PreviewModel {
-  return JSON.parse(JSON.stringify(model)) as PreviewModel;
-}
-
-const NO_BACKEND_JOB_TOKEN = "none_no_active_backend_job";
-
-function initialSolveJob(): SolveJobAuditState {
-  return {
-    job_id: "job:preview-linear-static:not-started",
-    state: "not_started",
-    progress_basis: "preview_service_event_state_only_no_percent_stream",
-    percentages_synthesized: false,
-    backend_percent_stream_available: false,
-    cancellation_requested: false,
-    cancellation_status: "not_requested",
-    backend_job_seam: "no_job_started",
-    backend_job_id: null,
-    backend_cancellation_token: NO_BACKEND_JOB_TOKEN,
-    events: [
-      {
-        event_id: "solve-preview-not-started",
-        state: "not_started",
-        message: "Preview mechanics has not been requested in this session.",
-        result_available: false,
-        diagnostic_count: 0,
-        result_row_count: 0,
-        analysis_status: []
-      }
-    ],
-    error_message: null
-  };
-}
-
-function startSolveJob(model: PreviewModel | null, startReceipt: SolveJobStartReceipt): SolveJobAuditState {
-  const modelRef = model?.project.id ?? "project:unknown";
-  const backendJob = startReceipt.mode === "backend_job";
-  const runningMessage = backendJob
-    ? `Backend solve job ${startReceipt.job_id} is executing; cancellation is cooperative at backend checkpoints (${startReceipt.cancellation_scope}); this service path does not stream percentage progress.`
-    : "Preview mechanics command is executing in browser fixture mode without a backend job; this service path does not stream percentage progress.";
-  return {
-    job_id: backendJob ? startReceipt.job_id : `job:preview-linear-static:${safeJobToken(modelRef)}`,
-    state: "running",
-    progress_basis: "preview_service_event_state_only_no_percent_stream",
-    percentages_synthesized: false,
-    backend_percent_stream_available: false,
-    cancellation_requested: false,
-    cancellation_status: "not_requested",
-    backend_job_seam: backendJob ? "tauri_backend_job" : "browser_fixture_no_backend_job",
-    backend_job_id: backendJob ? startReceipt.job_id : null,
-    backend_cancellation_token: backendJob
-      ? startReceipt.backend_cancellation_token
-      : "unavailable_no_backend_job_browser_fixture_mode",
-    events: [
-      {
-        event_id: "solve-preview-queued",
-        state: "queued",
-        message: backendJob
-          ? `Backend solve job ${startReceipt.job_id} queued with a backend cancellation token through the application service boundary.`
-          : "Preview mechanics command queued through the application service boundary.",
-        result_available: false,
-        diagnostic_count: 0,
-        result_row_count: 0,
-        analysis_status: []
-      },
-      {
-        event_id: "solve-preview-running",
-        state: "running",
-        message: runningMessage,
-        result_available: false,
-        diagnostic_count: model?.diagnostics.length ?? 0,
-        result_row_count: 0,
-        analysis_status: model ? [model.analysis_status.mechanics, model.analysis_status.rule_check] : []
-      }
-    ],
-    error_message: null
-  };
-}
-
-function modelChangedSolveJob(outcome: OperationOutcome): SolveJobAuditState {
-  return {
-    ...initialSolveJob(),
-    job_id: "job:preview-linear-static:model-changed",
-    events: [
-      {
-        event_id: "solve-preview-model-changed",
-        state: "not_started",
-        message: `Model changed by applied structured operation ${outcome.operation_id}; previous mechanics results were cleared because they no longer describe the edited model. Run a new solve.`,
-        result_available: false,
-        diagnostic_count: 0,
-        result_row_count: 0,
-        analysis_status: []
-      }
-    ]
-  };
-}
-
-function blankProjectCreatedSolveJob(model: PreviewModel): SolveJobAuditState {
-  return {
-    ...initialSolveJob(),
-    job_id: `job:preview-linear-static:blank:${safeJobToken(model.project.id)}`,
-    events: [
-      {
-        event_id: "solve-preview-blank-project-created",
-        state: "not_started",
-        message:
-          "Blank local model document created as the authoring target; no mechanics results exist until explicit entities and loads are added and a solve is run.",
-        result_available: false,
-        diagnostic_count: model.diagnostics.length,
-        result_row_count: 0,
-        analysis_status: [model.analysis_status.mechanics, model.analysis_status.rule_check]
-      }
-    ]
-  };
-}
-
-function sessionHistoryChangedSolveJob(action: "undo" | "redo" | "batch", operationId: string): SolveJobAuditState {
-  const verb = action === "undo" ? "Undid" : action === "redo" ? "Redid" : "Applied batch";
-  return {
-    ...initialSolveJob(),
-    job_id: `job:preview-linear-static:session-${action}`,
-    events: [
-      {
-        event_id: `solve-preview-session-${action}`,
-        state: "not_started",
-        message: `${verb} local session model operation ${operationId}; previous mechanics results were cleared because they no longer describe the current model. Run a new solve.`,
-        result_available: false,
-        diagnostic_count: 0,
-        result_row_count: 0,
-        analysis_status: []
-      }
-    ]
-  };
-}
-
-async function awaitBackendSolveJob(jobId: string): Promise<BackendSolveJobStatus> {
-  let status = await pollPreviewMechanicsJob(jobId);
-  while (status.state === "queued" || status.state === "running") {
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    status = await pollPreviewMechanicsJob(jobId);
-  }
-  return status;
-}
-
-function cancelledSolveJob(current: SolveJobAuditState, status: BackendSolveJobStatus): SolveJobAuditState {
-  return {
-    ...current,
-    state: "cancelled",
-    cancellation_requested: true,
-    cancellation_status: status.cancellation_status,
-    events: [
-      ...current.events,
-      {
-        event_id: "solve-preview-cancelled",
-        state: "cancelled",
-        message: `Backend solve job ${status.job_id} stopped at a cooperative checkpoint (${status.cancellation_status}); no result was published and no cancellation-success guarantee is claimed.`,
-        result_available: false,
-        diagnostic_count: 0,
-        result_row_count: 0,
-        analysis_status: []
-      }
-    ],
-    error_message: status.error_message
-  };
-}
-
-function recordBackendCancellationReceipt(
-  current: SolveJobAuditState,
-  receipt: BackendSolveJobCancellationReceipt
-): SolveJobAuditState {
-  return {
-    ...current,
-    cancellation_status: receipt.cancellation_status,
-    events: [
-      ...current.events,
-      {
-        event_id: "solve-preview-cancel-receipt",
-        state: current.state,
-        message: `Backend cancellation receipt for ${receipt.job_id}: accepted=${String(receipt.accepted)}; status=${receipt.cancellation_status}; job_state=${receipt.job_state}; no cancellation success is claimed.`,
-        result_available: false,
-        diagnostic_count: 0,
-        result_row_count: 0,
-        analysis_status: []
-      }
-    ]
-  };
-}
-
-function recordBackendCancellationFailure(current: SolveJobAuditState, error: unknown): SolveJobAuditState {
-  return {
-    ...current,
-    cancellation_status: "backend_cancellation_request_failed",
-    events: [
-      ...current.events,
-      {
-        event_id: "solve-preview-cancel-request-failed",
-        state: current.state,
-        message: `Backend cancellation request failed to reach the job registry: ${String(error)}. The solve job continues under its own state reporting.`,
-        result_available: false,
-        diagnostic_count: 0,
-        result_row_count: 0,
-        analysis_status: []
-      }
-    ]
-  };
-}
-
-function completeSolveJob(
-  current: SolveJobAuditState,
-  result: MechanicsResult,
-  analysisRun: AnalysisRunEnvelope
-): SolveJobAuditState {
-  const cancellationStatus = current.cancellation_requested
-    ? "request_recorded_run_completed_before_cancellation_took_effect"
-    : "not_requested";
-  return {
-    ...current,
-    state: "completed",
-    cancellation_status: cancellationStatus,
-    events: [
-      ...current.events,
-      {
-        event_id: "solve-preview-completed",
-        state: "completed",
-        message: `Preview mechanics completed with ${result.results.length} result rows bound to ${analysisRun.analysis_run.run_id}.`,
-        result_available: true,
-        diagnostic_count: result.diagnostics.length,
-        result_row_count: result.results.length,
-        analysis_status: analysisRun.analysis_run.analysis_status
-      }
-    ],
-    error_message: null
-  };
-}
-
-function restoredSolveJob(result: MechanicsResult, analysisRun: AnalysisRunEnvelope): SolveJobAuditState {
-  return {
-    job_id: `job:preview-linear-static:restored:${safeJobToken(analysisRun.analysis_run.run_id)}`,
-    state: "completed",
-    progress_basis: "restored_persisted_run_record_no_new_solve_executed",
-    percentages_synthesized: false,
-    backend_percent_stream_available: false,
-    cancellation_requested: false,
-    cancellation_status: "not_requested",
-    backend_job_seam: "restored_persisted_run_no_new_solve",
-    backend_job_id: null,
-    backend_cancellation_token: NO_BACKEND_JOB_TOKEN,
-    events: [
-      {
-        event_id: "solve-preview-restored",
-        state: "completed",
-        message: `Restored persisted preview mechanics run ${analysisRun.analysis_run.run_id} from the local project store; no new solve was executed in this session.`,
-        result_available: true,
-        diagnostic_count: result.diagnostics.length,
-        result_row_count: result.results.length,
-        analysis_status: analysisRun.analysis_run.analysis_status
-      }
-    ],
-    error_message: null
-  };
-}
-
-function failSolveJob(current: SolveJobAuditState, error: unknown): SolveJobAuditState {
-  return {
-    ...current,
-    state: "failed",
-    events: [
-      ...current.events,
-      {
-        event_id: "solve-preview-failed",
-        state: "failed",
-        message: `Preview mechanics failed: ${String(error)}`,
-        result_available: false,
-        diagnostic_count: 0,
-        result_row_count: 0,
-        analysis_status: ["MODEL_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]
-      }
-    ],
-    error_message: String(error)
-  };
-}
-
-function requestSolveCancellation(current: SolveJobAuditState): SolveJobAuditState {
-  if (current.state !== "running") return current;
-  const backendJob = current.backend_job_seam === "tauri_backend_job";
-  return {
-    ...current,
-    state: "cancelling",
-    cancellation_requested: true,
-    cancellation_status: backendJob
-      ? "request_sent_to_backend_job_awaiting_receipt"
-      : "request_recorded_no_backend_job_in_browser_fixture_mode",
-    events: [
-      ...current.events,
-      {
-        event_id: "solve-preview-cancel-requested",
-        state: "cancelling",
-        message: backendJob
-          ? `Cancellation requested for backend solve job ${current.backend_job_id} using its backend cancellation token; cancellation is cooperative at backend checkpoints and success is not guaranteed.`
-          : "Cancellation request recorded at the UI boundary; no backend job exists in browser fixture mode, so the in-flight fixture run cannot be interrupted.",
-        result_available: false,
-        diagnostic_count: 0,
-        result_row_count: 0,
-        analysis_status: []
-      }
-    ]
-  };
-}
-
-function pendingBackendStartCancellationSolveJob(current: SolveJobAuditState): SolveJobAuditState {
-  return {
-    ...initialSolveJob(),
-    job_id: "job:preview-linear-static:pending-start-cancel",
-    state: "cancelling",
-    cancellation_requested: true,
-    cancellation_status: "request_recorded_awaiting_backend_job_start",
-    events: [
-      ...current.events,
-      {
-        event_id: "solve-preview-cancel-requested-before-backend-start",
-        state: "cancelling",
-        message:
-          "Cancellation requested before backend job creation completed; the active solve generation will stop before start or dispatch exactly one cooperative cancellation when its backend receipt arrives.",
-        result_available: false,
-        diagnostic_count: 0,
-        result_row_count: 0,
-        analysis_status: []
-      }
-    ]
-  };
-}
-
-function cancelledBeforeBackendStartSolveJob(model: PreviewModel): SolveJobAuditState {
-  return {
-    ...initialSolveJob(),
-    job_id: `job:preview-linear-static:cancelled-before-start:${safeJobToken(model.project.id)}`,
-    state: "cancelled",
-    cancellation_requested: true,
-    cancellation_status: "cancelled_before_backend_job_start",
-    events: [
-      {
-        event_id: "solve-preview-cancelled-before-backend-start",
-        state: "cancelled",
-        message:
-          "The active solve generation was cancelled before any backend job was started; no result was computed or published.",
-        result_available: false,
-        diagnostic_count: model.diagnostics.length,
-        result_row_count: 0,
-        analysis_status: []
-      }
-    ]
-  };
-}
-
-function cancelledWithoutBackendSolveJob(current: SolveJobAuditState): SolveJobAuditState {
-  return {
-    ...current,
-    state: "cancelled",
-    cancellation_requested: true,
-    cancellation_status: "cancelled_before_browser_fixture_result_publication",
-    events: [
-      ...current.events,
-      {
-        event_id: "solve-preview-browser-fixture-cancelled",
-        state: "cancelled",
-        message:
-          "The browser fixture solve generation was cancelled before result publication; no backend cancellation-success claim is made.",
-        result_available: false,
-        diagnostic_count: 0,
-        result_row_count: 0,
-        analysis_status: []
-      }
-    ]
-  };
-}
-
-function safeJobToken(value: string): string {
-  return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
-}
-
-function deriveModelHashIntegrity(
-  storedHash: ModelHashEvidence | null,
-  recomputedHash: ModelHashEvidence | null,
-  payloadRef: string
-): ModelHashIntegrityEvidence {
-  if (!storedHash) {
-    return {
-      integrity_status: "not_persisted",
-      persisted_value: "not_persisted",
-      recomputed_value: recomputedHash?.value ?? "unavailable",
-      payload_ref: payloadRef,
-      verification_basis: "recomputed_on_open_from_restored_model"
-    };
-  }
-  if (!recomputedHash) {
-    return {
-      integrity_status: "hash_recompute_unavailable",
-      persisted_value: storedHash.value,
-      recomputed_value: "unavailable",
-      payload_ref: payloadRef,
-      verification_basis: "recomputed_on_open_from_restored_model"
-    };
-  }
-  return {
-    integrity_status: storedHash.value === recomputedHash.value ? "verified_match" : "mismatch_review_required",
-    persisted_value: storedHash.value,
-    recomputed_value: recomputedHash.value,
-    payload_ref: payloadRef,
-    verification_basis: "recomputed_on_open_from_restored_model"
-  };
-}
-
-function deriveProjectEnvelopeHashIntegrity(
-  storedHash: ProjectEnvelopeHashEvidence | null,
-  recomputedHash: ProjectEnvelopeHashEvidence | null,
-  payloadRef: string
-): ProjectEnvelopeHashIntegrityEvidence {
-  if (!storedHash) {
-    return {
-      integrity_status: "not_persisted",
-      persisted_value: "not_persisted",
-      recomputed_value: recomputedHash?.value ?? "unavailable",
-      payload_ref: payloadRef,
-      verification_basis: "recomputed_on_open_from_restored_envelope_payload"
-    };
-  }
-  if (!recomputedHash) {
-    return {
-      integrity_status: "hash_recompute_unavailable",
-      persisted_value: storedHash.value,
-      recomputed_value: "unavailable",
-      payload_ref: payloadRef,
-      verification_basis: "recomputed_on_open_from_restored_envelope_payload"
-    };
-  }
-  return {
-    integrity_status: storedHash.value === recomputedHash.value ? "verified_match" : "mismatch_review_required",
-    persisted_value: storedHash.value,
-    recomputed_value: recomputedHash.value,
-    payload_ref: payloadRef,
-    verification_basis: "recomputed_on_open_from_restored_envelope_payload"
-  };
 }
