@@ -1,0 +1,14 @@
+{
+  "returns": [
+    {
+      "path": "_run_records/REVIEW_RETURN.md",
+      "sha256": "d0249ac51c39f772bf4c69e8046495f7031118dc636c50628f9e22e47894eb3e",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "high",
+      "agent": "/root/loop_alignment_review",
+      "candidate": "571bfa8ffb4c97841c95ecc84036251262a73fcc",
+      "retention": "verbatim final return, newline terminated"
+    }
+  ],
+  "location_correction": "The unchanged path-anchor validator classified run-root REVIEW_RETURN.md as live instructions. Exact raw bytes moved to the existing canonical _run_records evidence location; no validator change."
+}
