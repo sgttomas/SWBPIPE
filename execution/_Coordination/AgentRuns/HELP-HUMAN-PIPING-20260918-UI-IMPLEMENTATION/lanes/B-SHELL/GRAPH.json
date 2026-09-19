@@ -19,12 +19,14 @@
     "B2-REVIEW": {
       "role": "TASK Type 2 with software-code-review, read-only, fresh context",
       "model": "opus",
-      "status": "sealed",
+      "status": "returned: PASS, no actionable finding",
       "sealed": "2026-09-19T01:49Z",
       "briefSha256": "69bb0ce07fb472d9017c42988765d525016314d62e0b23805e8891576648ba9a",
       "brief": "briefs/B2-REVIEW_code_review.md",
       "candidate": "5d2e261e0df39c18a71d897902bf5d3a047db175",
-      "returnSha256": null
+      "returnSha256": "97f4adeba1454a37655f0a46fd8be697f6b724c9a4e7169d9e178e03c2f69089",
+      "return": "reviews/B2-REVIEW_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
     },
     "B2": {
       "role": "slice: state extraction, no behaviour change",
@@ -37,5 +39,5 @@
     }
   },
   "slices": [],
-  "current_frontier": "Slice B2 returned and frozen at 5d2e261e0; B2-REVIEW (Opus, read-only) sealed; next its PASS, the DEC-025 sweep through the lock, the closeout, the pull request, CI and merge; then sealed addendum 2 (the handler fix slice B2F), then B3."
+  "current_frontier": "B2-REVIEW PASS; the DEC-025 sweep runs on the clean records commit after the frozen candidate 5d2e261e0; then the closeout, the pull request, CI and merge; then sealed addendum 2 (slice B2F), then B3."
 }
