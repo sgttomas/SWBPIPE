@@ -3249,3 +3249,12 @@
   - Model-Attribution: HELP_HUMAN Astra/high for preparation and closeout; fresh direct TASK Astra/high for complete-diff review. Actual dispatch and return recorded in the owning run; instruction-asserted enforcement limits apply.
   - Checks: Draft entrypoint checks and archive byte verification passed before adoption. Independent review and final candidate checks remain pending at this receipt's preparation; their results belong to the run and PR. No product/runtime verification is claimed by this documentation amendment.
   - Gate-Outcome: `EXECUTED` — owner accepted the proposed standing procedure and bounded review strategy, then directed separation of recurrent instructions, state pointers and per-run steering. Initial adoption used marker substitutions; the subsequent entrypoint amendment is recorded in the owning run. Product work, protected criteria, DAG, lifecycle, release and independent-usability holds remain unchanged. Standard F-PIP-2/DEC-081 fence applies.
+
+- **2026-09-19 — Receipt 148** (recurrent loop and session work graph).
+  - Receipt-ID: `Receipt-148`
+  - Examined-Through: `82e42a047a9a8d6b4ebcd67d9c28d0b7f2c21328`
+  - Parent-Receipt: `Receipt-147`
+  - Pointers: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260919-LOOP-WORKGRAPH/OWNER_DIRECTION.md`; same run `WORK_GRAPH.json` and `REVIEW_BRIEF.md`; `execution/_Coordination/NOTICE_2026-09-19_PIPING_LOOP_WORKGRAPH.md`; `loop/.archive/2026-09-19-workgraph-transition/SNAPSHOT.json`. The scoped PR owns final candidate review, CI and merge disposition.
+  - Model-Attribution: HELP_HUMAN Astra/high; fresh direct TASK Astra/high review. Supplied context, actual launch, return and instruction-asserted boundaries are in the owning run and PR.
+  - Checks: Independent complete-diff review and instruction/receipt/archive checks precede merge; final results are in the run/PR. No product runtime proof is claimed by this documentation amendment.
+  - Gate-Outcome: `EXECUTED` — owner directed Piping implementation of the agreed recurrent-procedure/session-workgraph arrangement. Owner-directed phase transitions remain; no App, product, DAG, lifecycle, protected criterion or hold change. Standard F-PIP-2/DEC-081 fence applies.
