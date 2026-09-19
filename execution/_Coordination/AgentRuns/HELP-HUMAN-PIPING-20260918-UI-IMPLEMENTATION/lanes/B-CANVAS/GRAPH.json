@@ -98,12 +98,14 @@
     "C-PR1-REVIEW": {
       "role": "TASK Type 2, software-code-review, read-only",
       "model": "opus",
-      "status": "sealed",
+      "status": "returned: PASS, no actionable finding",
       "sealed": "2026-09-19T10:14Z",
       "briefSha256": "1e71331109c9e748162ce65f407cc38445bf8531c8241045a02e3fee9c64176d",
       "brief": "briefs/PR1-REVIEW_code_review.md",
-      "candidate": null,
-      "returnSha256": null
+      "candidate": "4e267d02bccd320607cf6ccab4c52f05cf4048b3",
+      "returnSha256": "eebd23af3e001c81d46c32bd7258fd11a7e16fcbdccaf287dc38f99b2073b7b5",
+      "return": "reviews/PR1-REVIEW_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
     }
   },
   "slices": [],
