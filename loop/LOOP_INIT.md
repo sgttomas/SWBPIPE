@@ -114,6 +114,12 @@ validates their returns. Retain returns verbatim with hashes and actual model
 and reasoning settings, plus findings, substitutions and dispositions. Record
 host enforcement limits honestly. Type 2 instances do not delegate.
 
+For a small read-only assignment, a launch message retained verbatim before
+dispatch may itself be the sealed brief. Keep the same necessary purpose,
+context identity, parent/role, tools and read-only boundary, expected return and
+checks; no separate elaborate brief file is required. Preserve its hash and
+return in the owning run. Scale the detail to the assignment, not its role type.
+
 Parallelise work with clear dependencies and disjoint writes. Give shared files
 one integration owner. Serialize access to native/browser state and other shared
 test resources when concurrent use would invalidate results. Intervene when
@@ -133,6 +139,13 @@ A departure that conflicts with an explicit owner decision or protected criterio
 requires an owner decision before it takes effect. Do not manufacture approvals
 from silence. Record the owner's words verbatim and distinguish them from agent
 interpretations and decisions.
+
+An explicit ruling, a specifically adopted choice or a protected criterion
+cannot be reversed by an agent. Other implementation departures may be decided
+within delegated discretion and disclosed with their rationale and reversal
+method. An approved specification is not automatically optional: read its terms
+and the owner's direction to distinguish fixed requirements from implementation
+discretion. Bring a conflict with a fixed requirement to the owner before acting.
 
 ## Build and test through user workflows
 
@@ -159,6 +172,12 @@ visual pass. Report unavailable or blocked scenarios explicitly. Scale the
 scenario set to the slice; it is not a demand to run every scenario on every
 edit. Agent-driven behavioural testing does not substitute for independent
 practitioner usability work or lift its holds.
+
+When changed behaviour depends on native-host integration, verify it in the
+native application; browser evidence alone does not establish that behaviour.
+Identify the affected native scenarios in the slice's verification brief and
+report any unavailable witness explicitly. This does not require a full native
+sweep for every unrelated change.
 
 ## Reproducible evidence
 
@@ -187,6 +206,13 @@ Fix actionable findings and obtain backchecks before merge. Any subsequent
 candidate changes require review coverage; earlier review alone cannot cover
 new bytes. Reviews remain independent of the implementer's self-checks.
 
+Here a slice means a proposed mergeable change, including instructions and
+owner-direction records; a read-only dispatch is not itself a slice. Scale review
+depth to what the change can break. Small changes can have small independent
+reviews; backcheck the affected correction and its consequences rather than
+repeating the whole investigation without cause. This does not permit skipping
+required review, leaving a finding unchecked or treating later bytes as reviewed.
+
 Software work uses `software-workflow.json` under the root
 `docs/SOFTWARE_WORKFLOW_PROFILE.md` contract. Preserve the registered DEC-025
 evidence sweep and applicable practitioner-harness, self-check and receipt
@@ -210,7 +236,16 @@ upstream changes without discarding others' work, review the resulting candidate
 and rerun checks whose applicability changed. Escalate substantive conflicts
 that exceed existing authority. Do not force-push another contributor's branch.
 
+During long work, keep the graph current and create useful recoverable Git
+checkpoints at meaningful boundaries. Label incomplete work and unverified
+checks explicitly; do not weaken a check to make a checkpoint green. After an
+involuntary stop, inspect the branch, index and working tree before resuming:
+a checkpoint or handoff may not include the last edits. This is not a requirement
+to commit after every edit or to discard work that has not yet passed checks.
+
 Keep run state, evidence and a concise handoff current at closure or pause.
+At a meaningful pause or closure, append and validate a short loop receipt
+pointing to the owning run, including work needed for continuation.
 Existing loop receipts remain historical evidence with their append-only and
 validation rules; use a short reference to the run rather than duplicate its
 work graph or numerical evidence. Never rewrite old verdicts, returns or records

@@ -840,5 +840,18 @@
     ]
   },
   "deliverableBindingNote": "Bindings on slice nodes are tentative and unverified. Run records and _STATUS.md lines were filed under DEL-07-08 (B2, B2F-B2G) and DEL-07-01 (C1, C2) by precedent and folder name. From here evidence stays in the run and the binding is recorded here; the owner's later reconciliation files it.",
-  "graphNote": "Version 2 adds slice nodes with dependsOn, blockedBy, defers, specDepartures and a tentative deliverable binding, so that a handoff can be derived from this file. Edges run parent to child (who launched or owns what); dependsOn carries the order of work."
+  "graphNote": "Version 2 adds slice nodes with dependsOn, blockedBy, defers, specDepartures and a tentative deliverable binding, so that a handoff can be derived from this file. Edges run parent to child (who launched or owns what); dependsOn carries the order of work.",
+  "continuationSteering": {
+    "record": "instances/ROOT/CONTINUATION_STEER_2026-09-19.md",
+    "amendment": "../HELP-HUMAN-PIPING-20260919-LOOP-CLARIFICATIONS/OWNER_DIRECTION.md",
+    "status": "owner-approved clarification; product decisions remain unresolved",
+    "precedence": "Later steering supersedes only identified procedural/model-allocation/DAG-link conflicts; historical owner words and execution attribution preserved.",
+    "productDecisionPackage": [
+      "drawer-strip mechanism",
+      "docked inspector width source",
+      "Both-view protected geometry assertion"
+    ],
+    "verification": "Native menu, window minimum and title bar require Tauri evidence for B3.",
+    "liveState": "Revalidate lane heads and working trees before continuation; this records steering, not a fresh product-state audit."
+  }
 }

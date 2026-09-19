@@ -1,0 +1,45 @@
+{
+  "schema": "ad-hoc-work-graph/v1",
+  "basis": "2fabfcda85bbb7f89f17c2365d8046e025bcf292",
+  "scope": "Owner-approved App/Piping instruction clarification; no product execution",
+  "strategy": "Agent0 author/integrator and fresh direct TASK review, Astra/high; carries approved bounded arrangement",
+  "phase_mapping": "Instruction maintenance only; no phase transition or deliverable/DAG amendment",
+  "nodes": [
+    {
+      "id": "instructions",
+      "state": "drafted",
+      "depends_on": [],
+      "semantic_changes": [
+        "shared clarifications in both loops",
+        "matching thin launchers",
+        "Piping continuation steering and receipt navigation"
+      ],
+      "departures": [],
+      "blockers": []
+    },
+    {
+      "id": "review_checks",
+      "state": "pending",
+      "depends_on": [
+        "instructions"
+      ]
+    },
+    {
+      "id": "integration",
+      "state": "pending",
+      "depends_on": [
+        "review_checks"
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "work": "B3 design decisions and implementation",
+      "until": "Successor presents product decision package and owner rules; no product ruling here"
+    },
+    {
+      "work": "App reconciliation and prior corpus drift",
+      "until": "Owner supplies phase steering"
+    }
+  ]
+}

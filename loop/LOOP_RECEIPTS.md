@@ -3258,3 +3258,13 @@
   - Model-Attribution: HELP_HUMAN Astra/high; fresh direct TASK Astra/high review. Supplied context, actual launch, return and instruction-asserted boundaries are in the owning run and PR.
   - Checks: Independent complete-diff review and instruction/receipt/archive checks precede merge; final results are in the run/PR. No product runtime proof is claimed by this documentation amendment.
   - Gate-Outcome: `EXECUTED` — owner directed Piping implementation of the agreed recurrent-procedure/session-workgraph arrangement. Owner-directed phase transitions remain; no App, product, DAG, lifecycle, protected criterion or hold change. Standard F-PIP-2/DEC-081 fence applies.
+
+- **2026-09-19 — Receipt 149** (owner-approved loop clarifications).
+  - Receipt-ID: `Receipt-149`
+  - Examined-Through: `2fabfcda85bbb7f89f17c2365d8046e025bcf292`
+  - Parent-Receipt: `Receipt-148`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING; verbatim approval and accepted scope in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260919-LOOP-CLARIFICATIONS/OWNER_DIRECTION.md`.
+  - Pointers: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260919-LOOP-CLARIFICATIONS/OWNER_DIRECTION.md`; same run `WORK_GRAPH.json`, review and check evidence; `execution/_Coordination/NOTICE_2026-09-19_LOOP_CLARIFICATIONS.md`. UI continuation: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json` and `instances/ROOT/CONTINUATION_STEER_2026-09-19.md` in that run.
+  - Checks: pre-append receipt checks passed; scoped validation, independent review and actual-candidate CI recorded in the owning run and PR before merge. No product/native evidence is claimed.
+  - Model-Attribution: HELP_HUMAN Astra/high; fresh direct TASK Astra/high review, parentage and instruction-asserted boundaries in the owning run.
+  - Gate-Outcome: `EXECUTED` — shared instruction clarification only. Protected criteria, product decisions, DAG, lifecycle, release and holds unchanged. UI successor owes strategy agreement, product decision package and B3 native checks.

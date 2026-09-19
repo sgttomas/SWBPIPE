@@ -1,0 +1,30 @@
+{
+  "basis": "2fabfcda85bbb7f89f17c2365d8046e025bcf292",
+  "checked_utc": "2026-09-19T21:37:13.032614+00:00",
+  "checks": [
+    {
+      "argv": [
+        "/Users/ryan/dev/chirality/.venv/bin/python",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "cwd": "{REPO_ROOT}",
+      "exit_code": 0,
+      "stdout": "VALID /Users/ryan/.codex/worktrees/8728/chirality-picking-stability-20260918/projects/chirality-piping/loop/LOOP_RECEIPTS.md: frozen through Receipt-44; versioned receipt contract satisfied\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/ryan/dev/chirality/.venv/bin/python",
+        "tools/validation/validate_app_dev_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "cwd": "{REPO_ROOT}",
+      "exit_code": 0,
+      "stdout": "VALID /Users/ryan/.codex/worktrees/8728/chirality-picking-stability-20260918/projects/chirality-app-dev/loop/LOOP_RECEIPTS.md: frozen through Receipt-52; versioned receipt contract satisfied\n",
+      "stderr": ""
+    }
+  ]
+}
