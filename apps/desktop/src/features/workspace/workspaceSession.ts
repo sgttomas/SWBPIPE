@@ -1460,12 +1460,6 @@ export function useWorkspaceSession() {
         model_hash: blankModelHash
       });
       const created = await createLocalProject(blankModel, [], null, null, null, null, blankModelHash, envelopeHash);
-      // The bytes were written: see handleSaveProject. The gate invalidation
-      // and the rest stay at the commit point below.
-      if (request === projectRequest.current) {
-        setModelHashIntegrity(null);
-        setProjectEnvelopeHashIntegrity(null);
-      }
       if (!stillCurrent()) return;
       const createdSummary = {
         ...created.summary,
