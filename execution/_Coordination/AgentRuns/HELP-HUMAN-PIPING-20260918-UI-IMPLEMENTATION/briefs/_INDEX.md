@@ -128,4 +128,6 @@ ROOT (HELP_HUMAN, Agent 0), a new session continuing from `../instances/ROOT/SES
 
 Independent check of the second session handoff, sealed 2026-09-19: `HANDOFF2-REVIEW_records_review.md`, SHA-256 `0cdfff48b0fa07a44097f8db892b1e3fd9976bce8590cf76e77353a7e0b8d36a`; model requested `opus` (Claude Opus 5); TASK Type 2, read-only, fresh context; return to be retained at `../instances/HANDOFF2-REVIEW/RETURN.md`.
 
+HANDOFF2-REVIEW returned on 2026-09-19: `../instances/HANDOFF2-REVIEW/RETURN.md`, SHA-256 `d6775a94b61b31c2693ac87f017fd6fce31dc3a079338345c294e02680728e87`; model that ran: Claude Opus 5 (`claude-opus-5[1m]`), by its own statement; verdict FINDINGS, eight, none blocking (four minor, four trivial); every commit, head, merge commit, pull-request head, hash and path it could check was correct. ROOT applied all eight as worded, with one correction of fact to the reviewer's wording for finding 1: ROOT did tell the owner of the change to the strip's mechanism, in the session, and the owner has not answered. No backcheck was run, to spare the owner's usage; the pull request says so.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
