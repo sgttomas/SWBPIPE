@@ -117,6 +117,15 @@
       "return": "reviews/B2G-REVIEW_BACKCHECK_RETURN.md",
       "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
       "candidate": "8922fec3ee9dec8dcb8552c0f1969322e648aa14"
+    },
+    "B2G-REVIEW-BACKCHECK2": {
+      "role": "TASK Type 2, same reviewer resumed",
+      "model": "opus",
+      "status": "returned: PASS, no actionable finding, combined candidate 13311e4aa",
+      "returnSha256": "d15363dc9920afed3dce763f3003c00d77f130ceed3281156ff47c9527004484",
+      "return": "reviews/B2G-REVIEW_BACKCHECK2_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "candidate": "13311e4aad46b74dbae7a4e2e25052e8f7c04c0a"
     }
   },
   "slices": [
