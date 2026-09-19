@@ -16,4 +16,15 @@ The shell lane of Tranche B, run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`.
 - Carried out of B2, not acted on (ROOT routes them): four handler asymmetries that moved byte for byte (`handleOpenProject` leaves the operation diagnostics set; `handleListProjects` has no `projectRequest` guard; `handleApplyIntent` clears the computed cells by hand and never invalidates `ruleRevisionGate`; `handleCreateBlankProject` and `handleOpenProject` invalidate `ruleRevisionGate` and null the two integrity cells before their first `await`), which ROOT is drafting into a fix slice as addendum 2, to run after B2 merges and before B3 with a failing test first; dead code left in place; two comments outside this slice's edits that still name App for an effect that moved; the canvas lane's `candidateExecutedFiles` list.
 - Next: nothing starts until ROOT resumes the manager after the independent review, the sweep and the merge.
 
+## New session of the manager, 2026-09-19: launch, merge and baseline
+
+- A new B-SHELL manager (Claude Fable 5.1, by its own statement) was launched by ROOT's second session with a sealed launch brief (`briefs/B-SHELL_launch_2026-09-19.md`, SHA-256 `2a2542c7…`, verified against ROOT's launch message and retained here). It has none of the earlier manager's context; it read, in the order addendum 3 gives, the lane brief and addenda 1 to 3 (all four hashes verified), `B2_RETURN.md`, `B2-REVIEW_RETURN.md`, this log with the two B2 findings, then `workspaceSession.ts` and the six state hooks.
+- Head at launch `5f70ad178`, clean. First git step, as the launch brief directs: `git merge origin/main` (`64f86e17f`, PR #804: B2's merge, the session handoff, `{RUN}/tools/`), no conflict, merge commit `66a0bf103`.
+- Baseline on the merged tree, from `{DESKTOP}`: `npx tsc -b` exit 0; `npx vitest run` 75 files, 1,190 tests passed; `npm run build` exit 0 (vite built).
+
+## Slice B2F: project-handler repairs (addendum 2)
+
+- Base: the merged head `66a0bf103`. One child, B2F-HANDLERS (Claude Fable 5.1 requested), launched in the foreground per addendum 3: test first in one new file `src/App.projectHandlers.test.tsx`, then the smallest repair per item, in `workspaceSession.ts` only. The manager's recommendation for item 2, written in the brief, is a `runMenuCommand` guard on the five `file.*` commands that matches the buttons plus an early return in `handleListProjects` while busy, with the ownership count held back because it would change how the four request-numbered handlers release; the child may depart with reasons. Item 4 is optional and is not to grow.
+- Records committed before the launch: this entry, the retained launch brief, the sealed child brief `briefs/B2F-HANDLERS.md` (`73952ad0…`) and its index row.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

@@ -1,10 +1,17 @@
 # Lane B-SHELL: sealed briefs of the manager's children
 
-Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, lane B-SHELL (the shell lane of Tranche B). The lane manager (WORKING_ITEMS, Type 1) writes each child's brief here, hashes it and lists it before the child is launched. Every child is a Type 2 TASK launched with the Claude Code `Agent` tool (general-purpose type, background) in the lane's worktree on branch `codex/swbpipe-b-shell-20260918`; a child does not delegate and runs no state-changing git command; the manager integrates and commits. Returns are retained verbatim under `../returns/` with their SHA-256 and the model that ran. ROOT's records for this lane (addenda, review briefs, reviewers' returns) are in `../../../lanes/B-SHELL/`; the manager does not write there.
+Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, lane B-SHELL (the shell lane of Tranche B). The lane manager (WORKING_ITEMS, Type 1) writes each child's brief here, hashes it and lists it before the child is launched. Every child is a Type 2 TASK launched with the Claude Code `Agent` tool (general-purpose type, ~~background~~ in the foreground from addendum 3, clause 4, when its return is the manager's next input; the B2 rows above predate that clause) in the lane's worktree on branch `codex/swbpipe-b-shell-20260918`; a child does not delegate and runs no state-changing git command; the manager integrates and commits. Returns are retained verbatim under `../returns/` with their SHA-256 and the model that ran. ROOT's records for this lane (addenda, review briefs, reviewers' returns) are in `../../../lanes/B-SHELL/`; the manager does not write there.
 
 | Brief | SHA-256 | Sealed | Model requested | Role | Return |
 |---|---|---|---|---|---|
 | `B2-STATE.md` | `a938b135e34a7e9e28531274a20bc3f24ad1d0a52de657ab1a57405871442d75` | 2026-09-19T00:24Z | `fable` (Claude Fable 5.1) | TASK implementer; slice B2, state extraction from `App.tsx`, in three stages with a return at each | `../returns/B2-STATE_STAGE1_RETURN.md`, `../returns/B2-STATE_STAGE2_RETURN.md`, `../returns/B2-STATE_STAGE3_RETURN.md` |
+| `B2F-HANDLERS.md` | `73952ad00def8f1cd640299ba6b602c53369e97a17edacd93ef71210c576f23b` | 2026-09-19T06:12Z | `fable` (Claude Fable 5.1) | TASK implementer; slice B2F, the four project-handler repairs of addendum 2, test first, in one new test file; launched in the foreground (addendum 3, clause 4) | `../returns/B2F-HANDLERS_RETURN.md` |
+
+## Briefs received from ROOT and retained here
+
+| File | SHA-256 | Origin |
+|---|---|---|
+| `B-SHELL_launch_2026-09-19.md` | `2a2542c7e5b4584589203b07f1837c9b0d594d0bb3a1cab25d89bf40ccf7e33e` | ROOT's sealed launch brief for the new B-SHELL manager, read from ROOT's records branch `codex/swbpipe-records-20260919` at `{RUN}/briefs/B-SHELL_launch_2026-09-19.md` and copied byte for byte; the hash matches ROOT's launch message. |
 
 ## Tools the manager wrote
 
