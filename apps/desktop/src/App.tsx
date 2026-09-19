@@ -65,6 +65,7 @@ import {
   type MenuItemSpec
 } from "./features/workspace/menuCommands";
 import { useWorkspaceSession } from "./features/workspace/workspaceSession";
+import { WorkspaceSessionProvider } from "./features/workspace/WorkspaceSessionContext";
 import { ModelTree } from "./features/model-tree/ModelTree";
 import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
 import { OperationApplyPanel } from "./features/operations/OperationApplyPanel";
@@ -273,6 +274,7 @@ function AppSession() {
   }
 
   return (
+    <WorkspaceSessionProvider session={session}>
     <main
       className={showInAppMenuBar ? "app-shell" : "app-shell native-menu"}
       data-density={uiPreferences.density}
@@ -1023,6 +1025,7 @@ function AppSession() {
         />
       ) : null}
     </main>
+    </WorkspaceSessionProvider>
   );
 }
 

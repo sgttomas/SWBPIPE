@@ -3,6 +3,8 @@ import type { EntityRef } from "../../types";
 import type { CreationTool } from "../viewport/PipeViewport";
 import type { ViewportViewCommand } from "../viewport/viewportSelection";
 import type { MenuId } from "./menuCommands";
+import { EMPTY_STAGE_VIEW_MEMORY } from "./shellLayout";
+import type { StageSurface, StageViewMemory } from "./shellLayout";
 import { readUiPreferences, resolvedUiTheme } from "./uiPreferences";
 import type { WorkspaceSectionId } from "./workspaceSections";
 
@@ -35,8 +37,8 @@ const INITIAL_R3_JOURNEY_STATE: R3JourneyState = {
  * The chrome cells of the workspace session: the appearance preferences and the
  * resolved theme, the active section and the sections already activated, the
  * toolkit focus and the property-task request, the open menu, the armed creation
- * tool, the rails and drawers, the dock's tab, and the refs the shell's elements
- * attach to. It declares no effect and no handler.
+ * tool, the rails and drawers, the dock's tab, the stage surface and the per-stage
+ * view memory, and the refs the shell's elements attach to. It declares no effect and no handler.
  *
  * Called only by the session, which is `useWorkspaceSession` in
  * `workspaceSession.ts`.
@@ -84,6 +86,16 @@ export function useChromeSessionState() {
   const [reviewDetailsOpen, setReviewDetailsOpen] = useState(false);
   const [auditDrawerOpen, setAuditDrawerOpen] = useState(false);
   const [issuesDrawerOpen, setIssuesDrawerOpen] = useState(false);
+  // The shell's presentation cells (slice B3); their rules are in `shellLayout.ts`.
+  // `activeSection` stays the one navigation cell. `stageSurface` follows it: the
+  // last stage surface shown (null is the model tree), which is the stage a page
+  // opens over and returns to. The stage itself is derived, never stored.
+  const [stageSurface, setStageSurface] = useState<StageSurface>(null);
+  // The view each stage was last left in. It is session state: saving it with
+  // the project's interface state is gap G-17 (typed interface), outside this
+  // tranche, so it starts from the first-open defaults in every session and is
+  // never written to the model, the project or `uiPreferences`.
+  const [stageViewMemory, setStageViewMemory] = useState<StageViewMemory>(EMPTY_STAGE_VIEW_MEMORY);
   return {
     uiPreferences, setUiPreferences,
     systemDark, setSystemDark,
@@ -107,6 +119,8 @@ export function useChromeSessionState() {
     r3JourneyState, setR3JourneyState,
     reviewDetailsOpen, setReviewDetailsOpen,
     auditDrawerOpen, setAuditDrawerOpen,
-    issuesDrawerOpen, setIssuesDrawerOpen
+    issuesDrawerOpen, setIssuesDrawerOpen,
+    stageSurface, setStageSurface,
+    stageViewMemory, setStageViewMemory
   };
 }

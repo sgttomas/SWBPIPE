@@ -116,6 +116,7 @@ import {
   startSolveJob
 } from "./solveJobAudit";
 import { publishUiModelAssignmentStarted } from "./uiDiagnostics";
+import { stageSurfaceAfter } from "./shellLayout";
 import { updateUiPreferences, writeUiPreferences } from "./uiPreferences";
 import { observeWorkspaceCanvasBudget } from "./workspaceCanvasBudget";
 import { EXPENSIVE_LIFECYCLE_SECTIONS } from "./workspaceSections";
@@ -184,7 +185,9 @@ export function useWorkspaceSession() {
     setR3JourneyState,
     reviewDetailsOpen, setReviewDetailsOpen,
     auditDrawerOpen, setAuditDrawerOpen,
-    issuesDrawerOpen, setIssuesDrawerOpen
+    issuesDrawerOpen, setIssuesDrawerOpen,
+    stageSurface, setStageSurface,
+    stageViewMemory, setStageViewMemory
   } = useChromeSessionState();
   const {
     model, setModel,
@@ -293,6 +296,12 @@ export function useWorkspaceSession() {
       if (current.has(activeSection)) return current;
       return new Set([...current, activeSection]);
     });
+  }, [activeSection]);
+  // The stage surface follows the one navigation cell: a page leaves it alone,
+  // anything else becomes it. A presentation cell only; it reads and writes
+  // nothing of the model, the results, the operations or the project.
+  useEffect(() => {
+    setStageSurface((current) => stageSurfaceAfter(current, activeSection));
   }, [activeSection]);
   useLayoutEffect(() => {
     if (!toolkitFocus) return;
@@ -2249,6 +2258,8 @@ export function useWorkspaceSession() {
       reviewDetailsOpen, setReviewDetailsOpen,
       auditDrawerOpen, setAuditDrawerOpen,
       issuesDrawerOpen, setIssuesDrawerOpen,
+      stageSurface,
+      stageViewMemory, setStageViewMemory,
       recordR3JourneyEvent,
       handleArmCreationTool,
       handleToolkitCommand,
