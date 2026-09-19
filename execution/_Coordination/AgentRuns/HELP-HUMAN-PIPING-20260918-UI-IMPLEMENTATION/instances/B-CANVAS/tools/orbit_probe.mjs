@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 // orbit_probe.mjs: the B-CANVAS lane's guidance probe for per-frame cost while the model is orbited.
+// Additions of slice C2 (C2-PROBE): run --select, the hover subcommand (cost per frame and per pointer move with
+// no button pressed), and the pairs subcommand (a simplified count of halo-and-ground pixel pairs).
 //
 // Guidance only. The lane uses this to see whether a slice that adds work per frame is worth keeping.
 // It decides nothing about D-72: the qualification runs are ROOT's, by a separate runner and a separate
@@ -18,6 +20,7 @@ import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import v8 from "node:v8";
 import vm from "node:vm";
+import zlib from "node:zlib";
 
 const TOOL = "b-canvas-orbit-probe";
 const FORMAT_VERSION = 1;
@@ -42,6 +45,17 @@ const ORBIT_PATH = Object.freeze({
   xPeriodMs: 5000,
   yPeriodMs: 2500
 });
+// hover: a figure of eight about the canvas centre, no button pressed. It crosses the fitted model and stays out of the corners.
+const HOVER_PATH = Object.freeze({
+  shape: "figure-of-eight, x = ax*W*sin(2*pi*t/Tx), y = ay*H*sin(2*pi*t/Ty), offsets from the canvas centre, no button pressed",
+  xAmplitudeOfCanvasWidth: 0.36,
+  yAmplitudeOfCanvasHeight: 0.3,
+  xPeriodMs: 5000,
+  yPeriodMs: 2500
+});
+const POINTER_EVENT_CAPACITY = 200000;
+// pairs: the values the lane's brief gives for its simplified count. Reporting rule of this guidance tool only.
+const PAIRS_RULE = Object.freeze({ regionCssPx: 48, channelTolerance: 48, pairDistanceCssPx: 2, minimumContrast: 3, minimumPairs: 4 });
 const TIMEOUTS = Object.freeze({ navigationMs: 60000, modelMs: 240000, geometryMs: 240000, controlMs: 30000, settleMs: 30000 });
 const SETTLE = Object.freeze({ quietMs: 500, pollMs: 100, busyLimit: 0.2 });
 const UNCAPPED_ARGS = Object.freeze(["--disable-frame-rate-limit", "--disable-gpu-vsync"]);
@@ -157,6 +171,13 @@ function pathOffset(elapsedMs, canvas) {
   return {
     x: ORBIT_PATH.xAmplitudeOfCanvasWidth * canvas.width * Math.sin((2 * Math.PI * elapsedMs) / ORBIT_PATH.xPeriodMs),
     y: ORBIT_PATH.yAmplitudeOfCanvasHeight * canvas.height * Math.sin((2 * Math.PI * elapsedMs) / ORBIT_PATH.yPeriodMs)
+  };
+}
+
+function hoverOffset(elapsedMs, canvas) {
+  return {
+    x: HOVER_PATH.xAmplitudeOfCanvasWidth * canvas.width * Math.sin((2 * Math.PI * elapsedMs) / HOVER_PATH.xPeriodMs),
+    y: HOVER_PATH.yAmplitudeOfCanvasHeight * canvas.height * Math.sin((2 * Math.PI * elapsedMs) / HOVER_PATH.yPeriodMs)
   };
 }
 
@@ -281,14 +302,24 @@ function interleave(variants, pairs) {
   return order;
 }
 
-const SPECS = {
-  run: {
+const RUN_SPEC = {
     dist: {}, pipes: { required: true, parse: (value, name) => Number(oneOf("1000", "10000")(value, name)) },
     mode: { required: true, parse: oneOf("schematic", "actual-od") }, labels: { required: true, parse: oneOf("on", "off") },
     theme: { required: true, parse: oneOf("light", "dark") }, dpr: { required: true, parse: (value, name) => Number(oneOf("1", "2")(value, name)) },
     window: { required: true, parse: parseWindow }, pacing: { required: true, parse: oneOf("vsync", "uncapped") },
     variants: { required: true, parse: parseVariants }, pairs: { required: true, parse: integer(1, 50) },
     "warmup-ms": { default: "2000", parse: integer(0, 600000) }, "measure-ms": { default: "10000", parse: integer(100, 600000) },
+    select: { default: "none", parse: oneOf("none", "one", "hundred", "all") },
+    port: { default: String(DEFAULT_PORT), parse: parsePort }, out: { required: true }
+};
+const SPECS = {
+  run: RUN_SPEC,
+  hover: RUN_SPEC,
+  pairs: {
+    dist: { required: true }, pipes: { required: true, parse: (value, name) => Number(oneOf("1000", "10000")(value, name)) },
+    mode: { required: true, parse: oneOf("schematic", "actual-od") }, theme: { required: true, parse: oneOf("light", "dark") },
+    dpr: { default: "1", parse: (value, name) => Number(oneOf("1", "2")(value, name)) }, window: { default: "1440x900", parse: parseWindow },
+    query: { default: "", parse: parseQuery }, samples: { default: "1-200", parse: (value, name) => parseSampleRange(value, name) }, note: {},
     port: { default: String(DEFAULT_PORT), parse: parsePort }, out: { required: true }
   },
   resources: {
@@ -335,6 +366,7 @@ function recordedArguments(subcommand, options) {
   for (const [name, value] of Object.entries(options)) {
     if (name === "dist" || name === "out") shown[name] = reducePath(value);
     else if (name === "window") shown[name] = `${value.width}x${value.height}`;
+    else if (name === "samples") shown[name] = `${value.from}-${value.to}`;
     else if (name === "variants") shown[name] = value.map((variant) => `${variant.name}${variant.dist ? `@${reducePath(variant.dist)}` : ""}=${variant.query}`).join(";");
     else shown[name] = value;
   }
@@ -348,9 +380,15 @@ const USAGE = `orbit_probe.mjs: guidance probe for per-frame cost while orbiting
   node orbit_probe.mjs run --dist <dir> --pipes <1000|10000> --mode <schematic|actual-od>
        --labels <on|off> --theme <light|dark> --dpr <1|2> --window <WxH> --pacing <vsync|uncapped>
        --variants "<name>=<query>;<name>=<query>" --pairs <n>
-       [--warmup-ms 2000] [--measure-ms 10000] [--port 5185] --out <file.json>
-     A variant may name its own build: "<name>@<distDir>=<query>". --dist is then needed only by the
+       [--select <none|one|hundred|all>] [--warmup-ms 2000] [--measure-ms 10000] [--port 5185] --out <file.json>
+     --select selects pipes through the model tree with real input before the orbit and fails the run when the
+     diagnostics surface reports another count. A variant may name its own build: "<name>@<distDir>=<query>". --dist is then needed only by the
      variants that name none. A directory path that contains "=" or ";" is not supported.
+  node orbit_probe.mjs hover <the options of run>
+     No orbit: the pointer sweeps the canvas with no button pressed, along a closed path that depends on elapsed time alone.
+  node orbit_probe.mjs pairs --dist <dir> --pipes <1000|10000> --mode <schematic|actual-od> --theme <light|dark>
+       [--dpr 1] [--window 1440x900] [--query <query>] [--samples 1-200] [--note <text>] [--port 5185] --out <file.json>
+     Picks each point sample with real input and counts halo-and-ground pixel pairs (a simplified rule; see README).
   node orbit_probe.mjs resources --dist <dir> --pipes <1000|10000> [--query <query>] [--dpr 2]
        [--window <WxH>] [--port 5185] --out <file.json>
   node orbit_probe.mjs summarize <file.json> [<file.json> ...]
@@ -609,6 +647,8 @@ function inPageReadDiagnostics() {
       canvas: { cssWidth: viewport.canvas.cssWidth, cssHeight: viewport.canvas.cssHeight, bufferWidth: viewport.canvas.bufferWidth, bufferHeight: viewport.canvas.bufferHeight, pixelRatio: viewport.canvas.dpr },
       cameraSequence: viewport.camera.sequence,
       submissionSequence: viewport.mainRender.submissionSequence,
+      // The count and the primary only: a selection of every pipe is never written out ref by ref.
+      selection: viewport.selection ? { count: viewport.selection.orderedRefs.length, primaryRef: plain(viewport.selection.primaryRef), inputKind: viewport.selection.inputKind } : null,
       labels: plain(viewport.labels),
       geometry: plain(viewport.geometry),
       rendererInfo: plain(viewport.resources.rendererInfo),
@@ -864,11 +904,21 @@ async function findPressPoint(page, cdp) {
   throw new Error(`none of ${candidates.length} candidate press points is received by the canvas once the pointer rests on it`);
 }
 
+/** hover: the sweep starts at the canvas centre. The pointer rests there until the viewport has settled. */
+async function restAtCanvasCentre(page, cdp) {
+  const geometry = await page.evaluate(inPageCanvasGeometry);
+  const x = Math.round(geometry.canvasRect.left + geometry.canvasRect.width / 2);
+  const y = Math.round(geometry.canvasRect.top + geometry.canvasRect.height / 2);
+  await page.mouse.move(x, y);
+  const settle = await waitSettled(page, cdp);
+  return { x, y, settle, receivedByCanvas: await page.evaluate(inPageCanvasReceives, { x, y }), ...geometry };
+}
+
 /**
  * Real pointer input: the button is already down at the press point. Moves are sent on a timer and never
  * awaited one by one, so a slow frame cannot slow the pointer. Position depends on elapsed time alone.
  */
-async function driveOrbit(page, press, canvas, totalMs, marks = []) {
+async function driveOrbit(page, press, canvas, totalMs, marks = [], offsetOf = pathOffset) {
   const pending = new Set();
   const stats = { movesSent: 0, movesAcknowledged: 0, movesFailed: 0, meanSendGapMs: null, maxSendGapMs: 0, sendGapsOver8Ms: 0,
     sendGapCounts: { upTo5Ms: 0, upTo8Ms: 0, upTo12Ms: 0, upTo16Ms: 0, over16Ms: 0 }, maxInFlight: 0 };
@@ -881,7 +931,7 @@ async function driveOrbit(page, press, canvas, totalMs, marks = []) {
     const elapsed = now - started;
     if (elapsed >= totalMs) break;
     for (const mark of due) if (!mark.done && elapsed >= mark.atMs) { mark.done = true; mark.run(elapsed); }
-    const offset = pathOffset(elapsed, canvas);
+    const offset = offsetOf(elapsed, canvas);
     const move = page.mouse.move(press.x + offset.x, press.y + offset.y).then(() => { stats.movesAcknowledged += 1; }, () => { stats.movesFailed += 1; });
     const tracked = move.finally(() => pending.delete(tracked));
     pending.add(tracked);
@@ -907,7 +957,8 @@ async function driveOrbit(page, press, canvas, totalMs, marks = []) {
 // run
 // ---------------------------------------------------------------------------------------------------
 
-async function measureOneRun(chromium, origin, fixture, options, item, index) {
+async function measureOneRun(chromium, origin, fixture, options, item, index, kind = "orbit") {
+  const hover = kind === "hover";
   const record = { index, pair: item.pair, variant: item.variant, query: item.query, startedUtc: new Date().toISOString(), loadAverageBefore: os.loadavg().map((value) => round(value, 2)), error: null };
   let browser = null;
   try {
@@ -926,28 +977,33 @@ async function measureOneRun(chromium, origin, fixture, options, item, index) {
     await setToggle(page, "toggle-viewport-labels", options.labels === "on");
     await isometricThenFit(page);
     await waitSettled(page, cdp);
-    const press = await findPressPoint(page, cdp);
+    // The selection comes before the press-point search, so that the search sees whatever the selection put on the canvas.
+    record.selection = await selectPipesThroughTree(page, cdp, options.select ?? "none", fixture);
+    const press = hover ? await restAtCanvasCentre(page, cdp) : await findPressPoint(page, cdp);
     const canvas = { width: press.canvasRect.width, height: press.canvasRect.height };
-    record.page = { ...press.page, canvasCssWidth: round(canvas.width, 2), canvasCssHeight: round(canvas.height, 2), canvasCssArea: round(canvas.width * canvas.height, 0), pressPoint: { x: press.x, y: press.y, attempt: press.attempt, candidates: press.candidates } };
+    record.page = { ...press.page, canvasCssWidth: round(canvas.width, 2), canvasCssHeight: round(canvas.height, 2), canvasCssArea: round(canvas.width * canvas.height, 0),
+      ...(hover ? { sweepCentre: { x: press.x, y: press.y, receivedByCanvasAtRest: press.receivedByCanvas } } : { pressPoint: { x: press.x, y: press.y, attempt: press.attempt, candidates: press.candidates } }) };
     record.settleBeforeOrbit = press.settle;
 
     collectOwnGarbage();
     await page.evaluate(RECORDER_SOURCE);
     await sleep(IDLE_MS);
+    if (hover) await page.evaluate(POINTER_RECORDER_SOURCE);
     const before = await page.evaluate(inPageReadDiagnostics);
-    await page.mouse.down({ button: "left" });
+    if (!hover) await page.mouse.down({ button: "left" });
     const pageT0 = await page.evaluate(() => performance.now());
     const samples = {};
     const totalMs = options["warmup-ms"] + options["measure-ms"];
     const sample = (name) => (elapsed) => { samples[name] = { elapsedMs: elapsed, result: cdp.send("Performance.getMetrics").then(metricsMap, () => null) }; };
-    const orbit = await driveOrbit(page, press, canvas, totalMs + TAIL_MS, [{ atMs: options["warmup-ms"], run: sample("start") }, { atMs: totalMs, run: sample("end") }]);
+    const orbit = await driveOrbit(page, press, canvas, totalMs + TAIL_MS, [{ atMs: options["warmup-ms"], run: sample("start") }, { atMs: totalMs, run: sample("end") }], hover ? hoverOffset : pathOffset);
+    const pointerEvents = hover ? await page.evaluate(inPageCollectPointer, { fromMs: pageT0 + options["warmup-ms"], toMs: pageT0 + totalMs }) : null;
     const collected = await page.evaluate(inPageCollect, {
       idleFromMs: IDLE_WINDOW.fromMs, idleToMs: IDLE_WINDOW.toMs, pageT0, warmupMs: options["warmup-ms"], measureMs: options["measure-ms"],
       limitAMs: LIMIT_A_MS, limitBMs: LIMIT_B_MS, maxLong: MAX_LONG_INTERVALS, spanFromMs: before ? before.pageNowMs : pageT0,
       paced: options.pacing === "vsync"
     });
     await orbit.drain();
-    await page.mouse.up({ button: "left" });
+    if (!hover) await page.mouse.up({ button: "left" });
     if (collected.error) throw new Error(collected.error);
     record.settleAfterOrbit = await waitSettled(page, cdp);
     const after = await page.evaluate(inPageReadDiagnostics);
@@ -964,16 +1020,22 @@ async function measureOneRun(chromium, origin, fixture, options, item, index) {
     record.frames = { source: "requestAnimationFrame timestamps recorded in the page; percentiles are nearest-rank", warmup: collected.warmup, measure: collected.measure, recorded: collected.recorded, capacity: collected.capacity, overflow: collected.overflow };
     const startMetrics = await samples.start?.result;
     const endMetrics = await samples.end?.result;
-    record.mainThread = mainThreadCost(startMetrics, endMetrics, collected.measure.meanMs, samples);
+    record.mainThread = mainThreadCost(startMetrics, endMetrics, collected.measure.meanMs, samples, pointerEvents ? pointerEvents.eventsInWindow : null);
     record.pointer = { ...orbit.stats, movePeriodMs: MOVE_PERIOD_MS };
     const end = collected.endDiagnostics;
-    record.orbit = {
+    record[hover ? "hover" : "orbit"] = {
       cameraSequenceDelta: before?.viewport && end?.viewport ? end.viewport.cameraSequence - before.viewport.cameraSequence : null,
       productSubmissionsInSpan: before?.viewport && end?.viewport ? end.viewport.submissionSequence - before.viewport.submissionSequence : null,
       framesInSpan: collected.framesInSpan,
       modelGenerationUnchanged: Boolean(before && after && before.model.generation === after.model.generation),
-      geometryUnchanged: Boolean(before?.viewport && after?.viewport && JSON.stringify(before.viewport.geometry) === JSON.stringify(after.viewport.geometry))
+      geometryUnchanged: Boolean(before?.viewport && after?.viewport && JSON.stringify(before.viewport.geometry) === JSON.stringify(after.viewport.geometry)),
+      selectionUnchanged: Boolean(before?.viewport && after?.viewport && JSON.stringify(before.viewport.selection) === JSON.stringify(after.viewport.selection))
     };
+    if (hover) {
+      record.hover.pointerEvents = pointerEvents;
+      record.hover.hoveredEntities = { status: "not exposed", note: "the diagnostics surface carries no hovered entity, so distinct hovered entities cannot be counted; product main-render submissions in the span are recorded instead" };
+      if (options.labels === "off" && pointerEvents && pointerEvents.fractionReceivedByCanvas !== null && pointerEvents.fractionReceivedByCanvas < 0.9) throw new Error(`hover: with labels off only ${pointerEvents.fractionReceivedByCanvas} of the pointer moves in the window reached the canvas; the sweep did not measure the canvas`);
+    }
     record.diagnostics = { beforeOrbit: stripClock(before), endOfWindow: stripClock(end), afterOrbit: stripClock(after) };
   } catch (error) {
     record.error = String(error?.message ?? error).split("\n").slice(0, 3).join(" | ");
@@ -991,7 +1053,7 @@ function stripClock(diagnostics) {
   return rest;
 }
 
-function mainThreadCost(start, end, meanIntervalMs, samples) {
+function mainThreadCost(start, end, meanIntervalMs, samples, pointerEventsInWindow = null) {
   if (!start || !end) return { status: "unavailable" };
   const windowMs = (end.Timestamp - start.Timestamp) * 1000;
   const ms = (name) => (end[name] - start[name]) * 1000;
@@ -1011,17 +1073,26 @@ function mainThreadCost(start, end, meanIntervalMs, samples) {
     taskMsPerFrame: perFrame(task), scriptMsPerFrame: perFrame(script), layoutMsPerFrame: perFrame(layout), styleMsPerFrame: perFrame(style),
     busyFraction: round(task / windowMs, 3),
     layoutCount: end.LayoutCount - start.LayoutCount, styleRecalcCount: end.RecalcStyleCount - start.RecalcStyleCount,
-    jsHeapUsedBytes: [start.JSHeapUsedSize, end.JSHeapUsedSize]
+    jsHeapUsedBytes: [start.JSHeapUsedSize, end.JSHeapUsedSize],
+    // hover only: the same totals over the pointermove events the page dispatched in the window (the browser may merge
+    // moves that arrive within one frame, so this is per dispatched event and not per move the tool sent).
+    ...(pointerEventsInWindow === null ? {} : {
+      pointerEventsInWindow,
+      taskMsPerPointerEvent: pointerEventsInWindow ? round(task / pointerEventsInWindow, 3) : null,
+      scriptMsPerPointerEvent: pointerEventsInWindow ? round(script / pointerEventsInWindow, 3) : null
+    })
   };
 }
 
 function oneLine(run) {
   if (run.error) return `run ${run.index + 1} ${run.variant}: FAILED: ${run.error}`;
   const m = run.frames.measure;
-  return `run ${run.index + 1} ${run.variant}: intervals ${m.intervals}, mean ${m.meanMs} ms, p50 ${m.p50Ms}, p95 ${m.p95Ms}, max ${m.maxMs}; main thread ${run.mainThread.taskMsPerFrame ?? "n/a"} ms/frame; load ${run.loadAverageBefore[0]} -> ${run.loadAverageAfter[0]}`;
+  const extra = `${run.selection && run.selection.requested !== "none" ? `; selected ${run.selection.reported.count}` : ""}${run.hover ? `; ${run.hover.pointerEvents?.eventsInWindow ?? "n/a"} pointer events, ${run.mainThread.taskMsPerPointerEvent ?? "n/a"} ms each, ${run.hover.pointerEvents?.fractionReceivedByCanvas ?? "n/a"} to the canvas` : ""}`;
+  return `run ${run.index + 1} ${run.variant}: intervals ${m.intervals}, mean ${m.meanMs} ms, p50 ${m.p50Ms}, p95 ${m.p95Ms}, max ${m.maxMs}; main thread ${run.mainThread.taskMsPerFrame ?? "n/a"} ms/frame${extra}; load ${run.loadAverageBefore[0]} -> ${run.loadAverageAfter[0]}`;
 }
 
-async function runSeries(options, log = console.log) {
+async function runSeries(options, log = console.log, kind = "orbit") {
+  const hover = kind === "hover";
   const builds = resolveVariantBuilds(options);
   const scrub = buildScrubber(builds.map((build) => ["{DIST}", build.dist]));
   const fixture = loadFixture(options.pipes);
@@ -1029,14 +1100,14 @@ async function runSeries(options, log = console.log) {
   const order = interleave(options.variants, options.pairs);
   const shared = builds.every((build) => sameBuildIdentity(build.buildIdentity, builds[0].buildIdentity));
   const document = {
-    tool: TOOL, formatVersion: FORMAT_VERSION, kind: "run-series", note: GUIDANCE_NOTE, createdUtc: new Date().toISOString(),
-    arguments: recordedArguments("run", options),
+    tool: TOOL, formatVersion: FORMAT_VERSION, kind: hover ? "hover-series" : "run-series", note: GUIDANCE_NOTE, createdUtc: new Date().toISOString(),
+    arguments: recordedArguments(hover ? "hover" : "run", options),
     // One identity when every variant was served the same build; otherwise each variant's own, below.
     buildIdentity: shared ? builds[0].buildIdentity : null,
     variantsShareOneBuildIdentity: shared,
     variants: builds.map((build) => ({ name: build.name, query: build.query, dist: reducePath(build.dist), namedItsOwnBuild: build.ownBuild, buildIdentity: build.buildIdentity })),
     fixture: fixture.identity,
-    host: hostIdentity(playwright.version), orbitPath: { ...ORBIT_PATH, movePeriodMs: MOVE_PERIOD_MS, tailMs: TAIL_MS },
+    host: hostIdentity(playwright.version), [hover ? "hoverPath" : "orbitPath"]: { ...(hover ? HOVER_PATH : ORBIT_PATH), movePeriodMs: MOVE_PERIOD_MS, tailMs: TAIL_MS },
     order: order.map((item) => item.variant), runs: []
   };
   for (const [index, item] of order.entries()) {
@@ -1044,7 +1115,7 @@ async function runSeries(options, log = console.log) {
     const build = builds.find((entry) => entry.name === item.variant);
     const server = await startStaticServer(build.dist, options.port);
     try {
-      const run = await measureOneRun(playwright.chromium, server.origin, fixture, options, item, index);
+      const run = await measureOneRun(playwright.chromium, server.origin, fixture, options, item, index, kind);
       run.served = { dist: reducePath(build.dist), buildIndexHtmlSha256: build.buildIdentity.indexHtmlSha256, ...server.served };
       document.runs.push(run);
       log(scrub(oneLine(run)));
@@ -1213,6 +1284,479 @@ async function runResources(options, log = console.log) {
 }
 
 // ---------------------------------------------------------------------------------------------------
+// Selection before a run (--select), through the product's own model tree with real input.
+// ---------------------------------------------------------------------------------------------------
+
+const TREE = '[data-testid="model-tree-virtual"]';
+const SELECT_METHOD = "the model tree, with real pointer input: every expanded group is collapsed by its own header button, the Pipes group is opened, the first pipe row is clicked, and for more than one pipe the list is scrolled with the mouse wheel and the last row of the range is Shift-clicked";
+
+function inPageTreeState() {
+  const tree = document.querySelector('[data-testid="model-tree-virtual"]');
+  if (!tree) return null;
+  const rect = tree.getBoundingClientRect();
+  const groups = Array.from(tree.querySelectorAll('[data-testid^="tree-group-"]')).map((element) => ({ testId: element.getAttribute("data-testid"), expanded: element.getAttribute("aria-expanded") === "true" }));
+  const first = tree.querySelector('[data-testid^="tree-row-pipe-"][aria-posinset="1"]');
+  const firstRect = first ? first.getBoundingClientRect() : null;
+  return {
+    groups, scrollTop: tree.scrollTop, rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+    firstPipe: first ? { setSize: Number(first.getAttribute("aria-setsize")), rowHeight: firstRect.height, contentTop: firstRect.top - rect.top + tree.scrollTop } : null
+  };
+}
+
+function inPageSelectionSummary() {
+  const snapshot = globalThis.__openPipeStressUiDiagnosticsV1?.readCurrent?.();
+  const selection = snapshot && snapshot.viewport && snapshot.viewport.status !== "unavailable" ? snapshot.viewport.selection : null;
+  if (!selection) return null;
+  const types = {};
+  for (const ref of selection.orderedRefs) types[ref.type] = (types[ref.type] ?? 0) + 1;
+  return { count: selection.orderedRefs.length, types, primaryRef: selection.primaryRef ? { type: selection.primaryRef.type, id: selection.primaryRef.id } : null, inputKind: selection.inputKind, actionSequence: selection.actionSequence };
+}
+
+async function selectPipesThroughTree(page, cdp, select, fixture) {
+  if (select === "none") return { requested: "none", method: "nothing is selected by the tool; the product's start-up selection stands", wantedPipes: 0, reported: await page.evaluate(inPageSelectionSummary) };
+  const wanted = select === "one" ? 1 : select === "hundred" ? 100 : fixture.identity.pipeSegments;
+  const started = performance.now();
+  const collapsed = [];
+  for (let guard = 0; guard < 40; guard++) {
+    const state = await page.evaluate(inPageTreeState);
+    if (!state) throw new Error("--select: the model tree is absent");
+    const open = state.groups.find((group) => group.expanded);
+    if (!open) break;
+    await page.click(`${TREE} [data-testid="${open.testId}"]`, { timeout: TIMEOUTS.controlMs });
+    collapsed.push(open.testId);
+  }
+  await page.click(`${TREE} [data-testid="tree-group-Pipes"]`, { timeout: TIMEOUTS.controlMs });
+  const rowOf = (position) => `${TREE} [data-testid^="tree-row-pipe-"][aria-posinset="${position}"]`;
+  await page.waitForSelector(rowOf(1), { timeout: TIMEOUTS.controlMs });
+  const state = await page.evaluate(inPageTreeState);
+  if (!state.firstPipe || state.firstPipe.setSize !== fixture.identity.pipeSegments) throw new Error(`--select: the Pipes group lists ${state.firstPipe?.setSize ?? "no"} rows; the fixture has ${fixture.identity.pipeSegments} pipes`);
+  await page.click(rowOf(1), { timeout: TIMEOUTS.controlMs });
+  let wheelEvents = 0;
+  if (wanted > 1) {
+    const target = state.firstPipe.contentTop + (wanted - 1) * state.firstPipe.rowHeight - state.rect.height / 2;
+    await page.mouse.move(state.rect.left + state.rect.width / 2, state.rect.top + state.rect.height / 2);
+    for (let attempt = 0; attempt < 16; attempt++) {
+      const now = await page.evaluate(inPageTreeState);
+      const delta = target - now.scrollTop;
+      if (await page.$(rowOf(wanted)) && Math.abs(delta) < state.rect.height / 2) break;
+      await page.mouse.wheel(0, delta);
+      wheelEvents += 1;
+      await sleep(250);
+    }
+    await page.click(rowOf(wanted), { modifiers: ["Shift"], timeout: TIMEOUTS.controlMs });
+  }
+  let reported = null;
+  const deadline = performance.now() + 120000;
+  for (;;) {
+    reported = await page.evaluate(inPageSelectionSummary);
+    if (reported && reported.count === wanted && reported.types.pipe === wanted) break;
+    if (performance.now() > deadline) throw new Error(`--select ${select}: asked for ${wanted} pipes; the diagnostics surface reports ${reported ? `${reported.count} selected (${JSON.stringify(reported.types)})` : "no selection"}`);
+    await sleep(200);
+  }
+  const settle = await waitSettled(page, cdp);
+  return { requested: select, method: SELECT_METHOD, which: wanted === 1 ? "the first pipe in the tree's order" : `the first ${wanted} pipes in the tree's order`, wantedPipes: wanted, reported, collapsedGroups: collapsed, wheelEvents, tookMs: round(performance.now() - started, 0), settledAfter: settle.settled };
+}
+
+// ---------------------------------------------------------------------------------------------------
+// hover: the pointer recorder. Counts the pointermove events the page dispatches and which of them the canvas received.
+// ---------------------------------------------------------------------------------------------------
+
+const POINTER_RECORDER_SOURCE = `(() => {
+  const capacity = ${POINTER_EVENT_CAPACITY};
+  const recorder = { t: new Float64Array(capacity), onCanvas: new Uint8Array(capacity), n: 0, overflow: false };
+  const canvas = document.querySelector('[data-testid="viewport-canvas"] canvas');
+  recorder.listener = (event) => {
+    if (recorder.n < capacity) { recorder.t[recorder.n] = performance.now(); recorder.onCanvas[recorder.n] = event.target === canvas ? 1 : 0; recorder.n += 1; }
+    else recorder.overflow = true;
+  };
+  document.addEventListener("pointermove", recorder.listener, { capture: true, passive: true });
+  Object.defineProperty(globalThis, "__bCanvasOrbitProbePointer", { value: recorder, configurable: true });
+  return true;
+})()`;
+
+function inPageCollectPointer(request) {
+  const recorder = globalThis.__bCanvasOrbitProbePointer;
+  if (!recorder) return null;
+  document.removeEventListener("pointermove", recorder.listener, { capture: true });
+  let inWindow = 0;
+  let onCanvas = 0;
+  for (let i = 0; i < recorder.n; i++) {
+    if (recorder.t[i] < request.fromMs || recorder.t[i] > request.toMs) continue;
+    inWindow += 1;
+    onCanvas += recorder.onCanvas[i];
+  }
+  return { recorded: recorder.n, overflow: recorder.overflow, eventsInWindow: inWindow, receivedByCanvasInWindow: onCanvas, fractionReceivedByCanvas: inWindow ? Math.round((onCanvas / inWindow) * 1000) / 1000 : null };
+}
+
+// ---------------------------------------------------------------------------------------------------
+// pairs: pure image functions, then the subcommand.
+// A SIMPLIFIED form of the rule in {LANE}/proposals/P1_SECOND_PROFILE.md section 4.4: no band is predicted from
+// display primitives and nothing is exclusive to the winner, so every newly Selection-coloured pixel in the region counts.
+// ---------------------------------------------------------------------------------------------------
+
+function parseHexColour(value) {
+  const match = /^#([0-9a-f]{6})$/i.exec(String(value).trim());
+  if (!match) throw new Error(`token colour "${value}" is not a six-digit hex value`);
+  return [0, 2, 4].map((at) => parseInt(match[1].slice(at, at + 2), 16));
+}
+
+function relativeLuminance(r, g, b) {
+  const linear = (channel) => { const c = channel / 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+  return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+}
+
+function contrastRatio(a, b) {
+  const la = relativeLuminance(a[0], a[1], a[2]);
+  const lb = relativeLuminance(b[0], b[1], b[2]);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+const CRC_TABLE = (() => {
+  const table = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; table[n] = c >>> 0; }
+  return table;
+})();
+function crc32(buffer) {
+  let c = 0xffffffff;
+  for (let i = 0; i < buffer.length; i++) c = CRC_TABLE[(c ^ buffer[i]) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+/** Decodes an 8-bit, non-interlaced RGB or RGBA PNG (what a browser screenshot is) to RGBA bytes. */
+function decodePng(buffer) {
+  if (buffer.length < 8 || !buffer.subarray(0, 8).equals(PNG_SIGNATURE)) throw new Error("not a PNG");
+  let at = 8;
+  let header = null;
+  const data = [];
+  while (at + 8 <= buffer.length) {
+    const length = buffer.readUInt32BE(at);
+    const type = buffer.toString("latin1", at + 4, at + 8);
+    const body = buffer.subarray(at + 8, at + 8 + length);
+    if (type === "IHDR") header = { width: body.readUInt32BE(0), height: body.readUInt32BE(4), depth: body[8], colourType: body[9], interlace: body[12] };
+    else if (type === "IDAT") data.push(body);
+    else if (type === "IEND") break;
+    at += 12 + length;
+  }
+  if (!header || header.depth !== 8 || header.interlace !== 0 || (header.colourType !== 2 && header.colourType !== 6)) throw new Error("unsupported PNG: only 8-bit non-interlaced RGB or RGBA is read");
+  const channels = header.colourType === 6 ? 4 : 3;
+  const stride = header.width * channels;
+  const raw = zlib.inflateSync(Buffer.concat(data));
+  if (raw.length !== (stride + 1) * header.height) throw new Error("PNG data has an unexpected length");
+  const rows = Buffer.alloc(stride * header.height);
+  for (let y = 0; y < header.height; y++) {
+    const filter = raw[y * (stride + 1)];
+    const line = y * (stride + 1) + 1;
+    for (let x = 0; x < stride; x++) {
+      const left = x >= channels ? rows[y * stride + x - channels] : 0;
+      const up = y > 0 ? rows[(y - 1) * stride + x] : 0;
+      const upLeft = y > 0 && x >= channels ? rows[(y - 1) * stride + x - channels] : 0;
+      let predicted = 0;
+      if (filter === 1) predicted = left;
+      else if (filter === 2) predicted = up;
+      else if (filter === 3) predicted = (left + up) >> 1;
+      else if (filter === 4) { const p = left + up - upLeft; const pa = Math.abs(p - left); const pb = Math.abs(p - up); const pc = Math.abs(p - upLeft); predicted = pa <= pb && pa <= pc ? left : pb <= pc ? up : upLeft; }
+      else if (filter !== 0) throw new Error(`PNG filter ${filter} is unknown`);
+      rows[y * stride + x] = (raw[line + x] + predicted) & 0xff;
+    }
+  }
+  const rgba = new Uint8Array(header.width * header.height * 4);
+  let opaque = true;
+  for (let i = 0, o = 0; i < rows.length; i += channels, o += 4) {
+    rgba[o] = rows[i]; rgba[o + 1] = rows[i + 1]; rgba[o + 2] = rows[i + 2];
+    rgba[o + 3] = channels === 4 ? rows[i + 3] : 255;
+    if (rgba[o + 3] !== 255) opaque = false;
+  }
+  return { width: header.width, height: header.height, rgba, opaque };
+}
+
+/** Encodes RGBA bytes as a PNG (filter 0 on every row). Used by the self-test only, to check the decoder. */
+function encodePng(width, height, rgba) {
+  const chunk = (type, body) => {
+    const head = Buffer.alloc(8);
+    head.writeUInt32BE(body.length, 0);
+    head.write(type, 4, "latin1");
+    const tail = Buffer.alloc(4);
+    tail.writeUInt32BE(crc32(Buffer.concat([head.subarray(4), body])), 0);
+    return Buffer.concat([head, body, tail]);
+  };
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(width, 0); header.writeUInt32BE(height, 4); header[8] = 8; header[9] = 6;
+  const raw = Buffer.alloc((width * 4 + 1) * height);
+  for (let y = 0; y < height; y++) Buffer.from(rgba.buffer, rgba.byteOffset + y * width * 4, width * 4).copy(raw, y * (width * 4 + 1) + 1);
+  return Buffer.concat([PNG_SIGNATURE, chunk("IHDR", header), chunk("IDAT", zlib.deflateSync(raw)), chunk("IEND", Buffer.alloc(0))]);
+}
+
+/**
+ * before and after are RGBA byte arrays of one size; pixelRatio is device pixels per CSS px.
+ * Newly qualifying: within the tolerance of Selection after the pick and not before. Ground: within the tolerance of
+ * the canvas ground after the pick. A pair is a newly qualifying pixel and a ground pixel whose centres are at most
+ * pairDistanceCssPx apart, the two at the minimum contrast or more (their own colours, not the tokens'), each ground
+ * pixel used once. Fixed order: newly qualifying pixels row by row from the top left; for each, the nearest free
+ * ground pixel, ties broken by row and then by column. The matching is greedy, so it can undercount, never overcount.
+ */
+function haloPairAnalysis(before, after, width, height, pixelRatio, selectionRgb, groundRgb, rule = PAIRS_RULE) {
+  const total = width * height;
+  if (before.length !== total * 4 || after.length !== total * 4) throw new Error("the two images must have the stated size");
+  const near = (image, i, rgb) => Math.abs(image[i * 4] - rgb[0]) <= rule.channelTolerance && Math.abs(image[i * 4 + 1] - rgb[1]) <= rule.channelTolerance && Math.abs(image[i * 4 + 2] - rgb[2]) <= rule.channelTolerance;
+  let changed = false;
+  for (let i = 0; i < total * 4 && !changed; i++) if (before[i] !== after[i]) changed = true;
+  const selAfter = new Uint8Array(total);
+  const groundAfter = new Uint8Array(total);
+  const newly = new Uint8Array(total);
+  let selBeforeCount = 0; let selAfterCount = 0; let groundAfterCount = 0; let newlyCount = 0; let overGround = 0; let lost = 0;
+  for (let i = 0; i < total; i++) {
+    const wasSelection = near(before, i, selectionRgb);
+    if (wasSelection) selBeforeCount += 1;
+    if (near(after, i, selectionRgb)) { selAfter[i] = 1; selAfterCount += 1; } else if (wasSelection) lost += 1;
+    if (near(after, i, groundRgb)) { groundAfter[i] = 1; groundAfterCount += 1; }
+    if (selAfter[i] && !wasSelection) { newly[i] = 1; newlyCount += 1; if (near(before, i, groundRgb)) overGround += 1; }
+  }
+  const reach = rule.pairDistanceCssPx * pixelRatio;
+  const offsets = [];
+  for (let dy = -Math.ceil(reach); dy <= Math.ceil(reach); dy++) for (let dx = -Math.ceil(reach); dx <= Math.ceil(reach); dx++) {
+    if ((dx || dy) && dx * dx + dy * dy <= reach * reach + 1e-9) offsets.push([dx * dx + dy * dy, dy, dx]);
+  }
+  offsets.sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]);
+  const innerReach = Math.max(1, Math.round(pixelRatio));
+  const used = new Uint8Array(total);
+  let pairs = 0; let pairsIgnoringContrast = 0; let withGroundInReach = 0; let inner = 0;
+  const usedLoose = new Uint8Array(total);
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const i = y * width + x;
+    if (!newly[i]) continue;
+    let isInner = true;
+    for (let dy = -innerReach; dy <= innerReach && isInner; dy++) for (let dx = -innerReach; dx <= innerReach; dx++) {
+      const nx = x + dx; const ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height || !selAfter[ny * width + nx]) { isInner = false; break; }
+    }
+    if (isInner) inner += 1;
+    let sawGround = false; let paired = false; let pairedLoose = false;
+    const own = [after[i * 4], after[i * 4 + 1], after[i * 4 + 2]];
+    for (const [, dy, dx] of offsets) {
+      const nx = x + dx; const ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+      const j = ny * width + nx;
+      if (!groundAfter[j]) continue;
+      sawGround = true;
+      if (!pairedLoose && !usedLoose[j]) { usedLoose[j] = 1; pairedLoose = true; pairsIgnoringContrast += 1; }
+      if (!paired && !used[j] && contrastRatio(own, [after[j * 4], after[j * 4 + 1], after[j * 4 + 2]]) >= rule.minimumContrast) { used[j] = 1; paired = true; pairs += 1; }
+      if (paired && pairedLoose) break;
+    }
+    if (sawGround) withGroundInReach += 1;
+  }
+  const pass = changed && pairs >= rule.minimumPairs;
+  const failureClass = pass ? null : (!changed || newlyCount === 0) ? "no-cue-seen" : withGroundInReach === 0 ? "no-ground-beside" : "too-few-pairs";
+  return {
+    imageChanged: changed, newlyQualifying: newlyCount, newlyOverGround: overGround, newlyOverFigure: newlyCount - overGround, newlyInner: inner,
+    newlyWithGroundInReach: withGroundInReach, groundPixelsAfter: groundAfterCount, pairs, pairsIgnoringContrast,
+    selectionColouredBefore: selBeforeCount, selectionColouredAfter: selAfterCount, selectionColouredLost: lost, passesWithNoCasing: pass, failureClass
+  };
+}
+
+function readTokenColours(theme) {
+  const relative = "apps/desktop/src/design/tokens.json";
+  const file = path.join(requireWorkingRoot(), ...relative.split("/"));
+  const bytes = readFileSync(file);
+  const tokens = JSON.parse(bytes.toString("utf8"));
+  // The token file keys its colours by dotted name under "color" ("canvas.selection"), each with a value per theme.
+  const canvas = { selection: tokens?.color?.["canvas.selection"], bg: tokens?.color?.["canvas.bg"] };
+  if (typeof canvas.selection?.[theme] !== "string" || typeof canvas.bg?.[theme] !== "string") throw new Error('the token file has no "canvas.selection" or "canvas.bg" colour for the theme');
+  return { file: `{WORKING_ROOT}/${relative}`, sha256: createHash("sha256").update(bytes).digest("hex"), theme,
+    selection: { token: "color.canvas.selection", hex: canvas.selection[theme], rgb: parseHexColour(canvas.selection[theme]) },
+    ground: { token: "color.canvas.bg", hex: canvas.bg[theme], rgb: parseHexColour(canvas.bg[theme]) } };
+}
+
+function loadPointSamples(pipes) {
+  const read = (relative) => {
+    const file = path.join(requireWorkingRoot(), ...relative.split("/"));
+    if (!existsSync(file)) throw new Error(`sample file is absent: {WORKING_ROOT}/${relative}`);
+    const bytes = readFileSync(file);
+    return { identity: { file: `{WORKING_ROOT}/${relative}`, sha256: createHash("sha256").update(bytes).digest("hex") }, json: JSON.parse(bytes.toString("utf8")) };
+  };
+  const interactions = read(`apps/desktop/e2e/ui-foundation/samples/ui-foundation-${pipes}.interactions.json`);
+  const oracle = read(`apps/desktop/e2e/ui-foundation/samples/ui-foundation-${pipes}.point-oracle-v3.json`);
+  const probes = new Map(oracle.json.probes.map((probe) => [probe.sample, probe]));
+  const samples = interactions.json.point_selection.map((entry) => {
+    const probe = probes.get(entry.sample);
+    const sameAnchor = probe && probe.probe_anchor_ref.type === entry.probe_anchor_ref.type && probe.probe_anchor_ref.id === entry.probe_anchor_ref.id;
+    if (!sameAnchor) throw new Error(`sample ${entry.sample}: the two sample files name different anchors`);
+    return { sample: entry.sample, anchorRef: entry.probe_anchor_ref, authoredAnchor: probe.authored_anchor, nominalExpectedRef: probe.candidate_nominal_preflight_only?.oracle?.expectedHitRef ?? null };
+  });
+  return {
+    samples, files: [interactions.identity, oracle.identity], nominalCamera: oracle.json.candidate_nominal_camera ?? null,
+    fieldsUsed: ["interactions: point_selection[].sample, point_selection[].probe_anchor_ref", "point oracle: probes[].sample, probes[].probe_anchor_ref (cross-checked), probes[].authored_anchor (the point, projected by the product's read-only projectAuthoredPoint), probes[].candidate_nominal_preflight_only.oracle.expectedHitRef (the expected winner, nominal), candidate_nominal_camera (compared with the camera read back)"]
+  };
+}
+
+function parseSampleRange(value, name) {
+  const match = /^(\d{1,3})-(\d{1,3})$/.exec(value);
+  if (!match || Number(match[1]) < 1 || Number(match[2]) < Number(match[1])) throw new UsageError(`--${name} must look like 1-200`);
+  return { from: Number(match[1]), to: Number(match[2]) };
+}
+
+function inPageProject(point) {
+  const surface = globalThis.__openPipeStressUiDiagnosticsV1;
+  const snapshot = surface.readCurrent();
+  const viewport = snapshot.viewport;
+  const result = surface.projectAuthoredPoint({ modelGeneration: snapshot.model.generation, cameraSequence: viewport.camera.sequence, authoredPoint: { x: point[0], y: point[1], z: point[2] } });
+  return { status: result.status, inside: result.status === "available" ? result.insideCanvasCss && result.insideClosedNdc : false, css: result.status === "available" ? { x: result.canvasCssPoint.x, y: result.canvasCssPoint.y } : null, cameraSequence: viewport.camera.sequence };
+}
+
+function inPageCamera() {
+  const camera = globalThis.__openPipeStressUiDiagnosticsV1.readCurrent().viewport.camera;
+  return { sequence: camera.sequence, position: Array.from(camera.position), target: Array.from(camera.target), fovDegrees: camera.fovDegrees, aspect: camera.aspect };
+}
+
+const sameRef = (a, b) => Boolean(a && b && a.type === b.type && a.id === b.id);
+const PROJECT_ROW = `${TREE} [data-testid^="tree-row-project-"]`;
+
+async function resetToProjectSelection(page) {
+  await page.click(PROJECT_ROW, { timeout: TIMEOUTS.controlMs });
+  await page.waitForFunction(() => {
+    const selection = globalThis.__openPipeStressUiDiagnosticsV1?.readCurrent?.()?.viewport?.selection;
+    return Boolean(selection && selection.orderedRefs.length === 1 && selection.orderedRefs[0].type === "project");
+  }, null, { timeout: TIMEOUTS.controlMs, polling: 50 });
+}
+
+async function runPairs(options, log = console.log) {
+  const dist = resolveDist(options.dist);
+  const scrub = buildScrubber([["{DIST}", dist]]);
+  const fixture = loadFixture(options.pipes);
+  const points = loadPointSamples(options.pipes);
+  const colours = readTokenColours(options.theme);
+  const playwright = loadPlaywright();
+  const document = {
+    tool: TOOL, formatVersion: FORMAT_VERSION, kind: "pairs", note: GUIDANCE_NOTE, createdUtc: new Date().toISOString(),
+    ruleNote: "A SIMPLIFIED form of the rule in {LANE}/proposals/P1_SECOND_PROFILE.md section 4.4: no band is predicted from display primitives and nothing is exclusive to the winner, so every newly Selection-coloured pixel in the 48 x 48 CSS px region counts, whatever drew it (a halo, a recoloured body, the first profile's diamond cue, a neighbour). It answers how often ground lies beside the cue with no casing; it is not the second profile's witness.",
+    describes: options.note ?? null,
+    rule: { ...PAIRS_RULE, order: "newly qualifying pixels row by row from the top left; for each the nearest free ground pixel, ties by row then column; greedy, each ground pixel used once" },
+    arguments: recordedArguments("pairs", options), buildIdentity: buildIdentity(dist), fixture: fixture.identity, sampleFiles: points.files, sampleFieldsUsed: points.fieldsUsed,
+    tokens: colours, host: hostIdentity(playwright.version), loadAverageBefore: os.loadavg().map((value) => round(value, 2)), error: null, samples: []
+  };
+  const server = await startStaticServer(dist, options.port);
+  let browser = null;
+  try {
+    const launched = await launchBrowser(playwright.chromium, "vsync");
+    browser = launched.browser;
+    document.browser = { source: launched.source, version: browser.version(), addedArguments: launched.addedArguments };
+    const context = await browser.newContext({ viewport: { width: options.window.width, height: options.window.height }, deviceScaleFactor: options.dpr });
+    document.browser.webgl = (await probeBrowser(context)).webgl;
+    const { page, cdp, consoleLog, modelReadyMs } = await openProduct(context, server.origin, options.query, fixture);
+    document.console = consoleLog;
+    document.modelReadyMs = modelReadyMs;
+    await setTheme(page, options.theme);
+    await setGeometry(page, options.mode);
+    await setToggle(page, "toggle-viewport-labels", false);
+    await isometricThenFit(page);
+    await waitSettled(page, cdp);
+    const geometry = await page.evaluate(inPageCanvasGeometry);
+    const rect = geometry.canvasRect;
+    const camera = await page.evaluate(inPageCamera);
+    const nominal = points.nominalCamera;
+    const distance = nominal ? Math.hypot(...camera.position.map((value, i) => value - nominal.position[i])) : null;
+    document.canvas = { cssWidth: round(rect.width, 2), cssHeight: round(rect.height, 2), pixelRatio: geometry.page.devicePixelRatio };
+    document.camera = {
+      readBack: { position: camera.position.map((value) => round(value, 4)), target: camera.target.map((value) => round(value, 4)), fovDegrees: camera.fovDegrees, aspect: round(camera.aspect, 4) },
+      nominalOfTheSampleFile: nominal ? { position: nominal.position, target: nominal.target } : null,
+      positionDistanceFromNominal: round(distance, 3),
+      expectedWinnersApply: distance !== null && distance < 1e-3,
+      note: "The sample file's expected winners are nominal, for its own camera. A hit depends on the camera position. Where the camera read back differs, a selected entity other than the expected one is not by itself a picking fault; the anchor entity is reported beside it."
+    };
+
+    // The resting point: a canvas point where a click selects nothing. It gives the canvas keyboard focus before the
+    // first capture, and the pointer rests there for both captures, so neither holds a hover.
+    let rest = null;
+    for (const candidate of pressCandidates(geometry)) {
+      if (!(await page.evaluate(inPageCanvasReceives, candidate))) continue;
+      await resetToProjectSelection(page);
+      await page.mouse.click(candidate.x, candidate.y);
+      await waitSettled(page, cdp);
+      const selection = await page.evaluate(inPageSelectionSummary);
+      if (selection.count === 1 && selection.primaryRef?.type === "project") { rest = { x: candidate.x, y: candidate.y }; break; }
+    }
+    if (!rest) throw new Error("no canvas point was found where a click selects nothing");
+    document.restingPoint = { x: round(rest.x - rect.left, 1), y: round(rest.y - rect.top, 1), basis: "canvas CSS px" };
+
+    const half = PAIRS_RULE.regionCssPx / 2;
+    for (const sample of points.samples.filter((entry) => entry.sample >= options.samples.from && entry.sample <= options.samples.to)) {
+      const entry = { sample: sample.sample, anchorRef: sample.anchorRef, nominalExpectedRef: sample.nominalExpectedRef, status: "measured", reason: null };
+      document.samples.push(entry);
+      try {
+        await resetToProjectSelection(page);
+        await page.mouse.click(rest.x, rest.y);
+        await waitSettled(page, cdp);
+        const projected = await page.evaluate(inPageProject, sample.authoredAnchor);
+        if (!projected.inside) { entry.status = "not-attempted"; entry.reason = `the anchor projects outside the canvas (${projected.status})`; continue; }
+        const point = { x: rect.left + projected.css.x, y: rect.top + projected.css.y };
+        entry.point = { x: round(projected.css.x, 2), y: round(projected.css.y, 2), basis: "canvas CSS px" };
+        const clip = { x: Math.floor(point.x) - half, y: Math.floor(point.y) - half, width: PAIRS_RULE.regionCssPx, height: PAIRS_RULE.regionCssPx };
+        if (clip.x < rect.left || clip.y < rect.top || clip.x + clip.width > rect.left + rect.width || clip.y + clip.height > rect.top + rect.height) { entry.status = "not-attempted"; entry.reason = "the region leaves the canvas"; continue; }
+        if (!(await page.evaluate(inPageCanvasReceives, point))) { entry.status = "not-attempted"; entry.reason = "something other than the canvas receives the pointer at the point"; continue; }
+        const beforeSelection = await page.evaluate(inPageSelectionSummary);
+        if (!(beforeSelection.count === 1 && beforeSelection.primaryRef?.type === "project")) { entry.status = "not-attempted"; entry.reason = "the selection was not the project alone before the pick"; continue; }
+        const before = decodePng(await page.screenshot({ clip, type: "png" }));
+        await page.mouse.click(point.x, point.y);
+        let selected = null;
+        const deadline = performance.now() + 2000;
+        for (;;) {
+          selected = await page.evaluate(inPageSelectionSummary);
+          if (selected.primaryRef?.type !== "project" || performance.now() > deadline) break;
+          await sleep(50);
+        }
+        await page.mouse.move(rest.x, rest.y);
+        await waitSettled(page, cdp);
+        const after = decodePng(await page.screenshot({ clip, type: "png" }));
+        const cameraAfter = await page.evaluate(inPageCamera);
+        const picked = selected.primaryRef?.type === "project" ? null : selected.primaryRef;
+        entry.selected = { count: picked ? selected.count : 0, ref: picked };
+        entry.selectedIsNominalExpected = sameRef(picked, sample.nominalExpectedRef);
+        entry.selectedIsAnchor = sameRef(picked, sample.anchorRef);
+        entry.cameraUnchanged = cameraAfter.sequence === projected.cameraSequence;
+        entry.imagesOpaque = before.opaque && after.opaque;
+        if (before.width !== after.width || before.height !== after.height || before.width !== PAIRS_RULE.regionCssPx * geometry.page.devicePixelRatio) throw new Error(`the captures are ${before.width} x ${before.height} and ${after.width} x ${after.height}`);
+        Object.assign(entry, haloPairAnalysis(before.rgba, after.rgba, before.width, before.height, geometry.page.devicePixelRatio, colours.selection.rgb, colours.ground.rgb));
+      } catch (error) {
+        entry.status = "failed";
+        entry.reason = String(error?.message ?? error).split("\n")[0];
+      }
+      if (document.samples.length % 20 === 0) log(`  ${document.samples.length} samples done`);
+    }
+  } catch (error) {
+    document.error = String(error?.message ?? error).split("\n").slice(0, 3).join(" | ");
+  } finally {
+    await closeBrowser(browser);
+    await server.close();
+    ACTIVE.server = null;
+    document.loadAverageAfter = os.loadavg().map((value) => round(value, 2));
+    document.finishedUtc = new Date().toISOString();
+  }
+  document.totals = pairsTotals(document.samples);
+  writeOutput(options.out, document, scrub);
+  const t = document.totals;
+  log(document.error ? `pairs: FAILED: ${scrub(document.error)}` : `pairs: ${t.passesWithNoCasing} of ${t.samples} samples pass with no casing (measured ${t.measured}; no cue seen ${t.failures["no-cue-seen"]}, no ground beside ${t.failures["no-ground-beside"]}, too few pairs ${t.failures["too-few-pairs"]}; not attempted ${t.notAttempted}, failed ${t.failed}); selected = nominal expected ${t.selectedIsNominalExpected}, = anchor ${t.selectedIsAnchor}, nothing selected ${t.nothingSelected}`);
+  log(`wrote ${reducePath(options.out)}`);
+  return document;
+}
+
+function pairsTotals(samples) {
+  const measured = samples.filter((entry) => entry.status === "measured");
+  const failures = { "no-cue-seen": 0, "no-ground-beside": 0, "too-few-pairs": 0 };
+  for (const entry of measured) if (entry.failureClass) failures[entry.failureClass] += 1;
+  const passing = measured.filter((entry) => entry.passesWithNoCasing);
+  const share = (entry) => (entry.newlyQualifying ? entry.newlyOverFigure / entry.newlyQualifying : null);
+  return {
+    samples: samples.length, measured: measured.length, notAttempted: samples.filter((entry) => entry.status === "not-attempted").length, failed: samples.filter((entry) => entry.status === "failed").length,
+    passesWithNoCasing: passing.length, passesWhereSelectedIsNominalExpected: passing.filter((entry) => entry.selectedIsNominalExpected).length, failures,
+    selectedIsNominalExpected: measured.filter((entry) => entry.selectedIsNominalExpected).length, selectedIsAnchor: measured.filter((entry) => entry.selectedIsAnchor).length,
+    selectedIsNeither: measured.filter((entry) => entry.selected?.ref && !entry.selectedIsNominalExpected && !entry.selectedIsAnchor).length,
+    nothingSelected: measured.filter((entry) => !entry.selected?.ref).length,
+    medianNewlyQualifying: median(measured.map((entry) => entry.newlyQualifying)), medianPairs: median(measured.map((entry) => entry.pairs)),
+    medianNewlyInner: median(measured.map((entry) => entry.newlyInner)), medianShareOverFigure: round(median(measured.map(share).filter((value) => value !== null)), 3)
+  };
+}
+
+// ---------------------------------------------------------------------------------------------------
 // summarize: medians and ranges, never a verdict.
 // ---------------------------------------------------------------------------------------------------
 
@@ -1270,7 +1814,8 @@ function pairedDifferences(document) {
 
 function summarize(documents) {
   const lines = [];
-  const series = documents.filter((entry) => entry.document.kind === "run-series");
+  const series = documents.filter((entry) => entry.document.kind === "run-series" || entry.document.kind === "hover-series");
+  const pairsDocuments = documents.filter((entry) => entry.document.kind === "pairs");
   const resources = documents.filter((entry) => entry.document.kind === "resources");
   lines.push("# Orbit probe summary", "", GUIDANCE_NOTE, "",
     "Medians and ranges only. Percentiles are nearest-rank; with three runs the p95 of the per-run p95 values is the largest of them. Intervals are between requestAnimationFrame timestamps in the measurement window.", "");
@@ -1314,6 +1859,28 @@ function summarize(documents) {
         lines.push(`| ${name} | ${row.name} - ${row.reference} | ${row.pairs} | ${medianRange(row.p95)} | ${share(row.p95, row.referenceMedianP95)} | ${medianRange(row.p50)} | ${medianRange(row.mean, fmt3)} | ${share(row.mean, row.referenceMedianMean)} | ${medianRange(row.task, fmt3)} |`);
       }
     }
+    lines.push("", "## Selection and hover", "", "Kind run: an orbit with the left button down. Kind hover: the pointer sweeps the canvas with no button pressed, and the frame and main-thread columns above describe that sweep. Selected is the count the product's diagnostics surface reported before the measurement. A pointer event is a pointermove the page dispatched in the window; the browser may merge moves that arrive within one frame. With select none the count reported is the product's start-up selection (the project).", "",
+      "| File | Kind | Variant | Select | Selected (reported) | Selection took (ms) | Pointer events in window | Share received by the canvas | Main thread (ms per pointer event) | Script (ms per pointer event) | Product submissions in span | Camera sequence change |", "|---|---|---|---|---|---|---|---|---|---|---|---|");
+    for (const { name, document } of series) {
+      const isHover = document.kind === "hover-series";
+      for (const variant of [...new Set(document.runs.map((run) => run.variant))]) {
+        const good = document.runs.filter((run) => run.variant === variant && !run.error);
+        const whole = (value) => fmt(value, 0);
+        const motion = (run) => (isHover ? run.hover : run.orbit);
+        lines.push(`| ${name} | ${isHover ? "hover" : "run"} | ${variant} | ${document.arguments.select ?? "none"} | ${medianRange(good.map((run) => run.selection?.reported?.count ?? null), whole)} | ${medianRange(good.map((run) => run.selection?.tookMs ?? null), whole)} | ${isHover ? medianRange(good.map((run) => run.hover?.pointerEvents?.eventsInWindow ?? null), whole) : "n/a"} | ${isHover ? medianRange(good.map((run) => run.hover?.pointerEvents?.fractionReceivedByCanvas ?? null), pct) : "n/a"} | ${isHover ? medianRange(good.map((run) => run.mainThread?.taskMsPerPointerEvent ?? null), fmt3) : "n/a"} | ${isHover ? medianRange(good.map((run) => run.mainThread?.scriptMsPerPointerEvent ?? null), fmt3) : "n/a"} | ${medianRange(good.map((run) => motion(run)?.productSubmissionsInSpan ?? null), whole)} | ${medianRange(good.map((run) => motion(run)?.cameraSequenceDelta ?? null), whole)} |`);
+      }
+    }
+    lines.push("");
+  }
+  if (pairsDocuments.length) {
+    lines.push("## Halo pairs (simplified rule, no casing)", "", "A simplified form of the rule in the lane's proposal P1, section 4.4: no predicted band and nothing exclusive to the winner, so every newly Selection-coloured pixel in the region counts, whatever drew it. A sample passes when the image changed and at least 4 pairs exist. No cue seen: the image did not change or no pixel newly qualified. No ground beside: pixels newly qualified and none has ground within 2 CSS px. Expected winners are the sample file's nominal ones; where the camera differs they need not apply.", "",
+      "| File | Describes | Pipes | Mode | Theme | DPR | Canvas (CSS px) | Build index.html SHA-256 | Samples | Measured | Passes | Fail: no cue seen | Fail: no ground beside | Fail: too few pairs | Not attempted / failed | Selected = nominal expected | Selected = anchor | Selected = neither | Nothing selected | Expected winners apply (camera) | Median new px | Median pairs | Median inner px | Median share over figure |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+    for (const { name, document } of pairsDocuments) {
+      const a = document.arguments;
+      const t = document.totals;
+      if (document.error) { lines.push(`| ${name} | failed: ${String(document.error).replace(/\|/g, "/").slice(0, 120)} | ${a.pipes} | ${a.mode} | ${a.theme} | ${a.dpr} | | | | | | | | | | | | | | | | | | |`); continue; }
+      lines.push(`| ${name} | ${String(document.describes ?? "not stated").replace(/\|/g, "/")} | ${a.pipes} | ${a.mode} | ${a.theme} | ${a.dpr} | ${fmt(document.canvas.cssWidth, 0)} x ${fmt(document.canvas.cssHeight, 0)} | ${document.buildIdentity.indexHtmlSha256} | ${t.samples} | ${t.measured} | ${t.passesWithNoCasing} | ${t.failures["no-cue-seen"]} | ${t.failures["no-ground-beside"]} | ${t.failures["too-few-pairs"]} | ${t.notAttempted} / ${t.failed} | ${t.selectedIsNominalExpected} | ${t.selectedIsAnchor} | ${t.selectedIsNeither} | ${t.nothingSelected} | ${document.camera.expectedWinnersApply ? "yes" : `no (camera ${fmt(document.camera.positionDistanceFromNominal)} from nominal)`} | ${fmt(t.medianNewlyQualifying, 0)} | ${fmt(t.medianPairs, 0)} | ${fmt(t.medianNewlyInner, 0)} | ${pct(t.medianShareOverFigure)} |`);
+    }
     lines.push("");
   }
   if (resources.length) {
@@ -1345,14 +1912,15 @@ function readDocuments(files) {
 // self-test
 // ---------------------------------------------------------------------------------------------------
 
-function shapeProblems(document, text, expectedRuns) {
+function shapeProblems(document, text, expectedRuns, kind = "orbit") {
+  const hover = kind === "hover";
   const problems = [];
   const need = (condition, message) => { if (!condition) problems.push(message); };
   const number = (value) => typeof value === "number" && Number.isFinite(value);
   need(document.tool === TOOL, "tool name");
   need(document.formatVersion === FORMAT_VERSION, "format version");
-  need(document.kind === "run-series", "kind");
-  need(Array.isArray(document.arguments?.argv) && document.arguments.argv[0] === "run", "argument list");
+  need(document.kind === (hover ? "hover-series" : "run-series"), "kind");
+  need(Array.isArray(document.arguments?.argv) && document.arguments.argv[0] === (hover ? "hover" : "run"), "argument list");
   const identityOk = (identity) => /^[0-9a-f]{64}$/.test(identity?.indexHtmlSha256 ?? "") && Array.isArray(identity?.assets) && identity.assets.length > 0 &&
     identity.assets.every((asset) => typeof asset.name === "string" && Number.isInteger(asset.bytes));
   need(Array.isArray(document.variants) && document.variants.length > 0 && document.variants.every((variant) => typeof variant.name === "string" && typeof variant.query === "string" && identityOk(variant.buildIdentity)), "build identity of every variant: index.html hash, asset names and sizes");
@@ -1381,8 +1949,21 @@ function shapeProblems(document, text, expectedRuns) {
     need(viewport && typeof viewport.geometry?.mode === "string" && typeof viewport.geometry?.odStatus === "string", `${label}: geometry mode and OD status`);
     need(viewport && typeof viewport.labels?.enabled === "boolean" && Number.isInteger(viewport.labels?.renderedCount), `${label}: label state`);
     need(typeof run.diagnostics?.beforeOrbit?.model?.identityHash === "string" && run.diagnostics.beforeOrbit.model.projectId === document.fixture.projectId, `${label}: model identity`);
-    need(Number.isInteger(run.orbit?.cameraSequenceDelta) && run.orbit.cameraSequenceDelta > 0, `${label}: the orbit moved the camera`);
-    need(run.orbit?.modelGenerationUnchanged === true && run.orbit?.geometryUnchanged === true, `${label}: model and geometry unchanged by the orbit`);
+    if (hover) {
+      need(run.hover?.cameraSequenceDelta === 0, `${label}: the hover sweep left the camera alone`);
+      need(run.hover?.modelGenerationUnchanged === true && run.hover?.geometryUnchanged === true && run.hover?.selectionUnchanged === true, `${label}: model, geometry and selection unchanged by the hover sweep`);
+      need(Number.isInteger(run.hover?.pointerEvents?.eventsInWindow) && run.hover.pointerEvents.eventsInWindow > 10 && run.hover.pointerEvents.overflow === false, `${label}: pointer events recorded`);
+      need(number(run.hover?.pointerEvents?.fractionReceivedByCanvas) && run.hover.pointerEvents.fractionReceivedByCanvas >= 0.9, `${label}: the canvas received the sweep`);
+      need(number(run.mainThread?.taskMsPerPointerEvent) && number(run.mainThread?.scriptMsPerPointerEvent), `${label}: main-thread cost per pointer event`);
+      need(number(run.hover?.productSubmissionsInSpan) && run.hover.productSubmissionsInSpan > 0, `${label}: the hover sweep made the product draw`);
+    } else {
+      need(Number.isInteger(run.orbit?.cameraSequenceDelta) && run.orbit.cameraSequenceDelta > 0, `${label}: the orbit moved the camera`);
+      need(run.orbit?.modelGenerationUnchanged === true && run.orbit?.geometryUnchanged === true, `${label}: model and geometry unchanged by the orbit`);
+      need(run.orbit?.selectionUnchanged === true, `${label}: selection unchanged by the orbit`);
+    }
+    const wantedSelection = { none: null, one: 1, hundred: 100, all: document.fixture.pipeSegments }[document.arguments.select ?? "none"];
+    need(run.selection && (wantedSelection === null ? run.selection.requested === "none" : run.selection.reported?.count === wantedSelection && run.selection.reported.types?.pipe === wantedSelection), `${label}: the selection asked for is the selection reported`);
+    need(wantedSelection === null || viewportSelectionCount(run) === wantedSelection, `${label}: the selection is still reported at the start of the measurement`);
     need(run.pointer?.movesSent > 0 && run.pointer.movesFailed === 0, `${label}: pointer moves`);
     need(run.console && Number.isInteger(run.console.errorCount) && Array.isArray(run.console.errors) && Array.isArray(run.console.pageErrors), `${label}: console record`);
     const variant = (document.variants ?? []).find((entry) => entry.name === run.variant);
@@ -1390,6 +1971,10 @@ function shapeProblems(document, text, expectedRuns) {
   }
   need(!/(\/Users\/|\/home\/|\/private\/|\/var\/folders\/|[A-Za-z]:\\\\)/.test(text), "no machine path in the output text");
   return problems;
+}
+
+function viewportSelectionCount(run) {
+  return run.diagnostics?.beforeOrbit?.viewport?.selection?.count ?? null;
 }
 
 function arithmeticChecks() {
@@ -1459,6 +2044,68 @@ function arithmeticChecks() {
   check("reduce: outside", reducePath(path.join(os.tmpdir(), "probe-dist")), "{OUTSIDE_REPOSITORY}/probe-dist");
   check("reduce: inside", reducePath(path.join(requireWorkingRoot(), "apps", "desktop")), "{WORKING_ROOT}/apps/desktop");
 
+  // Additions of slice C2: --select, the hover path, and the pure image functions of "pairs" on synthetic images.
+  const runFlags = (extra) => parseFlags(["--pipes", "1000", "--mode", "schematic", "--labels", "off", "--theme", "light", "--dpr", "1", "--window", "1440x900", "--pacing", "vsync", "--variants", "a=", "--pairs", "1", "--out", "x.json", ...extra], SPECS.run).options;
+  check("--select defaults to none", runFlags([]).select, "none");
+  check("--select all", runFlags(["--select", "all"]).select, "all");
+  let badSelectRefused = false;
+  try { runFlags(["--select", "some"]); } catch (error) { badSelectRefused = error instanceof UsageError; }
+  check("an unknown --select is refused", badSelectRefused, true);
+  check("hover takes the options of run", parseFlags(["--pipes", "10000", "--mode", "actual-od", "--labels", "off", "--theme", "dark", "--dpr", "2", "--window", "1440x900", "--pacing", "uncapped", "--variants", "a=", "--pairs", "1", "--select", "one", "--out", "x.json"], SPECS.hover).options.select, "one");
+  check("hover path starts at the centre", hoverOffset(0, canvas), { x: 0, y: 0 });
+  check("hover path closes", [round(hoverOffset(HOVER_PATH.xPeriodMs, canvas).x, 6), round(hoverOffset(HOVER_PATH.xPeriodMs, canvas).y, 6)].map((value) => Math.abs(value)), [0, 0]);
+  check("hover path x extreme", round(hoverOffset(HOVER_PATH.xPeriodMs / 4, canvas).x, 6), round(HOVER_PATH.xAmplitudeOfCanvasWidth * 800, 6));
+  check("hover sends a move at least every 8 ms", MOVE_PERIOD_MS <= 8, true);
+  check("sample range", parseSampleRange("3-17", "samples"), { from: 3, to: 17 });
+  check("contrast of black on white", round(contrastRatio([0, 0, 0], [255, 255, 255]), 2), 21);
+  check("contrast of a colour with itself", contrastRatio([16, 109, 206], [16, 109, 206]), 1);
+  check("hex colour", parseHexColour("#106dce"), [16, 109, 206]);
+
+  const SEL = [16, 109, 206]; const GROUND = [235, 237, 239]; const TUBE = [166, 171, 177]; const HOVER = [93, 148, 218];
+  const paint = (size, colourAt) => {
+    const image = new Uint8Array(size * size * 4);
+    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) { const c = colourAt(x, y); image.set([c[0], c[1], c[2], 255], (y * size + x) * 4); }
+    return image;
+  };
+  const radius = (x, y, size) => Math.hypot(x + 0.5 - size / 2, y + 0.5 - size / 2);
+  const images = (size, scale) => ({
+    discOnGround: paint(size, (x, y) => (radius(x, y, size) <= 6 * scale ? TUBE : GROUND)),
+    ringOnGround: paint(size, (x, y) => { const r = radius(x, y, size); return r <= 6 * scale ? TUBE : r <= 8 * scale ? SEL : GROUND; }),
+    hoverRingOnGround: paint(size, (x, y) => { const r = radius(x, y, size); return r <= 6 * scale ? TUBE : r <= 8 * scale ? HOVER : GROUND; }),
+    tubeField: paint(size, () => TUBE),
+    ringOverTubeField: paint(size, (x, y) => { const r = radius(x, y, size); return r > 6 * scale && r <= 8 * scale ? SEL : TUBE; }),
+    bandOnGround: paint(size, (x) => (Math.abs(x + 0.5 - size / 2) <= 5 * scale ? TUBE : GROUND)),
+    bandRecoloured: paint(size, (x) => (Math.abs(x + 0.5 - size / 2) <= 5 * scale ? SEL : GROUND))
+  });
+  const one = images(48, 1);
+  const analyse = (before, after, size = 48, ratio = 1) => haloPairAnalysis(before, after, size, size, ratio, SEL, GROUND);
+  const ring = analyse(one.discOnGround, one.ringOnGround);
+  check("ring on ground: passes", [ring.passesWithNoCasing, ring.failureClass, ring.imageChanged], [true, null, true]);
+  check("ring on ground: every new pixel lay over ground and none is inner", [ring.newlyQualifying > 50, ring.newlyOverGround === ring.newlyQualifying, ring.newlyOverFigure, ring.newlyInner], [true, true, 0, 0]);
+  check("ring on ground: pairs never exceed new pixels or ground pixels", ring.pairs >= 4 && ring.pairs <= ring.newlyQualifying && ring.pairs <= ring.groundPixelsAfter, true);
+  const covered = analyse(one.tubeField, one.ringOverTubeField);
+  check("ring wholly over a tube-coloured field: fails for want of ground", [covered.passesWithNoCasing, covered.failureClass, covered.newlyQualifying > 50, covered.newlyWithGroundInReach, covered.pairs, covered.groundPixelsAfter], [false, "no-ground-beside", true, 0, 0, 0]);
+  const body = analyse(one.bandOnGround, one.bandRecoloured);
+  check("recoloured body with ground beside: the simplified rule passes it", [body.passesWithNoCasing, body.failureClass], [true, null]);
+  check("recoloured body: told from a halo by its inner pixels and by lying over the figure", [body.newlyInner > 0, body.newlyOverGround, body.newlyOverFigure === body.newlyQualifying], [true, 0, true]);
+  const same = analyse(one.ringOnGround, one.ringOnGround);
+  check("unchanged image: fails, no cue seen", [same.passesWithNoCasing, same.failureClass, same.imageChanged, same.newlyQualifying], [false, "no-cue-seen", false, 0]);
+  const hoverRing = analyse(one.discOnGround, one.hoverRingOnGround);
+  check("ring in the hover colour: fails, no cue seen", [hoverRing.passesWithNoCasing, hoverRing.failureClass, hoverRing.imageChanged, hoverRing.newlyQualifying], [false, "no-cue-seen", true, 0]);
+  const two = images(96, 2);
+  const ringTwo = analyse(two.discOnGround, two.ringOnGround, 96, 2);
+  check("ring on ground at pixel ratio 2: passes, none inner", [ringTwo.passesWithNoCasing, ringTwo.newlyInner], [true, 0]);
+  const lonelyGround = paint(48, (x, y) => (x === 24 && y === 24 ? GROUND : SEL));
+  const lonely = analyse(one.tubeField, lonelyGround);
+  check("each ground pixel is used once", [lonely.pairs, lonely.passesWithNoCasing, lonely.failureClass, lonely.newlyWithGroundInReach], [1, false, "too-few-pairs", 12]);
+  const lowContrast = paint(48, (x) => (x < 24 ? [60, 150, 250] : [200, 200, 200]));
+  const dim = haloPairAnalysis(one.tubeField, lowContrast, 48, 48, 1, SEL, [235, 237, 239]);
+  check("a pair under 3:1 is not counted", [round(contrastRatio([60, 150, 250], [200, 200, 200]), 1) < 3, dim.pairs, dim.pairsIgnoringContrast > 0, dim.failureClass], [true, 0, true, "too-few-pairs"]);
+  const decoded = decodePng(encodePng(48, 48, one.ringOnGround));
+  check("PNG round trip", [decoded.width, decoded.height, decoded.opaque, Buffer.from(decoded.rgba).equals(Buffer.from(one.ringOnGround))], [48, 48, true, true]);
+  const totals = pairsTotals([{ status: "measured", ...ring, selected: { ref: { type: "pipe", id: "p" } }, selectedIsNominalExpected: true, selectedIsAnchor: true }, { status: "measured", ...covered, selected: { ref: null }, selectedIsNominalExpected: false, selectedIsAnchor: false }, { status: "not-attempted" }]);
+  check("pairs totals", [totals.samples, totals.measured, totals.notAttempted, totals.passesWithNoCasing, totals.failures["no-ground-beside"], totals.nothingSelected, totals.selectedIsNominalExpected], [3, 2, 1, 1, 1, 1, 1]);
+
   const synthetic = (variant, pair, p95, meanMs, task) => ({ variant, pair, error: null, frames: { measure: { p95Ms: p95, p50Ms: meanMs, meanMs, fractionOver16_7Ms: 0, fractionOver33_3Ms: 0 } }, mainThread: { taskMsPerFrame: task }, loadAverageBefore: [1, 1, 1], loadAverageAfter: [3, 1, 1], console: { errorCount: 0, pageErrorCount: 0, errors: [], pageErrors: [] } });
   const document = { runs: [synthetic("a", 1, 10, 8, 2), synthetic("b", 1, 11, 8.5, 2.5), synthetic("a", 2, 12, 9, 2), synthetic("b", 2, 11, 8, 1.5), synthetic("a", 3, 14, 10, 2), synthetic("b", 3, 17, 12, 3)] };
   const rows = variantRows(document);
@@ -1510,7 +2157,36 @@ async function selfTest(options, log = console.log) {
     const table = summarize([{ name: "self-test.json", document }]);
     const tableOk = table.includes("| self-test.json | first | 1 |") && table.includes("| self-test.json | second | 1 |") && table.includes("same build identity") && table.includes("A/A series");
     log(tableOk ? "summarize: produced a row for each variant and named the shared build identity" : "summarize: FAILED to produce the expected rows");
-    const passed = buildCasesOk && problems.length === 0 && tableOk;
+
+    // Additions of slice C2, one short run each on the 1,000-pipe fixture, labels off.
+    const flagsOf = (spec, extra) => parseFlags(["--dist", dist, "--pipes", "1000", "--mode", "schematic", "--labels", "off", "--theme", "light", "--dpr", "1",
+      "--window", "1440x900", "--pacing", "vsync", "--variants", "only=", "--pairs", "1", "--warmup-ms", "300", "--measure-ms", "1500", "--port", String(options.port), ...extra], spec).options;
+    const c2Problems = [];
+    for (const [kind, select] of [["orbit", "hundred"], ["orbit", "all"], ["hover", "one"]]) {
+      const file = path.join(scratch, `c2-${kind}-${select}.json`);
+      const series = await runSeries(flagsOf(kind === "hover" ? SPECS.hover : SPECS.run, ["--select", select, "--out", file]), (line) => log(`  ${line}`), kind);
+      const seriesText = readFileSync(file, "utf8");
+      for (const problem of shapeProblems(JSON.parse(seriesText), seriesText, 1, kind)) c2Problems.push(`${kind} --select ${select}: ${problem}`);
+      const seriesTable = summarize([{ name: "c2.json", document: series }]);
+      if (!seriesTable.includes(`| c2.json | ${kind === "hover" ? "hover" : "run"} | only | ${select} | ${{ one: 1, hundred: 100, all: 1000 }[select]} |`)) c2Problems.push(`${kind} --select ${select}: the summary lacks the selection row`);
+    }
+    const pairsFile = path.join(scratch, "c2-pairs.json");
+    const pairsDocument = await runPairs(parseFlags(["--dist", dist, "--pipes", "1000", "--mode", "schematic", "--theme", "light", "--samples", "1-4", "--note", "self-test", "--port", String(options.port), "--out", pairsFile], SPECS.pairs).options, (line) => log(`  ${line}`));
+    const pairsText = readFileSync(pairsFile, "utf8");
+    const pairsWritten = JSON.parse(pairsText);
+    if (pairsWritten.error) c2Problems.push(`pairs: ${pairsWritten.error}`);
+    if (pairsWritten.kind !== "pairs" || pairsWritten.samples?.length !== 4 || pairsWritten.totals?.samples !== 4) c2Problems.push("pairs: four samples expected");
+    for (const entry of pairsWritten.samples ?? []) {
+      if (entry.status === "measured" && !(Number.isInteger(entry.pairs) && Number.isInteger(entry.newlyQualifying) && typeof entry.passesWithNoCasing === "boolean" && entry.cameraUnchanged === true && entry.imagesOpaque === true)) c2Problems.push(`pairs: sample ${entry.sample} lacks its counts`);
+      if (entry.status === "failed") c2Problems.push(`pairs: sample ${entry.sample} failed: ${entry.reason}`);
+    }
+    if (!(pairsWritten.totals?.measured > 0)) c2Problems.push("pairs: no sample was measured");
+    if (!/^[0-9a-f]{64}$/.test(pairsWritten.tokens?.sha256 ?? "") || pairsWritten.sampleFiles?.length !== 2) c2Problems.push("pairs: token file and sample file identities");
+    if (/(\/Users\/|\/home\/|\/private\/|\/var\/folders\/|[A-Za-z]:\\\\)/.test(pairsText)) c2Problems.push("pairs: a machine path is in the output text");
+    if (!summarize([{ name: "c2-pairs.json", document: pairsDocument }]).includes("| c2-pairs.json | self-test | 1000 |")) c2Problems.push("pairs: the summary lacks its row");
+    log(c2Problems.length ? `select, hover and pairs: ${c2Problems.length} problem(s)` : "select, hover and pairs: run --select hundred and all, hover --select one and pairs on four samples gave valid output; the counts reported are the counts asked for");
+    for (const problem of c2Problems) log(`  ${problem}`);
+    const passed = buildCasesOk && problems.length === 0 && tableOk && c2Problems.length === 0;
     log(passed ? "self-test: PASS" : "self-test: FAIL");
     return passed ? 0 : 1;
   } finally {
@@ -1536,10 +2212,11 @@ async function main() {
   if (subcommand !== "summarize" && positionals.length) throw new UsageError(`unexpected argument "${positionals[0]}"`);
   process.on("SIGINT", () => { shutdown("SIGINT"); });
   process.on("SIGTERM", () => { shutdown("SIGTERM"); });
-  if (subcommand === "run") {
-    const document = await runSeries(options);
+  if (subcommand === "run" || subcommand === "hover") {
+    const document = await runSeries(options, console.log, subcommand === "hover" ? "hover" : "orbit");
     return document.runs.some((run) => run.error) ? 1 : 0;
   }
+  if (subcommand === "pairs") return (await runPairs(options)).error ? 1 : 0;
   if (subcommand === "resources") return (await runResources(options)).error ? 1 : 0;
   if (subcommand === "self-test") return selfTest(options);
   process.stdout.write(`${summarize(readDocuments(positionals))}\n`);
@@ -1547,7 +2224,7 @@ async function main() {
 }
 
 // The pieces are exported so that a reviewer can exercise them one by one; the command line is the interface.
-export { frameStats, percentileNearestRank, median, pathOffset, parseVariants, interleave, summarize, startStaticServer, launchBrowser, closeBrowser, loadFixture, loadPlaywright, openProduct, setTheme, setGeometry, setToggle, isometricThenFit, waitSettled, findPressPoint, driveOrbit, inPageReadDiagnostics };
+export { frameStats, percentileNearestRank, median, pathOffset, parseVariants, interleave, summarize, startStaticServer, launchBrowser, closeBrowser, loadFixture, loadPlaywright, openProduct, setTheme, setGeometry, setToggle, isometricThenFit, waitSettled, findPressPoint, driveOrbit, inPageReadDiagnostics, hoverOffset, selectPipesThroughTree, haloPairAnalysis, contrastRatio, decodePng, encodePng, runPairs };
 
 const invokedDirectly = Boolean(process.argv[1]) && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href;
 if (invokedDirectly) {
