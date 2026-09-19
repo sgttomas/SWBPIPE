@@ -830,6 +830,28 @@ describe("viewport palette repaint", () => {
     expect((marker.material as ReturnType<typeof createFigureMaterial>).color.getHex()).toBe(viewportRoleHex("dark", "routeDraft"));
   });
 
+  it("replaces a layer with an empty list without a console error, leaving the layer empty", () => {
+    const { resource, ownership, invalidate, modelLayer } = paletteResource("light");
+    const ledgerEmpty = ownership.snapshot();
+    const mesh = rolePipes([entityKey({ type: "pipe", id: "p:leaving" })]);
+    const disposeGeometry = vi.spyOn(mesh.geometry, "dispose");
+    resource.replaceLayer(modelLayer, [mesh]);
+    expect(modelLayer.children).toEqual([mesh]);
+    invalidate.mockClear();
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      // three's Object3D.add reports an error when it is called with no object at all.
+      resource.replaceLayer(modelLayer, []);
+      expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      consoleError.mockRestore();
+    }
+    expect(modelLayer.children).toEqual([]);
+    expect(disposeGeometry).toHaveBeenCalledTimes(1);
+    expect(ownership.snapshot().live).toEqual(ledgerEmpty.live);
+    expect(invalidate).toHaveBeenCalledTimes(1);
+  });
+
   it("repaints every role colour in all five layers without changing the ownership ledger or any resource identity", () => {
     const selected = entityKey({ type: "pipe", id: "p:kept" });
     const { resource, ownership, invalidate, modelLayer, authoredLoadLayer, resultLayer, diagnosticLayer, routingLayer } =

@@ -689,7 +689,8 @@ export class ViewportResource {
     this.ownership.disposeObjects(layer.children);
     disposeObjectChildren(layer);
     layer.clear();
-    layer.add(...objects);
+    // three reports an error when `add` is called with no object; an empty layer adds nothing.
+    if (objects.length > 0) layer.add(...objects);
     this.ownership.createObjects(objects);
     applyThemePresentation(this.scene, this.themePresentation);
     // The incoming objects were built without a theme; paint them for the current one so a
