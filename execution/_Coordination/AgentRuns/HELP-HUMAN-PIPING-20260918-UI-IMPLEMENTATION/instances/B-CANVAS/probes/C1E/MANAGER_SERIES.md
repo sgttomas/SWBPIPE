@@ -148,3 +148,5 @@ Each later variant minus the first variant, pair by pair in run order: median [s
 | c1e_resources_1000.json | 1000 | 17 | yes | 4 of 4 | yes | no / no (0 draws) / yes | yes / yes (3480 draws) / no | 0 |
 | c1e_resources_10000.json | 10000 | 17 | yes | 4 of 4 | yes | no / no (0 draws) / yes | yes / yes (22143 draws) / no | 0 |
 
+
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
