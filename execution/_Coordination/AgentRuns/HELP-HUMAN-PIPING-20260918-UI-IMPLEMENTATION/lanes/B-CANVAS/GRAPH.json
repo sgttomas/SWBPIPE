@@ -15,8 +15,37 @@
       "addendum1Sha256": "4d5af33abf5b916ab3ddae09214e0d98070f6f2a984f0604d953e5381cd25ad5",
       "addendum1": "briefs/B-CANVAS_addendum_1.md",
       "returnSha256": null
+    },
+    "B-CANVAS-ADDENDUM-2": {
+      "role": "ROOT's sealed addendum to the lane's brief",
+      "model": "n/a (ROOT, Claude Fable 5.1)",
+      "status": "sealed",
+      "sealed": "2026-09-19T02:06Z",
+      "briefSha256": "a5b11b94b23a3eaaabc69680ee03f8dcdb6377ddcce6ea5a44b08fa6b54bdc74",
+      "brief": "briefs/B-CANVAS_addendum_2.md",
+      "candidate": null,
+      "returnSha256": null
+    },
+    "C1-REVIEW": {
+      "role": "TASK Type 2 read-only reviewer (software-code-review), fresh context",
+      "model": "opus",
+      "status": "sealed",
+      "sealed": "2026-09-19T02:07Z",
+      "briefSha256": "228a9490e9e37e6eb3af77ab8236ca574d555c495e23af1361c391327d39c324",
+      "brief": "briefs/C1-REVIEW_code_review.md",
+      "candidate": "beb69d603d74fea326f64ab663e076bc2cd8ba9d",
+      "returnSha256": null
+    },
+    "B-CANVAS-C1A": {
+      "role": "WORKING_ITEMS Type 1 lane manager",
+      "model": "fable",
+      "status": "returned (slice C1, first part, with proposals P1 to P3)",
+      "returnSha256": "170ab03db6b0533c54087d60a3f456ec647433fdf3ebe255b01b2a4b9bfc05b1",
+      "return": "returns/C1A_RETURN.md",
+      "modelThatRan": "manager: Claude Fable 5.1 requested, no self-report in the return; its implementer child C1A-PALETTE reports claude-fable-5-1; its inventory child INV1-INSTRUMENT reports Claude Sonnet 5",
+      "candidate": "beb69d603d74fea326f64ab663e076bc2cd8ba9d"
     }
   },
   "slices": [],
-  "current_frontier": "Lane launched; first slice in progress."
+  "current_frontier": "Slice C1's first part returned and read; addendum 2 sealed; early code review C1-REVIEW dispatched on beb69d603 in another worktree; the manager resumes with C1E, then C1b; the lane's first pull request is the three parts together, with its own complete code review and design-fidelity review; then C2."
 }
