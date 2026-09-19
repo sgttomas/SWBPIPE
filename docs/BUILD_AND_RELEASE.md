@@ -23,9 +23,6 @@ collecting software-quality evidence before a future CI provider, release
 matrix, signing process, and publishing workflow are selected.
 
 This guide is not a live CI workflow or a release publication authorization.
-Acceptance, professional judgment, and any certification, sealing, or
-code-compliance determination remain with the responsible engineer and
-project authority (`docs/claims_registry.md`).
 
 ## 2. Current Authority Boundary
 
@@ -175,8 +172,7 @@ artifact, and the cargo sweep saturates the same cores. The atomic wasm-build
 swap (§3) removes the half-written-artifact hazard, not the contention.
 
 A green sweep is development evidence, not a release claim or a release
-publication authorization; acceptance and professional judgment remain with
-the responsible engineer.
+publication authorization.
 
 ## 6. Packaging Skeleton
 
@@ -333,9 +329,7 @@ caveat (the emitter records it verbatim in every record):
 > commit-bound sweep artifact + the release artifact record, not by an OS
 > code signature.
 
-Release labels describe software maturity and validation evidence; acceptance
-and professional judgment for any project-specific piping calculation remain
-with the responsible engineer.
+Release labels describe software maturity and validation evidence.
 
 ## 9. Open Decisions
 

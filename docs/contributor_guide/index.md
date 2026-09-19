@@ -26,9 +26,7 @@ approved DAG authority, deliverable-local lifecycle state, review disposition,
 or a human project-authority instruction, stop and surface the conflict
 instead of guessing.
 
-This guide is project workflow documentation, not legal advice. Acceptance,
-professional judgment, and any certification, sealing, or code-compliance
-determination remain with the responsible engineer and project authority.
+This guide is project workflow documentation, not legal advice.
 
 ## First-Hour Path
 

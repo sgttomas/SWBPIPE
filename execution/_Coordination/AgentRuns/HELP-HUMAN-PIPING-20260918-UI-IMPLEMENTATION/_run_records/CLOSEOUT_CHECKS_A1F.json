@@ -1,0 +1,46 @@
+{
+  "artifact": "CLOSEOUT_CHECKS",
+  "tranche": "SWBPIPE-A1 follow-ups (DEC-106 to DEC-109)",
+  "date": "2026-09-18",
+  "base": "7866f0a3c2c846cf071f735ea9b263a44fb00ca9",
+  "code_reviewed": {
+    "reviewer_model": "Claude Opus 5",
+    "candidate": "bb7c7a2e8e128c91b001d69734369f1b211c7122",
+    "verdict": "PASS; no actionable finding; four observations and one bounded residual risk carried (see briefs/_INDEX.md)",
+    "return": "{RUN}/instances/A1F-REVIEW/RETURN.md",
+    "return_sha256": "3e640e232c8b3437411c0f579ab6e446f68dadee4d685644d16640f7fee8ada8",
+    "last_code_commit": "bb7c7a2e8e128c91b001d69734369f1b211c7122"
+  },
+  "main_taken_before_sweep": {
+    "origin_main": "4dcab750501d039af5b2973991cbe0f3f423b80a",
+    "what_it_brought": "slice B1 (design tokens), separately reviewed and swept (CLOSEOUT_CHECKS_B1.json); product paths disjoint from this change",
+    "conflicts": "the run's shared records only (briefs/_INDEX.md, WORK_GRAPH.json, HANDOFF_STATE.md); both sets of entries kept"
+  },
+  "sweeps": [
+    {
+      "commit": "06454cd36904f542f22959a7fd67b210fd45b5b9",
+      "status": "pass",
+      "summary": "{WORKING_ROOT}/validation/evidence/sweeps/SWEEP_20260919T000437Z_06454cd36904.json",
+      "sha256": "bf1993759dc1aaabcfc7425a8a44614ec81550592fcc10f94a63c2ca4485c357",
+      "command": "PLAYWRIGHT_WORKERS=1 sh {RUN}/tools/with_e2e_lock.sh python3 tools/release/run_evidence_sweep.py --execute --require-capability host",
+      "surfaces": 5,
+      "note": "run on the commit that already contains origin/main, so it covers the candidate as it merges",
+      "results": {
+        "python_tests": "1105 passed",
+        "desktop_unit_tests": "1190 passed in 75 files",
+        "playwright_source_lane": "374 passed, 20 skipped (environment-gated)",
+        "playwright_dist_lane": "53 passed"
+      },
+      "host_note": "two lane managers and one design child had just been launched on the host while this sweep ran; every surface passed"
+    }
+  ],
+  "commits_between_reviewed_and_tested": "records only, ROOT's one-line clarification of the DEC-107 row made on the reviewer's suggestion, and the merge of origin/main; no product source, test or tool change of this change after bb7c7a2e8",
+  "commits_after_tested": "records only (this file, the sweep summary, the deliverable run record and status line, index, work graph and handoff state)",
+  "validators": {
+    "path_anchors": "PASS",
+    "claims_language": "VALID, 321 files",
+    "tranche_manifest": "PASS; 0 changed paths on the instruction surface, no manifest required"
+  },
+  "boundary": "Checks ran on the owner's host. No usability acceptance, review acceptance or release is established.",
+  "claim_fence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)."
+}

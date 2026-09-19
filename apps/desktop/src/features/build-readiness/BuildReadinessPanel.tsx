@@ -154,7 +154,7 @@ function buildReadinessPacket(model: PreviewModel) {
     tauri_shell: {
       product_name: "SWBPIPE",
       version: "0.1.0",
-      identifier: "com.swbpipe.desktop",
+      identifier: "com.chirality.swbpipe",
       before_dev_command: "npm run dev",
       dev_url: "http://127.0.0.1:5173",
       before_build_command: "npm run build",

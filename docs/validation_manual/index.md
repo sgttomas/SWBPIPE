@@ -21,16 +21,12 @@ This manual organizes verification and validation evidence for SWBPIPE
 software quality. Candidate designs are validated in the user's accepted
 professional tools (external-prover correlation, PRD §22.5). Internal
 benchmarks and rule checks are development verification and screening
-evidence.
-Acceptance, professional judgment, and any certification, sealing, or
-code-compliance determination remain with the responsible engineer and
-project authority (boundary vocabulary: `docs/claims_registry.md`, DEC-081).
+evidence (boundary vocabulary: `docs/claims_registry.md`, DEC-081).
 
 Current authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md`
 revision `0.11` and approved `execution/_DAG/DAG-009/` graph coordination
 authority. `DAG-009` supplies active dependency context only; it does not
-settle lifecycle state, release labels, or legal clearance, and acceptance and
-professional judgment remain with the responsible engineer.
+settle lifecycle state, release labels, or legal clearance.
 
 Use this manual to answer four separate questions:
 
@@ -200,7 +196,7 @@ governed `DEC-046` policy records committed beside the crate
 | Nonlinear support regression | [Section 3.3 case pages](#33-nonlinear-support-cases-del-09-03); `validation/benchmarks/nonlinear/` with governed `DEC-046` policy records | `DRAFT_EVIDENCE`; production release thresholds and external validation claims are `TBD`. |
 | Headless runner reproduction | `docs/validation_manual/headless_runner_reproduction.md`; `validation/witness/inputs/`; `validation/witness/generated/` | `DRAFT_EVIDENCE`; the current DEC-065 local CLI examples and the committed DEL-10-05 `run-benchmark`/`run-regression` payload families are reproducible from invented fixtures. `export-results` remains the only structured runner stub, and public benchmark thresholds remain `TBD`. |
 | GUI workflow validation | `apps/desktop/e2e/gui-workflow-validation.spec.ts`; repository-local invented model/result fixtures; two-viewport projects in `apps/desktop/playwright.config.ts` | `DRAFT_EVIDENCE`; on 2026-08-20 the focused host run `npm exec playwright test -- e2e/gui-workflow-validation.spec.ts` passed 2/2 (`chromium-desktop`, `chromium-compact`). Coverage binds visible missing-data and warning classes, assumptions/boundaries, solve and result transitions, local-only persistence, and zero external requests. No threshold or maintainer-review promotion is selected. |
-| Report protected-content lint | `core/reporting/protected_content_linter/` | Draft review evidence for report/public-artifact checks; development review evidence, not legal clearance, and acceptance stays with the responsible engineer. |
+| Report protected-content lint | `core/reporting/protected_content_linter/` | Draft review evidence for report/public-artifact checks; development review evidence, not legal clearance. |
 | Release quality evidence | Future `DEL-09-05` release quality gate checklist | `TBD`; this manual may organize evidence inputs but does not settle release labels or release readiness. |
 | Validation evidence bundles | Future evidence package location/format | `TBD`; long-term storage, retention, and release attachment policy are unsettled. |
 | Professional boundary | `docs/PROFESSIONAL_BOUNDARY.md` | Draft policy surface for reliance wording and release-claim limits. |
