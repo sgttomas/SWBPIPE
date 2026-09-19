@@ -51,6 +51,8 @@ def cmd_seal(a):
         t = t.replace("@" + k + "@", v)
     left = re.findall(r"@[A-Z_]+@", t)
     assert not left, "unfilled placeholders: %s" % sorted(set(left))
+    if a.node in load_graph(d)["nodes"] and not a.force:
+        sys.exit("graph node exists: %s (give the instrument its own node id, or pass --force to merge into it)" % a.node)
     out = os.path.join(d, "briefs", a.name)
     assert not os.path.exists(out) or a.force, "exists: " + out
     write(out, t)
@@ -64,9 +66,17 @@ def cmd_seal(a):
     s = s[:m.end()] + row + "\n" + s[m.end():]
     write(idx, s)
     g = load_graph(d)
-    g["nodes"][a.node] = {"role": a.role, "model": a.model, "status": "sealed", "sealed": subs["DATE"],
-                          "briefSha256": h, "brief": "briefs/" + a.name, "candidate": subs.get("SHA"),
-                          "returnSha256": None}
+    existing = g["nodes"].get(a.node)
+    if existing is not None and not a.force:
+        sys.exit("graph node exists: %s (give the instrument its own node id, or pass --force to merge into it)" % a.node)
+    node = dict(existing or {})
+    node.update({"role": a.role, "model": a.model, "status": "sealed", "sealed": subs["DATE"],
+                 "briefSha256": h, "brief": "briefs/" + a.name})
+    if subs.get("SHA"):
+        node["candidate"] = subs["SHA"]
+    node.setdefault("candidate", None)
+    node.setdefault("returnSha256", None)
+    g["nodes"][a.node] = node
     save_graph(d, g)
     print(h, out.replace(a.wt, "{WT}"))
 

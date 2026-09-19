@@ -1,3 +1,5 @@
+> **DRAFT — not sealed, not an instruction.** Re-seal before use: fill the placeholders, choose the model, hash and index it.
+
 # Sealed brief — @ID@: design-fidelity review of slice @SLICE@ by screenshot
 
 Sealed by ROOT (HELP_HUMAN, Agent 0) on @DATE@ before launch. Role: TASK (Type 2), read-only on the repository, fresh context, working alone; Type 2 does not delegate. Model requested: Claude Fable 5.1, never the implementer of this slice. Mechanism: Claude Code `Agent` tool, general-purpose type, background. Your return is your final message, which ROOT retains at `{RUN}/lanes/@LANE@/reviews/@ID@_RETURN.md`. Your only write target is a scratch folder outside the repository that ROOT's launch message names, for screenshots.

@@ -77,7 +77,7 @@
     "B-SHELL": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "fable",
-      "status": "paused: slice B2 merged (PR #803, b9a07040857d2e6d3ec0f6a530697720801c7b59); addenda 2 and 3 sealed on the lane's branch (head 9651fd4212ee6f0ba3c8a202ac8acbcb9d2f865a, pushed); next slice B2F; the manager of 2026-09-19 cannot be resumed from another session",
+      "status": "paused: slice B2 merged (PR #803, b9a07040857d2e6d3ec0f6a530697720801c7b59); addenda 2 and 3 sealed on the lane's branch (head 5f70ad178f951afbdc7b126a4f1006975c0266c1, pushed); next slice B2F; the manager of 2026-09-19 cannot be resumed from another session",
       "briefSha256": "00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75",
       "brief": "briefs/B-SHELL_shell_lane.md",
       "returnSha256": null,
@@ -92,7 +92,7 @@
     "B-CANVAS": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "fable",
-      "status": "paused clean: product head 3a5f7c103bde915d800792112dec2dea19a0813e; addenda 2 to 4 sealed on the lane's branch (head bade9f7accdc84a00d04ba8851beeef8923c0518, pushed, never merged); F1 and F2 done, F3 and slice C1E not started, the T1 probe unfinished; the manager of 2026-09-19 cannot be resumed from another session",
+      "status": "paused clean: product head 3a5f7c103bde915d800792112dec2dea19a0813e; addenda 2 to 4 sealed on the lane's branch (head 4a7408e5512c425cbf9cdedd0b17396ad176607b, pushed, never merged); F1 and F2 done, F3 and slice C1E not started, the T1 probe unfinished; the manager of 2026-09-19 cannot be resumed from another session",
       "briefSha256": "df89f5b622a63f206ccc0f879e7255642e4b9ee16174faf84e539ab51bc12084",
       "brief": "briefs/B-CANVAS_canvas_lane.md",
       "returnSha256": null,
@@ -212,12 +212,14 @@
     "HANDOFF-REVIEW": {
       "role": "TASK Type 2 read-only reviewer, fresh context",
       "model": "opus",
-      "status": "sealed",
+      "status": "returned: FINDINGS, none blocking (two minor, four trivial); all six answered; backcheck pending",
       "sealed": "2026-09-19T05:26Z",
       "brief": "briefs/HANDOFF-REVIEW_records_review.md",
       "briefSha256": "5156efe17a9c3aa5f3efc387528b57b7166a91a6a35d9266f3d99de4986a7e49",
       "candidate": "b45b6e27e",
-      "returnSha256": null
+      "returnSha256": "70ae3101d42c995b84b47a3a9ea835f7f7e9fa5e5da3c5bcaf8ba16e82ef2738",
+      "return": "instances/HANDOFF-REVIEW/RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
     }
   },
   "edges": [
@@ -299,7 +301,11 @@
         "B-CANVAS": {
           "brief": "lanes/B-CANVAS/briefs/B-CANVAS_addendum_4.md",
           "sha256": "1bf6d1e58547bd826f587aa729cc60d93df4a464a8c0b3f409b2d83337192323",
-          "branch": "codex/swbpipe-b-canvas-20260918"
+          "branch": "codex/swbpipe-b-canvas-20260918",
+          "clarification": {
+            "brief": "lanes/B-CANVAS/briefs/B-CANVAS_addendum_5.md",
+            "sha256": "9bb00659a2656e5de1b2ef85c330042e9d193aff1089205a6f846f251b7dddd2"
+          }
         }
       }
     }

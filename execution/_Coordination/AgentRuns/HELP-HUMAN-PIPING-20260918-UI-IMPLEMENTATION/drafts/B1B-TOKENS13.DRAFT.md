@@ -1,3 +1,5 @@
+> **DRAFT — not sealed, not an instruction.** Re-seal before use: fill the placeholders, choose the model, hash and index it.
+
 # Sealed brief — B1B-TOKENS13: the product adopts `tokens.json` 1.3 (the control boundary and the disabled ink)
 
 Sealed by ROOT (HELP_HUMAN, Agent 0) on @DATE@ before launch. Role: TASK (Type 2), implementer, working alone; Type 2 does not delegate. Model requested: Claude Fable 5.1. Mechanism: Claude Code `Agent` tool, general-purpose type, background. Your return is your final message, which ROOT retains at `{RUN}/lanes/B1B-TOKENS13/returns/B1B-TOKENS13_RETURN.md`.

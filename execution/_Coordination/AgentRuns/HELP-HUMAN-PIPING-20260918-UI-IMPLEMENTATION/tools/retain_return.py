@@ -40,13 +40,16 @@ def last_text(path, marker):
         if m.get("role") != "assistant":
             continue
         for c in m.get("content") or []:
-            if isinstance(c, dict) and c.get("type") == "text" and marker in c["text"]:
+            if isinstance(c, dict) and c.get("type") == "text" and marker in (c.get("text") or ""):
                 last = c["text"]
     return last
 
 def worktree_roots(near):
-    out = subprocess.run(["git", "worktree", "list", "--porcelain"], cwd=near,
-                         capture_output=True, text=True, check=True).stdout
+    res = subprocess.run(["git", "worktree", "list", "--porcelain"], cwd=near,
+                         capture_output=True, text=True)
+    if res.returncode != 0:
+        return []  # the destination is outside a git working tree; the machine-path refusal below still applies
+    out = res.stdout
     roots = [l[len("worktree "):] for l in out.splitlines() if l.startswith("worktree ")]
     return sorted(roots, key=len, reverse=True)
 
@@ -62,7 +65,8 @@ if __name__ == "__main__":
         subs.append((lit, rep))
         rest = rest[2:]
     text = last_text(src, marker)
-    assert text, "marker not found in any assistant text block"
+    if not text:
+        sys.exit("marker not found in any assistant text block")
     verbatim_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     nlines = len(text.splitlines())
     dest_dir = os.path.dirname(os.path.abspath(dest))
@@ -70,10 +74,12 @@ if __name__ == "__main__":
     for root in worktree_roots(dest_dir):
         text = text.replace(root, "{REPO_ROOT}")
     for lit, rep in subs:
-        assert text.count(lit) >= 1, ("literal not found", lit)
+        if text.count(lit) < 1:
+            sys.exit("declared literal not found: %r" % lit)
         text = text.replace(lit, rep)
-    bad = MACHINE.findall(text)
-    assert not bad, ("machine path text remains; declare a --sub for a quoted pattern", bad)
+    bad = MACHINE.findall(text) + MACHINE.findall(title)
+    if bad:
+        sys.exit("machine path text remains; declare a --sub for a quoted pattern: %r" % bad)
     body = text.rstrip()
     if body.endswith(FENCE):
         body = body[: -len(FENCE)].rstrip()

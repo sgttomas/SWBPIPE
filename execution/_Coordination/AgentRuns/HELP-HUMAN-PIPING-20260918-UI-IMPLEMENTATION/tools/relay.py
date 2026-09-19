@@ -28,7 +28,7 @@ def last_text(path, marker):
         if m.get("role") != "assistant":
             continue
         for c in m.get("content") or []:
-            if isinstance(c, dict) and c.get("type") == "text" and marker in c["text"]:
+            if isinstance(c, dict) and c.get("type") == "text" and marker in (c.get("text") or ""):
                 last = c["text"]
     return last
 
@@ -37,7 +37,8 @@ if __name__ == "__main__":
         sys.exit(__doc__)
     src, marker, dest = sys.argv[1:4]
     text = last_text(src, marker)
-    assert text, "marker not found in any assistant text block"
+    if not text:
+        sys.exit("marker not found in any assistant text block")
     with open(dest, "w", encoding="utf-8") as f:
         f.write(text)
     print(hashlib.sha256(open(dest, "rb").read()).hexdigest(), len(text.splitlines()), "lines")
