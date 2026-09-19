@@ -29,8 +29,9 @@ independent work with a verified basis.
 
 ## Steering
 
-Apply the owner's current directions and any per-run steer supplied by the
-launcher or owning run. Keep specific priorities, lane and worktree identities,
+Apply the owner's current directions and any per-run steer, including an
+owner-supplied handoff prompt, the launcher's steer or the owning run's direction
+record. Keep specific priorities, lane and worktree identities,
 active handoff paths, pause conditions and next actions in those state or
 steering records, not in these recurrent instructions. Distinguish a recorded
 owner direction from the previous agent's recommendation.
