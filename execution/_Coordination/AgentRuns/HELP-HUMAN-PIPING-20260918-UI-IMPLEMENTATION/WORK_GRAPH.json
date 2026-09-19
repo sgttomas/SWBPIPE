@@ -8,7 +8,7 @@
     "ROOT": {
       "role": "HELP_HUMAN Type 0",
       "model": "the session of 2026-09-19 began as Claude Opus 5 (claude-opus-5) and the host changed it to Claude Fable 5.1 (claude-fable-5-1) during the day",
-      "status": "handed off a second time on 2026-09-19 (instances/ROOT/SESSION_HANDOFF_2026-09-19B.md); both lanes paused clean and confirmed; a successor continues. How the successor organizes the work is its own choice within AGENTS.md (the owner's word of 2026-09-19 in session; the two-lane shape recorded here is the earlier sessions' practice, not the owner's direction)."
+      "status": "handed off a second time on 2026-09-19 (instances/ROOT/SESSION_HANDOFF_2026-09-19B.md, which stands on its own; SESSION_HANDOFF_2026-09-19.md is superseded); both lanes paused clean and confirmed; a successor continues. How the successor organizes the work is its own choice within AGENTS.md (the owner's word of 2026-09-19 in session; the two-lane shape recorded here is the earlier sessions' practice, not the owner's direction)."
     },
     "A1-LINT": {
       "role": "TASK Type 2 implementer",
@@ -821,7 +821,8 @@
         "the two-lane shape with managers was never the owner's direction: how the work is organized is the agent's choice within AGENTS.md; think in parent and child relationships; a parent launches its own children; ROOT may dispatch the independent reviews",
         "a work graph per tranche is essential: ad hoc, built from the code and the run's records, not tied to the repository's deliverable DAG; the owner will reconcile deliverables and scopes to the code later, once the app has its first functional form",
         "the owner found the session's work good and its outcomes acceptable, and is reluctant to change course",
-        "evidence therefore stays in the run and is not filed under a deliverable by guess (ROOT's proposal in session; the owner did not object and asked for the work graph; recorded as ROOT's practice, open to the owner)"
+        "evidence therefore stays in the run and is not filed under a deliverable by guess (ROOT's proposal in session; the owner did not object and asked for the work graph; recorded as ROOT's practice, open to the owner)",
+        "a question of preference is tested against the owner's two exemplar products and consistency in ontology, epistemology, praxeology and axiology before it is brought to the owner; where they agree the agent decides, tells the owner and says how to reverse it (the owner's prompt, SUCCESSOR_PROMPT_2026-09-19B.md)"
       ]
     }
   ],
