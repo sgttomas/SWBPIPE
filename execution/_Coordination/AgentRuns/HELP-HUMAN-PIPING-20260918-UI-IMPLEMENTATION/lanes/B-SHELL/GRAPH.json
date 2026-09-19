@@ -100,12 +100,14 @@
     "B2G-REVIEW": {
       "role": "TASK Type 2, software-code-review, read-only",
       "model": "opus",
-      "status": "sealed",
+      "status": "returned: FINDINGS, one minor",
       "sealed": "2026-09-19T07:28Z",
       "briefSha256": "992f3b4fe99b31623dd5191953077dfd9aec079ef5a0c59fc6e0203e5a7f3d8a",
       "brief": "briefs/B2G-REVIEW_code_review.md",
-      "candidate": null,
-      "returnSha256": null
+      "candidate": "0fc5b065e4822fea37ee8cf748f83e45eb3cf9df",
+      "returnSha256": "46ac4ec047d6ed249cef8138e4bc2c11f935abe61c05d85c964653ab1b423b22",
+      "return": "reviews/B2G-REVIEW_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
     }
   },
   "slices": [
