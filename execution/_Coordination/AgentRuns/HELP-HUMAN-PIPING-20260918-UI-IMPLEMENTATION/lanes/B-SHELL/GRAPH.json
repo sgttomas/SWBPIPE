@@ -60,12 +60,14 @@
     "B2F-REVIEW": {
       "role": "TASK Type 2, software-code-review, read-only",
       "model": "opus",
-      "status": "sealed",
+      "status": "returned: PASS, no actionable finding",
       "sealed": "2026-09-19T06:54Z",
       "briefSha256": "28c09b8c20c02c5d4cf14ed75929a6c5178fc11cfccae0a7e83de7956b6073d7",
       "brief": "briefs/B2F-REVIEW_code_review.md",
-      "candidate": null,
-      "returnSha256": null
+      "candidate": "36e79602eac5751e518898d88869a71703b85c03",
+      "returnSha256": "d3747d7018cbea0a6812fc5f85aea777f90604a98f6eea39b3bc8ea1179f7118",
+      "return": "reviews/B2F-REVIEW_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
     },
     "B2F": {
       "role": "WORKING_ITEMS Type 1",
@@ -75,6 +77,16 @@
       "return": "returns/B2F_RETURN.md",
       "modelThatRan": "Claude Fable 5.1 (claude-fable-5-1), by its own statement; child B2F-HANDLERS reports Claude Fable 5.1",
       "candidate": "36e79602eac5751e518898d88869a71703b85c03"
+    },
+    "B-SHELL-ADD4": {
+      "role": "sealed addendum to the lane brief",
+      "model": "n/a",
+      "status": "sealed",
+      "sealed": "2026-09-19T07:04Z",
+      "briefSha256": "08b51c66b50994c92d98658b2d96b1eedd3c66599c791207ea1c7d97801c3088",
+      "brief": "briefs/B-SHELL_addendum_4.md",
+      "candidate": null,
+      "returnSha256": null
     }
   },
   "slices": [
