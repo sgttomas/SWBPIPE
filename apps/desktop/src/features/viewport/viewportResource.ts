@@ -193,29 +193,26 @@ export class ViewportOwnershipLedger {
 export type ViewportContextStatus = "ready" | "lost" | "restoring";
 export type ViewportThemePresentation = "light" | "dark";
 
-// HELD-COLOURS:BEGIN
-// Two colour families are held at the values they had before the canvas read tokens: the
-// scene background, and the selected colour with its cue rim. The benchmark instrument
-// recognises a selection by the selected colour and reads the scene background back from the
-// shell. They stay exactly as they are until the instrument's second profile is accepted, and
-// move to `canvas.bg` and `canvas.selection` in a later slice. Every other canvas colour comes
-// from `viewportPalette.ts`; no other colour literal belongs in this folder.
-const HELD_SCENE_BACKGROUND_LIGHT = 0xdfe5e8;
-const HELD_SCENE_BACKGROUND_DARK = 0x0c1114;
-const SELECTED_COLOR_LIGHT = 0xa34400;
-const SELECTED_COLOR_DARK = 0xf08c22;
-const HELD_SELECTION_CUE_RIM_LIGHT = 0xffffff;
-const HELD_SELECTION_CUE_RIM_DARK = 0x0c1114;
-// HELD-COLOURS:END
+// The scene's ground, the selected colour and the selection cue's rim are design tokens like
+// every other canvas colour: `canvas.bg`, `canvas.selection`, and `canvas.bg` again for the rim,
+// which separates the cue from whatever it lies over. The stylesheet's `--ui-canvas` and
+// `--ui-viewport-selection-geometry` mirror the first two. No colour literal belongs in this folder.
+function sceneBackground(theme: ViewportThemePresentation): number {
+  return viewportTokenColour(theme, "canvas.bg").hex;
+}
 
-function heldSceneBackground(theme: ViewportThemePresentation): number {
-  return theme === "dark" ? HELD_SCENE_BACKGROUND_DARK : HELD_SCENE_BACKGROUND_LIGHT;
+function selectedColour(theme: ViewportThemePresentation): number {
+  return viewportTokenColour(theme, "canvas.selection").hex;
+}
+
+function selectionCueRim(theme: ViewportThemePresentation): number {
+  return viewportTokenColour(theme, "canvas.bg").hex;
 }
 
 function gizmoThemePalette(theme: ViewportThemePresentation) {
   return Object.freeze({
-    // Mirrors the held scene background.
-    canvas: heldSceneBackground(theme),
+    // The scene's ground.
+    canvas: sceneBackground(theme),
     badge: viewportRoleHex(theme, "gizmoBadge"),
     axes: Object.freeze([
       viewportRoleHex(theme, "gizmoAxisX"),
@@ -298,7 +295,7 @@ export function registerInstancedSelectionPresentation(
   mesh.computeBoundingSphere();
   const ownershipKind = keys[0] ? ownershipKindFromKey(keys[0]) : null;
   if (ownershipKind) mesh.userData.viewportOwnershipKind = ownershipKind;
-  applyInstancedSelection(mesh, new Set(), SELECTED_COLOR_DARK);
+  applyInstancedSelection(mesh, new Set(), selectedColour(DEFAULT_VIEWPORT_PALETTE_THEME));
 }
 
 /**
@@ -364,7 +361,7 @@ export function applySelectionPresentation(
   selectedKeys: ReadonlySet<EntityKey>,
   theme: ViewportThemePresentation = "dark"
 ): void {
-  const selectedColor = theme === "dark" ? SELECTED_COLOR_DARK : SELECTED_COLOR_LIGHT;
+  const selectedColor = selectedColour(theme);
   for (const root of roots) {
     root.traverse((object) => {
       if (object instanceof THREE.InstancedMesh && Array.isArray(object.userData.instanceEntityKeys)) {
@@ -390,8 +387,8 @@ export function applySelectionPresentation(
 }
 
 export function applyThemePresentation(scene: THREE.Scene, theme: ViewportThemePresentation): void {
-  if (scene.background instanceof THREE.Color) scene.background.setHex(heldSceneBackground(theme));
-  else scene.background = new THREE.Color(heldSceneBackground(theme));
+  if (scene.background instanceof THREE.Color) scene.background.setHex(sceneBackground(theme));
+  else scene.background = new THREE.Color(sceneBackground(theme));
 }
 
 export function applyGizmoThemePresentation(scene: THREE.Scene, theme: ViewportThemePresentation): void {
@@ -505,7 +502,7 @@ export class ViewportResource {
     readonly host: HTMLDivElement,
     private readonly options: ViewportResourceOptions = {}
   ) {
-    this.scene.background = new THREE.Color(heldSceneBackground(this.themePresentation));
+    this.scene.background = new THREE.Color(sceneBackground(this.themePresentation));
     this.camera = new THREE.PerspectiveCamera(42, safeAspect(host), 0.1, 10_000);
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -722,8 +719,8 @@ export class ViewportResource {
   private updateSelectionCue(): void {
     this.selectionPresentation?.update(
       this.selectedKeys, this.hiddenKeys,
-      this.themePresentation === "dark" ? SELECTED_COLOR_DARK : SELECTED_COLOR_LIGHT,
-      this.themePresentation === "dark" ? HELD_SELECTION_CUE_RIM_DARK : HELD_SELECTION_CUE_RIM_LIGHT,
+      selectedColour(this.themePresentation),
+      selectionCueRim(this.themePresentation),
       this.renderer.getPixelRatio()
     );
   }

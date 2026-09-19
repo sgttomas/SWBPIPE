@@ -4,16 +4,7 @@ import { describe, expect, it } from "vitest";
 
 // Vitest runs with the desktop package as its working directory.
 const VIEWPORT_DIR = path.join(process.cwd(), "src", "features", "viewport");
-const HELD_FILE = "viewportResource.ts";
-const HELD_BEGIN = "// HELD-COLOURS:BEGIN";
-const HELD_END = "// HELD-COLOURS:END";
-
-/**
- * The exact set the held block may state, in source order: the scene background (light, dark),
- * the selected colour (light, dark) and the selection cue's rim (light, dark). They are held
- * for the benchmark instrument's second profile; every other canvas colour is a design token.
- */
-const HELD_ALLOWED = ["0xdfe5e8", "0x0c1114", "0xa34400", "0xf08c22", "0xffffff", "0x0c1114"];
+const RESOURCE_FILE = "viewportResource.ts";
 
 // A colour literal: a six-digit hexadecimal number, a quoted hash colour of any usual length,
 // or either functional notation.
@@ -59,40 +50,23 @@ describe("viewport colour literals", () => {
 
   it("finds the viewport sources, including the three this slice is about", () => {
     const files = nonTestFiles(VIEWPORT_DIR).map(relative);
-    for (const expected of [HELD_FILE, "PipeViewport.tsx", "viewportPalette.ts", "viewportFigureMaterial.ts"]) {
+    for (const expected of [RESOURCE_FILE, "PipeViewport.tsx", "viewportPalette.ts", "viewportFigureMaterial.ts"]) {
       expect(files).toContain(expected);
     }
     expect(files.some((file) => isTestFile(file))).toBe(false);
   });
 
-  it("states the held colours once, in one marked block, as exactly the allowed set", () => {
-    const text = readFileSync(path.join(VIEWPORT_DIR, HELD_FILE), "utf8");
-    expect(text.split(HELD_BEGIN)).toHaveLength(2);
-    expect(text.split(HELD_END)).toHaveLength(2);
-    const begin = text.indexOf(HELD_BEGIN);
-    const end = text.indexOf(HELD_END);
-    expect(end).toBeGreaterThan(begin);
-    const block = text.slice(begin, end);
-    expect(literalsIn(block)).toEqual(HELD_ALLOWED);
-    // The block is constants and their comment, nothing else.
-    const statements = block.split("\n").slice(1).filter((line) => line.trim() !== "" && !line.startsWith("//"));
-    expect(statements).toHaveLength(HELD_ALLOWED.length);
-    for (const statement of statements) {
-      expect(statement).toMatch(/^const [A-Z_]+ = 0x[0-9a-f]{6};$/);
-    }
+  it("states no held colour: the ground, the selected colour and the cue's rim are tokens", () => {
+    const text = readFileSync(path.join(VIEWPORT_DIR, RESOURCE_FILE), "utf8");
+    expect(text).not.toContain("HELD-COLOURS");
+    expect(text).toContain('viewportTokenColour(theme, "canvas.bg")');
+    expect(text).toContain('viewportTokenColour(theme, "canvas.selection")');
   });
 
-  it("holds no colour literal in any other non-test file, nor outside the held block", () => {
+  it("holds no colour literal in any non-test file", () => {
     const offences: string[] = [];
     for (const file of nonTestFiles(VIEWPORT_DIR)) {
-      let text = readFileSync(file, "utf8");
-      if (relative(file) === HELD_FILE) {
-        const begin = text.indexOf(HELD_BEGIN);
-        const end = text.indexOf(HELD_END);
-        // Blank the held block and keep its line breaks, so a reported line number is the file's.
-        text = text.slice(0, begin) + text.slice(begin, end).replace(/[^\n]/g, " ") + text.slice(end);
-      }
-      text.split("\n").forEach((line, index) => {
+      readFileSync(file, "utf8").split("\n").forEach((line, index) => {
         for (const literal of literalsIn(line)) offences.push(`${relative(file)}:${index + 1}: ${literal}`);
       });
     }
