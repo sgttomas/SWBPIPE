@@ -1,0 +1,2890 @@
+{
+  "tool": "b-canvas-orbit-probe",
+  "formatVersion": 1,
+  "kind": "run-series",
+  "note": "Guidance for the B-CANVAS lane only. This output decides nothing about D-72; the qualification runs are ROOT's, by a separate runner and a separate instrument.",
+  "createdUtc": "2026-09-19T09:28:59.075Z",
+  "arguments": {
+    "subcommand": "run",
+    "pipes": 10000,
+    "mode": "actual-od",
+    "labels": "on",
+    "theme": "dark",
+    "dpr": 2,
+    "window": "1440x900",
+    "pacing": "uncapped",
+    "variants": "off@{OUTSIDE_REPOSITORY}/dist_base_b415b43df=;on@{OUTSIDE_REPOSITORY}/dist_stage2=",
+    "pairs": 3,
+    "warmup-ms": 2000,
+    "measure-ms": 10000,
+    "port": 5185,
+    "out": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/probes/C1E/c1e_10000_actual-od_uncapped_dark.json",
+    "argv": [
+      "run",
+      "--pipes",
+      "10000",
+      "--mode",
+      "actual-od",
+      "--labels",
+      "on",
+      "--theme",
+      "dark",
+      "--dpr",
+      "2",
+      "--window",
+      "1440x900",
+      "--pacing",
+      "uncapped",
+      "--variants",
+      "off@{OUTSIDE_REPOSITORY}/dist_base_b415b43df=;on@{OUTSIDE_REPOSITORY}/dist_stage2=",
+      "--pairs",
+      "3",
+      "--warmup-ms",
+      "2000",
+      "--measure-ms",
+      "10000",
+      "--port",
+      "5185",
+      "--out",
+      "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/probes/C1E/c1e_10000_actual-od_uncapped_dark.json"
+    ]
+  },
+  "buildIdentity": null,
+  "variantsShareOneBuildIdentity": false,
+  "variants": [
+    {
+      "name": "off",
+      "query": "",
+      "dist": "{OUTSIDE_REPOSITORY}/dist_base_b415b43df",
+      "namedItsOwnBuild": true,
+      "buildIdentity": {
+        "indexHtmlSha256": "e79fafbe1595df3c446519a105447b8edd38afe8b79077f5cd9a245cf1bd7dfb",
+        "assetCount": 12,
+        "assetBytes": 2722778,
+        "assets": [
+          {
+            "name": "index-C7mHS4s-.js",
+            "bytes": 1367296
+          },
+          {
+            "name": "index-Cw6wfZUZ.css",
+            "bytes": 87868
+          },
+          {
+            "name": "invented_agent_proposal-Bm57LVt-.js",
+            "bytes": 1820
+          },
+          {
+            "name": "invented_demo_rule_pack-dhX9tvT1.js",
+            "bytes": 10858
+          },
+          {
+            "name": "invented_design_knowledge-H12r-oKQ.js",
+            "bytes": 1660
+          },
+          {
+            "name": "invented_mechanics_result-CleTy2JL.js",
+            "bytes": 502608
+          },
+          {
+            "name": "invented_preview_model-pJA3_nB8.js",
+            "bytes": 12670
+          },
+          {
+            "name": "vendor-7OC5HNn7.js",
+            "bytes": 3613
+          },
+          {
+            "name": "vendor-icons-B_1SvbaU.js",
+            "bytes": 18379
+          },
+          {
+            "name": "vendor-react-BT_8sX57.js",
+            "bytes": 188744
+          },
+          {
+            "name": "vendor-tauri-DlQNAQKj.js",
+            "bytes": 91
+          },
+          {
+            "name": "vendor-three-BinoOWX9.js",
+            "bytes": 527171
+          }
+        ]
+      }
+    },
+    {
+      "name": "on",
+      "query": "",
+      "dist": "{OUTSIDE_REPOSITORY}/dist_stage2",
+      "namedItsOwnBuild": true,
+      "buildIdentity": {
+        "indexHtmlSha256": "0933b9d42a30898a44b3c582ebd56359a1f8b2be4b0299598ad06f01259044d1",
+        "assetCount": 12,
+        "assetBytes": 2731193,
+        "assets": [
+          {
+            "name": "index-AClIEkBA.js",
+            "bytes": 1375711
+          },
+          {
+            "name": "index-Cw6wfZUZ.css",
+            "bytes": 87868
+          },
+          {
+            "name": "invented_agent_proposal-Bm57LVt-.js",
+            "bytes": 1820
+          },
+          {
+            "name": "invented_demo_rule_pack-dhX9tvT1.js",
+            "bytes": 10858
+          },
+          {
+            "name": "invented_design_knowledge-H12r-oKQ.js",
+            "bytes": 1660
+          },
+          {
+            "name": "invented_mechanics_result-CleTy2JL.js",
+            "bytes": 502608
+          },
+          {
+            "name": "invented_preview_model-pJA3_nB8.js",
+            "bytes": 12670
+          },
+          {
+            "name": "vendor-7OC5HNn7.js",
+            "bytes": 3613
+          },
+          {
+            "name": "vendor-icons-B_1SvbaU.js",
+            "bytes": 18379
+          },
+          {
+            "name": "vendor-react-BT_8sX57.js",
+            "bytes": 188744
+          },
+          {
+            "name": "vendor-tauri-DlQNAQKj.js",
+            "bytes": 91
+          },
+          {
+            "name": "vendor-three-BHv1HSMX.js",
+            "bytes": 527171
+          }
+        ]
+      }
+    }
+  ],
+  "fixture": {
+    "file": "{WORKING_ROOT}/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.model.json",
+    "sha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+    "projectId": "project:UIF-10000",
+    "pipeSegments": 10000,
+    "nodes": 10001
+  },
+  "host": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "osRelease": "25.6.0",
+    "cpuModel": "Apple M5 Max",
+    "cpuCount": 18,
+    "node": "v24.18.0",
+    "playwright": "1.60.0"
+  },
+  "orbitPath": {
+    "shape": "figure-of-eight, x = ax*W*sin(2*pi*t/Tx), y = ay*H*sin(2*pi*t/Ty), offsets from the press point",
+    "xAmplitudeOfCanvasWidth": 0.28,
+    "yAmplitudeOfCanvasHeight": 0.12,
+    "xPeriodMs": 5000,
+    "yPeriodMs": 2500,
+    "movePeriodMs": 4,
+    "tailMs": 150
+  },
+  "order": [
+    "off",
+    "on",
+    "off",
+    "on",
+    "off",
+    "on"
+  ],
+  "runs": [
+    {
+      "index": 0,
+      "pair": 1,
+      "variant": "off",
+      "query": "",
+      "startedUtc": "2026-09-19T09:28:59.079Z",
+      "loadAverageBefore": [
+        3.32,
+        3.69,
+        3.66
+      ],
+      "error": null,
+      "browser": {
+        "source": "playwright channel chrome",
+        "version": "153.0.8010.48",
+        "addedArguments": [
+          "--disable-frame-rate-limit",
+          "--disable-gpu-vsync"
+        ],
+        "webgl": {
+          "status": "available",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "vendor": "Google Inc. (Apple)",
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version)"
+        }
+      },
+      "console": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "pageErrorCount": 0,
+        "errors": [],
+        "warnings": [],
+        "pageErrors": []
+      },
+      "modelReadyMs": 732,
+      "page": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 2,
+        "visibilityState": "visible",
+        "canvasCssWidth": 794,
+        "canvasCssHeight": 560,
+        "canvasCssArea": 444640,
+        "pressPoint": {
+          "x": 357,
+          "y": 330,
+          "attempt": 1,
+          "candidates": 41
+        }
+      },
+      "settleBeforeOrbit": {
+        "settled": true,
+        "waitedMs": 516,
+        "polls": 6,
+        "mainThreadBusyFraction": 0.002
+      },
+      "settleAfterOrbit": {
+        "settled": true,
+        "waitedMs": 621,
+        "polls": 7,
+        "mainThreadBusyFraction": 0.005
+      },
+      "pacing": {
+        "requested": "uncapped",
+        "calibrationIntervalP50Ms": 0.1,
+        "calibrationIntervals": 6413,
+        "idleProductPageIntervalP50Ms": 16.8,
+        "uncappedTookEffect": true,
+        "rule": "a blank page of the same browser presents a moving square every frame for 400 ms before the product opens; uncapped is reported as having taken effect when that interval p50 is under 4 ms"
+      },
+      "frames": {
+        "source": "requestAnimationFrame timestamps recorded in the page; percentiles are nearest-rank",
+        "warmup": {
+          "frames": 997,
+          "intervals": 996,
+          "spanMs": 1995.1,
+          "meanMs": 2.003,
+          "p50Ms": 2.1,
+          "p95Ms": 3.4,
+          "p99Ms": 3.8,
+          "maxMs": 17.8,
+          "fractionOver16_7Ms": 0.001,
+          "fractionOver33_3Ms": 0,
+          "fractionMissedRefresh": null,
+          "longIntervalLimitMs": 33.3,
+          "longIntervals": [],
+          "longIntervalsTruncated": false
+        },
+        "measure": {
+          "frames": 5016,
+          "intervals": 5015,
+          "spanMs": 9997.1,
+          "meanMs": 1.993,
+          "p50Ms": 2.1,
+          "p95Ms": 3.4,
+          "p99Ms": 3.9,
+          "maxMs": 10,
+          "fractionOver16_7Ms": 0,
+          "fractionOver33_3Ms": 0,
+          "fractionMissedRefresh": null,
+          "longIntervalLimitMs": 33.3,
+          "longIntervals": [],
+          "longIntervalsTruncated": false
+        },
+        "recorded": 6137,
+        "capacity": 400000,
+        "overflow": false
+      },
+      "mainThread": {
+        "status": "measured",
+        "source": "DevTools Performance.getMetrics deltas between the start and the end of the measurement window",
+        "windowMs": 10000.5,
+        "sampledAtElapsedMs": [
+          2000.3,
+          12000.1
+        ],
+        "framesInWindowByMeanInterval": 5017.8,
+        "taskMs": 9663.7,
+        "scriptMs": 7654.6,
+        "layoutMs": 120.3,
+        "styleMs": 120.2,
+        "taskMsPerFrame": 1.926,
+        "scriptMsPerFrame": 1.525,
+        "layoutMsPerFrame": 0.024,
+        "styleMsPerFrame": 0.024,
+        "busyFraction": 0.966,
+        "layoutCount": 5017,
+        "styleRecalcCount": 5017,
+        "jsHeapUsedBytes": [
+          73642804,
+          65783860
+        ]
+      },
+      "pointer": {
+        "movesSent": 2858,
+        "movesAcknowledged": 2858,
+        "movesFailed": 0,
+        "meanSendGapMs": 4.251,
+        "maxSendGapMs": 5.545,
+        "sendGapsOver8Ms": 0,
+        "sendGapCounts": {
+          "upTo5Ms": 2665,
+          "upTo8Ms": 192,
+          "upTo12Ms": 0,
+          "upTo16Ms": 0,
+          "over16Ms": 0
+        },
+        "maxInFlight": 4,
+        "movePeriodMs": 4
+      },
+      "orbit": {
+        "cameraSequenceDelta": 8939,
+        "productSubmissionsInSpan": 6094,
+        "framesInSpan": 6095,
+        "modelGenerationUnchanged": true,
+        "geometryUnchanged": true
+      },
+      "diagnostics": {
+        "beforeOrbit": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 9,
+            "submissionSequence": 6,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 80,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 0,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        },
+        "endOfWindow": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 8948,
+            "submissionSequence": 6100,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 1,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        },
+        "afterOrbit": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 8999,
+            "submissionSequence": 6151,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 0,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        }
+      },
+      "loadAverageAfter": [
+        3.7,
+        3.76,
+        3.68
+      ],
+      "endedUtc": "2026-09-19T09:29:15.752Z",
+      "served": {
+        "dist": "{OUTSIDE_REPOSITORY}/dist_base_b415b43df",
+        "buildIndexHtmlSha256": "e79fafbe1595df3c446519a105447b8edd38afe8b79077f5cd9a245cf1bd7dfb",
+        "requests": 11,
+        "notFound": 0,
+        "indexFallbacks": 1
+      }
+    },
+    {
+      "index": 1,
+      "pair": 1,
+      "variant": "on",
+      "query": "",
+      "startedUtc": "2026-09-19T09:29:15.754Z",
+      "loadAverageBefore": [
+        3.7,
+        3.76,
+        3.68
+      ],
+      "error": null,
+      "browser": {
+        "source": "playwright channel chrome",
+        "version": "153.0.8010.48",
+        "addedArguments": [
+          "--disable-frame-rate-limit",
+          "--disable-gpu-vsync"
+        ],
+        "webgl": {
+          "status": "available",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "vendor": "Google Inc. (Apple)",
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version)"
+        }
+      },
+      "console": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "pageErrorCount": 0,
+        "errors": [],
+        "warnings": [],
+        "pageErrors": []
+      },
+      "modelReadyMs": 777,
+      "page": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 2,
+        "visibilityState": "visible",
+        "canvasCssWidth": 794,
+        "canvasCssHeight": 560,
+        "canvasCssArea": 444640,
+        "pressPoint": {
+          "x": 357,
+          "y": 330,
+          "attempt": 1,
+          "candidates": 41
+        }
+      },
+      "settleBeforeOrbit": {
+        "settled": true,
+        "waitedMs": 519,
+        "polls": 6,
+        "mainThreadBusyFraction": 0.002
+      },
+      "settleAfterOrbit": {
+        "settled": true,
+        "waitedMs": 623,
+        "polls": 7,
+        "mainThreadBusyFraction": 0.007
+      },
+      "pacing": {
+        "requested": "uncapped",
+        "calibrationIntervalP50Ms": 0.1,
+        "calibrationIntervals": 6415,
+        "idleProductPageIntervalP50Ms": 16.8,
+        "uncappedTookEffect": true,
+        "rule": "a blank page of the same browser presents a moving square every frame for 400 ms before the product opens; uncapped is reported as having taken effect when that interval p50 is under 4 ms"
+      },
+      "frames": {
+        "source": "requestAnimationFrame timestamps recorded in the page; percentiles are nearest-rank",
+        "warmup": {
+          "frames": 1010,
+          "intervals": 1009,
+          "spanMs": 1995,
+          "meanMs": 1.977,
+          "p50Ms": 2,
+          "p95Ms": 3.5,
+          "p99Ms": 3.9,
+          "maxMs": 16.7,
+          "fractionOver16_7Ms": 0.001,
+          "fractionOver33_3Ms": 0,
+          "fractionMissedRefresh": null,
+          "longIntervalLimitMs": 33.3,
+          "longIntervals": [],
+          "longIntervalsTruncated": false
+        },
+        "measure": {
+          "frames": 5035,
+          "intervals": 5034,
+          "spanMs": 9997.9,
+          "meanMs": 1.986,
+          "p50Ms": 2.1,
+          "p95Ms": 3.4,
+          "p99Ms": 3.9,
+          "maxMs": 16.1,
+          "fractionOver16_7Ms": 0,
+          "fractionOver33_3Ms": 0,
+          "fractionMissedRefresh": null,
+          "longIntervalLimitMs": 33.3,
+          "longIntervals": [],
+          "longIntervalsTruncated": false
+        },
+        "recorded": 6170,
+        "capacity": 400000,
+        "overflow": false
+      },
+      "mainThread": {
+        "status": "measured",
+        "source": "DevTools Performance.getMetrics deltas between the start and the end of the measurement window",
+        "windowMs": 9997.5,
+        "sampledAtElapsedMs": [
+          2003.2,
+          12000.6
+        ],
+        "framesInWindowByMeanInterval": 5034,
+        "taskMs": 9658.4,
+        "scriptMs": 7603,
+        "layoutMs": 126.8,
+        "styleMs": 125.2,
+        "taskMsPerFrame": 1.919,
+        "scriptMsPerFrame": 1.51,
+        "layoutMsPerFrame": 0.025,
+        "styleMsPerFrame": 0.025,
+        "busyFraction": 0.966,
+        "layoutCount": 5034,
+        "styleRecalcCount": 5034,
+        "jsHeapUsedBytes": [
+          74478940,
+          70675380
+        ]
+      },
+      "pointer": {
+        "movesSent": 2868,
+        "movesAcknowledged": 2868,
+        "movesFailed": 0,
+        "meanSendGapMs": 4.238,
+        "maxSendGapMs": 8.108,
+        "sendGapsOver8Ms": 1,
+        "sendGapCounts": {
+          "upTo5Ms": 2703,
+          "upTo8Ms": 163,
+          "upTo12Ms": 1,
+          "upTo16Ms": 0,
+          "over16Ms": 0
+        },
+        "maxInFlight": 5,
+        "movePeriodMs": 4
+      },
+      "orbit": {
+        "cameraSequenceDelta": 8980,
+        "productSubmissionsInSpan": 6127,
+        "framesInSpan": 6128,
+        "modelGenerationUnchanged": true,
+        "geometryUnchanged": true
+      },
+      "diagnostics": {
+        "beforeOrbit": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 9,
+            "submissionSequence": 6,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 80,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 0,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        },
+        "endOfWindow": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 8989,
+            "submissionSequence": 6133,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 1,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        },
+        "afterOrbit": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 9041,
+            "submissionSequence": 6185,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 0,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        }
+      },
+      "loadAverageAfter": [
+        3.91,
+        3.8,
+        3.7
+      ],
+      "endedUtc": "2026-09-19T09:29:32.474Z",
+      "served": {
+        "dist": "{OUTSIDE_REPOSITORY}/dist_stage2",
+        "buildIndexHtmlSha256": "0933b9d42a30898a44b3c582ebd56359a1f8b2be4b0299598ad06f01259044d1",
+        "requests": 11,
+        "notFound": 0,
+        "indexFallbacks": 1
+      }
+    },
+    {
+      "index": 2,
+      "pair": 2,
+      "variant": "off",
+      "query": "",
+      "startedUtc": "2026-09-19T09:29:32.474Z",
+      "loadAverageBefore": [
+        3.91,
+        3.8,
+        3.7
+      ],
+      "error": null,
+      "browser": {
+        "source": "playwright channel chrome",
+        "version": "153.0.8010.48",
+        "addedArguments": [
+          "--disable-frame-rate-limit",
+          "--disable-gpu-vsync"
+        ],
+        "webgl": {
+          "status": "available",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "vendor": "Google Inc. (Apple)",
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version)"
+        }
+      },
+      "console": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "pageErrorCount": 0,
+        "errors": [],
+        "warnings": [],
+        "pageErrors": []
+      },
+      "modelReadyMs": 724,
+      "page": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 2,
+        "visibilityState": "visible",
+        "canvasCssWidth": 794,
+        "canvasCssHeight": 560,
+        "canvasCssArea": 444640,
+        "pressPoint": {
+          "x": 357,
+          "y": 330,
+          "attempt": 1,
+          "candidates": 41
+        }
+      },
+      "settleBeforeOrbit": {
+        "settled": true,
+        "waitedMs": 512,
+        "polls": 6,
+        "mainThreadBusyFraction": 0.003
+      },
+      "settleAfterOrbit": {
+        "settled": true,
+        "waitedMs": 622,
+        "polls": 7,
+        "mainThreadBusyFraction": 0.006
+      },
+      "pacing": {
+        "requested": "uncapped",
+        "calibrationIntervalP50Ms": 0.1,
+        "calibrationIntervals": 6336,
+        "idleProductPageIntervalP50Ms": 16.8,
+        "uncappedTookEffect": true,
+        "rule": "a blank page of the same browser presents a moving square every frame for 400 ms before the product opens; uncapped is reported as having taken effect when that interval p50 is under 4 ms"
+      },
+      "frames": {
+        "source": "requestAnimationFrame timestamps recorded in the page; percentiles are nearest-rank",
+        "warmup": {
+          "frames": 966,
+          "intervals": 965,
+          "spanMs": 1997.3,
+          "meanMs": 2.07,
+          "p50Ms": 2,
+          "p95Ms": 3.6,
+          "p99Ms": 4.4,
+          "maxMs": 17,
+          "fractionOver16_7Ms": 0.001,
+          "fractionOver33_3Ms": 0,
+          "fractionMissedRefresh": null,
+          "longIntervalLimitMs": 33.3,
+          "longIntervals": [],
+          "longIntervalsTruncated": false
+        },
+        "measure": {
+          "frames": 5061,
+          "intervals": 5060,
+          "spanMs": 9997.1,
+          "meanMs": 1.976,
+          "p50Ms": 2.1,
+          "p95Ms": 3.4,
+          "p99Ms": 3.9,
+          "maxMs": 5.1,
+          "fractionOver16_7Ms": 0,
+          "fractionOver33_3Ms": 0,
+          "fractionMissedRefresh": null,
+          "longIntervalLimitMs": 33.3,
+          "longIntervals": [],
+          "longIntervalsTruncated": false
+        },
+        "recorded": 6151,
+        "capacity": 400000,
+        "overflow": false
+      },
+      "mainThread": {
+        "status": "measured",
+        "source": "DevTools Performance.getMetrics deltas between the start and the end of the measurement window",
+        "windowMs": 10002.1,
+        "sampledAtElapsedMs": [
+          2000,
+          12001.5
+        ],
+        "framesInWindowByMeanInterval": 5061.8,
+        "taskMs": 9677.4,
+        "scriptMs": 7664.7,
+        "layoutMs": 123.3,
+        "styleMs": 119,
+        "taskMsPerFrame": 1.912,
+        "scriptMsPerFrame": 1.514,
+        "layoutMsPerFrame": 0.024,
+        "styleMsPerFrame": 0.023,
+        "busyFraction": 0.968,
+        "layoutCount": 5062,
+        "styleRecalcCount": 5062,
+        "jsHeapUsedBytes": [
+          70674836,
+          66916724
+        ]
+      },
+      "pointer": {
+        "movesSent": 2866,
+        "movesAcknowledged": 2866,
+        "movesFailed": 0,
+        "meanSendGapMs": 4.24,
+        "maxSendGapMs": 5.718,
+        "sendGapsOver8Ms": 0,
+        "sendGapCounts": {
+          "upTo5Ms": 2680,
+          "upTo8Ms": 185,
+          "upTo12Ms": 0,
+          "upTo16Ms": 0,
+          "over16Ms": 0
+        },
+        "maxInFlight": 4,
+        "movePeriodMs": 4
+      },
+      "orbit": {
+        "cameraSequenceDelta": 8959,
+        "productSubmissionsInSpan": 6108,
+        "framesInSpan": 6109,
+        "modelGenerationUnchanged": true,
+        "geometryUnchanged": true
+      },
+      "diagnostics": {
+        "beforeOrbit": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 9,
+            "submissionSequence": 6,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 80,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 0,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        },
+        "endOfWindow": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 8968,
+            "submissionSequence": 6114,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 1,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        },
+        "afterOrbit": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 9020,
+            "submissionSequence": 6166,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 0,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        }
+      },
+      "loadAverageAfter": [
+        3.66,
+        3.75,
+        3.68
+      ],
+      "endedUtc": "2026-09-19T09:29:49.157Z",
+      "served": {
+        "dist": "{OUTSIDE_REPOSITORY}/dist_base_b415b43df",
+        "buildIndexHtmlSha256": "e79fafbe1595df3c446519a105447b8edd38afe8b79077f5cd9a245cf1bd7dfb",
+        "requests": 11,
+        "notFound": 0,
+        "indexFallbacks": 1
+      }
+    },
+    {
+      "index": 3,
+      "pair": 2,
+      "variant": "on",
+      "query": "",
+      "startedUtc": "2026-09-19T09:29:49.157Z",
+      "loadAverageBefore": [
+        3.66,
+        3.75,
+        3.68
+      ],
+      "error": null,
+      "browser": {
+        "source": "playwright channel chrome",
+        "version": "153.0.8010.48",
+        "addedArguments": [
+          "--disable-frame-rate-limit",
+          "--disable-gpu-vsync"
+        ],
+        "webgl": {
+          "status": "available",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "vendor": "Google Inc. (Apple)",
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version)"
+        }
+      },
+      "console": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "pageErrorCount": 0,
+        "errors": [],
+        "warnings": [],
+        "pageErrors": []
+      },
+      "modelReadyMs": 729,
+      "page": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 2,
+        "visibilityState": "visible",
+        "canvasCssWidth": 794,
+        "canvasCssHeight": 560,
+        "canvasCssArea": 444640,
+        "pressPoint": {
+          "x": 357,
+          "y": 330,
+          "attempt": 1,
+          "candidates": 41
+        }
+      },
+      "settleBeforeOrbit": {
+        "settled": true,
+        "waitedMs": 517,
+        "polls": 6,
+        "mainThreadBusyFraction": 0.003
+      },
+      "settleAfterOrbit": {
+        "settled": true,
+        "waitedMs": 623,
+        "polls": 7,
+        "mainThreadBusyFraction": 0.005
+      },
+      "pacing": {
+        "requested": "uncapped",
+        "calibrationIntervalP50Ms": 0.1,
+        "calibrationIntervals": 6396,
+        "idleProductPageIntervalP50Ms": 16.8,
+        "uncappedTookEffect": true,
+        "rule": "a blank page of the same browser presents a moving square every frame for 400 ms before the product opens; uncapped is reported as having taken effect when that interval p50 is under 4 ms"
+      },
+      "frames": {
+        "source": "requestAnimationFrame timestamps recorded in the page; percentiles are nearest-rank",
+        "warmup": {
+          "frames": 1008,
+          "intervals": 1007,
+          "spanMs": 1995.7,
+          "meanMs": 1.982,
+          "p50Ms": 1.9,
+          "p95Ms": 3.4,
+          "p99Ms": 4,
+          "maxMs": 16.9,
+          "fractionOver16_7Ms": 0.001,
+          "fractionOver33_3Ms": 0,
+          "fractionMissedRefresh": null,
+          "longIntervalLimitMs": 33.3,
+          "longIntervals": [],
+          "longIntervalsTruncated": false
+        },
+        "measure": {
+          "frames": 5075,
+          "intervals": 5074,
+          "spanMs": 9999.1,
+          "meanMs": 1.971,
+          "p50Ms": 1.9,
+          "p95Ms": 3.4,
+          "p99Ms": 3.9,
+          "maxMs": 11.9,
+          "fractionOver16_7Ms": 0,
+          "fractionOver33_3Ms": 0,
+          "fractionMissedRefresh": null,
+          "longIntervalLimitMs": 33.3,
+          "longIntervals": [],
+          "longIntervalsTruncated": false
+        },
+        "recorded": 6205,
+        "capacity": 400000,
+        "overflow": false
+      },
+      "mainThread": {
+        "status": "measured",
+        "source": "DevTools Performance.getMetrics deltas between the start and the end of the measurement window",
+        "windowMs": 9998.5,
+        "sampledAtElapsedMs": [
+          2003.3,
+          12001.3
+        ],
+        "framesInWindowByMeanInterval": 5072.8,
+        "taskMs": 9652.8,
+        "scriptMs": 7516.8,
+        "layoutMs": 134.2,
+        "styleMs": 135.1,
+        "taskMsPerFrame": 1.903,
+        "scriptMsPerFrame": 1.482,
+        "layoutMsPerFrame": 0.026,
+        "styleMsPerFrame": 0.027,
+        "busyFraction": 0.965,
+        "layoutCount": 5074,
+        "styleRecalcCount": 5074,
+        "jsHeapUsedBytes": [
+          51038516,
+          88664412
+        ]
+      },
+      "pointer": {
+        "movesSent": 2839,
+        "movesAcknowledged": 2839,
+        "movesFailed": 0,
+        "meanSendGapMs": 4.28,
+        "maxSendGapMs": 5.581,
+        "sendGapsOver8Ms": 0,
+        "sendGapCounts": {
+          "upTo5Ms": 2641,
+          "upTo8Ms": 197,
+          "upTo12Ms": 0,
+          "upTo16Ms": 0,
+          "over16Ms": 0
+        },
+        "maxInFlight": 5,
+        "movePeriodMs": 4
+      },
+      "orbit": {
+        "cameraSequenceDelta": 8989,
+        "productSubmissionsInSpan": 6162,
+        "framesInSpan": 6163,
+        "modelGenerationUnchanged": true,
+        "geometryUnchanged": true
+      },
+      "diagnostics": {
+        "beforeOrbit": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 9,
+            "submissionSequence": 6,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 80,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 0,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        },
+        "endOfWindow": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 8998,
+            "submissionSequence": 6168,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 1,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        },
+        "afterOrbit": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 9050,
+            "submissionSequence": 6220,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 0,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        }
+      },
+      "loadAverageAfter": [
+        3.44,
+        3.69,
+        3.66
+      ],
+      "endedUtc": "2026-09-19T09:30:05.835Z",
+      "served": {
+        "dist": "{OUTSIDE_REPOSITORY}/dist_stage2",
+        "buildIndexHtmlSha256": "0933b9d42a30898a44b3c582ebd56359a1f8b2be4b0299598ad06f01259044d1",
+        "requests": 11,
+        "notFound": 0,
+        "indexFallbacks": 1
+      }
+    },
+    {
+      "index": 4,
+      "pair": 3,
+      "variant": "off",
+      "query": "",
+      "startedUtc": "2026-09-19T09:30:05.835Z",
+      "loadAverageBefore": [
+        3.44,
+        3.69,
+        3.66
+      ],
+      "error": null,
+      "browser": {
+        "source": "playwright channel chrome",
+        "version": "153.0.8010.48",
+        "addedArguments": [
+          "--disable-frame-rate-limit",
+          "--disable-gpu-vsync"
+        ],
+        "webgl": {
+          "status": "available",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "vendor": "Google Inc. (Apple)",
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version)"
+        }
+      },
+      "console": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "pageErrorCount": 0,
+        "errors": [],
+        "warnings": [],
+        "pageErrors": []
+      },
+      "modelReadyMs": 731,
+      "page": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 2,
+        "visibilityState": "visible",
+        "canvasCssWidth": 794,
+        "canvasCssHeight": 560,
+        "canvasCssArea": 444640,
+        "pressPoint": {
+          "x": 357,
+          "y": 330,
+          "attempt": 1,
+          "candidates": 41
+        }
+      },
+      "settleBeforeOrbit": {
+        "settled": true,
+        "waitedMs": 517,
+        "polls": 6,
+        "mainThreadBusyFraction": 0.002
+      },
+      "settleAfterOrbit": {
+        "settled": true,
+        "waitedMs": 622,
+        "polls": 7,
+        "mainThreadBusyFraction": 0.005
+      },
+      "pacing": {
+        "requested": "uncapped",
+        "calibrationIntervalP50Ms": 0.1,
+        "calibrationIntervals": 6439,
+        "idleProductPageIntervalP50Ms": 16.8,
+        "uncappedTookEffect": true,
+        "rule": "a blank page of the same browser presents a moving square every frame for 400 ms before the product opens; uncapped is reported as having taken effect when that interval p50 is under 4 ms"
+      },
+      "frames": {
+        "source": "requestAnimationFrame timestamps recorded in the page; percentiles are nearest-rank",
+        "warmup": {
+          "frames": 1006,
+          "intervals": 1005,
+          "spanMs": 1994.1,
+          "meanMs": 1.984,
+          "p50Ms": 2.1,
+          "p95Ms": 3.4,
+          "p99Ms": 3.8,
+          "maxMs": 5.1,
+          "fractionOver16_7Ms": 0,
+          "fractionOver33_3Ms": 0,
+          "fractionMissedRefresh": null,
+          "longIntervalLimitMs": 33.3,
+          "longIntervals": [],
+          "longIntervalsTruncated": false
+        },
+        "measure": {
+          "frames": 4999,
+          "intervals": 4998,
+          "spanMs": 9997.8,
+          "meanMs": 2,
+          "p50Ms": 2.1,
+          "p95Ms": 3.4,
+          "p99Ms": 3.9,
+          "maxMs": 5.4,
+          "fractionOver16_7Ms": 0,
+          "fractionOver33_3Ms": 0,
+          "fractionMissedRefresh": null,
+          "longIntervalLimitMs": 33.3,
+          "longIntervals": [],
+          "longIntervalsTruncated": false
+        },
+        "recorded": 6129,
+        "capacity": 400000,
+        "overflow": false
+      },
+      "mainThread": {
+        "status": "measured",
+        "source": "DevTools Performance.getMetrics deltas between the start and the end of the measurement window",
+        "windowMs": 10002.5,
+        "sampledAtElapsedMs": [
+          2000.7,
+          12003.8
+        ],
+        "framesInWindowByMeanInterval": 5001.3,
+        "taskMs": 9652.9,
+        "scriptMs": 7560.7,
+        "layoutMs": 125.6,
+        "styleMs": 125.6,
+        "taskMsPerFrame": 1.93,
+        "scriptMsPerFrame": 1.512,
+        "layoutMsPerFrame": 0.025,
+        "styleMsPerFrame": 0.025,
+        "busyFraction": 0.965,
+        "layoutCount": 5000,
+        "styleRecalcCount": 5000,
+        "jsHeapUsedBytes": [
+          74602536,
+          64670348
+        ]
+      },
+      "pointer": {
+        "movesSent": 2852,
+        "movesAcknowledged": 2852,
+        "movesFailed": 0,
+        "meanSendGapMs": 4.261,
+        "maxSendGapMs": 5.665,
+        "sendGapsOver8Ms": 0,
+        "sendGapCounts": {
+          "upTo5Ms": 2661,
+          "upTo8Ms": 190,
+          "upTo12Ms": 0,
+          "upTo16Ms": 0,
+          "over16Ms": 0
+        },
+        "maxInFlight": 3,
+        "movePeriodMs": 4
+      },
+      "orbit": {
+        "cameraSequenceDelta": 8932,
+        "productSubmissionsInSpan": 6087,
+        "framesInSpan": 6087,
+        "modelGenerationUnchanged": true,
+        "geometryUnchanged": true
+      },
+      "diagnostics": {
+        "beforeOrbit": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 9,
+            "submissionSequence": 6,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 80,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 0,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        },
+        "endOfWindow": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 8941,
+            "submissionSequence": 6093,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 1,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        },
+        "afterOrbit": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 8993,
+            "submissionSequence": 6145,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 0,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        }
+      },
+      "loadAverageAfter": [
+        3.33,
+        3.66,
+        3.65
+      ],
+      "endedUtc": "2026-09-19T09:30:22.488Z",
+      "served": {
+        "dist": "{OUTSIDE_REPOSITORY}/dist_base_b415b43df",
+        "buildIndexHtmlSha256": "e79fafbe1595df3c446519a105447b8edd38afe8b79077f5cd9a245cf1bd7dfb",
+        "requests": 11,
+        "notFound": 0,
+        "indexFallbacks": 1
+      }
+    },
+    {
+      "index": 5,
+      "pair": 3,
+      "variant": "on",
+      "query": "",
+      "startedUtc": "2026-09-19T09:30:22.488Z",
+      "loadAverageBefore": [
+        3.33,
+        3.66,
+        3.65
+      ],
+      "error": null,
+      "browser": {
+        "source": "playwright channel chrome",
+        "version": "153.0.8010.48",
+        "addedArguments": [
+          "--disable-frame-rate-limit",
+          "--disable-gpu-vsync"
+        ],
+        "webgl": {
+          "status": "available",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "vendor": "Google Inc. (Apple)",
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version)"
+        }
+      },
+      "console": {
+        "errorCount": 0,
+        "warningCount": 0,
+        "pageErrorCount": 0,
+        "errors": [],
+        "warnings": [],
+        "pageErrors": []
+      },
+      "modelReadyMs": 744,
+      "page": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 2,
+        "visibilityState": "visible",
+        "canvasCssWidth": 794,
+        "canvasCssHeight": 560,
+        "canvasCssArea": 444640,
+        "pressPoint": {
+          "x": 357,
+          "y": 330,
+          "attempt": 1,
+          "candidates": 41
+        }
+      },
+      "settleBeforeOrbit": {
+        "settled": true,
+        "waitedMs": 528,
+        "polls": 6,
+        "mainThreadBusyFraction": 0.003
+      },
+      "settleAfterOrbit": {
+        "settled": true,
+        "waitedMs": 623,
+        "polls": 7,
+        "mainThreadBusyFraction": 0.007
+      },
+      "pacing": {
+        "requested": "uncapped",
+        "calibrationIntervalP50Ms": 0.1,
+        "calibrationIntervals": 6038,
+        "idleProductPageIntervalP50Ms": 16.8,
+        "uncappedTookEffect": true,
+        "rule": "a blank page of the same browser presents a moving square every frame for 400 ms before the product opens; uncapped is reported as having taken effect when that interval p50 is under 4 ms"
+      },
+      "frames": {
+        "source": "requestAnimationFrame timestamps recorded in the page; percentiles are nearest-rank",
+        "warmup": {
+          "frames": 983,
+          "intervals": 982,
+          "spanMs": 1993.9,
+          "meanMs": 2.03,
+          "p50Ms": 2,
+          "p95Ms": 3.5,
+          "p99Ms": 4,
+          "maxMs": 16.8,
+          "fractionOver16_7Ms": 0.001,
+          "fractionOver33_3Ms": 0,
+          "fractionMissedRefresh": null,
+          "longIntervalLimitMs": 33.3,
+          "longIntervals": [],
+          "longIntervalsTruncated": false
+        },
+        "measure": {
+          "frames": 4990,
+          "intervals": 4989,
+          "spanMs": 9995.3,
+          "meanMs": 2.003,
+          "p50Ms": 2.1,
+          "p95Ms": 3.5,
+          "p99Ms": 3.9,
+          "maxMs": 15.3,
+          "fractionOver16_7Ms": 0,
+          "fractionOver33_3Ms": 0,
+          "fractionMissedRefresh": null,
+          "longIntervalLimitMs": 33.3,
+          "longIntervals": [],
+          "longIntervalsTruncated": false
+        },
+        "recorded": 6095,
+        "capacity": 400000,
+        "overflow": false
+      },
+      "mainThread": {
+        "status": "measured",
+        "source": "DevTools Performance.getMetrics deltas between the start and the end of the measurement window",
+        "windowMs": 9999.6,
+        "sampledAtElapsedMs": [
+          2002.9,
+          12003
+        ],
+        "framesInWindowByMeanInterval": 4992.3,
+        "taskMs": 9665.8,
+        "scriptMs": 7661.2,
+        "layoutMs": 120,
+        "styleMs": 119.1,
+        "taskMsPerFrame": 1.936,
+        "scriptMsPerFrame": 1.535,
+        "layoutMsPerFrame": 0.024,
+        "styleMsPerFrame": 0.024,
+        "busyFraction": 0.967,
+        "layoutCount": 4990,
+        "styleRecalcCount": 4990,
+        "jsHeapUsedBytes": [
+          72838596,
+          65060144
+        ]
+      },
+      "pointer": {
+        "movesSent": 2854,
+        "movesAcknowledged": 2854,
+        "movesFailed": 0,
+        "meanSendGapMs": 4.258,
+        "maxSendGapMs": 5.766,
+        "sendGapsOver8Ms": 0,
+        "sendGapCounts": {
+          "upTo5Ms": 2629,
+          "upTo8Ms": 224,
+          "upTo12Ms": 0,
+          "upTo16Ms": 0,
+          "over16Ms": 0
+        },
+        "maxInFlight": 8,
+        "movePeriodMs": 4
+      },
+      "orbit": {
+        "cameraSequenceDelta": 8891,
+        "productSubmissionsInSpan": 6052,
+        "framesInSpan": 6053,
+        "modelGenerationUnchanged": true,
+        "geometryUnchanged": true
+      },
+      "diagnostics": {
+        "beforeOrbit": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 9,
+            "submissionSequence": 6,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 80,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 0,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        },
+        "endOfWindow": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 8900,
+            "submissionSequence": 6058,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 1,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        },
+        "afterOrbit": {
+          "schema": "openpipestress.ui-diagnostics/v1",
+          "model": {
+            "projectId": "project:UIF-10000",
+            "generation": 1,
+            "indexGeneration": "1:1",
+            "identityHash": "ui-model-fnv32x2:3474aba7c59cba0b:6454790",
+            "assignmentStatus": "committed"
+          },
+          "viewport": {
+            "canvas": {
+              "cssWidth": 794,
+              "cssHeight": 560,
+              "bufferWidth": 1588,
+              "bufferHeight": 1120,
+              "pixelRatio": 2
+            },
+            "cameraSequence": 8953,
+            "submissionSequence": 6111,
+            "labels": {
+              "enabled": true,
+              "renderedCount": 1,
+              "budget": 80
+            },
+            "geometry": {
+              "mode": "actual-od",
+              "odGeneration": 1,
+              "odStatus": "available"
+            },
+            "rendererInfo": {
+              "geometries": 9,
+              "textures": 3,
+              "calls": 359,
+              "triangles": 2133368,
+              "points": 0,
+              "lines": 34
+            },
+            "ownedPendingRafCount": 0,
+            "owned": {
+              "generation": 1,
+              "live": {
+                "pipeMeshes": 85,
+                "nodeMeshes": 255,
+                "supportMeshes": 11,
+                "componentMeshes": 7,
+                "geometries": 14,
+                "materials": 15,
+                "textures": 3,
+                "instanceMatrices": 358,
+                "instanceColors": 358,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "created": {
+                "pipeMeshes": 255,
+                "nodeMeshes": 425,
+                "supportMeshes": 33,
+                "componentMeshes": 21,
+                "geometries": 28,
+                "materials": 29,
+                "textures": 3,
+                "instanceMatrices": 734,
+                "instanceColors": 734,
+                "controls": 1,
+                "eventBindings": 7,
+                "resizeObservers": 1
+              },
+              "disposed": {
+                "pipeMeshes": 170,
+                "nodeMeshes": 170,
+                "supportMeshes": 22,
+                "componentMeshes": 14,
+                "geometries": 14,
+                "materials": 14,
+                "textures": 0,
+                "instanceMatrices": 376,
+                "instanceColors": 376,
+                "controls": 0,
+                "eventBindings": 0,
+                "resizeObservers": 0
+              }
+            },
+            "context": {
+              "generation": 1,
+              "canvasConnected": true,
+              "lostCount": 0,
+              "restoredCount": 0
+            }
+          }
+        }
+      },
+      "loadAverageAfter": [
+        3.43,
+        3.66,
+        3.65
+      ],
+      "endedUtc": "2026-09-19T09:30:39.189Z",
+      "served": {
+        "dist": "{OUTSIDE_REPOSITORY}/dist_stage2",
+        "buildIndexHtmlSha256": "0933b9d42a30898a44b3c582ebd56359a1f8b2be4b0299598ad06f01259044d1",
+        "requests": 11,
+        "notFound": 0,
+        "indexFallbacks": 1
+      }
+    }
+  ],
+  "finishedUtc": "2026-09-19T09:30:39.189Z"
+}
