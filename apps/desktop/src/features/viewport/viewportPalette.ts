@@ -123,10 +123,19 @@ export const VIEWPORT_PALETTE: Readonly<Record<ViewportPaletteTheme, ViewportPal
  * and are told apart by shape; a rigid element is the shaded tube; a restraint glyph is the
  * glyph ink; load kinds take the first two categorical slots; the routing draft has its own
  * token and is never the selection's colour; the grid tokens are already stepped for the
- * ground and draw at full opacity. The deformed overlay is result information drawn in
- * neutral ink (`canvas.vector`): the design gives `canvas.deformGhost` to the dashed
- * undeformed outline, which this product does not draw, and at the overlay's opacity that
- * token falls under 3:1 against the ground in both themes.
+ * ground and draw at full opacity.
+ *
+ * The deformed overlay's binding to `canvas.vector` is provisional. Design system 6.8 draws
+ * the deformed shape solid "with the result colour or the pipe neutral" and the undeformed
+ * shape as a dashed outline in `canvas.deformGhost`. The pipe neutral was weighed and cannot
+ * be used yet: this product still draws both shapes solid at once, so a deformed tube in
+ * `canvas.pipe` could not be told from the undeformed tube beside it. `canvas.deformGhost`
+ * is the outline's token, and at the overlay's opacity it falls under 3:1 against the
+ * ground in both themes. `canvas.vector` is also the load vectors' ink, so the two would
+ * share a colour once result colour is drawn; that state is not reached, because when 6.8
+ * is built (the undeformed shape becomes the dashed outline, which needs the edge-line
+ * mechanism and result colour) this role goes and the deformed shape takes the design's
+ * colours.
  */
 export const VIEWPORT_ROLE_TOKENS = Object.freeze({
   pipe: "canvas.pipe",
