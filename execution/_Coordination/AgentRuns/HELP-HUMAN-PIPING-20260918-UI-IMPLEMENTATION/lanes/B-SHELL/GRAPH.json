@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "lane": "B-SHELL",
+  "parentGraph": "../../WORK_GRAPH.json",
+  "base": "4dcab750501d039af5b2973991cbe0f3f423b80a",
+  "branch": "codex/swbpipe-b-shell-20260918",
+  "nodes": {
+    "B-SHELL": {
+      "role": "WORKING_ITEMS Type 1 lane manager",
+      "model": "fable",
+      "status": "launched",
+      "launched": "2026-09-19T00:04Z",
+      "briefSha256": "00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75",
+      "brief": "../../briefs/B-SHELL_shell_lane.md",
+      "addendum1Sha256": "f91f8d2bf55de8c9eb524abc38ea196cba7782d25492f79239b7d2a90c833aa2",
+      "addendum1": "briefs/B-SHELL_addendum_1.md",
+      "returnSha256": null
+    }
+  },
+  "slices": [],
+  "current_frontier": "Lane launched; first slice in progress."
+}
