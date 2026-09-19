@@ -16,6 +16,13 @@ sealed briefs and owner directions. Read the updated instructions from their
 landed revision at the next idle entry boundary; do not rewrite historical
 launch contexts or rerun finished product work because of this notice.
 
+Current continuation pointers (discovery only), relative to this coordination
+directory: `AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json`
+and that run's `instances/ROOT/SESSION_HANDOFF_2026-09-19B.md`. Its recorded
+owner directions and the current owner's steering determine priorities. The
+graph and handoff name the unmerged branches and worktrees to inspect; this
+notice does not duplicate their live state or prescribe the next product action.
+
 The changed instructions are project-local. A repository reference search found
 historical root coordination/census references but no active App/PEC contract
 mirror pinning these bytes. No root instruction or other project's authority

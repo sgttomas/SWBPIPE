@@ -11,14 +11,15 @@
   "slices": [
     {
       "id": "LOOP-ALIGNMENT",
-      "state": "implemented; independent review and candidate validation pending",
+      "state": "initial independent review passed; owner-directed entrypoint amendment awaiting backcheck",
       "dependencies": [],
       "blockers": [],
       "semantic_changes": [
         "run work graph replaces deliverable-only selection",
         "delegation follows undertaking responsibility and approved strategy",
         "progressive user-workflow testing",
-        "standing Git grant replaces old per-merge stop"
+        "standing Git grant replaces old per-merge stop",
+        "stable instructions separated from state pointers and per-run steering"
       ],
       "specification_departures": [
         "explicitly supersedes old six-step procedure and F-PIP-5 selection rule under owner acceptance"
@@ -33,7 +34,8 @@
       },
       "evidence": [
         "OWNER_ACCEPTANCE.md",
-        "ADOPTION_TRANSFORMS.json"
+        "ADOPTION_TRANSFORMS.json",
+        "STEERING_AMENDMENT.md"
       ]
     }
   ]

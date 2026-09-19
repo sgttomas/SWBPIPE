@@ -27,10 +27,14 @@ closeout and one fresh Astra/high Type 2 reviewing the complete diff. The owner
 accepted that proposal. This is acceptance of the standing procedure amendment
 and bounded delegation, not acceptance of any product deliverable.
 
-`ACCEPTED_DRAFT_MANIFEST.json` retains the exact reviewed draft hashes. Only
-the advertised adoption-marker substitutions separate those draft bytes from
+`ACCEPTED_DRAFT_MANIFEST.json` retains the exact reviewed draft hashes. At
+initial implementation commit `571bfa8ffb4c97841c95ecc84036251262a73fcc`, only
+the advertised adoption-marker substitutions separated those draft bytes from
 the installed instructions. `ADOPTION_TRANSFORMS.json` records each exact
 substitution and resulting hash, allowing reconstruction of the accepted draft.
+The owner's subsequent separation-of-concerns direction and its implementation
+are recorded in `STEERING_AMENDMENT.md`; that amendment changes the entrypoint
+after the initial adoption without changing the retained draft or its verdict.
 
 Old dated plans remain at their cited paths. The superseded project instructions,
 entry and prior active plan are preserved byte-for-byte in
