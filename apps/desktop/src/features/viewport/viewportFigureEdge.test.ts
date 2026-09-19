@@ -383,13 +383,15 @@ describe("viewport edge line: repaint, ownership, hiding and selection", () => {
     expect(hidden.elements).toEqual((edged.userData.instanceBaseMatrices as THREE.Matrix4[])[0].elements);
   });
 
-  it("keeps the line in canvas.edge over a selected element's held colour", () => {
+  // Selection is a halo outside the silhouette (`viewportHalo.ts`): a selected element keeps its own
+  // colour under its line, exactly as an unselected one does.
+  it("keeps the line in canvas.edge on a selected element, which keeps its own colour", () => {
     const { resource, modelLayer } = edgeResource("light", 1, [KEYS[0]]);
     const edged = edgedPipes();
     resource.replaceLayer(modelLayer, [edged]);
     for (const theme of ["dark", "light"] as const) {
       resource.setThemePresentation(theme);
-      expect(instanceHex(edged, 0)).not.toBe(viewportRoleHex(theme, "pipe"));
+      expect(instanceHex(edged, 0)).toBe(viewportRoleHex(theme, "pipe"));
       expect(instanceHex(edged, 1)).toBe(viewportRoleHex(theme, "pipe"));
       expect(edgeHex(edged.material as FigureMaterial)).toBe(tokenHex(theme));
     }

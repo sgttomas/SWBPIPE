@@ -106,6 +106,27 @@
       "returnSha256": "eebd23af3e001c81d46c32bd7258fd11a7e16fcbdccaf287dc38f99b2073b7b5",
       "return": "reviews/PR1-REVIEW_RETURN.md",
       "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
+    },
+    "B-CANVAS-C2": {
+      "role": "WORKING_ITEMS Type 1",
+      "model": "fable",
+      "status": "returned",
+      "returnSha256": "69f4aaa485868e2039420cc09fd0e993154279df14659d7441ac954292c8e320",
+      "return": "returns/C2_RETURN.md",
+      "modelThatRan": "Claude Fable 5.1 (claude-fable-5-1), by its own statement; both children report Claude Fable 5.1",
+      "candidate": "0758e91e378dcbf2927bd787194248a8a23980f4"
+    },
+    "C2-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "status": "returned: PASS, no actionable finding",
+      "sealed": "2026-09-19T14:04Z",
+      "briefSha256": "a8bcb95d09678071dacd57c1a7594798a8982db277d08a70b3b2db1e2d3a14da",
+      "brief": "briefs/C2-REVIEW_code_review.md",
+      "candidate": "0758e91e378dcbf2927bd787194248a8a23980f4",
+      "returnSha256": "88540a9f47d6628714ff4b5e7e42aaff5cbe29915c3dc404423d5e0811a32285",
+      "return": "reviews/C2-REVIEW_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
     }
   },
   "slices": [],
