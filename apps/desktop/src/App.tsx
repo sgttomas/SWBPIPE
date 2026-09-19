@@ -754,6 +754,18 @@ function AppSession() {
 
   useEffect(() => () => activeResizeCleanupRef.current?.(), []);
 
+  // The design tokens (tokens.css) are scoped on :root[data-theme]; the document root follows the
+  // resolved theme so they hold for the shell and for anything rendered outside it.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const previous = root.getAttribute("data-theme");
+    root.setAttribute("data-theme", resolvedTheme);
+    return () => {
+      if (previous === null) root.removeAttribute("data-theme");
+      else root.setAttribute("data-theme", previous);
+    };
+  }, [resolvedTheme]);
+
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return;
     const query = window.matchMedia("(prefers-color-scheme: dark)");
