@@ -1,0 +1,43 @@
+{
+  "artifact": "CLOSEOUT_CHECKS",
+  "tranche": "SWBPIPE Tranche B, shell lane, slices B2F and B2G (project-handler repairs), one pull request",
+  "date": "2026-09-19 (UTC)",
+  "base": "64f86e17f",
+  "code_reviewed": {
+    "reviewer_model": "Claude Opus 5 (two reviewers: B2F-REVIEW; B2G-REVIEW with two backchecks in one context)",
+    "candidate": "13311e4aad46b74dbae7a4e2e25052e8f7c04c0a",
+    "verdict": "PASS; no actionable finding, for the combined candidate. B2F-REVIEW: PASS. B2G-REVIEW: FINDINGS (Finding 1, epoch supersession after a landed write), corrected as B2G-C1; backcheck: Finding 1 closed for save and create, Finding 2 (the correction does not belong in the blank handler), corrected as B2G-C2; second backcheck: PASS.",
+    "briefs": {
+      "{RUN}/lanes/B-SHELL/briefs/B2F-REVIEW_code_review.md": "28c09b8c20c02c5d4cf14ed75929a6c5178fc11cfccae0a7e83de7956b6073d7",
+      "{RUN}/lanes/B-SHELL/briefs/B2G-REVIEW_code_review.md": "992f3b4fe99b31623dd5191953077dfd9aec079ef5a0c59fc6e0203e5a7f3d8a"
+    },
+    "returns": {
+      "{RUN}/lanes/B-SHELL/reviews/B2F-REVIEW_RETURN.md": "d3747d7018cbea0a6812fc5f85aea777f90604a98f6eea39b3bc8ea1179f7118",
+      "{RUN}/lanes/B-SHELL/reviews/B2G-REVIEW_RETURN.md": "46ac4ec047d6ed249cef8138e4bc2c11f935abe61c05d85c964653ab1b423b22",
+      "{RUN}/lanes/B-SHELL/reviews/B2G-REVIEW_BACKCHECK_RETURN.md": "445f8fb92d23c1552b450e57125952945bbd26660153220ab72b7fff07c57639",
+      "{RUN}/lanes/B-SHELL/reviews/B2G-REVIEW_BACKCHECK2_RETURN.md": "d15363dc9920afed3dce763f3003c00d77f130ceed3281156ff47c9527004484"
+    },
+    "last_code_commit": "13311e4aad46b74dbae7a4e2e25052e8f7c04c0a"
+  },
+  "sweeps": [
+    {
+      "commit": "a1f7f8fe14f7a1266e595cc8bea40f518e4154c8",
+      "status": "pass",
+      "summary": "{WORKING_ROOT}/validation/evidence/sweeps/SWEEP_20260919T080452Z_a1f7f8fe14f7.json",
+      "sha256": "a1fc99144b8ba402b02d1ce175f5086864b6c26c03cddbc41accba3b61825f37",
+      "command": "PLAYWRIGHT_WORKERS=1 sh {RUN}/tools/with_e2e_lock.sh python3 tools/release/run_evidence_sweep.py --execute --require-capability host",
+      "surfaces": 5,
+      "note": "2026-09-19T08:04Z to 08:19Z; the commit contains origin/main at 64f86e17f. An earlier sweep of B2F alone was stopped by ROOT before it obtained the browser-test lock and produced nothing."
+    }
+  ],
+  "commits_between_reviewed_and_tested": "records only: d00dfa5e7 and a1f7f8fe1 (retained backchecks); no product source, test or tool change after 13311e4aa",
+  "commits_after_tested": "records only (this file, the sweep summary, the deliverable run record and status line, the lane's index and graph)",
+  "roots_own_look": "not taken: the slices draw no surface and change no control; src/App.tsx and src/styles.css are untouched",
+  "validators": {
+    "path_anchors": "pass",
+    "claims_language": "pass",
+    "tranche_manifest": "pass; no instruction-surface path in the range"
+  },
+  "boundary": "Checks ran on the owner's host. No usability acceptance, review acceptance or release is established.",
+  "claim_fence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)."
+}
