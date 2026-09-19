@@ -1,0 +1,8 @@
+arithmetic: all checks passed
+build cases: a directory without index.html and a variant with no build are refused before any browser starts
+  run 1 first: intervals 119, mean 16.666 ms, p50 16.7, p95 16.8, max 16.8; main thread 2.709 ms/frame; load 2.74 -> 2.7
+  run 2 second: intervals 119, mean 16.666 ms, p50 16.7, p95 16.8, max 16.8; main thread 1.987 ms/frame; load 2.7 -> 2.67
+  wrote {OUTSIDE_REPOSITORY}/self-test.json
+output shape: valid; two copies of one build report equal build identities, each run served from its own copy
+summarize: produced a row for each variant and named the shared build identity
+self-test: PASS
