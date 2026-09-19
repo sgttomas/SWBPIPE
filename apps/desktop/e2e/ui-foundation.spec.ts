@@ -1964,7 +1964,17 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   // shell gave a 1440 x 920 window while it still carried its footer (about 21 px).
   // DEC-105 removed that footer, so the window is 21 px shorter here to keep
   // the canvas, the gizmo and the frozen endpoints in the same geometry.
-  await page.setViewportSize({ width: 1440, height: 899 });
+  // 2026-09-19, slice B3 (the shell): the same move again. Before the shell a
+  // 1440 x 899 window gave this test a drawn canvas of 794 x 559 CSS px
+  // (measured on main at d20eb1294). The shell's Both view gives that same box
+  // to a 1688 x 787 window with the stored split at 50 % (surfaces 1588 wide,
+  // canvas pane 794; 787 less the 228 px of bars above and below the drawn canvas is 559).
+  // The box is asserted below, so the geometry the frozen endpoints depend on is
+  // pinned and not implied. The endpoints and every other assertion are untouched.
+  await page.setViewportSize({ width: 1688, height: 787 });
+  await page.addInitScript(() => {
+    window.localStorage.setItem("chirality.desktop.ui-preferences.v1", JSON.stringify({ version: 1, bothSplitPct: 50 }));
+  });
   const model = await gotoRoutedFixture(page);
   expect(model.components ?? []).toHaveLength(0);
   await activateWithKeyboard(page, page.getByTestId("toggle-viewport-labels"));
@@ -1974,6 +1984,7 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   const scale = page.getByTestId("viewport-scale-bar");
   await expect(axis).toBeVisible(); await expect(scale).toHaveText(/1\s*m/);
   const rect = (await canvas.boundingBox())!;
+  expect({ width: rect.width, height: rect.height }).toEqual({ width: 794, height: 559 });
   const axisRect = (await axis.boundingBox())!;
   const scaleRect = (await scale.boundingBox())!;
   // Preserve both frozen Box16 endpoints. This component-free control fixture
