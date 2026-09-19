@@ -31,11 +31,21 @@
     "B2": {
       "role": "slice: state extraction, no behaviour change",
       "model": "fable",
-      "status": "reviewed PASS and swept pass; pull request next",
+      "status": "merged (PR #803, b9a070408)",
       "returnSha256": "ce67470161f78980afcbcec3cd240460c964a834bd35cc2d26f23caf99655ec5",
       "return": "returns/B2_RETURN.md",
       "modelThatRan": "manager requested as Claude Fable 5.1; its one implementer child, B2-STATE, reports itself as Claude Fable 5.1 (claude-fable-5-1)",
       "candidate": "5d2e261e0df39c18a71d897902bf5d3a047db175"
+    },
+    "B-SHELL-ADDENDUM-2": {
+      "role": "ROOT's sealed addendum to the lane's brief",
+      "model": "n/a (ROOT, Claude Fable 5.1)",
+      "status": "sealed",
+      "sealed": "2026-09-19T04:11Z",
+      "briefSha256": "60406868afad389c56126276a1a06f4ee00967400363e3973ab2bc01e0cb7509",
+      "brief": "briefs/B-SHELL_addendum_2.md",
+      "candidate": null,
+      "returnSha256": null
     }
   },
   "slices": [
@@ -50,8 +60,17 @@
       "sweepSummarySha256": "e349768815700de944be279123d0b79f31dd6e7af3e8c53ac7acad4950a1937b",
       "closeout": "CLOSEOUT_CHECKS_B2.json",
       "closeoutSha256": "d23bb4581d15f101d9ee40696240c19f80c78fa8c4735a5ba0f065986eec9748",
-      "recorded": "2026-09-19T03:44Z"
+      "recorded": "2026-09-19T03:44Z",
+      "merge": {
+        "pr": 803,
+        "url": "https://github.com/sgttomas/chirality/pull/803",
+        "head": "9f653b141d13aabfb79e4616ca216f11e8fc4976",
+        "mergeCommit": "b9a07040857d2e6d3ec0f6a530697720801c7b59",
+        "mergedAt": "2026-09-19T04:10:41Z",
+        "checks": "Desktop E2E (source mode) pass; harness pass",
+        "authority": "owner's standing Git authorization of 2026-09-12; no owner review implied"
+      }
     }
   ],
-  "current_frontier": "Slice B2 reviewed (PASS) and swept (pass) on 61e1057c4; closeout written; next the pull request, CI and merge; then sealed addendum 2 (slice B2F), then B3."
+  "current_frontier": "Slice B2 merged as b9a070408 (PR #803); the branch is fast-forwarded to main; addendum 2 sealed; the manager resumes with slice B2F, then B3."
 }

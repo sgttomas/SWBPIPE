@@ -9,6 +9,7 @@ Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`. This folder holds what ROOT 
 | `../../briefs/B-SHELL_shell_lane.md` | `00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75` | 2026-09-18T22:01Z | the lane's brief, sealed with slice B1's |
 | `briefs/B-SHELL_addendum_1.md` | `f91f8d2bf55de8c9eb524abc38ea196cba7782d25492f79239b7d2a90c833aa2` | 2026-09-19T00:04Z | sealed addendum 1: what slice B1 and its review found; governs where it and the brief differ |
 | `briefs/B2-REVIEW_code_review.md` | `69bb0ce07fb472d9017c42988765d525016314d62e0b23805e8891576648ba9a` | 2026-09-19T01:49Z | independent code review of slice B2; candidate `5d2e261e0df39c18a71d897902bf5d3a047db175` against `origin/main` `8e4c5df6e` |
+| `briefs/B-SHELL_addendum_2.md` | `60406868afad389c56126276a1a06f4ee00967400363e3973ab2bc01e0cb7509` | 2026-09-19T04:11Z | sealed addendum 2: slice B2F (four project-handler repairs the move preserved, each with a failing test first; the integrity cells on a failed open first); the independent review's residual items for B3; two changes by others in `styles.css` |
 
 ## Launch
 
