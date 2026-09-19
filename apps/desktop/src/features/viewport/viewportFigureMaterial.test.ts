@@ -1,7 +1,12 @@
 import * as THREE from "three";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { entityKey } from "../workspace/selectionState";
-import { createFigureMaterial, isFigureMaterial, setFigureShadeRatio } from "./viewportFigureMaterial";
+import {
+  createFigureMaterial,
+  isFigureMaterial,
+  setFigureShadeRatio,
+  type FigureMaterialOptions
+} from "./viewportFigureMaterial";
 import { viewportShadeRatio } from "./viewportPalette";
 import { registerInstancedRolePresentation, ViewportOwnershipLedger } from "./viewportResource";
 
@@ -92,5 +97,118 @@ describe("viewport figure material", () => {
     mesh.geometry.dispose();
     (mesh.material as THREE.Material).dispose();
     mesh.dispose();
+  });
+});
+
+describe("viewport figure material: clone()", () => {
+  type Figure = ReturnType<typeof createFigureMaterial>;
+
+  const FORMS: readonly (readonly [string, FigureMaterialOptions])[] = [
+    ["a default material", {}],
+    ["a transparent 0.82 material", { opacity: 0.82, transparent: true }]
+  ];
+
+  // A source with a tint and a shade ratio that are not the defaults, so a copy is told from a rebuild.
+  function paintedSource(options: FigureMaterialOptions): Figure {
+    const source = createFigureMaterial(options);
+    source.color.setHex(0x336699);
+    setFigureShadeRatio(source, viewportShadeRatio("dark"));
+    return source;
+  }
+
+  function expectWholeClone(clone: Figure, source: Figure, options: FigureMaterialOptions): void {
+    expect(clone).not.toBe(source);
+    expect(isFigureMaterial(clone)).toBe(true);
+    // The repaint's own guard, then the identity that makes a repaint reach the shader.
+    expect("color" in clone).toBe(true);
+    expect(clone.color).toBeInstanceOf(THREE.Color);
+    expect(clone.color).toBe(clone.uniforms.tint.value);
+    expect(clone.color).not.toBe(source.color);
+    expect(clone.color).not.toBe(source.uniforms.tint.value);
+    expect(clone.color.getHex()).toBe(0x336699);
+    // The shade ratio is the clone's own object and carries the source's numbers.
+    expect(clone.uniforms.shadeRatio.value).toBeInstanceOf(THREE.Color);
+    expect(clone.uniforms.shadeRatio.value).not.toBe(source.uniforms.shadeRatio.value);
+    expect((clone.uniforms.shadeRatio.value as THREE.Color).toArray()).toEqual([...viewportShadeRatio("dark")]);
+    // What three's renderer chooses its path from, and what the figure is.
+    expect(clone.type).toBe("ShaderMaterial");
+    expect(clone.isShaderMaterial).toBe(true);
+    expect(clone.lights).toBe(false);
+    expect(clone.toneMapped).toBe(false);
+    expect(clone.vertexShader).toBe(source.vertexShader);
+    expect(clone.fragmentShader).toBe(source.fragmentShader);
+    expect(Object.keys(clone.uniforms).sort()).toEqual(["opacity", "shadeRatio", "tint"]);
+    expect(clone.transparent).toBe(options.transparent ?? false);
+    expect(clone.uniforms.opacity.value).toBe(options.opacity ?? 1);
+    // three's clone() is `new this.constructor().copy(this)`: the constructor is the figure's own.
+    expect(source.constructor).not.toBe(THREE.ShaderMaterial);
+    expect(clone.constructor).toBe(source.constructor);
+  }
+
+  it.each(FORMS)("a clone of %s is a whole figure material whose colour is its own live tint", (_name, options) => {
+    const source = paintedSource(options);
+    const clone = source.clone();
+    expectWholeClone(clone, source, options);
+
+    // Setting either colour leaves the other unchanged.
+    clone.color.setHex(0x112233);
+    expect(source.color.getHex()).toBe(0x336699);
+    expect((clone.uniforms.tint.value as THREE.Color).getHex()).toBe(0x112233);
+    source.color.setHex(0x445566);
+    expect(clone.color.getHex()).toBe(0x112233);
+    expect((source.uniforms.tint.value as THREE.Color).getHex()).toBe(0x445566);
+    // And either shade ratio.
+    setFigureShadeRatio(clone, viewportShadeRatio("light"));
+    expect((source.uniforms.shadeRatio.value as THREE.Color).toArray()).toEqual([...viewportShadeRatio("dark")]);
+    expect((clone.uniforms.shadeRatio.value as THREE.Color).toArray()).toEqual([...viewportShadeRatio("light")]);
+    source.dispose();
+    clone.dispose();
+  });
+
+  it.each(FORMS)("a clone of a clone of %s still holds all of this", (_name, options) => {
+    const source = paintedSource(options);
+    const first = source.clone();
+    const second = first.clone();
+    expectWholeClone(second, first, options);
+    expect(second.color).not.toBe(source.color);
+    second.color.setHex(0x778899);
+    expect(first.color.getHex()).toBe(0x336699);
+    expect(source.color.getHex()).toBe(0x336699);
+    for (const material of [source, first, second]) material.dispose();
+  });
+
+  it("constructs, clones and copies without a console warning or error", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      // The spies do see three's own reports: an unknown parameter is reported through console.warn.
+      const unknownParameter: Record<string, unknown> = { figureMaterialUnknownParameter: 1 };
+      new THREE.ShaderMaterial(unknownParameter).dispose();
+      expect(warn).toHaveBeenCalledTimes(1);
+      warn.mockClear();
+
+      const plain = createFigureMaterial();
+      const overlay = createFigureMaterial({ opacity: 0.82, transparent: true });
+      const made = [plain, overlay, plain.clone(), overlay.clone(), overlay.clone().clone()];
+      plain.copy(overlay);
+      expect(warn).not.toHaveBeenCalled();
+      expect(error).not.toHaveBeenCalled();
+      for (const material of made) material.dispose();
+    } finally {
+      warn.mockRestore();
+      error.mockRestore();
+    }
+  });
+
+  it("does not take a plain shader material for a figure material, whatever it copied or carries", () => {
+    const figure = paintedSource({ opacity: 0.82, transparent: true });
+    // three's Material.copy carries userData across; a marker there must not make a figure material.
+    const copied = new THREE.ShaderMaterial().copy(figure);
+    expect(isFigureMaterial(copied)).toBe(false);
+    const marked = new THREE.ShaderMaterial();
+    marked.userData = JSON.parse(JSON.stringify(figure.userData)) as Record<string, unknown>;
+    marked.userData.viewportFigureMaterial = true;
+    expect(isFigureMaterial(marked)).toBe(false);
+    for (const material of [figure, copied, marked]) material.dispose();
   });
 });

@@ -942,4 +942,51 @@ describe("viewport palette repaint", () => {
     expect(instanceHex(mesh, 0)).toBe(0x4f6f73);
     expect(mesh.userData.viewportBaseColor).toBe(0x4f6f73);
   });
+
+  it("repaints cloned figure materials with the theme, on a plain mesh and on an instanced one", () => {
+    const { resource, ownership, invalidate, modelLayer, routingLayer } = paletteResource("light");
+    const source = createFigureMaterial();
+    const markerMaterial = source.clone();
+    const pipeMaterial = source.clone();
+    const marker = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), markerMaterial);
+    registerPaletteRole(marker, "routeDraft");
+    const keys = [entityKey({ type: "pipe", id: "p:cloned:1" }), entityKey({ type: "pipe", id: "p:cloned:2" })];
+    const pipes = new THREE.InstancedMesh(new THREE.CylinderGeometry(1, 1, 1, 8), pipeMaterial, keys.length);
+    registerInstancedRolePresentation(pipes, keys, "pipe");
+    resource.replaceLayer(routingLayer, [marker]);
+    resource.replaceLayer(modelLayer, [pipes]);
+    expect(viewportRoleHex("dark", "routeDraft")).not.toBe(viewportRoleHex("light", "routeDraft"));
+    expect([...viewportShadeRatio("dark")]).not.toEqual([...viewportShadeRatio("light")]);
+
+    const disposals = [marker, pipes].flatMap((object) => [
+      vi.spyOn(object.geometry, "dispose"),
+      vi.spyOn(object.material as THREE.Material, "dispose")
+    ]);
+    const ledgerBefore = ownership.snapshot();
+    const resourceSnapshotBefore = currentOwnedViewportResourceSnapshot();
+    invalidate.mockClear();
+
+    for (const theme of ["dark", "light"] as const) {
+      resource.setThemePresentation(theme);
+      // The clone's own tint uniform is what its shader reads: a repaint that misses it draws the old theme.
+      expect((markerMaterial.uniforms.tint.value as THREE.Color).getHex()).toBe(viewportRoleHex(theme, "routeDraft"));
+      expect((markerMaterial.uniforms.shadeRatio.value as THREE.Color).toArray()).toEqual([...viewportShadeRatio(theme)]);
+      expect((pipeMaterial.uniforms.shadeRatio.value as THREE.Color).toArray()).toEqual([...viewportShadeRatio(theme)]);
+      expect(instanceHex(pipes, 0)).toBe(viewportRoleHex(theme, "pipe"));
+      expect(instanceHex(pipes, 1)).toBe(viewportRoleHex(theme, "pipe"));
+      expect(pipes.userData.viewportBaseColor).toBe(viewportRoleHex(theme, "pipe"));
+    }
+    expect(invalidate).toHaveBeenCalledTimes(2);
+
+    // The clones were repainted in place, and the material they were cloned from was never reached.
+    expect(source.color.getHex()).toBe(0xffffff);
+    expect((source.uniforms.shadeRatio.value as THREE.Color).toArray()).toEqual([1, 1, 1]);
+    expect(marker.material).toBe(markerMaterial);
+    expect(pipes.material).toBe(pipeMaterial);
+    expect(ownership.snapshot()).toEqual(ledgerBefore);
+    expect(currentOwnedViewportResourceSnapshot()).toBe(resourceSnapshotBefore);
+    for (const dispose of disposals) expect(dispose).not.toHaveBeenCalled();
+    expect(routingLayer.children).toEqual([marker]);
+    expect(modelLayer.children).toEqual([pipes]);
+  });
 });

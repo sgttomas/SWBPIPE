@@ -55,33 +55,56 @@ export type FigureMaterialOptions = Readonly<{
   opacity?: number;
 }>;
 
-export type FigureMaterial = THREE.ShaderMaterial & {
-  /** The `tint` uniform's colour, so colour-setting code treats this material like a basic one. */
-  readonly color: THREE.Color;
-};
+/**
+ * The figure material is a class of its own because three's `clone()` is
+ * `new this.constructor().copy(this)`: a clone is built by this constructor with no argument,
+ * and `ShaderMaterial.copy` then replaces `uniforms` with clones of the source's. A clone is
+ * therefore a whole figure material, and `isFigureMaterial` trusts the class alone: a marker in
+ * `userData` survives `copy` into a material that is not one.
+ *
+ * `color` is the `tint` uniform's colour, so colour-setting code treats this material like a
+ * basic one. It is read from the live `uniforms` on every access and never stored, because
+ * `copy` swaps the uniform objects after the constructor has run. It is an own accessor defined
+ * in the constructor, with `declare` for its type: a class field is emitted as a define
+ * (ES2022 with `useDefineForClassFields`) and would hold one colour object for good. A uniform's
+ * value is untyped in three's declarations; the accessor's return type says what this file put
+ * there.
+ *
+ * Only properties of `THREE.ShaderMaterial` pass through `super(parameters)`: three's
+ * `setValues` warns about any other. `type` and `isShaderMaterial` stay as three sets them,
+ * because its renderer reads both to take the custom-shader path.
+ */
+export class FigureMaterial extends THREE.ShaderMaterial {
+  declare readonly color: THREE.Color;
+
+  constructor(options: FigureMaterialOptions = {}) {
+    super({
+      uniforms: {
+        tint: { value: new THREE.Color() },
+        opacity: { value: options.opacity ?? 1 },
+        // A ratio per channel in linear terms, not a colour in any colour space.
+        shadeRatio: { value: new THREE.Color() }
+      },
+      vertexShader: FIGURE_VERTEX_SHADER,
+      fragmentShader: FIGURE_FRAGMENT_SHADER,
+      transparent: options.transparent ?? false,
+      lights: false,
+      toneMapped: false
+    });
+    Object.defineProperty(this, "color", {
+      get: (): THREE.Color => this.uniforms.tint.value,
+      enumerable: true,
+      configurable: true
+    });
+  }
+}
 
 export function createFigureMaterial(options: FigureMaterialOptions = {}): FigureMaterial {
-  const tint = new THREE.Color();
-  const material = new THREE.ShaderMaterial({
-    uniforms: {
-      tint: { value: tint },
-      opacity: { value: options.opacity ?? 1 },
-      // A ratio per channel in linear terms, not a colour in any colour space.
-      shadeRatio: { value: new THREE.Color() }
-    },
-    vertexShader: FIGURE_VERTEX_SHADER,
-    fragmentShader: FIGURE_FRAGMENT_SHADER,
-    transparent: options.transparent ?? false,
-    lights: false,
-    toneMapped: false
-  });
-  material.userData.viewportFigureMaterial = true;
-  Object.defineProperty(material, "color", { value: tint, enumerable: true, writable: false });
-  return material as FigureMaterial;
+  return new FigureMaterial(options);
 }
 
 export function isFigureMaterial(material: THREE.Material): material is FigureMaterial {
-  return material instanceof THREE.ShaderMaterial && material.userData.viewportFigureMaterial === true;
+  return material instanceof FigureMaterial;
 }
 
 /** Sets the silhouette darkening; the three numbers are per-channel ratios in linear terms. */
