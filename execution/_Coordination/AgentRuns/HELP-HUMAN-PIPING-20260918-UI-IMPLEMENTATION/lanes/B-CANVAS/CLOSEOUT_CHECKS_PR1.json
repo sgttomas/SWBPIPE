@@ -1,0 +1,39 @@
+{
+  "artifact": "CLOSEOUT_CHECKS",
+  "tranche": "SWBPIPE Tranche B, canvas lane, first pull request (slice C1: canvas colours from tokens, the edge line C1E, the guidance probe T1, the stylesheet rows C1b, the empty-layer guard)",
+  "date": "2026-09-19 (UTC)",
+  "base": "172cd5689 (origin/main with PR #805)",
+  "code_reviewed": {
+    "reviewer_model": "Claude Opus 5",
+    "candidate": "4e267d02bccd320607cf6ccab4c52f05cf4048b3",
+    "reviewed_at": "c0085487ec381e1de745e6eee4fca8d15f773e78 (the candidate plus ROOT's records and origin/main)",
+    "verdict": "PASS; no actionable finding; the early review's F1 to F4 answered; three residual risks recorded, no action asked",
+    "brief": "{RUN}/lanes/B-CANVAS/briefs/PR1-REVIEW_code_review.md",
+    "brief_sha256": "1e71331109c9e748162ce65f407cc38445bf8531c8241045a02e3fee9c64176d",
+    "return": "{RUN}/lanes/B-CANVAS/reviews/PR1-REVIEW_RETURN.md",
+    "return_sha256": "eebd23af3e001c81d46c32bd7258fd11a7e16fcbdccaf287dc38f99b2073b7b5",
+    "early_review_return_sha256": "5f87c173e0a9f6373de5991eb31bfbedffcffdaea0ee6ba4752e8af7b7b3e08f"
+  },
+  "sweeps": [
+    {
+      "commit": "16d339ac0d9950cf769409fcb9bd69455bd85bf1",
+      "status": "pass",
+      "summary": "{WORKING_ROOT}/validation/evidence/sweeps/SWEEP_20260919T110236Z_16d339ac0d99.json",
+      "sha256": "428d7f87269cf28ba73cda325179728e7673797003988a63eb76ee104c95cf1d",
+      "command": "PLAYWRIGHT_WORKERS=1 sh {RUN}/tools/with_e2e_lock.sh python3 tools/release/run_evidence_sweep.py --execute --require-capability host",
+      "surfaces": 5,
+      "note": "2026-09-19T11:02Z to 11:17Z; the commit contains origin/main at 172cd5689"
+    }
+  ],
+  "commits_between_reviewed_and_tested": "records only: 16d339ac0 (the retained review)",
+  "commits_after_tested": "records only (this file, the sweep summary, the deliverable run record and status line, the lane's index and graph)",
+  "roots_own_look": "taken 2026-09-19T10:16Z on c0085487e with headless Chrome through the browser-test lock, 1440 by 900 at device pixel ratio 2, light and dark: the figure draws in token colours with the edge line; ground, scale bar and fallback surface follow the theme; zero console errors in both themes (the two THREE.Object3D.add errors of main are gone). No design-fidelity review by screenshot, by addendum 5; it comes at the closing visual pass.",
+  "performance": "no performance acceptance is claimed; the guidance probe cannot see the edge line's GPU cost on this host; D-72 qualification runs last in Tranche B",
+  "validators": {
+    "path_anchors": "pass",
+    "claims_language": "pass",
+    "tranche_manifest": "pass; no instruction-surface path in the range"
+  },
+  "boundary": "Checks ran on the owner's host. No usability acceptance, review acceptance or release is established.",
+  "claim_fence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)."
+}
