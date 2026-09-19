@@ -56,10 +56,29 @@
       "brief": "briefs/B-CANVAS_addendum_3.md",
       "candidate": null,
       "returnSha256": null
+    },
+    "B-CANVAS-ADDENDUM-4": {
+      "role": "ROOT's sealed addendum to the lane's brief",
+      "model": "n/a (ROOT, Claude Fable 5.1)",
+      "status": "sealed",
+      "sealed": "2026-09-19T05:16Z",
+      "briefSha256": "1bf6d1e58547bd826f587aa729cc60d93df4a464a8c0b3f409b2d83337192323",
+      "brief": "briefs/B-CANVAS_addendum_4.md",
+      "candidate": null,
+      "returnSha256": null
+    },
+    "B-CANVAS-PAUSE-2026-09-19": {
+      "role": "WORKING_ITEMS Type 1 lane manager (a pause status, not a slice return)",
+      "model": "fable",
+      "status": "paused clean at 3a5f7c103bde915d800792112dec2dea19a0813e",
+      "returnSha256": "ab2e08d3437daea1b913a47615c537f9bf8bddba3dabb3650af8421d3d0e556d",
+      "return": "returns/B-CANVAS_PAUSE_STATUS_2026-09-19.md",
+      "modelThatRan": "Claude Fable 5.1, as launched; the status does not state its model",
+      "candidate": "3a5f7c103bde915d800792112dec2dea19a0813e"
     }
   },
   "slices": [],
-  "current_frontier": "Pause over; early code review retained (FINDINGS, none blocking); addendum 3 sealed; the manager resumes C1E with F2 and F3 first; then C1b; the lane's first pull request is C1's first part, C1E and C1b together, with a backcheck of F1 to F3, its own complete code review and the design-fidelity review; then C2.",
+  "current_frontier": "Paused clean at 3a5f7c103 under the owner's word of 2026-09-19. Addendum 4 sealed (control layer first). Next, for the manager: merge origin/main and re-run the picking tests; F3, tests first; finish the T1 probe; seal and launch C1E; C1b; return the first pull request's candidate to ROOT for its complete Opus review, ROOT's look, the sweep, the pull request, CI and merge; then C2 to C5.",
   "decisions": [
     {
       "id": "C1-D1",
