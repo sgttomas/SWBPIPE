@@ -29,12 +29,14 @@
     "C1-REVIEW": {
       "role": "TASK Type 2 read-only reviewer (software-code-review), fresh context",
       "model": "opus",
-      "status": "sealed",
+      "status": "returned: FINDINGS (two minor, two trivial; none blocking)",
       "sealed": "2026-09-19T02:07Z",
       "briefSha256": "228a9490e9e37e6eb3af77ab8236ca574d555c495e23af1361c391327d39c324",
       "brief": "briefs/C1-REVIEW_code_review.md",
       "candidate": "beb69d603d74fea326f64ab663e076bc2cd8ba9d",
-      "returnSha256": null
+      "returnSha256": "5f87c173e0a9f6373de5991eb31bfbedffcffdaea0ee6ba4752e8af7b7b3e08f",
+      "return": "reviews/C1-REVIEW_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
     },
     "B-CANVAS-C1A": {
       "role": "WORKING_ITEMS Type 1 lane manager",
@@ -44,8 +46,28 @@
       "return": "returns/C1A_RETURN.md",
       "modelThatRan": "manager: Claude Fable 5.1 requested, no self-report in the return; its implementer child C1A-PALETTE reports claude-fable-5-1; its inventory child INV1-INSTRUMENT reports Claude Sonnet 5",
       "candidate": "beb69d603d74fea326f64ab663e076bc2cd8ba9d"
+    },
+    "B-CANVAS-ADDENDUM-3": {
+      "role": "ROOT's sealed addendum to the lane's brief",
+      "model": "n/a (ROOT, Claude Fable 5.1)",
+      "status": "sealed",
+      "sealed": "2026-09-19T03:46Z",
+      "briefSha256": "a86cb318bb0b49a49df1c13526999ae0a8115849d2f032f45450e88c10dfb210",
+      "brief": "briefs/B-CANVAS_addendum_3.md",
+      "candidate": null,
+      "returnSha256": null
     }
   },
   "slices": [],
-  "current_frontier": "Slice C1's first part returned and read; addendum 2 sealed; early code review C1-REVIEW dispatched on beb69d603 in another worktree; the manager resumes with C1E, then C1b; the lane's first pull request is the three parts together, with its own complete code review and design-fidelity review; then C2."
+  "current_frontier": "Pause over; early code review retained (FINDINGS, none blocking); addendum 3 sealed; the manager resumes C1E with F2 and F3 first; then C1b; the lane's first pull request is C1's first part, C1E and C1b together, with a backcheck of F1 to F3, its own complete code review and the design-fidelity review; then C2.",
+  "decisions": [
+    {
+      "id": "C1-D1",
+      "by": "ROOT (HELP_HUMAN, Agent 0)",
+      "openTo": "the owner",
+      "date": "2026-09-19",
+      "decision": "deformedShape stays bound to canvas.vector as a named provisional binding until design system 6.8's deformation view is built with the results work",
+      "record": "briefs/B-CANVAS_addendum_3.md"
+    }
+  ]
 }
