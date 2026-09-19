@@ -8,7 +8,7 @@
     "B-SHELL": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "fable",
-      "status": "launched",
+      "status": "paused after slice B2 merged (2026-09-19); the manager of 2026-09-19 cannot be resumed from another session; a new manager starts from addendum 3",
       "launched": "2026-09-19T00:04Z",
       "briefSha256": "00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75",
       "brief": "../../briefs/B-SHELL_shell_lane.md",
@@ -31,11 +31,101 @@
     "B2": {
       "role": "slice: state extraction, no behaviour change",
       "model": "fable",
-      "status": "reviewed PASS and swept pass; pull request next",
+      "status": "merged (PR #803, b9a070408)",
       "returnSha256": "ce67470161f78980afcbcec3cd240460c964a834bd35cc2d26f23caf99655ec5",
       "return": "returns/B2_RETURN.md",
       "modelThatRan": "manager requested as Claude Fable 5.1; its one implementer child, B2-STATE, reports itself as Claude Fable 5.1 (claude-fable-5-1)",
       "candidate": "5d2e261e0df39c18a71d897902bf5d3a047db175"
+    },
+    "B-SHELL-ADDENDUM-2": {
+      "role": "ROOT's sealed addendum to the lane's brief",
+      "model": "n/a (ROOT, Claude Fable 5.1)",
+      "status": "sealed",
+      "sealed": "2026-09-19T04:11Z",
+      "briefSha256": "60406868afad389c56126276a1a06f4ee00967400363e3973ab2bc01e0cb7509",
+      "brief": "briefs/B-SHELL_addendum_2.md",
+      "candidate": null,
+      "returnSha256": null
+    },
+    "B-SHELL-ADDENDUM-3": {
+      "role": "ROOT's sealed addendum to the lane's brief",
+      "model": "n/a (ROOT, Claude Fable 5.1)",
+      "status": "sealed",
+      "sealed": "2026-09-19T05:16Z",
+      "briefSha256": "4b928f286036aa5a4e7de1152d9fa7b72bcb9d39dd3f038e02d6ad3735f93b35",
+      "brief": "briefs/B-SHELL_addendum_3.md",
+      "candidate": null,
+      "returnSha256": null
+    },
+    "B2F-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "status": "returned: PASS, no actionable finding",
+      "sealed": "2026-09-19T06:54Z",
+      "briefSha256": "28c09b8c20c02c5d4cf14ed75929a6c5178fc11cfccae0a7e83de7956b6073d7",
+      "brief": "briefs/B2F-REVIEW_code_review.md",
+      "candidate": "36e79602eac5751e518898d88869a71703b85c03",
+      "returnSha256": "d3747d7018cbea0a6812fc5f85aea777f90604a98f6eea39b3bc8ea1179f7118",
+      "return": "reviews/B2F-REVIEW_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
+    },
+    "B2F": {
+      "role": "WORKING_ITEMS Type 1",
+      "model": "fable",
+      "status": "returned",
+      "returnSha256": "b3ec631f276a618405ca923c8a8bb881ae9704659ac018324c07d38aa297a6aa",
+      "return": "returns/B2F_RETURN.md",
+      "modelThatRan": "Claude Fable 5.1 (claude-fable-5-1), by its own statement; child B2F-HANDLERS reports Claude Fable 5.1",
+      "candidate": "36e79602eac5751e518898d88869a71703b85c03"
+    },
+    "B-SHELL-ADD4": {
+      "role": "sealed addendum to the lane brief",
+      "model": "n/a",
+      "status": "sealed",
+      "sealed": "2026-09-19T07:04Z",
+      "briefSha256": "08b51c66b50994c92d98658b2d96b1eedd3c66599c791207ea1c7d97801c3088",
+      "brief": "briefs/B-SHELL_addendum_4.md",
+      "candidate": null,
+      "returnSha256": null
+    },
+    "B2G": {
+      "role": "WORKING_ITEMS Type 1",
+      "model": "fable",
+      "status": "returned",
+      "returnSha256": "4627bb49f7bf732980747f7f10252c3373ffa51399cce444a4b03537e4ebe4d8",
+      "return": "returns/B2G_RETURN.md",
+      "modelThatRan": "Claude Fable 5.1 (claude-fable-5-1), by its own statement; no child",
+      "candidate": "0fc5b065e4822fea37ee8cf748f83e45eb3cf9df"
+    },
+    "B2G-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "status": "returned: FINDINGS, one minor",
+      "sealed": "2026-09-19T07:28Z",
+      "briefSha256": "992f3b4fe99b31623dd5191953077dfd9aec079ef5a0c59fc6e0203e5a7f3d8a",
+      "brief": "briefs/B2G-REVIEW_code_review.md",
+      "candidate": "0fc5b065e4822fea37ee8cf748f83e45eb3cf9df",
+      "returnSha256": "46ac4ec047d6ed249cef8138e4bc2c11f935abe61c05d85c964653ab1b423b22",
+      "return": "reviews/B2G-REVIEW_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
+    },
+    "B2G-REVIEW-BACKCHECK": {
+      "role": "TASK Type 2, same reviewer resumed",
+      "model": "opus",
+      "status": "returned: Finding 1 closed for save and create; Finding 2 new, minor, actionable",
+      "returnSha256": "445f8fb92d23c1552b450e57125952945bbd26660153220ab72b7fff07c57639",
+      "return": "reviews/B2G-REVIEW_BACKCHECK_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "candidate": "8922fec3ee9dec8dcb8552c0f1969322e648aa14"
+    },
+    "B2G-REVIEW-BACKCHECK2": {
+      "role": "TASK Type 2, same reviewer resumed",
+      "model": "opus",
+      "status": "returned: PASS, no actionable finding, combined candidate 13311e4aa",
+      "returnSha256": "d15363dc9920afed3dce763f3003c00d77f130ceed3281156ff47c9527004484",
+      "return": "reviews/B2G-REVIEW_BACKCHECK2_RETURN.md",
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "candidate": "13311e4aad46b74dbae7a4e2e25052e8f7c04c0a"
     }
   },
   "slices": [
@@ -50,8 +140,17 @@
       "sweepSummarySha256": "e349768815700de944be279123d0b79f31dd6e7af3e8c53ac7acad4950a1937b",
       "closeout": "CLOSEOUT_CHECKS_B2.json",
       "closeoutSha256": "d23bb4581d15f101d9ee40696240c19f80c78fa8c4735a5ba0f065986eec9748",
-      "recorded": "2026-09-19T03:44Z"
+      "recorded": "2026-09-19T03:44Z",
+      "merge": {
+        "pr": 803,
+        "url": "https://github.com/sgttomas/chirality/pull/803",
+        "head": "9f653b141d13aabfb79e4616ca216f11e8fc4976",
+        "mergeCommit": "b9a07040857d2e6d3ec0f6a530697720801c7b59",
+        "mergedAt": "2026-09-19T04:10:41Z",
+        "checks": "Desktop E2E (source mode) pass; harness pass",
+        "authority": "owner's standing Git authorization of 2026-09-12; no owner review implied"
+      }
     }
   ],
-  "current_frontier": "Slice B2 reviewed (PASS) and swept (pass) on 61e1057c4; closeout written; next the pull request, CI and merge; then sealed addendum 2 (slice B2F), then B3."
+  "current_frontier": "Slice B2 merged (PR #803, b9a070408). Addenda 2 and 3 sealed and waiting. Next, for the manager: slice B2F (four handler repairs, failing test first), then B3 with the hook-import guard and the session key-set test in its first commit."
 }
