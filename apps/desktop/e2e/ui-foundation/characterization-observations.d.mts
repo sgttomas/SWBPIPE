@@ -1,6 +1,8 @@
 export function observeOrbitTrace(rawBytes: Buffer, derived: any, finalized: any): any;
 export function observeAttempt(attemptFile: string, outputFile: string): Promise<any>;
 export const CONTINUATION_SLOTS: readonly string[];
+export const D70_CONTINUATION_METHOD_FILE_COUNT: 34;
+export function validateD70ContinuationMethodInventory(method: any): void;
 export const ORIGINAL_RETURN_SHA256: string;
 export function continuationExternalBindings(seed: any, policy?: any): any;
 export const INTERNAL120_AUTHORITY_SHA256: string;

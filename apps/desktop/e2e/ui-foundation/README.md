@@ -5,10 +5,12 @@ production benchmark for the professional modelling workspace tranche. The
 fixtures contain invented values only. They do not establish solver capacity,
 engineering validation, professional acceptance, or minimum hardware.
 
-Regenerate and verify the frozen fixtures:
+Check that the generator still reproduces the frozen fixtures, and verify them
+(neither command writes; see "First-profile repair of 2026-09" at the end for
+the writing mode and the protocol history it needs):
 
 ```text
-node apps/desktop/e2e/ui-foundation/generate-fixtures.mjs
+node apps/desktop/e2e/ui-foundation/generate-fixtures.mjs --check
 node apps/desktop/e2e/ui-foundation/verify-fixtures.mjs
 ```
 
@@ -687,3 +689,60 @@ The test-only `fixtures/frozen-oracle-geometry.ts.txt` preserves the exact
 The self-contained source-pin admission test reads these bytes as historical data;
 it never imports or executes this fixture. Current repaired source is independently
 bound by the new product manifest and is no longer the historical oracle preimage.
+
+## First-profile repair of 2026-09
+
+The owner authorized on 2026-09-19 the repair of four defects of this instrument's
+first profile as its own reviewed work. `REPAIR_2026-09_FIRST_PROFILE.md` is the full
+record. No tolerance, oracle expectation, limit, target, fixture, sample, policy or
+recorded result changed, and `fixture-manifest.json`, `fixtures/**` and `samples/**`
+are byte-identical. The first profile is the **recorded demonstration**: it binds the
+product revision its recorded runs were taken on and is not rebound to a later product.
+
+**The geometry-source value.** `CUE_GEOMETRY_SOURCE_SHA256` in `benchmark-harness.ts`
+(`c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e`, also stated in
+`freeze-candidate-point-oracle.mjs`) is the SHA-256 of
+`src/features/viewport/viewportSelection.ts` at product revision
+`8468a33c86adb622b25e98f98b0eaf28c7e9fa0e`, the revision of the D-70 characterization;
+`fixtures/frozen-oracle-geometry.ts.txt` is those bytes, kept as data. PR #794 (the
+shared-endpoint picking repair) moved the product's file past that value. A run with
+`UI_FOUNDATION_CANDIDATE_SOURCE_ROOT` set to a current checkout therefore stops at
+"winner product geometry/cue source drift", and the hermetic source-pin test stops at
+its hash comparison: both stops are by design and are not repaired by moving the value.
+A later product is bound by its own profile, not by this one.
+
+**The offline plan verifier.** `verify-winner-cue-plan.mjs` pins the older value
+`97b18c9671fc7f98e1cbb94bf6833f737c91e3ef4580d02c711d306c82486aee`, which the harness
+rejects. That is deliberate and was left unchanged: the verifier is a one-transition
+historical control (it requires that component and support visual geometry **changed**
+between an old and a new generated oracle directory), written for the generation of
+plans made when the product file had that pre-merge hash, and the run's own review
+records call it "intentionally historical", "unchanged, uninvoked". Neither of its two
+input directories is in the repository. It is not a check of a current plan; do not
+claim it passed for one.
+
+**The 34-file method inventory.** The two `34` checks in
+`characterization-observations.mjs` validate the closed D-70 continuation generation,
+whose nine recorded method manifests each list exactly the 34 files that
+`requiredMethodFiles` held before the fresh N10000 demonstration added four. The literal
+is now the named constant `D70_CONTINUATION_METHOD_FILE_COUNT` with
+`validateD70ContinuationMethodInventory`; its value and behaviour are unchanged, and it
+is deliberately not derived from today's list (38 entries), which is checked by the
+controller against `requiredMethodFiles.length`. The "34 entries" and "34-member"
+statements in the D-70 sections above describe that generation.
+
+**The fixture generator.** `generate-fixtures.mjs` read nine preserved files from a
+`protocol-history/` directory that was never committed (no object of any ref holds
+those hashes; the run's closeout kept them "as evidence rather than current method
+source"), so it threw after rewriting the fixtures and before writing the manifest.
+It now verifies the history **before its first write**, takes it from
+`--protocol-history-dir <absolute directory>` (the default directory is still honoured
+if present), and has a `--check` mode that regenerates everything in memory, compares
+it by SHA-256 and byte count with the frozen bytes, reports the protocol history as
+`NOT_SUPPLIED_NINE_FILES_NOT_IN_REPOSITORY` when it is not supplied, and writes nothing.
+`verify-fixtures.mjs` is a different check (frozen bytes against the manifest) and is
+unchanged. The nine pinned hashes are unchanged.
+
+The controls for these statements are the three "first profile repair" tests at the end
+of `full-cohort-controller.spec.ts`, which the ordinary source lane (`npm run test:e2e`)
+runs.
