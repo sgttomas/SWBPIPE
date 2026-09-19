@@ -1353,8 +1353,6 @@ export function useWorkspaceSession() {
     const requestMigrationLedgerCount = modelMigrationLedger.length;
     const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
     setProjectBusy(true);
-    setModelHashIntegrity(null);
-    setProjectEnvelopeHashIntegrity(null);
     try {
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
@@ -1384,6 +1382,12 @@ export function useWorkspaceSession() {
         envelopeHash
       );
       if (!stillCurrent()) return;
+      // The persisted bytes have been rewritten, so the open-time verification
+      // no longer describes them. A request that fails before this point
+      // persisted nothing, and a superseded request's response is dropped, so
+      // both leave the integrity cells as they were.
+      setModelHashIntegrity(null);
+      setProjectEnvelopeHashIntegrity(null);
       const returnedModelHash = await computeModelHash(created.model);
       if (!stillCurrent()) return;
       const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
@@ -1597,8 +1601,6 @@ export function useWorkspaceSession() {
     const requestMigrationLedgerCount = modelMigrationLedger.length;
     const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
     setProjectBusy(true);
-    setModelHashIntegrity(null);
-    setProjectEnvelopeHashIntegrity(null);
     try {
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
@@ -1629,6 +1631,12 @@ export function useWorkspaceSession() {
         modelDocumentMigration
       );
       if (!stillCurrent()) return;
+      // The persisted bytes have been rewritten, so the open-time verification
+      // no longer describes them. A request that fails before this point
+      // persisted nothing, and a superseded request's response is dropped, so
+      // both leave the integrity cells as they were.
+      setModelHashIntegrity(null);
+      setProjectEnvelopeHashIntegrity(null);
       const returnedModelHash = await computeModelHash(saved.model);
       if (!stillCurrent()) return;
       const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
