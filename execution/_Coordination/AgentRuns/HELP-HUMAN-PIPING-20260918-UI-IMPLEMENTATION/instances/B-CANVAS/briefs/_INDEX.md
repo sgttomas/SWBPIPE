@@ -10,7 +10,7 @@ Sealed addendum 2, ROOT's decisions on proposals P1, P2 and P3 and the lane's ne
 |---|---|---|---|---|---|
 | `C1A-PALETTE.md` | `e2c8fffe4957d8ce112a66d0a2449755cf77a499182ed51b1e59482d7d2db77b` | 2026-09-19T00:22Z | `fable` (Claude Fable 5.1) | TASK implementer; slice C1, first part: the palette module, matte figure shading, live repaint, every canvas colour but the two held | `../returns/C1A-PALETTE_RETURN.md` |
 | `INV1-INSTRUMENT.md` | `4322fc25107c1c289be6670e1a880a610e1ef04b646fb38c0b580f3e269885fe` | 2026-09-19T00:24Z | `sonnet` (Claude Sonnet), `Explore` type | TASK, read-only inventory of what the benchmark instrument under `apps/desktop/e2e/ui-foundation/**` pins, for the second-profile proposal | `../returns/INV1-INSTRUMENT_RETURN.md` |
-| `T1-ORBIT-PROBE.md` | `9f67f88e696ada952fbb06eafab347f99c11403b1209e6b250be9b3bb2d2e6e1` | 2026-09-19T02:33Z | `fable` (Claude Fable 5.1) | TASK; the lane's guidance probe for per-frame cost (`../tools/orbit_probe.mjs`) and its noise floor on this host, for slice C1E and later slices; changes no product file | `../returns/T1-ORBIT-PROBE_RETURN.md` |
+| `T1-ORBIT-PROBE.md` | `9f67f88e696ada952fbb06eafab347f99c11403b1209e6b250be9b3bb2d2e6e1` | 2026-09-19T02:17Z | `fable` (Claude Fable 5.1) | TASK; the lane's guidance probe for per-frame cost (`../tools/orbit_probe.mjs`) and its noise floor on this host, for slice C1E and later slices; changes no product file | `../returns/T1-ORBIT-PROBE_RETURN.md` |
 
 ## Returns retained
 
@@ -28,5 +28,13 @@ Host routing, as ROOT confirmed it on 2026-09-19: a nested child's completion no
 | `../proposals/P1_SECOND_PROFILE.md` | recorded in the slice return | The benchmark instrument's second profile (D-72): form, bound values, visual tokens and the halo rule, bindings, order. Asked for by addendum 1. |
 | `../proposals/P2_EDGE_LINE_SLICE.md` | recorded in the slice return | A slice, C1E, for the design's edge line, which no slice of the brief draws. |
 | `../proposals/P3_STYLESHEET_REQUEST_C1.md` | recorded in the slice return | With slice C1: token values for the canvas furniture that `styles.css` draws (`.viewport-shell`, `.viewport-scale-bar`, `.viewport-fallback`), for the shell lane to apply. |
+
+## Pause points
+
+A pause point is a record of where the lane stopped, not a slice and not a return.
+
+| When | Ordered by | State |
+|---|---|---|
+| 2026-09-19T02:27Z | ROOT, by message (the owner's session limit) | Slice C1E in progress. Child T1-ORBIT-PROBE was running and was told by message to stop at its next clean point and to end with a short status; it reverts nothing. At the pause the child had written nothing under `../tools/` or `../probes/`, nothing listened on port 5185, and the shared browser-test lock was held since 02:14:13Z by a process that is not this lane's (an evidence sweep run through the lock tool), so the lane held no lock. The implementer brief for C1E (working id C1E-EDGE) was not yet written; no product file was changed after commit `5bfdb9909`. Next step on resume: resume the same child by message from its status, retain its return when it completes, review and commit the tool and its evidence, then write, hash, index and commit the C1E-EDGE brief and launch it. |
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
