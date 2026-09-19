@@ -12,6 +12,14 @@ import {
 } from "./viewportSelection";
 
 import { ViewportSelectionPresentation } from "./viewportSelectionPresentation";
+import { isFigureMaterial, setFigureShadeRatio } from "./viewportFigureMaterial";
+import {
+  DEFAULT_VIEWPORT_PALETTE_THEME,
+  isViewportPaletteRole,
+  viewportRoleHex,
+  viewportShadeRatio,
+  type ViewportPaletteRole
+} from "./viewportPalette";
 
 export type FrameRequest = (callback: FrameRequestCallback) => number;
 export type FrameCancel = (handle: number) => void;
@@ -184,9 +192,41 @@ export class ViewportOwnershipLedger {
 export type ViewportContextStatus = "ready" | "lost" | "restoring";
 export type ViewportThemePresentation = "light" | "dark";
 
+// HELD-COLOURS:BEGIN
+// Two colour families are held at the values they had before the canvas read tokens: the
+// scene background, and the selected colour with its cue rim. The benchmark instrument
+// recognises a selection by the selected colour and reads the scene background back from the
+// shell. They stay exactly as they are until the instrument's second profile is accepted, and
+// move to `canvas.bg` and `canvas.selection` in a later slice. Every other canvas colour comes
+// from `viewportPalette.ts`; no other colour literal belongs in this folder.
+const HELD_SCENE_BACKGROUND_LIGHT = 0xdfe5e8;
+const HELD_SCENE_BACKGROUND_DARK = 0x0c1114;
+const SELECTED_COLOR_LIGHT = 0xa34400;
+const SELECTED_COLOR_DARK = 0xf08c22;
+const HELD_SELECTION_CUE_RIM_LIGHT = 0xffffff;
+const HELD_SELECTION_CUE_RIM_DARK = 0x0c1114;
+// HELD-COLOURS:END
+
+function heldSceneBackground(theme: ViewportThemePresentation): number {
+  return theme === "dark" ? HELD_SCENE_BACKGROUND_DARK : HELD_SCENE_BACKGROUND_LIGHT;
+}
+
+function gizmoThemePalette(theme: ViewportThemePresentation) {
+  return Object.freeze({
+    // Mirrors the held scene background.
+    canvas: heldSceneBackground(theme),
+    badge: viewportRoleHex(theme, "gizmoBadge"),
+    axes: Object.freeze([
+      viewportRoleHex(theme, "gizmoAxisX"),
+      viewportRoleHex(theme, "gizmoAxisY"),
+      viewportRoleHex(theme, "gizmoAxisZ")
+    ] as const)
+  });
+}
+
 export const GIZMO_THEME_PALETTES = Object.freeze({
-  light: Object.freeze({ canvas: 0xdfe5e8, badge: 0xffffff, axes: Object.freeze([0x8b1e1e, 0x146b32, 0x1e4f9a] as const) }),
-  dark: Object.freeze({ canvas: 0x0c1114, badge: 0x0c1114, axes: Object.freeze([0xff8a80, 0x6ee7a1, 0x8ab4ff] as const) })
+  light: gizmoThemePalette("light"),
+  dark: gizmoThemePalette("dark")
 });
 
 export const GIZMO_MAX_CSS_SIZE = 96;
@@ -215,8 +255,9 @@ export type ViewportRendererInfo = Readonly<{
   lines: number;
 }>;
 
-const SELECTED_COLOR_LIGHT = 0xa34400;
-const SELECTED_COLOR_DARK = 0xf08c22;
+// Scratch colours for repaint and selection: no colour object is allocated per instance.
+const scratchBaseColor = new THREE.Color();
+const scratchSelectedColor = new THREE.Color();
 
 export function registerSelectionPresentation(object: THREE.Object3D, key: EntityKey): void {
   const ownershipKind = ownershipKindFromKey(key);
@@ -259,6 +300,61 @@ export function registerInstancedSelectionPresentation(
   applyInstancedSelection(mesh, new Set(), SELECTED_COLOR_DARK);
 }
 
+/**
+ * Registers an instanced mesh whose base colour is a palette role. The role is kept on
+ * `userData`, so the mesh's `viewportBaseColor` is rewritten from the palette whenever it is
+ * painted for a theme. A mesh registered with `registerInstancedSelectionPresentation` alone
+ * has no role and keeps the number it was given.
+ */
+export function registerInstancedRolePresentation(
+  mesh: THREE.InstancedMesh,
+  keys: readonly EntityKey[],
+  role: ViewportPaletteRole,
+  theme: ViewportThemePresentation = DEFAULT_VIEWPORT_PALETTE_THEME
+): void {
+  mesh.userData.viewportPaletteRole = role;
+  registerInstancedSelectionPresentation(mesh, keys, viewportRoleHex(theme, role));
+  paintFigureShade(mesh, theme);
+}
+
+/** Gives a line or a mesh that is not instanced a palette role, and paints it for a theme. */
+export function registerPaletteRole(
+  object: THREE.Object3D,
+  role: ViewportPaletteRole,
+  theme: ViewportThemePresentation = DEFAULT_VIEWPORT_PALETTE_THEME
+): void {
+  object.userData.viewportPaletteRole = role;
+  paintObjectForTheme(object, theme);
+}
+
+/**
+ * Gives a `GridHelper` its two palette roles, the centre lines and every other line, and
+ * paints it for a theme. Painting rewrites the values of the helper's colour attribute; the
+ * helper is never rebuilt.
+ */
+export function registerGridPaletteRoles(
+  grid: THREE.GridHelper,
+  centreLineRole: ViewportPaletteRole,
+  lineRole: ViewportPaletteRole,
+  theme: ViewportThemePresentation = DEFAULT_VIEWPORT_PALETTE_THEME
+): void {
+  grid.userData.viewportPaletteGridRoles = Object.freeze({ centreLine: centreLineRole, line: lineRole });
+  paintObjectForTheme(grid, theme);
+}
+
+/**
+ * Paints every role-coloured object under the roots for a theme, in place: instance base
+ * colours, material tints, the figure materials' shade ratio, line-material colours and the
+ * colour attribute of each grid helper. It creates and disposes nothing. Instances are left at
+ * their base colour, so a caller that shows a selection re-applies it afterwards.
+ */
+export function applyPalettePresentation(
+  roots: readonly THREE.Object3D[],
+  theme: ViewportThemePresentation
+): void {
+  for (const root of roots) root.traverse((object) => paintObjectForTheme(object, theme));
+}
+
 export function applySelectionPresentation(
   roots: readonly THREE.Object3D[],
   selectedKeys: ReadonlySet<EntityKey>,
@@ -290,7 +386,8 @@ export function applySelectionPresentation(
 }
 
 export function applyThemePresentation(scene: THREE.Scene, theme: ViewportThemePresentation): void {
-  scene.background = new THREE.Color(theme === "dark" ? 0x0c1114 : 0xdfe5e8);
+  if (scene.background instanceof THREE.Color) scene.background.setHex(heldSceneBackground(theme));
+  else scene.background = new THREE.Color(heldSceneBackground(theme));
 }
 
 export function applyGizmoThemePresentation(scene: THREE.Scene, theme: ViewportThemePresentation): void {
@@ -299,7 +396,7 @@ export function applyGizmoThemePresentation(scene: THREE.Scene, theme: ViewportT
     if (object.userData.gizmoAxes && object instanceof THREE.AxesHelper) {
       const colors = object.geometry.getAttribute("color") as THREE.BufferAttribute;
       palette.axes.forEach((hex, axis) => {
-        const color = new THREE.Color(hex);
+        const color = scratchBaseColor.setHex(hex);
         colors.setXYZ(axis * 2, color.r, color.g, color.b);
         colors.setXYZ(axis * 2 + 1, color.r, color.g, color.b);
       });
@@ -401,7 +498,7 @@ export class ViewportResource {
     readonly host: HTMLDivElement,
     private readonly options: ViewportResourceOptions = {}
   ) {
-    this.scene.background = new THREE.Color(0xdfe5e8);
+    this.scene.background = new THREE.Color(heldSceneBackground(this.themePresentation));
     this.camera = new THREE.PerspectiveCamera(42, safeAspect(host), 0.1, 10_000);
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -412,10 +509,8 @@ export class ViewportResource {
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.08;
     this.scene.add(this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer, this.routingLayer);
-    this.scene.add(new THREE.AmbientLight(0xffffff, 0.72));
-    const key = new THREE.DirectionalLight(0xffffff, 1.2);
-    key.position.set(4, 9, 7);
-    this.scene.add(key);
+    // No light: every material in the scene is unlit (the matte figure, the load arrows, the
+    // lines, the selection cue), so a drawn colour is its token.
     const gizmoAxes = new THREE.AxesHelper(1.25);
     gizmoAxes.userData.gizmoAxes = true;
     this.gizmoScene.add(gizmoAxes);
@@ -554,6 +649,11 @@ export class ViewportResource {
     this.themePresentation = theme;
     applyThemePresentation(this.scene, theme);
     applyGizmoThemePresentation(this.gizmoScene, theme);
+    // All five layers: the routing layer holds role colours too, though never a selection.
+    applyPalettePresentation(
+      [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer, this.routingLayer],
+      theme
+    );
     applySelectionPresentation(
       [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
       this.selectedKeys,
@@ -592,6 +692,9 @@ export class ViewportResource {
     layer.add(...objects);
     this.ownership.createObjects(objects);
     applyThemePresentation(this.scene, this.themePresentation);
+    // The incoming objects were built without a theme; paint them for the current one so a
+    // rebuilt layer is right without a theme change.
+    applyPalettePresentation(objects, this.themePresentation);
     applySelectionPresentation(
       [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
       this.selectedKeys,
@@ -610,7 +713,7 @@ export class ViewportResource {
     this.selectionPresentation?.update(
       this.selectedKeys, this.hiddenKeys,
       this.themePresentation === "dark" ? SELECTED_COLOR_DARK : SELECTED_COLOR_LIGHT,
-      this.themePresentation === "dark" ? 0x0c1114 : 0xffffff,
+      this.themePresentation === "dark" ? HELD_SELECTION_CUE_RIM_DARK : HELD_SELECTION_CUE_RIM_LIGHT,
       this.renderer.getPixelRatio()
     );
   }
@@ -978,11 +1081,61 @@ function applyInstancedSelection(
   selectedColor: number
 ): void {
   const keys = mesh.userData.instanceEntityKeys as readonly EntityKey[];
-  const baseColor = mesh.userData.viewportBaseColor as number;
+  const base = scratchBaseColor.setHex(mesh.userData.viewportBaseColor as number);
+  const selected = scratchSelectedColor.setHex(selectedColor);
   for (let index = 0; index < keys.length; index += 1) {
-    mesh.setColorAt(index, new THREE.Color(selectedKeys.has(keys[index]) ? selectedColor : baseColor));
+    mesh.setColorAt(index, selectedKeys.has(keys[index]) ? selected : base);
   }
   if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+}
+
+type GridPaletteRoles = Readonly<{ centreLine: ViewportPaletteRole; line: ViewportPaletteRole }>;
+
+function paintFigureShade(object: THREE.Object3D, theme: ViewportThemePresentation): void {
+  for (const material of objectMaterials(object)) {
+    if (isFigureMaterial(material)) setFigureShadeRatio(material, viewportShadeRatio(theme));
+  }
+}
+
+function paintObjectForTheme(object: THREE.Object3D, theme: ViewportThemePresentation): void {
+  paintFigureShade(object, theme);
+  const gridRoles = object.userData.viewportPaletteGridRoles as GridPaletteRoles | undefined;
+  if (gridRoles && object instanceof THREE.LineSegments) paintGridColors(object, gridRoles, theme);
+  const role: unknown = object.userData.viewportPaletteRole;
+  if (!isViewportPaletteRole(role)) return;
+  const hex = viewportRoleHex(theme, role);
+  if (object instanceof THREE.InstancedMesh) {
+    object.userData.viewportBaseColor = hex;
+    const base = scratchBaseColor.setHex(hex);
+    for (let index = 0; index < object.count; index += 1) object.setColorAt(index, base);
+    if (object.instanceColor) object.instanceColor.needsUpdate = true;
+    return;
+  }
+  for (const material of objectMaterials(object)) {
+    if (!("color" in material) || !(material.color instanceof THREE.Color)) continue;
+    material.color.setHex(hex);
+    // A material registered for selection returns to its base colour when deselected.
+    if (typeof material.userData.viewportBaseColor === "number") material.userData.viewportBaseColor = hex;
+  }
+}
+
+/**
+ * Rewrites a grid helper's colour attribute in three's own layout: four vertices per line
+ * index, the centre index (when the division count is even) in the first colour and every
+ * other index in the second.
+ */
+function paintGridColors(grid: THREE.LineSegments, roles: GridPaletteRoles, theme: ViewportThemePresentation): void {
+  const colors = grid.geometry.getAttribute("color") as THREE.BufferAttribute | undefined;
+  if (!colors) return;
+  const lineIndices = colors.count / 4;
+  const centreIndex = (lineIndices - 1) / 2;
+  const centre = scratchBaseColor.setHex(viewportRoleHex(theme, roles.centreLine));
+  const line = scratchSelectedColor.setHex(viewportRoleHex(theme, roles.line));
+  for (let index = 0; index < lineIndices; index += 1) {
+    const color = index === centreIndex ? centre : line;
+    for (let vertex = index * 4; vertex < index * 4 + 4; vertex += 1) colors.setXYZ(vertex, color.r, color.g, color.b);
+  }
+  colors.needsUpdate = true;
 }
 
 function copyRendererInfo(info: THREE.WebGLInfo): ViewportRendererInfo {

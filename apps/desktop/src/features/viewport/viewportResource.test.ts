@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import * as THREE from "three";
 import { entityKey } from "../workspace/selectionState";
 import {
+  applyPalettePresentation,
   applySelectionPresentation,
   applyVisibilityPresentation,
   applyThemePresentation,
@@ -14,13 +15,18 @@ import {
   relativeContrastRatio,
   currentOwnedViewportResourceSnapshot,
   disposeObjectChildren,
+  registerGridPaletteRoles,
+  registerInstancedRolePresentation,
   registerInstancedSelectionPresentation,
+  registerPaletteRole,
   registerSelectionPresentation,
   ViewportInvalidationScheduler,
   ViewportOwnershipLedger,
   ViewportResource,
   ViewportResourceRegistry
 } from "./viewportResource";
+import { createFigureMaterial } from "./viewportFigureMaterial";
+import { viewportRoleHex, viewportShadeRatio } from "./viewportPalette";
 
 describe("viewport resource primitives", () => {
   it("coalesces invalidations and returns to zero owned RAF callbacks", () => {
@@ -694,5 +700,224 @@ describe("masked instance rebuild bounds", () => {
     expect(hits[0].instanceId).toBe(0);
     expect(mesh.userData.instanceEntityKeys[hits[0].instanceId!]).toBe(key);
     mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose(); mesh.dispose();
+  });
+});
+
+describe("viewport palette repaint", () => {
+  const instanceHex = (mesh: THREE.InstancedMesh, index: number) =>
+    new THREE.Color().fromBufferAttribute(mesh.instanceColor!, index).getHex();
+
+  function paletteResource(theme: "light" | "dark", selectedKeys: ReadonlySet<string> = new Set()) {
+    const layers = {
+      modelLayer: new THREE.Group(),
+      authoredLoadLayer: new THREE.Group(),
+      resultLayer: new THREE.Group(),
+      diagnosticLayer: new THREE.Group(),
+      routingLayer: new THREE.Group()
+    };
+    const invalidate = vi.fn();
+    const ownership = new ViewportOwnershipLedger(21);
+    const resource = Object.assign(Object.create(ViewportResource.prototype), {
+      ownership,
+      resourceGeneration: 21,
+      contextLostCount: 0,
+      contextRestoredCount: 0,
+      scheduler: { pendingCount: 0 },
+      renderer: { domElement: { isConnected: true } },
+      options: {},
+      invalidate,
+      scene: new THREE.Scene(),
+      gizmoScene: new THREE.Scene(),
+      selectionPresentation: null,
+      ...layers,
+      selectedKeys: new Set(selectedKeys),
+      hiddenKeys: new Set(),
+      themePresentation: theme,
+      gridVisible: true,
+      authoredLoadsVisible: true
+    }) as ViewportResource;
+    return { resource, ownership, invalidate, ...layers };
+  }
+
+  function rolePipes(keys: readonly ReturnType<typeof entityKey>[]) {
+    const mesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(1, 1, 1, 8), createFigureMaterial(), keys.length);
+    registerInstancedRolePresentation(mesh, keys, "pipe");
+    return mesh;
+  }
+
+  it("paints a role-registered instanced mesh with the dark token after a dark repaint and the light token after a light one", () => {
+    const { resource, modelLayer } = paletteResource("light");
+    const mesh = rolePipes([entityKey({ type: "pipe", id: "p:1" }), entityKey({ type: "pipe", id: "p:2" })]);
+    const material = mesh.material as ReturnType<typeof createFigureMaterial>;
+    resource.replaceLayer(modelLayer, [mesh]);
+    expect(viewportRoleHex("dark", "pipe")).not.toBe(viewportRoleHex("light", "pipe"));
+
+    resource.setThemePresentation("dark");
+    expect(instanceHex(mesh, 0)).toBe(viewportRoleHex("dark", "pipe"));
+    expect(instanceHex(mesh, 1)).toBe(viewportRoleHex("dark", "pipe"));
+    expect(mesh.userData.viewportBaseColor).toBe(viewportRoleHex("dark", "pipe"));
+    expect((material.uniforms.shadeRatio.value as THREE.Color).toArray()).toEqual([...viewportShadeRatio("dark")]);
+
+    resource.setThemePresentation("light");
+    expect(instanceHex(mesh, 0)).toBe(viewportRoleHex("light", "pipe"));
+    expect(instanceHex(mesh, 1)).toBe(viewportRoleHex("light", "pipe"));
+    expect(mesh.userData.viewportBaseColor).toBe(viewportRoleHex("light", "pipe"));
+    expect((material.uniforms.shadeRatio.value as THREE.Color).toArray()).toEqual([...viewportShadeRatio("light")]);
+  });
+
+  it("keeps the held selected colour on a selected instance across a repaint while an unselected one takes the new base", () => {
+    const unselected = entityKey({ type: "pipe", id: "p:plain" });
+    const selected = entityKey({ type: "pipe", id: "p:selected" });
+    const { resource, modelLayer } = paletteResource("light", new Set([selected]));
+    const mesh = rolePipes([unselected, selected]);
+    resource.replaceLayer(modelLayer, [mesh]);
+    expect(instanceHex(mesh, 0)).toBe(viewportRoleHex("light", "pipe"));
+    expect(instanceHex(mesh, 1)).toBe(0xa34400);
+
+    resource.setThemePresentation("dark");
+    expect(instanceHex(mesh, 0)).toBe(viewportRoleHex("dark", "pipe"));
+    expect(instanceHex(mesh, 1)).toBe(0xf08c22);
+
+    resource.setThemePresentation("light");
+    expect(instanceHex(mesh, 0)).toBe(viewportRoleHex("light", "pipe"));
+    expect(instanceHex(mesh, 1)).toBe(0xa34400);
+
+    // Deselecting after a repaint returns the instance to the repainted base, not to a stale one.
+    resource.setThemePresentation("dark");
+    resource.setSelectionPresentation([]);
+    expect(instanceHex(mesh, 1)).toBe(viewportRoleHex("dark", "pipe"));
+  });
+
+  it("carries the two grid tokens in a painted GridHelper's colour attribute, rewritten in place", () => {
+    const grid = new THREE.GridHelper(8, 8);
+    const colors = grid.geometry.getAttribute("color") as THREE.BufferAttribute;
+    const geometry = grid.geometry;
+    registerGridPaletteRoles(grid, "groundGridMajor", "groundGridMinor");
+    expect(colors.count).toBe(4 * 9);
+    const expectGridColours = (theme: "light" | "dark") => {
+      const major = new THREE.Color(viewportRoleHex(theme, "groundGridMajor"));
+      const minor = new THREE.Color(viewportRoleHex(theme, "groundGridMinor"));
+      for (let vertex = 0; vertex < colors.count; vertex += 1) {
+        // Line index 4 of 0 to 8 is the helper's centre line in each direction.
+        const expected = Math.floor(vertex / 4) === 4 ? major : minor;
+        expect(colors.getX(vertex)).toBeCloseTo(expected.r, 6);
+        expect(colors.getY(vertex)).toBeCloseTo(expected.g, 6);
+        expect(colors.getZ(vertex)).toBeCloseTo(expected.b, 6);
+      }
+    };
+    expectGridColours("light");
+
+    const versionBefore = colors.version;
+    applyPalettePresentation([grid], "dark");
+    expectGridColours("dark");
+    expect(colors.version).toBeGreaterThan(versionBefore);
+    applyPalettePresentation([grid], "light");
+    expectGridColours("light");
+    expect(grid.geometry).toBe(geometry);
+    expect(grid.geometry.getAttribute("color")).toBe(colors);
+  });
+
+  it("paints incoming objects for the resource's current theme on layer replacement", () => {
+    const { resource, modelLayer, routingLayer } = paletteResource("dark");
+    const mesh = rolePipes([entityKey({ type: "pipe", id: "p:incoming" })]);
+    expect(instanceHex(mesh, 0)).toBe(viewportRoleHex("light", "pipe"));
+    resource.replaceLayer(modelLayer, [mesh]);
+    expect(instanceHex(mesh, 0)).toBe(viewportRoleHex("dark", "pipe"));
+
+    const marker = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), createFigureMaterial());
+    registerPaletteRole(marker, "routeDraft");
+    resource.replaceLayer(routingLayer, [marker]);
+    expect((marker.material as ReturnType<typeof createFigureMaterial>).color.getHex()).toBe(viewportRoleHex("dark", "routeDraft"));
+  });
+
+  it("repaints every role colour in all five layers without changing the ownership ledger or any resource identity", () => {
+    const selected = entityKey({ type: "pipe", id: "p:kept" });
+    const { resource, ownership, invalidate, modelLayer, authoredLoadLayer, resultLayer, diagnosticLayer, routingLayer } =
+      paletteResource("light", new Set([selected]));
+
+    const pipes = rolePipes([selected, entityKey({ type: "pipe", id: "p:other" })]);
+    const ground = new THREE.GridHelper(4, 4);
+    ground.name = "viewport-reference-ground";
+    registerGridPaletteRoles(ground, "groundGridMajor", "groundGridMinor");
+    const arrows = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.1, 0.1, 1, 6), new THREE.MeshBasicMaterial(), 1);
+    registerInstancedRolePresentation(arrows, [entityKey({ type: "load", id: "l:force" })], "loadForce");
+    const deformed = new THREE.InstancedMesh(
+      new THREE.CylinderGeometry(1, 1, 1, 8), createFigureMaterial({ opacity: 0.82, transparent: true }), 1
+    );
+    registerInstancedRolePresentation(deformed, [entityKey({ type: "pipe", id: "p:deformed" })], "deformedShape");
+    const diagnostic = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), createFigureMaterial());
+    registerPaletteRole(diagnostic, "node");
+    const ghost = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(1, 0, 0)]),
+      new THREE.LineDashedMaterial({ dashSize: 0.18, gapSize: 0.1 })
+    );
+    registerPaletteRole(ghost, "routeDraft");
+    const routeGrid = new THREE.GridHelper(2, 2);
+    registerGridPaletteRoles(routeGrid, "routeGridAxis", "routeGridLine");
+
+    resource.replaceLayer(modelLayer, [pipes, ground]);
+    resource.replaceLayer(authoredLoadLayer, [arrows]);
+    resource.replaceLayer(resultLayer, [deformed]);
+    resource.replaceLayer(diagnosticLayer, [diagnostic]);
+    resource.replaceLayer(routingLayer, [ghost, routeGrid]);
+
+    const renderables = [pipes, ground, arrows, deformed, diagnostic, ghost, routeGrid];
+    const identities = renderables.map((object) => ({
+      geometry: object.geometry,
+      material: object.material,
+      colors: object.geometry.getAttribute("color") ?? null,
+      instanceColor: object instanceof THREE.InstancedMesh ? object.instanceColor : null
+    }));
+    const disposals = renderables.flatMap((object) => [
+      vi.spyOn(object.geometry, "dispose"),
+      vi.spyOn(object.material as THREE.Material, "dispose")
+    ]);
+    const ledgerBefore = ownership.snapshot();
+    const resourceSnapshotBefore = currentOwnedViewportResourceSnapshot();
+    invalidate.mockClear();
+
+    resource.setThemePresentation("dark");
+    expect(invalidate).toHaveBeenCalledTimes(1);
+    expect(instanceHex(pipes, 0)).toBe(0xf08c22);
+    expect(instanceHex(pipes, 1)).toBe(viewportRoleHex("dark", "pipe"));
+    expect(instanceHex(arrows, 0)).toBe(viewportRoleHex("dark", "loadForce"));
+    expect(instanceHex(deformed, 0)).toBe(viewportRoleHex("dark", "deformedShape"));
+    expect((diagnostic.material as ReturnType<typeof createFigureMaterial>).color.getHex()).toBe(viewportRoleHex("dark", "node"));
+    expect((ghost.material as THREE.LineDashedMaterial).color.getHex()).toBe(viewportRoleHex("dark", "routeDraft"));
+    const routeColors = routeGrid.geometry.getAttribute("color") as THREE.BufferAttribute;
+    // A two-division helper has line indices 0, 1, 2: index 1 is the centre line.
+    expect(new THREE.Color().fromBufferAttribute(routeColors, 4).getHex()).toBe(viewportRoleHex("dark", "routeGridAxis"));
+    expect(new THREE.Color().fromBufferAttribute(routeColors, 0).getHex()).toBe(viewportRoleHex("dark", "routeGridLine"));
+    const deformedMaterial = deformed.material as ReturnType<typeof createFigureMaterial>;
+    expect(deformedMaterial.transparent).toBe(true);
+    expect(deformedMaterial.uniforms.opacity.value).toBe(0.82);
+
+    resource.setThemePresentation("light");
+    expect(invalidate).toHaveBeenCalledTimes(2);
+    expect(instanceHex(pipes, 0)).toBe(0xa34400);
+    expect(instanceHex(arrows, 0)).toBe(viewportRoleHex("light", "loadForce"));
+    expect((ghost.material as THREE.LineDashedMaterial).color.getHex()).toBe(viewportRoleHex("light", "routeDraft"));
+
+    expect(ownership.snapshot()).toEqual(ledgerBefore);
+    expect(currentOwnedViewportResourceSnapshot()).toBe(resourceSnapshotBefore);
+    renderables.forEach((object, index) => {
+      expect(object.geometry).toBe(identities[index].geometry);
+      expect(object.material).toBe(identities[index].material);
+      expect(object.geometry.getAttribute("color") ?? null).toBe(identities[index].colors);
+      if (object instanceof THREE.InstancedMesh) expect(object.instanceColor).toBe(identities[index].instanceColor);
+    });
+    for (const dispose of disposals) expect(dispose).not.toHaveBeenCalled();
+    expect(modelLayer.children).toEqual([pipes, ground]);
+    expect(routingLayer.children).toEqual([ghost, routeGrid]);
+  });
+
+  it("leaves a mesh registered without a role at the number it was given", () => {
+    const { resource, modelLayer } = paletteResource("light");
+    const mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial(), 1);
+    registerInstancedSelectionPresentation(mesh, [entityKey({ type: "pipe", id: "p:unroled" })], 0x4f6f73);
+    resource.replaceLayer(modelLayer, [mesh]);
+    resource.setThemePresentation("dark");
+    expect(instanceHex(mesh, 0)).toBe(0x4f6f73);
+    expect(mesh.userData.viewportBaseColor).toBe(0x4f6f73);
   });
 });

@@ -96,12 +96,16 @@ import {
   type ViewportViewCommand
 } from "./viewportSelection";
 import {
-  registerInstancedSelectionPresentation,
+  registerGridPaletteRoles,
+  registerInstancedRolePresentation,
+  registerPaletteRole,
   registerSelectionPresentation,
   ViewportResource,
   type ViewportContextStatus,
   type ViewportRendererInfo
 } from "./viewportResource";
+import { createFigureMaterial } from "./viewportFigureMaterial";
+import type { ViewportPaletteRole } from "./viewportPalette";
 import {
   clearUiDiagnosticsPublisher,
   publishUiDiagnostics,
@@ -1282,7 +1286,7 @@ export function PipeViewport({
 
     const routingGrid = routeConstructionGridFromBounds(renderTransform.localBounds);
     const routingGhost = routeGhostLine();
-    const routingMarker = marker({ x: 0, y: 0, z: 0 }, 0xf08c22, 0.105);
+    const routingMarker = marker({ x: 0, y: 0, z: 0 }, "routeDraft", 0.105);
     routingGrid.visible = false;
     routingGhost.visible = false;
     routingMarker.visible = false;
@@ -3668,23 +3672,6 @@ function viewportChange(
   };
 }
 
-function pipeMesh(from: Vec3, to: Vec3, active: boolean) {
-  const start = toVector(from);
-  const end = toVector(to);
-  const direction = end.clone().sub(start);
-  const length = direction.length();
-  const geometry = new THREE.CylinderGeometry(active ? 0.07 : 0.052, active ? 0.07 : 0.052, length, 18);
-  const material = new THREE.MeshStandardMaterial({
-    color: active ? 0xf08c22 : 0x4f6f73,
-    metalness: 0.2,
-    roughness: 0.58
-  });
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.copy(start.clone().add(end).multiplyScalar(0.5));
-  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
-  return mesh;
-}
-
 function spatialGroups<T>(index: ModelIndex, entries: ReadonlyMap<EntityKey, T>): T[][] {
   const groups: T[][] = [];
   for (const chunkKeys of index.spatialChunks.map((chunk) => chunk.entityKeys)) {
@@ -3730,7 +3717,7 @@ function instancedPipeMeshes(
   }));
   if (validByKey.size === 0) return [];
   const geometry = new THREE.CylinderGeometry(1, 1, 1, 10, 1, false);
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.2, roughness: 0.58 });
+  const material = createFigureMaterial();
   return spatialGroups(modelIndex, validByKey).map((valid) => {
     const mesh = new THREE.InstancedMesh(geometry, material, valid.length);
     const matrix = new THREE.Matrix4();
@@ -3745,14 +3732,12 @@ function instancedPipeMeshes(
       scale.set(radius, length, radius);
       matrix.compose(center, quaternion, scale);
       mesh.setMatrixAt(instance, matrix);
-      mesh.setColorAt(instance, new THREE.Color(0x4f6f73));
     });
     mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-    registerInstancedSelectionPresentation(
+    registerInstancedRolePresentation(
       mesh,
       valid.map(({ pipe }) => entityKey({ type: "pipe", id: pipe.id })),
-      0x4f6f73
+      "pipe"
     );
     return mesh;
   });
@@ -3769,7 +3754,7 @@ function instancedNodeMeshes(
   }));
   if (validByKey.size === 0) return [];
   const geometry = new THREE.SphereGeometry(0.095, 12, 8);
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.48 });
+  const material = createFigureMaterial();
   return spatialGroups(index, validByKey).map((valid) => {
     const mesh = new THREE.InstancedMesh(geometry, material, valid.length);
     const matrix = new THREE.Matrix4();
@@ -3777,11 +3762,9 @@ function instancedNodeMeshes(
       const position = nodes.get(node.id)!;
       matrix.makeTranslation(position.x, position.y, position.z);
       mesh.setMatrixAt(instance, matrix);
-      mesh.setColorAt(instance, new THREE.Color(0x2f6f73));
     });
     mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-    registerInstancedSelectionPresentation(mesh, valid.map((node) => entityKey({ type: "node", id: node.id })), 0x2f6f73);
+    registerInstancedRolePresentation(mesh, valid.map((node) => entityKey({ type: "node", id: node.id })), "node");
     return mesh;
   });
 }
@@ -3799,7 +3782,7 @@ function instancedSupportMeshes(
   }));
   if (validByKey.size === 0) return [];
   const geometry = new THREE.ConeGeometry(0.18, 0.34, 4);
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 });
+  const material = createFigureMaterial();
   const quaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 4);
   const scale = new THREE.Vector3(1, 1, 1);
   return spatialGroups(index, validByKey).map((valid) => {
@@ -3808,11 +3791,9 @@ function instancedSupportMeshes(
     valid.forEach(({ support, node }, instance) => {
       matrix.compose(new THREE.Vector3(node.x, node.y - 0.26, node.z), quaternion, scale);
       mesh.setMatrixAt(instance, matrix);
-      mesh.setColorAt(instance, new THREE.Color(0x6b7d49));
     });
     mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-    registerInstancedSelectionPresentation(mesh, valid.map(({ support }) => entityKey({ type: "support", id: support.id })), 0x6b7d49);
+    registerInstancedRolePresentation(mesh, valid.map(({ support }) => entityKey({ type: "support", id: support.id })), "support");
     return mesh;
   });
 }
@@ -3840,8 +3821,15 @@ function instancedComponentMeshes(
         : kind === "expansion"
           ? new THREE.CylinderGeometry(0.11, 0.11, 0.34, 12)
           : new THREE.BoxGeometry(0.24, 0.24, 0.24);
-    const color = kind === "branch" ? 0x24705a : kind === "expansion" ? 0x6f5a92 : 0x1f6f73;
-    const material = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.16, roughness: 0.52 });
+    // The figure is neutral: a fitting takes the tube's colour and is told apart by its shape.
+    const role: ViewportPaletteRole = kind === "bend"
+      ? "componentBend"
+      : kind === "branch"
+        ? "componentBranch"
+        : kind === "expansion"
+          ? "componentExpansion"
+          : "componentRigid";
+    const material = createFigureMaterial();
     for (const components of spatialGroups(index, entries)) {
       const mesh = new THREE.InstancedMesh(geometry, material, components.length);
       const matrix = new THREE.Matrix4();
@@ -3849,14 +3837,12 @@ function instancedComponentMeshes(
         const node = nodes.get(component.node)!;
         matrix.makeTranslation(node.x, node.y + 0.2, node.z);
         mesh.setMatrixAt(instance, matrix);
-        mesh.setColorAt(instance, new THREE.Color(color));
       });
       mesh.instanceMatrix.needsUpdate = true;
-      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-      registerInstancedSelectionPresentation(
+      registerInstancedRolePresentation(
         mesh,
         components.map((component) => entityKey({ type: "component", id: component.id })),
-        color
+        role
       );
       output.push(mesh);
     }
@@ -3885,7 +3871,7 @@ function instancedDeformedPipeMesh(
   }));
   if (!validByKey.size) return [];
   const geometry = new THREE.CylinderGeometry(1, 1, 1, 10);
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x03433f, opacity: 0.82, roughness: 0.42, transparent: true });
+  const material = createFigureMaterial({ opacity: 0.82, transparent: true });
   return spatialGroups(index, validByKey).map((valid) => {
     const mesh = new THREE.InstancedMesh(geometry, material, valid.length);
     const matrix = new THREE.Matrix4();
@@ -3899,9 +3885,8 @@ function instancedDeformedPipeMesh(
         new THREE.Vector3(0.032, length, 0.032)
       );
       mesh.setMatrixAt(instance, matrix);
-      mesh.setColorAt(instance, new THREE.Color(0x0f8f85));
     });
-    registerInstancedSelectionPresentation(mesh, valid.map(({ pipe }) => entityKey({ type: "pipe", id: pipe.id })), 0x0f8f85);
+    registerInstancedRolePresentation(mesh, valid.map(({ pipe }) => entityKey({ type: "pipe", id: pipe.id })), "deformedShape");
     return mesh;
   });
 }
@@ -3918,7 +3903,7 @@ function instancedDeformationMarkerMesh(
   }));
   if (!validByKey.size) return [];
   const geometry = new THREE.SphereGeometry(0.055, 10, 7);
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x03433f, opacity: 0.86, roughness: 0.44, transparent: true });
+  const material = createFigureMaterial({ opacity: 0.86, transparent: true });
   return spatialGroups(index, validByKey).map((valid) => {
     const mesh = new THREE.InstancedMesh(geometry, material, valid.length);
     const matrix = new THREE.Matrix4();
@@ -3926,18 +3911,16 @@ function instancedDeformationMarkerMesh(
       const position = authoredToLocal(positions.get(node.id)!, origin);
       matrix.makeTranslation(position.x, position.y, position.z);
       mesh.setMatrixAt(instance, matrix);
-      mesh.setColorAt(instance, new THREE.Color(0x0f8f85));
     });
-    registerInstancedSelectionPresentation(mesh, valid.map((node) => entityKey({ type: "node", id: node.id })), 0x0f8f85);
+    registerInstancedRolePresentation(mesh, valid.map((node) => entityKey({ type: "node", id: node.id })), "deformedShape");
     return mesh;
   });
 }
 
-function marker(position: Vec3, color: number, radius: number) {
-  return new THREE.Mesh(
-    new THREE.SphereGeometry(radius, 24, 16),
-    new THREE.MeshStandardMaterial({ color, roughness: 0.48 })
-  )
+function marker(position: Vec3, role: ViewportPaletteRole, radius: number) {
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 24, 16), createFigureMaterial());
+  registerPaletteRole(mesh, role);
+  return mesh
     .translateX(position.x)
     .translateY(position.y)
     .translateZ(position.z);
@@ -3948,27 +3931,14 @@ function routeConstructionGridFromBounds(bounds: Bounds3 | null): THREE.GridHelp
     ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z)
     : 0;
   const size = Math.max(8, Math.ceil(span * 1.5));
-  const grid = new THREE.GridHelper(size, Math.max(8, Math.min(40, Math.round(size * 2))), 0x2f6f73, 0x9bb7b4);
+  const grid = new THREE.GridHelper(size, Math.max(8, Math.min(40, Math.round(size * 2))));
+  registerGridPaletteRoles(grid, "routeGridAxis", "routeGridLine");
   const materials = Array.isArray(grid.material) ? grid.material : [grid.material];
   for (const material of materials) {
+    // The grid tokens are already stepped for the ground, so the lines draw at full opacity.
+    // The material stays in the transparent pass, so the draw order is what it was.
     material.transparent = true;
-    material.opacity = 0.44;
-    material.depthWrite = false;
-  }
-  grid.renderOrder = 1;
-  return grid;
-}
-
-function routeConstructionGrid(model: PreviewModel): THREE.GridHelper {
-  const positions = model.nodes.map((node) => node.position);
-  const coordinates = positions.flatMap((point) => [point.x, point.y, point.z]);
-  const span = coordinates.length ? Math.max(...coordinates) - Math.min(...coordinates) : 0;
-  const size = Math.max(8, Math.ceil(span * 1.5));
-  const grid = new THREE.GridHelper(size, Math.max(8, Math.min(40, size * 2)), 0x2f6f73, 0x9bb7b4);
-  const materials = Array.isArray(grid.material) ? grid.material : [grid.material];
-  for (const material of materials) {
-    material.transparent = true;
-    material.opacity = 0.44;
+    material.opacity = 1;
     material.depthWrite = false;
   }
   grid.renderOrder = 1;
@@ -3994,8 +3964,10 @@ function routeGhostLine(): THREE.Line<THREE.BufferGeometry, THREE.LineDashedMate
   geometry.setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0, 0, 0, 0], 3));
   const line = new THREE.Line(
     geometry,
-    new THREE.LineDashedMaterial({ color: 0xf08c22, dashSize: 0.18, gapSize: 0.1, depthTest: false })
+    new THREE.LineDashedMaterial({ dashSize: 0.18, gapSize: 0.1, depthTest: false })
   );
+  // The routing draft has its own token; it is never the selection's colour.
+  registerPaletteRole(line, "routeDraft");
   line.renderOrder = 3;
   return line;
 }
@@ -4017,153 +3989,6 @@ function updateRouteGhostObjects(
   endpoint.position.set(ghost.to.x, ghost.to.y, ghost.to.z);
 }
 
-function supportMesh(position: Vec3, active: boolean) {
-  const group = new THREE.Group();
-  const cone = new THREE.Mesh(
-    new THREE.ConeGeometry(0.18, 0.34, 4),
-    new THREE.MeshStandardMaterial({
-      color: active ? 0xf08c22 : 0x6b7d49,
-      roughness: 0.7
-    })
-  );
-  cone.position.set(position.x, position.y - 0.26, position.z);
-  cone.rotation.y = Math.PI / 4;
-  group.add(cone);
-  return group;
-}
-
-function componentMesh(component: PreviewComponent, position: Vec3, active: boolean) {
-  if (isBendComponent(component)) {
-    const group = new THREE.Group();
-    const material = new THREE.MeshStandardMaterial({
-      color: active ? 0xf08c22 : 0x1f6f73,
-      metalness: 0.18,
-      roughness: 0.5
-    });
-    const arc = new THREE.Mesh(new THREE.TorusGeometry(0.24, active ? 0.035 : 0.027, 10, 32, Math.PI * 0.75), material);
-    arc.position.set(position.x, position.y + 0.2, position.z);
-    arc.rotation.x = Math.PI / 2;
-    arc.rotation.z = Math.PI / 4;
-    group.add(arc);
-
-    const hub = new THREE.Mesh(
-      new THREE.SphereGeometry(active ? 0.08 : 0.06, 18, 12),
-      new THREE.MeshStandardMaterial({
-        color: active ? 0xf08c22 : 0x2f6f73,
-        roughness: 0.48
-      })
-    );
-    hub.position.set(position.x, position.y + 0.2, position.z);
-    group.add(hub);
-    return group;
-  }
-  if (isBranchComponent(component)) {
-    const group = new THREE.Group();
-    const material = new THREE.MeshStandardMaterial({
-      color: active ? 0xf08c22 : 0x24705a,
-      metalness: 0.12,
-      roughness: 0.54
-    });
-    const header = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.42, 16), material);
-    header.position.set(position.x, position.y + 0.2, position.z);
-    header.rotation.z = Math.PI / 2;
-    group.add(header);
-
-    const branch = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.32, 16), material);
-    branch.position.set(position.x, position.y + 0.36, position.z);
-    group.add(branch);
-
-    const hub = new THREE.Mesh(
-      new THREE.SphereGeometry(active ? 0.085 : 0.065, 18, 12),
-      new THREE.MeshStandardMaterial({
-        color: active ? 0xf08c22 : 0x1f5c4c,
-        roughness: 0.48
-      })
-    );
-    hub.position.set(position.x, position.y + 0.2, position.z);
-    group.add(hub);
-    return group;
-  }
-  if (isRigidComponent(component)) {
-    const group = new THREE.Group();
-    const material = new THREE.MeshStandardMaterial({
-      color: active ? 0xf08c22 : 0x33485f,
-      metalness: 0.2,
-      roughness: 0.46
-    });
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.34, 18), material);
-    body.position.set(position.x, position.y + 0.2, position.z);
-    body.rotation.z = Math.PI / 2;
-    group.add(body);
-
-    const bonnet = new THREE.Mesh(
-      new THREE.BoxGeometry(0.12, 0.1, 0.12),
-      new THREE.MeshStandardMaterial({
-        color: active ? 0xf08c22 : 0x4c5d72,
-        roughness: 0.5
-      })
-    );
-    bonnet.position.set(position.x, position.y + 0.31, position.z);
-    group.add(bonnet);
-
-    const handwheel = new THREE.Mesh(
-      new THREE.TorusGeometry(0.07, 0.011, 8, 18),
-      new THREE.MeshStandardMaterial({
-        color: active ? 0xf08c22 : 0x273344,
-        roughness: 0.44
-      })
-    );
-    handwheel.position.set(position.x, position.y + 0.4, position.z);
-    handwheel.rotation.x = Math.PI / 2;
-    group.add(handwheel);
-    return group;
-  }
-  if (isExpansionJointComponent(component)) {
-    const group = new THREE.Group();
-    const material = new THREE.MeshStandardMaterial({
-      color: active ? 0xf08c22 : 0x7d5f2c,
-      metalness: 0.16,
-      roughness: 0.52
-    });
-    const axis = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.42, 18), material);
-    axis.position.set(position.x, position.y + 0.2, position.z);
-    axis.rotation.z = Math.PI / 2;
-    group.add(axis);
-
-    const leftRing = new THREE.Mesh(new THREE.TorusGeometry(0.082, 0.014, 8, 20), material);
-    leftRing.position.set(position.x - 0.11, position.y + 0.2, position.z);
-    leftRing.rotation.y = Math.PI / 2;
-    group.add(leftRing);
-
-    const rightRing = new THREE.Mesh(new THREE.TorusGeometry(0.082, 0.014, 8, 20), material);
-    rightRing.position.set(position.x + 0.11, position.y + 0.2, position.z);
-    rightRing.rotation.y = Math.PI / 2;
-    group.add(rightRing);
-
-    const bellows = new THREE.Mesh(
-      new THREE.TorusGeometry(active ? 0.075 : 0.064, 0.01, 8, 16),
-      new THREE.MeshStandardMaterial({
-        color: active ? 0xf08c22 : 0x9d7830,
-        roughness: 0.48
-      })
-    );
-    bellows.position.set(position.x, position.y + 0.2, position.z);
-    bellows.rotation.y = Math.PI / 2;
-    group.add(bellows);
-    return group;
-  }
-
-  const box = new THREE.Mesh(
-    new THREE.BoxGeometry(0.24, 0.24, 0.24),
-    new THREE.MeshStandardMaterial({
-      color: active ? 0xf08c22 : 0x874c62,
-      roughness: 0.52
-    })
-  );
-  box.position.set(position.x, position.y + 0.2, position.z);
-  return box;
-}
-
 function isBendComponent(component: PreviewComponent): boolean {
   return component.kind === "bend" || component.kind === "elbow";
 }
@@ -4172,72 +3997,13 @@ function isBranchComponent(component: PreviewComponent): boolean {
   return component.kind === "branch" || component.kind === "tee" || component.kind === "branch_connection";
 }
 
-function isRigidComponent(component: PreviewComponent): boolean {
-  return ["valve", "flange", "reducer", "rigid", "specialty"].includes(component.kind);
-}
-
 function isExpansionJointComponent(component: PreviewComponent): boolean {
   return component.kind === "expansion_joint";
-}
-
-function deformedPipeMesh(from: Vec3, to: Vec3, active: boolean) {
-  const start = toVector(from);
-  const end = toVector(to);
-  const direction = end.clone().sub(start);
-  const length = direction.length();
-  const geometry = new THREE.CylinderGeometry(active ? 0.045 : 0.032, active ? 0.045 : 0.032, length, 18);
-  const material = new THREE.MeshStandardMaterial({
-    color: active ? 0xf08c22 : 0x0f8f85,
-    emissive: active ? 0x4c2500 : 0x03433f,
-    metalness: 0.1,
-    opacity: 0.82,
-    roughness: 0.42,
-    transparent: true
-  });
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.copy(start.clone().add(end).multiplyScalar(0.5));
-  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
-  return mesh;
-}
-
-function deformationMarker(position: Vec3, active: boolean) {
-  return new THREE.Mesh(
-    new THREE.SphereGeometry(active ? 0.075 : 0.055, 18, 12),
-    new THREE.MeshStandardMaterial({
-      color: active ? 0xf08c22 : 0x0f8f85,
-      emissive: active ? 0x4c2500 : 0x03433f,
-      opacity: 0.86,
-      roughness: 0.44,
-      transparent: true
-    })
-  )
-    .translateX(position.x)
-    .translateY(position.y)
-    .translateZ(position.z);
 }
 
 // Ground reference grid on the global XZ plane, centred under the model bounds
 // and sized to the model — replaces the old fixed-size grid that was rotated
 // into a vertical plane and offset from a hard-coded point.
-function referenceGround(model: PreviewModel): THREE.GridHelper {
-  const xs = model.nodes.map((node) => node.position.x);
-  const ys = model.nodes.map((node) => node.position.y);
-  const zs = model.nodes.map((node) => node.position.z);
-  const minX = xs.length ? Math.min(...xs) : 0;
-  const maxX = xs.length ? Math.max(...xs) : 1;
-  const minY = ys.length ? Math.min(...ys) : 0;
-  const minZ = zs.length ? Math.min(...zs) : 0;
-  const maxZ = zs.length ? Math.max(...zs) : 1;
-  const size = Math.max(maxX - minX, maxZ - minZ, 1) * 1.6;
-  const divisions = Math.max(4, Math.min(20, Math.round(size)));
-  const helper = new THREE.GridHelper(size, divisions, 0xb6bfb9, 0xdce1db);
-  helper.position.set(minX / 2 + maxX / 2, minY - 0.02, minZ / 2 + maxZ / 2);
-  const material = helper.material as THREE.Material & { opacity: number };
-  material.transparent = true;
-  material.opacity = 0.55;
-  return helper;
-}
-
 function referenceGroundFromBounds(bounds: Bounds3 | null): THREE.GridHelper {
   const minX = bounds?.min.x ?? 0;
   const maxX = bounds?.max.x ?? 1;
@@ -4246,13 +4012,20 @@ function referenceGroundFromBounds(bounds: Bounds3 | null): THREE.GridHelper {
   const maxZ = bounds?.max.z ?? 1;
   const size = Math.max(maxX - minX, maxZ - minZ, 1) * 1.6;
   const divisions = Math.max(4, Math.min(20, Math.round(size)));
-  const helper = new THREE.GridHelper(size, divisions, 0xb6bfb9, 0xdce1db);
+  const helper = new THREE.GridHelper(size, divisions);
+  registerGridPaletteRoles(helper, "groundGridMajor", "groundGridMinor");
   helper.position.set((minX + maxX) / 2, minY - 0.02, (minZ + maxZ) / 2);
   const material = helper.material as THREE.Material & { opacity: number };
+  // The grid tokens are already stepped for the ground, so the lines draw at full opacity.
+  // The material stays in the transparent pass, so the draw order is what it was.
   material.transparent = true;
-  material.opacity = 0.55;
+  material.opacity = 1;
   return helper;
 }
+
+// A moment is told from every other load, and no further. Moments are built first.
+type LoadArrowRole = Extract<ViewportPaletteRole, "loadMoment" | "loadForce">;
+const LOAD_ARROW_ROLES: readonly LoadArrowRole[] = ["loadMoment", "loadForce"];
 
 // Real 3D load arrows anchored to the loaded node or element midpoint and
 // oriented along the load's global direction, so they move with the model.
@@ -4268,7 +4041,7 @@ function buildLoadArrows(
     if (from && to) pipeMidpoints.set(segment.id, midpoint(from, to));
   }
   const supportNodes = new Map(model.supports.map((support) => [support.id, support.node] as const));
-  const arrows: Array<{ anchor: Vec3; direction: THREE.Vector3; color: number; ownerKey: EntityKey }> = [];
+  const arrows: Array<{ anchor: Vec3; direction: THREE.Vector3; role: LoadArrowRole; ownerKey: EntityKey }> = [];
   for (const loadCase of model.load_cases) {
     for (const primitive of loadCase.primitive_loads ?? []) {
       const record = primitive as Record<string, unknown>;
@@ -4276,21 +4049,23 @@ function buildLoadArrows(
       const direction = globalDirectionVector(record);
       if (!ownedAnchor || !direction || index.invalidGeometry.has(ownedAnchor.ownerKey)) continue;
       const isMoment = String(record.dimension ?? "").includes("moment");
-      const color = isMoment ? 0x7b4ea3 : 0xd9822b;
-      arrows.push({ anchor: ownedAnchor.anchor, direction, color, ownerKey: ownedAnchor.ownerKey });
+      const role: LoadArrowRole = isMoment ? "loadMoment" : "loadForce";
+      arrows.push({ anchor: ownedAnchor.anchor, direction, role, ownerKey: ownedAnchor.ownerKey });
     }
   }
   const arrowsByOwner = new Map<EntityKey, typeof arrows>();
   for (const arrow of arrows) arrowsByOwner.set(arrow.ownerKey, [...(arrowsByOwner.get(arrow.ownerKey) ?? []), arrow]);
   const spatialArrowGroups = spatialMultiGroups(index, arrowsByOwner);
   const output: THREE.Object3D[] = [];
-  for (const color of [0x7b4ea3, 0xd9822b]) {
-    if (!arrows.some((arrow) => arrow.color === color)) continue;
+  for (const role of LOAD_ARROW_ROLES) {
+    if (!arrows.some((arrow) => arrow.role === role)) continue;
     const shaftGeometry = new THREE.CylinderGeometry(0.025, 0.025, 1, 8);
     const headGeometry = new THREE.ConeGeometry(0.12, 1, 8);
-    const material = new THREE.MeshBasicMaterial({ color });
+    // Unlit and white: the instance colour alone is the drawn colour, so an arrow draws at its
+    // token and a selected arrow at the selected colour.
+    const material = new THREE.MeshBasicMaterial();
     for (const group of spatialArrowGroups) {
-      const entries = group.filter((arrow) => arrow.color === color);
+      const entries = group.filter((arrow) => arrow.role === role);
       if (!entries.length) continue;
       const shaft = new THREE.InstancedMesh(shaftGeometry, material, entries.length);
       const head = new THREE.InstancedMesh(headGeometry, material, entries.length);
@@ -4315,8 +4090,8 @@ function buildLoadArrows(
       shaft.instanceMatrix.needsUpdate = true;
       head.instanceMatrix.needsUpdate = true;
       const ownershipKeys = entries.map((entry) => entry.ownerKey);
-      registerInstancedSelectionPresentation(shaft, ownershipKeys, color);
-      registerInstancedSelectionPresentation(head, ownershipKeys, color);
+      registerInstancedRolePresentation(shaft, ownershipKeys, role);
+      registerInstancedRolePresentation(head, ownershipKeys, role);
       output.push(shaft, head);
     }
   }
@@ -4359,43 +4134,6 @@ function globalDirectionVector(primitive: Record<string, unknown>): THREE.Vector
         ? new THREE.Vector3(0, 0, 1)
         : null;
   return axis ? axis.multiplyScalar(sign).normalize() : null;
-}
-
-// X/Y/Z orientation gizmo: coloured world axes plus letter sprites.
-function buildOrientationGizmo(): THREE.Object3D {
-  const group = new THREE.Group();
-  group.add(new THREE.AxesHelper(1));
-  group.add(axisLabelSprite("X", "#b9462f", new THREE.Vector3(1.3, 0, 0)));
-  group.add(axisLabelSprite("Y", "#347b46", new THREE.Vector3(0, 1.3, 0)));
-  group.add(axisLabelSprite("Z", "#2e638f", new THREE.Vector3(0, 0, 1.3)));
-  return group;
-}
-
-function axisLabelSprite(text: string, color: string, position: THREE.Vector3): THREE.Sprite {
-  const canvas = document.createElement("canvas");
-  canvas.width = 64;
-  canvas.height = 64;
-  const ctx = canvas.getContext("2d");
-  if (ctx) {
-    ctx.fillStyle = color;
-    ctx.font = "bold 48px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(text, 32, 36);
-  }
-  const sprite = new THREE.Sprite(
-    new THREE.SpriteMaterial({
-      map: new THREE.CanvasTexture(canvas),
-      transparent: true
-    })
-  );
-  sprite.position.copy(position);
-  sprite.scale.set(0.55, 0.55, 0.55);
-  return sprite;
-}
-
-function toVector(position: Vec3) {
-  return new THREE.Vector3(position.x, position.y, position.z);
 }
 
 export function buildDeformationOverlay(model: PreviewModel, result: MechanicsResult | null): DeformationOverlay {
