@@ -93,4 +93,26 @@ DEC-025 sweep for the A1 follow-ups, on the clean commit `06454cd36904f542f22959
 
 Each of the three works in its own git worktree. The `lanes/` folders are written on those branches and reach `main` with each branch's first pull request; until then the rows above are the only record of them on this branch. Mechanism for all three: Claude Code `Agent` tool, general-purpose type, background; the two lane managers dispatch their own Type 2 children, and ROOT dispatches every independent review.
 
+The A1 follow-ups merged on 2026-09-19T00:47Z: PR #802, merge commit `8e4c5df6ec84928ca343224e5244ccdae5771cd4`; both required checks passed on head `e989522aacfee98fa9a4ab7207c06ffbe1852c43`.
+
+DESIGN-SYSTEM-05 returned on 2026-09-19; its return, ROOT's reading, ROOT's decision on the disabled ink (open to the owner) and the brief and return of its independent review are in `../lanes/DESIGN-SYSTEM-05/INDEX.md` and `../lanes/DESIGN-SYSTEM-05/HANDOFF.md`. A nested child's completion is delivered by the host to ROOT, so ROOT relays each one verbatim, by file and hash, to the manager that owns it, and the manager retains it (`../HANDOFF_STATE.md`).
+
+## Amendment 1 and the session handoff (2026-09-19)
+
+Slice B2 of the shell lane merged on 2026-09-19T04:10Z: PR #803, merge commit `b9a07040857d2e6d3ec0f6a530697720801c7b59`; both required checks passed on head `9f653b141d13aabfb79e4616ca216f11e8fc4976`. Its brief, review and return are indexed in `../lanes/B-SHELL/INDEX.md`, now on `main`.
+
+The owner re-sequenced the program on 2026-09-19 (the control layer first): `../instances/ROOT/OWNER_DIRECTION_2026-09-19_CONTROL_LAYER_FIRST.md`, SHA-256 `bc41f82680cfcb69a193ee3820cb0861f36fbe872fae970df1be1729f9a23268`; amendment 1 of `../ORCHESTRATION_PLAN.md`. The instruments that carry it, each sealed by ROOT on its lane's own branch and indexed there:
+
+| Lane | Sealed instrument | SHA-256 | Branch and head |
+|---|---|---|---|
+| B-SHELL | `../lanes/B-SHELL/briefs/B-SHELL_addendum_3.md` (with addendum 2, slice B2F, sealed `60406868afad389c56126276a1a06f4ee00967400363e3973ab2bc01e0cb7509`) | `4b928f286036aa5a4e7de1152d9fa7b72bcb9d39dd3f038e02d6ad3735f93b35` | `codex/swbpipe-b-shell-20260918` at `9651fd4212ee6f0ba3c8a202ac8acbcb9d2f865a` |
+| B-CANVAS | `../lanes/B-CANVAS/briefs/B-CANVAS_addendum_4.md` (addenda 2 and 3 before it) | `1bf6d1e58547bd826f587aa729cc60d93df4a464a8c0b3f409b2d83337192323` | `codex/swbpipe-b-canvas-20260918` at `bade9f7accdc84a00d04ba8851beeef8923c0518` |
+| DESIGN-SYSTEM-05 | no new instrument: parked (DS5-D3); correction 2 (`f08cdbea5efd228a1484a8f0266c55d95b03df6ac25c8e98d747f59730e0815d`) stands sealed and not executed | n/a | `codex/swbpipe-design-system-v14-20260918` at `4dddd44128e052cfe518f84c0b718e6125cb2b69` |
+
+A probe of the host, launched by ROOT with no sealed brief because it is three lines and read-only (its whole prompt is ROOT's launch message; model requested Claude Haiku 4.5): retained at `../instances/ROOT/PROBE_NESTED_FOREGROUND_2026-09-19.md`, SHA-256 `8aa9ba6f25ab351165e7a0432183c3f4e69ee81befd4e2135ee0401bb2268fc9`. A nested foreground child's reply reaches its parent directly.
+
+Unsealed drafts, kept for the closing visual pass and for B3's structure review: `../drafts/B1B-TOKENS13.DRAFT.md` (token adoption; re-seal before use, and its model is open) and `../drafts/FIDELITY-REVIEW.TEMPLATE.md`. A draft is not an instruction.
+
+The state of the run for whoever continues it: `../instances/ROOT/SESSION_HANDOFF_2026-09-19.md`; the prompt that starts that session: `../instances/ROOT/SUCCESSOR_PROMPT_2026-09-19.md`.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

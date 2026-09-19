@@ -98,4 +98,44 @@ Schema `$id` host to `swbpipe.com` (49 files), 65 document kinds, crate and bina
 
 The Apple App ID; typed-interface and engine gaps per gap (G-11 Stale runs and G-17 persisted view state first); anything a reviewer finds that changes a ruling; the open copy items from the handoff's §7 when first seen in the running product. WCAG 2.2 AA is checked per touched control; PDU-045 and PDU-046 remain holds.
 
+## Amendment 1 (2026-09-19) — the control layer first
+
+**Authority.** The owner's direction of 2026-09-19, recorded with ROOT's recommendation that it refers to and ROOT's reading in `instances/ROOT/OWNER_DIRECTION_2026-09-19_CONTROL_LAYER_FIRST.md` (SHA-256 `bc41f82680cfcb69a193ee3820cb0861f36fbe872fae970df1be1729f9a23268`). The plan above stays as the record of what the owner approved on 2026-09-18; where this amendment and the plan differ, the amendment governs.
+
+**What it changes.** Inside Tranche B: what a slice builds, which reviews gate it, where the design-system work and the token adoption sit, and when D-72 is qualified. It changes no ruling of the owner's (D-68, D-71, D-72, the decision rows), no constraint of the implementation handoff, no tolerance, oracle or limit, and not the order of tranches: A1 is merged, B continues, A2 follows B with its own plan.
+
+**Why.** The handoff's constraints that protect results are all in the control layer: the one typed-operation route, the tables and the canvas as projections of the canonical model, run standing, the generation gates. After four merged pull requests one slice of that layer had landed, while the visual thread (tokens, the canvas colours, a design-system amendment in its third round of contrast findings) had run ahead of it. The open questions are in the appearance, and they are better answered once, on the product's real controls, as one package for the owner.
+
+### The sequence from here
+
+1. **Shell lane, control layer:** B2F (four handler repairs, failing test first), then B3, B4, B5, B6, B7, as the brief gives them. Each slice builds structure and behaviour on the tokens already in the product. **Layout follows the frames from the start**: regions, order, what is docked, which controls a surface has. Colour, contrast, washes and fine spacing are not tuned. Sealed as the lane's addendum 3.
+2. **Canvas lane**, in parallel: **the first pull request finishes as sealed** (slice C1's first part with review findings F1 to F3, the guidance probe T1, the edge line C1E, the stylesheet rows C1b), because slices C2 to C5 stack on its material and palette code, the colours cannot reach `main` without the edge line, and D-72 measures orbit with the line on. Then C2, C3, C4, C5, which are mechanisms with behaviour. C6 and the canvas's appearance questions leave the lane's order. Sealed as the lane's addendum 4.
+3. **No third stream.** ROOT runs no work of its own beside the two lanes except the independent reviews. Design system V1.4 is parked with its branch (ROOT's decision DS5-D3, open to the owner) and the token adoption slice waits with it; nothing in the control layer needs either.
+4. **The closing visual pass**, after both lanes' control work:
+   - the design system's open items, settled on the product's real controls and put to the owner as one package: correction 2 of V1.4 (sealed, not executed), the pressed-row finding, DS5-D1, DS5-D2, the text contrast target, and from the canvas the casing's look, the derived silhouette shades, the roles the design does not name, the deformed shape's ink with §6.8's deformation view, and `canvas.edgeAlt` (C6);
+   - the design-system amendment reopened from its parked branch, with a fresh independent review;
+   - the token adoption slice (`drafts/B1B-TOKENS13.DRAFT.md`, to be re-sealed) and the stylesheet rows that follow from it;
+   - one design-fidelity review by screenshot over every surface against the eighteen frames (`drafts/FIDELITY-REVIEW.TEMPLATE.md`);
+   - the contrast criteria of D-68 checked on every control the slices listed as touched.
+5. **D-72 qualification**, last in Tranche B, because it must measure what ships. The second profile's freeze still goes to the owner as one package before any timed run.
+6. **Tranche A2**, with its own plan. Its write scope (`core/**`, schemas, fixtures, crate names) is disjoint from the closing visual pass; whether the two may overlap in time is the owner's to say when A2 is planned.
+
+### Gates per slice (replaces step 3 of "Per-PR verification")
+
+- A fresh read-only Opus `software-code-review` over the complete frozen diff: PASS with no actionable finding. For a slice that draws a surface, ROOT's review brief carries a structural checklist drawn from the specification and the named frames, and the reviewer checks it from the code and the tests.
+- The Fable design-fidelity review by screenshot runs twice and not per slice: on B3's candidate before it merges, for structure only, and at the closing visual pass over every surface.
+- D-68 per slice: name, role, state, keyboard operation, focus order, a visible focus indicator, target size, for every control touched. The contrast criteria (1.4.3, 1.4.11) are checked at the closing visual pass; each slice return and pull request lists the controls it touched as **contrast not yet checked**.
+- Unchanged: the registered checks, the picking tests first on every canvas change, the DEC-025 sweep on the clean candidate, the validators, CI on the final revision, a merge commit, and ROOT's own look at the built app before a slice is reported done.
+
+### Delegation and models (amends the table above)
+
+- **Managers launch a child in the foreground when its return is their next input.** The lane briefs said "background"; on this host a background child's completion goes to ROOT when its manager has stopped, and ROOT became the carrier of every such return. ROOT probed the alternative on 2026-09-19T05:14Z (`instances/ROOT/PROBE_NESTED_FOREGROUND_2026-09-19.md`): a nested foreground child's reply reached its parent directly, in the same turn, and nothing came to ROOT. Both lanes' addenda replace the clause. The relay protocol (`tools/relay.py`) remains for background children. Not probed: a foreground child that runs for a long time.
+- **Who launches what, unchanged:** each manager seals and launches its own Type 2 children; ROOT launches the managers and every independent review, so that a review stays independent of the manager's account of the work; Type 2 never delegates; siblings never message each other.
+- **Agent contexts do not outlive the session that launched them.** A manager, a child or a reviewer can be resumed by message only from that session. Lane records are therefore written so that a new manager can start from them, and each lane's latest addendum gives the reading order. "The same reviewer backchecks" holds inside a session; across sessions, the next complete review carries the earlier review's return and re-reads its findings' dispositions.
+- **Models.** Fable: ROOT, the two managers, hard implementation, the two fidelity reviews and the author of the reopened design-system amendment. Opus: every independent code review and the design-system amendment's review. Sonnet: mechanical work against an exact inventory, which now includes the token adoption slice and the closing pass's stylesheet rows once structure is stable, the contrast measurement script's runs, and the D-72 runner. Haiku or Sonnet `Explore`: read-only inventories.
+
+### What ROOT takes from the first day, for the record
+
+ROOT put the tokens slice and the canvas colour slice first and let a design-system amendment grow a review loop that the shell's next slice was told to wait on. ROOT also wrote "background" into the managers' briefs. Both were ROOT's choices and neither was the owner's.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
