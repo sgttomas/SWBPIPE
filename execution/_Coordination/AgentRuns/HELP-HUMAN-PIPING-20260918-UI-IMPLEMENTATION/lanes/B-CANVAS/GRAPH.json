@@ -8,7 +8,7 @@
     "B-CANVAS": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "fable",
-      "status": "launched",
+      "status": "paused clean at the pause point 3a5f7c103 (2026-09-19); the manager of 2026-09-19 cannot be resumed from another session; a new manager starts from addenda 4 and 5",
       "launched": "2026-09-19T00:04Z",
       "briefSha256": "df89f5b622a63f206ccc0f879e7255642e4b9ee16174faf84e539ab51bc12084",
       "brief": "../../briefs/B-CANVAS_canvas_lane.md",
@@ -75,6 +75,16 @@
       "return": "returns/B-CANVAS_PAUSE_STATUS_2026-09-19.md",
       "modelThatRan": "Claude Fable 5.1, as launched; the status does not state its model",
       "candidate": "3a5f7c103bde915d800792112dec2dea19a0813e"
+    },
+    "B-CANVAS-ADDENDUM-5": {
+      "role": "ROOT's sealed addendum to the lane's brief",
+      "model": "n/a (ROOT, Claude Fable 5.1)",
+      "status": "sealed",
+      "sealed": "2026-09-19T05:37Z",
+      "briefSha256": "9bb00659a2656e5de1b2ef85c330042e9d193aff1089205a6f846f251b7dddd2",
+      "brief": "briefs/B-CANVAS_addendum_5.md",
+      "candidate": null,
+      "returnSha256": null
     }
   },
   "slices": [],
