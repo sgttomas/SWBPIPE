@@ -8,7 +8,7 @@
     "B-SHELL": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "fable",
-      "status": "launched",
+      "status": "paused after slice B2 merged (2026-09-19); the manager of 2026-09-19 cannot be resumed from another session; a new manager starts from addendum 3",
       "launched": "2026-09-19T00:04Z",
       "briefSha256": "00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75",
       "brief": "../../briefs/B-SHELL_shell_lane.md",
