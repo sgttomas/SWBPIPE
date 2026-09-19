@@ -85,6 +85,25 @@
       "brief": "briefs/B-CANVAS_addendum_5.md",
       "candidate": null,
       "returnSha256": null
+    },
+    "B-CANVAS-PR1": {
+      "role": "WORKING_ITEMS Type 1",
+      "model": "fable",
+      "status": "returned",
+      "returnSha256": "1bf98445a8d26f4560f0ee8cdc53edb70add22ffbe48cee14d2ec1c769b47e8a",
+      "return": "returns/PR1_RETURN.md",
+      "modelThatRan": "Claude Fable 5.1 (claude-fable-5-1), by its own statement; both children report Claude Fable 5.1",
+      "candidate": "4e267d02bccd320607cf6ccab4c52f05cf4048b3"
+    },
+    "C-PR1-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "status": "sealed",
+      "sealed": "2026-09-19T10:14Z",
+      "briefSha256": "1e71331109c9e748162ce65f407cc38445bf8531c8241045a02e3fee9c64176d",
+      "brief": "briefs/PR1-REVIEW_code_review.md",
+      "candidate": null,
+      "returnSha256": null
     }
   },
   "slices": [],
