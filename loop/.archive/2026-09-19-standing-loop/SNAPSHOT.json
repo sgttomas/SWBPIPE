@@ -1,0 +1,24 @@
+{
+  "status": "historical snapshot; not executable instructions",
+  "basis_commit": "29453e367b2f9f2cfb87b712660c31256191db0d",
+  "files": [
+    {
+      "source_path": "projects/chirality-piping/AGENTS.md",
+      "archive_file": "AGENTS.pre-alignment.md",
+      "bytes": 10615,
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "source_path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "archive_file": "LOOP_INIT.md",
+      "bytes": 6806,
+      "sha256": "a1ad58ec66928331f25ab36b6829c431fefc6421aa1ec8ccf6ff1ac1ee23989e"
+    },
+    {
+      "source_path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+      "archive_file": "WORKPLAN_2026-07-18b_piping_loop.md",
+      "bytes": 15003,
+      "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b"
+    }
+  ]
+}
