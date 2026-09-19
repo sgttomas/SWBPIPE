@@ -1,0 +1,38 @@
+{
+  "artifact": "CLOSEOUT_CHECKS",
+  "tranche": "SWBPIPE Tranche B, shell lane, slice B2 (state extraction, no behaviour change)",
+  "date": "2026-09-19 (UTC)",
+  "base": "8e4c5df6ec84928ca343224e5244ccdae5771cd4",
+  "audit_base": "7c6784d95ab83bd958d96938c978153b36734064",
+  "code_reviewed": {
+    "reviewer_model": "Claude Opus 5",
+    "candidate": "5d2e261e0df39c18a71d897902bf5d3a047db175",
+    "frozen_product_tree": "e2c8f277d58b8b2d7b95ce4527d80aca50c6f8cc",
+    "verdict": "PASS; no actionable finding; four residual items carried to the lane's next slices (see lanes/B-SHELL/INDEX.md)",
+    "brief": "{RUN}/lanes/B-SHELL/briefs/B2-REVIEW_code_review.md",
+    "brief_sha256": "69bb0ce07fb472d9017c42988765d525016314d62e0b23805e8891576648ba9a",
+    "return": "{RUN}/lanes/B-SHELL/reviews/B2-REVIEW_RETURN.md",
+    "return_sha256": "97f4adeba1454a37655f0a46fd8be697f6b724c9a4e7169d9e178e03c2f69089",
+    "last_code_commit": "e2c8f277d58b8b2d7b95ce4527d80aca50c6f8cc"
+  },
+  "sweeps": [
+    {
+      "commit": "61e1057c4ae7e35d72694c7da6d210bf9d091b67",
+      "status": "pass",
+      "summary": "{WORKING_ROOT}/validation/evidence/sweeps/SWEEP_20260919T021416Z_61e1057c4ae7.json",
+      "sha256": "e349768815700de944be279123d0b79f31dd6e7af3e8c53ac7acad4950a1937b",
+      "command": "PLAYWRIGHT_WORKERS=1 sh {RUN}/tools/with_e2e_lock.sh python3 tools/release/run_evidence_sweep.py --execute --require-capability host",
+      "surfaces": 5,
+      "note": "run on a commit that already contains origin/main at 8e4c5df6e, so it covers the candidate as it merges"
+    }
+  ],
+  "commits_between_reviewed_and_tested": "records only: the manager's records commit 5d2e261e0 (the reviewed candidate), ROOT's lane records ce7287a28 and the retained review 61e1057c4; no product source, test or tool change after e2c8f277d",
+  "commits_after_tested": "records only (this file, the sweep summary, the deliverable run record and status line, the lane's index, graph and handoff)",
+  "validators": {
+    "path_anchors": "pass (exit 0) on the tested commit",
+    "claims_language": "pass (exit 0) on the tested commit",
+    "tranche_manifest": "pass (exit 0) on the tested commit; no instruction-surface path in the range"
+  },
+  "boundary": "Checks ran on the owner's host. No usability acceptance, review acceptance or release is established.",
+  "claim_fence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)."
+}
