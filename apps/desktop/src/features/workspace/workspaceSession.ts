@@ -1437,14 +1437,11 @@ export function useWorkspaceSession() {
   }
 
   async function handleCreateBlankProject() {
-    ruleRevisionGate.current.invalidate();
     const blankModel = buildBlankLocalModelDocument();
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
     setProjectBusy(true);
-    setModelHashIntegrity(null);
-    setProjectEnvelopeHashIntegrity(null);
     try {
       const blankModelHash = await computeModelHash(blankModel);
       const envelopeHash = await computeProjectEnvelopeHash({
@@ -1462,6 +1459,11 @@ export function useWorkspaceSession() {
         ...created.summary,
         message: "Created blank local model document without fixture entities or external file copies."
       };
+      // The create commits here. A create that fails leaves the open project's
+      // rule revision gate and integrity cells as they were.
+      ruleRevisionGate.current.invalidate();
+      setModelHashIntegrity(null);
+      setProjectEnvelopeHashIntegrity(null);
       advanceProjectSession();
       commitModel(created.model);
       setSelection(defaultSelection(created.model));
@@ -1501,13 +1503,10 @@ export function useWorkspaceSession() {
   }
 
   async function handleOpenProject(projectId: string | null = null) {
-    ruleRevisionGate.current.invalidate();
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
     setProjectBusy(true);
-    setModelHashIntegrity(null);
-    setProjectEnvelopeHashIntegrity(null);
     try {
       const opened = await openLocalProject(projectId);
       if (!stillCurrent()) return;
@@ -1520,6 +1519,12 @@ export function useWorkspaceSession() {
       }
       const restoredHistory = await buildHistoricalRunContext(opened);
       if (!stillCurrent()) return;
+      // The open commits here. An open that finds nothing, fails or is
+      // superseded leaves the open project's rule revision gate and integrity
+      // cells as they were.
+      ruleRevisionGate.current.invalidate();
+      setModelHashIntegrity(null);
+      setProjectEnvelopeHashIntegrity(null);
       advanceProjectSession();
       commitModel(opened.model);
       setSelection(defaultSelection(opened.model));
@@ -1531,6 +1536,8 @@ export function useWorkspaceSession() {
       setBatchOutcomes({});
       setBatchReceipts([]);
       setBatchMessage(null);
+      setOperationOutcomes({});
+      setOperationMessage(null);
       setHistoricalRun(restoredHistory);
       setResult(null);
       setAnalysisRun(null);
@@ -1677,6 +1684,12 @@ export function useWorkspaceSession() {
   }
 
   async function handleListProjects() {
+    // The list takes no request number: taking one would make a pending
+    // save's `stillCurrent` false and drop its result. It owns the busy state
+    // only when it starts idle and no request-numbered handler has started
+    // since, so it reads the request number and never advances it.
+    if (projectBusy) return;
+    const requestAtStart = projectRequest.current;
     setProjectBusy(true);
     try {
       const listed = await listLocalProjects();
@@ -1689,7 +1702,7 @@ export function useWorkspaceSession() {
       setProjectMessage(`List failed: ${String(error)}`);
       setProjectOperation("list_failed");
     } finally {
-      setProjectBusy(false);
+      if (requestAtStart === projectRequest.current) setProjectBusy(false);
     }
   }
 
