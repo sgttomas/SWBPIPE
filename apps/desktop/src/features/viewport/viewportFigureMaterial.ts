@@ -70,6 +70,15 @@ export type FigureMaterialOptions = Readonly<{
  * value is untyped in three's declarations; the accessor's return type says what this file put
  * there.
  *
+ * `opacity` is the `opacity` uniform's value in the same way: reading either gives the other
+ * and writing either changes both, from construction on, through `setValues({ opacity })` and
+ * across `clone()` and `copy()`. The drawn alpha is the uniform's, so a material whose `opacity`
+ * property disagreed with it would draw one thing and report another. It is an own accessor
+ * for the same reason `color` is; `Material`'s constructor assigns `this.opacity = 1` before the
+ * uniforms exist, and the accessor replaces that data property once they do. Opacity and
+ * `transparent` stay independent, as in three: an alpha below 1 is drawn only when the material
+ * is in the transparent pass, so a later dimming sets both.
+ *
  * Only properties of `THREE.ShaderMaterial` pass through `super(parameters)`: three's
  * `setValues` warns about any other. `type` and `isShaderMaterial` stay as three sets them,
  * because its renderer reads both to take the custom-shader path.
@@ -93,6 +102,14 @@ export class FigureMaterial extends THREE.ShaderMaterial {
     });
     Object.defineProperty(this, "color", {
       get: (): THREE.Color => this.uniforms.tint.value,
+      enumerable: true,
+      configurable: true
+    });
+    Object.defineProperty(this, "opacity", {
+      get: (): number => this.uniforms.opacity.value,
+      set: (value: number): void => {
+        this.uniforms.opacity.value = value;
+      },
       enumerable: true,
       configurable: true
     });

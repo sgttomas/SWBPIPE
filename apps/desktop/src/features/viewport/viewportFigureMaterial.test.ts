@@ -53,6 +53,7 @@ describe("viewport figure material", () => {
     const material = createFigureMaterial({ opacity: 0.82, transparent: true });
     expect(material.transparent).toBe(true);
     expect(material.uniforms.opacity.value).toBe(0.82);
+    expect(material.opacity).toBe(0.82);
     material.dispose();
   });
 
@@ -210,5 +211,85 @@ describe("viewport figure material: clone()", () => {
     marked.userData.viewportFigureMaterial = true;
     expect(isFigureMaterial(marked)).toBe(false);
     for (const material of [figure, copied, marked]) material.dispose();
+  });
+});
+
+describe("viewport figure material: opacity is the opacity uniform", () => {
+  it("reports the constructed opacity through material.opacity", () => {
+    const overlay = createFigureMaterial({ opacity: 0.82, transparent: true });
+    expect(overlay.opacity).toBe(0.82);
+    expect(overlay.uniforms.opacity.value).toBe(0.82);
+    const plain = createFigureMaterial();
+    expect(plain.opacity).toBe(1);
+    expect(plain.uniforms.opacity.value).toBe(1);
+    overlay.dispose();
+    plain.dispose();
+  });
+
+  it("setting material.opacity changes what the shader reads, and writing the uniform is read back", () => {
+    const material = createFigureMaterial();
+    material.opacity = 0.2;
+    expect(material.uniforms.opacity.value).toBe(0.2);
+    material.uniforms.opacity.value = 0.55;
+    expect(material.opacity).toBe(0.55);
+    material.dispose();
+  });
+
+  it("setValues({ opacity }) reaches the uniform, with no console warning", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      const material = createFigureMaterial();
+      material.setValues({ opacity: 0.4 });
+      expect(material.uniforms.opacity.value).toBe(0.4);
+      expect(material.opacity).toBe(0.4);
+      expect(warn).not.toHaveBeenCalled();
+      material.dispose();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it("a clone and a copy read the source's opacity both ways, and the source is unchanged", () => {
+    const source = createFigureMaterial({ opacity: 0.82, transparent: true });
+    const clone = source.clone();
+    expect(clone.opacity).toBe(0.82);
+    expect(clone.uniforms.opacity.value).toBe(0.82);
+    clone.opacity = 0.3;
+    expect(clone.uniforms.opacity.value).toBe(0.3);
+    expect(source.opacity).toBe(0.82);
+    expect(source.uniforms.opacity.value).toBe(0.82);
+
+    const copied = createFigureMaterial().copy(source);
+    expect(copied.opacity).toBe(0.82);
+    expect(copied.uniforms.opacity.value).toBe(0.82);
+    copied.uniforms.opacity.value = 0.6;
+    expect(copied.opacity).toBe(0.6);
+    expect(source.opacity).toBe(0.82);
+    expect(source.uniforms.opacity.value).toBe(0.82);
+    for (const material of [source, clone, copied]) material.dispose();
+  });
+
+  it("keeps opacity an own enumerable property, as three's copy and toJSON read it", () => {
+    const material = createFigureMaterial({ opacity: 0.82, transparent: true });
+    expect("opacity" in material).toBe(true);
+    expect(Object.keys(material)).toContain("opacity");
+    // The control: three's own material holds opacity the same way.
+    expect(Object.keys(new THREE.ShaderMaterial())).toContain("opacity");
+    // three's Material.toJSON writes opacity only when it is below 1, read as an ordinary property.
+    expect((material.toJSON() as { opacity?: number }).opacity).toBe(0.82);
+    material.dispose();
+  });
+
+  it("leaves transparent independent of opacity, as three does", () => {
+    const opaque = createFigureMaterial({ opacity: 0.5 });
+    expect(opaque.transparent).toBe(false);
+    opaque.opacity = 0.2;
+    expect(opaque.transparent).toBe(false);
+    const overlay = createFigureMaterial({ opacity: 1, transparent: true });
+    expect(overlay.transparent).toBe(true);
+    overlay.opacity = 1;
+    expect(overlay.transparent).toBe(true);
+    opaque.dispose();
+    overlay.dispose();
   });
 });
