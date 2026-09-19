@@ -16,9 +16,10 @@ import type { SessionModelCheckpoint } from "./sessionModel";
  * sequence, request and draft-review refs that the apply paths guard on. It
  * declares no effect and no handler.
  *
- * Called only by the session, which is `AppSession` in `App.tsx`. Its setters
- * are not for components: the queue, the stacks and the receipts change only in
- * the session's operation, undo, redo and project handlers.
+ * Called only by the session, which is `useWorkspaceSession` in
+ * `workspaceSession.ts`. Its setters are not for components: the queue, the
+ * stacks and the receipts change only in the session's operation, undo, redo
+ * and project handlers.
  */
 export function useOperationsSessionState() {
   const [editorIntents, setEditorIntents] = useState<EditorOperationIntent[]>([]);

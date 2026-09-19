@@ -9,9 +9,10 @@ import { modelIndexFor } from "./modelIndex";
  * stale-response guards read, and the model index. It declares no effect and no
  * handler.
  *
- * Called only by the session, which is `AppSession` in `App.tsx`. Its setters
- * are not for components: the model changes only in the session's mount effect
- * and in its operation, undo, redo and project handlers.
+ * Called only by the session, which is `useWorkspaceSession` in
+ * `workspaceSession.ts`. Its setters are not for components: the model changes
+ * only in the session's mount effect and in its operation, undo, redo and
+ * project handlers.
  */
 export function useModelSessionState() {
   const [model, setModel] = useState<PreviewModel | null>(null);

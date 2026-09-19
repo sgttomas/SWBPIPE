@@ -16,9 +16,10 @@ import type {
  * migration evidence of the open project, and the project message, operation
  * and busy flag. It declares no effect and no handler.
  *
- * Called only by the session, which is `AppSession` in `App.tsx`. Its setters
- * are not for components: the storage capability is set by the session's mount
- * effect, and every other cell here only by its project handlers.
+ * Called only by the session, which is `useWorkspaceSession` in
+ * `workspaceSession.ts`. Its setters are not for components: the storage
+ * capability is set by the session's mount effect, and every other cell here
+ * only by its project handlers.
  */
 export function useProjectSessionState() {
   const projectRequest = useRef(0);

@@ -9,10 +9,11 @@ import type { EntityKey, OrderedSelectionState } from "./selectionState";
  * tree's filter publication with its callback, and the selected pipe refs. It
  * declares no effect.
  *
- * Called only by the session, which is `AppSession` in `App.tsx`. The selection
- * changes only through the session's selection handlers; of the setters here,
- * only the two visibility sets (`setHiddenEntityKeys`,
- * `setIsolateHiddenEntityKeys`) are handed to components.
+ * Called only by the session, which is `useWorkspaceSession` in
+ * `workspaceSession.ts`. The selection changes only through the session's
+ * selection handlers; of the setters here, only the two visibility sets
+ * (`setHiddenEntityKeys`, `setIsolateHiddenEntityKeys`) are handed to
+ * components.
  */
 export function useSelectionSessionState() {
   const [selection, setPrimarySelection] = useState<EntityRef | null>(null);

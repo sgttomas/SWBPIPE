@@ -38,7 +38,8 @@ const INITIAL_R3_JOURNEY_STATE: R3JourneyState = {
  * tool, the rails and drawers, the dock's tab, and the refs the shell's elements
  * attach to. It declares no effect and no handler.
  *
- * Called only by the session, which is `AppSession` in `App.tsx`.
+ * Called only by the session, which is `useWorkspaceSession` in
+ * `workspaceSession.ts`.
  */
 export function useChromeSessionState() {
   const [uiPreferences, setUiPreferences] = useState(readUiPreferences);

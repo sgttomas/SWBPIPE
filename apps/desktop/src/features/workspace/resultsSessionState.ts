@@ -28,10 +28,11 @@ import type { SolveProofEvidence } from "./solveProof";
  * solve job, the cancellation tombstones and the comparison. It declares no
  * effect and no handler.
  *
- * Called only by the session, which is `AppSession` in `App.tsx`. Apart from
- * the two run options (`setSolverMode`, `setReportPackagePrivateIntent`), its
- * setters are not for components: a result is published or cleared only by the
- * session's solve, rule-check, operation, undo, redo and project handlers.
+ * Called only by the session, which is `useWorkspaceSession` in
+ * `workspaceSession.ts`. Apart from the two run options (`setSolverMode`,
+ * `setReportPackagePrivateIntent`), its setters are not for components: a
+ * result is published or cleared only by the session's solve, rule-check,
+ * operation, undo, redo and project handlers.
  */
 export function useResultsSessionState() {
   const [result, setResult] = useState<MechanicsResult | null>(null);
