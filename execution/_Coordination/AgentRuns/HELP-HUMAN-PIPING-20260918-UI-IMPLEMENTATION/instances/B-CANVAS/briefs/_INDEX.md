@@ -24,5 +24,6 @@ Host routing, as ROOT confirmed it on 2026-09-19: a nested child's completion no
 |---|---|---|
 | `../proposals/P1_SECOND_PROFILE.md` | recorded in the slice return | The benchmark instrument's second profile (D-72): form, bound values, visual tokens and the halo rule, bindings, order. Asked for by addendum 1. |
 | `../proposals/P2_EDGE_LINE_SLICE.md` | recorded in the slice return | A slice, C1E, for the design's edge line, which no slice of the brief draws. |
+| `../proposals/P3_STYLESHEET_REQUEST_C1.md` | recorded in the slice return | With slice C1: token values for the canvas furniture that `styles.css` draws (`.viewport-shell`, `.viewport-scale-bar`, `.viewport-fallback`), for the shell lane to apply. |
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
