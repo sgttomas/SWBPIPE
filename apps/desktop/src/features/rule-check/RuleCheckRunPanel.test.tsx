@@ -333,7 +333,7 @@ describe("RuleCheckRunPanel", () => {
         }
       ],
       professional_boundary_notice:
-        "Rule-check results are engineering decision-support information computed from user-supplied rules and data; acceptance and professional judgment remain with the responsible engineer. Human review remains required."
+        "Rule-check results are engineering decision-support information computed from user-supplied rules and data. Human review remains required."
     });
 
     render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
@@ -358,6 +358,9 @@ describe("RuleCheckRunPanel", () => {
     // no longer rendered (DEC-100).
     expect(screen.queryByTestId("rule-check-professional-boundary")).toBeNull();
     expect(screen.getByTestId("rule-check-run-panel").textContent).not.toContain("responsible engineer");
+    // The fixture notice no longer carries the words guarded above (DEC-107), so this
+    // keeps "the emitted notice is not rendered" checked against the text it now has.
+    expect(screen.getByTestId("rule-check-run-panel").textContent).not.toContain("Human review remains required");
     expect(invokeMock).toHaveBeenCalledWith("run_rule_checks", expect.objectContaining({ rulePackDocument: expect.anything() }));
   });
 
@@ -370,7 +373,7 @@ describe("RuleCheckRunPanel", () => {
       aggregate_status: "RULE_INPUTS_INCOMPLETE",
       checks: [],
       professional_boundary_notice:
-        "Rule-check results are engineering decision-support information computed from user-supplied rules and data; acceptance and professional judgment remain with the responsible engineer. Human review remains required."
+        "Rule-check results are engineering decision-support information computed from user-supplied rules and data. Human review remains required."
     });
     const pack = {
       metadata: { rule_pack_id: "p" },
@@ -419,7 +422,7 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
       }
     ],
     professional_boundary_notice:
-        "Rule-check results are engineering decision-support information computed from user-supplied rules and data; acceptance and professional judgment remain with the responsible engineer. Human review remains required."
+        "Rule-check results are engineering decision-support information computed from user-supplied rules and data. Human review remains required."
   };
 
   it("lifts the worst-of aggregate to onAggregateChange on a desktop run", async () => {

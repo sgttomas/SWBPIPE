@@ -2028,7 +2028,7 @@ describe("SWBPIPE desktop preview", () => {
         .getAttribute("href");
     expect(caepipeMbfTextHref).toBeNull();
     const caepipeExternal = await screen.findByLabelText(
-      "External run evidence",
+      "External prover run",
     );
     expect(
       within(caepipeExternal).getByTestId("caepipe-external-summary")

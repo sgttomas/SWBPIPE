@@ -53,9 +53,7 @@ The project license selected by human governance decision is
 `PolyForm-Noncommercial-1.0.0`; see `../LICENSE.md`.
 
 This docs package remains a governance and coordination index for
-SWBPIPE, which computes open, auditable piping mechanics; acceptance
-and professional judgment remain with the responsible engineer (boundary
-vocabulary: `claims_registry.md`, DEC-081).
+SWBPIPE, which computes open, auditable piping mechanics.
 
 ## How agents should use this package
 

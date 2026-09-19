@@ -705,7 +705,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText(
     "target_length=mm"
   );
-  const caepipeExternalHarness = page.getByLabel("External run evidence");
+  const caepipeExternalHarness = page.getByLabel("External prover run");
   await expect(caepipeExternalHarness.getByTestId("caepipe-external-units")).toContainText(
     "unit-system:dec-018-si-dual-display"
   );

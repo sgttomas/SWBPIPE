@@ -20,8 +20,7 @@ This draft validation-manual slice records the current external-reproducibility
 path for the local `openpipestress-runner` CLI implemented under `DEC-065`.
 It uses invented public-metadata fixtures only. It is development verification
 and screening evidence, not a release-readiness record; validation occurs in
-the user's accepted professional tools, and acceptance and professional
-judgment remain with the responsible engineer.
+the user's accepted professional tools.
 
 As of 2026-07-19 this slice has two parts: the frozen E1 `tp_runner_015`
 procedure (with a dated historical note on case 3), and the bound per-case

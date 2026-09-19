@@ -53,7 +53,7 @@
     "B1-TOKENS": {
       "role": "TASK Type 2 implementer",
       "model": "fable",
-      "status": "reviewed_pass_swept_pass",
+      "status": "merged",
       "briefSha256": "dd0e1da42fa32b20b9bbf24950deeef4e7ef94702354f5fc7e0418f47d27b71f",
       "brief": "briefs/B1-TOKENS_design_tokens.md",
       "returnSha256": "bf372185b1ad9f0bd2342bb350d7f750a73ac27389ea43f8bf6ad1ce64e38db2",
@@ -67,31 +67,42 @@
         "commit": "9e806691f64a0adbf3556c19c202afa31ab08cc0",
         "status": "pass",
         "summarySha256": "f20e550512ad26397eaa63c3e4933459bfe55fb1213b90dbc222023a6f3bad0f"
+      },
+      "merge": {
+        "pullRequest": 801,
+        "mergeCommit": "4dcab750501d039af5b2973991cbe0f3f423b80a",
+        "ciHead": "0439d1babd7539507f4608dfcc2cdb05934e101f"
       }
     },
     "B-SHELL": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "fable",
-      "status": "sealed_not_launched",
+      "status": "launched",
       "briefSha256": "00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75",
       "brief": "briefs/B-SHELL_shell_lane.md",
       "returnSha256": null,
       "candidate": null,
       "dependsOn": [
-        "B1-TOKENS"
-      ]
+        "B1-TOKENS merged 4dcab7505"
+      ],
+      "laneRecords": "lanes/B-SHELL/INDEX.md",
+      "launched": "2026-09-19T00:05Z",
+      "branch": "codex/swbpipe-b-shell-20260918"
     },
     "B-CANVAS": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "fable",
-      "status": "sealed_not_launched",
+      "status": "launched",
       "briefSha256": "df89f5b622a63f206ccc0f879e7255642e4b9ee16174faf84e539ab51bc12084",
       "brief": "briefs/B-CANVAS_canvas_lane.md",
       "returnSha256": null,
       "candidate": null,
       "dependsOn": [
-        "B1-TOKENS"
-      ]
+        "B1-TOKENS merged 4dcab7505"
+      ],
+      "laneRecords": "lanes/B-CANVAS/INDEX.md",
+      "launched": "2026-09-19T00:05Z",
+      "branch": "codex/swbpipe-b-canvas-20260918"
     },
     "B1-REVIEW": {
       "role": "TASK Type 2 software-code-review, read-only",
@@ -103,6 +114,52 @@
       "returnSha256": "f77dfbf4c03fa177c4a63494e575640bb60a61525544f9125476040f5e0e310b",
       "model_ran": "Claude Opus 5",
       "return": "instances/B1-REVIEW/RETURN.md"
+    },
+    "A1F-FOLLOWUPS": {
+      "role": "TASK Type 2 implementer",
+      "model": "fable",
+      "status": "reviewed_pass_swept_pass",
+      "briefSha256": "5b08732e0e667a50e3b838b78941d1358febea65e93379464070d3e553b24cfa",
+      "brief": "briefs/A1F-FOLLOWUPS_identifier_notices_documents.md",
+      "returnSha256": "d36704cc405e9b64a31996d4a87f93cfa049e342197907d9ce45f89051c272f7",
+      "candidate": "bb7c7a2e8e128c91b001d69734369f1b211c7122",
+      "dependsOn": [
+        "A1 merged 7866f0a3c"
+      ],
+      "worktree": "second worktree, branch codex/swbpipe-a1-followups-20260918",
+      "model_ran": "Claude Fable 5.1",
+      "return": "instances/A1F-FOLLOWUPS/RETURN.md",
+      "sweep": {
+        "commit": "06454cd36904f542f22959a7fd67b210fd45b5b9",
+        "status": "pass",
+        "summarySha256": "bf1993759dc1aaabcfc7425a8a44614ec81550592fcc10f94a63c2ca4485c357"
+      }
+    },
+    "A1F-REVIEW": {
+      "role": "TASK Type 2 software-code-review, read-only",
+      "model": "opus",
+      "status": "returned_pass_no_actionable_finding",
+      "briefSha256": "aa7c2bbc179f3340c4bf8a8bdc6169beee207d6292edb943267ba6f66e0269ad",
+      "brief": "briefs/A1F-REVIEW_code_review.md",
+      "candidate": "bb7c7a2e8e128c91b001d69734369f1b211c7122",
+      "returnSha256": "3e640e232c8b3437411c0f579ab6e446f68dadee4d685644d16640f7fee8ada8",
+      "worktree": "second worktree, branch codex/swbpipe-a1-followups-20260918",
+      "model_ran": "Claude Opus 5",
+      "return": "instances/A1F-REVIEW/RETURN.md"
+    },
+    "DESIGN-SYSTEM-05": {
+      "role": "HELPS_HUMANS Type 1 design manager, working alone",
+      "model": "fable",
+      "status": "launched",
+      "launched": "2026-09-19T00:07Z",
+      "briefSha256": "322ca33b2f191f4cb812155e4e2631f8938239551a84f200a4c7144b4c5e7c11",
+      "brief": "lanes/DESIGN-SYSTEM-05/briefs/DESIGN-SYSTEM-05_control_contrast.md",
+      "laneRecords": "lanes/DESIGN-SYSTEM-05/INDEX.md",
+      "branch": "codex/swbpipe-design-system-v14-20260918",
+      "returnSha256": null,
+      "dependsOn": [
+        "B1-TOKENS merged 4dcab7505"
+      ]
     }
   },
   "edges": [
@@ -123,7 +180,7 @@
       "A1-REVIEW"
     ]
   ],
-  "current_frontier": "Slice B1 reviewed (PASS) and swept (pass) on 9e806691f. Next: pull request, CI, merge. Then the two lane managers launch in their own worktrees, and the design-system contrast amendment on its own branch. The A1 follow-ups are reviewed (PASS) on their own branch; that branch takes origin/main after B1 merges, then its own sweep, pull request, CI and merge.",
+  "current_frontier": "A1 follow-ups reviewed (PASS) and swept (pass) on 06454cd36, which contains origin/main with slice B1. Next: pull request, CI, merge. Running from origin/main 4dcab7505, each in its own worktree with ROOT's records under lanes/: the shell lane (first slice B2), the canvas lane (first slice C1 and the second-profile proposal), and the design-system contrast amendment.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -137,5 +194,6 @@
       "until": "A1 review",
       "frontier": "Tranche A1 integrated as one candidate commit. Next: independent Opus code review of the frozen diff, then the DEC-025 sweep, then the pull request."
     }
-  ]
+  ],
+  "base_note": "base is the commit Tranche B opened from; slice B1 merged at 4dcab750501d039af5b2973991cbe0f3f423b80a"
 }

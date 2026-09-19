@@ -430,7 +430,7 @@ def test_record_carries_section8_fields_and_caveat():
         identity={
             "product_name": "SWBPIPE",
             "version": "0.1.0",
-            "identifier": "com.swbpipe.desktop",
+            "identifier": "com.chirality.swbpipe",
         },
         git_state=clean_git_state(commit),
         runtime={"platform": "test"},

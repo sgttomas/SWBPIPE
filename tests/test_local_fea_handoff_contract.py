@@ -309,11 +309,13 @@ def main():
     normalized_guidance = normalize_text(guidance)
     for label in REQUIRED_GUIDANCE_LABELS:
         assert f"`{label}`" in guidance
+    # DEC-107: the registered acceptance text (BS-ACCEPT) is withdrawn from the
+    # guidance; the former requirement is kept as a guard against its return.
     assert (
         "Acceptance, professional judgment, and any certification, sealing, or "
         "code-compliance determination remain with the responsible engineer and "
         "project authority."
-    ) in normalized_guidance
+    ) not in normalized_guidance
     assert "Final engineering reliance remains tied to the exact" in (
         normalized_guidance
     )

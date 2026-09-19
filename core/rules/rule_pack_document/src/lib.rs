@@ -1206,8 +1206,7 @@ pub fn validate_rule_pack_document(
         publicly_exportable: record.is_publicly_exportable(),
         professional_boundary_notice:
             "Document validation results are engineering decision-support information \
-             computed from user-supplied rule-pack content; acceptance and professional \
-             judgment remain with the responsible engineer. Human review remains required."
+             computed from user-supplied rule-pack content. Human review remains required."
                 .to_string(),
         has_blocking_findings,
     }

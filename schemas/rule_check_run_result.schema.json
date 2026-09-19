@@ -35,8 +35,9 @@
       "items": { "$ref": "#/$defs/CheckOutcome" }
     },
     "professional_boundary_notice": {
-      "const": "Software rule-check evidence only; not a professional, certification, sealing, authentication, approval, or code-compliance claim. Human review remains required.",
-      "description": "PROFESSIONAL_BOUNDARY_NOTICE (lib.rs:78-80); carried on every run result."
+      "type": "string",
+      "minLength": 1,
+      "description": "PROFESSIONAL_BOUNDARY_NOTICE (lib.rs:78-80); carried on every run result. The wording is the producer's and is not pinned by this schema, so documents emitted under earlier wordings stay valid."
     }
   },
   "$defs": {
