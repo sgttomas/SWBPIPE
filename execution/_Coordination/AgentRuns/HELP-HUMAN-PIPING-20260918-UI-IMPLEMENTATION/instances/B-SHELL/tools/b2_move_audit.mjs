@@ -20,6 +20,11 @@
 //   3. The sequence of useEffect / useLayoutEffect statements: the base order against the candidate.
 // A statement's text includes the comments that lead it. "reindented" means identical once the
 // leading whitespace of each line is dropped.
+//
+// What it does not compare: import statements, and whatever a module writes before its first
+// statement that is not an import (a header comment above the imports). Section 5 prints that text
+// for every new module so the report accounts for all of a new module's bytes; for App.tsx the
+// import changes are read in the ordinary diff.
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -150,7 +155,7 @@ for (const file of headFiles) {
   headSources.push({ file, sf });
   for (const stmt of sf.statements) {
     if (ts.isImportDeclaration(stmt)) continue;
-    headTop.push({ file, stmt, sf, text: statementText(sf, stmt, true), used: false });
+    headTop.push({ file, stmt, sf, text: statementText(sf, stmt, true), rawText: statementText(sf, stmt, false), used: false });
   }
 }
 
@@ -295,7 +300,7 @@ for (const entry of newTop) {
   say(`### top level, \`${short(entry.file)}\`: ${describe(entry.sf, entry.stmt)}`);
   say();
   say("```ts");
-  say(entry.text);
+  say(entry.rawText);
   say("```");
   say();
 }
@@ -308,8 +313,24 @@ for (const entry of newBody) {
   say();
 }
 
+say(`## 5. Headers and imports of the new modules (not compared)`);
+say();
+for (const { file, sf } of headSources) {
+  if (showAt(baseRev, file) !== null) continue;
+  const firstCode = sf.statements.find((stmt) => !ts.isImportDeclaration(stmt));
+  const lastImport = [...sf.statements].reverse().find((stmt) => ts.isImportDeclaration(stmt));
+  const end = lastImport ? lastImport.getEnd() : firstCode ? firstCode.getFullStart() : sf.text.length;
+  const head = sf.text.slice(0, end).trim();
+  say(`### \`${short(file)}\``);
+  say();
+  say("```ts");
+  say(head || "(no header and no import)");
+  say("```");
+  say();
+}
+
 if (topDiffs.length || bodyDiffs.length) {
-  say(`## 5. Differences for CHANGED and MISSING statements`);
+  say(`## 6. Differences for CHANGED and MISSING statements`);
   say();
   for (const item of [...topDiffs, ...bodyDiffs]) {
     say(`### ${item.title}`);
