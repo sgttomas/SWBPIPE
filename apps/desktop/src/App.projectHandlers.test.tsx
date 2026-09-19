@@ -12,6 +12,7 @@ import type {
   LocalProjectEnvelope,
   ModelHashEvidence,
   OperationOutcome,
+  ProjectEnvelopeHashEvidence,
   PreviewModel,
 } from "./types";
 
@@ -441,5 +442,118 @@ describe("project handlers: a failed or empty open leaves the open project as it
       await revisionGate.promise;
     });
     await waitFor(() => expect(within(evidence).getByTestId("run-audit-status")).toHaveTextContent("USER_RULE_FAILED"));
+  });
+});
+
+// Slice B2G. A stored envelope hash that cannot match the restored envelope,
+// so the open records `mismatch_review_required` on the envelope cell too.
+function mismatchedEnvelopeHash(model: PreviewModel): ProjectEnvelopeHashEvidence {
+  return {
+    algorithm: "sha256",
+    canonicalization: "rfc8785_jcs",
+    payload_scope: "project_envelope_payload",
+    payload_excludes: "storage_summary_and_envelope_hash_carrier_fields",
+    payload_ref: model.project.id,
+    value: `sha256:${"e".repeat(64)}`,
+    hash_status: "computed_local_preview",
+  };
+}
+
+function envelopeHashLine() {
+  return within(openWorkspaceSection("project")).getByTestId("project-validation-envelope-hash");
+}
+
+async function openProjectWithBothMismatchesRecorded(model: PreviewModel) {
+  const envelope = inventedOpenEnvelope(model);
+  envelope.model_hash = mismatchedModelHash(envelope.model);
+  envelope.project_envelope_hash = mismatchedEnvelopeHash(envelope.model);
+  invokeMock.mockImplementation((command: string) =>
+    command === "open_local_project" ? Promise.resolve(envelope) : Promise.reject(new Error(`Unexpected command ${command}`)),
+  );
+  setTauriRuntime(true);
+  act(() => nativeMenuCommand("file.open-local"));
+  await waitFor(() => expect(projectMessage()).toHaveTextContent(envelope.summary.message));
+  await waitFor(() => expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required"));
+  await waitFor(() => expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required"));
+  return envelope;
+}
+
+describe("project handlers: a failed save or create leaves the open project's integrity record (B2G)", () => {
+  it("keeps both recorded mismatches when a save fails", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithBothMismatchesRecorded(model);
+
+    invokeMock.mockImplementation((command: string) =>
+      command === "save_local_project"
+        ? Promise.reject(new Error("Invented save failure"))
+        : Promise.reject(new Error(`Unexpected command ${command}`)),
+    );
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Save failed: Error: Invented save failure"));
+    expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required");
+    expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(envelope.model.project.id)}`)).toBeInTheDocument();
+  });
+
+  it("keeps both recorded mismatches when a create fails", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithBothMismatchesRecorded(model);
+
+    invokeMock.mockImplementation((command: string) =>
+      command === "create_local_project"
+        ? Promise.reject(new Error("Invented create failure"))
+        : Promise.reject(new Error(`Unexpected command ${command}`)),
+    );
+    act(() => nativeMenuCommand("file.new-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Create failed: Error: Invented create failure"));
+    expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required");
+    expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(envelope.model.project.id)}`)).toBeInTheDocument();
+  });
+
+  it("keeps both recorded mismatches when a pending save is superseded by an open that finds nothing", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    await openProjectWithBothMismatchesRecorded(model);
+
+    const pendingSave = deferred<LocalProjectEnvelope>();
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "save_local_project") return pendingSave.promise;
+      if (command === "open_local_project") return Promise.resolve(null);
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("No local project snapshot found."));
+    await act(async () => {
+      pendingSave.reject(new Error("Invented late save failure"));
+      await pendingSave.promise.catch(() => undefined);
+    });
+    await flushPendingWork();
+    expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required");
+  });
+
+  it("still clears the open-time verification when a save lands, as before", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithBothMismatchesRecorded(model);
+
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) =>
+      command === "save_local_project"
+        ? Promise.resolve(savedEnvelopeFor(envelope.model, args!.request!, "Saved invented project over a recorded mismatch."))
+        : Promise.reject(new Error(`Unexpected command ${command}`)),
+    );
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved invented project over a recorded mismatch."));
+    expect(modelHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
   });
 });
