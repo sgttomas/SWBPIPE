@@ -56,4 +56,8 @@ Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, ROOT (HELP_HUMAN, Agent 0). 
 
 - 2026-09-19T00:04Z: slice B1 merged at 00:02Z (PR #801, merge commit `4dcab750501d039af5b2973991cbe0f3f423b80a`; both required checks passed on head `0439d1bab`). This branch took `origin/main` at that commit; the only conflicts were this file, the index and the work graph, and both sets of entries are kept, B1's and the follow-ups', in time order. Frontier here: the DEC-025 sweep on the merged commit, the closeout record, pull request, CI and merge. ROOT's records for the two Tranche B lanes live in `lanes/B-SHELL/` and `lanes/B-CANVAS/`, written on each lane's own branch, so that lane branches never edit this file, the index or the work graph.
 
+- 2026-09-19T00:05Z to 00:07Z: launched from `origin/main` `4dcab7505`, each in its own worktree: the shell lane manager (first slice B2), the canvas lane manager (first slice C1, and the proposal for the benchmark instrument's second profile), and DESIGN-SYSTEM-05 (control-boundary contrast and the disabled ink). ROOT's records for each are under `lanes/` on that branch (`briefs/_INDEX.md` lists them).
+
+- 2026-09-19T00:22Z: the follow-ups' DEC-025 sweep passed on `06454cd36`, the commit that contains `origin/main` (all five surfaces; `_run_records/CLOSEOUT_CHECKS_A1F.json`). Frontier here: pull request, CI, merge. After that, this branch's worktree is free.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
