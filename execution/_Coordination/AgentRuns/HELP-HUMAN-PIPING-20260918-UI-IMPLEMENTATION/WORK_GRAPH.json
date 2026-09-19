@@ -58,9 +58,7 @@
       "brief": "briefs/B1-TOKENS_design_tokens.md",
       "returnSha256": "bf372185b1ad9f0bd2342bb350d7f750a73ac27389ea43f8bf6ad1ce64e38db2",
       "candidate": "bf1ad5662e7e21ee3ce065940ed29bbe50511f1c",
-      "dependsOn": [
-        "A1 merged 7866f0a3c"
-      ],
+      "dependsOn": [],
       "correction1ReturnSha256": "5cbe4c0e8a3a9be61cd8fca5ccdf0f67e961f8cd603aa2047664e17c7ba5662e",
       "model_ran": "Claude Fable 5.1",
       "sweep": {
@@ -72,7 +70,10 @@
         "pullRequest": 801,
         "mergeCommit": "4dcab750501d039af5b2973991cbe0f3f423b80a",
         "ciHead": "0439d1babd7539507f4608dfcc2cdb05934e101f"
-      }
+      },
+      "dependsOnNote": [
+        "A1 merged 7866f0a3c"
+      ]
     },
     "B-SHELL": {
       "role": "WORKING_ITEMS Type 1 lane manager",
@@ -82,9 +83,7 @@
       "brief": "briefs/B-SHELL_shell_lane.md",
       "returnSha256": null,
       "candidate": null,
-      "dependsOn": [
-        "B1-TOKENS merged 4dcab7505"
-      ],
+      "dependsOn": [],
       "laneRecords": "lanes/B-SHELL/INDEX.md",
       "launched": "2026-09-19T00:05Z",
       "branch": "codex/swbpipe-b-shell-20260918",
@@ -93,8 +92,7 @@
       "writeScope": "apps/desktop/src/** except features/viewport/** and features/workspace/modelIndex.ts; apps/desktop/e2e/** except e2e/ui-foundation/**; owns App.tsx and styles.css",
       "order": [
         "B2",
-        "B2F",
-        "B2G",
+        "B2F-B2G",
         "B3",
         "B3A",
         "B3B",
@@ -103,6 +101,9 @@
         "B6",
         "G-11",
         "B7"
+      ],
+      "dependsOnNote": [
+        "B1-TOKENS merged 4dcab7505"
       ]
     },
     "B-CANVAS": {
@@ -113,9 +114,7 @@
       "brief": "briefs/B-CANVAS_canvas_lane.md",
       "returnSha256": null,
       "candidate": null,
-      "dependsOn": [
-        "B1-TOKENS merged 4dcab7505"
-      ],
+      "dependsOn": [],
       "laneRecords": "lanes/B-CANVAS/INDEX.md",
       "launched": "2026-09-19T00:05Z",
       "branch": "codex/swbpipe-b-canvas-20260918",
@@ -129,7 +128,10 @@
         "C3",
         "C4",
         "C5",
-        "second-profile preparation"
+        "SECOND-PROFILE"
+      ],
+      "dependsOnNote": [
+        "B1-TOKENS merged 4dcab7505"
       ]
     },
     "B1-REVIEW": {
@@ -151,9 +153,7 @@
       "brief": "briefs/A1F-FOLLOWUPS_identifier_notices_documents.md",
       "returnSha256": "d36704cc405e9b64a31996d4a87f93cfa049e342197907d9ce45f89051c272f7",
       "candidate": "bb7c7a2e8e128c91b001d69734369f1b211c7122",
-      "dependsOn": [
-        "A1 merged 7866f0a3c"
-      ],
+      "dependsOn": [],
       "worktree": "second worktree, branch codex/swbpipe-a1-followups-20260918",
       "model_ran": "Claude Fable 5.1",
       "return": "instances/A1F-FOLLOWUPS/RETURN.md",
@@ -167,7 +167,10 @@
         "mergeCommit": "8e4c5df6ec84928ca343224e5244ccdae5771cd4",
         "ciHead": "e989522aacfee98fa9a4ab7207c06ffbe1852c43",
         "mergedAt": "2026-09-19T00:47:54Z"
-      }
+      },
+      "dependsOnNote": [
+        "A1 merged 7866f0a3c"
+      ]
     },
     "A1F-REVIEW": {
       "role": "TASK Type 2 software-code-review, read-only",
@@ -191,12 +194,13 @@
       "laneRecords": "lanes/DESIGN-SYSTEM-05/INDEX.md",
       "branch": "codex/swbpipe-design-system-v14-20260918",
       "returnSha256": "0f324a149a7f2e353a62cfc5dd3c70e2416fd46bc6708154d60b39f552c25b34",
-      "dependsOn": [
-        "B1-TOKENS merged 4dcab7505"
-      ],
+      "dependsOn": [],
       "return": "lanes/DESIGN-SYSTEM-05/returns/DESIGN-SYSTEM-05_RETURN.md",
       "model_ran": "Claude Fable 5.1",
-      "rootDecision": "DS5-D1 (disabled ink lifted; ROOT's decision, open to the owner): lanes/DESIGN-SYSTEM-05/HANDOFF.md"
+      "rootDecision": "DS5-D1 (disabled ink lifted; ROOT's decision, open to the owner): lanes/DESIGN-SYSTEM-05/HANDOFF.md",
+      "dependsOnNote": [
+        "B1-TOKENS merged 4dcab7505"
+      ]
     },
     "B1B-TOKENS13": {
       "role": "TASK Type 2 implementer (token adoption, tokens.json 1.3)",
@@ -816,7 +820,8 @@
         "'the piping loop stays on hold' means only that the earlier session does no more work, so no coordination with another session is needed",
         "the two-lane shape with managers was never the owner's direction: how the work is organized is the agent's choice within AGENTS.md; think in parent and child relationships; a parent launches its own children; ROOT may dispatch the independent reviews",
         "a work graph per tranche is essential: ad hoc, built from the code and the run's records, not tied to the repository's deliverable DAG; the owner will reconcile deliverables and scopes to the code later, once the app has its first functional form",
-        "the owner found the session's work good and its outcomes acceptable, and is reluctant to change course"
+        "the owner found the session's work good and its outcomes acceptable, and is reluctant to change course",
+        "evidence therefore stays in the run and is not filed under a deliverable by guess (ROOT's proposal in session; the owner did not object and asked for the work graph; recorded as ROOT's practice, open to the owner)"
       ]
     }
   ],
