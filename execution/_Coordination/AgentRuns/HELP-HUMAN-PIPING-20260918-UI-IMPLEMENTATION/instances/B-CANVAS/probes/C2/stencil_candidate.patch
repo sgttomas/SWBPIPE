@@ -1,0 +1,51 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/features/viewport/viewportHalo.ts b/projects/chirality-piping/apps/desktop/src/features/viewport/viewportHalo.ts
+--- a/projects/chirality-piping/apps/desktop/src/features/viewport/viewportHalo.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/viewport/viewportHalo.ts
+@@ -523,10 +523,13 @@
+         vertexShader: MASK_VERTEX,
+         fragmentShader: MASK_FRAGMENT,
+         colorWrite: false,
+-        // With the depth test off WebGL writes no depth, so the test stays on and always passes.
+-        depthTest: true,
+-        depthFunc: THREE.AlwaysDepth,
+-        depthWrite: true,
++        // Stencil candidate: the mask marks the stencil buffer and leaves the depth buffer alone.
++        depthTest: false,
++        depthWrite: false,
++        stencilWrite: true,
++        stencilRef: 1,
++        stencilFunc: THREE.AlwaysStencilFunc,
++        stencilZPass: THREE.ReplaceStencilOp,
+         transparent: true,
+         blending: THREE.NoBlending,
+         lights: false,
+@@ -550,9 +553,15 @@
+         },
+         vertexShader: form === "normal" ? NORMAL_SHELL_VERTEX : EDGE_SHELL_VERTEX,
+         fragmentShader: form === "normal" ? SHELL_FRAGMENT : EDGE_SHELL_FRAGMENT,
+-        depthTest: true,
+-        depthFunc: THREE.LessEqualDepth,
++        // Stencil candidate: drawn wherever no mask marked the stencil buffer.
++        depthTest: false,
+         depthWrite: false,
++        stencilWrite: true,
++        stencilRef: 1,
++        stencilFunc: THREE.NotEqualStencilFunc,
++        stencilFail: THREE.KeepStencilOp,
++        stencilZFail: THREE.KeepStencilOp,
++        stencilZPass: THREE.KeepStencilOp,
+         transparent: true,
+         blending: THREE.NoBlending,
+         // An edge quad faces either way, and a grown sphere is closed: neither needs culling.
+diff --git a/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts b/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts
+--- a/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts
+@@ -516,7 +516,7 @@
+   ) {
+     this.scene.background = new THREE.Color(sceneBackground(this.themePresentation));
+     this.camera = new THREE.PerspectiveCamera(42, safeAspect(host), 0.1, 10_000);
+-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
++    this.renderer = new THREE.WebGLRenderer({ antialias: true, stencil: true });
+     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+     this.figureEdgeWidth = this.renderer.getPixelRatio();
+     this.renderer.setSize(Math.max(1, host.clientWidth), Math.max(1, host.clientHeight));
