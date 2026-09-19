@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "lane": "B-CANVAS",
+  "parentGraph": "../../WORK_GRAPH.json",
+  "base": "4dcab750501d039af5b2973991cbe0f3f423b80a",
+  "branch": "codex/swbpipe-b-canvas-20260918",
+  "nodes": {
+    "B-CANVAS": {
+      "role": "WORKING_ITEMS Type 1 lane manager",
+      "model": "fable",
+      "status": "launched",
+      "launched": "2026-09-19T00:04Z",
+      "briefSha256": "df89f5b622a63f206ccc0f879e7255642e4b9ee16174faf84e539ab51bc12084",
+      "brief": "../../briefs/B-CANVAS_canvas_lane.md",
+      "addendum1Sha256": "4d5af33abf5b916ab3ddae09214e0d98070f6f2a984f0604d953e5381cd25ad5",
+      "addendum1": "briefs/B-CANVAS_addendum_1.md",
+      "returnSha256": null
+    }
+  },
+  "slices": [],
+  "current_frontier": "Lane launched; first slice in progress."
+}
