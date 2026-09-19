@@ -628,7 +628,10 @@ describe("project handlers: a landed write clears the open-time record even when
     expect(envelopeHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
   });
 
-  it("clears both lines when a model edit lands while a blank create is pending and the create then resolves", async () => {
+  // Correction C2. A blank create writes a new project id, never the open
+  // project's stored bytes, so its dropped response leaves the open project's
+  // open-time record valid and in place.
+  it("keeps both recorded mismatches when a model edit drops a pending blank create's response", async () => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -648,7 +651,7 @@ describe("project handlers: a landed write clears the open-time record even when
     await flushPendingWork();
     // The blank create's response was dropped: its message never publishes.
     expect(projectMessage()).toHaveTextContent(envelope.summary.message);
-    expect(modelHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
-    expect(envelopeHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
+    expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required");
   });
 });
