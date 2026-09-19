@@ -1,0 +1,15 @@
+{
+  "candidate": "90e87b38c89acade6da0eacd238fb5a26cce2c8d",
+  "reason": "Correct invocation after positional argument usage error; no validator edit.",
+  "argv": [
+    "/Users/ryan/dev/chirality/.venv/bin/python",
+    "tools/validation/validate_claims_language.py",
+    "--repo-root",
+    "."
+  ],
+  "cwd": "{REPO_ROOT}",
+  "exit_code": 0,
+  "stdout": "VALID claims-language surfaces: 338 files scanned; DEC-081 registry taxonomy satisfied\n",
+  "stderr": "",
+  "utc": "2026-09-19T21:40:08.989614+00:00"
+}

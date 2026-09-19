@@ -845,13 +845,22 @@
     "record": "instances/ROOT/CONTINUATION_STEER_2026-09-19.md",
     "amendment": "../HELP-HUMAN-PIPING-20260919-LOOP-CLARIFICATIONS/OWNER_DIRECTION.md",
     "status": "owner-approved clarification; product decisions remain unresolved",
-    "precedence": "Later steering supersedes only identified procedural/model-allocation/DAG-link conflicts; historical owner words and execution attribution preserved.",
+    "precedence": "Later steering supersedes identified procedural/model-allocation/DAG-link conflicts and the contrary B3 execution permission identified in currentB3Override; historical owner words and execution attribution are preserved.",
     "productDecisionPackage": [
       "drawer-strip mechanism",
       "docked inspector width source",
       "Both-view protected geometry assertion"
     ],
     "verification": "Native menu, window minimum and title bar require Tauri evidence for B3.",
-    "liveState": "Revalidate lane heads and working trees before continuation; this records steering, not a fresh product-state audit."
+    "liveState": "Revalidate lane heads and working trees before continuation; this records steering, not a fresh product-state audit.",
+    "currentB3Override": {
+      "historicalFields": [
+        "nodes.B3.blockedBy[0].blocks",
+        "nodes.B3.rulings",
+        "nodes.B3.specDepartures"
+      ],
+      "disposition": "Where these inherited fields imply that the drawer-strip mechanism or inspector-width proposal may be implemented as an authorised ruling, that permission is superseded. Present the drawer-strip mechanism, docked inspector width source and Both-view protected geometry assertion together for owner disposition before dependent implementation or B3 merge. No product choice or test change is accepted here.",
+      "unchanged": "Original field values remain historical; independent authorised discovery and strategy/decision-package preparation may proceed."
+    }
   }
 }

@@ -1,0 +1,12 @@
+{
+  "parent": "/root",
+  "task": "/root/loop_clarifications_review",
+  "role": "TASK Type 2",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "high",
+  "candidate": "90e87b38c89acade6da0eacd238fb5a26cce2c8d",
+  "brief_sha256": "2595c32b6ec556c6f9cfd92462c18f06206ce9a8c73eddf61e0306a87cd3d949",
+  "prepared_utc": "2026-09-19T21:38:31.374836+00:00",
+  "enforcement": "instruction-asserted read-only and no delegation; fresh context; no independent serving-model attestation",
+  "write_scope": []
+}

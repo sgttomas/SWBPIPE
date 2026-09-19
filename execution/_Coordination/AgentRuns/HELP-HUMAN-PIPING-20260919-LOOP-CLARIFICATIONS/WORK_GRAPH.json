@@ -7,7 +7,7 @@
   "nodes": [
     {
       "id": "instructions",
-      "state": "drafted",
+      "state": "implemented",
       "depends_on": [],
       "semantic_changes": [
         "shared clarifications in both loops",
@@ -19,14 +19,22 @@
     },
     {
       "id": "review_checks",
-      "state": "pending",
+      "state": "500 tests and scoped checks passed; F1 repaired, final independent backcheck pending",
       "depends_on": [
         "instructions"
+      ],
+      "findings": [
+        {
+          "id": "F1",
+          "severity": "P2",
+          "disposition": "Added explicit currentB3Override naming the inherited fields whose implementation permission is superseded; no product decision made.",
+          "backcheck": "pending"
+        }
       ]
     },
     {
       "id": "integration",
-      "state": "pending",
+      "state": "pending final review and actual-candidate CI",
       "depends_on": [
         "review_checks"
       ]
@@ -41,5 +49,6 @@
       "work": "App reconciliation and prior corpus drift",
       "until": "Owner supplies phase steering"
     }
-  ]
+  ],
+  "terminal_record": "PR owns final review, CI and merge disposition; no merge is claimed before it occurs."
 }
