@@ -7,5 +7,6 @@ The lane's own instructions are ROOT's: `../../../briefs/B-CANVAS_canvas_lane.md
 | Brief | SHA-256 | Sealed | Model requested | Role | Return |
 |---|---|---|---|---|---|
 | `C1A-PALETTE.md` | `e2c8fffe4957d8ce112a66d0a2449755cf77a499182ed51b1e59482d7d2db77b` | 2026-09-19T00:22Z | `fable` (Claude Fable 5.1) | TASK implementer; slice C1, first part: the palette module, matte figure shading, live repaint, every canvas colour but the two held | `../returns/C1A-PALETTE_RETURN.md` |
+| `INV1-INSTRUMENT.md` | `4322fc25107c1c289be6670e1a880a610e1ef04b646fb38c0b580f3e269885fe` | 2026-09-19T00:24Z | `sonnet` (Claude Sonnet), `Explore` type | TASK, read-only inventory of what the benchmark instrument under `apps/desktop/e2e/ui-foundation/**` pins, for the second-profile proposal | `../returns/INV1-INSTRUMENT_RETURN.md` |
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
