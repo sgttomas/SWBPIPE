@@ -126,4 +126,6 @@ ROOT (HELP_HUMAN, Agent 0), a new session continuing from `../instances/ROOT/SES
 | `B-SHELL_launch_2026-09-19.md` | `2a2542c7e5b4584589203b07f1837c9b0d594d0bb3a1cab25d89bf40ccf7e33e` | `swbpipe-wt3`, `codex/swbpipe-b-shell-20260918` at `5f70ad178` |
 | `B-CANVAS_launch_2026-09-19.md` | `8b712cc65c83ba8320bd872d40e6d4e5a533586af6049ea4f486ce17a9c78986` | `swbpipe-wt4`, `codex/swbpipe-b-canvas-20260918` at `4a7408e55` |
 
+Independent check of the second session handoff, sealed 2026-09-19: `HANDOFF2-REVIEW_records_review.md`, SHA-256 `0cdfff48b0fa07a44097f8db892b1e3fd9976bce8590cf76e77353a7e0b8d36a`; model requested `opus` (Claude Opus 5); TASK Type 2, read-only, fresh context; return to be retained at `../instances/HANDOFF2-REVIEW/RETURN.md`.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
