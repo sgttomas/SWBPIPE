@@ -1,0 +1,44 @@
+# Retained return — B2G-REVIEW backcheck, 2026-09-19
+
+Retained by ROOT. What follows is the agent's final message as the host stored it, with the machine's repository path replaced by `{REPO_ROOT}`; nothing else is changed. The message exactly as the host stored it has SHA-256 `e2b9dca430e9b72e064ce27d99c588f99b406f03bd7699c33ec1c24b77977fa2` (38 lines), by this script.
+
+---
+
+# B2G-REVIEW backcheck return
+
+**Finding 1: CLOSED** for `handleSaveProject` and `handleCreateProject`. **One new finding**, minor, on the third place the correction was applied — `handleCreateBlankProject` — where it is not justified and the third new test pins the wrong outcome. **Verdict for the combined candidate `8922fec3e` against `64f86e17f`: FINDINGS.**
+
+The new finding is my own error carried forward: my prior return's closing note invited the correction into the blank handler, and I had not checked what a blank create actually writes. I own that.
+
+I am Claude Opus 5 (`claude-opus-5[1m]`), read-only; no state-changing git command, no file modified in the worktree. Worktree at `8922fec3e`, clean. Reviewed `git diff 0fc5b065e..8922fec3e -- .../apps/desktop` at 100 %: two files, `workspaceSession.ts` +22/−12 and `App.projectHandlers.test.tsx` +95/−0.
+
+## Finding 1 — CLOSED for save and create
+
+The hunks at `workspaceSession.ts` 1388 (`handleCreateProject`) and 1645 (`handleSaveProject`) are exactly what I prescribed, character for character: the two nulls under `if (request === projectRequest.current)` directly after the persisting call, then `if (!stillCurrent()) return;`. The comment is reworded to name the epoch case; no other line moved.
+
+Both handlers write the **same** project the session has open — `handleCreateProject` passes the session `model`, and the Rust `create_local_project`/`save_local_project` key on `project_id_from_model` (`src-tauri/src/lib.rs` 2269). So "the persisted bytes have been rewritten" is true there, and nulling a landed write's open-time record is right whether or not the response was accepted. No double-null and no ordering problem: one guarded write, no other write to either cell on any path in those two handlers, and the guard is in the same synchronous run as the check that follows it, so nothing can interleave. A later *project* request still owns the cells (the guard is false), so an open's derived values at 1567/1578 cannot be clobbered. A request that throws still nulls nothing.
+
+## Finding 2 (new) — the correction does not belong in `handleCreateBlankProject`
+
+- **Severity:** minor. **Actionable before merge: yes** — it is a two-line removal plus one test oracle, and merging freezes a test that asserts the wrong behaviour.
+- **Location:** `workspaceSession.ts` 1463–1468 (the added guarded nulls); `App.projectHandlers.test.tsx` 631–645 (the third new test).
+- **What is wrong.** `handleCreateBlankProject` calls `createLocalProject(blankModel, …)`, and `buildBlankLocalModelDocument` mints a **new** project id (`projectService.ts` 453, `project:blank-local-<stamp>`). The Rust command keys on that id, so a blank create writes a **different project row and leaves the open project's stored bytes untouched**. The justification the correction rests on — "the persisted bytes have been rewritten" — does not hold here. On the superseded path the session stays on the previously opened project, whose open-time verification is still valid, and the guarded null now discards it. That is the same class and the same unsafe direction as the defect the whole slice exists to repair: a recorded `mismatch_review_required` silently disappears from a project that stays open. Before this commit that path kept the record.
+- **Evidence.** A probe in a scratchpad copy of the app at this head (worktree untouched), same scenario as the new third test: open project id `project:invented-handler-open`; the id actually written by the blank create `project:blank-local-20260919t075726z`; after the model edit drops the response the displayed message is still `"Opened invented handler project."` — the session never switched — yet the model line reads `integrity=open_verification_not_run_this_session`. On `a75bf1d85`'s source the same scenario keeps `mismatch_review_required` (that is the third new test's red run). The new test at 631 asserts the cleared value, so it pins the loss as intended behaviour.
+- **Smallest correction.** Remove the added block at 1463–1468; the handler then reads exactly as at `0fc5b065e`, and its existing commit-point nulls at 1477–1478 already cover the successful path, which is the only path on which this handler's write becomes the session's project. Then invert the third new test to assert both lines still read `integrity=mismatch_review_required` — which makes it a B2G-style guarantee for the blank handler rather than a C1-style one, and its existing `projectMessage()` assertion already proves the response was dropped. Tests one and two are unaffected.
+- **Note.** If the block is kept anyway, its nulls at 1465–1467 are in any case strictly redundant on the successful path: reaching 1477 requires passing `stillCurrent()` at 1469, which requires `request === projectRequest.current`, so the guarded null already ran. Both pairs are in one synchronous continuation, so React batches them and `Object.is(null, null)` bails out — no extra render, no ordering problem. The redundancy is harmless; the superseded path is the problem.
+
+## ROOT's other checks
+
+- **The blank handler's successful path reads exactly as before.** Final state identical: gate invalidated exactly once, at the commit point (1476) — not moved, not duplicated; both cells null; every other setter and its order unchanged (1479–1507).
+- **B2F's item-3 guarantees for the blank handler still hold for a *failed* create.** The added block sits after `createLocalProject` resolves, so a throw at 1452, 1453 or 1462 goes straight to the catch with nothing written; the B2F test "keeps a recorded model-hash mismatch when a blank create fails" still passes. What no longer holds is the *superseded-after-write* case — that is Finding 2.
+- **The three new tests are real and fail for the stated reason.** I substituted `a75bf1d85`'s `workspaceSession.ts` in a scratchpad copy: **3 failed, 11 passed**, the three failures being exactly the three new tests, each receiving `integrity=mismatch_review_required` where `open_verification_not_run_this_session` is expected. At the head, `npx vitest run src/App.projectHandlers.test.tsx` gives **14 passed / 14** and `npx tsc -p tsconfig.json --noEmit` exits 0. Mocks match the bridge: `save_local_project` under `request`, `create_local_project` flat (the test's comment says so and `projectService.ts` 529 confirms it). Two observations, neither a finding: `applyGridEditWhilePending` flips the runtime flag to run the apply through the browser route rather than `invoke` — a real product route, and both routes reach `commitModel`, which is what advances the epoch; and only the blank-create test asserts that the response was actually dropped, so tests one and two would pass trivially if the epoch had not advanced — their red run is what gives them discriminating power, and I reproduced it.
+- **`runMenuCommand`** extracted at `8922fec3e` hashes `b75f08dc135a384edda0ec1a80f1343d732b8163dc7f4cbb7728e0ea33375859` — byte for byte `64f86e17f`'s.
+- **Pre-existing tests untouched.** The test file is +95/−0; across the whole combined range `64f86e17f...8922fec3e` exactly two files change under the desktop app and none anywhere else outside the run's records, so `App.test.tsx` and both Playwright lanes are byte-identical to the base.
+- **No absolute machine path** anywhere in `0fc5b065e..8922fec3e`.
+- **Records observation, not a finding.** The corrected reachability sentence is not visible in this range: the retained `lanes/.../returns/B2G_RETURN.md` still carries the original wording (correct, since ROOT does not edit a retained return), and `instances/B-SHELL/LANE_LOG.md` at this revision has no restatement — it lands in `46d9b6ba3`, on the manager's lane and outside the branch under review. If ROOT merges from this branch, the strike-and-restate should come with it.
+
+## What I did not check
+
+The full unit suite, either Playwright lane, the build, the sweep, the validators and a dev server — not run; `src-tauri/**` read only far enough to confirm that create and save key on the model's project id; no records reviewed beyond the path scan and the two notes above; no usability, accessibility or performance assessment, and no acceptance claim of any kind. My red and probe runs used a scratchpad copy of the app with sibling folders and `node_modules` symlinked — the candidate's source byte for byte, but not the worktree, and only this one test file.
+
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
