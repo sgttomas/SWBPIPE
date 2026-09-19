@@ -46,6 +46,16 @@
       "brief": "briefs/B-SHELL_addendum_2.md",
       "candidate": null,
       "returnSha256": null
+    },
+    "B-SHELL-ADDENDUM-3": {
+      "role": "ROOT's sealed addendum to the lane's brief",
+      "model": "n/a (ROOT, Claude Fable 5.1)",
+      "status": "sealed",
+      "sealed": "2026-09-19T05:16Z",
+      "briefSha256": "4b928f286036aa5a4e7de1152d9fa7b72bcb9d39dd3f038e02d6ad3735f93b35",
+      "brief": "briefs/B-SHELL_addendum_3.md",
+      "candidate": null,
+      "returnSha256": null
     }
   },
   "slices": [
@@ -72,5 +82,5 @@
       }
     }
   ],
-  "current_frontier": "Slice B2 merged as b9a070408 (PR #803); the branch is fast-forwarded to main; addendum 2 sealed; the manager resumes with slice B2F, then B3."
+  "current_frontier": "Slice B2 merged (PR #803, b9a070408). Addenda 2 and 3 sealed and waiting. Next, for the manager: slice B2F (four handler repairs, failing test first), then B3 with the hook-import guard and the session key-set test in its first commit."
 }
