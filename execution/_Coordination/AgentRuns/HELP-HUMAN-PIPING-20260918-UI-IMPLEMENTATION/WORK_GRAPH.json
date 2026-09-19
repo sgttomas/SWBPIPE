@@ -92,7 +92,7 @@
     "B-CANVAS": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "fable",
-      "status": "paused clean: product head 3a5f7c103bde915d800792112dec2dea19a0813e; addenda 2 to 4 sealed on the lane's branch (head 4a7408e5512c425cbf9cdedd0b17396ad176607b, pushed, never merged); F1 and F2 done, F3 and slice C1E not started, the T1 probe unfinished; the manager of 2026-09-19 cannot be resumed from another session",
+      "status": "paused clean: product head 3a5f7c103bde915d800792112dec2dea19a0813e; addenda 2 to 5 sealed on the lane's branch (head 4a7408e5512c425cbf9cdedd0b17396ad176607b, pushed, never merged); F1 and F2 done, F3 and slice C1E not started, the T1 probe unfinished; the manager of 2026-09-19 cannot be resumed from another session",
       "briefSha256": "df89f5b622a63f206ccc0f879e7255642e4b9ee16174faf84e539ab51bc12084",
       "brief": "briefs/B-CANVAS_canvas_lane.md",
       "returnSha256": null,
@@ -212,14 +212,15 @@
     "HANDOFF-REVIEW": {
       "role": "TASK Type 2 read-only reviewer, fresh context",
       "model": "opus",
-      "status": "returned: FINDINGS, none blocking (two minor, four trivial); all six answered; backcheck pending",
+      "status": "returned FINDINGS, none blocking; backcheck: all six closed, two new trivial findings applied as the reviewer worded them",
       "sealed": "2026-09-19T05:26Z",
       "brief": "briefs/HANDOFF-REVIEW_records_review.md",
       "briefSha256": "5156efe17a9c3aa5f3efc387528b57b7166a91a6a35d9266f3d99de4986a7e49",
       "candidate": "b45b6e27e",
       "returnSha256": "70ae3101d42c995b84b47a3a9ea835f7f7e9fa5e5da3c5bcaf8ba16e82ef2738",
       "return": "instances/HANDOFF-REVIEW/RETURN.md",
-      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement"
+      "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "backcheckReturnSha256": "d6aeac38120cba011a008ad3bb4d4ec904b29493d0a8f4d3d807796ef49fccdc"
     }
   },
   "edges": [

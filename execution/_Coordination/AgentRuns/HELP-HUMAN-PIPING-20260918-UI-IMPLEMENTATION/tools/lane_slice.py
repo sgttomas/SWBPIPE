@@ -25,7 +25,8 @@ def lane_dir(wt, lane):
 
 def read(p): return open(p, encoding="utf-8").read()
 def write(p, s):
-    assert not MACHINE.search(s), "absolute machine path in " + p
+    if MACHINE.search(s):
+        sys.exit("absolute machine path in " + p)
     open(p, "w", encoding="utf-8").write(s)
 
 def before_fence(s, block):
