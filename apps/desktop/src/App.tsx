@@ -1,5 +1,4 @@
 import { observeWorkspaceCanvasBudget } from "./features/workspace/workspaceCanvasBudget";
-import type { ViewportViewCommand } from "./features/viewport/viewportSelection";
 import { HangerSelectionPanel } from "./features/hanger-selection";
 import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
 import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
@@ -7,8 +6,8 @@ import operationSchema from "../../../schemas/model_operation.schema.json";
 import { GeometryToolsPanel } from "./features/geometry-tools/GeometryToolsPanel";
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
-import { applyOperationBatch, validateOperationBatch, type OperationBatch, type OperationBatchOutcome } from "./services/operationBatchService";
-import { BatchReviewPanel, type QueuedBatch, type BatchReceipt } from "./features/toolkit/BatchReviewPanel";
+import { applyOperationBatch, validateOperationBatch, type OperationBatch } from "./services/operationBatchService";
+import { BatchReviewPanel, type QueuedBatch } from "./features/toolkit/BatchReviewPanel";
 import {
   Bot,
   ClipboardCheck,
@@ -31,13 +30,11 @@ import {
 import { WorkspaceToolbar } from "./features/workspace/WorkspaceToolbar";
 import { DormantSection } from "./features/workspace/dormantSection";
 import {
-  readUiPreferences,
-  resolvedUiTheme,
   updateUiPreferences,
   writeUiPreferences
 } from "./features/workspace/uiPreferences";
 import type React from "react";
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
@@ -68,7 +65,6 @@ import {
   applyBoxSelection,
   applySelection,
   emptySelection,
-  entityRefFromKey,
   primarySelection,
   pruneSelection,
   sameSelection,
@@ -79,11 +75,7 @@ import {
   type SelectionModifiers
 } from "./features/workspace/selectionState";
 import { publishUiModelAssignmentStarted } from "./features/workspace/uiDiagnostics";
-import {
-  RuleRevisionGenerationGate,
-  SolveRunGenerationGate,
-  commitModelAfterSolveInvalidation
-} from "./features/workspace/solveGates";
+import { commitModelAfterSolveInvalidation } from "./features/workspace/solveGates";
 import { solveProofStatus, type SolveProofEvidence } from "./features/workspace/solveProof";
 import {
   awaitBackendSolveJob,
@@ -121,9 +113,15 @@ import {
 import {
   clonePreviewModel,
   selectionForOperationOutcome,
-  uiModelIdentityHash,
-  type SessionModelCheckpoint
+  uiModelIdentityHash
 } from "./features/workspace/sessionModel";
+import { useChromeSessionState } from "./features/workspace/chromeSessionState";
+import type { R3JourneyEvent } from "./features/workspace/chromeSessionState";
+import { useModelSessionState } from "./features/workspace/modelSessionState";
+import { useSelectionSessionState } from "./features/workspace/selectionSessionState";
+import { useResultsSessionState } from "./features/workspace/resultsSessionState";
+import { useOperationsSessionState } from "./features/workspace/operationsSessionState";
+import { useProjectSessionState } from "./features/workspace/projectSessionState";
 import { ModelTree } from "./features/model-tree/ModelTree";
 import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
 import { intentKey, OperationApplyPanel } from "./features/operations/OperationApplyPanel";
@@ -169,7 +167,6 @@ import {
 } from "./features/viewport/routeDraft";
 import {
   buildAnalysisRunPreview,
-  buildPreviewComparison,
   cancelPreviewMechanicsJob,
   loadDesignKnowledge,
   loadPreviewModel,
@@ -177,13 +174,10 @@ import {
   runPreviewMechanics,
   startPreviewMechanicsJob
 } from "./services/previewService";
-import type { PreviewSolverMode } from "./services/previewService";
 import {
   applyModelOperation,
-  initialOperationEngineStatus,
   validateModelOperation,
-  warmupOperationEngine,
-  type OperationEngineStatus
+  warmupOperationEngine
 } from "./services/operationService";
 import type { RuleCheckStatus } from "./services/ruleCheckService";
 import {
@@ -196,15 +190,11 @@ import {
 } from "./services/projectService";
 import { canonicalSha256Hex, computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
 import { isTauriRuntime } from "./services/nativeMenu";
-import {
-  saveReportPackage,
-  type ReportPackageSaveRoute
-} from "./services/reportPackageSaveService";
+import { saveReportPackage } from "./services/reportPackageSaveService";
 import {
   buildCurrentSessionInputManifest,
   type CurrentSessionInputManifestEvidence
 } from "./services/inputManifestService";
-import type { ControlledRouteExport } from "./features/redaction-controls/redactionExportControls";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -213,18 +203,12 @@ import type {
   EditorOperationIntent,
   EntityRef,
   LocalProjectEnvelope,
-  LocalProjectIndexEntry,
   LocalProjectSummary,
   LocalStorageCapability,
   MechanicsResult,
-  ModelDocumentMigrationStatus,
   ModelHashEvidence,
-  ModelHashIntegrityEvidence,
-  ModelMigrationLedgerRecord,
   OperationOutcome,
   PreviewModel,
-  ProjectEnvelopeHashEvidence,
-  ProjectEnvelopeHashIntegrityEvidence,
   SelectedReviewTarget,
   SolveJobAuditState
 } from "./types";
@@ -255,148 +239,137 @@ function formatPackageSaveError(error: unknown): string {
   return String(error);
 }
 
-type R3JourneyEvent =
-  | "library_template_loaded"
-  | "library_validate_requested"
-  | "library_save_requested"
-  | "rule_pack_draft_created"
-  | "rule_pack_validate_requested"
-  | "rule_pack_checksum_requested"
-  | "rule_pack_save_requested"
-  | "rule_check_pack_loaded"
-  | "rule_check_run_requested";
-
-type R3JourneyState = Record<R3JourneyEvent, boolean>;
-
-const INITIAL_R3_JOURNEY_STATE: R3JourneyState = {
-  library_template_loaded: false,
-  library_validate_requested: false,
-  library_save_requested: false,
-  rule_pack_draft_created: false,
-  rule_pack_validate_requested: false,
-  rule_pack_checksum_requested: false,
-  rule_pack_save_requested: false,
-  rule_check_pack_loaded: false,
-  rule_check_run_requested: false
-};
-
 export function App() {
   return <DisplayUnitsProvider><AppSession /></DisplayUnitsProvider>;
 }
 
 function AppSession() {
-  const [uiPreferences, setUiPreferences] = useState(readUiPreferences);
-  const [systemDark, setSystemDark] = useState(() =>
-    typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches
-  );
-  const resolvedTheme = resolvedUiTheme(uiPreferences.theme, systemDark);
-  const [model, setModel] = useState<PreviewModel | null>(null);
-  const [knowledge, setKnowledge] = useState<DesignKnowledge | null>(null);
-  const [selection, setPrimarySelection] = useState<EntityRef | null>(null);
-  const [orderedSelection, setOrderedSelection] = useState<OrderedSelectionState>(() => emptySelection());
-  const orderedSelectionRef = useRef<OrderedSelectionState>(orderedSelection);
-  const [hiddenEntityKeys, setHiddenEntityKeys] = useState<ReadonlySet<EntityKey>>(() => new Set());
-  const [isolateHiddenEntityKeys, setIsolateHiddenEntityKeys] = useState<ReadonlySet<EntityKey>>(() => new Set());
-  const [treePublication, setTreePublication] = useState<{
-    actionSequence: number;
-    publicationSequence: number;
-    query: string;
-    visibleCount: number;
-    inputAt: number | null;
-    inputEventTimeStamp: number | null;
-    publishedAt: number;
-  } | null>(null);
-  const handleTreePublication = useCallback((publication: NonNullable<typeof treePublication>) => {
-    setTreePublication(publication);
-  }, []);
-  const [projectSessionGeneration, setProjectSessionGeneration] = useState(0);
-  const projectSessionGenerationRef = useRef(0);
-  const [uiModelRevision, setUiModelRevision] = useState(0);
-  const uiModelRevisionRef = useRef(0);
-  const modelPublicationGenerationRef = useRef(0);
-  const [modelAssignment, setModelAssignment] = useState<{
-    status: "started" | "committed";
-    generation: number;
-    indexGeneration: string;
-    identityHash: string;
-    startedAt: number;
-    committedAt: number | null;
-  } | null>(null);
-  const [result, setResult] = useState<MechanicsResult | null>(null);
-  const [historicalRun, setHistoricalRun] = useState<HistoricalRunContext | null>(null);
-  const currentSolvedResult = result?.status.mechanics === "MECHANICS_SOLVED" ? result : null;
-  const [analysisRun, setAnalysisRun] = useState<AnalysisRunEnvelope | null>(null);
-  const resultBasisRef = useRef<{ value: MechanicsResult | null; sequence: number }>({ value: null, sequence: 0 });
-  if (resultBasisRef.current.value !== result) resultBasisRef.current = { value: result, sequence: resultBasisRef.current.sequence + 1 };
+  const {
+    uiPreferences, setUiPreferences,
+    setSystemDark,
+    resolvedTheme,
+    activeSection, setActiveSection,
+    activatedExpensiveSections, setActivatedExpensiveSections,
+    toolkitFocus, setToolkitFocus,
+    propertyTaskRequestSequenceRef,
+    propertyTaskRequest, setPropertyTaskRequest,
+    openMenu, setOpenMenu,
+    armedCreationTool, setArmedCreationTool,
+    viewportViewCommandRef,
+    workspaceShellRef,
+    workspaceBudgetRef,
+    treeCollapsed, setTreeCollapsed,
+    inspectorCollapsed, setInspectorCollapsed,
+    treeToggleRef,
+    inspectorToggleRef,
+    activeResizeCleanupRef,
+    operationTab, setOperationTab,
+    setR3JourneyState,
+    reviewDetailsOpen, setReviewDetailsOpen,
+    auditDrawerOpen, setAuditDrawerOpen,
+    issuesDrawerOpen, setIssuesDrawerOpen
+  } = useChromeSessionState();
+  const {
+    model, setModel,
+    knowledge, setKnowledge,
+    projectSessionGeneration, setProjectSessionGeneration,
+    projectSessionGenerationRef,
+    uiModelRevision, setUiModelRevision,
+    uiModelRevisionRef,
+    modelPublicationGenerationRef,
+    modelAssignment, setModelAssignment,
+    modelHash, setModelHash,
+    modelRevision,
+    currentModel,
+    activeModelIndex
+  } = useModelSessionState();
+  const {
+    selection, setPrimarySelection,
+    orderedSelection, setOrderedSelection,
+    orderedSelectionRef,
+    hiddenEntityKeys, setHiddenEntityKeys,
+    isolateHiddenEntityKeys, setIsolateHiddenEntityKeys,
+    treePublication,
+    handleTreePublication,
+    selectedPipeRefs
+  } = useSelectionSessionState();
+  const {
+    result, setResult,
+    historicalRun, setHistoricalRun,
+    currentSolvedResult,
+    analysisRun, setAnalysisRun,
+    resultBasisRef,
+    analysisBasisRef,
+    inputManifest, setInputManifest,
+    ruleCheckAggregate, setRuleCheckAggregate,
+    proposal, setProposal,
+    selectedReviewTarget, setSelectedReviewTarget,
+    solveJob, setSolveJob,
+    solveProof, setSolveProof,
+    running, setRunning,
+    solverMode, setSolverMode,
+    reportPackagePrivateIntent, setReportPackagePrivateIntent,
+    reportPackageBusy, setReportPackageBusy,
+    reportPackageRedaction, setReportPackageRedaction,
+    reportPackageRoute, setReportPackageRoute,
+    reportPackageRequestGenerationRef,
+    reportPackageBusyGenerationRef,
+    solveRunGate,
+    ruleRevisionGate,
+    currentSolvedResultRef,
+    currentInputManifestRef,
+    activeSolveJob,
+    solveCancellationTombstones,
+    comparison
+  } = useResultsSessionState();
+  const {
+    editorIntents, setEditorIntents,
+    retainedReviewContext, setRetainedReviewContext,
+    operationOutcomes, setOperationOutcomes,
+    appliedOperations, setAppliedOperations,
+    undoStack, setUndoStack,
+    redoStack, setRedoStack,
+    queuedBatches, setQueuedBatches,
+    batchOutcomes, setBatchOutcomes,
+    batchReceipts, setBatchReceipts,
+    batchMessage, setBatchMessage,
+    requestEpoch, setRequestEpoch,
+    requestEpochRef,
+    getPreparationEpoch,
+    directDraftCommitToken, setDirectDraftCommitToken,
+    batchSequence,
+    operationBusy, setOperationBusy,
+    operationMessage, setOperationMessage,
+    operationEngineStatus, setOperationEngineStatus,
+    intentSequence,
+    operationRequest,
+    directDraftReviews,
+    directDraftReviewSequence
+  } = useOperationsSessionState();
+  const {
+    projectRequest,
+    storageCapability, setStorageCapability,
+    projectSummary, setProjectSummary,
+    projectIndex, setProjectIndex,
+    modelHashIntegrity, setModelHashIntegrity,
+    projectEnvelopeHash, setProjectEnvelopeHash,
+    modelDocumentMigration, setModelDocumentMigration,
+    modelMigrationLedger, setModelMigrationLedger,
+    projectEnvelopeHashIntegrity, setProjectEnvelopeHashIntegrity,
+    projectMessage, setProjectMessage,
+    projectOperation, setProjectOperation,
+    projectBusy, setProjectBusy
+  } = useProjectSessionState();
+
   const ruleCheckRunBasis: RuleCheckRunBasis = {
     projectSessionGeneration,
     modelRevision: uiModelRevision,
     resultSequence: resultBasisRef.current.sequence
   };
-  const analysisBasisRef = useRef<{ value: AnalysisRunEnvelope | null; sequence: number }>({ value: null, sequence: 0 });
-  if (analysisBasisRef.current.value !== analysisRun) analysisBasisRef.current = { value: analysisRun, sequence: analysisBasisRef.current.sequence + 1 };
   // Dormant output panels receive this key only when they reconcile again.
   // Thus accepted model/result changes do not wake an inactive full-model scan,
   // while the next activation remounts local packet/route state before paint.
   const dormantOutputBasis = `${uiModelRevision}:${resultBasisRef.current.sequence}:${analysisBasisRef.current.sequence}`;
-  const [inputManifest, setInputManifest] =
-    useState<CurrentSessionInputManifestEvidence | null>(null);
-  // Worst-of rule-check aggregate from the GUI run panel, lifted so it can be
-  // recorded in the app-held analysis-run envelope (TP-C4-APPAGG-001).
-  const [ruleCheckAggregate, setRuleCheckAggregate] = useState<RuleCheckStatus | null>(null);
-  const [proposal, setProposal] = useState<AgentProposal | null>(null);
-  const [editorIntents, setEditorIntents] = useState<EditorOperationIntent[]>([]);
-  const [retainedReviewContext, setRetainedReviewContext] = useState<EditorOperationIntent[]>([]);
-  const projectRequest = useRef(0);
-  const [selectedReviewTarget, setSelectedReviewTarget] = useState<SelectedReviewTarget | null>(null);
-  const [storageCapability, setStorageCapability] = useState<LocalStorageCapability | null>(null);
-  const [projectSummary, setProjectSummary] = useState<LocalProjectSummary | null>(null);
-  const [projectIndex, setProjectIndex] = useState<LocalProjectIndexEntry[] | null>(null);
-  const [modelHash, setModelHash] = useState<ModelHashEvidence | null>(null);
-  const [modelHashIntegrity, setModelHashIntegrity] = useState<ModelHashIntegrityEvidence | null>(null);
-  const [projectEnvelopeHash, setProjectEnvelopeHash] = useState<ProjectEnvelopeHashEvidence | null>(null);
-  const [modelDocumentMigration, setModelDocumentMigration] = useState<ModelDocumentMigrationStatus | null>(null);
-  const [modelMigrationLedger, setModelMigrationLedger] = useState<ModelMigrationLedgerRecord[]>([]);
-  const [projectEnvelopeHashIntegrity, setProjectEnvelopeHashIntegrity] =
-    useState<ProjectEnvelopeHashIntegrityEvidence | null>(null);
-  const [projectMessage, setProjectMessage] = useState("Local project store not opened.");
-  const [projectOperation, setProjectOperation] = useState("not_started");
-  const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
-  const [solveProof, setSolveProof] = useState<SolveProofEvidence | null>(null);
-  const [running, setRunning] = useState(false);
-  const [solverMode, setSolverMode] = useState<PreviewSolverMode>("sparse_interactive");
-  const [projectBusy, setProjectBusy] = useState(false);
-  const [reportPackagePrivateIntent, setReportPackagePrivateIntent] = useState(false);
-  const [reportPackageBusy, setReportPackageBusy] = useState(false);
-  const [reportPackageRedaction, setReportPackageRedaction] = useState<ControlledRouteExport | null>(null);
-  const [reportPackageRoute, setReportPackageRoute] = useState<ReportPackageSaveRoute | null>(null);
-  const reportPackageRequestGenerationRef = useRef(0);
-  const reportPackageBusyGenerationRef = useRef<number | null>(null);
-  const [operationOutcomes, setOperationOutcomes] = useState<Record<string, OperationOutcome>>({});
-  const [appliedOperations, setAppliedOperations] = useState<AppliedOperationReceipt[]>([]);
-  const [undoStack, setUndoStack] = useState<SessionModelCheckpoint[]>([]);
-  const [redoStack, setRedoStack] = useState<SessionModelCheckpoint[]>([]);
-  const [queuedBatches, setQueuedBatches] = useState<QueuedBatch[]>([]);
-  const [batchOutcomes, setBatchOutcomes] = useState<Record<string, OperationBatchOutcome>>({});
-  const [batchReceipts, setBatchReceipts] = useState<BatchReceipt[]>([]);
-  const [batchMessage, setBatchMessage] = useState<string | null>(null);
-  const [requestEpoch, setRequestEpoch] = useState(0);
-  const requestEpochRef = useRef(0);
-  const getPreparationEpoch = useCallback(() => requestEpochRef.current, []);
-  const [directDraftCommitToken, setDirectDraftCommitToken] = useState<string | null>(null);
-  const batchSequence = useRef(0);
-  const [operationBusy, setOperationBusy] = useState(false);
-  const [operationMessage, setOperationMessage] = useState<string | null>(null);
-  const [operationEngineStatus, setOperationEngineStatus] = useState<OperationEngineStatus>(() =>
-    initialOperationEngineStatus()
-  );
-  // CAD-shell IA (TP-R3UX-CADSHELL): the dock starts collapsed so the spatial
-  // core (model tree | 3D viewport | inspector) owns the surface; workspace
-  // sections are summoned from the View menu and dismissed back to the viewport.
-  const [activeSection, setActiveSection] = useState<WorkspaceSectionId | null>(null);
-  const [activatedExpensiveSections, setActivatedExpensiveSections] = useState<ReadonlySet<WorkspaceSectionId>>(
-    () => new Set()
-  );
   useEffect(() => {
     if (!activeSection || !EXPENSIVE_LIFECYCLE_SECTIONS.has(activeSection)) return;
     setActivatedExpensiveSections((current) => {
@@ -404,15 +377,6 @@ function AppSession() {
       return new Set([...current, activeSection]);
     });
   }, [activeSection]);
-  const [toolkitFocus, setToolkitFocus] = useState<{ testId: string; elementId?: string } | null>(null);
-  const propertyTaskRequestSequenceRef = useRef(0);
-  const [propertyTaskRequest, setPropertyTaskRequest] = useState<{
-    sequence: number;
-    target: EntityRef;
-    view: "properties" | "task";
-    focusTestId: string;
-    elementId?: string;
-  } | null>(null);
   useLayoutEffect(() => {
     if (!toolkitFocus) return;
     const target = toolkitFocus.elementId ? document.getElementById(toolkitFocus.elementId) : document.querySelector<HTMLElement>(`[data-testid="${toolkitFocus.testId}"]`);
@@ -423,71 +387,14 @@ function AppSession() {
     target?.focus();
     target?.scrollIntoView?.({ block: "nearest" });
   }, [toolkitFocus]);
-  const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
-  const [armedCreationTool, setArmedCreationTool] = useState<CreationTool | null>(null);
-  const viewportViewCommandRef = useRef<((command: ViewportViewCommand) => void) | null>(null);
-  const workspaceShellRef = useRef<HTMLElement | null>(null);
-  const workspaceBudgetRef = useRef<HTMLDivElement | null>(null);
   useLayoutEffect(() => {
     const workspace = workspaceBudgetRef.current;
     if (!model || !workspace) return;
     return observeWorkspaceCanvasBudget(workspace);
   }, [Boolean(model)]);
-  // Viewport-first agent-mediated shell (TP-R3UX-AGENTSHELL-001): the detailed
-  // tree and property inspector start tucked away so the primary screen is the
-  // 3D model plus a local review-only agent workbench. The detailed rails remain
-  // available from View for targeted investigation.
-  const [treeCollapsed, setTreeCollapsed] = useState(() => window.innerWidth < 1280);
-  const [inspectorCollapsed, setInspectorCollapsed] = useState(() => window.innerWidth < 1280);
-  const treeToggleRef = useRef<HTMLButtonElement | null>(null);
-  const inspectorToggleRef = useRef<HTMLButtonElement | null>(null);
-  const activeResizeCleanupRef = useRef<(() => void) | null>(null);
-  const [operationTab, setOperationTab] = useState("review");
-  const [r3JourneyState, setR3JourneyState] = useState<R3JourneyState>(() => ({
-    ...INITIAL_R3_JOURNEY_STATE
-  }));
-  const [reviewDetailsOpen, setReviewDetailsOpen] = useState(false);
-  const [auditDrawerOpen, setAuditDrawerOpen] = useState(false);
-  const [issuesDrawerOpen, setIssuesDrawerOpen] = useState(false);
-  const intentSequence = useRef(0);
-  const modelRevision = useRef(0);
-  const currentModel = useRef<PreviewModel | null>(null);
-  const operationRequest = useRef({ sequence: 0, busy: false });
-  const directDraftReviews = useRef(new Map<string, FrozenDraftReview>());
-  const directDraftReviewSequence = useRef(0);
-  const solveRunGate = useRef(new SolveRunGenerationGate());
-  const ruleRevisionGate = useRef(new RuleRevisionGenerationGate());
-  const currentSolvedResultRef = useRef<MechanicsResult | null>(null);
-  const currentInputManifestRef = useRef<CurrentSessionInputManifestEvidence | null>(null);
-  currentSolvedResultRef.current = currentSolvedResult;
-  currentInputManifestRef.current = inputManifest;
-  const activeSolveJob = useRef<{
-    generation: number;
-    job: SolveJobAuditState;
-    cancellation_dispatched: boolean;
-  } | null>(null);
-  const solveCancellationTombstones = useRef(new Map<number, {
-    requested: boolean;
-    dispatched: boolean;
-  }>());
-  const comparison = useMemo(
-    () => (currentSolvedResult && analysisRun ? buildPreviewComparison({ result: currentSolvedResult, analysisRun }) : null),
-    [analysisRun, currentSolvedResult]
-  );
-  const activeModelIndex = useMemo(
-    () => model ? modelIndexFor(model, projectSessionGeneration, uiModelRevision) : null,
-    [model, projectSessionGeneration, uiModelRevision]
-  );
   const effectiveHiddenKeys = useMemo(
     () => activeModelIndex ? composedVisibilityHiddenKeys(activeModelIndex, hiddenEntityKeys, isolateHiddenEntityKeys) : new Set([...hiddenEntityKeys, ...isolateHiddenEntityKeys]),
     [activeModelIndex, hiddenEntityKeys, isolateHiddenEntityKeys]
-  );
-  const selectedPipeRefs = useMemo(
-    () => orderedSelection.orderedKeys.flatMap((key) => {
-      const ref = entityRefFromKey(key);
-      return ref?.type === "pipe" ? [ref.id] : [];
-    }),
-    [orderedSelection.orderedKeys]
   );
 
   useEffect(() => {
