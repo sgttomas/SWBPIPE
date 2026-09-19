@@ -56,6 +56,25 @@
       "brief": "briefs/B-SHELL_addendum_3.md",
       "candidate": null,
       "returnSha256": null
+    },
+    "B2F-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "status": "sealed",
+      "sealed": "2026-09-19T06:54Z",
+      "briefSha256": "28c09b8c20c02c5d4cf14ed75929a6c5178fc11cfccae0a7e83de7956b6073d7",
+      "brief": "briefs/B2F-REVIEW_code_review.md",
+      "candidate": null,
+      "returnSha256": null
+    },
+    "B2F": {
+      "role": "WORKING_ITEMS Type 1",
+      "model": "fable",
+      "status": "returned",
+      "returnSha256": "b3ec631f276a618405ca923c8a8bb881ae9704659ac018324c07d38aa297a6aa",
+      "return": "returns/B2F_RETURN.md",
+      "modelThatRan": "Claude Fable 5.1 (claude-fable-5-1), by its own statement; child B2F-HANDLERS reports Claude Fable 5.1",
+      "candidate": "36e79602eac5751e518898d88869a71703b85c03"
     }
   },
   "slices": [
