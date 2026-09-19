@@ -12,7 +12,7 @@
   "slices": [
     {
       "id": "LOOP-WORKGRAPH",
-      "state": "implemented; review and verification pending",
+      "state": "source independently reviewed; local checks passed; metadata backcheck and actual-candidate CI/merge pending",
       "depends_on": [],
       "blockers": [],
       "semantic_changes": [
@@ -37,8 +37,11 @@
       "dag_basis": "existing accepted pointer projects/chirality-piping/execution/_DAG/_LATEST.md; unchanged by this scope",
       "evidence": [
         "OWNER_DIRECTION.md",
-        "REVIEW_BRIEF.md"
+        "REVIEW_BRIEF.md",
+        "DISPATCH.json",
+        "VERIFICATION.md"
       ]
     }
-  ]
+  ],
+  "closure_pointer": "The scoped PR owns final metadata review, actual candidate CI and merge disposition."
 }
