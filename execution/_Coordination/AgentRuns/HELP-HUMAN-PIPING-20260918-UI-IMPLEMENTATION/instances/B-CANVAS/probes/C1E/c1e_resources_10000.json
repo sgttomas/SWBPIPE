@@ -1,0 +1,596 @@
+{
+  "tool": "b-canvas-orbit-probe",
+  "formatVersion": 1,
+  "kind": "resources",
+  "note": "Guidance for the B-CANVAS lane only. This output decides nothing about D-72; the qualification runs are ROOT's, by a separate runner and a separate instrument.",
+  "createdUtc": "2026-09-19T09:30:58.570Z",
+  "arguments": {
+    "subcommand": "resources",
+    "dist": "{OUTSIDE_REPOSITORY}/dist_stage2",
+    "pipes": 10000,
+    "query": "",
+    "dpr": 2,
+    "window": "1440x900",
+    "port": 5185,
+    "out": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/probes/C1E/c1e_resources_10000.json",
+    "argv": [
+      "resources",
+      "--dist",
+      "{OUTSIDE_REPOSITORY}/dist_stage2",
+      "--pipes",
+      "10000",
+      "--query",
+      "",
+      "--dpr",
+      "2",
+      "--window",
+      "1440x900",
+      "--port",
+      "5185",
+      "--out",
+      "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/probes/C1E/c1e_resources_10000.json"
+    ]
+  },
+  "buildIdentity": {
+    "indexHtmlSha256": "0933b9d42a30898a44b3c582ebd56359a1f8b2be4b0299598ad06f01259044d1",
+    "assetCount": 12,
+    "assetBytes": 2731193,
+    "assets": [
+      {
+        "name": "index-AClIEkBA.js",
+        "bytes": 1375711
+      },
+      {
+        "name": "index-Cw6wfZUZ.css",
+        "bytes": 87868
+      },
+      {
+        "name": "invented_agent_proposal-Bm57LVt-.js",
+        "bytes": 1820
+      },
+      {
+        "name": "invented_demo_rule_pack-dhX9tvT1.js",
+        "bytes": 10858
+      },
+      {
+        "name": "invented_design_knowledge-H12r-oKQ.js",
+        "bytes": 1660
+      },
+      {
+        "name": "invented_mechanics_result-CleTy2JL.js",
+        "bytes": 502608
+      },
+      {
+        "name": "invented_preview_model-pJA3_nB8.js",
+        "bytes": 12670
+      },
+      {
+        "name": "vendor-7OC5HNn7.js",
+        "bytes": 3613
+      },
+      {
+        "name": "vendor-icons-B_1SvbaU.js",
+        "bytes": 18379
+      },
+      {
+        "name": "vendor-react-BT_8sX57.js",
+        "bytes": 188744
+      },
+      {
+        "name": "vendor-tauri-DlQNAQKj.js",
+        "bytes": 91
+      },
+      {
+        "name": "vendor-three-BHv1HSMX.js",
+        "bytes": 527171
+      }
+    ]
+  },
+  "fixture": {
+    "file": "{WORKING_ROOT}/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.model.json",
+    "sha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+    "projectId": "project:UIF-10000",
+    "pipeSegments": 10000,
+    "nodes": 10001
+  },
+  "host": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "osRelease": "25.6.0",
+    "cpuModel": "Apple M5 Max",
+    "cpuCount": 18,
+    "node": "v24.18.0",
+    "playwright": "1.60.0"
+  },
+  "loadAverageBefore": [
+    3.53,
+    3.68,
+    3.66
+  ],
+  "error": null,
+  "browser": {
+    "source": "playwright channel chrome",
+    "version": "153.0.8010.48",
+    "addedArguments": [],
+    "webgl": {
+      "status": "available",
+      "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "vendor": "Google Inc. (Apple)",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version)"
+    }
+  },
+  "console": {
+    "errorCount": 0,
+    "warningCount": 0,
+    "pageErrorCount": 0,
+    "errors": [],
+    "warnings": [],
+    "pageErrors": []
+  },
+  "modelReadyMs": 684,
+  "steps": [
+    {
+      "step": "initial: light, schematic, labels on, Isometric, Fit",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 1115,
+      "disposedTotal": 0,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    },
+    {
+      "step": "theme light -> dark -> light: away (1)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 1115,
+      "disposedTotal": 0,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    },
+    {
+      "step": "theme light -> dark -> light: back (1)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 1115,
+      "disposedTotal": 0,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    },
+    {
+      "step": "theme light -> dark -> light: away (2)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 1115,
+      "disposedTotal": 0,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    },
+    {
+      "step": "theme light -> dark -> light: back (2)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 1115,
+      "disposedTotal": 0,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    },
+    {
+      "step": "geometry schematic -> actual-od -> schematic: away (1)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 2271,
+      "disposedTotal": 1156,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "actual-od",
+      "labels": true
+    },
+    {
+      "step": "geometry schematic -> actual-od -> schematic: back (1)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 2849,
+      "disposedTotal": 1734,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    },
+    {
+      "step": "geometry schematic -> actual-od -> schematic: away (2)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 3427,
+      "disposedTotal": 2312,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "actual-od",
+      "labels": true
+    },
+    {
+      "step": "geometry schematic -> actual-od -> schematic: back (2)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 4005,
+      "disposedTotal": 2890,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    },
+    {
+      "step": "labels toggled and restored: away (1)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 4005,
+      "disposedTotal": 2890,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": false
+    },
+    {
+      "step": "labels toggled and restored: back (1)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 4005,
+      "disposedTotal": 2890,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    },
+    {
+      "step": "labels toggled and restored: away (2)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 4005,
+      "disposedTotal": 2890,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": false
+    },
+    {
+      "step": "labels toggled and restored: back (2)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 4005,
+      "disposedTotal": 2890,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    },
+    {
+      "step": "grid toggled and restored: away (1)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 4005,
+      "disposedTotal": 2890,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 358,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    },
+    {
+      "step": "grid toggled and restored: back (1)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 4005,
+      "disposedTotal": 2890,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    },
+    {
+      "step": "grid toggled and restored: away (2)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 4005,
+      "disposedTotal": 2890,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 358,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    },
+    {
+      "step": "grid toggled and restored: back (2)",
+      "settled": true,
+      "consistent": true,
+      "liveTotal": 1115,
+      "createdTotal": 4005,
+      "disposedTotal": 2890,
+      "ledgerGeneration": 1,
+      "rendererGeometries": 9,
+      "rendererTextures": 3,
+      "drawCalls": 359,
+      "triangles": 2133368,
+      "geometry": "schematic",
+      "labels": true
+    }
+  ],
+  "ledger": {
+    "before": {
+      "generation": 1,
+      "live": {
+        "pipeMeshes": 85,
+        "nodeMeshes": 255,
+        "supportMeshes": 11,
+        "componentMeshes": 7,
+        "geometries": 14,
+        "materials": 15,
+        "textures": 3,
+        "instanceMatrices": 358,
+        "instanceColors": 358,
+        "controls": 1,
+        "eventBindings": 7,
+        "resizeObservers": 1
+      },
+      "created": {
+        "pipeMeshes": 85,
+        "nodeMeshes": 255,
+        "supportMeshes": 11,
+        "componentMeshes": 7,
+        "geometries": 14,
+        "materials": 15,
+        "textures": 3,
+        "instanceMatrices": 358,
+        "instanceColors": 358,
+        "controls": 1,
+        "eventBindings": 7,
+        "resizeObservers": 1
+      },
+      "disposed": {
+        "pipeMeshes": 0,
+        "nodeMeshes": 0,
+        "supportMeshes": 0,
+        "componentMeshes": 0,
+        "geometries": 0,
+        "materials": 0,
+        "textures": 0,
+        "instanceMatrices": 0,
+        "instanceColors": 0,
+        "controls": 0,
+        "eventBindings": 0,
+        "resizeObservers": 0
+      }
+    },
+    "after": {
+      "generation": 1,
+      "live": {
+        "pipeMeshes": 85,
+        "nodeMeshes": 255,
+        "supportMeshes": 11,
+        "componentMeshes": 7,
+        "geometries": 14,
+        "materials": 15,
+        "textures": 3,
+        "instanceMatrices": 358,
+        "instanceColors": 358,
+        "controls": 1,
+        "eventBindings": 7,
+        "resizeObservers": 1
+      },
+      "created": {
+        "pipeMeshes": 510,
+        "nodeMeshes": 680,
+        "supportMeshes": 66,
+        "componentMeshes": 42,
+        "geometries": 49,
+        "materials": 50,
+        "textures": 3,
+        "instanceMatrices": 1298,
+        "instanceColors": 1298,
+        "controls": 1,
+        "eventBindings": 7,
+        "resizeObservers": 1
+      },
+      "disposed": {
+        "pipeMeshes": 425,
+        "nodeMeshes": 425,
+        "supportMeshes": 55,
+        "componentMeshes": 35,
+        "geometries": 35,
+        "materials": 35,
+        "textures": 0,
+        "instanceMatrices": 940,
+        "instanceColors": 940,
+        "controls": 0,
+        "eventBindings": 0,
+        "resizeObservers": 0
+      }
+    },
+    "liveIdenticalBeforeAndAfter": true,
+    "liveDifferences": [],
+    "createdMinusDisposedEqualsLiveThroughout": true,
+    "roundTrips": [
+      {
+        "group": "theme light -> dark -> light",
+        "afterFirstRoundStep": 3,
+        "afterSecondRoundStep": 5,
+        "liveIdentical": true,
+        "rendererGeometriesIdentical": true,
+        "rendererTexturesIdentical": true
+      },
+      {
+        "group": "geometry schematic -> actual-od -> schematic",
+        "afterFirstRoundStep": 7,
+        "afterSecondRoundStep": 9,
+        "liveIdentical": true,
+        "rendererGeometriesIdentical": true,
+        "rendererTexturesIdentical": true
+      },
+      {
+        "group": "labels toggled and restored",
+        "afterFirstRoundStep": 11,
+        "afterSecondRoundStep": 13,
+        "liveIdentical": true,
+        "rendererGeometriesIdentical": true,
+        "rendererTexturesIdentical": true
+      },
+      {
+        "group": "grid toggled and restored",
+        "afterFirstRoundStep": 15,
+        "afterSecondRoundStep": 17,
+        "liveIdentical": true,
+        "rendererGeometriesIdentical": true,
+        "rendererTexturesIdentical": true
+      }
+    ]
+  },
+  "rendererInfo": {
+    "before": {
+      "geometries": 9,
+      "textures": 3,
+      "calls": 359,
+      "triangles": 2133368,
+      "points": 0,
+      "lines": 34
+    },
+    "after": {
+      "geometries": 9,
+      "textures": 3,
+      "calls": 359,
+      "triangles": 2133368,
+      "points": 0,
+      "lines": 34
+    }
+  },
+  "canvas": {
+    "cssWidth": 794,
+    "cssHeight": 560,
+    "bufferWidth": 1588,
+    "bufferHeight": 1120,
+    "pixelRatio": 2
+  },
+  "settleCheck": {
+    "method": "page-side wrappers installed before any product script count pending requestAnimationFrame callbacks and WebGL draw and clear calls; the product's own pending-frame count and main-render submission count are read beside them",
+    "waitedAfterLastInputMs": 1500,
+    "observedMs": 1052,
+    "maxPendingPageRaf": 0,
+    "maxProductOwnedPendingRaf": 0,
+    "rafRequested": 0,
+    "rafFired": 0,
+    "drawCalls": 0,
+    "clears": 0,
+    "productSubmissions": 0,
+    "cameraSequenceDelta": 0,
+    "animationFramePending": false,
+    "anythingDrawn": false,
+    "settled": true
+  },
+  "orbitControl": {
+    "purpose": "the same observation made while a real-pointer orbit is under way; it should report not settled",
+    "observedMs": 1009,
+    "maxPendingPageRaf": 1,
+    "maxProductOwnedPendingRaf": 1,
+    "rafRequested": 61,
+    "rafFired": 61,
+    "drawCalls": 22143,
+    "clears": 122,
+    "productSubmissions": 61,
+    "cameraSequenceDelta": 198,
+    "animationFramePending": true,
+    "anythingDrawn": true,
+    "settled": false,
+    "pointer": {
+      "movesSent": 497,
+      "movesAcknowledged": 497,
+      "movesFailed": 0,
+      "meanSendGapMs": 5.238,
+      "maxSendGapMs": 25.908,
+      "sendGapsOver8Ms": 27,
+      "sendGapCounts": {
+        "upTo5Ms": 294,
+        "upTo8Ms": 175,
+        "upTo12Ms": 22,
+        "upTo16Ms": 3,
+        "over16Ms": 2
+      },
+      "maxInFlight": 20
+    }
+  },
+  "settledAgainAfterOrbit": true,
+  "loadAverageAfter": [
+    2.46,
+    3.46,
+    3.67
+  ],
+  "finishedUtc": "2026-09-19T09:36:18.322Z"
+}

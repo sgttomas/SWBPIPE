@@ -1,0 +1,71 @@
+# Sealed correction 1 to brief C1A-PALETTE: the figure material survives `clone()`, and its opacity cannot disagree with its uniform
+
+Sealed by B-CANVAS (WORKING_ITEMS, Type 1, the canvas lane manager of Tranche B) on 2026-09-19, before it is sent. It goes to the child that owns the code, C1A-PALETTE, by message with that child's agent id. Role of the reader: TASK (Type 2). Model: the one that ran the brief, Claude Fable 5.1. **You work alone and never delegate: launch no agent.** Your sealed brief `{RUN}/instances/B-CANVAS/briefs/C1A-PALETTE.md` (SHA-256 `e2c8fffe4957d8ce112a66d0a2449755cf77a499182ed51b1e59482d7d2db77b`) stays in force: its path placeholders, its authority and design basis, and **every limit in its section "Limits that bind this work (the lane's limits, carried in full)" bind this correction in full**, as do "write no absolute machine path in any file you author or in your return" and "run no git command that changes state; your parent commits". Read that section again before you start. Where this correction is narrower than the brief, this correction governs.
+
+## Why
+
+ROOT ran an early independent read-only code review (Claude Opus 5, fresh context, another worktree) over slice C1's first part at the candidate you built. Verdict: FINDINGS, two minor and two trivial, none blocking. It found picking byte-identical and green, the held colours held, the repaint path correct, the shader correct against three 0.181.2 as installed. Two findings are in your file `src/features/viewport/viewportFigureMaterial.ts`, and ROOT has decided both in sealed addendum 3. The next slice (C1E, the edge line) is built inside this material, so they are fixed first.
+
+Read, and verify the hashes before acting:
+
+- `{RUN}/lanes/B-CANVAS/reviews/C1-REVIEW_RETURN.md`, SHA-256 `5f87c173e0a9f6373de5991eb31bfbedffcffdaea0ee6ba4752e8af7b7b3e08f`: read check 8 and findings F2 and F3 whole. The rest is yours to read if you wish.
+- `{RUN}/lanes/B-CANVAS/briefs/B-CANVAS_addendum_3.md`, SHA-256 `a86cb318bb0b49a49df1c13526999ae0a8115849d2f032f45450e88c10dfb210`: the rows for F2 and F3. (F1 and F4 are the manager's and the next slice's. Do not act on them.)
+
+**F2, minor.** `Object.defineProperty(material, "color", { value: tint, enumerable: true, writable: false })` defines `color` on the instance only and not configurable. In three 0.181.2 `Material.prototype.clone()` is `new this.constructor().copy( this )`, the constructor there is `THREE.ShaderMaterial`, and `Material.copy` carries `userData` across. So a clone keeps `userData.viewportFigureMaterial === true`, passes `isFigureMaterial`, and has no `color`; the repaint's guard in `paintObjectForTheme` (`!("color" in material)`) then skips it silently, and the clone never repaints with the theme. Nothing clones a figure material today. ROOT's decision: "Accepted. Fix it before C1E builds inside the material. Prefer the durable form the reviewer names, a `FigureMaterial` class that extends `THREE.ShaderMaterial` and defines `color` in its constructor so that `clone()` rebuilds it; the descriptor change is the fallback if the class disturbs anything. Test first: a clone satisfies `isFigureMaterial`, exposes a `color` that is its own `tint` uniform's value, and repaints with the theme. Its own commit."
+
+**F3, trivial.** The drawn alpha comes from the `opacity` uniform while `material.opacity` stays at three's default 1: `createFigureMaterial({ opacity: 0.82, transparent: true })` draws at 0.82 and reports 1. A later slice that sets `material.opacity` on a figure material (slice C3's dimming is next) would change nothing on screen and raise nothing. ROOT's decision: "Accepted. Same commit series as F2. The two can never disagree: either mirror the value or expose the uniform through an `opacity` accessor as `color` is exposed. Test first: setting the material's opacity changes what the shader reads."
+
+## Write scope for this correction
+
+- `{DESKTOP}/src/features/viewport/viewportFigureMaterial.ts`
+- `{DESKTOP}/src/features/viewport/viewportFigureMaterial.test.ts`
+- `{DESKTOP}/src/features/viewport/viewportResource.test.ts`: **additions only**, inside the existing `describe("viewport palette repaint", …)` block, using that block's own helpers. No existing test line is changed, deleted or loosened.
+
+Nothing else. In particular **not** `viewportPalette.ts` (the manager edits a comment in it while you work: one writer per path), not `PipeViewport.tsx`, not `viewportResource.ts`, not the two byte-identical files `viewportSelectionPresentation.ts` and `viewportSelection.ts`, nothing under `e2e/**`, no screenshots. Keep every exported name and call shape that other files use, so that none of them needs an edit: `createFigureMaterial(options?)`, `isFigureMaterial(material)`, `setFigureShadeRatio(material, ratio)`, the types `FigureMaterial` and `FigureMaterialOptions`. (`FigureMaterial` may become a class: a class is also a type, and the test files' `ReturnType<typeof createFigureMaterial>` keeps working.) If you come to think another file must change, do not change it: say exactly what and why in your return.
+
+## What to build
+
+### F2, first
+
+`FigureMaterial` becomes a class that extends `THREE.ShaderMaterial`, and `createFigureMaterial(options)` returns `new FigureMaterial(options)`. `isFigureMaterial` tests the class. The shader source, the uniform names (`tint`, `opacity`, `shadeRatio`), `lights: false`, `toneMapped: false`, the `transparent` option, the white default tint and the texture-free rule are unchanged; this correction changes no drawn pixel.
+
+Traps the manager has already found by reading three 0.181.2 as installed (`{WORKING_ROOT}/node_modules/three/src/materials/Material.js` and `ShaderMaterial.js`); verify each yourself:
+
+1. `clone()` calls the constructor **with no argument**. The constructor must build a complete material from nothing.
+2. `ShaderMaterial.copy` runs **after** the constructor and **replaces** `this.uniforms` with `cloneUniforms( source.uniforms )`. A `color` that captures the constructor's `Color` object would, on a clone, point at an object the shader no longer reads, which is F2 again in a quieter form. `color` must therefore read the live uniform every time it is asked (`this.uniforms.tint.value`), and ROOT's test ("a `color` that is its own `tint` uniform's value") is an identity test for exactly this reason. The same holds for whatever F3 does with `opacity`.
+3. TypeScript here has `target: ES2022` and `useDefineForClassFields: true`: a class field declared without `declare` is emitted as a define and would shadow or reset what the base constructor or an accessor set. And TypeScript rejects a prototype accessor that overrides a property the base class declares (`opacity`), with TS2611. `Material`'s constructor also assigns `this.opacity = 1` before `uniforms` exists. Choose a form that passes `tsc -b` with **no** suppression (`@ts-ignore`, `@ts-expect-error`, `as any`, `as unknown as`) beyond the one narrowing cast the file already uses, and say in a comment why it has the form it has. One form that works: own accessors defined in the constructor after `super(…)`, `configurable: true`, reading and writing `this.uniforms`.
+4. `Material.setValues` warns on the console for a parameter that is not a property of the material, and calls `.set()` on a property whose current value is a `Color`. Pass nothing through `super(parameters)` that would warn. Constructing and cloning must raise no `console.warn` and no `console.error`; assert that with spies.
+5. Leave `type` as three sets it (`"ShaderMaterial"`) and `isShaderMaterial` true: the renderer chooses its path from them.
+6. `userData.viewportFigureMaterial`: keep it or drop it, but it is no longer what `isFigureMaterial` trusts, because a marker that survives where the behaviour does not is the defect. Say which you did.
+
+Tests first. Write them, run them, **see them fail for the stated reason and keep the failing output**, then make them pass:
+
+- In `viewportFigureMaterial.test.ts`: a clone of a default material and a clone of a `{ opacity: 0.82, transparent: true }` material each satisfy `isFigureMaterial`; `"color" in clone` is true (the repaint's own guard); `clone.color` is a `THREE.Color` and **is** (`toBe`) `clone.uniforms.tint.value`, and is **not** the source's tint object; setting the clone's colour leaves the source's unchanged and the reverse; the clone's `shadeRatio` value is its own object with the source's numbers; the transparent clone is transparent with 0.82 in its uniform; a clone of a clone still holds all of this; no console warning or error from constructing or cloning; a plain `new THREE.ShaderMaterial().copy(figureMaterial)` is **not** a figure material.
+- In `viewportResource.test.ts`, inside `describe("viewport palette repaint", …)`: a **cloned** figure material repaints with the theme. Put a clone on a non-instanced mesh that carries a palette role (`registerPaletteRole`) and a second clone on an instanced mesh (`registerInstancedRolePresentation`), build the fake resource with the block's helper, switch to dark and back to light, and assert for each theme that the non-instanced clone's `tint` uniform holds that role's token colour (`viewportRoleHex`), that both clones' `shadeRatio` uniforms hold that theme's ratio (`viewportShadeRatio`), that the instanced mesh's instance colours are the role's, and, as the neighbouring tests do, that the ledger is equal before and after and nothing was disposed.
+
+When F2 is green (the two test files pass, the whole viewport folder passes, `tsc -b` exits 0), **copy the three files in your write scope, as they then stand, into the scratch folder your message names, under `corr1_f2/`, keeping their file names, and record their SHA-256.** Do not touch those copies again. The manager commits F2 from them and F3 from your final files, because ROOT asked for F2 as its own commit and this host has no interactive staging.
+
+### F3, second
+
+`material.opacity` and the `opacity` uniform are one value: reading either gives the other, writing either changes both, from construction on, through `setValues({ opacity })`, and across `clone()` and `copy()` (note that `Material.copy` assigns `this.opacity = source.opacity` **before** `ShaderMaterial.copy` replaces the uniforms; the result must be the source's value in both places, and the source unchanged). Expose the uniform through an `opacity` accessor in the way `color` is exposed; a copied field that a later writer could leave behind is not enough.
+
+Opacity and `transparent` stay independent, as in three: with `transparent: false` three draws the material without blending, so an alpha below 1 is not seen. Do not couple them. Say so in the doc comment in one sentence, because slice C3's dimming will need both.
+
+Tests first, red before green, output kept: `createFigureMaterial({ opacity: 0.82, transparent: true }).opacity` is 0.82 and a default material's is 1; `material.opacity = 0.2` makes `material.uniforms.opacity.value` 0.2 (this is ROOT's "setting the material's opacity changes what the shader reads"); writing the uniform's value is read back from `material.opacity`; `material.setValues({ opacity: 0.4 })` reaches the uniform; a clone of a 0.82 material reads 0.82 both ways, and changing the clone's opacity leaves the source at 0.82; `"opacity" in material` and `Object.keys(material)` still include `opacity` if they did before (three's `Material.toJSON` and `copy` read it as an ordinary property). Update the existing test "keeps the deformation overlay's transparency and opacity when asked" only by **adding** the assertion on `material.opacity`.
+
+## How to check your work
+
+The lane's probe child is timing frames on this host under the shared lock while you work. **Run every vitest and tsc command through the lock**, so that it cannot overlap a timed run: `sh {RUN}/tools/with_e2e_lock.sh <command>`, from `{DESKTOP}`. Waiting for the lock is normal, sometimes for many minutes; batch your commands so that you take it few times (vitest accepts several files in one run). Run **no build** (`npm run build…`, `vite build`), no Playwright, no dev server and no browser: the manager runs those on the final head. Report each command, its exit status and its counts.
+
+1. Picking first and last: `npx vitest run src/features/viewport/viewportSelection.test.ts` (69 tests today). A change that alters a picking result is rejected, not explained.
+2. Red runs for F2 and then for F3, with the failing assertions' messages.
+3. At the F2 point and at the end: `npx vitest run src/features/viewport` (173 tests today, plus yours) and `npx tsc -b` (exit 0). If `tsc -b` leaves build-info files behind that `git status --short` shows, say so and do not delete anything tracked.
+4. At the end, from `{REPO_ROOT}`: `python3 tools/validation/validate_claims_language.py`, and `git status --short` (read-only): list every file you changed, with its SHA-256 at the F2 point and at the end.
+
+On this host the file-writing tools refuse paths inside the worktree: write files through the shell (a heredoc, or a short script), and write each file whole in one step so that no half-written product file is ever on disk while another child reads the tree.
+
+## What to return
+
+Your final message is your return; the manager retains it verbatim with its SHA-256 and the model that ran. It states: who you are (model id); that you verified this correction's hash before starting (your message gives it) and the two hashes above; that you worked alone and ran no state-changing git command; what you read in three's source and what you found there, where it differs from the six traps above; the form you chose for `color` and for `opacity` and why; whether the marker in `userData` stayed; every file changed with its SHA-256 at the F2 point and at the end; each check with command, exit status and counts, including the red runs; anything you think must change in a file outside this correction's scope, as an exact proposed change; and what you did not do. Claim no usability, conformance or performance acceptance. Write no absolute machine path.
+
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
