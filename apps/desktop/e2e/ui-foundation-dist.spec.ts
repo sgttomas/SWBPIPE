@@ -4,7 +4,7 @@ const defaultPreviewModel = JSON.parse(readFileSync(fileURLToPath(
   new URL("../../../fixtures/product_preview/invented_preview_model.json", import.meta.url),
 ), "utf8"));
 import { expect, test, type Page } from "@playwright/test";
-import { startPropertyTaskFromTreeEntity } from "./workspace-driver";
+import { expectStatusChip, projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
 import {
   APPEARANCE_DENSITIES,
   APPEARANCE_THEMES,
@@ -58,16 +58,23 @@ test("[preflight] production dist exposes compact command groups and keyboard me
     "Select and View": "view.select",
     Review: "review.pending",
   } as const;
+  // Slice B3: the seven command groups are the palette's own band, reached through the palette
+  // field; closing the palette returns focus to the field that opened it.
+  const paletteField = page.getByTestId("toolkit-entry");
+  await expect(paletteField).toContainText("Search or command…");
   for (const group of COMMAND_GROUPS) {
+    await activateWithKeyboard(page, paletteField);
+    await expect(dialog).toBeVisible();
     const control = commandGroupControl(page, group);
     await expect(control).toBeVisible();
     await activateWithKeyboard(page, control);
-    await expect(dialog).toBeVisible();
+    await expect(control).toHaveAttribute("aria-pressed", "true");
     await expect(dialog.getByText(`Showing ${group} commands. Search stays within this group.`, { exact: true })).toBeVisible();
     await expect(dialog.getByTestId(`toolkit-${groupWitnesses[group]}`)).toBeVisible();
     if (group !== "Build") await expect(dialog.getByTestId("toolkit-build.node")).toHaveCount(0);
     await page.keyboard.press("Escape");
-    await expect(control).toBeFocused();
+    await expect(dialog).toHaveCount(0);
+    await expect(paletteField).toBeFocused();
   }
 
   await page.keyboard.press(`${process.platform === "darwin" ? "Meta" : "Control"}+k`);
@@ -76,9 +83,9 @@ test("[preflight] production dist exposes compact command groups and keyboard me
   await expect(dialog.getByTestId("toolkit-loads.cases")).toBeVisible();
   await page.keyboard.press("Escape");
 
-  for (const invoker of ["group", "shortcut"] as const) {
-    const trigger = invoker === "group" ? commandGroupControl(page, "Build") : page.getByTestId("toolkit-entry");
-    if (invoker === "group") await trigger.click();
+  for (const invoker of ["field", "shortcut"] as const) {
+    const trigger = paletteField;
+    if (invoker === "field") await trigger.click();
     else await page.keyboard.press(`${process.platform === "darwin" ? "Meta" : "Control"}+k`);
     await expect(dialog).toBeVisible();
     const point = { x: 10, y: 738 };
@@ -87,9 +94,10 @@ test("[preflight] production dist exposes compact command groups and keyboard me
     await expect(dialog).toHaveCount(0);
     await expect(trigger).toBeFocused();
   }
+  await paletteField.click();
   await commandGroupControl(page, "Build").click();
   await dialog.getByRole("button", { name: "Close toolkit" }).click();
-  await expect(commandGroupControl(page, "Build")).toBeFocused();
+  await expect(paletteField).toBeFocused();
   await choosePaletteNodeThenSelectWithFocusEvidence(page, testInfo, "pointer");
 
   const pipe = model.pipe_segments[10];
@@ -865,8 +873,8 @@ test("System follows the emulated OS preference; explicit theme and density pers
   await page.emulateMedia({ colorScheme: "light" });
   await expect(shell).toHaveAttribute("data-theme", "light");
 
-  await page.getByLabel("Appearance theme").selectOption("dark");
-  await page.getByLabel("Workspace density").selectOption("compact");
+  // Slice B3: the two labelled selects live in the toolbar's Appearance disclosure.
+  await setAppearance(page, "dark", "compact");
   await page.reload();
   await expect(page.getByLabel("Appearance theme")).toHaveValue("dark");
   await expect(page.getByLabel("Workspace density")).toHaveValue("compact");
@@ -879,26 +887,32 @@ test("production browser keeps reopened results Historical until a fresh exact-b
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   await openWorkspaceSection(page, "solve");
   await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
-  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MECHANICS_SOLVED");
+  await expectStatusChip(page, "status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
+  // Slice B3: the solve proof left the status bar; it is read on the Results stage's Evidence tab.
+  await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toBeVisible();
 
-  await activateWithKeyboard(page, page.getByRole("button", { name: "Save local", exact: true }));
+  await projectCommand(page, "save-local", true);
   await expect(page.getByTestId("local-project-message")).toContainText("Saved");
-  await activateWithKeyboard(page, page.getByTestId("open-local-project"));
+  await projectCommand(page, "open-local", true);
   await openWorkspaceSection(page, "results");
   const historical = page.getByTestId("historical-run-context");
   await expect(historical).toBeVisible();
   await expect(historical).toContainText("Historical");
   await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
   await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
+  await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
+  // Specification §5.4 rule 6: a Historical run lights no chip.
+  await expect(page.getByTestId("status-chips").getByRole("button")).toHaveCount(0);
 
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("rule-check-run")).toBeDisabled();
   await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
-  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MECHANICS_SOLVED");
+  await expectStatusChip(page, "status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
   await openWorkspaceSection(page, "results");
   await expect(historical).toHaveCount(0);
+  await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toBeVisible();
 });
 
@@ -965,7 +979,8 @@ for (const theme of APPEARANCE_THEMES) {
       if (phase !== "before-solve") {
         await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
         await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-        await expect(page.getByTestId("status-pill-mechanics")).toContainText(phase === "solved" ? "MECHANICS_SOLVED" : "MODEL_INCOMPLETE");
+        if (phase === "solved") await expectStatusChip(page, "status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
+        else await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
       }
       if (phase === "blocked") {
         await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
@@ -1015,7 +1030,7 @@ for (const theme of APPEARANCE_THEMES) {
     await setAppearance(page, theme, "comfortable");
     await openWorkspaceSection(page, "solve");
     await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
-    await expect(page.getByTestId("status-pill-mechanics")).toContainText("MECHANICS_SOLVED");
+    await expectStatusChip(page, "status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
     await openWorkspaceSection(page, "results");
     const results = page.getByTestId("results-panel");
     const row = results.locator("tbody tr").first();
@@ -1064,9 +1079,9 @@ for (const theme of APPEARANCE_THEMES) {
       geometryWitnesses.push(await expectPopulatedResultsGeometry(page, width, false));
       await captureState(page, testInfo, `populated-results-current-${theme}-${width}`);
     }
-    await activateWithKeyboard(page, page.getByRole("button", { name: "Save local", exact: true }));
+    await projectCommand(page, "save-local", true);
     await expect(page.getByTestId("local-project-message")).toContainText("Saved");
-    await activateWithKeyboard(page, page.getByTestId("open-local-project"));
+    await projectCommand(page, "open-local", true);
     await openWorkspaceSection(page, "results");
     await expect(page.getByTestId("historical-run-context")).toBeVisible();
     const historicalHeaders = await results.getByRole("columnheader").all();
@@ -1429,13 +1444,13 @@ test("empty ordered selection publishes independently from project inspector", a
   }
   expect(await page.getByTestId("results-panel").allTextContents()).toEqual(resultsBefore);
   await expect(page.getByTestId("command-selection-readout")).toContainText("0 queued");
-  await activateWithKeyboard(page, page.getByRole("button", { name: "Save local", exact: true }));
+  await projectCommand(page, "save-local", true);
   await expect(page.getByTestId("local-project-message")).toContainText("Saved");
   await selectTreeRow(page, node.type, node.id);
   await identity([node], node, node);
   await selectTreeRow(page, node.type, node.id, { toggle: true });
   const beforeReplacement = await identity([], null, project);
-  await activateWithKeyboard(page, page.getByTestId("open-local-project"));
+  await projectCommand(page, "open-local", true);
   await expect.poll(async () => (await read()).model.generation).not.toBe(beforeReplacement.model.generation);
   const reopened = await identity([project], project, project);
   expect(reopened.model.identityHash).toBe(baseline.model.identityHash);
@@ -1623,10 +1638,10 @@ test("Escape retires captured Box before delayed pointer up", async ({ page }, i
 
 test("same-ID Open retires old captured Box before delayed pointer up", async ({ page }, info) => {
   const model = await setup(page); const project = { type: "project", id: model.project.id };
-  await page.getByRole("button", { name: "Save local", exact: true }).click();
+  await projectCommand(page, "save-local");
   await expect(page.getByTestId("local-project-message")).toContainText("Saved");
   const beforeOrdinaryOpen = await settle(page);
-  await activateWithKeyboard(page, page.getByTestId("open-local-project"));
+  await projectCommand(page, "open-local", true);
   await expect.poll(async () => (await read(page)).snapshot.model.projectSessionGeneration).toBe(beforeOrdinaryOpen.snapshot.model.projectSessionGeneration + 1);
   await expect.poll(async () => (await read(page)).snapshot.viewport.selection.orderedRefs).toEqual([project]);
   const ordinaryOpen = await settle(page);
@@ -1635,7 +1650,7 @@ test("same-ID Open retires old captured Box before delayed pointer up", async ({
   await selectTreeRow(page, "node", model.nodes[10].id);
   const input = await begin(page);
   // Public keyboard route: keep the genuine mouse button held and captured.
-  await page.getByTestId("open-local-project").focus(); await page.keyboard.press("Enter");
+  await projectCommand(page, "open-local", true);
   await expect.poll(async () => (await read(page)).snapshot.model.projectSessionGeneration).toBe(input.before.snapshot.model.projectSessionGeneration + 1);
   await expect.poll(async () => (await read(page)).snapshot.viewport.selection.orderedRefs).toEqual([project]);
   const replaced = await settle(page);
@@ -1659,8 +1674,9 @@ test("same-ID Open retires old captured Box before delayed pointer up", async ({
 
 for (const route of ["Select", "New blank"] as const) test(`${route} retires captured Box before delayed pointer up`, async ({ page }, info) => {
   await setup(page); const input = await begin(page);
-  const control = route === "Select" ? page.getByTestId("workspace-select") : page.getByRole("button", { name: "New blank", exact: true });
-  await control.focus(); await page.keyboard.press("Enter");
+  // Slice B3: New blank is a File-menu command here; the Project page would cover the canvas whose pointer is held.
+  if (route === "Select") { await page.getByTestId("workspace-select").focus(); await page.keyboard.press("Enter"); }
+  else await projectCommand(page, "new-blank", true);
   if (route === "New blank") {
     await expect.poll(async () => (await read(page)).snapshot.model.projectSessionGeneration).toBe(input.before.snapshot.model.projectSessionGeneration + 1);
     await expect.poll(async () => (await read(page)).snapshot.viewport.selection.primaryRef?.type).toBe("project");

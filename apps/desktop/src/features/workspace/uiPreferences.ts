@@ -11,8 +11,20 @@ export type UiPreferences = Readonly<{
   leftRailPx: number;
   rightRailPx: number;
   dockPx: number;
+  /** The Both view's split: the table pane's share of the surface width, in percent. */
+  bothSplitPct: number;
+  /** The Model view's table drawer, open. */
+  tableDrawerPx: number;
   lastPanelTabs: Readonly<Record<string, string>>;
 }>;
+
+// Slice B3: the shell no longer reads `leftRailPx`, `rightRailPx` or `dockPx`
+// (the docked widths are fixed and the dock is gone). They stay in the record,
+// bounded as before, so that a record written by an earlier build reads without
+// error and is written back unchanged; nothing is migrated, and the storage key
+// and the version stay. A record without the two new fields takes their defaults.
+export const BOTH_SPLIT_PCT_BOUNDS = Object.freeze({ min: 15, max: 85, fallback: 55 });
+export const TABLE_DRAWER_PX_BOUNDS = Object.freeze({ min: 120, max: 600, fallback: 280 });
 
 const DEFAULTS: UiPreferences = freezePreferences({
   version: UI_PREFERENCES_VERSION,
@@ -21,6 +33,8 @@ const DEFAULTS: UiPreferences = freezePreferences({
   leftRailPx: 280,
   rightRailPx: 340,
   dockPx: 260,
+  bothSplitPct: 55,
+  tableDrawerPx: 280,
   lastPanelTabs: {}
 });
 
@@ -42,6 +56,8 @@ export function readUiPreferences(storage?: Pick<Storage, "getItem">): UiPrefere
       leftRailPx: boundedNumber(value.leftRailPx, 220, 420, DEFAULTS.leftRailPx),
       rightRailPx: boundedNumber(value.rightRailPx, 280, 520, DEFAULTS.rightRailPx),
       dockPx: boundedNumber(value.dockPx, 180, 600, DEFAULTS.dockPx),
+      bothSplitPct: boundedNumber(value.bothSplitPct, BOTH_SPLIT_PCT_BOUNDS.min, BOTH_SPLIT_PCT_BOUNDS.max, DEFAULTS.bothSplitPct),
+      tableDrawerPx: boundedNumber(value.tableDrawerPx, TABLE_DRAWER_PX_BOUNDS.min, TABLE_DRAWER_PX_BOUNDS.max, DEFAULTS.tableDrawerPx),
       lastPanelTabs: stringRecord(value.lastPanelTabs)
     });
   } catch {
@@ -72,6 +88,8 @@ export function updateUiPreferences(
     leftRailPx: boundedNumber(patch.leftRailPx ?? current.leftRailPx, 220, 420, DEFAULTS.leftRailPx),
     rightRailPx: boundedNumber(patch.rightRailPx ?? current.rightRailPx, 280, 520, DEFAULTS.rightRailPx),
     dockPx: boundedNumber(patch.dockPx ?? current.dockPx, 180, 600, DEFAULTS.dockPx),
+    bothSplitPct: boundedNumber(patch.bothSplitPct ?? current.bothSplitPct, BOTH_SPLIT_PCT_BOUNDS.min, BOTH_SPLIT_PCT_BOUNDS.max, DEFAULTS.bothSplitPct),
+    tableDrawerPx: boundedNumber(patch.tableDrawerPx ?? current.tableDrawerPx, TABLE_DRAWER_PX_BOUNDS.min, TABLE_DRAWER_PX_BOUNDS.max, DEFAULTS.tableDrawerPx),
     lastPanelTabs: patch.lastPanelTabs ?? current.lastPanelTabs
   });
 }

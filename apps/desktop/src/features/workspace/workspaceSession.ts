@@ -116,7 +116,21 @@ import {
   startSolveJob
 } from "./solveJobAudit";
 import { publishUiModelAssignmentStarted } from "./uiDiagnostics";
-import { stageSurfaceAfter } from "./shellLayout";
+import {
+  SHELL_STAGES,
+  SHELL_VIEWS,
+  isStageSurface,
+  railStageState,
+  rememberStageView,
+  runPresenceFromCells,
+  sectionAfterPageClose,
+  sectionForStage,
+  shellLocation,
+  stageSurfaceAfter,
+  viewForStage
+} from "./shellLayout";
+import type { ShellStage, ShellView } from "./shellLayout";
+import type { UiDensityPreference, UiThemePreference } from "./uiPreferences";
 import { updateUiPreferences, writeUiPreferences } from "./uiPreferences";
 import { observeWorkspaceCanvasBudget } from "./workspaceCanvasBudget";
 import { EXPENSIVE_LIFECYCLE_SECTIONS } from "./workspaceSections";
@@ -176,6 +190,7 @@ export function useWorkspaceSession() {
     viewportViewCommandRef,
     workspaceShellRef,
     workspaceBudgetRef,
+    narrowWindow, setNarrowWindow,
     treeCollapsed, setTreeCollapsed,
     inspectorCollapsed, setInspectorCollapsed,
     treeToggleRef,
@@ -302,7 +317,21 @@ export function useWorkspaceSession() {
   // nothing of the model, the results, the operations or the project.
   useEffect(() => {
     setStageSurface((current) => stageSurfaceAfter(current, activeSection));
+    // A section summoned into the table pane is meant to be read: where the pane
+    // is a collapsed drawer, summoning one opens the drawer.
+    if (activeSection !== null && isStageSurface(activeSection)) setTreeCollapsed(false);
   }, [activeSection]);
+  // Where the shell is: derived on every render, never stored. The ref serves
+  // the listeners that are registered once (the keys, the native menu).
+  const shellNow = shellLocation(activeSection, stageSurface);
+  const stageViewNow = viewForStage(stageViewMemory, shellNow.stage);
+  const shellNowRef = useRef({ location: shellNow, view: stageViewNow, stageSurface });
+  shellNowRef.current = { location: shellNow, view: stageViewNow, stageSurface };
+  useEffect(() => {
+    const update = () => setNarrowWindow(window.innerWidth < 1280);
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
   useLayoutEffect(() => {
     if (!toolkitFocus) return;
     const target = toolkitFocus.elementId ? document.getElementById(toolkitFocus.elementId) : document.querySelector<HTMLElement>(`[data-testid="${toolkitFocus.testId}"]`);
@@ -1788,6 +1817,7 @@ export function useWorkspaceSession() {
       return;
     }
     setActiveSection(null);
+    revealModelStageCanvas();
     if (tool === "support") {
       openWorkspaceRail("inspector");
       if (selection) setPropertyTaskRequest({
@@ -1826,11 +1856,12 @@ export function useWorkspaceSession() {
         focusTestId: route.focusTestId,
         elementId: route.elementId
       });
+      revealModelStageCanvas();
       openWorkspaceRail("inspector");
       setActiveSection(null);
     }
     else if (route.surface === "tree") { openWorkspaceRail("tree"); setActiveSection(null); }
-    else if (route.surface === "viewport") setActiveSection(null);
+    else if (route.surface === "viewport") { revealModelStageCanvas(); setActiveSection(null); }
     else setActiveSection(route.surface);
     if (route.surface !== "inspector") setToolkitFocus({ testId: route.focusTestId, elementId: route.elementId });
   }
@@ -1940,13 +1971,15 @@ export function useWorkspaceSession() {
         setAuditDrawerOpen((open) => !open);
         break;
       case "view.close-panels":
-        setActiveSection(null);
+        closeShellPage();
         break;
       case "view.tree":
-        toggleWorkspaceRail("tree");
+        // The table pane collapses only where it is a drawer (Model view; Both view below 1280 px).
+        if (shellNowRef.current.view === "model" || (shellNowRef.current.view === "both" && window.innerWidth < 1280)) toggleWorkspaceRail("tree");
         break;
       case "view.inspector":
-        toggleWorkspaceRail("inspector");
+        // As the toolbar's Inspector toggle: it acts in Both view only.
+        if (shellNowRef.current.view === "both") toggleWorkspaceRail("inspector");
         break;
       case "insert.load":
         handleArmCreationTool("load");
@@ -1977,7 +2010,21 @@ export function useWorkspaceSession() {
         const prefix = "view.section.";
         if (command.startsWith(prefix)) {
           const sectionId = command.slice(prefix.length) as WorkspaceSectionId;
-          setActiveSection((current) => (current === sectionId ? null : sectionId));
+          // Choosing the open page again closes it onto the stage underneath;
+          // choosing the current stage surface again returns to the model tree, as before.
+          setActiveSection((current) => current !== sectionId
+            ? sectionId
+            : isStageSurface(sectionId) ? null : sectionAfterPageClose(shellNowRef.current.stageSurface));
+        } else if (command.startsWith("view.view.")) {
+          chooseStageView(command.slice("view.view.".length) as ShellView);
+        } else if (command.startsWith("view.stage.")) {
+          enterStage(command.slice("view.stage.".length) as ShellStage);
+        } else if (command.startsWith("view.theme.")) {
+          const theme = command.slice("view.theme.".length) as UiThemePreference;
+          setUiPreferences((current) => updateUiPreferences(current, { theme }));
+        } else if (command.startsWith("view.density.")) {
+          const density = command.slice("view.density.".length) as UiDensityPreference;
+          setUiPreferences((current) => updateUiPreferences(current, { density }));
         }
         break;
       }
@@ -2017,7 +2064,8 @@ export function useWorkspaceSession() {
       viewportViewCommandRef.current?.({ type: "cancel-box-selection" });
       setOpenMenu(null);
       setArmedCreationTool(null);
-      setActiveSection(null);
+      // ⎋ accelerates the open page's close control. It never leaves a stage.
+      setActiveSection((current) => isStageSurface(current) ? current : sectionAfterPageClose(shellNowRef.current.stageSurface));
       setAuditDrawerOpen(false);
       setIssuesDrawerOpen(false);
       shell.querySelector<HTMLButtonElement>('[data-testid="workspace-select"]')?.focus();
@@ -2026,44 +2074,40 @@ export function useWorkspaceSession() {
     return () => window.removeEventListener("keydown", handleWorkspaceEscape);
   }, []);
 
-  function resizeWorkspaceRail(side: "tree" | "inspector", delta: number) {
-    setUiPreferences((current) => updateUiPreferences(current, side === "tree"
-      ? { leftRailPx: current.leftRailPx + delta }
-      : { rightRailPx: current.rightRailPx + delta }));
-  }
-
+  // The shell's two splitters: the Both view's split (the table pane's share of
+  // the surface) and the Model view's table drawer. Both are presentation
+  // preferences; neither touches the model.
   function handleWorkspaceSplitterKeyDown(
     event: React.KeyboardEvent<HTMLButtonElement>,
-    side: "tree" | "inspector"
+    target: "both" | "drawer"
   ) {
-    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-    event.preventDefault();
-    resizeWorkspaceRail(side, event.key === "ArrowLeft" ? -16 : 16);
-  }
-
-  function handleDockSplitterKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
+    if (target === "both") {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      const delta = event.key === "ArrowLeft" ? -2 : 2;
+      setUiPreferences((current) => updateUiPreferences(current, { bothSplitPct: current.bothSplitPct + delta }));
+      return;
+    }
     if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
     event.preventDefault();
-    setUiPreferences((current) => updateUiPreferences(current, {
-      dockPx: current.dockPx + (event.key === "ArrowUp" ? 16 : -16)
-    }));
+    const delta = event.key === "ArrowUp" ? 16 : -16;
+    setUiPreferences((current) => updateUiPreferences(current, { tableDrawerPx: current.tableDrawerPx + delta }));
   }
 
   function beginWorkspaceResize(
     event: React.PointerEvent<HTMLButtonElement>,
-    target: "tree" | "inspector" | "dock"
+    target: "both" | "drawer"
   ) {
     event.preventDefault();
     activeResizeCleanupRef.current?.();
     const startX = event.clientX;
     const startY = event.clientY;
     const initial = uiPreferences;
+    const surfaceWidth = workspaceBudgetRef.current?.getBoundingClientRect().width ?? 0;
     const move = (pointer: PointerEvent) => {
-      const patch = target === "tree"
-        ? { leftRailPx: initial.leftRailPx + pointer.clientX - startX }
-        : target === "inspector"
-          ? { rightRailPx: initial.rightRailPx + startX - pointer.clientX }
-          : { dockPx: initial.dockPx + startY - pointer.clientY };
+      const patch = target === "both"
+        ? (surfaceWidth > 0 ? { bothSplitPct: initial.bothSplitPct + ((pointer.clientX - startX) / surfaceWidth) * 100 } : {})
+        : { tableDrawerPx: initial.tableDrawerPx + startY - pointer.clientY };
       setUiPreferences((current) => updateUiPreferences(current, patch));
     };
     const finish = () => {
@@ -2121,11 +2165,12 @@ export function useWorkspaceSession() {
     _interaction: ViewportExposureInteraction | `authoring-${CreationTool}`
   ) {
     if (window.innerWidth >= 1280) return;
-    // These rails are presentation overlays at narrow widths. Their mounted
-    // children and drafts remain alive; only their exposure changes.
+    // Below 1280 px the table pane and the inspector lie over the canvas. Their
+    // mounted children and drafts remain alive; only their exposure changes.
+    // A page over the stage closes onto it; the stage itself is never left.
     closeWorkspaceRail("tree");
     closeWorkspaceRail("inspector");
-    setActiveSection(null);
+    closeShellPage();
   }
 
   function openWorkspaceRail(side: "tree" | "inspector") {
@@ -2134,8 +2179,9 @@ export function useWorkspaceSession() {
     if (window.innerWidth < 1280) {
       if (side === "tree" && !inspectorCollapsed) closeWorkspaceRail("inspector");
       if (side === "inspector" && !treeCollapsed) closeWorkspaceRail("tree");
-      // Close transient dock overlays while retaining their mounted draft state.
-      setActiveSection(null);
+      // A page would cover the pane being opened; close it onto its stage,
+      // retaining its mounted draft state.
+      closeShellPage();
     }
     if (side === "tree") setTreeCollapsed(false);
     else setInspectorCollapsed(false);
@@ -2147,6 +2193,58 @@ export function useWorkspaceSession() {
     if (collapsed) openWorkspaceRail(side);
     else closeWorkspaceRail(side);
   }
+
+  // --- The shell's presentation handlers (slice B3). Each one writes chrome
+  // cells only; `setActiveSection` stays the one navigation primitive.
+
+  /** The toolbar's view switch, the View menu and ⌘1 ⌘2 ⌘3: the current stage's view. */
+  function chooseStageView(view: ShellView) {
+    const stage = shellNowRef.current.location.stage;
+    setStageViewMemory((memory) => rememberStageView(memory, stage, view));
+  }
+
+  /** The rail and the View menu: enter a stage, unless the rail disables it. */
+  function enterStage(stage: ShellStage) {
+    if (!railStageState(stage, runPresenceFromCells({ result, historicalRun, solveJob })).enabled) return;
+    setActiveSection(sectionForStage(stage, shellNowRef.current.stageSurface));
+  }
+
+  /** A page's close control (⎋ accelerates it): back to the stage surface it was opened over. */
+  function closeShellPage() {
+    setActiveSection((current) => isStageSurface(current) ? current : sectionAfterPageClose(shellNowRef.current.stageSurface));
+  }
+
+  /**
+   * A command that needs the canvas or the inspector is about to return to the
+   * Model stage: if that stage was left in Table view, show it in Both view.
+   */
+  function revealModelStageCanvas() {
+    setStageViewMemory((memory) => viewForStage(memory, "model") === "table" ? rememberStageView(memory, "model", "both") : memory);
+  }
+
+  // ⌘1 ⌘2 ⌘3 accelerate the view switch's segments and ⌘I the Inspector toggle.
+  // Each key does what its visible control does, and nothing when that control is disabled.
+  const shellKeyHandlersRef = useRef({ chooseStageView, toggleWorkspaceRail });
+  shellKeyHandlersRef.current = { chooseStageView, toggleWorkspaceRail };
+  useEffect(() => {
+    function handleShellAccelerator(event: KeyboardEvent) {
+      if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.shiftKey || event.defaultPrevented) return;
+      const key = event.key.toLowerCase();
+      const now = shellNowRef.current;
+      if (key === "1" || key === "2" || key === "3") {
+        const view = SHELL_VIEWS[Number(key) - 1];
+        event.preventDefault();
+        if (SHELL_STAGES.includes(now.location.stage) && (now.location.stage !== "review" || view === "table")) {
+          shellKeyHandlersRef.current.chooseStageView(view);
+        }
+      } else if (key === "i") {
+        event.preventDefault();
+        if (now.view === "both") shellKeyHandlersRef.current.toggleWorkspaceRail("inspector");
+      }
+    }
+    window.addEventListener("keydown", handleShellAccelerator);
+    return () => window.removeEventListener("keydown", handleShellAccelerator);
+  }, []);
 
   return {
     model: {
@@ -2270,12 +2368,15 @@ export function useWorkspaceSession() {
       issuesDrawerOpen, setIssuesDrawerOpen,
       stageSurface,
       stageViewMemory, setStageViewMemory,
+      narrowWindow,
+      chooseStageView,
+      enterStage,
+      closeShellPage,
       recordR3JourneyEvent,
       handleArmCreationTool,
       handleToolkitCommand,
       runMenuCommand,
       handleWorkspaceSplitterKeyDown,
-      handleDockSplitterKeyDown,
       beginWorkspaceResize,
       handleNarrowDrawerKeyDown,
       exposeViewportForNarrowInteraction,

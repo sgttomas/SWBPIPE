@@ -2,11 +2,14 @@ import { expect, test, type Page } from "@playwright/test";
 import {
   chooseVirtualTarget,
   closeWorkspacePanels,
+  expectStatusChip,
   expectTreeEntity,
   expectTreeEntityMissing,
   expectVirtualTarget,
   openWorkspaceSection,
+  projectCommand,
   selectTreeEntity,
+  showCanvas,
   startPropertyTaskFromCurrentSelection,
   startPropertyTaskFromTreeEntity,
 } from "./workspace-driver";
@@ -59,8 +62,8 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await openWorkspaceSection(page, "operations");
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
   await closeWorkspacePanels(page);
-  await page.getByRole("button", { name: "New blank" }).click();
-  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
+  await projectCommand(page, "new-blank");
+  await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
 
   await page.getByTestId("command-node").click();
   await page.getByTestId("viewport-create-node-id").fill("node:UI-A-100");
@@ -74,10 +77,10 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await expect(page.getByTestId("viewport-draft-review-preview")).toContainText("Single operation");
   await page.getByTestId("apply-reviewed-draft").click();
   await expectTreeEntity(page, "node", "node:UI-A-100");
-  await page.getByRole("button", { name: "Save local" }).click();
-  await page.getByRole("button", { name: "Open local" }).click();
+  await projectCommand(page, "save-local");
+  await projectCommand(page, "open-local");
   await expectTreeEntity(page, "node", "node:UI-A-100");
-  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
+  await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
 
   if (await page.getByTestId("toggle-inspector").getAttribute("aria-expanded") !== "true") await page.getByTestId("toggle-inspector").click();
   await page.getByTestId("toolkit-entry").click();
@@ -224,7 +227,9 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("issues-drawer-toggle").click();
   await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
   await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
-  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
+  await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
+  // Slice B3: the Analyze page lies over the stage's surfaces; close it to reach the canvas.
+  await showCanvas(page);
   await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
   await expect(page.getByTestId("viewport-deformation-summary")).toBeVisible();
   await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=0");
@@ -233,8 +238,8 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await expect(page.getByTestId("viewport-deformation-summary")).toBeHidden();
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("rule-check-run")).toBeDisabled();
-  await page.getByRole("button", { name: "Save local" }).click();
-  await page.getByRole("button", { name: "Open local" }).click();
+  await projectCommand(page, "save-local");
+  await projectCommand(page, "open-local");
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("historical-run-context")).toBeVisible();
   await expect(page.getByTestId("historical-run-context")).toContainText("HISTORICAL_INPUT_MANIFEST_MISSING");
@@ -271,8 +276,8 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("500");
   await expect.poll(() => currentModelHash(page)).toBe(edited500Hash);
-  await page.getByRole("button", { name: "Save local" }).click();
-  await page.getByRole("button", { name: "Open local" }).click();
+  await projectCommand(page, "save-local");
+  await projectCommand(page, "open-local");
   await expectTreeEntity(page, "pipe", "pipe:UI-A-100");
   await startPropertyTaskFromTreeEntity(page, "load", "load:UI-A");
   await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");

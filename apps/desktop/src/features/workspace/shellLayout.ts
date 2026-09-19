@@ -78,7 +78,12 @@ export type ViewSwitchItem = {
   accelerator: string;
   pressed: boolean;
   enabled: boolean;
+  /** Why the segment is disabled; null when it is enabled. */
+  reason: string | null;
 };
+
+/** ROOT's wording for the Model and Both segments on the Review stage. */
+export const REVIEW_HAS_NO_CANVAS_REASON = "Review has no canvas";
 
 const VIEW_SWITCH_COPY: Readonly<Record<ShellView, { label: string; tooltip: string; accelerator: string }>> =
   Object.freeze({
@@ -91,12 +96,16 @@ const VIEW_SWITCH_COPY: Readonly<Record<ShellView, { label: string; tooltip: str
 export function viewSwitchItems(stage: ShellStage, memory: StageViewMemory): ViewSwitchItem[] {
   const current = viewForStage(memory, stage);
   const available = stageViews(stage);
-  return SHELL_VIEWS.map((view) => ({
-    view,
-    ...VIEW_SWITCH_COPY[view],
-    pressed: view === current,
-    enabled: available.includes(view)
-  }));
+  return SHELL_VIEWS.map((view) => {
+    const enabled = available.includes(view);
+    return {
+      view,
+      ...VIEW_SWITCH_COPY[view],
+      pressed: view === current,
+      enabled,
+      reason: enabled ? null : REVIEW_HAS_NO_CANVAS_REASON
+    };
+  });
 }
 
 export type InspectorToggleState = { enabled: boolean; latched: boolean; tooltip: string; reason: string | null };
@@ -118,6 +127,19 @@ export function inspectorToggleState(view: ShellView, inspectorOpen: boolean): I
     };
   }
   return { enabled: true, latched: inspectorOpen, tooltip: "Inspector (⌘I)", reason: null };
+}
+
+export type TableDrawerState = { collapsible: boolean; expanded: boolean; reason: string | null };
+
+/**
+ * The table pane's collapse chevron. The pane is a drawer in Model view, and in
+ * Both view below 1280 px of window width (the narrow fallback); elsewhere it is
+ * always open and the chevron is disabled with its reason.
+ */
+export function tableDrawerState(view: ShellView, narrowWindow: boolean, collapsed: boolean): TableDrawerState {
+  if (view === "table") return { collapsible: false, expanded: true, reason: "Table view shows the tables at full width" };
+  if (view === "both" && !narrowWindow) return { collapsible: false, expanded: true, reason: "Both view keeps the tables open" };
+  return { collapsible: true, expanded: !collapsed, reason: null };
 }
 
 /** The Agent toggle and the agent strip: the column is a later slice and its live binding is the host gap G-19. */

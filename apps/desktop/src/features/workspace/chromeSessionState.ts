@@ -70,12 +70,16 @@ export function useChromeSessionState() {
   const viewportViewCommandRef = useRef<((command: ViewportViewCommand) => void) | null>(null);
   const workspaceShellRef = useRef<HTMLElement | null>(null);
   const workspaceBudgetRef = useRef<HTMLDivElement | null>(null);
-  // Viewport-first agent-mediated shell (TP-R3UX-AGENTSHELL-001): the detailed
-  // tree and property inspector start tucked away so the primary screen is the
-  // 3D model plus a local review-only agent workbench. The detailed rails remain
-  // available from View for targeted investigation.
+  // The shell of slice B3. `treeCollapsed` is the table pane's collapse: the
+  // Model view's bottom drawer down to its tab strip, and, below 1280 px of
+  // window width, the same drawer in Both view (the narrow fallback keeps
+  // today's behaviour: the panes lie over the canvas and start tucked away).
+  // `inspectorCollapsed` is the Both view's docked inspector, closed at first
+  // open as the specification gives it; Model view always docks the inspector
+  // and Table view never shows it, whatever this cell holds.
+  const [narrowWindow, setNarrowWindow] = useState(() => window.innerWidth < 1280);
   const [treeCollapsed, setTreeCollapsed] = useState(() => window.innerWidth < 1280);
-  const [inspectorCollapsed, setInspectorCollapsed] = useState(() => window.innerWidth < 1280);
+  const [inspectorCollapsed, setInspectorCollapsed] = useState(true);
   const treeToggleRef = useRef<HTMLButtonElement | null>(null);
   const inspectorToggleRef = useRef<HTMLButtonElement | null>(null);
   const activeResizeCleanupRef = useRef<(() => void) | null>(null);
@@ -110,6 +114,7 @@ export function useChromeSessionState() {
     viewportViewCommandRef,
     workspaceShellRef,
     workspaceBudgetRef,
+    narrowWindow, setNarrowWindow,
     treeCollapsed, setTreeCollapsed,
     inspectorCollapsed, setInspectorCollapsed,
     treeToggleRef,

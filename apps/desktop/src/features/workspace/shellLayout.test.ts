@@ -23,6 +23,7 @@ import {
   statusChipInputsFromCells,
   statusChipText,
   statusChips,
+  tableDrawerState,
   viewForStage,
   viewMenuStageItems,
   viewSwitchItems
@@ -72,11 +73,12 @@ describe("stages and views (§2.3)", () => {
     const memory = rememberStageView(EMPTY_STAGE_VIEW_MEMORY, "review", "both");
     expect(memory).toBe(EMPTY_STAGE_VIEW_MEMORY);
     expect(viewForStage({ review: "both" }, "review")).toBe("table");
-    expect(viewSwitchItems("review", EMPTY_STAGE_VIEW_MEMORY).map((item) => [item.view, item.enabled, item.pressed])).toEqual([
-      ["table", true, true],
-      ["model", false, false],
-      ["both", false, false]
+    expect(viewSwitchItems("review", EMPTY_STAGE_VIEW_MEMORY).map((item) => [item.view, item.enabled, item.pressed, item.reason])).toEqual([
+      ["table", true, true, null],
+      ["model", false, false, "Review has no canvas"],
+      ["both", false, false, "Review has no canvas"]
     ]);
+    expect(viewSwitchItems("model", EMPTY_STAGE_VIEW_MEMORY).every((item) => item.enabled && item.reason === null)).toBe(true);
   });
 
   it("names each view segment and then its key in parentheses", () => {
@@ -100,6 +102,16 @@ describe("stages and views (§2.3)", () => {
       reason: "The inspector is always docked in Model view"
     });
     expect(AGENT_UNAVAILABLE_REASON).toBe("Agent: not available yet");
+  });
+
+  it("collapses the table pane only where it is a drawer, and says why elsewhere", () => {
+    expect(tableDrawerState("model", false, false)).toEqual({ collapsible: true, expanded: true, reason: null });
+    expect(tableDrawerState("model", false, true)).toEqual({ collapsible: true, expanded: false, reason: null });
+    // Below 1280 px of window width the Both view falls back to the drawer.
+    expect(tableDrawerState("both", true, true)).toEqual({ collapsible: true, expanded: false, reason: null });
+    // Elsewhere the pane is always open, whatever the collapse cell holds.
+    expect(tableDrawerState("both", false, true)).toEqual({ collapsible: false, expanded: true, reason: "Both view keeps the tables open" });
+    expect(tableDrawerState("table", true, true)).toEqual({ collapsible: false, expanded: true, reason: "Table view shows the tables at full width" });
   });
 });
 

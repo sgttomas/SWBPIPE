@@ -54,8 +54,13 @@ export function useDisplayUnits() {
   const context = useContext(Context);
   return { preference: context?.preference ?? "entered", setPreference: context?.setPreference ?? (() => {}) };
 }
-export function DisplayUnitSelector({ id = "display-unit-preference" }: { id?: string }) {
+const DISPLAY_UNITS_NOTE = "Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.";
+export function DisplayUnitSelector({ id = "display-unit-preference", compact = false }: { id?: string; compact?: boolean }) {
   const { preference, setPreference } = useDisplayUnits();
+  // The toolbar's form: the same select and the same behaviour, with the note as its tooltip.
+  if (compact) return <select id={id} aria-label="Display units" title={`Display units. ${DISPLAY_UNITS_NOTE}`} value={preference} onChange={(event) => setPreference(event.target.value as DisplayUnitPreference)}>
+    <option value="entered">Entered</option><option value="SI">SI</option><option value="US">US</option>
+  </select>;
   return <div><label htmlFor={id}>Display units</label>{" "}<select id={id} value={preference} onChange={(event) => setPreference(event.target.value as DisplayUnitPreference)}>
     <option value="entered">Entered</option><option value="SI">SI</option><option value="US">US</option>
   </select><p>Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.</p></div>;

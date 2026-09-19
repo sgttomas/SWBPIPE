@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { closeWorkspacePanels, openWorkspaceSection } from "./workspace-driver";
+import { closeWorkspacePanels, openWorkspaceSection, projectCommand } from "./workspace-driver";
 
 // TP-APP-R2-WASMPKG-001 regression: the production bundle must ship the wasm
 // operation engine under /wasm-engine/ and the loader must reach ready from
@@ -20,7 +20,7 @@ test("production dist serves the wasm engine and New blank succeeds", async ({ p
 
   // First wasm-dependent authoring action — the step that failed in the
   // packaged app.
-  await page.getByRole("button", { name: "New blank" }).click();
+  await projectCommand(page, "new-blank");
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Created blank local model document without fixture entities or external file copies."
   );

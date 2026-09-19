@@ -9,12 +9,27 @@ import {
   type ToolkitContext
 } from "./capabilityCatalog";
 
+/**
+ * A shell command the palette lists beside the catalogue: a view, a stage, the
+ * theme or the density. It is presentation only and is not part of the accepted
+ * capability vocabulary, so it is handed in rather than added to the catalogue.
+ */
+export type PaletteShellCommand = {
+  id: string;
+  label: string;
+  active?: boolean;
+  disabled?: boolean;
+  reason?: string | null;
+  run: () => void;
+};
+
 type Props = {
   context: ToolkitContext;
   onChoose: (capability: ToolkitCapability) => void;
+  shellCommands?: readonly PaletteShellCommand[];
 };
 
-export function ToolkitPalette({ context, onChoose }: Props) {
+export function ToolkitPalette({ context, onChoose, shellCommands = [] }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState<(typeof toolkitGroups)[number] | null>(null);
@@ -41,6 +56,10 @@ export function ToolkitPalette({ context, onChoose }: Props) {
     `${item.label} ${item.group} ${item.description}`.toLowerCase().includes(query.trim().toLowerCase())
   );
 
+  const shellMatches = groupFilter ? [] : shellCommands.filter((item) =>
+    `${item.label} view`.toLowerCase().includes(query.trim().toLowerCase())
+  );
+
   function close() {
     setOpen(false);
     returnFocus.current?.focus();
@@ -65,32 +84,15 @@ export function ToolkitPalette({ context, onChoose }: Props) {
         aria-expanded={open}
         aria-controls="toolkit-commands"
         aria-label="Find modeling commands"
-        title="Search Build, Supports, Properties, Loads, Edit, Select and View, and Review commands"
+        title="Search or command (⌘K)"
         onClick={() => {
           returnFocus.current = toggle.current;
           setGroupFilter(null);
           setOpen(!open);
         }}
       >
-        <Search size={16} aria-hidden="true" /> Commands <kbd aria-label="Command K">⌘K</kbd>
+        <Search size={16} aria-hidden="true" /> <span className="toolkit-entry-placeholder">Search or command…</span> <kbd aria-label="Command K">⌘K</kbd>
       </button>
-      <div className="toolkit-group-shortcuts" role="group" aria-label="Command groups">
-        {toolkitGroups.map((group) => (
-          <button
-            aria-pressed={open && groupFilter === group}
-            data-testid={`toolkit-group-${group.toLowerCase().replaceAll(" ", "-").replace("-and-", "-")}`}
-            key={group}
-            onClick={(event) => {
-              returnFocus.current = event.currentTarget;
-              setGroupFilter(group);
-              setQuery("");
-              setOpen(true);
-            }}
-            title={`Open ${group} commands`}
-            type="button"
-          >{group === "Select and View" ? "Select/View" : group}</button>
-        ))}
-      </div>
       {open ? (
         <>
         <div className="toolkit-backdrop" aria-hidden="true" onPointerDown={(event) => {
@@ -119,6 +121,22 @@ export function ToolkitPalette({ context, onChoose }: Props) {
             />
           </label>
           <button type="button" onClick={close} aria-label="Close toolkit"><X size={18} aria-hidden="true" /></button>
+          </div>
+          <div className="toolkit-group-shortcuts" role="group" aria-label="Command groups">
+            {toolkitGroups.map((group) => (
+              <button
+                aria-pressed={groupFilter === group}
+                data-testid={`toolkit-group-${group.toLowerCase().replaceAll(" ", "-").replace("-and-", "-")}`}
+                key={group}
+                onClick={() => {
+                  setGroupFilter((current) => (current === group ? null : group));
+                  setQuery("");
+                  search.current?.focus();
+                }}
+                title={`Show ${group} commands`}
+                type="button"
+              >{group === "Select and View" ? "Select/View" : group}</button>
+            ))}
           </div>
           {groupFilter ? <p className="toolkit-active-group" role="status">Showing {groupFilter} commands. Search stays within this group.</p> : null}
           <div className="toolkit-command-groups">
@@ -156,7 +174,30 @@ export function ToolkitPalette({ context, onChoose }: Props) {
               );
             })}
           </div>
-          {!matches.length ? <p role="status">No tools match this search.</p> : null}
+          {shellMatches.length ? (
+            <section aria-label="View" className="toolkit-shell-commands">
+              <h3>View</h3>
+              {shellMatches.map((item) => (
+                <div className="toolkit-command" key={item.id}>
+                  <button
+                    type="button"
+                    data-testid={`toolkit-shell-${item.id}`}
+                    aria-pressed={item.active ?? undefined}
+                    disabled={item.disabled}
+                    title={item.disabled && item.reason ? item.reason : undefined}
+                    onClick={() => {
+                      if (item.disabled) return;
+                      setOpen(false);
+                      returnFocus.current?.focus();
+                      item.run();
+                    }}
+                  >{item.label}</button>
+                  {item.disabled && item.reason ? <small>{item.reason}</small> : null}
+                </div>
+              ))}
+            </section>
+          ) : null}
+          {!matches.length && !shellMatches.length ? <p role="status">No tools match this search.</p> : null}
           <details>
             <summary>Deferred roadmap</summary>
             <ul>{toolkitRoadmap.map((label) => <li key={label}>{label}</li>)}</ul>

@@ -51,6 +51,15 @@ import type {
   SolveJobAuditState,
 } from "./types";
 
+// Slice B3: the status bar carries the chips of specification §5.4. A chip's face is
+// "Domain · Label" from statusLabels.ts; the recorded token is its tooltip (and, on a
+// click, its popover). These helpers hold both, where a pill's body used to show the token.
+function expectStatusChip(testId: string, token: string, face: string) {
+  const chip = screen.getByTestId(testId);
+  expect(chip).toHaveAttribute("title", token);
+  expect(chip).toHaveTextContent(face);
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
   invokeMock.mockReset();
@@ -973,9 +982,12 @@ describe("SWBPIPE desktop preview", () => {
     expect(screen.queryByTestId("workspace-nav")).toBeNull();
     expect(screen.queryByTestId("guided-journey-stack")).toBeNull();
 
-    // Summon the Operation Apply section from the View menu.
+    // Slice B3: Review changes is the Model stage's second tab, not a page, so
+    // opening it leaves the page container closed and latches its tab.
     const operationsSection = openWorkspaceSection("operations");
-    expect(screen.getByTestId("workspace-dock").className).not.toContain(
+    expect(screen.getByTestId("workspace-review")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("rail-stage-model")).toHaveAttribute("aria-current", "page");
+    expect(screen.getByTestId("workspace-dock").className).toContain(
       "collapsed",
     );
 
@@ -3507,9 +3519,13 @@ describe("SWBPIPE desktop preview", () => {
         "export-review-record-validation_release_evidence_review",
       ).textContent,
     ).toContain("available");
+    // Slice B3, specification §5.4 rule 4: Human · Human review required is a chip of the
+    // Review page after a solved run and of no other page. The recorded value stays readable
+    // in the Analyze page's readiness summary.
+    expect(screen.queryByTestId("status-pill-professional")).not.toBeInTheDocument();
     expect(
-      screen.getByTestId("status-pill-professional").textContent,
-    ).toContain("HUMAN_REVIEW_REQUIRED");
+      within(openWorkspaceSection("solve")).getByTestId("readiness-professional").textContent,
+    ).toContain("Human · Human review required (HUMAN_REVIEW_REQUIRED)");
     expect(screen.getByTestId("workspace-status-bar")).toBeInTheDocument();
     expect(screen.getByLabelText("Local project controls")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("audit-drawer-toggle"));
@@ -9103,15 +9119,16 @@ describe("SWBPIPE desktop preview", () => {
       ),
     );
     expect(screen.getByText("Blank Local Model", { selector: ".titlebar p" })).toBeInTheDocument();
-    expect(screen.getByTestId("status-pill-mechanics").textContent).toContain(
-      "MODEL_INCOMPLETE",
-    );
-    expect(screen.getByTestId("status-pill-rule-check").textContent).toContain(
-      "RULE_INPUTS_INCOMPLETE",
-    );
-    expect(
-      screen.getByTestId("status-pill-professional").textContent,
-    ).toContain("HUMAN_REVIEW_REQUIRED");
+    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
+    // Slice B3, specification §5.4 rule 1: before any run the status bar carries one chip,
+    // Solver · Model incomplete. The other two recorded values stay readable in the Analyze
+    // page's readiness summary.
+    expect(screen.queryByTestId("status-pill-rule-check")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("status-pill-professional")).not.toBeInTheDocument();
+    const blankReadiness = within(openWorkspaceSection("solve"));
+    expect(blankReadiness.getByTestId("readiness-rule").textContent).toContain("(RULE_INPUTS_INCOMPLETE)");
+    expect(blankReadiness.getByTestId("readiness-professional").textContent).toContain("(HUMAN_REVIEW_REQUIRED)");
+    fireEvent.click(screen.getByTestId("workspace-dock-close"));
     fireEvent.click(screen.getByTestId("audit-drawer-toggle"));
     const auditDrawer = await screen.findByTestId("audit-boundary-drawer");
     expect(auditDrawer.textContent).toContain(
@@ -9286,7 +9303,9 @@ describe("SWBPIPE desktop preview", () => {
       ),
     );
 
-    fireEvent.click(screen.getByTestId("workspace-review"));
+    // Slice B3: the Review changes tab belongs to the Model stage's strip; from the Results
+    // stage it is reached by the section command.
+    openWorkspaceSection("operations");
     fireEvent.click(screen.getByTestId("operation-tab-details"));
     fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
     fireEvent.click(
@@ -9966,9 +9985,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(runButton);
 
     await waitFor(() =>
-      expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent(
-        "MECHANICS_SOLVED",
-      ),
+      expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"),
     );
 
     const resultsSection = openWorkspaceSection("results");
@@ -12833,7 +12850,9 @@ describe("SWBPIPE desktop preview", () => {
     ).toBe(false);
     */
 
-    fireEvent.click(screen.getByTestId("workspace-review"));
+    // Slice B3: the Review changes tab belongs to the Model stage's strip; from the Results
+    // stage it is reached by the section command.
+    openWorkspaceSection("operations");
     fireEvent.click(screen.getByTestId("operation-tab-details"));
     fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
     fireEvent.click(
@@ -13796,9 +13815,7 @@ describe("SWBPIPE desktop preview", () => {
         "state=completed",
       ),
     );
-    expect(screen.getByTestId("status-pill-mechanics").textContent).toContain(
-      "MODEL_INCOMPLETE",
-    );
+    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
     expect(
       within(screen.getByTestId("solve-readiness-summary")).getByTestId(
         "readiness-mechanics",
@@ -16399,7 +16416,7 @@ describe("native straight-route Add and Apply", () => {
     const controls = screen.getByLabelText("Local project controls");
     fireEvent.click(within(controls).getByRole("button", { name: /New blank/i }));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Created blank local model"));
-    expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MODEL_INCOMPLETE");
+    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
     fireEvent.click(screen.getByTestId("command-node"));
     const panel = screen.getByTestId("viewport-editor-intents");
     const change = (id: string, value: string) => fireEvent.change(within(panel).getByTestId(id), { target: { value } });
@@ -16413,13 +16430,13 @@ describe("native straight-route Add and Apply", () => {
     await waitFor(() => expect(within(panel).getByTestId("apply-reviewed-draft")).toBeEnabled());
     fireEvent.click(within(panel).getByTestId("apply-reviewed-draft"));
     await screen.findByTestId(typedTreeRowTestId("node", "node:UI-A-100"));
-    expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MODEL_INCOMPLETE");
+    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
     fireEvent.click(within(controls).getByRole("button", { name: /Save local/i }));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Saved local browser-preview project snapshot"));
     fireEvent.click(within(controls).getByRole("button", { name: /^Open local$/i }));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Opened local browser-preview project snapshot"));
     expect(screen.getByTestId(typedTreeRowTestId("node", "node:UI-A-100"))).toBeInTheDocument();
-    expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MODEL_INCOMPLETE");
+    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
   });
 });
 
@@ -16633,7 +16650,7 @@ describe("Tier3 display in the actual application", () => {
     await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(await runMechanicsButton());
     await waitFor(
-      () => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MECHANICS_SOLVED"),
+      () => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"),
       { timeout: 10000 },
     );
     const comparison = comparisonWorkspace();
@@ -16718,6 +16735,8 @@ describe("persistent modeling workspace", () => {
     await screen.findByTestId("desktop-preview-shell");
 
     selectTreeRow("load", model.load_cases[0].id);
+    // Slice B3: the command-group band is inside the palette.
+    fireEvent.click(screen.getByTestId("toolkit-entry"));
     fireEvent.click(screen.getByTestId("toolkit-group-loads"));
     fireEvent.click(screen.getByTestId("toolkit-loads.wind"));
     const inspector = screen.getByTestId("property-inspector");
@@ -16738,6 +16757,7 @@ describe("persistent modeling workspace", () => {
     );
     expect(within(inspector).getByTestId("editor-intent-value")).toHaveValue("Frozen Task A entered value");
 
+    fireEvent.click(screen.getByTestId("toolkit-entry"));
     fireEvent.click(screen.getByTestId("toolkit-group-properties"));
     fireEvent.click(screen.getByTestId("toolkit-properties.material"));
     await waitFor(() =>
@@ -16841,21 +16861,35 @@ describe("persistent modeling workspace", () => {
     Object.defineProperty(window, "innerWidth", { configurable: true, value: 1440 });
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
-    const treeSplitter = screen.getByRole("separator", { name: "Resize model tree" });
-    const initialTree = Number(treeSplitter.getAttribute("aria-valuenow"));
-    fireEvent.keyDown(treeSplitter, { key: "ArrowRight" });
-    expect(treeSplitter).toHaveAttribute("aria-valuenow", String(Math.min(420, initialTree + 16)));
-    const afterKeyboard = Number(treeSplitter.getAttribute("aria-valuenow"));
-    fireEvent(treeSplitter, new MouseEvent("pointerdown", { bubbles: true, clientX: 100, clientY: 40 }));
+    // Slice B3: the shell's two splitters are the Both view's split (the table pane's share of
+    // the surface, in percent, 15 to 85) and the Model view's table drawer (120 to 600 px).
+    const splitSplitter = screen.getByRole("separator", { name: "Resize table and canvas" });
+    expect(splitSplitter).toHaveAttribute("aria-orientation", "vertical");
+    expect(splitSplitter).toHaveAttribute("aria-valuemin", "15");
+    expect(splitSplitter).toHaveAttribute("aria-valuemax", "85");
+    const initialSplit = Number(splitSplitter.getAttribute("aria-valuenow"));
+    expect(initialSplit).toBe(55);
+    fireEvent.keyDown(splitSplitter, { key: "ArrowRight" });
+    expect(splitSplitter).toHaveAttribute("aria-valuenow", String(Math.min(85, initialSplit + 2)));
+    const afterKeyboard = Number(splitSplitter.getAttribute("aria-valuenow"));
+    // jsdom lays nothing out, so the surface reports no width and a pointer drag has no share to
+    // convert to; the drag is held by e2e/workspace-layout.spec.ts. Here it must neither throw nor move the value.
+    fireEvent(splitSplitter, new MouseEvent("pointerdown", { bubbles: true, clientX: 100, clientY: 40 }));
     fireEvent(window, new MouseEvent("pointermove", { bubbles: true, clientX: 140, clientY: 40 }));
     fireEvent(window, new MouseEvent("pointerup", { bubbles: true, clientX: 140, clientY: 40 }));
-    expect(treeSplitter).toHaveAttribute("aria-valuenow", String(Math.min(420, afterKeyboard + 40)));
+    expect(splitSplitter).toHaveAttribute("aria-valuenow", String(afterKeyboard));
+    for (let press = 0; press < 40; press += 1) fireEvent.keyDown(splitSplitter, { key: "ArrowRight" });
+    expect(splitSplitter).toHaveAttribute("aria-valuenow", "85");
     act(() => nativeMenuCommand("view.section.evidence"));
-    const dockSplitter = screen.getByRole("separator", { name: "Resize task dock" });
-    expect(dockSplitter).toHaveAttribute("aria-orientation", "horizontal");
-    const initialDock = Number(dockSplitter.getAttribute("aria-valuenow"));
-    fireEvent.keyDown(dockSplitter, { key: "ArrowUp" });
-    expect(dockSplitter).toHaveAttribute("aria-valuenow", String(Math.min(600, initialDock + 16)));
+    const drawerSplitter = screen.getByRole("separator", { name: "Resize table drawer" });
+    expect(drawerSplitter).toHaveAttribute("aria-orientation", "horizontal");
+    const initialDrawer = Number(drawerSplitter.getAttribute("aria-valuenow"));
+    fireEvent.keyDown(drawerSplitter, { key: "ArrowUp" });
+    expect(drawerSplitter).toHaveAttribute("aria-valuenow", String(Math.min(600, initialDrawer + 16)));
+    fireEvent(drawerSplitter, new MouseEvent("pointerdown", { bubbles: true, clientX: 100, clientY: 400 }));
+    fireEvent(window, new MouseEvent("pointermove", { bubbles: true, clientX: 100, clientY: 360 }));
+    fireEvent(window, new MouseEvent("pointerup", { bubbles: true, clientX: 100, clientY: 360 }));
+    expect(drawerSplitter).toHaveAttribute("aria-valuenow", String(Math.min(600, initialDrawer + 16 + 40)));
     expect(await screen.findByTestId("accessibility-current-workspace-target")).toHaveTextContent("WCAG 2.2 Level AA");
     Object.defineProperty(window, "innerWidth", { configurable: true, value: 1024 });
   });
@@ -16935,6 +16969,13 @@ describe("persistent modeling workspace", () => {
     fireEvent.click(screen.getByTestId("toolkit-edit.copy"));
     expect(screen.getByTestId("operation-tab-geometry")).toHaveAttribute("aria-pressed", "true");
     expect(document.getElementById("geometry-tools")).toHaveFocus();
+    // Slice B3: Review changes lives in the table pane, which below 1280 px (jsdom's window) is a
+    // drawer over the canvas. As with the narrow drawers before it, ⎋ inside the open drawer tucks it
+    // away and returns focus to its opener; the next ⎋ reaches the workspace, as it did before.
+    expect(screen.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
+    fireEvent.keyDown(document.activeElement!, { key: "Escape" });
+    expect(screen.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("toggle-tree")).toHaveFocus();
     fireEvent.keyDown(document.activeElement!, { key: "Escape" });
     expect(screen.getByTestId("workspace-dock")).toHaveClass("collapsed");
     expect(screen.getByTestId("workspace-select")).toHaveFocus();
@@ -16985,7 +17026,7 @@ describe("workflow current and historical result boundaries", () => {
     fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
     await waitFor(() => expect(reviewControl("session-history-chip")).toHaveTextContent("1 undo / 0 redo"));
     fireEvent.click(await runMechanicsButton());
-    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MODEL_INCOMPLETE"));
+    await waitFor(() => expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete"));
     expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=0");
     expect(screen.getByTestId("viewport-deformation-boundary")).toHaveTextContent("scale=not_generated");
     expect(solveJobSummary()).toHaveTextContent("result_rows=0");
@@ -17085,7 +17126,7 @@ describe("workflow current and historical result boundaries", () => {
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(await runMechanicsButton());
-    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MECHANICS_SOLVED"));
+    await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
 
     invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
       if (command === "get_unit_catalog") return Promise.reject(new Error("Invented catalog unavailable"));
@@ -17114,7 +17155,7 @@ describe("workflow current and historical result boundaries", () => {
     );
     delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
     fireEvent.click(await runMechanicsButton());
-    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MECHANICS_SOLVED"));
+    await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
     expect(renderedReportButton()).toBeEnabled();
 
     await act(async () => {
@@ -17137,7 +17178,8 @@ describe("workflow current and historical result boundaries", () => {
       });
       await delayedRuleRun.promise;
     });
-    expect(screen.getByTestId("status-pill-rule-check")).not.toHaveTextContent("USER_RULE_FAILED");
+    // Slice B3: with no rule-check aggregate there is no Rule pack chip at all (§5.4 rule 3).
+    expect(screen.queryByTestId("status-pill-rule-check")).not.toBeInTheDocument();
     const report = openWorkspaceSection("report");
     const privateIntent = within(report).getByTestId("report-package-private-intent") as HTMLInputElement;
     if (!privateIntent.checked) fireEvent.click(privateIntent);
@@ -17173,7 +17215,7 @@ describe("workflow current and historical result boundaries", () => {
       render(<App />);
       await screen.findByTestId("desktop-preview-shell");
       fireEvent.click(await runMechanicsButton());
-      await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MECHANICS_SOLVED"));
+      await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
       const reportPackageModule = await import("./features/report/reportPackageRequest");
       const buildReportPackageRequest = reportPackageModule.buildReportPackageRequest.bind(reportPackageModule);
       buildSpy = vi.spyOn(reportPackageModule, "buildReportPackageRequest").mockImplementation((input) => {
@@ -17257,7 +17299,7 @@ describe("workflow current and historical result boundaries", () => {
       render(<App />);
       await screen.findByTestId("desktop-preview-shell");
       fireEvent.click(await runMechanicsButton());
-      await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MECHANICS_SOLVED"));
+      await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
       let report = openWorkspaceSection("report");
       fireEvent.click(within(report).getByTestId("report-package-private-intent"));
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -17272,7 +17314,7 @@ describe("workflow current and historical result boundaries", () => {
       );
       delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
       fireEvent.click(await runMechanicsButton());
-      await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MECHANICS_SOLVED"));
+      await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
       report = openWorkspaceSection("report");
       const privateIntent = within(report).getByTestId("report-package-private-intent") as HTMLInputElement;
       if (!privateIntent.checked) fireEvent.click(privateIntent);
@@ -17327,7 +17369,11 @@ describe("workflow current and historical result boundaries", () => {
     await screen.findByTestId("desktop-preview-shell");
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     act(() => nativeMenuCommand("analyze.run"));
-    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent(mechanics));
+    // Slice B3, specification §5.4 rule 7: a run that did not solve lights only the registered
+    // statuses its record carries. This value is outside the registered table, so it has no chip;
+    // it is read in the Analyze page's readiness row (open here) and in the deformation status below.
+    await waitFor(() => expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent(mechanics.toLowerCase().replaceAll("_", " ")));
+    expect(screen.queryByTestId("status-pill-mechanics")).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
     expect(screen.getByTestId("diagnostic-WORKFLOW_OUTCOME_DIAGNOSTIC")).toHaveTextContent("Synthetic outcome retained");
     expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent(failedSummary);
@@ -17550,7 +17596,7 @@ describe("historical lifecycle history transitions", () => {
       await screen.findByTestId("desktop-preview-shell");
       fireEvent.click(await runMechanicsButton());
       await waitFor(
-        () => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MECHANICS_SOLVED"),
+        () => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"),
         { timeout: 10000 },
       );
 
@@ -17778,13 +17824,13 @@ describe("historical lifecycle history transitions", () => {
     delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
     openWorkspaceSection("solve");
     fireEvent.click(await runMechanicsButton());
-    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MODEL_INCOMPLETE"), { timeout: 10000 });
+    await waitFor(() => expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete"), { timeout: 10000 });
     openWorkspaceSection("results");
     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
     await act(async () => pendingSave.resolve(refreshed));
     await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
-    expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MODEL_INCOMPLETE");
+    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
   });
 
   it("adopts a changed native persistence model and retains returned results as Historical", async () => {
@@ -17918,7 +17964,7 @@ describe("historical lifecycle history transitions", () => {
     await screen.findByTestId("desktop-preview-shell");
     openWorkspaceSection("solve");
     fireEvent.click(await runMechanicsButton());
-    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MECHANICS_SOLVED"), { timeout: 10000 });
+    await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"), { timeout: 10000 });
     invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }) => {
       if (command === "save_local_project") {
         const model = args.request.model as PreviewModel;
@@ -17934,7 +17980,7 @@ describe("historical lifecycle history transitions", () => {
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Saved unchanged Current model"));
     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
-    expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MECHANICS_SOLVED");
+    expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
   });
 });
 

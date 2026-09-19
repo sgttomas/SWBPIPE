@@ -34,6 +34,8 @@ describe("human toolkit", () => {
       render(<ToolkitPalette context={context} onChoose={onChoose} />);
       fireEvent.click(screen.getByTestId("toolkit-entry"));
       fireEvent.keyDown(screen.getByRole("searchbox"), { key: "Escape" });
+      // Slice B3: the group band is inside the palette, so it is reached through the palette field.
+      fireEvent.click(screen.getByTestId("toolkit-entry"));
       fireEvent.click(screen.getByTestId("toolkit-group-build"));
       const command = screen.getByTestId("toolkit-build.node");
       command.focus();
@@ -46,10 +48,11 @@ describe("human toolkit", () => {
       expect(destination).toHaveFocus();
     } finally { raf.mockRestore(); destination.remove(); }
   });
-  it("consumes owned backdrop pointer default and returns the group invoker", () => {
+  it("consumes owned backdrop pointer default and returns focus to the palette field that opened it", () => {
     render(<ToolkitPalette context={context} onChoose={vi.fn()} />);
-    const invoker = screen.getByTestId("toolkit-group-build");
+    const invoker = screen.getByTestId("toolkit-entry");
     fireEvent.click(invoker);
+    fireEvent.click(screen.getByTestId("toolkit-group-build"));
     const event = new Event("pointerdown", { bubbles: true, cancelable: true });
     fireEvent(document.querySelector(".toolkit-backdrop")!, event);
     expect(event.defaultPrevented).toBe(true);
@@ -109,6 +112,7 @@ describe("human toolkit", () => {
     expect(redo.history).toBe("redo");
 
     render(<ToolkitPalette context={{ ...context, canUndo: true }} onChoose={onChoose} />);
+    fireEvent.click(screen.getByTestId("toolkit-entry"));
     fireEvent.click(screen.getByRole("button", { name: "Edit" }));
     fireEvent.click(screen.getByRole("button", { name: "Undo" }));
     expect(onChoose).toHaveBeenCalledOnce();
@@ -157,8 +161,10 @@ describe("human toolkit", () => {
       expect(screen.getByRole("heading", { name: group })).toBeVisible();
     }
   });
-  it("exposes every command group in the visible compact band and filters the palette", () => {
+  it("exposes every command group in the palette's compact band and filters the palette", () => {
     render(<ToolkitPalette context={context} onChoose={vi.fn()} />);
+    expect(screen.getByTestId("toolkit-entry")).toHaveTextContent("Search or command…");
+    fireEvent.click(screen.getByTestId("toolkit-entry"));
     for (const label of ["Build", "Supports", "Properties", "Loads", "Edit", "Select/View", "Review"]) {
       expect(screen.getByRole("button", { name: label })).toBeVisible();
     }

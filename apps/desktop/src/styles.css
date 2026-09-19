@@ -79,42 +79,12 @@ button:focus-visible {
   grid-template-rows: auto auto 1fr auto;
 }
 
-.titlebar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 10px 18px;
-  color: #f8faf7;
-  background: #263331;
-  border-bottom: 1px solid #182321;
-}
-
-.titlebar h1 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0;
-}
-
-.titlebar p {
-  margin: 4px 0 0;
-  color: #c7d0cb;
-  font-size: 13px;
-}
-
 .titlebar-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-}
-
-.titlebar-project-name {
-  color: #d9e2de;
-  font-size: 12px;
-  font-weight: 700;
 }
 
 .titlebar-actions button,
@@ -134,11 +104,6 @@ button:focus-visible {
   color: #263331;
   background: #ffffff;
   cursor: pointer;
-}
-
-.titlebar-actions button:disabled {
-  color: #89938f;
-  cursor: not-allowed;
 }
 
 .project-strip {
@@ -497,113 +462,6 @@ button:focus-visible {
   padding: 8px;
 }
 
-.workspace.dock-collapsed .modeling-workspace {
-  flex: 1 1 0;
-}
-
-/* Persistent spatial core (PRD 14.1): model tree | viewport | inspector. */
-.modeling-workspace {
-  --pane-tree-col: 300px;
-  --pane-viewport-col: minmax(560px, 1.6fr);
-  --pane-agent-col: minmax(300px, 340px);
-  --pane-inspector-col: 390px;
-  display: grid;
-  grid-template-columns: var(--pane-tree-col) var(--pane-viewport-col) var(--pane-agent-col) var(--pane-inspector-col);
-  gap: 10px;
-  flex: 1.5 1 0;
-  /* Keep the persistent model core substantial on tall displays without
-     forcing the dock to overflow underneath the terminal status row at the
-     1440x920 packaged-window height. The dock and panes own their scrolling;
-     this floor therefore has to participate in the viewport-height budget. */
-  min-height: clamp(230px, 40vh, 540px);
-}
-
-/* Collapsing a rail hands its column width to the viewport; the column shrinks
-   to a thin strip showing only the vertical re-expand handle. The two-class
-   selector outweighs the responsive single-class rule below, so collapse wins
-   at every breakpoint. */
-.modeling-workspace.tree-collapsed {
-  --pane-tree-col: 34px;
-}
-
-.modeling-workspace.inspector-collapsed {
-  --pane-inspector-col: 34px;
-}
-
-.modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) {
-  /* The agent pane is absent in this state, so remove its track as well.
-     Leaving a zero-width third track makes grid auto-placement put the
-     inspector into that track and lets the viewport overlap its controls. */
-  grid-template-columns: var(--pane-tree-col) var(--pane-viewport-col) var(--pane-inspector-col);
-}
-
-.modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) .workspace-pane-agent {
-  display: none;
-}
-
-/* One persistent toggle per rail. It stays mounted across collapse/expand
-   (so keyboard focus is never dropped), carries aria-expanded for disclosure
-   semantics, and is CSS-restyled: a horizontal header bar when expanded, the
-   full-height vertical strip when collapsed. */
-.workspace-pane-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex: 0 0 auto;
-  gap: 8px;
-  padding: 3px 6px;
-  border: 1px solid #c7d0cb;
-  background: #edf2ef;
-  color: #31403d;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.workspace-pane-toggle:hover {
-  background: var(--ui-raised);
-}
-
-.workspace-pane-toggle-label {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.workspace-pane-toggle-icon {
-  font-size: 15px;
-  line-height: 1;
-}
-
-/* Collapsed: hide the (still-mounted) panel so only the toggle strip shows, and
-   stand the toggle up as the full-height vertical strip. :not(.workspace-pane-toggle)
-   keeps the hide independent of each panel's internal structure; CSS-only hide
-   (never aria-hidden) keeps the panel in the DOM and accessibility tree for the
-   unit tests, which run with both rails expanded. */
-.modeling-workspace.tree-collapsed .workspace-pane-tree > :not(.workspace-pane-toggle),
-.modeling-workspace.inspector-collapsed .workspace-pane-inspector > :not(.workspace-pane-toggle) {
-  display: none;
-}
-
-.modeling-workspace.tree-collapsed .workspace-pane-tree > .workspace-pane-toggle,
-.modeling-workspace.inspector-collapsed .workspace-pane-inspector > .workspace-pane-toggle {
-  flex: 1 1 auto;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 10px;
-  padding: 8px 0;
-}
-
-.modeling-workspace.tree-collapsed .workspace-pane-tree > .workspace-pane-toggle .workspace-pane-toggle-label,
-.modeling-workspace.inspector-collapsed .workspace-pane-inspector > .workspace-pane-toggle .workspace-pane-toggle-label {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  letter-spacing: 0.08em;
-}
-
 /* Each core column scrolls independently; panels inside grow with content. */
 .workspace-pane {
   display: flex;
@@ -620,13 +478,8 @@ button:focus-visible {
   flex: 0 0 auto;
 }
 
-.workspace-pane-viewport > .viewport-shell,
-.workspace-pane-agent > .panel {
+.workspace-pane-viewport > .viewport-shell {
   flex: 1 1 auto;
-}
-
-.workspace-pane-agent {
-  overflow-y: auto;
 }
 
 .layout-mode-toggle,
@@ -1849,15 +1702,9 @@ fieldset.viewport-intent-controls {
     padding: 8px 10px;
   }
 
-  .modeling-workspace {
-    flex: 0 1 210px;
-    min-height: 210px;
-  }
+  
 
-  .workspace.dock-collapsed .modeling-workspace {
-    flex: 1 1 0;
-    min-height: 0;
-  }
+  
 
   .workspace-dock {
     flex: 1 1 0;
@@ -3031,13 +2878,7 @@ th {
     min-width: 960px;
   }
 
-  .modeling-workspace {
-    --pane-tree-col: 250px;
-    --pane-viewport-col: minmax(400px, 1fr);
-    --pane-agent-col: minmax(280px, 320px);
-    --pane-inspector-col: 340px;
-    min-height: 230px;
-  }
+  
 
   .workspace {
     gap: 8px;
@@ -3299,13 +3140,6 @@ th {
 .toolkit-command button:disabled { opacity: 0.65; }
 .toolkit-palette :focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
 
-.display-preference-control {
-  max-width: 22rem;
-}
-.display-preference-control p {
-  font-size: 0.72rem;
-  margin: 0.2rem 0;
-}
 #geometry-tools, #boundary-authoring, #hanger-selection,
 #self-weight-plan, #offline-proposal-intake, #batch-review {
   padding: 1rem;
@@ -3342,35 +3176,21 @@ th {
    is 1024 × 768, an initial layout target rather than usability acceptance. */
 body { min-width: 760px; min-height: 540px; }
 .app-shell, .app-shell.native-menu { display: flex; flex-direction: column; height: 100dvh; min-height: 540px; overflow: hidden; }
-.titlebar { flex: 0 0 auto; min-height: 48px; padding: 7px 12px; gap: 12px; }
-.titlebar h1 { font-size: 16px; }
-.titlebar p { font-size: 11px; margin: 2px 0 0; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .titlebar-actions { gap: 5px; flex-wrap: nowrap; }
 .titlebar-actions button { font-size: 11px; padding: 5px 7px; }
-.display-preference-control { position: relative; }
-.display-preference-control > summary { cursor: pointer; font-size: 12px; padding: 6px; }
-.display-preference-control > :not(summary) { position: absolute; z-index: 55; top: 32px; right: 0; width: 300px; padding: 12px; color: #263331; background: #fff; border: 1px solid #b8c3bd; box-shadow: 0 8px 25px #162d3026; }
 .project-strip { position: relative; display: block; padding: 0 12px; min-height: 22px; flex: 0 0 auto; font-size: 11px; }
 .project-strip > summary { cursor: pointer; padding: 3px 0; }
 .project-strip[open] { max-height: 100px; overflow: auto; }
 .project-strip[open] > span { display: block; margin-block: 4px; overflow-wrap: anywhere; }
 .app-menu-bar { flex: 0 0 auto; padding: 0 8px; }
 .app-menu-trigger { min-height: 26px; font-size: 12px; padding: 3px 9px; }
-.workspace-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex: 0 0 auto; min-height: 44px; padding: 6px 10px; background: #f7f9f8; border-bottom: 1px solid #c8d0cb; }
-.workspace-edit-actions { display: flex; align-items: center; gap: 3px; }
-.workspace-current-task { max-width: 86px; overflow: hidden; color: var(--ui-muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
-.workspace-toolbar button, .operation-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 30px; padding: 5px 8px; font-size: 12px; border: 1px solid transparent; border-radius: 5px; color: #31403d; background: transparent; white-space: nowrap; cursor: pointer; }
-.workspace-toolbar button:hover, .operation-tabs button:hover { background: #e5ece8; }
-.workspace-toolbar button[aria-pressed="true"], .operation-tabs button[aria-pressed="true"] { color: #fff; background: #285b50; border-color: #285b50; }
-.workspace-toolbar button:disabled { color: #798780; cursor: not-allowed; }
+.operation-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 30px; padding: 5px 8px; font-size: 12px; border: 1px solid transparent; border-radius: 5px; color: #31403d; background: transparent; white-space: nowrap; cursor: pointer; }
+.operation-tabs button:hover { background: #e5ece8; }
+.operation-tabs button[aria-pressed="true"] { color: #fff; background: #285b50; border-color: #285b50; }
 .workspace-count { min-width: 18px; border-radius: 9px; padding: 1px 4px; color: #fff; background: #286453; font-size: 10px; }
 .workspace { flex: 1 1 0; min-width: 0; min-height: 0; padding: 6px; gap: 6px; overflow: hidden; }
-.modeling-workspace, .modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) { --pane-tree-col: var(--workspace-left-rail, 280px); --pane-viewport-col: minmax(0, 1fr); --pane-inspector-col: var(--workspace-right-rail, 340px); grid-template-columns: var(--pane-tree-col) var(--pane-viewport-col) var(--pane-inspector-col); gap: 6px; min-height: 0; flex: 1 1 0; }
-.modeling-workspace.tree-collapsed { --pane-tree-col: 30px; }
-.modeling-workspace.inspector-collapsed { --pane-inspector-col: 30px; }
+
 .workspace-pane { gap: 0; border: 1px solid #c8d0cb; border-radius: 6px; background: #fff; }
-.workspace-pane-toggle { min-height: 31px; border: 0; border-bottom: 1px solid #d6ded9; border-radius: 0; text-transform: none; font-size: 12px; letter-spacing: 0; }
-.workspace-pane-toggle-label { flex: 1; text-align: left; }
 .workspace-pane-tree > .panel, .workspace-pane-inspector > .panel { border: 0; border-radius: 0; padding: 10px; }
 .workspace-pane-viewport { overflow: hidden; }
 .workspace-pane-viewport > .viewport-shell { min-height: 0; height: 100%; border: 0; border-radius: 0; }
@@ -3530,9 +3350,9 @@ body { min-width: 760px; min-height: 540px; }
 @media (max-width: 1100px) {
   .workspace-toolbar { gap: 4px; padding-inline: 7px; }
   .workspace-toolbar button { padding-inline: 6px; gap: 4px; font-size: 11px; }
-  .modeling-workspace, .modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) { --pane-tree-col: var(--workspace-left-rail, 280px); --pane-inspector-col: var(--workspace-right-rail, 340px); }
-  .modeling-workspace.tree-collapsed { --pane-tree-col: 30px; }
-  .modeling-workspace.inspector-collapsed { --pane-inspector-col: 30px; }
+  
+  
+  
   .viewport-shell:has(.viewport-intents.active) { grid-template-columns: minmax(310px, 1fr) 250px; }
   .viewport-intents.active { padding: 8px; }
 }
@@ -3559,14 +3379,15 @@ body { min-width: 760px; min-height: 540px; }
 /*
  * Workspace variables, defined in terms of the design tokens (tokens.css, generated from
  * design/tokens.json; design system V1.3 section 2). The token blocks follow the resolved theme
- * through data-theme on the document root, which App.tsx keeps equal to the shell's data-theme,
+ * through data-theme on the document root, which the session (features/workspace/workspaceSession.ts)
+ * keeps equal to the shell's data-theme,
  * so each mapped variable is defined once and needs no dark override.
  * Kept without a token, each with its dark value in the override below:
  * --ui-canvas and --ui-viewport-selection-geometry mirror the viewport's own scene and selection
  * colours (features/viewport), which the canvas slice re-tokens.
  * --ui-border draws the boundary of buttons and inputs, which the product holds at 3:1 or better
- * against the surface (WCAG 1.4.11; e2e resolved-style check); border.strong measures 2.0:1 to
- * 2.4:1 (design system section 2.9).
+ * against the surface (WCAG 1.4.11; e2e resolved-style check); border.strong measures 1.75:1 to
+ * 2.36:1 (design system section 2.9).
  * --ui-disabled-text keeps a disabled control's label findable, because a control that is
  * disabled with its reason has to be found to be read. On disabled.fill (tokens 1.2) the kept
  * values measure 3.94:1 in light and 5.71:1 in dark; text.disabled measures 1.94:1 and 2.28:1
@@ -3643,13 +3464,7 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell[data-density="comfortable"] input:not([type="checkbox"]):not([type="radio"]) { min-height: 32px; }
 .app-shell[data-density="compact"] button, .app-shell[data-density="compact"] select,
 .app-shell[data-density="compact"] input:not([type="checkbox"]):not([type="radio"]) { min-height: 28px; }
-.modeling-workspace { --pane-tree-col: var(--workspace-left-rail, 280px); --pane-inspector-col: var(--workspace-right-rail, 340px); position: relative; }
-.workspace-splitter { position: absolute; z-index: 35; top: 34px; bottom: 0; width: 24px; min-height: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent !important; cursor: col-resize; touch-action: none; }
-.workspace-splitter::after { content: ""; position: absolute; inset: 0 11px; background: var(--ui-divider); }
-.workspace-splitter-tree { left: var(--pane-tree-col); transform: translateX(-15px); }
-.workspace-splitter-inspector { right: var(--pane-inspector-col); transform: translateX(15px); }
-.modeling-workspace.tree-collapsed .workspace-splitter-tree,
-.modeling-workspace.inspector-collapsed .workspace-splitter-inspector { display: none; }
+
 .task-action-footer { position: sticky; bottom: 0; z-index: 8; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 8px 0; border-top: 1px solid var(--ui-divider); background: var(--ui-surface); }
 .task-action-footer button { min-width: 0; }
 .inspector-view-tabs { position: sticky; top: 0; z-index: 9; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding-block: 4px; background: var(--ui-surface); }
@@ -3698,29 +3513,11 @@ body { min-width: 760px; min-height: 540px; }
 
 @media (max-width: 1279px) {
   body { min-width: 0; }
-  .modeling-workspace, .modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) {
-    box-sizing: border-box;
-    grid-template-columns: minmax(0, 1fr);
-    position: relative;
-    /* The persistent collapsed rail openers occupy these gutters. Open
-       drawers intentionally overlay the viewport; closed handles never do. */
-    padding-inline: 40px;
-  }
-  .workspace-pane-viewport { grid-column: 1; }
-  .workspace-pane-tree, .workspace-pane-inspector { position: absolute; z-index: 45; top: 0; bottom: 0; width: min(390px, calc(100vw - 48px)); box-shadow: 0 8px 28px rgb(0 0 0 / 28%); }
-  .workspace-pane-tree { left: 0; }
-  .workspace-pane-inspector { right: 0; }
-  .modeling-workspace.tree-collapsed .workspace-pane-tree { width: 40px; overflow: hidden; box-shadow: none; }
-  .modeling-workspace.inspector-collapsed .workspace-pane-inspector { width: 40px; overflow: hidden; box-shadow: none; }
-  .modeling-workspace.tree-collapsed .workspace-pane-tree > :not(.workspace-pane-toggle),
-  .modeling-workspace.inspector-collapsed .workspace-pane-inspector > :not(.workspace-pane-toggle) { display: none; }
-  .workspace-splitter { display: none; }
   .viewport-shell:has(.viewport-intents.active) { grid-template-columns: minmax(0, 1fr) minmax(250px, 34vw); }
 }
 @media (max-width: 899px) {
   .viewport-shell:has(.viewport-intents.active) { grid-template-columns: minmax(0, 1fr); }
   .viewport-intents.active { position: absolute; z-index: 40; right: 0; top: 70px; bottom: 0; width: min(360px, calc(100vw - 48px)); border: 1px solid var(--ui-divider); }
-  .workspace-toolbar { overflow-x: auto; }
 }
 
 /* Theme-owned workspace surfaces. Keep each foreground paired with the
@@ -3869,7 +3666,6 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .diagnostic.active {
   outline-color: var(--ui-accent);
 }
-.app-shell .display-preference-control > :not(summary),
 .app-shell .status-pill,
 .app-shell .status-pill[open] > div {
   color: var(--ui-text);
@@ -3879,7 +3675,6 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .status-pill code {
   color: var(--ui-muted);
 }
-.app-shell .workspace-toolbar button:hover:not(:disabled),
 .app-shell .operation-tabs button:hover:not(:disabled) {
   background: var(--ui-raised);
 }
@@ -3914,3 +3709,190 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .results-panel th { color: var(--ui-muted); }
 
 .app-shell .inspector .required-flag { color: var(--ui-warning-text); }
+
+/*
+ * The shell of slice B3 (UX specification V1.2 sections 2.3 and 5.5; design system V1.3 sections 0,
+ * 5.2 and 5.3). Structure only: regions, their order and their sizes. Every colour, border, radius
+ * and spacing is a token or a --ui-* variable; appearance is settled at the closing visual pass.
+ * Regions: menu bar (in-app, browser runtime only), toolbar band 48, stage rail 56, surfaces,
+ * agent strip 44, status bar 24. The three views lay the same mounted panes out differently;
+ * nothing is re-parented, so the canvas, the inspector and every section keep their state.
+ */
+.app-shell, .app-shell.native-menu { display: flex; flex-direction: column; height: 100dvh; min-height: 540px; overflow: hidden; }
+.app-shell .shell-toolbar {
+  flex: 0 0 var(--layout-toolbar); box-sizing: border-box; height: var(--layout-toolbar); min-height: 0;
+  display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-4);
+  color: var(--ui-text); background: var(--ui-bg); border-bottom: 1px solid var(--ui-divider);
+}
+.app-shell .shell-toolbar-identity { display: flex; align-items: baseline; gap: var(--space-3); min-width: 0; flex: 0 1 auto; }
+.app-shell .shell-wordmark { margin: 0; font-size: var(--type-size-body); font-weight: 500; letter-spacing: 0.04em; color: var(--ui-muted); }
+.app-shell .shell-project-name { margin: 0; max-width: 220px; overflow: hidden; color: var(--ui-text); font-size: var(--type-size-body); text-overflow: ellipsis; white-space: nowrap; }
+.app-shell .shell-toolbar-group, .app-shell .shell-view-switch, .app-shell .shell-toolbar-centre { display: flex; align-items: center; gap: var(--space-1); flex: 0 0 auto; }
+.app-shell .shell-toolbar-centre { flex: 1 1 auto; justify-content: center; gap: var(--space-3); }
+.app-shell .shell-toolbar button, .app-shell .shell-appearance > summary {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-width: 28px; min-height: 28px; padding: 0 var(--space-3); box-sizing: border-box;
+  border: 1px solid var(--ui-border); border-radius: var(--radius-control);
+  color: var(--ui-text); background: var(--ui-surface); font-size: var(--type-size-body); white-space: nowrap; cursor: pointer;
+}
+.app-shell .shell-toolbar button:hover:not(:disabled):not([aria-disabled="true"]) { background: var(--ui-raised); }
+.app-shell .shell-toolbar button:disabled, .app-shell .shell-toolbar button[aria-disabled="true"],
+.app-shell .shell-rail-item[aria-disabled="true"], .app-shell .shell-agent-strip button[aria-disabled="true"] {
+  color: var(--ui-disabled-text); background: var(--ui-disabled); cursor: not-allowed;
+}
+.app-shell .shell-view-switch { gap: 0; }
+.app-shell .shell-view-switch .shell-reason-anchor:not(:first-child) button { margin-inline-start: -1px; }
+.app-shell .shell-view-switch button { min-height: 26px; border-radius: 0; color: var(--ui-muted); background: var(--ui-bg); }
+.app-shell .shell-view-switch button[aria-pressed="true"] { color: var(--ui-text); background: var(--ui-surface); border-inline-start: 1px solid var(--ui-border); }
+.app-shell .shell-toolbar .shell-run { color: var(--text-inverse); background: var(--accent-fill); border-color: var(--accent-fill); }
+.app-shell .shell-toolbar .shell-run:hover { background: var(--accent-fillHover); }
+.app-shell .shell-toolbar button[aria-pressed="true"]:not([data-testid^="view-switch-"]), .app-shell .shell-panel-toggle.latched {
+  color: var(--pressed-ink); background: var(--pressed-fill); border-inline-start: 1px solid var(--ui-border);
+}
+.app-shell .shell-toolbar-units select { min-height: 28px; width: 80px; box-sizing: border-box; border: 1px solid var(--ui-border); border-radius: var(--radius-control); }
+.app-shell .shell-appearance { position: relative; flex: 0 0 auto; }
+.app-shell .shell-appearance > summary { list-style: none; padding: 0; }
+.app-shell .shell-appearance > summary::-webkit-details-marker { display: none; }
+.app-shell .shell-appearance-popover {
+  position: absolute; z-index: 60; top: calc(100% + var(--space-2)); right: 0; display: grid; gap: var(--space-3); min-width: 200px; padding: var(--space-4);
+  color: var(--ui-text); background: var(--surface-raised); border: 1px solid var(--ui-border); border-radius: var(--radius-card); box-shadow: var(--elevation-2);
+}
+.app-shell .shell-appearance-popover label { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: var(--space-3); font-size: var(--type-size-body); }
+.app-shell .shell-toolbar-palette { flex: 0 1 220px; min-width: 120px; display: flex; }
+.app-shell .shell-toolbar-palette .toolkit-palette { flex: 1 1 auto; }
+.app-shell .shell-toolbar-palette [data-testid="toolkit-entry"] { width: 100%; justify-content: flex-start; color: var(--ui-muted); overflow: hidden; }
+.app-shell .shell-toolbar-palette [data-testid="toolkit-entry"] kbd { margin-inline-start: auto; }
+@media (max-width: 1359px) {
+  .app-shell .shell-panel-toggle .shell-toolbar-label, .app-shell .shell-select-tool .shell-toolbar-label { display: none; }
+  .app-shell .shell-project-name { max-width: 140px; }
+}
+@media (max-width: 1100px) {
+  .app-shell .shell-view-switch button > span, .app-shell .shell-project-name { display: none; }
+}
+
+/* A disabled control's reason: shown to the pointer and to keyboard focus. */
+.app-shell .shell-reason-anchor { position: relative; display: inline-flex; }
+.app-shell .shell-reason {
+  position: absolute; z-index: 70; top: calc(100% + var(--space-2)); left: 0; display: none; width: max-content; max-width: 260px; padding: var(--space-2) var(--space-3);
+  color: var(--ui-text); background: var(--surface-raised); border: 1px solid var(--ui-border); border-radius: var(--radius-control); box-shadow: var(--elevation-2); font-size: var(--type-size-caption); white-space: normal;
+}
+.app-shell .shell-reason-anchor:hover > .shell-reason, .app-shell .shell-reason-anchor:focus-within > .shell-reason { display: block; }
+.app-shell .shell-rail .shell-reason { top: 0; left: calc(100% + var(--space-2)); }
+.app-shell .shell-agent-strip .shell-reason { top: 0; left: auto; right: calc(100% + var(--space-2)); }
+.app-shell .shell-panel-toggles .shell-reason { left: auto; right: 0; }
+
+.app-shell .app-menu-bar { flex: 0 0 auto; }
+.app-shell .app-menu-item { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-5); }
+.app-shell .app-menu-reason { color: var(--ui-disabled-text); font-size: var(--type-size-caption); }
+
+.app-shell .shell-body { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: var(--layout-rail) minmax(0, 1fr) var(--layout-agent-strip); grid-template-rows: minmax(0, 1fr); }
+.app-shell .shell-rail, .app-shell .shell-agent-strip { display: flex; flex-direction: column; align-items: stretch; min-height: 0; overflow: hidden; color: var(--ui-text); background: var(--ui-bg); }
+.app-shell .shell-rail { border-inline-end: 1px solid var(--ui-divider); }
+.app-shell .shell-agent-strip { border-inline-start: 1px solid var(--ui-divider); }
+.app-shell .shell-rail ul { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.app-shell .shell-rail ul:last-of-type { margin-top: auto; }
+.app-shell .shell-rail li, .app-shell .shell-agent-strip .shell-reason-anchor { display: flex; }
+.app-shell .shell-rail-hairline { width: 100%; margin: 0; border: 0; border-top: 1px solid var(--ui-divider); }
+.app-shell .shell-rail-item {
+  position: relative; display: flex; flex: 1 1 auto; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 44px; padding: var(--space-2) 0; border: 0; border-inline-start: 3px solid transparent; border-radius: 0;
+  color: var(--ui-muted); background: transparent; font-size: var(--type-size-caption); cursor: pointer;
+}
+.app-shell .shell-rail-item[aria-current="page"], .app-shell .shell-rail-item[aria-pressed="true"] { color: var(--ui-text); background: transparent; border-inline-start: 3px solid var(--ui-accent); }
+.app-shell .shell-rail-item[aria-expanded="true"] { color: var(--ui-text); }
+.app-shell .shell-rail-caption { font-size: var(--type-size-caption); color: var(--rail-captionHistorical); }
+.app-shell [data-testid="rail-caption-results"]:not(:empty) { color: var(--rail-captionFailed); }
+.app-shell .shell-rail-badge { position: absolute; top: 2px; right: 6px; min-width: 14px; padding: 0 3px; border-radius: var(--radius-pill); color: var(--ui-text); background: var(--ui-raised); font-size: var(--type-size-caption); }
+
+.app-shell .shell-surfaces-frame { position: relative; display: block; min-width: 0; min-height: 0; padding: 0; gap: 0; overflow: hidden; }
+.app-shell .shell-surfaces {
+  position: absolute; inset: 0; display: grid; gap: 0; min-height: 0; padding: 0; flex: none;
+  grid-template-columns: minmax(0, var(--shell-both-split, 55%)) minmax(var(--layout-canvas-min), 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+.app-shell .shell-surfaces .workspace-pane { position: relative; top: auto; bottom: auto; left: auto; right: auto; width: auto; min-width: 0; min-height: 0; border: 0; border-radius: 0; box-shadow: none; overflow: hidden; }
+.app-shell .shell-surfaces .shell-table-pane { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; border-inline-end: 1px solid var(--ui-divider); }
+/* The canvas pane is its own stacking context, so nothing inside it can lie over the table drawer, the inspector or a page. */
+.app-shell .shell-surfaces .workspace-pane-viewport { grid-column: 2; grid-row: 1; isolation: isolate; z-index: 0; }
+.app-shell .shell-surfaces .workspace-pane-inspector { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; overflow: auto; border-inline-start: 1px solid var(--ui-divider); }
+.app-shell .shell-surfaces[data-view="both"]:not(.inspector-collapsed) { grid-template-columns: minmax(0, var(--shell-both-split, 55%)) minmax(var(--layout-canvas-min), 1fr) var(--layout-inspector-both); }
+.app-shell .shell-surfaces[data-view="both"].inspector-collapsed .workspace-pane-inspector,
+.app-shell .shell-surfaces[data-view="table"] .workspace-pane-inspector { display: none; }
+/* Table view: the table pane takes the whole surface. The canvas keeps its Both-view box underneath,
+   hidden and inert, so the renderer is never resized to nothing and its camera is untouched. */
+.app-shell .shell-surfaces[data-view="table"] .shell-table-pane { grid-column: 1 / -1; z-index: 2; border-inline-end: 0; }
+.app-shell .shell-surfaces[data-view="table"] .workspace-pane-viewport { visibility: hidden; pointer-events: none; }
+/* Model view: canvas beside the docked inspector; the table pane is the bottom drawer of the canvas column. */
+.app-shell .shell-surfaces[data-view="model"] { grid-template-columns: minmax(var(--layout-canvas-min), 1fr) var(--layout-inspector-model); grid-template-rows: minmax(0, 1fr) auto; }
+.app-shell .shell-surfaces[data-view="model"] .workspace-pane-viewport { grid-column: 1; grid-row: 1; }
+.app-shell .shell-surfaces[data-view="model"] .workspace-pane-inspector { grid-column: 2; grid-row: 1 / 3; }
+.app-shell .shell-surfaces[data-view="model"] .shell-table-pane { grid-column: 1; grid-row: 2; height: min(clamp(120px, var(--shell-drawer-height, 280px), 600px), 60vh); border-inline-end: 0; border-top: 1px solid var(--ui-divider); box-sizing: border-box; }
+/* Collapsed, the drawer is its 28 px tab strip lying over the foot of the canvas's box, so the canvas keeps its full height (D-72). */
+.app-shell .shell-surfaces[data-view="model"].tree-collapsed .workspace-pane-viewport { grid-row: 1 / 3; }
+.app-shell .shell-surfaces[data-view="model"].tree-collapsed .shell-table-pane { z-index: 2; align-self: end; height: var(--shell-tab-strip); }
+.app-shell .shell-surfaces[data-view="model"].tree-collapsed .shell-table-body { display: none; }
+
+.app-shell .shell-surfaces { --shell-tab-strip: 28px; }
+.app-shell .shell-tab-strip { flex: 0 0 var(--shell-tab-strip); box-sizing: border-box; height: var(--shell-tab-strip); display: flex; align-items: stretch; background: var(--ui-raised); border-bottom: 1px solid var(--ui-divider); }
+.app-shell .shell-tab-strip button { display: inline-flex; align-items: center; gap: var(--space-2); min-width: 28px; min-height: 0; padding: 0 var(--space-4); border: 0; border-inline-end: 1px solid var(--ui-divider); border-radius: 0; color: var(--ui-muted); background: transparent; font-size: var(--type-size-body); cursor: pointer; }
+.app-shell .shell-tab-strip button[aria-pressed="true"] { color: var(--ui-text); background: var(--ui-surface); border-inline-start: 0; }
+.app-shell .shell-tab-strip-fill { flex: 1 1 auto; }
+.app-shell .shell-tab-strip .shell-drawer-chevron { border-inline-end: 0; border-inline-start: 1px solid var(--ui-divider); padding: 0 var(--space-2); }
+.app-shell .workspace-count { min-width: 18px; padding: 1px 4px; border-radius: var(--radius-pill); color: var(--text-inverse); background: var(--accent-fill); font-size: var(--type-size-caption); }
+.app-shell .shell-table-body { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+.app-shell .shell-tree-host, .app-shell .shell-stage-sections { flex: 1 1 0; min-height: 0; overflow: auto; }
+.app-shell .shell-tree-host > .panel { border: 0; border-radius: 0; min-height: 100%; box-sizing: border-box; }
+.app-shell .shell-tree-host.inactive, .app-shell .shell-stage-sections.inactive, .app-shell .shell-project-controls.inactive, .app-shell .shell-project-strip.inactive { display: none; }
+
+.app-shell .shell-both-splitter { position: absolute; z-index: 35; top: var(--shell-tab-strip); bottom: 0; left: var(--shell-both-split, 55%); width: 24px; transform: translateX(-12px); min-height: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: col-resize; }
+.app-shell .shell-both-splitter::after { content: ""; position: absolute; inset: 0 11px; background: transparent; }
+.app-shell .shell-both-splitter:hover::after, .app-shell .shell-both-splitter:focus-visible::after { background: var(--ui-accent); }
+.app-shell .shell-surfaces:not([data-view="both"]) .shell-both-splitter { display: none; }
+.app-shell .shell-drawer-splitter { position: absolute; z-index: 35; left: 0; right: var(--layout-inspector-model); bottom: min(clamp(120px, var(--shell-drawer-height, 280px), 600px), 60vh); flex: none; width: auto; height: 24px; min-height: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: row-resize; }
+.app-shell .shell-drawer-splitter::after { content: ""; position: absolute; inset: 22px 0 0; background: transparent; }
+.app-shell .shell-drawer-splitter:hover::after, .app-shell .shell-drawer-splitter:focus-visible::after { background: var(--ui-accent); }
+.app-shell .shell-surfaces:not([data-view="model"]) .shell-drawer-splitter, .app-shell .shell-surfaces.tree-collapsed .shell-drawer-splitter { display: none; }
+
+.app-shell .shell-inspector-close { align-self: flex-end; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-width: 24px; min-height: 24px; margin: var(--space-1); padding: 0; border: 1px solid var(--ui-border); border-radius: var(--radius-control); }
+.app-shell .workspace-pane-inspector > .panel { border: 0; border-radius: 0; }
+
+/* A page opens over the stage's surfaces and returns to them. */
+.app-shell .shell-page { position: absolute; inset: 0; z-index: 50; display: flex; flex: none; flex-direction: column; min-height: 0; max-height: none; border: 0; border-radius: 0; color: var(--ui-text); background: var(--ui-surface); }
+.app-shell .shell-page.collapsed { display: none; }
+.app-shell .shell-page .workspace-dock-header { flex: 0 0 auto; display: flex; align-items: center; gap: var(--space-4); min-height: 36px; padding: 0 var(--space-4); border-bottom: 1px solid var(--ui-divider); background: var(--ui-raised); }
+.app-shell .shell-page .workspace-dock-header h2 { margin: 0; margin-inline-end: auto; font-size: var(--type-size-heading); }
+.app-shell .shell-project-controls { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.app-shell .shell-project-strip { flex: 0 0 auto; border-bottom: 1px solid var(--ui-divider); }
+.app-shell .shell-page-sections { flex: 1 1 0; min-height: 0; overflow: auto; }
+
+.app-shell .shell-status-bar {
+  flex: 0 0 var(--layout-statusBar); box-sizing: border-box; height: var(--layout-statusBar); min-height: 0; display: flex; align-items: center; gap: var(--space-4); padding: 0 var(--space-4);
+  color: var(--ui-text); background: var(--ui-bg); border-top: 1px solid var(--ui-divider); font-size: var(--type-size-chip);
+}
+.app-shell .shell-status-bar .status-pill-group { display: flex; align-items: center; gap: var(--space-2); }
+.app-shell .shell-status-bar button { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 20px; padding: 0 var(--space-3); border: 1px solid var(--ui-border); border-radius: var(--radius-pill); color: var(--ui-text); background: var(--ui-surface); font-size: var(--type-size-chip); cursor: pointer; }
+.app-shell .shell-status-selection { margin-inline-end: auto; overflow: hidden; color: var(--ui-muted); text-overflow: ellipsis; white-space: nowrap; }
+.app-shell .shell-status-units { color: var(--ui-muted); }
+.app-shell .shell-status-bar .shell-about { min-width: 24px; justify-content: center; padding: 0; border-radius: var(--radius-control); }
+.app-shell .shell-chip-anchor { position: relative; display: inline-flex; }
+.app-shell .shell-chip-backdrop { position: fixed; inset: 0; z-index: 59; }
+.app-shell .shell-chip-popover { position: absolute; z-index: 60; bottom: calc(100% + var(--space-2)); left: 0; display: grid; gap: var(--space-1); min-width: 220px; padding: var(--space-3) var(--space-4); color: var(--ui-text); background: var(--surface-raised); border: 1px solid var(--ui-border); border-radius: var(--radius-card); box-shadow: var(--elevation-2); }
+.app-shell .shell-chip-popover code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+.app-shell .shell-chip-popover span { color: var(--ui-muted); }
+
+/* Below 1280 px of window width (the narrow fallback; the specification's narrow cases are slice B5):
+   today's behaviour is kept. The canvas takes the surface; the table pane is a bottom drawer over it
+   and the inspector slides over its right edge; both start tucked away and close when the canvas is used. */
+@media (max-width: 1279px) {
+  .app-shell .shell-surfaces[data-view="both"], .app-shell .shell-surfaces[data-view="both"]:not(.inspector-collapsed) { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+  .app-shell .shell-surfaces[data-view="both"] .workspace-pane-viewport { grid-column: 1; grid-row: 1 / 3; }
+  .app-shell .shell-surfaces[data-view="both"] .shell-table-pane { grid-column: 1; grid-row: 2; z-index: 2; height: min(clamp(120px, var(--shell-drawer-height, 280px), 600px), 60vh); border-inline-end: 0; border-top: 1px solid var(--ui-divider); box-sizing: border-box; }
+  .app-shell .shell-surfaces[data-view="both"].tree-collapsed .shell-table-pane { align-self: end; height: var(--shell-tab-strip); }
+  .app-shell .shell-surfaces[data-view="both"].tree-collapsed .shell-table-body { display: none; }
+  .app-shell .shell-surfaces[data-view="both"] .workspace-pane-inspector { position: absolute; z-index: 45; top: 0; bottom: 0; right: 0; left: auto; width: min(var(--layout-inspector-both), calc(100% - 48px)); box-shadow: var(--elevation-3); background: var(--ui-surface); }
+  .app-shell .shell-surfaces[data-view="both"] .shell-both-splitter { display: none; }
+}
+.app-shell .shell-drawer-chevron-anchor .shell-reason { left: auto; right: 0; }
+.app-shell .shell-tab-strip button[aria-disabled="true"] { color: var(--ui-disabled-text); cursor: not-allowed; }
+.app-shell .shell-tab-strip .shell-drawer-chevron-anchor { display: flex; }
+.app-shell .shell-chip[aria-expanded="true"] { position: relative; z-index: 60; }

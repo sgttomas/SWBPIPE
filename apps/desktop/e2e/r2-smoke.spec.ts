@@ -4,12 +4,18 @@ import { inflateSync } from "node:zlib";
 import {
   chooseVirtualTarget,
   closeWorkspacePanels,
+  ensureInspectorCollapsed,
   ensureInspectorExpanded,
   ensureTreeExpanded,
+  expectNoStatusChip,
+  expectRecordedStatusOnAnalyzePage,
+  expectStatusChip,
   expectTreeEntity,
   expectVirtualTarget,
   openWorkspaceSection,
+  projectCommand,
   selectTreeEntity,
+  showCanvas,
   startPropertyTaskFromTreeEntity,
   type TreeEntityType,
 } from "./workspace-driver";
@@ -44,14 +50,6 @@ async function openNamedDisclosure(scope: Page | Locator, name: string | RegExp)
   await setDisclosure(summary.locator(".."));
 }
 
-async function expectRecordedStatus(page: Page, testId: string, value: string): Promise<void> {
-  const status = page.getByTestId(testId);
-  await setDisclosure(status);
-  await expect(status.locator("code")).toBeVisible();
-  await expect(status.locator("code")).toContainText(value);
-  await setDisclosure(status, false);
-}
-
 async function openReviewTab(page: Page, tab: "review" | "agent" | "details"): Promise<void> {
   await openWorkspaceSection(page, "operations");
   const button = page.getByTestId(`operation-tab-${tab}`);
@@ -84,6 +82,7 @@ async function openViewportPendingChanges(page: Page): Promise<void> {
 }
 
 async function ensureCreationToolArmed(page: Page, testId: "command-node" | "command-pipe", label: string): Promise<void> {
+  await showCanvas(page);
   const button = page.getByTestId(testId);
   if ((await button.getAttribute("aria-pressed")) !== "true") {
     await button.click();
@@ -118,16 +117,18 @@ async function expectWorkspaceStatusClearOfTarget(
     targetBox!.x + targetBox!.width > statusBox!.x &&
     targetBox!.y < statusBox!.y + statusBox!.height &&
     targetBox!.y + targetBox!.height > statusBox!.y;
-  const geometry = await page.evaluate(() => {
-    const measure = (selector: string) => {
-      const element = document.querySelector<HTMLElement>(selector);
+  // Slice B3: a section lives in the stage's table pane or in a page over the stage. "dock" is
+  // whichever of the two holds the target, and "body" is that holder's scrolling section body.
+  const geometry = await target.evaluate((targetElement) => {
+    const box = (element: HTMLElement | null) => {
       if (!element) return null;
-      const box = element.getBoundingClientRect();
-      return { top: box.top, bottom: box.bottom, width: box.width, height: box.height, clientHeight: element.clientHeight };
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height, clientHeight: element.clientHeight };
     };
+    const measure = (selector: string) => box(document.querySelector<HTMLElement>(selector));
     return {
-      dock: measure(".workspace-dock"),
-      body: measure(".workspace-dock-body"),
+      dock: box(targetElement.closest<HTMLElement>(".workspace-pane-tree, .workspace-dock")),
+      body: box(targetElement.closest<HTMLElement>(".workspace-dock-body")),
       modeling: measure(".modeling-workspace"),
       viewport: measure(".workspace-pane-viewport"),
     };
@@ -153,7 +154,8 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   // properties start open, and the agent workbench is an explicit review tab.
   await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", String(page.viewportSize()!.width >= 1280));
-  await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
+  // Slice B3: the Both view's docked inspector is closed at first open (specification §2.3).
+  await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
   await expect(page.getByTestId("viewport-canvas")).toBeVisible();
   await expect(page.getByTestId("agent-workbench-panel")).toBeHidden();
   await openReviewTab(page, "agent");
@@ -161,7 +163,10 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await expect(page.getByTestId("agent-focus-selection")).toContainText("project:invented-loop-01");
   await expect(page.getByTestId("agent-proposal-summary")).toContainText("review_only_local_preview");
   await expect(page.getByTestId("workspace-status-bar")).toBeVisible();
-  await expectRecordedStatus(page, "status-pill-professional", "HUMAN_REVIEW_REQUIRED");
+  // Slice B3, specification §5.4 rule 4: Human · Human review required is a chip of the Review
+  // page after a solved run only; the recorded value is read in the Analyze page's readiness summary.
+  await expectNoStatusChip(page, "status-pill-professional");
+  await expectRecordedStatusOnAnalyzePage(page, "professional", "HUMAN_REVIEW_REQUIRED");
   await ensureTreeExpanded(page);
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
   await page.getByTestId("layout-mode-grid").click();
@@ -169,6 +174,8 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await expect(page.getByTestId("entity-grid-table-nodes")).toBeVisible();
   await page.getByTestId("entity-grid-row-node-node:N-100").click();
   await expect(page.getByTestId("agent-focus-selection")).toContainText("node:N-100");
+  // Slice B3: the Both view's docked inspector is closed at first open; open it to read it.
+  await ensureInspectorExpanded(page);
   await openNamedDisclosure(page.getByRole("region", { name: "Property inspector", exact: true }), "All properties");
   await expect(page.getByRole("region", { name: "Property inspector", exact: true })).toContainText("node:N-100");
   await page.getByTestId("entity-grid-input-node:N-100-x").fill("1.25");
@@ -512,6 +519,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   const canvas = page.locator(".viewport-canvas canvas");
   await expect(canvas).toBeVisible();
   await expect(page.getByTestId("viewport-editor-intents")).toHaveClass(/collapsed/);
+  // Slice B3: the docked inspector takes its 300 px from the canvas (603 to 303 px at 1440), and the
+  // canvas's own authoring panel then covers the point this gesture uses. Close the inspector so the
+  // gesture lands on the canvas, as it did beside the old rails.
+  await ensureInspectorCollapsed(page);
   await ensureCreationToolArmed(page, "command-node", "Node tool armed");
   await openNamedDisclosure(page.getByTestId("viewport-editor-intents"), "Unit source");
   await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText(
@@ -824,10 +835,14 @@ test("viewport gesture placeholders record unit validation", async ({ page }) =>
   await ensureCreationToolArmed(page, "command-node", "Node tool armed");
   await openNamedDisclosure(page.getByTestId("viewport-editor-intents"), "Unit source");
   await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText("browser preview uses model metadata");
+  // Slice B3: the project summary is part of the Project page.
+  await openWorkspaceSection(page, "project");
   await setDisclosure(page.getByLabel("Project summary"));
   await expect(page.getByTestId("local-project-review-context")).toBeVisible();
   await expect(page.getByTestId("local-project-review-context")).toContainText("0 pending operations");
   await setDisclosure(page.getByLabel("Project summary"), false);
+  await showCanvas(page);
+  await expect(page.getByTestId("armed-creation-tool")).toContainText("Node tool armed");
   await openNamedDisclosure(page.getByTestId("command-bar"), "Selection & navigation");
   await page.getByTestId("queue-armed-creation-intent").click();
   await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
@@ -853,12 +868,12 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   await ensureEngineReady(page);
-  await page.getByRole("button", { name: "New blank" }).click();
+  await projectCommand(page, "new-blank");
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Created blank local model document without fixture entities or external file copies."
   );
   await expect(page.getByTestId("app-menu-bar")).toBeVisible();
-  await expectRecordedStatus(page, "status-pill-mechanics", "MODEL_INCOMPLETE");
+  await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
   await openWorkspaceSection(page, "solve");
@@ -1000,11 +1015,11 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
     "1 load cases; 1 primitive loads; 1 combinations"
   );
   await openWorkspaceSection(page, "project");
-  await page.getByRole("button", { name: "Save local" }).click();
+  await projectCommand(page, "save-local");
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Saved local browser-preview project snapshot without external file copies."
   );
-  await page.getByRole("button", { name: "Open local" }).click();
+  await projectCommand(page, "open-local");
   await expect(page.getByTestId("local-project-message")).toContainText("Opened local browser-preview project snapshot.");
   await expect(page.getByTestId("project-storage-unit-round-trip")).toContainText(
     "status=unit_metadata_preserved_in_local_project_envelope"
@@ -1612,7 +1627,10 @@ test("R3 guided flow routes private library, rule-pack, solve, binding, and bloc
   await ensureEngineReady(page);
 
   await expect(page.getByTestId("app-menu-bar")).toBeVisible();
-  await expectRecordedStatus(page, "status-pill-rule-check", "RULE_INPUTS_INCOMPLETE");
+  // Slice B3, specification §5.4 rules 1 and 2: no Rule pack chip before a run; the recorded value
+  // is read in the Analyze page's readiness summary.
+  await expectNoStatusChip(page, "status-pill-rule-check");
+  await expectRecordedStatusOnAnalyzePage(page, "rule", "RULE_INPUTS_INCOMPLETE");
 
   await openWorkspaceSection(page, "libraries");
   await expect(page.getByTestId("workspace-section-libraries")).toBeVisible();

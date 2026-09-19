@@ -3,8 +3,12 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
   closeWorkspacePanels,
+  expectNoStatusChip,
+  expectRecordedStatusOnAnalyzePage,
+  expectStatusChip,
   expectTreeEntity,
   openWorkspaceSection,
+  projectButton,
   startPropertyTaskFromTreeEntity,
 } from "./workspace-driver";
 
@@ -57,14 +61,6 @@ async function openNamedDisclosure(scope: Page | Locator, name: string | RegExp)
   await setDisclosure(summary.locator(".."));
 }
 
-async function expectRecordedStatus(page: Page, testId: string, value: string): Promise<void> {
-  const status = page.getByTestId(testId);
-  await setDisclosure(status);
-  await expect(status.locator("code")).toBeVisible();
-  await expect(status.locator("code")).toContainText(value);
-  await setDisclosure(status, false);
-}
-
 async function openReviewTab(page: Page, tab: "review" | "agent" | "details"): Promise<void> {
   await openWorkspaceSection(page, "operations");
   const button = page.getByTestId(`operation-tab-${tab}`);
@@ -107,9 +103,11 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
 
   // Bind the documented pre-solve state directly to the repository fixture.
   await expectTreeEntity(page, "project", modelFixture.project.id);
-  await expectRecordedStatus(page, "status-pill-mechanics", modelFixture.analysis_status.mechanics);
-  await expectRecordedStatus(page, "status-pill-rule-check", "RULE_INPUTS_INCOMPLETE");
-  await expectRecordedStatus(page, "status-pill-professional", "HUMAN_REVIEW_REQUIRED");
+  // Slice B3, specification §5.4 rule 2: the fixture records a model that is ready and unsolved,
+  // so the status bar carries no chip. The recorded values are read, with their tokens, in the
+  // Analyze page's readiness summary just below.
+  expect(modelFixture.analysis_status.mechanics).toBe("ready_for_preview_diagnostics");
+  for (const testId of ["status-pill-mechanics", "status-pill-rule-check", "status-pill-professional"]) await expectNoStatusChip(page, testId);
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
@@ -125,8 +123,14 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText(`result_rows=${resultFixture.results.length}`);
-  await expectRecordedStatus(page, "status-pill-mechanics", resultFixture.status.mechanics);
-  await expectRecordedStatus(page, "status-pill-rule-check", resultFixture.status.rule_check);
+  // §5.4 rule 3: after a solved run, off Review and with no rule pack set, the Solver chip alone.
+  // The run's recorded rule-check value stays readable in the Analyze page's readiness summary.
+  expect(resultFixture.status.mechanics).toBe("MECHANICS_SOLVED");
+  await expectStatusChip(page, "status-pill-mechanics", resultFixture.status.mechanics, "Solver · Mechanics solved");
+  await expectNoStatusChip(page, "status-pill-rule-check");
+  await expectRecordedStatusOnAnalyzePage(page, "rule", resultFixture.status.rule_check);
+  // The solve proof left the status bar; it is read on the Results stage's Evidence tab.
+  await openWorkspaceSection(page, "evidence");
   const visibleSolveProof = page.getByTestId("status-pill-solve-proof");
   await setDisclosure(visibleSolveProof);
   await expect(visibleSolveProof.locator("code")).toBeVisible();
@@ -180,7 +184,9 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
 
   // Return to the full-height authoring layout, then check actual control
   // actionability and containment instead of an obsolete fixed rail width.
-  await page.getByTestId("workspace-dock-close").click();
+  // Slice B3: Results is a stage surface with no close control; the full authoring layout is the
+  // Model stage's model tree.
+  await closeWorkspacePanels(page);
   await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
   await expect(page.getByTestId("workspace-section-solve")).toBeHidden();
 
@@ -232,6 +238,8 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(page.getByTestId("workspace-section-solve")).toBeVisible();
   await expect(page.getByTestId("readiness-mechanics")).toBeVisible();
   await expect(page.getByTestId("readiness-mechanics")).toContainText("preview run not started");
+  // Slice B3: the Analyze page lies over the stage's surfaces; close it to read the canvas's status.
+  await page.getByTestId("workspace-dock-close").click();
   const resetViewportStatus = page.getByTestId("viewport-deformation-status");
   await expect(resetViewportStatus).toBeVisible();
   await setDisclosure(resetViewportStatus);
@@ -243,11 +251,12 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   );
 
   // Save, list, and reopen by stable project id through normal visible controls.
-  await page.getByRole("button", { name: "Save local" }).click();
+  // Slice B3: the project buttons are the Project page's header controls.
+  await (await projectButton(page, "save-local")).click();
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Saved local browser-preview project snapshot without external file copies."
   );
-  await page.getByRole("button", { name: "List local" }).click();
+  await (await projectButton(page, "list-local")).click();
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Listed 1 local project snapshot from the local store index."
   );
@@ -258,7 +267,9 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
     "Opened local browser-preview project snapshot by id project:invented-loop-01."
   );
 
-  await setDisclosure(page.getByLabel("Project summary"), false);
+  // Slice B3: opening a project returns to the Model stage's surfaces, which closes the Project
+  // page with its summary; there is no open disclosure left to close.
+  await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
 
   // The edited unit-bearing value is still the current value after reopen.
   await startPropertyTaskFromTreeEntity(page, "load", editedLoadCase.id);
@@ -273,7 +284,9 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
-  await expectRecordedStatus(page, "status-pill-mechanics", "MODEL_INCOMPLETE");
+  await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
+  // Slice B3: the Analyze page lies over the stage's surfaces; close it to reach the canvas.
+  await page.getByTestId("workspace-dock-close").click();
   await setDisclosure(page.getByTestId("viewport-deformation-status"));
   await expect(page.getByTestId("viewport-deformation-status")).toContainText(
     "blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=0"
