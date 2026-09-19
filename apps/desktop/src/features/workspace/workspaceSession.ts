@@ -1390,13 +1390,15 @@ export function useWorkspaceSession() {
         snapshotModelHash,
         envelopeHash
       );
-      if (!stillCurrent()) return;
       // The persisted bytes have been rewritten, so the open-time verification
-      // no longer describes them. A request that fails before this point
-      // persisted nothing, and a superseded request's response is dropped, so
-      // both leave the integrity cells as they were.
-      setModelHashIntegrity(null);
-      setProjectEnvelopeHashIntegrity(null);
+      // no longer describes them, even when a model edit has since advanced the
+      // epoch and this response is dropped. A later project request owns the
+      // cells instead; a request that fails persisted nothing and leaves them.
+      if (request === projectRequest.current) {
+        setModelHashIntegrity(null);
+        setProjectEnvelopeHashIntegrity(null);
+      }
+      if (!stillCurrent()) return;
       const returnedModelHash = await computeModelHash(created.model);
       if (!stillCurrent()) return;
       const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
@@ -1467,6 +1469,12 @@ export function useWorkspaceSession() {
         model_hash: blankModelHash
       });
       const created = await createLocalProject(blankModel, [], null, null, null, null, blankModelHash, envelopeHash);
+      // The bytes were written: see handleSaveProject. The gate invalidation
+      // and the rest stay at the commit point below.
+      if (request === projectRequest.current) {
+        setModelHashIntegrity(null);
+        setProjectEnvelopeHashIntegrity(null);
+      }
       if (!stillCurrent()) return;
       const createdSummary = {
         ...created.summary,
@@ -1639,13 +1647,15 @@ export function useWorkspaceSession() {
         envelopeHash,
         modelDocumentMigration
       );
-      if (!stillCurrent()) return;
       // The persisted bytes have been rewritten, so the open-time verification
-      // no longer describes them. A request that fails before this point
-      // persisted nothing, and a superseded request's response is dropped, so
-      // both leave the integrity cells as they were.
-      setModelHashIntegrity(null);
-      setProjectEnvelopeHashIntegrity(null);
+      // no longer describes them, even when a model edit has since advanced the
+      // epoch and this response is dropped. A later project request owns the
+      // cells instead; a request that fails persisted nothing and leaves them.
+      if (request === projectRequest.current) {
+        setModelHashIntegrity(null);
+        setProjectEnvelopeHashIntegrity(null);
+      }
+      if (!stillCurrent()) return;
       const returnedModelHash = await computeModelHash(saved.model);
       if (!stillCurrent()) return;
       const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
