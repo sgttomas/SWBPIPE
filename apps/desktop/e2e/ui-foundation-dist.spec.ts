@@ -36,6 +36,7 @@ import {
   openWorkspaceSection,
   selectTreeRow,
   setAppearance,
+  showModelTree,
 } from "./ui-foundation-workflows";
 
 test.beforeAll(async ({ browser }, testInfo) => {
@@ -129,6 +130,10 @@ test("[visual-clarification] measurement and real pipe task remain unobscured as
   const model = await gotoRoutedFixture(page);
   await setAppearance(page, "light", "comfortable");
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
+  // Slice B3: the Both view's inspector is closed at first open (named semantic change 13); the
+  // toolbar's Inspector toggle opens it, and the rest of the test runs with both panes open as before.
+  await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
+  await ensureRail(page, "inspector", true);
   await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
   await captureState(page, testInfo, "visual-clarification-1440x920-both-rails-default");
 
@@ -196,17 +201,23 @@ test("[visual-clarification] measurement and real pipe task remain unobscured as
     contentType: "application/json",
   });
 
+  // Slice B3: the stored panel sizes are the Both view's split and the table drawer's height
+  // (the three rail and dock sizes are no longer used by the shell).
   const readSavedPanelSizes = () => page.evaluate(() => {
     const saved = JSON.parse(localStorage.getItem("chirality.desktop.ui-preferences.v1")!);
-    return { left: saved.leftRailPx, right: saved.rightRailPx, dock: saved.dockPx };
+    return { split: saved.bothSplitPct, drawer: saved.tableDrawerPx };
   });
   const savedPanels = await readSavedPanelSizes();
+  // Slice B3: Review changes is a tab of the table pane, which below 1280 px is the bottom drawer
+  // (the task dock's successor). Summoning the section opens the drawer; "closed" is the drawer
+  // collapsed by its chevron, where the old dock was closed by its close control.
+  const drawerToggle = page.getByTestId("toggle-tree");
   await openWorkspaceSection(page, "operations");
-  await expect(page.getByTestId("workspace-dock")).not.toHaveClass(/collapsed/);
+  await expect(drawerToggle).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
   for (const dockState of ["open", "closed"] as const) {
-    if (dockState === "closed") await page.getByTestId("workspace-dock-close").click();
-    await expect(page.getByTestId("workspace-dock")).toHaveClass(dockState === "closed" ? /collapsed/ : /^(?!.*collapsed)/);
+    if (dockState === "closed") await drawerToggle.click();
+    await expect(drawerToggle).toHaveAttribute("aria-expanded", String(dockState === "open"));
     await target.focus();
     await expect(target).toBeFocused();
     await expectCenterUnobscured(target, { minimumTarget: true });
@@ -216,7 +227,7 @@ test("[visual-clarification] measurement and real pipe task remain unobscured as
     const orientation = await expectPassiveOrientationFrame(page, testInfo, `narrow-measurement-dock-${dockState}`);
     expect(orientation.canvas.width).toBeGreaterThanOrEqual(200);
     expect(orientation.canvas.height).toBeGreaterThanOrEqual(200);
-    await expect(page.getByTestId("workspace-dock")).toHaveClass(dockState === "closed" ? /collapsed/ : /^(?!.*collapsed)/);
+    await expect(drawerToggle).toHaveAttribute("aria-expanded", String(dockState === "open"));
     expect(await readSavedPanelSizes()).toEqual(savedPanels);
     await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("Retained through measurement drawer close");
     await expect(inspector.getByTestId("inspector-frozen-task-target")).toContainText(`pipe: ${pipe.id}`);
@@ -498,7 +509,12 @@ for (const width of [1024, 1440] as const) {
     await page.setViewportSize({ width, height: width === 1024 ? 768 : 920 });
     await gotoRoutedFixture(page);
     const inspectorToggle = page.getByTestId("toggle-inspector");
-    const obstacle = page.getByTestId(width < 1280 ? "toggle-inspector" : "resize-property-inspector");
+    // Slice B3: the docked inspector has no splitter. At 1440 the inspector layer's control that the
+    // outer drawers actually cross is the inspector's first tab (the drawers open below the toolbar and
+    // below the inspector's close button); it is focusable and answers the same key.
+    const obstacle = width < 1280
+      ? page.getByTestId("toggle-inspector")
+      : page.getByTestId("property-inspector").getByRole("tab", { name: "Properties", exact: true });
     for (const railOpen of width < 1280 ? [false, true] : [true]) {
       await ensureRail(page, "inspector", railOpen);
       for (const [drawerId, toggleId] of [
@@ -622,7 +638,8 @@ for (const theme of APPEARANCE_THEMES) {
 
         if (viewport.width >= 1280) {
           await expect(treeToggle).toHaveAttribute("aria-expanded", "true");
-          await expect(inspectorToggle).toHaveAttribute("aria-expanded", "true");
+          // Slice B3: the Both view's inspector is closed at first open (named semantic change 13).
+          await expect(inspectorToggle).toHaveAttribute("aria-expanded", "false");
         } else {
           await expect(treeToggle).toHaveAttribute("aria-expanded", "false");
           await expect(inspectorToggle).toHaveAttribute("aria-expanded", "false");
@@ -633,6 +650,17 @@ for (const theme of APPEARANCE_THEMES) {
         try {
           for (const rail of ["tree", "inspector"] as const) {
             const toggle = page.getByTestId(`toggle-${rail}`);
+            // Slice B3: the table pane collapses only where it is a drawer. In the wide Both view its
+            // chevron is disabled with its reason, so at 1280 px and wider its two states are reached
+            // in Model view, where it is the drawer's chevron; the Inspector toggle acts in Both view.
+            const viaModelView = rail === "tree" && viewport.width >= 1280;
+            if (viaModelView) {
+              await expect(toggle).toHaveAttribute("aria-disabled", "true");
+              await expect(toggle).toHaveAttribute("title", "Both view keeps the tables open");
+              await activateWithKeyboard(page, page.getByTestId("view-switch-model"));
+              await expect(page.getByTestId("modeling-workspace")).toHaveAttribute("data-view", "model");
+              await expect(toggle).not.toHaveAttribute("aria-disabled", "true");
+            }
             const originalOpen = await toggle.getAttribute("aria-expanded") === "true";
             for (const open of [false, true]) {
               await ensureRail(page, rail, open);
@@ -640,10 +668,14 @@ for (const theme of APPEARANCE_THEMES) {
               await expect(toggle).toHaveAttribute("aria-expanded", String(open));
               await expectCenterUnobscured(toggle, { minimumTarget: true });
               await captureElementState(toggle, testInfo, `rail-hover-${theme}-${density}-${viewport.width}-${rail}-${open}`);
+              // Slice B3: the rails' handles, with their hover label and separate disclosure glyph, are
+              // gone. The successor toggles draw one glyph each (the drawer's chevron is its disclosure
+              // glyph; the Inspector toggle's panel icon), witnessed here under hover at the same floor.
+              // The hover label has no successor element common to the two toggles (reported).
+              const glyphs = await toggle.locator("svg").all();
+              expect(glyphs.length, `${rail} toggle draws a glyph`).toBeGreaterThan(0);
               railHoverWitnesses.push(...await expectResolvedContrast([
-                { name: `${rail} ${open ? "expanded" : "collapsed"} hovered label`, locator: toggle.locator(".workspace-pane-toggle-label"), minimum: 4.5 },
-                { name: `${rail} hovered disclosure glyph`, locator: toggle.locator(".workspace-pane-toggle-icon"), source: "graphic", minimum: 3 },
-                ...await Promise.all((await toggle.locator("svg").all()).map(async (locator, index) => ({
+                ...await Promise.all(glyphs.map(async (locator, index) => ({
                   name: `${rail} hovered icon ${index}`, locator, source: "graphic" as const, minimum: 3 as const,
                 }))),
               ]));
@@ -652,6 +684,10 @@ for (const theme of APPEARANCE_THEMES) {
               await expect(toggle).toBeFocused();
             }
             await ensureRail(page, rail, originalOpen);
+            if (viaModelView) {
+              await activateWithKeyboard(page, page.getByTestId("view-switch-both"));
+              await expect(page.getByTestId("modeling-workspace")).toHaveAttribute("data-view", "both");
+            }
           }
         } finally {
           await testInfo.attach(`rail-hover-contrast-${theme}-${density}-${viewport.width}`, {
@@ -773,7 +809,8 @@ for (const theme of APPEARANCE_THEMES) {
         ]));
         const overlayWitness = await expectOverlayAboveWorkspaceControls(page, issues, [
           { name: "Model rail splitter", locator: page.getByTestId("resize-model-tree") },
-          { name: "Property inspector splitter", locator: page.getByTestId("resize-property-inspector") },
+          // Slice B3: the docked inspector has no splitter; its own layer's control is its close button.
+          { name: "Property inspector close control", locator: page.getByTestId("inspector-close") },
           { name: "Model rail handle", locator: treeToggle },
           { name: "Property inspector rail handle", locator: inspectorToggle },
         ]);
@@ -1039,8 +1076,13 @@ for (const theme of APPEARANCE_THEMES) {
     await expect(row).toHaveAttribute("aria-selected", "false");
     await expect(entered).toContainText("Entered:");
     const originalEnteredText = await entered.innerText();
+    // Slice B3: Results is a stage surface; the dock header's heading is gone and the surface's
+    // title is carried by the Results stage's latched tab. The contrast floor is unchanged.
+    const resultsTitle = page.getByTestId("stage-tab-results");
+    await expect(resultsTitle).toHaveText("Results");
+    await expect(resultsTitle).toHaveAttribute("aria-pressed", "true");
     const witnesses = [...await expectResolvedContrast([
-      { name: "Results dock title", locator: page.getByTestId("workspace-dock-header").getByRole("heading", { name: "Results", exact: true }), minimum: 4.5 },
+      { name: "Results dock title", locator: resultsTitle, minimum: 4.5 },
       { name: "Results entered source value", locator: entered, minimum: 4.5 },
     ])];
     const headers = await results.getByRole("columnheader").all();
@@ -1052,6 +1094,8 @@ for (const theme of APPEARANCE_THEMES) {
     await activateWithKeyboard(page, row);
     await expect(row).toHaveAttribute("aria-selected", "true");
     await expect(entered).toHaveText(originalEnteredText);
+    // Slice B3: the Both view's inspector is closed at first open; open it to read the selected target.
+    await ensureRail(page, "inspector", true);
     const requiredFlag = page.getByTestId("property-inspector").getByTestId("inspector-required-flags").locator(".required-flag");
     await expect(requiredFlag).toContainText("Restraints");
     witnesses.push(...await expectResolvedContrast([
@@ -1178,24 +1222,52 @@ test("narrow canvas fits visible and selected envelopes in every view preset", a
   await testInfo.attach("narrow-fit-envelope-witnesses", { body: JSON.stringify(witnesses, null, 2), contentType: "application/json" });
 });
 
-async function readRailGeometry(page: Page) {
+// Slice B3: the rails and their two splitters are gone. The old rail-preferences test and the old
+// 1024-drawers test are carried by their successors from the source lane's workspace-layout.spec.ts,
+// verbatim, against the built dist: the stored preference survives a reload and its bounds hold, on
+// the Both view's split and the Model view's table drawer; below 1280 px the drawer and the
+// inspector lie over an unchanged canvas and Escape returns focus to the opener.
+type Box = { x: number; y: number; width: number; height: number };
+
+async function readShellGeometry(page: Page) {
   return page.evaluate(() => {
-    const rect = (selector: string) => document.querySelector(selector)!.getBoundingClientRect().toJSON();
-    const pane = document.querySelector<HTMLElement>(".workspace-pane-inspector")!;
-    const inspector = document.querySelector<HTMLElement>('[data-testid="property-inspector"]')!;
-    const assignment = document.querySelector<HTMLElement>("#section-assignment");
-    return { tree: rect(".workspace-pane-tree"), inspector: rect(".workspace-pane-inspector"), canvas: rect('[data-testid="viewport-canvas"] canvas'),
+    const box = (selector: string): Box | null => {
+      const element = document.querySelector<HTMLElement>(selector);
+      if (!element) return null;
+      const style = getComputedStyle(element);
+      if (style.display === "none") return null;
+      const r = element.getBoundingClientRect();
+      return { x: r.x, y: r.y, width: r.width, height: r.height };
+    };
+    type Box = { x: number; y: number; width: number; height: number };
+    return {
+      window: { width: innerWidth, height: innerHeight },
+      menuBar: box('[data-testid="app-menu-bar"]'),
+      toolbar: box('[data-testid="workspace-toolbar"]'),
+      rail: box('[data-testid="stage-rail"]'),
+      surfaces: box('[data-testid="modeling-workspace"]'),
+      agentStrip: box('[data-testid="agent-strip"]'),
+      statusBar: box('[data-testid="workspace-status-bar"]'),
+      tablePane: box(".workspace-pane-tree"),
+      tabStrip: box('[data-testid="stage-tab-strip"]'),
+      canvasPane: box(".workspace-pane-viewport"),
+      canvasHidden: getComputedStyle(document.querySelector(".workspace-pane-viewport")!).visibility === "hidden",
+      inspector: box(".workspace-pane-inspector"),
+      paneCounts: [document.querySelectorAll(".workspace-pane-tree").length, document.querySelectorAll(".workspace-pane-inspector").length],
       pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      inspectorOverflow: inspector.scrollWidth - inspector.clientWidth,
-      paneOverflow: pane.scrollWidth - pane.clientWidth,
-      children: assignment ? [...assignment.querySelectorAll<HTMLElement>("p, select, button")].map((element) => ({ tag: element.tagName, text: element.textContent, rect: element.getBoundingClientRect().toJSON(), overflow: element.scrollWidth - element.clientWidth })) : [],
-      stored: JSON.parse(localStorage.getItem("chirality.desktop.ui-preferences.v1") ?? "null") };
+      stored: JSON.parse(localStorage.getItem("chirality.desktop.ui-preferences.v1") ?? "null")
+    };
   });
+}
+
+async function chooseView(page: Page, view: "table" | "model" | "both") {
+  await page.getByTestId(`view-switch-${view}`).click();
+  await expect(page.getByTestId("modeling-workspace")).toHaveAttribute("data-view", view);
 }
 
 for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800 }]) {
   for (const [theme, density] of [["light", "comfortable"], ["dark", "compact"]] as const) {
-    test(`rail preferences resize actual panes and preserve contained controls ${theme} ${viewport.width}`, async ({ page }, testInfo) => {
+    test(`the split and the drawer resize actual panes, persist, and keep the inspector's controls contained ${theme} ${viewport.width}`, async ({ page }, testInfo) => {
       await page.setViewportSize(viewport);
       const model = await gotoRoutedFixture(page, "ui-foundation-1000.model.json");
       await setAppearance(page, theme, density);
@@ -1203,41 +1275,48 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
       expect(pipe).toBeTruthy();
       await selectTreeRow(page, "pipe", pipe.id);
       await ensureRail(page, "tree", true); await ensureRail(page, "inspector", true);
-      const witnesses = [];
-      const check = async (left: number, right: number, label: string) => {
-        await expect.poll(async () => Math.round((await readRailGeometry(page)).tree.width)).toBe(left);
-        await expect.poll(async () => Math.round((await readRailGeometry(page)).inspector.width)).toBe(right);
-        const geometry = await readRailGeometry(page);
+      const surfaceWidth = viewport.width - 56 - 44;
+      const witnesses: unknown[] = [];
+      const inspectorChildren = () => page.evaluate(() => {
+        const pane = document.querySelector<HTMLElement>(".workspace-pane-inspector")!;
+        const inspector = document.querySelector<HTMLElement>('[data-testid="property-inspector"]')!;
+        const assignment = document.querySelector<HTMLElement>("#section-assignment");
+        return { pane: pane.getBoundingClientRect().toJSON(), paneOverflow: pane.scrollWidth - pane.clientWidth, inspectorOverflow: inspector.scrollWidth - inspector.clientWidth,
+          children: assignment ? [...assignment.querySelectorAll<HTMLElement>("p, select, button")].map((element) => ({ tag: element.tagName, text: element.textContent, rect: element.getBoundingClientRect().toJSON(), overflow: element.scrollWidth - element.clientWidth })) : [] };
+      });
+      const check = async (splitPct: number, label: string) => {
+        const tableWidth = Math.round(surfaceWidth * splitPct / 100);
+        await expect.poll(async () => Math.round((await readShellGeometry(page)).tablePane!.width)).toBe(tableWidth);
+        const geometry = await readShellGeometry(page);
         witnesses.push({ label, ...geometry });
         expect(geometry.pageOverflow).toBeLessThanOrEqual(1);
-        expect(geometry.canvas.width).toBeGreaterThan(0); expect(geometry.canvas.height).toBeGreaterThan(0);
-        expect(geometry.paneOverflow).toBeLessThanOrEqual(1);
-        expect(geometry.inspectorOverflow).toBeLessThanOrEqual(1);
-        expect(geometry.children.length).toBeGreaterThan(0);
-        for (const child of geometry.children) {
-          expect(child.rect.left, child.text ?? child.tag).toBeGreaterThanOrEqual(geometry.inspector.left);
-          expect(child.rect.right, child.text ?? child.tag).toBeLessThanOrEqual(geometry.inspector.right + 1);
+        // The inspector is 300 px and the canvas takes what is left; the table never gives way to the inspector.
+        expect(Math.round(geometry.inspector!.width)).toBe(300);
+        expect(Math.round(geometry.canvasPane!.width)).toBe(surfaceWidth - tableWidth - 300);
+        expect(geometry.canvasPane!.width).toBeGreaterThanOrEqual(220);
+        const contained = await inspectorChildren();
+        expect(contained.paneOverflow).toBeLessThanOrEqual(1);
+        expect(contained.inspectorOverflow).toBeLessThanOrEqual(1);
+        expect(contained.children.length).toBeGreaterThan(0);
+        for (const child of contained.children) {
+          expect(child.rect.left, child.text ?? child.tag).toBeGreaterThanOrEqual(contained.pane.left);
+          expect(child.rect.right, child.text ?? child.tag).toBeLessThanOrEqual(contained.pane.right + 1);
           expect(child.overflow, child.text ?? child.tag).toBeLessThanOrEqual(1);
         }
-        await expect(page.getByTestId("resize-model-tree")).toHaveAttribute("aria-valuenow", String(left));
-        await expect(page.getByTestId("resize-property-inspector")).toHaveAttribute("aria-valuenow", String(right));
-        expect(geometry.stored.leftRailPx).toBe(left); expect(geometry.stored.rightRailPx).toBe(right);
-        if (label === "defaults" || label === "pointer lower clamps" || label === "both pointer max") {
-          await captureState(page, testInfo, `rail-${theme}-${viewport.width}-${label}`);
-        }
+        await expect(page.getByTestId("resize-model-tree")).toHaveAttribute("aria-valuenow", String(splitPct));
+        expect(geometry.stored.bothSplitPct).toBe(splitPct);
         return geometry;
       };
-      const drag = async (id: string, dx: number) => {
+      const drag = async (id: string, dx: number, dy = 0) => {
         const splitter = page.getByTestId(id); await expectCenterUnobscured(splitter, { minimumTarget: true });
         const box = (await splitter.boundingBox())!;
         await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down();
-        await page.mouse.move(box.x + box.width / 2 + dx, box.y + box.height / 2, { steps: 8 }); await page.mouse.up();
+        await page.mouse.move(box.x + box.width / 2 + dx, box.y + box.height / 2 + dy, { steps: 8 }); await page.mouse.up();
       };
-      const initial = await check(280, 340, "defaults");
-      await drag("resize-model-tree", 140); const leftMax = await check(420, 340, "tree pointer max");
-      expect(initial.canvas.width - leftMax.canvas.width).toBeCloseTo(140, 0);
-      await drag("resize-property-inspector", -180); const bothMax = await check(420, 520, "both pointer max");
-      expect(leftMax.canvas.width - bothMax.canvas.width).toBeCloseTo(180, 0);
+      const initial = await check(55, "default split");
+      // A drag of one tenth of the surface moves the split ten points; the canvas gives exactly what the table takes.
+      await drag("resize-model-tree", -Math.round(surfaceWidth / 10)); const narrower = await check(45, "pointer, table narrower");
+      expect(narrower.canvasPane!.width - initial.canvasPane!.width).toBeCloseTo(initial.tablePane!.width - narrower.tablePane!.width, 0);
       for (const preset of ["Front", "Top", "Isometric"]) {
         await page.getByRole("button", { name: preset, exact: true }).click();
         for (const command of ["Fit Visible", "Fit Selection"]) {
@@ -1255,47 +1334,85 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
             if (projection.status !== "available") throw new Error("Projection unavailable");
             expect(projection.insideClosedNdc).toBe(true);
           }
-          witnesses.push({ label: `supported rail-driven ${preset} ${command}`, ...fit });
+          witnesses.push({ label: `supported split-driven ${preset} ${command}`, ...fit });
         }
       }
-      await drag("resize-model-tree", -240); await drag("resize-property-inspector", 280);
-      await check(220, 280, "pointer lower clamps");
-      await page.getByTestId("resize-model-tree").focus(); await page.keyboard.press("ArrowRight");
-      await page.getByTestId("resize-property-inspector").focus(); await page.keyboard.press("ArrowRight");
-      await check(236, 296, "keyboard steps");
-      await page.reload(); await selectTreeRow(page, "pipe", pipe.id);
-      await check(236, 296, "reload persisted geometry");
-      await ensureRail(page, "tree", false); await ensureRail(page, "inspector", false);
-      await expect(page.getByTestId("resize-model-tree")).toBeHidden(); await expect(page.getByTestId("resize-property-inspector")).toBeHidden();
-      const collapsed = await readRailGeometry(page);
-      expect(collapsed.tree.width).toBeCloseTo(30, 0); expect(collapsed.inspector.width).toBeCloseTo(30, 0);
-      await ensureRail(page, "tree", true); await ensureRail(page, "inspector", true);
-      await check(236, 296, "reexpanded persisted geometry");
-      await testInfo.attach("actual-rail-geometry", { body: JSON.stringify(witnesses, null, 2), contentType: "application/json" });
+      // The splitter stops where the canvas would fall under 220 px: the stored share is bounded at 85 %,
+      // and with the inspector docked the layout holds the canvas at its minimum whatever is stored.
+      await drag("resize-model-tree", surfaceWidth);
+      await expect(page.getByTestId("resize-model-tree")).toHaveAttribute("aria-valuenow", "85");
+      const clamped = await readShellGeometry(page);
+      expect(Math.round(clamped.canvasPane!.width)).toBe(220);
+      expect(Math.round(clamped.inspector!.width)).toBe(300);
+      expect(Math.round(clamped.tablePane!.width)).toBe(surfaceWidth - 520);
+      expect(clamped.pageOverflow).toBeLessThanOrEqual(1);
+      witnesses.push({ label: "canvas minimum", ...clamped });
+      await drag("resize-model-tree", -surfaceWidth);
+      await expect(page.getByTestId("resize-model-tree")).toHaveAttribute("aria-valuenow", "15");
+      await page.getByTestId("resize-model-tree").focus();
+      for (let press = 0; press < 20; press += 1) await page.keyboard.press("ArrowRight");
+      await check(55, "keyboard steps of two points");
+      await page.keyboard.press("ArrowLeft");
+      await check(53, "keyboard step back");
+      await page.reload(); await selectTreeRow(page, "pipe", pipe.id); await ensureRail(page, "inspector", true);
+      await check(53, "reload persisted split");
+
+      // The Model view's drawer: 280 px by default, resized by its splitter, persisted, collapsible to 28 px.
+      await chooseView(page, "model");
+      const drawerDefault = await readShellGeometry(page);
+      expect(Math.round(drawerDefault.tablePane!.height)).toBe(280);
+      expect(Math.round(drawerDefault.inspector!.width)).toBe(340);
+      await drag("resize-task-dock", 0, -60);
+      await expect(page.getByTestId("resize-task-dock")).toHaveAttribute("aria-valuenow", "340");
+      await expect.poll(async () => Math.round((await readShellGeometry(page)).tablePane!.height)).toBe(340);
+      await page.getByTestId("resize-task-dock").focus(); await page.keyboard.press("ArrowDown");
+      await expect(page.getByTestId("resize-task-dock")).toHaveAttribute("aria-valuenow", "324");
+      const resized = await readShellGeometry(page);
+      expect(Math.round(resized.tablePane!.height)).toBe(324);
+      expect(Math.round(resized.canvasPane!.height + resized.tablePane!.height)).toBe(Math.round(resized.surfaces!.height));
+      expect(resized.stored.tableDrawerPx).toBe(324);
+      await ensureRail(page, "tree", false);
+      await expect(page.getByTestId("resize-task-dock")).toBeHidden();
+      const collapsed = await readShellGeometry(page);
+      expect(Math.round(collapsed.tablePane!.height)).toBe(28);
+      expect(Math.round(collapsed.canvasPane!.height)).toBe(Math.round(collapsed.surfaces!.height));
+      await ensureRail(page, "tree", true);
+      await expect.poll(async () => Math.round((await readShellGeometry(page)).tablePane!.height)).toBe(324);
+      await testInfo.attach("actual-shell-geometry", { body: JSON.stringify(witnesses, null, 2), contentType: "application/json" });
     });
   }
 }
 
-test("1024 drawers retain overlay geometry and keyboard focus after desktop rail preferences", async ({ page }, testInfo) => {
+test("below 1280 px the table drawer and the inspector lie over the canvas, keep its geometry, and return focus to their openers", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 920 });
   await gotoRoutedFixture(page, "ui-foundation-1000.model.json");
   await page.getByTestId("resize-model-tree").focus(); await page.keyboard.press("ArrowRight");
-  await page.getByTestId("resize-property-inspector").focus(); await page.keyboard.press("ArrowRight");
   await page.setViewportSize({ width: 1024, height: 768 });
   await ensureRail(page, "tree", false); await ensureRail(page, "inspector", false);
-  const before = await readRailGeometry(page);
-  expect(before.tree.width).toBeCloseTo(40, 0); expect(before.inspector.width).toBeCloseTo(40, 0);
+  const before = await readShellGeometry(page);
+  // The narrow fallback: the canvas takes the surface; the table pane is its 28 px strip at the foot.
+  expect(before.canvasPane).toEqual(before.surfaces);
+  expect(Math.round(before.tablePane!.height)).toBe(28);
+  expect(before.inspector).toBeNull();
   for (const side of ["tree", "inspector"] as const) {
     await ensureRail(page, side, true);
-    const during = await readRailGeometry(page);
-    expect(during[side].width).toBeCloseTo(390, 0); expect(during.canvas).toEqual(before.canvas);
+    const during = await readShellGeometry(page);
+    if (side === "tree") {
+      expect(Math.round(during.tablePane!.height)).toBe(280);
+      expect(Math.round(during.tablePane!.width)).toBe(Math.round(during.surfaces!.width));
+    } else {
+      expect(Math.round(during.inspector!.width)).toBe(300);
+      expect(Math.round(during.inspector!.x + during.inspector!.width)).toBe(Math.round(during.surfaces!.x + during.surfaces!.width));
+    }
+    expect(during.canvasPane).toEqual(before.canvasPane);
     expect(during.pageOverflow).toBeLessThanOrEqual(1);
-    await expect(page.getByTestId("resize-model-tree")).toBeHidden(); await expect(page.getByTestId("resize-property-inspector")).toBeHidden();
+    await expect(page.getByTestId("resize-model-tree")).toBeHidden();
     const control = side === "tree" ? page.getByTestId("model-tree-filter-input") : page.getByTestId("property-inspector").getByRole("tab", { name: "Task", exact: true });
     await control.focus(); await page.keyboard.press("Escape");
     await expect(page.getByTestId(side === "tree" ? "toggle-tree" : "toggle-inspector")).toBeFocused();
+    await expect(page.getByTestId(side === "tree" ? "toggle-tree" : "toggle-inspector")).toHaveAttribute("aria-expanded", "false");
   }
-  await testInfo.attach("drawer-geometry", { body: JSON.stringify({ before, after: await readRailGeometry(page) }, null, 2), contentType: "application/json" });
+  await testInfo.attach("drawer-geometry", { body: JSON.stringify({ before, after: await readShellGeometry(page) }, null, 2), contentType: "application/json" });
 });
 
 for (const route of ["toolbar", "Insert menu"] as const) {
@@ -1338,7 +1455,8 @@ test("empty ordered selection publishes independently from project inspector", a
   await ensureRail(page, "inspector", true);
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toHaveCount(1);
-  await activateWithKeyboard(page, page.getByTestId("workspace-dock-close"));
+  // Slice B3: Results is a stage surface with no close control; return to the Model stage's tree.
+  await showModelTree(page);
   const read = async () => page.evaluate(() => {
     const snapshot = globalThis.__openPipeStressUiDiagnosticsV1.readCurrent();
     if ("status" in snapshot.viewport) throw new Error("Committed viewport unavailable");

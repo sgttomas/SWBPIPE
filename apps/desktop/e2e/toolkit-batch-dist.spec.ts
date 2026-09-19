@@ -51,6 +51,9 @@ test("dist self-weight plan previews, applies atomically and restores one batch 
   await page.getByTestId("apply-batch-operation-batch-1").click();
   await expect(page.getByTestId("batch-review-summary")).toContainText("1 batches applied");
   await expectTreeEntity(page, "load", "load:dist-weight");
+  // Slice B3: Undo of the session's model edit lives on the Model stage's Review changes tab;
+  // showing the tree (above) left that tab, so return to it, as the source lane does.
+  await openWorkspaceSection(page, "operations");
   await page.getByTestId("undo-session-model-edit").click();
   await expectTreeEntityMissing(page, "load", "load:dist-weight");
   await selectTreeEntity(page, "pipe", "pipe:P-100");
