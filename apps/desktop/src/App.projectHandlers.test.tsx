@@ -557,3 +557,98 @@ describe("project handlers: a failed save or create leaves the open project's in
     expect(envelopeHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
   });
 });
+
+// Slice B2G, correction C1. A model edit advances the request epoch, so a save
+// or create that was pending drops its response after its bytes were written.
+// The open-time verification then no longer describes the stored bytes.
+async function applyGridEditWhilePending() {
+  fireEvent.click(screen.getByTestId("layout-mode-grid"));
+  fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+  fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
+  // The operation engine runs in the browser route for this one call.
+  setTauriRuntime(false);
+  fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
+  await waitFor(() => expect(screen.getByTestId("operation-apply-summary")).toHaveTextContent("1 applied"), { timeout: 10000 });
+  setTauriRuntime(true);
+}
+
+describe("project handlers: a landed write clears the open-time record even when a model edit drops its response (B2G-C1)", () => {
+  it("clears both lines when a model edit lands while a save is pending and the save then resolves", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithBothMismatchesRecorded(model);
+
+    const pendingSave = deferred<LocalProjectEnvelope>();
+    let saveRequest: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") {
+        saveRequest = args?.request;
+        return pendingSave.promise;
+      }
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
+    await applyGridEditWhilePending();
+    await act(async () => {
+      pendingSave.resolve(savedEnvelopeFor(envelope.model, saveRequest!, "Saved invented project under a model edit."));
+      await pendingSave.promise;
+    });
+    await flushPendingWork();
+    expect(modelHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
+  });
+
+  it("clears both lines when a model edit lands while a create is pending and the create then resolves", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithBothMismatchesRecorded(model);
+
+    const pendingCreate = deferred<LocalProjectEnvelope>();
+    let createRequest: Record<string, unknown> | undefined;
+    // `create_local_project` takes its fields flat, not under `request`.
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      if (command === "create_local_project") {
+        createRequest = args;
+        return pendingCreate.promise;
+      }
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    act(() => nativeMenuCommand("file.new-local"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("create_local_project", expect.any(Object)));
+    await applyGridEditWhilePending();
+    await act(async () => {
+      pendingCreate.resolve(savedEnvelopeFor(envelope.model, createRequest!, "Created invented project under a model edit."));
+      await pendingCreate.promise;
+    });
+    await flushPendingWork();
+    expect(modelHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
+  });
+
+  it("clears both lines when a model edit lands while a blank create is pending and the create then resolves", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithBothMismatchesRecorded(model);
+
+    const pendingCreate = deferred<LocalProjectEnvelope>();
+    invokeMock.mockImplementation((command: string) =>
+      command === "create_local_project" ? pendingCreate.promise : Promise.reject(new Error(`Unexpected command ${command}`)),
+    );
+    act(() => nativeMenuCommand("file.new-blank"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("create_local_project", expect.any(Object)));
+    await applyGridEditWhilePending();
+    await act(async () => {
+      pendingCreate.resolve(inventedOpenEnvelope(envelope.model));
+      await pendingCreate.promise;
+    });
+    await flushPendingWork();
+    // The blank create's response was dropped: its message never publishes.
+    expect(projectMessage()).toHaveTextContent(envelope.summary.message);
+    expect(modelHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
+  });
+});
