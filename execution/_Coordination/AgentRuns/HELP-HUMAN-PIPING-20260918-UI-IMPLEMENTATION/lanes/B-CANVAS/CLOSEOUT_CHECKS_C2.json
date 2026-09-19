@@ -1,0 +1,38 @@
+{
+  "artifact": "CLOSEOUT_CHECKS",
+  "tranche": "SWBPIPE Tranche B, canvas lane, slice C2 (selection and hover as halos over the element's own colour; G-31)",
+  "date": "2026-09-19 (UTC)",
+  "base": "d20eb1294 (origin/main with PR #806)",
+  "code_reviewed": {
+    "reviewer_model": "Claude Opus 5",
+    "candidate": "0758e91e378dcbf2927bd787194248a8a23980f4",
+    "reviewed_at": "badd2469d22ce7ab2013984605e98582114199e3",
+    "verdict": "PASS; no actionable finding; six residual risks recorded, none actionable",
+    "brief": "{RUN}/lanes/B-CANVAS/briefs/C2-REVIEW_code_review.md",
+    "brief_sha256": "a8bcb95d09678071dacd57c1a7594798a8982db277d08a70b3b2db1e2d3a14da",
+    "return": "{RUN}/lanes/B-CANVAS/reviews/C2-REVIEW_RETURN.md",
+    "return_sha256": "88540a9f47d6628714ff4b5e7e42aaff5cbe29915c3dc404423d5e0811a32285"
+  },
+  "roots_decision": "the stencil question (P1 ASK-5), under the owner's rule of 2026-09-19: the depth-mask form (b) as built; no renderer-construction change",
+  "sweeps": [
+    {
+      "commit": "031f1855c1732b1c92d9f7a1837933f25065b5e9",
+      "status": "pass",
+      "summary": "{WORKING_ROOT}/validation/evidence/sweeps/SWEEP_20260919T142638Z_031f1855c173.json",
+      "sha256": "d0d3ec57cca3a6866cea9dcc5c2d93a2becc6f94d6db9c3f2c5d175d10a152a7",
+      "command": "PLAYWRIGHT_WORKERS=1 sh {RUN}/tools/with_e2e_lock.sh python3 tools/release/run_evidence_sweep.py --execute --require-capability host",
+      "surfaces": 5
+    }
+  ],
+  "commits_between_reviewed_and_tested": "records only: 031f1855c (the retained review)",
+  "commits_after_tested": "records only",
+  "roots_own_look": "taken on badd2469d's product tree with headless Chrome through the browser-test lock, 1440 by 900 at ratio 2, light and dark, one pipe selected from the tree and a pointer hover: the selected pipe keeps its own colour and edge line and gains the selection outline with the first profile's diamond; zero console errors. The open-ended bend (the review's first residual risk) showed no halo colour inside its outline in these two pictures; not a systematic check.",
+  "performance": "no performance acceptance is claimed; the lane's probe numbers are guidance; D-72 qualification runs last in Tranche B",
+  "validators": {
+    "path_anchors": "pass",
+    "claims_language": "pass",
+    "tranche_manifest": "pass"
+  },
+  "boundary": "Checks ran on the owner's host. No usability acceptance, review acceptance or release is established.",
+  "claim_fence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)."
+}
