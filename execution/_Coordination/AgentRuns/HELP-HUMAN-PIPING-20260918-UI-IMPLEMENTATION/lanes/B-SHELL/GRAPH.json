@@ -15,8 +15,27 @@
       "addendum1Sha256": "f91f8d2bf55de8c9eb524abc38ea196cba7782d25492f79239b7d2a90c833aa2",
       "addendum1": "briefs/B-SHELL_addendum_1.md",
       "returnSha256": null
+    },
+    "B2-REVIEW": {
+      "role": "TASK Type 2 with software-code-review, read-only, fresh context",
+      "model": "opus",
+      "status": "sealed",
+      "sealed": "2026-09-19T01:49Z",
+      "briefSha256": "69bb0ce07fb472d9017c42988765d525016314d62e0b23805e8891576648ba9a",
+      "brief": "briefs/B2-REVIEW_code_review.md",
+      "candidate": "5d2e261e0df39c18a71d897902bf5d3a047db175",
+      "returnSha256": null
+    },
+    "B2": {
+      "role": "slice: state extraction, no behaviour change",
+      "model": "fable",
+      "status": "returned, frozen for review",
+      "returnSha256": "ce67470161f78980afcbcec3cd240460c964a834bd35cc2d26f23caf99655ec5",
+      "return": "returns/B2_RETURN.md",
+      "modelThatRan": "manager requested as Claude Fable 5.1; its one implementer child, B2-STATE, reports itself as Claude Fable 5.1 (claude-fable-5-1)",
+      "candidate": "5d2e261e0df39c18a71d897902bf5d3a047db175"
     }
   },
   "slices": [],
-  "current_frontier": "Lane launched; first slice in progress."
+  "current_frontier": "Slice B2 returned and frozen at 5d2e261e0; B2-REVIEW (Opus, read-only) sealed; next its PASS, the DEC-025 sweep through the lock, the closeout, the pull request, CI and merge; then sealed addendum 2 (the handler fix slice B2F), then B3."
 }
