@@ -50,4 +50,9 @@ The shell lane of Tranche B, run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`.
 - Checks on the candidate, from `{WORKING_ROOT}`: `npm run build:desktop` exit 0; `npm run test:desktop` 76 files, 1,201 tests passed (1,197 plus the 4), run before a comment-only rewording of the two added comments; after the rewording, build exit 0 and `npx vitest run src/App.projectHandlers.test.tsx src/App.test.tsx` 229 passed.
 - Playwright on `74707b134`, by the manager, each once through the lock with `PLAYWRIGHT_WORKERS=1`, queued behind ROOT's sweep: source lane 374 passed, 20 skipped, exit 0; dist lane 53 passed, exit 0. No listener left on 5174 or 5175. The product tree of slice B2G is frozen at `74707b134`; the records commit carrying this line is the frozen candidate. Next: B3 stage 1 on top of it, after ROOT's reply.
 
+## Slice B3, stage 1
+
+- ROOT retained the B2G return (`944f9d72f`, records only) and reviews B2G with the combined diff; it merges B2F and B2G as one pull request from its own branch. Both brought-back items of B2G are left as proposed. The re-sealed `briefs/B3-SHELL.md` (`079876c3…`) is accepted. A B2G finding, if any, is read at the child's return and fixed on the lane before anything else. The browser-test lock is not first come, first served: a sweep of ROOT's goes first.
+- Records committed before the launch. B3-SHELL (Claude Fable 5.1 requested) launched in the foreground for stage 1 only: the shell's control layer, nothing visible, with the benchmark-hooks table in its return. Stage 1 runs no Playwright lane.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
