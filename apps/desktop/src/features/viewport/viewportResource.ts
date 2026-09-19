@@ -12,12 +12,13 @@ import {
 } from "./viewportSelection";
 
 import { ViewportSelectionPresentation } from "./viewportSelectionPresentation";
-import { isFigureMaterial, setFigureShadeRatio } from "./viewportFigureMaterial";
+import { isFigureMaterial, setFigureEdge, setFigureShadeRatio } from "./viewportFigureMaterial";
 import {
   DEFAULT_VIEWPORT_PALETTE_THEME,
   isViewportPaletteRole,
   viewportRoleHex,
   viewportShadeRatio,
+  viewportTokenColour,
   type ViewportPaletteRole
 } from "./viewportPalette";
 
@@ -344,15 +345,18 @@ export function registerGridPaletteRoles(
 
 /**
  * Paints every role-coloured object under the roots for a theme, in place: instance base
- * colours, material tints, the figure materials' shade ratio, line-material colours and the
- * colour attribute of each grid helper. It creates and disposes nothing. Instances are left at
- * their base colour, so a caller that shows a selection re-applies it afterwards.
+ * colours, material tints, the figure materials' shade ratio and edge line, line-material
+ * colours and the colour attribute of each grid helper. It creates and disposes nothing.
+ * Instances are left at their base colour, so a caller that shows a selection re-applies it
+ * afterwards. `edgeWidth` is the edge line's width in device pixels: the renderer's pixel ratio,
+ * for a line of one CSS pixel.
  */
 export function applyPalettePresentation(
   roots: readonly THREE.Object3D[],
-  theme: ViewportThemePresentation
+  theme: ViewportThemePresentation,
+  edgeWidth = 1
 ): void {
-  for (const root of roots) root.traverse((object) => paintObjectForTheme(object, theme));
+  for (const root of roots) root.traverse((object) => paintObjectForTheme(object, theme, edgeWidth));
 }
 
 export function applySelectionPresentation(
@@ -493,6 +497,9 @@ export class ViewportResource {
   private navigationAdvancing = false;
   private suppressControlsChange = false;
   private readonly ownership = new ViewportOwnershipLedger(this.resourceGeneration);
+  // The edge line is one CSS pixel wide, which is this many device pixels. It is the renderer's
+  // pixel ratio, read where that ratio is set, once, and never per frame.
+  private readonly figureEdgeWidth: number;
 
   constructor(
     readonly host: HTMLDivElement,
@@ -502,6 +509,7 @@ export class ViewportResource {
     this.camera = new THREE.PerspectiveCamera(42, safeAspect(host), 0.1, 10_000);
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.figureEdgeWidth = this.renderer.getPixelRatio();
     this.renderer.setSize(Math.max(1, host.clientWidth), Math.max(1, host.clientHeight));
     host.replaceChildren(this.renderer.domElement);
 
@@ -652,7 +660,8 @@ export class ViewportResource {
     // All five layers: the routing layer holds role colours too, though never a selection.
     applyPalettePresentation(
       [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer, this.routingLayer],
-      theme
+      theme,
+      this.figureEdgeWidth
     );
     applySelectionPresentation(
       [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
@@ -695,7 +704,7 @@ export class ViewportResource {
     applyThemePresentation(this.scene, this.themePresentation);
     // The incoming objects were built without a theme; paint them for the current one so a
     // rebuilt layer is right without a theme change.
-    applyPalettePresentation(objects, this.themePresentation);
+    applyPalettePresentation(objects, this.themePresentation, this.figureEdgeWidth);
     applySelectionPresentation(
       [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
       this.selectedKeys,
@@ -1092,14 +1101,17 @@ function applyInstancedSelection(
 
 type GridPaletteRoles = Readonly<{ centreLine: ViewportPaletteRole; line: ViewportPaletteRole }>;
 
-function paintFigureShade(object: THREE.Object3D, theme: ViewportThemePresentation): void {
+/** The figure's own theme values: the shade ratio, and the edge line where the material draws one. */
+function paintFigureShade(object: THREE.Object3D, theme: ViewportThemePresentation, edgeWidth = 1): void {
   for (const material of objectMaterials(object)) {
-    if (isFigureMaterial(material)) setFigureShadeRatio(material, viewportShadeRatio(theme));
+    if (!isFigureMaterial(material)) continue;
+    setFigureShadeRatio(material, viewportShadeRatio(theme));
+    setFigureEdge(material, viewportTokenColour(theme, "canvas.edge").hex, edgeWidth);
   }
 }
 
-function paintObjectForTheme(object: THREE.Object3D, theme: ViewportThemePresentation): void {
-  paintFigureShade(object, theme);
+function paintObjectForTheme(object: THREE.Object3D, theme: ViewportThemePresentation, edgeWidth = 1): void {
+  paintFigureShade(object, theme, edgeWidth);
   const gridRoles = object.userData.viewportPaletteGridRoles as GridPaletteRoles | undefined;
   if (gridRoles && object instanceof THREE.LineSegments) paintGridColors(object, gridRoles, theme);
   const role: unknown = object.userData.viewportPaletteRole;

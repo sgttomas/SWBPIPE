@@ -99,12 +99,11 @@ import {
   registerGridPaletteRoles,
   registerInstancedRolePresentation,
   registerPaletteRole,
-  registerSelectionPresentation,
   ViewportResource,
   type ViewportContextStatus,
   type ViewportRendererInfo
 } from "./viewportResource";
-import { createFigureMaterial } from "./viewportFigureMaterial";
+import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMaterial";
 import type { ViewportPaletteRole } from "./viewportPalette";
 import {
   clearUiDiagnosticsPublisher,
@@ -3717,7 +3716,8 @@ function instancedPipeMeshes(
   }));
   if (validByKey.size === 0) return [];
   const geometry = new THREE.CylinderGeometry(1, 1, 1, 10, 1, false);
-  const material = createFigureMaterial();
+  // The tube carries the edge line (design system 6.2); its outline is read from the geometry.
+  const material = createFigureMaterial({ edge: figureEdgeOutlineFor(geometry) });
   return spatialGroups(modelIndex, validByKey).map((valid) => {
     const mesh = new THREE.InstancedMesh(geometry, material, valid.length);
     const matrix = new THREE.Matrix4();
@@ -3829,7 +3829,8 @@ function instancedComponentMeshes(
         : kind === "expansion"
           ? "componentExpansion"
           : "componentRigid";
-    const material = createFigureMaterial();
+    // Every placeholder takes the pipe's edge line (design system 6.3), along its own shape's outline.
+    const material = createFigureMaterial({ edge: figureEdgeOutlineFor(geometry) });
     for (const components of spatialGroups(index, entries)) {
       const mesh = new THREE.InstancedMesh(geometry, material, components.length);
       const matrix = new THREE.Matrix4();
