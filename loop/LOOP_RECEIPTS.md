@@ -3240,3 +3240,12 @@
   - Model-Attribution: HELP_HUMAN Astra/high, independent runner and read-only review TASK Astra/low; parentage, sealed briefs, returns and instruction/config enforcement limits in the successor runtime graph.
   - Checks: Landed source CI, both-size untimed smoke and the fresh single N10000 full-workload run passed; exact completeness, validity, targets, binding/cleanup and offline observations are in the owning report. Metadata-only review, affected local checks and actual-head publication CI remain separate before merge.
   - Gate-Outcome: `EXECUTED` — root accepts the bounded landed repair and valid single demonstration under the recorded owner direction. Historical D70 verdicts and redesigned-product performance/resource and independent-usability duties remain; no five-run qualification, decomposition/DAG/stage/lifecycle/release change or professional reliance is inferred. Standard F-PIP-2/DEC-081 fence applies.
+
+- **2026-09-19 — Receipt 147** (owner-accepted standing-loop alignment).
+  - Receipt-ID: `Receipt-147`
+  - Examined-Through: `29453e367b2f9f2cfb87b712660c31256191db0d`
+  - Parent-Receipt: `Receipt-146`
+  - Pointers: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260919-LOOP-ALIGNMENT/OWNER_ACCEPTANCE.md`; same run `WORK_GRAPH.json`, `ADOPTION_TRANSFORMS.json` and `REVIEW_BRIEF.md`; `loop/.archive/2026-09-19-standing-loop/SNAPSHOT.json`. The scoped PR owns actual-candidate CI and merge history.
+  - Model-Attribution: HELP_HUMAN Astra/high for preparation and closeout; fresh direct TASK Astra/high for complete-diff review. Actual dispatch and return recorded in the owning run; instruction-asserted enforcement limits apply.
+  - Checks: Draft entrypoint checks and archive byte verification passed before adoption. Independent review and final candidate checks remain pending at this receipt's preparation; their results belong to the run and PR. No product/runtime verification is claimed by this documentation amendment.
+  - Gate-Outcome: `EXECUTED` — owner accepted the exact proposed standing procedure and bounded review strategy. Adoption-marker substitutions only; product work, protected criteria, DAG, lifecycle, release and independent-usability holds remain unchanged. Standard F-PIP-2/DEC-081 fence applies.

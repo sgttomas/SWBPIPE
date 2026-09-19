@@ -1,0 +1,40 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260919-LOOP-ALIGNMENT",
+  "basis": "29453e367b2f9f2cfb87b712660c31256191db0d",
+  "owner_direction": "OWNER_ACCEPTANCE.md",
+  "strategy": {
+    "agent0": "HELP_HUMAN, gpt-6-astra/high; preparation, checks and integration",
+    "reviewer": "direct Type 2 TASK, gpt-6-astra/high, fresh context, read-only complete-diff review",
+    "concurrency": "one reviewer while Agent 0 runs documentation validation; no product writer",
+    "enforcement": "delegated-harness-native; role/non-delegation/read-only boundary instruction-asserted, not mechanically enforced"
+  },
+  "slices": [
+    {
+      "id": "LOOP-ALIGNMENT",
+      "state": "implemented; independent review and candidate validation pending",
+      "dependencies": [],
+      "blockers": [],
+      "semantic_changes": [
+        "run work graph replaces deliverable-only selection",
+        "delegation follows undertaking responsibility and approved strategy",
+        "progressive user-workflow testing",
+        "standing Git grant replaces old per-merge stop"
+      ],
+      "specification_departures": [
+        "explicitly supersedes old six-step procedure and F-PIP-5 selection rule under owner acceptance"
+      ],
+      "deferred_work": [
+        "UI B3/I1 and parked design-system work remain in their owning run; this amendment does not implement them"
+      ],
+      "retirement": "governance slice closes after review, checks and merge; product deferrals retire in owning UI graph",
+      "deliverable_binding": {
+        "status": "unverified",
+        "candidate": null
+      },
+      "evidence": [
+        "OWNER_ACCEPTANCE.md",
+        "ADOPTION_TRANSFORMS.json"
+      ]
+    }
+  ]
+}

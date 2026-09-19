@@ -1,178 +1,202 @@
 ---
 doc_id: OPS-AGENTS
 doc_kind: governance.agent_index
-status: draft
+status: active
 created: 2026-04-30
+revised: 2026-09-19
 ---
 
-# AGENTS — OpenPipeStress Project Instructions
+# AGENTS — SWBPIPE Project Instructions
 
-This file records OpenPipeStress-specific instructions. Root `AGENTS.md` and
-the canonical `agents/AGENT_*.md` packages govern runtime roles, selection,
-delegation, and orchestration.
+Accepted by the owner on 2026-09-19; these project instructions replace the
+previous standing development-loop procedure.
+Root `AGENTS.md` and the selected `agents/AGENT_*.md` package govern agent roles
+and delegation. Applicable owner directions govern the work; an agent's plan,
+handoff or interpretation does not create owner authority.
 
-## Path Anchors
+## Paths and knowledge sources
 
-Executable prompts and bounded execution briefs must derive paths from the
-active checkout:
+Resolve `REPO_ROOT` with `git rev-parse --show-toplevel`. Set `WORKING_ROOT` to
+`{REPO_ROOT}/projects/chirality-piping`. Use these anchors or repository-relative
+paths in durable instructions and briefs, not machine-specific absolute paths.
 
-- Resolve `REPO_ROOT` with `git rev-parse --show-toplevel`.
-- Set `WORKING_ROOT` to `{REPO_ROOT}/projects/chirality-piping`.
-- Use `{REPO_ROOT}` and `{WORKING_ROOT}` in project-local instructions and
-  briefs instead of machine-specific absolute paths.
+The external engineering corpus `domains/piping-design/` has vetted prose,
+concepts and design guidance, but its extracted equation artifacts are
+unreviewed `pdf2md`/OCR extractions pending the maintainer's manual review.
+Consumers may cite the prose for concepts, terminology and approach. Never
+present an extracted equation as authoritative; report the artifact's review
+status. Never use those equation artifacts as references for physics-model
+builds, solver/kernel work or analytical verification. Use the maintainer's
+vetted engineering sources. This preserves DEC-043.
 
-## Knowledge-source reliability
+## Discover and organise the work
 
-The external engineering corpus `domains/piping-design/` (BM25 + dense retrieval
-index, ~48.2k chunks) has **vetted, reliable prose / concept / design-guidance
-content**, but its **extracted equation artifacts are NOT reliable** — they are
-unreviewed `pdf2md`/OCR extractions pending the maintainer's manual equation
-review, which writes a per-artifact JSON review status.
+Begin with the owner's assignment, the owning run's work graph, latest handoff,
+recorded owner directions and relevant specifications. Verify their material
+claims against actual code, branch heads, worktrees and evidence before relying
+on them. Inspect named unmerged lanes: work absent from main may already exist
+there. Preserve unrelated changes and parked work. Do not recreate existing work.
 
-- Any retrieval consumer may cite `piping-design` for concepts, terminology,
-  and approach, but must **never present an extracted equation from this corpus
-  as authoritative**, and must surface each artifact's review status (cleared
-  vs unverified).
-- **Never use `piping-design` equation artifacts as references for a
-  physics-model build** (solver / kernel / analytic-verification, including
-  grounding the Phase-D engineering decisions D-16 / D-18 / D-19). Physics and
-  equations come from the maintainer's vetted sources, not corpus extractions.
+Give the owner a concise orientation: what exists, what remains, discrepancies
+that matter and the next bounded work. A material conflict in authority, scope
+or candidate identity blocks the affected action. Report minor documentary
+drift and correct it within scope without stopping independent work. Repository
+state establishes what exists; it does not overrule the owner's direction.
 
-Per human directive 2026-06-18 (`DEC-043`).
+Maintain a work graph for the undertaking under
+`execution/_Coordination/AgentRuns/<RUN_ID>/`. Choose its structure to suit the
+work. Record each slice's state, dependencies and blockers, named semantic
+changes, departures from specification, deferred work and when it retires, and
+evidence pointers. Derive handoffs from this graph. Keep one canonical copy of
+evidence in the owning run, with hash references where needed.
 
-## Agent Posture And Delegation
+This graph is built from the code and the undertaking. It is not the repository's
+deliverable DAG. Record tentative deliverable bindings as unverified; do not
+guess a deliverable home for evidence or infer lifecycle completion from merged
+code. Reconcile deliverable scope and status when the owner directs that work.
+Existing deliverables, decisions and approved dependency snapshots remain valid
+in their own domains; changing the planning surface does not amend them.
 
-Root `AGENTS.md` and `agents/AGENT_*.md` define the roles; this section maps
-them onto Piping work and fixes what a delegated run must leave behind.
+Discover enough to propose a delegation and model strategy before substantial
+implementation or agent launches. Explain what Agent 0 will do, delegated
+responsibilities, model/effort choices, concurrent work, write scopes and
+integration/review ownership. Use recorded experience where it helps. Obtain
+the owner's agreement to the strategy, then proceed within it; revisit material
+changes. An already approved applicable strategy satisfies this step. Read-only
+discovery, preparation of the proposal and bounded decision packages may proceed
+before that agreement. Cost estimates are not required.
 
-| Agent | Type | Role in this project |
-|---|---:|---|
-| `HELP_HUMAN` | 0 | Default supervising entry for the standing development loop; runs Step 0, selects the tranche, supervises the selected Agent 1 managers, validates cross-manager fan-in, and routes closeout to `CHANGE`. |
-| `WORKING_ITEMS` | 1 | One package-scoped instance per activated package; owns the tranche's work graph, dispatches Agent 2 children, validates fan-in, and returns package closure evidence. May execute single-deliverable work directly (see delegation posture below). |
-| `TASK` | 2 | Executes one sealed implementation, review, diagnosis, test-planning, docs, or evidence sub-scope with explicit read/write bounds; the `software-*` skills are the default method packs. |
-| `CHANGE` | 1 | Scoped Git/file-state closeout per the checklist below. |
-| `EVALUATION` / `REVIEW` / `RESEARCH` / `AUDIT_*` | 1 / 2 | As defined at root; read-only unless the tranche's write scope names them. |
+## Delegation and evidence
 
-**Delegation posture (work-type conditioned).** Delegation is sized to the
-target, not applied by default:
+Choose agent types by responsibility and delegation needs, not task complexity
+or reasoning level. Use managers when coordinated implementation and repair
+cycles benefit from them; dispatch bounded specialists directly where useful.
+No package-by-package manager roster or separate Git-closeout role is mandatory.
+Keep canonical role instructions at root authoritative rather than recreating a
+role hierarchy here.
 
-- *Single-manager path.* Tooling, tests, docs, evidence, and coordination
-  tranches confined to one deliverable or one bounded integration scope may be
-  executed directly by the `WORKING_ITEMS` instance under the bounded-execution
-  evidence contract below; the receipt is the record and no AgentRuns package is
-  owed.
-- *Independent-review path (mandatory).* Any tranche that changes source under
-  `core/**` (solver, mechanics, loads, stress recovery, model operations,
-  reporting math) or `apps/desktop/src/**` product behavior dispatches at least
-  one **fresh, read-only** `TASK + software-code-review` child over 100% of the
-  frozen diff before the DEC-025 sweep and before push. The reviewer has no write
-  target and is not the implementer's context. A `PASS` with no actionable finding
-  is required to publish; findings are remediated by a child or the manager and
-  re-reviewed. The sweep remains the deterministic gate; review is additional,
-  not a substitute.
-- *Multi-agent path.* Whenever children are dispatched (either path above,
-  or any fan-out), the tranche uses a recorded work graph and freezes, under
-  `execution/_Coordination/AgentRuns/<RUN_ID>/`: the activation or plan, the
-  work graph, one sealed launch brief per child (role, skill, scope path, declared
-  reads, allowed write targets, tools, acceptance criteria, exclusions), each
-  child's return and status, the manager return, and a handoff state. Parentage,
-  scopes, status, and returns are persisted per root `AGENTS.md`; siblings do not
-  message or delegate directly. Terminal fan-out/fan-in for independent children;
-  supervised many-to-many only when active findings may affect siblings.
+Seal each delegated brief before launch. It identifies the objective, relevant
+context and hashes, parent, role, tools, write scope, constraints, expected
+output and checks. The parent launches its children, observes progress and
+validates their returns. Retain returns verbatim with hashes and actual model
+and reasoning settings, plus findings, substitutions and dispositions. Record
+host enforcement limits honestly. Type 2 instances do not delegate.
 
-**Execution attribution.** No durable Piping surface prescribes models (D-GOV-17
-M1-D). Record which model actually ran each dispatched role in the AgentRuns
-record and point to it from the receipt; when no AgentRuns record exists, the
-receipt carries the minimum attribution directly. Any mid-wave substitution is
-recorded where the wave's execution is recorded — never silently.
+Keep model allocation in the approved run strategy and actual execution records,
+not these standing instructions (D-GOV-17 M1-D). A model or harness change must
+not silently change role, authority or scope. Reuse transcript parsers, launch
+scripts and attribution conventions only when they work in the current host.
+Preserve their evidence purpose using available tools; attribute commits
+truthfully. Do not copy another harness's model or co-author identity.
 
-## Project-Wide Execution Discipline
+Parallelise work with clear dependencies and disjoint writes. Give shared files
+one integration owner. Serialize access to native/browser state and other shared
+test resources when concurrent use would invalidate results. Intervene when
+repeated repair attempts yield no new evidence; change the diagnosis or split
+the problem instead of repeating an unproductive approach.
+
+## Decisions and boundaries
+
+Use engineering judgment inside the authorised scope. Established exemplars
+and consistency in ontology, epistemology, praxeology and axiology inform that
+judgment; they are guides, not mandatory approval gates. Distinguish verified
+exemplar behaviour from inference. Present consequential conflicts or choices
+requiring owner judgment as a bounded package with evidence and a recommendation.
+
+Disclose departures from specification, their rationale and how to reverse them.
+A departure that conflicts with an explicit owner decision or protected criterion
+requires an owner decision before it takes effect. Do not manufacture approvals
+from silence. Record the owner's words verbatim and distinguish them from agent
+interpretations and decisions.
+
+The domain, privacy, claims, lifecycle and scope-gated integration boundaries
+in F-PIP-1 through F-PIP-4 remain subject to their owning rulings. Their retained
+definitions are in `loop/WORKPLAN_2026-07-18b_piping_loop.md`, under "Standing
+constraints — fences"; later owner rulings govern explicit amendments. Replacing
+the old loop procedure does not waive those boundaries. It supersedes F-PIP-5's
+deliverable-only work-selection procedure with the run graph described above.
+Do not edit historical fence definitions or infer release/issuance authority.
+
+Write only inside the authorised scope, including required run evidence. Root
+governance, agents, workflows, skills and tools need explicit authority for that
+work. Do not alter other projects or stage, revert or repair unrelated state.
+For authorised dependency-register work, use the canonical type system and the
+approved snapshot named by `execution/_DAG/_LATEST.md`; preserve legacy labels
+as provenance rather than re-emitting them as current enums.
+
+## Build and test through user workflows
+
+Implement bounded slices with explicit observable outcomes. Maintain the work
+graph while implementing, testing, fixing and integrating; record discovered
+gaps and exclusions instead of implying whole-project completion.
+
+Exercise changed user workflows as soon as they are operable. Use actual
+pointer/keyboard interaction, native computer use and suitable automation to
+test what users can accomplish, alongside focused code tests. Do not wait for
+the final appearance pass to find interaction and state defects.
+
+As connected functionality becomes available, extend a reusable scenario set
+covering authoring, selecting, editing, review/apply, solving, inspecting results,
+undo/redo, save and reopen. Include interruptions, cancellation, invalid input,
+recovery, keyboard use and relevant window sizes. Check the resulting model,
+history and result designation as well as visible feedback. Exercise human and
+equivalent typed operation routes where semantic equivalence is involved.
+
+Record candidate and environment, actions, expected and observed outcomes,
+failures and evidence. Fix defects within authority, add useful regression
+coverage and repeat affected scenarios. Repeat connected journeys after the
+visual pass. Report unavailable or blocked scenarios explicitly. Scale the
+scenario set to the slice; it is not a demand to run every scenario on every
+edit. Agent-driven behavioural testing does not substitute for independent
+practitioner usability work or lift its holds.
+
+## Protected checks, review and integration
+
+Never weaken a test or move a tolerance, oracle or limit to obtain a pass.
+When a protected check and the design disagree, preserve the check, bring the
+owner the measured conflict and a recommendation, and block the affected
+acceptance or merge. Check delegated changes for this failure mode as well.
+
+Every slice receives independent review of its complete frozen diff before
+merge, by a fresh-context reviewer who did not write it. Give the reviewer
+the requirements, source diff and evidence, with a brief to seek defects and
+unsupported claims. Same-model review must not be described as model diversity.
+Fix actionable findings and obtain backchecks before merge. Any subsequent
+candidate changes require review coverage; earlier review alone cannot cover
+new bytes. Reviews remain independent of the implementer's self-checks.
 
 Software work uses `software-workflow.json` under the root
-`../../docs/SOFTWARE_WORKFLOW_PROFILE.md` contract. The profile registers
-project checks; it does not expand project authority or replace the evidence
-and owner gates below.
+`docs/SOFTWARE_WORKFLOW_PROFILE.md` contract. Preserve the registered DEC-025
+evidence sweep and applicable practitioner-harness, self-check and receipt
+validation obligations. Run the evidence sweep on a clean candidate before
+every merge touching product code. Bind evidence to the actual candidate and
+record skipped, unavailable or failed checks explicitly. Required CI must pass
+on the candidate that merges. Never alter a check merely to accommodate this
+procedure revision; surface an actual contradiction for resolution.
 
-Dependency-register work is governed by the canonical v3.1 type system. New or
-refreshed dependency rows must emit only canonical core enum values; legacy
-labels from historical DAGs are read-only migration inputs and must be preserved
-as provenance notes rather than re-emitted. The current approved dependency
-graph authority is the immutable snapshot named by
-`execution/_DAG/_LATEST.md`; consumers must resolve that committed pointer
-rather than pinning a DAG identifier in this instruction. At this packet's
-2026-07-25 basis, the pointer names `DAG-008`; earlier DAGs remain immutable
-historical or superseded snapshots.
+Use the host capabilities actually available. Where a required command needs
+host permission, use the host's supported approval mechanism. Where execution
+is unavailable or declined, record the command and outstanding verification.
+An execution denial or unavailable tool is not a pass; CI is not a substitute
+for a required native witness unless its owning criterion allows that.
 
-Agents may write inside the selected tranche scope, required evidence and
-coordination artifacts, and project-local plans created under the issue-plan
-rule below. Do not write root governance files, root agent instructions, root
-skills, or root tools unless the human explicitly directs that governance
-work.
+Use scoped branches and PRs. Preserve existing unmerged work; check upstream,
+candidate identity and the index before integration. Stage only authorised
+files and evidence. Standing Git authority applies to branch creation, commit,
+push, PR and merge; do not invent a second per-merge permission gate. Integrate
+upstream changes without discarding others' work, review the resulting candidate
+and rerun checks whose applicability changed. Escalate substantive conflicts
+that exceed existing authority. Do not force-push another contributor's branch.
 
-Host-capability execution. Some registered checks and evidence surfaces cannot run inside the session's sandbox because the sandbox denies process spawning, Mach bootstrap, network, or keychain access — DEC-025 surfaces annotated execution_capability: host (Playwright/Chromium) are the standing example. For such a surface, the executing agent requests sandbox escalation for the exact command (for example npm run build:wasm && PLAYWRIGHT_WORKERS=1 ../../node_modules/.bin/playwright test …, or tools/release/run_evidence_sweep.py --execute --only-capability host) and runs it itself in the session; the human approves or declines per command. A sandbox denial is not a substrate limitation and is not a reason to park, hand off, waive, or infer a pass. Park with HOST_RERUN_REQUIRED only when the escalation request itself is declined, and record the exact command that was declined. Escalated runs are recorded in the run record with the command, the capability annotation, and the result, and remain bound to the same commit-hash and clean-worktree rules as sandboxed runs. Root harness CI is additional evidence where it exists; it does not replace a required host surface unless the owning decision says so.
+Keep run state, evidence and a concise handoff current at closure or pause.
+Existing loop receipts remain historical evidence with their append-only and
+validation rules; use a short reference to the run rather than duplicate its
+work graph or numerical evidence. Never rewrite old verdicts, returns or records
+to make them agree with a new procedure.
 
-There may be other agents working in this monorepo with disjoint write scopes.
-Treat unrelated dirty files outside the selected tranche scope as external
-state. Do not fix, stage, revert, or interpret them unless the human directs
-that work.
+A merged slice is not an accepted deliverable. Report observed test results
+without claiming usability, conformance, performance or owner acceptance.
+Explicit holds remain until lifted by the owner. Source-control closeout does
+not establish lifecycle issuance or engineering validation.
 
-## Closeout And Git Discipline
-
-When a tranche is complete, validated, and project closeout rules allow it,
-perform the following scoped Git/file-state closeout checklist:
-
-- inspect root git status;
-- confirm validation evidence and skipped-check notes;
-- stage only files in the selected tranche write scope, required
-  evidence/coordination artifacts, and any explicitly created governance-issue
-  plan;
-- do not stage unrelated dirty files;
-- commit the scoped tranche when validation and staging are clean;
-- fetch or otherwise verify upstream state before pushing;
-- push only when the upstream branch can be fast-forwarded to the local scoped
-  commit.
-
-Branch creation is routine. Creating the tranche's task branch (and, when
-isolation is warranted, its worktree lane) from a verified clean basis on the
-integration branch — clean status, no in-progress Git operation, base SHA
-recorded — is an ordinary Step 0/Step 4 act and requires no `APPROVE:` token,
-whether performed by the loop session or by a dispatched CHANGE instance.
-CHANGE reports the branch name and base SHA and proceeds. Basing a lane on a
-dirty worktree, or any switch that would discard or carry uncommitted work,
-remains non-routine under root `AGENT_CHANGE.md`. Owner direction 2026-07-19
-(recorded in App `loop/LOOP_RECEIPTS.md` Receipt-74), applied to this loop by
-owner direction 2026-08-15; scoped commit/push closeout follows the checklist
-above and likewise needs no per-run `APPROVE:` token.
-
-If the remote branch has advanced and local `HEAD` does not already include
-it, stop and surface the conflict. Do not merge, rebase, force push, or judge
-another agent's work during ordinary closeout.
-
-Git closeout is source-control hygiene. It is not lifecycle issuance, release
-readiness, professional approval, certification, sealing, authentication, or
-code-compliance acceptance.
-
-## Issue-Plan Rule
-
-If concrete, actionable issues are discovered that would improve the agentic
-development loop, project governance, agents, or skills, record them in at
-most one timestamped plan under `{WORKING_ROOT}/plans/` for the session. Do
-not create a plan merely to satisfy this instruction when no actionable issue
-was found.
-
-## Bounded-execution evidence contract
-
-Every bounded deliverable execution must bind:
-
-- one `DeliverableID` or an otherwise authorized bounded integration scope;
-- the parent `PackageID`;
-- scope items and objectives from `_Registers/Deliverables.csv`;
-- applicable invariants from `CONTRACT.md`;
-- acceptance criteria from `_CONTEXT.md` or the sealed brief;
-- explicit write scope.
-- for delegated executions, the sealed brief's path under
-  `execution/_Coordination/AgentRuns/<RUN_ID>/` and the reviewer's return when
-  the independent-review path applies.
-
-If a bounded execution would cross package boundaries or require protected
-data, stop and return the condition to the governing authority.
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
