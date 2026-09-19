@@ -20,3 +20,4 @@
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
 
 - 2026-09-13 — Bounded workflow/contact technical implementation and required local verification accepted by HELP_HUMAN; see `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/FINAL_TECHNICAL_ACCEPTANCE_V1.json`. Git publication remains pending in the run handoff; lifecycle stays `IN_PROGRESS`.
+- 2026-09-19 - SWBPIPE Tranche B slice B2 (shell lane): the workspace session (state, handlers and effects) moved out of `App.tsx` into fourteen modules under `src/features/workspace/` with no executable line edited and no behaviour change; the generation gates, the solve-input basis, the Current and Historical designation, reviewed application, undo and redo are byte-identical; run record `_run_records/HELP_HUMAN_RUN_2026-09-19_SWBPIPE_B2_STATE_EXTRACTION.md`. State remains IN_PROGRESS; no lifecycle change.

@@ -31,13 +31,27 @@
     "B2": {
       "role": "slice: state extraction, no behaviour change",
       "model": "fable",
-      "status": "returned, frozen for review",
+      "status": "reviewed PASS and swept pass; pull request next",
       "returnSha256": "ce67470161f78980afcbcec3cd240460c964a834bd35cc2d26f23caf99655ec5",
       "return": "returns/B2_RETURN.md",
       "modelThatRan": "manager requested as Claude Fable 5.1; its one implementer child, B2-STATE, reports itself as Claude Fable 5.1 (claude-fable-5-1)",
       "candidate": "5d2e261e0df39c18a71d897902bf5d3a047db175"
     }
   },
-  "slices": [],
-  "current_frontier": "B2-REVIEW PASS; the DEC-025 sweep runs on the clean records commit after the frozen candidate 5d2e261e0; then the closeout, the pull request, CI and merge; then sealed addendum 2 (slice B2F), then B3."
+  "slices": [
+    {
+      "id": "B2",
+      "frozenProductTree": "e2c8f277d58b8b2d7b95ce4527d80aca50c6f8cc",
+      "reviewedCandidate": "5d2e261e0df39c18a71d897902bf5d3a047db175",
+      "review": "PASS, no actionable finding",
+      "reviewReturnSha256": "97f4adeba1454a37655f0a46fd8be697f6b724c9a4e7169d9e178e03c2f69089",
+      "sweepCommit": "61e1057c4ae7e35d72694c7da6d210bf9d091b67",
+      "sweep": "pass, five surfaces",
+      "sweepSummarySha256": "e349768815700de944be279123d0b79f31dd6e7af3e8c53ac7acad4950a1937b",
+      "closeout": "CLOSEOUT_CHECKS_B2.json",
+      "closeoutSha256": "d23bb4581d15f101d9ee40696240c19f80c78fa8c4735a5ba0f065986eec9748",
+      "recorded": "2026-09-19T03:44Z"
+    }
+  ],
+  "current_frontier": "Slice B2 reviewed (PASS) and swept (pass) on 61e1057c4; closeout written; next the pull request, CI and merge; then sealed addendum 2 (slice B2F), then B3."
 }
