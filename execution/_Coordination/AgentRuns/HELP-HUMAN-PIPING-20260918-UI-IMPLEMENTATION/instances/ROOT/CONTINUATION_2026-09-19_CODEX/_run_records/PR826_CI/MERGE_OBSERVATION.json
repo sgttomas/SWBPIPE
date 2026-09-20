@@ -1,0 +1,41 @@
+{
+  "head": "713568e8db8ad830e86afc33ef9035addb983141",
+  "merge": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "sameCompleteTree": true,
+  "mergedAt": "2026-09-20T17:48:22Z",
+  "desktopCompletedAt": "2026-09-20T18:00:32Z",
+  "method": "Owner reports using Codex Enable auto-merge; ROOT observed merge and issued no merge command. Only harness is GitHub-required; desktop continued after merge and passed.",
+  "sourceCounts": {
+    "barrier": 30,
+    "shard1Passed": 141,
+    "shard2Passed": 57,
+    "shard3Passed": 140,
+    "shard4Passed": 56,
+    "existingSkips": 20,
+    "passedTotal": 424
+  },
+  "fullHostedElapsedSeconds": 1279,
+  "rawLogSha256": "53d4df8d5bcef419a7e4975753b3d6166d7d1ea329e6cf572555315fc7fc215a",
+  "files": [
+    {
+      "path": "PR.json",
+      "bytes": 2645,
+      "sha256": "f5c2a05f357f1ef57ed6d046d218b63a0e5f1238b891a70dde5dc2d4587efc9d"
+    },
+    {
+      "path": "RUN.json",
+      "bytes": 12426,
+      "sha256": "29ed91a0ed119eb0e97f33eee291dbac6b5b226de1a169b24fc3a46dd701ec4a"
+    },
+    {
+      "path": "desktop-ci.log.gz",
+      "bytes": 183167,
+      "sha256": "b09b4f837999202e35fc47ab59ad4cde14dfbadf01030c558a2251b9612584e6"
+    },
+    {
+      "path": "piping-e2e-plan.json",
+      "bytes": 156367,
+      "sha256": "70fdb404376019b515e35eacef7860a71b671594ff0eb8b3c39ecea97b3c9379"
+    }
+  ]
+}

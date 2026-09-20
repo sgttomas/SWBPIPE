@@ -175,3 +175,9 @@ I1 is frozen clean at 045acae749fe1acc95bce221cdb58c2db4a7064c with its complete
 ## B3A/I1 ready for publication validation
 
 The combined clean candidate 70b24a4b passed the fresh complete five-surface sweep, after an early failed sweep exposed two stale App.test fallback expectations. Their exact display-only amendment follows existing owner item 2; all solved-only and geometry checks remain. Separate slice reviews and fresh whole-merge review passed. Native ordinary journeys are bound to d2ef and the repaired binary; controlled tests cover races. Final records backcheck and full hosted CI remain before merge. B3B/C3 preparations are complete and retained; implementation has not started. No deliverable reconciliation, DAG rebuild, Runtime adoption or qualification is claimed.
+
+## PR826 integrated; next coherent batch active
+
+B3A/I1 merged as 88c6c746 from fixed 713568e8. The owner used Codex auto-merge at17:48:22Z; desktop CI continued and passed18:00:32Z. ROOT issued no merge command. Main only requires harness in GitHub; this is diagnosed, not a future waiver or protection-setting change. Whole-merge/source/evidence reviews and the fresh local sweep passed; canonical final CI observation is in ROOT continuation _run_records/PR826_CI.
+
+Owner authorized effective test/CI/cadence reductions. B3B, C3 and CI economy form the next planned coherent batch; focused development and one final integration validation avoid per-helper PR/full-sweep events. Managers retain sole source ownership, temporary E2E scope was handed back, and shared interfaces are acknowledged. Canvas cleanup/browser work needed an explicit followup_task after an idle handoff; it is now resumed and not yet claimed complete. Current frontier and exact sources are in WORK_GRAPH.json. All product/Runtime/DAG/qualification holds remain.

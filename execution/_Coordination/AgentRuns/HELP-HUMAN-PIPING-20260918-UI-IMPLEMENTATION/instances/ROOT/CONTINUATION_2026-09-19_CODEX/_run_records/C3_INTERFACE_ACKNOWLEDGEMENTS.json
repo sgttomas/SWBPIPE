@@ -1,0 +1,20 @@
+{
+  "briefSha256": "34815f05fe750db1ae36af3dff30a117d3e74d3ffde6522d32f64fb60671cea9",
+  "note": "First acknowledgement verbatim; second entry is a labelled synopsis, with full reply in C3_CANVAS_INTERFACE_ACK.md. These are manager coordination, not a new owner act.",
+  "acknowledgements": [
+    {
+      "agent": "/root/b3_manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "body": "Acknowledged; SHA-256 matches. Names, ownership and order are workable: canvas helper freeze \u2192 B3B controller freeze \u2192 separate C3 bridge checkpoint through sole shell ownership.\n\nThe nullable isolation snapshot correctly preserves active-empty isolation and dims new geometry. Show All remains operable even with zero hidden entities. No conflict identified; no writes or runtime resources used. Implementation remains on hold pending activation.",
+      "bodySha256": "8d3a93f5ac2a75744a850fb23f1c478520d6cc144f1e4cff12e7413acdec0b79"
+    },
+    {
+      "agent": "/root/i1_manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "body": "Confirmed workable; draft SHA256 matches 34815f05fe750db1ae36af3dff30a117d3e74d3ffde6522d32f64fb60671cea9. Full reply retained separately with typed interface.",
+      "bodySha256": "e505fdcb3b34ad9fc7657e9fc857314babd96db2c6c414745229aa68fff14390"
+    }
+  ]
+}

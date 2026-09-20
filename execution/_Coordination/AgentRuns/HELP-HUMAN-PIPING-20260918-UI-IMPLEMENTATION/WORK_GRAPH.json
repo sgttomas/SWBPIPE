@@ -599,19 +599,27 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the unsaved-edits mark; the 'Solver \u00b7 Not solved' fallback chip",
-      "status": "production/native/tests and complete packet reviewed; fresh complete combined sweep PASS; publication/CI/merge pending",
+      "status": "merged as 88c6c746; all local and hosted checks subsequently passed; technical integration only",
       "dependsOn": [
         "B3"
       ],
       "authority": "instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md items 1 and 2",
       "also": "two requests from the canvas lane for the shell lane's files wait for B3's freeze: the label plate's selected border colour in styles.css; a hover field in uiDiagnostics.ts",
-      "nativeOwnLook": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_OWN_LOOK/MANIFEST.json"
+      "nativeOwnLook": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_OWN_LOOK/MANIFEST.json",
+      "merge": {
+        "pr": 826,
+        "head": "713568e8db8ad830e86afc33ef9035addb983141",
+        "commit": "88c6c7463199d1d69caebde04678fa74facca78f",
+        "mergedAt": "2026-09-20T17:48:22Z",
+        "desktopCompletedAt": "2026-09-20T18:00:32Z",
+        "method": "Observed owner UI action; ROOT did not issue merge command. CI continued after merge."
+      }
     },
     "B3B": {
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the native menu disabled during a busy project request (with its src-tauri part); a landed save re-derives the integrity record as verified at save",
-      "status": "planned, authorized by the owner 2026-09-19",
+      "status": "controller/browser repaired and passed; shell C3 bridge df00 handed to canvas; combined/native/review gates pending",
       "dependsOn": [
         "B3A"
       ],
@@ -733,7 +741,7 @@
       "role": "slice",
       "lane": "B-CANVAS",
       "title": "repair of the benchmark first profile's four defects (instrument code only)",
-      "status": "complete independent review and fresh combined sweep PASS; publication/CI/merge pending",
+      "status": "merged as 88c6c746; all local and hosted checks subsequently passed; technical integration only",
       "dependsOn": [
         "C2"
       ],
@@ -751,13 +759,21 @@
       "dispositions": "Historical helper header retained; nine exact preimages recovered as run evidence; seventeen historical uncommitted pin limitations remain. See I1-CODEX/MANAGER_RETURN.md.",
       "candidate": "045acae749fe1acc95bce221cdb58c2db4a7064c",
       "return": "instances/I1-CODEX/MANAGER_RETURN.md",
-      "returnSha256": "8fdd8093fcaa5c2f6716555c5151e4f2e01110f328c21e19296808a261967f6a"
+      "returnSha256": "8fdd8093fcaa5c2f6716555c5151e4f2e01110f328c21e19296808a261967f6a",
+      "merge": {
+        "pr": 826,
+        "head": "713568e8db8ad830e86afc33ef9035addb983141",
+        "commit": "88c6c7463199d1d69caebde04678fa74facca78f",
+        "mergedAt": "2026-09-20T17:48:22Z",
+        "desktopCompletedAt": "2026-09-20T18:00:32Z",
+        "method": "Observed owner UI action; ROOT did not issue merge command. CI continued after merge."
+      }
     },
     "C3": {
       "role": "slice",
       "lane": "B-CANVAS",
       "title": "isolate as dimming, a stated pick rule, a total hidden count (G-30)",
-      "status": "planned",
+      "status": "source e786 and helper3a5 frozen; active resume for df00 bridge cleanup and connected checks; no native/timed qualification",
       "dependsOn": [
         "I1"
       ]
@@ -1335,7 +1351,7 @@
     },
     "B3A-I1-INTEGRATION": {
       "role": "ROOT integration and verification",
-      "status": "fresh complete sweep PASS on clean 70b24a4b; whole-merge review PASS; final records backcheck and full hosted CI pending",
+      "status": "merged; all checks complete PASS on same unchanged head",
       "candidate": "46436a60310819f60d6376bc87cc093c1b33b59f",
       "productSource": "d2ef16848841616a26c35bfc03e68c7b64e79380",
       "instrumentSource": "045acae749fe1acc95bce221cdb58c2db4a7064c",
@@ -1366,7 +1382,18 @@
         "claims": "348 surfaces valid"
       },
       "earlierFailedResult": "Retained original 46436 result and DISPOSITION; no surface reuse waiver.",
-      "freshSweep": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_I1_SWEEP_70b24a4b/MANIFEST.json"
+      "freshSweep": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_I1_SWEEP_70b24a4b/MANIFEST.json",
+      "publicationHead": "713568e8db8ad830e86afc33ef9035addb983141",
+      "pullRequest": "https://github.com/sgttomas/chirality/pull/826",
+      "ci": {
+        "desktopRun": 35526546081,
+        "governanceRun": 35526546078,
+        "mode": "full",
+        "selection": "pass",
+        "governance": "pass",
+        "desktop": "pass; final aggregate 2026-09-20T18:00:32Z",
+        "selectedSpecs": 12
+      }
     },
     "B3A-I1-REVIEW": {
       "role": "fresh TASK Type 2 independent whole-merge review",
@@ -1395,6 +1422,65 @@
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_PREPARATION_RETURN.md",
       "returnSha256": "e1094aa9f2ae13443e49ae557c6fa062d26d7ff75d44796663c990d59c375e1d",
       "base": "dada348294d21b8619b4644a5a690aedb039957d"
+    },
+    "B3B-CODEX-MANAGER": {
+      "role": "WORKING_ITEMS Type 1",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3_manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "status": "active; df00 source frozen while canvas checks combined branch",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_MANAGER_BRIEF.md",
+      "briefSha256": "03186a0b04d1809ceb81139872a42c895ab2345cd6aa8cfbf4487b17b94f8b98",
+      "basis": "88c6c7463199d1d69caebde04678fa74facca78f",
+      "children": [
+        {
+          "actualAgent": "/root/b3_manager/b3b_implementation",
+          "model": "gpt-6-astra",
+          "reasoning": "low",
+          "brief": "instances/B3B-CODEX/WORKER_BRIEF.md",
+          "briefSha256": "7f65af39f4f71318f79e503263e73c08645191400a4df4ae50eb63369a41d8f9"
+        }
+      ]
+    },
+    "C3-CODEX-MANAGER": {
+      "role": "WORKING_ITEMS Type 1",
+      "parent": "ROOT",
+      "actualAgent": "/root/i1_manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "status": "active cleanup/connected-check turn resumed explicitly; prior queued send_message did not start execution",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/C3_MANAGER_BRIEF.md",
+      "briefSha256": "00dec6ffcbb1acfc2ba0d791854c3c135d7226f802d207e5d1b9047d460d23b2",
+      "basis": "88c6c7463199d1d69caebde04678fa74facca78f",
+      "children": [
+        {
+          "actualAgent": "/root/i1_manager/c3_worker",
+          "model": "gpt-6-astra",
+          "reasoning": "low",
+          "brief": "instances/C3-CODEX/WORKER_BRIEF.md",
+          "briefSha256": "29f74bfe6d59fa42e4b99ed72a09d5e69814df5a5f93ad224585e9733cd8e910"
+        }
+      ],
+      "helper": "3a5cf5a78a1da0a0c30d312ed0625d583e7c439d",
+      "source": "e7866be015ba2c83a2faa87d39590801efafa06c",
+      "bridge": "df00c64d3220482060851d05b58a99ac055148e5"
+    },
+    "CI-ECONOMY-CODEX": {
+      "role": "TASK Type 2",
+      "parent": "ROOT",
+      "actualAgent": "/root/ci_strategy",
+      "model": "gpt-6-astra",
+      "reasoning": "low",
+      "status": "nine maintained-file diff frozen, metadata-trigger correction complete; ROOT commit/review pending",
+      "branch": "codex/swbpipe-ci-economy-20260920",
+      "base": "88c6c7463199d1d69caebde04678fa74facca78f",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_ECONOMY_IMPLEMENTATION_BRIEF.md",
+      "briefSha256": "093d075f3abbc83345a9c29fce1061fe44563628ece4e1f819d7a5cd52c3a935",
+      "scope": "Piping workflow/router, duration hints, policy tests, explicit-viewport annotations/config, docs and sweep docstring; no product or protection writes",
+      "return": "instances/CI-ECONOMY-CODEX/RETURN.md",
+      "correction": "instances/CI-ECONOMY-CODEX/metadata-repair/RETURN.md",
+      "observed": "26 policy tests; collection421 unique scenarios (23 duplicate executions removed), lean46, full exact partitions; no browser execution or hosted proof yet"
     }
   },
   "edges": [
@@ -1581,9 +1667,21 @@
     [
       "ROOT",
       "B3B-PREPARATION-CODEX"
+    ],
+    [
+      "ROOT",
+      "B3B-CODEX-MANAGER"
+    ],
+    [
+      "ROOT",
+      "C3-CODEX-MANAGER"
+    ],
+    [
+      "ROOT",
+      "CI-ECONOMY-CODEX"
     ]
   ],
-  "current_frontier": "B3A/I1 combined candidate 70b24a4b passed fresh complete sweep and whole-merge independent review. Final records backcheck and full hosted CI before merge. B3B/C3 preparations complete; activate after integration milestone. Runtime adoption and reserved product holds unchanged.",
+  "current_frontier": "Next coherent batch active: B3B controller and C3 bridge handed to canvas for connected checks; CI economy frozen for review. One combined native witness/full local sweep/whole-batch review planned. GitHub protection remains harness-only; auto-merge diagnosis recorded, no settings change or Runtime adoption.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",

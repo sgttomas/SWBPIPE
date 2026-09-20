@@ -1,0 +1,30 @@
+{
+  "observedUtc": "2026-09-20T17:55:58Z",
+  "appVersion": "26.915.31945",
+  "appBuild": "9922",
+  "workerOrigin": "/Applications/ChatGPT.app/Contents/Resources/app.asar::.vite/build/worker.js",
+  "workerSha256": "71b0114587db4ee2cd40306497f056ca7798b7590bca121e8d57254c02c2658a",
+  "action": "toggle-auto-merge enabled calls gh pr merge <number> --auto --merge (or --squash); no --admin or workflow cancellation in that action",
+  "display": "Merged Pull Requests board records receive ciStatus none; pending CI does not remain the board status for merged rows.",
+  "github": {
+    "requiredChecks": [
+      "harness"
+    ],
+    "appId": 15368,
+    "branchRules": [],
+    "pr825": {
+      "mergedAt": "2026-09-20T15:49:07Z",
+      "desktopCompletedAt": "2026-09-20T15:52:19Z"
+    },
+    "pr826": {
+      "head": "713568e8db8ad830e86afc33ef9035addb983141",
+      "merge": "88c6c7463199d1d69caebde04678fa74facca78f",
+      "mergedAt": "2026-09-20T17:48:22Z",
+      "harnessCompletedAt": "2026-09-20T17:42:26Z",
+      "desktopStillRunningAtObservation": true
+    }
+  },
+  "timeline": "Both queried PR timelines contain a MergedEvent and no AutoMergeEnabledEvent.",
+  "conclusion": "Necessary GitHub requirements were already met, so the CLI auto option could merge immediately. CI continued; no forced success/cancellation observed. ROOT did not issue the merge command.",
+  "limits": "No installed-app or GitHub-protection mutation. Official feature documentation fetched but did not document this control; explanation rests on installed code and live GitHub API/CLI evidence."
+}
