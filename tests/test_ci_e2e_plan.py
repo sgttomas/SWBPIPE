@@ -26,8 +26,12 @@ class PolicyTests(unittest.TestCase):
         self.git('init', '-q')
         self.git('config', 'user.email', 'ci-fixture@example.invalid')
         self.git('config', 'user.name', 'CI fixture')
-        for file in {ci.FAST, *ci.LEAN_TITLES}:
+        for file in {ci.FAST, *ci.LEAN_TITLES, 'e2e/c3-viewport-visibility.spec.ts',
+                     'e2e/b3b-project-persistence.spec.ts'}:
             self.write(ci.DESKTOP + file, '// fixture')
+        for file in ['src/styles.css', 'src/features/viewport/viewportDimmingPresentation.ts',
+                     'src/features/workspace/projectPersistenceIntegrity.ts']:
+            self.write(ci.DESKTOP + file, '// original production fixture')
         self.base = self.commit()
 
     def git(self, *args):
@@ -97,6 +101,32 @@ class PolicyTests(unittest.TestCase):
                 self.assertEqual(plan['mode'], mode)
                 self.assertEqual(plan['selected_titles'], {**ci.LEAN_TITLES, **({'e2e/ui-foundation.spec.ts': ci.LEAN_TITLES['e2e/ui-foundation.spec.ts'] + ci.LAYOUT_TITLES} if path == 'src/styles.css' else {})})
                 if file: self.assertIn(file, plan['selected_specs'])
+
+    def assert_dedicated_product_coverage(self, product_path, dedicated_spec):
+        # Dedicated specs exist before the diff: this must be production-driven
+        # affected selection, not the changed-spec-only route.
+        self.assertTrue((MODULE.parents[2] / 'apps/desktop' / dedicated_spec).is_file())
+        self.write(ci.DESKTOP + product_path)
+        self.commit()
+        plan = self.plan()
+        self.assertEqual(plan['changed_paths'], [{'status': 'M', 'path': ci.DESKTOP + product_path}])
+        self.assertEqual(plan['mode'], 'lean-affected')
+        self.assertIn(dedicated_spec, plan['selected_specs'])
+        self.assertIn(ci.FAST, plan['selected_specs'])
+        for file, titles in ci.LEAN_TITLES.items():
+            self.assertTrue(set(titles).issubset(plan['selected_titles'][file]))
+        ci.validate(self.root, plan)
+
+    def test_c3_dedicated_spec_follows_product_only_authoring_change(self):
+        self.assert_dedicated_product_coverage('src/features/viewport/viewportDimmingPresentation.ts',
+                                              'e2e/c3-viewport-visibility.spec.ts')
+
+    def test_c3_dedicated_spec_follows_product_only_layout_change(self):
+        self.assert_dedicated_product_coverage('src/styles.css', 'e2e/c3-viewport-visibility.spec.ts')
+
+    def test_b3b_dedicated_spec_follows_product_only_persistence_change(self):
+        self.assert_dedicated_product_coverage('src/features/workspace/projectPersistenceIntegrity.ts',
+                                              'e2e/b3b-project-persistence.spec.ts')
 
     def test_closed_pr_exception_is_retired(self):
         self.write(ci.DESKTOP + 'src/App.tsx')

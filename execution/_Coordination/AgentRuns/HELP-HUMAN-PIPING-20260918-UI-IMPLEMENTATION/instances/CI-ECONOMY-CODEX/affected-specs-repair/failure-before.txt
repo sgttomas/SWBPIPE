@@ -1,0 +1,46 @@
+    Finished `release` profile [optimized] target(s) in 0.07s
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ PolicyTests.test_b3b_dedicated_spec_follows_product_only_persistence_change __
+
+self = <test_ci_e2e_plan.PolicyTests testMethod=test_b3b_dedicated_spec_follows_product_only_persistence_change>
+
+    def test_b3b_dedicated_spec_follows_product_only_persistence_change(self):
+>       self.assert_dedicated_product_coverage('src/features/workspace/projectPersistenceIntegrity.ts',
+                                              'e2e/b3b-project-persistence.spec.ts')
+
+projects/chirality-piping/tests/test_ci_e2e_plan.py:125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+projects/chirality-piping/tests/test_ci_e2e_plan.py:111: in assert_dedicated_product_coverage
+    self.assertIn(dedicated_spec, plan['selected_specs'])
+E   AssertionError: 'e2e/b3b-project-persistence.spec.ts' not found in ['e2e/b3-accessibility.spec.ts', 'e2e/b3a-session-status.spec.ts', 'e2e/gui-workflow-validation.spec.ts', 'e2e/r2-smoke.spec.ts', 'e2e/result-compatibility.spec.ts']
+___ PolicyTests.test_c3_dedicated_spec_follows_product_only_authoring_change ___
+
+self = <test_ci_e2e_plan.PolicyTests testMethod=test_c3_dedicated_spec_follows_product_only_authoring_change>
+
+    def test_c3_dedicated_spec_follows_product_only_authoring_change(self):
+>       self.assert_dedicated_product_coverage('src/features/viewport/viewportDimmingPresentation.ts',
+                                              'e2e/c3-viewport-visibility.spec.ts')
+
+projects/chirality-piping/tests/test_ci_e2e_plan.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+projects/chirality-piping/tests/test_ci_e2e_plan.py:111: in assert_dedicated_product_coverage
+    self.assertIn(dedicated_spec, plan['selected_specs'])
+E   AssertionError: 'e2e/c3-viewport-visibility.spec.ts' not found in ['e2e/b3-accessibility.spec.ts', 'e2e/linear-authoring.spec.ts', 'e2e/ui-foundation.spec.ts']
+____ PolicyTests.test_c3_dedicated_spec_follows_product_only_layout_change _____
+
+self = <test_ci_e2e_plan.PolicyTests testMethod=test_c3_dedicated_spec_follows_product_only_layout_change>
+
+    def test_c3_dedicated_spec_follows_product_only_layout_change(self):
+>       self.assert_dedicated_product_coverage('src/styles.css', 'e2e/c3-viewport-visibility.spec.ts')
+
+projects/chirality-piping/tests/test_ci_e2e_plan.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+projects/chirality-piping/tests/test_ci_e2e_plan.py:111: in assert_dedicated_product_coverage
+    self.assertIn(dedicated_spec, plan['selected_specs'])
+E   AssertionError: 'e2e/c3-viewport-visibility.spec.ts' not found in ['e2e/b3-accessibility.spec.ts', 'e2e/workspace-layout.spec.ts']
+=========================== short test summary info ============================
+FAILED projects/chirality-piping/tests/test_ci_e2e_plan.py::PolicyTests::test_b3b_dedicated_spec_follows_product_only_persistence_change
+FAILED projects/chirality-piping/tests/test_ci_e2e_plan.py::PolicyTests::test_c3_dedicated_spec_follows_product_only_authoring_change
+FAILED projects/chirality-piping/tests/test_ci_e2e_plan.py::PolicyTests::test_c3_dedicated_spec_follows_product_only_layout_change
+3 failed, 26 deselected in 0.41s

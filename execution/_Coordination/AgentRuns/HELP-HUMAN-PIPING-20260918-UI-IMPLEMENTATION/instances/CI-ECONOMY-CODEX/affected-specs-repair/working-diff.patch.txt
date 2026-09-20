@@ -1,0 +1,91 @@
+diff --git a/projects/chirality-piping/docs/CI_STRATEGY.md b/projects/chirality-piping/docs/CI_STRATEGY.md
+index 485dc9d95..f3a7fb463 100644
+--- a/projects/chirality-piping/docs/CI_STRATEGY.md
++++ b/projects/chirality-piping/docs/CI_STRATEGY.md
+@@ -15,9 +15,9 @@ artifact, and partial CI is not DEC093 full surface4 evidence.
+ | Complete PR diff | Source coverage |
+ |---|---|
+ | Reviewed reason-tooltip component only | Lean ordinary journeys |
+-| Shell/layout/appearance CSS and named layout helpers | Lean plus all distinct layout cases, twelve appearance combinations, Escape ownership and overlay interactions |
+-| Viewport, model-tree/properties, geometry/rich authoring and selection state | Lean plus full UI-foundation and linear authoring |
+-| Results/report/export/storage display, redaction and persistence-integrity helpers | Lean plus complete result compatibility, GUI, session-status and R2 files |
++| Shell/layout/appearance CSS and named layout helpers | Lean plus all distinct layout cases, twelve appearance combinations, Escape ownership and overlay interactions, plus complete C3 viewport-visibility coverage |
++| Viewport, model-tree/properties, geometry/rich authoring and selection state | Lean plus full UI-foundation, linear authoring and C3 viewport-visibility coverage |
++| Results/report/export/storage display, redaction and persistence-integrity helpers | Lean plus complete result compatibility, GUI, session-status, R2 and B3B project-persistence files |
+ | Reviewed instrumentation module | Lean plus its transitive literal-import source-spec consumers; shared benchmark harness reaches UI-foundation and workspace-layout as well as instrument contracts |
+ | Only added/modified source specs | Complete changed files plus accessibility |
+ | Shared application/session state, dependencies/configuration, native/build/WASM/solver, schemas, CI policy/duration hints, unknown inputs or deleted/renamed test inputs | Full source coverage |
+diff --git a/projects/chirality-piping/tests/test_ci_e2e_plan.py b/projects/chirality-piping/tests/test_ci_e2e_plan.py
+index 22905bb3f..7dbebc28a 100644
+--- a/projects/chirality-piping/tests/test_ci_e2e_plan.py
++++ b/projects/chirality-piping/tests/test_ci_e2e_plan.py
+@@ -26,8 +26,12 @@ class PolicyTests(unittest.TestCase):
+         self.git('init', '-q')
+         self.git('config', 'user.email', 'ci-fixture@example.invalid')
+         self.git('config', 'user.name', 'CI fixture')
+-        for file in {ci.FAST, *ci.LEAN_TITLES}:
++        for file in {ci.FAST, *ci.LEAN_TITLES, 'e2e/c3-viewport-visibility.spec.ts',
++                     'e2e/b3b-project-persistence.spec.ts'}:
+             self.write(ci.DESKTOP + file, '// fixture')
++        for file in ['src/styles.css', 'src/features/viewport/viewportDimmingPresentation.ts',
++                     'src/features/workspace/projectPersistenceIntegrity.ts']:
++            self.write(ci.DESKTOP + file, '// original production fixture')
+         self.base = self.commit()
+ 
+     def git(self, *args):
+@@ -98,6 +102,32 @@ class PolicyTests(unittest.TestCase):
+                 self.assertEqual(plan['selected_titles'], {**ci.LEAN_TITLES, **({'e2e/ui-foundation.spec.ts': ci.LEAN_TITLES['e2e/ui-foundation.spec.ts'] + ci.LAYOUT_TITLES} if path == 'src/styles.css' else {})})
+                 if file: self.assertIn(file, plan['selected_specs'])
+ 
++    def assert_dedicated_product_coverage(self, product_path, dedicated_spec):
++        # Dedicated specs exist before the diff: this must be production-driven
++        # affected selection, not the changed-spec-only route.
++        self.assertTrue((MODULE.parents[2] / 'apps/desktop' / dedicated_spec).is_file())
++        self.write(ci.DESKTOP + product_path)
++        self.commit()
++        plan = self.plan()
++        self.assertEqual(plan['changed_paths'], [{'status': 'M', 'path': ci.DESKTOP + product_path}])
++        self.assertEqual(plan['mode'], 'lean-affected')
++        self.assertIn(dedicated_spec, plan['selected_specs'])
++        self.assertIn(ci.FAST, plan['selected_specs'])
++        for file, titles in ci.LEAN_TITLES.items():
++            self.assertTrue(set(titles).issubset(plan['selected_titles'][file]))
++        ci.validate(self.root, plan)
++
++    def test_c3_dedicated_spec_follows_product_only_authoring_change(self):
++        self.assert_dedicated_product_coverage('src/features/viewport/viewportDimmingPresentation.ts',
++                                              'e2e/c3-viewport-visibility.spec.ts')
++
++    def test_c3_dedicated_spec_follows_product_only_layout_change(self):
++        self.assert_dedicated_product_coverage('src/styles.css', 'e2e/c3-viewport-visibility.spec.ts')
++
++    def test_b3b_dedicated_spec_follows_product_only_persistence_change(self):
++        self.assert_dedicated_product_coverage('src/features/workspace/projectPersistenceIntegrity.ts',
++                                              'e2e/b3b-project-persistence.spec.ts')
++
+     def test_closed_pr_exception_is_retired(self):
+         self.write(ci.DESKTOP + 'src/App.tsx')
+         self.commit()
+diff --git a/projects/chirality-piping/tools/ci/e2e_plan.py b/projects/chirality-piping/tools/ci/e2e_plan.py
+index d5ccaaeb4..e333f0658 100644
+--- a/projects/chirality-piping/tools/ci/e2e_plan.py
++++ b/projects/chirality-piping/tools/ci/e2e_plan.py
+@@ -149,13 +149,15 @@ def make_plan(root, event, base='', head='HEAD', pr=''):
+                     selected = {FAST} | consumers
+                     titles = {f: list(ts) for f, ts in LEAN_TITLES.items()}
+                     if 'layout' in areas:
+-                        selected.add('e2e/workspace-layout.spec.ts')
++                        selected.update(['e2e/workspace-layout.spec.ts', 'e2e/c3-viewport-visibility.spec.ts'])
+                         titles['e2e/ui-foundation.spec.ts'] += LAYOUT_TITLES
+                     if 'authoring' in areas:
+-                        selected.update(['e2e/ui-foundation.spec.ts', 'e2e/linear-authoring.spec.ts'])
++                        selected.update(['e2e/ui-foundation.spec.ts', 'e2e/linear-authoring.spec.ts',
++                                         'e2e/c3-viewport-visibility.spec.ts'])
+                     if 'results' in areas:
+                         selected.update(['e2e/result-compatibility.spec.ts', 'e2e/gui-workflow-validation.spec.ts',
+-                                         'e2e/b3a-session-status.spec.ts', 'e2e/r2-smoke.spec.ts'])
++                                         'e2e/b3a-session-status.spec.ts', 'e2e/r2-smoke.spec.ts',
++                                         'e2e/b3b-project-persistence.spec.ts'])
+                     plan.update(mode='lean' if areas == {'lean'} else 'lean-affected', selected_specs=sorted(selected),
+                                 selected_titles=titles, appearance='layout' in areas,
+                                 reasons=['Lean ordinary journeys plus reviewed affected ownership: ' + ', '.join(sorted(areas))])

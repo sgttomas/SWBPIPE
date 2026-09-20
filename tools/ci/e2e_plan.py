@@ -149,13 +149,15 @@ def make_plan(root, event, base='', head='HEAD', pr=''):
                     selected = {FAST} | consumers
                     titles = {f: list(ts) for f, ts in LEAN_TITLES.items()}
                     if 'layout' in areas:
-                        selected.add('e2e/workspace-layout.spec.ts')
+                        selected.update(['e2e/workspace-layout.spec.ts', 'e2e/c3-viewport-visibility.spec.ts'])
                         titles['e2e/ui-foundation.spec.ts'] += LAYOUT_TITLES
                     if 'authoring' in areas:
-                        selected.update(['e2e/ui-foundation.spec.ts', 'e2e/linear-authoring.spec.ts'])
+                        selected.update(['e2e/ui-foundation.spec.ts', 'e2e/linear-authoring.spec.ts',
+                                         'e2e/c3-viewport-visibility.spec.ts'])
                     if 'results' in areas:
                         selected.update(['e2e/result-compatibility.spec.ts', 'e2e/gui-workflow-validation.spec.ts',
-                                         'e2e/b3a-session-status.spec.ts', 'e2e/r2-smoke.spec.ts'])
+                                         'e2e/b3a-session-status.spec.ts', 'e2e/r2-smoke.spec.ts',
+                                         'e2e/b3b-project-persistence.spec.ts'])
                     plan.update(mode='lean' if areas == {'lean'} else 'lean-affected', selected_specs=sorted(selected),
                                 selected_titles=titles, appearance='layout' in areas,
                                 reasons=['Lean ordinary journeys plus reviewed affected ownership: ' + ', '.join(sorted(areas))])

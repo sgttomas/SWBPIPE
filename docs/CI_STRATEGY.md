@@ -15,9 +15,9 @@ artifact, and partial CI is not DEC093 full surface4 evidence.
 | Complete PR diff | Source coverage |
 |---|---|
 | Reviewed reason-tooltip component only | Lean ordinary journeys |
-| Shell/layout/appearance CSS and named layout helpers | Lean plus all distinct layout cases, twelve appearance combinations, Escape ownership and overlay interactions |
-| Viewport, model-tree/properties, geometry/rich authoring and selection state | Lean plus full UI-foundation and linear authoring |
-| Results/report/export/storage display, redaction and persistence-integrity helpers | Lean plus complete result compatibility, GUI, session-status and R2 files |
+| Shell/layout/appearance CSS and named layout helpers | Lean plus all distinct layout cases, twelve appearance combinations, Escape ownership and overlay interactions, plus complete C3 viewport-visibility coverage |
+| Viewport, model-tree/properties, geometry/rich authoring and selection state | Lean plus full UI-foundation, linear authoring and C3 viewport-visibility coverage |
+| Results/report/export/storage display, redaction and persistence-integrity helpers | Lean plus complete result compatibility, GUI, session-status, R2 and B3B project-persistence files |
 | Reviewed instrumentation module | Lean plus its transitive literal-import source-spec consumers; shared benchmark harness reaches UI-foundation and workspace-layout as well as instrument contracts |
 | Only added/modified source specs | Complete changed files plus accessibility |
 | Shared application/session state, dependencies/configuration, native/build/WASM/solver, schemas, CI policy/duration hints, unknown inputs or deleted/renamed test inputs | Full source coverage |
