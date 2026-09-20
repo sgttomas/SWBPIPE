@@ -36,6 +36,7 @@ export async function listenToNativeMenu(
 /** Presentation state only; native commands still use the one session sink. */
 export interface NativeShellState {
   projectName: string | null;
+  modelEdited: boolean;
   stage: string;
   view: string;
   theme: string;

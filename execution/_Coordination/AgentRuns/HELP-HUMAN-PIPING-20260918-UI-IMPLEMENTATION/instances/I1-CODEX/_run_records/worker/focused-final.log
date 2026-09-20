@@ -1,0 +1,25 @@
+$ sh /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh npx playwright test e2e/ui-foundation/full-cohort-controller.spec.ts --grep first profile repair --output /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/worker/focused-final-artifacts
+UI_FOUNDATION_CANDIDATE_SOURCE_ROOT=unset
+[2m[WebServer] [22m(node:30079) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:30081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1400:1 › first profile repair: historical geometry preserves its pinned preimage (4ms)
+  ✓  2 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1408:1 › first profile repair: D-70 inventory retains the original acceptance independently of later inventories (9ms)
+  ✓  3 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1421:1 › first profile repair: generator checks and preflight failures never write (29.1s)
+(node:30142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1400:1 › first profile repair: historical geometry preserves its pinned preimage (3ms)
+  ✓  5 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1408:1 › first profile repair: D-70 inventory retains the original acceptance independently of later inventories (8ms)
+  ✓  6 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1421:1 › first profile repair: generator checks and preflight failures never write (29.0s)
+
+  6 passed (59.2s)
+
+exit=0

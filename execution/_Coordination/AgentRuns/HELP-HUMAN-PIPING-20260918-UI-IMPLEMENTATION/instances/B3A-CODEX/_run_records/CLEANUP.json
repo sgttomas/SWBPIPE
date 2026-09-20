@@ -1,0 +1,11 @@
+{
+  "nativeProcess": 38905,
+  "stoppedBy": "ROOT using CUA Cmd-Q after own look",
+  "managerReadOnlyVerification": {
+    "psExitCode": 1,
+    "stdout": ""
+  },
+  "browser": "B3A focused checks completed and released; ROOT now owns local resources for full combined sweep",
+  "source": "d2ef16848841616a26c35bfc03e68c7b64e79380",
+  "noFurtherTestsOrBuilds": "ROOT combined sweep begins on46436a60310819f60d6376bc87cc093c1b33b59f; manager evidence-only"
+}

@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "policy": "POINT_HIT_POLICY_V3",
+  "checks": [
+    "off-axis near/cosTheta exclusion",
+    "off-axis physical near-plane crossing inclusion",
+    "off-axis physical far-plane crossing inclusion",
+    "off-axis beyond-far exclusion",
+    "capsule hit",
+    "bounds-centred million-unit translation invariance",
+    "render origin uses authored node bounds only",
+    "camera target projection"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "base": "7e6a7f2578e5df12ea891c2d604d0cd48e869934",
+  "preservedPauseHead": "f6c0bab8e8893237f83f57656b98039d68efb2b4",
+  "inheritedImplementation": "240a246f34f4771fb91f760e065f9ef11f9910da",
+  "mergeHead": "81ab9de1ed3162c87b638a7811d557a579a5bc4a",
+  "files": {
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md": "9b4fc8adcbecaf7a94368a21e299c7212f2b9d720dc0e727cd31411b75c89261",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/REPAIR_2026-09_FIRST_PROFILE.md": "ddffa7bad3f965363156b999025b2531dd546a770d48e1c681b2b656b1183553",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/benchmark-harness.ts": "fd4e463b2b2c9b644f415824106b5da501d6d027b95b314a09431f788228946a",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.d.mts": "e0b20eac7dfe880665849e06329389a09a8f2a76f342dae094ee0393c10da013",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.mjs": "4728148dbe80bd2e8faff25f098ed6e535cf882f8f90498d5b54361b85be7bb1",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts": "3d92c1d27380216bc8dbc2906778b31b0b098bc6a6bb24b954d0b8a07ed7b725",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs": "fe5216044284c86f075614177981f0d55c67a738723afb2ddf655d0e4615a0aa",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-winner-cue-plan.mjs": "be3912acc54eed699ffa05bf5ccb6ef2ee6058e84baf5ffb05af32ea0ece4886"
+  },
+  "productDiff": ""
+}

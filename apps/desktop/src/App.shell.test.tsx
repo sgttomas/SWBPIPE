@@ -5,6 +5,7 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 
 import { App } from "./App";
+import * as previewService from "./services/previewService";
 import { buildCurrentSessionInputManifest } from "./services/inputManifestService";
 import { buildAnalysisRunPreview, loadPreviewModel, runPreviewMechanics } from "./services/previewService";
 import type { LocalProjectEnvelope, PreviewModel } from "./types";
@@ -179,8 +180,11 @@ describe("the rail's states through the product", () => {
     await waitFor(() => expect(railState("results").caption).toBe("Failed"));
     expect(railState("results")).toEqual({ disabled: false, tooltip: "Failed · Results", reason: null, caption: "Failed" });
     expect(railState("review")).toEqual({ disabled: true, tooltip: "No solved run", reason: "No solved run", caption: null });
-    // §5.4 rule 7: the failed run's record carries no status, so the bar is empty.
-    expect(chipFaces()).toEqual([]);
+    // B3A owner terminal interpretation: recorded job state is not a solver token.
+    expect(chipFaces()).toEqual(["Solver · Not solved"]);
+    expect(screen.getByTestId("status-pill-mechanics")).toHaveAttribute("title", "Solve job state: failed");
+    act(() => nativeMenuCommand("view.section.solve"));
+    expect(screen.getByTestId("solve-readiness-summary")).toHaveTextContent("Solve job state: failed");
   });
 
   it("with a reopened Historical run: Results is captioned Historical and Review needs a current run", async () => {
@@ -763,4 +767,48 @@ describe("New Blank starts a fresh shell context", () => {
     expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(priorName!);
   });
 
+});
+
+
+describe("B3A recorded solver fallback through the product", () => {
+  it.each(["BLOCKED_custom", "USER_RULE_FAILED", "blocked by custom: rule / 1"])("keeps invented recorded result %s exact in tooltip, popover and Analyze", async (token) => {
+    const model = await loadPreviewModel();
+    const result = await runPreviewMechanics(model);
+    result.status.mechanics = token;
+    vi.spyOn(previewService, "runPreviewMechanics").mockResolvedValue(result);
+    await renderShell();
+    fireEvent.click(screen.getByTestId("toolbar-run"));
+    await waitFor(() => expect(chipFaces()).toEqual(["Solver · Not solved"]));
+    const chip = screen.getByTestId("status-pill-mechanics");
+    expect(chip).toHaveAttribute("title", token);
+    fireEvent.click(chip);
+    expect(screen.getByTestId("status-pill-mechanics-popover")).toHaveTextContent(token);
+    expect(document.getElementById(chip.getAttribute("aria-controls")!)).toBe(screen.getByTestId("status-pill-mechanics-popover"));
+    act(() => nativeMenuCommand("view.section.solve"));
+    expect(screen.getByTestId("solve-readiness-summary")).toHaveTextContent(`Solver · Not solved (${token})`);
+  });
+
+  it("shows a recorded blocked model without inventing a completed result or run", async () => {
+    const model = await loadPreviewModel();
+    model.analysis_status.mechanics = "BLOCKED_before_run";
+    vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(model);
+    await renderShell();
+    expect(chipFaces()).toEqual(["Solver · Not solved"]);
+    expect(screen.getByTestId("status-pill-mechanics")).toHaveAttribute("title", "BLOCKED_before_run");
+    expect(railState("results").reason).toBe("No run yet");
+    act(() => nativeMenuCommand("view.section.solve"));
+    expect(screen.getByTestId("solve-readiness-summary")).toHaveTextContent("Solver · Not solved (BLOCKED_before_run)");
+  });
+
+  it("does not dirty the loaded source for view, theme, density or selection changes", async () => {
+    await renderShell();
+    act(() => {
+      nativeMenuCommand("view.view.table");
+      nativeMenuCommand("view.theme.dark");
+      nativeMenuCommand("view.density.compact");
+    });
+    fireEvent.click(screen.getByTestId("tree-row-node-node%3AN-100"));
+    fireEvent.change(screen.getByRole("combobox", { name: "Display units" }), { target: { value: "US" } });
+    expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+  });
 });

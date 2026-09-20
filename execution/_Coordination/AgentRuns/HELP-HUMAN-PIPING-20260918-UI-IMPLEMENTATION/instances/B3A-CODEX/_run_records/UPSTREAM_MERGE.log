@@ -1,0 +1,353 @@
+Updating f7dcbf027..7e6a7f257
+Fast-forward
+ .github/actions/setup-piping-e2e/action.yml        |   109 +
+ .github/workflows/piping-desktop-e2e.yml           |   253 +-
+ .../PIPING-CI-STRATEGY-20260920.yaml               |    39 +
+ .../apps/desktop/e2e/ui-foundation-dist.spec.ts    |    10 +-
+ projects/chirality-piping/docs/CI_STRATEGY.md      |   107 +
+ .../HANDOFF_STATE.md                               |    34 +
+ .../WORK_GRAPH.json                                |   343 +-
+ .../CI-STRATEGY-CODEX/EVIDENCE_LOCATIONS.json      |   458 +
+ .../CI-STRATEGY-CODEX/EVIDENCE_LOCATIONS.md        |     9 +
+ .../instances/CI-STRATEGY-CODEX/RETURN.md          |    71 +
+ .../CI-STRATEGY-CODEX/_run_records/barrier.json    |   571 +
+ .../_run_records/barrier.stderr.txt                |     0
+ .../_run_records/cli-barrier-list.txt              |   572 +
+ .../CI-STRATEGY-CODEX/_run_records/focused-0.json  |   571 +
+ .../_run_records/focused-0.stderr.txt              |     0
+ .../CI-STRATEGY-CODEX/_run_records/focused-1.json  |   699 ++
+ .../_run_records/focused-1.stderr.txt              |     0
+ .../CI-STRATEGY-CODEX/_run_records/focused-2.json  |   261 +
+ .../_run_records/focused-2.stderr.txt              |     0
+ .../CI-STRATEGY-CODEX/_run_records/full.json       |  8781 ++++++++++++++
+ .../CI-STRATEGY-CODEX/_run_records/full.stderr.txt |     0
+ .../CI-STRATEGY-CODEX/_run_records/hashes.json     |    22 +
+ .../_run_records/inventory-validation.json         |   165 +
+ .../_run_records/manual-plan-summary.txt           |    55 +
+ .../_run_records/manual-plan.json                  |    48 +
+ .../_run_records/repair1/after-tests.txt           |    33 +
+ .../_run_records/repair1/before-tests.txt          |    74 +
+ .../focused-collection/barrier-0.stderr.txt        |     0
+ .../focused-collection/barrier-0.stdout.json       |   691 ++
+ .../focused-collection/barrier-1.stderr.txt        |     0
+ .../focused-collection/barrier-1.stdout.json       |   699 ++
+ .../focused-collection/barrier-2.stderr.txt        |     0
+ .../focused-collection/barrier-2.stdout.json       |   261 +
+ .../repair1/focused-collection/collection.json     |  4952 ++++++++
+ .../repair1/focused-collection/source.stderr.txt   |     0
+ .../repair1/focused-collection/source.stdout.json  |  8901 +++++++++++++++
+ .../repair1/focused-collection/summary.md          |     5 +
+ .../_run_records/repair1/focused-plan-summary.txt  | 11391 +++++++++++++++++++
+ .../_run_records/repair1/focused-plan.json         | 11384 ++++++++++++++++++
+ .../repair1/full-collection/barrier-0.stderr.txt   |     0
+ .../repair1/full-collection/barrier-0.stdout.json  |   691 ++
+ .../repair1/full-collection/collection.json        |  7455 ++++++++++++
+ .../repair1/full-collection/shard-1.stderr.txt     |     0
+ .../repair1/full-collection/shard-1.stdout.json    |  3100 +++++
+ .../repair1/full-collection/shard-2.stderr.txt     |     0
+ .../repair1/full-collection/shard-2.stdout.json    |  1290 +++
+ .../repair1/full-collection/shard-3.stderr.txt     |     0
+ .../repair1/full-collection/shard-3.stdout.json    |  3032 +++++
+ .../repair1/full-collection/shard-4.stderr.txt     |     0
+ .../repair1/full-collection/shard-4.stdout.json    |  1222 ++
+ .../repair1/full-collection/source.stderr.txt      |     0
+ .../repair1/full-collection/source.stdout.json     |  8901 +++++++++++++++
+ .../repair1/full-collection/summary.md             |     5 +
+ .../_run_records/repair1/full-plan-summary.txt     |    56 +
+ .../_run_records/repair1/full-plan.json            |    49 +
+ .../_run_records/repair1/hashes.json               |    66 +
+ .../_run_records/repair1/hosted-event.json         |     1 +
+ .../shard-1-collection/barrier-0.stderr.txt        |     0
+ .../shard-1-collection/barrier-0.stdout.json       |   691 ++
+ .../repair1/shard-1-collection/collection.json     |  8283 ++++++++++++++
+ .../repair1/shard-1-collection/shard-1.stderr.txt  |     0
+ .../repair1/shard-1-collection/shard-1.stdout.json |  3100 +++++
+ .../repair1/shard-1-collection/shard-2.stderr.txt  |     0
+ .../repair1/shard-1-collection/shard-2.stdout.json |  1290 +++
+ .../repair1/shard-1-collection/shard-3.stderr.txt  |     0
+ .../repair1/shard-1-collection/shard-3.stdout.json |  3032 +++++
+ .../repair1/shard-1-collection/shard-4.stderr.txt  |     0
+ .../repair1/shard-1-collection/shard-4.stdout.json |  1222 ++
+ .../repair1/shard-1-collection/source.stderr.txt   |     0
+ .../repair1/shard-1-collection/source.stdout.json  |  8901 +++++++++++++++
+ .../repair1/shard-1-collection/summary.md          |     5 +
+ .../_run_records/repair1/working-diff.patch.txt    |   482 +
+ .../_run_records/repair1/yaml-validation.txt       |     1 +
+ .../CI-STRATEGY-CODEX/_run_records/shard-1.json    |  3100 +++++
+ .../_run_records/shard-1.stderr.txt                |     0
+ .../CI-STRATEGY-CODEX/_run_records/shard-2.json    |  1290 +++
+ .../_run_records/shard-2.stderr.txt                |     0
+ .../CI-STRATEGY-CODEX/_run_records/shard-3.json    |  3032 +++++
+ .../_run_records/shard-3.stderr.txt                |     0
+ .../CI-STRATEGY-CODEX/_run_records/shard-4.json    |  1222 ++
+ .../_run_records/shard-4.stderr.txt                |     0
+ .../CI-STRATEGY-CODEX/_run_records/unit-tests.txt  |    23 +
+ .../_run_records/validate_inventory.py.txt         |    43 +
+ .../_run_records/working-diff.patch.txt            |   837 ++
+ .../_run_records/yaml-validation.txt               |     1 +
+ .../instances/CI-STRATEGY-CODEX/repair1/RETURN.md  |    76 +
+ .../APPROVAL_RECORDS_BACKCHECK_BRIEF.md            |    14 +
+ .../APPROVED_PARITY_BACKCHECK_BRIEF.md             |    24 +
+ .../B3A_MANAGER_BRIEF_DRAFT.md                     |    73 +
+ .../B3_CI_PACKET_REVIEW_BRIEF.md                   |    29 +
+ .../B3_CI_REPAIR_MANAGER_ADDENDUM_1.md             |    22 +
+ .../B3_CI_REPAIR_MANAGER_BRIEF.md                  |    54 +
+ .../B3_CI_REPAIR_REVIEW_BRIEF.md                   |    37 +
+ .../B3_DIST_ROUNDOFF_DECISION.md                   |    57 +
+ .../B3_DIST_WHEEL_PARITY.patch.txt                 |    19 +
+ .../CI_BACKCHECK_BRIEF.md                          |    26 +
+ .../CI_CHECKOUT_FILTER_BACKCHECK_BRIEF.md          |    13 +
+ .../CI_IMPLEMENTER_ADDENDUM_1.md                   |    24 +
+ .../CI_IMPLEMENTER_BRIEF.md                        |    85 +
+ .../CI_INVENTORY_BRIEF.md                          |    28 +
+ .../CI_REPAIR_BRIEF.md                             |    50 +
+ .../CI_STRATEGY_REVIEW_BRIEF.md                    |    43 +
+ .../DIST_PARITY_PROPOSAL_REVIEW_BRIEF.md           |    18 +
+ .../EVIDENCE_CLASSIFICATION_BACKCHECK_BRIEF.md     |    17 +
+ .../I1_MANAGER_BRIEF_DRAFT.md                      |    78 +
+ .../NEXT_CONTROL_LAYER_PHASE.md                    |    85 +
+ .../OWNER_CI_REPAIR_DIRECTION.md                   |    11 +
+ .../OWNER_DIST_PARITY_APPROVAL.md                  |     9 +
+ .../OWNER_RESUME_2026-09-20.md                     |     9 +
+ .../PREPUBLICATION_RECORDS_REVIEW_BRIEF.md         |    23 +
+ .../RESUME_RECORDS_BACKCHECK_BRIEF.md              |     9 +
+ .../RESUME_RECORDS_REVIEW_BRIEF.md                 |    24 +
+ .../RUNTIME_COORDINATION_STATUS.md                 |   166 +-
+ .../APPROVAL_RECORDS_BACKCHECK_RETURN.md           |     9 +
+ .../APPROVED_PARITY_BACKCHECK_RETURN.md            |    15 +
+ .../_run_records/B3_CI_PACKET_REVIEW_RETURN.md     |    11 +
+ .../_run_records/B3_CI_REPAIR_REVIEW_RETURN.md     |    25 +
+ .../_run_records/B3_DIST_ROUNDOFF/MANIFEST.json    |    27 +
+ .../SWEEP_20260920T085415Z_065485671c7b.json       |   132 +
+ .../_run_records/B3_DIST_ROUNDOFF/error-context.md |   693 ++
+ .../_run_records/B3_DIST_ROUNDOFF/sweep.log.gz     |   Bin 0 -> 56725 bytes
+ .../_run_records/B3_DIST_ROUNDOFF/trace.zip        |   Bin 0 -> 4197350 bytes
+ .../B3_PUBLICATION_RECORDS_BACKCHECK_BRIEF.md      |    28 +
+ .../B3_PUBLICATION_RECORDS_BACKCHECK_RETURN.md     |    11 +
+ .../_run_records/CI_BACKCHECK_RETURN.md            |    24 +
+ .../CI_CHECKOUT_FILTER_BACKCHECK_RETURN.md         |    12 +
+ .../_run_records/CI_INVENTORY_RETURN.md            |    90 +
+ .../_run_records/CI_STRATEGY_REVIEW_RETURN.md      |    24 +
+ .../DIST_PARITY_PROPOSAL_REVIEW_RETURN.md          |    39 +
+ .../EVIDENCE_CLASSIFICATION_BACKCHECK_RETURN.md    |     9 +
+ .../_run_records/I1_PREPARATION_SOURCE_AUDIT.json  |    66 +
+ .../_run_records/PR825_CI_FAILURE/MANIFEST.json    |    25 +
+ .../PR825_CI_FAILURE/failed-job.log.gz             |   Bin 0 -> 22470 bytes
+ .../PREPUBLICATION_RECORDS_REVIEW_RETURN.md        |    13 +
+ .../RESUME_RECORDS_BACKCHECK_RETURN.md             |     7 +
+ .../_run_records/RESUME_RECORDS_REVIEW_RETURN.md   |     9 +
+ .../_run_records/ROOT_CI_REPAIR_NATIVE_LOOK.md     |    32 +
+ .../_run_records/ci-final-list/MANIFEST.json       |    89 +
+ .../_run_records/ci-final-list/barrier.json        |   691 ++
+ .../_run_records/ci-final-list/barrier.stderr.txt  |     0
+ .../_run_records/ci-final-list/focused-0.json      |   691 ++
+ .../ci-final-list/focused-0.stderr.txt             |     0
+ .../_run_records/ci-final-list/focused-1.json      |   699 ++
+ .../ci-final-list/focused-1.stderr.txt             |     0
+ .../_run_records/ci-final-list/focused-2.json      |   261 +
+ .../ci-final-list/focused-2.stderr.txt             |     0
+ .../_run_records/ci-final-list/full.json           |  8901 +++++++++++++++
+ .../_run_records/ci-final-list/full.stderr.txt     |     0
+ .../ci-final-list/inventory-validation.json        |   165 +
+ .../_run_records/ci-final-list/shard-1.json        |  3100 +++++
+ .../_run_records/ci-final-list/shard-1.stderr.txt  |     0
+ .../_run_records/ci-final-list/shard-2.json        |  1290 +++
+ .../_run_records/ci-final-list/shard-2.stderr.txt  |     0
+ .../_run_records/ci-final-list/shard-3.json        |  3032 +++++
+ .../_run_records/ci-final-list/shard-3.stderr.txt  |     0
+ .../_run_records/ci-final-list/shard-4.json        |  1222 ++
+ .../_run_records/ci-final-list/shard-4.stderr.txt  |     0
+ .../ci-final-list/validate_inventory.py.txt        |    43 +
+ .../evidence-classification/MANIFEST.json          |    36 +
+ .../_run_records/evidence-classification/g4.log    |    59 +
+ .../evidence-classification/harness-after.log      |     7 +
+ .../evidence-classification/harness-before.log     |    27 +
+ .../evidence-classification/selfcheck-after.log    |   158 +
+ .../evidence-classification/selfcheck-before.log   |   188 +
+ .../selfcheck-confirmed.log                        |   158 +
+ .../_run_records/final-repo-checks/MANIFEST.json   |    27 +
+ .../final-repo-checks/harness-pytest.log           |     7 +
+ .../final-repo-checks/harness-self-check.log       |   158 +
+ .../final-repo-checks/instruction-range.log        |    58 +
+ .../parity-rerun/COMBINED_VERIFICATION.json        |    64 +
+ .../_run_records/parity-rerun/ci-policy-tests.log  |    35 +
+ .../_run_records/parity-rerun/commands.json        |    30 +
+ .../_run_records/parity-rerun/full-dist.log        |   106 +
+ .../_run_records/parity-rerun/production-build.log |    32 +
+ .../NOTICE_2026-09-20_DESKTOP_CI_STRATEGY.md       |    20 +
+ projects/chirality-piping/loop/LOOP_RECEIPTS.md    |    20 +
+ .../chirality-piping/tests/test_ci_e2e_plan.py     |   369 +
+ projects/chirality-piping/tools/ci/e2e_plan.py     |   390 +
+ 178 files changed, 138276 insertions(+), 273 deletions(-)
+ create mode 100644 .github/actions/setup-piping-e2e/action.yml
+ create mode 100644 docs/governance_harness/tranche_manifests/PIPING-CI-STRATEGY-20260920.yaml
+ create mode 100644 projects/chirality-piping/docs/CI_STRATEGY.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/EVIDENCE_LOCATIONS.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/EVIDENCE_LOCATIONS.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/barrier.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/barrier.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/cli-barrier-list.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/focused-0.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/focused-0.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/focused-1.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/focused-1.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/focused-2.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/focused-2.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/full.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/full.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/hashes.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/inventory-validation.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/manual-plan-summary.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/manual-plan.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/after-tests.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/before-tests.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/focused-collection/barrier-0.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/focused-collection/barrier-0.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/focused-collection/barrier-1.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/focused-collection/barrier-1.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/focused-collection/barrier-2.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/focused-collection/barrier-2.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/focused-collection/collection.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/focused-collection/source.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/focused-collection/source.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/focused-collection/summary.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/focused-plan-summary.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/focused-plan.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/barrier-0.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/barrier-0.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/collection.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/shard-1.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/shard-1.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/shard-2.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/shard-2.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/shard-3.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/shard-3.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/shard-4.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/shard-4.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/source.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/source.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-collection/summary.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-plan-summary.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/full-plan.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/hashes.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/hosted-event.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/barrier-0.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/barrier-0.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/collection.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/shard-1.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/shard-1.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/shard-2.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/shard-2.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/shard-3.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/shard-3.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/shard-4.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/shard-4.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/source.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/source.stdout.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/shard-1-collection/summary.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/working-diff.patch.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/repair1/yaml-validation.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/shard-1.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/shard-1.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/shard-2.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/shard-2.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/shard-3.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/shard-3.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/shard-4.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/shard-4.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/unit-tests.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/validate_inventory.py.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/working-diff.patch.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/_run_records/yaml-validation.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-STRATEGY-CODEX/repair1/RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/APPROVAL_RECORDS_BACKCHECK_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/APPROVED_PARITY_BACKCHECK_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3A_MANAGER_BRIEF_DRAFT.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CI_PACKET_REVIEW_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CI_REPAIR_MANAGER_ADDENDUM_1.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CI_REPAIR_MANAGER_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CI_REPAIR_REVIEW_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_DIST_ROUNDOFF_DECISION.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_DIST_WHEEL_PARITY.patch.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_BACKCHECK_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_CHECKOUT_FILTER_BACKCHECK_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_IMPLEMENTER_ADDENDUM_1.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_IMPLEMENTER_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_INVENTORY_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_REPAIR_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_STRATEGY_REVIEW_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/DIST_PARITY_PROPOSAL_REVIEW_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/EVIDENCE_CLASSIFICATION_BACKCHECK_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/I1_MANAGER_BRIEF_DRAFT.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/NEXT_CONTROL_LAYER_PHASE.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_CI_REPAIR_DIRECTION.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_DIST_PARITY_APPROVAL.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/PREPUBLICATION_RECORDS_REVIEW_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/RESUME_RECORDS_BACKCHECK_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/RESUME_RECORDS_REVIEW_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/APPROVAL_RECORDS_BACKCHECK_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/APPROVED_PARITY_BACKCHECK_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CI_PACKET_REVIEW_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CI_REPAIR_REVIEW_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/MANIFEST.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/SWEEP_20260920T085415Z_065485671c7b.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/error-context.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/sweep.log.gz
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/trace.zip
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_PUBLICATION_RECORDS_BACKCHECK_BRIEF.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_PUBLICATION_RECORDS_BACKCHECK_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_BACKCHECK_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_CHECKOUT_FILTER_BACKCHECK_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_INVENTORY_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_STRATEGY_REVIEW_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/DIST_PARITY_PROPOSAL_REVIEW_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/EVIDENCE_CLASSIFICATION_BACKCHECK_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/I1_PREPARATION_SOURCE_AUDIT.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/MANIFEST.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/failed-job.log.gz
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PREPUBLICATION_RECORDS_REVIEW_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RESUME_RECORDS_BACKCHECK_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RESUME_RECORDS_REVIEW_RETURN.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ROOT_CI_REPAIR_NATIVE_LOOK.md
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/MANIFEST.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/barrier.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/barrier.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/focused-0.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/focused-0.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/focused-1.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/focused-1.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/focused-2.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/focused-2.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/full.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/full.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/inventory-validation.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/shard-1.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/shard-1.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/shard-2.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/shard-2.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/shard-3.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/shard-3.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/shard-4.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/shard-4.stderr.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ci-final-list/validate_inventory.py.txt
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/evidence-classification/MANIFEST.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/evidence-classification/g4.log
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/evidence-classification/harness-after.log
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/evidence-classification/harness-before.log
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/evidence-classification/selfcheck-after.log
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/evidence-classification/selfcheck-before.log
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/evidence-classification/selfcheck-confirmed.log
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-repo-checks/MANIFEST.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-repo-checks/harness-pytest.log
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-repo-checks/harness-self-check.log
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-repo-checks/instruction-range.log
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/parity-rerun/COMBINED_VERIFICATION.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/parity-rerun/ci-policy-tests.log
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/parity-rerun/commands.json
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/parity-rerun/full-dist.log
+ create mode 100644 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/parity-rerun/production-build.log
+ create mode 100644 projects/chirality-piping/execution/_Coordination/NOTICE_2026-09-20_DESKTOP_CI_STRATEGY.md
+ create mode 100644 projects/chirality-piping/tests/test_ci_e2e_plan.py
+ create mode 100644 projects/chirality-piping/tools/ci/e2e_plan.py

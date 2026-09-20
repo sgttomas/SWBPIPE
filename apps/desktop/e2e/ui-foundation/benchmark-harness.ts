@@ -261,6 +261,15 @@ export function pngPixelDigest(
 
 export const CUE_SOURCE_SHA256 = "00384d2831797e5cba8acff21e82e36f21a853c398e8c2a801ccfed0f3a55931";
 // V20S verified gesture-lifetime additions preserve primitive geometry; admit that exact source.
+// What this value is (first-profile repair of 2026-09, REPAIR_2026-09_FIRST_PROFILE.md): the SHA-256 of
+// src/features/viewport/viewportSelection.ts at product revision 8468a33c86adb622b25e98f98b0eaf28c7e9fa0e,
+// the revision the first profile's recorded runs were taken on (CHARACTERIZATION_PRODUCT_REVISION). Those
+// exact bytes are preserved as data in fixtures/frozen-oracle-geometry.ts.txt. PR #794 (commit 683cd5ab2,
+// the shared-endpoint picking repair) moved the product's file past this value, so a run whose
+// UI_FOUNDATION_CANDIDATE_SOURCE_ROOT is a current checkout stops at "winner product geometry/cue source
+// drift" below: that stop is by design. The first profile is the recorded demonstration of that revision and
+// is not rebound to a later product; a later product is bound by its own profile. The value is also stated in
+// freeze-candidate-point-oracle.mjs and the README, and the older 97b18c96... is a value this harness rejects.
 export const CUE_GEOMETRY_SOURCE_SHA256 = "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e";
 export function validateWinnerCuePlan(plan: any, probe: any): void {
   const { sha256, ...body } = plan ?? {};
@@ -472,6 +481,8 @@ export async function validateCandidateOracleBinding(fixture: LoadedFixture, pip
   for (const [sourcePath, declared, required] of [[manifest.cueSourcePath, manifest.cueSourceSha256, CUE_SOURCE_SHA256],
     [manifest.geometrySourcePath, manifest.geometrySourceSha256, CUE_GEOMETRY_SOURCE_SHA256]]) {
     if (typeof sourcePath !== "string" || !path.isAbsolute(sourcePath) || declared !== required ||
+        // For the geometry source this stop is by design on any product later than revision 8468a33c...: see the
+        // comment at CUE_GEOMETRY_SOURCE_SHA256 and REPAIR_2026-09_FIRST_PROFILE.md. It is not repaired by moving the value.
         createHash("sha256").update(await readFile(sourcePath)).digest("hex") !== required) throw new Error("winner product geometry/cue source drift");
   }
   for (const name of names) {

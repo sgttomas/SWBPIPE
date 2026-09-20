@@ -1,0 +1,19 @@
+{
+  "count": 13,
+  "allEqual": true,
+  "files": {
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixture-manifest.json": true,
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/frozen-oracle-geometry.ts.txt": true,
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-base.model.json": true,
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-expectations.json": true,
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-translated.model.json": true,
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.deformation-overlay.json": true,
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.model.json": true,
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.deformation-overlay.json": true,
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.model.json": true,
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-1000.interactions.json": true,
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-1000.point-oracle-v3.json": true,
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-10000.interactions.json": true,
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-10000.point-oracle-v3.json": true
+  }
+}

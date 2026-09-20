@@ -1,0 +1,24 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/App.test.tsx b/projects/chirality-piping/apps/desktop/src/App.test.tsx
+index 0c8a0df42..1bbcdf911 100644
+--- a/projects/chirality-piping/apps/desktop/src/App.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.test.tsx
+@@ -17354,11 +17354,14 @@ describe("workflow current and historical result boundaries", () => {
+     await screen.findByTestId("desktop-preview-shell");
+     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+     act(() => nativeMenuCommand("analyze.run"));
+-    // Slice B3, specification §5.4 rule 7: a run that did not solve lights only the registered
+-    // statuses its record carries. This value is outside the registered table, so it has no chip;
+-    // it is read in the Analyze page's readiness row (open here) and in the deformation status below.
+-    await waitFor(() => expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent(mechanics.toLowerCase().replaceAll("_", " ")));
+-    expect(screen.queryByTestId("status-pill-mechanics")).not.toBeInTheDocument();
++    // B3A display-policy amendment (owner EIGHT_UX_ITEMS item 2): an unregistered
++    // recorded solver value uses the display-only fallback, retaining its exact token
++    // in Analyze and the chip. The solved-only and deformation boundaries below remain.
++    await waitFor(() => expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent(`Solver · Not solved (${mechanics})`));
++    const mechanicsChip = screen.getByTestId("status-pill-mechanics");
++    expect(mechanicsChip).toHaveTextContent("Solver · Not solved");
++    expect(mechanicsChip).toHaveAttribute("data-status-token", mechanics);
++    expect(mechanicsChip).toHaveAttribute("title", mechanics);
+     fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
+     expect(screen.getByTestId("diagnostic-WORKFLOW_OUTCOME_DIAGNOSTIC")).toHaveTextContent("Synthetic outcome retained");
+     expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent(failedSummary);

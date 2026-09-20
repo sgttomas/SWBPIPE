@@ -1,0 +1,62 @@
+[
+  {
+    "name": "fixture-manifest-v1-superseded-before-timed-run.json",
+    "sourceHashUnchanged": true,
+    "sourceMtimeUnchanged": true,
+    "retainedCopyMatches": true
+  },
+  {
+    "name": "fixture-manifest-v2-superseded-after-baseline-load-filter-orbit.json",
+    "sourceHashUnchanged": true,
+    "sourceMtimeUnchanged": true,
+    "retainedCopyMatches": true
+  },
+  {
+    "name": "fixture-manifest-v3-superseded-before-canvas-point-timing.json",
+    "sourceHashUnchanged": true,
+    "sourceMtimeUnchanged": true,
+    "retainedCopyMatches": true
+  },
+  {
+    "name": "fixture-manifest-v4-superseded-before-candidate-camera-preflight.json",
+    "sourceHashUnchanged": true,
+    "sourceMtimeUnchanged": true,
+    "retainedCopyMatches": true
+  },
+  {
+    "name": "fixture-manifest-v5-superseded-before-resource-route-calibration.json",
+    "sourceHashUnchanged": true,
+    "sourceMtimeUnchanged": true,
+    "retainedCopyMatches": true
+  },
+  {
+    "name": "fixture-manifest-v6-superseded-before-box-policy-binding.json",
+    "sourceHashUnchanged": true,
+    "sourceMtimeUnchanged": true,
+    "retainedCopyMatches": true
+  },
+  {
+    "name": "fixture-manifest-v7-superseded-before-final-control-binding.json",
+    "sourceHashUnchanged": true,
+    "sourceMtimeUnchanged": true,
+    "retainedCopyMatches": true
+  },
+  {
+    "name": "ui-foundation-1000.interactions-v1-label-proxy.json",
+    "sourceHashUnchanged": true,
+    "sourceMtimeUnchanged": true,
+    "retainedCopyMatches": true
+  },
+  {
+    "name": "ui-foundation-10000.interactions-v1-label-proxy.json",
+    "sourceHashUnchanged": true,
+    "sourceMtimeUnchanged": true,
+    "retainedCopyMatches": true
+  },
+  {
+    "name": "README.md",
+    "sourceHashUnchanged": true,
+    "sourceMtimeUnchanged": true,
+    "retainedCopyMatches": true
+  }
+]

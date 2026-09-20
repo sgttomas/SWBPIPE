@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { expectedHitForProbe, fixtureCamera, projectPointToNdc } from "./point-hit-oracle.mjs";
@@ -17,6 +17,29 @@ const OBSERVER_BINDING_SHA256 = "8ab87d0d0d9088df085cecef7e88c4d6712b179c93dc2c6
 const BOX_SELECTION_POLICY_SHA256 = "8195cd971146d337323dd791992884ce670b766f29bbdde6abd76b82da73b310";
 const UI_TEST_BINDINGS_SHA256 = "12ea9947ff0251713b733e980f8ea7e5c536069f35a86791d82cd6300bebfbaa";
 const BASELINE_CANVAS_CSS = [919, 628];
+
+// Invocation (first-profile repair of 2026-09; see REPAIR_2026-09_FIRST_PROFILE.md):
+//   node generate-fixtures.mjs --check [--protocol-history-dir <absolute dir>]
+//     regenerates every frozen file in memory, compares it by SHA-256 and byte count with the
+//     frozen bytes on disk, and WRITES NOTHING. This is the only mode the frozen first profile needs.
+//   node generate-fixtures.mjs [--protocol-history-dir <absolute dir>]
+//     the original writing mode. It needs the nine preserved protocol-history files, and it now
+//     verifies them BEFORE the first write, so a missing history can no longer leave a partial write.
+// The original closeout kept the nine preimages as evidence, not packaged method source.
+// Recovered run evidence can now be supplied explicitly with --protocol-history-dir; the default
+// location remains supported for checkouts that hold it. No pinned hash below has changed.
+const ARGS = process.argv.slice(2);
+const CHECK = ARGS.includes("--check");
+const HISTORY_FLAG = "--protocol-history-dir";
+const checkFindings = [];
+function protocolHistoryArgument() {
+  const rest = ARGS.filter((arg) => arg !== "--check");
+  if (rest.length === 0) return null;
+  if (rest.length !== 2 || rest[0] !== HISTORY_FLAG || !path.isAbsolute(rest[1])) {
+    throw new Error(`usage: generate-fixtures.mjs [--check] [${HISTORY_FLAG} <absolute directory>]`);
+  }
+  return rest[1];
+}
 
 function round(value, places = 6) {
   const scale = 10 ** places;
@@ -405,12 +428,63 @@ function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
+async function compareWithFrozen(relativePath, bytes) {
+  let frozen = null;
+  try { frozen = await readFile(path.join(ROOT, relativePath)); } catch (error) { if (error.code !== "ENOENT") throw error; }
+  if (!frozen || frozen.length !== bytes.length || sha256(frozen) !== sha256(bytes)) {
+    checkFindings.push({ path: relativePath, generated_sha256: sha256(bytes), generated_bytes: bytes.length,
+      frozen_sha256: frozen ? sha256(frozen) : null, frozen_bytes: frozen ? frozen.length : null });
+  }
+}
+
 async function emit(relativePath, value, inventory) {
   const bytes = stableBytes(value);
-  const outputPath = path.join(ROOT, relativePath);
-  await mkdir(path.dirname(outputPath), { recursive: true });
-  await writeFile(outputPath, bytes);
+  if (CHECK) {
+    await compareWithFrozen(relativePath, bytes);
+  } else {
+    const outputPath = path.join(ROOT, relativePath);
+    await mkdir(path.dirname(outputPath), { recursive: true });
+    await writeFile(outputPath, bytes);
+  }
   inventory.push({ path: relativePath, sha256: sha256(bytes), bytes: bytes.length });
+}
+
+const PRESERVED_PROTOCOL_HISTORY = [
+  ["fixture-manifest-v1-superseded-before-timed-run.json", "285b918088cae236e38d8e9af31945782e14aed26e68440a612aef336ba939c1"],
+  ["fixture-manifest-v2-superseded-after-baseline-load-filter-orbit.json", "df35d5291c0cd39f6cc137c7af7e20758811410e8cf35f7308077aa7e62bc5b6"],
+  ["fixture-manifest-v3-superseded-before-canvas-point-timing.json", "8ca81f73de7267c66b1d2c07778e6e08f71778a151e008edb0c4e248ad234575"],
+  ["fixture-manifest-v4-superseded-before-candidate-camera-preflight.json", "d6dcc757d1024da020e4333e1f7f624243920821c04946c418384875573f72bc"],
+  ["fixture-manifest-v5-superseded-before-resource-route-calibration.json", "d086af9e6301ba5d2f55d6363576c46296713a18e19ced3dbc8666d9892309aa"],
+  ["fixture-manifest-v6-superseded-before-box-policy-binding.json", "3fe26201623736b7810ce9885a43f1ea0edb0400b0f65b4e104b842e2b5254df"],
+  ["fixture-manifest-v7-superseded-before-final-control-binding.json", "962b7970428a08eab1ff25583d85e548147220b9118d931b16d32385f95bb926"],
+  ["ui-foundation-1000.interactions-v1-label-proxy.json", "0a68da5acf202c943ad6441e8731429ed1c156fb0f7cee02493d2f9b6ede3bed"],
+  ["ui-foundation-10000.interactions-v1-label-proxy.json", "97ce2688aa79492402664ec091f2da43cb8f696fefc3c64d6b5d7b59690ac3a5"]
+];
+
+// Reads only. A supplied (or present default) directory must hold all nine files with the pinned
+// hashes, in either mode. With no directory, the check mode says so in its report and the writing
+// mode refuses before its first write.
+async function verifyPreservedProtocolHistory() {
+  const supplied = protocolHistoryArgument();
+  const fallback = path.join(ROOT, "protocol-history");
+  let directory = supplied;
+  if (!directory) {
+    try { if ((await stat(fallback)).isDirectory()) directory = fallback; } catch (error) { if (error.code !== "ENOENT") throw error; }
+  }
+  if (!directory) {
+    if (!CHECK) throw new Error(`preserved protocol history was not supplied and the default directory is absent: supply the nine files with ${HISTORY_FLAG} <absolute directory>, or use --check (which writes nothing); nothing was written`);
+    return { status: "NOT_SUPPLIED_NINE_PINNED_FILES", verified_files: 0, required_files: PRESERVED_PROTOCOL_HISTORY.length };
+  }
+  for (const [name, expectedHash] of PRESERVED_PROTOCOL_HISTORY) {
+    let bytes;
+    try { bytes = await readFile(path.join(directory, name)); } catch (error) {
+      if (error.code === "ENOENT") throw new Error(`preserved protocol history file absent: ${name}; nothing was written`);
+      throw error;
+    }
+    if (sha256(bytes) !== expectedHash) throw new Error(`preserved protocol history mismatch for ${name}: ${sha256(bytes)}; nothing was written`);
+  }
+  return { status: "VERIFIED_NINE_PINNED_HASHES", source: supplied ? "supplied-directory" : "default-directory",
+    verified_files: PRESERVED_PROTOCOL_HISTORY.length, required_files: PRESERVED_PROTOCOL_HISTORY.length };
 }
 
 function modelCounts(model) {
@@ -426,6 +500,7 @@ function modelCounts(model) {
 }
 
 async function main() {
+  const protocolHistory = await verifyPreservedProtocolHistory();
   const inventory = [];
   const fixtureSummaries = [];
   for (const size of SIZES) {
@@ -648,24 +723,18 @@ async function main() {
     },
     files: inventory.sort((a, b) => a.path.localeCompare(b.path))
   };
-  const preservedHistory = [
-    ["fixture-manifest-v1-superseded-before-timed-run.json", "285b918088cae236e38d8e9af31945782e14aed26e68440a612aef336ba939c1"],
-    ["fixture-manifest-v2-superseded-after-baseline-load-filter-orbit.json", "df35d5291c0cd39f6cc137c7af7e20758811410e8cf35f7308077aa7e62bc5b6"],
-    ["fixture-manifest-v3-superseded-before-canvas-point-timing.json", "8ca81f73de7267c66b1d2c07778e6e08f71778a151e008edb0c4e248ad234575"],
-    ["fixture-manifest-v4-superseded-before-candidate-camera-preflight.json", "d6dcc757d1024da020e4333e1f7f624243920821c04946c418384875573f72bc"],
-    ["fixture-manifest-v5-superseded-before-resource-route-calibration.json", "d086af9e6301ba5d2f55d6363576c46296713a18e19ced3dbc8666d9892309aa"],
-    ["fixture-manifest-v6-superseded-before-box-policy-binding.json", "3fe26201623736b7810ce9885a43f1ea0edb0400b0f65b4e104b842e2b5254df"],
-    ["fixture-manifest-v7-superseded-before-final-control-binding.json", "962b7970428a08eab1ff25583d85e548147220b9118d931b16d32385f95bb926"],
-    ["ui-foundation-1000.interactions-v1-label-proxy.json", "0a68da5acf202c943ad6441e8731429ed1c156fb0f7cee02493d2f9b6ede3bed"],
-    ["ui-foundation-10000.interactions-v1-label-proxy.json", "97ce2688aa79492402664ec091f2da43cb8f696fefc3c64d6b5d7b59690ac3a5"]
-  ];
-  for (const [name, expectedHash] of preservedHistory) {
-    const bytes = await readFile(path.join(ROOT, "protocol-history", name));
-    if (sha256(bytes) !== expectedHash) throw new Error(`preserved protocol history mismatch for ${name}: ${sha256(bytes)}`);
+  const generatedManifestBytes = stableBytes(manifest);
+  if (CHECK) {
+    await compareWithFrozen("fixture-manifest.json", generatedManifestBytes);
+    const status = checkFindings.length === 0 ? "PASS_CHECK_REPRODUCES_FROZEN_BYTES_NOTHING_WRITTEN" : "FAIL_CHECK_GENERATED_BYTES_DIFFER_NOTHING_WRITTEN";
+    process.stdout.write(`${JSON.stringify({ status, mode: "check", manifest_sha256: sha256(generatedManifestBytes), files: inventory.length,
+      compared_files: inventory.length + 1, differing: checkFindings, protocol_history: protocolHistory, fixtures: fixtureSummaries }, null, 2)}\n`);
+    if (checkFindings.length > 0) process.exitCode = 1;
+    return;
   }
-  await writeFile(path.join(ROOT, "fixture-manifest.json"), stableBytes(manifest));
+  await writeFile(path.join(ROOT, "fixture-manifest.json"), generatedManifestBytes);
   const manifestBytes = await readFile(path.join(ROOT, "fixture-manifest.json"));
-  process.stdout.write(`${JSON.stringify({ manifest_sha256: sha256(manifestBytes), files: inventory.length, fixtures: fixtureSummaries }, null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify({ manifest_sha256: sha256(manifestBytes), files: inventory.length, protocol_history: protocolHistory, fixtures: fixtureSummaries }, null, 2)}\n`);
 }
 
 await main();

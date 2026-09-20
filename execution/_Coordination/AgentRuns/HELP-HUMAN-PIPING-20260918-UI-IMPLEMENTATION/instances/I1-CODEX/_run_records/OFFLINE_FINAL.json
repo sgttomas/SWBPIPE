@@ -1,0 +1,42 @@
+[
+  {
+    "command": [
+      "node",
+      "e2e/ui-foundation/verify-fixtures.mjs"
+    ],
+    "exitCode": 0,
+    "outputEqualToBaseline": true
+  },
+  {
+    "command": [
+      "node",
+      "e2e/ui-foundation/verify-point-hit-oracle.mjs"
+    ],
+    "exitCode": 0,
+    "outputEqualToBaseline": true
+  },
+  {
+    "command": [
+      "node",
+      "e2e/ui-foundation/verify-box-selection-oracle.mjs"
+    ],
+    "exitCode": 0,
+    "outputEqualToBaseline": true
+  },
+  {
+    "command": [
+      "node",
+      "e2e/ui-foundation/verify-characterization-observations.mjs"
+    ],
+    "exitCode": 0,
+    "outputEqualToBaseline": true
+  },
+  {
+    "command": [
+      "node",
+      "e2e/ui-foundation/verify-causal-presentation-extractor.mjs"
+    ],
+    "exitCode": 0,
+    "outputEqualToBaseline": true
+  }
+]

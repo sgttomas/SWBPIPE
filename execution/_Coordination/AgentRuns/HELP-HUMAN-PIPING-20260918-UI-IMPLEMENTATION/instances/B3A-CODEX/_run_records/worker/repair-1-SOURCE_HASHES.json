@@ -1,0 +1,12 @@
+[
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+    "sha256": "19b6b4c15e4271b29221461b83c2dd001e54a6a5b8d05429150aa69e4d6c2a99"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+    "sha256": "334430176ec9e18b5c1d4eda21e8ccb9f2435b28bae7ccca4b79d26292dda0f6"
+  }
+]

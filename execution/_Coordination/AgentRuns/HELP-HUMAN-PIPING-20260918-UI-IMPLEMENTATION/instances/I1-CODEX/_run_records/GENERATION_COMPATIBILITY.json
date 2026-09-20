@@ -1,0 +1,26 @@
+{
+  "currentCount": 38,
+  "historicalCount": 34,
+  "addedAfterD70": [
+    "fixtures/frozen-oracle-geometry.ts.txt",
+    "fresh-demo-policy.d.mts",
+    "fresh-demo-policy.mjs",
+    "fresh-demo-policy.spec.ts"
+  ],
+  "removedFromD70": [],
+  "allNinePathSetsEqual": true,
+  "controllerSha256": "356dae65c8d58cb679c91e8665332eaf3525363b47afba11bd5881f53a6c877e",
+  "controllerDerivesCurrentCount": true,
+  "rawEvidenceErrorReferenceSearch": {
+    "command": [
+      "rg",
+      "-n",
+      "complete34 method inventory required|measurement method changed across accounting transition",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/validation/evidence"
+    ],
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": ""
+  }
+}

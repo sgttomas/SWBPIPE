@@ -1,0 +1,21 @@
+{
+  "managerBrief": {
+    "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/I1_MANAGER_BRIEF.md",
+    "sha256": "6ec8561aef37e9b36be999db87fea8730b6500732eae475e3176b8b74fd5cf12"
+  },
+  "sealedLaunchInput": {
+    "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/I1_LAUNCH_BASIS/INPUTS.json",
+    "sha256": "e126b60504d1bed6c976f942393811278da1859b6a5a734be808d7340f818798"
+  },
+  "instructionBasisMain": "7e6a7f2578e5df12ea891c2d604d0cd48e869934",
+  "postMergeHead": "81ab9de1ed3162c87b638a7811d557a579a5bc4a",
+  "manager": "I1-CODEX WORKING_ITEMS Type 1",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "parent": "ROOT HELP_HUMAN",
+  "child": "/root/i1_manager/instrument_worker",
+  "childModel": "gpt-6-astra",
+  "childReasoning": "low",
+  "mechanism": "Codex delegated-harness-native",
+  "hostBoundary": "unrestricted filesystem, instruction-enforced scope"
+}

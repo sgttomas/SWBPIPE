@@ -1,0 +1,12 @@
+{
+  "AGENTS.md": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b",
+  "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+  "projects/chirality-piping/AGENTS.md": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005",
+  "projects/chirality-piping/loop/LOOP_INIT.md": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94",
+  "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-winner-cue-plan.mjs": "be3912acc54eed699ffa05bf5ccb6ef2ee6058e84baf5ffb05af32ea0ece4886",
+  "projects/chirality-piping/apps/desktop/e2e/ui-foundation/characterization-observations.mjs": "4728148dbe80bd2e8faff25f098ed6e535cf882f8f90498d5b54361b85be7bb1",
+  "projects/chirality-piping/apps/desktop/e2e/ui-foundation/REPAIR_2026-09_FIRST_PROFILE.md": "ddffa7bad3f965363156b999025b2531dd546a770d48e1c681b2b656b1183553",
+  "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md": "9b4fc8adcbecaf7a94368a21e299c7212f2b9d720dc0e727cd31411b75c89261",
+  "projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs": "fe5216044284c86f075614177981f0d55c67a738723afb2ddf655d0e4615a0aa",
+  "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts": "3d92c1d27380216bc8dbc2906778b31b0b098bc6a6bb24b954d0b8a07ed7b725"
+}

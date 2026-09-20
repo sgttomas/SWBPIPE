@@ -1,0 +1,12 @@
+{
+  "source": "/tmp/swbpipe-b3a-i1-sweep-46436a60/sweep.log",
+  "candidate": "46436a60310819f60d6376bc87cc093c1b33b59f",
+  "rawBytes": 1800915,
+  "rawSha256": "0840efc782423c377a5804abc9cdf114d9615f292d6e64854943bf6ae331a31c",
+  "archive": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_I1_SWEEP_46436a60/sweep.log.gz",
+  "archiveSha256": "f80d830a3d1dfe3a6a537bb0182ba3372ae8c4096c7e0305fed3bc2e588014e5",
+  "verification": "decompressed bytes equal original",
+  "observedResult": "1460pass/2failed existing display-policy expectations in App.test parameterized pair; following sweep phases not qualified",
+  "archivePathBase": "owning HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION RUN root",
+  "custody": "ROOT canonical full raw payload; manager duplicate was generated/unsealed, byte equality verified after decompression, then removed at ROOT direction. Sealed repair brief retains earlier capture chronology; this manifest is current evidence pointer."
+}

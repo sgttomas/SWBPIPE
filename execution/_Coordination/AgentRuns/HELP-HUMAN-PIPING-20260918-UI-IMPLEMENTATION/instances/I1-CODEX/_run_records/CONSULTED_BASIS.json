@@ -1,0 +1,50 @@
+{
+  "currentInstructions": [
+    {
+      "origin": "AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "origin": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "origin": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "origin": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "origin": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    }
+  ],
+  "consultedHistoricalEvidence": [
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/LANE_LOG.md",
+      "sha256": "35aa9b7c3e365dca5a297182032d1c655cd9727916087b4b5d82f482e20ffd52",
+      "standing": "historical; overridden by current manager brief"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/briefs/I1-REPAIR.md",
+      "sha256": "590e1557cc913ed1b313bd1571360ea90ae146bf3df4d2e9bb6958b1307e8805",
+      "standing": "historical; overridden by current manager brief"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/returns/I1-REPAIR_RETURN.md",
+      "sha256": "fcd43c69072312cae21b74ad15954eba42e41f23df5fa88da13bbf862377214c",
+      "standing": "historical; overridden by current manager brief"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/proposals/P4_FIRST_PROFILE_REPAIR.md",
+      "sha256": "c7acfb609fb0800fcbe156bdd064326a642b42d9fbe352c2e4a071b6e14b0f09",
+      "standing": "historical; overridden by current manager brief"
+    }
+  ]
+}

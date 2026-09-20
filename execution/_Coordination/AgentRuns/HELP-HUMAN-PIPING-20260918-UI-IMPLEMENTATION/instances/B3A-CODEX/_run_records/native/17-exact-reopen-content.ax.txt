@@ -1,0 +1,116 @@
+Window: "Blank Local Model — SWBPIPE", App: SWBPIPE.
+0 standard window Blank Local Model — SWBPIPE, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: SWBPIPE, URL: tauri://localhost
+			3 container
+				4 container Toolbar
+					5 heading SWBPIPE, Value: 1
+						6 text SWBPIPE
+					7 container Blank Local Model
+						8 text Blank Local Model
+					9 container Editing tools
+						10 button (disabled) Undo model edit, Help: Nothing to undo
+						11 button (disabled) Redo model edit, Help: Nothing to redo
+						12 toggle button Select, Help: Select (⎋), Value: on
+					13 container View
+						14 toggle button Table, Help: Table view (⌘1), Value: on
+						15 toggle button Model, Help: Model view (⌘2), Value: off
+						16 toggle button Both, Help: Both view (⌘3), Value: off
+					17 button Run
+					18 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					19 container Panels
+						20 button (disabled, collapsed) Inspector, Help: Table view opens rows in place, Secondary Actions: Expand
+						21 button (disabled) Agent, Help: Agent: not available yet
+					22 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					23 summary Appearance, Value: off
+					24 container Human toolkit
+						25 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				26 container Stages
+					27 content list
+						28 toggle button Model, Value: on
+						29 toggle button Loads, Value: off
+						30 toggle button (disabled) Results, Help: No run yet, Value: off
+						31 toggle button (disabled) Review, Help: No run yet, Value: off
+					32 content list
+						33 button (collapsed) Libraries, Secondary Actions: Expand
+						34 button (collapsed) Rules, Secondary Actions: Expand
+						35 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				36 container Modeling workspace
+					37 container Tables
+						38 toggle button Model, Value: on
+						39 toggle button Review changes, Value: off
+						40 button (disabled, expanded) Collapse table drawer, Help: Table view shows the tables at full width, Secondary Actions: Collapse
+					41 container Model tree
+						42 text MODEL
+						43 container Layout grid mode
+							44 toggle button Tree, Value: off
+							45 toggle button Grid, Value: on
+						46 container Model tree filtering
+							47 container
+								48 text Filter model
+								49 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									50 text Name, ID, type, or group
+							51 text 3  of  3  model entities visible
+							52 button (disabled) Clear model tree filter
+						53 container Bulk entity grid
+							54 container Grid entity type
+								55 toggle button Nodes, Value: on
+								56 toggle button Pipes, Value: off
+								57 toggle button Supports, Value: off
+								58 toggle button Materials, Value: off
+								59 toggle button Sections, Value: off
+								60 toggle button Components, Value: off
+								61 toggle button Load Cases, Value: off
+								62 toggle button Combinations, Value: off
+							63 text 1  of  1 Nodes 0  changed cells
+							64 container Editable model entity table
+								65 table
+									66 row (selectable) ID
+LABEL
+X
+Y
+Z
+PROVENANCE
+									67 row (selectable)
+										68 cell (selectable) node:B3A-native-163409-A
+											69 toggle button node:B3A-native-163409-A, Value: off
+										70 cell (selectable)
+											71 text field (settable) node:B3A-native-163409-A Label, Value: DISPOSABLE B3A native A
+										72 cell (selectable)
+											73 text field (settable) node:B3A-native-163409-A X, Value: 1
+											74 container Quantity readout
+												75 text 1 m
+										76 cell (selectable)
+											77 text field (settable) node:B3A-native-163409-A Y, Value: 2
+											78 container Quantity readout
+												79 text 2 m
+										80 cell (selectable)
+											81 text field (settable) node:B3A-native-163409-A Z, Value: 3
+											82 container Quantity readout
+												83 text 3 m
+										84 cell (selectable)
+											85 text field (settable) node:B3A-native-163409-A Provenance, Value: Invented disposable B3A native title witness 2026-09-20
+							86 button (disabled) Queue changed cells
+							87 button (disabled) Clear grid edits
+							88 text Grid mode fans each changed cell into a structured review intent; storage remains local.
+				89 container Agent
+					90 button (disabled) Agent, Help: Agent: not available yet
+				91 container Workspace status
+					92 container Analysis statuses
+						93 button (collapsed) Solver · Model incomplete, Help: MODEL_INCOMPLETE, Secondary Actions: Expand
+					94 button (collapsed) 5 Issues, Secondary Actions: Expand
+					95 text project: project:blank-local-20260920t163409z Entered
+					96 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	97 close button
+	98 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	99 minimize button
+	100 text Blank Local Model — SWBPIPE
+101 menu bar
+	102 SWBPIPE
+	103 File
+	104 Edit
+	105 View
+	106 Insert
+	107 Analyze
+
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

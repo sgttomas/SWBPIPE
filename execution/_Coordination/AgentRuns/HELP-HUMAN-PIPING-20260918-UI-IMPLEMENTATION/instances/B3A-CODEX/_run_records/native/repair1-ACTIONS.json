@@ -1,0 +1,62 @@
+[
+  {
+    "name": "01-startup",
+    "actions": "Fresh explicit bundle launch; known invented-loop-01 clean",
+    "at": "2026-09-20T16:46:32.297Z"
+  },
+  {
+    "name": "02-own-row-content",
+    "actions": "View > Project > List local > Details > exact own163409z row; Grid to inspect saved one node A XYZ1,2,3m",
+    "at": "2026-09-20T16:47:07.300Z"
+  },
+  {
+    "name": "03-draft-review",
+    "actions": "Tree; Node tool; explicit nodeC label,XYZ7,8,9m, invented provenance; Add node only",
+    "at": "2026-09-20T16:47:20.765Z"
+  },
+  {
+    "name": "04-applied",
+    "actions": "Apply validated node C",
+    "at": "2026-09-20T16:47:25.705Z"
+  },
+  {
+    "name": "05-undo-before-save",
+    "actions": "Undo nodeC before Save returns saved A-only clean",
+    "at": "2026-09-20T16:47:31.422Z"
+  },
+  {
+    "name": "06-redo-before-save",
+    "actions": "Redo nodeC restores A+C unsaved",
+    "at": "2026-09-20T16:47:35.334Z"
+  },
+  {
+    "name": "07-native-save",
+    "actions": "File > Save Local Project on own A+C snapshot; Project summary visible",
+    "at": "2026-09-20T16:47:52.566Z"
+  },
+  {
+    "name": "08-undo-after-save",
+    "actions": "Close Project; Undo returns prior A-only contents now Edited relative to saved A+C",
+    "at": "2026-09-20T16:48:03.217Z"
+  },
+  {
+    "name": "09-redo-after-save",
+    "actions": "Redo restores saved A+C contents and clean title/heading",
+    "at": "2026-09-20T16:48:07.335Z"
+  },
+  {
+    "name": "10-exact-reopen",
+    "actions": "View > Project > exact own163409z button; reopen saved A+C and clear history",
+    "at": "2026-09-20T16:48:30.041Z"
+  },
+  {
+    "name": "11-persisted-content",
+    "actions": "Close inspector; Grid inspect exact reopened A1,2,3m and C7,8,9m; two nodes, no edits/history",
+    "at": "2026-09-20T16:48:36.057Z"
+  },
+  {
+    "name": "12-handoff",
+    "actions": "Restore Tree; Model/Both Entered units unchanged; clean saved ownrow with A+C, no history, inspector closed, tools disarmed",
+    "at": "2026-09-20T16:48:43.024Z"
+  }
+]

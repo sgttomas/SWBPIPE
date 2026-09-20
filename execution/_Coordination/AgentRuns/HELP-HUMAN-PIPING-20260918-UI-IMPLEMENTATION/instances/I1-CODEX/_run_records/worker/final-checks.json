@@ -1,0 +1,19 @@
+{
+  "frozen_files": 13,
+  "all_unchanged": true,
+  "port5174_listener": false,
+  "full_suite": {
+    "passed": 92,
+    "skipped": 20,
+    "exit": 0
+  },
+  "focused_final": {
+    "passed": 6,
+    "exit": 0
+  },
+  "expected_drift_refusal": {
+    "failed_as_expected": 1,
+    "exit": 1
+  },
+  "git_diff_check_exit": 0
+}
