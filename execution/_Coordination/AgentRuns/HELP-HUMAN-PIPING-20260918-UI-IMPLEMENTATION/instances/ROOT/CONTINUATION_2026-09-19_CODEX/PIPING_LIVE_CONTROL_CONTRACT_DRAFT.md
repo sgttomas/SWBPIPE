@@ -10,7 +10,7 @@ Peer dev - app additionally reports this owner condition in its session: “I ag
 
 ## Transport and ownership
 
-Keep one transport-neutral application contract: controller adapter → Piping private local app bridge → existing live workspace controller. The actual bundled Codex0.155.0-alpha.9.2 probe used a2025-06-18 initialize handshake and failed against the strict modern server; that tested MCP route is unqualified. ROOT and the Runtime lead now recommend a small JSON CLI as the first adapter, subject to the owner choosing it. Codex can invoke that CLI through its existing command tool; describe/help supplies discovery. MCP may be a later thin adapter when its actual client meets the owner's V2 condition. Do not implement both now or silently substitute the CLI for an unresolved owner choice. Explicit application references remain required with either adapter.
+Keep one transport-neutral application contract: controller adapter → Piping private local app bridge → existing live workspace controller. The actual bundled Codex0.155.0-alpha.9.2 probe used a2025-06-18 initialize handshake and failed against the strict modern server; that tested MCP route is unqualified. The owner accepted the two leads' recommendation of a small JSON CLI as the first adapter (OWNER_CLI_PROTOCOL_DISPOSITION_PEER_2026-09-20.md). Codex can invoke that CLI through its existing command tool; describe/help supplies discovery. MCP may be a later thin adapter when its actual client meets the owner's V2 condition. Implement only the selected first adapter after bounded activation; a future MCP adapter still needs its own modern-client qualification. Explicit application references remain required with either adapter.
 
 Piping HELP_HUMAN retains controller, private bridge, selected adapter, fixtures and Piping documentation. The Runtime lead provides read-only interface/protocol review and its separately bounded client compatibility evidence; no Runtime/shared Root source change is currently justified. Any later shared-file change requires an explicitly agreed writer.
 
@@ -68,9 +68,9 @@ Only then extend the contract as needed for supported case preparation, solve/st
 
 ## Work sequence and activation boundary
 
-Finish the current B3B/C3/CI integration. Peer reviews this revised domain contract; the owner selects the first adapter in light of the measured modern-client incompatibility. Reconcile any substantive interface disagreement with the owner. Prepare one bounded implementation activation with exact file ownership and the current live-binding ruling addressed; a product design discussion alone does not claim that held stage is active.
+Finish the current B3B/C3/CI integration. Peer reviews this revised domain contract; the owner has selected CLI first in light of the measured modern-client incompatibility. Reconcile any substantive interface disagreement with the owner. Prepare one bounded implementation activation with exact file ownership and the current live-binding ruling addressed; a product design discussion alone does not claim that held stage is active.
 
 B4 table work already targets App/workspaceSession/styles, so live-controller integration cannot be assigned a competing writer there. Use one shell/controller writer or an acknowledged handoff. Canvas label work may run independently once its own protected product questions are resolved. Serialize native/CUA/guest interaction and browser ports; no UI/build work alongside later timed qualification. Runtime qualification can proceed independently with disjoint files and no shared desktop use.
 
-Current holds: exact modern-client compatibility; concrete live-binding activation; chosen guest/provider/access witness; any required durable receipt carrier or unattended-apply decision. Current code, source review, qualification and release remain separate facts.
+Current holds: concrete live-binding activation; future MCP actual-client compatibility; chosen guest/provider/access witness; any required durable receipt carrier or unattended-apply decision. Current code, source review, qualification and release remain separate facts.
 
