@@ -544,3 +544,75 @@ describe("the pointer rule: a key only accelerates a visible control", () => {
     expect(rail("loads")).toHaveAttribute("aria-current", "page");
   });
 });
+
+
+describe("routing borrows the inspector", () => {
+  it.each([true, false])("restores the prior collapsed state %s after routing ends", async (collapsed) => {
+    const surfaces = await renderShell();
+    if (!collapsed) fireEvent.click(screen.getByTestId("toggle-inspector"));
+    expect(surfaces.classList.contains("inspector-collapsed")).toBe(collapsed);
+    fireEvent.click(screen.getByTestId("command-pipe"));
+    expect(surfaces).not.toHaveClass("inspector-collapsed");
+    const routing = document.getElementById("shell-routing-panel")!;
+    expect(routing.querySelector(".viewport-intents.active")).not.toBeNull();
+    expect(document.querySelector(".viewport-shell > .viewport-intents.active")).toBeNull();
+    fireEvent.click(screen.getByTestId("workspace-select"));
+    expect(surfaces.classList.contains("inspector-collapsed")).toBe(collapsed);
+  });
+
+  it("reveals Both view for routing from Table and returns focus before hiding the inspector", async () => {
+    const surfaces = await renderShell();
+    fireEvent.click(screen.getByTestId("view-switch-table"));
+    act(() => nativeMenuCommand("insert.node"));
+    expect(surfaces).toHaveAttribute("data-view", "both");
+    expect(surfaces).not.toHaveClass("inspector-collapsed");
+    const routing = document.getElementById("shell-routing-panel")!;
+    const control = routing.querySelector<HTMLElement>("input, button")!;
+    control.focus();
+    act(() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
+    expect(surfaces).toHaveClass("inspector-collapsed");
+    expect(screen.getByTestId("workspace-select")).toHaveFocus();
+  });
+});
+
+describe("native shell command equivalence", () => {
+  it("uses the shared sink for native views, stages and appearance, and publishes matching menu state", async () => {
+    const surfaces = await renderShell();
+    setTauriRuntime(true);
+    invokeMock.mockImplementation((command: string) => command === "sync_native_shell_state" ? Promise.resolve(undefined) : Promise.reject(new Error(`Unavailable test command ${command}`)));
+    act(() => nativeMenuCommand("view.view.model"));
+    expect(surfaces).toHaveAttribute("data-view", "model");
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("sync_native_shell_state", {
+      state: expect.objectContaining({ stage: "model", view: "model", inspectorOpen: true, resultsStageEnabled: false, reviewStageEnabled: false, canUndo: false, canRedo: false, canRun: true, canCancel: false })
+    }));
+    act(() => nativeMenuCommand("view.view.both"));
+    expect(surfaces).toHaveClass("inspector-collapsed");
+    // The native menu owns Cmd-I. A webview key event cannot also toggle it.
+    fireEvent.keyDown(window, { key: "i", metaKey: true });
+    expect(surfaces).toHaveClass("inspector-collapsed");
+    act(() => nativeMenuCommand("view.inspector"));
+    expect(surfaces).not.toHaveClass("inspector-collapsed");
+    act(() => nativeMenuCommand("view.stage.loads"));
+    expect(rail("loads")).toHaveAttribute("aria-current", "page");
+    act(() => nativeMenuCommand("view.stage.review"));
+    expect(rail("loads")).toHaveAttribute("aria-current", "page");
+    act(() => nativeMenuCommand("view.theme.dark"));
+    act(() => nativeMenuCommand("view.density.compact"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("sync_native_shell_state", {
+      state: expect.objectContaining({ stage: "loads", view: "table", theme: "dark", density: "compact", inspectorOpen: false })
+    }));
+  });
+});
+
+
+it("an explicit native Inspector choice during routing supersedes automatic restoration", async () => {
+  const surfaces = await renderShell();
+  fireEvent.click(screen.getByTestId("command-node"));
+  expect(surfaces).not.toHaveClass("inspector-collapsed");
+  act(() => nativeMenuCommand("view.inspector"));
+  expect(surfaces).toHaveClass("inspector-collapsed");
+  act(() => nativeMenuCommand("view.inspector"));
+  expect(surfaces).not.toHaveClass("inspector-collapsed");
+  fireEvent.click(screen.getByTestId("workspace-select"));
+  expect(surfaces).not.toHaveClass("inspector-collapsed");
+});

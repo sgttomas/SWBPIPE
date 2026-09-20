@@ -24,7 +24,7 @@ export type UiPreferences = Readonly<{
 // error and is written back unchanged; nothing is migrated, and the storage key
 // and the version stay. A record without the two new fields takes their defaults.
 export const BOTH_SPLIT_PCT_BOUNDS = Object.freeze({ min: 15, max: 85, fallback: 55 });
-export const TABLE_DRAWER_PX_BOUNDS = Object.freeze({ min: 120, max: 600, fallback: 280 });
+export const TABLE_DRAWER_PX_BOUNDS = Object.freeze({ min: 180, max: 600, fallback: 280 });
 
 const DEFAULTS: UiPreferences = freezePreferences({
   version: UI_PREFERENCES_VERSION,

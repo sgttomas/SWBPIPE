@@ -277,6 +277,34 @@ describe("viewport resource primitives", () => {
     expect(renderer.setViewport).toHaveBeenNthCalledWith(1, 8, 0, 60, 60);
   });
 
+  it("moves the painted orientation frame above presentation clearance without changing its normal size", () => {
+    const renderer = {
+      autoClear: true,
+      getViewport: vi.fn((target: THREE.Vector4) => target.set(0, 0, 300, 200)),
+      getScissor: vi.fn((target: THREE.Vector4) => target.set(0, 0, 300, 200)),
+      getScissorTest: vi.fn(() => false),
+      setScissorTest: vi.fn(), setScissor: vi.fn(), setViewport: vi.fn(), clearDepth: vi.fn(), render: vi.fn()
+    };
+    const invalidate = vi.fn();
+    const fake = Object.assign(Object.create(ViewportResource.prototype), {
+      host: { clientWidth: 300, clientHeight: 200 }, renderer,
+      camera: new THREE.PerspectiveCamera(), controls: { target: new THREE.Vector3() },
+      gizmoCamera: new THREE.PerspectiveCamera(45, 1, 0.1, 100), gizmoScene: new THREE.Scene(),
+      presentationBottomInsetPx: 0,
+      invalidate
+    }) as ViewportResource;
+    fake.camera.position.set(3, 2, 4);
+
+    fake.setPresentationBottomInsetPx(28);
+    expect(invalidate).toHaveBeenCalledTimes(1);
+    (fake as unknown as { renderGizmo(): void }).renderGizmo();
+    expect(renderer.setScissor).toHaveBeenNthCalledWith(1, 8, 36, GIZMO_MAX_CSS_SIZE, GIZMO_MAX_CSS_SIZE);
+    expect(renderer.setViewport).toHaveBeenNthCalledWith(1, 8, 36, GIZMO_MAX_CSS_SIZE, GIZMO_MAX_CSS_SIZE);
+
+    fake.setPresentationBottomInsetPx(Number.NaN);
+    expect(invalidate).toHaveBeenCalledTimes(2);
+  });
+
   it("keeps complete XYZ badge bounds inside the gizmo scissor across orbit orientations", () => {
     const renderer = {
       autoClear: true,

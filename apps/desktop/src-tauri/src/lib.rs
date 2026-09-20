@@ -25,7 +25,7 @@ use std::{
     sync::{Arc, Mutex, MutexGuard},
     time::{SystemTime, UNIX_EPOCH},
 };
-use tauri::menu::{MenuBuilder, SubmenuBuilder};
+use tauri::menu::{CheckMenuItemBuilder, MenuBuilder, MenuItemKind, SubmenuBuilder};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::DialogExt;
 
@@ -3802,6 +3802,190 @@ fn delete_local_library(
 
 const NATIVE_MENU_DOM_EVENT: &str = "openpipestress-native-menu-command";
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct NativeShellState {
+    project_name: Option<String>,
+    stage: String,
+    view: String,
+    theme: String,
+    density: String,
+    results_stage_enabled: bool,
+    review_stage_enabled: bool,
+    inspector_open: bool,
+    can_undo: bool,
+    can_redo: bool,
+    can_run: bool,
+    can_cancel: bool,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct NativeShellStateReceipt {
+    window_title: String,
+    stage: String,
+    view: String,
+    theme: String,
+    density: String,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum NativeMenuMutation {
+    Checked(&'static str, bool),
+    Enabled(&'static str, bool),
+}
+
+fn normalized_project_name(project_name: Option<&str>) -> Option<String> {
+    project_name
+        .map(|name| name.split_whitespace().collect::<Vec<_>>().join(" "))
+        .filter(|name| !name.is_empty())
+}
+
+fn native_window_title(project_name: Option<&str>) -> String {
+    normalized_project_name(project_name)
+        .map(|name| format!("{name} — SWBPIPE"))
+        .unwrap_or_else(|| "SWBPIPE".to_string())
+}
+
+fn validate_native_shell_state(state: &NativeShellState) -> Result<(), String> {
+    fn one_of(value: &str, field: &str, allowed: &[&str]) -> Result<(), String> {
+        if allowed.contains(&value) {
+            Ok(())
+        } else {
+            Err(format!(
+                "NATIVE-SHELL-STATE-INVALID: unsupported {field} value {value:?}"
+            ))
+        }
+    }
+
+    one_of(
+        &state.stage,
+        "stage",
+        &["model", "loads", "results", "review"],
+    )?;
+    one_of(&state.view, "view", &["table", "model", "both"])?;
+    one_of(&state.theme, "theme", &["light", "dark", "system"])?;
+    one_of(&state.density, "density", &["comfortable", "compact"])?;
+    if state.stage == "review" && state.view != "table" {
+        return Err("NATIVE-SHELL-STATE-INVALID: Review stage must use Table view".to_string());
+    }
+    Ok(())
+}
+
+fn native_menu_mutations(state: &NativeShellState) -> Vec<NativeMenuMutation> {
+    let mut mutations = Vec::new();
+    for (id, value) in [
+        ("view.stage.model", state.stage == "model"),
+        ("view.stage.loads", state.stage == "loads"),
+        ("view.stage.results", state.stage == "results"),
+        ("view.stage.review", state.stage == "review"),
+        ("view.view.table", state.view == "table"),
+        ("view.view.model", state.view == "model"),
+        ("view.view.both", state.view == "both"),
+        ("view.inspector", state.inspector_open),
+        ("view.theme.light", state.theme == "light"),
+        ("view.theme.dark", state.theme == "dark"),
+        ("view.theme.system", state.theme == "system"),
+        ("view.density.comfortable", state.density == "comfortable"),
+        ("view.density.compact", state.density == "compact"),
+    ] {
+        mutations.push(NativeMenuMutation::Checked(id, value));
+    }
+    for (id, value) in [
+        ("view.view.table", true),
+        ("view.view.model", state.stage != "review"),
+        ("view.view.both", state.stage != "review"),
+        ("view.inspector", state.view == "both"),
+        ("view.stage.results", state.results_stage_enabled),
+        ("view.stage.review", state.review_stage_enabled),
+        ("edit.undo", state.can_undo),
+        ("edit.redo", state.can_redo),
+        ("analyze.run", state.can_run),
+        ("analyze.cancel", state.can_cancel),
+    ] {
+        mutations.push(NativeMenuMutation::Enabled(id, value));
+    }
+    mutations
+}
+
+fn find_native_menu_item<R: tauri::Runtime>(
+    items: Vec<MenuItemKind<R>>,
+    id: &str,
+) -> Option<MenuItemKind<R>> {
+    for item in items {
+        if item.id().0 == id {
+            return Some(item);
+        }
+        if let Some(submenu) = item.as_submenu() {
+            if let Some(found) = find_native_menu_item(submenu.items().unwrap_or_default(), id) {
+                return Some(found);
+            }
+        }
+    }
+    None
+}
+
+fn set_native_menu_item_enabled<R: tauri::Runtime>(
+    menu: &tauri::menu::Menu<R>,
+    id: &str,
+    enabled: bool,
+) -> Result<(), String> {
+    let item = find_native_menu_item(menu.items().map_err(|error| error.to_string())?, id)
+        .ok_or_else(|| format!("NATIVE-MENU-ITEM-MISSING: {id}"))?;
+    match item {
+        MenuItemKind::MenuItem(item) => item.set_enabled(enabled),
+        MenuItemKind::Check(item) => item.set_enabled(enabled),
+        _ => return Err(format!("NATIVE-MENU-ITEM-KIND-INVALID: {id}")),
+    }
+    .map_err(|error| error.to_string())
+}
+
+fn set_native_menu_item_checked<R: tauri::Runtime>(
+    menu: &tauri::menu::Menu<R>,
+    id: &str,
+    checked: bool,
+) -> Result<(), String> {
+    let item = find_native_menu_item(menu.items().map_err(|error| error.to_string())?, id)
+        .ok_or_else(|| format!("NATIVE-MENU-ITEM-MISSING: {id}"))?;
+    item.as_check_menuitem()
+        .ok_or_else(|| format!("NATIVE-MENU-ITEM-KIND-INVALID: {id}"))?
+        .set_checked(checked)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn sync_native_shell_state(
+    app: AppHandle,
+    state: NativeShellState,
+) -> Result<NativeShellStateReceipt, String> {
+    validate_native_shell_state(&state)?;
+    let menu = app
+        .menu()
+        .ok_or_else(|| "NATIVE-MENU-UNAVAILABLE: application menu is not installed".to_string())?;
+    for mutation in native_menu_mutations(&state) {
+        match mutation {
+            NativeMenuMutation::Checked(id, checked) => {
+                set_native_menu_item_checked(&menu, id, checked)?
+            }
+            NativeMenuMutation::Enabled(id, enabled) => {
+                set_native_menu_item_enabled(&menu, id, enabled)?
+            }
+        }
+    }
+    let title = native_window_title(state.project_name.as_deref());
+    app.get_webview_window("main")
+        .ok_or_else(|| "NATIVE-WINDOW-UNAVAILABLE: main webview is not installed".to_string())?
+        .set_title(&title)
+        .map_err(|error| error.to_string())?;
+    Ok(NativeShellStateReceipt {
+        window_title: title,
+        stage: state.stage,
+        view: state.view,
+        theme: state.theme,
+        density: state.density,
+    })
+}
+
 fn native_menu_dispatch_script(command_id: &str) -> String {
     let command_json = serde_json::to_string(command_id)
         .expect("serializing a native menu command id to JSON cannot fail");
@@ -3853,9 +4037,65 @@ fn build_app_menu<R: tauri::Runtime>(
         .select_all()
         .build()?;
 
+    let view_table = CheckMenuItemBuilder::with_id("view.view.table", "Table View")
+        .checked(false)
+        .accelerator("CmdOrCtrl+1")
+        .build(handle)?;
+    let view_model = CheckMenuItemBuilder::with_id("view.view.model", "Model View")
+        .checked(false)
+        .accelerator("CmdOrCtrl+2")
+        .build(handle)?;
+    let view_both = CheckMenuItemBuilder::with_id("view.view.both", "Both View")
+        .checked(true)
+        .accelerator("CmdOrCtrl+3")
+        .build(handle)?;
+    let stage_model = CheckMenuItemBuilder::with_id("view.stage.model", "Model Stage")
+        .checked(true)
+        .build(handle)?;
+    let stage_loads = CheckMenuItemBuilder::with_id("view.stage.loads", "Loads Stage")
+        .checked(false)
+        .build(handle)?;
+    let stage_results = CheckMenuItemBuilder::with_id("view.stage.results", "Results Stage")
+        .enabled(false)
+        .checked(false)
+        .build(handle)?;
+    let stage_review = CheckMenuItemBuilder::with_id("view.stage.review", "Review Stage")
+        .enabled(false)
+        .checked(false)
+        .build(handle)?;
+    let inspector = CheckMenuItemBuilder::with_id("view.inspector", "Inspector")
+        .checked(false)
+        .accelerator("CmdOrCtrl+I")
+        .build(handle)?;
+    let theme_light = CheckMenuItemBuilder::with_id("view.theme.light", "Light")
+        .checked(false)
+        .build(handle)?;
+    let theme_dark = CheckMenuItemBuilder::with_id("view.theme.dark", "Dark")
+        .checked(false)
+        .build(handle)?;
+    let theme_system = CheckMenuItemBuilder::with_id("view.theme.system", "System")
+        .checked(true)
+        .build(handle)?;
+    let density_comfortable =
+        CheckMenuItemBuilder::with_id("view.density.comfortable", "Comfortable Density")
+            .checked(true)
+            .build(handle)?;
+    let density_compact = CheckMenuItemBuilder::with_id("view.density.compact", "Compact Density")
+        .checked(false)
+        .build(handle)?;
+
     let view = SubmenuBuilder::new(handle, "View")
+        .item(&view_table)
+        .item(&view_model)
+        .item(&view_both)
+        .separator()
+        .item(&stage_model)
+        .item(&stage_loads)
+        .item(&stage_results)
+        .item(&stage_review)
+        .separator()
         .text("view.tree", "Model Tree")
-        .text("view.inspector", "Inspector")
+        .item(&inspector)
         .separator()
         .text("view.section.operations", "Operation Apply")
         .text("view.section.loads", "Load Cases")
@@ -3872,6 +4112,13 @@ fn build_app_menu<R: tauri::Runtime>(
         .text("view.audit", "Audit & Boundaries Drawer")
         .separator()
         .text("view.close-panels", "Close Panel (show viewport)")
+        .separator()
+        .item(&theme_light)
+        .item(&theme_dark)
+        .item(&theme_system)
+        .separator()
+        .item(&density_comfortable)
+        .item(&density_compact)
         .build()?;
 
     let insert = SubmenuBuilder::new(handle, "Insert")
@@ -4346,6 +4593,7 @@ pub fn run() {
             open_local_project,
             list_local_projects,
             save_local_project,
+            sync_native_shell_state,
             validate_rule_pack,
             compute_rule_pack_document_checksum,
             save_local_rule_pack,
@@ -4614,6 +4862,96 @@ mod tests {
         );
         let escaped = native_menu_dispatch_script("view.section.\"report\"");
         assert!(escaped.contains("view.section.\\\"report\\\""));
+    }
+
+    fn sample_native_shell_state() -> NativeShellState {
+        NativeShellState {
+            project_name: Some("Loop 4 header".to_string()),
+            stage: "loads".to_string(),
+            view: "table".to_string(),
+            theme: "dark".to_string(),
+            density: "compact".to_string(),
+            results_stage_enabled: true,
+            review_stage_enabled: false,
+            inspector_open: false,
+            can_undo: true,
+            can_redo: false,
+            can_run: true,
+            can_cancel: false,
+        }
+    }
+
+    #[test]
+    fn native_shell_state_accepts_only_supported_menu_domains() {
+        let state = sample_native_shell_state();
+        assert!(validate_native_shell_state(&state).is_ok());
+
+        for (field, value) in [
+            ("stage", "libraries"),
+            ("view", "split"),
+            ("theme", "auto"),
+            ("density", "dense"),
+        ] {
+            let mut invalid = sample_native_shell_state();
+            match field {
+                "stage" => invalid.stage = value.to_string(),
+                "view" => invalid.view = value.to_string(),
+                "theme" => invalid.theme = value.to_string(),
+                "density" => invalid.density = value.to_string(),
+                _ => unreachable!(),
+            }
+            let error = validate_native_shell_state(&invalid).unwrap_err();
+            assert!(error.contains(field));
+            assert!(error.contains(value));
+        }
+
+        let mut invalid_review = sample_native_shell_state();
+        invalid_review.stage = "review".to_string();
+        invalid_review.view = "both".to_string();
+        assert_eq!(
+            validate_native_shell_state(&invalid_review).unwrap_err(),
+            "NATIVE-SHELL-STATE-INVALID: Review stage must use Table view"
+        );
+    }
+
+    #[test]
+    fn native_shell_state_projects_checks_and_enabled_actions() {
+        let mutations = native_menu_mutations(&sample_native_shell_state());
+        for expected in [
+            NativeMenuMutation::Checked("view.stage.loads", true),
+            NativeMenuMutation::Checked("view.stage.model", false),
+            NativeMenuMutation::Checked("view.view.table", true),
+            NativeMenuMutation::Checked("view.theme.dark", true),
+            NativeMenuMutation::Checked("view.density.compact", true),
+            NativeMenuMutation::Enabled("view.stage.results", true),
+            NativeMenuMutation::Enabled("view.stage.review", false),
+            NativeMenuMutation::Enabled("view.inspector", false),
+            NativeMenuMutation::Enabled("edit.undo", true),
+            NativeMenuMutation::Enabled("edit.redo", false),
+            NativeMenuMutation::Enabled("analyze.run", true),
+            NativeMenuMutation::Enabled("analyze.cancel", false),
+        ] {
+            assert!(mutations.contains(&expected), "missing {expected:?}");
+        }
+    }
+
+    #[test]
+    fn native_window_title_uses_normalized_project_identity() {
+        assert_eq!(native_window_title(None), "SWBPIPE");
+        assert_eq!(native_window_title(Some("  \n\t")), "SWBPIPE");
+        assert_eq!(
+            native_window_title(Some("  Loop 4\nheader  ")),
+            "Loop 4 header — SWBPIPE"
+        );
+    }
+
+    #[test]
+    fn native_window_minimum_is_1280_by_800() {
+        let config: Value = serde_json::from_str(include_str!("../tauri.conf.json"))
+            .expect("Tauri configuration parses");
+        let window = &config["app"]["windows"][0];
+        assert_eq!(window["minWidth"], json!(1280));
+        assert_eq!(window["minHeight"], json!(800));
     }
 
     fn unit_entry<'a>(catalog: &'a UnitCatalogResponse, unit_id: &str) -> &'a UnitCatalogEntry {

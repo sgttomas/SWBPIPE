@@ -1,3 +1,5 @@
+import { invoke } from "@tauri-apps/api/core";
+
 // Native macOS menu bridge (TP-R3UX-CADSHELL).
 //
 // The Tauri shell owns an OS-level menu bar (File/Edit/View/Insert/Analyze).
@@ -29,4 +31,25 @@ export async function listenToNativeMenu(
     onCommand(event.payload);
   });
   return unlisten;
+}
+
+/** Presentation state only; native commands still use the one session sink. */
+export interface NativeShellState {
+  projectName: string | null;
+  stage: string;
+  view: string;
+  theme: string;
+  density: string;
+  resultsStageEnabled: boolean;
+  reviewStageEnabled: boolean;
+  inspectorOpen: boolean;
+  canUndo: boolean;
+  canRedo: boolean;
+  canRun: boolean;
+  canCancel: boolean;
+}
+
+export async function syncNativeShellState(state: NativeShellState): Promise<void> {
+  if (!isTauriRuntime()) return;
+  await invoke("sync_native_shell_state", { state });
 }

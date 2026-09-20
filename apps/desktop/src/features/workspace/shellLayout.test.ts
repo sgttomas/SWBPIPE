@@ -467,12 +467,14 @@ describe("the regions' designed geometry", () => {
     expect(model.tablePane).toEqual({ x: 56, y: 848, width: 1000, height: 28 });
   });
 
-  it("takes the Both view's inspector from the canvas, never from the table", () => {
+  it("borrows the Both view's inspector from the table and preserves the default canvas", () => {
     const closed = shellGeometry({ width: 1440, height: 900 }, "both");
     const open = shellGeometry({ width: 1440, height: 900 }, "both", { inspectorOpen: true });
-    expect(open.tablePane).toEqual(closed.tablePane);
-    expect(open.canvas).toEqual({ x: 793, y: 48, width: 303, height: 828 });
+    expect(open.tablePane).toEqual({ x: 56, y: 48, width: 437, height: 828 });
+    expect(open.canvas).toEqual({ x: 493, y: 48, width: 603, height: 828 });
     expect(open.inspector).toEqual({ x: 1096, y: 48, width: 300, height: 828 });
+    expect(open.canvas?.width).toBe(closed.canvas?.width);
+    expect(open.canvas?.x).not.toBe(closed.canvas?.x);
   });
 
   it("opens the Model view's drawer under the canvas and beside the inspector", () => {
@@ -489,25 +491,21 @@ describe("the regions' designed geometry", () => {
     expect(table.inspector).toBeNull();
   });
 
-  it("INTERIM: with the canvas's authoring panel on screen, the docked inspector takes its width from the table pane", () => {
+  it("always lends the docked inspector from the table before consuming canvas width", () => {
     for (const [width, height, table, canvas] of [[1440, 900, 437, 603], [1280, 800, 349, 531]] as const) {
-      const lent = shellGeometry({ width, height }, "both", { inspectorOpen: true, canvasAuthoringPanel: true });
+      const lent = shellGeometry({ width, height }, "both", { inspectorOpen: true });
       expect([lent.tablePane.width, lent.canvas?.width, lent.inspector?.width]).toEqual([table, canvas, 300]);
-      // No tool armed and nothing pending: the specification's rule, the table does not move.
-      const spec = shellGeometry({ width, height }, "both", { inspectorOpen: true });
-      expect([spec.tablePane.width, spec.canvas?.width]).toEqual([table + 300, canvas - 300]);
-      // Inspector closed: the panel changes nothing.
-      expect(shellGeometry({ width, height }, "both", { canvasAuthoringPanel: true }).tablePane.width).toBe(table + 300);
+      expect(shellGeometry({ width, height }, "both").tablePane.width).toBe(table + 300);
     }
     // The table pane lends down to 320 px and no further; the canvas gives the rest.
-    const tight = shellGeometry({ width: 1440, height: 900 }, "both", { bothSplit: 0.3, inspectorOpen: true, canvasAuthoringPanel: true });
+    const tight = shellGeometry({ width: 1440, height: 900 }, "both", { bothSplit: 0.3, inspectorOpen: true });
     expect([tight.tablePane.width, tight.canvas?.width]).toEqual([320, 720]);
-    const tighter = shellGeometry({ width: 1440, height: 900 }, "both", { bothSplit: 0.2, inspectorOpen: true, canvasAuthoringPanel: true });
+    const tighter = shellGeometry({ width: 1440, height: 900 }, "both", { bothSplit: 0.2, inspectorOpen: true });
     expect([tighter.tablePane.width, tighter.canvas?.width]).toEqual([268, 772]);
     expect(SHELL_REGIONS.tablePaneLendingMinPx).toBe(320);
   });
 
-  it("INTERIM: knows the canvas's authoring panel from the session's cells", () => {
+  it("knows when the routing editor borrows the inspector from the session's cells", () => {
     expect(canvasAuthoringPanelActive(null, [])).toBe(false);
     for (const tool of ["node", "pipe", "component"]) expect(canvasAuthoringPanelActive(tool, [])).toBe(true);
     // Support opens the inspector and Load opens the Loads stage: neither shows the canvas's panel.
@@ -518,11 +516,10 @@ describe("the regions' designed geometry", () => {
   });
 
   it("stops the splitter where the canvas would fall under 220 px", () => {
-    expect(clampBothSplit(0.55, 1340, false)).toBe(0.55);
-    expect(clampBothSplit(0.99, 1340, false)).toBeCloseTo((1340 - 220) / 1340, 10);
-    expect(clampBothSplit(0.99, 1340, true)).toBeCloseTo((1340 - 520) / 1340, 10);
-    expect(clampBothSplit(-1, 1340, false)).toBe(0);
-    expect(clampBothSplit(Number.NaN, 1340, false)).toBe(0.55);
+    expect(clampBothSplit(0.55, 1340)).toBe(0.55);
+    expect(clampBothSplit(0.99, 1340)).toBeCloseTo((1340 - 220) / 1340, 10);
+    expect(clampBothSplit(-1, 1340)).toBe(0);
+    expect(clampBothSplit(Number.NaN, 1340)).toBe(0.55);
     const narrow = shellGeometry({ width: 1440, height: 900 }, "both", { bothSplit: 0.95, inspectorOpen: true });
     expect(narrow.canvas?.width).toBe(220);
     expect(narrow.inspector?.width).toBe(300);

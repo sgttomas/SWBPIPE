@@ -16862,7 +16862,7 @@ describe("persistent modeling workspace", () => {
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     // Slice B3: the shell's two splitters are the Both view's split (the table pane's share of
-    // the surface, in percent, 15 to 85) and the Model view's table drawer (120 to 600 px).
+    // the surface, in percent, 15 to 85) and the Model view's table drawer (180 to 600 px).
     const splitSplitter = screen.getByRole("separator", { name: "Resize table and canvas" });
     expect(splitSplitter).toHaveAttribute("aria-orientation", "vertical");
     expect(splitSplitter).toHaveAttribute("aria-valuemin", "15");

@@ -1,4 +1,5 @@
 import type React from "react";
+import { isTauriRuntime, syncNativeShellState } from "../../services/nativeMenu";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
   canonicalSha256Hex,
@@ -119,6 +120,7 @@ import { publishUiModelAssignmentStarted } from "./uiDiagnostics";
 import {
   SHELL_STAGES,
   SHELL_VIEWS,
+  canvasAuthoringPanelActive,
   isStageSurface,
   railStageState,
   rememberStageView,
@@ -325,6 +327,23 @@ export function useWorkspaceSession() {
   // the listeners that are registered once (the keys, the native menu).
   const shellNow = shellLocation(activeSection, stageSurface);
   const stageViewNow = viewForStage(stageViewMemory, shellNow.stage);
+  // Routing temporarily borrows the inspector without changing its remembered
+  // open/closed state. A queued viewport intent keeps the same routing surface.
+  const routingPanelActive = canvasAuthoringPanelActive(armedCreationTool, editorIntents);
+  const routingInspectorRestore = useRef<boolean | null>(null);
+  useLayoutEffect(() => {
+    if (routingPanelActive) {
+      if (routingInspectorRestore.current === null) routingInspectorRestore.current = inspectorCollapsed;
+      setInspectorCollapsed(false);
+    } else if (routingInspectorRestore.current !== null) {
+      const restoreCollapsed = routingInspectorRestore.current;
+      routingInspectorRestore.current = null;
+      if (restoreCollapsed && document.getElementById("shell-inspector")?.contains(document.activeElement)) {
+        workspaceShellRef.current?.querySelector<HTMLButtonElement>('[data-testid="workspace-select"]')?.focus();
+      }
+      setInspectorCollapsed(restoreCollapsed);
+    }
+  }, [routingPanelActive]);
   const shellNowRef = useRef({ location: shellNow, view: stageViewNow, stageSurface });
   shellNowRef.current = { location: shellNow, view: stageViewNow, stageSurface };
   useEffect(() => {
@@ -1804,6 +1823,9 @@ export function useWorkspaceSession() {
 
   function handleArmCreationTool(tool: CreationTool | null) {
     viewportViewCommandRef.current?.({ type: "cancel-box-selection" });
+    if ((tool === "node" || tool === "pipe" || tool === "component") && routingInspectorRestore.current === null) {
+      routingInspectorRestore.current = inspectorCollapsed;
+    }
     setArmedCreationTool(tool);
     if (!tool) return;
     if (tool === "load") {
@@ -1836,6 +1858,9 @@ export function useWorkspaceSession() {
     const route = capabilityRoute(capability, context);
     if (!route) return;
     viewportViewCommandRef.current?.({ type: "cancel-box-selection" });
+    if ((route.tool === "node" || route.tool === "pipe" || route.tool === "component") && routingInspectorRestore.current === null) {
+      routingInspectorRestore.current = inspectorCollapsed;
+    }
     setArmedCreationTool(route.tool ?? null);
     if (route.tool && route.surface === "viewport") exposeViewportForNarrowInteraction(`authoring-${route.tool}`);
     if (route.surface === "operations") {
@@ -2025,6 +2050,29 @@ export function useWorkspaceSession() {
     }
   }
 
+  const nativeRunPresence = runPresenceFromCells({ result, historicalRun, solveJob });
+  const nativeResultsEnabled = railStageState("results", nativeRunPresence).enabled;
+  const nativeReviewEnabled = railStageState("review", nativeRunPresence).enabled;
+  const nativeProjectName = projectSummary?.project_name ?? model?.project.name ?? null;
+  useEffect(() => {
+    if (!model || !isTauriRuntime()) return;
+    void syncNativeShellState({
+      projectName: nativeProjectName,
+      stage: shellNow.stage,
+      view: stageViewNow,
+      theme: uiPreferences.theme,
+      density: uiPreferences.density,
+      resultsStageEnabled: nativeResultsEnabled,
+      reviewStageEnabled: nativeReviewEnabled,
+      inspectorOpen: stageViewNow === "model" || (stageViewNow === "both" && !inspectorCollapsed),
+      canUndo: undoStack.length > 0 && !operationBusy,
+      canRedo: redoStack.length > 0 && !operationBusy,
+      canRun: !running,
+      canCancel: running
+    }).catch((error: unknown) => console.warn("Native shell state sync failed", error));
+  }, [Boolean(model), nativeProjectName, shellNow.stage, stageViewNow, uiPreferences.theme, uiPreferences.density,
+    nativeResultsEnabled, nativeReviewEnabled, inspectorCollapsed, undoStack.length, redoStack.length, operationBusy, running]);
+
   // Latest-closure ref so native menu events (registered once) always dispatch
   // against current state rather than the first render. The Rust menu handler
   // injects this DOM event directly into the main webview; this avoids relying
@@ -2146,7 +2194,7 @@ export function useWorkspaceSession() {
   function closeWorkspaceRail(side: "tree" | "inspector", restoreFocus = false) {
     const toggle = side === "tree" ? treeToggleRef.current : inspectorToggleRef.current;
     const focused = document.activeElement;
-    const pane = toggle?.closest(".workspace-pane");
+    const pane = side === "tree" ? toggle?.closest(".workspace-pane") : document.getElementById("shell-inspector");
     // Move focus to the persistent opener only when the closing drawer owns
     // focus. A viewport command that closes an overlapping drawer keeps focus
     // on its already-visible initiating control.
@@ -2168,6 +2216,9 @@ export function useWorkspaceSession() {
   }
 
   function openWorkspaceRail(side: "tree" | "inspector") {
+    // Explicit navigation into a property editor supersedes routing's temporary
+    // borrowing; its destination must stay open and retain the requested focus.
+    if (side === "inspector" && routingPanelActive) routingInspectorRestore.current = null;
     const openingToggle = side === "tree" ? treeToggleRef.current : inspectorToggleRef.current;
     const invokedFromToggle = document.activeElement === openingToggle;
     if (window.innerWidth < 1280) {
@@ -2183,6 +2234,7 @@ export function useWorkspaceSession() {
   }
 
   function toggleWorkspaceRail(side: "tree" | "inspector") {
+    if (side === "inspector" && routingPanelActive) routingInspectorRestore.current = null;
     const collapsed = side === "tree" ? treeCollapsed : inspectorCollapsed;
     if (collapsed) openWorkspaceRail(side);
     else closeWorkspaceRail(side);
@@ -2222,6 +2274,8 @@ export function useWorkspaceSession() {
   shellKeyHandlersRef.current = { chooseStageView, toggleWorkspaceRail };
   useEffect(() => {
     function handleShellAccelerator(event: KeyboardEvent) {
+      // Tauri's native menu owns these accelerators and emits the same command.
+      if (isTauriRuntime()) return;
       if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.shiftKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
       const now = shellNowRef.current;

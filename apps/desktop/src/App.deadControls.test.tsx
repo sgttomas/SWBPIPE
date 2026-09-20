@@ -254,7 +254,9 @@ describe("dead-control audit (TP-APP-R2-UXSHELL-001)", () => {
     const nodeAuthoring = screen.getByTestId("command-node");
     nodeAuthoring.focus();
     fireEvent.click(nodeAuthoring);
-    expect(inspectorToggle).toHaveAttribute("aria-expanded", "false");
+    // B3 routing now lives in the inspector: arming exposes that destination,
+    // while the initiating control keeps focus and the draft remains mounted.
+    expect(inspectorToggle).toHaveAttribute("aria-expanded", "true");
     expect(nodeAuthoring).toHaveFocus();
     expect(screen.getByTestId("viewport-create-node-id")).toBeInTheDocument();
   });

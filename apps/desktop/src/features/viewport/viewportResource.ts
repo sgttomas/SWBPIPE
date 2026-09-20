@@ -505,6 +505,7 @@ export class ViewportResource {
   private cameraChangeSequence = ++nextViewportCameraSequence;
   private navigationAdvancing = false;
   private suppressControlsChange = false;
+  private presentationBottomInsetPx = 0;
   private readonly ownership = new ViewportOwnershipLedger(this.resourceGeneration);
   // The edge line is one CSS pixel wide, which is this many device pixels. It is the renderer's
   // pixel ratio, read where that ratio is set, once, and never per frame.
@@ -587,6 +588,14 @@ export class ViewportResource {
 
   get cameraSequence(): number {
     return this.cameraChangeSequence;
+  }
+
+  /** Moves only the painted orientation frame clear of shell furniture. */
+  setPresentationBottomInsetPx(value: number): void {
+    const next = Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
+    if (next === this.presentationBottomInsetPx) return;
+    this.presentationBottomInsetPx = next;
+    this.invalidate();
   }
 
   get ownershipSnapshot(): ViewportOwnershipSnapshot {
@@ -951,9 +960,14 @@ export class ViewportResource {
   private renderGizmo(): void {
     const width = Math.max(1, this.host.clientWidth);
     const height = Math.max(1, this.host.clientHeight);
-    const size = Math.min(GIZMO_MAX_CSS_SIZE, Math.floor(Math.min(width, height)));
+    const configuredBottomInset = Number.isFinite(this.presentationBottomInsetPx)
+      ? Math.max(0, Math.round(this.presentationBottomInsetPx))
+      : 0;
+    const bottomInset = Math.min(configuredBottomInset, Math.max(0, height - 1));
+    const availableHeight = Math.max(1, height - bottomInset);
+    const size = Math.min(GIZMO_MAX_CSS_SIZE, Math.floor(Math.min(width, availableHeight)));
     const insetX = Math.min(8, Math.max(0, width - size));
-    const insetY = Math.min(8, Math.max(0, height - size));
+    const insetY = bottomInset + Math.min(8, Math.max(0, availableHeight - size));
     const offset = this.camera.position.clone().sub(this.controls.target);
     if (offset.lengthSq() === 0) offset.set(0, 0, 1);
     // Fit the full enlarged axis-label sprite envelope inside the square

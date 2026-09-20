@@ -32,12 +32,7 @@ export type MenuCommandId =
   | "analyze.cancel"
   | "analyze.rule-checks";
 
-/**
- * The in-app View menu's commands of slice B3: the three views, the four
- * stages, the theme and the density. They are not in `NATIVE_MENU_COMMAND_IDS`:
- * the native menu is `src-tauri/**`, outside this lane, so the native runtime
- * reaches them by the toolbar, the rail and the palette.
- */
+/** Shell commands share IDs across native menu, browser menu and palette. */
 export type ShellMenuCommandId =
   | `view.view.${ShellView}`
   | `view.stage.${ShellStage}`
@@ -62,6 +57,10 @@ const NATIVE_MENU_COMMAND_IDS: ReadonlySet<string> = new Set([
   "view.issues",
   "view.audit",
   "view.close-panels",
+  ...["table", "model", "both"].map((view) => `view.view.${view}`),
+  ...["model", "loads", "results", "review"].map((stage) => `view.stage.${stage}`),
+  ...["light", "dark", "system"].map((theme) => `view.theme.${theme}`),
+  ...["comfortable", "compact"].map((density) => `view.density.${density}`),
   ...WORKSPACE_SECTIONS.map((section) => `view.section.${section.id}`),
   "insert.node",
   "insert.pipe",

@@ -1207,7 +1207,7 @@ button:focus-visible {
 .viewport-axis-triad {
   left: 12px;
   /* Position only (ROOT, slice B3): the shell sets the inset while its table strip lies over the canvas's foot. */
-  bottom: calc(12px + var(--shell-canvas-foot-inset, 0px));
+  bottom: calc(12px + var(--viewport-presentation-bottom-inset, 0px));
   width: 96px;
   height: 96px;
 }
@@ -1258,7 +1258,7 @@ button:focus-visible {
 
 .viewport-scale-bar {
   right: 14px;
-  bottom: calc(14px + var(--shell-canvas-foot-inset, 0px));
+  bottom: calc(14px + var(--viewport-presentation-bottom-inset, 0px));
   min-width: 90px;
   padding: 5px 8px 7px;
   border-bottom: 4px solid var(--canvas-label);
@@ -3244,7 +3244,7 @@ body { min-width: 760px; min-height: 540px; }
 .command-bar .command-context[open] > .command-context-content { position: static; width: min(260px, 100%); box-sizing: border-box; }
 .command-context-content > span { display: block; margin: 6px 0; overflow-wrap: anywhere; }
 .viewport-shell:has(.viewport-intents.active) { grid-template-columns: minmax(0, 1fr) 265px; }
-.viewport-intents.active { grid-column: 2; grid-row: 2 / 4; min-width: 0; min-height: 0; max-height: none; overflow: auto; padding: 10px; border-top: 0; border-left: 1px solid #c8d0cb; background: #f7f9f8; }
+.viewport-shell > .viewport-intents.active { grid-column: 2; grid-row: 2 / 4; min-width: 0; min-height: 0; max-height: none; overflow: auto; padding: 10px; border-top: 0; border-left: 1px solid #c8d0cb; background: #f7f9f8; }
 .viewport-intent-controls, .viewport-node-form, .viewport-pipe-form { display: flex; flex-direction: column; align-items: stretch; gap: 9px; min-width: 0; }
 .viewport-node-form:not(.active), .viewport-pipe-form:not(.active) { display: none; }
 .viewport-node-form label, .viewport-pipe-form label, .viewport-endpoint-field { min-width: 0; }
@@ -3518,7 +3518,7 @@ body { min-width: 760px; min-height: 540px; }
 }
 @media (max-width: 899px) {
   .viewport-shell:has(.viewport-intents.active) { grid-template-columns: minmax(0, 1fr); }
-  .viewport-intents.active { position: absolute; z-index: 40; right: 0; top: 70px; bottom: 0; width: min(360px, calc(100vw - 48px)); border: 1px solid var(--ui-divider); }
+  .viewport-shell > .viewport-intents.active { position: absolute; z-index: 40; right: 0; top: 70px; bottom: 0; width: min(360px, calc(100vw - 48px)); border: 1px solid var(--ui-divider); }
 }
 
 /* Theme-owned workspace surfaces. Keep each foreground paired with the
@@ -3808,7 +3808,9 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .shell-surfaces-frame { position: relative; display: block; min-width: 0; min-height: 0; padding: 0; gap: 0; overflow: hidden; }
 .app-shell .shell-surfaces {
   position: absolute; inset: 0; display: grid; gap: 0; min-height: 0; padding: 0; flex: none;
-  grid-template-columns: minmax(0, var(--shell-both-split, 55%)) minmax(var(--layout-canvas-min), 1fr);
+  --shell-closed-table: min(var(--shell-both-split, 55%), calc(100% - var(--layout-canvas-min)));
+  --shell-rendered-drawer: min(clamp(180px, var(--shell-drawer-height, 280px), 600px), max(0px, calc(100% - var(--workspace-modeling-reserve, 336px))));
+  grid-template-columns: minmax(0, var(--shell-closed-table)) minmax(var(--layout-canvas-min), 1fr);
   grid-template-rows: minmax(0, 1fr);
 }
 .app-shell .shell-surfaces .workspace-pane { position: relative; top: auto; bottom: auto; left: auto; right: auto; width: auto; min-width: 0; min-height: 0; border: 0; border-radius: 0; box-shadow: none; overflow: hidden; }
@@ -3816,28 +3818,27 @@ body { min-width: 760px; min-height: 540px; }
 /* The canvas pane is its own stacking context, so nothing inside it can lie over the table drawer, the inspector or a page. */
 .app-shell .shell-surfaces .workspace-pane-viewport { grid-column: 2; grid-row: 1; isolation: isolate; z-index: 0; }
 .app-shell .shell-surfaces .workspace-pane-inspector { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; overflow: auto; border-inline-start: 1px solid var(--ui-divider); }
-.app-shell .shell-surfaces[data-view="both"]:not(.inspector-collapsed) { grid-template-columns: minmax(0, var(--shell-both-split, 55%)) minmax(var(--layout-canvas-min), 1fr) var(--layout-inspector-both); }
+.app-shell .shell-surfaces[data-view="both"]:not(.inspector-collapsed) { grid-template-columns: minmax(0, var(--shell-closed-table)) minmax(var(--layout-canvas-min), 1fr) var(--layout-inspector-both); }
 .app-shell .shell-surfaces[data-view="both"].inspector-collapsed .workspace-pane-inspector,
 .app-shell .shell-surfaces[data-view="table"] .workspace-pane-inspector { display: none; }
-/* INTERIM (ROOT, slice B3; retires when the routing block moves into the inspector): while the canvas's own
-   authoring panel is on screen, the docked inspector takes its 300 px from the table pane, down to the pane's
-   320 px lending minimum, and not from the canvas pane. The arithmetic is shellLayout.ts's shellGeometry. */
-.app-shell .shell-surfaces[data-view="both"][data-canvas-authoring="true"]:not(.inspector-collapsed) {
-  --shell-table-lent: clamp(0px, calc(var(--shell-both-split, 55%) - 320px), var(--layout-inspector-both));
-  grid-template-columns: minmax(0, calc(var(--shell-both-split, 55%) - var(--shell-table-lent))) minmax(var(--layout-canvas-min), 1fr) var(--layout-inspector-both);
+/* Owner-approved D2: the inspector borrows from the table down to its 320 px
+   lending floor, then from the canvas. The stored split is the closed layout. */
+.app-shell .shell-surfaces[data-view="both"]:not(.inspector-collapsed) {
+  --shell-table-lent: clamp(0px, calc(var(--shell-closed-table) - 320px), var(--layout-inspector-both));
+  grid-template-columns: minmax(0, calc(var(--shell-closed-table) - var(--shell-table-lent))) minmax(var(--layout-canvas-min), 1fr) var(--layout-inspector-both);
 }
-.app-shell .shell-surfaces[data-view="both"][data-canvas-authoring="true"]:not(.inspector-collapsed) .shell-both-splitter { left: calc(var(--shell-both-split, 55%) - var(--shell-table-lent)); }
+.app-shell .shell-surfaces[data-view="both"]:not(.inspector-collapsed) .shell-both-splitter { left: calc(var(--shell-closed-table) - var(--shell-table-lent)); }
 /* Table view: the table pane takes the whole surface. The canvas keeps its Both-view box underneath,
    hidden and inert, so the renderer is never resized to nothing and its camera is untouched. */
 .app-shell .shell-surfaces[data-view="table"] .shell-table-pane { grid-column: 1 / -1; z-index: 2; border-inline-end: 0; }
 .app-shell .shell-surfaces[data-view="table"] .workspace-pane-viewport { visibility: hidden; pointer-events: none; }
 /* Model view: canvas beside the docked inspector; the table pane is the bottom drawer of the canvas column. */
-.app-shell .shell-surfaces[data-view="model"] { grid-template-columns: minmax(var(--layout-canvas-min), 1fr) var(--layout-inspector-model); grid-template-rows: minmax(0, 1fr) auto; }
+.app-shell .shell-surfaces[data-view="model"] { grid-template-columns: minmax(var(--layout-canvas-min), 1fr) var(--layout-inspector-model); grid-template-rows: minmax(0, 1fr) var(--shell-rendered-drawer); }
 .app-shell .shell-surfaces[data-view="model"] .workspace-pane-viewport { grid-column: 1; grid-row: 1; }
 .app-shell .shell-surfaces[data-view="model"] .workspace-pane-inspector { grid-column: 2; grid-row: 1 / 3; }
-.app-shell .shell-surfaces[data-view="model"] .shell-table-pane { grid-column: 1; grid-row: 2; height: min(clamp(120px, var(--shell-drawer-height, 280px), 600px), 60vh); border-inline-end: 0; border-top: 1px solid var(--ui-divider); box-sizing: border-box; }
+.app-shell .shell-surfaces[data-view="model"] .shell-table-pane { grid-column: 1; grid-row: 2; height: auto; border-inline-end: 0; border-top: 1px solid var(--ui-divider); box-sizing: border-box; }
 /* Collapsed, the drawer is its 28 px tab strip lying over the foot of the canvas's box, so the canvas keeps its full height (D-72). */
-.app-shell .shell-surfaces[data-view="model"].tree-collapsed .workspace-pane-viewport { grid-row: 1 / 3; --shell-canvas-foot-inset: var(--shell-tab-strip); }
+.app-shell .shell-surfaces[data-view="model"].tree-collapsed .workspace-pane-viewport { grid-row: 1 / 3; }
 .app-shell .shell-surfaces[data-view="model"].tree-collapsed .shell-table-pane { z-index: 2; align-self: end; height: var(--shell-tab-strip); }
 .app-shell .shell-surfaces[data-view="model"].tree-collapsed .shell-table-body { display: none; }
 
@@ -3853,11 +3854,11 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .shell-tree-host > .panel { border: 0; border-radius: 0; min-height: 100%; box-sizing: border-box; }
 .app-shell .shell-tree-host.inactive, .app-shell .shell-stage-sections.inactive, .app-shell .shell-project-controls.inactive, .app-shell .shell-project-strip.inactive { display: none; }
 
-.app-shell .shell-both-splitter { position: absolute; z-index: 35; top: var(--shell-tab-strip); bottom: 0; left: var(--shell-both-split, 55%); width: 24px; transform: translateX(-12px); min-height: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: col-resize; }
+.app-shell .shell-both-splitter { position: absolute; z-index: 35; top: var(--shell-tab-strip); bottom: 0; left: var(--shell-closed-table); width: 24px; transform: translateX(-24px); min-height: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: col-resize; }
 .app-shell .shell-both-splitter::after { content: ""; position: absolute; inset: 0 11px; background: transparent; }
 .app-shell .shell-both-splitter:hover::after, .app-shell .shell-both-splitter:focus-visible::after { background: var(--ui-accent); }
 .app-shell .shell-surfaces:not([data-view="both"]) .shell-both-splitter { display: none; }
-.app-shell .shell-drawer-splitter { position: absolute; z-index: 35; left: 0; right: var(--layout-inspector-model); bottom: min(clamp(120px, var(--shell-drawer-height, 280px), 600px), 60vh); flex: none; width: auto; height: 24px; min-height: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: row-resize; }
+.app-shell .shell-drawer-splitter { position: absolute; z-index: 35; left: 0; right: var(--layout-inspector-model); bottom: var(--shell-rendered-drawer); flex: none; width: auto; height: 24px; min-height: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: row-resize; }
 .app-shell .shell-drawer-splitter::after { content: ""; position: absolute; inset: 22px 0 0; background: transparent; }
 .app-shell .shell-drawer-splitter:hover::after, .app-shell .shell-drawer-splitter:focus-visible::after { background: var(--ui-accent); }
 .app-shell .shell-surfaces:not([data-view="model"]) .shell-drawer-splitter, .app-shell .shell-surfaces.tree-collapsed .shell-drawer-splitter { display: none; }
@@ -3890,18 +3891,18 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .shell-chip-popover span { color: var(--ui-muted); }
 
 /* Below 1280 px of window width (the narrow fallback; the specification's narrow cases are slice B5):
-   today's behaviour is kept. The canvas takes the surface; the table pane is a bottom drawer over it
-   and the inspector slides over its right edge; both start tucked away and close when the canvas is used. */
+   the expanded table drawer is in flow under the canvas; its collapsed strip overlays the foot.
+   The inspector slides over the right edge; both start tucked away and close when the canvas is used. */
 @media (max-width: 1279px) {
-  .app-shell .shell-surfaces[data-view="both"], .app-shell .shell-surfaces[data-view="both"]:not(.inspector-collapsed) { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
-  .app-shell .shell-surfaces[data-view="both"] .workspace-pane-viewport { grid-column: 1; grid-row: 1 / 3; --shell-canvas-foot-inset: min(clamp(120px, var(--shell-drawer-height, 280px), 600px), 60vh); }
-  .app-shell .shell-surfaces[data-view="both"].tree-collapsed .workspace-pane-viewport { --shell-canvas-foot-inset: var(--shell-tab-strip); }
-  .app-shell .shell-surfaces[data-view="both"] .shell-table-pane { grid-column: 1; grid-row: 2; z-index: 2; height: min(clamp(120px, var(--shell-drawer-height, 280px), 600px), 60vh); border-inline-end: 0; border-top: 1px solid var(--ui-divider); box-sizing: border-box; }
+  .app-shell .shell-surfaces[data-view="both"], .app-shell .shell-surfaces[data-view="both"]:not(.inspector-collapsed) { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) var(--shell-rendered-drawer); }
+  .app-shell .shell-surfaces[data-view="both"] .workspace-pane-viewport { grid-column: 1; grid-row: 1; }
+  .app-shell .shell-surfaces[data-view="both"].tree-collapsed .workspace-pane-viewport { grid-row: 1 / 3; }
+  .app-shell .shell-surfaces[data-view="both"] .shell-table-pane { grid-column: 1; grid-row: 2; z-index: 2; height: auto; border-inline-end: 0; border-top: 1px solid var(--ui-divider); box-sizing: border-box; }
   .app-shell .shell-surfaces[data-view="both"].tree-collapsed .shell-table-pane { align-self: end; height: var(--shell-tab-strip); }
   .app-shell .shell-surfaces[data-view="both"].tree-collapsed .shell-table-body { display: none; }
   .app-shell .shell-surfaces[data-view="both"] .workspace-pane-inspector { position: absolute; z-index: 45; top: 0; bottom: 0; right: 0; left: auto; width: min(var(--layout-inspector-both), calc(100% - 48px)); box-shadow: var(--elevation-3); background: var(--ui-surface); }
   .app-shell .shell-surfaces[data-view="both"] .shell-both-splitter { display: none; }
-  .app-shell .shell-surfaces[data-view="both"][data-canvas-authoring="true"]:not(.inspector-collapsed) { grid-template-columns: minmax(0, 1fr); }
+  .app-shell .shell-surfaces[data-view="both"]:not(.inspector-collapsed) { grid-template-columns: minmax(0, 1fr); }
 }
 .app-shell .shell-drawer-chevron-anchor .shell-reason { left: auto; right: 0; }
 .app-shell .shell-tab-strip button[aria-disabled="true"] { color: var(--ui-disabled-text); cursor: not-allowed; }
@@ -3909,3 +3910,18 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .shell-chip[aria-expanded="true"] { position: relative; z-index: 60; }
 /* The solve proof is read on the Evidence tab: its recorded line opens in flow there, not as the status bar's upward popover. */
 .app-shell .workspace-dock-section .status-pill[open] > div { position: static; max-width: none; box-shadow: none; }
+
+/* The collapsed strip is an overlay: readout and passive canvas furniture lift
+   without subtracting the strip from the drawn canvas. */
+.app-shell .viewport-measurement-strip { position: relative; bottom: var(--viewport-presentation-bottom-inset, 0px); }
+.app-shell .shell-routing-panel:empty { display: none; }
+.app-shell .shell-routing-panel > .viewport-intents { display: none; }
+.app-shell .shell-routing-panel > .viewport-intents.active { display: block; position: static; width: auto; min-width: 0; padding: var(--space-4); border-bottom: 1px solid var(--ui-divider); }
+@media (max-width: 1279px) {
+  .app-shell .shell-surfaces[data-view="both"]:not(.tree-collapsed) .shell-drawer-splitter { display: block; right: 0; }
+}
+
+.app-shell .shell-surfaces[data-view="model"].tree-collapsed { grid-template-rows: minmax(0, 1fr) var(--shell-tab-strip); }
+@media (max-width: 1279px) {
+  .app-shell .shell-surfaces[data-view="both"].tree-collapsed { grid-template-rows: minmax(0, 1fr) var(--shell-tab-strip); }
+}

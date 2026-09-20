@@ -1,7 +1,8 @@
 import { SelectionPresentationBinding } from "./selectionPresentationBinding";
 import { QuantityReadout, useDisplayQuantity } from "../display-units";
 import { Box, CircleDot, CirclePlus, GitBranch, MoveDown, Anchor } from "lucide-react";
-import { type PointerEvent as ReactPointerEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import * as THREE from "three";
 import { convertDisplayQuantities } from "../../services/displayQuantityService";
 import {
@@ -137,6 +138,8 @@ function ViewportMeasurementQuantityReadout({ label, unit, value }: { label: str
 }
 
 type Props = {
+  /** Optional shell-owned home for the existing authoring panel. */
+  authoringPanelContainer?: HTMLElement | null;
   armedCreationTool?: CreationTool | null;
   assignment?: {
     status: "started" | "committed";
@@ -174,9 +177,19 @@ type Props = {
   result?: MechanicsResult | null;
   selection: EntityRef;
   selectionState?: OrderedSelectionState;
+  /** Presentation-only clearance below viewport furniture and the painted orientation frame. */
+  presentationBottomInsetPx?: number;
   theme?: "light" | "dark";
   treePublication?: { actionSequence: number; publicationSequence: number; query: string; visibleCount: number; inputAt: number | null; inputEventTimeStamp: number | null; publishedAt: number } | null;
 };
+
+function OptionalPortal({ children, container }: { children: ReactNode; container?: HTMLElement | null }) {
+  return container ? createPortal(children, container) : children;
+}
+
+function normalizedPresentationInset(value: number | undefined): number {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
+}
 
 export type CreationTool = "node" | "pipe" | "support" | "component" | "load";
 export type ViewportExposureInteraction = "measurement" | "box-selection";
@@ -323,6 +336,7 @@ type DeformationOverlay = {
 };
 
 export function PipeViewport({
+  authoringPanelContainer = null,
   armedCreationTool = null,
   assignment = null,
   model,
@@ -349,9 +363,11 @@ export function PipeViewport({
   result = null,
   selection,
   selectionState,
+  presentationBottomInsetPx = 0,
   theme = "light",
   treePublication = null
 }: Props) {
+  const presentationBottomInset = normalizedPresentationInset(presentationBottomInsetPx);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const viewportResourceRef = useRef<ViewportResource | null>(null);
   const selectionPresentationBindingRef = useRef(new SelectionPresentationBinding());
@@ -730,6 +746,10 @@ export function PipeViewport({
   }, []);
 
   useEffect(() => {
+    viewportResourceRef.current?.setPresentationBottomInsetPx(presentationBottomInset);
+  }, [presentationBottomInset]);
+
+  useEffect(() => {
     if (geometryMode !== "actual-od") return;
     const cacheKey = `${activeModelIndex.generation}:${defaultLengthUnit}`;
     if (actualOdCacheRef.current?.key === cacheKey) {
@@ -940,6 +960,7 @@ export function PipeViewport({
       };
     }
     setWebglAvailable(true);
+    resource.setPresentationBottomInsetPx(presentationBottomInset);
     viewportResourceRef.current = resource;
     // Register stable lazy factories once. Product callbacks update only
     // bounded refs; diagnostics materialization happens on an explicit pull.
@@ -2169,7 +2190,10 @@ export function PipeViewport({
   }
 
   return (
-    <div className="viewport-shell">
+    <div
+      className="viewport-shell"
+      style={{ "--viewport-presentation-bottom-inset": `${presentationBottomInset}px` } as CSSProperties}
+    >
       <div className="viewport-toolbar">
         <div className="viewport-toolbar-controls" role="group" aria-label="Viewport controls">
         <span>3D Centerline</span>
@@ -2452,11 +2476,12 @@ export function PipeViewport({
             : measurementReadout.reason}</span>
         </div>
       ) : null}
-      <section
-        className={`viewport-intents${viewportIntentPanelActive ? " active" : " collapsed"}`}
-        aria-label="Viewport editor intents"
-        data-testid="viewport-editor-intents"
-      >
+      <OptionalPortal container={authoringPanelContainer}>
+        <section
+          className={`viewport-intents${viewportIntentPanelActive ? " active" : " collapsed"}`}
+          aria-label="Viewport editor intents"
+          data-testid="viewport-editor-intents"
+        >
         <h3 className="viewport-tool-heading">{nodeToolActive ? "Create node" : pipeToolActive ? "Create pipe" : componentToolActive ? "Insert component" : "Pending changes"}</h3>
         <fieldset className="viewport-intent-controls" disabled={draftReviewBusy} data-testid="viewport-draft-flight-controls">
           <div className={`viewport-node-form${nodeToolActive ? " active" : ""}`} aria-label="Explicit node geometry">
@@ -2969,7 +2994,8 @@ export function PipeViewport({
             ))
           )}
         </div></details>
-      </section>
+        </section>
+      </OptionalPortal>
     </div>
   );
 }

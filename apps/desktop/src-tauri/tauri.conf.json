@@ -15,8 +15,8 @@
         "title": "SWBPIPE",
         "width": 1440,
         "height": 920,
-        "minWidth": 1024,
-        "minHeight": 768
+        "minWidth": 1280,
+        "minHeight": 800
       }
     ],
     "security": {

@@ -44,7 +44,7 @@ import { DormantSection } from "./features/workspace/dormantSection";
 import { BOTH_SPLIT_PCT_BOUNDS, TABLE_DRAWER_PX_BOUNDS } from "./features/workspace/uiPreferences";
 import type { UiDensityPreference, UiThemePreference } from "./features/workspace/uiPreferences";
 import type React from "react";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
@@ -147,6 +147,7 @@ export function App() {
 
 function AppSession() {
   const session = useWorkspaceSession();
+  const [routingPanelContainer, setRoutingPanelContainer] = useState<HTMLDivElement | null>(null);
   const {
     model,
     knowledge,
@@ -694,6 +695,8 @@ function AppSession() {
           />
           <div className="workspace-pane workspace-pane-viewport">
             <PipeViewport
+              authoringPanelContainer={routingPanelContainer}
+              presentationBottomInsetPx={treeCollapsed && (stageView === "model" || (stageView === "both" && narrowWindow)) ? 28 : 0}
               viewCommandRef={viewportViewCommandRef}
               armedCreationTool={armedCreationTool}
               assignment={modelAssignment}
@@ -749,6 +752,7 @@ function AppSession() {
                 onClick={() => toggleWorkspaceRail("inspector")}
               ><X size={14} aria-hidden="true" /></button>
             ) : null}
+            <div id="shell-routing-panel" className="shell-routing-panel" ref={setRoutingPanelContainer} />
             <PropertyInspector
               getPreparationEpoch={getPreparationEpoch}
               model={model}

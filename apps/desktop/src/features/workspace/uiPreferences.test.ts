@@ -48,7 +48,7 @@ describe("UI preferences", () => {
       rightRailPx: 280,
       dockPx: 330,
       bothSplitPct: 85,
-      tableDrawerPx: 120,
+      tableDrawerPx: 180,
       lastPanelTabs: { inspector: "properties" }
     });
     expect(JSON.parse(storage.value()!)).not.toHaveProperty("projectId");

@@ -462,7 +462,7 @@ export const SHELL_REGIONS = Object.freeze({
   tableDrawerTabStripPx: 28,
   bothSplitDefault: 0.55,
   canvasMinPx: 220,
-  /** The least the table pane keeps while it lends the docked inspector its width (the interim rule below). */
+  /** The least the table pane keeps while it lends the docked inspector its width. */
   tablePaneLendingMinPx: 320,
   /** Below this window width the two panel toggles drop their labels and keep their tooltips. */
   toggleLabelsMinWindowPx: 1360
@@ -479,13 +479,10 @@ export type ShellGeometry = {
 };
 
 /**
- * INTERIM (ROOT, 2026-09-19; retires when the routing block moves into the inspector, as the design
- * has it). The canvas's own authoring panel takes 265 px from inside the canvas pane. It is on screen
- * while a node, pipe or component tool is armed, or while an intent queued from the canvas is pending.
- * In that state the Both view's docked inspector takes its 300 px from the table pane, not from the
- * canvas pane, so the drawn canvas keeps its usable width. This is what the session honestly knows of
- * `PipeViewport`'s `viewportIntentPanelActive`; the predicate is restated here because that component
- * is mounted, not modified, and an e2e test holds the two together.
+ * The routing editor is on screen while a node, pipe or component tool is
+ * armed, or while an intent queued from the viewport is pending. The shell
+ * uses this same predicate to borrow the inspector for the portalled editor;
+ * an e2e agreement assertion holds it to the component's active class.
  */
 export function canvasAuthoringPanelActive(
   armedCreationTool: string | null,
@@ -496,23 +493,26 @@ export function canvasAuthoringPanelActive(
 }
 
 /** The largest table share of the Both view's split that still leaves the canvas its minimum. */
-export function clampBothSplit(split: number, surfaceWidth: number, inspectorOpen: boolean): number {
-  const reserved = SHELL_REGIONS.canvasMinPx + (inspectorOpen ? SHELL_REGIONS.inspectorBothPx : 0);
+export function clampBothSplit(split: number, surfaceWidth: number): number {
+  // The stored split is always the inspector-closed split. Opening the
+  // inspector applies the lending rule below without rewriting this value.
+  const reserved = SHELL_REGIONS.canvasMinPx;
   const max = surfaceWidth > 0 ? Math.max(0, (surfaceWidth - reserved) / surfaceWidth) : 0;
   if (!Number.isFinite(split)) return Math.min(SHELL_REGIONS.bothSplitDefault, max);
   return Math.min(Math.max(split, 0), max);
 }
 
 /**
- * Where the surfaces sit in a window. In Both view the inspector takes its
- * width from the canvas, never from the table. In Model view the drawer spans
- * the canvas column; collapsed, its 28 px tab strip lies over the foot of the
- * canvas's box, so the canvas keeps D-72's full height.
+ * Where the surfaces sit in a window. In Both view the inspector borrows from
+ * the stored table split down to the 320 px lending floor, then from the
+ * canvas. In Model view the drawer spans the canvas column; collapsed, its
+ * 28 px tab strip lies over the foot of the canvas's box, so the canvas keeps
+ * D-72's full height.
  */
 export function shellGeometry(
   window: { width: number; height: number },
   view: ShellView,
-  options: { bothSplit?: number; inspectorOpen?: boolean; drawerCollapsed?: boolean; drawerPx?: number; canvasAuthoringPanel?: boolean } = {}
+  options: { bothSplit?: number; inspectorOpen?: boolean; drawerCollapsed?: boolean; drawerPx?: number } = {}
 ): ShellGeometry {
   const r = SHELL_REGIONS;
   const surfaces: ShellRect = {
@@ -524,13 +524,12 @@ export function shellGeometry(
   if (view === "table") return { surfaces, tablePane: { ...surfaces }, canvas: null, inspector: null };
   if (view === "both") {
     const inspectorOpen = options.inspectorOpen ?? false;
-    const split = clampBothSplit(options.bothSplit ?? r.bothSplitDefault, surfaces.width, inspectorOpen);
+    const split = clampBothSplit(options.bothSplit ?? r.bothSplitDefault, surfaces.width);
     const inspectorWidth = inspectorOpen ? r.inspectorBothPx : 0;
     const splitWidth = Math.round(surfaces.width * split);
-    // The interim rule: with the canvas's authoring panel on screen the inspector's width comes from
-    // the table pane, down to the pane's lending minimum; past that the canvas gives the rest, and
-    // the canvas's own 220 px minimum still wins over everything.
-    const lent = inspectorOpen && options.canvasAuthoringPanel
+    // The docked inspector always borrows from the table down to its lending
+    // floor; past that the canvas gives the rest, with its 220 px minimum.
+    const lent = inspectorOpen
       ? Math.max(0, Math.min(inspectorWidth, splitWidth - r.tablePaneLendingMinPx))
       : 0;
     const tableWidth = Math.max(0, Math.min(splitWidth - lent, surfaces.width - inspectorWidth - r.canvasMinPx));
