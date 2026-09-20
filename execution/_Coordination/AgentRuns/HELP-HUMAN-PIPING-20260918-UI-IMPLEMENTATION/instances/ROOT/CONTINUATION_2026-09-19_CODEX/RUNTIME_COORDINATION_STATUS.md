@@ -10,9 +10,9 @@ changes require acknowledged handoffs; silence transfers nothing.
 | Worktree / branch | Owner and current scope |
 |---|---|
 | ROOT / codex/swbpipe-continuation-20260919 | HELP_HUMAN: graph, shared note, owner decisions, independent review and integration; current MVP publishing discussion. |
-| swbpipe-wt2 / codex/swbpipe-ci-economy-20260920 | ROOT integration, clean candidate52142dbd combines B3B/C3/CI economy. Fresh Astra/xhigh review active. CI TASK Astra/low now owns only router/policy-test repair for new affected specs. |
-| swbpipe-wt3 / codex/swbpipe-b-shell-20260918 | B3B manager Astra/high; shell frozen d6e206f4. Combined native preparation ready, awaiting connected handback. |
-| swbpipe-wt4 / codex/swbpipe-b-canvas-20260918 | C3 manager Astra/high and TASK Astra/low; product frozen c15a095, connected checks active with bounded new-test navigation corrections. |
+| swbpipe-wt2 / codex/swbpipe-ci-economy-20260920 | ROOT integration, candidatea635b01a. P2 affected-spec code backcheck passed; narrow records corrections and final native/sweep/hosted gates remain. CI TASK scope returned. |
+| swbpipe-wt3 / codex/swbpipe-b-shell-20260918 | B3B manager Astra/high; normal226b native witness and ROOT own look complete. Fresh Astra/low probe worker owns isolated Save-busy debug verification; original bundle preserved. |
+| swbpipe-wt4 / codex/swbpipe-b-canvas-20260918 | C3 final9fb4b88b:16 connected cases/picking69/protected83 complete; resources released. C4 read-only preparation returned, no implementation. |
 | chirality-runtime-application-tools/chirality / codex/runtime-application-tools | Peer owns reusable Runtime. Generic tools PR824 merged21175b5d, reviewedcb08dbe2f; no Piping adapter/adoption. |
 
 B3 PR825 and B3A/I1 PR826 are merged. Freshly fetched main is88c6c746.
@@ -29,7 +29,7 @@ coverage, conservative full fallback and manual full milestones. Other-project
 CI and protections remain unchanged. See _run_records/CI_PEER_ACK.md.
 
 Owner corrected the initial optional-agent answer: agent control of SWBPIPE is
-needed before planned CAEPIPE validation, with Computer Use for CAEPIPE. The leads
+needed before planned CAEPIPE validation, with Computer Use for CAEPIPE. The owner selected Codex as first controller; embedded Runtime follows. The leads
 are preparing the bounded integration and actual tool/host qualification. Other
 release details remain under discussion; concrete scopes/interfaces/order still
 must be agreed before integration writes. See OWNER_MVP_AGENT_CORRECTION_2026-09-20.md.
@@ -43,12 +43,12 @@ completed generic Runtime work; that grants no Piping adoption.
 
 ## Resources and sequence
 
-C3 currently owns source5174, shared E2E lock and pinned Chromium with one worker.
-ROOT review/records and pure CI-policy checks proceed independently. After
-connected handback, shell manager receives the single native/CUA/build slot for
-one combined B3B/C3 witness. No Piping native app is currently in use; final clean
-sweep and hosted full checkpoint remain ahead. Peer last acknowledged no
-conflicting reservations and will signal new use.
+C3 explicitly released source5174 and the shared E2E lock after all16 unique
+connected cases passed. The normal226b native witness and ROOT own look are
+complete. Shell manager now owns the exclusive native/build/CUA slot for the
+authorized isolated two-edit Save-busy probe and final original-bundle check.
+No source browser/full sweep is running. Final clean sweep and hosted checkpoint
+follow resource handback; peer reports no competing reservation.
 
 Reserve source/dist5174/5175, ROOT5183/5184, canvas5185/5186 and Tauri5173;
 share one native foreground slot. Native uses invented fixtures and a uniquely
@@ -62,6 +62,29 @@ integration tranche; the whole closing appearance pass need not block adoption.
 Before writes agree exact revisions, interfaces, errors, disjoint scopes and
 resource order. Ownership changes need acknowledged handoffs; substantive
 disagreements return to the owner.
+
+## Conditional first-controller transport
+
+Owner selected a development Codex controller first, with an embedded Runtime
+agent later. Peer subsequently reported the owner's stateless V2 MCP condition;
+the transport remains conditional on actual modern2026-07-28 client evidence.
+Proposed shape: Codex → local stdio MCP facade → private local Piping
+app bridge → live workspace controller. Piping ROOT retains all controller,
+bridge, facade, fixtures and Piping-document writes; Runtime lead provides
+read-only contract/protocol review. No shared Root/Runtime product writes or ownership transfer is presently needed.
+Peer owns isolated harmless actual-client compatibility discovery/evidence only.
+The exact tool contract is PIPING_LIVE_CONTROL_CONTRACT_DRAFT.md; peer review,
+protocol compatibility and bounded live-binding activation precede writes. See
+OWNER_CODEX_VALIDATION_CONTROLLER_2026-09-20.md and
+_run_records/RUNTIME_TRANSPORT_ACK_2026-09-20.md.
+
+Use transport-neutral inspect/preview/submit/status handlers; bridge-issued
+connection/request identity does not imply verified Codex thread/turn identity.
+The same Codex session retains its own CUA provider; do not export private
+desktop endpoints or claim that a separate embedded agent inherits it. The
+actual Mac/Windows guest and provider still need a bounded harmless witness.
+No VM/CAEPIPE installation, configuration, license/access or correlation run
+has occurred. Existing human Apply and live-state checks remain.
 
 ## Interface assessment and first target
 

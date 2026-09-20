@@ -1429,7 +1429,7 @@
       "actualAgent": "/root/b3_manager",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "status": "explicitly resumed for one combined native build/witness at226b1db5 after canvas handback",
+      "status": "normal native and ROOT own-look complete; isolated2edit Save-busy probe active under exclusive native/build/CUA slot",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_MANAGER_BRIEF.md",
       "briefSha256": "03186a0b04d1809ceb81139872a42c895ab2345cd6aa8cfbf4487b17b94f8b98",
       "basis": "88c6c7463199d1d69caebde04678fa74facca78f",
@@ -1501,13 +1501,22 @@
       "parent": "ROOT",
       "status": "clean combined candidate under independent review; connected/native/final sweep/hosted gates pending",
       "base": "88c6c7463199d1d69caebde04678fa74facca78f",
-      "candidate": "226b1db57029c1df9f9151463c6c708f76f46704",
+      "candidate": "a635b01ad67e85a10b542e889f0de29715358e49",
       "branch": "codex/swbpipe-ci-economy-20260920",
       "dependsOn": [
         "B3B",
         "C3",
         "CI-ECONOMY-CODEX"
-      ]
+      ],
+      "sweep": {
+        "candidate": "a635b01ad67e85a10b542e889f0de29715358e49",
+        "status": "running",
+        "startedAt": "2026-09-20T19:57:17Z",
+        "temporaryPath": "/tmp/swbpipe-b3b-c3-ci-sweep-a635b01a",
+        "executionSession": 73916,
+        "resourceOwner": "ROOT; native/build/CUA previously released",
+        "complete": false
+      }
     },
     "B3B-C3-CI-REVIEW": {
       "role": "TASK Type 2 independent code review",
@@ -1516,19 +1525,21 @@
       "model": "gpt-6-astra",
       "reasoning": "xhigh",
       "mechanism": "Codex delegated-harness-native; fresh context",
-      "status": "initial review CHANGES REQUESTED for P2 affected-suite omission; repair d361 and later test/evidence delta need backcheck",
+      "status": "code/test P2 backcheck PASS at a635b01a; current-resource and NewBlank wording records corrections pending backcheck",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_C3_CI_INDEPENDENT_REVIEW_BRIEF.md",
       "briefSha256": "c13a05c9c8c2efdc00735347825c9883753cbaf960847bf25a495a6604f86cff",
       "candidate": "52142dbdaec190f3a7fdb47a4f937c3e23720824",
       "readOnly": "instruction boundary; host unrestricted",
       "reviewRange": "88c6c7463199d1d69caebde04678fa74facca78f..52142dbdaec190f3a7fdb47a4f937c3e23720824",
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_REVIEW_RETURN.md",
-      "returnSha256": "07ecaef5aad8a3902d3e028ae36ee52ae267ad2e5ab8de0a32cb62886114734a"
+      "returnSha256": "07ecaef5aad8a3902d3e028ae36ee52ae267ad2e5ab8de0a32cb62886114734a",
+      "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_BACKCHECK_RETURN.md",
+      "backcheckReturnSha256": "bb5044440a47b31ec7e2d1f50f696a0b6fee03ca8e5a7e70a0a1e233ac4b6c7c"
     },
     "MVP-PUBLISHING-DISCUSSION": {
       "role": "ROOT product discussion with bounded TASK inventory",
       "parent": "ROOT",
-      "status": "owner corrected optional-agent reply: SWBPIPE agent control enables planned CAEPIPE validation; other publishing details proposed",
+      "status": "agent control required before planned validation; owner selected Codex first and embedded agent later, CAEPIPE on sameMac/Windows; remaining publishing details proposed",
       "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/MVP_PUBLISHING_DISCUSSION.md",
       "inventoryAgent": "/root/ci_inventory",
       "model": "gpt-6-astra",
@@ -1539,7 +1550,8 @@
       "scope": "read-only product/release basis; no tests/UI/ports, implementation, DAG rebuild or deliverable reconciliation",
       "inventoryReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/MVP_BASIS_INVENTORY_RETURN.md",
       "returnSha256": "0a488f8093501ebc002d72e10cf1a260fb389acf71d2beba30fa91c29a6f7238",
-      "ownerDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MVP_AGENT_CORRECTION_2026-09-20.md"
+      "ownerDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MVP_AGENT_CORRECTION_2026-09-20.md",
+      "controllerDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_CODEX_VALIDATION_CONTROLLER_2026-09-20.md"
     }
   },
   "edges": [
@@ -1740,7 +1752,7 @@
       "CI-ECONOMY-CODEX"
     ]
   ],
-  "current_frontier": "B3B/C3 connected16 complete; combined226b1db5 native witness active, CI P2 repaired awaiting bounded backcheck; final clean sweep and hosted proof follow. MVP publishing draft under owner discussion, agent-control-for-CAEPIPE-validation dependency adopted; peer integration preparation and host question pending; unaffected work continues. No scope/protection/Runtime adoption or phase transition.",
+  "current_frontier": "Full clean sweep running at a635 with pinned Chromium/shared lock. Code/P2 backcheck passed; native packet and corrected records tail await final review. B4/C4 preparations returned; C4 dependent label decisions pending. Codex-first validation contract is proposed subject to owner stateless MCP condition and actual-client witness; no integration writes.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -1945,7 +1957,7 @@
     "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RUNTIME_COORDINATION_STATUS.md",
     "editor": "ROOT only",
     "peerThread": "01a07cd1-86da-7d30-9b17-e2cbbad3f10a",
-    "state": "B3B/C3 native/review convergence continues; owner requires agent control for planned CAEPIPE validation. Peer scopes/interfaces/order and actual host/tool qualification being prepared before integration writes.",
+    "state": "Codex-first same-Mac validation direction adopted; stateless MCP2026-07-28 transport conditional on actual-client witness. Peer owns harmless isolated protocol probe/read-only contract review; Piping owns proposed domain bridge. Exact live-binding activation pending; no integration writes.",
     "originMainRevalidated": "88c6c7463199d1d69caebde04678fa74facca78f",
     "peerProposedContract": "cb08dbe2fbeaf5a34a0abfa2f1d599c7c5bd6b2f",
     "peerPr": "https://github.com/sgttomas/chirality/pull/824",
