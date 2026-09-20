@@ -1,0 +1,38 @@
+{
+  "collection.log": {
+    "bytes": 356,
+    "sha256": "d8adb817473aeceaea81782508b33fdc0bee8d9e0c4af7d0cc9a923fd1ec9fc1"
+  },
+  "PATH_INSPECTION.md": {
+    "bytes": 4139,
+    "sha256": "892330376502126eb8559cc3bc439f4c24f6f308b1b29a325331523727f3376a"
+  },
+  "report.json": {
+    "bytes": 5190,
+    "sha256": "638041a29a1c82b7d17a8f8684e240af54c80213ac0b5e711568b316e9416096"
+  },
+  "run.log": {
+    "bytes": 1274,
+    "sha256": "ffec1fb48e6e65c74ffc4f41d014066b0279d2adb725ec4361c14901bf05ede2"
+  },
+  "test-identity.json": {
+    "bytes": 139,
+    "sha256": "04b5e9774d193dc5b701606ae6fea864212b931b75e4534837e544eb378f1f53"
+  },
+  "run-collection.log": {
+    "bytes": 356,
+    "sha256": "d8adb817473aeceaea81782508b33fdc0bee8d9e0c4af7d0cc9a923fd1ec9fc1"
+  },
+  "exit-code.txt": {
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  "execution.json": {
+    "bytes": 1558,
+    "sha256": "7121929b27c53be1368b30ca189a77e40cb3d5b13802ec8edddd1e84b52b84fe"
+  },
+  "artifacts/.last-run.json": {
+    "bytes": 45,
+    "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+  }
+}

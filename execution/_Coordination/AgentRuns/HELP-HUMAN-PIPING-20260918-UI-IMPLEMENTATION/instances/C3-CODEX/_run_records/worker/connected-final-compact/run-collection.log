@@ -1,0 +1,6 @@
+Listing tests:
+  [chromium-compact] › b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence
+  [chromium-compact] › c3-viewport-visibility.spec.ts:153:1 › C3 dimmed geometry remains available to hover, click and box selection
+  [chromium-compact] › c3-viewport-visibility.spec.ts:188:1 › C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible
+  [chromium-compact] › c3-viewport-visibility.spec.ts:227:1 › C3 isolation remains clearable when every drawable entity belongs to the snapshot
+Total: 4 tests in 2 files

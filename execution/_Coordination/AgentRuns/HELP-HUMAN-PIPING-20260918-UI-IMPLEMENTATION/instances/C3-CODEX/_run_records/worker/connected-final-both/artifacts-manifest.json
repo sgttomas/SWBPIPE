@@ -1,0 +1,26 @@
+{
+  "report.json": {
+    "bytes": 9661,
+    "sha256": "d329548516314aca37b914f578a7ea367b9f6f45c72828e977a52cc705c0045d"
+  },
+  "run.log": {
+    "bytes": 1615,
+    "sha256": "60e654be89b8b4451d56c76d001a1c893a68ca26f59da63ed582539ab19f1d9d"
+  },
+  "run-collection.log": {
+    "bytes": 661,
+    "sha256": "d940787b427e9bdc6b3ee9ac5189359fcc0441c474d431d529ee92d5c58b536c"
+  },
+  "exit-code.txt": {
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  "execution.json": {
+    "bytes": 1691,
+    "sha256": "6e11fb730d484133030893f0038ebe0761abcf7206e5ac95864909bdd632e0b2"
+  },
+  "artifacts/.last-run.json": {
+    "bytes": 45,
+    "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+  }
+}

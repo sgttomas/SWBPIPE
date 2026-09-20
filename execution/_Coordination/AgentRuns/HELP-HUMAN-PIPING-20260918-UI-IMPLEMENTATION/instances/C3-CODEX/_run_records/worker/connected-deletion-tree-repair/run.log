@@ -1,0 +1,19 @@
+[2m[WebServer] [22m(node:78897) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:78899) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:78899) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it (2.4s)
+(node:78916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:78916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium-compact] › e2e/c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it (2.2s)
+
+  2 passed (6.6s)
+
+EXIT 0
