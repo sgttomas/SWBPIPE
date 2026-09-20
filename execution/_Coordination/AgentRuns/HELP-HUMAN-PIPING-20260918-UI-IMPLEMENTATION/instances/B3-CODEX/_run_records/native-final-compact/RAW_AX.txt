@@ -1,0 +1,1474 @@
+
+POINTER OPEN FIRST ESCAPE
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 192-193
+~									151 combo box (collapsed, settable) New node coordinate unit, Secondary Actions: Expand, Value: m
+
+The focused UI element is 151 combo box (collapsed, settable) New node coordinate unit, Secondary Actions: Expand, Value: m
+
+SECOND ESCAPE
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 128-191
+~						21 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+The focused UI element is 21 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+ENTER DOWN ACTIVE VS COMMITTED
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~									151 combo box (expanded, settable) New node coordinate unit, Secondary Actions: Collapse, Value: m
+
++			192 list (settable) New node coordinate unit
++				193 text (selected) m
+Selected:
+	194 text mm
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).
+COMMIT MM
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 192-193
+~									151 combo box (collapsed, settable) New node coordinate unit, Secondary Actions: Expand, Value: mm
+
+~										152 text mm
+~								154 text Coordinates:  mm, DEC-018 display Pointer plane: global XZ · Y=0  m Click within 4 CSS pixels on the visible 3D canvas to capture on global XZ at Y=0.
+The focused UI element is 151 combo box (collapsed, settable) New node coordinate unit, Secondary Actions: Expand, Value: mm
+
+RETURN MODEL STAGE
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 22, 129-231
+~						15 toggle button Table, Help: Table view (⌘1), Value: off
+~						17 toggle button Both, Help: Both view (⌘3), Value: on
+~						21 button (expanded) Inspector, Help: Inspector (⌘I), Secondary Actions: Collapse
+~						29 toggle button Model, Value: on
+~						30 toggle button Loads, Value: off
+~						128 toggle button Model, Value: on
++						129 toggle button Review changes, Value: off
+~						41 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
++					130 container Model tree
++						131 text MODEL
++						132 container Layout grid mode
++							133 toggle button Tree, Value: on
++							134 toggle button Grid, Value: off
++						135 container Model tree filtering
++							136 container
++								137 text Filter model
++								138 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++									139 text Name, ID, type, or group
++							140 text 2  of  2  model entities visible
++							141 button (disabled) Clear model tree filter
++						142 container Model
++							143 button (selected) Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
++							144 button (expanded) Diagnostics, Secondary Actions: Collapse
++							145 button BLANK_PROJECT_AUTHORING_TARGET diagnostic:blank-project:authoring-target, Help: BLANK_PROJECT_AUTHORING_TARGET (diagnostic:blank-project:authoring-target)
++					146 splitter Resize table and canvas, Value: 55
++					147 container Viewport controls
++						148 text 3D Centerline
++						149 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
++							150 summary Deformation · unavailable, Value: off
++								151 text Deformation · unavailable
++						152 container Viewport display toggles
++							153 toggle button Labels, Help: Show or hide entity labels, Value: on
++							154 toggle button Loads, Help: Show or hide load arrows, Value: on
++							155 toggle button Grid, Help: Show or hide the ground grid, Value: on
++						156 container Viewport selection tools
++							157 toggle button Box Select, Value: off
++							158 container
++								159 text Selection filter
++								160 pop up button Selection filter, Value: All
++							161 button (disabled) Hide, Help: Select at least one visible, valid node, pipe, support, or component.
++							162 button (disabled) Isolate, Help: Select at least one visible, valid node, pipe, support, or component.
++							163 button (disabled) Show All, Help: All eligible entities are already shown.
++							164 button Fit Model
++							165 button Fit Visible
++							166 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
++						167 container Viewport geometry
++							168 toggle button Schematic, Value: on
++							169 toggle button Actual OD, Value: off
++							170 toggle button Measure, Value: off
++					171 container Viewport status
++						172 text Selected:  project:blank-local-20260920t052640z
++						173 container Schematic centerline geometry
++							174 text Schematic centerline geometry
++						175 container View command status, Help: No view command dispatched.
++							176 text No view command dispatched.
++					177 container
++						178 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
++						179 container Viewport entity selection
++						180 image Orientation gizmo showing X, Y, Z axes
++						181 container View controls
++							182 toggle button Front, Value: off
++							183 toggle button Top, Value: off
++							184 toggle button Isometric, Value: on
++						185 text 1 m
++					186 container Command and selection bar
++						187 container Object creation tools
++							188 toggle button Node, Help: Arm node creation, Value: on
++							189 toggle button Pipe, Help: Arm pipe-run creation, Value: off
++							190 toggle button Support, Help: Arm support creation in the Inspector, Value: off
++							191 toggle button Component, Help: Arm component-symbol insertion, Value: off
++							192 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
++						193 text Node tool armed
++						194 summary Selection & navigation, Value: off
++							195 text Selection & navigation
++					196 button Close inspector, Help: Close (⎋)
++					197 container Viewport editor intents
++						198 heading Create node, Value: 3
++							199 text Create node
++						200 container
++							201 container Explicit node geometry
++								202 container
++									203 text Node ID
++									204 text field (settable) New node ID, Placeholder: node:N-3
++								205 container
++									206 text Label
++									207 text field (settable) New node label, Placeholder: Node label
++								208 container
++									209 text X
++									210 text field (settable) New node X coordinate, Placeholder: 0
++								211 container
++									212 text Y
++									213 text field (settable) New node Y coordinate, Placeholder: 0
++								214 container
++									215 text Z
++									216 text field (settable) New node Z coordinate, Placeholder: 0
++								217 container
++									218 text Coordinate unit
++									219 combo box (collapsed, settable) New node coordinate unit, Secondary Actions: Expand, Value: mm
+
++										220 text mm
++										221 text ▾
++								222 text Coordinates:  mm, DEC-018 display Pointer plane: global XZ · Y=0  m Click within 4 CSS pixels on the visible 3D canvas to capture on global XZ at Y=0.
++								223 container
++									224 text Provenance
++									225 text field (settable) New node provenance
++								226 button (disabled) Add node, Help: Enter a node ID.; Enter a node label.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
++								227 text Enter a node ID.; Enter a node label.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
++							228 container Route review
++								229 heading Review and Apply, Value: 4
++									230 text Review and Apply
++								231 text The affected selection changed. Add again to review the current draft.
++								232 text Add a complete node or route to generate the service validation and exact diff.
++								233 button (disabled) Apply, Help: Add and review a draft before applying.
++							234 summary Unit source, Value: off
++								235 text Unit source
++						236 summary Pending changes (0), Value: off
++							237 text Pending changes (
++							238 text 0
++							239 text )
++					240 container Property inspector
++						241 heading Blank Local Model — project:project:blank-local-20260920t052640z, Value: 2
++							242 text Blank Local Model —  project : project:blank-local-20260920t052640z
++						243 tab group (selectable) Inspector views
++							244 tab (selected) Properties
++							245 tab (selectable) Task
++						246 summary All properties, Value: off
++							247 text All properties
++						248 summary Sources and units, Value: off
++							249 text Sources and units
++						250 summary New support configuration, Value: off
++							251 text New support configuration
++						252 summary New section, Value: off
++							253 text New section
++						254 summary New material, Value: off
++							255 text New material
++						256 summary New support, Value: off
++							257 text New support
++						258 summary New component, Value: off
++							259 text New component
+The focused UI element is 3 HTML content Description: SWBPIPE, URL: tauri://localhost
+NESTED POPUP
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
++						322 button (disabled) Agent, Help: Agent: not available yet
+~										288 combo box (expanded, settable) Support family, Secondary Actions: Collapse, Value: Not provided (preserved)
+
++			323 list (settable) Support family
++				324 text (selected) Not provided (preserved)
+Selected:
+	325 text Anchor
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).
+NESTED FIRST ESCAPE
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 323-324
+~										288 combo box (collapsed, settable) Support family, Secondary Actions: Expand, Value: Not provided (preserved)
+
+The focused UI element is 288 combo box (collapsed, settable) Support family, Secondary Actions: Expand, Value: Not provided (preserved)
+
+NESTED SECOND ESCAPE
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 240-249, 252-259, 261-321
+~						21 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+The focused UI element is 21 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+LABEL X TYPED
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 2-21, 23, 25-38, 41, 108-115, 127-145, 147-195, 260, 322-333, 394-446
++	127 container
++		128 scroll area
++			129 HTML content Description: SWBPIPE, URL: tauri://localhost
++				130 container
++					131 container Toolbar
++						132 heading SWBPIPE, Value: 1
++							133 text SWBPIPE
++						134 container Blank Local Model
++							135 text Blank Local Model
++						136 container Editing tools
++							137 button (disabled) Undo model edit, Help: Nothing to undo
++							138 button (disabled) Redo model edit, Help: Nothing to redo
++							139 toggle button Select, Help: Select (⎋), Value: off
++						140 container View
++							141 toggle button Table, Help: Table view (⌘1), Value: off
++							142 toggle button Model, Help: Model view (⌘2), Value: off
++							143 toggle button Both, Help: Both view (⌘3), Value: on
++						144 button Run
++						145 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
++						146 container Panels
++							147 button (expanded) Inspector, Help: Inspector (⌘I), Secondary Actions: Collapse
++							148 button (disabled) Agent, Help: Agent: not available yet
++						149 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
++						150 summary Appearance, Value: off
++						151 container Human toolkit
++							152 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
++					153 container Stages
++						154 content list
++							155 toggle button Model, Value: on
++							156 toggle button Loads, Value: off
++							157 toggle button (disabled) Results, Help: No run yet, Value: off
++							158 toggle button (disabled) Review, Help: No run yet, Value: off
++						159 content list
++							160 button (collapsed) Libraries, Secondary Actions: Expand
++							161 button (collapsed) Rules, Secondary Actions: Expand
++							162 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
++					163 container Modeling workspace
++						164 container Tables
++							165 toggle button Model, Value: on
++							166 toggle button Review changes, Value: off
++							167 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
++						168 container Model tree
++							169 text MODEL
++							170 container Layout grid mode
++								171 toggle button Tree, Value: on
++								172 toggle button Grid, Value: off
++							173 container Model tree filtering
++								174 container
++									175 text Filter model
++									176 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++										177 text Name, ID, type, or group
++								178 text 2  of  2  model entities visible
++								179 button (disabled) Clear model tree filter
++							180 container Model
++								181 button (selected) Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
++								182 button (expanded) Diagnostics, Secondary Actions: Collapse
++								183 button BLANK_PROJECT_AUTHORING_TARGET diagnostic:blank-project:authoring-target, Help: BLANK_PROJECT_AUTHORING_TARGET (diagnostic:blank-project:authoring-target)
++						184 splitter Resize table and canvas, Value: 55
++						185 container Viewport controls
++							186 text 3D Centerline
++							187 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
++								188 summary Deformation · unavailable, Value: off
++									189 text Deformation · unavailable
++							190 container Viewport display toggles
++								191 toggle button Labels, Help: Show or hide entity labels, Value: on
++								192 toggle button Loads, Help: Show or hide load arrows, Value: on
++								193 toggle button Grid, Help: Show or hide the ground grid, Value: on
++							194 container Viewport selection tools
++								195 toggle button Box Select, Value: off
++								196 container
++									197 text Selection filter
++									198 pop up button Selection filter, Value: All
++								199 button (disabled) Hide, Help: Select at least one visible, valid node, pipe, support, or component.
++								200 button (disabled) Isolate, Help: Select at least one visible, valid node, pipe, support, or component.
++								201 button (disabled) Show All, Help: All eligible entities are already shown.
++								202 button Fit Model
++								203 button Fit Visible
++								204 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
++							205 container Viewport geometry
++								206 toggle button Schematic, Value: on
++								207 toggle button Actual OD, Value: off
++								208 toggle button Measure, Value: off
++						209 container Viewport status
++							210 text Selected:  project:blank-local-20260920t052640z
++							211 container Schematic centerline geometry
++								212 text Schematic centerline geometry
++							213 container View command status, Help: No view command dispatched.
++								214 text No view command dispatched.
++						215 container
++							216 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
++							217 container Viewport entity selection
++							218 image Orientation gizmo showing X, Y, Z axes
++							219 container View controls
++								220 toggle button Front, Value: off
++								221 toggle button Top, Value: off
++								222 toggle button Isometric, Value: on
++							223 text 1 m
++						224 container Command and selection bar
++							225 container Object creation tools
++								226 toggle button Node, Help: Arm node creation, Value: on
++								227 toggle button Pipe, Help: Arm pipe-run creation, Value: off
++								228 toggle button Support, Help: Arm support creation in the Inspector, Value: off
++								229 toggle button Component, Help: Arm component-symbol insertion, Value: off
++								230 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
++							231 text Node tool armed
++							232 summary Selection & navigation, Value: off
++								233 text Selection & navigation
++						234 button Close inspector, Help: Close (⎋)
++						235 container Viewport editor intents
++							236 heading Create node, Value: 3
++								237 text Create node
++							238 container
++								239 container Explicit node geometry
++									240 container
++										241 text Node ID
++										242 text field (settable) New node ID, Placeholder: node:N-3
++									243 container
++										244 text Label
++										245 text field (settable) New node label, Value: x, Placeholder: Node label
++									246 container
++										247 text X
++										248 text field (settable) New node X coordinate, Placeholder: 0
++									249 container
++										250 text Y
++										251 text field (settable) New node Y coordinate, Placeholder: 0
++									252 container
++										253 text Z
++										254 text field (settable) New node Z coordinate, Placeholder: 0
++									255 container
++										256 text Coordinate unit
++										257 combo box (collapsed, settable) New node coordinate unit, Secondary Actions: Expand, Value: mm
+
++											258 text mm
++											259 text ▾
++									260 text Coordinates:  mm, DEC-018 display Pointer plane: global XZ · Y=0  m Click within 4 CSS pixels on the visible 3D canvas to capture on global XZ at Y=0.
++									261 container
++										262 text Provenance
++										263 text field (settable) New node provenance
++									264 button (disabled) Add node, Help: Enter a node ID.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
++									265 text Enter a node ID.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
++								266 container Route review
++									267 heading Review and Apply, Value: 4
++										268 text Review and Apply
++									269 text The affected selection changed. Add again to review the current draft.
++									270 text Add a complete node or route to generate the service validation and exact diff.
++									271 button (disabled) Apply, Help: Add and review a draft before applying.
++								272 summary Unit source, Value: off
++									273 text Unit source
++							274 summary Pending changes (0), Value: off
++								275 text Pending changes (
++								276 text 0
++								277 text )
++						278 container Property inspector
++							279 heading Blank Local Model — project:project:blank-local-20260920t052640z, Value: 2
++								280 text Blank Local Model —  project : project:blank-local-20260920t052640z
++							281 tab group (selectable) Inspector views
++								282 tab (selected) Properties
++								283 tab (selectable) Task
++							284 summary All properties, Value: off
++								285 text All properties
++							286 summary Sources and units, Value: off
++								287 text Sources and units
++							288 summary New support configuration, Value: off
++								289 text New support configuration
++							290 summary New section, Value: off
++								291 text New section
++							292 summary New material, Value: off
++								293 text New material
++							294 summary New support, Value: off
++								295 text New support
++							296 summary New component, Value: off
++								297 text New component
++					298 container Agent
++						299 button (disabled) Agent, Help: Agent: not available yet
++					300 container Workspace status
++						301 container Analysis statuses
++							302 button (collapsed) Solver · Model incomplete, Help: MODEL_INCOMPLETE, Secondary Actions: Expand
++						303 button (collapsed) 5 Issues, Secondary Actions: Expand
++						304 text project: project:blank-local-20260920t052640z Entered
++						305 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
++		306 list
++			307 text X
++		308 button close
+The focused UI element is 245 text field (settable) New node label, Value: x, Placeholder: Node label
+LABEL FIRST UNDO IMMEDIATE
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 133-308
+~	127 scroll area
+~		128 HTML content Description: SWBPIPE, URL: tauri://localhost
+~			129 container
+~				130 container Toolbar
+~					131 heading SWBPIPE, Value: 1
+~						132 text SWBPIPE
++					133 container Blank Local Model
++						134 text Blank Local Model
++					135 container Editing tools
++						136 button (disabled) Undo model edit, Help: Nothing to undo
++						137 button (disabled) Redo model edit, Help: Nothing to redo
++						138 toggle button Select, Help: Select (⎋), Value: off
++					139 container View
++						140 toggle button Table, Help: Table view (⌘1), Value: off
++						141 toggle button Model, Help: Model view (⌘2), Value: off
++						142 toggle button Both, Help: Both view (⌘3), Value: on
++					143 button Run
++					144 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
++					145 container Panels
++						146 button (expanded) Inspector, Help: Inspector (⌘I), Secondary Actions: Collapse
++						147 button (disabled) Agent, Help: Agent: not available yet
++					148 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
++					149 summary Appearance, Value: off
++					150 container Human toolkit
++						151 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
++				152 container Stages
++					153 content list
++						154 toggle button Model, Value: on
++						155 toggle button Loads, Value: off
++						156 toggle button (disabled) Results, Help: No run yet, Value: off
++						157 toggle button (disabled) Review, Help: No run yet, Value: off
++					158 content list
++						159 button (collapsed) Libraries, Secondary Actions: Expand
++						160 button (collapsed) Rules, Secondary Actions: Expand
++						161 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
++				162 container Modeling workspace
++					163 container Tables
++						164 toggle button Model, Value: on
++						165 toggle button Review changes, Value: off
++						166 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
++					167 container Model tree
++						168 text MODEL
++						169 container Layout grid mode
++							170 toggle button Tree, Value: on
++							171 toggle button Grid, Value: off
++						172 container Model tree filtering
++							173 container
++								174 text Filter model
++								175 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++									176 text Name, ID, type, or group
++							177 text 2  of  2  model entities visible
++							178 button (disabled) Clear model tree filter
++						179 container Model
++							180 button (selected) Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
++							181 button (expanded) Diagnostics, Secondary Actions: Collapse
++							182 button BLANK_PROJECT_AUTHORING_TARGET diagnostic:blank-project:authoring-target, Help: BLANK_PROJECT_AUTHORING_TARGET (diagnostic:blank-project:authoring-target)
++					183 splitter Resize table and canvas, Value: 55
++					184 container Viewport controls
++						185 text 3D Centerline
++						186 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
++							187 summary Deformation · unavailable, Value: off
++								188 text Deformation · unavailable
++						189 container Viewport display toggles
++							190 toggle button Labels, Help: Show or hide entity labels, Value: on
++							191 toggle button Loads, Help: Show or hide load arrows, Value: on
++							192 toggle button Grid, Help: Show or hide the ground grid, Value: on
++						193 container Viewport selection tools
++							194 toggle button Box Select, Value: off
++							195 container
++								196 text Selection filter
++								197 pop up button Selection filter, Value: All
++							198 button (disabled) Hide, Help: Select at least one visible, valid node, pipe, support, or component.
++							199 button (disabled) Isolate, Help: Select at least one visible, valid node, pipe, support, or component.
++							200 button (disabled) Show All, Help: All eligible entities are already shown.
++							201 button Fit Model
++							202 button Fit Visible
++							203 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
++						204 container Viewport geometry
++							205 toggle button Schematic, Value: on
++							206 toggle button Actual OD, Value: off
++							207 toggle button Measure, Value: off
++					208 container Viewport status
++						209 text Selected:  project:blank-local-20260920t052640z
++						210 container Schematic centerline geometry
++							211 text Schematic centerline geometry
++						212 container View command status, Help: No view command dispatched.
++							213 text No view command dispatched.
++					214 container
++						215 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
++						216 container Viewport entity selection
++						217 image Orientation gizmo showing X, Y, Z axes
++						218 container View controls
++							219 toggle button Front, Value: off
++							220 toggle button Top, Value: off
++							221 toggle button Isometric, Value: on
++						222 text 1 m
++					223 container Command and selection bar
++						224 container Object creation tools
++							225 toggle button Node, Help: Arm node creation, Value: on
++							226 toggle button Pipe, Help: Arm pipe-run creation, Value: off
++							227 toggle button Support, Help: Arm support creation in the Inspector, Value: off
++							228 toggle button Component, Help: Arm component-symbol insertion, Value: off
++							229 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
++						230 text Node tool armed
++						231 summary Selection & navigation, Value: off
++							232 text Selection & navigation
++					233 button Close inspector, Help: Close (⎋)
++					234 container Viewport editor intents
++						235 heading Create node, Value: 3
++							236 text Create node
++						237 container
++							238 container Explicit node geometry
++								239 container
++									240 text Node ID
++									241 text field (settable) New node ID, Placeholder: node:N-3
++								242 container
++									243 text Label
++									244 text field (settable) New node label, Placeholder: Node label
++								245 container
++									246 text X
++									247 text field (settable) New node X coordinate, Placeholder: 0
++								248 container
++									249 text Y
++									250 text field (settable) New node Y coordinate, Placeholder: 0
++								251 container
++									252 text Z
++									253 text field (settable) New node Z coordinate, Placeholder: 0
++								254 container
++									255 text Coordinate unit
++									256 combo box (collapsed, settable) New node coordinate unit, Secondary Actions: Expand, Value: mm
+
++										257 text mm
++										258 text ▾
++								259 text Coordinates:  mm, DEC-018 display Pointer plane: global XZ · Y=0  m Click within 4 CSS pixels on the visible 3D canvas to capture on global XZ at Y=0.
++								260 container
++									261 text Provenance
++									262 text field (settable) New node provenance
++								263 button (disabled) Add node, Help: Enter a node ID.; Enter a node label.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
++								264 text Enter a node ID.; Enter a node label.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
++							265 container Route review
++								266 heading Review and Apply, Value: 4
++									267 text Review and Apply
++								268 text The affected selection changed. Add again to review the current draft.
++								269 text Add a complete node or route to generate the service validation and exact diff.
++								270 button (disabled) Apply, Help: Add and review a draft before applying.
++							271 summary Unit source, Value: off
++								272 text Unit source
++						273 summary Pending changes (0), Value: off
++							274 text Pending changes (
++							275 text 0
++							276 text )
++					277 container Property inspector
++						278 heading Blank Local Model — project:project:blank-local-20260920t052640z, Value: 2
++							279 text Blank Local Model —  project : project:blank-local-20260920t052640z
++						280 tab group (selectable) Inspector views
++							281 tab (selected) Properties
++							282 tab (selectable) Task
++						283 summary All properties, Value: off
++							284 text All properties
++						285 summary Sources and units, Value: off
++							286 text Sources and units
++						287 summary New support configuration, Value: off
++							288 text New support configuration
++						289 summary New section, Value: off
++							290 text New section
++						291 summary New material, Value: off
++							292 text New material
++						293 summary New support, Value: off
++							294 text New support
++						295 summary New component, Value: off
++							296 text New component
++				297 container Agent
++					298 button (disabled) Agent, Help: Agent: not available yet
++				299 container Workspace status
++					300 container Analysis statuses
++						301 button (collapsed) Solver · Model incomplete, Help: MODEL_INCOMPLETE, Secondary Actions: Expand
++					302 button (collapsed) 5 Issues, Secondary Actions: Expand
++					303 text project: project:blank-local-20260920t052640z Entered
++					304 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+The focused UI element is 244 text field (settable) New node label, Placeholder: Node label
+NODE ADD REVIEW
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 269
+~								268 text Validation passed. Review the exact operations and diff, then Apply.
++								305 container
++									306 text Single operation :  op:viewport-create-node-node:N-COMPACT-WITNESS-001
++								307 container
++									308 text Validated model hash: sha256:e4e27e2a07a73582d8ff0d97dc6d52876c3eceac69640a4533e7c547df034660
++								309 content list
++									310 container node:N-COMPACT-WITNESS nodes:not_present → {"id":"node:N-COMPACT-WITNESS","label":"x","position":{"x":0,"y":0,"z":0},"provenance":"native_compact_witness"}[mm]
++										311 list marker •
++										312 text node:N-COMPACT-WITNESS nodes : not_present  →  {"id":"node:N-COMPACT-WITNESS","label":"x","position":{"x":0,"y":0,"z":0},"provenance":"native_compact_witness"} [ mm ]
+~								270 button Apply
+The focused UI element is 128 HTML content Description: SWBPIPE, URL: tauri://localhost
+NODE APPLY
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 305-312
+~						136 button Undo model edit, Help: Undo (⌘Z)
+~							177 text 3  of  3  model entities visible
+~							180 button Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
++							305 button (expanded) Nodes, Secondary Actions: Collapse
++							306 button (selected) x node:N-COMPACT-WITNESS, Help: x (node:N-COMPACT-WITNESS)
+~							198 button Hide, Help: Hide selected geometry.
+~							199 button Isolate, Help: Isolate selected geometry with authored context.
+~							203 button Fit Selection, Help: Fit currently visible selected geometry.
+~						209 text Selected:  node:N-COMPACT-WITNESS
++							307 toggle button Select x in viewport, Help: x (node:N-COMPACT-WITNESS), Value: on
+~									241 text field (settable) New node ID, Placeholder: node:N-3
+~									244 text field (settable) New node label, Placeholder: Node label
+~									247 text field (settable) New node X coordinate, Placeholder: 0
+~									250 text field (settable) New node Y coordinate, Placeholder: 0
+~									253 text field (settable) New node Z coordinate, Placeholder: 0
+~									262 text field (settable) New node provenance
+~								263 button (disabled) Add node, Help: Enter a node ID.; Enter a node label.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
+~								264 text Enter a node ID.; Enter a node label.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
+~								268 text The affected selection changed. Add again to review the current draft.
++								308 text Add a complete node or route to generate the service validation and exact diff.
+~								270 button (disabled) Apply, Help: Add and review a draft before applying.
+~						278 heading x — node: node:N-COMPACT-WITNESS, Value: 2
+~							279 text x —  node :  node:N-COMPACT-WITNESS
++						309 container Delete node intent
++							310 heading Delete node, Value: 3
++								311 text Delete node
++							312 button Queue delete node, Help: Queue node delete intent
++							313 container
++								314 text Operation op:delete-node-node:N-COMPACT-WITNESS; delete; proposed Target Node; node:N-COMPACT-WITNESS Change delete_node; Explicit node deletion; nodes; before=x; x=0; y=0; z=0; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:blank-local-20260920t052640z; requires reference validation before durable model change.
+~					303 text node: node:N-COMPACT-WITNESS Entered
+The focused UI element is 128 HTML content Description: SWBPIPE, URL: tauri://localhost
+NEUTRAL MODEL UNDO
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 234-268, 270-276, 305-314
+~						136 button (disabled) Undo model edit, Help: Nothing to undo
+~						137 button Redo model edit, Help: Redo (⇧⌘Z)
+~						138 toggle button Select, Help: Select (⎋), Value: on
+~							177 text 2  of  2  model entities visible
+~							180 button (selected) Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
+~							198 button (disabled) Hide, Help: Select at least one visible, valid node, pipe, support, or component.
+~							199 button (disabled) Isolate, Help: Select at least one visible, valid node, pipe, support, or component.
+~							203 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
+~						209 text Selected:  project:blank-local-20260920t052640z
+~							225 toggle button Node, Help: Arm node creation, Value: off
+~						230 text Select
+~						278 heading Blank Local Model — project:project:blank-local-20260920t052640z, Value: 2
+~							279 text Blank Local Model —  project : project:blank-local-20260920t052640z
+~					303 text project: project:blank-local-20260920t052640z Entered
+The focused UI element is 128 HTML content Description: SWBPIPE, URL: tauri://localhost
+NEUTRAL MODEL REDO
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~						136 button Undo model edit, Help: Undo (⌘Z)
+~						137 button (disabled) Redo model edit, Help: Nothing to redo
+~							177 text 3  of  3  model entities visible
+~							180 button Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
++							305 button (expanded) Nodes, Secondary Actions: Collapse
++							306 button (selected) x node:N-COMPACT-WITNESS, Help: x (node:N-COMPACT-WITNESS)
+~							198 button Hide, Help: Hide selected geometry.
+~							199 button Isolate, Help: Isolate selected geometry with authored context.
+~							203 button Fit Selection, Help: Fit currently visible selected geometry.
+~						209 text Selected:  node:N-COMPACT-WITNESS
++							307 toggle button Select x in viewport, Help: x (node:N-COMPACT-WITNESS), Value: on
+~						278 heading x — node: node:N-COMPACT-WITNESS, Value: 2
+~							279 text x —  node :  node:N-COMPACT-WITNESS
++						308 container Delete node intent
++							309 heading Delete node, Value: 3
++								310 text Delete node
++							311 button Queue delete node, Help: Queue node delete intent
++							312 container
++								313 text Operation op:delete-node-node:N-COMPACT-WITNESS; delete; proposed Target Node; node:N-COMPACT-WITNESS Change delete_node; Explicit node deletion; nodes; before=x; x=0; y=0; z=0; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:blank-local-20260920t052640z; requires reference validation before durable model change.
+~					303 text node: node:N-COMPACT-WITNESS Entered
+The focused UI element is 128 HTML content Description: SWBPIPE, URL: tauri://localhost
+FILTER X
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 176
+~								175 search text field (settable) Filter model tree, Value: x, Placeholder: Name, ID, type, or group
++									314 text (settable) x
++									315 button cancel
+~							178 button Clear model tree filter
+The focused UI element is 175 search text field (settable) Filter model tree, Value: x, Placeholder: Name, ID, type, or group
+FILTER FIRST UNDO
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 315
+~								175 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+~									314 text Name, ID, type, or group
+~							178 button (disabled) Clear model tree filter
+The focused UI element is 175 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+MODEL UNDO WITH TEXT REDO
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 305-313
+~						136 button (disabled) Undo model edit, Help: Nothing to undo
+~						137 button Redo model edit, Help: Redo (⇧⌘Z)
+~							177 text 2  of  2  model entities visible
+~							180 button (selected) Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
+~							198 button (disabled) Hide, Help: Select at least one visible, valid node, pipe, support, or component.
+~							199 button (disabled) Isolate, Help: Select at least one visible, valid node, pipe, support, or component.
+~							203 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
+~						209 text Selected:  project:blank-local-20260920t052640z
+~						278 heading Blank Local Model — project:project:blank-local-20260920t052640z, Value: 2
+~							279 text Blank Local Model —  project : project:blank-local-20260920t052640z
+~					303 text project: project:blank-local-20260920t052640z Entered
+The focused UI element is 128 HTML content Description: SWBPIPE, URL: tauri://localhost
+MODEL REDO WITH TEXT REDO
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~						136 button Undo model edit, Help: Undo (⌘Z)
+~						137 button (disabled) Redo model edit, Help: Nothing to redo
+~							177 text 3  of  3  model entities visible
+~							180 button Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
++							315 button (expanded) Nodes, Secondary Actions: Collapse
++							316 button (selected) x node:N-COMPACT-WITNESS, Help: x (node:N-COMPACT-WITNESS)
+~							198 button Hide, Help: Hide selected geometry.
+~							199 button Isolate, Help: Isolate selected geometry with authored context.
+~							203 button Fit Selection, Help: Fit currently visible selected geometry.
+~						209 text Selected:  node:N-COMPACT-WITNESS
++							317 toggle button Select x in viewport, Help: x (node:N-COMPACT-WITNESS), Value: on
+~						278 heading x — node: node:N-COMPACT-WITNESS, Value: 2
+~							279 text x —  node :  node:N-COMPACT-WITNESS
++						318 container Delete node intent
++							319 heading Delete node, Value: 3
++								320 text Delete node
++							321 button Queue delete node, Help: Queue node delete intent
++							322 container
++								323 text Operation op:delete-node-node:N-COMPACT-WITNESS; delete; proposed Target Node; node:N-COMPACT-WITNESS Change delete_node; Explicit node deletion; nodes; before=x; x=0; y=0; z=0; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:blank-local-20260920t052640z; requires reference validation before durable model change.
+~					303 text node: node:N-COMPACT-WITNESS Entered
+The focused UI element is 128 HTML content Description: SWBPIPE, URL: tauri://localhost
+TEXT REDO SURVIVED
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 314
+~								175 search text field (settable) Filter model tree, Value: x, Placeholder: Name, ID, type, or group
++									324 text (settable) x
++									325 button cancel
+~							178 button Clear model tree filter
+The focused UI element is 175 search text field (settable) Filter model tree, Value: x, Placeholder: Name, ID, type, or group
+FILTER EXHAUSTION
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 325
+~								175 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+~									324 text Name, ID, type, or group
+~							178 button (disabled) Clear model tree filter
+The focused UI element is 128 HTML content Description: SWBPIPE, URL: tauri://localhost
+NATIVE EDIT POINTER MODEL UNDO
+Window: "Blank Local Model — SWBPIPE", App: SWBPIPE.
+1 standard window Blank Local Model — SWBPIPE, Secondary Actions: Raise
+	2 scroll area
+		3 HTML content Description: SWBPIPE, URL: tauri://localhost
+			4 container
+				5 container Toolbar
+					6 heading SWBPIPE, Value: 1
+						7 text SWBPIPE
+					8 container Blank Local Model
+						9 text Blank Local Model
+					10 container Editing tools
+						11 button (disabled) Undo model edit, Help: Nothing to undo
+						12 button Redo model edit, Help: Redo (⇧⌘Z)
+						13 toggle button Select, Help: Select (⎋), Value: on
+					14 container View
+						15 toggle button Table, Help: Table view (⌘1), Value: off
+						16 toggle button Model, Help: Model view (⌘2), Value: off
+						17 toggle button Both, Help: Both view (⌘3), Value: on
+					18 button Run
+					19 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					20 container Panels
+						21 button (expanded) Inspector, Help: Inspector (⌘I), Secondary Actions: Collapse
+						22 button (disabled) Agent, Help: Agent: not available yet
+					23 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					24 summary Appearance, Value: off
+					25 container Human toolkit
+						26 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				27 container Stages
+					28 content list
+						29 toggle button Model, Value: on
+						30 toggle button Loads, Value: off
+						31 toggle button (disabled) Results, Help: No run yet, Value: off
+						32 toggle button (disabled) Review, Help: No run yet, Value: off
+					33 content list
+						34 button (collapsed) Libraries, Secondary Actions: Expand
+						35 button (collapsed) Rules, Secondary Actions: Expand
+						36 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				37 container Modeling workspace
+					38 container Tables
+						39 toggle button Model, Value: on
+						40 toggle button Review changes, Value: off
+						41 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
+					42 container Model tree
+						43 text MODEL
+						44 container Layout grid mode
+							45 toggle button Tree, Value: on
+							46 toggle button Grid, Value: off
+						47 container Model tree filtering
+							48 container
+								49 text Filter model
+								50 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									51 text Name, ID, type, or group
+							52 text 2  of  2  model entities visible
+							53 button (disabled) Clear model tree filter
+						54 container Model
+							55 button (selected) Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
+							56 button (expanded) Diagnostics, Secondary Actions: Collapse
+							57 button BLANK_PROJECT_AUTHORING_TARGET diagnostic:blank-project:authoring-target, Help: BLANK_PROJECT_AUTHORING_TARGET (diagnostic:blank-project:authoring-target)
+					58 splitter Resize table and canvas, Value: 55
+					59 container Viewport controls
+						60 text 3D Centerline
+						61 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+							62 summary Deformation · unavailable, Value: off
+								63 text Deformation · unavailable
+						64 container Viewport display toggles
+							65 toggle button Labels, Help: Show or hide entity labels, Value: on
+							66 toggle button Loads, Help: Show or hide load arrows, Value: on
+							67 toggle button Grid, Help: Show or hide the ground grid, Value: on
+						68 container Viewport selection tools
+							69 toggle button Box Select, Value: off
+							70 container
+								71 text Selection filter
+								72 pop up button Selection filter, Value: All
+							73 button (disabled) Hide, Help: Select at least one visible, valid node, pipe, support, or component.
+							74 button (disabled) Isolate, Help: Select at least one visible, valid node, pipe, support, or component.
+							75 button (disabled) Show All, Help: All eligible entities are already shown.
+							76 button Fit Model
+							77 button Fit Visible
+							78 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
+						79 container Viewport geometry
+							80 toggle button Schematic, Value: on
+							81 toggle button Actual OD, Value: off
+							82 toggle button Measure, Value: off
+					83 container Viewport status
+						84 text Selected:  project:blank-local-20260920t052640z
+						85 container Schematic centerline geometry
+							86 text Schematic centerline geometry
+						87 container View command status, Help: No view command dispatched.
+							88 text No view command dispatched.
+					89 container
+						90 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						91 container Viewport entity selection
+						92 image Orientation gizmo showing X, Y, Z axes
+						93 container View controls
+							94 toggle button Front, Value: off
+							95 toggle button Top, Value: off
+							96 toggle button Isometric, Value: on
+						97 text 1 m
+					98 container Command and selection bar
+						99 container Object creation tools
+							100 toggle button Node, Help: Arm node creation, Value: off
+							101 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							102 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							103 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							104 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						105 text Select
+						106 summary Selection & navigation, Value: off
+							107 text Selection & navigation
+					108 button Close inspector, Help: Close (⎋)
+					109 container Property inspector
+						110 heading Blank Local Model — project:project:blank-local-20260920t052640z, Value: 2
+							111 text Blank Local Model —  project : project:blank-local-20260920t052640z
+						112 tab group (selectable) Inspector views
+							113 tab (selected) Properties
+							114 tab (selectable) Task
+						115 summary All properties, Value: off
+							116 text All properties
+						117 summary Sources and units, Value: off
+							118 text Sources and units
+						119 summary New support configuration, Value: off
+							120 text New support configuration
+						121 summary New section, Value: off
+							122 text New section
+						123 summary New material, Value: off
+							124 text New material
+						125 summary New support, Value: off
+							126 text New support
+						127 summary New component, Value: off
+							128 text New component
+				129 container Agent
+					130 button (disabled) Agent, Help: Agent: not available yet
+				131 container Workspace status
+					132 container Analysis statuses
+						133 button (collapsed) Solver · Model incomplete, Help: MODEL_INCOMPLETE, Secondary Actions: Expand
+					134 button (collapsed) 5 Issues, Secondary Actions: Expand
+					135 text project: project:blank-local-20260920t052640z Entered
+					136 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	137 close button
+	138 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	139 minimize button
+	140 text Blank Local Model — SWBPIPE
+141 menu bar
+	142 SWBPIPE
+	143 File
+	144 Edit
+	145 View
+	146 Insert
+	147 Analyze
+
+The focused UI element is 3 HTML content Description: SWBPIPE, URL: tauri://localhost
+NATIVE EDIT REDO ENABLED
+Window: "Blank Local Model — SWBPIPE", App: SWBPIPE.
+1 Edit, Secondary Actions: Cancel, Pick
+	2 menu Secondary Actions: Cancel
+		3 (disabled) Undo Model Edit, ID: fireMenuItemAction:
+		4 Redo Model Edit, ID: fireMenuItemAction:
+		5 Undo, ID: undo:
+		6 Redo, ID: redo:
+		7 Cut, ID: cut:
+		8 Copy, ID: copy:
+		9 Paste, ID: paste:
+		10 Select All, ID: selectAll:
+		11 AutoFill
+			12 menu Secondary Actions: Cancel
+				13 (disabled) Contact…
+				14 (disabled) Passwords…
+				15 (disabled) Credit Card…
+		16 Start Dictation…, ID: startDictation:
+		17 Emoji & Symbols, ID: orderFrontCharacterPalette:
+
+NATIVE EDIT POINTER REDO
+Window: "Blank Local Model — SWBPIPE", App: SWBPIPE.
+1 standard window Blank Local Model — SWBPIPE, Secondary Actions: Raise
+	2 scroll area
+		3 HTML content Description: SWBPIPE, URL: tauri://localhost
+			4 container
+				5 container Toolbar
+					6 heading SWBPIPE, Value: 1
+						7 text SWBPIPE
+					8 container Blank Local Model
+						9 text Blank Local Model
+					10 container Editing tools
+						11 button Undo model edit, Help: Undo (⌘Z)
+						12 button (disabled) Redo model edit, Help: Nothing to redo
+						13 toggle button Select, Help: Select (⎋), Value: on
+					14 container View
+						15 toggle button Table, Help: Table view (⌘1), Value: off
+						16 toggle button Model, Help: Model view (⌘2), Value: off
+						17 toggle button Both, Help: Both view (⌘3), Value: on
+					18 button Run
+					19 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					20 container Panels
+						21 button (expanded) Inspector, Help: Inspector (⌘I), Secondary Actions: Collapse
+						22 button (disabled) Agent, Help: Agent: not available yet
+					23 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					24 summary Appearance, Value: off
+					25 container Human toolkit
+						26 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				27 container Stages
+					28 content list
+						29 toggle button Model, Value: on
+						30 toggle button Loads, Value: off
+						31 toggle button (disabled) Results, Help: No run yet, Value: off
+						32 toggle button (disabled) Review, Help: No run yet, Value: off
+					33 content list
+						34 button (collapsed) Libraries, Secondary Actions: Expand
+						35 button (collapsed) Rules, Secondary Actions: Expand
+						36 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				37 container Modeling workspace
+					38 container Tables
+						39 toggle button Model, Value: on
+						40 toggle button Review changes, Value: off
+						41 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
+					42 container Model tree
+						43 text MODEL
+						44 container Layout grid mode
+							45 toggle button Tree, Value: on
+							46 toggle button Grid, Value: off
+						47 container Model tree filtering
+							48 container
+								49 text Filter model
+								50 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									51 text Name, ID, type, or group
+							52 text 3  of  3  model entities visible
+							53 button (disabled) Clear model tree filter
+						54 container Model
+							55 button Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
+							56 button (expanded) Nodes, Secondary Actions: Collapse
+							57 button (selected) x node:N-COMPACT-WITNESS, Help: x (node:N-COMPACT-WITNESS)
+							58 button (expanded) Diagnostics, Secondary Actions: Collapse
+							59 button BLANK_PROJECT_AUTHORING_TARGET diagnostic:blank-project:authoring-target, Help: BLANK_PROJECT_AUTHORING_TARGET (diagnostic:blank-project:authoring-target)
+					60 splitter Resize table and canvas, Value: 55
+					61 container Viewport controls
+						62 text 3D Centerline
+						63 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+							64 summary Deformation · unavailable, Value: off
+								65 text Deformation · unavailable
+						66 container Viewport display toggles
+							67 toggle button Labels, Help: Show or hide entity labels, Value: on
+							68 toggle button Loads, Help: Show or hide load arrows, Value: on
+							69 toggle button Grid, Help: Show or hide the ground grid, Value: on
+						70 container Viewport selection tools
+							71 toggle button Box Select, Value: off
+							72 container
+								73 text Selection filter
+								74 pop up button Selection filter, Value: All
+							75 button Hide, Help: Hide selected geometry.
+							76 button Isolate, Help: Isolate selected geometry with authored context.
+							77 button (disabled) Show All, Help: All eligible entities are already shown.
+							78 button Fit Model
+							79 button Fit Visible
+							80 button Fit Selection, Help: Fit currently visible selected geometry.
+						81 container Viewport geometry
+							82 toggle button Schematic, Value: on
+							83 toggle button Actual OD, Value: off
+							84 toggle button Measure, Value: off
+					85 container Viewport status
+						86 text Selected:  node:N-COMPACT-WITNESS
+						87 container Schematic centerline geometry
+							88 text Schematic centerline geometry
+						89 container View command status, Help: No view command dispatched.
+							90 text No view command dispatched.
+					91 container
+						92 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						93 container Viewport entity selection
+							94 toggle button Select x in viewport, Help: x (node:N-COMPACT-WITNESS), Value: on
+						95 image Orientation gizmo showing X, Y, Z axes
+						96 container View controls
+							97 toggle button Front, Value: off
+							98 toggle button Top, Value: off
+							99 toggle button Isometric, Value: on
+						100 text 1 m
+					101 container Command and selection bar
+						102 container Object creation tools
+							103 toggle button Node, Help: Arm node creation, Value: off
+							104 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							105 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							106 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							107 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						108 text Select
+						109 summary Selection & navigation, Value: off
+							110 text Selection & navigation
+					111 button Close inspector, Help: Close (⎋)
+					112 container Property inspector
+						113 heading x — node: node:N-COMPACT-WITNESS, Value: 2
+							114 text x —  node :  node:N-COMPACT-WITNESS
+						115 tab group (selectable) Inspector views
+							116 tab (selected) Properties
+							117 tab (selectable) Task
+						118 summary All properties, Value: off
+							119 text All properties
+						120 summary Sources and units, Value: off
+							121 text Sources and units
+						122 summary New support configuration, Value: off
+							123 text New support configuration
+						124 summary New section, Value: off
+							125 text New section
+						126 summary New material, Value: off
+							127 text New material
+						128 summary New support, Value: off
+							129 text New support
+						130 summary New component, Value: off
+							131 text New component
+						132 container Delete node intent
+							133 heading Delete node, Value: 3
+								134 text Delete node
+							135 button Queue delete node, Help: Queue node delete intent
+							136 container
+								137 text Operation op:delete-node-node:N-COMPACT-WITNESS; delete; proposed Target Node; node:N-COMPACT-WITNESS Change delete_node; Explicit node deletion; nodes; before=x; x=0; y=0; z=0; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:blank-local-20260920t052640z; requires reference validation before durable model change.
+				138 container Agent
+					139 button (disabled) Agent, Help: Agent: not available yet
+				140 container Workspace status
+					141 container Analysis statuses
+						142 button (collapsed) Solver · Model incomplete, Help: MODEL_INCOMPLETE, Secondary Actions: Expand
+					143 button (collapsed) 5 Issues, Secondary Actions: Expand
+					144 text node: node:N-COMPACT-WITNESS Entered
+					145 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	146 close button
+	147 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	148 minimize button
+	149 text Blank Local Model — SWBPIPE
+150 menu bar
+	151 SWBPIPE
+	152 File
+	153 Edit
+	154 View
+	155 Insert
+	156 Analyze
+
+The focused UI element is 3 HTML content Description: SWBPIPE, URL: tauri://localhost
+VIEW MENU BEFORE SAME VALUE
+Window: "Blank Local Model — SWBPIPE", App: SWBPIPE.
+1 View, Secondary Actions: Cancel, Pick
+	2 menu Secondary Actions: Cancel
+		3 Table View, ID: fireMenuItemAction:
+		4 Model View, ID: fireMenuItemAction:
+		5 Both View, ID: fireMenuItemAction:
+		6 Model Stage, ID: fireMenuItemAction:
+		7 Loads Stage, ID: fireMenuItemAction:
+		8 (disabled) Results Stage, ID: fireMenuItemAction:
+		9 (disabled) Review Stage, ID: fireMenuItemAction:
+		10 Model Tree, ID: fireMenuItemAction:
+		11 Inspector, ID: fireMenuItemAction:
+		12 Operation Apply, ID: fireMenuItemAction:
+		13 Load Cases, ID: fireMenuItemAction:
+		14 Libraries, ID: fireMenuItemAction:
+		15 Rule Packs, ID: fireMenuItemAction:
+		16 Solve, ID: fireMenuItemAction:
+		17 Results, ID: fireMenuItemAction:
+		18 Report, ID: fireMenuItemAction:
+		19 Project, ID: fireMenuItemAction:
+		20 Exports, ID: fireMenuItemAction:
+		21 Audit  Boundaries, ID: fireMenuItemAction:
+		22 Issues, ID: fireMenuItemAction:
+		23 Audit  Boundaries Drawer, ID: fireMenuItemAction:
+		24 Close Panel (show viewport), ID: fireMenuItemAction:
+		25 Light, ID: fireMenuItemAction:
+		26 Dark, ID: fireMenuItemAction:
+		27 System, ID: fireMenuItemAction:
+		28 Comfortable Density, ID: fireMenuItemAction:
+		29 Compact Density, ID: fireMenuItemAction:
+		30 Enter Full Screen, ID: toggleFullScreen:
+
+SAME BOTH RESELECT
+Window: "Blank Local Model — SWBPIPE", App: SWBPIPE.
+1 standard window Blank Local Model — SWBPIPE, Secondary Actions: Raise
+	2 scroll area
+		3 HTML content Description: SWBPIPE, URL: tauri://localhost
+			4 container
+				5 container Toolbar
+					6 heading SWBPIPE, Value: 1
+						7 text SWBPIPE
+					8 container Blank Local Model
+						9 text Blank Local Model
+					10 container Editing tools
+						11 button Undo model edit, Help: Undo (⌘Z)
+						12 button (disabled) Redo model edit, Help: Nothing to redo
+						13 toggle button Select, Help: Select (⎋), Value: on
+					14 container View
+						15 toggle button Table, Help: Table view (⌘1), Value: off
+						16 toggle button Model, Help: Model view (⌘2), Value: off
+						17 toggle button Both, Help: Both view (⌘3), Value: on
+					18 button Run
+					19 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					20 container Panels
+						21 button (expanded) Inspector, Help: Inspector (⌘I), Secondary Actions: Collapse
+						22 button (disabled) Agent, Help: Agent: not available yet
+					23 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					24 summary Appearance, Value: off
+					25 container Human toolkit
+						26 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				27 container Stages
+					28 content list
+						29 toggle button Model, Value: on
+						30 toggle button Loads, Value: off
+						31 toggle button (disabled) Results, Help: No run yet, Value: off
+						32 toggle button (disabled) Review, Help: No run yet, Value: off
+					33 content list
+						34 button (collapsed) Libraries, Secondary Actions: Expand
+						35 button (collapsed) Rules, Secondary Actions: Expand
+						36 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				37 container Modeling workspace
+					38 container Tables
+						39 toggle button Model, Value: on
+						40 toggle button Review changes, Value: off
+						41 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
+					42 container Model tree
+						43 text MODEL
+						44 container Layout grid mode
+							45 toggle button Tree, Value: on
+							46 toggle button Grid, Value: off
+						47 container Model tree filtering
+							48 container
+								49 text Filter model
+								50 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									51 text Name, ID, type, or group
+							52 text 3  of  3  model entities visible
+							53 button (disabled) Clear model tree filter
+						54 container Model
+							55 button Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
+							56 button (expanded) Nodes, Secondary Actions: Collapse
+							57 button (selected) x node:N-COMPACT-WITNESS, Help: x (node:N-COMPACT-WITNESS)
+							58 button (expanded) Diagnostics, Secondary Actions: Collapse
+							59 button BLANK_PROJECT_AUTHORING_TARGET diagnostic:blank-project:authoring-target, Help: BLANK_PROJECT_AUTHORING_TARGET (diagnostic:blank-project:authoring-target)
+					60 splitter Resize table and canvas, Value: 55
+					61 container Viewport controls
+						62 text 3D Centerline
+						63 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+							64 summary Deformation · unavailable, Value: off
+								65 text Deformation · unavailable
+						66 container Viewport display toggles
+							67 toggle button Labels, Help: Show or hide entity labels, Value: on
+							68 toggle button Loads, Help: Show or hide load arrows, Value: on
+							69 toggle button Grid, Help: Show or hide the ground grid, Value: on
+						70 container Viewport selection tools
+							71 toggle button Box Select, Value: off
+							72 container
+								73 text Selection filter
+								74 pop up button Selection filter, Value: All
+							75 button Hide, Help: Hide selected geometry.
+							76 button Isolate, Help: Isolate selected geometry with authored context.
+							77 button (disabled) Show All, Help: All eligible entities are already shown.
+							78 button Fit Model
+							79 button Fit Visible
+							80 button Fit Selection, Help: Fit currently visible selected geometry.
+						81 container Viewport geometry
+							82 toggle button Schematic, Value: on
+							83 toggle button Actual OD, Value: off
+							84 toggle button Measure, Value: off
+					85 container Viewport status
+						86 text Selected:  node:N-COMPACT-WITNESS
+						87 container Schematic centerline geometry
+							88 text Schematic centerline geometry
+						89 container View command status, Help: No view command dispatched.
+							90 text No view command dispatched.
+					91 container
+						92 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						93 container Viewport entity selection
+							94 toggle button Select x in viewport, Help: x (node:N-COMPACT-WITNESS), Value: on
+						95 image Orientation gizmo showing X, Y, Z axes
+						96 container View controls
+							97 toggle button Front, Value: off
+							98 toggle button Top, Value: off
+							99 toggle button Isometric, Value: on
+						100 text 1 m
+					101 container Command and selection bar
+						102 container Object creation tools
+							103 toggle button Node, Help: Arm node creation, Value: off
+							104 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							105 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							106 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							107 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						108 text Select
+						109 summary Selection & navigation, Value: off
+							110 text Selection & navigation
+					111 button Close inspector, Help: Close (⎋)
+					112 container Property inspector
+						113 heading x — node: node:N-COMPACT-WITNESS, Value: 2
+							114 text x —  node :  node:N-COMPACT-WITNESS
+						115 tab group (selectable) Inspector views
+							116 tab (selected) Properties
+							117 tab (selectable) Task
+						118 summary All properties, Value: off
+							119 text All properties
+						120 summary Sources and units, Value: off
+							121 text Sources and units
+						122 summary New support configuration, Value: off
+							123 text New support configuration
+						124 summary New section, Value: off
+							125 text New section
+						126 summary New material, Value: off
+							127 text New material
+						128 summary New support, Value: off
+							129 text New support
+						130 summary New component, Value: off
+							131 text New component
+						132 container Delete node intent
+							133 heading Delete node, Value: 3
+								134 text Delete node
+							135 button Queue delete node, Help: Queue node delete intent
+							136 container
+								137 text Operation op:delete-node-node:N-COMPACT-WITNESS; delete; proposed Target Node; node:N-COMPACT-WITNESS Change delete_node; Explicit node deletion; nodes; before=x; x=0; y=0; z=0; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:blank-local-20260920t052640z; requires reference validation before durable model change.
+				138 container Agent
+					139 button (disabled) Agent, Help: Agent: not available yet
+				140 container Workspace status
+					141 container Analysis statuses
+						142 button (collapsed) Solver · Model incomplete, Help: MODEL_INCOMPLETE, Secondary Actions: Expand
+					143 button (collapsed) 5 Issues, Secondary Actions: Expand
+					144 text node: node:N-COMPACT-WITNESS Entered
+					145 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	146 close button
+	147 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	148 minimize button
+	149 text Blank Local Model — SWBPIPE
+150 menu bar
+	151 SWBPIPE
+	152 File
+	153 Edit
+	154 View
+	155 Insert
+	156 Analyze
+
+The focused UI element is 3 HTML content Description: SWBPIPE, URL: tauri://localhost
+KEYBOARD PAGE CLOSE
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 160, 164-177
+~						29 toggle button Model, Value: on
+~						34 button (collapsed) Libraries, Secondary Actions: Expand
+~				157 container Modeling workspace
+~					158 container Tables
+~						159 toggle button Model, Value: on
++						160 toggle button Review changes, Value: off
+~						161 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
+~					162 container Model tree
+~						163 text MODEL
++						164 container Layout grid mode
++							165 toggle button Tree, Value: on
++							166 toggle button Grid, Value: off
++						167 container Model tree filtering
++							168 container
++								169 text Filter model
++								170 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++									171 text Name, ID, type, or group
++							172 text 3  of  3  model entities visible
++							173 button (disabled) Clear model tree filter
++						174 container Model
++							175 button Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
++							176 button (expanded) Nodes, Secondary Actions: Collapse
++							177 button (selected) x node:N-COMPACT-WITNESS, Help: x (node:N-COMPACT-WITNESS)
++							178 button (expanded) Diagnostics, Secondary Actions: Collapse
++							179 button BLANK_PROJECT_AUTHORING_TARGET diagnostic:blank-project:authoring-target, Help: BLANK_PROJECT_AUTHORING_TARGET (diagnostic:blank-project:authoring-target)
++					180 splitter Resize table and canvas, Value: 55
++					181 container Viewport controls
++						182 text 3D Centerline
++						183 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
++							184 summary Deformation · unavailable, Value: off
++								185 text Deformation · unavailable
++						186 container Viewport display toggles
++							187 toggle button Labels, Help: Show or hide entity labels, Value: on
++							188 toggle button Loads, Help: Show or hide load arrows, Value: on
++							189 toggle button Grid, Help: Show or hide the ground grid, Value: on
++						190 container Viewport selection tools
++							191 toggle button Box Select, Value: off
++							192 container
++								193 text Selection filter
++								194 pop up button Selection filter, Value: All
++							195 button Hide, Help: Hide selected geometry.
++							196 button Isolate, Help: Isolate selected geometry with authored context.
++							197 button (disabled) Show All, Help: All eligible entities are already shown.
++							198 button Fit Model
++							199 button Fit Visible
++							200 button Fit Selection, Help: Fit currently visible selected geometry.
++						201 container Viewport geometry
++							202 toggle button Schematic, Value: on
++							203 toggle button Actual OD, Value: off
++							204 toggle button Measure, Value: off
++					205 container Viewport status
++						206 text Selected:  node:N-COMPACT-WITNESS
++						207 container Schematic centerline geometry
++							208 text Schematic centerline geometry
++						209 container View command status, Help: No view command dispatched.
++							210 text No view command dispatched.
++					211 container
++						212 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
++						213 container Viewport entity selection
++							214 toggle button Select x in viewport, Help: x (node:N-COMPACT-WITNESS), Value: on
++						215 image Orientation gizmo showing X, Y, Z axes
++						216 container View controls
++							217 toggle button Front, Value: off
++							218 toggle button Top, Value: off
++							219 toggle button Isometric, Value: on
++						220 text 1 m
++					221 container Command and selection bar
++						222 container Object creation tools
++							223 toggle button Node, Help: Arm node creation, Value: off
++							224 toggle button Pipe, Help: Arm pipe-run creation, Value: off
++							225 toggle button Support, Help: Arm support creation in the Inspector, Value: off
++							226 toggle button Component, Help: Arm component-symbol insertion, Value: off
++							227 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
++						228 text Select
++						229 summary Selection & navigation, Value: off
++							230 text Selection & navigation
+The focused UI element is 34 button (collapsed) Libraries, Secondary Actions: Expand
+MINIMUM DRAG
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~						13 toggle button Description: Select (⎋), Value: on
+The focused UI element is 3 HTML content Description: SWBPIPE, URL: tauri://localhost
+CLEAN REOPEN
+Window: "Blank Local Model — SWBPIPE", App: SWBPIPE.
+1 standard window Blank Local Model — SWBPIPE, Secondary Actions: Raise
+	2 scroll area
+		3 HTML content Description: SWBPIPE, URL: tauri://localhost
+			4 container
+				5 container Toolbar
+					6 heading SWBPIPE, Value: 1
+						7 text SWBPIPE
+					8 container Blank Local Model
+						9 text Blank Local Model
+					10 container Editing tools
+						11 button (disabled) Undo model edit, Help: Nothing to undo
+						12 button (disabled) Redo model edit, Help: Nothing to redo
+						13 toggle button Description: Select (⎋), Value: on
+					14 container View
+						15 toggle button Table, Help: Table view (⌘1), Value: off
+						16 toggle button Model, Help: Model view (⌘2), Value: off
+						17 toggle button Both, Help: Both view (⌘3), Value: on
+					18 button Run
+					19 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					20 container Panels
+						21 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+					22 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					23 summary Appearance, Value: off
+					24 container Human toolkit
+						25 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				26 container Stages
+					27 content list
+						28 toggle button Model, Value: on
+						29 toggle button Loads, Value: off
+						30 toggle button (disabled) Results, Help: No run yet, Value: off
+						31 toggle button (disabled) Review, Help: No run yet, Value: off
+					32 content list
+						33 button (collapsed) Libraries, Secondary Actions: Expand
+						34 button (collapsed) Rules, Secondary Actions: Expand
+						35 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				36 container Modeling workspace
+					37 container Tables
+						38 toggle button Model, Value: on
+						39 toggle button Review changes, Value: off
+						40 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
+					41 container Model tree
+						42 text MODEL
+						43 container Layout grid mode
+							44 toggle button Tree, Value: on
+							45 toggle button Grid, Value: off
+						46 container Model tree filtering
+							47 container
+								48 text Filter model
+								49 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									50 text Name, ID, type, or group
+							51 text 2  of  2  model entities visible
+							52 button (disabled) Clear model tree filter
+						53 container Model
+							54 button (selected) Blank Local Model project:blank-local-20260920t052640z, Help: Blank Local Model (project:blank-local-20260920t052640z)
+							55 button (expanded) Diagnostics, Secondary Actions: Collapse
+							56 button BLANK_PROJECT_AUTHORING_TARGET diagnostic:blank-project:authoring-target, Help: BLANK_PROJECT_AUTHORING_TARGET (diagnostic:blank-project:authoring-target)
+					57 splitter Resize table and canvas, Value: 55
+					58 container Viewport controls
+						59 text 3D Centerline
+						60 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+							61 summary Deformation · unavailable, Value: off
+								62 text Deformation · unavailable
+						63 container Viewport display toggles
+							64 toggle button Labels, Help: Show or hide entity labels, Value: on
+							65 toggle button Loads, Help: Show or hide load arrows, Value: on
+							66 toggle button Grid, Help: Show or hide the ground grid, Value: on
+						67 container Viewport selection tools
+							68 toggle button Box Select, Value: off
+							69 container
+								70 text Selection filter
+								71 pop up button Selection filter, Value: All
+							72 button (disabled) Hide, Help: Select at least one visible, valid node, pipe, support, or component.
+							73 button (disabled) Isolate, Help: Select at least one visible, valid node, pipe, support, or component.
+							74 button (disabled) Show All, Help: All eligible entities are already shown.
+							75 button Fit Model
+							76 button Fit Visible
+							77 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
+						78 container Viewport geometry
+							79 toggle button Schematic, Value: on
+							80 toggle button Actual OD, Value: off
+							81 toggle button Measure, Value: off
+					82 container Viewport status
+						83 text Selected:  project:blank-local-20260920t052640z
+						84 container Schematic centerline geometry
+							85 text Schematic centerline geometry
+						86 container View command status, Help: No view command dispatched.
+							87 text No view command dispatched.
+					88 container
+						89 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						90 container Viewport entity selection
+						91 image Orientation gizmo showing X, Y, Z axes
+						92 container View controls
+							93 toggle button Front, Value: off
+							94 toggle button Top, Value: off
+							95 toggle button Isometric, Value: on
+						96 text 1 m
+					97 container Command and selection bar
+						98 container Object creation tools
+							99 toggle button Node, Help: Arm node creation, Value: off
+							100 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							101 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							102 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							103 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						104 text Select
+						105 summary Selection & navigation, Value: off
+							106 text Selection & navigation
+				107 container Agent
+					108 button (disabled) Agent, Help: Agent: not available yet
+				109 container Workspace status
+					110 container Analysis statuses
+						111 button (collapsed) Solver · Model incomplete, Help: MODEL_INCOMPLETE, Secondary Actions: Expand
+					112 button (collapsed) 5 Issues, Secondary Actions: Expand
+					113 text project: project:blank-local-20260920t052640z Entered
+					114 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	115 close button
+	116 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	117 minimize button
+	118 text Blank Local Model — SWBPIPE
+119 menu bar
+	120 SWBPIPE
+	121 File
+	122 Edit
+	123 View
+	124 Insert
+	125 Analyze
+
+The focused UI element is 3 HTML content Description: SWBPIPE, URL: tauri://localhost
+FINAL PREFERENCES
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 23
++					126 container (expanded) Secondary Actions: Collapse
++						127 summary Appearance, Value: on
++						128 container
++							129 text Theme
++							130 pop up button Appearance theme, Value: System
++						131 container
++							132 text Density
++							133 pop up button Workspace density, Value: Comfortable
+The focused UI element is 127 summary Appearance, Value: on

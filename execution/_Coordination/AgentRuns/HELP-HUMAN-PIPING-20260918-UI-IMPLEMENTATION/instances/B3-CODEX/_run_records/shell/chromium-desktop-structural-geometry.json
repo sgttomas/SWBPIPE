@@ -1,0 +1,514 @@
+[
+  {
+    "name": "both-inspector-closed",
+    "geometry": {
+      "window": {
+        "width": 1440,
+        "height": 900
+      },
+      "menuBar": null,
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 48
+      },
+      "rail": {
+        "x": 0,
+        "y": 48,
+        "width": 56,
+        "height": 828
+      },
+      "surfaces": {
+        "x": 56,
+        "y": 48,
+        "width": 1340,
+        "height": 828
+      },
+      "agentStrip": {
+        "x": 1396,
+        "y": 48,
+        "width": 44,
+        "height": 828
+      },
+      "statusBar": {
+        "x": 0,
+        "y": 876,
+        "width": 1440,
+        "height": 24
+      },
+      "tablePane": {
+        "x": 56,
+        "y": 48,
+        "width": 737,
+        "height": 828
+      },
+      "tabStrip": {
+        "x": 56,
+        "y": 48,
+        "width": 736,
+        "height": 28
+      },
+      "canvasPane": {
+        "x": 793,
+        "y": 48,
+        "width": 603,
+        "height": 828
+      },
+      "drawnCanvas": {
+        "x": 793,
+        "y": 184,
+        "width": 603,
+        "height": 692
+      },
+      "canvasHidden": false,
+      "inspector": null,
+      "paneCounts": [
+        1,
+        1
+      ],
+      "pageOverflow": 0,
+      "stored": {
+        "version": 1,
+        "theme": "system",
+        "density": "comfortable",
+        "leftRailPx": 280,
+        "rightRailPx": 340,
+        "dockPx": 260,
+        "bothSplitPct": 55,
+        "tableDrawerPx": 280,
+        "lastPanelTabs": {}
+      }
+    }
+  },
+  {
+    "name": "both-inspector-open",
+    "geometry": {
+      "window": {
+        "width": 1440,
+        "height": 900
+      },
+      "menuBar": null,
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 48
+      },
+      "rail": {
+        "x": 0,
+        "y": 48,
+        "width": 56,
+        "height": 828
+      },
+      "surfaces": {
+        "x": 56,
+        "y": 48,
+        "width": 1340,
+        "height": 828
+      },
+      "agentStrip": {
+        "x": 1396,
+        "y": 48,
+        "width": 44,
+        "height": 828
+      },
+      "statusBar": {
+        "x": 0,
+        "y": 876,
+        "width": 1440,
+        "height": 24
+      },
+      "tablePane": {
+        "x": 56,
+        "y": 48,
+        "width": 437,
+        "height": 828
+      },
+      "tabStrip": {
+        "x": 56,
+        "y": 48,
+        "width": 436,
+        "height": 28
+      },
+      "canvasPane": {
+        "x": 493,
+        "y": 48,
+        "width": 603,
+        "height": 828
+      },
+      "drawnCanvas": {
+        "x": 493,
+        "y": 184,
+        "width": 603,
+        "height": 692
+      },
+      "canvasHidden": false,
+      "inspector": {
+        "x": 1096,
+        "y": 48,
+        "width": 300,
+        "height": 828
+      },
+      "paneCounts": [
+        1,
+        1
+      ],
+      "pageOverflow": 0,
+      "stored": {
+        "version": 1,
+        "theme": "system",
+        "density": "comfortable",
+        "leftRailPx": 280,
+        "rightRailPx": 340,
+        "dockPx": 260,
+        "bothSplitPct": 55,
+        "tableDrawerPx": 280,
+        "lastPanelTabs": {}
+      }
+    }
+  },
+  {
+    "name": "both-routing",
+    "geometry": {
+      "window": {
+        "width": 1440,
+        "height": 900
+      },
+      "menuBar": null,
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 48
+      },
+      "rail": {
+        "x": 0,
+        "y": 48,
+        "width": 56,
+        "height": 828
+      },
+      "surfaces": {
+        "x": 56,
+        "y": 48,
+        "width": 1340,
+        "height": 828
+      },
+      "agentStrip": {
+        "x": 1396,
+        "y": 48,
+        "width": 44,
+        "height": 828
+      },
+      "statusBar": {
+        "x": 0,
+        "y": 876,
+        "width": 1440,
+        "height": 24
+      },
+      "tablePane": {
+        "x": 56,
+        "y": 48,
+        "width": 437,
+        "height": 828
+      },
+      "tabStrip": {
+        "x": 56,
+        "y": 48,
+        "width": 436,
+        "height": 28
+      },
+      "canvasPane": {
+        "x": 493,
+        "y": 48,
+        "width": 603,
+        "height": 828
+      },
+      "drawnCanvas": {
+        "x": 493,
+        "y": 184,
+        "width": 603,
+        "height": 692
+      },
+      "canvasHidden": false,
+      "inspector": {
+        "x": 1096,
+        "y": 48,
+        "width": 300,
+        "height": 828
+      },
+      "paneCounts": [
+        1,
+        1
+      ],
+      "pageOverflow": 0,
+      "stored": {
+        "version": 1,
+        "theme": "system",
+        "density": "comfortable",
+        "leftRailPx": 280,
+        "rightRailPx": 340,
+        "dockPx": 260,
+        "bothSplitPct": 55,
+        "tableDrawerPx": 280,
+        "lastPanelTabs": {}
+      }
+    }
+  },
+  {
+    "name": "model-drawer-open",
+    "geometry": {
+      "window": {
+        "width": 1440,
+        "height": 900
+      },
+      "menuBar": null,
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 48
+      },
+      "rail": {
+        "x": 0,
+        "y": 48,
+        "width": 56,
+        "height": 828
+      },
+      "surfaces": {
+        "x": 56,
+        "y": 48,
+        "width": 1340,
+        "height": 828
+      },
+      "agentStrip": {
+        "x": 1396,
+        "y": 48,
+        "width": 44,
+        "height": 828
+      },
+      "statusBar": {
+        "x": 0,
+        "y": 876,
+        "width": 1440,
+        "height": 24
+      },
+      "tablePane": {
+        "x": 56,
+        "y": 596,
+        "width": 1000,
+        "height": 280
+      },
+      "tabStrip": {
+        "x": 56,
+        "y": 621,
+        "width": 1000,
+        "height": 28
+      },
+      "canvasPane": {
+        "x": 56,
+        "y": 48,
+        "width": 1000,
+        "height": 548
+      },
+      "drawnCanvas": {
+        "x": 56,
+        "y": 171,
+        "width": 1000,
+        "height": 425
+      },
+      "canvasHidden": false,
+      "inspector": {
+        "x": 1056,
+        "y": 48,
+        "width": 340,
+        "height": 828
+      },
+      "paneCounts": [
+        1,
+        1
+      ],
+      "pageOverflow": 0,
+      "stored": {
+        "version": 1,
+        "theme": "system",
+        "density": "comfortable",
+        "leftRailPx": 280,
+        "rightRailPx": 340,
+        "dockPx": 260,
+        "bothSplitPct": 55,
+        "tableDrawerPx": 280,
+        "lastPanelTabs": {}
+      }
+    }
+  },
+  {
+    "name": "model-drawer-collapsed",
+    "geometry": {
+      "window": {
+        "width": 1440,
+        "height": 900
+      },
+      "menuBar": null,
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 48
+      },
+      "rail": {
+        "x": 0,
+        "y": 48,
+        "width": 56,
+        "height": 828
+      },
+      "surfaces": {
+        "x": 56,
+        "y": 48,
+        "width": 1340,
+        "height": 828
+      },
+      "agentStrip": {
+        "x": 1396,
+        "y": 48,
+        "width": 44,
+        "height": 828
+      },
+      "statusBar": {
+        "x": 0,
+        "y": 876,
+        "width": 1440,
+        "height": 24
+      },
+      "tablePane": {
+        "x": 56,
+        "y": 848,
+        "width": 1000,
+        "height": 28
+      },
+      "tabStrip": {
+        "x": 56,
+        "y": 849,
+        "width": 1000,
+        "height": 28
+      },
+      "canvasPane": {
+        "x": 56,
+        "y": 48,
+        "width": 1000,
+        "height": 828
+      },
+      "drawnCanvas": {
+        "x": 56,
+        "y": 171,
+        "width": 1000,
+        "height": 705
+      },
+      "canvasHidden": false,
+      "inspector": {
+        "x": 1056,
+        "y": 48,
+        "width": 340,
+        "height": 828
+      },
+      "paneCounts": [
+        1,
+        1
+      ],
+      "pageOverflow": 0,
+      "stored": {
+        "version": 1,
+        "theme": "system",
+        "density": "comfortable",
+        "leftRailPx": 280,
+        "rightRailPx": 340,
+        "dockPx": 260,
+        "bothSplitPct": 55,
+        "tableDrawerPx": 280,
+        "lastPanelTabs": {}
+      }
+    }
+  },
+  {
+    "name": "narrow-both-drawer-open",
+    "geometry": {
+      "window": {
+        "width": 1024,
+        "height": 768
+      },
+      "menuBar": null,
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 48
+      },
+      "rail": {
+        "x": 0,
+        "y": 48,
+        "width": 56,
+        "height": 696
+      },
+      "surfaces": {
+        "x": 56,
+        "y": 48,
+        "width": 924,
+        "height": 696
+      },
+      "agentStrip": {
+        "x": 980,
+        "y": 48,
+        "width": 44,
+        "height": 696
+      },
+      "statusBar": {
+        "x": 0,
+        "y": 744,
+        "width": 1024,
+        "height": 24
+      },
+      "tablePane": {
+        "x": 56,
+        "y": 464,
+        "width": 924,
+        "height": 280
+      },
+      "tabStrip": {
+        "x": 56,
+        "y": 489,
+        "width": 924,
+        "height": 28
+      },
+      "canvasPane": {
+        "x": 56,
+        "y": 48,
+        "width": 924,
+        "height": 416
+      },
+      "drawnCanvas": {
+        "x": 56,
+        "y": 171,
+        "width": 924,
+        "height": 293
+      },
+      "canvasHidden": false,
+      "inspector": null,
+      "paneCounts": [
+        1,
+        1
+      ],
+      "pageOverflow": 0,
+      "stored": {
+        "version": 1,
+        "theme": "system",
+        "density": "comfortable",
+        "leftRailPx": 280,
+        "rightRailPx": 340,
+        "dockPx": 260,
+        "bothSplitPct": 55,
+        "tableDrawerPx": 280,
+        "lastPanelTabs": {}
+      }
+    }
+  }
+]

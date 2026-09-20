@@ -1,0 +1,460 @@
+
+> @openpipestress/desktop@0.1.0 test:e2e
+> npm run build:wasm && playwright test --reporter=line --output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-source-artifacts
+
+
+> @openpipestress/desktop@0.1.0 build:wasm
+> node scripts/build-wasm-engine.mjs
+
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/wasm-engine.tmp-85274
+[build-wasm-engine] OK — wasm operation engine generated at public/wasm-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/self-weight-engine.tmp-85274
+[build-wasm-engine] OK — wasm operation engine generated at public/self-weight-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+[1A[2K[2m[WebServer] [22m(node:85723) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 406 tests using 1 worker
+
+[1A[2K(node:85725) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:85725) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/406] [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:89:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions
+[1A[2K[2/406] [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:328:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home
+[1A[2K[3/406] [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:328:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer
+[1A[2K[4/406] [chromium-desktop] › e2e/linear-authoring.spec.ts:59:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review
+[1A[2K[5/406] [chromium-desktop] › e2e/r2-smoke.spec.ts:147:1 › guided workbench shell keeps journey steps, details, and compact status reachable
+[1A[2K[6/406] [chromium-desktop] › e2e/r2-smoke.spec.ts:224:1 › DEC-077 solve temperature queues an explicit unit-bearing operation
+[1A[2K[7/406] [chromium-desktop] › e2e/r2-smoke.spec.ts:250:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[1A[2K[8/406] [chromium-desktop] › e2e/r2-smoke.spec.ts:828:1 › viewport gesture placeholders record unit validation
+[1A[2K[9/406] [chromium-desktop] › e2e/r2-smoke.spec.ts:865:1 › R2 from-blank GUI journey authors the A12 rehearsal script
+[1A[2K[10/406] [chromium-desktop] › e2e/r2-smoke.spec.ts:1085:1 › diagnostic detail exposes linked result unit context
+[1A[2K[11/406] [chromium-desktop] › e2e/r2-smoke.spec.ts:1108:1 › rule-pack manager drafts privately and reports the desktop-only backend seam
+[1A[2K[12/406] [chromium-desktop] › e2e/r2-smoke.spec.ts:1331:1 › library manager loads an invented private sample and reports the desktop-only backend seam
+[1A[2K[13/406] [chromium-desktop] › e2e/r2-smoke.spec.ts:1495:1 › run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam
+[1A[2K[14/406] [chromium-desktop] › e2e/r2-smoke.spec.ts:1623:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps
+[1A[2K[15/406] [chromium-desktop] › e2e/result-compatibility.spec.ts:14:1 › fresh Current exports strict 0.2 result and stress-neutral evidence
+[1A[2K[16/406] [chromium-desktop] › e2e/ui-foundation/fresh-demo-policy.spec.ts:16:1 › fresh policy requires exact one-run authorization and all prospective bindings
+[1A[2K[17/406] [chromium-desktop] › e2e/ui-foundation/fresh-demo-policy.spec.ts:23:1 › fresh hash and exclusive entry reject policy drift and output replay
+[1A[2K[18/406] [chromium-desktop] › e2e/ui-foundation/fresh-demo-policy.spec.ts:35:1 › fresh smoke is explicit, keeps both-size controls and never consumes timed entry
+[1A[2K[19/406] [chromium-desktop] › e2e/ui-foundation/fresh-demo-policy.spec.ts:41:1 › single demonstration retains target failure and invalid/incomplete disposition
+[1A[2K[20/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:12:1 › frozen controller recipe retains prescribed workload and bounded independent segments
+[1A[2K[21/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:16:1 › tree oracle is independently derived with complete typed order and ARIA groups
+[1A[2K[22/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:32:3 › only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: assignment
+[1A[2K[23/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:32:3 › only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: tree-filter
+[1A[2K[24/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:45:1 › presented gap bounds widen outward and never subtract observer work
+[1A[2K[25/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:81:1 › paired cue permits contrasting rim replacing orange and rejects unchanged/outside changes
+[1A[2K[26/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:90:1 › exact four distinct paired witnesses and actual contrast boundary remain mandatory
+[1A[2K[27/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:102:1 › cue plan rejects wrong typed winner anchor camera DPR clip and corrupt PNG mappings
+[1A[2K[28/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:114:1 › geometry pairing is deterministic conservative and one-to-one
+[1A[2K[29/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:122:1 › real caller observer requirements retain complete observations and DOM zero RAF class
+[1A[2K[30/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:132:1 › actual product pre-box unavailable and status-less active union is strict
+[1A[2K[31/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:146:1 › stopped box rejection persists exact fields before throwing and never overwrites evidence
+[1A[2K[32/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:266:1 › cross-action camera accepts finite sub-nanounit 7 to 8 publication and rejects incomplete or changed geometry
+[1A[2K[33/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:293:1 › first applied tuple binds same or later submission only for the exact unchanged application and pointer
+[1A[2K[34/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:325:1 › actual first callback copies application and capture rejects replacement drift or later backfill
+[1A[2K[35/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:415:1 › winner plan requires geometry provenance even when the altered plan is rehashed and self-consistent
+[1A[2K[36/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:424:1 › cue at the wrong attachment location cannot qualify the frozen winner center
+[1A[2K[37/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:456:1 › actual ReturnAsStream beyond former64MiB preserves EOF exact hash and unsafe identifiers
+[1A[2K[38/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:468:1 › actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix
+[1A[2K[39/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:480:1 › tree oracle restores accepted project restraint provenance and component vocabulary
+[1A[2K[40/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:550:1 › tree oracle matches all 40 independently frozen ordered query memberships
+[1A[2K[41/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:565:1 › runtime geometry pin rejects old and mutated plan sources after valid selfhash rebinding
+[1A[2K[42/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:577:1 › runtime geometry pin checks self-contained manifests and actual disk source
+[1A[2K[43/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:634:1 › orbit constructor preserves full qualified sequence and unchanged interval gaps
+[1A[2K[44/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:674:1 › same-trace integer arithmetic matches independent rational bounds and translation
+[1A[2K[45/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:683:1 › same-trace boundary rejects mixed raw clock source document action epoch process and lineage
+[1A[2K[46/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:880:1 › actual extractor and binder retain reusable tracks distinct raw pairs and tied timestamps
+[1A[2K[47/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:900:1 › source-shaped extractor still rejects overlap missing pair and mismatched track endpoints
+[1A[2K[48/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:909:1 › actual action lifecycle persists once before host tail and blocks next action through finalization
+[1A[2K[49/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:931:1 › actual lifecycle retains injected work stop persistence tail and finalization failures without replacement stop
+[1A[2K[50/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:959:1 › assignment diagnostics freeze ten fresh identities and cannot qualify full or focused workload
+[1A[2K[51/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:984:1 › characterization rejects malformed/conflicting modes and every partial/reordered plan
+[1A[2K[52/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:994:1 › real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries
+[1A[2K[53/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1013:1 › attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs
+[1A[2K[54/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1026:1 › required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions
+[1A[2K[55/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1035:1 › keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers
+[1A[2K[56/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1041:1 › reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles
+[1A[2K[57/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1055:1 › product inventory rejects omission duplicates split overlap and wrong final provenance
+[1A[2K[58/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1063:1 › frozen actual product/profile inputs validate read-only when explicitly supplied
+[1A[2K[59/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1078:1 › uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs
+[1A[2K[60/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1100:1 › continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence
+[1A[2K[61/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1130:1 › continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates
+[1A[2K[62/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1197:3 › phase label rejection preserves actual boundary metadata: point-selection-1-stopped
+[1A[2K[63/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1197:3 › phase label rejection preserves actual boundary metadata: orbit-1-ready
+[1A[2K[64/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1215:1 › captured scrollable inspector dimensions remain observations while true layout drift rejects
+[1A[2K[65/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: target-miss
+[1A[2K[66/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: invalid,valid
+[1A[2K[67/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid
+[1A[2K[68/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: interrupted,valid
+[1A[2K[69/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: empty-exit0,valid
+[1A[2K[70/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: stale-success
+[1A[2K[71/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1333:1 › explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates
+[1A[2K[72/406] [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1382:1 › fresh demonstration provenance accepts only its bound revision and internal120 profile
+[1A[2K[73/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:40:1 › all exact owner boundaries pass despite raw observer reference exceedance
+[1A[2K[74/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:47:1 › each target rejects tiny excess and scores upper rather than lower endpoint
+[1A[2K[75/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:63:1 › nearest rank uses the 190th of 200 and retains all tail samples
+[1A[2K[76/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:71:1 › all twenty box and filter rows are required and nineteenth upper is scored
+[1A[2K[77/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:80:1 › missing duplicate reordered sparse or unqualified action populations fail without survivor p95
+[1A[2K[78/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:93:1 › invalid duration intervals and absent assignment never qualify
+[1A[2K[79/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:103:1 › settled owned RAF must be observed exact zero
+[1A[2K[80/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:110:1 › orbit requires exact windows complete contiguous brackets correct modes and current OD
+[1A[2K[81/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:125:1 › run identity bindings freshness and qualification are mandatory
+[1A[2K[82/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:136:1 › exact ten-run cohort preserves each result without pooling sizes or modes
+[1A[2K[83/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:146:1 › missing repeated mixed-binding or nonfresh cohort cannot pass
+[1A[2K[84/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:160:3 › outside orbit brackets survive exact left right and both boundary alignment: centerline
+[1A[2K[85/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:175:3 › boundary endpoints cannot replace missing left right or both outside brackets: centerline
+[1A[2K[86/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:160:3 › outside orbit brackets survive exact left right and both boundary alignment: actual-od
+[1A[2K[87/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:175:3 › boundary endpoints cannot replace missing left right or both outside brackets: actual-od
+[1A[2K[88/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:197:3 › qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: centerline
+[1A[2K[89/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:221:3 › tied coordinates do not waive identity population interval or window guards: centerline
+[1A[2K[90/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:197:3 › qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: actual-od
+[1A[2K[91/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:221:3 › tied coordinates do not waive identity population interval or window guards: actual-od
+[1A[2K[92/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:259:1 › uncertain right boundary is qualified rather than nominally rejected
+[1A[2K[93/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:266:1 › independent dyadic1199 versus1200 dilution must fail using maximum population p95
+[1A[2K[94/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:281:1 › all left right both-edge cuts retain ties and no omitted candidates
+[1A[2K[95/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:298:1 › endpoint and envelope defects never become a favorable boundary population
+[1A[2K[96/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:333:1 › same-trace scorer independently rejects narrow bounds and false carried context
+[1A[2K[97/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:349:1 › same-trace complete populations retain ties and prevent boundary dilution
+[1A[2K[98/406] [chromium-desktop] › e2e/ui-foundation/performance-targets.spec.ts:367:1 › same capture forbids every raw event reuse while tracks and raw index order may repeat
+[1A[2K[99/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:37:1 › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement
+[1A[2K[100/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:81:1 › a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change
+[1A[2K[101/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:241:1 › typed raw-ID collisions remain distinct through ordered selection and an ABA membership change
+[1A[2K[102/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:269:3 › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture
+[1A[2K[103/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:269:3 › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture
+[1A[2K[104/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:308:1 › virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus
+[1A[2K[105/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:348:1 › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft
+[1A[2K[106/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:393:1 › real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures
+[1A[2K[107/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:478:1 › Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags
+[1A[2K[108/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas light comfortable 1024x768
+[1A[2K[109/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas light comfortable 1280x800
+[1A[2K[110/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas light comfortable 1440x920
+[1A[2K[111/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas light compact 1024x768
+[1A[2K[112/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas light compact 1280x800
+[1A[2K[113/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas light compact 1440x920
+[1A[2K[114/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas dark comfortable 1024x768
+[1A[2K[115/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas dark comfortable 1280x800
+[1A[2K[116/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas dark comfortable 1440x920
+[1A[2K[117/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas dark compact 1024x768
+[1A[2K[118/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas dark compact 1280x800
+[1A[2K[119/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas dark compact 1440x920
+[1A[2K[120/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:962:1 › selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths
+[1A[2K[121/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1036:1 › a property task keeps its typed target and entered value through filter, collapse, and selection ABA
+[1A[2K[122/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1092:1 › live Properties routes follow catalogue target B while frozen Task A remains unchanged
+[1A[2K[123/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1161:1 › an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled
+[1A[2K[124/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1204:1 › a prepared direct review is rejected after selection membership leaves and returns to the same primary
+[1A[2K[125/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1229:1 › selected-pipe actions copy a stable draft target snapshot instead of following later selection
+[1A[2K[126/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1266:1 › filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles
+[1A[2K[127/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1336:1 › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded
+[1A[2K[128/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1372:1 › Actual OD uses valid spans and explains the independently injected centerline fallback
+[1A[2K[129/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1383:1 › ordinary typed edit preserves view state and same-ID project replacement clears it
+[1A[2K[130/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1419:1 › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls
+[1A[2K[131/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1727:1 › narrow canvas fits visible and selected envelopes in every view preset
+[1A[2K[132/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1763:3 › standard 1000 camera recipe compares legacy and corrected fit without changing targets
+[1A[2K[133/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1763:3 › standard 10000 camera recipe compares legacy and corrected fit without changing targets
+[1A[2K[134/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1783:1 › filtered tree collapse controls retain typed selection and frozen draft across search changes
+[1A[2K[135/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1831:1 › empty ordered selection publishes independently from project inspector
+[1A[2K[136/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:1965:1 › decorative viewport overlays pass real canvas gestures while view controls stay interactive
+[1A[2K[137/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:2132:1 › captured Box lifetime › ordinary real Box applies independent empty Components membership
+[1A[2K[138/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:2140:1 › captured Box lifetime › Escape retires captured Box before delayed pointer up
+[1A[2K[139/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:2156:1 › captured Box lifetime › same-ID Open retires old captured Box before delayed pointer up
+[1A[2K[140/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:2192:55 › captured Box lifetime › Select retires captured Box before delayed pointer up
+[1A[2K[141/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:2192:55 › captured Box lifetime › New blank retires captured Box before delayed pointer up
+[1A[2K[142/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:2221:70 › captured Box lifetime › Measure cannot revive a captured Box through a mode ABA
+[1A[2K[143/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:2221:70 › captured Box lifetime › palette Node and Select cannot revive a captured Box through a mode ABA
+[1A[2K[144/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:2244:39 › captured Box lifetime › workspace Escape event ownership body idle
+[1A[2K[145/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:2244:39 › captured Box lifetime › workspace Escape event ownership body captured
+[1A[2K[146/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:2268:55 › captured Box lifetime › workspace Escape event ownership consumed palette
+[1A[2K[147/406] [chromium-desktop] › e2e/ui-foundation.spec.ts:2268:55 › captured Box lifetime › workspace Escape event ownership consumed drawer
+[1A[2K[148/406] [chromium-desktop] › e2e/workspace-layout.spec.ts:27:1 › workspace preserves the visible model during discovery, routing, property editing and analysis navigation
+[1A[2K[149/406] [chromium-desktop] › e2e/workspace-layout.spec.ts:128:1 › D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class
+[1A[2K[150/406] [chromium-desktop] › e2e/workspace-layout.spec.ts:211:3 › routing uses the inspector without changing the D2 pane allocation, 1440 x 900, native-runtime class
+[1A[2K[151/406] [chromium-desktop] › e2e/workspace-layout.spec.ts:211:3 › routing uses the inspector without changing the D2 pane allocation, 1280 x 800, native-runtime class
+[1A[2K[152/406] [chromium-desktop] › e2e/workspace-layout.spec.ts:282:1 › the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views
+[1A[2K[153/406] [chromium-desktop] › e2e/workspace-layout.spec.ts:340:1 › a switch to Table view hides the canvas without resizing its renderer
+[1A[2K[154/406] [chromium-desktop] › e2e/workspace-layout.spec.ts:360:1 › browser native-class structural review captures retain pane and drawn-canvas geometry
+[1A[2K[155/406] [chromium-desktop] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440
+[1A[2K[156/406] [chromium-desktop] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1440
+[1A[2K[157/406] [chromium-desktop] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1280
+[1A[2K[158/406] [chromium-desktop] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280
+[1A[2K[159/406] [chromium-desktop] › e2e/workspace-layout.spec.ts:523:1 › below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over
+[1A[2K(node:87104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:87104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[160/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:117:1 › nonzero canvas origin and prescribed orbit start retain client coordinates
+[1A[2K[161/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:127:1 › overlay target and observer overflow fail closed
+[1A[2K[162/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:136:1 › RAF callback percentile cannot be diluted by cheap registrations
+[1A[2K[163/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:154:1 › invalid samples fail and crossing samples are charged in full
+[1A[2K[164/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:169:1 › forced derivation failure preserves immutable earlier journals and a terminal failure
+[1A[2K[165/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:186:1 › observer setup failure still invokes the original RAF callback exactly once and restore removes listeners
+[1A[2K[166/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:378:1 › actual elementFromPoint rejects an intercepting overlay
+[1A[2K[167/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:386:1 › candidate diagnostics without same-callback DOM and positive submission cannot emit qualifying feedback
+[1A[2K[168/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:416:1 › clear sentinel retains original WebGL clear work separately from observer cost
+[1A[2K[169/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:448:1 › source-bound page-edge uncertainty retains possibly intersecting observer work
+[1A[2K[170/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:462:3 › candidate point feedback requires product-shaped compact heading: valid
+[1A[2K[171/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:462:3 › candidate point feedback requires product-shaped compact heading: wrong-label
+[1A[2K[172/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:462:3 › candidate point feedback requires product-shaped compact heading: wrong-typed-identity
+[1A[2K[173/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:529:1 › raw zero costs remain uncertain rather than a true-overhead pass
+[1A[2K[174/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:539:1 › missing, malformed, negative and nonfinite observer readings fail structurally
+[1A[2K[175/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:551:1 › expected RAF and action operation populations cannot disappear
+[1A[2K[176/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:567:1 › bad or missing observer windows cannot receive structural validity
+[1A[2K[177/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:576:1 › extra or unknown observer RAF, product observation RAF, and incomplete restore fail closed
+[1A[2K[178/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:588:1 › instrumented preflight still requires complete causal and pixel evidence above raw overhead references
+[1A[2K[179/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:627:1 › exact observation coverage accepts extra unrelated callbacks and shared pointer action listener
+[1A[2K[180/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:637:1 › unrelated RAF cost cannot substitute for missing saved feedback cost
+[1A[2K[181/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:649:1 › missing or non-enclosing pointer and action cost records fail
+[1A[2K[182/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:665:1 › malformed or duplicate expected observation identities and boundaries fail
+[1A[2K[183/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:685:1 › duplicate ambiguous enclosures and illegal reuse across distinct callbacks fail
+[1A[2K[184/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:701:1 › zero RAF DOM class requires exact input and mutation records without fabricated callbacks
+[1A[2K[185/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:721:3 › real input DOM observer binds stopped publication and pending mutation: complete
+[1A[2K[186/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:721:3 › real input DOM observer binds stopped publication and pending mutation: pending-mutation
+[1A[2K[187/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:776:3 › box feedback checks full membership even when primary is unchanged: complete
+[1A[2K[188/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:776:3 › box feedback checks full membership even when primary is unchanged: same-primary-missing-member
+[1A[2K[189/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:810:3 › assignment retains original product start and reconciles stopped identity: complete
+[1A[2K[190/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:810:3 › assignment retains original product start and reconciles stopped identity: stopped-model-drift
+[1A[2K[191/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:847:1 › baseline null outside hit records limitation and continues before label lookup
+[1A[2K[192/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:868:1 › secondary inspector capture uses phase-specific exact independently supplied typed heading
+[1A[2K[193/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: two-epochs
+[1A[2K[194/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: same-epoch
+[1A[2K[195/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: no-clear
+[1A[2K[196/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: stale-submission
+[1A[2K[197/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: wrong-model
+[1A[2K[198/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: unready-tree
+[1A[2K[199/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: final-without-frame
+[1A[2K[200/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: pending-at-stop
+[1A[2K[201/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: capacity
+[1A[2K[202/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:1005:1 › box callback consumes actual unavailable or active union and rejects numerical and ordered-state faults
+[1A[2K[203/406] [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:1058:1 › Box producer phases are reevaluated only on a fresh genuine callback and retain bounded failed facts
+[1A[2K(node:87222) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:87222) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[204/406] [chromium-compact] › e2e/gui-workflow-validation.spec.ts:89:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions
+[1A[2K[205/406] [chromium-compact] › e2e/gui-workflow-validation.spec.ts:328:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home
+[1A[2K[206/406] [chromium-compact] › e2e/gui-workflow-validation.spec.ts:328:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer
+[1A[2K[207/406] [chromium-compact] › e2e/linear-authoring.spec.ts:59:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review
+[1A[2K[208/406] [chromium-compact] › e2e/r2-smoke.spec.ts:147:1 › guided workbench shell keeps journey steps, details, and compact status reachable
+[1A[2K[209/406] [chromium-compact] › e2e/r2-smoke.spec.ts:224:1 › DEC-077 solve temperature queues an explicit unit-bearing operation
+[1A[2K[210/406] [chromium-compact] › e2e/r2-smoke.spec.ts:250:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[1A[2K[211/406] [chromium-compact] › e2e/r2-smoke.spec.ts:828:1 › viewport gesture placeholders record unit validation
+[1A[2K[212/406] [chromium-compact] › e2e/r2-smoke.spec.ts:865:1 › R2 from-blank GUI journey authors the A12 rehearsal script
+[1A[2K[213/406] [chromium-compact] › e2e/r2-smoke.spec.ts:1085:1 › diagnostic detail exposes linked result unit context
+[1A[2K[214/406] [chromium-compact] › e2e/r2-smoke.spec.ts:1108:1 › rule-pack manager drafts privately and reports the desktop-only backend seam
+[1A[2K[215/406] [chromium-compact] › e2e/r2-smoke.spec.ts:1331:1 › library manager loads an invented private sample and reports the desktop-only backend seam
+[1A[2K[216/406] [chromium-compact] › e2e/r2-smoke.spec.ts:1495:1 › run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam
+[1A[2K[217/406] [chromium-compact] › e2e/r2-smoke.spec.ts:1623:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps
+[1A[2K[218/406] [chromium-compact] › e2e/result-compatibility.spec.ts:14:1 › fresh Current exports strict 0.2 result and stress-neutral evidence
+[1A[2K[219/406] [chromium-compact] › e2e/ui-foundation/fresh-demo-policy.spec.ts:16:1 › fresh policy requires exact one-run authorization and all prospective bindings
+[1A[2K[220/406] [chromium-compact] › e2e/ui-foundation/fresh-demo-policy.spec.ts:23:1 › fresh hash and exclusive entry reject policy drift and output replay
+[1A[2K[221/406] [chromium-compact] › e2e/ui-foundation/fresh-demo-policy.spec.ts:35:1 › fresh smoke is explicit, keeps both-size controls and never consumes timed entry
+[1A[2K[222/406] [chromium-compact] › e2e/ui-foundation/fresh-demo-policy.spec.ts:41:1 › single demonstration retains target failure and invalid/incomplete disposition
+[1A[2K[223/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:12:1 › frozen controller recipe retains prescribed workload and bounded independent segments
+[1A[2K[224/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:16:1 › tree oracle is independently derived with complete typed order and ARIA groups
+[1A[2K[225/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:32:3 › only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: assignment
+[1A[2K[226/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:32:3 › only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: tree-filter
+[1A[2K[227/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:45:1 › presented gap bounds widen outward and never subtract observer work
+[1A[2K[228/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:81:1 › paired cue permits contrasting rim replacing orange and rejects unchanged/outside changes
+[1A[2K[229/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:90:1 › exact four distinct paired witnesses and actual contrast boundary remain mandatory
+[1A[2K[230/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:102:1 › cue plan rejects wrong typed winner anchor camera DPR clip and corrupt PNG mappings
+[1A[2K[231/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:114:1 › geometry pairing is deterministic conservative and one-to-one
+[1A[2K[232/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:122:1 › real caller observer requirements retain complete observations and DOM zero RAF class
+[1A[2K[233/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:132:1 › actual product pre-box unavailable and status-less active union is strict
+[1A[2K[234/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:146:1 › stopped box rejection persists exact fields before throwing and never overwrites evidence
+[1A[2K[235/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:266:1 › cross-action camera accepts finite sub-nanounit 7 to 8 publication and rejects incomplete or changed geometry
+[1A[2K[236/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:293:1 › first applied tuple binds same or later submission only for the exact unchanged application and pointer
+[1A[2K[237/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:325:1 › actual first callback copies application and capture rejects replacement drift or later backfill
+[1A[2K[238/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:415:1 › winner plan requires geometry provenance even when the altered plan is rehashed and self-consistent
+[1A[2K[239/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:424:1 › cue at the wrong attachment location cannot qualify the frozen winner center
+[1A[2K[240/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:456:1 › actual ReturnAsStream beyond former64MiB preserves EOF exact hash and unsafe identifiers
+[1A[2K[241/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:468:1 › actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix
+[1A[2K[242/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:480:1 › tree oracle restores accepted project restraint provenance and component vocabulary
+[1A[2K[243/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:550:1 › tree oracle matches all 40 independently frozen ordered query memberships
+[1A[2K[244/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:565:1 › runtime geometry pin rejects old and mutated plan sources after valid selfhash rebinding
+[1A[2K[245/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:577:1 › runtime geometry pin checks self-contained manifests and actual disk source
+[1A[2K[246/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:634:1 › orbit constructor preserves full qualified sequence and unchanged interval gaps
+[1A[2K[247/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:674:1 › same-trace integer arithmetic matches independent rational bounds and translation
+[1A[2K[248/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:683:1 › same-trace boundary rejects mixed raw clock source document action epoch process and lineage
+[1A[2K[249/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:880:1 › actual extractor and binder retain reusable tracks distinct raw pairs and tied timestamps
+[1A[2K[250/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:900:1 › source-shaped extractor still rejects overlap missing pair and mismatched track endpoints
+[1A[2K[251/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:909:1 › actual action lifecycle persists once before host tail and blocks next action through finalization
+[1A[2K[252/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:931:1 › actual lifecycle retains injected work stop persistence tail and finalization failures without replacement stop
+[1A[2K[253/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:959:1 › assignment diagnostics freeze ten fresh identities and cannot qualify full or focused workload
+[1A[2K[254/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:984:1 › characterization rejects malformed/conflicting modes and every partial/reordered plan
+[1A[2K[255/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:994:1 › real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries
+[1A[2K[256/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1013:1 › attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs
+[1A[2K[257/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1026:1 › required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions
+[1A[2K[258/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1035:1 › keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers
+[1A[2K[259/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1041:1 › reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles
+[1A[2K[260/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1055:1 › product inventory rejects omission duplicates split overlap and wrong final provenance
+[1A[2K[261/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1063:1 › frozen actual product/profile inputs validate read-only when explicitly supplied
+[1A[2K[262/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1078:1 › uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs
+[1A[2K[263/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1100:1 › continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence
+[1A[2K[264/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1130:1 › continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates
+[1A[2K[265/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1197:3 › phase label rejection preserves actual boundary metadata: point-selection-1-stopped
+[1A[2K[266/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1197:3 › phase label rejection preserves actual boundary metadata: orbit-1-ready
+[1A[2K[267/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1215:1 › captured scrollable inspector dimensions remain observations while true layout drift rejects
+[1A[2K[268/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: target-miss
+[1A[2K[269/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: invalid,valid
+[1A[2K[270/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid
+[1A[2K[271/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: interrupted,valid
+[1A[2K[272/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: empty-exit0,valid
+[1A[2K[273/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: stale-success
+[1A[2K[274/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1333:1 › explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates
+[1A[2K[275/406] [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1382:1 › fresh demonstration provenance accepts only its bound revision and internal120 profile
+[1A[2K[276/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:40:1 › all exact owner boundaries pass despite raw observer reference exceedance
+[1A[2K[277/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:47:1 › each target rejects tiny excess and scores upper rather than lower endpoint
+[1A[2K[278/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:63:1 › nearest rank uses the 190th of 200 and retains all tail samples
+[1A[2K[279/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:71:1 › all twenty box and filter rows are required and nineteenth upper is scored
+[1A[2K[280/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:80:1 › missing duplicate reordered sparse or unqualified action populations fail without survivor p95
+[1A[2K[281/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:93:1 › invalid duration intervals and absent assignment never qualify
+[1A[2K[282/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:103:1 › settled owned RAF must be observed exact zero
+[1A[2K[283/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:110:1 › orbit requires exact windows complete contiguous brackets correct modes and current OD
+[1A[2K[284/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:125:1 › run identity bindings freshness and qualification are mandatory
+[1A[2K[285/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:136:1 › exact ten-run cohort preserves each result without pooling sizes or modes
+[1A[2K[286/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:146:1 › missing repeated mixed-binding or nonfresh cohort cannot pass
+[1A[2K[287/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:160:3 › outside orbit brackets survive exact left right and both boundary alignment: centerline
+[1A[2K[288/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:175:3 › boundary endpoints cannot replace missing left right or both outside brackets: centerline
+[1A[2K[289/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:160:3 › outside orbit brackets survive exact left right and both boundary alignment: actual-od
+[1A[2K[290/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:175:3 › boundary endpoints cannot replace missing left right or both outside brackets: actual-od
+[1A[2K[291/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:197:3 › qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: centerline
+[1A[2K[292/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:221:3 › tied coordinates do not waive identity population interval or window guards: centerline
+[1A[2K[293/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:197:3 › qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: actual-od
+[1A[2K[294/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:221:3 › tied coordinates do not waive identity population interval or window guards: actual-od
+[1A[2K[295/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:259:1 › uncertain right boundary is qualified rather than nominally rejected
+[1A[2K[296/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:266:1 › independent dyadic1199 versus1200 dilution must fail using maximum population p95
+[1A[2K[297/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:281:1 › all left right both-edge cuts retain ties and no omitted candidates
+[1A[2K[298/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:298:1 › endpoint and envelope defects never become a favorable boundary population
+[1A[2K[299/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:333:1 › same-trace scorer independently rejects narrow bounds and false carried context
+[1A[2K[300/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:349:1 › same-trace complete populations retain ties and prevent boundary dilution
+[1A[2K[301/406] [chromium-compact] › e2e/ui-foundation/performance-targets.spec.ts:367:1 › same capture forbids every raw event reuse while tracks and raw index order may repeat
+[1A[2K[302/406] [chromium-compact] › e2e/ui-foundation.spec.ts:37:1 › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement
+[1A[2K[303/406] [chromium-compact] › e2e/ui-foundation.spec.ts:81:1 › a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change
+[1A[2K[304/406] [chromium-compact] › e2e/ui-foundation.spec.ts:241:1 › typed raw-ID collisions remain distinct through ordered selection and an ABA membership change
+[1A[2K[305/406] [chromium-compact] › e2e/ui-foundation.spec.ts:269:3 › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture
+[1A[2K[306/406] [chromium-compact] › e2e/ui-foundation.spec.ts:269:3 › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture
+[1A[2K[307/406] [chromium-compact] › e2e/ui-foundation.spec.ts:308:1 › virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus
+[1A[2K[308/406] [chromium-compact] › e2e/ui-foundation.spec.ts:348:1 › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft
+[1A[2K[309/406] [chromium-compact] › e2e/ui-foundation.spec.ts:393:1 › real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures
+[1A[2K[310/406] [chromium-compact] › e2e/ui-foundation.spec.ts:478:1 › Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags
+[1A[2K[311/406] [chromium-compact] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas light comfortable 1024x768
+[1A[2K[312/406] [chromium-compact] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas light comfortable 1280x800
+[1A[2K[313/406] [chromium-compact] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas light comfortable 1440x920
+[1A[2K[314/406] [chromium-compact] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas light compact 1024x768
+[1A[2K[315/406] [chromium-compact] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas light compact 1280x800
+[1A[2K[316/406] [chromium-compact] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas light compact 1440x920
+[1A[2K[317/406] [chromium-compact] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas dark comfortable 1024x768
+[1A[2K[318/406] [chromium-compact] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas dark comfortable 1280x800
+[1A[2K[319/406] [chromium-compact] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas dark comfortable 1440x920
+[1A[2K[320/406] [chromium-compact] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas dark compact 1024x768
+[1A[2K[321/406] [chromium-compact] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas dark compact 1280x800
+[1A[2K[322/406] [chromium-compact] › e2e/ui-foundation.spec.ts:671:7 › task and analysis dock preserve usable canvas dark compact 1440x920
+[1A[2K[323/406] [chromium-compact] › e2e/ui-foundation.spec.ts:962:1 › selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths
+[1A[2K[324/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1036:1 › a property task keeps its typed target and entered value through filter, collapse, and selection ABA
+[1A[2K[325/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1092:1 › live Properties routes follow catalogue target B while frozen Task A remains unchanged
+[1A[2K[326/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1161:1 › an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled
+[1A[2K[327/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1204:1 › a prepared direct review is rejected after selection membership leaves and returns to the same primary
+[1A[2K[328/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1229:1 › selected-pipe actions copy a stable draft target snapshot instead of following later selection
+[1A[2K[329/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1266:1 › filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles
+[1A[2K[330/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1336:1 › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded
+[1A[2K[331/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1372:1 › Actual OD uses valid spans and explains the independently injected centerline fallback
+[1A[2K[332/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1383:1 › ordinary typed edit preserves view state and same-ID project replacement clears it
+[1A[2K[333/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1419:1 › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls
+[1A[2K[334/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1727:1 › narrow canvas fits visible and selected envelopes in every view preset
+[1A[2K[335/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1763:3 › standard 1000 camera recipe compares legacy and corrected fit without changing targets
+[1A[2K[336/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1763:3 › standard 10000 camera recipe compares legacy and corrected fit without changing targets
+[1A[2K[337/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1783:1 › filtered tree collapse controls retain typed selection and frozen draft across search changes
+[1A[2K[338/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1831:1 › empty ordered selection publishes independently from project inspector
+[1A[2K[339/406] [chromium-compact] › e2e/ui-foundation.spec.ts:1965:1 › decorative viewport overlays pass real canvas gestures while view controls stay interactive
+[1A[2K[340/406] [chromium-compact] › e2e/ui-foundation.spec.ts:2132:1 › captured Box lifetime › ordinary real Box applies independent empty Components membership
+[1A[2K[341/406] [chromium-compact] › e2e/ui-foundation.spec.ts:2140:1 › captured Box lifetime › Escape retires captured Box before delayed pointer up
+[1A[2K[342/406] [chromium-compact] › e2e/ui-foundation.spec.ts:2156:1 › captured Box lifetime › same-ID Open retires old captured Box before delayed pointer up
+[1A[2K[343/406] [chromium-compact] › e2e/ui-foundation.spec.ts:2192:55 › captured Box lifetime › Select retires captured Box before delayed pointer up
+[1A[2K[344/406] [chromium-compact] › e2e/ui-foundation.spec.ts:2192:55 › captured Box lifetime › New blank retires captured Box before delayed pointer up
+[1A[2K[345/406] [chromium-compact] › e2e/ui-foundation.spec.ts:2221:70 › captured Box lifetime › Measure cannot revive a captured Box through a mode ABA
+[1A[2K[346/406] [chromium-compact] › e2e/ui-foundation.spec.ts:2221:70 › captured Box lifetime › palette Node and Select cannot revive a captured Box through a mode ABA
+[1A[2K[347/406] [chromium-compact] › e2e/ui-foundation.spec.ts:2244:39 › captured Box lifetime › workspace Escape event ownership body idle
+[1A[2K[348/406] [chromium-compact] › e2e/ui-foundation.spec.ts:2244:39 › captured Box lifetime › workspace Escape event ownership body captured
+[1A[2K[349/406] [chromium-compact] › e2e/ui-foundation.spec.ts:2268:55 › captured Box lifetime › workspace Escape event ownership consumed palette
+[1A[2K[350/406] [chromium-compact] › e2e/ui-foundation.spec.ts:2268:55 › captured Box lifetime › workspace Escape event ownership consumed drawer
+[1A[2K[351/406] [chromium-compact] › e2e/workspace-layout.spec.ts:27:1 › workspace preserves the visible model during discovery, routing, property editing and analysis navigation
+[1A[2K[352/406] [chromium-compact] › e2e/workspace-layout.spec.ts:128:1 › D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class
+[1A[2K[353/406] [chromium-compact] › e2e/workspace-layout.spec.ts:211:3 › routing uses the inspector without changing the D2 pane allocation, 1440 x 900, native-runtime class
+[1A[2K[354/406] [chromium-compact] › e2e/workspace-layout.spec.ts:211:3 › routing uses the inspector without changing the D2 pane allocation, 1280 x 800, native-runtime class
+[1A[2K[355/406] [chromium-compact] › e2e/workspace-layout.spec.ts:282:1 › the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views
+[1A[2K[356/406] [chromium-compact] › e2e/workspace-layout.spec.ts:340:1 › a switch to Table view hides the canvas without resizing its renderer
+[1A[2K[357/406] [chromium-compact] › e2e/workspace-layout.spec.ts:360:1 › browser native-class structural review captures retain pane and drawn-canvas geometry
+[1A[2K[358/406] [chromium-compact] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440
+[1A[2K[359/406] [chromium-compact] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1440
+[1A[2K[360/406] [chromium-compact] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1280
+[1A[2K[361/406] [chromium-compact] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280
+[1A[2K[362/406] [chromium-compact] › e2e/workspace-layout.spec.ts:523:1 › below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over
+[1A[2K(node:87867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:87867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[363/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:117:1 › nonzero canvas origin and prescribed orbit start retain client coordinates
+[1A[2K[364/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:127:1 › overlay target and observer overflow fail closed
+[1A[2K[365/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:136:1 › RAF callback percentile cannot be diluted by cheap registrations
+[1A[2K[366/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:154:1 › invalid samples fail and crossing samples are charged in full
+[1A[2K[367/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:169:1 › forced derivation failure preserves immutable earlier journals and a terminal failure
+[1A[2K[368/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:186:1 › observer setup failure still invokes the original RAF callback exactly once and restore removes listeners
+[1A[2K[369/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:378:1 › actual elementFromPoint rejects an intercepting overlay
+[1A[2K[370/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:386:1 › candidate diagnostics without same-callback DOM and positive submission cannot emit qualifying feedback
+[1A[2K[371/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:416:1 › clear sentinel retains original WebGL clear work separately from observer cost
+[1A[2K[372/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:448:1 › source-bound page-edge uncertainty retains possibly intersecting observer work
+[1A[2K[373/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:462:3 › candidate point feedback requires product-shaped compact heading: valid
+[1A[2K[374/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:462:3 › candidate point feedback requires product-shaped compact heading: wrong-label
+[1A[2K[375/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:462:3 › candidate point feedback requires product-shaped compact heading: wrong-typed-identity
+[1A[2K[376/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:529:1 › raw zero costs remain uncertain rather than a true-overhead pass
+[1A[2K[377/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:539:1 › missing, malformed, negative and nonfinite observer readings fail structurally
+[1A[2K[378/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:551:1 › expected RAF and action operation populations cannot disappear
+[1A[2K[379/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:567:1 › bad or missing observer windows cannot receive structural validity
+[1A[2K[380/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:576:1 › extra or unknown observer RAF, product observation RAF, and incomplete restore fail closed
+[1A[2K[381/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:588:1 › instrumented preflight still requires complete causal and pixel evidence above raw overhead references
+[1A[2K[382/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:627:1 › exact observation coverage accepts extra unrelated callbacks and shared pointer action listener
+[1A[2K[383/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:637:1 › unrelated RAF cost cannot substitute for missing saved feedback cost
+[1A[2K[384/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:649:1 › missing or non-enclosing pointer and action cost records fail
+[1A[2K[385/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:665:1 › malformed or duplicate expected observation identities and boundaries fail
+[1A[2K[386/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:685:1 › duplicate ambiguous enclosures and illegal reuse across distinct callbacks fail
+[1A[2K[387/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:701:1 › zero RAF DOM class requires exact input and mutation records without fabricated callbacks
+[1A[2K[388/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:721:3 › real input DOM observer binds stopped publication and pending mutation: complete
+[1A[2K[389/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:721:3 › real input DOM observer binds stopped publication and pending mutation: pending-mutation
+[1A[2K[390/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:776:3 › box feedback checks full membership even when primary is unchanged: complete
+[1A[2K[391/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:776:3 › box feedback checks full membership even when primary is unchanged: same-primary-missing-member
+[1A[2K[392/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:810:3 › assignment retains original product start and reconciles stopped identity: complete
+[1A[2K[393/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:810:3 › assignment retains original product start and reconciles stopped identity: stopped-model-drift
+[1A[2K[394/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:847:1 › baseline null outside hit records limitation and continues before label lookup
+[1A[2K[395/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:868:1 › secondary inspector capture uses phase-specific exact independently supplied typed heading
+[1A[2K[396/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: two-epochs
+[1A[2K[397/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: same-epoch
+[1A[2K[398/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: no-clear
+[1A[2K[399/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: stale-submission
+[1A[2K[400/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: wrong-model
+[1A[2K[401/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: unready-tree
+[1A[2K[402/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: final-without-frame
+[1A[2K[403/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: pending-at-stop
+[1A[2K[404/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: capacity
+[1A[2K[405/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:1005:1 › box callback consumes actual unavailable or active union and rejects numerical and ordered-state faults
+[1A[2K[406/406] [chromium-compact] › e2e/ui-foundation/causal-method-contract.spec.ts:1058:1 › Box producer phases are reevaluated only on a fresh genuine callback and retain bounded failed facts
+[1A[2K  20 skipped
+  386 passed (10.7m)

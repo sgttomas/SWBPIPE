@@ -1,0 +1,2 @@
+npm run build:wasm from projects/chirality-piping/apps/desktop
+Exit 0. Both operation and self-weight engines rebuilt offline with wasm-bindgen 0.2.123; artifacts intentionally not committed.

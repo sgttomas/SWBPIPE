@@ -1,0 +1,500 @@
+
+PASSIVE TAB
+There has been no change in the accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE".
+The focused UI element is 244 checkbox Restrain UX, Value: 0
+PASSIVE OUTSIDE
+There has been no change in the accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE".
+The focused UI element is 220 text field (settable) Support label
+PASSIVE QUEUE MISSING FAMILY
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 41-88
+~						38 toggle button Model, Value: off
+~						39 toggle button Review changes 1, Help: Review changes, Value: on
++					272 container Operation Apply section
++						273 container Editing and review tools
++							274 toggle button Review changes, Value: on
++							275 toggle button Geometry, Value: off
++							276 toggle button Supports, Value: off
++							277 toggle button Self weight, Value: off
++							278 toggle button Agent, Value: off
++							279 toggle button Details, Value: off
++						280 container Batch review
++							281 heading Batch review, Value: 3
++								282 text Batch review
++							283 container
++								284 text 0  queued batches;  0  batches applied this session.
++							285 text Validate to preview all steps on temporary state. Apply commits the entire batch once or leaves the model unchanged. Batch drafts and receipts shown here belong to this session.
++							286 button (disabled) Clear pending changes and batches, Help: No pending batches or requests to clear.
++						287 container Apply structured operations
++							288 text APPLY OPERATIONS
++							289 container
++								290 text 1  queued;  0  applied this session. Applying validates through the structured-operation seam and replaces the session model document; saving the project stores it locally.
++							291 container Operation status
++								292 text Engine  ready 0 unit-bearing queued, 1 dimensionless queued; no unit validations yet; 0 applied receipts.
++							293 container Session edit history
++								294 button (disabled) Undo, Help: Undo last local session model edit
++								295 button (disabled) Redo, Help: Redo last undone local session model edit
++								296 text 0  undo /  0  redo
++							297 container
++								298 text op:rich:support:S-VALUE-BACKCHECK:supports Support support:S-VALUE-BACKCHECK ;  supports : not_present  to {"id":"support:S-VALUE-BACKCHECK","label":"Value preservation witness","node":"node:N-100","restraints":[],"provenance":"native_value_backcheck"}
++								299 button Validate, Help: Validate without applying
++								300 button Apply, Help: Validate and apply to the session model
++							301 text Applying a structured operation records a user-initiated local-session acceptance only. Results of earlier solves are cleared because they no longer describe the edited model.
+~										217 text field (settable) Support ID, Value: support:S-VALUE-BACKCHECK
++									302 text Support ID already exists or is queued.
+~										220 text field (settable) Support label, Value: Value preservation witness
+~										263 text field (settable) Support provenance, Value: native_value_backcheck
++								303 text Support creation queued for validation and review.
+The focused UI element is 209 container Support configuration
+EXPLICIT POINTER ANCHOR
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 304-305
+~										238 combo box (collapsed, settable) Support family, Secondary Actions: Expand, Value: Anchor
+
+~											239 text Anchor
+The focused UI element is 238 combo box (collapsed, settable) Support family, Secondary Actions: Expand, Value: Anchor
+
+SAME VALUE AND ESCAPE CANCEL
+There has been no change in the accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE".
+The focused UI element is 238 combo box (collapsed, settable) Support family, Secondary Actions: Expand, Value: Anchor
+
+SECOND ESCAPE
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 179-189, 192-271, 302-303
+~						20 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+~								298 text op:rich:support:S-VALUE-BACKCHECK:supports Support support:S-VALUE-BACKCHECK ;  supports : not_present  to  {"id":"support:S-VALUE-BACKCHECK","label":"Value preservation witness","node":"node:N-100","restraints":[],"provenance":"native_value_backcheck"}
+The focused UI element is 20 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+LONG LIST END
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~								247 combo box (expanded, settable) Property to edit, Secondary Actions: Collapse, Value: Name
+
++			264 list (settable) Property to edit
++				265 text (selected) Name
+Selected:
+	266 text Provenance
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).
+LONG LIST HOME
+There has been no change in the accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE".
+Selected:
+	265 text (selected) Name
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).
+PROPERTY ESCAPE PRESERVES NAME
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 264-265
+~								247 combo box (collapsed, settable) Property to edit, Secondary Actions: Expand, Value: Name
+
+The focused UI element is 247 combo box (collapsed, settable) Property to edit, Secondary Actions: Expand, Value: Name
+
+OPEN PROPERTY VIEW SWITCH
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 89, 132-134, 136, 227, 229, 232-233
+~						15 toggle button Model, Help: Model view (⌘2), Value: on
+~						16 toggle button Both, Help: Both view (⌘3), Value: off
+~						20 button (disabled, expanded) Inspector, Help: The inspector is always docked in Model view, Secondary Actions: Collapse
+~						40 button (expanded) Collapse table drawer, Secondary Actions: Collapse
++					264 splitter Resize table drawer, Value: 280
+The focused UI element is 247 combo box (collapsed, settable) Property to edit, Secondary Actions: Expand, Value: Name
+
+ROUTING MM EXPLICIT
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
++						316 button (disabled) Agent, Help: Agent: not available yet
+~									295 combo box (collapsed, settable) New node coordinate unit, Secondary Actions: Expand, Value: mm
+
+~										296 text mm
+~								298 text Coordinates:  mm, DEC-018 display Pointer plane: global XZ · Y=0  m Click within 4 CSS pixels on the visible 3D canvas to capture on global XZ at Y=0.
+The focused UI element is 295 combo box (collapsed, settable) New node coordinate unit, Secondary Actions: Expand, Value: mm
+
+POINTER REVERT SAME VALUE FIRST ESCAPE
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 317-318
+~									295 combo box (collapsed, settable) New node coordinate unit, Secondary Actions: Expand, Value: m
+
+~										296 text m
+~								298 text Coordinates:  m, DEC-018 canonical Pointer plane: global XZ · Y=0  m Click within 4 CSS pixels on the visible 3D canvas to capture on global XZ at Y=0.
+The focused UI element is 295 combo box (collapsed, settable) New node coordinate unit, Secondary Actions: Expand, Value: m
+
+OPEN ROUTING STAGE SWITCH
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 38-39, 90-122, 135, 137-152, 176-226, 228, 230-231, 264-271, 317, 321-390
+~						14 toggle button Table, Help: Table view (⌘1), Value: on
+~						16 toggle button Both, Help: Both view (⌘3), Value: off
+~						20 button (disabled, collapsed) Inspector, Help: Table view opens rows in place, Secondary Actions: Expand
+~						28 toggle button Model, Value: off
+~						29 toggle button Loads, Value: on
++						317 toggle button Load Cases, Value: on
+~						40 button (disabled, expanded) Collapse table drawer, Help: Table view shows the tables at full width, Secondary Actions: Collapse
+~					318 container Load Cases section
+~						319 container Load case manager
+~							320 text LOAD CASES
++							321 container
++								322 text 2  load cases;  9  primitive loads;  1  combinations; unit posture=single_unit_system_preview; saved_project_mutated=false
++							323 container Create load case
++								324 text load:L-300
++								325 text new empty load case; primitives=0; unit=none
++								326 container
++									327 text ID
++									328 text field (settable) New load case id, Value: load:L-300
++								329 container
++									330 text Label
++									331 text field (settable) New load case label, Value: User load case
++								332 container
++									333 text Kind
++									334 text field (settable) New load case kind, Value: primitive_user_load
++								335 container
++									336 text Status
++									337 text field (settable) New load case status, Value: draft
++								338 container
++									339 text Provenance
++									340 text field (settable) New load case provenance, Value: user_entered_local_preview
++								341 button Queue case, Help: Queue load-case creation operation
++								342 text op:load-manager-create-load:L-300; before=not_present; after=load:L-300; unit=none; dimensionless; primitive_loads=0; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
++							343 container Create primitive load
++								344 text load:L-100-F300
++								345 text concentrated_force ; target= node:N-100 ; unit= N
++								346 container
++									347 text Type
++									348 pop up button Primitive load category, Value: concentrated_force
++								349 container
++									350 text Primitive load case
++									351 combo box (expanded, settable) Primitive load case, Placeholder: Search targets, Secondary Actions: Collapse
++										352 text Search targets
++								353 container Primitive load case current value
++									354 text Invented operating gravity and pressure preview (load:L-100)
++									355 button Clear
++								356 container
++									357 text 2  of  2  targets
++								358 container (settable) Primitive load case options
++									359 text (selected) Invented operating gravity and pressure preview load:L-100
++									360 text Invented alternate gravity and pressure preview load:L-200
++								361 container
++									362 text ID
++									363 text field (settable) New primitive load id, Value: load:L-100-F300
++								364 container
++									365 text Concentrated force target node
++									366 combo box (expanded, settable) Concentrated force target node, Placeholder: Search targets, Secondary Actions: Collapse
++										367 text Search targets
++								368 container Concentrated force target node current value
++									369 text Pump nozzle (node:N-100)
++									370 button Clear
++								371 container
++									372 text 5  of  5  targets
++								373 container (settable) Concentrated force target node options
++									374 text (selected) Pump nozzle node:N-100
++									375 text Low point elbow node:N-110
++									376 text Riser elbow node:N-120
++									377 text Rack turn node:N-130
++									378 text Terminal tie-in node:N-140
++								379 container
++									380 text Dir
++									381 pop up button Primitive load direction, Value: global_y
++								382 container
++									383 text Magnitude unit
++									384 pop up button Primitive load unit, Value: N (DEC-018 canonical)
++								385 container
++									386 text Magnitude ( N, DEC-018 canonical )
++									387 text field (settable) Primitive load magnitude, Value: 250
++								388 container
++									389 text Provenance
++									390 text field (settable) Primitive load provenance, Value: user_entered_local_preview
++								391 button Queue load, Help: Queue primitive load operation
++								392 text op:load-manager-load:L-100-load:L-100-F300-primitive; before=not_present; after=load:L-100-F300; target=node:N-100; direction=global_y; unit=N; force; unit_validation=dec018_catalog_dimension_match; direct_model_mutation_allowed=false; professional_approval=false
++							393 container Create combination
++								394 text combination:C-300
++								395 text basis=mechanics; term=load:L-100 x 1
++								396 container
++									397 text ID
++									398 text field (settable) New combination id, Value: combination:C-300
++								399 container
++									400 text Label
++									401 text field (settable) New combination label, Value: User mechanics combination
++								402 container
++									403 text Basis
++									404 pop up button New combination basis, Value: mechanics
++								405 container
++									406 text New combination initial load case
++									407 combo box (expanded, settable) New combination initial load case, Placeholder: Search targets, Secondary Actions: Collapse
++										408 text Search targets
++								409 container New combination initial load case current value
++									410 text Invented operating gravity and pressure preview (load:L-100)
++									411 button Clear
++								412 container
++									413 text 2  of  2  targets
++								414 container (settable) New combination initial load case options
++									415 text (selected) Invented operating gravity and pressure preview load:L-100
++									416 text Invented alternate gravity and pressure preview load:L-200
++								417 container
++									418 text Factor
++									419 text field (settable) New combination factor, Value: 1
++								420 container
++									421 text Provenance
++									422 text field (settable) New combination provenance, Value: user_entered_local_preview
++								423 container
++									424 text Rationale
++									425 text field (settable) New combination rationale, Value: user_entered_combination_create_preview_change
++								426 button Queue combo, Help: Queue combination creation operation
++								427 text op:load-manager-create-combination:C-300; before=not_present; after=combination:C-300; term=load:L-100 x 1; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
++							428 container Load cases
++								429 button Invented operating gravity and pressure preview load:L-100; primitive_user_load; preview_only; primitives=5 invented_example_no_code_combination
++								430 button Invented alternate gravity and pressure preview load:L-200; primitive_user_load; preview_only; primitives=4 invented_example_no_code_combination
++							431 container Load case metadata editor
++								432 text load:L-100
++								433 text field= status ; current= preview_only ; path= status
++								434 container
++									435 text Field
++									436 pop up button Load case metadata field, Value: Status
++								437 container
++									438 text Value
++									439 pop up button Load case metadata value, Value: preview_only
++								440 container
++									441 text Rationale
++									442 text field (settable) Load case metadata rationale, Value: user_entered_load_case_metadata_preview_change
++								443 button (disabled) Queue metadata, Help: Queue load-case metadata operation
++								444 text current=preview_only; no changed status queued
++								445 container
++									446 text Delete rationale
++									447 text field (settable) Load case delete rationale, Value: user_entered_load_case_delete_preview_change
++								448 button Queue delete case, Help: Queue load-case delete operation
++								449 text op:load-manager-load:L-100-delete; before=load:L-100; Invented operating gravity and pressure preview; primitive_user_load; preview_only; primitives=5; after=not_present; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
++							450 toggle button weight; -190 N/m load:L-100-Z; element:pipe:P-120; global_z; dimension=force_per_length, Value: on
++							451 toggle button occasional; 350 N load:L-100-Y; node:node:N-140; global_y; dimension=force, Value: off
++							452 toggle button pressure; 1200000 Pa load:L-100-P; element:pipe:P-120; global_x; dimension=pressure, Value: off
++							453 toggle button pressure; 1200000 Pa load:L-100-P-EJ; element:pipe:P-130; global_x; dimension=pressure, Value: off
++							454 toggle button thermal; 12.5 degC load:L-100-T; element:pipe:P-120; global_z; dimension=temperature_interval, Value: off
++							455 toggle button weight; -95 N/m load:L-200-Z; element:pipe:P-120; global_z; dimension=force_per_length, Value: off
++							456 toggle button occasional; 125 N load:L-200-Y; node:node:N-140; global_y; dimension=force, Value: off
++							457 toggle button pressure; 600000 Pa load:L-200-P; element:pipe:P-120; global_x; dimension=pressure, Value: off
++							458 toggle button pressure; 600000 Pa load:L-200-P-EJ; element:pipe:P-130; global_x; dimension=pressure, Value: off
++							459 container Primitive load magnitude editor
++								460 text load:L-100-Z
++								461 text load:L-100 ; path=primitive_loads. 0 .magnitude.value
++								462 container
++									463 text Magnitude unit
++									464 pop up button Selected primitive load unit, Value: N/m (DEC-018 canonical)
++								465 container
++									466 text Magnitude ( N/m, DEC-018 canonical )
++									467 text field (settable) Primitive load magnitude, Value: -190
++								468 container
++									469 text Rationale
++									470 text field (settable) Load case edit rationale, Value: user_entered_load_case_preview_change
++								471 button (disabled) Queue magnitude, Help: Queue load-magnitude operation
++								472 text current=-190 N/m; no changed magnitude queued
++								473 container
++									474 text Delete rationale
++									475 text field (settable) Primitive load delete rationale, Value: user_entered_primitive_load_delete_preview_change
++									476 button Queue delete, Help: Queue primitive-load delete operation
++								477 text op:load-manager-load:L-100-load:L-100-Z-delete; before=load:L-100-Z; weight; element:pipe:P-120; global_z; -190 N/m; force_per_length; after=not_present; unit=N/m; force_per_length; unit_validation=dec018_catalog_dimension_match; direct_model_mutation_allowed=false; professional_approval=false
++							478 container
++								479 toggle button Value: on, Invented explicit operating plus alternate preview combination:C-OPER-ALT; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 0.5
++								480 button load:L-100 x 1
++								481 button load:L-200 x 0.5
++							482 container Create combination term
++								483 text combination:C-OPER-ALT
++								484 text new term; load= load:L-100 ; factor= 1
++								485 container
++									486 text Combination term target combination
++									487 combo box (expanded, settable) Combination term target combination, Placeholder: Search targets, Secondary Actions: Collapse
++										488 text Search targets
++								489 container Combination term target combination current value
++									490 text Invented explicit operating plus alternate preview (combination:C-OPER-ALT)
++									491 button Clear
++								492 container
++									493 text 1  of  1  targets
++								494 container (settable) Combination term target combination options
++									495 text (selected) Invented explicit operating plus alternate preview combination:C-OPER-ALT
++								496 container
++									497 text Combination term load case
++									498 combo box (expanded, settable) Combination term load case, Placeholder: Search targets, Secondary Actions: Collapse
++										499 text Search targets
++								500 container Combination term load case current value
++									501 text Invented operating gravity and pressure preview (load:L-100)
++									502 button Clear
++								503 container
++									504 text 2  of  2  targets
++								505 container (settable) Combination term load case options
++									506 text (selected) Invented operating gravity and pressure preview load:L-100
++									507 text Invented alternate gravity and pressure preview load:L-200
++								508 container
++									509 text Factor
++									510 text field (settable) Combination term factor, Value: 1
++								511 container
++									512 text Rationale
++									513 text field (settable) Combination term creation rationale, Value: user_entered_combination_term_preview_change
++								514 button Queue term, Help: Queue combination-term creation operation
++								515 text op:load-manager-combination:C-OPER-ALT-term-2-create; before=not_present; after=load:L-100 x 1; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
++							516 container Combination basis editor
++								517 text combination:C-OPER-ALT
++								518 text field=basis; current= mechanics ; path=basis
++								519 container
++									520 text Basis
++									521 pop up button Combination basis, Value: mechanics
++								522 container
++									523 text Rationale
++									524 text field (settable) Combination basis rationale, Value: user_entered_combination_basis_preview_change
++								525 button (disabled) Queue basis, Help: Queue combination-basis operation
++								526 text current=mechanics; no changed combination basis queued
++								527 container
++									528 text Delete rationale
++									529 text field (settable) Combination delete rationale, Value: user_entered_combination_delete_preview_change
++								530 button Queue delete combo, Help: Queue combination delete operation
++								531 text op:load-manager-combination:C-OPER-ALT-delete; before=combination:C-OPER-ALT; Invented explicit operating plus alternate preview; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 0.5; after=not_present; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
++							532 container Combination term factor editor
++								533 text combination:C-OPER-ALT
++								534 text term= load:L-100 ; path=terms. 0 .factor
++								535 container
++									536 text Factor
++									537 text field (settable) Combination term factor, Value: 1
++								538 container
++									539 text Rationale
++									540 text field (settable) Combination term rationale, Value: user_entered_combination_factor_preview_change
++								541 button (disabled) Queue factor, Help: Queue combination-factor operation
++								542 text current=1; no changed combination factor queued
++								543 container
++									544 text Delete rationale
++									545 text field (settable) Combination term delete rationale, Value: user_entered_combination_term_delete_preview_change
++								546 button Queue delete, Help: Queue combination-term delete operation
++								547 text op:load-manager-combination:C-OPER-ALT-term-0-delete; before=load:L-100 x 1; after=not_present; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
++							548 text Load edits are queued as structured operations, applied only after user action, and remain local-session changes until saved. This panel does not add rule-code combinations, protected standards content, or professional approval.
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost
+NEW BLANK RESET
+Window: "Blank Local Model — SWBPIPE", App: SWBPIPE.
+1 standard window Blank Local Model — SWBPIPE, Secondary Actions: Raise
+	2 scroll area
+		3 HTML content Description: SWBPIPE, URL: tauri://localhost
+			4 container
+				5 container Toolbar
+					6 heading SWBPIPE, Value: 1
+						7 text SWBPIPE
+					8 container Blank Local Model
+						9 text Blank Local Model
+					10 container Editing tools
+						11 button (disabled) Undo model edit, Help: Nothing to undo
+						12 button (disabled) Redo model edit, Help: Nothing to redo
+						13 toggle button Select, Help: Select (⎋), Value: on
+					14 container View
+						15 toggle button Table, Help: Table view (⌘1), Value: off
+						16 toggle button Model, Help: Model view (⌘2), Value: off
+						17 toggle button Both, Help: Both view (⌘3), Value: on
+					18 button Run
+					19 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					20 container Panels
+						21 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+					22 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					23 summary Appearance, Value: off
+					24 container Human toolkit
+						25 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				26 container Stages
+					27 content list
+						28 toggle button Model, Value: on
+						29 toggle button Loads, Value: off
+						30 toggle button (disabled) Results, Help: No run yet, Value: off
+						31 toggle button (disabled) Review, Help: No run yet, Value: off
+					32 content list
+						33 button (collapsed) Libraries, Secondary Actions: Expand
+						34 button (collapsed) Rules, Secondary Actions: Expand
+						35 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				36 container Modeling workspace
+					37 container Tables
+						38 toggle button Model, Value: on
+						39 toggle button Review changes, Value: off
+						40 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
+					41 container Model tree
+						42 text MODEL
+						43 container Layout grid mode
+							44 toggle button Tree, Value: on
+							45 toggle button Grid, Value: off
+						46 container Model tree filtering
+							47 container
+								48 text Filter model
+								49 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									50 text Name, ID, type, or group
+							51 text 2  of  2  model entities visible
+							52 button (disabled) Clear model tree filter
+						53 container Model
+							54 button (selected) Blank Local Model project:blank-local-20260920t055147z, Help: Blank Local Model (project:blank-local-20260920t055147z)
+							55 button (expanded) Diagnostics, Secondary Actions: Collapse
+							56 button BLANK_PROJECT_AUTHORING_TARGET diagnostic:blank-project:authoring-target, Help: BLANK_PROJECT_AUTHORING_TARGET (diagnostic:blank-project:authoring-target)
+					57 splitter Resize table and canvas, Value: 55
+					58 container Viewport controls
+						59 text 3D Centerline
+						60 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+							61 summary Deformation · unavailable, Value: off
+								62 text Deformation · unavailable
+						63 container Viewport display toggles
+							64 toggle button Labels, Help: Show or hide entity labels, Value: on
+							65 toggle button Loads, Help: Show or hide load arrows, Value: on
+							66 toggle button Grid, Help: Show or hide the ground grid, Value: on
+						67 container Viewport selection tools
+							68 toggle button Box Select, Value: off
+							69 container
+								70 text Selection filter
+								71 pop up button Selection filter, Value: All
+							72 button (disabled) Hide, Help: Select at least one visible, valid node, pipe, support, or component.
+							73 button (disabled) Isolate, Help: Select at least one visible, valid node, pipe, support, or component.
+							74 button (disabled) Show All, Help: All eligible entities are already shown.
+							75 button Fit Model
+							76 button Fit Visible
+							77 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
+						78 container Viewport geometry
+							79 toggle button Schematic, Value: on
+							80 toggle button Actual OD, Value: off
+							81 toggle button Measure, Value: off
+					82 container Viewport status
+						83 text Selected:  project:blank-local-20260920t055147z
+						84 container Schematic centerline geometry
+							85 text Schematic centerline geometry
+						86 container View command status, Help: No view command dispatched.
+							87 text No view command dispatched.
+					88 container
+						89 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						90 container Viewport entity selection
+						91 image Orientation gizmo showing X, Y, Z axes
+						92 container View controls
+							93 toggle button Front, Value: off
+							94 toggle button Top, Value: off
+							95 toggle button Isometric, Value: on
+						96 text 1 m
+					97 container Command and selection bar
+						98 container Object creation tools
+							99 toggle button Node, Help: Arm node creation, Value: off
+							100 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							101 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							102 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							103 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						104 text Select
+						105 summary Selection & navigation, Value: off
+							106 text Selection & navigation
+				107 container Agent
+					108 button (disabled) Agent, Help: Agent: not available yet
+				109 container Workspace status
+					110 container Analysis statuses
+						111 button (collapsed) Solver · Model incomplete, Help: MODEL_INCOMPLETE, Secondary Actions: Expand
+					112 button (collapsed) 5 Issues, Secondary Actions: Expand
+					113 text project: project:blank-local-20260920t055147z Entered
+					114 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	115 close button
+	116 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	117 minimize button
+	118 text Blank Local Model — SWBPIPE
+119 menu bar
+	120 SWBPIPE
+	121 File
+	122 Edit
+	123 View
+	124 Insert
+	125 Analyze
+
+The focused UI element is 3 HTML content Description: SWBPIPE, URL: tauri://localhost
+FINAL PREFERENCES
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 23
++					126 container (expanded) Secondary Actions: Collapse
++						127 summary Appearance, Value: on
++						128 container
++							129 text Theme
++							130 pop up button Appearance theme, Value: System
++						131 container
++							132 text Density
++							133 pop up button Workspace density, Value: Comfortable
+The focused UI element is 127 summary Appearance, Value: on

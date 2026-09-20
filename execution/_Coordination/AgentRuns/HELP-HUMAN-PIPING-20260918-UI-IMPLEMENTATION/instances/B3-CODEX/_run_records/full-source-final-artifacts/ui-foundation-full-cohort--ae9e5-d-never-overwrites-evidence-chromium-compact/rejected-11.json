@@ -1,0 +1,112 @@
+{
+  "prior": {
+    "kind": "unavailable",
+    "actionSequence": 0,
+    "generation": 3
+  },
+  "priorRender": 1,
+  "projectId": "p",
+  "resourceGeneration": 1,
+  "expectedInspectorHeading": "Project — project: p",
+  "dom": {
+    "readout": "Selected project: p; 0 queued",
+    "inspectorHeading": "Project — project: p",
+    "aggregateCount": 0,
+    "aggregatePrimary": null
+  },
+  "actionIdentity": {
+    "sample": 1
+  },
+  "canvas": {
+    "box": {
+      "width": 794,
+      "height": 484
+    }
+  },
+  "pointerEvents": {
+    "pointerup": {
+      "listenerObservedAt": 10
+    }
+  },
+  "expected": {
+    "direction": "left-to-right",
+    "filter": "all",
+    "orderedRefs": [],
+    "primaryRef": null
+  },
+  "after": {
+    "model": {
+      "generation": 3
+    },
+    "viewport": {
+      "generation": 3,
+      "camera": {
+        "sequence": 5
+      },
+      "box": {
+        "generation": 3,
+        "actionSequence": 1,
+        "renderSubmissionSequence": 2,
+        "publishedAt": 11,
+        "direction": "left-to-right",
+        "filter": "all",
+        "orderedRefs": [],
+        "primaryRef": null
+      },
+      "selection": {
+        "generation": 3,
+        "actionSequence": 1,
+        "publishedAt": 11,
+        "renderSubmissionSequence": 2,
+        "orderedRefs": [],
+        "primaryRef": null
+      },
+      "inspector": {
+        "generation": 3,
+        "publicationSequence": 1,
+        "ref": {
+          "type": "project",
+          "id": "p"
+        }
+      },
+      "mainRender": {
+        "generation": 3,
+        "submissionSequence": 2,
+        "submittedAt": 12,
+        "selectionPresentation": null
+      }
+    }
+  },
+  "checks": {
+    "selectionPublication": true,
+    "inspectorPublication": true,
+    "selectionRender": true,
+    "renderedResource": false,
+    "renderedModel": false,
+    "renderedRevision": false,
+    "renderedBarrier": false,
+    "renderedOrderedRefs": false,
+    "readout": true,
+    "inspectorHeading": true,
+    "aggregatePrimary": true,
+    "generation": true,
+    "actionSequence": true,
+    "render": true,
+    "publication": true,
+    "direction": true,
+    "filter": true,
+    "boxOrderedRefs": true,
+    "selectionOrderedRefs": true,
+    "boxPrimary": true,
+    "selectionPrimary": true,
+    "inspector": true
+  },
+  "failedFields": [
+    "renderedResource",
+    "renderedModel",
+    "renderedRevision",
+    "renderedBarrier",
+    "renderedOrderedRefs"
+  ],
+  "status": "FAIL_STOPPED_BOX_POSTCONDITION"
+}

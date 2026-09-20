@@ -1,0 +1,27 @@
+{
+  "focus": {
+    "tag": "BUTTON",
+    "testId": "rail-page-libraries",
+    "text": "Libraries",
+    "inert": false,
+    "rect": {
+      "x": 0,
+      "y": 639.828125,
+      "width": 55,
+      "height": 45.390625,
+      "top": 639.828125,
+      "right": 55,
+      "bottom": 685.21875,
+      "left": 0
+    },
+    "visible": true,
+    "unobscured": true
+  },
+  "focusedAX": [
+    {
+      "ignored": false,
+      "role": "button",
+      "name": "Libraries"
+    }
+  ]
+}

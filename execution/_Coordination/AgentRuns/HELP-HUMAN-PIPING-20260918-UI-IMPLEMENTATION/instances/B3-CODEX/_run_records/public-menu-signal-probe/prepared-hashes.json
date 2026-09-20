@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/build.rs",
+    "sha256": "b4db726d0a14c3da55041ed7c30b752fd2cec59c803324cc0d016079c6d3545b"
+  },
+  {
+    "path": "/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/public_menu_probe.m",
+    "sha256": "f63a96cccd71310d4bdb7ea7dda63056ecfd40fd361f6e7bcdfed1418e0626a7"
+  },
+  {
+    "path": "/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+    "sha256": "eeb940f6e05206d7e686d31d52012701b703cdce8c92b9edc1c3e5cc6120621d"
+  },
+  {
+    "path": "/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+    "sha256": "bf4d898b4f5b5398d633edefb8fc6e69d111b79beca1ea9b5c40472395268572"
+  }
+]

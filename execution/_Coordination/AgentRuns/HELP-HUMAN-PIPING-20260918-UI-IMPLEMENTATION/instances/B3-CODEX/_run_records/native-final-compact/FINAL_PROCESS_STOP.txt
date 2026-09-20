@@ -1,0 +1,4 @@
+40910 Sat Sep 19 23:49:04 2026     /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop
+binary SHA256 55b95a087816c0340adae31758164b51c21d2a9910b46d9d8f0873817b2df1b7
+ROOT requested quiescence for clean-candidate sweep. Exact owned process verified, SIGTERM sent. Prior sealed native evidence unchanged.
+Subsequent ps exit1/no output: PID40910 absent. Native process quiescent.

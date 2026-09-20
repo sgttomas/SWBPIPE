@@ -1,0 +1,2 @@
+  PID  PPID STARTED                      COMMAND
+16215     1 Sat Sep 19 21:47:44 2026     /tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop

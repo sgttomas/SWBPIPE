@@ -1,0 +1,25 @@
+{
+  "latest_row": [
+    "project:blank-local-20260920t052640z",
+    "Blank Local Model",
+    1789882000,
+    1789882000
+  ],
+  "own_model_nodes": [],
+  "own_model_keys": [
+    "analysis_status",
+    "combinations",
+    "components",
+    "data_boundary",
+    "diagnostics",
+    "document_kind",
+    "load_cases",
+    "materials",
+    "nodes",
+    "pipe_segments",
+    "project",
+    "schema_version",
+    "sections",
+    "supports"
+  ]
+}

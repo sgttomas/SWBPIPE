@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/workspace/correlatedPopup.test.ts
+
+
+ RUN  v4.1.10 /private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  22:27:25
+   Duration  542ms (transform 53ms, setup 102ms, import 17ms, tests 17ms, environment 314ms)
+

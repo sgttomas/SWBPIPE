@@ -1,0 +1,100 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ↓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > queues a partial material row with exact entered quantities and omitted unentered slots
+ ↓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > rejects half-entered quantities and duplicate material IDs
+ ↓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > removes an existing point while canonicalizing the exact previous array
+ ↓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > drops an async result after selection changes
+ ↓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > atomically switches whole-pipe wind exposure to an entered partial span
+ ↓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > blocks overlapping wind spans before queuing
+ ↓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > creates an explicitly named support with nested stiffness through the creation envelope
+ ↓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > preserves hanger quantities and removes optional support blocks explicitly
+ ↓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > queues a friction support using a restrained source DOF and explicit coefficient
+ ↓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > blocks duplicate support IDs and competing queued updates
+ ↓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > offers exactly nine canonical choices with readable labels and no inferred configuration
+ ↓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > preserves the exact source family undefined until an explicit canonical choice
+ ↓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > preserves the exact source family null until an explicit canonical choice
+ ↓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > preserves the exact source family Unsupported family until an explicit canonical choice
+ ↓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > preserves the exact source family  until an explicit canonical choice
+ ↓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > preserves the exact source family  line_stop  until an explicit canonical choice
+ ↓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > preserves the exact source family LineStop until an explicit canonical choice
+ ↓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > creates line_stop with only the explicitly selected UX restraint
+ ↓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > creates vertical_support with only the explicitly selected UZ restraint
+ × src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > Tab without a choice preserves exact source family undefined 70ms
+   → expected { restraints: [ 'UY' ], …(2) } to not have property "family"
+ × src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > Tab without a choice preserves exact source family null 17ms
+   → expected 'anchor' to be null // Object.is equality
+ × src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > Tab without a choice preserves exact source family Unsupported family 17ms
+   → expected 'anchor' to be 'Unsupported family' // Object.is equality
+ × src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > outside Queue without a choice preserves exact source family undefined 15ms
+   → expected { restraints: [ 'UY' ], …(2) } to not have property "family"
+ × src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > outside Queue without a choice preserves exact source family null 14ms
+   → expected 'anchor' to be null // Object.is equality
+ × src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > outside Queue without a choice preserves exact source family Unsupported family 15ms
+   → expected 'anchor' to be 'Unsupported family' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > Tab without a choice preserves exact source family undefined
+ FAIL  src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > outside Queue without a choice preserves exact source family undefined
+AssertionError: expected { restraints: [ 'UY' ], …(2) } to not have property "family"
+
+- Expected:
+undefined
+
++ Received:
+"anchor"
+
+ ❯ src/features/rich-authoring/richForms.test.tsx:396:51
+    394|       await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+    395|       const after = JSON.parse(queue.mock.calls[0][0].change.after);
+    396|       if (family === undefined) expect(after).not.toHaveProperty("fami…
+       |                                                   ^
+    397|       else expect(after.family).toBe(family);
+    398|       expect(JSON.stringify(m)).toBe(original);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > Tab without a choice preserves exact source family null
+ FAIL  src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > outside Queue without a choice preserves exact source family null
+AssertionError: expected 'anchor' to be null // Object.is equality
+
+- Expected:
+null
+
++ Received:
+"anchor"
+
+ ❯ src/features/rich-authoring/richForms.test.tsx:397:33
+    395|       const after = JSON.parse(queue.mock.calls[0][0].change.after);
+    396|       if (family === undefined) expect(after).not.toHaveProperty("fami…
+    397|       else expect(after.family).toBe(family);
+       |                                 ^
+    398|       expect(JSON.stringify(m)).toBe(original);
+    399|       expect(selector).toHaveAttribute("data-value", "");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > Tab without a choice preserves exact source family Unsupported family
+ FAIL  src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > outside Queue without a choice preserves exact source family Unsupported family
+AssertionError: expected 'anchor' to be 'Unsupported family' // Object.is equality
+
+Expected: "Unsupported family"
+Received: "anchor"
+
+ ❯ src/features/rich-authoring/richForms.test.tsx:397:33
+    395|       const after = JSON.parse(queue.mock.calls[0][0].change.after);
+    396|       if (family === undefined) expect(after).not.toHaveProperty("fami…
+    397|       else expect(after.family).toBe(family);
+       |                                 ^
+    398|       expect(JSON.stringify(m)).toBe(original);
+    399|       expect(selector).toHaveAttribute("data-value", "");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 19 skipped (25)
+   Start at  23:31:46
+   Duration  814ms (transform 121ms, setup 100ms, import 142ms, tests 150ms, environment 330ms)
+

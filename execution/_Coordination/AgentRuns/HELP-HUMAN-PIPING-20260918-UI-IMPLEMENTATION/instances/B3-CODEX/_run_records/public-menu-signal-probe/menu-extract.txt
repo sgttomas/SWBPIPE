@@ -1,0 +1,23 @@
+1: PROBE_MENU installed public observers
+4: PROBE_MENU time=811570284.612070 notification=NSMenuWillSendActionNotification menu=0xc889b2240 eventType=-1 controlKeyCode=-1
+5: PROBE_MENU time=811570284.614836 notification=NSMenuDidSendActionNotification menu=0xc889b2240 eventType=-1 controlKeyCode=-1
+6: PROBE_MENU time=811570292.112463 notification=NSMenuWillSendActionNotification menu=0xc889b1d00 eventType=-1 controlKeyCode=-1
+7: PROBE_MENU time=811570292.112959 notification=NSMenuDidSendActionNotification menu=0xc889b1d00 eventType=-1 controlKeyCode=-1
+16: PROBE_MENU time=811570299.380965 notification=NSMenuDidBeginTrackingNotification menu=0xc88989b40 eventType=2 controlKeyCode=-1
+19: PROBE_MENU time=811570304.612534 notification=NSMenuDidEndTrackingNotification menu=0xc88989b40 eventType=10 controlKeyCode=53
+26: PROBE_MENU time=811570309.555079 notification=NSMenuDidBeginTrackingNotification menu=0xc88988280 eventType=11 controlKeyCode=49
+29: PROBE_MENU time=811570316.961443 notification=NSMenuDidEndTrackingNotification menu=0xc88988280 eventType=10 controlKeyCode=53
+36: PROBE_MENU time=811570320.837880 notification=NSMenuDidBeginTrackingNotification menu=0xc8898be40 eventType=10 controlKeyCode=49
+37: PROBE_MENU time=811570324.110543 notification=NSMenuDidEndTrackingNotification menu=0xc8898be40 eventType=11 controlKeyCode=36
+38: PROBE_MENU time=811570324.110639 notification=NSMenuWillSendActionNotification menu=0xc8898be40 eventType=11 controlKeyCode=36
+39: PROBE_MENU time=811570324.110789 notification=NSMenuDidSendActionNotification menu=0xc8898be40 eventType=11 controlKeyCode=36
+42: PROBE_MENU time=811570335.460917 notification=NSMenuDidBeginTrackingNotification menu=0xc88988700 eventType=2 controlKeyCode=-1
+45: PROBE_MENU time=811570339.004875 notification=NSMenuDidEndTrackingNotification menu=0xc88988700 eventType=13 controlKeyCode=-1
+46: PROBE_MENU time=811570339.004969 notification=NSMenuWillSendActionNotification menu=0xc88988700 eventType=13 controlKeyCode=-1
+47: PROBE_MENU time=811570339.005071 notification=NSMenuDidSendActionNotification menu=0xc88988700 eventType=13 controlKeyCode=-1
+50: PROBE_MENU time=811570341.990994 notification=NSMenuDidBeginTrackingNotification menu=0xc8685db80 eventType=1 controlKeyCode=-1
+51: PROBE_MENU time=811570346.009474 notification=NSMenuDidEndTrackingNotification menu=0xc8685db80 eventType=13 controlKeyCode=-1
+52: PROBE_MENU time=811570346.009566 notification=NSMenuWillSendActionNotification menu=0xc8685db80 eventType=13 controlKeyCode=-1
+53: PROBE_MENU time=811570346.009668 notification=NSMenuDidSendActionNotification menu=0xc8685db80 eventType=13 controlKeyCode=-1
+64: PROBE_MENU time=811570353.528183 notification=NSMenuDidBeginTrackingNotification menu=0xc88988880 eventType=10 controlKeyCode=49
+65: PROBE_MENU time=811570359.158832 notification=NSMenuDidEndTrackingNotification menu=0xc88988880 eventType=1 controlKeyCode=-1

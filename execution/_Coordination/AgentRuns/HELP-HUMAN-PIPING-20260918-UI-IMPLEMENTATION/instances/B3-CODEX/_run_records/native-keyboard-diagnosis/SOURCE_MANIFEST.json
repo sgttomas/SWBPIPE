@@ -1,0 +1,29 @@
+{
+  "role": "TASK Type2",
+  "parent": "/root/b3_manager",
+  "agent": "/root/b3_manager/native_keyboard_diagnosis",
+  "mechanism": "Codex delegated-harness-native",
+  "model": "GPT-6 Astra",
+  "reasoning": "low",
+  "basis": "f5bc01f8beaa1c210b988fe28aea95573781f963",
+  "host_limits": "Unrestricted host; scope enforced by agent instructions. No UI, server, source/config/test writes or Git mutations performed.",
+  "inputs": {
+    "AGENTS.md": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "projects/chirality-piping/AGENTS.md": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005",
+    "projects/chirality-piping/loop/LOOP_INIT.md": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94",
+    ".agents/skills/software-defect-diagnosis/SKILL.md": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/briefs/NATIVE_KEYBOARD_DIAGNOSIS.md": "187bb52467dc6aafd0066e2b1ffdde64dce19431805f669aae57904035d5b743",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/INTEGRATION_NOTES.md": "aecc92c7ca6e567ce6f5584e88d68e28bc6a69a81d598feccbd25dde653d27d1",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/native/RETURN.md": "783738bdc6e212d6d52f6a3b48001eacefd204d898cf2b403c3853eb25ce735b",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/native/F5_NATIVE_WITNESS.md": "f29f26e01c812530dc69ddf2f68bd741afb40af57a4c3fff391073f2d5ca699c",
+    "f5bc01f8b:projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts": "c81b1e3522ee8da2194454c8db57041d0f0041d0321a4319f952d21d9e9c427f",
+    "f5bc01f8b:projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx": "0b2d6f9ffd3ae729b9106cb2188c0698c4796df133b3615d6d5e105d1dff0846",
+    "f5bc01f8b:projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx": "85a70e3f75a9bcca9fafc7752cc7414a765915847a67c6f7c33a52d0a7d01469",
+    "f5bc01f8b:projects/chirality-piping/apps/desktop/src/App.tsx": "6c11f17589b40d9cc0a80292dbf1133c294a644fa5645f14250bb9734cba3f78",
+    "f5bc01f8b:projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts": "03e999eacedd2e2c33ced1d56ae2e9ff6b427140052a928b8c4604c36493ff53",
+    "f5bc01f8b:projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "cfa35ee767769e0cde5f9bcc6eac544c4701fa890ab2999ef6d8db0ca395fa56",
+    "f5bc01f8b:projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx": "b770f69d9304ffb5a685aeda7792c08b03c61129fa6da86e1364437962e782e9",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/native/F5_CUA_ACTION_LOG.md": "9c355eb4a23446149f2d48dd4ef1045a7e085f93512dae911dee1cbf156d5a14"
+  }
+}

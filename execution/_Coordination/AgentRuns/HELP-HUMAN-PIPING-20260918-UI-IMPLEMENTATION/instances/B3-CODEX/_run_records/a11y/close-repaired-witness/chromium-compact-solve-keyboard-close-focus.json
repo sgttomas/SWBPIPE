@@ -1,0 +1,27 @@
+{
+  "focus": {
+    "tag": "BUTTON",
+    "testId": "rail-stage-model",
+    "text": "Model",
+    "inert": false,
+    "rect": {
+      "x": 0,
+      "y": 81,
+      "width": 55,
+      "height": 45.390625,
+      "top": 81,
+      "right": 55,
+      "bottom": 126.390625,
+      "left": 0
+    },
+    "visible": true,
+    "unobscured": true
+  },
+  "focusedAX": [
+    {
+      "ignored": false,
+      "role": "button",
+      "name": "Model"
+    }
+  ]
+}

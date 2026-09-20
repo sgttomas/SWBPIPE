@@ -1,0 +1,1 @@
+19891 Sat Sep 19 22:11:06 2026     /tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop

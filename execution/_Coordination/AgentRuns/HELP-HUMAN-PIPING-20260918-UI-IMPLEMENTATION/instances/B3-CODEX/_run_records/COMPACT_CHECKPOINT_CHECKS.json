@@ -1,0 +1,35 @@
+{
+  "candidate": "9d0b717a664daf5c6f6236b5157982ff0c54e3de",
+  "productCheckpoint": "81db7c62e",
+  "logs": {
+    "compact-browser-repaired.log": {
+      "sha256": "f789457966b248248722e6ec955f27b1ba64b2e1a4c8b7e9c51e08270ab336e5",
+      "bytes": 4165
+    },
+    "full-unit-compact-reset.log": {
+      "sha256": "ddc1a9787320adbd1ee8aa436bd2930a848747bbe88e840ada59958aee8082f4",
+      "bytes": 1955611
+    },
+    "new-blank-reset-before-corrected-setup.log": {
+      "sha256": "df8f680a6f0eb8f7dc970dc8f9ff35fa7beae726458acd21d7c3df46ad17bf83",
+      "bytes": 20818
+    },
+    "new-blank-reset-after.log": {
+      "sha256": "2b148e30532123776cd5f8cf477fec622eaff414631c4d695e6987dd7ecc3131",
+      "bytes": 18596
+    },
+    "compact-app-navigation-and-reset.log": {
+      "sha256": "177f5e6672059ee38d980e92404395b1dde2b5898dc273bba75abd7347258c73",
+      "bytes": 1286361
+    },
+    "compact-app-roundtrip-repaired.log": {
+      "sha256": "deba75395ded2787238a9a8687a6db4aba0aaeee0a816ccdd10847c59470eb0c",
+      "bytes": 36201
+    },
+    "compact-integration-typecheck-final.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "pending": "full source/dist, final native, independent affected backchecks"
+}

@@ -1,0 +1,4 @@
+30560 Sat Sep 19 22:47:08 2026     /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop
+binary SHA256 1836d91ddbc5dd4809e53b12dde92c87fab587b8e9709e19fc920ec2e780af3a
+ROOT released PID30560; no engineering edits/history at handoff. Verified exact owned binary, sent SIGTERM before rebuild.
+Subsequent ps: exit1, no PID output; process absent.

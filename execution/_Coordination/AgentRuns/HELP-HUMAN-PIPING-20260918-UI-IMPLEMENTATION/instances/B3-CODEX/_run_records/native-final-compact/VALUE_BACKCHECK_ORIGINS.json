@@ -1,0 +1,20 @@
+{
+  "parent": "/root/b3_manager",
+  "agent": "/root/b3_manager/native_final_compact",
+  "role": "TASK Type2",
+  "model": "GPT-6 Astra",
+  "reasoning": "low per continued launch",
+  "mechanism": "delegated-harness-native",
+  "sourceCommit": "24f5d9db073fae34d165029f33d1a8bf8f9d0a3c",
+  "sources": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/briefs/FINAL_NATIVE_VALUE_BACKCHECK.md",
+      "sha256": "7b2b78c9b45ea0b7b579f9fd84f3309a13001a64532ad8ebbbf90129caaff1b0"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/native/VALUE_REPAIR_BUILD_MANIFEST.json",
+      "sha256": "be76ef0b64d32bf76d09b2b48c4a05d9a22bc31c3709ddcb38c6b83c26905a65"
+    }
+  ],
+  "process": "  PID STARTED                      COMMAND\n40910 Sat Sep 19 23:49:04 2026     /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop\n"
+}

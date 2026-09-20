@@ -1,0 +1,12 @@
+{
+  "pid": 16215,
+  "binary": "/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+  "sha256": "035b9acfe4f8569d17cda381eb308a734434a98121a305c81e732ef9680b8ce9",
+  "base": "f5bc01f8beaa1c210b988fe28aea95573781f963",
+  "start": "2026-09-19T21:47:44.192711",
+  "sourceHashes": {
+    "src/features/workspace/nativeSelectPopup.ts": "1bd63f00d14c7f041fc188f7facd0ba77b35f11cacc25c3fd0ca3bc4b1384dc3",
+    "src/features/workspace/workspaceSession.ts": "dc99194ec03b6cc06af7803878be2b18a2ee07b840c30966c1b273d4f09c5d8d",
+    "src-tauri/src/lib.rs": "55dbb7559f98754a18f03d3f6dbad9eacaa10100566e3cd640050696670d4c06"
+  }
+}

@@ -1,0 +1,18 @@
+Window: "Blank Local Model — SWBPIPE", App: SWBPIPE.
+1 Edit, Secondary Actions: Cancel, Pick
+	2 menu Secondary Actions: Cancel
+		3 Undo Model Edit, ID: fireMenuItemAction:
+		4 (disabled) Redo Model Edit, ID: fireMenuItemAction:
+		5 Undo, ID: undo:
+		6 Redo, ID: redo:
+		7 Cut, ID: cut:
+		8 Copy, ID: copy:
+		9 Paste, ID: paste:
+		10 Select All, ID: selectAll:
+		11 AutoFill
+			12 menu Secondary Actions: Cancel
+				13 (disabled) Contact…
+				14 (disabled) Passwords…
+				15 (disabled) Credit Card…
+		16 Start Dictation…, ID: startDictation:
+		17 Emoji & Symbols, ID: orderFrontCharacterPalette:

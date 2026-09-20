@@ -1,0 +1,27 @@
+diff --git a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+index 865a28fde..153b64cc6 100644
+--- a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
++++ b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+@@ -4585,8 +4585,14 @@ async fn save_local_result_json(
+     .map_err(|_| native_result_download::SaveError::worker())?
+ }
+ 
++#[tauri::command]
++fn native_probe_log(line: String) { eprintln!("PROBE_DOM {}", line); }
++
+ pub fn run() {
+     tauri::Builder::default()
++        .setup(|app| { if let Some(w)=app.get_webview_window("main") { eprintln!("PROBE_A startup inner={:?} outer={:?} scale={:?}",w.inner_size(),w.outer_size(),w.scale_factor()); w.open_devtools(); } Ok(()) })
++        .on_window_event(|w,e| { if matches!(e, tauri::WindowEvent::Resized(_)) { eprintln!("PROBE_A resize inner={:?} outer={:?} scale={:?}",w.inner_size(),w.outer_size(),w.scale_factor()); } })
++        .on_page_load(|w,_| { let _=w.eval(r#"(()=>{if(window.__nativeProbe)return;window.__nativeProbe=true;let ids=new WeakMap(),n=0;const ident=t=>{if(!t||!t.tagName)return null;if(!ids.has(t))ids.set(t,++n);return {id:ids.get(t),tag:t.tagName,type:t.type,label:t.getAttribute('aria-label'),value:t.value,open:CSS.supports('selector(:open)')?t.matches(':open'):null}};const log=x=>window.__TAURI_INTERNALS__.invoke('native_probe_log',{line:JSON.stringify(x)});log({kind:'installed',supportOpen:CSS.supports('selector(:open)'),innerWidth,innerHeight,userAgent:navigator.userAgent});for(const type of ['keydown','keyup','beforeinput','input','change','pointerdown','click','focusin','focusout'])for(const capture of [true,false])window.addEventListener(type,e=>{const record={type,capture,key:e.key,code:e.code,meta:e.metaKey,ctrl:e.ctrlKey,shift:e.shiftKey,defaultPrevented:e.defaultPrevented,phase:e.eventPhase,target:ident(e.target),active:ident(document.activeElement)};log(record);if(type==='input'||type==='keydown')queueMicrotask(()=>log({kind:'after-event',type,key:e.key,target:ident(e.target),active:ident(document.activeElement)}))},{capture,passive:true});})()"#); })
+         .plugin(tauri_plugin_dialog::init())
+         .manage(SolveJobRegistry::default())
+         .manage(native_result_download::SaveAdmission::default())
+@@ -4596,6 +4602,7 @@ pub fn run() {
+             dispatch_native_menu_command(app, &event.id().0);
+         })
+         .invoke_handler(tauri::generate_handler![
++            native_probe_log,
+             load_preview_model,
+             load_design_knowledge,
+             run_preview_mechanics,

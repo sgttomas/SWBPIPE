@@ -1,0 +1,9 @@
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 136-137
+~								50 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++									139 text Name, ID, type, or group
+~							52 text 3  of  3  model entities visible
+~							53 button (disabled) Clear model tree filter
++							140 button (expanded) Nodes, Secondary Actions: Collapse
++							141 button (selected) Probe node node:N-PROBE, Help: Probe node (node:N-PROBE)
+The focused UI element is 50 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group

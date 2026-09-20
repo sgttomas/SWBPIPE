@@ -1,0 +1,29 @@
+[1A[2K[2m[WebServer] [22m(node:43616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 6 tests using 1 worker
+
+[1A[2K(node:43618) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:43618) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/6] [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review
+[1A[2K[2/6] [chromium-desktop] › e2e/r2-smoke.spec.ts:250:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[1A[2K[3/6] [chromium-desktop] › e2e/r2-smoke.spec.ts:865:1 › R2 from-blank GUI journey authors the A12 rehearsal script
+[1A[2K(node:43686) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:43686) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[4/6] [chromium-compact] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review
+[1A[2K[5/6] [chromium-compact] › e2e/r2-smoke.spec.ts:250:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[1A[2K[6/6] [chromium-compact] › e2e/r2-smoke.spec.ts:865:1 › R2 from-blank GUI journey authors the A12 rehearsal script
+[1A[2K  6 passed (1.7m)

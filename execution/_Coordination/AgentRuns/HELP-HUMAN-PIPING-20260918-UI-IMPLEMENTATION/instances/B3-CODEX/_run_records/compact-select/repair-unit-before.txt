@@ -1,0 +1,117 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/workspace/CompactSelect.test.tsx
+
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/CompactSelect.test.tsx (29 tests | 11 failed) 259ms
+     × preserves source missing on no-navigation Tab and outside dismissal 7ms
+     × preserves source  on no-navigation Tab and outside dismissal 4ms
+     × preserves source b on no-navigation Tab and outside dismissal 4ms
+     × preserves pending value across option reordering instead of committing its old index 7ms
+     × cancels pending choice on remove active basis change 6ms
+     × cancels pending choice on disable active basis change 6ms
+     × cancels pending choice on remove selected basis change 5ms
+     × cancels pending choice on disable selected basis change 5ms
+     × cancels pending choice on rename basis change 4ms
+     × cancels pending choice on canonical basis change 5ms
+     × does not infer a value when a catalog arrives after opening an empty unavailable source 5ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/CompactSelect.test.tsx > CompactSelect > preserves source missing on no-navigation Tab and outside dismissal
+ FAIL  src/features/workspace/CompactSelect.test.tsx > CompactSelect > preserves source  on no-navigation Tab and outside dismissal
+ FAIL  src/features/workspace/CompactSelect.test.tsx > CompactSelect > preserves source b on no-navigation Tab and outside dismissal
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      "a",
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/CompactSelect.test.tsx:218:26
+    216|       else if (dismissal === "pointer") fireEvent.pointerDown(document…
+    217|       else fireEvent.focusIn(document.body);
+    218|       expect(change).not.toHaveBeenCalled();
+       |                          ^
+    219|       expect(control).toHaveAttribute("data-value", value);
+    220|       expect(control).toHaveAttribute("aria-expanded", "false");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  src/features/workspace/CompactSelect.test.tsx > CompactSelect > preserves pending value across option reordering instead of committing its old index
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  Charlie
+Received:
+  Delta
+ ❯ src/features/workspace/CompactSelect.test.tsx:239:29
+    237|     expect(active(control)).toHaveTextContent("Charlie");
+    238|     rerender(<CompactSelect aria-label="Type" value="a" options={[opti…
+    239|     expect(active(control)).toHaveTextContent("Charlie");
+       |                             ^
+    240|     fireEvent.keyDown(control, { key: "Tab" });
+    241|     expect(change).toHaveBeenCalledExactlyOnceWith("c");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels pending choice on remove active basis change
+ FAIL  src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels pending choice on disable active basis change
+ FAIL  src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels pending choice on remove selected basis change
+ FAIL  src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels pending choice on disable selected basis change
+ FAIL  src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels pending choice on rename basis change
+ FAIL  src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels pending choice on canonical basis change
+Error: expect(element).toHaveAttribute("aria-expanded", "false") // element.getAttribute("aria-expanded") === "false"
+
+Expected the element to have attribute:
+  aria-expanded="false"
+Received:
+  aria-expanded="true"
+ ❯ src/features/workspace/CompactSelect.test.tsx:255:21
+    253|     if (changeKind === "rename") changedOptions = options.map((option)…
+    254|     rerender(<CompactSelect aria-label="Type" value={changeKind === "c…
+    255|     expect(control).toHaveAttribute("aria-expanded", "false");
+       |                     ^
+    256|     fireEvent.keyDown(control, { key: "Tab" });
+    257|     fireEvent.pointerDown(document.body);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  src/features/workspace/CompactSelect.test.tsx > CompactSelect > does not infer a value when a catalog arrives after opening an empty unavailable source
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      "a",
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/CompactSelect.test.tsx:269:24
+    267|     rerender(<CompactSelect aria-label="Type" value="missing" options=…
+    268|     fireEvent.keyDown(control, { key: "Tab" });
+    269|     expect(change).not.toHaveBeenCalled();
+       |                        ^
+    270|     expect(control).toHaveTextContent("missing");
+    271|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed | 18 passed (29)
+   Start at  23:33:42
+   Duration  671ms (transform 60ms, setup 69ms, import 59ms, tests 259ms, environment 189ms)
+
