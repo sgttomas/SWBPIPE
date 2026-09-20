@@ -1,0 +1,8 @@
+npx
+playwright
+test
+e2e/b3-accessibility.spec.ts
+e2e/workspace-layout.spec.ts
+e2e/gui-workflow-validation.spec.ts
+--reporter=line
+--output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/source-focused/artifacts

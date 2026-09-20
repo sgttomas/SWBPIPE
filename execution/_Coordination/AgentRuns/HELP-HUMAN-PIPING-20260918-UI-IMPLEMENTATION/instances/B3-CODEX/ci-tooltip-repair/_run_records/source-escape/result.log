@@ -1,0 +1,31 @@
+[1A[2K[2m[WebServer] [22m(node:79953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 8 tests using 1 worker
+
+[1A[2K(node:79955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:79955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/8] [chromium-desktop] › e2e/ui-foundation.spec.ts:1420:1 › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls
+[1A[2K[2/8] [chromium-desktop] › e2e/ui-foundation.spec.ts:1966:1 › decorative viewport overlays pass real canvas gestures while view controls stay interactive
+[1A[2K[3/8] [chromium-desktop] › e2e/ui-foundation.spec.ts:2269:55 › captured Box lifetime › workspace Escape event ownership consumed palette
+[1A[2K[4/8] [chromium-desktop] › e2e/ui-foundation.spec.ts:2269:55 › captured Box lifetime › workspace Escape event ownership consumed drawer
+[1A[2K(node:79990) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:79990) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[5/8] [chromium-compact] › e2e/ui-foundation.spec.ts:1420:1 › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls
+[1A[2K[6/8] [chromium-compact] › e2e/ui-foundation.spec.ts:1966:1 › decorative viewport overlays pass real canvas gestures while view controls stay interactive
+[1A[2K[7/8] [chromium-compact] › e2e/ui-foundation.spec.ts:2269:55 › captured Box lifetime › workspace Escape event ownership consumed palette
+[1A[2K[8/8] [chromium-compact] › e2e/ui-foundation.spec.ts:2269:55 › captured Box lifetime › workspace Escape event ownership consumed drawer
+[1A[2K  8 passed (18.5s)

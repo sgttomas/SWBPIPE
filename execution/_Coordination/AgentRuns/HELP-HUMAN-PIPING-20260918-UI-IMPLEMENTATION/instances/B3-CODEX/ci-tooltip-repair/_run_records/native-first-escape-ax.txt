@@ -1,0 +1,78 @@
+Window: "Invented Utility Loop Preview — SWBPIPE", App: SWBPIPE.
+0 standard window Invented Utility Loop Preview — SWBPIPE, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: SWBPIPE, URL: tauri://localhost
+			3 container
+				4 container Toolbar
+					5 heading SWBPIPE, Value: 1
+						6 text SWBPIPE
+					7 container Invented Utility Loop Preview
+						8 text Invented Utility Loop Preview
+					9 container Editing tools
+						10 button (disabled) Undo model edit, Help: Nothing to undo
+						11 button (disabled) Redo model edit, Help: Nothing to redo
+						12 toggle button Select, Help: Select (⎋), Value: on
+					13 container View
+						14 toggle button Table, Help: Table view (⌘1), Value: off
+						15 toggle button Model, Help: Model view (⌘2), Value: off
+						16 toggle button Both, Help: Both view (⌘3), Value: on
+					17 button Run
+					18 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					19 container Panels
+						20 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+						21 button (disabled) Agent, Help: Agent: not available yet
+					22 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					23 summary Appearance, Value: off
+					24 container Human toolkit
+						25 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				26 container Stages
+					27 content list
+						28 toggle button Model, Value: off
+						29 toggle button Loads, Value: off
+						30 toggle button (disabled) Results, Help: No run yet, Value: off
+						31 toggle button (disabled) Review, Help: No run yet, Value: off
+					32 content list
+						33 button (expanded) Libraries, Secondary Actions: Collapse
+						34 button (collapsed) Rules, Secondary Actions: Expand
+						35 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				36 container Workspace sections
+					37 container
+						38 heading Libraries, Value: 2
+							39 text Libraries
+						40 button Close, Help: Close (⎋)
+					41 container Libraries section
+						42 container Library manager
+							43 text PRIVATE LIBRARY MANAGER (LOCAL-ONLY) Project scope: project:invented-loop-01; storage: local SQLite only. Library kind
+							44 pop up button Library kind, Value: Material library
+							45 text Intended visibility (validation preview)
+							46 pop up button Intended visibility (validation preview), Value: Private (local-only)
+							47 text Visibility shapes the validation preview only. Save always persists to the private local store and stores only an accepted private import (DEC-036).
+							48 button Load invented sample
+							49 button Refresh local list
+							50 text Local library list not refreshed for this project yet. Library import document JSON (an already-parsed material/section/component library document with provenance — this manager validates and stores it; it does not parse external file formats)
+							51 text entry area (disabled, settable) Help: No import document; load an invented sample or paste a library document first., Placeholder: No import document. Load an invented sample or paste a library document., Library import document JSON (an already-parsed material/section/component library document with provenance — this manager validates and stores it; it does not parse external file formats)
+								52 text No import document. Load an invented sample or paste a library document.
+							53 button (disabled) Validate import, Help: No import document; load an invented sample or paste a library document first.
+							54 button (disabled) Save to local store, Help: No import document; load an invented sample or paste a library document first.
+							55 button (disabled) Discard import document, Help: No import document; load an invented sample or paste a library document first.
+							56 text No library-import action has run in this session.  Imported private libraries stay in local project storage only — never committed to the repository, transmitted, or bundled into public artifacts. Only an accepted private import is stored; a suspected-protected or otherwise-blocked import is refused, not stored (DEC-036). Import validation reports software findings over an already-parsed payload; no protected standards content — code-specific data is user-supplied.
+				57 container Agent
+					58 button (disabled) Agent, Help: Agent: not available yet
+				59 container Workspace status
+					60 container Analysis statuses
+					61 button (collapsed) 5 Issues, Secondary Actions: Expand
+					62 text project: project:invented-loop-01 Entered
+					63 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	64 close button
+	65 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	66 minimize button
+	67 text Invented Utility Loop Preview — SWBPIPE
+68 menu bar
+	69 SWBPIPE
+	70 File
+	71 Edit
+	72 View
+	73 Insert
+	74 Analyze
+
+The focused UI element is 58 button (disabled) Agent, Help: Agent: not available yet

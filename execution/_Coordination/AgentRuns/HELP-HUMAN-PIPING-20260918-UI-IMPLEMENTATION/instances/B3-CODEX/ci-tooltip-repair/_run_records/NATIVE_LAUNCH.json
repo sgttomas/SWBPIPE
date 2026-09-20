@@ -1,0 +1,9 @@
+{
+  "sourceCommit": "3861b614362d8da925e148d7506ecc9902c7f808",
+  "pid": 80466,
+  "binaryPath": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+  "sha256": "e9eda3cca4e626dd00cfee62279113d0d5161a751ba40cd58cea091cd23ca5f9",
+  "launchUtc": "2026-09-20T08:31:31.491168+00:00",
+  "method": "explicit verified executable subprocess; no UI action",
+  "priorDesktopProcesses": "none"
+}

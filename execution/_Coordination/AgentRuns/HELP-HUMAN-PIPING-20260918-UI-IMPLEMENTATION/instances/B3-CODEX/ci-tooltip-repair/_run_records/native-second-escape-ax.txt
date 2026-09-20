@@ -1,0 +1,174 @@
+Window: "Invented Utility Loop Preview — SWBPIPE", App: SWBPIPE.
+0 standard window Invented Utility Loop Preview — SWBPIPE, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: SWBPIPE, URL: tauri://localhost
+			3 container
+				4 container Toolbar
+					5 heading SWBPIPE, Value: 1
+						6 text SWBPIPE
+					7 container Invented Utility Loop Preview
+						8 text Invented Utility Loop Preview
+					9 container Editing tools
+						10 button (disabled) Undo model edit, Help: Nothing to undo
+						11 button (disabled) Redo model edit, Help: Nothing to redo
+						12 toggle button Select, Help: Select (⎋), Value: on
+					13 container View
+						14 toggle button Table, Help: Table view (⌘1), Value: off
+						15 toggle button Model, Help: Model view (⌘2), Value: off
+						16 toggle button Both, Help: Both view (⌘3), Value: on
+					17 button Run
+					18 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					19 container Panels
+						20 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+						21 button (disabled) Agent, Help: Agent: not available yet
+					22 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					23 summary Appearance, Value: off
+					24 container Human toolkit
+						25 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				26 container Stages
+					27 content list
+						28 toggle button Model, Value: on
+						29 toggle button Loads, Value: off
+						30 toggle button (disabled) Results, Help: No run yet, Value: off
+						31 toggle button (disabled) Review, Help: No run yet, Value: off
+					32 content list
+						33 button (collapsed) Libraries, Secondary Actions: Expand
+						34 button (collapsed) Rules, Secondary Actions: Expand
+						35 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				36 container Modeling workspace
+					37 container Tables
+						38 toggle button Model, Value: on
+						39 toggle button Review changes, Value: off
+						40 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
+					41 container Model tree
+						42 text MODEL
+						43 container Layout grid mode
+							44 toggle button Tree, Value: on
+							45 toggle button Grid, Value: off
+						46 container Model tree filtering
+							47 container
+								48 text Filter model
+								49 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									50 text Name, ID, type, or group
+							51 text 27  of  27  model entities visible
+							52 button (disabled) Clear model tree filter
+						53 container Model
+							54 button (selected) Invented Utility Loop Preview project:invented-loop-01, Help: Invented Utility Loop Preview (project:invented-loop-01)
+							55 button (expanded) Materials, Secondary Actions: Collapse
+							56 button Invented carbon-steel-like material material:invented-carbon-steel, Help: Invented carbon-steel-like material (material:invented-carbon-steel)
+							57 button (expanded) Nodes, Secondary Actions: Collapse
+							58 button Pump nozzle node:N-100, Help: Pump nozzle (node:N-100)
+							59 button Low point elbow node:N-110, Help: Low point elbow (node:N-110)
+							60 button Riser elbow node:N-120, Help: Riser elbow (node:N-120)
+							61 button Rack turn node:N-130, Help: Rack turn (node:N-130)
+							62 button Terminal tie-in node:N-140, Help: Terminal tie-in (node:N-140)
+							63 button (expanded) Pipes, Secondary Actions: Collapse
+							64 button Pump discharge run pipe:P-100, Help: Pump discharge run (pipe:P-100)
+							65 button Vertical riser pipe:P-110, Help: Vertical riser (pipe:P-110)
+							66 button Rack span pipe:P-120, Help: Rack span (pipe:P-120)
+							67 button Tie-in rise pipe:P-130, Help: Tie-in rise (pipe:P-130)
+							68 button (expanded) Supports, Secondary Actions: Collapse
+							69 button Anchor at pump nozzle support:S-100, Help: Anchor at pump nozzle (support:S-100)
+							70 button Guide on riser support:S-120, Help: Guide on riser (support:S-120)
+							71 button Rack shoe support:S-130, Help: Rack shoe (support:S-130)
+							72 button Preview one-way terminal stop support:NL-140, Help: Preview one-way terminal stop (support:NL-140)
+							73 button Preview sliding-friction rack shoe support:NL-130-FRIC, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC)
+							74 button Invented variable spring hanger support:SH-140, Help: Invented variable spring hanger (support:SH-140)
+							75 button Invented constant-effort support support:CE-120, Help: Invented constant-effort support (support:CE-120)
+							76 button (expanded) Components, Secondary Actions: Collapse
+							77 button Invented elbow marker component:C-110, Help: Invented elbow marker (component:C-110)
+							78 button Invented branch connection marker component:C-120, Help: Invented branch connection marker (component:C-120)
+							79 button Invented semi-rigid valve marker component:C-130, Help: Invented semi-rigid valve marker (component:C-130)
+							80 button Invented tie-in marker component:C-140, Help: Invented tie-in marker (component:C-140)
+							81 button Invented expansion joint marker component:C-150, Help: Invented expansion joint marker (component:C-150)
+							82 button (expanded) Load Cases, Secondary Actions: Collapse
+							83 button Invented operating gravity and pressure preview load:L-100, Help: Invented operating gravity and pressure preview (load:L-100)
+							84 button Invented alternate gravity and pressure preview load:L-200, Help: Invented alternate gravity and pressure preview (load:L-200)
+							85 button (expanded) Combinations, Secondary Actions: Collapse
+							86 button Invented explicit operating plus alternate preview combination:C-OPER-ALT, Help: Invented explicit operating plus alternate preview (combination:C-OPER-ALT)
+							87 button (expanded) Diagnostics, Secondary Actions: Collapse
+							88 button RULE_INPUTS_MISSING RULE_INPUTS_MISSING:0, Help: RULE_INPUTS_MISSING (RULE_INPUTS_MISSING:0)
+					89 splitter Resize table and canvas, Value: 55
+					90 container Viewport controls
+						91 text 3D Centerline
+						92 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+							93 summary Deformation · unavailable, Value: off
+								94 text Deformation · unavailable
+						95 container Viewport display toggles
+							96 toggle button Labels, Help: Show or hide entity labels, Value: on
+							97 toggle button Loads, Help: Show or hide load arrows, Value: on
+							98 toggle button Grid, Help: Show or hide the ground grid, Value: on
+						99 container Viewport selection tools
+							100 toggle button Box Select, Value: off
+							101 container
+								102 text Selection filter
+								103 pop up button Selection filter, Value: All
+							104 button (disabled) Hide, Help: Select at least one visible, valid node, pipe, support, or component.
+							105 button (disabled) Isolate, Help: Select at least one visible, valid node, pipe, support, or component.
+							106 button (disabled) Show All, Help: All eligible entities are already shown.
+							107 button Fit Model
+							108 button Fit Visible
+							109 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
+						110 container Viewport geometry
+							111 toggle button Schematic, Value: on
+							112 toggle button Actual OD, Value: off
+							113 toggle button Measure, Value: off
+					114 container Viewport status
+						115 text Selected:  project:invented-loop-01
+						116 container Schematic centerline geometry
+							117 text Schematic centerline geometry
+						118 container View command status, Help: No view command dispatched.
+							119 text No view command dispatched.
+					120 container
+						121 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						122 container Viewport entity selection
+							123 toggle button Select Vertical riser in viewport, Help: Vertical riser (pipe:P-110), Value: off
+							124 toggle button Select Invented branch connection marker in viewport, Help: Invented branch connection marker (component:C-120), Value: off
+							125 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: off
+							126 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
+							127 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
+							128 toggle button Select Pump discharge run in viewport, Help: Pump discharge run (pipe:P-100), Value: off
+							129 toggle button Select Tie-in rise in viewport, Help: Tie-in rise (pipe:P-130), Value: off
+							130 toggle button Select Invented semi-rigid valve marker in viewport, Help: Invented semi-rigid valve marker (component:C-130), Value: off
+							131 toggle button Select Pump nozzle in viewport, Help: Pump nozzle (node:N-100), Value: off
+							132 toggle button Select Rack turn in viewport, Help: Rack turn (node:N-130), Value: off
+							133 toggle button Select Terminal tie-in in viewport, Help: Terminal tie-in (node:N-140), Value: off
+							134 toggle button Select Preview sliding-friction rack shoe in viewport, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC), Value: off
+							135 toggle button Select Preview one-way terminal stop in viewport, Help: Preview one-way terminal stop (support:NL-140), Value: off
+							136 toggle button Select Anchor at pump nozzle in viewport, Help: Anchor at pump nozzle (support:S-100), Value: off
+						137 image Orientation gizmo showing X, Y, Z axes
+						138 container View controls
+							139 toggle button Front, Value: off
+							140 toggle button Top, Value: off
+							141 toggle button Isometric, Value: on
+						142 text 1 m
+					143 container Command and selection bar
+						144 container Object creation tools
+							145 toggle button Node, Help: Arm node creation, Value: off
+							146 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							147 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							148 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							149 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						150 text Select
+						151 summary Selection & navigation, Value: off
+							152 text Selection & navigation
+				153 container Agent
+					154 button (disabled) Agent, Help: Agent: not available yet
+				155 container Workspace status
+					156 container Analysis statuses
+					157 button (collapsed) 5 Issues, Secondary Actions: Expand
+					158 text project: project:invented-loop-01 Entered
+					159 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	160 close button
+	161 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	162 minimize button
+	163 text Invented Utility Loop Preview — SWBPIPE
+164 menu bar
+	165 SWBPIPE
+	166 File
+	167 Edit
+	168 View
+	169 Insert
+	170 Analyze
+
+The focused UI element is 12 toggle button Select, Help: Select (⎋), Value: on

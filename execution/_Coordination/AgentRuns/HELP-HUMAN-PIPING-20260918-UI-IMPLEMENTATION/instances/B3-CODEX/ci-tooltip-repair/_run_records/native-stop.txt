@@ -1,0 +1,4 @@
+80466 Sun Sep 20 02:31:31 2026     /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop
+Binary SHA256 e9eda3cca4e626dd00cfee62279113d0d5161a751ba40cd58cea091cd23ca5f9
+ROOT completed own look and requested clean-sweep quiescence. Verified exact owned process, sent SIGTERM.
+Subsequent ps exit1/no output:80466 absent.

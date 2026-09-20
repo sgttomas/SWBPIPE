@@ -1,0 +1,47 @@
+{
+  "mechanism": "delegated-harness-native",
+  "parent": "/root/b3_manager",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "host": "unrestricted; written scope only",
+  "head": "002dff0f244976f98b36517d920b3761f6f88704",
+  "sources": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/.agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/IMPLEMENTER_BRIEF.md",
+      "sha256": "89b9f53eaa61a76de09a01317706b136c0e5bbb869c2404539795e82ee450d72"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CI_REPAIR_MANAGER_BRIEF.md",
+      "sha256": "14b3fe08cb8c169f3fd56491c7c650991a9f46d9af80e3c654c65a1fed55411e"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CI_REPAIR_MANAGER_ADDENDUM_1.md",
+      "sha256": "acd5945e8bcccbf20b11830a5b57a75b599a7b7fffb614b03ef632382a7bec3b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md",
+      "sha256": "79bcb9f838b0391a93d51a35257339a5bc06ea2ad2117a0b3a79d6cba8fd7858"
+    }
+  ]
+}
