@@ -9,20 +9,29 @@ changes require acknowledged handoffs; silence transfers nothing.
 
 | Worktree / branch | Owner and current scope |
 |---|---|
-| b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality / codex/swbpipe-continuation-20260919 | ROOT: shared records, graph, decisions, independent reviews and final integration. Current checkpoint includes reviewed CI strategy, owner-approved dist parity and combined verification. |
-| swbpipe-wt2 / codex/swbpipe-b3a-i1-20260920 | ROOT integration: new codex/swbpipe-b3a-i1-20260920 branch, clean combined source candidate 46436a60. Corrected candidate passed fresh complete sweep and whole-merge review; final publication/CI pending. Original failed sweep remains preserved. Former PR825 branch retained at 64260a3c; merged main 7e6a7f25. |
-| swbpipe-wt3 / codex/swbpipe-b-shell-20260918 | B3A manager Astra/high with fresh TASK Astra/low; saved-model marker, solver fallback and native title scope. Product d2ef1684 and native journey independently checked; final packet 9b3b86dd. Two legacy App.test display assertions now match the existing owner ruling; final dada3482 packet independently passed. No B3B changes. |
-| swbpipe-wt4 / codex/swbpipe-b-canvas-20260918 | I1 manager returned clean 045acae7; instrument-only repair, inherited work preserved. Fresh independent Astra/xhigh review PASS. C3 read-only preparation complete; implementation unstarted. |
-| chirality-runtime-application-tools/chirality / codex/runtime-application-tools | Peer owns reusable Runtime. Generic tools PR824 merged 21175b5d, reviewed cb08dbe2f; no Piping adapter/adoption in that work. |
+| ROOT / codex/swbpipe-continuation-20260919 | HELP_HUMAN: graph, shared note, owner decisions, independent review and integration; current MVP publishing discussion. |
+| swbpipe-wt2 / codex/swbpipe-ci-economy-20260920 | ROOT integration, clean candidate52142dbd combines B3B/C3/CI economy. Fresh Astra/xhigh review active. CI TASK Astra/low now owns only router/policy-test repair for new affected specs. |
+| swbpipe-wt3 / codex/swbpipe-b-shell-20260918 | B3B manager Astra/high; shell frozen d6e206f4. Combined native preparation ready, awaiting connected handback. |
+| swbpipe-wt4 / codex/swbpipe-b-canvas-20260918 | C3 manager Astra/high and TASK Astra/low; product frozen c15a095, connected checks active with bounded new-test navigation corrections. |
+| chirality-runtime-application-tools/chirality / codex/runtime-application-tools | Peer owns reusable Runtime. Generic tools PR824 merged21175b5d, reviewedcb08dbe2f; no Piping adapter/adoption. |
 
-The owner resumed Piping repair/merge, CI economy and authorized UI continuation.
-B3 tooltip/Close repair passes code/native/affected checks. A full local sweep then
-found a separate tiny roundoff difference against a legacy exact dist assertion.
-The owner approved parity with the existing source predicate and bounded reruns.
-The exact patch is applied and independently checked; all 53 dist cases and the
-remaining build passed. Original failed sweep stays failed; unchanged passing
-surfaces are reused under this PR825-only ruling. Focused hosted CI passed 68 cases; PR825 merged as 7e6a7f25. The merge preceded desktop-check completion; same-head success is verified in MERGE_OBSERVATION.json. B3A is active and I1 has returned for review.
-Design-system 4dddd4412 stays parked. Graph and decision package own detailed state.
+B3 PR825 and B3A/I1 PR826 are merged. Freshly fetched main is88c6c746.
+PR826's clean local sweep, independent reviews and all same-head hosted checks
+passed. Owner UI merges preceded desktop CI completion; Root issued no merge
+command. Main protection requires only harness. Installed Codex calls
+gh --auto --merge; no forced CI success or cancellation was found. Canonical
+observations are under _run_records/PR826_CI and AUTO_MERGE_DIAGNOSIS.
+This is not a future check waiver or authorization to change protection.
+
+Peer acknowledged Piping ROOT's sole ownership of Piping CI economy:
+cheap selection on every PR, explicit N/A for unrelated changes, affected
+coverage, conservative full fallback and manual full milestones. Other-project
+CI and protections remain unchanged. See _run_records/CI_PEER_ACK.md.
+
+Owner is discussing a sharper first-published MVP, including whether live
+agent assistance belongs in the initial promise. No product-scope amendment,
+phase transition or Runtime integration write is authorized by that discussion.
+Design-system4dddd441 remains parked; WORK_GRAPH.json owns detailed slice state.
 
 Piping retains domain schemas/tools, live controller, UI and future Tauri adapter.
 Peer is the agreed generic Runtime-contract writer. No Root/shared-doctrine or
@@ -32,15 +41,25 @@ completed generic Runtime work; that grants no Piping adoption.
 
 ## Resources and sequence
 
-Final B3A native witness, ROOT own look and complete corrected local sweep are finished. PID 38905 is absent; original System/Comfortable preference is restored. Test ports/lock are being checked clear at publication. ROOT owns final checks/CI; B3B/C3 implementation has not begun. Peer acknowledged no conflicting reservations and will signal new use. Reserve
-source/dist 5174/5175 (one worker / run lock), ROOT 5183/5184, canvas 5185/5186 and Tauri 5173;
-share one native/CUA foreground slot. B3A native verification uses one uniquely named disposable project row in the actual app store, preserving every other row and settings; this is project-level isolation, not a separate store/profile. Future integration profiles/private sockets must be agreed before writes. Use invented fixtures, never private user models. No builds/tests alongside later authorized D-72 timing.
+C3 currently owns source5174, shared E2E lock and pinned Chromium with one worker.
+ROOT review/records and pure CI-policy checks proceed independently. After
+connected handback, shell manager receives the single native/CUA/build slot for
+one combined B3B/C3 witness. No Piping native app is currently in use; final clean
+sweep and hosted full checkpoint remain ahead. Peer last acknowledged no
+conflicting reservations and will signal new use.
 
-B3 is merged. Prefer finishing B3A/B3B dirty/save/busy behavior before an explicitly authorized
-Piping integration tranche; whole closing appearance pass need not block adoption.
-Before writes agree exact revision, interfaces, error behavior, scope and resource
-order. Peer acknowledged this sequence. Substantive disagreements go to the owner;
-none is currently open between the leads.
+Reserve source/dist5174/5175, ROOT5183/5184, canvas5185/5186 and Tauri5173;
+share one native foreground slot. Native uses invented fixtures and a uniquely
+named disposable project row in the actual shared store, preserving other
+rows/settings. This is project-row isolation, not a separate store/profile.
+Future integration profiles/private sockets must be agreed before writes.
+No builds/tests alongside later authorized D-72 timing.
+
+Finish B3B's persistence/native boundary before a separately authorized Piping
+integration tranche; the whole closing appearance pass need not block adoption.
+Before writes agree exact revisions, interfaces, errors, disjoint scopes and
+resource order. Ownership changes need acknowledged handoffs; substantive
+disagreements return to the owner.
 
 ## Interface assessment and first target
 

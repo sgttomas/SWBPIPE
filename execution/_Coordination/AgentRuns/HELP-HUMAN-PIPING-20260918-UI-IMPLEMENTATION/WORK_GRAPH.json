@@ -598,7 +598,7 @@
     "B3A": {
       "role": "slice",
       "lane": "B-SHELL",
-      "title": "the unsaved-edits mark; the 'Solver \u00b7 Not solved' fallback chip",
+      "title": "the unsaved-edits mark; the 'Solver · Not solved' fallback chip",
       "status": "merged as 88c6c746; all local and hosted checks subsequently passed; technical integration only",
       "dependsOn": [
         "B3"
@@ -619,7 +619,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the native menu disabled during a busy project request (with its src-tauri part); a landed save re-derives the integrity record as verified at save",
-      "status": "controller/browser repaired and passed; shell C3 bridge df00 handed to canvas; combined/native/review gates pending",
+      "status": "controller/browser repaired and passed; shell CSS repair d6e integrated; combined native/review/sweep gates pending",
       "dependsOn": [
         "B3A"
       ],
@@ -773,7 +773,7 @@
       "role": "slice",
       "lane": "B-CANVAS",
       "title": "isolate as dimming, a stated pick rule, a total hidden count (G-30)",
-      "status": "source e786 and helper3a5 frozen; active resume for df00 bridge cleanup and connected checks; no native/timed qualification",
+      "status": "all16 unique connected cases pass across bounded candidate-bound runs; final protected/picking/evidence freeze in progress; no timed qualification",
       "dependsOn": [
         "I1"
       ]
@@ -1429,7 +1429,7 @@
       "actualAgent": "/root/b3_manager",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "status": "active; df00 source frozen while canvas checks combined branch",
+      "status": "explicitly resumed for one combined native build/witness at226b1db5 after canvas handback",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_MANAGER_BRIEF.md",
       "briefSha256": "03186a0b04d1809ceb81139872a42c895ab2345cd6aa8cfbf4487b17b94f8b98",
       "basis": "88c6c7463199d1d69caebde04678fa74facca78f",
@@ -1449,7 +1449,7 @@
       "actualAgent": "/root/i1_manager",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "status": "active cleanup/connected-check turn resumed explicitly; prior queued send_message did not start execution",
+      "status": "connected complete; source5174/shared lock explicitly released; final protected/picking/evidence freeze only",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/C3_MANAGER_BRIEF.md",
       "briefSha256": "00dec6ffcbb1acfc2ba0d791854c3c135d7226f802d207e5d1b9047d460d23b2",
       "basis": "88c6c7463199d1d69caebde04678fa74facca78f",
@@ -1464,7 +1464,9 @@
       ],
       "helper": "3a5cf5a78a1da0a0c30d312ed0625d583e7c439d",
       "source": "e7866be015ba2c83a2faa87d39590801efafa06c",
-      "bridge": "df00c64d3220482060851d05b58a99ac055148e5"
+      "bridge": "df00c64d3220482060851d05b58a99ac055148e5",
+      "combinedSource": "c15a095588d49b1bab931c27e79d0a45838ede1c",
+      "testCheckpoint": "48051ca76f3bb17570363b98c0d39b40d36ee56e"
     },
     "CI-ECONOMY-CODEX": {
       "role": "TASK Type 2",
@@ -1472,7 +1474,7 @@
       "actualAgent": "/root/ci_strategy",
       "model": "gpt-6-astra",
       "reasoning": "low",
-      "status": "nine maintained-file diff frozen, metadata-trigger correction complete; ROOT commit/review pending",
+      "status": "reviewer P2 repaired d361bc59;29 policy tests/7subtests pass; independent backcheck pending",
       "branch": "codex/swbpipe-ci-economy-20260920",
       "base": "88c6c7463199d1d69caebde04678fa74facca78f",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_ECONOMY_IMPLEMENTATION_BRIEF.md",
@@ -1481,6 +1483,50 @@
       "return": "instances/CI-ECONOMY-CODEX/RETURN.md",
       "correction": "instances/CI-ECONOMY-CODEX/metadata-repair/RETURN.md",
       "observed": "26 policy tests; collection421 unique scenarios (23 duplicate executions removed), lean46, full exact partitions; no browser execution or hosted proof yet"
+    },
+    "B3B-C3-CI-INTEGRATION": {
+      "role": "ROOT integration",
+      "parent": "ROOT",
+      "status": "clean combined candidate under independent review; connected/native/final sweep/hosted gates pending",
+      "base": "88c6c7463199d1d69caebde04678fa74facca78f",
+      "candidate": "226b1db57029c1df9f9151463c6c708f76f46704",
+      "branch": "codex/swbpipe-ci-economy-20260920",
+      "dependsOn": [
+        "B3B",
+        "C3",
+        "CI-ECONOMY-CODEX"
+      ]
+    },
+    "B3B-C3-CI-REVIEW": {
+      "role": "TASK Type 2 independent code review",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3b_c3_ci_review",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "mechanism": "Codex delegated-harness-native; fresh context",
+      "status": "initial review CHANGES REQUESTED for P2 affected-suite omission; repair d361 and later test/evidence delta need backcheck",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_C3_CI_INDEPENDENT_REVIEW_BRIEF.md",
+      "briefSha256": "c13a05c9c8c2efdc00735347825c9883753cbaf960847bf25a495a6604f86cff",
+      "candidate": "52142dbdaec190f3a7fdb47a4f937c3e23720824",
+      "readOnly": "instruction boundary; host unrestricted",
+      "reviewRange": "88c6c7463199d1d69caebde04678fa74facca78f..52142dbdaec190f3a7fdb47a4f937c3e23720824",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_REVIEW_RETURN.md",
+      "returnSha256": "07ecaef5aad8a3902d3e028ae36ee52ae267ad2e5ab8de0a32cb62886114734a"
+    },
+    "MVP-PUBLISHING-DISCUSSION": {
+      "role": "ROOT product discussion with bounded TASK inventory",
+      "parent": "ROOT",
+      "status": "recommendation prepared for owner discussion; no PRD amendment or new-phase authorization",
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/MVP_PUBLISHING_DISCUSSION.md",
+      "inventoryAgent": "/root/ci_inventory",
+      "model": "gpt-6-astra",
+      "reasoning": "low",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/MVP_BASIS_INVENTORY_BRIEF.md",
+      "briefSha256": "d870e751f67179d41118e9894f65b497951ce71aa939d600b2d05544a6c9d5b3",
+      "basis": "e8f91e086a0ce65ca706bd63e0a3c6e4ef21f15a",
+      "scope": "read-only product/release basis; no tests/UI/ports, implementation, DAG rebuild or deliverable reconciliation",
+      "inventoryReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/MVP_BASIS_INVENTORY_RETURN.md",
+      "returnSha256": "0a488f8093501ebc002d72e10cf1a260fb389acf71d2beba30fa91c29a6f7238"
     }
   },
   "edges": [
@@ -1681,7 +1727,7 @@
       "CI-ECONOMY-CODEX"
     ]
   ],
-  "current_frontier": "Next coherent batch active: B3B controller and C3 bridge handed to canvas for connected checks; CI economy frozen for review. One combined native witness/full local sweep/whole-batch review planned. GitHub protection remains harness-only; auto-merge diagnosis recorded, no settings change or Runtime adoption.",
+  "current_frontier": "B3B/C3 connected16 complete; combined226b1db5 native witness active, CI P2 repaired awaiting bounded backcheck; final clean sweep and hosted proof follow. MVP publishing draft under owner discussion, agent-required scope unanswered; unaffected work continues. No scope/protection/Runtime adoption or phase transition.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -1886,8 +1932,8 @@
     "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RUNTIME_COORDINATION_STATUS.md",
     "editor": "ROOT only",
     "peerThread": "01a07cd1-86da-7d30-9b17-e2cbbad3f10a",
-    "state": "B3 merged 7e6a7f25; B3A and I1 active under approved strategy. Runtime adoption remains discussion only.",
-    "originMainRevalidated": "7e6a7f2578e5df12ea891c2d604d0cd48e869934",
+    "state": "B3A/I1 merged88c6; B3B/C3/CI economy convergence active. Piping Runtime adoption remains discussion only.",
+    "originMainRevalidated": "88c6c7463199d1d69caebde04678fa74facca78f",
     "peerProposedContract": "cb08dbe2fbeaf5a34a0abfa2f1d599c7c5bd6b2f",
     "peerPr": "https://github.com/sgttomas/chirality/pull/824",
     "peerAcknowledgment": "Direct task reply acknowledged sole editor, disjoint scope, resources, DEC-051 correction and B3/B3A/B3B adoption sequence.",

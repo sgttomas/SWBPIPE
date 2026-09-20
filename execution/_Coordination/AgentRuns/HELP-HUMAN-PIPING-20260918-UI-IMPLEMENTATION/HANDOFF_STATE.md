@@ -181,3 +181,11 @@ The combined clean candidate 70b24a4b passed the fresh complete five-surface swe
 B3A/I1 merged as 88c6c746 from fixed 713568e8. The owner used Codex auto-merge at17:48:22Z; desktop CI continued and passed18:00:32Z. ROOT issued no merge command. Main only requires harness in GitHub; this is diagnosed, not a future waiver or protection-setting change. Whole-merge/source/evidence reviews and the fresh local sweep passed; canonical final CI observation is in ROOT continuation _run_records/PR826_CI.
 
 Owner authorized effective test/CI/cadence reductions. B3B, C3 and CI economy form the next planned coherent batch; focused development and one final integration validation avoid per-helper PR/full-sweep events. Managers retain sole source ownership, temporary E2E scope was handed back, and shared interfaces are acknowledged. Canvas cleanup/browser work needed an explicit followup_task after an idle handoff; it is now resumed and not yet claimed complete. Current frontier and exact sources are in WORK_GRAPH.json. All product/Runtime/DAG/qualification holds remain.
+
+## B3B/C3/CI convergence and MVP discussion
+
+ROOT integrated the batch at52142dbd. Fresh independent whole-range review found one P2: the newly added C3/B3B specs were omitted by affected CI routing. Correctiond361bc59 includes them in authoring/layout and results/persistence respectively;29 policy tests pass. Combined source226b1db5 includes canvas's new-test navigation corrections. P2 and subsequent bytes still require bounded independent backcheck.
+
+All16 unique connected B3B/C3/legacy scenarios now pass across recorded affected-first runs. Earlier CSS and test-navigation failures remain failed evidence. Native manager received the explicit resource handback and exact226b source for one combined build/witness. Final clean sweep and hosted current-candidate checks remain ahead.
+
+Owner asked to sharpen the publishing MVP and expressly affirmed that implementation can justify preferable paths and PRD amendments. ROOT's MVP_PUBLISHING_DISCUSSION.md is a proposed journey-based product boundary, not an accepted amendment. Whether one live agent-assisted journey is required is open in the owner discussion; unaffected UI work continues. No DAG rebuild or deliverable reconciliation begins.
