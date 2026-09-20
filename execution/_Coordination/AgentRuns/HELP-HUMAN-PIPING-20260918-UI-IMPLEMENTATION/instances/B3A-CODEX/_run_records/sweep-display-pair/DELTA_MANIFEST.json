@@ -1,0 +1,62 @@
+{
+  "testCheckpoint": "d71d4381e645470054d5eac014da1ee5f26a5bd3",
+  "priorEvidence": "9b3b86dd039001aa5d2f798cb9a9743d7c57bb01",
+  "scope": "Only new display-pair correction supplement; prior packet/seals unchanged; excludes this manifest itself. Canonical full failed sweep remains ROOT-owned, not duplicated.",
+  "entries": [
+    {
+      "path": "briefs/SWEEP_DISPLAY_PAIR.md",
+      "bytes": 1955,
+      "sha256": "7de93e434f21a22e138f097c0002f45f812862fc2e133b1a2bcc7c699771e65e"
+    },
+    {
+      "path": "SWEEP_DISPLAY_PAIR_RETURN.md",
+      "bytes": 2853,
+      "sha256": "9e4e52dbc37ad8a60e6e1ad05cffa527832768ae5b07a703bf6043ef30500e14"
+    },
+    {
+      "path": "_run_records/sweep-display-pair/App.test.tsx.after",
+      "bytes": 798785,
+      "sha256": "e8fbfed55cb7cd8167fb340e9c7af0591d2c2c4e4763e1d50fc5b01968edacfb"
+    },
+    {
+      "path": "_run_records/sweep-display-pair/BOUNDARY_BACKCHECK.json",
+      "bytes": 781,
+      "sha256": "423cbac1960dc5ec9c27bf4acede113b25995f346b738e0f49a228c4f2cdfdba"
+    },
+    {
+      "path": "_run_records/sweep-display-pair/DISPATCH.json",
+      "bytes": 925,
+      "sha256": "5f0935f3a9eab67cce44b6884a2face6d8dc0868611484714e3c1716698ee901"
+    },
+    {
+      "path": "_run_records/sweep-display-pair/FAILURE_MANIFEST.json",
+      "bytes": 976,
+      "sha256": "80d01ec1125825b58b953777273287a35ed4017f64192847dc58a60fc08f68c7"
+    },
+    {
+      "path": "_run_records/sweep-display-pair/FINAL_MESSAGE.md",
+      "bytes": 341,
+      "sha256": "2ca5aafae2b9b9abb3540a6919d39f8306141e783e3a126611e741b019082470"
+    },
+    {
+      "path": "_run_records/sweep-display-pair/PRESERVED_BOUNDARIES.json",
+      "bytes": 554,
+      "sha256": "d3125e57f6a3ce9bac6526d3466dff395bcbdf53abbd784800221be11488a83d"
+    },
+    {
+      "path": "_run_records/sweep-display-pair/RETURN.json",
+      "bytes": 2088,
+      "sha256": "8880ff5e91f56974dfbd864825dc343ce850b336d173fc5c46ecf2789c4ae541"
+    },
+    {
+      "path": "_run_records/sweep-display-pair/display-pair.diff",
+      "bytes": 2057,
+      "sha256": "b359692f9e992b6b336cf9d3379ab5697c2029808d4a9e31b1dcbf0c4ed7807e"
+    },
+    {
+      "path": "_run_records/sweep-display-pair/pass-after.log",
+      "bytes": 7790,
+      "sha256": "b600f38c772021c4bc5fa940f430ce59803182192bec8b6de18552a510b4a4c0"
+    }
+  ]
+}
