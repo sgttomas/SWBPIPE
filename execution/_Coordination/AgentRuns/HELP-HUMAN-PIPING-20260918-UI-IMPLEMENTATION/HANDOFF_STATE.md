@@ -127,3 +127,19 @@ The owner agreed to the proposed strategy and all three dispositions. Verbatim a
 ## Model steering — new deployments
 
 Owner directs all new Sol-designated workers to gpt-6-astra/low. Authority: `instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MODEL_DIRECTION.md`; execution instructions: B3 manager addendum 2 and ORCHESTRATION_PLAN amendment 2. Existing instance attribution stays historical; current bounded tasks can finish. No new Sol launch or new assignment by reuse. Product work continues B3 first.
+
+## 2026-09-20 — owner pause before B3 merge
+
+Owner: “Pause your work”. All bounded agents have returned. B3 PR #825 is open at `002dff0f244976f98b36517d920b3761f6f88704`; local product/native/review/sweep and final repository checks passed. Harness CI passed; desktop CI was still running at pause. No merge or new implementation is authorized while paused. The local CI watcher was stopped; hosted CI remains running. Native, browser and test resources are released.
+
+ROOT preserves the publication-review return, final repository logs and these pause records locally, uncommitted and awaiting scoped review on resume. Shell lane remains clean at `c613922f`; canvas remains preserved at `f6c0bab8e`; design remains parked. No B3A/B3B/I1 continuation agent was launched. Resume from WORK_GRAPH.json after live Git/PR/CI revalidation. Runtime coordination is discussion only for Piping; its shared note has one editor, ROOT. No deliverable reconciliation or DAG rebuild.
+
+Owner's later direction: “Merge the PR and then I'll tell you when you resume.” This permits PR825 merge after its remaining CI gate, while every other work stream stays paused. No new agent launches or implementation are started.
+
+CI finished on PR825 head `002dff0f`: desktop FAILURE, 408 passed / 20 skipped / 2 failed. Both failures are `covered pages exclude retained stage controls from Tab and accessibility`, blocked at `b3-accessibility.spec.ts:79` by `agent-strip-reason` intercepting the Close pointer click. Raw failed-job output and hashes are retained in continuation `_run_records/PR825_CI_FAILURE/`. Harness passed. ROOT did not merge, repair, rerun CI or launch agents; the owner pause remains. The requested merge needs a bounded B3 repair and applicable backcheck/verification first.
+
+Renewed owner pause: “that's great, but I still need you to pause work for a moment.  Then I will tell you to resume.” ROOT stops here. The bounded repair/reduced-CI direction is retained, but B3_CI_REPAIR_MANAGER_BRIEF.md (SHA25614b3fe08cb8c169f3fd56491c7c650991a9f46d9af80e3c654c65a1fed55411e) is prepared and unlaunched. No product or CI workflow change, agent launch, rerun or merge has occurred. All work waits for explicit owner resume. Local records remain uncommitted.
+
+## 2026-09-20 — resumed repair, CI strategy and authorized UI continuation
+
+OWNER_RESUME_2026-09-20.md retains explicit owner resume/repair/merge/CI-economy/continuation direction. B3 manager reactivated with sealed brief/addendum; pinned Playwright Chromium reproduces actual Agent tooltip interception of Close. New Astra/low CI inventory and separate CI implementer have disjoint scopes; ROOT owns CI integration/manifest and shared records. CI strategy uses early interaction coverage, conservative reductions and isolated full-run shards; tests/limits and local clean DEC025 stay intact. Work graph has current state. Remaining product rulings and Runtime adoption remain pending, not inferred from resume.
