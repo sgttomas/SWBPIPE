@@ -1085,7 +1085,8 @@
       "briefSha256": "91937ad15e627f47be708c687e5ac1bea2d2bd29eab1ec663765b49afd04e574",
       "status": "returned; ROOT selected conservative routes and retained all viewport entries; evidence/context verification pending review",
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_INVENTORY_RETURN.md",
-      "returnSha256": "12861fea877a4f4fa6df1d17a18a03c00208dc309faae67f1ee656fbc1df7a30"
+      "returnSha256": "63e8527268bb761bf5c4c46070e598ce5c7564c368adfc3dd0d235b4aade6a01",
+      "custodyCorrection": "Independent reviewer found one table-row reordering in ROOT transcription at49acd. Corrected current retained return to actual collaboration.list_agents final ordering; values unchanged, historical commit preserved."
     },
     "CI-IMPLEMENTER": {
       "role": "TASK Type2",
