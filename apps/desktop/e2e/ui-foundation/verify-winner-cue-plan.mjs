@@ -1,3 +1,9 @@
+// Historical attachment-centre transition control for the earlier 97b18c96 generation.
+// Requires absolute --old-dir and --new-dir inputs containing both 1000/10000 generated
+// candidate-runtime-point-oracle-v3 plans: only component/support visual geometry changes,
+// and new plans bind the exact geometryHash below. It does not validate current plans.
+// Those old/new input directories are not supplied in this repository; without both,
+// this historical control cannot be executed or claimed as passing.
 // Offline controls over actual generator output; never a source of runtime expectations.
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";

@@ -154,6 +154,19 @@ export async function continuationProfileAuthorization(env) {
     env.UI_FOUNDATION_REFERENCE_PROFILE!==transition.profile.path || env.UI_FOUNDATION_REFERENCE_PROFILE_SHA256!==transition.profile.sha256)throw new Error("internal120 profile requires matching authorized10000 claim");
   return {refreshHz:120,authoritySha256:transition.authority.sha256,profileSha256:transition.profile.sha256};
 }
+// The D-70 continuation generation of the method inventory. Every method manifest frozen for the
+// D-70 characterization and its continuation (product revision 8468a33c..., cohort
+// D70-8468a33c-20260917-CHARACTERIZATION-01) lists exactly these 34 files: requiredMethodFiles as it
+// stood before the fresh N10000 demonstration added four entries (three fresh-demo-policy files and
+// fixtures/frozen-oracle-geometry.ts.txt). The literal is a recorded fact about that closed generation
+// and is NOT derived from today's requiredMethodFiles: deriving it would make the recorded 34-file
+// manifests, claims and transitions unverifiable. Today's inventory is checked where it is used, in
+// full-cohort-controller.ts, against requiredMethodFiles.length. See REPAIR_2026-09_FIRST_PROFILE.md.
+export const D70_CONTINUATION_METHOD_FILE_COUNT=34;
+export function validateD70ContinuationMethodInventory(method) {
+  if(method?.files?.length!==D70_CONTINUATION_METHOD_FILE_COUNT || new Set(method.files.map(f=>f.path)).size!==D70_CONTINUATION_METHOD_FILE_COUNT)
+    throw new Error("complete34 method inventory required (D-70 continuation generation; a later, longer inventory belongs to the controller's requiredMethodFiles check)");
+}
 const historicalSlots=["1000.2","1000.3","1000.4"];
 const eligibleSlots=policy=>policy.ownerTransition?CONTINUATION_SLOTS.filter(s=>s!=="1000.5"):CONTINUATION_SLOTS;
 const registryValue=(policy,policySha256)=>({seedSha256:policy.seed.sha256,cohortId:policy.cohortId,ledgerRoot:policy.ledgerRoot,policySha256,methodSha256:policy.method.sha256,instrumentRevision:policy.instrumentRevision});
@@ -193,7 +206,7 @@ async function oneSuccessHistory(policy) {
     if(!oldSource.includes("export function validateDisplayProfile(") || outsideProfileValidator(oldSource)!==outsideProfileValidator(newSource))throw new Error("display transition changed commands outside profile validator");
     orchestration.add("characterization-commands.ts");
   }
-  if(oldMethod.files?.length!==34 || newMethod.files?.length!==34 || !jsonEqual(oldMethod.files.map(f=>f.path),newMethod.files.map(f=>f.path)) ||
+  if(oldMethod.files?.length!==D70_CONTINUATION_METHOD_FILE_COUNT || newMethod.files?.length!==D70_CONTINUATION_METHOD_FILE_COUNT || !jsonEqual(oldMethod.files.map(f=>f.path),newMethod.files.map(f=>f.path)) ||
     oldMethod.files.some((f,i)=>!orchestration.has(path.basename(f.path))&&f.sha256!==newMethod.files[i].sha256))throw new Error("measurement method changed across accounting transition");
   if(!Array.isArray(t.history)||t.history.length!==3)throw new Error("exact three historical claims required");
   let previous=policy.seed.sha256;
@@ -275,7 +288,7 @@ async function verifyContinuationFiles(policy,seed) {
   const head=execFileSync("git",["rev-parse","HEAD"],{cwd:policy.instrumentProjectRoot,encoding:"utf8"}).trim();
   if(head!==policy.instrumentRevision)throw new Error("instrument revision drift");
   const method=await boundJson(policy.method);
-  if(method.files?.length!==34 || new Set(method.files.map(f=>f.path)).size!==34)throw new Error("complete34 method inventory required");
+  validateD70ContinuationMethodInventory(method);
   for(const file of method.files){if(typeof file.path!=="string"||!file.path.startsWith("apps/desktop/e2e/ui-foundation/")||file.path.includes("..")||hash(await readFile(path.join(policy.instrumentProjectRoot,file.path)))!==file.sha256)throw new Error("method source bytes drift");}
   for(const [file,expected] of [[env.UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST,env.UI_FOUNDATION_CANDIDATE_BUNDLE_MANIFEST_SHA256],
     [env.UI_FOUNDATION_REFERENCE_PROFILE,env.UI_FOUNDATION_REFERENCE_PROFILE_SHA256],[env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_SHA256],

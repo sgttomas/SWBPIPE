@@ -1,0 +1,67 @@
+[
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixture-manifest.json",
+    "sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+    "unchanged_from_head": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/frozen-oracle-geometry.ts.txt",
+    "sha256": "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e",
+    "unchanged_from_head": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-base.model.json",
+    "sha256": "91464bd04ecd21c5a3e5fc63bca45e772c6ef64a1dfd955bec931ef503da09ff",
+    "unchanged_from_head": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-expectations.json",
+    "sha256": "ca0cedc7816c7b622bcf724b4b0ea818897291b209637b1e5c7ab25cba496bb2",
+    "unchanged_from_head": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-translated.model.json",
+    "sha256": "d16d71af895e44663315c24d8716a53981f2bfaaa440624e6266458c48ce6e5a",
+    "unchanged_from_head": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.deformation-overlay.json",
+    "sha256": "36957eb7ef2958b34cc7138500889f26829c2612d9b95b23c34dea56e7aa6081",
+    "unchanged_from_head": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.model.json",
+    "sha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+    "unchanged_from_head": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.deformation-overlay.json",
+    "sha256": "bd39138c90e5c21689cf5778220976d5ad65ba932b63c21303d491af6a5fffc9",
+    "unchanged_from_head": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.model.json",
+    "sha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+    "unchanged_from_head": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-1000.interactions.json",
+    "sha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4",
+    "unchanged_from_head": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-1000.point-oracle-v3.json",
+    "sha256": "57582d0b08b9edf91c6c61cc3ec37f149db89ebb055220291700366fb871de93",
+    "unchanged_from_head": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-10000.interactions.json",
+    "sha256": "590fc0c7a0ab50f1f255150ce522a4a6626393d0ba8469ac62bdae2afdce29da",
+    "unchanged_from_head": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-10000.point-oracle-v3.json",
+    "sha256": "2bfaffbc5a720d641888152a2a463455a3ced1c316699e960843d5a831f1b6fd",
+    "unchanged_from_head": true
+  }
+]

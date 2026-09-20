@@ -1,0 +1,18 @@
+node:internal/fs/promises:860
+    binding.mkdir(
+            ^
+
+Error: Access to this API has been restricted. Use --allow-fs-write to manage permissions.
+    at mkdir (node:internal/fs/promises:860:13)
+    at emit (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/scratch-original-generator/generate-fixtures.mjs:411:9)
+    at main (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/scratch-original-generator/generate-fixtures.mjs:436:11)
+    at file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/scratch-original-generator/generate-fixtures.mjs:671:7
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  code: 'ERR_ACCESS_DENIED',
+  permission: 'FileSystemWrite',
+  resource: '/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/scratch-original-generator/fixtures'
+}
+
+Node.js v24.18.0

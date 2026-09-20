@@ -1,0 +1,78 @@
+{
+  "status": "PASS_CHECK_REPRODUCES_FROZEN_BYTES_NOTHING_WRITTEN",
+  "mode": "check",
+  "manifest_sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+  "files": 12,
+  "compared_files": 13,
+  "differing": [],
+  "protocol_history": {
+    "status": "VERIFIED_NINE_PINNED_HASHES",
+    "source": "supplied-directory",
+    "verified_files": 9,
+    "required_files": 9
+  },
+  "fixtures": [
+    {
+      "pipe_count": 1000,
+      "model_path": "fixtures/ui-foundation-1000.model.json",
+      "overlay_path": "fixtures/ui-foundation-1000.deformation-overlay.json",
+      "samples_path": "samples/ui-foundation-1000.interactions.json",
+      "point_oracle_path": "samples/ui-foundation-1000.point-oracle-v3.json",
+      "counts": {
+        "nodes": 1001,
+        "pipe_segments": 1000,
+        "supports": 50,
+        "components": 10,
+        "nodal_force_arrows": 100,
+        "materials": 1,
+        "sections": 4
+      },
+      "selected_set_sizes": {
+        "empty": 0,
+        "one_pipe": 1,
+        "one_hundred_pipes": 100,
+        "all_pipes": 1000
+      },
+      "typed_collision": {
+        "raw_id": "entity:UIF-TYPED-COLLISION-01000",
+        "types": [
+          "node",
+          "pipe",
+          "support",
+          "component"
+        ]
+      }
+    },
+    {
+      "pipe_count": 10000,
+      "model_path": "fixtures/ui-foundation-10000.model.json",
+      "overlay_path": "fixtures/ui-foundation-10000.deformation-overlay.json",
+      "samples_path": "samples/ui-foundation-10000.interactions.json",
+      "point_oracle_path": "samples/ui-foundation-10000.point-oracle-v3.json",
+      "counts": {
+        "nodes": 10001,
+        "pipe_segments": 10000,
+        "supports": 500,
+        "components": 100,
+        "nodal_force_arrows": 1000,
+        "materials": 1,
+        "sections": 4
+      },
+      "selected_set_sizes": {
+        "empty": 0,
+        "one_pipe": 1,
+        "one_hundred_pipes": 100,
+        "all_pipes": 10000
+      },
+      "typed_collision": {
+        "raw_id": "entity:UIF-TYPED-COLLISION-01000",
+        "types": [
+          "node",
+          "pipe",
+          "support",
+          "component"
+        ]
+      }
+    }
+  ]
+}

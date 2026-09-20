@@ -1,0 +1,281 @@
+diff --git a/projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md b/projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md
+index 43c858797..75e904926 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md
++++ b/projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md
+@@ -713,7 +713,7 @@ A later product is bound by its own profile, not by this one.
+ 
+ **The offline plan verifier.** `verify-winner-cue-plan.mjs` pins the older value
+ `97b18c9671fc7f98e1cbb94bf6833f737c91e3ef4580d02c711d306c82486aee`, which the harness
+-rejects. That is deliberate and was left unchanged: the verifier is a one-transition
++rejects. That is deliberate; its executable bytes remain unchanged and its header now names the boundary. The verifier is a one-transition
+ historical control (it requires that component and support visual geometry **changed**
+ between an old and a new generated oracle directory), written for the generation of
+ plans made when the product file had that pre-merge hash, and the run's own review
+@@ -739,10 +739,17 @@ It now verifies the history **before its first write**, takes it from
+ `--protocol-history-dir <absolute directory>` (the default directory is still honoured
+ if present), and has a `--check` mode that regenerates everything in memory, compares
+ it by SHA-256 and byte count with the frozen bytes, reports the protocol history as
+-`NOT_SUPPLIED_NINE_FILES_NOT_IN_REPOSITORY` when it is not supplied, and writes nothing.
++`NOT_SUPPLIED_NINE_PINNED_FILES` when it is not supplied, and writes nothing.
+ `verify-fixtures.mjs` is a different check (frozen bytes against the manifest) and is
+ unchanged. The nine pinned hashes are unchanged.
+ 
+-The controls for these statements are the three "first profile repair" tests at the end
++The nine audited preimages and their README have since been recovered as canonical run evidence
++under `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/protocol-history/`.
++Their availability does not populate the optional default directory or change the historical pins.
++Supply that absolute directory explicitly when verifying recovered history; maintained tests do not depend on it.
++
++The three "first profile repair" tests cover preserved geometry bytes, the closed D-70 inventory
++contract, and isolated generator checks/refusals (including corrupted/missing frozen bytes).
++Every generator invocation in those controls uses a scratch copy. They are at the end
+ of `full-cohort-controller.spec.ts`, which the ordinary source lane (`npm run test:e2e`)
+ runs.
+diff --git a/projects/chirality-piping/apps/desktop/e2e/ui-foundation/REPAIR_2026-09_FIRST_PROFILE.md b/projects/chirality-piping/apps/desktop/e2e/ui-foundation/REPAIR_2026-09_FIRST_PROFILE.md
+index 5a6f3b2aa..fd64faecd 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/ui-foundation/REPAIR_2026-09_FIRST_PROFILE.md
++++ b/projects/chirality-piping/apps/desktop/e2e/ui-foundation/REPAIR_2026-09_FIRST_PROFILE.md
+@@ -184,3 +184,31 @@ literal was found.** One observation for the second profile: most of the instrum
+ are outside the repository, so their hashes can be compared but not re-derived here.
+ 
+ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
++
++## I1-CODEX completion, 2026-09-20
++
++The preceding account records the original I1-REPAIR work and its then-available inputs.
++The continuation adds a header to `verify-winner-cue-plan.mjs` identifying its earlier
++97b18c96 attachment-centre transition, both required old/new input directories and
++the unavailable-input limitation. Every executable byte and acceptance check remains unchanged.
++
++The nine pinned protocol-history preimages plus README have now been recovered into
++`execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/protocol-history/`.
++The manager records their custody and explicit-directory verification separately. The
++original missing-history account is historical; it is not a claim that the bytes remain
++unavailable globally. Default-directory and explicit-directory generator semantics remain unchanged.
++
++Maintained tests now run every generator invocation in an isolated scratch copy. They
++check successful frozen-byte reproduction, absent/invalid explicit history, invalid
++default history, malformed/unknown arguments, and corrupted/missing frozen-byte negative
++controls, comparing content and mtimes after each invocation. No writing-mode invocation
++runs against the live tree. D-70 tests exercise the original 34-entry unique-path acceptance
++and refusal directly; they no longer derive the historical inventory from an evolving
++controller list or assert incidental comment/source formatting. Raw historical manifest
++compatibility remains a separate run-evidence check. The new, unmerged missing-history report token is now `NOT_SUPPLIED_NINE_PINNED_FILES`;
++the refusal describes absent supplied/default history rather than global repository absence.
++Consumer search found no accepted consumer beyond this repair's code, test and documentation.
++The historical token quoted above remains a record of the original implementation. No generator
++acceptance behavior, historical pin, frozen artifact, tolerance or product source changed.
++
++Validation and actual execution attribution are recorded in I1-CODEX/WORKER_RETURN.md.
+diff --git a/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts b/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts
+index 47e94579b..84672fb2a 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts
+@@ -1397,90 +1397,96 @@ test('fresh demonstration provenance accepts only its bound revision and interna
+ });
+ 
+ // ---- First-profile repair of 2026-09 (see REPAIR_2026-09_FIRST_PROFILE.md) -------------------
+-// These controls read instrument files as data. They bind no product source and move no limit.
+-import { requiredMethodFiles } from "./full-cohort-controller";
+-
+-test("first profile repair: the historical geometry-source value is one value everywhere and is named as historical", async () => {
++test("first profile repair: historical geometry preserves its pinned preimage", async () => {
+   const methodRoot = new URL("./", import.meta.url);
+   const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
+-  // The four places that state the value agree, and the preserved preimage is those bytes.
+   expect(hash(await readFile(new URL("fixtures/frozen-oracle-geometry.ts.txt", methodRoot)))).toBe(CUE_GEOMETRY_SOURCE_SHA256);
+   const freezer = await readFile(new URL("freeze-candidate-point-oracle.mjs", methodRoot), "utf8");
+   expect(freezer.match(/const geometrySourceSha256 = "([a-f0-9]{64})";/)?.[1]).toBe(CUE_GEOMETRY_SOURCE_SHA256);
+-  const harness = await readFile(new URL("benchmark-harness.ts", methodRoot), "utf8");
+-  const declaration = `export const CUE_GEOMETRY_SOURCE_SHA256 = "${CUE_GEOMETRY_SOURCE_SHA256}";`;
+-  expect(harness.split(declaration).length).toBe(2);
+-  // A reader of the constant meets the revision it binds and the reason a current source root stops.
+-  const comment = harness.slice(harness.indexOf("export const CUE_SOURCE_SHA256"), harness.indexOf(declaration));
+-  for (const statement of [CHARACTERIZATION_PRODUCT_REVISION, "#794", "by design", "fixtures/frozen-oracle-geometry.ts.txt"]) expect(comment).toContain(statement);
+-  // So does a reader of the README.
+-  const readme = await readFile(new URL("README.md", methodRoot), "utf8");
+-  const section = readme.slice(readme.indexOf("## First-profile repair of 2026-09"));
+-  expect(readme).toContain("## First-profile repair of 2026-09");
+-  for (const statement of [CUE_GEOMETRY_SOURCE_SHA256, CHARACTERIZATION_PRODUCT_REVISION, "#794", "by design"]) expect(section).toContain(statement);
+ });
+ 
+-test("first profile repair: the 34-file inventory is the closed D-70 continuation generation and today's list is the controller's", async () => {
+-  const observations: any = await import("./characterization-observations.mjs");
+-  // Every method file added after the D-70 continuation generation is named here. A new method file
+-  // is added to this list (and to requiredMethodFiles); the D-70 literal is a recorded fact and stays.
+-  const addedAfterD70Continuation = ["fresh-demo-policy.mjs", "fresh-demo-policy.d.mts", "fresh-demo-policy.spec.ts", "fixtures/frozen-oracle-geometry.ts.txt"];
+-  const d70Generation = requiredMethodFiles.filter(name => !addedAfterD70Continuation.includes(name));
+-  expect(observations.D70_CONTINUATION_METHOD_FILE_COUNT).toBe(34);
+-  expect(d70Generation.length).toBe(observations.D70_CONTINUATION_METHOD_FILE_COUNT);
+-  expect(requiredMethodFiles.length).toBe(d70Generation.length + addedAfterD70Continuation.length);
+-  const inventory = (names: readonly string[]) => ({ files: names.map(name => ({ path: `apps/desktop/e2e/ui-foundation/${name}`, sha256: "a".repeat(64) })) });
+-  const validate = observations.validateD70ContinuationMethodInventory;
+-  expect(() => validate(inventory(d70Generation))).not.toThrow();
+-  // Today's longer inventory is not a D-70 continuation inventory, and the refusal says which generation it is.
+-  expect(() => validate(inventory(requiredMethodFiles))).toThrow("complete34 method inventory required");
+-  expect(() => validate(inventory(requiredMethodFiles))).toThrow("D-70 continuation generation");
+-  expect(() => validate(inventory(d70Generation.slice(1)))).toThrow("complete34 method inventory required");
+-  expect(() => validate(inventory([...d70Generation.slice(1), d70Generation[1]]))).toThrow("complete34 method inventory required");
+-  expect(() => validate({})).toThrow("complete34 method inventory required");
+-  // The path meant for today's inventory takes its length from the one list, not from a literal.
+-  const controller = await readFile(new URL("full-cohort-controller.ts", new URL("./", import.meta.url)), "utf8");
+-  expect(controller).toContain("method.files.length !== requiredMethodFiles.length");
+-  expect(controller).not.toMatch(/method\.files\??\.length\s*!==\s*\d/);
++test("first profile repair: D-70 inventory retains the original acceptance independently of later inventories", async () => {
++  const { D70_CONTINUATION_METHOD_FILE_COUNT, validateD70ContinuationMethodInventory: validate } = await import("./characterization-observations.mjs");
++  // Synthetic method identities exercise the historical cardinality/uniqueness contract.
++  // Real recorded manifests are checked separately as run evidence, not dated test dependencies.
++  const inventory = (count: number) => ({ files: Array.from({ length: count }, (_, i) => ({ path: `method-${i}`, sha256: "a".repeat(64) })) });
++  expect(D70_CONTINUATION_METHOD_FILE_COUNT).toBe(34);
++  expect(() => validate(inventory(34))).not.toThrow();
++  for (const method of [inventory(0), inventory(33), inventory(35), inventory(38), {}, { files: undefined },
++    { files: [...inventory(33).files, inventory(33).files[0]] }]) {
++    expect(() => validate(method)).toThrow("complete34 method inventory required");
++  }
+ });
+ 
+-test("first profile repair: the fixture generator's check mode reproduces the frozen bytes by hash and writes nothing", async ({}, testInfo) => {
++test("first profile repair: generator checks and preflight failures never write", async ({}, testInfo) => {
+   const { spawnSync } = await import("node:child_process");
+-  const { readdir, stat } = await import("node:fs/promises");
++  const { cp, readdir, stat, appendFile, rm } = await import("node:fs/promises");
+   const { fileURLToPath } = await import("node:url");
+-  const methodRoot = new URL("./", import.meta.url), generator = fileURLToPath(new URL("generate-fixtures.mjs", methodRoot));
+-  const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
+-  const frozenNames = async () => ["fixture-manifest.json", "candidate-control-binding-v1.json",
+-    ...(await readdir(new URL("fixtures/", methodRoot))).map(name => `fixtures/${name}`), ...(await readdir(new URL("samples/", methodRoot))).map(name => `samples/${name}`)].sort();
+-  const snapshot = async () => JSON.stringify(await Promise.all((await frozenNames()).map(async name => {
+-    const url = new URL(name, methodRoot); return [name, hash(await readFile(url)), (await stat(url)).mtimeMs];
+-  })));
+-  const historyAbsent = async () => stat(new URL("protocol-history", methodRoot)).then(() => false, error => error.code === "ENOENT");
+-  test.skip(!(await historyAbsent()), "a checkout that holds the protocol history takes the default-directory route");
++  const path = await import("node:path");
++  const source = fileURLToPath(new URL("./", import.meta.url));
++  const scratch = testInfo.outputPath("generator-scratch");
++  await mkdir(scratch, { recursive: true });
++  // Copy only generator dependencies and frozen inputs. Never run a writing-mode invocation
++  // against the checkout, and never inherit an optional local protocol-history directory.
++  for (const name of ["generate-fixtures.mjs", "point-hit-oracle.mjs", "candidate-control-binding-v1.json", "fixture-manifest.json", "fixtures", "samples"])
++    await cp(path.join(source, name), path.join(scratch, name), { recursive: true });
++  const hash = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
++  const snapshot = async (): Promise<string> => {
++    const visit = async (dir: string): Promise<unknown[]> => {
++      const entries: unknown[] = [];
++      for (const name of (await readdir(dir)).sort()) {
++        const file = path.join(dir, name), info = await stat(file);
++        entries.push(info.isDirectory() ? [name, await visit(file)] : [name, hash(await readFile(file)), info.mtimeMs]);
++      }
++      return entries;
++    };
++    return JSON.stringify(await visit(scratch));
++  };
++  const run = (...args: string[]) => spawnSync(process.execPath, [path.join(scratch, "generate-fixtures.mjs"), ...args], { encoding: "utf8" });
+   const before = await snapshot();
+-  const run = (...args: string[]) => spawnSync(process.execPath, [generator, ...args], { encoding: "utf8" });
+   const check = run("--check"); expect(check.status, check.stderr).toBe(0);
+   const report = JSON.parse(check.stdout);
+   expect(report.status).toBe("PASS_CHECK_REPRODUCES_FROZEN_BYTES_NOTHING_WRITTEN");
+   expect(report.differing).toEqual([]);
+-  expect(report.manifest_sha256).toBe(hash(await readFile(new URL("fixture-manifest.json", methodRoot))));
+-  const manifest = JSON.parse(await readFile(new URL("fixture-manifest.json", methodRoot), "utf8"));
++  const manifest = JSON.parse(await readFile(path.join(scratch, "fixture-manifest.json"), "utf8"));
++  expect(report.manifest_sha256).toBe(hash(await readFile(path.join(scratch, "fixture-manifest.json"))));
+   expect(report.files).toBe(manifest.files.length); expect(report.compared_files).toBe(manifest.files.length + 1);
+-  // The nine preserved files are not in the repository: the report says so instead of claiming them.
+-  expect(report.protocol_history).toEqual({ status: "NOT_SUPPLIED_NINE_FILES_NOT_IN_REPOSITORY", verified_files: 0, required_files: 9 });
+-  // A supplied history is still held to the nine pinned hashes, in check mode too.
+-  const wrong = testInfo.outputPath("wrong-history"); await mkdir(wrong, { recursive: true });
+-  const empty = testInfo.outputPath("empty-history"); await mkdir(empty, { recursive: true });
+-  await writeFile(`${wrong}/fixture-manifest-v1-superseded-before-timed-run.json`, "{}\n", { flag: "wx" });
+-  const mismatch = run("--check", "--protocol-history-dir", wrong); expect(mismatch.status).not.toBe(0);
+-  expect(mismatch.stderr).toContain("preserved protocol history mismatch for fixture-manifest-v1-superseded-before-timed-run.json");
+-  const absent = run("--check", "--protocol-history-dir", empty); expect(absent.status).not.toBe(0);
+-  expect(absent.stderr).toContain("preserved protocol history file absent");
+-  // The writing mode refuses before its first write when the history is absent or incomplete.
+-  for (const refused of [run(), run("--protocol-history-dir", empty), run("--protocol-history-dir", wrong), run("--check", "--unknown")]) {
+-    expect(refused.status).not.toBe(0); expect(refused.stdout).toBe("");
+-  }
+-  expect(run().stderr).toContain("nothing was written");
++  expect(report.protocol_history).toEqual({ status: "NOT_SUPPLIED_NINE_PINNED_FILES", verified_files: 0, required_files: 9 });
+   expect(await snapshot()).toBe(before);
+-  expect(await historyAbsent()).toBe(true);
++
++  const wrong = testInfo.outputPath("wrong-history"), empty = testInfo.outputPath("empty-history");
++  await mkdir(wrong, { recursive: true }); await mkdir(empty, { recursive: true });
++  await writeFile(path.join(wrong, "fixture-manifest-v1-superseded-before-timed-run.json"), "{}\n");
++  const refusedArgs = [[], ["--unknown"], ["--check", "--unknown"], ["--protocol-history-dir"],
++    ["--protocol-history-dir", "relative"], ["--check", "--protocol-history-dir", "relative"]];
++  for (const prefix of [[], ["--check"]])
++    for (const directory of [empty, wrong, testInfo.outputPath("missing-history")])
++      refusedArgs.push([...prefix, "--protocol-history-dir", directory]);
++  for (const args of refusedArgs) {
++    const result = run(...args);
++    expect(result.status, JSON.stringify(args)).not.toBe(0);
++    expect(result.stdout).toBe("");
++    expect(await snapshot(), JSON.stringify(args)).toBe(before);
++  }
++  // A present default is validated too; --check must not silently ignore an invalid one.
++  await cp(wrong, path.join(scratch, "protocol-history"), { recursive: true });
++  const withDefault = await snapshot();
++  for (const args of [[], ["--check"]]) {
++    const result = run(...args);
++    expect(result.status).not.toBe(0); expect(result.stderr).toContain("preserved protocol history mismatch");
++    expect(await snapshot()).toBe(withDefault);
++  }
++  await rm(path.join(scratch, "protocol-history"), { recursive: true });
++  // Negative control: a frozen-byte difference must be reported, never repaired by --check.
++  const fixture = "fixtures/ui-foundation-1000.model.json";
++  await appendFile(path.join(scratch, fixture), " ");
++  const damaged = await snapshot(), mismatch = run("--check");
++  expect(mismatch.status).toBe(1);
++  expect(JSON.parse(mismatch.stdout).differing.map((entry: {path: string}) => entry.path)).toEqual([fixture]);
++  expect(await snapshot()).toBe(damaged);
++  await rm(path.join(scratch, fixture));
++  const missing = await snapshot(), absent = run("--check");
++  expect(absent.status).toBe(1);
++  expect(JSON.parse(absent.stdout).differing[0]).toMatchObject({ path: fixture, frozen_sha256: null, frozen_bytes: null });
++  expect(await snapshot()).toBe(missing);
+ });
+diff --git a/projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs b/projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs
+index 0333401d9..b69b6d686 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs
++++ b/projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs
+@@ -25,10 +25,9 @@ const BASELINE_CANVAS_CSS = [919, 628];
+ //   node generate-fixtures.mjs [--protocol-history-dir <absolute dir>]
+ //     the original writing mode. It needs the nine preserved protocol-history files, and it now
+ //     verifies them BEFORE the first write, so a missing history can no longer leave a partial write.
+-// The nine files were never committed to this repository (no blob of any ref has their hashes):
+-// the closeout of the run that made them kept them "as evidence rather than current method source".
+-// They are therefore supplied from outside with --protocol-history-dir; the default location is
+-// kept only so that a checkout that does hold them still works. No pinned hash below has changed.
++// The original closeout kept the nine preimages as evidence, not packaged method source.
++// Recovered run evidence can now be supplied explicitly with --protocol-history-dir; the default
++// location remains supported for checkouts that hold it. No pinned hash below has changed.
+ const ARGS = process.argv.slice(2);
+ const CHECK = ARGS.includes("--check");
+ const HISTORY_FLAG = "--protocol-history-dir";
+@@ -473,8 +472,8 @@ async function verifyPreservedProtocolHistory() {
+     try { if ((await stat(fallback)).isDirectory()) directory = fallback; } catch (error) { if (error.code !== "ENOENT") throw error; }
+   }
+   if (!directory) {
+-    if (!CHECK) throw new Error(`preserved protocol history is not in this repository: supply the nine files with ${HISTORY_FLAG} <absolute directory>, or use --check (which writes nothing); nothing was written`);
+-    return { status: "NOT_SUPPLIED_NINE_FILES_NOT_IN_REPOSITORY", verified_files: 0, required_files: PRESERVED_PROTOCOL_HISTORY.length };
++    if (!CHECK) throw new Error(`preserved protocol history was not supplied and the default directory is absent: supply the nine files with ${HISTORY_FLAG} <absolute directory>, or use --check (which writes nothing); nothing was written`);
++    return { status: "NOT_SUPPLIED_NINE_PINNED_FILES", verified_files: 0, required_files: PRESERVED_PROTOCOL_HISTORY.length };
+   }
+   for (const [name, expectedHash] of PRESERVED_PROTOCOL_HISTORY) {
+     let bytes;
+diff --git a/projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-winner-cue-plan.mjs b/projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-winner-cue-plan.mjs
+index f84324810..ed0cd39e7 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-winner-cue-plan.mjs
++++ b/projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-winner-cue-plan.mjs
+@@ -1,3 +1,9 @@
++// Historical attachment-centre transition control for the earlier 97b18c96 generation.
++// Requires absolute --old-dir and --new-dir inputs containing both 1000/10000 generated
++// candidate-runtime-point-oracle-v3 plans: only component/support visual geometry changes,
++// and new plans bind the exact geometryHash below. It does not validate current plans.
++// Those old/new input directories are not supplied in this repository; without both,
++// this historical control cannot be executed or claimed as passing.
+ // Offline controls over actual generator output; never a source of runtime expectations.
+ import assert from "node:assert/strict";
+ import { readFile } from "node:fs/promises";

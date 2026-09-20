@@ -1,0 +1,22 @@
+[
+  {
+    "name": "harness-self-check",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/practitioner_harness/harness.py",
+      "self-check"
+    ],
+    "exitCode": 0
+  },
+  {
+    "name": "harness-pytest",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "tools/practitioner_harness"
+    ],
+    "exitCode": 0
+  }
+]

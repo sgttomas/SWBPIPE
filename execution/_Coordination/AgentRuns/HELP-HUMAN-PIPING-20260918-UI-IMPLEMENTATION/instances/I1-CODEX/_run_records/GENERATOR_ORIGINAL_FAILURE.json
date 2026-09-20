@@ -1,0 +1,15 @@
+{
+  "originalRevision": "240a246f3^",
+  "originalGeneratorSha256": "60b7a300b3d8e9550c1c520bffc7a325ee6c97e78e62c747d355afa4067da062",
+  "command": [
+    "node",
+    "--permission",
+    "--allow-fs-read=*",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/scratch-original-generator/generate-fixtures.mjs",
+    "--check"
+  ],
+  "exitCode": 1,
+  "expectedFailure": "ERR_ACCESS_DENIED at mkdir: original ignores --check and attempts write",
+  "writesDenied": true,
+  "observedExpectedFailure": true
+}

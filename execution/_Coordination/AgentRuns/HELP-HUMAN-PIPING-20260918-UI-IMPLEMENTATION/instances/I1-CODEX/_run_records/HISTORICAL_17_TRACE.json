@@ -1,0 +1,237 @@
+{
+  "scope": "read-only maintained instrument references; no claim that historical preimages are available; inherited limitation retained",
+  "pins": {
+    "bc0cb199": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixture-manifest.json",
+        "line": 1,
+        "sha256": "bc0cb19948bec94fedddec4b8ea21005f32d011a16ca00e3d78c2ac9bb19e63c",
+        "context": "{\"schema\":\"openpipestress.ui-foundation.fixture-manifest/v2\",\"status\":\"frozen\",\"seed\":20260915,\"generator\":{\"path\":\"generate-fixtures.mjs\",\"algorithm\":\"mulberry32_uint32_and_integer_lattice_plus_point_hit_oracle_v3\"},\"purpose\":\"Deterministic UI workload only; no solver-capacity, engineering-validation, professional-acceptance, or minimum-hardware claim.\",\"fixtures\":[{\"pipe_count\":1000,\"model_path\":\"fixtures/ui-foundation-1000.model.json\",\"overlay_path\":\"fixtures/ui-foundation-1000.deformation-overlay.json\",\"samples_path\":\"samples/ui-foundation-1000.interactions.json\",\"point_oracle_path\":\"samples/ui-foundation-1000.point-oracle-v3.json\",\"counts\":{\"nodes\":1001,\"pipe_segments\":1000,\"supports\":5"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/freeze-candidate-point-oracle.mjs",
+        "line": 10,
+        "sha256": "bc0cb19948bec94fedddec4b8ea21005f32d011a16ca00e3d78c2ac9bb19e63c",
+        "context": "const POLICY_SHA256 = \"bc0cb19948bec94fedddec4b8ea21005f32d011a16ca00e3d78c2ac9bb19e63c\";"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs",
+        "line": 14,
+        "sha256": "bc0cb19948bec94fedddec4b8ea21005f32d011a16ca00e3d78c2ac9bb19e63c",
+        "context": "const POINT_HIT_POLICY_SHA256 = \"bc0cb19948bec94fedddec4b8ea21005f32d011a16ca00e3d78c2ac9bb19e63c\";"
+      }
+    ],
+    "8195cd97": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/benchmark-harness.ts",
+        "line": 475,
+        "sha256": "8195cd971146d337323dd791992884ce670b766f29bbdde6abd76b82da73b310",
+        "context": "manifest.boxSelectionPolicySha256 !== \"8195cd971146d337323dd791992884ce670b766f29bbdde6abd76b82da73b310\" ||"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixture-manifest.json",
+        "line": 1,
+        "sha256": "8195cd971146d337323dd791992884ce670b766f29bbdde6abd76b82da73b310",
+        "context": "{\"schema\":\"openpipestress.ui-foundation.fixture-manifest/v2\",\"status\":\"frozen\",\"seed\":20260915,\"generator\":{\"path\":\"generate-fixtures.mjs\",\"algorithm\":\"mulberry32_uint32_and_integer_lattice_plus_point_hit_oracle_v3\"},\"purpose\":\"Deterministic UI workload only; no solver-capacity, engineering-validation, professional-acceptance, or minimum-hardware claim.\",\"fixtures\":[{\"pipe_count\":1000,\"model_path\":\"fixtures/ui-foundation-1000.model.json\",\"overlay_path\":\"fixtures/ui-foundation-1000.deformation-overlay.json\",\"samples_path\":\"samples/ui-foundation-1000.interactions.json\",\"point_oracle_path\":\"samples/ui-foundation-1000.point-oracle-v3.json\",\"counts\":{\"nodes\":1001,\"pipe_segments\":1000,\"supports\":5"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/freeze-candidate-point-oracle.mjs",
+        "line": 11,
+        "sha256": "8195cd971146d337323dd791992884ce670b766f29bbdde6abd76b82da73b310",
+        "context": "const BOX_POLICY_SHA256 = \"8195cd971146d337323dd791992884ce670b766f29bbdde6abd76b82da73b310\";"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+        "line": 615,
+        "sha256": "8195cd971146d337323dd791992884ce670b766f29bbdde6abd76b82da73b310",
+        "context": "dependencies, boxSelectionPolicySha256: \"8195cd971146d337323dd791992884ce670b766f29bbdde6abd76b82da73b310\","
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+        "line": 710,
+        "sha256": "8195cd971146d337323dd791992884ce670b766f29bbdde6abd76b82da73b310",
+        "context": "if (oracle?.box_selection_policy_sha256 !== \"8195cd971146d337323dd791992884ce670b766f29bbdde6abd76b82da73b310\" ||"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs",
+        "line": 17,
+        "sha256": "8195cd971146d337323dd791992884ce670b766f29bbdde6abd76b82da73b310",
+        "context": "const BOX_SELECTION_POLICY_SHA256 = \"8195cd971146d337323dd791992884ce670b766f29bbdde6abd76b82da73b310\";"
+      }
+    ],
+    "ef009d11": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixture-manifest.json",
+        "line": 1,
+        "sha256": "ef009d11139fc5dab4639586092a44741ced49ac80d7108f22eecd264a6b5c3a",
+        "context": "{\"schema\":\"openpipestress.ui-foundation.fixture-manifest/v2\",\"status\":\"frozen\",\"seed\":20260915,\"generator\":{\"path\":\"generate-fixtures.mjs\",\"algorithm\":\"mulberry32_uint32_and_integer_lattice_plus_point_hit_oracle_v3\"},\"purpose\":\"Deterministic UI workload only; no solver-capacity, engineering-validation, professional-acceptance, or minimum-hardware claim.\",\"fixtures\":[{\"pipe_count\":1000,\"model_path\":\"fixtures/ui-foundation-1000.model.json\",\"overlay_path\":\"fixtures/ui-foundation-1000.deformation-overlay.json\",\"samples_path\":\"samples/ui-foundation-1000.interactions.json\",\"point_oracle_path\":\"samples/ui-foundation-1000.point-oracle-v3.json\",\"counts\":{\"nodes\":1001,\"pipe_segments\":1000,\"supports\":5"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs",
+        "line": 15,
+        "sha256": "ef009d11139fc5dab4639586092a44741ced49ac80d7108f22eecd264a6b5c3a",
+        "context": "const OBSERVABILITY_ATTACHMENT_SHA256 = \"ef009d11139fc5dab4639586092a44741ced49ac80d7108f22eecd264a6b5c3a\";"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/observer-contract-binding-v1.md",
+        "line": 7,
+        "sha256": "ef009d11139fc5dab4639586092a44741ced49ac80d7108f22eecd264a6b5c3a",
+        "context": "`ef009d11139fc5dab4639586092a44741ced49ac80d7108f22eecd264a6b5c3a`."
+      }
+    ],
+    "12ea9947": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/candidate-control-binding-v1.json",
+        "line": 1,
+        "sha256": "12ea9947ff0251713b733e980f8ea7e5c536069f35a86791d82cd6300bebfbaa",
+        "context": "{\"schema\":\"openpipestress.ui-foundation.candidate-control-binding/v1\",\"status\":\"FROZEN_PROSPECTIVE_PENDING_PRODUCT_SOURCE_INTEGRATION\",\"source\":\"UI manager checkpoint-2/full-workspace verifier coordination\",\"governedBindingSha256\":\"12ea9947ff0251713b733e980f8ea7e5c536069f35a86791d82cd6300bebfbaa\",\"controls\":{\"labels\":{\"role\":\"button\",\"name\":\"Labels\",\"testid\":\"toggle-viewport-labels\",\"state\":\"aria-pressed\"},\"boxSelect\":{\"role\":\"button\",\"name\":\"Box Select\",\"testid\":\"viewport-box-select\",\"state\":\"aria-pressed\"},\"selectionFilter\":{\"role\":\"combobox\",\"name\":\"Selection filter\",\"testid\":\"viewport-selection-filter\",\"options\":[\"All\",\"Pipes\",\"Nodes\",\"Supports\",\"Components\"]},\"fitModel\":{\"role\":\"button\""
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixture-manifest.json",
+        "line": 1,
+        "sha256": "12ea9947ff0251713b733e980f8ea7e5c536069f35a86791d82cd6300bebfbaa",
+        "context": "{\"schema\":\"openpipestress.ui-foundation.fixture-manifest/v2\",\"status\":\"frozen\",\"seed\":20260915,\"generator\":{\"path\":\"generate-fixtures.mjs\",\"algorithm\":\"mulberry32_uint32_and_integer_lattice_plus_point_hit_oracle_v3\"},\"purpose\":\"Deterministic UI workload only; no solver-capacity, engineering-validation, professional-acceptance, or minimum-hardware claim.\",\"fixtures\":[{\"pipe_count\":1000,\"model_path\":\"fixtures/ui-foundation-1000.model.json\",\"overlay_path\":\"fixtures/ui-foundation-1000.deformation-overlay.json\",\"samples_path\":\"samples/ui-foundation-1000.interactions.json\",\"point_oracle_path\":\"samples/ui-foundation-1000.point-oracle-v3.json\",\"counts\":{\"nodes\":1001,\"pipe_segments\":1000,\"supports\":5"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs",
+        "line": 18,
+        "sha256": "12ea9947ff0251713b733e980f8ea7e5c536069f35a86791d82cd6300bebfbaa",
+        "context": "const UI_TEST_BINDINGS_SHA256 = \"12ea9947ff0251713b733e980f8ea7e5c536069f35a86791d82cd6300bebfbaa\";"
+      }
+    ],
+    "009b27db": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/benchmark-harness.ts",
+        "line": 280,
+        "sha256": "009b27db887e3de224f72d0df221966fbaaa0305de218ee20848050ac6a1be1b",
+        "context": "plan.source?.geometrySourceSha256 !== CUE_GEOMETRY_SOURCE_SHA256 || plan.source?.cueSourceSha256 !== CUE_SOURCE_SHA256 || plan.source?.visualTokensSha256 !== \"009b27db887e3de224f72d0df221966fbaaa0305de218ee20848050ac6a1be1b\" || plan.cue?.cssSize !== 11 || plan.cue.interior !== .34 || plan.cue.outer !== .5 || plan.cue.erosionDevice !== 1 ||"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/candidate-visual-point-preflight.benchmark.ts",
+        "line": 53,
+        "sha256": "009b27db887e3de224f72d0df221966fbaaa0305de218ee20848050ac6a1be1b",
+        "context": "if (selectionVisualOracle?.sourceSha256 !== \"009b27db887e3de224f72d0df221966fbaaa0305de218ee20848050ac6a1be1b\") {"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/freeze-candidate-point-oracle.mjs",
+        "line": 12,
+        "sha256": "009b27db887e3de224f72d0df221966fbaaa0305de218ee20848050ac6a1be1b",
+        "context": "const VISUAL_TOKENS_SHA256 = \"009b27db887e3de224f72d0df221966fbaaa0305de218ee20848050ac6a1be1b\";"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+        "line": 58,
+        "sha256": "009b27db887e3de224f72d0df221966fbaaa0305de218ee20848050ac6a1be1b",
+        "context": "const cueOracle = { source: \"frozen token\", sourceSha256: \"009b27db887e3de224f72d0df221966fbaaa0305de218ee20848050ac6a1be1b\", theme: \"light\", srgb: [163, 68, 0], sceneSrgb: [223, 229, 232], tolerancePerChannel: 48, requiredLocalContrastRatio: 3, minimumQualifyingInteriorPixels: 4 };"
+      }
+    ],
+    "dc3a3b53": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+        "line": 219,
+        "sha256": "dc3a3b53cc2df3cd66be8b331b805d31331c2a8dbcf42e3f58d6fe8a05377667",
+        "context": "`dc3a3b53cc2df3cd66be8b331b805d31331c2a8dbcf42e3f58d6fe8a05377667`"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.ts",
+        "line": 22,
+        "sha256": "dc3a3b53cc2df3cd66be8b331b805d31331c2a8dbcf42e3f58d6fe8a05377667",
+        "context": "exporterSha256: \"dc3a3b53cc2df3cd66be8b331b805d31331c2a8dbcf42e3f58d6fe8a05377667\","
+      }
+    ],
+    "6a5fa3cf": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/README.md",
+        "line": 221,
+        "sha256": "6a5fa3cf626a07016997c3bdaf32610577c45c9e0fccd60f174205793da7fe2b",
+        "context": "`6a5fa3cf626a07016997c3bdaf32610577c45c9e0fccd60f174205793da7fe2b`."
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.ts",
+        "line": 23,
+        "sha256": "6a5fa3cf626a07016997c3bdaf32610577c45c9e0fccd60f174205793da7fe2b",
+        "context": "traceTimeSha256: \"6a5fa3cf626a07016997c3bdaf32610577c45c9e0fccd60f174205793da7fe2b\","
+      }
+    ],
+    "f8065edb": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+        "line": 15,
+        "sha256": "f8065edb3ba8da66d58eb7042523fba44b6d515c04d482614670a5414a684944",
+        "context": "timeClamperHeaderSha256: \"f8065edb3ba8da66d58eb7042523fba44b6d515c04d482614670a5414a684944\","
+      }
+    ],
+    "2491cb64": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+        "line": 16,
+        "sha256": "2491cb64f50a54ccd10f778c058f0960ad4d9fa0861e39212bc27b8343bd103c",
+        "context": "timeClamperImplementationSha256: \"2491cb64f50a54ccd10f778c058f0960ad4d9fa0861e39212bc27b8343bd103c\","
+      }
+    ],
+    "ff28d260": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+        "line": 17,
+        "sha256": "ff28d26044d705b1580a504d3b59814d0023d85ce700bc77c40c0d1724dc6234",
+        "context": "performanceImplementationSha256: \"ff28d26044d705b1580a504d3b59814d0023d85ce700bc77c40c0d1724dc6234\","
+      }
+    ],
+    "f87fd653": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+        "line": 5,
+        "sha256": "f87fd65324e795fbaea89bb96f72ef00c387f06beb8bff8651eb2a500d37a109",
+        "context": "primarySourceManifestSha256: \"f87fd65324e795fbaea89bb96f72ef00c387f06beb8bff8651eb2a500d37a109\","
+      }
+    ],
+    "15102056": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+        "line": 6,
+        "sha256": "15102056e9924b645aafa344cf808f3e36dcf2e4cfa05375c30be2565cff01fb",
+        "context": "diagnosisSha256: \"15102056e9924b645aafa344cf808f3e36dcf2e4cfa05375c30be2565cff01fb\","
+      }
+    ],
+    "dce9bc5a": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+        "line": 7,
+        "sha256": "dce9bc5a1271367a8e05fb213592ce0fcac2d1fa077147d265e185335176ba68",
+        "context": "diagnosisOutputManifestSha256: \"dce9bc5a1271367a8e05fb213592ce0fcac2d1fa077147d265e185335176ba68\","
+      }
+    ],
+    "bc21adf3": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-presentation-extractor.mjs",
+        "line": 8,
+        "sha256": "bc21adf308ba8983265c4d0dd66521d53566c5be168098f07f76d3bb091a0fae",
+        "context": "methodBriefSha256: \"bc21adf308ba8983265c4d0dd66521d53566c5be168098f07f76d3bb091a0fae\""
+      }
+    ],
+    "6fbef3d3": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/verify-causal-presentation-extractor.mjs",
+        "line": 17,
+        "sha256": "6fbef3d327347a34e69d49ca226db9fb6f78c5042a36ea08f5a7a2427ebb7963",
+        "context": "const referenceSha256 = \"6fbef3d327347a34e69d49ca226db9fb6f78c5042a36ea08f5a7a2427ebb7963\";"
+      }
+    ],
+    "9d7b0d55": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts",
+        "line": 1219,
+        "sha256": "9d7b0d55113f13dec928ad44a7a383825021fc83d4cf9cbcae519d194f128169",
+        "context": "expect(createHash(\"sha256\").update(bytes).digest(\"hex\")).toBe(\"9d7b0d55113f13dec928ad44a7a383825021fc83d4cf9cbcae519d194f128169\");"
+      }
+    ],
+    "1b1eced5": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.ts",
+        "line": 305,
+        "sha256": "1b1eced5fc5deaf7050c72f096259b4115b190ff97fb40c4865193526e75e732",
+        "context": "digest(JSON.stringify(oracles[1].orderedRefs)) !== \"1b1eced5fc5deaf7050c72f096259b4115b190ff97fb40c4865193526e75e732\" ||"
+      }
+    ]
+  }
+}

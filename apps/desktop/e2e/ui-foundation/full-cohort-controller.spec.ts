@@ -1395,3 +1395,98 @@ test('fresh demonstration provenance accepts only its bound revision and interna
   expect(()=>validateReferenceProfile({...profile,productRevision:CHARACTERIZATION_PRODUCT_REVISION},'fresh',host,authorization)).toThrow();
   expect(()=>validateReferenceProfile({...profile,refreshHz:60},'fresh',host,authorization)).toThrow();
 });
+
+// ---- First-profile repair of 2026-09 (see REPAIR_2026-09_FIRST_PROFILE.md) -------------------
+test("first profile repair: historical geometry preserves its pinned preimage", async () => {
+  const methodRoot = new URL("./", import.meta.url);
+  const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
+  expect(hash(await readFile(new URL("fixtures/frozen-oracle-geometry.ts.txt", methodRoot)))).toBe(CUE_GEOMETRY_SOURCE_SHA256);
+  const freezer = await readFile(new URL("freeze-candidate-point-oracle.mjs", methodRoot), "utf8");
+  expect(freezer.match(/const geometrySourceSha256 = "([a-f0-9]{64})";/)?.[1]).toBe(CUE_GEOMETRY_SOURCE_SHA256);
+});
+
+test("first profile repair: D-70 inventory retains the original acceptance independently of later inventories", async () => {
+  const { D70_CONTINUATION_METHOD_FILE_COUNT, validateD70ContinuationMethodInventory: validate } = await import("./characterization-observations.mjs");
+  // Synthetic method identities exercise the historical cardinality/uniqueness contract.
+  // Real recorded manifests are checked separately as run evidence, not dated test dependencies.
+  const inventory = (count: number) => ({ files: Array.from({ length: count }, (_, i) => ({ path: `method-${i}`, sha256: "a".repeat(64) })) });
+  expect(D70_CONTINUATION_METHOD_FILE_COUNT).toBe(34);
+  expect(() => validate(inventory(34))).not.toThrow();
+  for (const method of [inventory(0), inventory(33), inventory(35), inventory(38), {}, { files: undefined },
+    { files: [...inventory(33).files, inventory(33).files[0]] }]) {
+    expect(() => validate(method)).toThrow("complete34 method inventory required");
+  }
+});
+
+test("first profile repair: generator checks and preflight failures never write", async ({}, testInfo) => {
+  const { spawnSync } = await import("node:child_process");
+  const { cp, readdir, stat, appendFile, rm } = await import("node:fs/promises");
+  const { fileURLToPath } = await import("node:url");
+  const path = await import("node:path");
+  const source = fileURLToPath(new URL("./", import.meta.url));
+  const scratch = testInfo.outputPath("generator-scratch");
+  await mkdir(scratch, { recursive: true });
+  // Copy only generator dependencies and frozen inputs. Never run a writing-mode invocation
+  // against the checkout, and never inherit an optional local protocol-history directory.
+  for (const name of ["generate-fixtures.mjs", "point-hit-oracle.mjs", "candidate-control-binding-v1.json", "fixture-manifest.json", "fixtures", "samples"])
+    await cp(path.join(source, name), path.join(scratch, name), { recursive: true });
+  const hash = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
+  const snapshot = async (): Promise<string> => {
+    const visit = async (dir: string): Promise<unknown[]> => {
+      const entries: unknown[] = [];
+      for (const name of (await readdir(dir)).sort()) {
+        const file = path.join(dir, name), info = await stat(file);
+        entries.push(info.isDirectory() ? [name, await visit(file)] : [name, hash(await readFile(file)), info.mtimeMs]);
+      }
+      return entries;
+    };
+    return JSON.stringify(await visit(scratch));
+  };
+  const run = (...args: string[]) => spawnSync(process.execPath, [path.join(scratch, "generate-fixtures.mjs"), ...args], { encoding: "utf8" });
+  const before = await snapshot();
+  const check = run("--check"); expect(check.status, check.stderr).toBe(0);
+  const report = JSON.parse(check.stdout);
+  expect(report.status).toBe("PASS_CHECK_REPRODUCES_FROZEN_BYTES_NOTHING_WRITTEN");
+  expect(report.differing).toEqual([]);
+  const manifest = JSON.parse(await readFile(path.join(scratch, "fixture-manifest.json"), "utf8"));
+  expect(report.manifest_sha256).toBe(hash(await readFile(path.join(scratch, "fixture-manifest.json"))));
+  expect(report.files).toBe(manifest.files.length); expect(report.compared_files).toBe(manifest.files.length + 1);
+  expect(report.protocol_history).toEqual({ status: "NOT_SUPPLIED_NINE_PINNED_FILES", verified_files: 0, required_files: 9 });
+  expect(await snapshot()).toBe(before);
+
+  const wrong = testInfo.outputPath("wrong-history"), empty = testInfo.outputPath("empty-history");
+  await mkdir(wrong, { recursive: true }); await mkdir(empty, { recursive: true });
+  await writeFile(path.join(wrong, "fixture-manifest-v1-superseded-before-timed-run.json"), "{}\n");
+  const refusedArgs = [[], ["--unknown"], ["--check", "--unknown"], ["--protocol-history-dir"],
+    ["--protocol-history-dir", "relative"], ["--check", "--protocol-history-dir", "relative"]];
+  for (const prefix of [[], ["--check"]])
+    for (const directory of [empty, wrong, testInfo.outputPath("missing-history")])
+      refusedArgs.push([...prefix, "--protocol-history-dir", directory]);
+  for (const args of refusedArgs) {
+    const result = run(...args);
+    expect(result.status, JSON.stringify(args)).not.toBe(0);
+    expect(result.stdout).toBe("");
+    expect(await snapshot(), JSON.stringify(args)).toBe(before);
+  }
+  // A present default is validated too; --check must not silently ignore an invalid one.
+  await cp(wrong, path.join(scratch, "protocol-history"), { recursive: true });
+  const withDefault = await snapshot();
+  for (const args of [[], ["--check"]]) {
+    const result = run(...args);
+    expect(result.status).not.toBe(0); expect(result.stderr).toContain("preserved protocol history mismatch");
+    expect(await snapshot()).toBe(withDefault);
+  }
+  await rm(path.join(scratch, "protocol-history"), { recursive: true });
+  // Negative control: a frozen-byte difference must be reported, never repaired by --check.
+  const fixture = "fixtures/ui-foundation-1000.model.json";
+  await appendFile(path.join(scratch, fixture), " ");
+  const damaged = await snapshot(), mismatch = run("--check");
+  expect(mismatch.status).toBe(1);
+  expect(JSON.parse(mismatch.stdout).differing.map((entry: {path: string}) => entry.path)).toEqual([fixture]);
+  expect(await snapshot()).toBe(damaged);
+  await rm(path.join(scratch, fixture));
+  const missing = await snapshot(), absent = run("--check");
+  expect(absent.status).toBe(1);
+  expect(JSON.parse(absent.stdout).differing[0]).toMatchObject({ path: fixture, frozen_sha256: null, frozen_bytes: null });
+  expect(await snapshot()).toBe(missing);
+});

@@ -1,0 +1,8 @@
+{
+  "from": "ROOT HELP_HUMAN",
+  "to": "I1-CODEX WORKING_ITEMS",
+  "mechanism": "collaboration.send_message",
+  "text": "Approve that diagnostic/status correction within defect 4, provided the consumer check confirms no accepted frozen contract depends on the new unmerged wording. Keep the original absence as a historical fact; the recovered bytes and their pinned hashes remain unchanged. 'NOT_SUPPLIED_NINE_PINNED_FILES' and the explicit supplied/default-directory refusal accurately describe the current check. Preserve the behavioral refusal and no-write guarantees, and record the wording change as a named instrument semantic change.",
+  "sha256": "7891bc7338d597df73ff2e600027b5fad58bcd0fa02dc9cd464681d1bc1ce572",
+  "standing": "parent disposition within four-defect instrument scope; no owner acceptance or historical-contract amendment"
+}
