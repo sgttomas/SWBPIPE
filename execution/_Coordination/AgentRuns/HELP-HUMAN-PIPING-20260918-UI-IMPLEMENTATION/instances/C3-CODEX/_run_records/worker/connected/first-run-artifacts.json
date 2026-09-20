@@ -1,0 +1,30 @@
+{
+  "collection.log": {
+    "bytes": 2408,
+    "sha256": "e9a372e1462f941947fa4ed25ecb0008467e6220b1c3855d98f4d244b44ea26f"
+  },
+  "run.log": {
+    "bytes": 4053,
+    "sha256": "f7581b25467104f934d6786b60bab41f6867b8eb238959a611baa41c05421f02"
+  },
+  "exit-code.txt": {
+    "bytes": 2,
+    "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+  },
+  "execution.json": {
+    "bytes": 1444,
+    "sha256": "25460d1c11c852e5b7dcd6112164c4668f8e1150bca272dfc9e5b675e8d63367"
+  },
+  "artifacts/.last-run.json": {
+    "bytes": 96,
+    "sha256": "cd14f3e03b620d8a7053c26544da9b9b9e06218f3a82b079976cae140fce9655"
+  },
+  "artifacts/c3-viewport-visibility-C3--eecec--All-preserve-model-history-chromium-desktop/trace.zip": {
+    "bytes": 3884573,
+    "sha256": "8faa7357769ec8b9d26d9e706f94310217775fd7648a20da945bd88e61245ad4"
+  },
+  "artifacts/c3-viewport-visibility-C3--eecec--All-preserve-model-history-chromium-desktop/error-context.md": {
+    "bytes": 24784,
+    "sha256": "88d4017938d2edc7ae89c01238c94d480af238a0296cb77050c10fd3e81ac273"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "base": "00186f62ce1da6f01a930b68ee970ad6e2a8fbd0",
+  "b3bSource": "8037a56b0d0d373d9f698c9ffe0aca2f264bcbd1",
+  "canvasSource": "e7866be015ba2c83a2faa87d39590801efafa06c",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "c7f6ed5ece150c4f777a584fc0c5b1c99ce33623a99d8c1658b6931beaeaf2b5"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "522464840a56bcf44949b7b3490eb2304b704e315864374387d4ef28599d35c8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/selectionSessionState.ts",
+      "sha256": "51fcbc45d52f41f3ac301c993e40c08c48db5fc9c0983e6b1091910025d0747c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+      "sha256": "4b546c8e5dd6bd056a13f1ac3afb4c271851dac1e19e1b9d0dc3cd1e439e40dd"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "68feb8dc93c7d3c836fe45ab7e75611a7ebc61480b73770f2d918c54bbd67e3a"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "8e28df1329a78dbb09cdfeb97d48a1a0c5af0db07a447b732b3d4eb9d6580381"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "_run_records/c3-bridge/session-repair.log",
+      "sha256": "c40e91df4686084d45570fbdc8b21091a428805c8ee216dc085ec5e47ae25893"
+    },
+    {
+      "path": "_run_records/c3-bridge/session.log",
+      "sha256": "c7d9d938cb1700f8c9b771d3bfb23c133a242b18235be9eff13dfe545674f96f"
+    },
+    {
+      "path": "_run_records/c3-bridge/typescript-repair.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/c3-bridge/typescript.log",
+      "sha256": "bf8a6f8549109421ed17831a5c5e5e63b355cb1bdbf07ff0189c6f4e20b7b192"
+    }
+  ]
+}

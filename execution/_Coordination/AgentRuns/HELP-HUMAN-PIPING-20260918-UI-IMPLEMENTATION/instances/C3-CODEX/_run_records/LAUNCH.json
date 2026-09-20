@@ -1,0 +1,11 @@
+{
+  "parent": "/root/i1_manager",
+  "parentRole": "WORKING_ITEMS",
+  "childRole": "TASK",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "briefSha256": "29f74bfe6d59fa42e4b99ed72a09d5e69814df5a5f93ad224585e9733cd8e910",
+  "base": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "mechanism": "Codex delegated-harness-native",
+  "boundary": "Unrestricted host; instruction-enforced scopes"
+}

@@ -23,6 +23,7 @@ import type {
  */
 export function useProjectSessionState() {
   const projectRequest = useRef(0);
+  const projectOperationOwner = useRef<symbol | null>(null);
   const [storageCapability, setStorageCapability] = useState<LocalStorageCapability | null>(null);
   const [projectSummary, setProjectSummary] = useState<LocalProjectSummary | null>(null);
   const [projectIndex, setProjectIndex] = useState<LocalProjectIndexEntry[] | null>(null);
@@ -37,6 +38,7 @@ export function useProjectSessionState() {
   const [projectBusy, setProjectBusy] = useState(false);
   return {
     projectRequest,
+    projectOperationOwner,
     storageCapability, setStorageCapability,
     projectSummary, setProjectSummary,
     projectIndex, setProjectIndex,

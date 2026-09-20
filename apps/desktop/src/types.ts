@@ -884,7 +884,11 @@ export type ModelHashIntegrityEvidence = {
   persisted_value: string;
   recomputed_value: string;
   payload_ref: string;
-  verification_basis: "recomputed_on_open_from_restored_model";
+  verification_basis: "recomputed_on_open_from_restored_model" | "recomputed_at_save_from_returned_model" | "recomputed_at_create_from_returned_model";
+  verification_source?: "open" | "save" | "create";
+  observed_at?: string;
+  observation_scope?: "persisted_snapshot_not_current_local_model";
+  claim_standing?: "canonical_payload" | "retained_historical_carrier";
 };
 
 export type ProjectEnvelopeHashEvidence = {
@@ -902,7 +906,10 @@ export type ProjectEnvelopeHashIntegrityEvidence = {
   persisted_value: string;
   recomputed_value: string;
   payload_ref: string;
-  verification_basis: "recomputed_on_open_from_restored_envelope_payload";
+  verification_basis: "recomputed_on_open_from_restored_envelope_payload" | "recomputed_at_save_from_returned_envelope_payload" | "recomputed_at_create_from_returned_envelope_payload";
+  verification_source?: "open" | "save" | "create";
+  observed_at?: string;
+  observation_scope?: "persisted_snapshot_not_current_local_model";
 };
 
 export type PackageHashEvidence = {

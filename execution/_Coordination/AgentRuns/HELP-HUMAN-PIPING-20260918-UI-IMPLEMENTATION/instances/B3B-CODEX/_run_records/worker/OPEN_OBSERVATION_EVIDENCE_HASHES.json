@@ -1,0 +1,14 @@
+[
+  {
+    "path": "open-observation-typescript.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "open-observation-fail-before.log",
+    "sha256": "86a33ff6a22fe7cf8c0657b77bc3bd9b1e7e63a833492e0bdae469f65fe56209"
+  },
+  {
+    "path": "open-observation-pass-after.log",
+    "sha256": "927b15e5c228fbc5119225512e2fa0eec6b86cade71e2d24d6cd7e9f99aed897"
+  }
+]

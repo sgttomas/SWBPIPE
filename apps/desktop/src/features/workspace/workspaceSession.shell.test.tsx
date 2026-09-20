@@ -5,6 +5,8 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 
 import { makeRichIntent } from "../rich-authoring/formSupport";
+import { buildGuardedRemoval } from "../toolkit/GuardedRemoval";
+import { entityKey } from "./selectionState";
 import {
   SHELL_STAGES,
   SHELL_VIEWS,
@@ -16,6 +18,8 @@ import {
 } from "./shellLayout";
 import type { ShellStage, ShellView } from "./shellLayout";
 import { useWorkspaceSession } from "./workspaceSession";
+import * as hashService from "../../services/hashService";
+import { createLocalProject } from "../../services/projectService";
 import type { WorkspaceSession } from "./workspaceSession";
 import { WorkspaceSessionProvider, useSessionChrome, useWorkspaceSessionContext } from "./WorkspaceSessionContext";
 
@@ -31,7 +35,7 @@ const SLICES = ["model", "selection", "results", "operations", "project", "chrom
 // the last is the one chrome setter slice B3 adds (the per-stage view memory).
 const SESSION_SETTERS: Record<(typeof SLICES)[number], string[]> = {
   model: [],
-  selection: ["setHiddenEntityKeys", "setIsolateHiddenEntityKeys"],
+  selection: ["setHiddenEntityKeys", "setIsolationSelectionKeys"],
   results: ["setSolverMode", "setReportPackagePrivateIntent"],
   operations: [],
   project: [],
@@ -308,4 +312,96 @@ it("webview history accelerators use one checkpoint route in both runtimes and p
   expect(result.current.operations.redoStack).toHaveLength(0);
   expect(result.current.model.model!.nodes[0].position.x).toBe(edited.nodes[0].position.x);
   expect(key(true).defaultPrevented).toBe(false);
+});
+
+
+it("publishes committed Open observations after the actual draft invalidation callback", async () => {
+  const { result } = await readySession();
+  const model = structuredClone(result.current.model.model!);
+  model.project.id = "project:b3b-open-observation";
+  const modelHash = await hashService.computeModelHash(model);
+  const envelopeHash = await hashService.computeProjectEnvelopeHash({ model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: null, analysis_run: null, model_hash: modelHash });
+  const opened = await createLocalProject(model, [], null, null, null, null, modelHash, envelopeHash);
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => { release = resolve; });
+  const original = hashService.computeModelHash;
+  vi.spyOn(hashService, "computeModelHash").mockImplementation(async (input) => {
+    if (input === opened.model) await gate;
+    return original(input);
+  });
+  invokeMock.mockImplementation((command: string) => command === "open_local_project" ? Promise.resolve(opened) : Promise.resolve({}));
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  try {
+    let opening!: Promise<void>;
+    act(() => { opening = result.current.project.handleOpenProject(); });
+    await waitFor(() => expect(result.current.model.model?.project.id).toBe(opened.model.project.id));
+    const epoch = result.current.operations.requestEpoch;
+    act(() => result.current.operations.invalidateDirectDraftContext());
+    expect(result.current.operations.requestEpoch).toBeGreaterThan(epoch);
+    await act(async () => { release(); await opening; });
+    expect(result.current.project.modelHashIntegrity).toMatchObject({ integrity_status: "verified_match", verification_source: "open", persisted_value: modelHash!.value });
+    expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match", verification_source: "open", persisted_value: envelopeHash!.value });
+    expect(result.current.project.projectBusy).toBe(false);
+  } finally { release(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; }
+});
+
+
+describe("C3 shell visibility projection", () => {
+  it("keeps isolation separate from Hide through selection and stage/view changes without model or history edits", async () => {
+    const { result } = await readySession();
+    const model = result.current.model.model!;
+    const beforeHash = result.current.model.modelHash;
+    const beforeUndo = result.current.operations.undoStack;
+    const beforeResult = result.current.results.result;
+    const [first, second] = model.pipe_segments;
+    const firstKey = entityKey({ type: "pipe", id: first.id });
+    const secondKey = entityKey({ type: "pipe", id: second.id });
+    act(() => result.current.selection.setIsolationSelectionKeys(new Set([firstKey])));
+    expect(result.current.selection.isolationActive).toBe(true);
+    expect(result.current.selection.effectiveHiddenKeys.size).toBe(0);
+    expect(result.current.selection.hiddenCount).toBe(0);
+    expect(result.current.selection.dimmedKeys.has(firstKey)).toBe(false);
+    expect(result.current.selection.dimmedKeys.has(secondKey)).toBe(true);
+    act(() => result.current.selection.handleSelectEntity({ type: "pipe", id: second.id }));
+    act(() => result.current.chrome.setActiveSection("loads"));
+    act(() => result.current.chrome.setStageViewMemory((memory) => rememberStageView(memory, "loads", "model")));
+    expect(result.current.selection.isolationSelectionKeys).toEqual(new Set([firstKey]));
+    act(() => result.current.selection.setHiddenEntityKeys(new Set([secondKey])));
+    expect(result.current.selection.hiddenCount).toBe(1);
+    expect(result.current.selection.effectiveHiddenKeys.has(secondKey)).toBe(true);
+    expect(result.current.selection.dimmedKeys.has(secondKey)).toBe(false);
+    act(() => result.current.selection.handleSelectEntity({ type: "pipe", id: first.id }));
+    expect(result.current.selection.hiddenCount).toBe(1);
+    expect(result.current.model.model).toBe(model);
+    expect(result.current.model.modelHash).toBe(beforeHash);
+    expect(result.current.operations.undoStack).toBe(beforeUndo);
+    expect(result.current.results.result).toBe(beforeResult);
+    act(() => result.current.selection.handleClearVisibility());
+    expect(result.current.selection.isolationSelectionKeys).toBeNull();
+    expect(result.current.selection.isolationActive).toBe(false);
+    expect(result.current.selection.hiddenCount).toBe(0);
+    expect(result.current.selection.dimmedKeys.size).toBe(0);
+  });
+
+  it("retains active empty isolation after deletion, dims restored geometry and resets on project replacement", async () => {
+    const { result } = await readySession();
+    const component = result.current.model.model!.components[0];
+    const key = entityKey({ type: "component", id: component.id });
+    act(() => result.current.selection.setIsolationSelectionKeys(new Set([key])));
+    const removal = buildGuardedRemoval({ type: "component", id: component.id }, await hashService.canonicalJsonString(component));
+    await act(async () => { expect(await result.current.operations.handleApplyIntent(removal)).toBe(true); });
+    await waitFor(() => expect(result.current.selection.isolationSelectionKeys).toEqual(new Set()));
+    expect(result.current.selection.isolationActive).toBe(true);
+    expect(result.current.selection.hiddenCount).toBe(0);
+    act(() => result.current.operations.handleUndoSessionModelEdit());
+    await waitFor(() => expect(result.current.model.activeModelIndex!.entities.has(key)).toBe(true));
+    expect(result.current.selection.isolationSelectionKeys).toEqual(new Set());
+    expect(result.current.selection.dimmedKeys.has(key)).toBe(true);
+    act(() => result.current.selection.setHiddenEntityKeys(new Set([key])));
+    await act(async () => { await result.current.project.handleCreateBlankProject(); });
+    expect(result.current.selection.isolationSelectionKeys).toBeNull();
+    expect(result.current.selection.hiddenEntityKeys.size).toBe(0);
+    expect(result.current.selection.hiddenCount).toBe(0);
+    expect(result.current.selection.isolationActive).toBe(false);
+  });
 });

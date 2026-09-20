@@ -1,0 +1,9 @@
+{
+  "executionResume": "ROOT followup activates cleanup and connected checks after queued handoff preparation",
+  "bridge": "df00c64d3220482060851d05b58a99ac055148e5",
+  "bridgeReturnSha256": "94d14072b7f8d9da7a08d80cebf6d8dfb4213e0cc7cbb4ab1755c6c06bfd1c85",
+  "cleanFastForward": true,
+  "cleanup": "exactly two optional PipeViewport Props declarations isolateHiddenKeys/onIsolateKeysChange",
+  "typescriptExitCode": 0,
+  "browserReservation": "5174 exclusive; pinned Chromium; one worker/shared lock; dedicated C3 + exact legacy Hide/Isolate + B3B persistence only"
+}

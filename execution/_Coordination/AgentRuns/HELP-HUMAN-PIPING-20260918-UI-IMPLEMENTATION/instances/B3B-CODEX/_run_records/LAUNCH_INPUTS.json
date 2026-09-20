@@ -1,0 +1,52 @@
+{
+  "base": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "before": "dada348294d21b8619b4644a5a690aedb039957d",
+  "assigned_worktree": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+  "root_checkout": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality",
+  "root_continuation": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX",
+  "parent": "/root/b3_manager",
+  "mechanism": "collaboration.spawn_agent; fresh context",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "enforcement": "unrestricted host; instruction-enforced paths/resources",
+  "brief_sha256": "7f65af39f4f71318f79e503263e73c08645191400a4df4ae50eb63369a41d8f9",
+  "inputs": [
+    {
+      "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:.agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    },
+    {
+      "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:.agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_MANAGER_BRIEF.md",
+      "sha256": "03186a0b04d1809ceb81139872a42c895ab2345cd6aa8cfbf4487b17b94f8b98"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/NEXT_BATCH_LAUNCH/INPUTS.json",
+      "sha256": "26b7e2d75badd85e893daf7d4ae569901fe7182caf4452ab0a12d8abe1db0c77"
+    }
+  ],
+  "graph_sha256": "cd75aa99f60182e51db861d2421a1f66c3359fa68883fa7dc8ec210fbe53c489"
+}

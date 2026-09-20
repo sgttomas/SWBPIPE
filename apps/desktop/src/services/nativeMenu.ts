@@ -37,6 +37,7 @@ export async function listenToNativeMenu(
 export interface NativeShellState {
   projectName: string | null;
   modelEdited: boolean;
+  projectBusy: boolean;
   stage: string;
   view: string;
   theme: string;

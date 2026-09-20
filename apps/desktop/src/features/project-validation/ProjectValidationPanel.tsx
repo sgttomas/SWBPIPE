@@ -132,7 +132,7 @@ export function ProjectValidationPanel({
             packet.summary.persisted_model_hash_count
           }; persisted_model_hash_ref=${packet.summary.persisted_model_hash_ref}; integrity=${
             packet.summary.model_hash_integrity_status
-          }`}
+          }; claim_standing=${modelHashIntegrity?.claim_standing ?? "not_recorded"}; source=${modelHashIntegrity?.verification_source ?? (modelHashIntegrity ? "open" : "none")}; observed_at=${modelHashIntegrity?.observed_at ?? "not_recorded"}; persisted snapshot only; later local edits are not verified`}
           testId="project-validation-model-hash"
         />
         <ValidationLine
@@ -141,7 +141,7 @@ export function ProjectValidationPanel({
             packet.summary.persisted_project_envelope_hash_count
           }; persisted_envelope_hash_ref=${packet.summary.persisted_project_envelope_hash_ref}; integrity=${
             packet.summary.project_envelope_hash_integrity_status
-          }`}
+          }; source=${projectEnvelopeHashIntegrity?.verification_source ?? (projectEnvelopeHashIntegrity ? "open" : "none")}; observed_at=${projectEnvelopeHashIntegrity?.observed_at ?? "not_recorded"}; persisted snapshot only; later local edits are not verified`}
           testId="project-validation-envelope-hash"
         />
         <ValidationLine
@@ -302,12 +302,12 @@ function buildProjectValidationPacket({
       model_hash_status: modelHashStatus,
       persisted_model_hash_count: projectSummary?.persisted_model_hash_count ?? 0,
       persisted_model_hash_ref: projectSummary?.persisted_model_hash_ref ?? "not_persisted",
-      model_hash_integrity_status: modelHashIntegrity?.integrity_status ?? "open_verification_not_run_this_session",
+      model_hash_integrity_status: modelHashIntegrity?.integrity_status ?? "persistence_verification_not_run_this_session",
       project_envelope_hash_status: envelopeHashStatus,
       persisted_project_envelope_hash_count: projectSummary?.persisted_project_envelope_hash_count ?? 0,
       persisted_project_envelope_hash_ref: projectSummary?.persisted_project_envelope_hash_ref ?? "not_persisted",
       project_envelope_hash_integrity_status:
-        projectEnvelopeHashIntegrity?.integrity_status ?? "open_verification_not_run_this_session",
+        projectEnvelopeHashIntegrity?.integrity_status ?? "persistence_verification_not_run_this_session",
       accepted_model_state_mutated: false,
       copied_external_files: Boolean(projectSummary?.copied_external_files),
       network_required: Boolean(storageCapability?.network_required),
@@ -463,7 +463,7 @@ function modelHashEvidenceStatus({
   projectSummary: LocalProjectSummary | null;
   modelHashIntegrity: ModelHashIntegrityEvidence | null;
 }): string {
-  if (modelHashIntegrity?.integrity_status === "verified_match") return "model_hash_verified_on_open";
+  if (modelHashIntegrity?.integrity_status === "verified_match") return `model_hash_verified_${modelHashIntegrity.verification_source === "save" || modelHashIntegrity.verification_source === "create" ? `at_${modelHashIntegrity.verification_source}` : "on_open"}`;
   if (modelHashIntegrity?.integrity_status === "mismatch_review_required") return "model_hash_mismatch_review_required";
   if (modelHashIntegrity?.integrity_status === "hash_recompute_unavailable") {
     return "model_hash_recompute_unavailable_review_required";
@@ -483,7 +483,7 @@ function projectEnvelopeHashEvidenceStatus({
   projectEnvelopeHashIntegrity: ProjectEnvelopeHashIntegrityEvidence | null;
 }): string {
   if (projectEnvelopeHashIntegrity?.integrity_status === "verified_match") {
-    return "project_envelope_hash_verified_on_open";
+    return `project_envelope_hash_verified_${projectEnvelopeHashIntegrity.verification_source === "save" || projectEnvelopeHashIntegrity.verification_source === "create" ? `at_${projectEnvelopeHashIntegrity.verification_source}` : "on_open"}`;
   }
   if (projectEnvelopeHashIntegrity?.integrity_status === "mismatch_review_required") {
     return "project_envelope_hash_mismatch_review_required";

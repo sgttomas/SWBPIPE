@@ -164,8 +164,8 @@ function AppSession() {
     orderedSelection,
     orderedSelectionRef,
     hiddenEntityKeys, setHiddenEntityKeys,
-    isolateHiddenEntityKeys, setIsolateHiddenEntityKeys,
-    effectiveHiddenKeys,
+    isolationSelectionKeys, setIsolationSelectionKeys,
+    effectiveHiddenKeys, dimmedKeys, hiddenCount, isolationActive, handleClearVisibility,
     selectedPipeRefs,
     treePublication,
     handleTreePublication,
@@ -710,7 +710,10 @@ function AppSession() {
               modelIdentityHash={modelAssignment?.identityHash ?? null}
               hiddenKeys={effectiveHiddenKeys}
               explicitHiddenKeys={hiddenEntityKeys}
-              isolateHiddenKeys={isolateHiddenEntityKeys}
+              dimmedKeys={dimmedKeys}
+              hiddenCount={hiddenCount}
+              isolationActive={isolationActive}
+              isolationSelectionKeys={isolationSelectionKeys}
               modelIndex={activeModelIndex ?? undefined}
               modelCommitToken={directDraftCommitToken}
               onAddDraft={handleAddDraftReview}
@@ -718,8 +721,8 @@ function AppSession() {
               onArmCreationTool={handleArmCreationTool}
               onBoxSelection={handleBoxSelection}
               onHiddenKeysChange={setHiddenEntityKeys}
-              onIsolateKeysChange={setIsolateHiddenEntityKeys}
-              onClearVisibility={() => { setHiddenEntityKeys(new Set()); setIsolateHiddenEntityKeys(new Set()); }}
+              onIsolationSelectionChange={setIsolationSelectionKeys}
+              onClearVisibility={handleClearVisibility}
               onViewportInteractionStart={exposeViewportForNarrowInteraction}
               onInvalidateDraft={invalidateDirectDraftContext}
               onQueueIntent={handleQueueEditorIntent}
@@ -910,6 +913,7 @@ function AppSession() {
                 editorIntents={editorIntents}
                 proposal={proposal}
                 modelHashIntegrity={modelHashIntegrity}
+                projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
               />
               <ProjectValidationPanel
                 model={model}

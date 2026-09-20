@@ -1,0 +1,71 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/projectPersistenceIntegrity.test.ts (3 tests | 3 failed) 8ms
+     × records save verification completion time and source without backend metadata 6ms
+     × rejects identical values with a wrong claim identity 1ms
+     × retains canonical mismatch for a Historical carrier and absence for legacy claims 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/projectPersistenceIntegrity.test.ts > B3B persisted snapshot observations > records save verification completion time and source without backend metadata
+AssertionError: expected { …(5) } to match object { …(4) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "integrity_status": "verified_match",
+-   "observed_at": "2026-09-20T12:00:00.000Z",
+-   "verification_basis": "recomputed_at_save_from_returned_model",
+-   "verification_source": "save",
++   "verification_basis": "recomputed_on_open_from_restored_model",
+  }
+
+ ❯ src/features/workspace/projectPersistenceIntegrity.test.ts:11:24
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/features/workspace/projectPersistenceIntegrity.test.ts > B3B persisted snapshot observations > rejects identical values with a wrong claim identity
+AssertionError: expected 'verified_match' to be 'mismatch_review_required' // Object.is equality
+
+Expected: "mismatch_review_required"
+Received: "verified_match"
+
+ ❯ src/features/workspace/projectPersistenceIntegrity.test.ts:15:135
+     13|   });
+     14|   it("rejects identical values with a wrong claim identity", () => {
+     15|     expect(deriveModelHashIntegrity({ ...model, payload_ref: "project:…
+       |                                                                                                                                       ^
+     16|   });
+     17|   it("retains canonical mismatch for a Historical carrier and absence …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/features/workspace/projectPersistenceIntegrity.test.ts > B3B persisted snapshot observations > retains canonical mismatch for a Historical carrier and absence for legacy claims
+AssertionError: expected undefined to be 'save' // Object.is equality
+
+- Expected:
+"save"
+
++ Received:
+undefined
+
+ ❯ src/features/workspace/projectPersistenceIntegrity.test.ts:21:107
+     19|     expect(deriveModelHashIntegrity(null, model, model.payload_ref, "s…
+     20|     expect(deriveModelHashIntegrity(model, null, model.payload_ref, "s…
+     21|     expect(deriveProjectEnvelopeHashIntegrity(null, null, model.payloa…
+       |                                                                                                           ^
+     22|   });
+     23| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  12:19:19
+   Duration  361ms (transform 44ms, setup 68ms, import 10ms, tests 8ms, environment 186ms)
+

@@ -1,0 +1,37 @@
+[
+  {
+    "path": "_run_records/browser/RUN.json",
+    "sha256": "684d2e447be2cb59337f1ad9a835258844ffabb95fb7923b6ad0dd9231c572c3",
+    "bytes": 1029
+  },
+  {
+    "path": "_run_records/browser/artifacts/.last-run.json",
+    "sha256": "4bf1e139d53075e43bd3b9866766352bec49883d6cdf60595e53ffe30f8f6d66",
+    "bytes": 145
+  },
+  {
+    "path": "_run_records/browser/artifacts/b3b-project-persistence-B3-0a512-save-open-snapshot-evidence-chromium-compact/error-context.md",
+    "sha256": "1f546679de84a215b0f360f327100bdc48f8513a63d28576f054883947eb99ae",
+    "bytes": 4811
+  },
+  {
+    "path": "_run_records/browser/artifacts/b3b-project-persistence-B3-0a512-save-open-snapshot-evidence-chromium-compact/trace.zip",
+    "sha256": "594907ef67ad47fb281b267c82afc0719aaa758a2c6ef1e543999e625b62e4cc",
+    "bytes": 1617430
+  },
+  {
+    "path": "_run_records/browser/artifacts/b3b-project-persistence-B3-0a512-save-open-snapshot-evidence-chromium-desktop/error-context.md",
+    "sha256": "a437d2af2e830cb7a3264f70ecc5fcc4c5fe73e6e3294a02dd0172b8ef56259b",
+    "bytes": 4811
+  },
+  {
+    "path": "_run_records/browser/artifacts/b3b-project-persistence-B3-0a512-save-open-snapshot-evidence-chromium-desktop/trace.zip",
+    "sha256": "783488ef3247b4db16e6f7c3ab646088e0d666b98b5a3d1c132aca00da854712",
+    "bytes": 1750520
+  },
+  {
+    "path": "_run_records/browser/run.log",
+    "sha256": "466a955040fa4347692bc34ff927a062c2d0f10db08dcf75674c6632141c5a01",
+    "bytes": 8416
+  }
+]

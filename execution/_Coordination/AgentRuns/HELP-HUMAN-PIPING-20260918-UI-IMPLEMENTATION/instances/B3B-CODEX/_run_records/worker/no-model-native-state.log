@@ -1,0 +1,98 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/App.projectHandlers.test.tsx (36 tests | 1 failed | 35 skipped) 1030ms
+   × B3B projects native busy state before a model has loaded 1028ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.projectHandlers.test.tsx > B3B projects native busy state before a model has loaded
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'load_preview_model' ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "load_preview_model",
++   undefined,
+  ]
+
+  2nd vi.fn() call:
+
+  [
+-   "load_preview_model",
++   "load_design_knowledge",
++   undefined,
+  ]
+
+  3rd vi.fn() call:
+
+  [
+-   "load_preview_model",
++   "get_local_storage_capability",
+  ]
+
+  4th vi.fn() call:
+
+  [
+-   "load_preview_model",
++   "sync_native_shell_state",
++   {
++     "state": {
++       "canCancel": false,
++       "canRedo": false,
++       "canRun": true,
++       "canUndo": false,
++       "density": "comfortable",
++       "inspectorOpen": false,
++       "modelEdited": false,
++       "projectBusy": false,
++       "projectName": null,
++       "resultsStageEnabled": false,
++       "reviewStageEnabled": false,
++       "stage": "model",
++       "theme": "system",
++       "view": "both",
++     },
++   },
+  ]
+
+
+Number of calls: 4
+
+
+Ignored nodes: comments, script, style
+[36m<html[39m
+  [33mdata-theme[39m=[32m"light"[39m
+[36m>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"loading-screen"[39m
+      [36m>[39m
+        [0mLoading local SWBPIPE preview fixture.[0m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ src/App.projectHandlers.test.tsx:1190:42
+    1188|   setTauriRuntime(true);
+    1189|   render(<App />);
+    1190|   await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("load_pr…
+       |                                          ^
+    1191|   act(() => nativeMenuCommand("file.list-local"));
+    1192|   await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("sync_na…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 35 skipped (36)
+   Start at  12:28:36
+   Duration  2.76s (transform 998ms, setup 89ms, import 1.23s, tests 1.03s, environment 315ms)
+

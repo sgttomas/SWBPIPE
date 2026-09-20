@@ -1,0 +1,59 @@
+[2m[WebServer] [22m(node:73878) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 16 tests using 1 worker
+
+(node:73882) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73882) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium-desktop] › e2e/b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence (1.8s)
+  ✘   2 [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:78:1 › C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history (3.2s)
+[31mTesting stopped early after 1 maximum allowed failures.[39m
+
+
+  1) [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:78:1 › C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoMatchObject[2m([22m[32mexpected[39m[2m)[22m
+
+    [32m- Expected  - 3[39m
+    [31m+ Received  + 3[39m
+
+    [2m  Object {[22m
+    [32m-   "bottom": true,[39m
+    [31m+   "bottom": false,[39m
+    [2m    "focusVisible": true,[22m
+    [2m    "left": true,[22m
+    [2m    "right": true,[22m
+    [32m-   "top": true,[39m
+    [32m-   "unobscured": true,[39m
+    [31m+   "top": false,[39m
+    [31m+   "unobscured": false,[39m
+    [2m  }[22m
+
+      123 |       unobscured: points.every(([x, y]) => el.contains(document.elementFromPoint(x, y))) };
+      124 |   });
+    > 125 |   expect(containment).toMatchObject({ top: true, bottom: true, left: true, right: true, focusVisible: true, unobscured: true });
+          |                       ^
+      126 |   expect(containment.width).toBeGreaterThanOrEqual(24); expect(containment.height).toBeGreaterThanOrEqual(24);
+      127 |   expect(parseFloat(containment.outlineWidth)).toBeGreaterThan(0); expect(parseFloat(containment.outlineOffset)).toBeLessThan(0);
+      128 |   await info.attach("hidden-count-containment", { body: JSON.stringify(containment), contentType: "application/json" });
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts:125:23
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected/artifacts/c3-viewport-visibility-C3--eecec--All-preserve-model-history-chromium-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected/artifacts/c3-viewport-visibility-C3--eecec--All-preserve-model-history-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected/artifacts/c3-viewport-visibility-C3--eecec--All-preserve-model-history-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:78:1 › C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history 
+  14 did not run
+  1 passed (6.5s)
+  1 error was not a part of any test, see above for details
+
+EXIT 1

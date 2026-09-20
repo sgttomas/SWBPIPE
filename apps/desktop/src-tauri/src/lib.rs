@@ -3808,6 +3808,8 @@ struct NativeShellState {
     project_name: Option<String>,
     #[serde(default)]
     model_edited: bool,
+    #[serde(default)]
+    project_busy: bool,
     stage: String,
     view: String,
     theme: String,
@@ -3900,6 +3902,11 @@ fn native_menu_mutations(state: &NativeShellState) -> Vec<NativeMenuMutation> {
         mutations.push(NativeMenuMutation::Checked(id, value));
     }
     for (id, value) in [
+        ("file.new-local", !state.project_busy),
+        ("file.new-blank", !state.project_busy),
+        ("file.open-local", !state.project_busy),
+        ("file.save-local", !state.project_busy),
+        ("file.list-local", !state.project_busy),
         ("view.view.table", true),
         ("view.view.model", state.stage != "review"),
         ("view.view.both", state.stage != "review"),
@@ -4902,6 +4909,7 @@ mod tests {
         NativeShellState {
             project_name: Some("Loop 4 header".to_string()),
             model_edited: false,
+            project_busy: false,
             stage: "loads".to_string(),
             view: "table".to_string(),
             theme: "dark".to_string(),
@@ -4967,6 +4975,19 @@ mod tests {
             NativeMenuMutation::Enabled("analyze.cancel", false),
         ] {
             assert!(mutations.contains(&expected), "missing {expected:?}");
+        }
+    }
+
+    #[test]
+    fn native_shell_state_disables_all_project_commands_while_busy() {
+        for busy in [false, true] {
+            let mut state = sample_native_shell_state();
+            state.project_busy = busy;
+            let mutations = native_menu_mutations(&state);
+            for id in ["file.new-local", "file.new-blank", "file.open-local", "file.save-local", "file.list-local"] {
+                assert!(mutations.contains(&NativeMenuMutation::Enabled(id, !busy)));
+            }
+            assert!(mutations.contains(&NativeMenuMutation::Enabled("analyze.run", true)));
         }
     }
 
