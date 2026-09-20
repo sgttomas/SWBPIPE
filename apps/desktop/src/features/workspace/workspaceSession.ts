@@ -37,6 +37,7 @@ import type { RuleCheckStatus } from "../../services/ruleCheckService";
 import type {
   AnalysisRunEnvelope,
   AppliedOperationReceipt,
+  OperationOutcome,
   EditorOperationIntent,
   EntityRef,
   LocalProjectEnvelope,
@@ -1269,7 +1270,7 @@ export function useWorkspaceSession() {
     }
   }
 
-  async function handleApplyIntent(intent: EditorOperationIntent): Promise<boolean> {
+  async function handleApplyIntent(intent: EditorOperationIntent, ownedOutcome?: { current?: Readonly<OperationOutcome> }): Promise<boolean> {
     if (!model || operationRequest.current.busy) return false;
     const revision = modelRevision.current;
     const request = ++operationRequest.current.sequence;
@@ -1287,6 +1288,8 @@ export function useWorkspaceSession() {
       // after it resolves before any outcome, receipt or checkpoint is published.
       if (!stillCurrent() || currentHash?.value !== initialHash.value) return false;
       setOperationOutcomes((current) => ({ ...current, [intentKey(intent)]: outcome }));
+      // Internal owned result only; this is not acknowledgement of a React publication.
+      if (ownedOutcome) ownedOutcome.current = outcome;
       if (outcome.validation.application_status !== "applied_to_session_model" || !outcome.applied_model) {
         setOperationMessage(
           `Operation ${outcome.operation_id} was not applied (${outcome.validation.application_status}); see its diagnostics.`

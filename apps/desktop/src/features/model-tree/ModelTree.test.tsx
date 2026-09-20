@@ -56,6 +56,7 @@ describe("ModelTree virtual typed selection", () => {
       selection={{ type: "node", id: "n/0" }}
     />);
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     fireEvent.change(screen.getByTestId("entity-grid-input-n-0-x"), { target: { value: "10" } });
     fireEvent.change(screen.getByTestId("entity-grid-input-n-1-x"), { target: { value: "11" } });
     fireEvent.click(screen.getByTestId("entity-grid-type-pipes"));
@@ -64,6 +65,7 @@ describe("ModelTree virtual typed selection", () => {
     expect(screen.getByTestId("entity-grid-input-n-1-x")).toHaveValue("11");
     fireEvent.click(screen.getByTestId("layout-mode-tree"));
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     expect(screen.getByTestId("entity-grid-input-n-0-x")).toHaveValue("10");
     expect(screen.getByTestId("entity-grid-input-n-1-x")).toHaveValue("11");
 
@@ -558,3 +560,9 @@ describe("legacy indexed tree search vocabulary", () => {
     expect(JSON.stringify(model)).toBe(before);
   });
 });
+
+// Existing review journeys explicitly enter the retained multi-change workflow.
+function openNodeGridReview() {
+  const summary = screen.getByTestId("node-grid-review-disclosure");
+  if (!(summary.parentElement as HTMLDetailsElement).open) fireEvent.click(summary);
+}
