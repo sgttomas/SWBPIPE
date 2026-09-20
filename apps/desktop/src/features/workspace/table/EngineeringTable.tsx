@@ -31,12 +31,17 @@ export function EngineeringTable(props: Props) {
   const errorId = useId();
   const root = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
+  const footer = useRef<HTMLDivElement>(null);
   const editRef = useRef<TableEdit | null>(null);
   const sequence = useRef(0);
   const pointerFocus = useRef<CellAddress | null>(null);
   const latest = useRef(props);
   latest.current = props;
   const previousGeneration = useRef(generation);
+  const selectionOwnership = useRef({ key: selectedKey, revision: 0 });
+  if (selectionOwnership.current.key !== selectedKey) {
+    selectionOwnership.current = { key: selectedKey, revision: selectionOwnership.current.revision + 1 };
+  }
   const focusRequest = useRef<CellAddress | null>(null);
   function setEdit(value: TableEdit | null) { editRef.current = value; setEditState(value); }
 
@@ -52,7 +57,12 @@ export function EngineeringTable(props: Props) {
     });
     return result;
   }, [matchingRows, rows, edit, sort, columns]);
-  const active = edit?.captured ?? focused;
+  // A remembered cell may be filtered out or removed. Keep a live keyboard
+  // entry without moving DOM focus or publishing a new model selection.
+  const rovingFocus = focused && viewRows.some((row) => row.key === focused.rowKey && rows.some((live) => live.key === row.key) && row.cells[focused.columnKey])
+    ? focused
+    : !edit && viewRows[0] && columns[0] ? { rowKey: viewRows[0].key, columnKey: columns[0].key } : null;
+  const active = edit?.captured ?? rovingFocus;
   const activeIndex = active ? viewRows.findIndex((row) => row.key === active.rowKey) : null;
 
   useLayoutEffect(() => {
@@ -66,6 +76,10 @@ export function EngineeringTable(props: Props) {
   useLayoutEffect(() => {
     if (!focusRequest.current) return;
     const request = focusRequest.current;
+    if (!viewRows.some((row) => row.key === request.rowKey && row.cells[request.columnKey])) {
+      focusRequest.current = null;
+      return;
+    }
     const element = Array.from(root.current?.querySelectorAll<HTMLElement>("[data-table-cell]") ?? []).find((candidate) => candidate.dataset.rowKey === request.rowKey && candidate.dataset.columnKey === request.columnKey);
     if (element) { element.focus(); focusRequest.current = null; }
   }, [focused, viewRows, reveal]);
@@ -91,7 +105,7 @@ export function EngineeringTable(props: Props) {
     if (destination) focusCell("rowKey" in destination ? destination : { rowKey: destination.key, columnKey: columns[0].key });
     else { setFocused(null); root.current?.focus(); }
   }
-  async function apply(next?: CellAddress, restoreFocus = false): Promise<boolean> {
+  async function apply(next?: CellAddress, restoreFocus = false, boundaryExit?: HTMLElement): Promise<boolean> {
     const current = editRef.current;
     if (!current || current.pending) return false;
     const column = columns.find((candidate) => candidate.key === current.captured.columnKey);
@@ -102,11 +116,18 @@ export function EngineeringTable(props: Props) {
     }
     if (busy) { setEdit({ ...current, error: "Another operation is running. Apply again when it finishes." }); return false; }
     const owner = document.activeElement;
+    const selectionRevision = selectionOwnership.current.revision;
     const captured = current.captured;
     const stillOwns = () => editRef.current?.captured.token === captured.token && latest.current.generation === captured.generation;
-    const canFocus = () => restoreFocus && document.activeElement === owner;
+    const canFocus = () => restoreFocus && document.activeElement === owner && selectionOwnership.current.revision === selectionRevision;
+    const finishFocus = () => {
+      if (!canFocus()) return;
+      if (boundaryExit) {
+        if (boundaryExit.isConnected && root.current?.contains(boundaryExit) && !boundaryExit.closest("[hidden], [inert]")) boundaryExit.focus();
+      } else focusCell(next ?? captured);
+    };
     if (column?.equivalent?.(captured.before, current.text) ?? current.text === captured.before) {
-      setEdit(null); if (canFocus()) focusCell(next ?? captured); return true;
+      setEdit(null); finishFocus(); return true;
     }
     setEdit({ ...current, pending: true, error: undefined });
     let result: TableApplyResult;
@@ -123,7 +144,7 @@ export function EngineeringTable(props: Props) {
     }
     setEdit(null);
     setFeedback(result.messages.join(" · ") || (result.applied ? "Cell applied." : "The engine rejected this value."));
-    if (canFocus()) focusCell(result.applied && next ? next : captured);
+    finishFocus();
     return result.applied;
   }
   function cellKey(event: KeyboardEvent<HTMLElement>, address: CellAddress, editing: boolean) {
@@ -143,8 +164,15 @@ export function EngineeringTable(props: Props) {
       const order = event.key === "Enter" ? rows.filter((row) => viewRows.some((visible) => visible.key === row.key)) : viewRows;
       const next = adjacentCell(address, order, columns, event.key, event.shiftKey);
       if (event.key === "Tab" && sameCell(next, address)) {
-        // Let native Tab leave the coordinate boundary instead of trapping focus.
-        if (editing) void apply();
+        if (editing) {
+          // The input is replaced on Apply. Native Tab would traverse from the
+          // replacement cell, so own this transition and use a persistent target.
+          event.preventDefault(); event.stopPropagation();
+          const destination = event.shiftKey
+            ? root.current?.querySelector<HTMLElement>('[role="rowheader"] button')
+            : footer.current;
+          if (destination) void apply(undefined, true, destination);
+        }
         return;
       }
       event.preventDefault(); event.stopPropagation();
@@ -175,7 +203,7 @@ export function EngineeringTable(props: Props) {
               // Footer controls explicitly own Apply/Cancel. Cell clicks own their next target.
               if (destination && root.current?.contains(destination) && destination.closest("[data-table-action], [data-table-cell]")) return;
               void apply();
-            }} /> : <button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} data-table-cell="true" data-row-key={row.key} data-column-key={column.key} data-testid={`table-cell-${row.label}-${column.key}`} aria-label={`${row.label} ${column.label}: ${row.cells[column.key].value} ${row.cells[column.key].unit}`} tabIndex={sameCell(focused, address) || (!focused && index === 0 && column === columns[0]) ? 0 : -1} onPointerDown={() => { pointerFocus.current = address; }} onFocus={() => {
+            }} /> : <button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} data-table-cell="true" data-row-key={row.key} data-column-key={column.key} data-testid={`table-cell-${row.label}-${column.key}`} aria-label={`${row.label} ${column.label}: ${row.cells[column.key].value} ${row.cells[column.key].unit}`} tabIndex={sameCell(rovingFocus, address) ? 0 : -1} onPointerDown={() => { pointerFocus.current = address; }} onFocus={() => {
               if (!sameCell(pointerFocus.current, address) && !editRef.current && !sameCell(focused, address)) focusCell(address, false);
             }} onBlur={() => { if (sameCell(pointerFocus.current, address)) pointerFocus.current = null; }} onClick={() => {
               pointerFocus.current = null;
@@ -186,7 +214,7 @@ export function EngineeringTable(props: Props) {
         })}
       </div>} />
     </div>
-    <div className="engineering-table-footer">
+    <div className="engineering-table-footer" ref={footer} role="group" aria-label={`${label} footer`} tabIndex={-1}>
       {edit ? <><span>Editing {columns.find((column) => column.key === edit.captured.columnKey)?.label} · {edit.captured.row.label}</span><button type="button" data-table-action="apply" disabled={edit.pending || busy} onClick={() => void apply(undefined, true)} title="Apply (Enter)">Apply</button><button type="button" data-table-action="cancel" disabled={edit.pending} onClick={cancel} title="Cancel (Escape)">Cancel</button></> : <span>{matchingRows.length} of {rows.length} rows</span>}
       {sort ? <button type="button" onClick={() => setSort(null)}>Sorted by {columns.find((column) => column.key === sort.columnKey)?.label} · Clear</button> : null}
       {edit && !rows.some((row) => row.key === edit.captured.rowKey) ? <span role="alert">The edited row was removed. This retained draft cannot be applied; Cancel to return to the current model.</span>

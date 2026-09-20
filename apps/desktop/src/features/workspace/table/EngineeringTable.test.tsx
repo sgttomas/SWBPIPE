@@ -145,4 +145,51 @@ describe("EngineeringTable interaction ownership", () => {
     expect(screen.queryByText(/previous cell edit was cancelled/)).not.toBeInTheDocument();
   });
 
+  it.each(["no-op", "accepted"])("exits the editing forward boundary after %s Apply to a persistent visible footer", async (mode) => {
+    const apply = vi.fn(async () => ({ applied: true, messages: [] })); render(<Harness apply={apply} />);
+    const input = edit(2, "z"); if (mode === "accepted") fireEvent.change(input, { target: { value: "3" } });
+    fireEvent.keyDown(input, { key: "Tab" });
+    await waitFor(() => expect(document.querySelector(".engineering-table-footer")).toHaveFocus());
+    expect(screen.queryByRole("textbox", { name: "n:2 Z [m]" })).not.toBeInTheDocument();
+    expect(cell(2, "z")).not.toHaveFocus(); expect(apply).toHaveBeenCalledTimes(mode === "accepted" ? 1 : 0);
+  });
+  it("exits a no-op backward editing boundary to the row header", async () => {
+    render(<Harness />); fireEvent.keyDown(edit(), { key: "Tab", shiftKey: true });
+    await waitFor(() => expect(screen.getByRole("button", { name: "n:0" })).toHaveFocus());
+  });
+  it("retains invalid and engine-rejected boundary edits instead of exiting", async () => {
+    const apply = vi.fn(async () => ({ applied: false, rejected: true, messages: ["BOUNDARY_REJECTION: source diagnostic"] })); render(<Harness apply={apply} />);
+    const input = edit(2, "z"); fireEvent.change(input, { target: { value: "invalid" } }); fireEvent.keyDown(input, { key: "Tab" });
+    expect(input).toHaveFocus(); expect(input).toHaveValue("invalid"); expect(apply).not.toHaveBeenCalled();
+    fireEvent.change(input, { target: { value: "3" } }); fireEvent.keyDown(input, { key: "Tab" });
+    await waitFor(() => expect(input).toHaveValue("0")); expect(input).toHaveFocus(); expect(screen.getByRole("alert")).toHaveTextContent("BOUNDARY_REJECTION");
+  });
+  it("does not steal external focus when a pending boundary Apply completes", async () => {
+    let complete!: (result: TableApplyResult) => void; const apply = vi.fn(() => new Promise<TableApplyResult>((resolve) => { complete = resolve; }));
+    render(<Harness apply={apply} />); const input = edit(2, "z"); fireEvent.change(input, { target: { value: "3" } }); fireEvent.keyDown(input, { key: "Tab" });
+    const outside = screen.getByRole("button", { name: "Outside" }); act(() => outside.focus());
+    await act(async () => complete({ applied: true, messages: [] })); expect(outside).toHaveFocus(); expect(cell(2, "z")).toHaveTextContent("3");
+  });
+
+  it.each([false, true])("preserves newer selection without DOM focus movement, including ABA=%s", async (aba) => {
+    let complete!: (result: TableApplyResult) => void; const apply = vi.fn(() => new Promise<TableApplyResult>((resolve) => { complete = resolve; }));
+    const initial = rows(); const select = vi.fn();
+    const props = { label: "Coordinates", rows: initial, columns, generation: "p:1", density: "comfortable" as const, filter: "", selectedKey: initial[0].key, onSelect: select, onApply: apply };
+    const view = render(<EngineeringTable {...props} />);
+    const input = edit(); fireEvent.change(input, { target: { value: "4" } }); fireEvent.keyDown(input, { key: "Enter" });
+    view.rerender(<EngineeringTable {...props} selectedKey={initial[2].key} />);
+    if (aba) view.rerender(<EngineeringTable {...props} selectedKey={initial[0].key} />);
+    expect(input).toHaveFocus(); select.mockClear();
+    await act(async () => complete({ applied: true, messages: [] })); expect(select).not.toHaveBeenCalled(); expect(cell(1)).not.toHaveFocus();
+  });
+  it.each(["filter", "deletion"])("restores a live roving entry after %s without stealing external focus", (change) => {
+    const initial = rows(); const select = vi.fn();
+    const props = { label: "Coordinates", rows: initial, columns, generation: "p:1", density: "comfortable" as const, filter: "", selectedKey: initial[0].key, onSelect: select, onApply: vi.fn() };
+    const view = render(<><input aria-label="Outside filter" /><EngineeringTable {...props} /></>);
+    act(() => cell().focus()); const outside = screen.getByRole("textbox", { name: "Outside filter" }); act(() => outside.focus()); select.mockClear();
+    view.rerender(<><input aria-label="Outside filter" /><EngineeringTable {...props} rows={change === "deletion" ? initial.slice(1) : initial} filter={change === "filter" ? "n:1" : ""} /></>);
+    expect(cell(1)).toHaveAttribute("tabindex", "0"); expect(outside).toHaveFocus(); expect(select).not.toHaveBeenCalled();
+    act(() => cell(1).focus()); expect(select).toHaveBeenLastCalledWith(initial[1].key);
+  });
+
 });

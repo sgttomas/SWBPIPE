@@ -64,6 +64,11 @@ test("B4 virtualized invalid editor survives scrolling and a filter threshold wi
   await filter.fill(""); await expect(editor).toHaveValue("retained invalid coordinate");
   await table.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(cell).toBeFocused(); await expect(cell).toHaveText(String(first.position.x));
+  // A filtered-out remembered cell must leave a real keyboard entry in the view.
+  await filter.fill(last.id);
+  await table.getByRole("rowheader").getByRole("button", { name: last.id, exact: true }).click();
+  await page.keyboard.press("Tab");
+  await expect(page.getByTestId(`table-cell-${last.id}-x`)).toBeFocused();
   expect(await currentModelHashThroughVisibleExport(page)).toBe(hashBefore);
   await page.screenshot({ path: info.outputPath("b4-virtual-editor-cancelled.png") });
 });
