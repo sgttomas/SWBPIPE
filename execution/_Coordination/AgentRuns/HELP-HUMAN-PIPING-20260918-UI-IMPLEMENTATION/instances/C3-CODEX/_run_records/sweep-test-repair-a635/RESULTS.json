@@ -1,0 +1,35 @@
+{
+  "sourceBase": "9fb4b88b828808ccbb064405c12b28fde8c60138",
+  "failedSweepCandidate": "a635b01ad67e85a10b542e889f0de29715358e49",
+  "dispositionSha256": "3e9d015f7459777c17fe8902da8b9bc8e9006515a170d601f6948aa93289d2d8",
+  "nodeVersion": "v24.18.0",
+  "testSha256": "9cad88ad83ce7b88e023b67be72276fe03b686a77f1ba8c1283af031b6fdba24",
+  "results": [
+    {
+      "name": "affected",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "src/features/viewport/viewportFigureEdge.test.ts",
+        "--maxWorkers=1",
+        "--testNamePattern",
+        "adds no object, no geometry, no attribute and no texture:"
+      ],
+      "exitCode": 0,
+      "logSha256": "997f140f5798d4f62e33e9bf161122f1c8306c04807b954c3a5ac1294fd6e066"
+    },
+    {
+      "name": "edge-file",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "src/features/viewport/viewportFigureEdge.test.ts",
+        "--maxWorkers=1"
+      ],
+      "exitCode": 0,
+      "logSha256": "a9ed25bf0598ea3f8cd2819d2a7ff06f4cec4004dd3db5512122a4a525c40e9a"
+    }
+  ]
+}

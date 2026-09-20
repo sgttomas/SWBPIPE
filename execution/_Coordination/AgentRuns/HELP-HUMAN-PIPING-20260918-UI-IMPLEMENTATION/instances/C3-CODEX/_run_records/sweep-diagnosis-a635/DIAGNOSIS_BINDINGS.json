@@ -1,0 +1,16 @@
+{
+  "summary": [
+    "RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop",
+    "Test Files  1 failed (1)",
+    "Tests  1 failed | 23 skipped (24)"
+  ],
+  "protectedCount": 83,
+  "protectedEqual": true,
+  "fullSrcTree": "24c4da4d47dd6b558f4198664a58411de8848db6",
+  "equalFailedCandidateSrcTree": true,
+  "consulted": {
+    ".agents/skills/software-defect-diagnosis/SKILL.md": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/briefs/C1E-EDGE.md": "2bbcf72d6f53688a84b7eab534483a1b7f5424a584f03b33e79b10fedde74dcb",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/returns/C1E-EDGE_RETURN.md": "52480a5d628dee5f2d7d7f8727d1bdc16361dec87a8d7d616acd2fe6ae797898"
+  }
+}
