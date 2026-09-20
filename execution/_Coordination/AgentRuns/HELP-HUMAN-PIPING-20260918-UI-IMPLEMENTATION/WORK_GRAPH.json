@@ -1519,13 +1519,13 @@
           "candidate": "a635b01ad67e85a10b542e889f0de29715358e49",
           "status": "failed at desktop_vitest",
           "startedAt": "2026-09-20T19:57:17Z",
-          "temporaryPath": "/tmp/swbpipe-b3b-c3-ci-sweep-a635b01a",
           "executionSession": 73916,
           "resourceOwner": "ROOT; native/build/CUA previously released",
           "complete": false,
           "canonical": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_SWEEP_A635",
           "durationSeconds": 218.0233397502452,
-          "observed": "Rust/Python pass;1488unitpass/3fail;browser/dist/build not_run;after-run candidate clean"
+          "observed": "Rust/Python pass;1488unitpass/3fail;browser/dist/build not_run;after-run candidate clean",
+          "originalHostOutputRecord": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_SWEEP_A635/RUN.json"
         }
       ],
       "sweep": {
@@ -1545,7 +1545,7 @@
       "reasoning": "xhigh",
       "mechanism": "Codex delegated-harness-native; fresh context",
       "status": "complete113path delta PASS at143; all P2/P3 findings closed; later record/collection tail remains",
-      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_C3_CI_INDEPENDENT_REVIEW_BRIEF.md",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/supplied-context/B3B_C3_CI_INDEPENDENT_REVIEW_BRIEF/supplied.txt",
       "briefSha256": "c13a05c9c8c2efdc00735347825c9883753cbaf960847bf25a495a6604f86cff",
       "candidate": "52142dbdaec190f3a7fdb47a4f937c3e23720824",
       "readOnly": "instruction boundary; host unrestricted",
@@ -1555,7 +1555,9 @@
       "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_BACKCHECK_RETURN.md",
       "backcheckReturnSha256": "bb5044440a47b31ec7e2d1f50f696a0b6fee03ca8e5a7e70a0a1e233ac4b6c7c",
       "finalReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_FINAL_BACKCHECK_RETURN.md",
-      "finalReturnSha256": "b92f2e1a3fa1eb7cdece6f80fa7a5fad5fb41aa38339862059ebeba503b68504"
+      "finalReturnSha256": "b92f2e1a3fa1eb7cdece6f80fa7a5fad5fb41aa38339862059ebeba503b68504",
+      "briefOriginalPath": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_C3_CI_INDEPENDENT_REVIEW_BRIEF.md",
+      "portableBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_C3_CI_INDEPENDENT_REVIEW_BRIEF.md"
     },
     "MVP-PUBLISHING-DISCUSSION": {
       "role": "ROOT product discussion with bounded TASK inventory",

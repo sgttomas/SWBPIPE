@@ -1,18 +1,7 @@
 {
-  "source_head": "52142dbdaec190f3a7fdb47a4f937c3e23720824",
-  "brief": {
-    "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_ECONOMY_AFFECTED_SPECS_REPAIR_BRIEF.md": "52492202eac5faebb5705d27fc1fe4fa5fca404c1d422f930d7dd97853d79481"
-  },
-  "outputs": {
-    "projects/chirality-piping/tools/ci/e2e_plan.py": "d6f686fbe2c6866dbf63e807be4ade8432f468978d4bbdbd35e024056d52e656",
-    "projects/chirality-piping/tests/test_ci_e2e_plan.py": "6a578ca9642bfe9dac0aab8f550813e8aed1a0dcc8e6402ef046f1811137999f",
-    "projects/chirality-piping/docs/CI_STRATEGY.md": "ea008fc608684e2f22b53df940f31b7645d13cec7446d2be9be78711a8f23d1a"
-  },
-  "evidence": {
-    "python-environment.txt": "b39079e44e65471119c488647b470789c5d34cc093be3826c72852a131ad52f7",
-    "RETURN.md": "7c9eb819230c90ec7b52ff2813bc0252fe9b9dd008e4fc007571863ddab87bb1",
-    "failure-before.txt": "f3b12e56e3b3adead37ab85a4840e56fb8d4f62e1946d0eb1765c57b3797193c",
-    "policy-after.txt": "1172ffb0fef38627258698d10fcd7221ef5ee4f3b5ab918df553686a1fe540bc",
-    "working-diff.patch.txt": "e5508b91ae891b90013492afdf63eb2fe2e7f2761af0f9a8536f09505fe29444"
-  }
+  "artifact": "historical-evidence-manifest-location/v1",
+  "exact_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-ECONOMY-CODEX/_run_records/manifest-custody/affected-specs-repair.json",
+  "sha256": "572ee87af8394d65bb3ea9d2a0e17e0df0a8512b059c0d8915e0e93389070d8a",
+  "original_relative_evidence_base": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-ECONOMY-CODEX/affected-specs-repair",
+  "note": "Original absolute input origins and all hash bindings are preserved byte-for-byte in structural run evidence; relative evidence members resolve against the recorded original base."
 }

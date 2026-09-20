@@ -1,8 +1,10 @@
 # Complete B3B / C3 / CI economy review
 
+Portable rendering prepared after execution. Exact originally supplied bytes are retained at projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/supplied-context/B3B_C3_CI_INDEPENDENT_REVIEW_BRIEF/supplied.txt (SHA256 c13a05c9c8c2efdc00735347825c9883753cbaf960847bf25a495a6604f86cff); this rendering is not represented as the original launch payload. Scope and verdicts are unchanged.
+
 Parent: /root, HELP_HUMAN Agent 0. Fresh independent TASK Type 2, gpt-6-astra / xhigh, Codex delegated-harness-native; no delegation. This is same-model independent review, not model diversity. ROOT owns integration and all shared records.
 
-Read-only candidate worktree: /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2, branch codex/swbpipe-ci-economy-20260920.
+Read-only candidate worktree: the registered swbpipe-wt2 checkout (resolve its path with git worktree list --porcelain), branch codex/swbpipe-ci-economy-20260920.
 Base: 88c6c7463199d1d69caebde04678fa74facca78f (origin/main freshly fetched).
 Frozen combined candidate: 52142dbdaec190f3a7fdb47a4f937c3e23720824, clean when sealed.
 Complete binary diff SHA256: f0609ab7132f2e3d31a0d6a8d5916060c65a18fcf0ba1701c5cbac07c2e155c1.

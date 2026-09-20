@@ -1,8 +1,10 @@
 # Three early full-sweep failures — bounded diagnosis
 
+Portable rendering prepared after execution. Exact originally supplied bytes are retained at projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/supplied-context/B3B_C3_SWEEP_DIAGNOSIS_BRIEF/supplied.txt (SHA256 6ac49f64f05e431dc5689d1c820aea706ab24c3da99e72ba83e039224f4d125a); this rendering is not represented as the original launch payload. Scope and verdicts are unchanged.
+
 Parent ROOT HELP_HUMAN Agent0; retained managers b3_manager and i1_manager, Astra/high. A bounded executor, if useful, must be TASK Type2 Astra/low with its own sealed brief and no delegation. Existing project/loop instructions and authorized B3B/C3 scope remain. Apply software-defect-diagnosis; preserve protected assertions and use source evidence before repair.
 
-Failed clean candidate a635b01ad67e85a10b542e889f0de29715358e49. Complete sweep at /tmp/swbpipe-b3b-c3-ci-sweep-a635b01a: Rust/Python pass; desktop unit1488 pass/3 fail; browser/dist/final build not_run. Raw run.log and SWEEP_20260920T195719Z_a635b01ad67e.json remain untouched. Exit1 after218.023 seconds, candidate still clean. This failed sweep is not promoted or reused as a complete pass.
+Failed clean candidate a635b01ad67e85a10b542e889f0de29715358e49. Complete sweep at the original host output directory recorded in _run_records/B3B_C3_CI_SWEEP_A635/RUN.json: Rust/Python pass; desktop unit1488 pass/3 fail; browser/dist/final build not_run. Raw run.log and SWEEP_20260920T195719Z_a635b01ad67e.json remain untouched. Exit1 after218.023 seconds, candidate still clean. This failed sweep is not promoted or reused as a complete pass.
 
 B3 manager owns diagnosis of:
 - App.shell.test.tsx: “does not reset the shell when a later project request supersedes New Blank”; expected No local project snapshot found, observed Local project store not opened.

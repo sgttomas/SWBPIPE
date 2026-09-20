@@ -1,0 +1,44 @@
+{
+  "basis": "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee",
+  "reason": "Repair six active-surface portability findings; preserve supplied bytes and original evidence bindings, no validator/policy/product changes.",
+  "locations": [
+    {
+      "kind": "supplied_context",
+      "original_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_C3_CI_INDEPENDENT_REVIEW_BRIEF.md",
+      "original_sha256": "c13a05c9c8c2efdc00735347825c9883753cbaf960847bf25a495a6604f86cff",
+      "exact_bytes_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/supplied-context/B3B_C3_CI_INDEPENDENT_REVIEW_BRIEF/supplied.txt",
+      "current_portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_C3_CI_INDEPENDENT_REVIEW_BRIEF.md",
+      "current_sha256": "6c20a529ece401dd8e3dee7ebf292f4828b09bc4380eb25722bb2bb4dfd3721c"
+    },
+    {
+      "kind": "supplied_context",
+      "original_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_C3_SWEEP_DIAGNOSIS_BRIEF.md",
+      "original_sha256": "6ac49f64f05e431dc5689d1c820aea706ab24c3da99e72ba83e039224f4d125a",
+      "exact_bytes_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/supplied-context/B3B_C3_SWEEP_DIAGNOSIS_BRIEF/supplied.txt",
+      "current_portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_C3_SWEEP_DIAGNOSIS_BRIEF.md",
+      "current_sha256": "a33fdf115456df60ff0dac813cb6275b719cef31aa69f195c499515bf3da6044"
+    },
+    {
+      "kind": "supplied_context",
+      "original_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_ECONOMY_AFFECTED_SPECS_REPAIR_BRIEF.md",
+      "original_sha256": "52492202eac5faebb5705d27fc1fe4fa5fca404c1d422f930d7dd97853d79481",
+      "exact_bytes_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/supplied-context/CI_ECONOMY_AFFECTED_SPECS_REPAIR_BRIEF/supplied.txt",
+      "current_portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_ECONOMY_AFFECTED_SPECS_REPAIR_BRIEF.md",
+      "current_sha256": "c6a854118f061d7104e44bdc6dac21fd6ad4922a2152b71a3cbb6803b52f115a"
+    },
+    {
+      "kind": "historical_manifest",
+      "original_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-ECONOMY-CODEX/MANIFEST.json",
+      "original_sha256": "a579a68a042b6103866dc40ee7e63f90352325604e7186c6bb356358c0b8fe7a",
+      "exact_bytes_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-ECONOMY-CODEX/_run_records/manifest-custody/original.json",
+      "relative_evidence_base": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-ECONOMY-CODEX"
+    },
+    {
+      "kind": "historical_manifest",
+      "original_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-ECONOMY-CODEX/affected-specs-repair/MANIFEST.json",
+      "original_sha256": "572ee87af8394d65bb3ea9d2a0e17e0df0a8512b059c0d8915e0e93389070d8a",
+      "exact_bytes_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-ECONOMY-CODEX/_run_records/manifest-custody/affected-specs-repair.json",
+      "relative_evidence_base": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-ECONOMY-CODEX/affected-specs-repair"
+    }
+  ]
+}
