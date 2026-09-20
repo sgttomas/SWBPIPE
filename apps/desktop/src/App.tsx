@@ -271,6 +271,7 @@ function AppSession() {
     stageViewMemory,
     narrowWindow,
     closeShellPage,
+    rememberShellFocus,
     recordR3JourneyEvent,
     handleArmCreationTool,
     handleToolkitCommand,
@@ -311,6 +312,8 @@ function AppSession() {
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
       ref={workspaceShellRef}
+      onFocusCapture={rememberShellFocus}
+      onPointerDownCapture={rememberShellFocus}
     >
       {showInAppMenuBar ? (
         <MenuBar

@@ -346,6 +346,29 @@ export function useWorkspaceSession() {
   }, [routingPanelActive]);
   const shellNowRef = useRef({ location: shellNow, view: stageViewNow, stageSurface });
   shellNowRef.current = { location: shellNow, view: stageViewNow, stageSurface };
+  const pageReturnFocusRef = useRef<HTMLElement | null>(null);
+  const previousPageRef = useRef(shellNow.page);
+  useLayoutEffect(() => {
+    const wasOpen = previousPageRef.current !== null;
+    previousPageRef.current = shellNow.page;
+    if (!wasOpen || shellNow.page) return;
+    const shell = workspaceShellRef.current;
+    if (!shell) return;
+    const available = (element: HTMLElement | null): element is HTMLElement => {
+      if (!element?.isConnected || element.closest('[inert], [hidden], [aria-hidden="true"]') ||
+          element.matches(":disabled") || element.getAttribute("aria-disabled") === "true") return false;
+      const box = element.getBoundingClientRect();
+      return box.width > 0 && box.height > 0 && getComputedStyle(element).visibility !== "hidden";
+    };
+    // A deliberate navigation control may already own visible focus. Otherwise
+    // restore the pre-page opener, or a persistent visible stage/Select control.
+    const focused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (focused !== document.body && available(focused)) return;
+    const preferred = pageReturnFocusRef.current;
+    const stage = shell.querySelector<HTMLElement>(`[data-testid="rail-stage-${shellNow.stage}"]`);
+    const select = shell.querySelector<HTMLElement>('[data-testid="workspace-select"]');
+    (available(preferred) ? preferred : available(stage) ? stage : select)?.focus();
+  }, [shellNow.page, shellNow.stage]);
   useEffect(() => {
     const update = () => setNarrowWindow(window.innerWidth < 1280);
     window.addEventListener("resize", update);
@@ -2279,6 +2302,12 @@ export function useWorkspaceSession() {
     setActiveSection(sectionForStage(stage, shellNowRef.current.stageSurface));
   }
 
+  function rememberShellFocus(event: React.SyntheticEvent<HTMLElement>) {
+    if (shellNowRef.current.location.page || !(event.target instanceof Element)) return;
+    const target = event.target.closest<HTMLElement>("button, a[href], input, select, textarea, [tabindex], [contenteditable]");
+    if (target) pageReturnFocusRef.current = target;
+  }
+
   /** A page's close control (⎋ accelerates it): back to the stage surface it was opened over. */
   function closeShellPage() {
     setActiveSection((current) => isStageSurface(current) ? current : sectionAfterPageClose(shellNowRef.current.stageSurface));
@@ -2461,6 +2490,7 @@ export function useWorkspaceSession() {
       chooseStageView,
       enterStage,
       closeShellPage,
+      rememberShellFocus,
       recordR3JourneyEvent,
       handleArmCreationTool,
       handleToolkitCommand,

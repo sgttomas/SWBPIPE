@@ -141,3 +141,59 @@ test("portalled routing Escape closes explicitly and supersedes automatic restor
   await expect(page.getByTestId("command-pipe")).toHaveAttribute("aria-pressed", "false");
   await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
 });
+
+for (const section of ["libraries", "project", "solve"] as const) {
+  test(`keyboard page Close restores visible focus and retained state: ${section}`, async ({ page }, info) => {
+    await page.goto("/");
+    await selectTreeEntity(page, "pipe", "pipe:P-100");
+    await startPropertyTaskFromCurrentSelection(page, "pipe", "pipe:P-100");
+    await page.getByTestId("editor-intent-value").fill("Retained keyboard Close draft");
+    const canvas = await page.locator("canvas").elementHandle();
+    const inspector = await page.getByTestId("property-inspector").elementHandle();
+    const draft = await page.getByTestId("editor-intent-value").elementHandle();
+    if (section === "libraries") {
+      await tabTo(page, "rail-page-libraries");
+      await page.keyboard.press("Enter");
+    } else {
+      // The menu command is removed when activated, so Close needs a safe fallback.
+      await page.getByTestId("menu-view").click();
+      await page.getByTestId(`menu-item-view.section.${section}`).focus();
+      await page.keyboard.press("Enter");
+    }
+    await expect(page.getByTestId(`workspace-section-${section}`)).toBeVisible();
+    await tabTo(page, "workspace-dock-close");
+    await page.keyboard.press("Enter");
+    await expect(page.getByTestId("workspace-dock-close")).toHaveCount(0);
+    // No focus call after Close: the application must establish this destination.
+    const focus = await page.evaluate(() => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return null;
+      const r = el.getBoundingClientRect(), style = getComputedStyle(el);
+      return {
+        tag: el.tagName, testId: el.dataset.testid, text: el.textContent?.trim().slice(0, 200),
+        inert: Boolean(el.closest("[inert]")), rect: r.toJSON(),
+        visible: style.visibility === "visible" && style.display !== "none" && r.width > 0 && r.height > 0,
+        unobscured: el.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2))
+      };
+    });
+    const session = await page.context().newCDPSession(page);
+    let focusedAX;
+    try {
+      const { result } = await session.send("Runtime.evaluate", { expression: "document.activeElement" });
+      const { nodes } = await session.send("Accessibility.getPartialAXTree", { objectId: result.objectId!, fetchRelatives: false });
+      focusedAX = nodes.map(node => ({ ignored: node.ignored, role: node.role?.value, name: node.name?.value }));
+    } finally { await session.detach(); }
+    await witness(info, `${section}-keyboard-close-focus`, { focus, focusedAX });
+    expect.soft(focus?.tag).not.toBe("BODY");
+    expect.soft(focus?.visible).toBe(true);
+    expect.soft(focus?.inert).toBe(false);
+    expect.soft(focus?.unobscured).toBe(true);
+    expect.soft(focusedAX.some(node => !node.ignored && node.role === "button")).toBe(true);
+    if (section === "libraries") await expect.soft(page.getByTestId("rail-page-libraries")).toBeFocused();
+    expect(await canvas!.evaluate(el => el === document.querySelector("canvas"))).toBe(true);
+    expect(await inspector!.evaluate(el => el === document.querySelector('[data-testid="property-inspector"]'))).toBe(true);
+    expect(await draft!.evaluate(el => el === document.querySelector('[data-testid="editor-intent-value"]'))).toBe(true);
+    await expect(page.getByTestId("editor-intent-value")).toHaveValue("Retained keyboard Close draft");
+    expect(await nativeAXNames(page)).toContain("region: Modeling workspace");
+  });
+}
