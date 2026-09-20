@@ -362,6 +362,7 @@ function AppSession() {
             inspectorCollapsed ? " inspector-collapsed" : ""
           }`}
           aria-label="Modeling workspace"
+          inert={Boolean(shell.page)}
           data-testid="modeling-workspace"
           data-stage={shell.stage}
           data-view={stageView}
