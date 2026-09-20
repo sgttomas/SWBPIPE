@@ -1,0 +1,41 @@
+{
+  "source": "226b1db57029c1df9f9151463c6c708f76f46704",
+  "workdir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+  "parent": "/root/b3_manager",
+  "child": "/root/b3_manager/b3b_c3_native",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "mechanism": "collaboration.spawn_agent, fresh context",
+  "resourceGrant": "ROOT exclusive native/build/CUA; browser fully handed back",
+  "briefSha256": "4a061039dcff01e93039b4c88142c538b669d1e4879f7f5e8d3b3bfeb7806640",
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3B-CODEX/WORKER_RETURN.md",
+      "sha256": "a543d2a1f5c403209b17b2c2a49f1d76d6bbb4ef26a865e9b4ec8876503ef6fb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3B-CODEX/OPEN_OBSERVATION_RETURN.md",
+      "sha256": "dbef5d3e6b768c0a6a5c2a3dae98ce67fbd9c24643461b8fef331d3709bfc292"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3B-CODEX/C3_BRIDGE_RETURN.md",
+      "sha256": "94d14072b7f8d9da7a08d80cebf6d8dfb4213e0cc7cbb4ab1755c6c06bfd1c85"
+    }
+  ]
+}

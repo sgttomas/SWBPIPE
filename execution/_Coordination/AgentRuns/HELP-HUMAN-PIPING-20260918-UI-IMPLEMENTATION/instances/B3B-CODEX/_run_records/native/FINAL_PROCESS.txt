@@ -1,0 +1,2 @@
+  PID STARTED                      COMMAND
+81750 Sun Sep 20 13:33:20 2026     /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop

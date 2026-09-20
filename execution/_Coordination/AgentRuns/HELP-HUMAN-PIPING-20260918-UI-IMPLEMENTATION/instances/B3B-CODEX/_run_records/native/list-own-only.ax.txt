@@ -1,0 +1,8 @@
+						47 button Close, Help: Close (⎋)
+						49 summary Listed 11 local project snapshots from the local store index. Details, Value: off
+							50 text Listed 11 local project snapshots from the local store index.
+							67 text project:blank-local-20260920t193455z; local_sqlite; persisted_editor_intents=1; persisted_proposals=0; persisted_review_targets=0; persisted_review_target_ref=not_selected; persisted_mechanics_results=0; persisted_analysis_runs=0; persisted_analysis_run_ref=not_persisted; copied_external_files=false
+							69 text state=listed; listed_projects=11; refs=[other row metadata not retained]
+					117 text project: project:blank-local-20260920t193455z Entered
+123 menu bar
+	125 File

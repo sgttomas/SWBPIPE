@@ -1,0 +1,18 @@
+{
+  "base": "226b1db57029c1df9f9151463c6c708f76f46704",
+  "base_files": {
+    "projects/chirality-piping/apps/desktop/src/services/projectService.ts": "da38305ab02c69be95cdae4e79c9546568038716d597cc72385883938cc1363d",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880"
+  },
+  "patched_files": {
+    "projects/chirality-piping/apps/desktop/src/services/projectService.ts": "8ce4452ca7c203fed84393fc0cd2df0605ddd9b7d379735272d59a91d20cd0cb",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "9285a29895f8c4e32a07bfaab6db20da8c9cc2f2d51a321191023d2180eb381c"
+  },
+  "instructions": {
+    "AGENTS.md": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "projects/chirality-piping/AGENTS.md": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005",
+    "projects/chirality-piping/loop/LOOP_INIT.md": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+  },
+  "cache": "node_modules symlink to original; independent cp -cR APFS target clone; no dist reuse"
+}

@@ -1,0 +1,132 @@
+Window: "Blank Local Model — SWBPIPE", App: SWBPIPE.
+1 standard window Blank Local Model — SWBPIPE, Secondary Actions: Raise
+	2 scroll area
+		3 HTML content Description: SWBPIPE, URL: tauri://localhost
+			4 container
+				5 container Toolbar
+					6 heading SWBPIPE, Value: 1
+						7 text SWBPIPE
+					8 container Blank Local Model
+						9 text Blank Local Model
+					10 container Editing tools
+						11 button (disabled) Undo model edit, Help: Nothing to undo
+						12 button (disabled) Redo model edit, Help: Nothing to redo
+						13 toggle button Select, Help: Select (⎋), Value: on
+					14 container View
+						15 toggle button Table, Help: Table view (⌘1), Value: off
+						16 toggle button Model, Help: Model view (⌘2), Value: off
+						17 toggle button Both, Help: Both view (⌘3), Value: on
+					18 button Run
+					19 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					20 container Panels
+						21 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+						22 button (disabled) Agent, Help: Agent: not available yet
+					23 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					24 summary Appearance, Value: off
+					25 container Human toolkit
+						26 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				27 container Stages
+					28 content list
+						29 toggle button Model, Value: off
+						30 toggle button Loads, Value: off
+						31 toggle button (disabled) Results, Help: No run yet, Value: off
+						32 toggle button (disabled) Review, Help: No run yet, Value: off
+					33 content list
+						34 button (collapsed) Libraries, Secondary Actions: Expand
+						35 button (collapsed) Rules, Secondary Actions: Expand
+						36 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				37 container Workspace sections
+					38 container
+						39 heading Project, Value: 2
+							40 text Project
+						41 container Local project controls
+							42 button Create local
+							43 button New blank
+							44 button Open local
+							45 button List local
+							46 button Save local
+						47 button Close, Help: Close (⎋)
+					48 container (collapsed) Project summary, Secondary Actions: Expand
+						49 summary Opened local SQLite project snapshot. Details, Value: off
+							50 text Opened local SQLite project snapshot.
+							51 text Details
+					52 container Project section
+						53 container Project storage audit
+							54 text PROJECT STORAGE AUDIT
+							55 container
+								56 checkbox Include known private values in this local export, Value: 0
+								57 text Include known private values in this local export
+							58 text decisions= 198 ; findings= 198 ; blocked= true
+							59 summary Details, Value: off
+								60 text Details
+							61 text Local storage JSON
+							62 text operation= open ; pending operations= 0 ; proposals= 0 ; accepted_state_mutated= false Storage capability
+							63 text SQLite; mode=local_sqlite; FTS5=true
+							64 text Local-only boundary
+							65 text network=false; daemon=false; telemetry=false; repository_default_private_write=false
+							66 text Project snapshot
+							67 text project:blank-local-20260920t193455z; local_sqlite; persisted_editor_intents=1; persisted_proposals=0; persisted_review_targets=0; persisted_review_target_ref=not_selected; persisted_mechanics_results=0; persisted_analysis_runs=0; persisted_analysis_run_ref=not_persisted; copied_external_files=false
+							68 text Project index
+							69 text state=not_requested; listed_projects=0; refs=none
+							70 text Model hash persistence
+							71 text persisted_model_hashes=1; persisted_model_hash_ref=sha256:743634b2ba96a685924b41fcd44f29a4a8b782d5f61642b4307a50aa509284c1
+							72 text Model hash integrity
+							73 text integrity_status=verified_match; persisted_value=sha256:743634b2ba96a685924b41fcd44f29a4a8b782d5f61642b4307a50aa509284c1; recomputed_value=sha256:743634b2ba96a685924b41fcd44f29a4a8b782d5f61642b4307a50aa509284c1; verification_basis=recomputed_on_open_from_restored_model; claim_standing=not_recorded; source=open; observed_at=2026-09-20T19:36:53.299Z; persisted snapshot only; later local edits are not verified; review-only integrity signal for human review
+							74 text Envelope hash integrity
+							75 text integrity_status=verified_match; persisted_value=sha256:314e3f7ce89dc29ab203faec92a390b8c68de3c63adc390ee2b714feb8580499; recomputed_value=sha256:314e3f7ce89dc29ab203faec92a390b8c68de3c63adc390ee2b714feb8580499; verification_basis=recomputed_on_open_from_restored_envelope_payload; source=open; observed_at=2026-09-20T19:36:53.299Z; persisted snapshot only; later local edits are not verified
+							76 text Unit round-trip
+							77 text status=unit_metadata_preserved_in_local_project_envelope; checked_refs=6; signature=project.units.force=N|project.units.length=m|project.units.moment=N*m|project.units.pressure=Pa|project.units.stress=Pa|project.units.temperature=C; model=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; conversion=false
+							78 text Payload boundary
+							79 text private payload=false; protected content=false; release/professional claim=false
+							80 text Storage audit packets are local evidence only; create/open/save operations do not accept model changes or copy external project files.
+						81 container Project validation preflight
+							82 text PROJECT VALIDATION PREFLIGHT
+							83 container
+								84 checkbox Include known private values in this local export, Value: 0
+								85 text Include known private values in this local export
+							86 text decisions= 329 ; findings= 329 ; blocked= true
+							87 summary Details, Value: off
+								88 text Details
+							89 text Validation JSON
+							90 text validation= preview_current ; version= current ; migration= current_store_schema_v11_no_pending_migrations ; round_trip= semantic_categories_declared Schema and version
+							91 text schema_version=0.2.0; document_kind=openpipestress.product_preview.model; profile=technical_preview_project_persistence_preflight
+							92 text Round-trip manifest
+							93 text 6 categories; unit metadata=finding_missing_unit_metadata; provenance=ready_for_preview_round_trip; reproducibility=model_hash_verified_on_open
+							94 text Unit round-trip evidence
+							95 text status=unit_metadata_preserved_in_local_project_envelope; checked_refs=6; signature=project.units.force=N|project.units.length=m|project.units.moment=N*m|project.units.pressure=Pa|project.units.stress=Pa|project.units.temperature=C
+							96 text Unit policy
+							97 text model=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; records=0; round_trip=unit_metadata_preserved_in_local_project_envelope; conversion=false
+							98 text Model hash evidence
+							99 text model_hash=model_hash_verified_on_open; persisted_model_hashes=1; persisted_model_hash_ref=sha256:743634b2ba96a685924b41fcd44f29a4a8b782d5f61642b4307a50aa509284c1; integrity=verified_match; claim_standing=not_recorded; source=open; observed_at=2026-09-20T19:36:53.299Z; persisted snapshot only; later local edits are not verified
+							100 text Envelope hash evidence
+							101 text envelope_hash=project_envelope_hash_verified_on_open; persisted_envelope_hashes=1; persisted_envelope_hash_ref=sha256:314e3f7ce89dc29ab203faec92a390b8c68de3c63adc390ee2b714feb8580499; integrity=verified_match; source=open; observed_at=2026-09-20T19:36:53.299Z; persisted snapshot only; later local edits are not verified
+							102 text Store migration evidence
+							103 text framework=versioned_sqlite_user_version_migration_ledger; store_schema_version=11; target=11; applied_on_open=0; status=current_store_schema_v11_no_pending_migrations
+							104 text Model document migration
+							105 text status=current; source=0.2.0; target=0.2.0; framework=application_service_separate_db_and_product_schema; persistence=stored_document_current; ledger_records=0
+							106 text Persistence operations
+							107 text validate=preflight_generated_preview_current; version_check=current; migrate=current_store_schema_v11_no_pending_migrations; pending operations=0; persisted editor intents=1; proposals=0; persisted proposals=0; persisted review targets=0; persisted review target ref=not_selected; persisted mechanics results=0; persisted analysis runs=0; persisted analysis run ref=not_persisted
+							108 text Validation boundary
+							109 text accepted_state_mutated=false; network=false; telemetry=false; private/protected payload=false
+							110 text Validation preflight records version, migration, and round-trip review evidence locally without applying queued operations.
+				111 container Agent
+					112 button (disabled) Agent, Help: Agent: not available yet
+				113 container Workspace status
+					114 container Analysis statuses
+						115 button (collapsed) Solver · Model incomplete, Help: MODEL_INCOMPLETE, Secondary Actions: Expand
+					116 button (collapsed) 5 Issues, Secondary Actions: Expand
+					117 text project: project:blank-local-20260920t193455z Entered
+					118 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	119 close button
+	120 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	121 minimize button
+	122 text Blank Local Model — SWBPIPE
+123 menu bar
+	124 SWBPIPE
+	125 File
+	126 Edit
+	127 View
+	128 Insert
+	129 Analyze
+
+The focused UI element is 29 toggle button Model, Value: off

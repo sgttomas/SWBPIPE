@@ -1,0 +1,30 @@
+{
+  "time": "2026-09-20T13:55:22.749536-06:00",
+  "pgrep_exit": 1,
+  "stdout": "",
+  "original_binary": "0c1735319c95461ef1e09c3db894bc18937183887b785ce9d865352892643923",
+  "original_dist_matches": {
+    "dist/assets/index-BjrVUFwq.js": true,
+    "dist/assets/index-CkwfWHre.css": true,
+    "dist/assets/invented_agent_proposal-Bm57LVt-.js": true,
+    "dist/assets/invented_demo_rule_pack-dhX9tvT1.js": true,
+    "dist/assets/invented_design_knowledge-H12r-oKQ.js": true,
+    "dist/assets/invented_mechanics_result-CleTy2JL.js": true,
+    "dist/assets/invented_preview_model-pJA3_nB8.js": true,
+    "dist/assets/vendor-7OC5HNn7.js": true,
+    "dist/assets/vendor-icons-BjC2kMFO.js": true,
+    "dist/assets/vendor-react-u0ysdD_x.js": true,
+    "dist/assets/vendor-tauri-DlQNAQKj.js": true,
+    "dist/assets/vendor-three-CMXgOz27.js": true,
+    "dist/index.html": true,
+    "dist/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts": true,
+    "dist/self-weight-engine/open_pipe_stress_self_weight_wasm.js": true,
+    "dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm": true,
+    "dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts": true,
+    "dist/wasm-engine/open_pipe_stress_operation_applier.d.ts": true,
+    "dist/wasm-engine/open_pipe_stress_operation_applier.js": true,
+    "dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": true,
+    "dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts": true
+  },
+  "probe_diff": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs\nprojects/chirality-piping/apps/desktop/src/services/projectService.ts\n"
+}

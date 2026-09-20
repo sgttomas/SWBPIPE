@@ -1,0 +1,18 @@
+{
+  "source": "226b1db57029c1df9f9151463c6c708f76f46704",
+  "nativeManifestSha256": "36e797d77664b5d04240753b48f5dd5f6387b92aaf0dea34520f58b4770f5df3",
+  "probeManifestSha256": "c739bd078c91a003cf6673f88913fff651d129d32be31acce3d6b4592065d495",
+  "probeEntriesVerified": 29,
+  "probePatchSha256": "2984e659273976614881e6cda5bceeea992f98320177eeffef0851f2e7d2b245",
+  "originalBinarySha256": "0c1735319c95461ef1e09c3db894bc18937183887b785ce9d865352892643923",
+  "maintainedSourceUnchanged": true,
+  "nativeProcessesAbsent": true,
+  "ownRow": "project:blank-local-20260920t193455z",
+  "storeMutations": "One New Blank row creation and two Saves to the same own row; node Apply/Undo/Redo were session changes, no other row mutation or cleanup deletion.",
+  "resourceHandback": "native/build/CUA free",
+  "limits": [
+    "Probe native menus and explicit release are AX-only",
+    "Early normal C3 screenshots remain transcript-only with retained excerpts; later Isolate PNG exists",
+    "Native hover-only cue and export JSON equality unobserved; browser/source evidence remains separate"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "base": "226b1db57029c1df9f9151463c6c708f76f46704",
+  "probeRoot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-b3b-busy-probe-20260920",
+  "originalRoot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+  "originalBinarySha256": "0c1735319c95461ef1e09c3db894bc18937183887b785ce9d865352892643923",
+  "ownProject": "project:blank-local-20260920t193455z",
+  "parent": "/root/b3_manager",
+  "actor": "/root/b3_manager/b3b_busy_probe",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "briefSha256": "5fd266208cc74858d341a6b07c2d076ea8e7e2e5246a9e2bd2081233e29a0dfa",
+  "authority": "ROOT exact two-edit probe authorization and subsequent explicit resource regrant after own look, active coordination",
+  "enforcement": "unrestricted host; instruction-enforced isolated scope"
+}

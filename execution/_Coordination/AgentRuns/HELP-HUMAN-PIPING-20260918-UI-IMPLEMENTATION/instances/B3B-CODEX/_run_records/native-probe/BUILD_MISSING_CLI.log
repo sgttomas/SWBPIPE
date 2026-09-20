@@ -1,0 +1,12 @@
+
+> @openpipestress/desktop@0.1.0 tauri
+> tauri build --debug --bundles app
+
+sh: tauri: command not found
+npm error Lifecycle script `tauri` failed with error:
+npm error code 127
+npm error path /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-b3b-busy-probe-20260920/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-b3b-busy-probe-20260920/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c tauri build --debug --bundles app
