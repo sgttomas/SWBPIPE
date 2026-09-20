@@ -1,0 +1,6 @@
+Listing tests:
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:279:1 › C3 visibility leaves Current results current and never revives Historical overlays
+  [chromium-desktop] › ui-foundation.spec.ts:1337:1 › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded
+  [chromium-compact] › c3-viewport-visibility.spec.ts:279:1 › C3 visibility leaves Current results current and never revives Historical overlays
+  [chromium-compact] › ui-foundation.spec.ts:1337:1 › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded
+Total: 4 tests in 2 files

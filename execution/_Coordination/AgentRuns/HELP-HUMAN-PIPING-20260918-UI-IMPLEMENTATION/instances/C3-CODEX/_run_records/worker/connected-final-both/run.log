@@ -1,0 +1,21 @@
+[2m[WebServer] [22m(node:79025) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:79027) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:79027) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:279:1 › C3 visibility leaves Current results current and never revives Historical overlays (3.1s)
+  ✓  2 [chromium-desktop] › e2e/ui-foundation.spec.ts:1337:1 › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded (3.1s)
+(node:79061) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:79061) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [chromium-compact] › e2e/c3-viewport-visibility.spec.ts:279:1 › C3 visibility leaves Current results current and never revives Historical overlays (2.8s)
+  ✓  4 [chromium-compact] › e2e/ui-foundation.spec.ts:1337:1 › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded (3.1s)
+
+  4 passed (14.0s)
+
+EXIT 0

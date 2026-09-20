@@ -1,0 +1,154 @@
+{
+  "finalCandidate": "48051ca76f3bb17570363b98c0d39b40d36ee56e",
+  "productCandidate": "c15a095588d49b1bab931c27e79d0a45838ede1c",
+  "basis": "Only C3 new test navigation/actionability checks and evidence changed after c15; all product bytes unchanged. No rerun solely to make one green log.",
+  "uniqueCases": 16,
+  "browser": "Google Chrome for Testing148.0.7778.96, Chromium1223 pinned binary",
+  "lockReleased": true,
+  "cases": [
+    {
+      "project": "chromium-desktop",
+      "title": "C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history",
+      "file": "c3-viewport-visibility.spec.ts",
+      "candidate": "c15a095588d49b1bab931c27e79d0a45838ede1c",
+      "report": "connected-repair/report.json",
+      "reportSha256": "b51852f91142f5c2e061be622fb5a7dcdc2e413135d520361bf9b7ca6d366b53",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-compact",
+      "title": "C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history",
+      "file": "c3-viewport-visibility.spec.ts",
+      "candidate": "c15a095588d49b1bab931c27e79d0a45838ede1c",
+      "report": "connected-repair/report.json",
+      "reportSha256": "b51852f91142f5c2e061be622fb5a7dcdc2e413135d520361bf9b7ca6d366b53",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-desktop",
+      "title": "B3B blank/create/save/open snapshot evidence",
+      "file": "b3b-project-persistence.spec.ts",
+      "candidate": "c15a095588d49b1bab931c27e79d0a45838ede1c",
+      "report": "connected-remaining/report.json",
+      "reportSha256": "146630fa130ea7ad0f85c3c7b4af6f0105bade48bd08d18864a92f205d8b7e5e",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-desktop",
+      "title": "C3 dimmed geometry remains available to hover, click and box selection",
+      "file": "c3-viewport-visibility.spec.ts",
+      "candidate": "c15a095588d49b1bab931c27e79d0a45838ede1c",
+      "report": "connected-remaining/report.json",
+      "reportSha256": "146630fa130ea7ad0f85c3c7b4af6f0105bade48bd08d18864a92f205d8b7e5e",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-desktop",
+      "title": "C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible",
+      "file": "c3-viewport-visibility.spec.ts",
+      "candidate": "c15a095588d49b1bab931c27e79d0a45838ede1c",
+      "report": "connected-remaining/report.json",
+      "reportSha256": "146630fa130ea7ad0f85c3c7b4af6f0105bade48bd08d18864a92f205d8b7e5e",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-desktop",
+      "title": "C3 isolation remains clearable when every drawable entity belongs to the snapshot",
+      "file": "c3-viewport-visibility.spec.ts",
+      "candidate": "c15a095588d49b1bab931c27e79d0a45838ede1c",
+      "report": "connected-remaining/report.json",
+      "reportSha256": "146630fa130ea7ad0f85c3c7b4af6f0105bade48bd08d18864a92f205d8b7e5e",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-desktop",
+      "title": "C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it",
+      "file": "c3-viewport-visibility.spec.ts",
+      "candidate": "48051ca76f3bb17570363b98c0d39b40d36ee56e",
+      "report": "connected-deletion-tree-repair/report.json",
+      "reportSha256": "638041a29a1c82b7d17a8f8684e240af54c80213ac0b5e711568b316e9416096",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-compact",
+      "title": "C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it",
+      "file": "c3-viewport-visibility.spec.ts",
+      "candidate": "48051ca76f3bb17570363b98c0d39b40d36ee56e",
+      "report": "connected-deletion-tree-repair/report.json",
+      "reportSha256": "638041a29a1c82b7d17a8f8684e240af54c80213ac0b5e711568b316e9416096",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-desktop",
+      "title": "C3 visibility leaves Current results current and never revives Historical overlays",
+      "file": "c3-viewport-visibility.spec.ts",
+      "candidate": "48051ca76f3bb17570363b98c0d39b40d36ee56e",
+      "report": "connected-final-both/report.json",
+      "reportSha256": "d329548516314aca37b914f578a7ea367b9f6f45c72828e977a52cc705c0045d",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-compact",
+      "title": "C3 visibility leaves Current results current and never revives Historical overlays",
+      "file": "c3-viewport-visibility.spec.ts",
+      "candidate": "48051ca76f3bb17570363b98c0d39b40d36ee56e",
+      "report": "connected-final-both/report.json",
+      "reportSha256": "d329548516314aca37b914f578a7ea367b9f6f45c72828e977a52cc705c0045d",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-desktop",
+      "title": "node visibility owns attached symbols while connected spans remain independent, and isolate is bounded",
+      "file": "ui-foundation.spec.ts",
+      "candidate": "48051ca76f3bb17570363b98c0d39b40d36ee56e",
+      "report": "connected-final-both/report.json",
+      "reportSha256": "d329548516314aca37b914f578a7ea367b9f6f45c72828e977a52cc705c0045d",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-compact",
+      "title": "node visibility owns attached symbols while connected spans remain independent, and isolate is bounded",
+      "file": "ui-foundation.spec.ts",
+      "candidate": "48051ca76f3bb17570363b98c0d39b40d36ee56e",
+      "report": "connected-final-both/report.json",
+      "reportSha256": "d329548516314aca37b914f578a7ea367b9f6f45c72828e977a52cc705c0045d",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-compact",
+      "title": "B3B blank/create/save/open snapshot evidence",
+      "file": "b3b-project-persistence.spec.ts",
+      "candidate": "48051ca76f3bb17570363b98c0d39b40d36ee56e",
+      "report": "connected-final-compact/report.json",
+      "reportSha256": "b2cb5ef41b10efbda201036092053b0a55a74aabdf61270ca674cb0548c05629",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-compact",
+      "title": "C3 dimmed geometry remains available to hover, click and box selection",
+      "file": "c3-viewport-visibility.spec.ts",
+      "candidate": "48051ca76f3bb17570363b98c0d39b40d36ee56e",
+      "report": "connected-final-compact/report.json",
+      "reportSha256": "b2cb5ef41b10efbda201036092053b0a55a74aabdf61270ca674cb0548c05629",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-compact",
+      "title": "C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible",
+      "file": "c3-viewport-visibility.spec.ts",
+      "candidate": "48051ca76f3bb17570363b98c0d39b40d36ee56e",
+      "report": "connected-final-compact/report.json",
+      "reportSha256": "b2cb5ef41b10efbda201036092053b0a55a74aabdf61270ca674cb0548c05629",
+      "status": "passed"
+    },
+    {
+      "project": "chromium-compact",
+      "title": "C3 isolation remains clearable when every drawable entity belongs to the snapshot",
+      "file": "c3-viewport-visibility.spec.ts",
+      "candidate": "48051ca76f3bb17570363b98c0d39b40d36ee56e",
+      "report": "connected-final-compact/report.json",
+      "reportSha256": "b2cb5ef41b10efbda201036092053b0a55a74aabdf61270ca674cb0548c05629",
+      "status": "passed"
+    }
+  ]
+}

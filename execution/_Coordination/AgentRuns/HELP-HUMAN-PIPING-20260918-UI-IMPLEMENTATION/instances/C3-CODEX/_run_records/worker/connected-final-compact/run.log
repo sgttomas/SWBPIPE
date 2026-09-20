@@ -1,0 +1,17 @@
+[2m[WebServer] [22m(node:79172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:79174) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:79174) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-compact] › e2e/b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence (1.8s)
+  ✓  2 [chromium-compact] › e2e/c3-viewport-visibility.spec.ts:153:1 › C3 dimmed geometry remains available to hover, click and box selection (1.6s)
+  ✓  3 [chromium-compact] › e2e/c3-viewport-visibility.spec.ts:188:1 › C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible (1.9s)
+  ✓  4 [chromium-compact] › e2e/c3-viewport-visibility.spec.ts:227:1 › C3 isolation remains clearable when every drawable entity belongs to the snapshot (974ms)
+
+  4 passed (7.4s)
+
+EXIT 0
