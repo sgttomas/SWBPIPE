@@ -1,0 +1,42 @@
+{
+  "collection.log": {
+    "bytes": 356,
+    "sha256": "d8adb817473aeceaea81782508b33fdc0bee8d9e0c4af7d0cc9a923fd1ec9fc1"
+  },
+  "report.json": {
+    "bytes": 10474,
+    "sha256": "18e00ae7408abf0838aa3b33f062c27680feb8b14bb516d895f7aecc2dacdf75"
+  },
+  "FAILURE.md": {
+    "bytes": 788,
+    "sha256": "c5bdca8b875e63d6a5f60c447ae11be578948b9c2ff477cfe224c0d6aceb5520"
+  },
+  "run.log": {
+    "bytes": 3955,
+    "sha256": "314475e2f0b8159cdc39f9060cdfa85a5122cf2e5169e4690d54752708c6fb4a"
+  },
+  "test-identity.json": {
+    "bytes": 361,
+    "sha256": "3b8c4a8530ade7c841955024e02c1ff252e400a376750a98be1fed71d7519f09"
+  },
+  "exit-code.txt": {
+    "bytes": 2,
+    "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+  },
+  "execution.json": {
+    "bytes": 1548,
+    "sha256": "5a5de4c7f2a441756f343673d492480349dd9ed98cf65cc07fa7f60deb665630"
+  },
+  "artifacts/.last-run.json": {
+    "bytes": 96,
+    "sha256": "cdb0ffa771fc276d05c24fdf999e73fee87447792f4cf231c9b9fa98d4c6b2ef"
+  },
+  "artifacts/c3-viewport-visibility-C3--80df0-oject-replacement-clears-it-chromium-desktop/trace.zip": {
+    "bytes": 1346211,
+    "sha256": "9b0d84882903821d2583ee2b513d025fad7118c974961ffcee0017bc541164dd"
+  },
+  "artifacts/c3-viewport-visibility-C3--80df0-oject-replacement-clears-it-chromium-desktop/error-context.md": {
+    "bytes": 18368,
+    "sha256": "282938c76e1c79cbf2307b0631490456c67d27a80b10935bc1cdab86333e39bb"
+  }
+}

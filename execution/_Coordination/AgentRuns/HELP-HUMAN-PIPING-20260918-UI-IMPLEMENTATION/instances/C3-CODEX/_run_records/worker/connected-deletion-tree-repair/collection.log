@@ -1,0 +1,4 @@
+Listing tests:
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it
+  [chromium-compact] › c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it
+Total: 2 tests in 1 file
