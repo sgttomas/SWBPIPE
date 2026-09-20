@@ -1,0 +1,8 @@
+{
+  "helperCheckpoint": "3a5cf5a78a1da0a0c30d312ed0625d583e7c439d",
+  "actualChild": "/root/i1_manager/c3_worker",
+  "acceptedExtraFile": "apps/desktop/src/features/viewport/viewportHalo.test.ts",
+  "rootDisposition": "Approved exact viewportHalo.test.ts resource-accounting amendment for the stable dim companion: pipeMeshes 1\u21922, materials 4\u21925, instanceMatrices 3\u21924, instanceColors 1\u21922; geometry remains 2 and textures 0. This updates an implementation inventory for the authorized new mechanism, not a performance/resource limit. Keep exact counts and full teardown assertions, and verify repeated dim/clear/hide cycles cause no resource growth. No halo geometry/picking oracle or tolerance changes. Record the named before/after cost and keep D72 timing unqualified.",
+  "sharedWriter": "shell manager through ROOT",
+  "status": "viewport rendering implementation ongoing; shell bridge not yet received; no connected behavior claimed"
+}

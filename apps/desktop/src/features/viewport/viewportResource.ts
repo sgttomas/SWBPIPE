@@ -1,3 +1,4 @@
+import { applyViewportDimming, prepareViewportDimming } from "./viewportDimmingPresentation";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import type { Vec3 } from "../../types";
@@ -427,23 +428,10 @@ export function applyGizmoThemePresentation(scene: THREE.Scene, theme: ViewportT
 
 export function applyVisibilityPresentation(
   roots: readonly THREE.Object3D[],
-  hiddenKeys: ReadonlySet<EntityKey>
+  hiddenKeys: ReadonlySet<EntityKey>,
+  dimmedKeys: ReadonlySet<EntityKey> = new Set()
 ): void {
-  const hiddenMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
-  for (const root of roots) {
-    root.traverse((object) => {
-      if (object instanceof THREE.InstancedMesh && Array.isArray(object.userData.instanceEntityKeys)) {
-        const keys = object.userData.instanceEntityKeys as readonly EntityKey[];
-        const matrices = object.userData.instanceBaseMatrices as readonly THREE.Matrix4[] | undefined;
-        if (!matrices) return;
-        keys.forEach((key, index) => object.setMatrixAt(index, hiddenKeys.has(key) ? hiddenMatrix : matrices[index]));
-        object.instanceMatrix.needsUpdate = true;
-        return;
-      }
-      const key = object.userData.selectionEntityKey as EntityKey | undefined;
-      if (key) object.visible = !hiddenKeys.has(key);
-    });
-  }
+  applyViewportDimming(roots, hiddenKeys, dimmedKeys);
 }
 
 export type ViewportResourceOptions = {
@@ -486,6 +474,7 @@ export class ViewportResource {
   private selectionPresentation: ViewportSelectionPresentation | null = null;
   private modelIndex: ModelIndex | null = null;
   private hiddenKeys: ReadonlySet<EntityKey> = new Set();
+  private dimmedKeys: ReadonlySet<EntityKey> = new Set();
   private selectedKeys: ReadonlySet<EntityKey> = new Set();
   private hoveredKey: EntityKey | null = null;
   // Selection and hover halos. Display-only: never given to either picking path. Absent only on a
@@ -720,11 +709,13 @@ export class ViewportResource {
     this.invalidate();
   }
 
-  setVisibilityPresentation(hiddenKeys: ReadonlySet<EntityKey>): void {
+  setVisibilityPresentation(hiddenKeys: ReadonlySet<EntityKey>, dimmedKeys: ReadonlySet<EntityKey> = new Set()): void {
     this.hiddenKeys = new Set(hiddenKeys);
+    this.dimmedKeys = new Set(dimmedKeys);
     applyVisibilityPresentation(
       [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
-      this.hiddenKeys
+      this.hiddenKeys,
+      this.dimmedKeys
     );
     this.syncHalo();
     this.updateSelectionCue();
@@ -742,6 +733,7 @@ export class ViewportResource {
     layer.clear();
     // three reports an error when `add` is called with no object; an empty layer adds nothing.
     if (objects.length > 0) layer.add(...objects);
+    prepareViewportDimming(objects);
     this.ownership.createObjects(objects);
     applyThemePresentation(this.scene, this.themePresentation);
     // The incoming objects were built without a theme; paint them for the current one so a
@@ -754,7 +746,8 @@ export class ViewportResource {
     );
     applyVisibilityPresentation(
       [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
-      this.hiddenKeys
+      this.hiddenKeys,
+      this.dimmedKeys
     );
     this.applyAuxiliaryVisibility();
     // After the layer holds its new objects: halos of geometries that left with the old layer are
@@ -910,6 +903,7 @@ export class ViewportResource {
     this.modelIndex = null;
     this.selectionPresentation = null;
     this.hiddenKeys = new Set();
+    this.dimmedKeys = new Set();
     this.actualOdRadiusByPipe = new Map();
     this.labelUpdater = null;
     this.host.replaceChildren();

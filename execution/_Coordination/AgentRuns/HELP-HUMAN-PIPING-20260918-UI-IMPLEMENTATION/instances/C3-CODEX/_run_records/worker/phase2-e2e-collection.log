@@ -1,0 +1,17 @@
+COMMAND npx playwright test e2e/c3-viewport-visibility.spec.ts --list
+Listing tests:
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:78:1 › C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:139:1 › C3 dimmed geometry remains available to hover, click and box selection
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:174:1 › C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:213:1 › C3 isolation remains clearable when every drawable entity belongs to the snapshot
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:230:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:257:1 › C3 visibility leaves Current results current and never revives Historical overlays
+  [chromium-compact] › c3-viewport-visibility.spec.ts:78:1 › C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history
+  [chromium-compact] › c3-viewport-visibility.spec.ts:139:1 › C3 dimmed geometry remains available to hover, click and box selection
+  [chromium-compact] › c3-viewport-visibility.spec.ts:174:1 › C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible
+  [chromium-compact] › c3-viewport-visibility.spec.ts:213:1 › C3 isolation remains clearable when every drawable entity belongs to the snapshot
+  [chromium-compact] › c3-viewport-visibility.spec.ts:230:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it
+  [chromium-compact] › c3-viewport-visibility.spec.ts:257:1 › C3 visibility leaves Current results current and never revives Historical overlays
+Total: 12 tests in 1 file
+
+EXIT 0

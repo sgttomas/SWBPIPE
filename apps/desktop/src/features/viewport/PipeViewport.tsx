@@ -86,7 +86,6 @@ import {
   formatMeasurementDisplayValue,
   fittedViewportDistance,
   hideSelectionVisibility,
-  isolateSelectionVisibility,
   pointPickPrimitives,
   prioritizedLabelKeys,
   spatialEntityKeyGroups,
@@ -155,6 +154,10 @@ type Props = {
   hiddenKeys?: ReadonlySet<EntityKey>;
   explicitHiddenKeys?: ReadonlySet<EntityKey>;
   isolateHiddenKeys?: ReadonlySet<EntityKey>;
+  dimmedKeys?: ReadonlySet<EntityKey>;
+  isolationSelectionKeys?: ReadonlySet<EntityKey> | null;
+  isolationActive?: boolean;
+  hiddenCount?: number;
   modelIndex?: ModelIndex;
   modelCommitToken?: string | null;
   viewCommandRef?: { current: ((command: ViewportViewCommand) => void) | null };
@@ -164,6 +167,7 @@ type Props = {
   onInvalidateDraft?: () => void;
   onHiddenKeysChange?: (keys: ReadonlySet<EntityKey>) => void;
   onIsolateKeysChange?: (keys: ReadonlySet<EntityKey>) => void;
+  onIsolationSelectionChange?: (keys: ReadonlySet<EntityKey> | null) => void;
   onClearVisibility?: () => void;
   onViewportInteractionStart?: (interaction: ViewportExposureInteraction) => void;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
@@ -342,7 +346,9 @@ export function PipeViewport({
   modelIdentityHash = null,
   hiddenKeys = new Set(),
   explicitHiddenKeys = hiddenKeys,
-  isolateHiddenKeys = new Set(),
+  dimmedKeys = new Set(),
+  isolationActive = false,
+  hiddenCount = 0,
   modelIndex,
   modelCommitToken = null,
   viewCommandRef,
@@ -351,7 +357,7 @@ export function PipeViewport({
   onApplyDraft,
   onInvalidateDraft = () => {},
   onHiddenKeysChange = () => {},
-  onIsolateKeysChange = () => {},
+  onIsolationSelectionChange = () => {},
   onClearVisibility = () => {},
   onViewportInteractionStart = () => {},
   onQueueIntent,
@@ -500,7 +506,7 @@ export function PipeViewport({
   );
   const visibilitySelectionReason = visibilitySelectionKeys.length > 0
     ? null
-    : "Select at least one visible, valid node, pipe, support, or component.";
+    : "Select at least one valid drawable node, pipe, support, or component.";
   const [hoveredEntityKey, setHoveredEntityKey] = useState<EntityKey | null>(null);
   useEffect(() => {
     setHoveredEntityKey((current) => current && !hiddenKeys.has(current) ? current : null);
@@ -1401,8 +1407,8 @@ export function PipeViewport({
   }, [hoveredEntityKey]);
 
   useEffect(() => {
-    viewportResourceRef.current?.setVisibilityPresentation(hiddenKeys);
-  }, [activeModelIndex.generation, hiddenKeys]);
+    viewportResourceRef.current?.setVisibilityPresentation(hiddenKeys, dimmedKeys);
+  }, [activeModelIndex.generation, hiddenKeys, dimmedKeys]);
 
   useLayoutEffect(() => {
     if (!viewCommandRef) return;
@@ -2170,8 +2176,8 @@ export function PipeViewport({
     }
     if (command.type === "isolate-selection") {
       if (visibilitySelectionReason) { setViewCommandStatus(visibilitySelectionReason); return; }
-      onIsolateKeysChange(isolateSelectionVisibility(activeModelIndex, visibilitySelectionKeys));
-      setViewCommandStatus(`${visibilitySelectionKeys.length} selected item${visibilitySelectionKeys.length === 1 ? "" : "s"} isolated with authored context.`);
+      onIsolationSelectionChange(new Set(visibilitySelectionKeys));
+      setViewCommandStatus(`${visibilitySelectionKeys.length} selected item${visibilitySelectionKeys.length === 1 ? "" : "s"} isolated; other shown geometry is dimmed to 20%.`);
       return;
     }
     if (command.type === "show-all") {
@@ -2191,6 +2197,15 @@ export function PipeViewport({
   return (
     <div
       className="viewport-shell"
+      onKeyDown={(event) => {
+        if (event.defaultPrevented || event.repeat || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+        const target = event.target;
+        if (!(target instanceof HTMLElement) || target.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])")) return;
+        const key = event.key.toLowerCase();
+        if (key !== "i" && key !== "h") return;
+        event.preventDefault();
+        dispatchViewportViewCommand({ type: key === "i" ? "isolate-selection" : "hide-selection" });
+      }}
       style={{ "--viewport-presentation-bottom-inset": `${presentationBottomInset}px` } as CSSProperties}
     >
       <div className="viewport-toolbar">
@@ -2256,9 +2271,10 @@ export function PipeViewport({
               <option value="supports">Supports</option><option value="components">Components</option>
             </select>
           </label>
-          <button onClick={() => dispatchViewportViewCommand({ type: "hide-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Hide selected geometry."} type="button">Hide</button>
-          <button onClick={() => dispatchViewportViewCommand({ type: "isolate-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Isolate selected geometry with authored context."} type="button">Isolate</button>
-          <button onClick={() => dispatchViewportViewCommand({ type: "show-all" })} disabled={explicitHiddenKeys.size === 0 && isolateHiddenKeys.size === 0} title={explicitHiddenKeys.size === 0 && isolateHiddenKeys.size === 0 ? "All eligible entities are already shown." : "Show every eligible entity."} type="button">Show All</button>
+          <button onClick={() => dispatchViewportViewCommand({ type: "hide-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Hide selected geometry (H). Hidden geometry is removed from canvas picking."} type="button">Hide</button>
+          <button aria-describedby="viewport-visibility-help" onClick={() => dispatchViewportViewCommand({ type: "isolate-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Isolate selected geometry (I): dim other shown geometry to 20%. Dimmed geometry remains selectable; Hide wins."} type="button">Isolate</button>
+          <button onClick={() => dispatchViewportViewCommand({ type: "show-all" })} disabled={explicitHiddenKeys.size === 0 && !isolationActive} title={explicitHiddenKeys.size === 0 && !isolationActive ? "All eligible entities are already shown." : "Clear Hide and isolation; show every eligible entity at its normal opacity."} type="button">Show All</button>
+          <span className="visually-hidden" id="viewport-visibility-help">Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.</span>
           <button data-testid="viewport-fit-model" onClick={() => dispatchViewportViewCommand({ type: "fit-model" })} type="button">Fit Model</button>
           <button onClick={() => dispatchViewportViewCommand({ type: "fit-visible" })} type="button">Fit Visible</button>
           <button data-testid="viewport-fit-selection" onClick={() => dispatchViewportViewCommand({ type: "fit-selection" })} disabled={!fitSelectionBounds} title={fitSelectionBounds ? "Fit currently visible selected geometry." : "No visible valid selected geometry can be fitted."} type="button">Fit Selection</button>
@@ -2274,6 +2290,7 @@ export function PipeViewport({
             className="viewport-toolbar-selection-status"
             title={`Selected ${selection.type}: ${selection.id}`}
           >Selected: {selection.id}</span>
+          {hiddenCount > 0 ? <button type="button" className="viewport-hidden-count" data-testid="viewport-hidden-count" onClick={() => dispatchViewportViewCommand({ type: "show-all" })} title="Clear Hide and isolation">{hiddenCount} hidden · Show all</button> : null}
           {selectedHiddenCount > 0 ? <span role="status" title={`${selectedHiddenCount} selected item${selectedHiddenCount === 1 ? " is" : "s are"} hidden`}>{selectedHiddenCount} selected item{selectedHiddenCount === 1 ? " is" : "s are"} hidden</span> : null}
           <span role="status" data-testid="viewport-od-status" title={geometryMode === "actual-od" ? actualOd.reason : "Schematic centerline geometry"}>{geometryMode === "actual-od" ? actualOd.reason : "Schematic centerline geometry"}</span>
           <span role="status" aria-label="View command status" data-testid="viewport-view-command-status" title={viewCommandStatus}>{viewCommandStatus}</span>
@@ -2298,6 +2315,7 @@ export function PipeViewport({
         <div
           className="viewport-canvas"
           data-testid="viewport-canvas"
+          tabIndex={0}
           onPointerDownCapture={handleViewportPointerDownCapture}
           onPointerDown={handleViewportPointerDown}
           onPointerMove={handleViewportPointerMove}
@@ -2324,6 +2342,7 @@ export function PipeViewport({
                   aria-pressed={active}
                   className={`viewport-select-target ${target.kind} ${active ? "active" : ""}`}
                   data-entity-key={entityKey(target.ref)}
+                  data-dimmed={dimmedKeys.has(entityKey(target.ref))}
                   data-testid={`viewport-select-${target.ref.id}`}
                   disabled={draftReviewBusy}
                   key={entityKey(target.ref)}
@@ -2337,7 +2356,7 @@ export function PipeViewport({
                     left: `${target.screen.x}%`,
                     top: `${target.screen.y}%`
                   }}
-                  title={`${target.label} (${target.ref.id})`}
+                  title={`${target.label} (${target.ref.id})${dimmedKeys.has(entityKey(target.ref)) ? " — dimmed by isolation; still selectable" : ""}`}
                   type="button"
                 >
                   <ViewportTargetIcon kind={target.kind} />

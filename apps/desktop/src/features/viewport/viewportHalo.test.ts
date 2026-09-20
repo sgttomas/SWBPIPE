@@ -446,10 +446,10 @@ describe("halo resources", () => {
     for (const key of Object.keys(snapshot.live) as (keyof typeof snapshot.live)[]) {
       expect(snapshot.created[key] - snapshot.disposed[key]).toBe(snapshot.live[key]);
     }
-    // One figure mesh with its geometry and material; one selection pair with the new shape's edge
+    // Normal and dimmed figure batches share one geometry and own two materials; one selection pair with the new shape's edge
     // geometry; and the three halo materials made so far (mask, selection edge, hover edge), which
     // live as long as the presentation does.
-    expect(snapshot.live).toMatchObject({ pipeMeshes: 1, geometries: 2, materials: 4, instanceMatrices: 3, instanceColors: 1, textures: 0 });
+    expect(snapshot.live).toMatchObject({ pipeMeshes: 2, geometries: 2, materials: 5, instanceMatrices: 4, instanceColors: 2, textures: 0 });
   });
 
   it("disposes everything it created and nothing it shares, and returns the ledger to the figure's own counts", () => {
