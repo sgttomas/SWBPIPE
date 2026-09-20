@@ -3976,7 +3976,7 @@ body { min-width: 760px; min-height: 540px; }
 .viewport-select-target[data-dimmed="true"] > svg,
 .viewport-select-target[data-dimmed="true"] > span { opacity: 0.2; }
 .app-shell .viewport-canvas:focus-visible { outline-offset: -2px; }
-.app-shell .viewport-hidden-count {
+.app-shell .viewport-toolbar-status-strip .viewport-hidden-count {
   flex: 0 0 auto;
   min-height: 24px;
   height: 24px;
