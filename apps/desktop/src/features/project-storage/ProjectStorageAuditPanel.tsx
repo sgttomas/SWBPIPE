@@ -6,6 +6,7 @@ import type {
   LocalProjectSummary,
   LocalStorageCapability,
   ModelHashIntegrityEvidence,
+  ProjectEnvelopeHashIntegrityEvidence,
   PreviewModel
 } from "../../types";
 
@@ -18,7 +19,8 @@ export function ProjectStorageAuditPanel({
   projectOperation,
   editorIntents,
   proposal,
-  modelHashIntegrity = null
+  modelHashIntegrity = null,
+  projectEnvelopeHashIntegrity = null
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -29,6 +31,7 @@ export function ProjectStorageAuditPanel({
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
   modelHashIntegrity?: ModelHashIntegrityEvidence | null;
+  projectEnvelopeHashIntegrity?: ProjectEnvelopeHashIntegrityEvidence | null;
 }) {
   const packet = buildProjectStorageAuditPacket({
     model,
@@ -38,7 +41,7 @@ export function ProjectStorageAuditPanel({
     projectMessage,
     projectOperation,
     editorIntents,
-    proposal
+    proposal, modelHashIntegrity, projectEnvelopeHashIntegrity
   });
 
   return (
@@ -117,10 +120,15 @@ export function ProjectStorageAuditPanel({
           label="Model hash integrity"
           value={
             modelHashIntegrity
-              ? `integrity_status=${modelHashIntegrity.integrity_status}; persisted_value=${modelHashIntegrity.persisted_value}; recomputed_value=${modelHashIntegrity.recomputed_value}; verification_basis=${modelHashIntegrity.verification_basis}; review-only integrity signal for human review`
-              : "no open-verification has run this session; review-only integrity signal for human review"
+              ? `integrity_status=${modelHashIntegrity.integrity_status}; persisted_value=${modelHashIntegrity.persisted_value}; recomputed_value=${modelHashIntegrity.recomputed_value}; verification_basis=${modelHashIntegrity.verification_basis}; claim_standing=${modelHashIntegrity.claim_standing ?? "not_recorded"}; source=${modelHashIntegrity.verification_source ?? "open"}; observed_at=${modelHashIntegrity.observed_at ?? "not_recorded"}; persisted snapshot only; later local edits are not verified; review-only integrity signal for human review`
+              : "no persistence verification has run this session; review-only integrity signal for human review"
           }
           testId="model-hash-integrity"
+        />
+        <StorageLine
+          label="Envelope hash integrity"
+          value={projectEnvelopeHashIntegrity ? `integrity_status=${projectEnvelopeHashIntegrity.integrity_status}; persisted_value=${projectEnvelopeHashIntegrity.persisted_value}; recomputed_value=${projectEnvelopeHashIntegrity.recomputed_value}; verification_basis=${projectEnvelopeHashIntegrity.verification_basis}; source=${projectEnvelopeHashIntegrity.verification_source ?? "open"}; observed_at=${projectEnvelopeHashIntegrity.observed_at ?? "not_recorded"}; persisted snapshot only; later local edits are not verified` : "no persistence verification has run this session"}
+          testId="project-envelope-hash-integrity"
         />
         <StorageLine
           label="Unit round-trip"
@@ -162,7 +170,9 @@ function buildProjectStorageAuditPacket({
   projectMessage,
   projectOperation,
   editorIntents,
-  proposal
+  proposal,
+  modelHashIntegrity = null,
+  projectEnvelopeHashIntegrity = null
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -172,6 +182,8 @@ function buildProjectStorageAuditPacket({
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
+  modelHashIntegrity?: ModelHashIntegrityEvidence | null;
+  projectEnvelopeHashIntegrity?: ProjectEnvelopeHashIntegrityEvidence | null;
 }) {
   const storageEngine = storageCapability?.engine ?? "storage_check_pending";
   const storageMode = projectSummary?.storage_mode ?? "not_persisted_this_session";
@@ -184,6 +196,9 @@ function buildProjectStorageAuditPacket({
   const unitPolicyEvidence = buildProjectStorageUnitPolicyEvidence({ model, projectSummary });
 
   return {
+    model_hash_integrity: modelHashIntegrity,
+    project_envelope_hash_integrity: projectEnvelopeHashIntegrity,
+    integrity_observation_scope: "persisted_snapshot_not_current_local_model",
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.local_project_persistence_audit",
     export_scope: "local_browser_download_preview",

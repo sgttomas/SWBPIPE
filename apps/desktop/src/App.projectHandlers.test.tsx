@@ -181,6 +181,8 @@ function savedEnvelopeFor(model: PreviewModel, saveRequest: Record<string, unkno
   return {
     ...base,
     ...(saveRequest as Partial<LocalProjectEnvelope>),
+    model_hash: (saveRequest.model_hash ?? saveRequest.modelHash ?? null) as ModelHashEvidence | null,
+    project_envelope_hash: (saveRequest.project_envelope_hash ?? saveRequest.projectEnvelopeHash ?? null) as ProjectEnvelopeHashEvidence | null,
     model: saveRequest.model as PreviewModel,
     summary: { ...base.summary, project_id: model.project.id, project_name: model.project.name, message },
   };
@@ -305,7 +307,7 @@ describe("project handlers: listing does not release a busy state it does not ow
     expect(lastProjectOperation()).toBe("save");
   });
 
-  it("leaves a save's busy state alone when a listing that started first settles during the save", async () => {
+  it("blocks Save during List, then gives Save its own busy lifetime", async () => {
     const model = await loadPreviewModel();
     const pendingList = deferred<unknown[]>();
     const pendingSave = deferred<LocalProjectEnvelope>();
@@ -325,14 +327,13 @@ describe("project handlers: listing does not release a busy state it does not ow
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("list_local_projects"));
     for (const control of projectControls()) expect(control).toBeDisabled();
 
-    // The native menu may start a request-numbered handler during the list.
     act(() => nativeMenuCommand("file.save-local"));
-    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
-    await act(async () => {
-      pendingList.resolve([]);
-      await pendingList.promise;
-    });
     await flushPendingWork();
+    expect(saveRequest).toBeUndefined();
+    await act(async () => { pendingList.resolve([]); await pendingList.promise; });
+    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(saveRequest).toBeDefined());
     for (const control of projectControls()) expect(control).toBeDisabled();
 
     const saved = savedEnvelopeFor(model, saveRequest!, "Saved invented project after an earlier list settled.");
@@ -525,7 +526,7 @@ describe("project handlers: a failed save or create leaves the open project's in
     expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(envelope.model.project.id)}`)).toBeInTheDocument();
   });
 
-  it("keeps both recorded mismatches when a pending save is superseded by an open that finds nothing", async () => {
+  it("blocks a later Open while pending Save fails and preserves both mismatches", async () => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -540,7 +541,8 @@ describe("project handlers: a failed save or create leaves the open project's in
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
     act(() => nativeMenuCommand("file.open-local"));
-    await waitFor(() => expect(projectMessage()).toHaveTextContent("No local project snapshot found."));
+    await flushPendingWork();
+    expect(invokeMock.mock.calls.filter(([command]) => command === "open_local_project")).toHaveLength(1);
     await act(async () => {
       pendingSave.reject(new Error("Invented late save failure"));
       await pendingSave.promise.catch(() => undefined);
@@ -550,7 +552,7 @@ describe("project handlers: a failed save or create leaves the open project's in
     expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required");
   });
 
-  it("still clears the open-time verification when a save lands, as before", async () => {
+  it("re-derives verified-at-save observations when a save lands", async () => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -563,8 +565,24 @@ describe("project handlers: a failed save or create leaves the open project's in
     );
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved invented project over a recorded mismatch."));
-    expect(modelHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
-    expect(envelopeHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
+    const observation = JSON.parse(decodeURIComponent((() => {
+      const intent = screen.getByTestId("project-validation-export-link-local-private-intent") as HTMLInputElement;
+      if (!intent.checked) fireEvent.click(intent);
+      return screen.getByTestId("project-validation-export-link").getAttribute("href")!.split(",", 2)[1];
+    })()));
+    const auditIntent = screen.getByTestId("project-storage-export-link-local-private-intent") as HTMLInputElement;
+    if (!auditIntent.checked) fireEvent.click(auditIntent);
+    const audit = JSON.parse(decodeURIComponent(screen.getByTestId("project-storage-export-link").getAttribute("href")!.split(",", 2)[1]));
+    expect(observation.model_hash_integrity.verification_source).toBe("save");
+    expect(observation.model_hash_integrity.observed_at).toEqual(expect.any(String));
+    expect(audit.model_hash_integrity).toEqual(observation.model_hash_integrity);
+    expect(audit.project_envelope_hash_integrity).toEqual(observation.project_envelope_hash_integrity);
+    expect(observation.summary.model_hash_status).toBe("model_hash_verified_at_save");
+    expect(modelHashLine()).toHaveTextContent(observation.model_hash_integrity.observed_at);
+    expect(screen.getByTestId("model-hash-integrity")).toHaveTextContent(observation.model_hash_integrity.observed_at);
+
+    expect(modelHashLine()).toHaveTextContent("integrity=verified_match");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=verified_match");
   });
 });
 
@@ -582,8 +600,8 @@ async function applyGridEditWhilePending() {
   setTauriRuntime(true);
 }
 
-describe("project handlers: a landed write clears the open-time record even when a model edit drops its response (B2G-C1)", () => {
-  it("clears both lines when a model edit lands while a save is pending and the save then resolves", async () => {
+describe("project handlers: a landed write records snapshot verification even when an edit drops model adoption (B3B)", () => {
+  it("records both snapshot observations while retaining the newer edit after Save", async () => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -606,11 +624,11 @@ describe("project handlers: a landed write clears the open-time record even when
       await pendingSave.promise;
     });
     await flushPendingWork();
-    expect(modelHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
-    expect(envelopeHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
+    expect(modelHashLine()).toHaveTextContent("integrity=verified_match");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=verified_match");
   });
 
-  it("clears both lines when a model edit lands while a create is pending and the create then resolves", async () => {
+  it("records both snapshot observations while retaining the newer edit after Create", async () => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -634,8 +652,8 @@ describe("project handlers: a landed write clears the open-time record even when
       await pendingCreate.promise;
     });
     await flushPendingWork();
-    expect(modelHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
-    expect(envelopeHashLine()).toHaveTextContent("integrity=open_verification_not_run_this_session");
+    expect(modelHashLine()).toHaveTextContent("integrity=verified_match");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=verified_match");
   });
 
   // Correction C2. A blank create writes a new project id, never the open
@@ -737,7 +755,7 @@ describe("B3A asynchronous canonical comparison", () => {
     await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
   });
 
-  it("retains the actually opened baseline through a pending hash, a missing later Open and an edit", async () => {
+  it("retains the opened baseline through a pending hash, blocked later Open and an edit", async () => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -755,7 +773,8 @@ describe("B3A asynchronous canonical comparison", () => {
     await waitFor(() => expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(opened.model.project.name));
     invokeMock.mockImplementation((command: string) => command === "open_local_project" ? Promise.resolve(null) : Promise.resolve({}));
     act(() => nativeMenuCommand("file.open-local"));
-    await waitFor(() => expect(projectMessage()).toHaveTextContent("No local project snapshot"));
+    await flushPendingWork();
+    expect(invokeMock.mock.calls.filter(([command]) => command === "open_local_project")).toHaveLength(1);
     await applyGridEditWhilePending();
     await act(async () => gate.resolve());
     await flushPendingWork();
@@ -779,7 +798,7 @@ describe("B3A asynchronous canonical comparison", () => {
       return Promise.resolve(saved);
     });
     act(() => nativeMenuCommand("file.save-local"));
-    await waitFor(() => expect(projectMessage()).toHaveTextContent(failure === "write failure" ? "Save failed:" : "Invalid response"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(failure === "write failure" || failure === "wrong project identity" ? "Save failed:" : "Invalid response"));
     expect(screen.getByTestId("project-edited")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("workspace-undo"));
     await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
@@ -787,7 +806,7 @@ describe("B3A asynchronous canonical comparison", () => {
 });
 
 describe("B3A baseline ownership after asynchronous persistence", () => {
-  it("does not let a delayed Open hash overwrite a newer verified same-generation save", async () => {
+  it("blocks Save through delayed Open verification then saves the edited model", async () => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -809,6 +828,11 @@ describe("B3A baseline ownership after asynchronous persistence", () => {
     await waitFor(() => expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(opened.model.project.name));
     await applyGridEditWhilePending();
     act(() => nativeMenuCommand("file.save-local"));
+    await flushPendingWork();
+    expect(invokeMock.mock.calls.some(([command]) => command === "save_local_project")).toBe(false);
+    await act(async () => gate.resolve());
+    await flushPendingWork();
+    act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(projectMessage()).toHaveTextContent("Newer verified save"));
     expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
     await act(async () => gate.resolve());
@@ -818,7 +842,7 @@ describe("B3A baseline ownership after asynchronous persistence", () => {
     await waitFor(() => expect(screen.getByTestId("project-edited")).toBeInTheDocument());
   });
 
-  it("drops a landed old save after same-ID project replacement and preserves the reopened baseline", async () => {
+  it("blocks same-ID replacement until Save releases, then preserves the reopened baseline", async () => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -834,10 +858,13 @@ describe("B3A baseline ownership after asynchronous persistence", () => {
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(request).toBeDefined());
     act(() => nativeMenuCommand("file.open-local"));
+    await flushPendingWork();
+    expect(invokeMock.mock.calls.some(([command]) => command === "open_local_project")).toBe(false);
+    await act(async () => pending.resolve(savedEnvelopeFor(model, request!, "Landed save before replacement")));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Landed save before replacement"));
+    act(() => nativeMenuCommand("file.open-local"));
     await waitFor(() => expect(projectMessage()).toHaveTextContent("Same-ID reopened source"));
     await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
-    await act(async () => pending.resolve(savedEnvelopeFor(model, request!, "Obsolete landed save")));
-    await flushPendingWork();
     expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
     expect(screen.getByTestId("workspace-undo")).toBeDisabled();
     expect(projectMessage()).toHaveTextContent("Same-ID reopened source");
@@ -973,7 +1000,14 @@ it("B3A verifies unchanged Historical save against its exact retained hash carri
   await screen.findByTestId("historical-run-context");
   expect(screen.getByTestId("project-edited")).toBeInTheDocument();
   act(() => nativeMenuCommand("file.save-local"));
+  await flushPendingWork();
+  expect(saveRequest).toBeUndefined();
+  await act(async () => gate.resolve());
+  await flushPendingWork();
+  act(() => nativeMenuCommand("file.save-local"));
   await waitFor(() => expect(projectMessage()).toHaveTextContent("Historical carrier retained"));
+  expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
+  expect(modelHashLine()).toHaveTextContent("claim_standing=retained_historical_carrier");
   expect(saveRequest!.model_hash).toEqual(opened.model_hash);
   expect(saveRequest!.model).toEqual(opened.model);
   expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
@@ -986,9 +1020,10 @@ it("B3A verifies unchanged Historical save against its exact retained hash carri
 });
 
 // Independent-review P2: unsuccessful request initiation cannot retire a
-// same-session write that subsequently lands. No B3B menu/integrity changes.
+// same-session write that subsequently lands. B3B blocks overlapping dispatch;
+// the production helper tests retain reversed-completion coverage.
 describe("B3A P2 landed-write observation", () => {
-  it.each(["missing", "failed"])("retains landed B after a later %s Open, with truthful Undo/Redo and unchanged integrity guards", async (openOutcome) => {
+  it.each(["missing", "failed"])("blocks later %s Open until landed B, then retains snapshot integrity and Undo/Redo", async (openOutcome) => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -1006,12 +1041,14 @@ describe("B3A P2 landed-write observation", () => {
     expect((request!.model as PreviewModel).nodes[0].position.y).toBe(0.5);
     act(() => nativeMenuCommand("file.open-local"));
     const openMessage = openOutcome === "missing" ? "No local project snapshot found." : "Open failed: Error: Invented later Open failure";
-    await waitFor(() => expect(projectMessage()).toHaveTextContent(openMessage));
+    await flushPendingWork();
+    expect(invokeMock.mock.calls.filter(([command]) => command === "open_local_project")).toHaveLength(1);
     await act(async () => pending.resolve(savedEnvelopeFor(opened.model, request!, "Obsolete UI response, real landed B")));
     await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
-    expect(projectMessage()).toHaveTextContent(openMessage);
-    expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
-    expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required");
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(openMessage));
+    expect(modelHashLine()).toHaveTextContent("integrity=verified_match");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=verified_match");
     expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
     fireEvent.click(screen.getByTestId("workspace-undo"));
     await waitFor(() => expect(screen.getByTestId("project-edited")).toBeInTheDocument());
@@ -1021,7 +1058,7 @@ describe("B3A P2 landed-write observation", () => {
     expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
   });
 
-  it.each([true, false])("orders verified responses independently of hash completion (later response valid=%s)", async (laterValid) => {
+  it.each([true, false])("serializes Saves through verification and preserves canonical Undo/Redo (later response valid=%s)", async (laterValid) => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -1040,7 +1077,8 @@ describe("B3A P2 landed-write observation", () => {
     await waitFor(() => expect(requests).toHaveLength(1));
     fireEvent.click(screen.getByTestId("workspace-undo"));
     act(() => nativeMenuCommand("file.save-local"));
-    await waitFor(() => expect(requests).toHaveLength(2));
+    await flushPendingWork();
+    expect(requests).toHaveLength(1);
     const firstResponse = savedEnvelopeFor(model, requests[0], "First response B");
     const original = hashService.computeModelHash;
     const gate = deferred<void>();
@@ -1052,11 +1090,19 @@ describe("B3A P2 landed-write observation", () => {
     try {
       await act(async () => first.resolve(firstResponse));
       await waitFor(() => expect(firstVerifying).toBe(true));
+      act(() => nativeMenuCommand("file.save-local"));
+      await flushPendingWork();
+      expect(requests).toHaveLength(1);
+      await act(async () => gate.resolve());
+      await flushPendingWork();
+      act(() => nativeMenuCommand("file.save-local"));
+      await waitFor(() => expect(requests).toHaveLength(2));
       const secondResponse = savedEnvelopeFor(model, requests[1], "Second response A");
       if (!laterValid) secondResponse.model_hash = { ...secondResponse.model_hash!, value: "sha256:unverified-later-claim" };
       await act(async () => second.resolve(secondResponse));
       await waitFor(() => expect(projectMessage()).toHaveTextContent("Second response A"));
-      expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+      if (laterValid) expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+      else expect(screen.getByTestId("project-edited")).toBeInTheDocument();
       await act(async () => gate.resolve());
       await flushPendingWork();
       if (laterValid) expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
@@ -1074,4 +1120,91 @@ describe("B3A P2 landed-write observation", () => {
       expect(projectMessage()).toHaveTextContent("Second response A");
     } finally { await act(async () => gate.resolve()); }
   });
+});
+
+
+describe("B3B synchronous project ownership", () => {
+  it("rejects all five native project commands in the same turn and while List owns busy", async () => {
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const pending = deferred<[]>();
+    invokeMock.mockImplementation((command: string) => command === "list_local_projects" ? pending.promise : Promise.resolve(null));
+    setTauriRuntime(true);
+    act(() => {
+      nativeMenuCommand("file.list-local");
+      for (const id of ["new-local", "new-blank", "open-local", "save-local", "list-local"]) nativeMenuCommand(`file.${id}`);
+    });
+    await flushPendingWork();
+    expect(invokeMock.mock.calls.filter(([name]) => /^(create|open|save|list)_local_project/.test(name)).map(([name]) => name)).toEqual(["list_local_projects"]);
+    expect(invokeMock).toHaveBeenCalledWith("sync_native_shell_state", { state: expect.objectContaining({ projectBusy: true }) });
+    await act(async () => { pending.resolve([]); await pending.promise; });
+    await waitFor(() => expect(invokeMock).toHaveBeenLastCalledWith("sync_native_shell_state", { state: expect.objectContaining({ projectBusy: false }) }));
+  });
+});
+
+it("B3B observes landed Save only when delayed verification completes", async () => {
+  const model = await loadPreviewModel();
+  render(<App />);
+  await screen.findByTestId("desktop-preview-shell");
+  const pending = deferred<LocalProjectEnvelope>();
+  let request: Record<string, unknown> | undefined;
+  invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+    if (command === "save_local_project") { request = args!.request; return pending.promise; }
+    return Promise.resolve({});
+  });
+  setTauriRuntime(true);
+  act(() => nativeMenuCommand("file.save-local"));
+  await waitFor(() => expect(request).toBeDefined());
+  const saved = savedEnvelopeFor(model, request!, "Observed delayed save");
+  const gate = deferred<void>();
+  const original = hashService.computeModelHash;
+  let verifying = false;
+  vi.spyOn(hashService, "computeModelHash").mockImplementation(async (input) => {
+    if (input === saved.model) { verifying = true; await gate.promise; }
+    return original(input);
+  });
+  vi.useFakeTimers({ toFake: ["Date"] });
+  try {
+    vi.setSystemTime(new Date("2026-09-20T10:00:00Z"));
+    await act(async () => pending.resolve(saved));
+    await waitFor(() => expect(verifying).toBe(true));
+    act(() => nativeMenuCommand("file.open-local"));
+    expect(invokeMock.mock.calls.some(([command]) => command === "open_local_project")).toBe(false);
+    vi.setSystemTime(new Date("2026-09-20T11:00:00Z"));
+    await act(async () => gate.resolve());
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Observed delayed save"));
+    expect(modelHashLine()).toHaveTextContent("observed_at=2026-09-20T11:00:00.000Z");
+    expect(envelopeHashLine()).toHaveTextContent("observed_at=2026-09-20T11:00:00.000Z");
+  } finally { gate.resolve(); vi.useRealTimers(); }
+});
+
+it("B3B projects native busy state before a model has loaded", async () => {
+  const loading = deferred<PreviewModel>();
+  const listing = deferred<[]>();
+  invokeMock.mockImplementation((command: string) => {
+    if (command === "load_preview_model") return loading.promise;
+    if (command === "list_local_projects") return listing.promise;
+    return Promise.resolve({});
+  });
+  setTauriRuntime(true);
+  render(<App />);
+  await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("load_preview_model", undefined));
+  act(() => nativeMenuCommand("file.list-local"));
+  await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("sync_native_shell_state", { state: expect.objectContaining({ projectName: null, projectBusy: true }) }));
+  act(() => nativeMenuCommand("file.new-blank"));
+  expect(invokeMock.mock.calls.some(([command]) => command === "create_local_project")).toBe(false);
+  await act(async () => { listing.resolve([]); await listing.promise; });
+  await waitFor(() => expect(invokeMock).toHaveBeenLastCalledWith("sync_native_shell_state", { state: expect.objectContaining({ projectName: null, projectBusy: false }) }));
+});
+
+it.each([["Save", "file.save-local", "save_local_project", null], ["Save", "file.save-local", "save_local_project", undefined], ["Create", "file.new-local", "create_local_project", null], ["Create", "file.new-local", "create_local_project", undefined]] as const)("B3B handles malformed fulfilled %s response without a second catch error (%s, %s, %s)", async (label, menu, service, response) => {
+  render(<App />);
+  await screen.findByTestId("desktop-preview-shell");
+  invokeMock.mockImplementation((command: string) => command === service ? Promise.resolve(response) : Promise.resolve({}));
+  setTauriRuntime(true);
+  act(() => nativeMenuCommand(menu));
+  await waitFor(() => expect(projectMessage()).toHaveTextContent(`${label} failed:`));
+  await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+  expect(modelHashLine()).toHaveTextContent("integrity=persistence_verification_not_run_this_session");
+  expect(envelopeHashLine()).toHaveTextContent("integrity=persistence_verification_not_run_this_session");
 });

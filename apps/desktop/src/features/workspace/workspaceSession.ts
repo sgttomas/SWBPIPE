@@ -42,6 +42,7 @@ import type {
   LocalProjectEnvelope,
   MechanicsResult,
   ModelHashEvidence,
+  ProjectEnvelopeHashEvidence,
   PreviewModel,
   SolveJobAuditState
 } from "../../types";
@@ -75,6 +76,8 @@ import { modelIndexFor } from "./modelIndex";
 import { useModelSessionState } from "./modelSessionState";
 import { useOperationsSessionState } from "./operationsSessionState";
 import {
+  canPublishPersistenceObservation,
+  verifiedWriteBasis, isLocalModelEdited,
   deriveModelHashIntegrity,
   deriveProjectEnvelopeHashIntegrity,
   isSupportedChangedModelPersistenceResponse
@@ -237,10 +240,8 @@ export function useWorkspaceSession() {
   const modelHashOwner = useRef<{ generation: number; revision: number } | null>(null);
   const currentHashOwned = modelHashOwner.current?.generation === projectSessionGeneration &&
     modelHashOwner.current?.revision === uiModelRevision;
-  const modelEdited = Boolean(model && (!savedModelBasis ||
-    savedModelBasis.generation !== projectSessionGeneration ||
-    (savedModelBasis.revision !== uiModelRevision &&
-      (!currentHashOwned || !modelHash || modelHash.value !== savedModelBasis.hash))));
+  const modelEdited = Boolean(model && isLocalModelEdited(savedModelBasis, projectSessionGeneration,
+    uiModelRevision, currentHashOwned, modelHash));
 
   const {
     selection, setPrimarySelection,
@@ -306,7 +307,7 @@ export function useWorkspaceSession() {
     directDraftReviewSequence
   } = useOperationsSessionState();
   const {
-    projectRequest,
+    projectRequest, projectOperationOwner,
     storageCapability, setStorageCapability,
     projectSummary, setProjectSummary,
     projectIndex, setProjectIndex,
@@ -1463,8 +1464,36 @@ export function useWorkspaceSession() {
     setModelHash(envelope.model_hash ?? returnedModelHash);
   }
 
+  const latestIntegrityObservation = useRef(0);
+  function recordPersistenceObservation(envelope: LocalProjectEnvelope, modelHash: ModelHashEvidence | null,
+    envelopeHash: ProjectEnvelopeHashEvidence | null, source: "save" | "create", generation: number,
+    observation: number, responseValid: boolean, payloadRef: string, retainedHistoricalCarrier = false) {
+    if (!canPublishPersistenceObservation(generation, projectSessionGenerationRef.current, observation, latestIntegrityObservation.current)) return;
+    latestIntegrityObservation.current = observation;
+    const observedAt = new Date().toISOString();
+    setModelHashIntegrity({ ...deriveModelHashIntegrity(envelope.model_hash ?? null, modelHash, payloadRef, source, observedAt, responseValid),
+      claim_standing: retainedHistoricalCarrier ? "retained_historical_carrier" : "canonical_payload" });
+    setProjectEnvelopeHashIntegrity(deriveProjectEnvelopeHashIntegrity(envelope.project_envelope_hash ?? null, envelopeHash, payloadRef, source, observedAt, responseValid));
+  }
+
+  function acquireProjectOperation(): symbol | null {
+    if (projectOperationOwner.current !== null) return null;
+    const owner = Symbol("project operation");
+    projectOperationOwner.current = owner;
+    setProjectBusy(true);
+    return owner;
+  }
+
+  function releaseProjectOperation(owner: symbol) {
+    if (projectOperationOwner.current !== owner) return;
+    projectOperationOwner.current = null;
+    setProjectBusy(false);
+  }
+
   async function handleCreateProject() {
     if (!model) return;
+    const owner = acquireProjectOperation();
+    if (!owner) return;
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
@@ -1474,9 +1503,9 @@ export function useWorkspaceSession() {
     const sameProjectSession = () => generation === projectSessionGenerationRef.current && currentModel.current?.project.id === requestModel.project.id;
     const requestHistoricalRun = historicalRun;
     const requestMigrationLedgerCount = modelMigrationLedger.length;
-    const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
-    setProjectBusy(true);
+    let pendingObservation: { envelope: LocalProjectEnvelope; ordinal: number } | null = null;
     try {
+      const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
       const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : result;
@@ -1505,15 +1534,11 @@ export function useWorkspaceSession() {
         envelopeHash
       );
       const writeObservation = ++persistedWriteObservation.current;
-      // The persisted bytes have been rewritten, so the open-time verification
-      // no longer describes them, even when a model edit has since advanced the
-      // epoch and this response is dropped. A later project request owns the
-      // cells instead; a request that fails persisted nothing and leaves them.
-      if (request === projectRequest.current) {
-        setModelHashIntegrity(null);
-        setProjectEnvelopeHashIntegrity(null);
-      }
       if (!sameProjectSession()) return;
+      pendingObservation = { envelope: created, ordinal: writeObservation };
+      // Retire the old observation while verification of rewritten bytes is pending.
+      setModelHashIntegrity(null);
+      setProjectEnvelopeHashIntegrity(null);
       const returnedModelHash = await computeModelHash(created.model);
       if (!sameProjectSession()) return;
       const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
@@ -1539,6 +1564,14 @@ export function useWorkspaceSession() {
         created.summary.project_id === requestModel.project.id &&
         persistenceHashesMatch(created, returnedModelHash, recomputedReturnedEnvelopeHash, !responseModelChanged ? requestHistoricalRun?.modelHash ?? null : null) &&
         (!responseModelChanged || modelChanged));
+      recordPersistenceObservation(created, returnedModelHash, recomputedReturnedEnvelopeHash, "create", generation, writeObservation, verifiedResponse, requestModel.project.id, Boolean(verifiedResponse && requestHistoricalRun && !responseModelChanged));
+      pendingObservation = null;
+      if (created.model.project.id !== requestModel.project.id || created.summary.project_id !== requestModel.project.id) {
+        if (!stillCurrent()) return;
+        setProjectMessage("Create failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: returned project identity does not match the requested project.");
+        setProjectOperation("create_failed");
+        return;
+      }
       if (responseModelChanged && !modelChanged) {
         if (!stillCurrent()) return;
         setProjectMessage("Create failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: returned model change is not bound to the supported persisted normalization transition.");
@@ -1548,10 +1581,12 @@ export function useWorkspaceSession() {
       // Failed/missing later requests do not retire an actual same-session
       // write. Only a newer verified fulfillment may supersede this observation;
       // current-only metadata/model/history adoption keeps its stricter gate.
-      if (verifiedResponse && writeObservation > latestVerifiedWriteObservation.current) {
+      const verifiedBasis = verifiedWriteBasis(verifiedResponse, generation, projectSessionGenerationRef.current,
+        writeObservation, latestVerifiedWriteObservation.current, responseModelChanged ? -1 : requestRevision, returnedModelHash, "create");
+      if (verifiedBasis) {
         latestVerifiedWriteObservation.current = writeObservation;
         savedBasisSequence.current += 1;
-        setSavedModelBasis({ generation, revision: responseModelChanged ? -1 : requestRevision, hash: returnedModelHash!.value, source: "create" });
+        setSavedModelBasis(verifiedBasis);
       }
       if (!stillCurrent()) return;
       const returnedHistory = modelChanged || requestHistoricalRun
@@ -1574,21 +1609,28 @@ export function useWorkspaceSession() {
       setProjectMessage(created.summary.message);
       setProjectOperation("create");
     } catch (error) {
+      if (pendingObservation && sameProjectSession() &&
+        pendingObservation.envelope?.model?.project?.id === requestModel.project.id &&
+        pendingObservation.envelope?.summary?.project_id === requestModel.project.id) {
+        recordPersistenceObservation(pendingObservation.envelope, null, null, "create", generation,
+          pendingObservation.ordinal, false, requestModel.project.id);
+      }
       if (!stillCurrent()) return;
       setProjectMessage(`Create failed: ${String(error)}`);
       setProjectOperation("create_failed");
     } finally {
-      if (request === projectRequest.current) setProjectBusy(false);
+      releaseProjectOperation(owner);
     }
   }
 
   async function handleCreateBlankProject() {
-    const blankModel = buildBlankLocalModelDocument();
+    const owner = acquireProjectOperation();
+    if (!owner) return;
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
-    setProjectBusy(true);
     try {
+      const blankModel = buildBlankLocalModelDocument();
       const blankModelHash = await computeModelHash(blankModel);
       const envelopeHash = await computeProjectEnvelopeHash({
         model: blankModel,
@@ -1624,6 +1666,7 @@ export function useWorkspaceSession() {
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
       advanceProjectSession();
+      recordPersistenceObservation(created, returnedHash, returnedEnvelopeHash, "create", projectSessionGenerationRef.current, ++persistedWriteObservation.current, verifiedBlankResponse, blankModel.project.id);
       // A successful New Blank starts the first-open shell context. Failed or
       // superseded creates never reach this commit boundary or change chrome.
       routingInspectorRestore.current = null;
@@ -1674,15 +1717,16 @@ export function useWorkspaceSession() {
       setProjectMessage(`Blank create failed: ${String(error)}`);
       setProjectOperation("create_blank_failed");
     } finally {
-      if (request === projectRequest.current) setProjectBusy(false);
+      releaseProjectOperation(owner);
     }
   }
 
   async function handleOpenProject(projectId: string | null = null) {
+    const owner = acquireProjectOperation();
+    if (!owner) return;
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
-    setProjectBusy(true);
     try {
       const opened = await openLocalProject(projectId);
       if (!stillCurrent()) return;
@@ -1765,12 +1809,14 @@ export function useWorkspaceSession() {
       setProjectMessage(`Open failed: ${String(error)}`);
       setProjectOperation("open_failed");
     } finally {
-      if (request === projectRequest.current) setProjectBusy(false);
+      releaseProjectOperation(owner);
     }
   }
 
   async function handleSaveProject() {
     if (!model) return;
+    const owner = acquireProjectOperation();
+    if (!owner) return;
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
@@ -1780,9 +1826,9 @@ export function useWorkspaceSession() {
     const sameProjectSession = () => generation === projectSessionGenerationRef.current && currentModel.current?.project.id === requestModel.project.id;
     const requestHistoricalRun = historicalRun;
     const requestMigrationLedgerCount = modelMigrationLedger.length;
-    const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
-    setProjectBusy(true);
+    let pendingObservation: { envelope: LocalProjectEnvelope; ordinal: number } | null = null;
     try {
+      const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
       const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : result;
@@ -1812,15 +1858,11 @@ export function useWorkspaceSession() {
         modelDocumentMigration
       );
       const writeObservation = ++persistedWriteObservation.current;
-      // The persisted bytes have been rewritten, so the open-time verification
-      // no longer describes them, even when a model edit has since advanced the
-      // epoch and this response is dropped. A later project request owns the
-      // cells instead; a request that fails persisted nothing and leaves them.
-      if (request === projectRequest.current) {
-        setModelHashIntegrity(null);
-        setProjectEnvelopeHashIntegrity(null);
-      }
       if (!sameProjectSession()) return;
+      pendingObservation = { envelope: saved, ordinal: writeObservation };
+      // Retire the old observation while verification of rewritten bytes is pending.
+      setModelHashIntegrity(null);
+      setProjectEnvelopeHashIntegrity(null);
       const returnedModelHash = await computeModelHash(saved.model);
       if (!sameProjectSession()) return;
       const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
@@ -1846,6 +1888,14 @@ export function useWorkspaceSession() {
         saved.summary.project_id === requestModel.project.id &&
         persistenceHashesMatch(saved, returnedModelHash, recomputedReturnedEnvelopeHash, !responseModelChanged ? requestHistoricalRun?.modelHash ?? null : null) &&
         (!responseModelChanged || modelChanged));
+      recordPersistenceObservation(saved, returnedModelHash, recomputedReturnedEnvelopeHash, "save", generation, writeObservation, verifiedResponse, requestModel.project.id, Boolean(verifiedResponse && requestHistoricalRun && !responseModelChanged));
+      pendingObservation = null;
+      if (saved.model.project.id !== requestModel.project.id || saved.summary.project_id !== requestModel.project.id) {
+        if (!stillCurrent()) return;
+        setProjectMessage("Save failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: returned project identity does not match the requested project.");
+        setProjectOperation("save_failed");
+        return;
+      }
       if (responseModelChanged && !modelChanged) {
         if (!stillCurrent()) return;
         setProjectMessage("Save failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: returned model change is not bound to the supported persisted normalization transition.");
@@ -1855,10 +1905,12 @@ export function useWorkspaceSession() {
       // Failed/missing later requests do not retire an actual same-session
       // write. Only a newer verified fulfillment may supersede this observation;
       // current-only metadata/model/history adoption keeps its stricter gate.
-      if (verifiedResponse && writeObservation > latestVerifiedWriteObservation.current) {
+      const verifiedBasis = verifiedWriteBasis(verifiedResponse, generation, projectSessionGenerationRef.current,
+        writeObservation, latestVerifiedWriteObservation.current, responseModelChanged ? -1 : requestRevision, returnedModelHash, "save");
+      if (verifiedBasis) {
         latestVerifiedWriteObservation.current = writeObservation;
         savedBasisSequence.current += 1;
-        setSavedModelBasis({ generation, revision: responseModelChanged ? -1 : requestRevision, hash: returnedModelHash!.value, source: "save" });
+        setSavedModelBasis(verifiedBasis);
       }
       if (!stillCurrent()) return;
       const returnedHistory = modelChanged || requestHistoricalRun
@@ -1883,22 +1935,23 @@ export function useWorkspaceSession() {
       setProjectMessage(saved.summary.message);
       setProjectOperation("save");
     } catch (error) {
+      if (pendingObservation && sameProjectSession() &&
+        pendingObservation.envelope?.model?.project?.id === requestModel.project.id &&
+        pendingObservation.envelope?.summary?.project_id === requestModel.project.id) {
+        recordPersistenceObservation(pendingObservation.envelope, null, null, "save", generation,
+          pendingObservation.ordinal, false, requestModel.project.id);
+      }
       if (!stillCurrent()) return;
       setProjectMessage(`Save failed: ${String(error)}`);
       setProjectOperation("save_failed");
     } finally {
-      if (request === projectRequest.current) setProjectBusy(false);
+      releaseProjectOperation(owner);
     }
   }
 
   async function handleListProjects() {
-    // The list takes no request number: taking one would make a pending
-    // save's `stillCurrent` false and drop its result. It owns the busy state
-    // only when it starts idle and no request-numbered handler has started
-    // since, so it reads the request number and never advances it.
-    if (projectBusy) return;
-    const requestAtStart = projectRequest.current;
-    setProjectBusy(true);
+    const owner = acquireProjectOperation();
+    if (!owner) return;
     try {
       const listed = await listLocalProjects();
       setProjectIndex(listed);
@@ -1910,7 +1963,7 @@ export function useWorkspaceSession() {
       setProjectMessage(`List failed: ${String(error)}`);
       setProjectOperation("list_failed");
     } finally {
-      if (requestAtStart === projectRequest.current) setProjectBusy(false);
+      releaseProjectOperation(owner);
     }
   }
 
@@ -2203,10 +2256,11 @@ export function useWorkspaceSession() {
   const nativeReviewEnabled = railStageState("review", nativeRunPresence).enabled;
   const nativeProjectName = projectSummary?.project_name ?? model?.project.name ?? null;
   useEffect(() => {
-    if (!model || !isTauriRuntime()) return;
+    if (!isTauriRuntime()) return;
     void syncNativeShellState({
       projectName: nativeProjectName,
       modelEdited,
+      projectBusy,
       stage: shellNow.stage,
       view: stageViewNow,
       theme: uiPreferences.theme,
@@ -2219,7 +2273,7 @@ export function useWorkspaceSession() {
       canRun: !running,
       canCancel: running
     }).catch((error: unknown) => console.warn("Native shell state sync failed", error));
-  }, [Boolean(model), nativeProjectName, modelEdited, shellNow.stage, stageViewNow, uiPreferences.theme, uiPreferences.density,
+  }, [Boolean(model), nativeProjectName, modelEdited, projectBusy, shellNow.stage, stageViewNow, uiPreferences.theme, uiPreferences.density,
     nativeResultsEnabled, nativeReviewEnabled, inspectorCollapsed, undoStack.length, redoStack.length, operationBusy, running]);
 
   // Latest-closure ref so native menu events (registered once) always dispatch

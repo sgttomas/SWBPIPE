@@ -910,6 +910,7 @@ function AppSession() {
                 editorIntents={editorIntents}
                 proposal={proposal}
                 modelHashIntegrity={modelHashIntegrity}
+                projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
               />
               <ProjectValidationPanel
                 model={model}

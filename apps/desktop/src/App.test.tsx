@@ -3736,7 +3736,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-model-hash")
         .textContent,
-    ).toContain("integrity=open_verification_not_run_this_session");
+    ).toContain("integrity=persistence_verification_not_run_this_session");
     expect(
       within(projectValidation).getByTestId("project-validation-envelope-hash")
         .textContent,
@@ -3750,7 +3750,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-envelope-hash")
         .textContent,
-    ).toContain("integrity=open_verification_not_run_this_session");
+    ).toContain("integrity=persistence_verification_not_run_this_session");
     expect(
       within(projectValidation).getByTestId("project-validation-round-trip")
         .textContent,
@@ -3943,7 +3943,7 @@ describe("SWBPIPE desktop preview", () => {
       "not_persisted",
     );
     expect(validationPacket.summary.model_hash_integrity_status).toBe(
-      "open_verification_not_run_this_session",
+      "persistence_verification_not_run_this_session",
     );
     expect(validationPacket.model_hash.value).toMatch(/^sha256:[0-9a-f]{64}$/);
     expect(validationPacket.model_hash_integrity).toBeNull();
@@ -3958,7 +3958,7 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(
       validationPacket.summary.project_envelope_hash_integrity_status,
-    ).toBe("open_verification_not_run_this_session");
+    ).toBe("persistence_verification_not_run_this_session");
     expect(validationPacket.project_envelope_hash).toBeNull();
     expect(validationPacket.project_envelope_hash_integrity).toBeNull();
     expect(
@@ -8533,7 +8533,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("persisted_model_hash_ref=not_persisted");
     expect(
       within(storageAudit).getByTestId("model-hash-integrity").textContent,
-    ).toContain("no open-verification has run this session");
+    ).toContain("no persistence verification has run this session");
 
     fireEvent.click(screen.getByTestId("workspace-dock-close"));
     const tree = screen.getByLabelText("Model tree");
@@ -16598,7 +16598,7 @@ describe("Tier3 adversarial batch publication", () => {
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("2 retained operation records");
   });
 
-  it("discards a pending batch when another model opens, and ignores delayed save metadata after a model replacement", async () => {
+  it("blocks replacement during Save, then discards a pending batch when another model opens", async () => {
     const { envelope } = await openBatchContext();
     await requeueFirstContext();
     const apply = deferred<unknown>();
@@ -16619,8 +16619,13 @@ describe("Tier3 adversarial batch publication", () => {
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
     act(() => nativeMenuCommand("file.open-local"));
+    await act(async () => { await Promise.resolve(); });
+    expect(screen.getByTestId("command-selection-readout")).not.toHaveTextContent("project:second-replacement");
+    await act(async () => { save.reject(new Error("Synthetic save failure before replacement")); await save.promise.catch(() => undefined); });
+    await waitFor(() => expect(screen.getByRole("button", { name: /^Open local$/ })).toBeEnabled());
+    act(() => nativeMenuCommand("file.open-local"));
     await waitFor(() => expect(screen.getByTestId("command-selection-readout")).toHaveTextContent("project:second-replacement"));
-    await act(async () => { apply.resolve({ deliberately: "unreadable stale application" }); save.resolve({ deliberately: "unreadable stale save" }); await Promise.all([apply.promise, save.promise]); });
+    await act(async () => { apply.resolve({ deliberately: "unreadable stale application" }); await apply.promise; });
     expect(screen.getByTestId("command-selection-readout")).toHaveTextContent("project:second-replacement");
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("0 retained operation records");
     expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();

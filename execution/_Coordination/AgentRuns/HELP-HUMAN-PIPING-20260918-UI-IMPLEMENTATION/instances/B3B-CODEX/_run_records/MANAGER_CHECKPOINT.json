@@ -1,0 +1,14 @@
+{
+  "base": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "sourceFreezeSha256": "ded873f772afe235d2b29ba20e855d7653364c1e8ba2a30baca943300af4fa51",
+  "workerReturnSha256": "a543d2a1f5c403209b17b2c2a49f1d76d6bbb4ef26a865e9b4ec8876503ef6fb",
+  "manager": "/root/b3_manager",
+  "review": "manager complete-diff integration check; not independent review",
+  "finding": "Malformed fulfilled-response catch double dereference reproduced and repaired before checkpoint; previous freeze/raw failures retained.",
+  "gatesPending": [
+    "focused B3B browser",
+    "combined native witness",
+    "ROOT independent batch review/full sweep/CI"
+  ],
+  "sourcePaths": 13
+}

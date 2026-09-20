@@ -1,0 +1,31 @@
+   Compiling objc2-exception-helper v0.1.1
+   Compiling libsqlite3-sys v0.30.1
+   Compiling openpipestress-desktop v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri)
+   Compiling objc2 v0.6.4
+   Compiling block2 v0.6.2
+   Compiling objc2-core-foundation v0.3.2
+   Compiling dispatch2 v0.3.1
+   Compiling rusqlite v0.32.1
+   Compiling objc2-foundation v0.3.2
+   Compiling objc2-app-kit v0.3.2
+   Compiling objc2-web-kit v0.3.2
+   Compiling tao v0.35.2
+   Compiling muda v0.19.1
+   Compiling window-vibrancy v0.6.0
+   Compiling rfd v0.16.0
+   Compiling wry v0.55.1
+   Compiling tauri-runtime v2.11.1
+   Compiling tauri-runtime-wry v2.11.1
+   Compiling tauri v2.11.1
+   Compiling tauri-plugin-fs v2.5.1
+   Compiling tauri-plugin-dialog v2.7.2
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 13.83s
+     Running unittests src/lib.rs (target/debug/deps/openpipestress_desktop_lib-158117a932e63ba8)
+
+running 3 tests
+test tests::native_shell_state_projects_checks_and_enabled_actions ... ok
+test tests::native_shell_state_disables_all_project_commands_while_busy ... ok
+test tests::native_shell_state_accepts_only_supported_menu_domains ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 99 filtered out; finished in 0.00s
+

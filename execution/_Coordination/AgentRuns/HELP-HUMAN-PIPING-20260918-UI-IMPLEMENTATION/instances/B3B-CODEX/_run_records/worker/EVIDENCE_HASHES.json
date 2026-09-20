@@ -1,0 +1,74 @@
+[
+  {
+    "path": "app-focused-1.log",
+    "sha256": "81057515c9169e25d7588b6dc8ad8683d7e48a8979f2ab993bffeabb48c00a8a"
+  },
+  {
+    "path": "fail-before-busy.log",
+    "sha256": "19692c3aa0d5ca6c209143444fe13b7efd325ee112ae00e44418a0fef88ef0ef"
+  },
+  {
+    "path": "fail-before-integrity.log",
+    "sha256": "bf7d6a251a9489912dbba248ecd8430b4cd6a27b054d76d77b25d6c0af2b1582"
+  },
+  {
+    "path": "final-edge-backcheck.log",
+    "sha256": "d116c84e063a4f91efe3b11ece0bbf4b56757e63ebff552a916a19dcf33a2e72"
+  },
+  {
+    "path": "handlers-1.log",
+    "sha256": "6e2532a26493da605cc5cf5d39c918dd5b3d31c98e455c4600ccec97dad80d35"
+  },
+  {
+    "path": "handlers-2.log",
+    "sha256": "c502bdb5f4e37c3d8b2fd343db122473af07ae246fe5e98ca716cd880b3b2e53"
+  },
+  {
+    "path": "handlers-3.log",
+    "sha256": "88ff21eefa08534c51dfc27643b98a7e2f18b709af0b20243df3d646cd3de0f1"
+  },
+  {
+    "path": "handlers-final.log",
+    "sha256": "dc23d9e01de24ce36490eb87bb96f3cc238335a6cadee545e212763151128503"
+  },
+  {
+    "path": "malformed-fail-before.log",
+    "sha256": "8b639474f145df316957aa29539e2c8dd91d6b9444ee6c553a2be3475288bf5c"
+  },
+  {
+    "path": "malformed-pass-after.log",
+    "sha256": "1c8be2f3c3206be15fe3566b80b17efb55795496ecd3e3d5f18dc8091343aac2"
+  },
+  {
+    "path": "no-model-historical-final.log",
+    "sha256": "61fca08842e99d72a0269d17b2440a40ff0545bb18b14396c738878b6ab82419"
+  },
+  {
+    "path": "no-model-native-state.log",
+    "sha256": "c1ac3852e290715fd577c4d62eecce87f52261d969c935de46525b8bf79dc693"
+  },
+  {
+    "path": "rust-native-state.log",
+    "sha256": "adad62bd22acdd899c8e9ae0b97d193d98ab1376bf18ee7386ddf0a722375382"
+  },
+  {
+    "path": "typescript-1.log",
+    "sha256": "ab2e81790400a3fa983460fa0e510fd9585e9d9c6e1a772d63c2ee3ae8add0c8"
+  },
+  {
+    "path": "typescript-2.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "typescript-final.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "typescript-freeze.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "typescript-refreeze.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

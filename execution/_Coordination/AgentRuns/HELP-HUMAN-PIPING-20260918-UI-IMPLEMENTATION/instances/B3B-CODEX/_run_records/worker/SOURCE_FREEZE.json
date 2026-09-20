@@ -1,0 +1,58 @@
+{
+  "base": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "frozen_at": "2026-09-20T18:35:27.699711+00:00",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+      "sha256": "513d34c54dcff47b429394164022cfc1667c5bcee5b71e3afe75afd0e540ab3a"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "3858a400e3833016e2871c713c93b71dcd6f05c11418aea050ab276c2530f3ba"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "cda79e4a659bfb8db63935ed0f804088490ae0ca64fee07a272b27347143bc5c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
+      "sha256": "5f4ea50d86f1f2ee78f3b1b0cb31a5aff562f034324f6dae54bb6ac9396ff544"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
+      "sha256": "ff488fe73196cdc7a2c7c0f0ac9af5b4a8d1d8acc0cdea00e0eebfbb27f61d36"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/projectPersistenceIntegrity.ts",
+      "sha256": "147232fdee74d2dfa023fa39058821c4b725e07436ecd393a1fb5809c0330c0e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/projectSessionState.ts",
+      "sha256": "3c9cba4677a2d9f0a2c8845780e3cc7afbe9965fa5ed00f419951f01c4785dff"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "a4d0d01be6a24b74747ff2504249100df274ea9ee69e1fca0f78715598d84bd8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts",
+      "sha256": "d3b960c14a648c20091e22828b34b483982b0a451c3521f0410c2096030b7e56"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "sha256": "a2ccaf863646c48c3f1c3303ad31ae87132311c28f72b343824f47ac58a83314"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/projectPersistenceIntegrity.test.ts",
+      "sha256": "a9d6182f63889f48cd9d29496e180f0e9b6e2bbceaaefa1e435bc68bee1dfe2f"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b3b-project-persistence.spec.ts",
+      "sha256": "9703a4ff4d9ee7a69a75c3d6ab144b44235081cce2f5cf8d7db09ef51396866b"
+    }
+  ]
+}

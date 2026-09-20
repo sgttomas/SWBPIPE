@@ -1,0 +1,110 @@
+[
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:AGENTS.md",
+    "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/AGENTS.md",
+    "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/loop/LOOP_INIT.md",
+    "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:.agents/skills/software-defect-diagnosis/SKILL.md",
+    "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src/features/workspace/savedModelBasis.ts",
+    "sha256": "9ae794ba66d94abe0ef859cac7e5d6095e8a89f3889d4b28b514960f17a1cbb4"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts",
+    "sha256": "4927514880caee095e22945940baba2627e3dbde0ed5ee766f39c5d76beab462"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+    "sha256": "0f212e8de2eb8b5901e5fd159db5c4d220f4ba6ff9e8993c9f3987ed4bd9b754"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+    "sha256": "c996c234c07c40555576fa439725a4c52dab16e317a6e59ca11f3add19a01010"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/package.json",
+    "sha256": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/tsconfig.json",
+    "sha256": "cc32a3c2be133425d30e112e3dc863c9dbe1ecbbdd81123abf6d6a0300a8ae5c"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+    "sha256": "2574fbb8ab1029a023be68843bd50b6378b5f1b4ddf8b868e9b5c0551b6754e6"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+    "sha256": "19b6b4c15e4271b29221461b83c2dd001e54a6a5b8d05429150aa69e4d6c2a99"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "sha256": "e8fbfed55cb7cd8167fb340e9c7af0591d2c2c4e4763e1d50fc5b01968edacfb"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src/App.tsx",
+    "sha256": "e697527738e2238a3a7b1f1605118af89ee9f2c236570a20a41085909d5eeb1b"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
+    "sha256": "0291da1fcfda7299fedc9414e19d614d13812ca294b472b509959f2c5e6ca7fa"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
+    "sha256": "d3f986d9c431fb9caaa6cb0a49c706d8b6e643911852ec47ddd611971d501a2d"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src/features/workspace/projectPersistenceIntegrity.ts",
+    "sha256": "42f46efd5bacd6bd4d50e77ed78bc157073cb4cadbca0f92cd4736c6ce3baf9a"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src/features/workspace/projectSessionState.ts",
+    "sha256": "b74e7d1556125840fb827363632c01373d8b03c2fc3718cc24071b0624d3b5a3"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+    "sha256": "334430176ec9e18b5c1d4eda21e8ccb9f2435b28bae7ccca4b79d26292dda0f6"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts",
+    "sha256": "03ca5ee1f7fb73e632d904a5a7cf42596fc2399e4b6424c824f46a725d3e92d9"
+  },
+  {
+    "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/apps/desktop/src/types.ts",
+    "sha256": "7de6955c2c541557d988554132a58789081727c5ef9cfc1c4d3d7b0253deb409"
+  },
+  {
+    "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_MANAGER_BRIEF.md",
+    "sha256": "03186a0b04d1809ceb81139872a42c895ab2345cd6aa8cfbf4487b17b94f8b98"
+  },
+  {
+    "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_PREPARATION_RETURN.md",
+    "sha256": "e1094aa9f2ae13443e49ae557c6fa062d26d7ff75d44796663c990d59c375e1d"
+  },
+  {
+    "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/C3_SHARED_INTERFACE_DRAFT.md",
+    "sha256": "34815f05fe750db1ae36af3dff30a117d3e74d3ffde6522d32f64fb60671cea9"
+  },
+  {
+    "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md",
+    "sha256": "5b86c2783c5d460adf63b69dc3a49db7df672795f0feeb59079a2f93a82c0f4e"
+  }
+]

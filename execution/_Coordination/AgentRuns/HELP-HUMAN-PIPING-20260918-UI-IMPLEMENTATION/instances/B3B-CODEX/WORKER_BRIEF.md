@@ -1,0 +1,42 @@
+# B3B implementation TASK
+
+Parent: /root/b3_manager, WORKING_ITEMS Type 1, gpt-6-astra/high, under ROOT HELP_HUMAN. Executor: fresh TASK Type 2, gpt-6-astra/low via collaboration.spawn_agent, no descendants. Host unrestricted; scope and resource limits instruction-enforced. Expected base is merged main 88c6c7463199d1d69caebde04678fa74facca78f. Manager fast-forwarded the clean assigned lane from dada3482. No source changes yet.
+
+Resolve REPO_ROOT from the explicitly supplied assigned workdir; WORKING_ROOT=REPO_ROOT/projects/chirality-piping. RUN=WORKING_ROOT/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION. Always pass an explicit workdir; shared default cwd belongs to ROOT. Evidence only RUN/instances/B3B-CODEX/_run_records/worker; return RUN/instances/B3B-CODEX/WORKER_RETURN.md. Manager owns other B3B evidence. Do not commit, push, PR, merge, stage unrelated files or touch ROOT graph/records.
+
+Read root AGENTS.md, agents/AGENT_TASK.md, Piping AGENTS.md and loop/LOOP_INIT.md. Apply .agents/skills/software-defect-diagnosis/SKILL.md for fail-before causal checks. Read ROOT continuation B3B_MANAGER_BRIEF.md (03186a0b04d1809ceb81139872a42c895ab2345cd6aa8cfbf4487b17b94f8b98), _run_records/B3B_PREPARATION_RETURN.md, C3_SHARED_INTERFACE_DRAFT.md and owner instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md items 3–4. ROOT continuation's actual checkout origin is in _run_records/LAUNCH_INPUTS.json; read there when not yet in assigned Git basis. Read actual source, not only this plan. Instruction/source origins and hashes are in LAUNCH_INPUTS.json; record additional material consulted inputs in your concise return, not copies of recoverable Git history.
+
+## Objective and precise write scope
+Implement native File New/Open/Save/List availability matching project busy state, including synchronous controller ownership, and truthful session integrity observations at landed save/create with source/time through panels and downloads. Keep canonical saved-basis marker, Current/Historical gates, model/history, supported normalization and failure handling.
+
+Allowed production paths relative to apps/desktop:
+- src/features/workspace/workspaceSession.ts
+- src/features/workspace/projectSessionState.ts
+- src/features/workspace/projectPersistenceIntegrity.ts
+- src/services/nativeMenu.ts
+- src-tauri/src/lib.rs
+- src/types.ts (existing session-only integrity types; no persisted field)
+- src/features/project-storage/ProjectStorageAuditPanel.tsx
+- src/features/project-validation/ProjectValidationPanel.tsx
+- src/App.tsx (integrity prop plumbing only)
+Allowed tests: src/App.projectHandlers.test.tsx; specifically related persistence/native-state tests in src/App.test.tsx, src/App.shell.test.tsx, src/features/workspace/workspaceSession.shell.test.tsx; new src/features/workspace/projectPersistenceIntegrity.test.ts and focused panel tests adjacent to the two changed panels; src-tauri/src/lib.rs native-state tests; new e2e/b3b-project-persistence.spec.ts. Do not edit unrelated tests. Return a concrete scope request before any other maintained path.
+
+CI economy owns e2e/ui-foundation.spec.ts, e2e/workspace-layout.spec.ts and playwright.config.ts: no writes there. No C3 implementation yet; no viewport/modelIndex/selection/styles/diagnostic changes. No core/schema/Runtime/CI settings/DAG/deliverables, new accelerator, private model, new persisted project field, debug surface or timeouts. Standard F-PIP-2/DEC-081 fence; no qualification/acceptance claim.
+
+## Behavior and diagnosis
+One synchronous project-operation owner covers all five handlers (New Local, New Blank, Open including explicit ID, Save, List), acquired before counters/awaits and released only by that owner. Both pointer and native sink use it. React projectBusy and native enabled states project that ownership; neither replaces it. Reject same-turn duplicate and late dispatch during an active owner without advancing projectRequest or clearing another busy operation. Keep report-package and operation-edit ownership independent. Name the bounded guarantee: native commands delivered while busy are rejected; do not invent knowledge of events delivered after busy ends.
+
+Save/create observation derives from actual returned persisted model/envelope, canonical recomputation, project/summary identity, generation and supported normalization. Record local verification-observation time, not backend commit time. Bind values to the returned snapshot, even if a later UI edit makes its response ineligible for model/history adoption. Preserve B3A fulfillment-order and delayed-hash safeguards. Successful replacement must not receive old-generation evidence. Failure leaves prior evidence; invalid response or unavailable recomputation cannot produce verified_match. A deliberately retained Historical model-hash carrier is separate from canonical equality; disclose source/standing truthfully instead of calling a current canonical mismatch verified. Missing legacy claims are not persisted proof. Do not change engineering model or B3A integrity/adoption rules to simplify display.
+
+Audit all consumers. Existing ModelHashIntegrityEvidence and ProjectEnvelopeHashIntegrityEvidence verification_basis permit only open labels; add coherent save/create source/time without persisted schema. ProjectValidationPanel hardcodes *_verified_on_open and open-only null labels in summaries/downloads. Storage audit currently displays model integrity but omits it from its JSON; add both existing integrity observations to actual downloadable audit, and pass envelope observation through App. Keep persisted snapshot observation versus current local model explicit; do not imply later unsaved content has been verified by old save.
+
+## Verification and changed-oracle inventory
+Before repair, add meaningful failing tests for synchronous busy dispatch/native state and landed-save source/time/panel JSON. Preserve raw fail-before output. First report causal diagnosis and exact intended approach to manager, then proceed within scope.
+
+Inventory every formerly reachable busy-native setup changed. Known App.projectHandlers cases around 308/528/740/790/821/991/1024 rely on overlapping List/Open/Save or delayed hash; old clear-on-save expectations around 553/586/613 intentionally change. App.test around16601 combines pending batch/save/replacement. Keep unrelated assertions and failure guarantees. Where new busy policy makes overlap unreachable, retain meaningful lower-level production-used ownership/observation checks plus explicit blocked-route assertions; do not delete safeguards or make test-only bypasses. Preserve B3A P2 later valid/invalid write ordering, same-ID generation rejection, canonical Undo/Redo, normalization, Historical carrier; existing errors/missing Open and dropped blank-create remain protected.
+
+Cover same-turn double actions, all five busy native commands, list ownership, failure/missing/success release, edits during landed write, delayed verification, supported/invalid/missing hashes, source/time equality in actual data-URI JSON and panel display. Frozen-time tests must prove observation time is when verification completes, not backend summary metadata. Keep current/report/geometry/private-boundary assertions untouched. New connected B3B browser spec should use existing public controls, synthetic content, both 1440x920 and1280x800 as appropriate; native-class/browser screenshots never substitute for native proof.
+
+Do not run tests/builds/browser/native until manager grants the applicable resource slot. You may prepare source/tests now. On permission, run only focused Vitest/TypeScript/Rust checks needed for this slice; no full suite/build/e2e lane. Browser and native require separate reservations; no UI tools in this TASK without explicit grant. No probe implementation: if actual busy state is too transient, manager proposes isolated observability to ROOT first.
+
+Return source paths, semantics and before/after guarantees, named test amendments, exact commands/results/durations/environment and canonical raw paths/hashes, pending tests/limits. Keep one canonical evidence set, no copied source/history, no redundant full reruns. Freeze product/test bytes and tell manager before handoff; manager reviews/integrates, ROOT performs independent complete-batch review/full sweep. Later C3 bridge happens only after B3B controller freeze.
