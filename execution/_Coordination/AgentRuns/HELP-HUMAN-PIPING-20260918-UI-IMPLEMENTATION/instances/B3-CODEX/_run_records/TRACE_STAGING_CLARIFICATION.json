@@ -1,0 +1,91 @@
+{
+  "authority": "ROOT operational clarification in session; original sealed manager brief retained. No new owner product ruling.",
+  "verbatim": "Authorize ordinary git add -f for exactly the17 named trace.zip evidence files already bound in EVIDENCE_MANIFEST.json. This is reversible index staging of required in-scope raw evidence, not a history/ownership force operation. Record this narrow ROOT clarification against the brief's no-force wording; retain the sealed original brief. Do not change ignore rules, force-push/reset, add binaries/caches/oversized originals, or create unnecessary zip.gz wrappers. Verify the staged paths/hashes still match the manifest, then commit and return the frozen handoff.",
+  "scope": [
+    {
+      "path": "_run_records/compact-browser-artifacts/b3-accessibility-compact-r-5dea8-fore-narrow-shell-consumers-chromium-desktop/trace.zip",
+      "bytes": 1275777,
+      "sha256": "621fcfe3ea07aa93d97e6944b12f5cd7d81ca7b3eab228106cc0d1c029dac58a"
+    },
+    {
+      "path": "_run_records/compact-browser-artifacts/b3-accessibility-compact-r-e8042--configured-shell-consumers-chromium-desktop/trace.zip",
+      "bytes": 1471648,
+      "sha256": "c856cbdab94a85bce480a7ed5a88d57c5814bb55495eb09716a74d19fe2fa86b"
+    },
+    {
+      "path": "_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/trace.zip",
+      "bytes": 3108250,
+      "sha256": "c20173b1fa7e7a9cf2a5240a8c6da708c1436c27c56bb5368119e691983a2b5b"
+    },
+    {
+      "path": "_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/trace.zip",
+      "bytes": 3192909,
+      "sha256": "a5bccf9b2b1569955899d817448905f44f85a079c78bf47909d93f5d0ea1ce76"
+    },
+    {
+      "path": "_run_records/full-source-value-repair-artifacts/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-compact/trace.zip",
+      "bytes": 8910399,
+      "sha256": "c9b82b78b5584721eb97ace8ebb4169643359477468ca646c28d5d95e8163c47"
+    },
+    {
+      "path": "_run_records/full-source-value-repair-artifacts/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip",
+      "bytes": 9595303,
+      "sha256": "515d588493cf6983e861f2a838c9c25a4ccf1bda11ea0789ebbb559dc47df9cd"
+    },
+    {
+      "path": "_run_records/full-source-value-repair-artifacts/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/trace.zip",
+      "bytes": 5264588,
+      "sha256": "f2dedbae822443d4d268aa4beae28095ea722e29f73f164cf7c1e3cf89abc9b1"
+    },
+    {
+      "path": "_run_records/full-source-value-repair-artifacts/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop/trace.zip",
+      "bytes": 5136138,
+      "sha256": "6007298f7389604517e515e18b2eb35dda87428fc89a524b06267490ed087f1e"
+    },
+    {
+      "path": "_run_records/full-source-value-repair-artifacts/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/trace.zip",
+      "bytes": 2418252,
+      "sha256": "ad6d691c52c32477bba9275122f1c3d4975c341c9e159ed59d2ef4ab768f052f"
+    },
+    {
+      "path": "_run_records/full-source-value-repair-artifacts/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip",
+      "bytes": 2420032,
+      "sha256": "8eedfe66fedcce1e117dafa04da87e271c41cc9f79c5296e9b74cf74ca59fbc2"
+    },
+    {
+      "path": "_run_records/shell/authoring-repair-artifacts/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip",
+      "bytes": 7701855,
+      "sha256": "34303f7693637a96d532560bdf1468e69a3baa0c226931004771448652f9c29f"
+    },
+    {
+      "path": "_run_records/shell/clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/trace.zip",
+      "bytes": 1741254,
+      "sha256": "7aae3338a07f65f334dafdec47786ade241ec5603962fd68fb1456828e4982b9"
+    },
+    {
+      "path": "_run_records/shell/dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/trace.zip",
+      "bytes": 4486098,
+      "sha256": "88451d1ab704df9cd04605002637d8caa5287f3f87ea3f018363ff3e3821dd13"
+    },
+    {
+      "path": "_run_records/shell/source-complete-artifacts/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-desktop/trace.zip",
+      "bytes": 48319,
+      "sha256": "d3b6f998133a343162d5cee9d5338f87c71089e1d12c9355c8baf97649ee4eda"
+    },
+    {
+      "path": "_run_records/shell/source-final-artifacts/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-compact/trace.zip",
+      "bytes": 1834257,
+      "sha256": "0cde0845833fbed6e7f854afeb02e69c2b72025f0b5962a32b1daac4929b29ae"
+    },
+    {
+      "path": "_run_records/shell/source-portal-repair-artifacts/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-desktop/trace.zip",
+      "bytes": 4136298,
+      "sha256": "6d04fb42e94967337da21dc819135674820ae59c1c243329292762cf8ee58e73"
+    },
+    {
+      "path": "_run_records/shell/source-verified-artifacts/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip",
+      "bytes": 1472257,
+      "sha256": "d4ef7dc50abd2efdfbfbbd2108d0e5c7dd4d6efa8426e1ad7779d5bde968798a"
+    }
+  ]
+}

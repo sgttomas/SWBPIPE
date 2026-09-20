@@ -1,0 +1,4 @@
+6c11f17589b40d9cc0a80292dbf1133c294a644fa5645f14250bb9734cba3f78  projects/chirality-piping/apps/desktop/src/App.tsx
+6fe5fb546005bd3bd0b4f754098d6ba7815aaf259816b228ed9a0c651ff756cc  projects/chirality-piping/apps/desktop/src/styles.css
+c81b1e3522ee8da2194454c8db57041d0f0041d0321a4319f952d21d9e9c427f  projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts
+e13713b63d526dec658b983b98ccf6a00fd30ffafe055139e91a75eaaef1fad1  projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts

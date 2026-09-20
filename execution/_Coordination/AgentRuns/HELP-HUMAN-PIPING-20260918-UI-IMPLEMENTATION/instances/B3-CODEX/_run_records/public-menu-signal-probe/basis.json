@@ -1,0 +1,43 @@
+{
+  "role": "TASK Type2",
+  "model": "GPT-6 Astra",
+  "effort": "low",
+  "mechanism": "delegated-harness-native",
+  "parent": "/root/b3_manager",
+  "child": "/root/b3_manager/public_menu_signal_probe",
+  "host_enforcement": "unrestricted; scope instruction enforced",
+  "sources": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/.agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/briefs/PUBLIC_MENU_SIGNAL_PROBE.md",
+      "sha256": "6993f9a95adbbea5d9a4406852bbc7dc06c74494744d02ed57838bd3951bd94d"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/native-probe/RETURN.md",
+      "sha256": "b4381b46a97710573876f91d40bd64cbf533a80309edbb8732a4e5d1c5c334bd"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/select-popup-repair/RETURN.md",
+      "sha256": "21de1768896dfbc3b355b88396ca5f2da374e50a0738ea0e293961ad91cc5fc0"
+    }
+  ]
+}

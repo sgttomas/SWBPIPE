@@ -1,0 +1,15 @@
+{
+  "checkpoint": "2882acab94120cfa6c3c115ddb416a368cebd9cd",
+  "parent": "74e69a2691cc40d23d082b01afb33396b7e4d3f7",
+  "scope": "Two adopted predefined native text Undo/Redo responder lines only; no correlated-popup or diagnostic code in production",
+  "rustTests": {
+    "passed": 101,
+    "failed": 0,
+    "exitCode": 0,
+    "command": "cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml",
+    "workingDirectory": "projects/chirality-piping",
+    "log": "_run_records/native/responders-production-cargo.log",
+    "sha256": "3cfeb36188c85b6723f0e4b68d1f9c1c1d26d85ec3ad7277b095b002011527f2"
+  },
+  "nativeAcceptance": "pending uninstrumented final text-history and popup witness"
+}

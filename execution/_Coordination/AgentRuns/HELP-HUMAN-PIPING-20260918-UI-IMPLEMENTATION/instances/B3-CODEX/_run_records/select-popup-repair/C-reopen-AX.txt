@@ -1,0 +1,65 @@
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~						21 button (expanded) Inspector, Help: Inspector (⌘I), Secondary Actions: Collapse
++					189 button Close inspector, Help: Close (⎋)
++					190 container Viewport editor intents
++						191 heading Create node, Value: 3
++							192 text Create node
++						193 container
++							194 container Explicit node geometry
++								195 container
++									196 text Node ID
++									197 text field (settable) New node ID, Placeholder: node:N-3
++								198 container
++									199 text Label
++									200 text field (settable) New node label, Placeholder: Node label
++								201 container
++									202 text X
++									203 text field (settable) New node X coordinate, Placeholder: 0
++								204 container
++									205 text Y
++									206 text field (settable) New node Y coordinate, Placeholder: 0
++								207 container
++									208 text Z
++									209 text field (settable) New node Z coordinate, Placeholder: 0
++								210 container
++									211 text Coordinate unit
++									212 pop up button New node coordinate unit, Value: m
++								213 text Coordinates:  m, DEC-018 canonical Pointer plane: global XZ · Y=0  m Click within 4 CSS pixels on the visible 3D canvas to capture on global XZ at Y=0.
++								214 container
++									215 text Provenance
++									216 text field (settable) New node provenance
++								217 button (disabled) Add node, Help: Enter a node ID.; Enter a node label.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
++								218 text Enter a node ID.; Enter a node label.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
++							219 container Route review
++								220 heading Review and Apply, Value: 4
++									221 text Review and Apply
++								222 text The affected selection changed. Add again to review the current draft.
++								223 text Add a complete node or route to generate the service validation and exact diff.
++								224 button (disabled) Apply, Help: Add and review a draft before applying.
++							225 summary Unit source, Value: off
++								226 text Unit source
++						227 summary Pending changes (0), Value: off
++							228 text Pending changes (
++							229 text 0
++							230 text )
++					231 container Property inspector
++						232 heading Blank Local Model — project:project:blank-local-20260920t014507z, Value: 2
++							233 text Blank Local Model —  project : project:blank-local-20260920t014507z
++						234 tab group (selectable) Inspector views
++							235 tab (selected) Properties
++							236 tab (selectable) Task
++						237 summary All properties, Value: off
++							238 text All properties
++						239 summary Sources and units, Value: off
++							240 text Sources and units
++						241 summary New support configuration, Value: off
++							242 text New support configuration
++						243 summary New section, Value: off
++							244 text New section
++						245 summary New material, Value: off
++							246 text New material
++						247 summary New support, Value: off
++							248 text New support
++						249 summary New component, Value: off
++							250 text New component
+The focused UI element is 3 HTML content Description: SWBPIPE, URL: tauri://localhost

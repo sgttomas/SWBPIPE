@@ -1,0 +1,36 @@
+7: pointerdown key=None open=False value=m prevented=False
+9: focusin key=None open=False value=m prevented=False
+11: click key=None open=True value=m prevented=False
+13: keyup key='Escape' open=False value=m prevented=False
+15: keydown key='Escape' open=False value=m prevented=False
+19: focusout key=None open=False value=m prevented=False
+43: focusin key=None open=False value=m prevented=False
+45: keyup key='Tab' open=False value=m prevented=False
+47: keydown key=' ' open=False value=m prevented=False
+51: keyup key='Escape' open=False value=m prevented=False
+53: keydown key='Escape' open=False value=m prevented=False
+57: focusout key=None open=False value=m prevented=False
+81: focusin key=None open=False value=m prevented=False
+83: keyup key='Tab' open=False value=m prevented=False
+85: keydown key=' ' open=False value=m prevented=False
+89: keyup key=' ' open=True value=m prevented=False
+91: keydown key='Escape' open=False value=m prevented=False
+95: keyup key='Escape' open=False value=m prevented=False
+97: pointerdown key=None open=False value=m prevented=False
+99: click key=None open=True value=m prevented=False
+101: keydown key='Escape' open=False value=m prevented=False
+105: keyup key='Escape' open=False value=m prevented=False
+107: pointerdown key=None open=False value=m prevented=False
+109: input key=None open=False value=mm prevented=False
+113: change key=None open=False value=mm prevented=False
+115: keydown key='Escape' open=False value=mm prevented=False
+119: focusout key=None open=False value=mm prevented=False
+141: focusin key=None open=False value=mm prevented=False
+143: keyup key='Tab' open=False value=mm prevented=False
+145: keydown key='Escape' open=False value=mm prevented=False
+149: focusout key=None open=False value=mm prevented=False
+173: focusin key=None open=False value=mm prevented=False
+175: keyup key='Tab' open=False value=mm prevented=False
+177: keydown key=' ' open=False value=mm prevented=False
+181: keyup key=' ' open=True value=mm prevented=False
+183: keyup key='Escape' open=False value=mm prevented=False

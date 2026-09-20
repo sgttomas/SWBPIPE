@@ -1,0 +1,122 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:520:21)
+    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:905:18
+    at Object.react_stack_bottom_frame (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:520:21)
+    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:905:18
+    at Object.react_stack_bottom_frame (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+ ↓ src/App.shell.test.tsx > the rail's states through the product > before a run: Results and Review are disabled with No run yet, reachable by focus, and do nothing
+ ↓ src/App.shell.test.tsx > the rail's states through the product > after a solved run: both stages open, with no caption
+ ↓ src/App.shell.test.tsx > the rail's states through the product > after a failed run with none solved: Results is captioned Failed and Review says No solved run
+ ↓ src/App.shell.test.tsx > the rail's states through the product > with a reopened Historical run: Results is captioned Historical and Review needs a current run
+ ↓ src/App.shell.test.tsx > the status chip policy through the product (§5.4) > rule 2: a complete model that no run has solved lights no chip
+ ↓ src/App.shell.test.tsx > the status chip policy through the product (§5.4) > rules 3 and 4 with no rule pack: Solver alone off Review; Solver and Human on Review, and on no page over it
+ ↓ src/App.shell.test.tsx > the status chip policy through the product (§5.4) > rules 3 and 4 with a rule pack: two chips off Review, three on it
+ ↓ src/App.shell.test.tsx > the status chip policy through the product (§5.4) > rule 6: a Historical run lights no chip on any stage it can reach
+ ↓ src/App.shell.test.tsx > the status chip policy through the product (§5.4) > rule 5, as this tranche reads it: a model change drops the chips with the run
+ ↓ src/App.shell.test.tsx > the status chip policy through the product (§5.4) > a chip is read, never clicked to change anything: the click opens the raw token and the domain
+ ↓ src/App.shell.test.tsx > views, stages and mounted panels > keeps the canvas, the inspector and all ten sections mounted, with their state, across every stage and view
+ ↓ src/App.shell.test.tsx > views, stages and mounted panels > opens each stage in its first-open view and restores the view each was left in
+ ↓ src/App.shell.test.tsx > views, stages and mounted panels > keeps the five project controls findable by role and name while the Project page is closed, and opens them on it
+ ↓ src/App.shell.test.tsx > the toolbar band > runs and stops through the session's handlers, and leaves no second route
+ ↓ src/App.shell.test.tsx > the toolbar band > disables the Inspector toggle with its reason outside Both view, and the Agent toggle and strip always
+ ↓ src/App.shell.test.tsx > the toolbar band > carries the pending-change count on the Model stage's Review changes tab and names the stage on the rail
+ ↓ src/App.shell.test.tsx > the toolbar band > says Nothing to undo and Nothing to redo on the one undo stack's two buttons
+ ↓ src/App.shell.test.tsx > the toolbar band > keeps theme and density on labelled controls, in the View menu and in the palette
+ ↓ src/App.shell.test.tsx > the pointer rule: a key only accelerates a visible control > ⌘1 ⌘2 ⌘3 do what the view switch's segments do, and nothing where a segment is disabled
+ ↓ src/App.shell.test.tsx > the pointer rule: a key only accelerates a visible control > ⌘I does what the Inspector toggle does, and nothing where the toggle is disabled
+ ↓ src/App.shell.test.tsx > the pointer rule: a key only accelerates a visible control > ⌘K opens what the palette field opens, and ⎋ closes what a page's close control closes
+ ↓ src/App.shell.test.tsx > routing borrows the inspector > restores the prior collapsed state true after routing ends
+ ↓ src/App.shell.test.tsx > routing borrows the inspector > restores the prior collapsed state false after routing ends
+ ↓ src/App.shell.test.tsx > routing borrows the inspector > reveals Both view for routing from Table and returns focus before hiding the inspector
+ ↓ src/App.shell.test.tsx > native shell command equivalence > uses the shared sink for native views, stages and appearance, and publishes matching menu state
+ ↓ src/App.shell.test.tsx > an explicit native Inspector choice during routing supersedes automatic restoration
+ ↓ src/App.shell.test.tsx > reissuing a native routing command reveals its closed inspector home
+ ↓ src/App.shell.test.tsx > reviewed shell accessibility boundaries > keeps covered stage state mounted while marking it inert
+ ↓ src/App.shell.test.tsx > reviewed shell accessibility boundaries > Escape closes the Both inspector at 1280 and preserves Model docking
+ ↓ src/App.shell.test.tsx > reviewed shell accessibility boundaries > Escape closes the Both inspector at 1440 and preserves Model docking
+ ↓ src/App.shell.test.tsx > reviewed shell accessibility boundaries > Escape in portalled routing closes explicitly and cannot be undone by automatic restoration
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:520:21)
+    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:905:18
+    at Object.react_stack_bottom_frame (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:520:21)
+    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:905:18
+    at Object.react_stack_bottom_frame (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+stderr | src/App.shell.test.tsx > New Blank starts a fresh shell context > leaves a reopened Historical Results context on successful New Blank
+Native shell state sync failed Error: Unexpected command sync_native_shell_state
+    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/App.shell.test.tsx:125:83
+    at Mock (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:54:9)
+    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2108:10
+    at Object.react_stack_bottom_frame (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+
+ ✓ src/App.shell.test.tsx > New Blank starts a fresh shell context > resets Loads/Table and armed routing to Model/Both while retaining appearance and split preferences 419ms
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:520:21)
+    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:905:18
+    at Object.react_stack_bottom_frame (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:520:21)
+    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:905:18
+    at Object.react_stack_bottom_frame (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+ ✓ src/App.shell.test.tsx > New Blank starts a fresh shell context > leaves a reopened Historical Results context on successful New Blank 407ms
+ ✓ src/App.shell.test.tsx > New Blank starts a fresh shell context > preserves previous shell and preferences when New Blank fails 141ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed | 31 skipped (34)
+   Start at  23:01:03
+   Duration  2.62s (transform 1.09s, setup 70ms, import 1.32s, tests 968ms, environment 189ms)
+

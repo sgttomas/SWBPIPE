@@ -1,0 +1,21 @@
+{
+  "ACTIONS.md": "df38b1094fb686e848b6da2def7600218beb19386a567f9c8cd9d9a604372807",
+  "COMMANDS.md": "f47c076134874ac015c3adcb1a81a13dac1e519f788f811ee602d45bf2c212d5",
+  "RETURN.md": "7d2cfac5e2810d22bfd37e9ab82ae3acf65f63f1dae92338b34f081f8f641943",
+  "basis.json": "33f4bc04e0718b7df8cd21af70cf82a5897fc2904c5ec59e1ec4e3f4556b9ad5",
+  "before.patch": "545939a6844239c8906bf14b3ff3df557831e135b94bf0a683612f2e94d11a55",
+  "build.log": "2717f469823d6b6a05179600cfb3a8958683071f356e3912bc3698e34f6afd06",
+  "environment.txt": "eb9f1f282096cbf6a902995462fe7237946622410e39e99cc37ca3de9390ce73",
+  "launch.json": "056a7a196ba7c7bf94c4f0f333cb382109b734e9427504dc1eccc2c5ae27e7fb",
+  "menu-extract.txt": "b625e8570d9dbcf5ac7d2bfa72487dfb1704ddd343ba40896e02376892d93036",
+  "prelaunch-processes.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "preparation.json": "ecbc3ccac0446fdb1082a8974e65d13408494656908bd09229957dd2f248408f",
+  "prepared-hashes.json": "427527bf8f79548adadffd7ddf732fbb6f627ed540abfb690a0d5347d5d395d3",
+  "public-menu-probe.patch": "cde0ddbc8d74a62d166a59cee85de012a6649d1424bd7fa4e99523ae0a13e5bf",
+  "public_menu_probe.m": "f63a96cccd71310d4bdb7ea7dda63056ecfd40fd361f6e7bcdfed1418e0626a7",
+  "removed-C-nativeSelectPopup.test.ts": "2f1eb8bc759b89e02a0bbb1142c597017ee63e916e01736293d648a80a879351",
+  "removed-C-nativeSelectPopup.ts": "1bd63f00d14c7f041fc188f7facd0ba77b35f11cacc25c3fd0ca3bc4b1384dc3",
+  "runtime.log": "31a9087f6d02e2e0645e6f721f28ca418b4f410907d70a47ec0a0ce4ba644ad1",
+  "stop.json": "4ef7b7eab0f772bec898630cf3eecf71259803d960dbde228733fcbeaef9deb2",
+  "verified-process-before-stop.txt": "827e002f85ee2b4d7155bfa67ce35ab2a277d306d811bb555f0ae4a776103b0a"
+}

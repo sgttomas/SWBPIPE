@@ -1,0 +1,12 @@
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 129
+~						11 button (disabled) Undo model edit, Help: Nothing to undo
+~						12 button Redo model edit, Help: Redo (⇧⌘Z)
+~							52 text 2  of  2  model entities visible
+~							133 button (selected) Blank Local Model project:blank-local-20260920t014507z, Help: Blank Local Model (project:blank-local-20260920t014507z)
+~							73 button (disabled) Hide, Help: Select at least one visible, valid node, pipe, support, or component.
+~							74 button (disabled) Isolate, Help: Select at least one visible, valid node, pipe, support, or component.
+~							78 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
+~						84 text Selected:  project:blank-local-20260920t014507z
+~					114 text project: project:blank-local-20260920t014507z Entered
+The focused UI element is 3 HTML content Description: SWBPIPE, URL: tauri://localhost

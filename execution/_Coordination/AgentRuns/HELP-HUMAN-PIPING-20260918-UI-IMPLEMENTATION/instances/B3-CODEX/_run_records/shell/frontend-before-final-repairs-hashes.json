@@ -1,0 +1,1062 @@
+{
+  "utc": "2026-09-20T02:17:38.201360+00:00",
+  "head": "8f9c2d07104d467d635e78b6a405afb17ddc94f4",
+  "files": [
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/App.deadControls.test.tsx",
+      "sha256": "58d5d3e219372d02f0c0322d2bce5f3884e32062a85d2ac62369b50e38a65e96"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+      "sha256": "257aea975a63c9c4e52351b5fd269a0dd99acef03eb20d4f326ae7def72cf0ac"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/App.shell.test.tsx",
+      "sha256": "7d51378336a0240e149d7f738feda41e0c61239553f32cf0501d7dcc02aaee3f"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "8e5dc1622c9379302eaf29323baf8f393c5ecd6abccbc4466957b4ec9b79fad1"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "0c11c7a3f38ab7be9a9719548dbb7363fa4ffd7f90a110a48a4a0b307a7746bd"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/design/TOKENS_SOURCE.md",
+      "sha256": "5849139f5cc2e1781fa872d1c5e631e12caa39febe0bba8d11e7c8f591e3b373"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/design/themeAttribute.test.tsx",
+      "sha256": "fba4cfbc157ccb0d5f5334f3a6ff985a4031efd0c26722535294deb98c0bb45a"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/design/tokens.json",
+      "sha256": "00c1afe97365973e6c05a2a5d938a25c46022a55c3cbc8d04ff3a9d2d68cf1e9"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/design/tokens.test.ts",
+      "sha256": "c1394cd8a4917451b1d59da2afed31a7a8de506b4efeba927482048ea852b251"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
+      "sha256": "71c61291b7b9d8c4823b763747886f189f15359bd20342029f057c74286ec0d9"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx",
+      "sha256": "e12808badcf75d523c603548805494824407f8a16b7d56fd412855d433796478"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/agent-proposals/AgentProposalPanel.tsx",
+      "sha256": "4701d2abbb40207fbe94db3ead6df68c748f75467d64b58e05aecef49d60230f"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx",
+      "sha256": "06b95695489941331d6e10b48ae4ed98879bdec9dc95f3121d65a94a0099cd8f"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.tsx",
+      "sha256": "4e5c77c79e5c9535d0abcaad54e57e0bc323575831171766ee39f9d1380d201d"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/boundaryDraft.ts",
+      "sha256": "9b3205ea327657b85c05d796bcc42908a8392671ea9a77296946fee590c4e4ed"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
+      "sha256": "5c41f1fe44089149c99ec6831aa777d0ab9d42d3c8c5ccca8877836c66146fd4"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
+      "sha256": "0dc6d8d5ae6410f23739ce9e8f25e480909378008f5d27e6a81b923be867c9c1"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
+      "sha256": "4a40efc8f28eb16ac71d4dc77d2639db31add3dbc0bab179e967278aeb3a7149"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "sha256": "32d38da55dd71a2f6a6a8342251a77e46c335de9a89db70b737160fc85e05ee5"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/component-creation/componentIntent.ts",
+      "sha256": "9fe80410d9694f843cd7276029f98ec094302b3bddc3fd2131935a16a046e3b7"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
+      "sha256": "17ede84dfff962cb216c59be50f478ab4913713bbc70830bbd31ba52d053aaae"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
+      "sha256": "c752935edf4268f05adedc29a8f1047241c0cb498f8dd44144eeec657f637c1b"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
+      "sha256": "1377370e5d700544324d054016a67056fe882510c69c4f8d327e79cc38a1a28b"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/display-units/displayUnits.test.tsx",
+      "sha256": "f42010b92ab15d5b96e606a52dab71f6df5d27c22c3b4174b03e5ffc80798b45"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/display-units/index.tsx",
+      "sha256": "4bbdc032a715c1744da13ef7ed2c10afaae0bc989cd3299554af02239b560aea"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+      "sha256": "6f11925d91634d9acabca672dcb086501aa7c10608a65cc70f36dfb19a053cda"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/display-units/targets.ts",
+      "sha256": "fca1be3d49932312156dc597864b7f734a0428f9eb63330f5b9f8cddf169700f"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
+      "sha256": "5fda3f7d4f3ebd06302ffcad796a9dfeda070ab2e9e8265bcc06fb953b412422"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
+      "sha256": "808ff52f1fca4ef8ef88e7e5ca4dceda5d14d15864963039ac80d45715e192f2"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
+      "sha256": "b8ddf121628e11f8ba5d43177b85c1e8f33da4ae34cc36c57c3bbd4818a416c3"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/exportUnitDisclosure.ts",
+      "sha256": "07ce5a66ca7b952e04538000a15ddbacad1247ce9e5c207a2f085776c92d6e02"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
+      "sha256": "6c6e51fc6d98b6ea9ebb9dc86d0d3abdd952e77b7f315f8c92182c3b78a8bd17"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.test.tsx",
+      "sha256": "f91f12309cc36ff712aa56911fffd73dfc8ba653987656e01a82a96a7f82924b"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+      "sha256": "3970d1fe2ad86a05bddc1f4e3cb80545e4742e6e58eb7ff1d9e6eea4b33dda87"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/batchFormSupport.tsx",
+      "sha256": "beabba1eaab1fed0b4385e24983e605c581de1cf05a61634e61cdd52e4f8672b"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/geometryDraft.ts",
+      "sha256": "9cc22ac39d67bd0146f4cfe3ce05ee219e9c6b6845c6d2b0fc73839073401307"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/handoff/HandoffPanel.test.tsx",
+      "sha256": "7c7dca7b537bec06fb3578f035b8dda23cfe57ef59a1d327c4ebb11dc9bb55ec"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/handoff/HandoffPanel.tsx",
+      "sha256": "39890d77ad3c013c4388fe9192279b7771f97b16a10a602209ed8d4a483c3139"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/HangerSelectionPanel.tsx",
+      "sha256": "ed2fee35f4076f79378129b7cb6b9e9216aaf3573638c1a5e1022cc1350665b5"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/hangerSelection.ts",
+      "sha256": "c08ab28b37af12365fb05d0581bad6585c4f552752b0330bd9f50475e4d673b9"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/index.ts",
+      "sha256": "23a76f305f71a7cd50c321503c0fe010cb9299ed9902b14074e86049ce26bab8"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.test.tsx",
+      "sha256": "2836956026ffae46b7ac56044b865c3cbcf97e754b32e159560d8cc8fa4e6246"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+      "sha256": "35f6e719aade8625af744e7aa7dd9bdd7d5b132b8d59c17828481b7d6f40ce35"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
+      "sha256": "85f0635bf155aefe7cade9176a4efb6f088babbb9610a061fd6fb7c6fee4ce11"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/library/LibraryManagerPanel.test.tsx",
+      "sha256": "dae32dee2c33b2e552a04e36ca72219195ce3b1760e32a7febe1fe804fd7cf98"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/library/LibraryManagerPanel.tsx",
+      "sha256": "779fc6656563bca1326f1ab752093bc2ce2f041729a46d2a3f770e24aea30905"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "sha256": "88b47451ee30712c9d8e9e7ab56940520f2dfd90bd9daea620e1d0e441e3d88c"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+      "sha256": "8ba59a57b86a73bb38ed49c1c8305f2c2c5b1ef3b3c8976678cd96b118218b75"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+      "sha256": "2ed0ac4252eb0767469db4a95e461996bca94c835c1750fd719ad6fbfa77c9f6"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx",
+      "sha256": "6df8ac1a23c60febf39e72aa1ecb218b0f1d4e6231ae258054c2dd955c39a24e"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
+      "sha256": "38733e9ebc4247c8bd3f46139feda99d83f032dd0659aeae89cdc0b88cb4b245"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx",
+      "sha256": "a3b5678700f9bdd1e215e9335f5a9098167a11d1ae4c2b7320e93b04c6d841b2"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "0b2d6f9ffd3ae729b9106cb2188c0698c4796df133b3615d6d5e105d1dff0846"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "sha256": "0097ddd2fc06bfd05d5b39c14bb60f3f7c575ad2c801f97a8cc4d1baa0a91848"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/model-tree/schemaSlotEmission.test.tsx",
+      "sha256": "d025d6ebb2d4573d6c0baedd13f6ff655f9036667e6ade2d5d160bfc484083a1"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx",
+      "sha256": "5fed5701a8cd75431b05b1dc89e88b3de129f001d2f8889578b2bfef07680436"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.test.ts",
+      "sha256": "e1849e8ae3f0e2f8913f4428cbf7718dfd3e8c6596535dd66ddc08106c374743"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.ts",
+      "sha256": "bf02409037a67b6842e5ceef6fe38a132ac31c267524c5fd27ecb15b5534615e"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "sha256": "9e4461e96fec2383f873746c1797bd27306e7ddbe7362ae34e39266d4d3f4872"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/OfflineProposalIntakePanel.tsx",
+      "sha256": "f7cf7928b3b077d93be9ae7731d2cd1554aa170ddd79ab14539a3d1db53cb90e"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/index.ts",
+      "sha256": "296a6e209e05dba5869156565ac9888c92f6f4e04ddff780709e9ca541ff60bb"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/workflowSupport.ts",
+      "sha256": "658fe939ad818163678988a863f709a5617074474b313a42a8496caaaa3798c7"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/workflows.test.tsx",
+      "sha256": "12146869ab6d2c57c8c76d12ba2bca9f52c4fce3938095358ebd61a3ecc0773a"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/operations/OperationApplyPanel.tsx",
+      "sha256": "ae7c0074c9ddd62800469eba4718972d1110c58388a4fe87ce8491ea0f5416ff"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
+      "sha256": "717069282056ce4a8f420eab3776af8eb2d7ef50918e2fc02ad766ada850d6f0"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
+      "sha256": "e2e1e326fc5dfdc40d8a6e33d3b3d97be62d400a0d42d7546bb03905d577c34c"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
+      "sha256": "0291da1fcfda7299fedc9414e19d614d13812ca294b472b509959f2c5e6ca7fa"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
+      "sha256": "d3f986d9c431fb9caaa6cb0a49c706d8b6e643911852ec47ddd611971d501a2d"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "sha256": "4a2df280440156053b956efacb509bffc0168bb954cb3bb0a64271beffc9f749"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "12409babaca0868ad26addbf32cf4db7a48d6a8468d2594a7a9091d4f766ca08"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.test.tsx",
+      "sha256": "d362deb2d00c8a793c816dee558c05a7c608672957b24978cc6a5b6de93eed1f"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.tsx",
+      "sha256": "fe460c79f1eee5e4b0db28d24509a8f15bd1a3acd8cb190bbcda42f99c93dc10"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts",
+      "sha256": "91baf8bf8a94f7e81631eec7c35ef97b1adb22b2037f352862994cff19f24afb"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/redactionExportControls.ts",
+      "sha256": "0e5b4a8016e70b629ce20c0b271c88c5d779a29a623c09284713c78a3af0d653"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/report/RenderedReportPanel.tsx",
+      "sha256": "846accdb86db0045e34d64a57233c74ca4cde2eabb63f7062a9fba9d356d931f"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+      "sha256": "2bdf35d76e0bf140d476b75f56cc5498dda75e400a5664f9ccfb19575b40f21d"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/report/renderableReportInput.ts",
+      "sha256": "95fb228e3954bf4d0a1448048d782f12272bcf26e7b98d1bef66593be2a8ae9e"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/report/renderedReport.test.tsx",
+      "sha256": "a028a6e14771643d81fcbd42f1b6602e98e730643ffc4d16a4111f0bbbcf5c68"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "sha256": "0cd63116062c57434be786a9ace935417bf797b43286296498db1db226233855"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "sha256": "4ba14bba2f228399b4dd98fd3f158c4407a749a48a706e4860e0863d31173e7c"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/report/reportRedactionProjector.test.ts",
+      "sha256": "253a2dd856a826a1041a2a8526305d9b5d2210bfc87ae93b68b4ccb7c1da4d87"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/report/reportRedactionProjector.ts",
+      "sha256": "743acc2aaa9655266f2bd6c9c83961e08849372cfe4d29f7d5db5a88b9ecf504"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/report/stateComparisonHandoffSections.test.ts",
+      "sha256": "864b83754f6796e9a3f3979ede895c7c985929fe46af23d1b70fb551530527c8"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/report/stateComparisonHandoffSections.ts",
+      "sha256": "197c62814de74f629e5d6d8e2a91d4b759f2aa0b885eda9da3bc44f08b601c8d"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/report-lint/ReportLintPanel.tsx",
+      "sha256": "7a5af3e2fae9584893170d921360d96738fcd6be53d3ec74026471f6d9577d6d"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+      "sha256": "55e92399edd0829db06b4f8a8b86420824b1590327de1871bd24f7d5ff71c6d7"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "sha256": "d38f1949b0014a4153d8311626330433a9c60a1488ae634800b2cc71918562b5"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.test.ts",
+      "sha256": "4e169fc5af4ccc3f97ba6cf90416f0442d0bbd874a4350cc6cf65e6c587111b8"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.ts",
+      "sha256": "e5ae714cf71b238388cce3a6c5205918ca18dde352a2aa242e6a6191a2e63b59"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "1a778fb7b7c3f424cbf0394c0b3b3cc8dd174ecaae5863392236d92bb2cc6404"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "09e818165e8277730a7d52b310ed551f8005af0d3648cf4f25b417ddf2412d0e"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "sha256": "6d5a762e6d7e1b6238eb3eb8873e83f88904af6986a84b52f13049f4061f94c9"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "a433e7df1e8e942bd90eae12c478ac2143d9dd630409a0a37142858fa83d1dcd"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.test.tsx",
+      "sha256": "b4461511113772805aa23db6bc5068aa1d238641b79552022b3174804d0b49c1"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "f4ebca0acb87a635b1927b768e40e82081110172db691ce766d5e5e0f9f97176"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/results/resultInterpretation.ts",
+      "sha256": "e61c35ebf61f2114cf7c2fb5a89a5edcdc34c49794b72422b1221f788f3c5951"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.test.ts",
+      "sha256": "69081dbf91c303b8b5bf9dcd19437d86d49c0459fe55287b27fb0e481ca48b60"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "sha256": "919db707aa002a9464258fcc63f5129d3d356fad85c7570bd67067f967021d1f"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
+      "sha256": "37eb1ae08e8edf73495ec3c4106e2358f82a038f4b46e722fd0449695c08e67b"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.test.tsx",
+      "sha256": "e4a46800571089e764f61b67cb28784ec27ac920149d37d26688b8cc09160e2c"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.tsx",
+      "sha256": "6ca5b8b74f6754b2649512c596b30fd07eff7e29339e6d4ac7085f6731422fe9"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx",
+      "sha256": "9c4d7432ba2178d15b502bc905d257c6fb9d867ab4541f7ba59982f794773449"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx",
+      "sha256": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckPanel.tsx",
+      "sha256": "a3d946807f80fa082e97a8db5f35092088561ccda57d0f94d89b46600d28a557"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx",
+      "sha256": "e0a3c0e07cc86611ee73edbe5fc983b9ef53136372ed46db4ee61582f84fd585"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+      "sha256": "ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rule-packs/CheckDefinitionsEditor.test.tsx",
+      "sha256": "e25479f93947034bdc1ca64118290924f9fd755a846597363da9efe8905a3db5"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rule-packs/CheckDefinitionsEditor.tsx",
+      "sha256": "d9143d9c5572eebe406160f57ad9735b29c2729f6552f9bbe3200d73bb69ff5c"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rule-packs/DeclarationsEditor.test.tsx",
+      "sha256": "d36515ec66f39aef9a226062f908c8cb858e9e5e227f69d61c5e4bc859c47a9b"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx",
+      "sha256": "65cbd65ea5317ff7e53f516e17f57abca48ca787e8b0935c6ae434365683bfbc"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rule-packs/ExpressionComposer.test.tsx",
+      "sha256": "d5c22002ecd12572cba1662d63f6c59f859cb2f98f185de68ef2cab9af49c954"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rule-packs/ExpressionComposer.tsx",
+      "sha256": "34745bdbbfd5ec21a711624df91b3f30df69dc2e8d888fced7bdd9adfb9741de"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx",
+      "sha256": "66b2af50f0ed943f6880891a4244bdd12e25346b1b7108e56c2736e6d0e1b8d8"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx",
+      "sha256": "e95e7c1f5548ae22db007cbaae595c3d8eee5ceeb8860f045dcc0628e6d41586"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
+      "sha256": "bca2c513bb3c434ad93c4a53a1118fd51240c2fcdc092623064e69c438e9a455"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx",
+      "sha256": "cea5a220775220fa58a9cc55aa735e25a4c1c646c37fdaca79378e781c61321c"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
+      "sha256": "3604ad16844659cfcab55c7257ab91cdce9e2fe98b74de6feea384bfd845d8b7"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+      "sha256": "4a0c22f313d5fd9fc6e8fab6a31ea97ac3c8f894a83a423ad6c324e7b7f15496"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/index.ts",
+      "sha256": "ffec526638ca3002f0f8784cbcbbd792f08f2cf4974c3116e33eb4e0e1d26196"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx",
+      "sha256": "2b2f4aa1a973d72ca7b855042882c64fa7f533956cdbc2bad4057734062fc9ad"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "sha256": "3d454046af67d1b41a30f7220f1675c675996ff88c2eb3cccd248be12ffe6241"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "e08f2c23b3312b4e1e030acf908645206152d3c1d585a78a665898108e978071"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+      "sha256": "40dd6cfcfe37b08471cbb99f3f338f148f9519a15d9863f2bcfa5fb523752650"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx",
+      "sha256": "d165efc58b532bce747b6ead7db5853ce953fadbbd8a7975464ee8790eb71cb9"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/toolkit/BatchReviewPanel.tsx",
+      "sha256": "66a4f562d1354ea86041858b678c7c92e477d071aedb1a5a9ad4cdc59b976ba5"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+      "sha256": "0560e420d75322cc46a9d197d0a6f6464e7ab6aa4b696b5f6e970dd1663d74ec"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/toolkit/ExistingToolkitEngine.test.tsx",
+      "sha256": "88fb16d978b15314d01c87f4b9bed4594766bc34c11e88c25a7988ef263e1330"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.test.tsx",
+      "sha256": "2caa86acdc185893aeb1495fff12fe8881fac7dc7f645d29a5b243218a9e675d"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.tsx",
+      "sha256": "63d6a894c12edad9492861ee8266f23a52411148fa76a9eaf0e1fe119edb5586"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/toolkit/ResultQuantity.tsx",
+      "sha256": "bc8580052919490c6d8f8e5db9c3347c4a61cf0132ddfba428d782288c93a891"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/toolkit/SectionAssignment.tsx",
+      "sha256": "d15ad7fc5978c907ee4b3198aa08094010405c5dcde98b38b8661fd90390983a"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx",
+      "sha256": "c84690b02392af87a54702453317cf9f828e358b1ec8ebb5bdbea02c5a7f6592"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+      "sha256": "793fcba9dfd4eadc925b62a73fa36796e59cef64daa6626b0adde41e576d3490"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts",
+      "sha256": "fd1ec989258237a0dbeba416cf49c1b69bdf197d6a280b8f98dde8a0d03f3fe0"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
+      "sha256": "e4137e40e19c2589129607955a58dae2ab2b590f7ddc933af560138f59864a54"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "85a70e3f75a9bcca9fafc7752cc7414a765915847a67c6f7c33a52d0a7d01469"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.test.ts",
+      "sha256": "9de95189460a18bc67e231308c641978f38ee1d971f9e6c6343e0b5969d94633"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts",
+      "sha256": "cb258db1ab0750b891a023c0723cfbfdb55a898bb4930d4aaf4137cc6992c7a4"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/selectionPresentationBinding.test.ts",
+      "sha256": "205dbc9d2340cd9c226d65b41c4fa98db63da0f2483d78079eae4f1806018121"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/selectionPresentationBinding.ts",
+      "sha256": "cb3599b666a1acf225a1792fbce09d52aa8b7a5c13ba20fdb0b87bd6c9515df2"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportColourLiterals.test.ts",
+      "sha256": "24de2e4d3bc27e2d474f9ce376347106de7455aa1f3d51846792a331c0749537"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportFigureEdge.test.ts",
+      "sha256": "a442ff1060b39e41c8adf2165eb40a3e5a67ecb74050471e1bc6c1ee008c3055"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportFigureMaterial.test.ts",
+      "sha256": "7ab4938dbb7bb8ab14a86e449e8469a868aa8af803b0a91359b513056eb93258"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportFigureMaterial.ts",
+      "sha256": "127117c24d4ef9b358a7cbfe542eee207bccfa224220c5244dbedce5bb669790"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportHalo.test.ts",
+      "sha256": "035c19eb5b94c16f328635a0e9d7ebeb5baaa539f3d17fb4eba2d54921891279"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportHalo.ts",
+      "sha256": "2b34fda11eef060f17c876b94c1f20a59320ccc9a13f541528439030ae2863c2"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportPalette.test.ts",
+      "sha256": "08af140839dacea6a702d819771b6d32d2c558d910541b7824614cbbd4dc51ab"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportPalette.ts",
+      "sha256": "df972758c8e64f6608010bf733d91c7aa62299ac28e7760e02aa51d36c79a42a"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.test.ts",
+      "sha256": "53e143b9a8b8c6df76367fe218193f6c58e275bb6bb4f93081b5c12e6be3b30a"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts",
+      "sha256": "3318ae57b1c5ab3a8b77cd9df2b27df417a821afb3d8c1a362994f92150c441c"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.test.ts",
+      "sha256": "960b69dfdbdf2e05544c60f8c43806fae9e64c886eb2648068fddbf7229bd011"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.ts",
+      "sha256": "3b76cb03e8369e1678c48587328be1a4b8c7fe22cc694036513e9c3a8967e8a4"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.sharedEndpoint.fixture.json",
+      "sha256": "0963adf53b0d5a23f133abec44e498df2eea0f761c6159ac6eeffde722cd7b40"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.test.ts",
+      "sha256": "bff08f70bdf0259e94e56eaac2e8911c76f1e7be77f3adc9f8335eb6b36b1aa0"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.ts",
+      "sha256": "fdf3eaa49b9685b932bce404421086c45a82fa22e5c8abc3f8146fc09cb846d5"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelectionPresentation.test.ts",
+      "sha256": "e1e0e316d3c4f7cbdfa6eeb2d914f61cc29cd4cc81089f247dec04985ac51226"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelectionPresentation.ts",
+      "sha256": "00384d2831797e5cba8acff21e82e36f21a853c398e8c2a801ccfed0f3a55931"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportStylesheetFurniture.test.ts",
+      "sha256": "3be3ff925975de3c5ca31d58d2087c5ba453a28b669f06ee42a0e8dd67541a23"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/wind-exposure/WindExposureForm.tsx",
+      "sha256": "a7c3ae0a4d08de1a71173e1354b19a9c08b1241ded3f8de48fcc77b59f08b2eb"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/VirtualList.test.tsx",
+      "sha256": "ef21bccead703c680308b23a42d0943ef1d255e3c74056fdae14e1d0f72091ac"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/VirtualList.tsx",
+      "sha256": "0ef58bdc7c98188be7b1a828125ac056de25bb7646ca38bff76f3ad11d49c92c"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/VirtualTargetPicker.test.tsx",
+      "sha256": "bef46d7fc13caf46bb00e178ed0a4c715eb4b64d7838deea42f215b227068e00"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/VirtualTargetPicker.tsx",
+      "sha256": "5511fa36d899477c0652578528d9d66b85274a3806c3437dcc99705bb222d108"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceSessionContext.tsx",
+      "sha256": "20b6f7d36e111a8b0cd6026fc1c6e76568829d46322195e03a33791295018158"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/chromeSessionState.ts",
+      "sha256": "1822ee1ba7ac4271c4ad89faf30fc83f6fc3cc8d1e56a0e98d59507d8e6669bb"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/dormantSection.test.tsx",
+      "sha256": "95edca7a73256c99837d2145cbebb431c153eaf6944a54ecf5375281f07a69e9"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/dormantSection.tsx",
+      "sha256": "a52979ab011dc924f0ee8ff56fe6fb061177ab8a1c769f782c806ed216986784"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/menuCommands.ts",
+      "sha256": "cdcd87f270dd2109084df6225d0ec14e463388405e2483b5416265832722555d"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/modelIndex.test.ts",
+      "sha256": "1ed663fb3e155f51c7268e680608ff8d7294994e85016d53a68c029513f8101c"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/modelIndex.ts",
+      "sha256": "7daf63de7e0f4834b8dba7252065a528438b5fe7dd558d3107350e7855b30bd9"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/modelSessionState.ts",
+      "sha256": "b689520597c9064a22881e8e6f4af52c6c999cb88908313b7183956ab2e40e76"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/operationsSessionState.ts",
+      "sha256": "8a27435e58fb5a5c24e3c78a2ec846fa000745a70ae36babdab9082c24e4a292"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/projectPersistenceIntegrity.ts",
+      "sha256": "42f46efd5bacd6bd4d50e77ed78bc157073cb4cadbca0f92cd4736c6ce3baf9a"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/projectSessionState.ts",
+      "sha256": "b74e7d1556125840fb827363632c01373d8b03c2fc3718cc24071b0624d3b5a3"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "sha256": "cc6e1ce35ff4b5deeb415c0735fec148c06b1d60ae46edbf91d5374b047bcb41"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/selectionSessionState.ts",
+      "sha256": "367f38e15a57ee4394580b07716901f7f183d7248b2845895118be829eb955f3"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/selectionState.test.ts",
+      "sha256": "619a32d97db596b72f19764bc111d3f7c1342d95a19cda1d3c686bc3277e39b4"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/selectionState.ts",
+      "sha256": "e6eb8cb213692f94b2fa1fe21a0a7de17c9954e3038a90889dca20d631d3dbb2"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/sessionBoundary.test.ts",
+      "sha256": "abc9b2983f3d587694ef0ff944d8b790e1e8af7158994d20ebd2f68bf9825515"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/sessionModel.ts",
+      "sha256": "1ab4e80459a30261ce928bd83b23c331e9b75a4e6cb160f6728c8ec35e8d1d07"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/AgentStrip.tsx",
+      "sha256": "fbd9b3ed429f180afa364a098d0f51ae02239e2b37d1ae1552cb26e18e9f5e3b"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/DisabledReason.tsx",
+      "sha256": "9fd86feefc50904243920067186a7d4986cb7204ac5f442e7d9890c5b65c4068"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/ShellStatusBar.tsx",
+      "sha256": "c8684af8ace795e43f6667ee682c9d1650fed653fd04ac4bef4b6c1ecb5f7074"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/ShellToolbar.tsx",
+      "sha256": "89c5ff9fabc13f75f8788a6f405bd00db8b75b4cd40d7fa794123014c5e0e268"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/StageRail.tsx",
+      "sha256": "1b2f2c6d937642cb7facc39573eded7829fa23b880983c89aa54aa48ccf222fd"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/StageTabStrip.tsx",
+      "sha256": "e5ecc7601c02107f54bf7f99262e7c1ae5dfff9109f6df3f87ed849113f79c88"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.test.ts",
+      "sha256": "292a1b082859c1a41600ae029500be117ffb4540b1a7ccf6c6ab1f2733f5509d"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.ts",
+      "sha256": "d6ea861cc2c9e6ea7a2404bcefdaf6163ab66cf74980f118809d3fa754d54b1e"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/solveGates.ts",
+      "sha256": "1684fb9c8576c6c1a6b6b66b04e1f4a1cf2068d4d77ccb8b00c146c44ff63be4"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/solveJobAudit.ts",
+      "sha256": "df1e5ae7c5110bedf98a49dfee36bf1f98e07479e7dc96b5c4ac778ec0f6c755"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/solveProof.ts",
+      "sha256": "86f33e407d6e40a0c470acd1288c0c4a04d849b41bb095e0b9feff1455630080"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/statusLabels.test.ts",
+      "sha256": "9ba642c32f35a08d0f45010056a00128e434becd2c7c977f04b85adcdae74d3f"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/statusLabels.tokens.test.ts",
+      "sha256": "857e8d7ecd1b97f0fed3fa9164138ce9bd7c15096ff952212d3a55350c379a48"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/statusLabels.ts",
+      "sha256": "85023347161af558411a71116d63f2c23d2b6e9d8b69b496139d7cb8e5b2828e"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/uiDiagnostics.test.ts",
+      "sha256": "719056fca2a43e8199ae077c0e77b5b1926d7a5ac26b37886528b048e2cd74cc"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/uiDiagnostics.ts",
+      "sha256": "9cee0e7c543cceaeaa9045ff91f74ff3f2fc2cbcaecf2eab6fb2fd958fecfca7"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/uiPreferences.test.ts",
+      "sha256": "d73e665f4efc59779acc2a60eada662c3cc2dd4ea941a7aa93424401d84ef4dd"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/uiPreferences.ts",
+      "sha256": "2835e94db8ddae92c5d7091a31f7ece23fffcf9537d3cc8481473f867bc2c030"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/viewportPortal.test.tsx",
+      "sha256": "1517fc62b1709ca3b37c6e842faf07f03d5393abc3b4d5b4b04134d214d57856"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceCanvasBudget.test.ts",
+      "sha256": "9fb6ad227e512b9337cd28219afe95a0072fa172900b322c32458e9c512cac26"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceCanvasBudget.ts",
+      "sha256": "a0e3cf902b4e8d956885930802bacec5b284ba47a6de350d15fa5e8041c8cf2f"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSections.ts",
+      "sha256": "5df8e486c58280bedd01f5e7ebf2902ebdb215cfbba73c87c397374b754c83f4"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+      "sha256": "b770f69d9304ffb5a685aeda7792c08b03c61129fa6da86e1364437962e782e9"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "8de1ec6806d1143e68a8ab0ce4aa5ef4b83c4e5cea7114a38ba2636eb6d36cbe"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/main.tsx",
+      "sha256": "525f0802ef08be2869cec123731c5f88eb83b8819863f27010edf0824ce7e5c5"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+      "sha256": "3efe2bf11babd73416fd9142d23ea4372a67d920dff93d525a506c29ad638017"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "8acfdd9844480a0f895a7c4d893b4ec8aeb56ecd8eacd8f11c829423047615f3"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts",
+      "sha256": "65a9557c32a628e3481242ac2cb26a51438ee91b39e492f892d15fefed172cef"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/hashService.test.ts",
+      "sha256": "8daf3c2e17e4543d5e145225e315cc0748009529ad06d31e333e9b1c80f51a3c"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/hashService.ts",
+      "sha256": "0f1d342d60501b212c3a307b96ba1dfa625fcc1845cc33b47e54dd58341cf7e1"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/inputManifestService.test.ts",
+      "sha256": "f96c47f10b8c3abcbfb597d4ac168e466c8d0be0e57078032e7487f462a1b4d9"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/inputManifestService.ts",
+      "sha256": "7fee1a96e3fb66b6658d5562d9c50d2d26fe8a3eb5d0f0a2e4be459f30021cf3"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/libraryImportService.test.ts",
+      "sha256": "701c729a203a511168f1741bb5787dc3205b0a69479adb5533d86e1bd8108831"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/libraryImportService.ts",
+      "sha256": "ce9f8724ae34cd524f32b9750ac02e0c58c38a0d6114de94cfdc1ebebb9b8897"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts",
+      "sha256": "03e999eacedd2e2c33ced1d56ae2e9ff6b427140052a928b8c4604c36493ff53"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.test.ts",
+      "sha256": "2c93b34ddbbaf6f985ac797cfb565d6e303cacc8b56215868b42b94057b012f1"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+      "sha256": "0cf84f7b8ced2786fa03729087fd1197bf8773afb6d15a9653cb86e8a0ecc52f"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/operationContractCorpus.test.ts",
+      "sha256": "2047f773ad7f35018cece58fa0f5986a3329dca37d01839aac28a77d38209d35"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/operationService.test.ts",
+      "sha256": "967e388848fb1f99010eeecaebd23d88f63f973293efdd8144f0c7857f5d40a7"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/operationService.ts",
+      "sha256": "8f213ac1f3a0afb1f98072b7fa476e6d89ce13bde9b44e6fa56f60a13b5670e2"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "7db412acc01531233631ebdacf7a4affee569eec3684f9e5e0b44684d25b7238"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/projectService.test.ts",
+      "sha256": "9f35f370610a5e59b13f36b766cd71c12abad7528cdb5b532ea8ba2e50b18828"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/projectService.ts",
+      "sha256": "da38305ab02c69be95cdae4e79c9546568038716d597cc72385883938cc1363d"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/reportPackageSaveService.test.ts",
+      "sha256": "ce55a608e18cd30884a99b08b70d8a034e244664adf3d6094acfa87a13166a7f"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/reportPackageSaveService.ts",
+      "sha256": "a649f2a056a2e015d6c9617fc417ade909774fde962cee0140f78beec6aa2454"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/reportRenderService.ts",
+      "sha256": "921f4ef310a1bce2d1471757b093147b325e387405ed1fa3e68e0cb68fdf080d"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.test.ts",
+      "sha256": "c8126ddd814b74025a43959875ec07e11637f335d3046b0ba3a8845a929c8126"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+      "sha256": "4783f6412ed006abbf24711a4f6c8d639d2f0188b14aa3e15cfd2198772b187a"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/rulePackService.ts",
+      "sha256": "f6d143c377c145c563dfd2af172baa50c19d504f51f59e4265fe1aeeb54b4d3a"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.test.ts",
+      "sha256": "9b7450d844ba10f5b6bd65f26ad8df331a9f9e10688007daa23397d776e8009b"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.ts",
+      "sha256": "ee78aa7e4cdfc2442fdc722b196e4c3a27597a6676feea895acaa5ca4f9fa17c"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/telemetryPolicyService.test.ts",
+      "sha256": "f7c9a13cbbb0475957239e1d8b312981ff6b87c0be4c35c4d5b439a4b567e442"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/telemetryPolicyService.ts",
+      "sha256": "c973489e5ace50b0e2af18a0cf589d58b82ea109d321c68f1685802dc62d3674"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/unitCatalogService.test.ts",
+      "sha256": "8f3ac68c0827c80e8eb15c3ebe2cb2b1e079fdc1e66f22008efaf870ac81c7c0"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/unitCatalogService.ts",
+      "sha256": "0ef7dfe55e078d0cca10a954fd2cef67feb00d16b34e4942c2da07b8a78382b8"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/unitConversion.test.ts",
+      "sha256": "cfffc85b6c8655ddb9c005649b721d566d2f2ee574b40679472db32388b9c5ca"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/unitConversion.ts",
+      "sha256": "dda696031a605a7b15bbf7940e2134b7a1023b8cf88a67dbf76d3675e47da2a8"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/usePackageHash.ts",
+      "sha256": "38ef59a04866a70979e57befe214bc2ff86bb88b3975c84bd7735a118396d601"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadSelfWeightEngine.test.ts",
+      "sha256": "85fb2e2b72c4c24338172e231b4531ac49bcdc1c5c8e10351fce57f92b30cc15"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadSelfWeightEngine.ts",
+      "sha256": "1dec75321e61ec9e713c47901f73131f3e1acc66c9036586fd5675f1aae9c943"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+      "sha256": "fbd8f9b474484086395b6b7fd09de0ef3bc265736f58c2b1104781785a6e5073"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "cc5c177b0e73c3c9d85342e79bbbffaf18d8f0cf2094c9a2b2e36e678b3065cf"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/test/setup.ts",
+      "sha256": "65c02a3ba648174d681c4389b61707c58e8ee02cc7228b9446074a2ac1772e38"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/test-support/workspaceTestControls.ts",
+      "sha256": "92413ddbfe11ef0137f228fcc1b9a872301ff870bb3a8120f7edaf6f1ed76fce"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/three-addons.d.ts",
+      "sha256": "9c57f7207fedf13b0a39bd3dba20b352efcdc873456b4684e6a623e185deb5bb"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/tokens.css",
+      "sha256": "7eebb758894df1d2fe38d291c0496485a2c81b4711784441300d13052c349ad7"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "sha256": "7de6955c2c541557d988554132a58789081727c5ef9cfc1c4d3d7b0253deb409"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "6caf90c6bd2c3a4d9a2db2ebc374fe707ded9db14a6c709332453c53013a2bb9"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "sha256": "80c2532edad2fcaac15a03da333c48455a052f541761ec306135881dd464d020"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "e645e608476163bd4b35ecc1caa1d7f3fc794cc37f1dc39775639849b8aadeca"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/report-package-dist.spec.ts",
+      "sha256": "b94308160608b0651db6cac572aa94871782db2885ef5cb426cce1d3c43fda39"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts",
+      "sha256": "d62318d0032a2b985ea7bbb4334f3893b3897eb6ec42cad0dd7e412b831c9bc4"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts",
+      "sha256": "c469faaeab1d3f684ac340d9f0008efc6624e70ce4fe8b29ac040e22c845b2bb"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/toolkit-batch-dist.spec.ts",
+      "sha256": "0faca6572f26354ba0ce2b907556a604d8726d483fd297bd0a5d2ef4b54fe082"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "sha256": "d46fc3472610408cd808b22a7a93c3a073436913c4d14bf5bf1db81135fe2473"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts",
+      "sha256": "a2b6fd7415e2f5de95927f8084c320dc1ea05c12549edd2e2b5d64e0da20ade2"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "1b68f7d8b11297096bd119b1f88b0f9efa19fec0b79831cd78bffd11b47822b9"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/wasm-engine-dist.spec.ts",
+      "sha256": "ed29de65b7121e1ef6a78348b10144473163d33a0a4010978a986a1fcc5a01aa"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts",
+      "sha256": "ca4d1772ecc47b478c2d29917ffc5f9c756451ec9471fb434894e738f80ee0a7"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts",
+      "sha256": "b93ce5033c650265539d6ba91eb0929d9e236dd4385aabb447a94a2149ec1d97"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/package.json",
+      "sha256": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/playwright.config.ts",
+      "sha256": "d06b8c52bad88e5299ca9dad1feb8170f85f7b76682d837ee209060b93460db0"
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/playwright.dist.config.ts",
+      "sha256": "d53c01817b11718850b2b2b52e0132825931741998d4214a0d0c7e533c2b5756"
+    }
+  ]
+}

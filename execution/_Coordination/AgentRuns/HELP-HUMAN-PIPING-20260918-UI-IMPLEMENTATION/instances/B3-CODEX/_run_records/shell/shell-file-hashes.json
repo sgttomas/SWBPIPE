@@ -1,0 +1,72 @@
+[
+  {
+    "path": "e2e/linear-authoring.spec.ts",
+    "sha256": "ad14a76bdf3b87cea399d589c4f1d3fcb52affc643a88f0eb6f6ad57fbda45e0",
+    "attribution": "Astra continuation edited"
+  },
+  {
+    "path": "e2e/workspace-driver.ts",
+    "sha256": "56eb8bbec5b0895112bb5e6f38be3e6c5e6a544bb429f109157bbc18e6a79ac5",
+    "attribution": "Astra continuation edited"
+  },
+  {
+    "path": "e2e/ui-foundation.spec.ts",
+    "sha256": "1b68f7d8b11297096bd119b1f88b0f9efa19fec0b79831cd78bffd11b47822b9",
+    "attribution": "Astra continuation edited"
+  },
+  {
+    "path": "e2e/workspace-layout.spec.ts",
+    "sha256": "b93ce5033c650265539d6ba91eb0929d9e236dd4385aabb447a94a2149ec1d97",
+    "attribution": "Astra continuation edited"
+  },
+  {
+    "path": "e2e/ui-foundation-dist.spec.ts",
+    "sha256": "d46fc3472610408cd808b22a7a93c3a073436913c4d14bf5bf1db81135fe2473",
+    "attribution": "inherited Sol work; Astra changed only structural drawer-opening order"
+  },
+  {
+    "path": "e2e/ui-foundation-workflows.ts",
+    "sha256": "a2b6fd7415e2f5de95927f8084c320dc1ea05c12549edd2e2b5d64e0da20ade2",
+    "attribution": "inherited pre-continuation bytes; not edited by Astra"
+  },
+  {
+    "path": "src/features/workspace/shellLayout.ts",
+    "sha256": "d6ea861cc2c9e6ea7a2404bcefdaf6163ab66cf74980f118809d3fa754d54b1e",
+    "attribution": "inherited pre-continuation bytes; not edited by Astra"
+  },
+  {
+    "path": "src/features/workspace/shellLayout.test.ts",
+    "sha256": "292a1b082859c1a41600ae029500be117ffb4540b1a7ccf6c6ab1f2733f5509d",
+    "attribution": "inherited pre-continuation bytes; not edited by Astra"
+  },
+  {
+    "path": "src/features/workspace/uiPreferences.ts",
+    "sha256": "2835e94db8ddae92c5d7091a31f7ece23fffcf9537d3cc8481473f867bc2c030",
+    "attribution": "inherited pre-continuation bytes; not edited by Astra"
+  },
+  {
+    "path": "src/features/workspace/uiPreferences.test.ts",
+    "sha256": "d73e665f4efc59779acc2a60eada662c3cc2dd4ea941a7aa93424401d84ef4dd",
+    "attribution": "inherited pre-continuation bytes; not edited by Astra"
+  },
+  {
+    "path": "src/features/workspace/viewportPortal.test.tsx",
+    "sha256": "1517fc62b1709ca3b37c6e842faf07f03d5393abc3b4d5b4b04134d214d57856",
+    "attribution": "inherited pre-continuation bytes; not edited by Astra"
+  },
+  {
+    "path": "src/features/viewport/PipeViewport.tsx",
+    "sha256": "85a70e3f75a9bcca9fafc7752cc7414a765915847a67c6f7c33a52d0a7d01469",
+    "attribution": "inherited pre-continuation bytes; not edited by Astra"
+  },
+  {
+    "path": "src/features/viewport/viewportResource.ts",
+    "sha256": "3318ae57b1c5ab3a8b77cd9df2b27df417a821afb3d8c1a362994f92150c441c",
+    "attribution": "inherited pre-continuation bytes; not edited by Astra"
+  },
+  {
+    "path": "src/features/viewport/viewportResource.test.ts",
+    "sha256": "53e143b9a8b8c6df76367fe218193f6c58e275bb6bb4f93081b5c12e6be3b30a",
+    "attribution": "inherited pre-continuation bytes; not edited by Astra"
+  }
+]

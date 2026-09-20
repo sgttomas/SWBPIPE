@@ -1,0 +1,41 @@
+{
+  "purpose": "Lossless archive of generated oversized-input fixtures from completed 26a7478b5 full source lane; raw stdout and other artifacts unchanged. gunzip -c archive reconstructs exact original bytes.",
+  "entries": [
+    {
+      "originalPath": "ui-foundation-full-cohort--a030f-erving-exact-bounded-prefix-chromium-compact/over-new-cap-prefix.json",
+      "originalBytes": 268435456,
+      "originalSha256": "915fa1ee4cf9052c07f27795e3b73b472194ae9179ca0cdf47c675c29e5cfbb9",
+      "archivePath": "ui-foundation-full-cohort--a030f-erving-exact-bounded-prefix-chromium-compact/over-new-cap-prefix.json.gz",
+      "archiveBytes": 261093,
+      "archiveSha256": "94be4936d4b5bf5af60ceeffc17c194361325ea166dab4972b52a4d9a1d28c68",
+      "verification": "gzip decompression byte count and SHA256 match original"
+    },
+    {
+      "originalPath": "ui-foundation-full-cohort--a030f-erving-exact-bounded-prefix-chromium-desktop/over-new-cap-prefix.json",
+      "originalBytes": 268435456,
+      "originalSha256": "915fa1ee4cf9052c07f27795e3b73b472194ae9179ca0cdf47c675c29e5cfbb9",
+      "archivePath": "ui-foundation-full-cohort--a030f-erving-exact-bounded-prefix-chromium-desktop/over-new-cap-prefix.json.gz",
+      "archiveBytes": 261093,
+      "archiveSha256": "94be4936d4b5bf5af60ceeffc17c194361325ea166dab4972b52a4d9a1d28c68",
+      "verification": "gzip decompression byte count and SHA256 match original"
+    },
+    {
+      "originalPath": "ui-foundation-full-cohort--fbc53-hash-and-unsafe-identifiers-chromium-compact/over-old-cap.json",
+      "originalBytes": 67112960,
+      "originalSha256": "e40a0431d55bcb24fcbe0830c5da4820b644d171eaa8ddf8e23dc7704ccd2cf6",
+      "archivePath": "ui-foundation-full-cohort--fbc53-hash-and-unsafe-identifiers-chromium-compact/over-old-cap.json.gz",
+      "archiveBytes": 65414,
+      "archiveSha256": "014c823b48cd2478a349e9acfdea9c7e265cee9221291b941d171a952060f806",
+      "verification": "gzip decompression byte count and SHA256 match original"
+    },
+    {
+      "originalPath": "ui-foundation-full-cohort--fbc53-hash-and-unsafe-identifiers-chromium-desktop/over-old-cap.json",
+      "originalBytes": 67112960,
+      "originalSha256": "e40a0431d55bcb24fcbe0830c5da4820b644d171eaa8ddf8e23dc7704ccd2cf6",
+      "archivePath": "ui-foundation-full-cohort--fbc53-hash-and-unsafe-identifiers-chromium-desktop/over-old-cap.json.gz",
+      "archiveBytes": 65414,
+      "archiveSha256": "014c823b48cd2478a349e9acfdea9c7e265cee9221291b941d171a952060f806",
+      "verification": "gzip decompression byte count and SHA256 match original"
+    }
+  ]
+}

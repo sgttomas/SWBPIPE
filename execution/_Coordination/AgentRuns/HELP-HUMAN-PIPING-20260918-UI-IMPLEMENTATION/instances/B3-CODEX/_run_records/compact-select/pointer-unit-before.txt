@@ -1,0 +1,33 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/workspace/CompactSelect.test.tsx
+
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/CompactSelect.test.tsx (34 tests | 1 failed) 306ms
+     × commits the rendered pointer option by value when catalog order changes before reconciliation 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/CompactSelect.test.tsx > CompactSelect > commits the rendered pointer option by value when catalog order changes before reconciliation
+AssertionError: expected "vi.fn()" to be called once with arguments: [ 'c' ]
+
+Number of calls: 0
+
+ ❯ src/features/workspace/CompactSelect.test.tsx:300:20
+    298|     choices.reverse();
+    299|     fireEvent.click(renderedCharlie);
+    300|     expect(change).toHaveBeenCalledExactlyOnceWith("c");
+       |                    ^
+    301|     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    302|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 33 passed (34)
+   Start at  23:37:31
+   Duration  716ms (transform 64ms, setup 72ms, import 63ms, tests 306ms, environment 190ms)
+

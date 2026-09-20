@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/node_modules/react/package.json",
+    "symlink": false,
+    "inode": 103479629
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react/package.json",
+    "symlink": false,
+    "inode": 100990553
+  },
+  {
+    "path": "/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/target/debug/openpipestress-desktop",
+    "symlink": false,
+    "inode": 103507414
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/openpipestress-desktop",
+    "symlink": false,
+    "inode": 103157563
+  }
+]

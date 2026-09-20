@@ -1,0 +1,18 @@
+command: cargo test --manifest-path projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml --quiet
+workdir: {REPO_ROOT}
+candidate: 26a7478b5b7e85760a8f9f8847690c548a01f9e5
+
+running 101 tests
+....................................................................................... 87/101
+..............
+test result: ok. 101 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

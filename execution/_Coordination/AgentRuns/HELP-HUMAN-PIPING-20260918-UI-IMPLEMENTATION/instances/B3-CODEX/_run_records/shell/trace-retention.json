@@ -1,0 +1,218 @@
+[
+  {
+    "path": "workspace-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/trace.zip",
+    "sha256": "9939340a2fe89525fc392c52ae42303d34232af8c249fd11a570de43905df8b9",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "workspace-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/trace.zip",
+    "sha256": "b1c6d93c7a7d99da6f0420f2ce3619fe1320ba44f9b276a922ce9e940a0f30b9",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/trace.zip",
+    "sha256": "7aae3338a07f65f334dafdec47786ade241ec5603962fd68fb1456828e4982b9",
+    "retained": true,
+    "reason": "representative failure trace"
+  },
+  {
+    "path": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/trace.zip",
+    "sha256": "bb07af7e6aaa12397254a69e76cb99a1e2c56dd8fc9986a9209eeca7b7def076",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-compact/trace.zip",
+    "sha256": "0cde0845833fbed6e7f854afeb02e69c2b72025f0b5962a32b1daac4929b29ae",
+    "retained": true,
+    "reason": "representative failure trace"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-desktop/trace.zip",
+    "sha256": "d52abde314762ecf675066114da7df94094623f96884f1a3a7966d855efd6d9f",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-2979b-nvas-light-compact-1280x800-chromium-compact/trace.zip",
+    "sha256": "fe7f70c7cbf28c05cc84cc92140637c00a7a88a775d013aaa22194301b846ad1",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-2979b-nvas-light-compact-1280x800-chromium-desktop/trace.zip",
+    "sha256": "dd8b7f34e8c8825b1eff349029f93d7df71604b2000f46fc4e9ffe03c3b5482d",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-compact/trace.zip",
+    "sha256": "54e8166e98cce246c1a9e89b276da84b1694ad87dc66a46d67a0f4c6ba39adcb",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-desktop/trace.zip",
+    "sha256": "c99a39025d22fb493fda29aef6f1a50221d977b56b6f46901b44b5fe7a1ec2fd",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-2ebec-s-dark-comfortable-1024x768-chromium-compact/trace.zip",
+    "sha256": "ba267d7c3376ee5510aa045189dddfda387960c12c2bef52136cc5c38d60fb19",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-2ebec-s-dark-comfortable-1024x768-chromium-desktop/trace.zip",
+    "sha256": "42418e831a5fdcf3b3c1226df23c65837a148b985f93fb329b8cfd546d9a8583",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-5443d--light-comfortable-1440x920-chromium-compact/trace.zip",
+    "sha256": "b3c1cc21ca90a2e142eb3695de7d159d1f9fc27525bdfd69c9187643d0db859a",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-5443d--light-comfortable-1440x920-chromium-desktop/trace.zip",
+    "sha256": "9f91f3e9d8874e514561b24759978407110226b2f56c7205786a799aadabc355",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-compact/trace.zip",
+    "sha256": "53672741626574196c357f1bf85d69465a657e459a4df6431c0b8d46e5daf718",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-desktop/trace.zip",
+    "sha256": "8b70446882a3c607efb577251481faee9ebce7995aafa3e8be901b8afc82d496",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-6d9e6-nvas-light-compact-1440x920-chromium-compact/trace.zip",
+    "sha256": "d4452be5b4752eb399074b9c7f01dd01dba74bdd643b18ce4f759fb5d55ba650",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-6d9e6-nvas-light-compact-1440x920-chromium-desktop/trace.zip",
+    "sha256": "56dd0666573416264dd0ac13e896db10b00d354f57f869e057e8d820fccb02b6",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-72367--light-comfortable-1280x800-chromium-compact/trace.zip",
+    "sha256": "9488a9db30d1ba00333154e635129db8c872b29eae1fbb3c27b99dfbb11d54d3",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-72367--light-comfortable-1280x800-chromium-desktop/trace.zip",
+    "sha256": "27bb5378ab45cb74eaa7d88ad0f74a44b10edd5767dbe9617e392d8cfb30ee5b",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-8746c-s-dark-comfortable-1280x800-chromium-compact/trace.zip",
+    "sha256": "e998f30899df28ef4529ec7411393ccc0ebb73d3d071ebf96ffcaf0ebd6ac75e",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-8746c-s-dark-comfortable-1280x800-chromium-desktop/trace.zip",
+    "sha256": "06dd6d1b895bb296784fbf4a36124d2789fcc827fb5c6100499ab6eeb2c18b3b",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-94b10-anvas-dark-compact-1440x920-chromium-compact/trace.zip",
+    "sha256": "40d5b3727c1104ae2dfb89374a2f42df96370c9195103c5028528b54ead9912c",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-94b10-anvas-dark-compact-1440x920-chromium-desktop/trace.zip",
+    "sha256": "c80f202de4bb6e30ec0bbb90e3c230ab0c1db372236c0c4ff7323c8fb66421a6",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-e5cbc-nvas-light-compact-1024x768-chromium-compact/trace.zip",
+    "sha256": "fc30780a51cab4d421a9a23134aabedae9c2c1506e6844e3001fd35510009742",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-e5cbc-nvas-light-compact-1024x768-chromium-desktop/trace.zip",
+    "sha256": "535bb4d138570956aa1c7ec5cdcbd4af9d53bb9b2a9571b5efa28942723dfcd7",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-f4536-anvas-dark-compact-1280x800-chromium-compact/trace.zip",
+    "sha256": "78fee1445b360993f66b02e1d07ee99935bbac86b533f15ff12312300872c008",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-f4536-anvas-dark-compact-1280x800-chromium-desktop/trace.zip",
+    "sha256": "467c11291787e106f222548f63a9cf0e6a541628da2a096ee160bc6e1ca416bf",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/trace.zip",
+    "sha256": "88451d1ab704df9cd04605002637d8caa5287f3f87ea3f018363ff3e3821dd13",
+    "retained": true,
+    "reason": "representative failure trace"
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/trace.zip",
+    "sha256": "0f654246e21d945deee5cd2c34b8ec991a6100210f13759cfff36e14b00d8ee0",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/trace.zip",
+    "sha256": "a0b665eef19a38cbe6c1b1d0fcb560992a0f3f5e37c2355c6a205fa872cbbf11",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/trace.zip",
+    "sha256": "968a84eb2b8b053bf8af13108d122997de63c0396fe6c09ff504897d703df6ce",
+    "retained": false,
+    "reason": "same failure class; exact outcomes remain in raw report/log"
+  },
+  {
+    "path": "source-portal-repair-artifacts/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-desktop/trace.zip",
+    "sha256": "6d04fb42e94967337da21dc819135674820ae59c1c243329292762cf8ee58e73",
+    "retained": true,
+    "reason": "representative failure trace"
+  },
+  {
+    "path": "source-complete-artifacts/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-desktop/trace.zip",
+    "sha256": "d3b6f998133a343162d5cee9d5338f87c71089e1d12c9355c8baf97649ee4eda",
+    "retained": true,
+    "reason": "Representative additional pointer/hidden-routing failure or manager-directed interrupted-run boundary"
+  },
+  {
+    "path": "source-verified-artifacts/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip",
+    "sha256": "d4ef7dc50abd2efdfbfbbd2108d0e5c7dd4d6efa8426e1ad7779d5bde968798a",
+    "retained": true,
+    "reason": "Representative additional pointer/hidden-routing failure or manager-directed interrupted-run boundary"
+  },
+  {
+    "path": "authoring-repair-artifacts/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip",
+    "sha256": "34303f7693637a96d532560bdf1468e69a3baa0c226931004771448652f9c29f",
+    "retained": true,
+    "reason": "Representative additional pointer/hidden-routing failure or manager-directed interrupted-run boundary"
+  }
+]

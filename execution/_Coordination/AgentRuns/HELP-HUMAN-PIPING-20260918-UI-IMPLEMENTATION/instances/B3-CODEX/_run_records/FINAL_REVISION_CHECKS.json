@@ -1,0 +1,84 @@
+{
+  "productAndTestCandidate": "d3758edf45795dd2c0eddcd840d9100fc3d0cd23",
+  "productNativeBasis": "24f5d9db073fae34d165029f33d1a8bf8f9d0a3c",
+  "sourceSuiteBasis": "5045bd1c2c92b4c018e5652111ee6093434ead78",
+  "sourceToFinalChangedPaths": [
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts"
+  ],
+  "productionChangedPathsSinceNative": [],
+  "sourceExclusion": "playwright.config.ts testIgnore **/*-dist.spec.ts; final delta only ui-foundation-dist.spec.ts; no shared helper or product changes",
+  "results": {
+    "unit": {
+      "files": 88,
+      "passed": 1436,
+      "exitCode": 0
+    },
+    "source": {
+      "passed": 410,
+      "existingSkipped": 20,
+      "exitCode": 0
+    },
+    "dist": {
+      "passed": 53,
+      "exitCode": 0
+    },
+    "focusedFinalSourceJourneys": {
+      "passed": 6,
+      "exitCode": 0
+    },
+    "focusedDistReadiness": {
+      "passed": 2,
+      "exitCode": 0
+    },
+    "finalPacketHarness": {
+      "exitCode": 0,
+      "BLOCK": 0,
+      "INFO": 14,
+      "NOT_APPLICABLE": 1,
+      "REVIEW": 4,
+      "WARN": 112
+    }
+  },
+  "logs": {
+    "full-unit-value-repair.log": {
+      "sha256": "29c5372811fc25635190b99843103621569ca8cb6e60b9ed5df8b993ef474bdd",
+      "bytes": 1953171
+    },
+    "full-source-final.log": {
+      "sha256": "2300c5e3d75cae5ac449468146d5c1a5e33ce3a5a71dba70c0ab8a414b366d25",
+      "bytes": 77907
+    },
+    "full-dist-completed.log": {
+      "sha256": "8e0c984a7aa67ca3ba8f938f83eb0dd40520a693be87e0ec73138ada3fd41767",
+      "bytes": 11748
+    },
+    "full-lane-adapter-backcheck.log": {
+      "sha256": "7137aba6b7dc9e17b0231c15f97af6435246810fc5a079aef9c2b763dfe5dfe4",
+      "bytes": 1824
+    },
+    "dist-readiness-navigation.log": {
+      "sha256": "e70598a29b993bf2baeb111b97425ac9850a68e9754b1a6f873840db715480c8",
+      "bytes": 900
+    },
+    "harness-self-check-final-packet.log": {
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+      "bytes": 41362
+    },
+    "native/TAURI_BUILD_VALUE_REPAIR.log": {
+      "sha256": "600b07972c3b42440373aaffbd72e91d71baeafa7df7ec8b5941f5dcf3ef6942",
+      "bytes": 3367
+    },
+    "harness-self-check-sealed-packet.log": {
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+      "bytes": 41362
+    },
+    "native/NATIVE_HOST_EQUIVALENCE.patch": {
+      "sha256": "4f810c2c481bf325eef8355d7f07c6bad36b1404c53dc96345aa854a4b6a87be",
+      "bytes": 596
+    },
+    "native-final-compact/FINAL_PROCESS_STOP.txt": {
+      "sha256": "7cbfe2a6af918f77318f2dd58ad30300b40d49d3d28c97f73000b864627458f8",
+      "bytes": 506
+    }
+  }
+}

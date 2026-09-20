@@ -1,0 +1,4 @@
+36554 Sat Sep 19 23:20:48 2026     /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop
+binary SHA256 d84cd65a5364eadea449269a7b44b4e18436a6b60e445f14c4bab01d8d24801c
+ROOT/native worker released clean disposable app. Sent SIGTERM after identity validation.
+Subsequent ps exit1/no output: absent.

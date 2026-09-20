@@ -1,0 +1,51 @@
+
+> @openpipestress/desktop@0.1.0 tauri
+> tauri build --debug --bundles app
+
+        Info Looking up installed tauri packages to check mismatched versions...
+     Running beforeBuildCommand `npm run build:wasm && npm run build`
+
+> @openpipestress/desktop@0.1.0 build:wasm
+> node scripts/build-wasm-engine.mjs
+
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/wasm-engine.tmp-25775
+[build-wasm-engine] OK — wasm operation engine generated at public/wasm-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/self-weight-engine.tmp-25775
+[build-wasm-engine] OK — wasm operation engine generated at public/self-weight-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+
+> @openpipestress/desktop@0.1.0 build
+> tsc -b && vite build
+
+vite v7.3.3 building client environment for production...
+transforming...
+✓ 1745 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                        1.13 kB │ gzip:   0.55 kB
+dist/assets/index-BtF7cOwb.css                       100.09 kB │ gzip:  17.78 kB
+dist/assets/vendor-tauri-DlQNAQKj.js                   0.09 kB │ gzip:   0.11 kB
+dist/assets/invented_design_knowledge-H12r-oKQ.js      1.66 kB │ gzip:   0.76 kB
+dist/assets/invented_agent_proposal-Bm57LVt-.js        1.82 kB │ gzip:   0.85 kB
+dist/assets/vendor-7OC5HNn7.js                         3.61 kB │ gzip:   1.58 kB
+dist/assets/invented_demo_rule_pack-dhX9tvT1.js       10.86 kB │ gzip:   2.59 kB
+dist/assets/invented_preview_model-pJA3_nB8.js        12.67 kB │ gzip:   3.05 kB
+dist/assets/vendor-icons-BjC2kMFO.js                  18.99 kB │ gzip:   6.25 kB
+dist/assets/vendor-react-u0ysdD_x.js                 188.76 kB │ gzip:  59.03 kB
+dist/assets/invented_mechanics_result-CleTy2JL.js    502.61 kB │ gzip:  22.14 kB
+dist/assets/vendor-three-hE6SPF4C.js                 528.57 kB │ gzip: 136.05 kB
+dist/assets/index-C3p5-uuK.js                      1,411.90 kB │ gzip: 351.57 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.02s
+   Compiling openpipestress-desktop v0.1.0 (/private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.69s
+       Built application at: /private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/target/debug/openpipestress-desktop
+    Bundling SWBPIPE.app (/private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app)
+    Finished 1 bundle at:
+        /private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app
+

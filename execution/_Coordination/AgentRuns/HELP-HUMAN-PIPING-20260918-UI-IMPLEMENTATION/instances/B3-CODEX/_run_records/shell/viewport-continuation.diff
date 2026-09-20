@@ -1,0 +1,167 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx b/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx
+index e8c0a9a8d..74f09aff9 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx
+@@ -1,7 +1,8 @@
+ import { SelectionPresentationBinding } from "./selectionPresentationBinding";
+ import { QuantityReadout, useDisplayQuantity } from "../display-units";
+ import { Box, CircleDot, CirclePlus, GitBranch, MoveDown, Anchor } from "lucide-react";
+-import { type PointerEvent as ReactPointerEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
++import { type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
++import { createPortal } from "react-dom";
+ import * as THREE from "three";
+ import { convertDisplayQuantities } from "../../services/displayQuantityService";
+ import {
+@@ -137,6 +138,8 @@ function ViewportMeasurementQuantityReadout({ label, unit, value }: { label: str
+ }
+ 
+ type Props = {
++  /** Optional shell-owned home for the existing authoring panel. */
++  authoringPanelContainer?: HTMLElement | null;
+   armedCreationTool?: CreationTool | null;
+   assignment?: {
+     status: "started" | "committed";
+@@ -174,10 +177,20 @@ type Props = {
+   result?: MechanicsResult | null;
+   selection: EntityRef;
+   selectionState?: OrderedSelectionState;
++  /** Presentation-only clearance below viewport furniture and the painted orientation frame. */
++  presentationBottomInsetPx?: number;
+   theme?: "light" | "dark";
+   treePublication?: { actionSequence: number; publicationSequence: number; query: string; visibleCount: number; inputAt: number | null; inputEventTimeStamp: number | null; publishedAt: number } | null;
+ };
+ 
++function OptionalPortal({ children, container }: { children: ReactNode; container?: HTMLElement | null }) {
++  return container ? createPortal(children, container) : children;
++}
++
++function normalizedPresentationInset(value: number | undefined): number {
++  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
++}
++
+ export type CreationTool = "node" | "pipe" | "support" | "component" | "load";
+ export type ViewportExposureInteraction = "measurement" | "box-selection";
+ type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
+@@ -323,6 +336,7 @@ type DeformationOverlay = {
+ };
+ 
+ export function PipeViewport({
++  authoringPanelContainer = null,
+   armedCreationTool = null,
+   assignment = null,
+   model,
+@@ -349,9 +363,11 @@ export function PipeViewport({
+   result = null,
+   selection,
+   selectionState,
++  presentationBottomInsetPx = 0,
+   theme = "light",
+   treePublication = null
+ }: Props) {
++  const presentationBottomInset = normalizedPresentationInset(presentationBottomInsetPx);
+   const hostRef = useRef<HTMLDivElement | null>(null);
+   const viewportResourceRef = useRef<ViewportResource | null>(null);
+   const selectionPresentationBindingRef = useRef(new SelectionPresentationBinding());
+@@ -729,6 +745,10 @@ export function PipeViewport({
+     };
+   }, []);
+ 
++  useEffect(() => {
++    viewportResourceRef.current?.setPresentationBottomInsetPx(presentationBottomInset);
++  }, [presentationBottomInset]);
++
+   useEffect(() => {
+     if (geometryMode !== "actual-od") return;
+     const cacheKey = `${activeModelIndex.generation}:${defaultLengthUnit}`;
+@@ -940,6 +960,7 @@ export function PipeViewport({
+       };
+     }
+     setWebglAvailable(true);
++    resource.setPresentationBottomInsetPx(presentationBottomInset);
+     viewportResourceRef.current = resource;
+     // Register stable lazy factories once. Product callbacks update only
+     // bounded refs; diagnostics materialization happens on an explicit pull.
+@@ -2169,7 +2190,10 @@ export function PipeViewport({
+   }
+ 
+   return (
+-    <div className="viewport-shell">
++    <div
++      className="viewport-shell"
++      style={{ "--viewport-presentation-bottom-inset": `${presentationBottomInset}px` } as CSSProperties}
++    >
+       <div className="viewport-toolbar">
+         <div className="viewport-toolbar-controls" role="group" aria-label="Viewport controls">
+         <span>3D Centerline</span>
+@@ -2452,11 +2476,12 @@ export function PipeViewport({
+             : measurementReadout.reason}</span>
+         </div>
+       ) : null}
+-      <section
+-        className={`viewport-intents${viewportIntentPanelActive ? " active" : " collapsed"}`}
+-        aria-label="Viewport editor intents"
+-        data-testid="viewport-editor-intents"
+-      >
++      <OptionalPortal container={authoringPanelContainer}>
++        <section
++          className={`viewport-intents${viewportIntentPanelActive ? " active" : " collapsed"}`}
++          aria-label="Viewport editor intents"
++          data-testid="viewport-editor-intents"
++        >
+         <h3 className="viewport-tool-heading">{nodeToolActive ? "Create node" : pipeToolActive ? "Create pipe" : componentToolActive ? "Insert component" : "Pending changes"}</h3>
+         <fieldset className="viewport-intent-controls" disabled={draftReviewBusy} data-testid="viewport-draft-flight-controls">
+           <div className={`viewport-node-form${nodeToolActive ? " active" : ""}`} aria-label="Explicit node geometry">
+@@ -2969,7 +2994,8 @@ export function PipeViewport({
+             ))
+           )}
+         </div></details>
+-      </section>
++        </section>
++      </OptionalPortal>
+     </div>
+   );
+ }
+diff --git a/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts b/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts
+index b4bb5f10a..023b9bc47 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts
+@@ -505,6 +505,7 @@ export class ViewportResource {
+   private cameraChangeSequence = ++nextViewportCameraSequence;
+   private navigationAdvancing = false;
+   private suppressControlsChange = false;
++  private presentationBottomInsetPx = 0;
+   private readonly ownership = new ViewportOwnershipLedger(this.resourceGeneration);
+   // The edge line is one CSS pixel wide, which is this many device pixels. It is the renderer's
+   // pixel ratio, read where that ratio is set, once, and never per frame.
+@@ -589,6 +590,14 @@ export class ViewportResource {
+     return this.cameraChangeSequence;
+   }
+ 
++  /** Moves only the painted orientation frame clear of shell furniture. */
++  setPresentationBottomInsetPx(value: number): void {
++    const next = Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
++    if (next === this.presentationBottomInsetPx) return;
++    this.presentationBottomInsetPx = next;
++    this.invalidate();
++  }
++
+   get ownershipSnapshot(): ViewportOwnershipSnapshot {
+     return this.ownership.snapshot();
+   }
+@@ -951,9 +960,14 @@ export class ViewportResource {
+   private renderGizmo(): void {
+     const width = Math.max(1, this.host.clientWidth);
+     const height = Math.max(1, this.host.clientHeight);
+-    const size = Math.min(GIZMO_MAX_CSS_SIZE, Math.floor(Math.min(width, height)));
++    const configuredBottomInset = Number.isFinite(this.presentationBottomInsetPx)
++      ? Math.max(0, Math.round(this.presentationBottomInsetPx))
++      : 0;
++    const bottomInset = Math.min(configuredBottomInset, Math.max(0, height - 1));
++    const availableHeight = Math.max(1, height - bottomInset);
++    const size = Math.min(GIZMO_MAX_CSS_SIZE, Math.floor(Math.min(width, availableHeight)));
+     const insetX = Math.min(8, Math.max(0, width - size));
+-    const insetY = Math.min(8, Math.max(0, height - size));
++    const insetY = bottomInset + Math.min(8, Math.max(0, availableHeight - size));
+     const offset = this.camera.position.clone().sub(this.controls.target);
+     if (offset.lengthSq() === 0) offset.set(0, 0, 1);
+     // Fit the full enlarged axis-label sprite envelope inside the square

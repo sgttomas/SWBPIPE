@@ -1,0 +1,76 @@
+[2m[WebServer] [22m(node:93973) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:93975) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:93975) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium-desktop] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: libraries (12.3s)
+
+
+  1) [chromium-desktop] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: libraries 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: not [32m"BODY"[39m
+
+      185 |     } finally { await session.detach(); }
+      186 |     await witness(info, `${section}-keyboard-close-focus`, { focus, focusedAX });
+    > 187 |     expect.soft(focus?.tag).not.toBe("BODY");
+          |                                 ^
+      188 |     expect.soft(focus?.visible).toBe(true);
+      189 |     expect.soft(focus?.inert).toBe(false);
+      190 |     expect.soft(focus?.unobscured).toBe(true);
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:187:33
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      189 |     expect.soft(focus?.inert).toBe(false);
+      190 |     expect.soft(focus?.unobscured).toBe(true);
+    > 191 |     expect.soft(focusedAX.some(node => !node.ignored && node.role === "button")).toBe(true);
+          |                                                                                  ^
+      192 |     if (section === "libraries") await expect.soft(page.getByTestId("rail-page-libraries")).toBeFocused();
+      193 |     expect(await canvas!.evaluate(el => el === document.querySelector("canvas"))).toBe(true);
+      194 |     expect(await inspector!.evaluate(el => el === document.querySelector('[data-testid="property-inspector"]'))).toBe(true);
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:191:82
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+
+    Locator:  getByTestId('rail-page-libraries')
+    Expected: focused
+    Received: inactive
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "soft toBeFocused" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('rail-page-libraries')[22m
+    [2m    24 × locator resolved to <button type="button" title="Libraries" aria-expanded="false" class="shell-rail-item" data-testid="rail-page-libraries">…</button>[22m
+    [2m       - unexpected value "inactive"[22m
+
+
+      190 |     expect.soft(focus?.unobscured).toBe(true);
+      191 |     expect.soft(focusedAX.some(node => !node.ignored && node.role === "button")).toBe(true);
+    > 192 |     if (section === "libraries") await expect.soft(page.getByTestId("rail-page-libraries")).toBeFocused();
+          |                                                                                             ^
+      193 |     expect(await canvas!.evaluate(el => el === document.querySelector("canvas"))).toBe(true);
+      194 |     expect(await inspector!.evaluate(el => el === document.querySelector('[data-testid="property-inspector"]'))).toBe(true);
+      195 |     expect(await draft!.evaluate(el => el === document.querySelector('[data-testid="editor-intent-value"]'))).toBe(true);
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:192:93
+
+    Error Context: test-results/b3-accessibility-keyboard--dcccd-nd-retained-state-libraries-chromium-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/b3-accessibility-keyboard--dcccd-nd-retained-state-libraries-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/b3-accessibility-keyboard--dcccd-nd-retained-state-libraries-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: libraries 

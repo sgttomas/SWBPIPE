@@ -1,0 +1,1534 @@
+[2m[WebServer] [22m(node:89245) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 1 worker
+
+(node:89247) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:89247) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium-desktop] › e2e/b3-accessibility.spec.ts:12:1 › disabled rail and Agent reasons escape clipping under keyboard focus (2.1s)
+  ✘   2 [chromium-desktop] › e2e/b3-accessibility.spec.ts:37:1 › covered pages exclude retained stage controls from Tab and accessibility (4.7s)
+(node:89270) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:89270) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [chromium-desktop] › e2e/b3-accessibility.spec.ts:68:1 › Both inspector Escape closes from property tab and input to opener (1.5s)
+  ✓   4 [chromium-desktop] › e2e/b3-accessibility.spec.ts:81:1 › Model inspector stays docked on Escape (860ms)
+  ✘   5 [chromium-desktop] › e2e/b3-accessibility.spec.ts:91:1 › native property selector consumes first Escape before inspector close (11.1s)
+(node:89327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:89327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [chromium-desktop] › e2e/b3-accessibility.spec.ts:109:1 › portalled routing Escape closes explicitly and supersedes automatic restore (1.1s)
+(node:89340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:89340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [chromium-compact] › e2e/b3-accessibility.spec.ts:12:1 › disabled rail and Agent reasons escape clipping under keyboard focus (1.7s)
+  ✘   8 [chromium-compact] › e2e/b3-accessibility.spec.ts:37:1 › covered pages exclude retained stage controls from Tab and accessibility (4.6s)
+(node:89375) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:89375) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [chromium-compact] › e2e/b3-accessibility.spec.ts:68:1 › Both inspector Escape closes from property tab and input to opener (1.3s)
+  ✓  10 [chromium-compact] › e2e/b3-accessibility.spec.ts:81:1 › Model inspector stays docked on Escape (830ms)
+  ✘  11 [chromium-compact] › e2e/b3-accessibility.spec.ts:91:1 › native property selector consumes first Escape before inspector close (11.2s)
+(node:89424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:89424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [chromium-compact] › e2e/b3-accessibility.spec.ts:109:1 › portalled routing Escape closes explicitly and supersedes automatic restore (1.1s)
+
+
+  1) [chromium-desktop] › e2e/b3-accessibility.spec.ts:37:1 › covered pages exclude retained stage controls from Tab and accessibility 
+
+    Error: libraries
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: not [32m"region \"Modeling workspace\""[39m
+    Received string:        [31m"- main:[39m
+    [31m  - navigation \"Application menu\":[39m
+    [31m    - button \"File\"[39m
+    [31m    - button \"Edit\"[39m
+    [31m    - button \"View\"[39m
+    [31m    - button \"Insert\"[39m
+    [31m    - button \"Analyze\"[39m
+    [31m  - heading \"SWBPIPE\" [level=1][39m
+    [31m  - paragraph: Invented Utility Loop Preview[39m
+    [31m  - group \"Editing tools\":[39m
+    [31m    - button \"Undo model edit\" [disabled][39m
+    [31m    - button \"Redo model edit\" [disabled][39m
+    [31m    - button \"Select\" [pressed][39m
+    [31m  - group \"View\":[39m
+    [31m    - button \"Table\"[39m
+    [31m    - button \"Model\"[39m
+    [31m    - button \"Both\" [pressed][39m
+    [31m  - button \"Run\"[39m
+    [31m  - button \"Issues, 5\": Issues 5[39m
+    [31m  - group \"Panels\":[39m
+    [31m    - button \"Inspector\" [expanded][39m
+    [31m    - button \"Agent\" [disabled][39m
+    [31m  - combobox \"Display units\":[39m
+    [31m    - option \"Entered\" [selected][39m
+    [31m    - option \"SI\"[39m
+    [31m    - option \"US\"[39m
+    [31m  - group[39m
+    [31m  - region \"Human toolkit\":[39m
+    [31m    - button \"Find modeling commands\": Search or command… ⌘K[39m
+    [31m  - navigation \"Stages\":[39m
+    [31m    - list:[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Model\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Loads\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Results\" [disabled][39m
+    [31m      - listitem:[39m
+    [31m        - button \"Review\" [disabled][39m
+    [31m    - separator[39m
+    [31m    - list:[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Libraries\" [expanded][39m
+    [31m      - listitem:[39m
+    [31m        - button \"Rules\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Issues, 5\": Issues[39m
+    [31m  - [7mregion \"Modeling workspace\"[27m:[39m
+    [31m    - group \"Tables\":[39m
+    [31m      - button \"Model\" [pressed][39m
+    [31m      - button \"Review changes\"[39m
+    [31m      - button \"Collapse table drawer\" [disabled] [expanded][39m
+    [31m    - text: Model[39m
+    [31m    - region \"Layout grid mode\":[39m
+    [31m      - button \"Tree\" [pressed][39m
+    [31m      - button \"Grid\"[39m
+    [31m    - region \"Model tree filtering\":[39m
+    [31m      - text: Filter model[39m
+    [31m      - searchbox \"Filter model tree\": pipe:P-100[39m
+    [31m      - text: 1 of 27 model entities visible[39m
+    [31m      - button \"Clear model tree filter\"[39m
+    [31m    - tree \"Model\":[39m
+    [31m      - treeitem \"Pipes\" [expanded] [level=1]:[39m
+    [31m        - strong: Pipes[39m
+    [31m      - treeitem \"Pump discharge run pipe:P-100\" [level=2] [selected]:[39m
+    [31m        - strong: Pump discharge run[39m
+    [31m        - text: pipe:P-100[39m
+    [31m    - separator \"Resize table and canvas\"[39m
+    [31m    - group \"Viewport controls\":[39m
+    [31m      - text: 3D Centerline[39m
+    [31m      - group \"Viewport deformation overlay status\": Deformation · unavailable[39m
+    [31m      - group \"Viewport display toggles\":[39m
+    [31m        - button \"Labels\" [pressed][39m
+    [31m        - button \"Loads\" [pressed][39m
+    [31m        - button \"Grid\" [pressed][39m
+    [31m      - group \"Viewport selection tools\":[39m
+    [31m        - button \"Box Select\"[39m
+    [31m        - text: Selection filter[39m
+    [31m        - combobox \"Selection filter\":[39m
+    [31m          - option \"All\" [selected][39m
+    [31m          - option \"Pipes\"[39m
+    [31m          - option \"Nodes\"[39m
+    [31m          - option \"Supports\"[39m
+    [31m          - option \"Components\"[39m
+    [31m        - button \"Hide\"[39m
+    [31m        - button \"Isolate\"[39m
+    [31m        - button \"Show All\" [disabled][39m
+    [31m        - button \"Fit Model\"[39m
+    [31m        - button \"Fit Visible\"[39m
+    [31m        - button \"Fit Selection\"[39m
+    [31m      - group \"Viewport geometry\":[39m
+    [31m        - button \"Schematic\" [pressed][39m
+    [31m        - button \"Actual OD\"[39m
+    [31m        - button \"Measure\"[39m
+    [31m    - text: \"Selected: pipe:P-100\"[39m
+    [31m    - status \"Schematic centerline geometry\"[39m
+    [31m    - status \"View command status\": No view command dispatched.[39m
+    [31m    - button \"Select Pump discharge run in viewport\" [pressed]: P-100[39m
+    [31m    - button \"Select Vertical riser in viewport\": P-110[39m
+    [31m    - button \"Select Invented branch connection marker in viewport\": C-120[39m
+    [31m    - button \"Select Low point elbow in viewport\": N-110[39m
+    [31m    - button \"Select Riser elbow in viewport\": N-120[39m
+    [31m    - button \"Select Rack span in viewport\": P-120[39m
+    [31m    - button \"Select Tie-in rise in viewport\": P-130[39m
+    [31m    - button \"Select Invented semi-rigid valve marker in viewport\": C-130[39m
+    [31m    - button \"Select Pump nozzle in viewport\": N-100[39m
+    [31m    - button \"Select Rack turn in viewport\": N-130[39m
+    [31m    - button \"Select Terminal tie-in in viewport\": N-140[39m
+    [31m    - button \"Select Preview sliding-friction rack shoe in viewport\": NL-130-FRIC[39m
+    [31m    - button \"Select Preview one-way terminal stop in viewport\": NL-140[39m
+    [31m    - button \"Select Anchor at pump nozzle in viewport\": S-100[39m
+    [31m    - img \"Orientation gizmo showing X, Y, Z axes\"[39m
+    [31m    - button \"Front\"[39m
+    [31m    - button \"Top\"[39m
+    [31m    - button \"Isometric\" [pressed][39m
+    [31m    - text: 1 m[39m
+    [31m    - region \"Command and selection bar\":[39m
+    [31m      - button \"Node\"[39m
+    [31m      - button \"Pipe\"[39m
+    [31m      - button \"Support\"[39m
+    [31m      - button \"Component\"[39m
+    [31m      - button \"Load\"[39m
+    [31m      - text: Select[39m
+    [31m      - group: Selection & navigation[39m
+    [31m    - button \"Close inspector\"[39m
+    [31m    - region \"Property inspector\":[39m
+    [31m      - 'heading \"Pump discharge run — pipe: pipe:P-100\" [level=2]'[39m
+    [31m      - tablist \"Inspector views\":[39m
+    [31m        - tab \"Properties\"[39m
+    [31m        - tab \"Task\" [selected][39m
+    [31m      - tabpanel \"Editor operation intent\":[39m
+    [31m        - text: \"Draft target: pipe: pipe:P-100\"[39m
+    [31m        - heading \"Edit name\" [level=3][39m
+    [31m        - text: Property[39m
+    [31m        - combobox \"Property to edit\":[39m
+    [31m          - option \"Name\" [selected][39m
+    [31m          - option \"Outside diameter\"[39m
+    [31m          - option \"Wall thickness\"[39m
+    [31m          - option \"Mill tolerance\"[39m
+    [31m          - option \"Material density (positive)\"[39m
+    [31m          - option \"Contents density (zero or greater)\"[39m
+    [31m          - option \"Insulation thickness (zero or greater)\"[39m
+    [31m          - option \"Insulation density (zero or greater)\"[39m
+    [31m          - option \"Material\"[39m
+    [31m          - option \"Provenance\"[39m
+    [31m        - region \"Current value\":[39m
+    [31m          - text: Current name[39m
+    [31m          - strong: Pump discharge run[39m
+    [31m        - text: New name[39m
+    [31m        - textbox \"New name\": Retained accessibility draft[39m
+    [31m        - button \"Add\"[39m
+    [31m        - button \"Cancel\"[39m
+    [31m        - button \"Review\"[39m
+    [31m        - button \"Apply\"[39m
+    [31m        - group: Operation details[39m
+    [31m        - paragraph: Validate to check this change before applying it.[39m
+    [31m  - region \"Workspace sections\":[39m
+    [31m    - heading \"Libraries\" [level=2][39m
+    [31m    - button \"Close\"[39m
+    [31m    - region \"Libraries section\":[39m
+    [31m      - region \"Library manager\":[39m
+    [31m        - text: \"Private Library Manager (local-only) Project scope: project:invented-loop-01; storage: local SQLite only. Library kind\"[39m
+    [31m        - combobox \"Library kind\":[39m
+    [31m          - option \"Material library\" [selected][39m
+    [31m          - option \"Section library\"[39m
+    [31m          - option \"Component library\"[39m
+    [31m          - option \"Hanger library\"[39m
+    [31m        - text: Intended visibility (validation preview)[39m
+    [31m        - combobox \"Intended visibility (validation preview)\":[39m
+    [31m          - option \"Private (local-only)\" [selected][39m
+    [31m          - option \"Public (validation preview)\"[39m
+    [31m        - text: Visibility shapes the validation preview only. Save always persists to the private local store and stores only an accepted private import (DEC-036).[39m
+    [31m        - button \"Load invented sample\"[39m
+    [31m        - button \"Refresh local list\"[39m
+    [31m        - text: Local library list not refreshed for this project yet. Library import document JSON (an already-parsed material/section/component library document with provenance — this manager validates and stores it; it does not parse external file formats)[39m
+    [31m        - textbox \"Library import document JSON (an already-parsed material/section/component library document with provenance — this manager validates and stores it; it does not parse external file formats)\" [disabled]:[39m
+    [31m          - /placeholder: No import document. Load an invented sample or paste a library document.[39m
+    [31m        - button \"Validate import\" [disabled][39m
+    [31m        - button \"Save to local store\" [disabled][39m
+    [31m        - button \"Discard import document\" [disabled][39m
+    [31m        - text: No library-import action has run in this session. Imported private libraries stay in local project storage only — never committed to the repository, transmitted, or bundled into public artifacts. Only an accepted private import is stored; a suspected-protected or otherwise-blocked import is refused, not stored (DEC-036). Import validation reports software findings over an already-parsed payload; no protected standards content — code-specific data is user-supplied.[39m
+    [31m  - complementary \"Agent\":[39m
+    [31m    - button \"Agent\" [disabled][39m
+    [31m  - button \"5 Issues\"[39m
+    [31m  - text: \"pipe: pipe:P-100 Entered\"[39m
+    [31m  - button \"About SWBPIPE…\""[39m
+
+      45 |     await openWorkspaceSection(page, section);
+      46 |     const ax = await page.locator("body").ariaSnapshot();
+    > 47 |     expect.soft(ax, section).not.toContain('region "Modeling workspace"');
+         |                                  ^
+      48 |     // Starting immediately before the surfaces ensures this traversal crosses their position.
+      49 |     await page.getByTestId("rail-issues").focus();
+      50 |     const coveredFocus: string[] = [];
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:47:34
+
+    Error: project
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: not [32m"region \"Modeling workspace\""[39m
+    Received string:        [31m"- main:[39m
+    [31m  - navigation \"Application menu\":[39m
+    [31m    - button \"File\"[39m
+    [31m    - button \"Edit\"[39m
+    [31m    - button \"View\"[39m
+    [31m    - button \"Insert\"[39m
+    [31m    - button \"Analyze\"[39m
+    [31m  - heading \"SWBPIPE\" [level=1][39m
+    [31m  - paragraph: Invented Utility Loop Preview[39m
+    [31m  - group \"Editing tools\":[39m
+    [31m    - button \"Undo model edit\" [disabled][39m
+    [31m    - button \"Redo model edit\" [disabled][39m
+    [31m    - button \"Select\" [pressed][39m
+    [31m  - group \"View\":[39m
+    [31m    - button \"Table\"[39m
+    [31m    - button \"Model\"[39m
+    [31m    - button \"Both\" [pressed][39m
+    [31m  - button \"Run\"[39m
+    [31m  - button \"Issues, 5\": Issues 5[39m
+    [31m  - group \"Panels\":[39m
+    [31m    - button \"Inspector\" [expanded][39m
+    [31m    - button \"Agent\" [disabled][39m
+    [31m  - combobox \"Display units\":[39m
+    [31m    - option \"Entered\" [selected][39m
+    [31m    - option \"SI\"[39m
+    [31m    - option \"US\"[39m
+    [31m  - group[39m
+    [31m  - region \"Human toolkit\":[39m
+    [31m    - button \"Find modeling commands\": Search or command… ⌘K[39m
+    [31m  - navigation \"Stages\":[39m
+    [31m    - list:[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Model\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Loads\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Results\" [disabled][39m
+    [31m      - listitem:[39m
+    [31m        - button \"Review\" [disabled][39m
+    [31m    - separator[39m
+    [31m    - list:[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Libraries\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Rules\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Issues, 5\": Issues[39m
+    [31m  - [7mregion \"Modeling workspace\"[27m:[39m
+    [31m    - group \"Tables\":[39m
+    [31m      - button \"Model\" [pressed][39m
+    [31m      - button \"Review changes\"[39m
+    [31m      - button \"Collapse table drawer\" [disabled] [expanded][39m
+    [31m    - text: Model[39m
+    [31m    - region \"Layout grid mode\":[39m
+    [31m      - button \"Tree\" [pressed][39m
+    [31m      - button \"Grid\"[39m
+    [31m    - region \"Model tree filtering\":[39m
+    [31m      - text: Filter model[39m
+    [31m      - searchbox \"Filter model tree\": pipe:P-100[39m
+    [31m      - text: 1 of 27 model entities visible[39m
+    [31m      - button \"Clear model tree filter\"[39m
+    [31m    - tree \"Model\":[39m
+    [31m      - treeitem \"Pipes\" [expanded] [level=1]:[39m
+    [31m        - strong: Pipes[39m
+    [31m      - treeitem \"Pump discharge run pipe:P-100\" [level=2] [selected]:[39m
+    [31m        - strong: Pump discharge run[39m
+    [31m        - text: pipe:P-100[39m
+    [31m    - separator \"Resize table and canvas\"[39m
+    [31m    - group \"Viewport controls\":[39m
+    [31m      - text: 3D Centerline[39m
+    [31m      - group \"Viewport deformation overlay status\": Deformation · unavailable[39m
+    [31m      - group \"Viewport display toggles\":[39m
+    [31m        - button \"Labels\" [pressed][39m
+    [31m        - button \"Loads\" [pressed][39m
+    [31m        - button \"Grid\" [pressed][39m
+    [31m      - group \"Viewport selection tools\":[39m
+    [31m        - button \"Box Select\"[39m
+    [31m        - text: Selection filter[39m
+    [31m        - combobox \"Selection filter\":[39m
+    [31m          - option \"All\" [selected][39m
+    [31m          - option \"Pipes\"[39m
+    [31m          - option \"Nodes\"[39m
+    [31m          - option \"Supports\"[39m
+    [31m          - option \"Components\"[39m
+    [31m        - button \"Hide\"[39m
+    [31m        - button \"Isolate\"[39m
+    [31m        - button \"Show All\" [disabled][39m
+    [31m        - button \"Fit Model\"[39m
+    [31m        - button \"Fit Visible\"[39m
+    [31m        - button \"Fit Selection\"[39m
+    [31m      - group \"Viewport geometry\":[39m
+    [31m        - button \"Schematic\" [pressed][39m
+    [31m        - button \"Actual OD\"[39m
+    [31m        - button \"Measure\"[39m
+    [31m    - text: \"Selected: pipe:P-100\"[39m
+    [31m    - status \"Schematic centerline geometry\"[39m
+    [31m    - status \"View command status\": No view command dispatched.[39m
+    [31m    - button \"Select Pump discharge run in viewport\" [pressed]: P-100[39m
+    [31m    - button \"Select Vertical riser in viewport\": P-110[39m
+    [31m    - button \"Select Invented branch connection marker in viewport\": C-120[39m
+    [31m    - button \"Select Low point elbow in viewport\": N-110[39m
+    [31m    - button \"Select Riser elbow in viewport\": N-120[39m
+    [31m    - button \"Select Rack span in viewport\": P-120[39m
+    [31m    - button \"Select Tie-in rise in viewport\": P-130[39m
+    [31m    - button \"Select Invented semi-rigid valve marker in viewport\": C-130[39m
+    [31m    - button \"Select Pump nozzle in viewport\": N-100[39m
+    [31m    - button \"Select Rack turn in viewport\": N-130[39m
+    [31m    - button \"Select Terminal tie-in in viewport\": N-140[39m
+    [31m    - button \"Select Preview sliding-friction rack shoe in viewport\": NL-130-FRIC[39m
+    [31m    - button \"Select Preview one-way terminal stop in viewport\": NL-140[39m
+    [31m    - button \"Select Anchor at pump nozzle in viewport\": S-100[39m
+    [31m    - img \"Orientation gizmo showing X, Y, Z axes\"[39m
+    [31m    - button \"Front\"[39m
+    [31m    - button \"Top\"[39m
+    [31m    - button \"Isometric\" [pressed][39m
+    [31m    - text: 1 m[39m
+    [31m    - region \"Command and selection bar\":[39m
+    [31m      - button \"Node\"[39m
+    [31m      - button \"Pipe\"[39m
+    [31m      - button \"Support\"[39m
+    [31m      - button \"Component\"[39m
+    [31m      - button \"Load\"[39m
+    [31m      - text: Select[39m
+    [31m      - group: Selection & navigation[39m
+    [31m    - button \"Close inspector\"[39m
+    [31m    - region \"Property inspector\":[39m
+    [31m      - 'heading \"Pump discharge run — pipe: pipe:P-100\" [level=2]'[39m
+    [31m      - tablist \"Inspector views\":[39m
+    [31m        - tab \"Properties\"[39m
+    [31m        - tab \"Task\" [selected][39m
+    [31m      - tabpanel \"Editor operation intent\":[39m
+    [31m        - text: \"Draft target: pipe: pipe:P-100\"[39m
+    [31m        - heading \"Edit name\" [level=3][39m
+    [31m        - text: Property[39m
+    [31m        - combobox \"Property to edit\":[39m
+    [31m          - option \"Name\" [selected][39m
+    [31m          - option \"Outside diameter\"[39m
+    [31m          - option \"Wall thickness\"[39m
+    [31m          - option \"Mill tolerance\"[39m
+    [31m          - option \"Material density (positive)\"[39m
+    [31m          - option \"Contents density (zero or greater)\"[39m
+    [31m          - option \"Insulation thickness (zero or greater)\"[39m
+    [31m          - option \"Insulation density (zero or greater)\"[39m
+    [31m          - option \"Material\"[39m
+    [31m          - option \"Provenance\"[39m
+    [31m        - region \"Current value\":[39m
+    [31m          - text: Current name[39m
+    [31m          - strong: Pump discharge run[39m
+    [31m        - text: New name[39m
+    [31m        - textbox \"New name\": Retained accessibility draft[39m
+    [31m        - button \"Add\"[39m
+    [31m        - button \"Cancel\"[39m
+    [31m        - button \"Review\"[39m
+    [31m        - button \"Apply\"[39m
+    [31m        - group: Operation details[39m
+    [31m        - paragraph: Validate to check this change before applying it.[39m
+    [31m  - region \"Workspace sections\":[39m
+    [31m    - heading \"Project\" [level=2][39m
+    [31m    - button \"Create local\"[39m
+    [31m    - button \"New blank\"[39m
+    [31m    - button \"Open local\"[39m
+    [31m    - button \"List local\"[39m
+    [31m    - button \"Save local\"[39m
+    [31m    - button \"Close\"[39m
+    [31m    - group \"Project summary\":[39m
+    [31m      - status: Local project store not opened.[39m
+    [31m      - text: Details[39m
+    [31m    - region \"Project section\":[39m
+    [31m      - region \"Project storage audit\":[39m
+    [31m        - text: Project Storage Audit[39m
+    [31m        - checkbox \"Include known private values in this local export\"[39m
+    [31m        - text: Include known private values in this local export decisions=114; findings=114; blocked=true[39m
+    [31m        - group: Details[39m
+    [31m        - text: Local storage JSON operation=not_started; pending operations=0; proposals=0; accepted_state_mutated=false Storage capability[39m
+    [31m        - strong: Browser memory preview; mode=not_persisted_this_session; FTS5=false[39m
+    [31m        - text: Local-only boundary[39m
+    [31m        - strong: network=false; daemon=false; telemetry=false; repository_default_private_write=false[39m
+    [31m        - text: Project snapshot[39m
+    [31m        - strong: project:invented-loop-01; not_persisted_this_session; persisted_editor_intents=0; persisted_proposals=0; persisted_review_targets=0; persisted_review_target_ref=not_selected; persisted_mechanics_results=0; persisted_analysis_runs=0; persisted_analysis_run_ref=not_persisted; copied_external_files=false[39m
+    [31m        - text: Project index[39m
+    [31m        - strong: state=not_requested; listed_projects=0; refs=none[39m
+    [31m        - text: Model hash persistence[39m
+    [31m        - strong: persisted_model_hashes=0; persisted_model_hash_ref=not_persisted[39m
+    [31m        - text: Model hash integrity[39m
+    [31m        - strong: no open-verification has run this session; review-only integrity signal for human review[39m
+    [31m        - text: Unit round-trip[39m
+    [31m        - strong: status=not_persisted_this_session; checked_refs=0; signature=not_persisted; model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; conversion=false[39m
+    [31m        - text: Payload boundary[39m
+    [31m        - strong: private payload=false; protected content=false; release/professional claim=false[39m
+    [31m        - text: Storage audit packets are local evidence only; create/open/save operations do not accept model changes or copy external project files.[39m
+    [31m      - region \"Project validation preflight\":[39m
+    [31m        - text: Project Validation Preflight[39m
+    [31m        - checkbox \"Include known private values in this local export\"[39m
+    [31m        - text: Include known private values in this local export decisions=245; findings=245; blocked=true[39m
+    [31m        - group: Details[39m
+    [31m        - text: Validation JSON validation=preview_not_persisted; version=stale; migration=not_persisted_this_session; round_trip=semantic_categories_declared Schema and version[39m
+    [31m        - strong: schema_version=0.1.0; document_kind=openpipestress.product_preview.model; profile=technical_preview_project_persistence_preflight[39m
+    [31m        - text: Round-trip manifest[39m
+    [31m        - strong: 6 categories; unit metadata=ready_for_preview_round_trip; provenance=ready_for_preview_round_trip; reproducibility=model_hash_computed_not_persisted[39m
+    [31m        - text: Unit round-trip evidence[39m
+    [31m        - strong: status=not_persisted_this_session; checked_refs=0; signature=not_persisted[39m
+    [31m        - text: Unit policy[39m
+    [31m        - strong: model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; records=45; round_trip=not_persisted_this_session; conversion=false[39m
+    [31m        - text: Model hash evidence[39m
+    [31m        - strong: model_hash=model_hash_computed_not_persisted; persisted_model_hashes=0; persisted_model_hash_ref=not_persisted; integrity=open_verification_not_run_this_session[39m
+    [31m        - text: Envelope hash evidence[39m
+    [31m        - strong: envelope_hash=project_envelope_hash_not_computed_no_save_this_session; persisted_envelope_hashes=0; persisted_envelope_hash_ref=not_persisted; integrity=open_verification_not_run_this_session[39m
+    [31m        - text: Store migration evidence[39m
+    [31m        - strong: framework=browser_memory_preview_no_sqlite_migration_ledger; store_schema_version=0; target=0; applied_on_open=0; status=browser_memory_snapshot_no_sql_store_migrations_applicable[39m
+    [31m        - text: Model document migration[39m
+    [31m        - strong: status=migrated; source=0.1.0; target=0.2.0; framework=application_service_separate_db_and_product_schema; persistence=in_memory_only_not_yet_saved; ledger_records=0[39m
+    [31m        - text: Persistence operations[39m
+    [31m        - strong: validate=preflight_generated_preview_not_persisted; version_check=stale; migrate=not_run_no_local_snapshot_this_session; pending operations=0; persisted editor intents=0; proposals=0; persisted proposals=0; persisted review targets=0; persisted review target ref=not_selected; persisted mechanics results=0; persisted analysis runs=0; persisted analysis run ref=not_persisted[39m
+    [31m        - text: Validation boundary[39m
+    [31m        - strong: accepted_state_mutated=false; network=false; telemetry=false; private/protected payload=false[39m
+    [31m        - text: Validation preflight records version, migration, and round-trip review evidence locally without applying queued operations.[39m
+    [31m  - complementary \"Agent\":[39m
+    [31m    - button \"Agent\" [disabled][39m
+    [31m  - button \"5 Issues\"[39m
+    [31m  - text: \"pipe: pipe:P-100 Entered\"[39m
+    [31m  - button \"About SWBPIPE…\""[39m
+
+      45 |     await openWorkspaceSection(page, section);
+      46 |     const ax = await page.locator("body").ariaSnapshot();
+    > 47 |     expect.soft(ax, section).not.toContain('region "Modeling workspace"');
+         |                                  ^
+      48 |     // Starting immediately before the surfaces ensures this traversal crosses their position.
+      49 |     await page.getByTestId("rail-issues").focus();
+      50 |     const coveredFocus: string[] = [];
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:47:34
+
+    Error: solve
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: not [32m"region \"Modeling workspace\""[39m
+    Received string:        [31m"- main:[39m
+    [31m  - navigation \"Application menu\":[39m
+    [31m    - button \"File\"[39m
+    [31m    - button \"Edit\"[39m
+    [31m    - button \"View\"[39m
+    [31m    - button \"Insert\"[39m
+    [31m    - button \"Analyze\"[39m
+    [31m  - heading \"SWBPIPE\" [level=1][39m
+    [31m  - paragraph: Invented Utility Loop Preview[39m
+    [31m  - group \"Editing tools\":[39m
+    [31m    - button \"Undo model edit\" [disabled][39m
+    [31m    - button \"Redo model edit\" [disabled][39m
+    [31m    - button \"Select\" [pressed][39m
+    [31m  - group \"View\":[39m
+    [31m    - button \"Table\"[39m
+    [31m    - button \"Model\"[39m
+    [31m    - button \"Both\" [pressed][39m
+    [31m  - button \"Run\"[39m
+    [31m  - button \"Issues, 5\": Issues 5[39m
+    [31m  - group \"Panels\":[39m
+    [31m    - button \"Inspector\" [expanded][39m
+    [31m    - button \"Agent\" [disabled][39m
+    [31m  - combobox \"Display units\":[39m
+    [31m    - option \"Entered\" [selected][39m
+    [31m    - option \"SI\"[39m
+    [31m    - option \"US\"[39m
+    [31m  - group[39m
+    [31m  - region \"Human toolkit\":[39m
+    [31m    - button \"Find modeling commands\": Search or command… ⌘K[39m
+    [31m  - navigation \"Stages\":[39m
+    [31m    - list:[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Model\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Loads\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Results\" [disabled][39m
+    [31m      - listitem:[39m
+    [31m        - button \"Review\" [disabled][39m
+    [31m    - separator[39m
+    [31m    - list:[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Libraries\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Rules\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Issues, 5\": Issues[39m
+    [31m  - [7mregion \"Modeling workspace\"[27m:[39m
+    [31m    - group \"Tables\":[39m
+    [31m      - button \"Model\" [pressed][39m
+    [31m      - button \"Review changes\"[39m
+    [31m      - button \"Collapse table drawer\" [disabled] [expanded][39m
+    [31m    - text: Model[39m
+    [31m    - region \"Layout grid mode\":[39m
+    [31m      - button \"Tree\" [pressed][39m
+    [31m      - button \"Grid\"[39m
+    [31m    - region \"Model tree filtering\":[39m
+    [31m      - text: Filter model[39m
+    [31m      - searchbox \"Filter model tree\": pipe:P-100[39m
+    [31m      - text: 1 of 27 model entities visible[39m
+    [31m      - button \"Clear model tree filter\"[39m
+    [31m    - tree \"Model\":[39m
+    [31m      - treeitem \"Pipes\" [expanded] [level=1]:[39m
+    [31m        - strong: Pipes[39m
+    [31m      - treeitem \"Pump discharge run pipe:P-100\" [level=2] [selected]:[39m
+    [31m        - strong: Pump discharge run[39m
+    [31m        - text: pipe:P-100[39m
+    [31m    - separator \"Resize table and canvas\"[39m
+    [31m    - group \"Viewport controls\":[39m
+    [31m      - text: 3D Centerline[39m
+    [31m      - group \"Viewport deformation overlay status\": Deformation · unavailable[39m
+    [31m      - group \"Viewport display toggles\":[39m
+    [31m        - button \"Labels\" [pressed][39m
+    [31m        - button \"Loads\" [pressed][39m
+    [31m        - button \"Grid\" [pressed][39m
+    [31m      - group \"Viewport selection tools\":[39m
+    [31m        - button \"Box Select\"[39m
+    [31m        - text: Selection filter[39m
+    [31m        - combobox \"Selection filter\":[39m
+    [31m          - option \"All\" [selected][39m
+    [31m          - option \"Pipes\"[39m
+    [31m          - option \"Nodes\"[39m
+    [31m          - option \"Supports\"[39m
+    [31m          - option \"Components\"[39m
+    [31m        - button \"Hide\"[39m
+    [31m        - button \"Isolate\"[39m
+    [31m        - button \"Show All\" [disabled][39m
+    [31m        - button \"Fit Model\"[39m
+    [31m        - button \"Fit Visible\"[39m
+    [31m        - button \"Fit Selection\"[39m
+    [31m      - group \"Viewport geometry\":[39m
+    [31m        - button \"Schematic\" [pressed][39m
+    [31m        - button \"Actual OD\"[39m
+    [31m        - button \"Measure\"[39m
+    [31m    - text: \"Selected: pipe:P-100\"[39m
+    [31m    - status \"Schematic centerline geometry\"[39m
+    [31m    - status \"View command status\": No view command dispatched.[39m
+    [31m    - button \"Select Pump discharge run in viewport\" [pressed]: P-100[39m
+    [31m    - button \"Select Vertical riser in viewport\": P-110[39m
+    [31m    - button \"Select Invented branch connection marker in viewport\": C-120[39m
+    [31m    - button \"Select Low point elbow in viewport\": N-110[39m
+    [31m    - button \"Select Riser elbow in viewport\": N-120[39m
+    [31m    - button \"Select Rack span in viewport\": P-120[39m
+    [31m    - button \"Select Tie-in rise in viewport\": P-130[39m
+    [31m    - button \"Select Invented semi-rigid valve marker in viewport\": C-130[39m
+    [31m    - button \"Select Pump nozzle in viewport\": N-100[39m
+    [31m    - button \"Select Rack turn in viewport\": N-130[39m
+    [31m    - button \"Select Terminal tie-in in viewport\": N-140[39m
+    [31m    - button \"Select Preview sliding-friction rack shoe in viewport\": NL-130-FRIC[39m
+    [31m    - button \"Select Preview one-way terminal stop in viewport\": NL-140[39m
+    [31m    - button \"Select Anchor at pump nozzle in viewport\": S-100[39m
+    [31m    - img \"Orientation gizmo showing X, Y, Z axes\"[39m
+    [31m    - button \"Front\"[39m
+    [31m    - button \"Top\"[39m
+    [31m    - button \"Isometric\" [pressed][39m
+    [31m    - text: 1 m[39m
+    [31m    - region \"Command and selection bar\":[39m
+    [31m      - button \"Node\"[39m
+    [31m      - button \"Pipe\"[39m
+    [31m      - button \"Support\"[39m
+    [31m      - button \"Component\"[39m
+    [31m      - button \"Load\"[39m
+    [31m      - text: Select[39m
+    [31m      - group: Selection & navigation[39m
+    [31m    - button \"Close inspector\"[39m
+    [31m    - region \"Property inspector\":[39m
+    [31m      - 'heading \"Pump discharge run — pipe: pipe:P-100\" [level=2]'[39m
+    [31m      - tablist \"Inspector views\":[39m
+    [31m        - tab \"Properties\"[39m
+    [31m        - tab \"Task\" [selected][39m
+    [31m      - tabpanel \"Editor operation intent\":[39m
+    [31m        - text: \"Draft target: pipe: pipe:P-100\"[39m
+    [31m        - heading \"Edit name\" [level=3][39m
+    [31m        - text: Property[39m
+    [31m        - combobox \"Property to edit\":[39m
+    [31m          - option \"Name\" [selected][39m
+    [31m          - option \"Outside diameter\"[39m
+    [31m          - option \"Wall thickness\"[39m
+    [31m          - option \"Mill tolerance\"[39m
+    [31m          - option \"Material density (positive)\"[39m
+    [31m          - option \"Contents density (zero or greater)\"[39m
+    [31m          - option \"Insulation thickness (zero or greater)\"[39m
+    [31m          - option \"Insulation density (zero or greater)\"[39m
+    [31m          - option \"Material\"[39m
+    [31m          - option \"Provenance\"[39m
+    [31m        - region \"Current value\":[39m
+    [31m          - text: Current name[39m
+    [31m          - strong: Pump discharge run[39m
+    [31m        - text: New name[39m
+    [31m        - textbox \"New name\": Retained accessibility draft[39m
+    [31m        - button \"Add\"[39m
+    [31m        - button \"Cancel\"[39m
+    [31m        - button \"Review\"[39m
+    [31m        - button \"Apply\"[39m
+    [31m        - group: Operation details[39m
+    [31m        - paragraph: Validate to check this change before applying it.[39m
+    [31m  - region \"Workspace sections\":[39m
+    [31m    - heading \"Analyze\" [level=2][39m
+    [31m    - button \"Close\"[39m
+    [31m    - region \"Solve section\":[39m
+    [31m      - region \"Solve execution\":[39m
+    [31m        - text: Execution[39m
+    [31m        - region \"Solve readiness summary\":[39m
+    [31m          - text: Mechanics readiness[39m
+    [31m          - strong: preview run not started; ready for preview diagnostics[39m
+    [31m          - text: Rule-check readiness[39m
+    [31m          - strong: Rule pack · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE); mechanics results remain reviewable only[39m
+    [31m          - text: Diagnostics[39m
+    [31m          - strong: 1 diagnostic; 1 warning; 0 blocking/error[39m
+    [31m          - text: Professional boundary[39m
+    [31m          - strong: Human · Human review required (HUMAN_REVIEW_REQUIRED)[39m
+    [31m        - checkbox \"Include known private values in this local export\"[39m
+    [31m        - text: Include known private values in this local export decisions=93; findings=93; blocked=true[39m
+    [31m        - group: Details[39m
+    [31m        - text: Solve job JSON state=not_started; events=1; result_rows=0; cancellation_requested=false Solver mode[39m
+    [31m        - strong: selected=sparse_interactive; sparse_default=true; dense_scrutiny=false[39m
+    [31m        - text: Progress[39m
+    [31m        - strong: not_started; preview_service_event_state_only_no_percent_stream; percentages_synthesized=false[39m
+    [31m        - text: Cancellation[39m
+    [31m        - strong: control_visible=true; enabled=false; requested=false; seam=no_job_started; token=none_no_active_backend_job; success_claimed=false[39m
+    [31m        - text: Result binding[39m
+    [31m        - strong: not generated; result rows=0; hashes=0[39m
+    [31m        - text: Unit policy[39m
+    [31m        - strong: model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=none; rows=0; conversion=false[39m
+    [31m        - text: Boundary[39m
+    [31m        - strong: private payload=false; protected content=false; release/professional claim=false; human review required[39m
+    [31m        - group \"Solver mode\":[39m
+    [31m          - button \"Sparse interactive\" [pressed][39m
+    [31m          - button \"Dense scrutiny\"[39m
+    [31m        - button \"Run mechanics preview\":[39m
+    [31m          - img[39m
+    [31m          - text: Run mechanics preview[39m
+    [31m        - button \"Cancel preview\" [disabled][39m
+    [31m      - region \"Rule-check completeness\":[39m
+    [31m        - text: Rule-Check Completeness[39m
+    [31m        - checkbox \"Include known private values in this local export\"[39m
+    [31m        - text: Include known private values in this local export decisions=122; findings=122; blocked=true[39m
+    [31m        - group: Details[39m
+    [31m        - text: Local completeness JSON 3 review findings; rule_check_blocked=true; mechanics_reviewable=false Rule status[39m
+    [31m        - strong: not_performed_user_rule_inputs_missing[39m
+    [31m        - text: Mechanics status[39m
+    [31m        - strong: ready_for_preview_diagnostics[39m
+    [31m        - text: Unit policy[39m
+    [31m        - strong: model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; records=38; rule_input_units=explicit_or_blocking; diagnostic=RULE_UNIT_MISMATCH; conversion=false[39m
+    [31m        - text: Boundary[39m
+    [31m        - strong: private rule data absent; silent defaults used=false; bundled code values=false; no compliance claim[39m
+    [31m        - article:[39m
+    [31m          - strong: RULE_CHECK_BLOCKING[39m
+    [31m          - text: warning; rule_blocking=true; private_data=true[39m
+    [31m          - paragraph: User-supplied rule-pack inputs are absent, so rule-check status stays incomplete while mechanics output remains separate. Provide a private rule pack and project-specific criteria with provenance; the public preview does not bundle code defaults.[39m
+    [31m        - article:[39m
+    [31m          - strong: RULE_CHECK_BLOCKING[39m
+    [31m          - text: warning; rule_blocking=true; private_data=true[39m
+    [31m          - paragraph: Load cases and combinations are mechanics-basis preview inputs, not code-specific rule combinations. Supply private owner/code combination criteria before reporting user-rule checked status.[39m
+    [31m        - article:[39m
+    [31m          - strong: PROVENANCE_WARNING[39m
+    [31m          - text: warning; rule_blocking=true; private_data=true[39m
+    [31m          - paragraph: Material and pipe-section values are invented public fixture values, not verified project or catalog data. Replace them with user-controlled data and provenance before engineering reliance.[39m
+    [31m        - text: Completeness findings explain missing user/private rule-check data.[39m
+    [31m      - region \"Run rule checks\":[39m
+    [31m        - text: \"Run Rule Checks (user-defined, private) Project scope: project:invented-loop-01. No solved mechanics result in this session; run a solve first so solver_result inputs can bind to result rows.\"[39m
+    [31m        - button \"Load demo rule pack\"[39m
+    [31m        - button \"Refresh saved packs\"[39m
+    [31m        - text: Saved rule-pack list not refreshed yet. Rule-pack document JSON (load the demo or a saved pack, or paste a private pack. The binding controls below are derived from this document.)[39m
+    [31m        - textbox \"Rule-pack document JSON (load the demo or a saved pack, or paste a private pack. The binding controls below are derived from this document.)\":[39m
+    [31m          - /placeholder: No rule-pack document. Load the demo, open a saved pack, or paste one.[39m
+    [31m        - button \"Run checks\" [disabled][39m
+    [31m        - text: No rule-check run in this session. Rule checks run locally over user-supplied data only. The software emits user-defined check statuses (USER_RULE_CHECKED / USER_RULE_FAILED / RULE_INPUTS_INCOMPLETE).[39m
+    [31m      - region \"Design knowledge\":[39m
+    [31m        - img[39m
+    [31m        - text: Design Knowledge[39m
+    [31m        - article:[39m
+    [31m          - strong: Pump nozzle endpoint[39m
+    [31m          - text: endpoint · review_required[39m
+    [31m          - paragraph: Invented endpoint record used to show how user-supplied design context appears in the preview.[39m
+    [31m          - text: invented_example[39m
+    [31m        - article:[39m
+    [31m          - strong: Rack corridor placeholder[39m
+    [31m          - text: routing_corridor · review_required[39m
+    [31m          - paragraph: Invented corridor note; no owner standard or protected spacing criterion is bundled.[39m
+    [31m          - text: invented_example[39m
+    [31m        - article:[39m
+    [31m          - strong: Support stiffness dimensions unresolved[39m
+    [31m          - text: assumption · unresolved[39m
+    [31m          - paragraph: Linear and rotational support behavior is represented as a preview diagnostic until user-supplied stiffness values and canonical dimensions are provided.[39m
+    [31m          - text: invented_example[39m
+    [31m  - complementary \"Agent\":[39m
+    [31m    - button \"Agent\" [disabled][39m
+    [31m  - button \"5 Issues\"[39m
+    [31m  - text: \"pipe: pipe:P-100 Entered\"[39m
+    [31m  - button \"About SWBPIPE…\""[39m
+
+      45 |     await openWorkspaceSection(page, section);
+      46 |     const ax = await page.locator("body").ariaSnapshot();
+    > 47 |     expect.soft(ax, section).not.toContain('region "Modeling workspace"');
+         |                                  ^
+      48 |     // Starting immediately before the surfaces ensures this traversal crosses their position.
+      49 |     await page.getByTestId("rail-issues").focus();
+      50 |     const coveredFocus: string[] = [];
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:47:34
+
+    Error Context: test-results/b3-accessibility-covered-p-a47de--from-Tab-and-accessibility-chromium-desktop/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/b3-accessibility-covered-p-a47de--from-Tab-and-accessibility-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/b3-accessibility-covered-p-a47de--from-Tab-and-accessibility-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-desktop] › e2e/b3-accessibility.spec.ts:91:1 › native property selector consumes first Escape before inspector close 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByTestId('toggle-inspector')
+    Expected: [32m"[7mtru[27me"[39m
+    Received: [31m"[7mfals[27me"[39m
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('toggle-inspector')[22m
+    [2m    24 × locator resolved to <button type="button" aria-expanded="false" aria-label="Inspector" title="Inspector (⌘I)" class="shell-panel-toggle" data-testid="toggle-inspector" aria-controls="shell-inspector">…</button>[22m
+    [2m       - unexpected value "false"[22m
+
+
+       99 |   await page.keyboard.press("ArrowDown");
+      100 |   await page.keyboard.press("Escape");
+    > 101 |   await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
+          |                                                      ^
+      102 |   await expect(select).toHaveValue(value);
+      103 |   await expect(select).toBeFocused();
+      104 |   await page.keyboard.press("Escape");
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:101:54
+
+    Error Context: test-results/b3-accessibility-native-pr-013e7-cape-before-inspector-close-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/b3-accessibility-native-pr-013e7-cape-before-inspector-close-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/b3-accessibility-native-pr-013e7-cape-before-inspector-close-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium-compact] › e2e/b3-accessibility.spec.ts:37:1 › covered pages exclude retained stage controls from Tab and accessibility 
+
+    Error: libraries
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: not [32m"region \"Modeling workspace\""[39m
+    Received string:        [31m"- main:[39m
+    [31m  - navigation \"Application menu\":[39m
+    [31m    - button \"File\"[39m
+    [31m    - button \"Edit\"[39m
+    [31m    - button \"View\"[39m
+    [31m    - button \"Insert\"[39m
+    [31m    - button \"Analyze\"[39m
+    [31m  - heading \"SWBPIPE\" [level=1][39m
+    [31m  - paragraph: Invented Utility Loop Preview[39m
+    [31m  - group \"Editing tools\":[39m
+    [31m    - button \"Undo model edit\" [disabled][39m
+    [31m    - button \"Redo model edit\" [disabled][39m
+    [31m    - button \"Select (⎋)\" [pressed][39m
+    [31m  - group \"View\":[39m
+    [31m    - button \"Table\"[39m
+    [31m    - button \"Model\"[39m
+    [31m    - button \"Both\" [pressed][39m
+    [31m  - button \"Run\"[39m
+    [31m  - button \"Issues, 5\": Issues 5[39m
+    [31m  - group \"Panels\":[39m
+    [31m    - button \"Inspector\" [expanded][39m
+    [31m    - button \"Agent\" [disabled][39m
+    [31m  - combobox \"Display units\":[39m
+    [31m    - option \"Entered\" [selected][39m
+    [31m    - option \"SI\"[39m
+    [31m    - option \"US\"[39m
+    [31m  - group[39m
+    [31m  - region \"Human toolkit\":[39m
+    [31m    - button \"Find modeling commands\": Search or command… ⌘K[39m
+    [31m  - navigation \"Stages\":[39m
+    [31m    - list:[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Model\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Loads\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Results\" [disabled][39m
+    [31m      - listitem:[39m
+    [31m        - button \"Review\" [disabled][39m
+    [31m    - separator[39m
+    [31m    - list:[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Libraries\" [expanded][39m
+    [31m      - listitem:[39m
+    [31m        - button \"Rules\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Issues, 5\": Issues[39m
+    [31m  - [7mregion \"Modeling workspace\"[27m:[39m
+    [31m    - group \"Tables\":[39m
+    [31m      - button \"Model\" [pressed][39m
+    [31m      - button \"Review changes\"[39m
+    [31m      - button \"Collapse table drawer\" [disabled] [expanded][39m
+    [31m    - text: Model[39m
+    [31m    - region \"Layout grid mode\":[39m
+    [31m      - button \"Tree\" [pressed][39m
+    [31m      - button \"Grid\"[39m
+    [31m    - region \"Model tree filtering\":[39m
+    [31m      - text: Filter model[39m
+    [31m      - searchbox \"Filter model tree\": pipe:P-100[39m
+    [31m      - text: 1 of 27 model entities visible[39m
+    [31m      - button \"Clear model tree filter\"[39m
+    [31m    - tree \"Model\":[39m
+    [31m      - treeitem \"Pipes\" [expanded] [level=1]:[39m
+    [31m        - strong: Pipes[39m
+    [31m      - treeitem \"Pump discharge run pipe:P-100\" [level=2] [selected]:[39m
+    [31m        - strong: Pump discharge run[39m
+    [31m        - text: pipe:P-100[39m
+    [31m    - separator \"Resize table and canvas\"[39m
+    [31m    - group \"Viewport controls\":[39m
+    [31m      - text: 3D Centerline[39m
+    [31m      - group \"Viewport deformation overlay status\": Deformation · unavailable[39m
+    [31m      - group \"Viewport display toggles\":[39m
+    [31m        - button \"Labels\" [pressed][39m
+    [31m        - button \"Loads\" [pressed][39m
+    [31m        - button \"Grid\" [pressed][39m
+    [31m      - group \"Viewport selection tools\":[39m
+    [31m        - button \"Box Select\"[39m
+    [31m        - text: Selection filter[39m
+    [31m        - combobox \"Selection filter\":[39m
+    [31m          - option \"All\" [selected][39m
+    [31m          - option \"Pipes\"[39m
+    [31m          - option \"Nodes\"[39m
+    [31m          - option \"Supports\"[39m
+    [31m          - option \"Components\"[39m
+    [31m        - button \"Hide\"[39m
+    [31m        - button \"Isolate\"[39m
+    [31m        - button \"Show All\" [disabled][39m
+    [31m        - button \"Fit Model\"[39m
+    [31m        - button \"Fit Visible\"[39m
+    [31m        - button \"Fit Selection\"[39m
+    [31m      - group \"Viewport geometry\":[39m
+    [31m        - button \"Schematic\" [pressed][39m
+    [31m        - button \"Actual OD\"[39m
+    [31m        - button \"Measure\"[39m
+    [31m    - text: \"Selected: pipe:P-100\"[39m
+    [31m    - status \"Schematic centerline geometry\"[39m
+    [31m    - status \"View command status\": No view command dispatched.[39m
+    [31m    - button \"Select Pump discharge run in viewport\" [pressed]: P-100[39m
+    [31m    - button \"Select Invented branch connection marker in viewport\": C-120[39m
+    [31m    - button \"Select Riser elbow in viewport\": N-120[39m
+    [31m    - button \"Select Rack span in viewport\": P-120[39m
+    [31m    - button \"Select Tie-in rise in viewport\": P-130[39m
+    [31m    - button \"Select Invented semi-rigid valve marker in viewport\": C-130[39m
+    [31m    - button \"Select Rack turn in viewport\": N-130[39m
+    [31m    - button \"Select Terminal tie-in in viewport\": N-140[39m
+    [31m    - button \"Select Preview one-way terminal stop in viewport\": NL-140[39m
+    [31m    - img \"Orientation gizmo showing X, Y, Z axes\"[39m
+    [31m    - button \"Front\"[39m
+    [31m    - button \"Top\"[39m
+    [31m    - button \"Isometric\" [pressed][39m
+    [31m    - text: 1 m[39m
+    [31m    - region \"Command and selection bar\":[39m
+    [31m      - button \"Node\"[39m
+    [31m      - button \"Pipe\"[39m
+    [31m      - button \"Support\"[39m
+    [31m      - button \"Component\"[39m
+    [31m      - button \"Load\"[39m
+    [31m      - text: Select[39m
+    [31m      - group: Selection & navigation[39m
+    [31m    - button \"Close inspector\"[39m
+    [31m    - region \"Property inspector\":[39m
+    [31m      - 'heading \"Pump discharge run — pipe: pipe:P-100\" [level=2]'[39m
+    [31m      - tablist \"Inspector views\":[39m
+    [31m        - tab \"Properties\"[39m
+    [31m        - tab \"Task\" [selected][39m
+    [31m      - tabpanel \"Editor operation intent\":[39m
+    [31m        - text: \"Draft target: pipe: pipe:P-100\"[39m
+    [31m        - heading \"Edit name\" [level=3][39m
+    [31m        - text: Property[39m
+    [31m        - combobox \"Property to edit\":[39m
+    [31m          - option \"Name\" [selected][39m
+    [31m          - option \"Outside diameter\"[39m
+    [31m          - option \"Wall thickness\"[39m
+    [31m          - option \"Mill tolerance\"[39m
+    [31m          - option \"Material density (positive)\"[39m
+    [31m          - option \"Contents density (zero or greater)\"[39m
+    [31m          - option \"Insulation thickness (zero or greater)\"[39m
+    [31m          - option \"Insulation density (zero or greater)\"[39m
+    [31m          - option \"Material\"[39m
+    [31m          - option \"Provenance\"[39m
+    [31m        - region \"Current value\":[39m
+    [31m          - text: Current name[39m
+    [31m          - strong: Pump discharge run[39m
+    [31m        - text: New name[39m
+    [31m        - textbox \"New name\": Retained accessibility draft[39m
+    [31m        - button \"Add\"[39m
+    [31m        - button \"Cancel\"[39m
+    [31m        - button \"Review\"[39m
+    [31m        - button \"Apply\"[39m
+    [31m        - group: Operation details[39m
+    [31m        - paragraph: Validate to check this change before applying it.[39m
+    [31m  - region \"Workspace sections\":[39m
+    [31m    - heading \"Libraries\" [level=2][39m
+    [31m    - button \"Close\"[39m
+    [31m    - region \"Libraries section\":[39m
+    [31m      - region \"Library manager\":[39m
+    [31m        - text: \"Private Library Manager (local-only) Project scope: project:invented-loop-01; storage: local SQLite only. Library kind\"[39m
+    [31m        - combobox \"Library kind\":[39m
+    [31m          - option \"Material library\" [selected][39m
+    [31m          - option \"Section library\"[39m
+    [31m          - option \"Component library\"[39m
+    [31m          - option \"Hanger library\"[39m
+    [31m        - text: Intended visibility (validation preview)[39m
+    [31m        - combobox \"Intended visibility (validation preview)\":[39m
+    [31m          - option \"Private (local-only)\" [selected][39m
+    [31m          - option \"Public (validation preview)\"[39m
+    [31m        - text: Visibility shapes the validation preview only. Save always persists to the private local store and stores only an accepted private import (DEC-036).[39m
+    [31m        - button \"Load invented sample\"[39m
+    [31m        - button \"Refresh local list\"[39m
+    [31m        - text: Local library list not refreshed for this project yet. Library import document JSON (an already-parsed material/section/component library document with provenance — this manager validates and stores it; it does not parse external file formats)[39m
+    [31m        - textbox \"Library import document JSON (an already-parsed material/section/component library document with provenance — this manager validates and stores it; it does not parse external file formats)\" [disabled]:[39m
+    [31m          - /placeholder: No import document. Load an invented sample or paste a library document.[39m
+    [31m        - button \"Validate import\" [disabled][39m
+    [31m        - button \"Save to local store\" [disabled][39m
+    [31m        - button \"Discard import document\" [disabled][39m
+    [31m        - text: No library-import action has run in this session. Imported private libraries stay in local project storage only — never committed to the repository, transmitted, or bundled into public artifacts. Only an accepted private import is stored; a suspected-protected or otherwise-blocked import is refused, not stored (DEC-036). Import validation reports software findings over an already-parsed payload; no protected standards content — code-specific data is user-supplied.[39m
+    [31m  - complementary \"Agent\":[39m
+    [31m    - button \"Agent\" [disabled][39m
+    [31m  - button \"5 Issues\"[39m
+    [31m  - text: \"pipe: pipe:P-100 Entered\"[39m
+    [31m  - button \"About SWBPIPE…\""[39m
+
+      45 |     await openWorkspaceSection(page, section);
+      46 |     const ax = await page.locator("body").ariaSnapshot();
+    > 47 |     expect.soft(ax, section).not.toContain('region "Modeling workspace"');
+         |                                  ^
+      48 |     // Starting immediately before the surfaces ensures this traversal crosses their position.
+      49 |     await page.getByTestId("rail-issues").focus();
+      50 |     const coveredFocus: string[] = [];
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:47:34
+
+    Error: project
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: not [32m"region \"Modeling workspace\""[39m
+    Received string:        [31m"- main:[39m
+    [31m  - navigation \"Application menu\":[39m
+    [31m    - button \"File\"[39m
+    [31m    - button \"Edit\"[39m
+    [31m    - button \"View\"[39m
+    [31m    - button \"Insert\"[39m
+    [31m    - button \"Analyze\"[39m
+    [31m  - heading \"SWBPIPE\" [level=1][39m
+    [31m  - paragraph: Invented Utility Loop Preview[39m
+    [31m  - group \"Editing tools\":[39m
+    [31m    - button \"Undo model edit\" [disabled][39m
+    [31m    - button \"Redo model edit\" [disabled][39m
+    [31m    - button \"Select (⎋)\" [pressed][39m
+    [31m  - group \"View\":[39m
+    [31m    - button \"Table\"[39m
+    [31m    - button \"Model\"[39m
+    [31m    - button \"Both\" [pressed][39m
+    [31m  - button \"Run\"[39m
+    [31m  - button \"Issues, 5\": Issues 5[39m
+    [31m  - group \"Panels\":[39m
+    [31m    - button \"Inspector\" [expanded][39m
+    [31m    - button \"Agent\" [disabled][39m
+    [31m  - combobox \"Display units\":[39m
+    [31m    - option \"Entered\" [selected][39m
+    [31m    - option \"SI\"[39m
+    [31m    - option \"US\"[39m
+    [31m  - group[39m
+    [31m  - region \"Human toolkit\":[39m
+    [31m    - button \"Find modeling commands\": Search or command… ⌘K[39m
+    [31m  - navigation \"Stages\":[39m
+    [31m    - list:[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Model\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Loads\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Results\" [disabled][39m
+    [31m      - listitem:[39m
+    [31m        - button \"Review\" [disabled][39m
+    [31m    - separator[39m
+    [31m    - list:[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Libraries\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Rules\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Issues, 5\": Issues[39m
+    [31m  - [7mregion \"Modeling workspace\"[27m:[39m
+    [31m    - group \"Tables\":[39m
+    [31m      - button \"Model\" [pressed][39m
+    [31m      - button \"Review changes\"[39m
+    [31m      - button \"Collapse table drawer\" [disabled] [expanded][39m
+    [31m    - text: Model[39m
+    [31m    - region \"Layout grid mode\":[39m
+    [31m      - button \"Tree\" [pressed][39m
+    [31m      - button \"Grid\"[39m
+    [31m    - region \"Model tree filtering\":[39m
+    [31m      - text: Filter model[39m
+    [31m      - searchbox \"Filter model tree\": pipe:P-100[39m
+    [31m      - text: 1 of 27 model entities visible[39m
+    [31m      - button \"Clear model tree filter\"[39m
+    [31m    - tree \"Model\":[39m
+    [31m      - treeitem \"Pipes\" [expanded] [level=1]:[39m
+    [31m        - strong: Pipes[39m
+    [31m      - treeitem \"Pump discharge run pipe:P-100\" [level=2] [selected]:[39m
+    [31m        - strong: Pump discharge run[39m
+    [31m        - text: pipe:P-100[39m
+    [31m    - separator \"Resize table and canvas\"[39m
+    [31m    - group \"Viewport controls\":[39m
+    [31m      - text: 3D Centerline[39m
+    [31m      - group \"Viewport deformation overlay status\": Deformation · unavailable[39m
+    [31m      - group \"Viewport display toggles\":[39m
+    [31m        - button \"Labels\" [pressed][39m
+    [31m        - button \"Loads\" [pressed][39m
+    [31m        - button \"Grid\" [pressed][39m
+    [31m      - group \"Viewport selection tools\":[39m
+    [31m        - button \"Box Select\"[39m
+    [31m        - text: Selection filter[39m
+    [31m        - combobox \"Selection filter\":[39m
+    [31m          - option \"All\" [selected][39m
+    [31m          - option \"Pipes\"[39m
+    [31m          - option \"Nodes\"[39m
+    [31m          - option \"Supports\"[39m
+    [31m          - option \"Components\"[39m
+    [31m        - button \"Hide\"[39m
+    [31m        - button \"Isolate\"[39m
+    [31m        - button \"Show All\" [disabled][39m
+    [31m        - button \"Fit Model\"[39m
+    [31m        - button \"Fit Visible\"[39m
+    [31m        - button \"Fit Selection\"[39m
+    [31m      - group \"Viewport geometry\":[39m
+    [31m        - button \"Schematic\" [pressed][39m
+    [31m        - button \"Actual OD\"[39m
+    [31m        - button \"Measure\"[39m
+    [31m    - text: \"Selected: pipe:P-100\"[39m
+    [31m    - status \"Schematic centerline geometry\"[39m
+    [31m    - status \"View command status\": No view command dispatched.[39m
+    [31m    - button \"Select Pump discharge run in viewport\" [pressed]: P-100[39m
+    [31m    - button \"Select Invented branch connection marker in viewport\": C-120[39m
+    [31m    - button \"Select Riser elbow in viewport\": N-120[39m
+    [31m    - button \"Select Rack span in viewport\": P-120[39m
+    [31m    - button \"Select Tie-in rise in viewport\": P-130[39m
+    [31m    - button \"Select Invented semi-rigid valve marker in viewport\": C-130[39m
+    [31m    - button \"Select Rack turn in viewport\": N-130[39m
+    [31m    - button \"Select Terminal tie-in in viewport\": N-140[39m
+    [31m    - button \"Select Preview one-way terminal stop in viewport\": NL-140[39m
+    [31m    - img \"Orientation gizmo showing X, Y, Z axes\"[39m
+    [31m    - button \"Front\"[39m
+    [31m    - button \"Top\"[39m
+    [31m    - button \"Isometric\" [pressed][39m
+    [31m    - text: 1 m[39m
+    [31m    - region \"Command and selection bar\":[39m
+    [31m      - button \"Node\"[39m
+    [31m      - button \"Pipe\"[39m
+    [31m      - button \"Support\"[39m
+    [31m      - button \"Component\"[39m
+    [31m      - button \"Load\"[39m
+    [31m      - text: Select[39m
+    [31m      - group: Selection & navigation[39m
+    [31m    - button \"Close inspector\"[39m
+    [31m    - region \"Property inspector\":[39m
+    [31m      - 'heading \"Pump discharge run — pipe: pipe:P-100\" [level=2]'[39m
+    [31m      - tablist \"Inspector views\":[39m
+    [31m        - tab \"Properties\"[39m
+    [31m        - tab \"Task\" [selected][39m
+    [31m      - tabpanel \"Editor operation intent\":[39m
+    [31m        - text: \"Draft target: pipe: pipe:P-100\"[39m
+    [31m        - heading \"Edit name\" [level=3][39m
+    [31m        - text: Property[39m
+    [31m        - combobox \"Property to edit\":[39m
+    [31m          - option \"Name\" [selected][39m
+    [31m          - option \"Outside diameter\"[39m
+    [31m          - option \"Wall thickness\"[39m
+    [31m          - option \"Mill tolerance\"[39m
+    [31m          - option \"Material density (positive)\"[39m
+    [31m          - option \"Contents density (zero or greater)\"[39m
+    [31m          - option \"Insulation thickness (zero or greater)\"[39m
+    [31m          - option \"Insulation density (zero or greater)\"[39m
+    [31m          - option \"Material\"[39m
+    [31m          - option \"Provenance\"[39m
+    [31m        - region \"Current value\":[39m
+    [31m          - text: Current name[39m
+    [31m          - strong: Pump discharge run[39m
+    [31m        - text: New name[39m
+    [31m        - textbox \"New name\": Retained accessibility draft[39m
+    [31m        - button \"Add\"[39m
+    [31m        - button \"Cancel\"[39m
+    [31m        - button \"Review\"[39m
+    [31m        - button \"Apply\"[39m
+    [31m        - group: Operation details[39m
+    [31m        - paragraph: Validate to check this change before applying it.[39m
+    [31m  - region \"Workspace sections\":[39m
+    [31m    - heading \"Project\" [level=2][39m
+    [31m    - button \"Create local\"[39m
+    [31m    - button \"New blank\"[39m
+    [31m    - button \"Open local\"[39m
+    [31m    - button \"List local\"[39m
+    [31m    - button \"Save local\"[39m
+    [31m    - button \"Close\"[39m
+    [31m    - group \"Project summary\":[39m
+    [31m      - status: Local project store not opened.[39m
+    [31m      - text: Details[39m
+    [31m    - region \"Project section\":[39m
+    [31m      - region \"Project storage audit\":[39m
+    [31m        - text: Project Storage Audit[39m
+    [31m        - checkbox \"Include known private values in this local export\"[39m
+    [31m        - text: Include known private values in this local export decisions=114; findings=114; blocked=true[39m
+    [31m        - group: Details[39m
+    [31m        - text: Local storage JSON operation=not_started; pending operations=0; proposals=0; accepted_state_mutated=false Storage capability[39m
+    [31m        - strong: Browser memory preview; mode=not_persisted_this_session; FTS5=false[39m
+    [31m        - text: Local-only boundary[39m
+    [31m        - strong: network=false; daemon=false; telemetry=false; repository_default_private_write=false[39m
+    [31m        - text: Project snapshot[39m
+    [31m        - strong: project:invented-loop-01; not_persisted_this_session; persisted_editor_intents=0; persisted_proposals=0; persisted_review_targets=0; persisted_review_target_ref=not_selected; persisted_mechanics_results=0; persisted_analysis_runs=0; persisted_analysis_run_ref=not_persisted; copied_external_files=false[39m
+    [31m        - text: Project index[39m
+    [31m        - strong: state=not_requested; listed_projects=0; refs=none[39m
+    [31m        - text: Model hash persistence[39m
+    [31m        - strong: persisted_model_hashes=0; persisted_model_hash_ref=not_persisted[39m
+    [31m        - text: Model hash integrity[39m
+    [31m        - strong: no open-verification has run this session; review-only integrity signal for human review[39m
+    [31m        - text: Unit round-trip[39m
+    [31m        - strong: status=not_persisted_this_session; checked_refs=0; signature=not_persisted; model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; conversion=false[39m
+    [31m        - text: Payload boundary[39m
+    [31m        - strong: private payload=false; protected content=false; release/professional claim=false[39m
+    [31m        - text: Storage audit packets are local evidence only; create/open/save operations do not accept model changes or copy external project files.[39m
+    [31m      - region \"Project validation preflight\":[39m
+    [31m        - text: Project Validation Preflight[39m
+    [31m        - checkbox \"Include known private values in this local export\"[39m
+    [31m        - text: Include known private values in this local export decisions=245; findings=245; blocked=true[39m
+    [31m        - group: Details[39m
+    [31m        - text: Validation JSON validation=preview_not_persisted; version=stale; migration=not_persisted_this_session; round_trip=semantic_categories_declared Schema and version[39m
+    [31m        - strong: schema_version=0.1.0; document_kind=openpipestress.product_preview.model; profile=technical_preview_project_persistence_preflight[39m
+    [31m        - text: Round-trip manifest[39m
+    [31m        - strong: 6 categories; unit metadata=ready_for_preview_round_trip; provenance=ready_for_preview_round_trip; reproducibility=model_hash_computed_not_persisted[39m
+    [31m        - text: Unit round-trip evidence[39m
+    [31m        - strong: status=not_persisted_this_session; checked_refs=0; signature=not_persisted[39m
+    [31m        - text: Unit policy[39m
+    [31m        - strong: model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; records=45; round_trip=not_persisted_this_session; conversion=false[39m
+    [31m        - text: Model hash evidence[39m
+    [31m        - strong: model_hash=model_hash_computed_not_persisted; persisted_model_hashes=0; persisted_model_hash_ref=not_persisted; integrity=open_verification_not_run_this_session[39m
+    [31m        - text: Envelope hash evidence[39m
+    [31m        - strong: envelope_hash=project_envelope_hash_not_computed_no_save_this_session; persisted_envelope_hashes=0; persisted_envelope_hash_ref=not_persisted; integrity=open_verification_not_run_this_session[39m
+    [31m        - text: Store migration evidence[39m
+    [31m        - strong: framework=browser_memory_preview_no_sqlite_migration_ledger; store_schema_version=0; target=0; applied_on_open=0; status=browser_memory_snapshot_no_sql_store_migrations_applicable[39m
+    [31m        - text: Model document migration[39m
+    [31m        - strong: status=migrated; source=0.1.0; target=0.2.0; framework=application_service_separate_db_and_product_schema; persistence=in_memory_only_not_yet_saved; ledger_records=0[39m
+    [31m        - text: Persistence operations[39m
+    [31m        - strong: validate=preflight_generated_preview_not_persisted; version_check=stale; migrate=not_run_no_local_snapshot_this_session; pending operations=0; persisted editor intents=0; proposals=0; persisted proposals=0; persisted review targets=0; persisted review target ref=not_selected; persisted mechanics results=0; persisted analysis runs=0; persisted analysis run ref=not_persisted[39m
+    [31m        - text: Validation boundary[39m
+    [31m        - strong: accepted_state_mutated=false; network=false; telemetry=false; private/protected payload=false[39m
+    [31m        - text: Validation preflight records version, migration, and round-trip review evidence locally without applying queued operations.[39m
+    [31m  - complementary \"Agent\":[39m
+    [31m    - button \"Agent\" [disabled][39m
+    [31m  - button \"5 Issues\"[39m
+    [31m  - text: \"pipe: pipe:P-100 Entered\"[39m
+    [31m  - button \"About SWBPIPE…\""[39m
+
+      45 |     await openWorkspaceSection(page, section);
+      46 |     const ax = await page.locator("body").ariaSnapshot();
+    > 47 |     expect.soft(ax, section).not.toContain('region "Modeling workspace"');
+         |                                  ^
+      48 |     // Starting immediately before the surfaces ensures this traversal crosses their position.
+      49 |     await page.getByTestId("rail-issues").focus();
+      50 |     const coveredFocus: string[] = [];
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:47:34
+
+    Error: solve
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: not [32m"region \"Modeling workspace\""[39m
+    Received string:        [31m"- main:[39m
+    [31m  - navigation \"Application menu\":[39m
+    [31m    - button \"File\"[39m
+    [31m    - button \"Edit\"[39m
+    [31m    - button \"View\"[39m
+    [31m    - button \"Insert\"[39m
+    [31m    - button \"Analyze\"[39m
+    [31m  - heading \"SWBPIPE\" [level=1][39m
+    [31m  - paragraph: Invented Utility Loop Preview[39m
+    [31m  - group \"Editing tools\":[39m
+    [31m    - button \"Undo model edit\" [disabled][39m
+    [31m    - button \"Redo model edit\" [disabled][39m
+    [31m    - button \"Select (⎋)\" [pressed][39m
+    [31m  - group \"View\":[39m
+    [31m    - button \"Table\"[39m
+    [31m    - button \"Model\"[39m
+    [31m    - button \"Both\" [pressed][39m
+    [31m  - button \"Run\"[39m
+    [31m  - button \"Issues, 5\": Issues 5[39m
+    [31m  - group \"Panels\":[39m
+    [31m    - button \"Inspector\" [expanded][39m
+    [31m    - button \"Agent\" [disabled][39m
+    [31m  - combobox \"Display units\":[39m
+    [31m    - option \"Entered\" [selected][39m
+    [31m    - option \"SI\"[39m
+    [31m    - option \"US\"[39m
+    [31m  - group[39m
+    [31m  - region \"Human toolkit\":[39m
+    [31m    - button \"Find modeling commands\": Search or command… ⌘K[39m
+    [31m  - navigation \"Stages\":[39m
+    [31m    - list:[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Model\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Loads\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Results\" [disabled][39m
+    [31m      - listitem:[39m
+    [31m        - button \"Review\" [disabled][39m
+    [31m    - separator[39m
+    [31m    - list:[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Libraries\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Rules\"[39m
+    [31m      - listitem:[39m
+    [31m        - button \"Issues, 5\": Issues[39m
+    [31m  - [7mregion \"Modeling workspace\"[27m:[39m
+    [31m    - group \"Tables\":[39m
+    [31m      - button \"Model\" [pressed][39m
+    [31m      - button \"Review changes\"[39m
+    [31m      - button \"Collapse table drawer\" [disabled] [expanded][39m
+    [31m    - text: Model[39m
+    [31m    - region \"Layout grid mode\":[39m
+    [31m      - button \"Tree\" [pressed][39m
+    [31m      - button \"Grid\"[39m
+    [31m    - region \"Model tree filtering\":[39m
+    [31m      - text: Filter model[39m
+    [31m      - searchbox \"Filter model tree\": pipe:P-100[39m
+    [31m      - text: 1 of 27 model entities visible[39m
+    [31m      - button \"Clear model tree filter\"[39m
+    [31m    - tree \"Model\":[39m
+    [31m      - treeitem \"Pipes\" [expanded] [level=1]:[39m
+    [31m        - strong: Pipes[39m
+    [31m      - treeitem \"Pump discharge run pipe:P-100\" [level=2] [selected]:[39m
+    [31m        - strong: Pump discharge run[39m
+    [31m        - text: pipe:P-100[39m
+    [31m    - separator \"Resize table and canvas\"[39m
+    [31m    - group \"Viewport controls\":[39m
+    [31m      - text: 3D Centerline[39m
+    [31m      - group \"Viewport deformation overlay status\": Deformation · unavailable[39m
+    [31m      - group \"Viewport display toggles\":[39m
+    [31m        - button \"Labels\" [pressed][39m
+    [31m        - button \"Loads\" [pressed][39m
+    [31m        - button \"Grid\" [pressed][39m
+    [31m      - group \"Viewport selection tools\":[39m
+    [31m        - button \"Box Select\"[39m
+    [31m        - text: Selection filter[39m
+    [31m        - combobox \"Selection filter\":[39m
+    [31m          - option \"All\" [selected][39m
+    [31m          - option \"Pipes\"[39m
+    [31m          - option \"Nodes\"[39m
+    [31m          - option \"Supports\"[39m
+    [31m          - option \"Components\"[39m
+    [31m        - button \"Hide\"[39m
+    [31m        - button \"Isolate\"[39m
+    [31m        - button \"Show All\" [disabled][39m
+    [31m        - button \"Fit Model\"[39m
+    [31m        - button \"Fit Visible\"[39m
+    [31m        - button \"Fit Selection\"[39m
+    [31m      - group \"Viewport geometry\":[39m
+    [31m        - button \"Schematic\" [pressed][39m
+    [31m        - button \"Actual OD\"[39m
+    [31m        - button \"Measure\"[39m
+    [31m    - text: \"Selected: pipe:P-100\"[39m
+    [31m    - status \"Schematic centerline geometry\"[39m
+    [31m    - status \"View command status\": No view command dispatched.[39m
+    [31m    - button \"Select Pump discharge run in viewport\" [pressed]: P-100[39m
+    [31m    - button \"Select Invented branch connection marker in viewport\": C-120[39m
+    [31m    - button \"Select Riser elbow in viewport\": N-120[39m
+    [31m    - button \"Select Rack span in viewport\": P-120[39m
+    [31m    - button \"Select Tie-in rise in viewport\": P-130[39m
+    [31m    - button \"Select Invented semi-rigid valve marker in viewport\": C-130[39m
+    [31m    - button \"Select Rack turn in viewport\": N-130[39m
+    [31m    - button \"Select Terminal tie-in in viewport\": N-140[39m
+    [31m    - button \"Select Preview one-way terminal stop in viewport\": NL-140[39m
+    [31m    - img \"Orientation gizmo showing X, Y, Z axes\"[39m
+    [31m    - button \"Front\"[39m
+    [31m    - button \"Top\"[39m
+    [31m    - button \"Isometric\" [pressed][39m
+    [31m    - text: 1 m[39m
+    [31m    - region \"Command and selection bar\":[39m
+    [31m      - button \"Node\"[39m
+    [31m      - button \"Pipe\"[39m
+    [31m      - button \"Support\"[39m
+    [31m      - button \"Component\"[39m
+    [31m      - button \"Load\"[39m
+    [31m      - text: Select[39m
+    [31m      - group: Selection & navigation[39m
+    [31m    - button \"Close inspector\"[39m
+    [31m    - region \"Property inspector\":[39m
+    [31m      - 'heading \"Pump discharge run — pipe: pipe:P-100\" [level=2]'[39m
+    [31m      - tablist \"Inspector views\":[39m
+    [31m        - tab \"Properties\"[39m
+    [31m        - tab \"Task\" [selected][39m
+    [31m      - tabpanel \"Editor operation intent\":[39m
+    [31m        - text: \"Draft target: pipe: pipe:P-100\"[39m
+    [31m        - heading \"Edit name\" [level=3][39m
+    [31m        - text: Property[39m
+    [31m        - combobox \"Property to edit\":[39m
+    [31m          - option \"Name\" [selected][39m
+    [31m          - option \"Outside diameter\"[39m
+    [31m          - option \"Wall thickness\"[39m
+    [31m          - option \"Mill tolerance\"[39m
+    [31m          - option \"Material density (positive)\"[39m
+    [31m          - option \"Contents density (zero or greater)\"[39m
+    [31m          - option \"Insulation thickness (zero or greater)\"[39m
+    [31m          - option \"Insulation density (zero or greater)\"[39m
+    [31m          - option \"Material\"[39m
+    [31m          - option \"Provenance\"[39m
+    [31m        - region \"Current value\":[39m
+    [31m          - text: Current name[39m
+    [31m          - strong: Pump discharge run[39m
+    [31m        - text: New name[39m
+    [31m        - textbox \"New name\": Retained accessibility draft[39m
+    [31m        - button \"Add\"[39m
+    [31m        - button \"Cancel\"[39m
+    [31m        - button \"Review\"[39m
+    [31m        - button \"Apply\"[39m
+    [31m        - group: Operation details[39m
+    [31m        - paragraph: Validate to check this change before applying it.[39m
+    [31m  - region \"Workspace sections\":[39m
+    [31m    - heading \"Analyze\" [level=2][39m
+    [31m    - button \"Close\"[39m
+    [31m    - region \"Solve section\":[39m
+    [31m      - region \"Solve execution\":[39m
+    [31m        - text: Execution[39m
+    [31m        - region \"Solve readiness summary\":[39m
+    [31m          - text: Mechanics readiness[39m
+    [31m          - strong: preview run not started; ready for preview diagnostics[39m
+    [31m          - text: Rule-check readiness[39m
+    [31m          - strong: Rule pack · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE); mechanics results remain reviewable only[39m
+    [31m          - text: Diagnostics[39m
+    [31m          - strong: 1 diagnostic; 1 warning; 0 blocking/error[39m
+    [31m          - text: Professional boundary[39m
+    [31m          - strong: Human · Human review required (HUMAN_REVIEW_REQUIRED)[39m
+    [31m        - checkbox \"Include known private values in this local export\"[39m
+    [31m        - text: Include known private values in this local export decisions=93; findings=93; blocked=true[39m
+    [31m        - group: Details[39m
+    [31m        - text: Solve job JSON state=not_started; events=1; result_rows=0; cancellation_requested=false Solver mode[39m
+    [31m        - strong: selected=sparse_interactive; sparse_default=true; dense_scrutiny=false[39m
+    [31m        - text: Progress[39m
+    [31m        - strong: not_started; preview_service_event_state_only_no_percent_stream; percentages_synthesized=false[39m
+    [31m        - text: Cancellation[39m
+    [31m        - strong: control_visible=true; enabled=false; requested=false; seam=no_job_started; token=none_no_active_backend_job; success_claimed=false[39m
+    [31m        - text: Result binding[39m
+    [31m        - strong: not generated; result rows=0; hashes=0[39m
+    [31m        - text: Unit policy[39m
+    [31m        - strong: model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=none; rows=0; conversion=false[39m
+    [31m        - text: Boundary[39m
+    [31m        - strong: private payload=false; protected content=false; release/professional claim=false; human review required[39m
+    [31m        - group \"Solver mode\":[39m
+    [31m          - button \"Sparse interactive\" [pressed][39m
+    [31m          - button \"Dense scrutiny\"[39m
+    [31m        - button \"Run mechanics preview\":[39m
+    [31m          - img[39m
+    [31m          - text: Run mechanics preview[39m
+    [31m        - button \"Cancel preview\" [disabled][39m
+    [31m      - region \"Rule-check completeness\":[39m
+    [31m        - text: Rule-Check Completeness[39m
+    [31m        - checkbox \"Include known private values in this local export\"[39m
+    [31m        - text: Include known private values in this local export decisions=122; findings=122; blocked=true[39m
+    [31m        - group: Details[39m
+    [31m        - text: Local completeness JSON 3 review findings; rule_check_blocked=true; mechanics_reviewable=false Rule status[39m
+    [31m        - strong: not_performed_user_rule_inputs_missing[39m
+    [31m        - text: Mechanics status[39m
+    [31m        - strong: ready_for_preview_diagnostics[39m
+    [31m        - text: Unit policy[39m
+    [31m        - strong: model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; records=38; rule_input_units=explicit_or_blocking; diagnostic=RULE_UNIT_MISMATCH; conversion=false[39m
+    [31m        - text: Boundary[39m
+    [31m        - strong: private rule data absent; silent defaults used=false; bundled code values=false; no compliance claim[39m
+    [31m        - article:[39m
+    [31m          - strong: RULE_CHECK_BLOCKING[39m
+    [31m          - text: warning; rule_blocking=true; private_data=true[39m
+    [31m          - paragraph: User-supplied rule-pack inputs are absent, so rule-check status stays incomplete while mechanics output remains separate. Provide a private rule pack and project-specific criteria with provenance; the public preview does not bundle code defaults.[39m
+    [31m        - article:[39m
+    [31m          - strong: RULE_CHECK_BLOCKING[39m
+    [31m          - text: warning; rule_blocking=true; private_data=true[39m
+    [31m          - paragraph: Load cases and combinations are mechanics-basis preview inputs, not code-specific rule combinations. Supply private owner/code combination criteria before reporting user-rule checked status.[39m
+    [31m        - article:[39m
+    [31m          - strong: PROVENANCE_WARNING[39m
+    [31m          - text: warning; rule_blocking=true; private_data=true[39m
+    [31m          - paragraph: Material and pipe-section values are invented public fixture values, not verified project or catalog data. Replace them with user-controlled data and provenance before engineering reliance.[39m
+    [31m        - text: Completeness findings explain missing user/private rule-check data.[39m
+    [31m      - region \"Run rule checks\":[39m
+    [31m        - text: \"Run Rule Checks (user-defined, private) Project scope: project:invented-loop-01. No solved mechanics result in this session; run a solve first so solver_result inputs can bind to result rows.\"[39m
+    [31m        - button \"Load demo rule pack\"[39m
+    [31m        - button \"Refresh saved packs\"[39m
+    [31m        - text: Saved rule-pack list not refreshed yet. Rule-pack document JSON (load the demo or a saved pack, or paste a private pack. The binding controls below are derived from this document.)[39m
+    [31m        - textbox \"Rule-pack document JSON (load the demo or a saved pack, or paste a private pack. The binding controls below are derived from this document.)\":[39m
+    [31m          - /placeholder: No rule-pack document. Load the demo, open a saved pack, or paste one.[39m
+    [31m        - button \"Run checks\" [disabled][39m
+    [31m        - text: No rule-check run in this session. Rule checks run locally over user-supplied data only. The software emits user-defined check statuses (USER_RULE_CHECKED / USER_RULE_FAILED / RULE_INPUTS_INCOMPLETE).[39m
+    [31m      - region \"Design knowledge\":[39m
+    [31m        - img[39m
+    [31m        - text: Design Knowledge[39m
+    [31m        - article:[39m
+    [31m          - strong: Pump nozzle endpoint[39m
+    [31m          - text: endpoint · review_required[39m
+    [31m          - paragraph: Invented endpoint record used to show how user-supplied design context appears in the preview.[39m
+    [31m          - text: invented_example[39m
+    [31m        - article:[39m
+    [31m          - strong: Rack corridor placeholder[39m
+    [31m          - text: routing_corridor · review_required[39m
+    [31m          - paragraph: Invented corridor note; no owner standard or protected spacing criterion is bundled.[39m
+    [31m          - text: invented_example[39m
+    [31m        - article:[39m
+    [31m          - strong: Support stiffness dimensions unresolved[39m
+    [31m          - text: assumption · unresolved[39m
+    [31m          - paragraph: Linear and rotational support behavior is represented as a preview diagnostic until user-supplied stiffness values and canonical dimensions are provided.[39m
+    [31m          - text: invented_example[39m
+    [31m  - complementary \"Agent\":[39m
+    [31m    - button \"Agent\" [disabled][39m
+    [31m  - button \"5 Issues\"[39m
+    [31m  - text: \"pipe: pipe:P-100 Entered\"[39m
+    [31m  - button \"About SWBPIPE…\""[39m
+
+      45 |     await openWorkspaceSection(page, section);
+      46 |     const ax = await page.locator("body").ariaSnapshot();
+    > 47 |     expect.soft(ax, section).not.toContain('region "Modeling workspace"');
+         |                                  ^
+      48 |     // Starting immediately before the surfaces ensures this traversal crosses their position.
+      49 |     await page.getByTestId("rail-issues").focus();
+      50 |     const coveredFocus: string[] = [];
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:47:34
+
+    Error Context: test-results/b3-accessibility-covered-p-a47de--from-Tab-and-accessibility-chromium-compact/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/b3-accessibility-covered-p-a47de--from-Tab-and-accessibility-chromium-compact/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/b3-accessibility-covered-p-a47de--from-Tab-and-accessibility-chromium-compact/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium-compact] › e2e/b3-accessibility.spec.ts:91:1 › native property selector consumes first Escape before inspector close 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByTestId('toggle-inspector')
+    Expected: [32m"[7mtru[27me"[39m
+    Received: [31m"[7mfals[27me"[39m
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('toggle-inspector')[22m
+    [2m    24 × locator resolved to <button type="button" aria-expanded="false" aria-label="Inspector" title="Inspector (⌘I)" class="shell-panel-toggle" data-testid="toggle-inspector" aria-controls="shell-inspector">…</button>[22m
+    [2m       - unexpected value "false"[22m
+
+
+       99 |   await page.keyboard.press("ArrowDown");
+      100 |   await page.keyboard.press("Escape");
+    > 101 |   await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
+          |                                                      ^
+      102 |   await expect(select).toHaveValue(value);
+      103 |   await expect(select).toBeFocused();
+      104 |   await page.keyboard.press("Escape");
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:101:54
+
+    Error Context: test-results/b3-accessibility-native-pr-013e7-cape-before-inspector-close-chromium-compact/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/b3-accessibility-native-pr-013e7-cape-before-inspector-close-chromium-compact/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/b3-accessibility-native-pr-013e7-cape-before-inspector-close-chromium-compact/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [chromium-desktop] › e2e/b3-accessibility.spec.ts:37:1 › covered pages exclude retained stage controls from Tab and accessibility 
+    [chromium-desktop] › e2e/b3-accessibility.spec.ts:91:1 › native property selector consumes first Escape before inspector close 
+    [chromium-compact] › e2e/b3-accessibility.spec.ts:37:1 › covered pages exclude retained stage controls from Tab and accessibility 
+    [chromium-compact] › e2e/b3-accessibility.spec.ts:91:1 › native property selector consumes first Escape before inspector close 
+  8 passed (47.9s)

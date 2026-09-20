@@ -1,0 +1,57 @@
+1: PROBE_MENU installed public observers
+4: PROBE_WINDOW notification=NSWindowDidBecomeKeyNotification owningWebview=1 windowNumber=115645 epoch=0
+5: PROBE_MENU time=811571580.575543 notification=NSMenuWillSendActionNotification menu=0xa7c9add00 eventType=-1 controlKeyCode=-1
+6: PROBE_MENU time=811571580.577084 notification=NSMenuDidSendActionNotification menu=0xa7c9add00 eventType=-1 controlKeyCode=-1
+31: PROBE_MENU time=811571591.299277 notification=NSMenuDidBeginTrackingNotification menu=0xa7c986280 eventType=11 controlKeyCode=49
+34: PROBE_SNAPSHOT generation=1 epoch=0 tracking=1 action=0 endKey=-1
+35: PROBE_DOM {"kind":"correlated","record":{"phase":"bind","observedGeneration":9,"valid":true,"state":{"generation":1,"windowEpoch":0,"tracking":1,"action":0,"endKey":-1}}}
+36: PROBE_WINDOW notification=NSWindowDidResignKeyNotification owningWebview=0 windowNumber=115671 epoch=0
+37: PROBE_MENU time=811571598.874078 notification=NSMenuDidEndTrackingNotification menu=0xa7c986280 eventType=11 controlKeyCode=36
+38: PROBE_MENU time=811571598.874411 notification=NSMenuWillSendActionNotification menu=0xa7c986280 eventType=11 controlKeyCode=36
+39: PROBE_MENU time=811571598.874577 notification=NSMenuDidSendActionNotification menu=0xa7c986280 eventType=11 controlKeyCode=36
+44: PROBE_SNAPSHOT generation=1 epoch=0 tracking=0 action=1 endKey=36
+47: PROBE_DOM {"kind":"correlated","record":{"phase":"decision","capturedInput":7,"current":true,"correlated":true,"cancel":false,"bound":{"generation":1,"windowEpoch":0,"tracking":1,"action":0,"endKey":-1},"state":{"generation":1,"windowEpoch":0,"tracking":0,"action":1,"endKey":36}}}
+78: PROBE_MENU time=811571626.086936 notification=NSMenuDidBeginTrackingNotification menu=0xa7ac85e80 eventType=11 controlKeyCode=49
+81: PROBE_SNAPSHOT generation=2 epoch=0 tracking=1 action=0 endKey=-1
+82: PROBE_DOM {"kind":"correlated","record":{"phase":"bind","observedGeneration":22,"valid":true,"state":{"generation":2,"windowEpoch":0,"tracking":1,"action":0,"endKey":-1}}}
+83: PROBE_WINDOW notification=NSWindowDidResignKeyNotification owningWebview=0 windowNumber=115682 epoch=0
+84: PROBE_MENU time=811571632.456779 notification=NSMenuDidEndTrackingNotification menu=0xa7ac85e80 eventType=10 controlKeyCode=53
+107: PROBE_MENU time=811571651.603498 notification=NSMenuDidBeginTrackingNotification menu=0xa7c984e40 eventType=2 controlKeyCode=-1
+110: PROBE_SNAPSHOT generation=3 epoch=0 tracking=1 action=0 endKey=-1
+111: PROBE_DOM {"kind":"correlated","record":{"phase":"bind","observedGeneration":32,"valid":true,"state":{"generation":3,"windowEpoch":0,"tracking":1,"action":0,"endKey":-1}}}
+112: PROBE_WINDOW notification=NSWindowDidResignKeyNotification owningWebview=0 windowNumber=115691 epoch=0
+113: PROBE_MENU time=811571656.539766 notification=NSMenuDidEndTrackingNotification menu=0xa7c984e40 eventType=10 controlKeyCode=53
+136: PROBE_MENU time=811571670.248323 notification=NSMenuDidBeginTrackingNotification menu=0xa7ac42040 eventType=1 controlKeyCode=-1
+137: PROBE_WINDOW notification=NSWindowDidResignKeyNotification owningWebview=0 windowNumber=115701 epoch=0
+138: PROBE_MENU time=811571675.348744 notification=NSMenuDidEndTrackingNotification menu=0xa7ac42040 eventType=13 controlKeyCode=-1
+139: PROBE_MENU time=811571675.348824 notification=NSMenuWillSendActionNotification menu=0xa7ac42040 eventType=13 controlKeyCode=-1
+140: PROBE_MENU time=811571675.348927 notification=NSMenuDidSendActionNotification menu=0xa7ac42040 eventType=13 controlKeyCode=-1
+175: PROBE_MENU time=811571689.132207 notification=NSMenuDidBeginTrackingNotification menu=0xa7ac86c80 eventType=11 controlKeyCode=49
+178: PROBE_SNAPSHOT generation=5 epoch=0 tracking=1 action=0 endKey=-1
+179: PROBE_DOM {"kind":"correlated","record":{"phase":"bind","observedGeneration":52,"valid":true,"state":{"generation":5,"windowEpoch":0,"tracking":1,"action":0,"endKey":-1}}}
+180: PROBE_WINDOW notification=NSWindowDidResignKeyNotification owningWebview=0 windowNumber=115714 epoch=0
+181: PROBE_MENU time=811571696.507064 notification=NSMenuDidEndTrackingNotification menu=0xa7ac86c80 eventType=13 controlKeyCode=-1
+182: PROBE_MENU time=811571696.507162 notification=NSMenuWillSendActionNotification menu=0xa7ac86c80 eventType=13 controlKeyCode=-1
+183: PROBE_MENU time=811571696.507287 notification=NSMenuDidSendActionNotification menu=0xa7ac86c80 eventType=13 controlKeyCode=-1
+226: PROBE_MENU time=811571724.115112 notification=NSMenuDidBeginTrackingNotification menu=0xa7ac43cc0 eventType=11 controlKeyCode=49
+229: PROBE_SNAPSHOT generation=6 epoch=0 tracking=1 action=0 endKey=-1
+230: PROBE_DOM {"kind":"correlated","record":{"phase":"bind","observedGeneration":66,"valid":true,"state":{"generation":6,"windowEpoch":0,"tracking":1,"action":0,"endKey":-1}}}
+231: PROBE_WINDOW notification=NSWindowDidResignKeyNotification owningWebview=0 windowNumber=115726 epoch=0
+232: PROBE_MENU time=811571742.537761 notification=NSMenuDidEndTrackingNotification menu=0xa7ac43cc0 eventType=1 controlKeyCode=-1
+237: PROBE_SNAPSHOT generation=6 epoch=0 tracking=0 action=0 endKey=-1
+240: PROBE_DOM {"kind":"correlated","record":{"phase":"decision","capturedInput":37,"current":true,"correlated":true,"cancel":false,"bound":{"generation":6,"windowEpoch":0,"tracking":1,"action":0,"endKey":-1},"state":{"generation":6,"windowEpoch":0,"tracking":0,"action":0,"endKey":-1}}}
+271: PROBE_MENU time=811571777.072017 notification=NSMenuDidBeginTrackingNotification menu=0xa7c83ba00 eventType=11 controlKeyCode=49
+274: PROBE_SNAPSHOT generation=7 epoch=0 tracking=1 action=0 endKey=-1
+275: PROBE_DOM {"kind":"correlated","record":{"phase":"bind","observedGeneration":79,"valid":true,"state":{"generation":7,"windowEpoch":0,"tracking":1,"action":0,"endKey":-1}}}
+276: PROBE_WINDOW notification=NSWindowDidResignKeyNotification owningWebview=0 windowNumber=115736 epoch=0
+277: PROBE_MENU time=811571777.356689 notification=NSMenuDidEndTrackingNotification menu=0xa7c83ba00 eventType=10 controlKeyCode=53
+278: PROBE_MENU time=811571777.356765 notification=NSMenuWillSendActionNotification menu=0xa7c83ba00 eventType=10 controlKeyCode=53
+279: PROBE_MENU time=811571777.356867 notification=NSMenuDidSendActionNotification menu=0xa7c83ba00 eventType=10 controlKeyCode=53
+318: PROBE_MENU time=811571819.736503 notification=NSMenuDidBeginTrackingNotification menu=0xa7ac43300 eventType=11 controlKeyCode=49
+321: PROBE_SNAPSHOT generation=8 epoch=0 tracking=1 action=0 endKey=-1
+322: PROBE_DOM {"kind":"correlated","record":{"phase":"bind","observedGeneration":92,"valid":true,"state":{"generation":8,"windowEpoch":0,"tracking":1,"action":0,"endKey":-1}}}
+327: PROBE_WINDOW notification=NSWindowDidResignKeyNotification owningWebview=0 windowNumber=115744 epoch=0
+328: PROBE_MENU time=811571847.689449 notification=NSMenuDidEndTrackingNotification menu=0xa7ac43300 eventType=11 controlKeyCode=36
+329: PROBE_MENU time=811571847.689551 notification=NSMenuWillSendActionNotification menu=0xa7ac43300 eventType=11 controlKeyCode=36
+330: PROBE_MENU time=811571847.689666 notification=NSMenuDidSendActionNotification menu=0xa7ac43300 eventType=11 controlKeyCode=36
+331: PROBE_WINDOW notification=NSWindowDidResignKeyNotification owningWebview=1 windowNumber=115645 epoch=1

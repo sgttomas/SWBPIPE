@@ -1,0 +1,45 @@
+[1A[2K[2m[WebServer] [22m(node:34070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 22 tests using 1 worker
+
+[1A[2K(node:34072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:34072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/22] [chromium-desktop] › e2e/b3-accessibility.spec.ts:29:1 › disabled rail and Agent reasons escape clipping under keyboard focus
+[1A[2K[2/22] [chromium-desktop] › e2e/b3-accessibility.spec.ts:56:1 › covered pages exclude retained stage controls from Tab and accessibility
+[1A[2K[3/22] [chromium-desktop] › e2e/b3-accessibility.spec.ts:90:1 › Both inspector Escape closes from property tab and input to opener
+[1A[2K[4/22] [chromium-desktop] › e2e/b3-accessibility.spec.ts:103:1 › Model inspector stays docked on Escape
+[1A[2K[5/22] [chromium-desktop] › e2e/b3-accessibility.spec.ts:113:1 › toolkit child consumes first Escape before inspector close
+[1A[2K[6/22] [chromium-desktop] › e2e/b3-accessibility.spec.ts:129:1 › portalled routing Escape closes explicitly and supersedes automatic restore
+[1A[2K[7/22] [chromium-desktop] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: libraries
+[1A[2K[8/22] [chromium-desktop] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: project
+[1A[2K[9/22] [chromium-desktop] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: solve
+[1A[2K[10/22] [chromium-desktop] › e2e/b3-accessibility.spec.ts:202:3 › compact routing selector owns popup Escape before configured shell consumers
+[1A[2K[11/22] [chromium-desktop] › e2e/b3-accessibility.spec.ts:202:3 › compact routing selector owns popup Escape before narrow shell consumers
+[1A[2K(node:34284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:34284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[12/22] [chromium-compact] › e2e/b3-accessibility.spec.ts:29:1 › disabled rail and Agent reasons escape clipping under keyboard focus
+[1A[2K[13/22] [chromium-compact] › e2e/b3-accessibility.spec.ts:56:1 › covered pages exclude retained stage controls from Tab and accessibility
+[1A[2K[14/22] [chromium-compact] › e2e/b3-accessibility.spec.ts:90:1 › Both inspector Escape closes from property tab and input to opener
+[1A[2K[15/22] [chromium-compact] › e2e/b3-accessibility.spec.ts:103:1 › Model inspector stays docked on Escape
+[1A[2K[16/22] [chromium-compact] › e2e/b3-accessibility.spec.ts:113:1 › toolkit child consumes first Escape before inspector close
+[1A[2K[17/22] [chromium-compact] › e2e/b3-accessibility.spec.ts:129:1 › portalled routing Escape closes explicitly and supersedes automatic restore
+[1A[2K[18/22] [chromium-compact] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: libraries
+[1A[2K[19/22] [chromium-compact] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: project
+[1A[2K[20/22] [chromium-compact] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: solve
+[1A[2K[21/22] [chromium-compact] › e2e/b3-accessibility.spec.ts:202:3 › compact routing selector owns popup Escape before configured shell consumers
+[1A[2K[22/22] [chromium-compact] › e2e/b3-accessibility.spec.ts:202:3 › compact routing selector owns popup Escape before narrow shell consumers
+[1A[2K  22 passed (1.6m)
