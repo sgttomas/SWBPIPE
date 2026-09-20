@@ -309,3 +309,18 @@ export async function showCanvas(page: Page): Promise<void> {
   }
   await expect(canvas).toBeVisible();
 }
+
+/** Choose a canonical value through the compact selector's actual rendered popup. */
+export async function selectCompactOption(control: Locator, value: string): Promise<void> {
+  await expect(control).toHaveAttribute("role", "combobox");
+  await control.click();
+  await expect(control).toHaveAttribute("aria-expanded", "true");
+  const listId = await control.getAttribute("aria-controls");
+  if (!listId) throw new Error("Compact selector did not identify its open listbox");
+  const list = control.page().locator(`[id=${JSON.stringify(listId)}]`);
+  const option = list.locator(`[role="option"][data-value=${JSON.stringify(value)}]`);
+  await expect(option).toBeEnabled();
+  await option.click();
+  await expect(control).toHaveAttribute("aria-expanded", "false");
+  await expect(control).toHaveAttribute("data-value", value);
+}

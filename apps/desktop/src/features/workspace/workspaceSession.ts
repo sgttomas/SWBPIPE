@@ -118,6 +118,7 @@ import {
 } from "./solveJobAudit";
 import { publishUiModelAssignmentStarted } from "./uiDiagnostics";
 import {
+  EMPTY_STAGE_VIEW_MEMORY,
   SHELL_STAGES,
   SHELL_VIEWS,
   canvasAuthoringPanelActive,
@@ -1551,6 +1552,22 @@ export function useWorkspaceSession() {
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
       advanceProjectSession();
+      // A successful New Blank starts the first-open shell context. Failed or
+      // superseded creates never reach this commit boundary or change chrome.
+      routingInspectorRestore.current = null;
+      pageReturnFocusRef.current = null;
+      setArmedCreationTool(null);
+      setToolkitFocus(null);
+      setOpenMenu(null);
+      setActiveSection(null);
+      setStageSurface(null);
+      setStageViewMemory(EMPTY_STAGE_VIEW_MEMORY);
+      setTreeCollapsed(window.innerWidth < 1280);
+      setInspectorCollapsed(true);
+      setReviewDetailsOpen(false);
+      setAuditDrawerOpen(false);
+      setIssuesDrawerOpen(false);
+      setOperationTab("review");
       commitModel(created.model);
       setSelection(defaultSelection(created.model));
       epoch = requestEpochRef.current;

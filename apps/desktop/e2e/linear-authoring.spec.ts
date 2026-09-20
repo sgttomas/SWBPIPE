@@ -1,3 +1,4 @@
+import { selectCompactOption } from "./workspace-driver";
 import { expect, test, type Page } from "@playwright/test";
 import {
   chooseVirtualTarget,
@@ -167,9 +168,9 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await ensureInspectorExpanded(page);
   await expectVirtualTarget(page, "viewport-create-pipe-from", "node:UI-A-110");
   await expect(page.getByRole("radio", { name: "New node", exact: true })).toBeChecked();
-  await expect(page.getByTestId("viewport-routing-plane")).toHaveValue("XZ");
+  await expect(page.getByTestId("viewport-routing-plane")).toHaveAttribute("data-value", "XZ");
   await expect(page.getByRole("radio", { name: "X", exact: true })).toBeChecked();
-  await expect(page.getByTestId("viewport-route-end-unit")).toHaveValue("m");
+  await expect(page.getByTestId("viewport-route-end-unit")).toHaveAttribute("data-value", "m");
   await expect(page.getByTestId("viewport-construction-plane")).toContainText("XZ · Y=2.4 m · through node:UI-A-110");
 
   await page.getByRole("radio", { name: "Existing node", exact: true }).check();
@@ -191,7 +192,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await selectTreeEntity(page, "pipe", "pipe:UI-A-100");
   await page.getByTestId("toolkit-entry").click();
   await page.getByTestId("toolkit-properties.assign-section").click();
-  await page.getByLabel("Shared section").selectOption("section:ui-phase-a-straight");
+  await selectCompactOption(page.getByLabel("Shared section"), "section:ui-phase-a-straight");
   await page.getByRole("button", { name: "Queue section assignment" }).click();
   await applyQueued(page);
 
@@ -258,7 +259,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
 
   // Fresh-task helpers require the separately sealed workspace-driver patch.
   const inspector = await startPropertyTaskFromTreeEntity(page, "load", "load:UI-A");
-  await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
+  await selectCompactOption(inspector.getByTestId("editor-intent-field"), "primitive_loads.0.magnitude.value");
   await inspector.getByTestId("editor-intent-value").fill("500");
   await inspector.getByTestId("apply-editor-intent-inline").click();
   await openWorkspaceSection(page, "operations");
@@ -270,20 +271,20 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await openWorkspaceSection(page, "operations");
   await page.getByTestId("undo-session-model-edit").click();
   await startPropertyTaskFromCurrentSelection(page, "load", "load:UI-A");
-  await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
+  await selectCompactOption(inspector.getByTestId("editor-intent-field"), "primitive_loads.0.magnitude.value");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("350");
   await expect.poll(() => currentModelHash(page)).toBe(baseline350Hash);
   await openWorkspaceSection(page, "operations");
   await page.getByTestId("redo-session-model-edit").click();
   await startPropertyTaskFromCurrentSelection(page, "load", "load:UI-A");
-  await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
+  await selectCompactOption(inspector.getByTestId("editor-intent-field"), "primitive_loads.0.magnitude.value");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("500");
   await expect.poll(() => currentModelHash(page)).toBe(edited500Hash);
   await projectCommand(page, "save-local");
   await projectCommand(page, "open-local");
   await expectTreeEntity(page, "pipe", "pipe:UI-A-100");
   await startPropertyTaskFromTreeEntity(page, "load", "load:UI-A");
-  await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
+  await selectCompactOption(inspector.getByTestId("editor-intent-field"), "primitive_loads.0.magnitude.value");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("500");
   expect(await currentModelHash(page)).toBe(edited500Hash);
   await openWorkspaceSection(page, "results");

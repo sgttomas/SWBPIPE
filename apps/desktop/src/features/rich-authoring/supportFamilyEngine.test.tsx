@@ -1,3 +1,4 @@
+import { changeFormControl } from "../../test-support/workspaceTestControls";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
@@ -9,7 +10,7 @@ import { loadPreviewModel } from "../../services/previewService";
 // No hash/operation mocks: these checks require the parent's accepted rebuilt Wasm.
 // Operation validation/application is covered here; native physics has separate evidence.
 afterEach(cleanup);
-const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
+const enter = (label: string, value: string) => changeFormControl(screen.getByLabelText(label), { target: { value } });
 
 describe("support family shared-operation engine parity", () => {
   it.each([["line_stop", "UX"], ["vertical_support", "UZ"]])("creates and updates canonical %s with explicit %s", async (family, dof) => {

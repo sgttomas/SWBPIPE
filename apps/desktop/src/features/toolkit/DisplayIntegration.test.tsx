@@ -1,3 +1,4 @@
+import { changeFormControl, expectFormControlValue } from "../../test-support/workspaceTestControls";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "../display-units";
@@ -28,7 +29,7 @@ describe("typed model display integration", () => {
     const selection = { type: "node" as const, id: model.nodes[0].id };
     render(<DisplayUnitsProvider><DisplayUnitSelector /><PropertyInspector model={model} selection={selection} onQueueIntent={vi.fn()} /><ModelTree model={model} selection={selection} onQueueIntent={vi.fn()} onSelect={vi.fn()} /></DisplayUnitsProvider>);
     startInspectorTask();
-    fireEvent.change(screen.getByTestId("editor-intent-field"), { target: { value: "position.x" } });
+    changeFormControl(screen.getByTestId("editor-intent-field"), { target: { value: "position.x" } });
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     const draft = screen.getByTestId(`entity-grid-input-${model.nodes[0].id}-x`);
     fireEvent.change(draft, { target: { value: "2.3450" } });
@@ -137,7 +138,7 @@ describe("support stiffness dimensional presentation (N7 F2)", () => {
     expect(row).toHaveTextContent("123.45 N*m/rad");
     expect(row).toHaveTextContent("no US catalog target for rotational_stiffness");
     expect(draft).toHaveValue("987.6500");
-    expect(unit).toHaveValue("N*m/rad");
+    expectFormControlValue(unit, "N*m/rad");
     expect(JSON.stringify(model)).toBe(exact);
     expect((await computeModelHash(model))?.value).toBe(hash?.value);
   });

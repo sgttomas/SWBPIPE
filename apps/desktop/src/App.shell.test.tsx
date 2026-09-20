@@ -678,3 +678,89 @@ describe("reviewed shell accessibility boundaries", () => {
     expect(surfaces).toHaveClass("inspector-collapsed");
   });
 });
+
+describe("New Blank starts a fresh shell context", () => {
+  it("resets Loads/Table and armed routing to Model/Both while retaining appearance and split preferences", async () => {
+    const workspace = await renderShell();
+    act(() => nativeMenuCommand("view.theme.dark"));
+    act(() => nativeMenuCommand("view.density.compact"));
+    act(() => nativeMenuCommand("insert.node"));
+    act(() => nativeMenuCommand("view.stage.loads"));
+    act(() => nativeMenuCommand("view.view.table"));
+    expect(workspace).toHaveAttribute("data-stage", "loads");
+    expect(workspace).toHaveAttribute("data-view", "table");
+    expect(screen.getByTestId("desktop-preview-shell")).toHaveAttribute("data-theme-preference", "dark");
+    expect(screen.getByTestId("desktop-preview-shell")).toHaveAttribute("data-density", "compact");
+    const preferences = window.localStorage.getItem("chirality.desktop.ui-preferences.v1");
+    expect(preferences).not.toBeNull();
+    act(() => nativeMenuCommand("file.new-blank"));
+    await waitFor(() => expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent("Blank Local Model"));
+    expect(workspace).toHaveAttribute("data-stage", "model");
+    expect(workspace).toHaveAttribute("data-view", "both");
+    expect(workspace).toHaveClass("inspector-collapsed");
+    expect(screen.getByTestId("command-node")).toHaveAttribute("aria-pressed", "false");
+    expect(rail("model")).toHaveAttribute("aria-current", "page");
+    expect(rail("loads")).not.toHaveAttribute("aria-current");
+    expect(window.localStorage.getItem("chirality.desktop.ui-preferences.v1")).toBe(preferences);
+  });
+
+  it("leaves a reopened Historical Results context on successful New Blank", async () => {
+    const workspace = await renderShell();
+    act(() => nativeMenuCommand("view.view.table"));
+    await openHistoricalRun();
+    expect(workspace).toHaveAttribute("data-stage", "results");
+    setTauriRuntime(false);
+    act(() => nativeMenuCommand("file.new-blank"));
+    await waitFor(() => expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent("Blank Local Model"));
+    expect(workspace).toHaveAttribute("data-stage", "model");
+    expect(workspace).toHaveAttribute("data-view", "both");
+    expect(rail("model")).toHaveAttribute("aria-current", "page");
+    expect(rail("results")).not.toHaveAttribute("aria-current");
+    expect(railState("results")).toMatchObject({ disabled: true, caption: null, reason: "No run yet" });
+  });
+
+  it("preserves previous shell and preferences when New Blank fails", async () => {
+    const workspace = await renderShell();
+    act(() => nativeMenuCommand("view.stage.loads"));
+    act(() => nativeMenuCommand("view.view.table"));
+    const priorName = screen.getByTestId("toolbar-project-name").textContent;
+    const preferences = window.localStorage.getItem("chirality.desktop.ui-preferences.v1");
+    setTauriRuntime(true);
+    invokeMock.mockImplementation((command: string) => command === "create_local_project"
+      ? Promise.reject(new Error("Invented blank create failure")) : Promise.resolve(null));
+    act(() => nativeMenuCommand("file.new-blank"));
+    await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Blank create failed: Error: Invented blank create failure"));
+    expect(workspace).toHaveAttribute("data-stage", "loads");
+    expect(workspace).toHaveAttribute("data-view", "table");
+    expect(rail("loads")).toHaveAttribute("aria-current", "page");
+    expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(priorName!);
+    expect(window.localStorage.getItem("chirality.desktop.ui-preferences.v1")).toBe(preferences);
+  });
+
+  it("does not reset the shell when a later project request supersedes New Blank", async () => {
+    const workspace = await renderShell();
+    act(() => nativeMenuCommand("view.stage.loads"));
+    act(() => nativeMenuCommand("view.view.table"));
+    const priorName = screen.getByTestId("toolbar-project-name").textContent;
+    let completeCreate: ((value: LocalProjectEnvelope) => void) | undefined;
+    let requestedBlank: PreviewModel | undefined;
+    setTauriRuntime(true);
+    invokeMock.mockImplementation((command: string, payload: { model?: PreviewModel } = {}) => {
+      if (command === "create_local_project") {
+        requestedBlank = payload.model;
+        return new Promise<LocalProjectEnvelope>(resolve => { completeCreate = resolve; });
+      }
+      return Promise.resolve(null);
+    });
+    act(() => nativeMenuCommand("file.new-blank"));
+    await waitFor(() => expect(completeCreate).toBeDefined());
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("No local project snapshot found."));
+    await act(async () => completeCreate!(inventedOpenEnvelope(requestedBlank!)));
+    expect(workspace).toHaveAttribute("data-stage", "loads");
+    expect(workspace).toHaveAttribute("data-view", "table");
+    expect(rail("loads")).toHaveAttribute("aria-current", "page");
+    expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(priorName!);
+  });
+
+});

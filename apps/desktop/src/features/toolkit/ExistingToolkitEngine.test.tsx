@@ -1,3 +1,4 @@
+import { changeFormControl, expectFormControlValue } from "../../test-support/workspaceTestControls";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { SectionAssignment } from "./SectionAssignment";
@@ -11,7 +12,7 @@ import { loadPreviewModel } from "../../services/previewService";
 import { applyModelOperation } from "../../services/operationService";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
 import { chooseVirtualTarget, startInspectorTask } from "../../test-support/workspaceTestControls";
-const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
+const enter = (label: string, value: string) => changeFormControl(screen.getByLabelText(label), { target: { value } });
 async function applied(model: PreviewModel, intent: EditorOperationIntent) {
   const result = await applyModelOperation(model, intent, null);
   expect(result.validation.application_status, JSON.stringify(result.diagnostics)).toBe("applied_to_session_model");
@@ -84,9 +85,9 @@ describe("existing toolkit shared engine", () => {
     const view = render(<PropertyInspector model={model} selection={{ type: "pipe", id: model.pipe_segments[0].id }} onQueueIntent={queue} />);
     startInspectorTask();
     for (const [key, value, unit, dimension] of [["material_density", "7800", "kg/m^3", "density"], ["contents_density", "0", "kg/m^3", "density"], ["insulation_thickness", "0", "mm", "length"]]) {
-      fireEvent.change(screen.getByTestId("editor-intent-field"), { target: { value: `section.${key}.value` } });
-      expect(screen.getByTestId("editor-intent-unit")).toHaveValue("");
-      fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value } }); fireEvent.change(screen.getByTestId("editor-intent-unit"), { target: { value: unit } });
+      changeFormControl(screen.getByTestId("editor-intent-field"), { target: { value: `section.${key}.value` } });
+      expectFormControlValue(screen.getByTestId("editor-intent-unit"), "");
+      fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value } }); changeFormControl(screen.getByTestId("editor-intent-unit"), { target: { value: unit } });
       fireEvent.click(screen.getByTestId("queue-editor-intent")); const intent = queue.mock.calls.at(-1)![0];
       expect(intent.change).toMatchObject({ before: "TBD", after: JSON.stringify({ value: Number(value), unit }), dimension, unit });
       const result = await applyModelOperation(model, intent, null);

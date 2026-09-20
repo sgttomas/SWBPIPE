@@ -1,3 +1,4 @@
+import { selectCompactOption } from "./workspace-driver";
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { inflateSync } from "node:zlib";
@@ -228,10 +229,9 @@ test("DEC-077 solve temperature queues an explicit unit-bearing operation", asyn
   await startPropertyTaskFromTreeEntity(page, "load", "load:L-100");
 
   const editorIntentPanel = page.getByTestId("editor-intent-panel");
-  await editorIntentPanel
-    .getByTestId("editor-intent-field")
-    .selectOption("modulus_basis_temperature.value");
-  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveValue("K");
+  await selectCompactOption(editorIntentPanel
+    .getByTestId("editor-intent-field"), "modulus_basis_temperature.value");
+  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "K");
   await editorIntentPanel.getByTestId("editor-intent-value").fill("400");
   await openNamedDisclosure(editorIntentPanel, "Operation details");
   await expect(editorIntentPanel.getByTestId("editor-intent-validation")).toContainText(
@@ -305,8 +305,8 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   expect(compactJourneyGeometry.menuBarHeight).toBeGreaterThan(0);
   await startPropertyTaskFromTreeEntity(page, "node", "node:N-110");
   const editorIntentPanel = page.getByTestId("editor-intent-panel");
-  await editorIntentPanel.getByTestId("editor-intent-field").selectOption("position.y");
-  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveValue("m");
+  await selectCompactOption(editorIntentPanel.getByTestId("editor-intent-field"), "position.y");
+  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "m");
   await expect(editorIntentPanel.getByLabel("New y position", { exact: true })).toBeVisible();
   await expect(editorIntentPanel.getByText("New y position (m)", { exact: true })).toBeVisible();
   await editorIntentPanel.getByTestId("editor-intent-value").fill("1.25");
@@ -322,8 +322,8 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
   await startPropertyTaskFromTreeEntity(page, "load", "load:L-100");
-  await editorIntentPanel.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
-  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveValue("N/m");
+  await selectCompactOption(editorIntentPanel.getByTestId("editor-intent-field"), "primitive_loads.0.magnitude.value");
+  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "N/m");
   await expect(editorIntentPanel.getByLabel("New first primitive magnitude", { exact: true })).toBeVisible();
   await expect(editorIntentPanel.getByText("New first primitive magnitude (N/m)", { exact: true })).toBeVisible();
   await editorIntentPanel.getByTestId("editor-intent-value").fill("-225");
@@ -525,7 +525,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText(
     "browser preview uses model metadata"
   );
-  await expect(page.getByTestId("viewport-create-node-unit")).toHaveValue("m");
+  await expect(page.getByTestId("viewport-create-node-unit")).toHaveAttribute("data-value", "m");
   await expect(page.getByTestId("viewport-create-node-unit-basis")).toContainText(
     "Coordinates: m, model metadata"
   );

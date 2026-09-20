@@ -1,3 +1,4 @@
+import { changeFormControl, compactOptionRecords } from "../../test-support/workspaceTestControls";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
@@ -73,7 +74,7 @@ function model(): PreviewModel {
     }]
   };
 }
-const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
+const enter = (label: string, value: string) => changeFormControl(screen.getByLabelText(label), { target: { value } });
 function quantity(label: string, value: string, unit: string) {
   enter(`${label} value`, value);
   enter(`${label} unit`, unit);
@@ -328,8 +329,8 @@ describe("rich authoring structured forms", () => {
 describe("canonical support family authoring", () => {
   it("offers exactly nine canonical choices with readable labels and no inferred configuration", () => {
     render(<SupportConfigurationForm model={model()} selection={{ type: "support", id: "support:a" }} onQueueIntent={vi.fn()} />);
-    const select = screen.getByLabelText("Support family") as HTMLSelectElement;
-    expect(Array.from(select.options).filter(option => !option.disabled).map(option => [option.value, option.textContent])).toEqual([
+    const select = screen.getByLabelText("Support family");
+    expect(compactOptionRecords(select).filter(option => !option.disabled).map(option => [option.value, option.label])).toEqual([
       ["anchor", "Anchor"], ["guide", "Guide"], ["line_stop", "Line stop"], ["vertical_support", "Vertical support"],
       ["spring", "Spring"], ["variable_spring_hanger", "Variable spring hanger"], ["spring_hanger", "Spring hanger"],
       ["constant_effort_support", "Constant-effort support"], ["nonlinear", "Nonlinear support"]
@@ -347,8 +348,8 @@ describe("canonical support family authoring", () => {
     if (family !== undefined) Object.assign(m.supports[0], { family });
     const original = JSON.stringify(m), queue = vi.fn();
     render(<SupportConfigurationForm model={m} selection={{ type: "support", id: "support:a" }} onQueueIntent={queue} />);
-    const select = screen.getByLabelText("Support family") as HTMLSelectElement;
-    expect(select.selectedOptions[0]).toHaveTextContent(family === undefined ? "Not provided" : family === null ? "Null source value" : "Unsupported source value");
+    const select = screen.getByLabelText("Support family");
+    expect(select).toHaveTextContent(family === undefined ? "Not provided" : family === null ? "Null source value" : "Unsupported source value");
     fireEvent.click(screen.getByText("Queue support configuration"));
     await waitFor(() => expect(queue).toHaveBeenCalledOnce());
     const intent = queue.mock.calls[0][0];
