@@ -310,33 +310,26 @@
         "B2F-B2G",
         "C1"
       ],
-      "blockedBy": [
-        {
-          "what": "the frozen helper's assertion 'canvas area larger than the tree's' cannot hold in Both view under the approved 55/45 split (table 737, canvas 603)",
-          "with": "owner",
-          "recommendation": "keep it where the tree is a side region; in Both view replace it with the 35 % width floor plus canvas-larger-than-inspector",
-          "blocks": "merge only; every other ruling can be built meanwhile"
-        }
-      ],
+      "blockedBy": [],
       "nextInstrument": {
         "brief": "instances/B-SHELL/briefs/B3-FLOORS.md",
         "sha256": "fe295e2b575e651e77b6ec4c75d6ef1455af319119337b4ac96d6008536c0290",
         "where": "on the lane branch",
         "state": "historically sealed and unlaunched; do not execute unchanged; reseal against current owner steer and pending product dispositions"
       },
-      "rulings": "instances/ROOT/SESSION_HANDOFF_2026-09-19B.md section 3",
+      "rulings": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_APPROVAL.md adopting D1-D3 of DECISION_AND_STRATEGY.md; earlier owner directions retained where applicable",
       "specDepartures": [
         {
-          "what": "in Both view the docked inspector always takes its width from the table pane (canvas 603 at 1440, 531 at 1280), against specification 10.9",
-          "by": "ROOT, told to the owner, open"
+          "what": "Both-view inspector takes width from table first down to320px lending floor, then canvas subject to220px minimum; explicit departure from fixed-table UX10.9",
+          "by": "owner adopted D2 in current OWNER_APPROVAL.md"
         },
         {
-          "what": "the collapsed drawer strip does not overlay the viewport; the canvas pane keeps D-72's box and takes bottom padding; replaces the mechanism of item 5 of the owner's eight items",
-          "by": "ROOT, told to the owner, not answered"
+          "what": "Collapsed drawer strip overlays canvas foot, with complete readout/DOM/painted-frame clearance and named placement-witness amendment; historical padding proposal rejected",
+          "by": "owner adopted D1, reaffirming overlay adopted in eight-item direction"
         },
         {
-          "what": "the Appearance disclosure and the Select tool in the toolbar",
-          "by": "accepted by the owner for now; Appearance leaves the toolbar at the closing visual pass"
+          "what": "Appearance disclosure and Select tool in toolbar remain temporary",
+          "by": "owner eight-item direction; closing visual pass retires appearance departure"
         }
       ],
       "crossLane": [
@@ -356,11 +349,13 @@
         }
       ],
       "gatesOwed": [
-        "Opus code review with a structural checklist",
-        "one Fable design-fidelity review by screenshot, structure only",
-        "ROOT's look",
-        "DEC-025 sweep",
-        "CI",
+        "final candidate registered checks and source/dist Playwright lanes",
+        "connected workflow and actual Tauri menu/window minimum/title-bar/Undo witness",
+        "independent complete frozen-diff review and backchecks",
+        "fresh structure-only fidelity review",
+        "ROOT own app inspection",
+        "clean-candidate DEC-025 sweep",
+        "actual-candidate required CI",
         "merge commit"
       ],
       "deliverableBinding": {
@@ -385,14 +380,11 @@
         }
       ],
       "gatesOwedCurrent": [
-        "owner strategy agreement before launches/substantial implementation",
-        "owner rulings before dependent product/test changes or B3 merge",
-        "fresh complete-diff independent code review and backchecks",
+        "final candidate registered checks and source/dist Playwright lanes",
+        "connected workflow and actual Tauri menu/window minimum/title-bar/Undo witness",
+        "independent complete frozen-diff review and backchecks",
         "fresh structure-only fidelity review",
-        "connected user-workflow scenarios",
-        "Tauri native menu/window minimum/title-bar witness",
-        "registered checks and both Playwright lanes",
-        "Agent 0 app inspection",
+        "ROOT own app inspection",
         "clean-candidate DEC-025 sweep",
         "actual-candidate required CI",
         "merge commit"
@@ -404,6 +396,44 @@
           "by": "ROOT; not owner ruling",
           "status": "directed; native proof pending"
         }
+      ],
+      "historicalBeforeCodex": {
+        "blockedBy": [
+          {
+            "what": "the frozen helper's assertion 'canvas area larger than the tree's' cannot hold in Both view under the approved 55/45 split (table 737, canvas 603)",
+            "with": "owner",
+            "recommendation": "keep it where the tree is a side region; in Both view replace it with the 35 % width floor plus canvas-larger-than-inspector",
+            "blocks": "merge only; every other ruling can be built meanwhile"
+          }
+        ],
+        "rulings": "instances/ROOT/SESSION_HANDOFF_2026-09-19B.md section 3",
+        "specDepartures": [
+          {
+            "what": "in Both view the docked inspector always takes its width from the table pane (canvas 603 at 1440, 531 at 1280), against specification 10.9",
+            "by": "ROOT, told to the owner, open"
+          },
+          {
+            "what": "the collapsed drawer strip does not overlay the viewport; the canvas pane keeps D-72's box and takes bottom padding; replaces the mechanism of item 5 of the owner's eight items",
+            "by": "ROOT, told to the owner, not answered"
+          },
+          {
+            "what": "the Appearance disclosure and the Select tool in the toolbar",
+            "by": "accepted by the owner for now; Appearance leaves the toolbar at the closing visual pass"
+          }
+        ],
+        "gatesOwed": [
+          "Opus code review with a structural checklist",
+          "one Fable design-fidelity review by screenshot, structure only",
+          "ROOT's look",
+          "DEC-025 sweep",
+          "CI",
+          "merge commit"
+        ],
+        "note": "Original pre-Codex fields preserved here; current fields below reflect subsequent owner approval and model strategy. Historical source commits and handoffs remain unchanged."
+      },
+      "satisfiedEntryGates": [
+        "owner strategy agreement",
+        "owner D1-D3 product dispositions"
       ]
     },
     "B3A": {
@@ -692,6 +722,14 @@
           "reasoning": "high",
           "state": "running",
           "evidenceOwner": "instances/B3-CODEX on shell lane"
+        },
+        {
+          "agent": "/root/b3_manager/shell_astra",
+          "role": "TASK Type 2",
+          "model": "gpt-6-astra",
+          "reasoning": "high",
+          "state": "running; launched for same bounded shell assignment before owner prospective Astra/low direction",
+          "evidenceOwner": "instances/B3-CODEX on shell lane"
         }
       ],
       "availabilitySubstitution": {
@@ -699,7 +737,7 @@
         "from": "gpt-5.6-sol/high",
         "to": "gpt-6-astra/high",
         "reason": "repeated model capacity interruptions after temporary successful retries",
-        "authorization": "ROOT invoked named fallback pool within approved strategy; disclosed to owner in active commentary",
+        "authorization": "ROOT operational decision on repeated capacity failure, disclosed in active commentary; the package named Astra/high for hard diagnosis but did not expressly approve the capacity case. This records the actual substitution, not a new owner ruling. Later owner model direction governs all new deployments.",
         "evidenceOwner": "instances/B3-CODEX on shell lane",
         "reviewIndependence": "separate author and fresh context; no model-diversity claim for substituted portion"
       }
@@ -710,7 +748,7 @@
       "reasoningRequested": "xhigh",
       "candidate": "c805bcc1a",
       "base": "c459a0fa15e8d33613b6b95f529b5d369c707874",
-      "status": "PASS after backcheck on d080c334424f500dd4c8d2f745b475c474bf474f; later candidate metadata requires coverage",
+      "status": "tail review on46f052d99 found two graph attribution/current-state issues; corrections prepared for backcheck",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RECORDS_REVIEW_BRIEF.md",
       "briefSha256": "941f528cd80e5adfdddaeb4d5922609091fd4d72f34231dc1abc63b641cf23de",
       "actualAgent": "/root/continuation_records_review",
@@ -725,7 +763,9 @@
       ],
       "reviewedCandidate": "d080c334424f500dd4c8d2f745b475c474bf474f",
       "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_REVIEW_BACKCHECK.md",
-      "backcheckReturnSha256": "93a22fa8a46b44424b00026c9febcfd21a3b900810c51ba40f7096c8b52ec569"
+      "backcheckReturnSha256": "93a22fa8a46b44424b00026c9febcfd21a3b900810c51ba40f7096c8b52ec569",
+      "tailReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_TAIL_REVIEW_RETURN.md",
+      "tailReturnSha256": "b792b8d848960e6abd6be3f8dc0582638c3922c4e6d35ca32c8cfe4a2ca3934a"
     }
   },
   "edges": [
@@ -866,7 +906,7 @@
       "CONTINUATION-RECORDS-REVIEW"
     ]
   ],
-  "current_frontier": "B3 first, active verification under approved strategy/D1-D3. Shell manager owns product fan-in, two Sol/high executors; ROOT owns records, independent review, final integration. Unit rerun green; browser geometry triage and final native backchecks underway before freeze. Records review passed on d080c3344, later changes await candidate review. Canvas I1 and parked design preserved; no reconciliation/DAG rebuild.",
+  "current_frontier": "B3 first, active verification under approved strategy and D1-D3. Astra/high manager owns product fan-in; the current shell continuation is Astra/high following a ROOT availability decision, and the already-running native worker is Sol/high. New deployments formerly allocated to Sol are Astra/low under the later owner direction. ROOT owns records, independent review and final integration. Browser geometry repairs and final native backchecks precede freeze. Records review passed through d080c3344; later tail review in progress. Canvas I1 and parked design preserved; no reconciliation/DAG rebuild.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -999,7 +1039,8 @@
         "nodes.B3.specDepartures"
       ],
       "disposition": "Where these inherited fields imply that the drawer-strip mechanism or inspector-width proposal may be implemented as an authorised ruling, that permission is superseded. Present the drawer-strip mechanism, docked inspector width source and Both-view protected geometry assertion together for owner disposition before dependent implementation or B3 merge. No product choice or test change is accepted here.",
-      "unchanged": "Original field values remain historical; independent authorised discovery and strategy/decision-package preparation may proceed."
+      "unchanged": "Original field values remain historical; independent authorised discovery and strategy/decision-package preparation may proceed.",
+      "historicalFieldsNowAt": "nodes.B3.historicalBeforeCodex; original former path names remain in historicalFields as provenance"
     }
   },
   "rootExecutionHistory": [
