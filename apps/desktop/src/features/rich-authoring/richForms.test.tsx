@@ -376,3 +376,27 @@ describe("canonical support family authoring", () => {
     expect(JSON.stringify(m)).toBe(original);
   });
 });
+
+describe("preserved support families survive compact-popup dismissal", () => {
+  for (const dismissal of ["Tab", "outside Queue"] as const) {
+    it.each([undefined, null, "Unsupported family"])(`${dismissal} without a choice preserves exact source family %s`, async family => {
+      const m = model();
+      if (family !== undefined) Object.assign(m.supports[0], { family });
+      const original = JSON.stringify(m), queue = vi.fn();
+      render(<SupportConfigurationForm model={m} selection={{ type: "support", id: "support:a" }} onQueueIntent={queue} />);
+      const selector = screen.getByLabelText("Support family");
+      const submit = screen.getByText("Queue support configuration");
+      fireEvent.click(selector);
+      expect(selector).toHaveAttribute("aria-expanded", "true");
+      if (dismissal === "Tab") fireEvent.keyDown(selector, { key: "Tab" });
+      else fireEvent.pointerDown(submit);
+      fireEvent.click(submit);
+      await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+      const after = JSON.parse(queue.mock.calls[0][0].change.after);
+      if (family === undefined) expect(after).not.toHaveProperty("family");
+      else expect(after.family).toBe(family);
+      expect(JSON.stringify(m)).toBe(original);
+      expect(selector).toHaveAttribute("data-value", "");
+    });
+  }
+});

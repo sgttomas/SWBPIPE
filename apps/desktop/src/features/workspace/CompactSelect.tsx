@@ -32,8 +32,15 @@ export function CompactSelect({ options, value, onValueChange, disabled, classNa
   const popup = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const openRef = useRef(false);
-  const [active, setActive] = useState(-1);
-  const activeRef = useRef(-1);
+  const [activeValue, setActiveValue] = useState<string | null>(null);
+  const active = options.findIndex((option) => option.value === activeValue);
+  const pending = useRef<{ value: string | null; explicit: boolean }>({ value: null, explicit: false });
+  const openingBasis = useRef<{ value: string; options: string } | null>(null);
+  // Order does not change identity, but label/availability/membership changes do.
+  function optionsBasis(items: readonly CompactSelectOption[]) {
+    return JSON.stringify(items.map((option) => [option.value, option.label, !!option.disabled]).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))));
+  }
+  const catalogBasis = optionsBasis(options);
   const [placement, setPlacement] = useState<CSSProperties>({});
   const search = useRef({ text: "", time: 0 });
   // Event listeners always use the latest controlled value, options and callback.
@@ -51,9 +58,24 @@ export function CompactSelect({ options, value, onValueChange, disabled, classNa
     return false;
   }
 
-  function activate(index: number) {
-    activeRef.current = index;
-    setActive(index);
+  function activateValue(optionValue: string | null, explicit = true) {
+    pending.current = { value: optionValue, explicit };
+    setActiveValue(optionValue);
+  }
+
+  // Keyboard indexes are resolved immediately in the same current catalog.
+  // Pointer handlers instead retain their rendered option value below.
+  function activate(index: number, explicit = true) {
+    activateValue(latest.current.options[index]?.value ?? null, explicit);
+  }
+
+  function sameBasis() {
+    const current = latest.current;
+    return openingBasis.current?.value === current.value && openingBasis.current.options === optionsBasis(current.options);
+  }
+
+  function activeIndex() {
+    return latest.current.options.findIndex((option) => option.value === pending.current.value);
   }
 
   function close(commit: boolean, returnFocus = false) {
@@ -62,9 +84,9 @@ export function CompactSelect({ options, value, onValueChange, disabled, classNa
     setOpen(false);
     search.current = { text: "", time: 0 };
     const current = latest.current;
-    const option = current.options[activeRef.current];
+    const option = current.options.find((item) => item.value === pending.current.value);
     const available = !unavailable();
-    if (commit && available && option && !option.disabled && option.value !== current.value) current.onValueChange(option.value);
+    if (commit && pending.current.explicit && sameBasis() && available && option && !option.disabled && option.value !== current.value) current.onValueChange(option.value);
     if (returnFocus && available) trigger.current?.focus();
   }
 
@@ -76,8 +98,9 @@ export function CompactSelect({ options, value, onValueChange, disabled, classNa
   function show() {
     if (unavailable()) return;
     trigger.current?.focus();
+    openingBasis.current = { value, options: optionsBasis(options) };
     const selected = options.findIndex((option) => option.value === value && !option.disabled);
-    activate(selected >= 0 ? selected : options.findIndex((option) => !option.disabled));
+    activate(selected >= 0 ? selected : options.findIndex((option) => !option.disabled), false);
     openRef.current = true;
     setOpen(true);
   }
@@ -130,10 +153,8 @@ export function CompactSelect({ options, value, onValueChange, disabled, classNa
 
   useLayoutEffect(() => {
     if (!open) return;
-    if (unavailable()) { close(false); return; }
-    if (!options[active]?.disabled && options[active]) return;
-    activate(options.findIndex((option) => !option.disabled));
-  }, [open, options, disabled, active]);
+    if (unavailable() || !sameBasis()) close(false);
+  }, [open, catalogBasis, value, disabled]);
 
   useLayoutEffect(() => {
     if (open && active >= 0) document.getElementById(`${listId}-${active}`)?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
@@ -160,7 +181,7 @@ export function CompactSelect({ options, value, onValueChange, disabled, classNa
     // Avoid browser button key activation and keep shell shortcuts out of navigation.
     event.stopPropagation();
     if (!wasOpen) show();
-    if (key === "Enter" || key === " ") { if (wasOpen) close(true, true); return; }
+    if (key === "Enter" || key === " ") { if (wasOpen) { pending.current.explicit = true; close(true, true); } return; }
     const enabled = options.map((option, index) => option.disabled ? -1 : index).filter((index) => index >= 0);
     if (!enabled.length) return;
     if (printable) {
@@ -170,7 +191,7 @@ export function CompactSelect({ options, value, onValueChange, disabled, classNa
       search.current = { text, time: now };
       const repeated = [...text].every((character) => character === text[0]);
       const query = repeated ? text[0] : text;
-      const start = repeated ? activeRef.current + 1 : activeRef.current;
+      const start = repeated ? activeIndex() + 1 : activeIndex();
       const order = [...enabled.filter((index) => index >= start), ...enabled.filter((index) => index < start)];
       const found = order.find((index) => options[index].label.toLocaleLowerCase().startsWith(query));
       if (found !== undefined) activate(found);
@@ -178,7 +199,7 @@ export function CompactSelect({ options, value, onValueChange, disabled, classNa
     else if (key === "End") activate(enabled[enabled.length - 1]);
     else if (wasOpen && event.altKey && key === "ArrowUp") close(true, true);
     else if (wasOpen) {
-      const index = enabled.indexOf(activeRef.current);
+      const index = enabled.indexOf(activeIndex());
       const step = key === "PageDown" ? 10 : key === "PageUp" ? -10 : key === "ArrowDown" ? 1 : -1;
       activate(enabled[Math.max(0, Math.min(enabled.length - 1, index + step))]);
     }
@@ -198,7 +219,7 @@ export function CompactSelect({ options, value, onValueChange, disabled, classNa
       {options.map((option, index) => <div key={`${index}-${option.value}`} id={`${listId}-${index}`} role="option"
         className="compact-select-option" aria-disabled={option.disabled || undefined} aria-selected={option.value === value}
         data-value={option.value} data-active={index === active} data-selected={option.value === value}
-        onClick={() => { if (!option.disabled) { activate(index); close(true, true); } }}>
+        onClick={() => { if (!option.disabled) { activateValue(option.value); close(true, true); } }}>
         {option.label}
       </div>)}
       {!options.length && <div className="compact-select-empty">No options</div>}

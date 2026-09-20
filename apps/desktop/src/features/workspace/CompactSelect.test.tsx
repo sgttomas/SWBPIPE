@@ -208,6 +208,112 @@ describe("CompactSelect", () => {
     expect(focus).not.toHaveBeenCalled();
   });
 
+  it.each(["missing", "", "b"])("preserves source %s on no-navigation Tab and outside dismissal", (value) => {
+    const { control, change } = setup(value);
+    for (const dismissal of ["Tab", "pointer", "focus"]) {
+      fireEvent.click(control);
+      if (dismissal === "Tab") fireEvent.keyDown(control, { key: "Tab" });
+      else if (dismissal === "pointer") fireEvent.pointerDown(document.body);
+      else fireEvent.focusIn(document.body);
+      expect(change).not.toHaveBeenCalled();
+      expect(control).toHaveAttribute("data-value", value);
+      expect(control).toHaveAttribute("aria-expanded", "false");
+    }
+  });
+
+  it.each(["Enter", "pointer", "navigation"])("permits deliberate %s choice from an unavailable source", (method) => {
+    const { control, change } = setup("missing");
+    fireEvent.click(control);
+    if (method === "Enter") fireEvent.keyDown(control, { key: "Enter" });
+    else if (method === "pointer") fireEvent.click(screen.getByRole("option", { name: "Alpha" }));
+    else { fireEvent.keyDown(control, { key: "End" }); fireEvent.keyDown(control, { key: "Tab" }); }
+    expect(change).toHaveBeenCalledExactlyOnceWith(method === "navigation" ? "d" : "a");
+  });
+
+  it("preserves pending value across option reordering instead of committing its old index", () => {
+    const { control, change, rerender } = setup();
+    fireEvent.click(control);
+    fireEvent.keyDown(control, { key: "ArrowDown" });
+    expect(active(control)).toHaveTextContent("Charlie");
+    rerender(<CompactSelect aria-label="Type" value="a" options={[options[2], options[0], options[3], options[1]]} onValueChange={change} />);
+    expect(active(control)).toHaveTextContent("Charlie");
+    fireEvent.keyDown(control, { key: "Tab" });
+    expect(change).toHaveBeenCalledExactlyOnceWith("c");
+  });
+
+  it.each(["remove active", "disable active", "remove selected", "disable selected", "rename", "canonical"])("cancels pending choice on %s basis change", (changeKind) => {
+    const { control, change, rerender } = setup();
+    fireEvent.click(control);
+    fireEvent.keyDown(control, { key: "ArrowDown" });
+    let changedOptions = [...options];
+    if (changeKind === "remove active") changedOptions = options.filter((option) => option.value !== "c");
+    if (changeKind === "remove selected") changedOptions = options.filter((option) => option.value !== "a");
+    if (changeKind === "disable active") changedOptions = options.map((option) => option.value === "c" ? { ...option, disabled: true } : option);
+    if (changeKind === "disable selected") changedOptions = options.map((option) => option.value === "a" ? { ...option, disabled: true } : option);
+    if (changeKind === "rename") changedOptions = options.map((option) => option.value === "c" ? { ...option, label: "Changed meaning" } : option);
+    rerender(<CompactSelect aria-label="Type" value={changeKind === "canonical" ? "d" : "a"} options={changedOptions} onValueChange={change} />);
+    expect(control).toHaveAttribute("aria-expanded", "false");
+    fireEvent.keyDown(control, { key: "Tab" });
+    fireEvent.pointerDown(document.body);
+    expect(change).not.toHaveBeenCalled();
+    expect(control).toHaveAttribute("data-value", changeKind === "canonical" ? "d" : "a");
+  });
+
+  it("does not infer a value when a catalog arrives after opening an empty unavailable source", () => {
+    const change = vi.fn();
+    const { rerender } = render(<CompactSelect aria-label="Type" value="missing" options={[]} onValueChange={change} />);
+    const control = screen.getByRole("combobox");
+    fireEvent.click(control);
+    rerender(<CompactSelect aria-label="Type" value="missing" options={options} onValueChange={change} />);
+    fireEvent.keyDown(control, { key: "Tab" });
+    expect(change).not.toHaveBeenCalled();
+    expect(control).toHaveTextContent("missing");
+  });
+
+  it.each(["remove", "disable", "rename", "reorder"])("rechecks %s option changes at commit time before a render/effect can reconcile them", (mutation) => {
+    const choices = options.map((option) => ({ ...option }));
+    const change = vi.fn();
+    render(<CompactSelect aria-label="Type" value="a" options={choices} onValueChange={change} />);
+    const control = screen.getByRole("combobox");
+    fireEvent.click(control);
+    fireEvent.keyDown(control, { key: "ArrowDown" });
+    expect(active(control)).toHaveTextContent("Charlie");
+    // Simulate externally refreshed catalog storage before any React reconciliation.
+    if (mutation === "remove") choices.splice(2, 1);
+    else if (mutation === "disable") choices[2].disabled = true;
+    else if (mutation === "rename") choices[2].label = "Replacement";
+    else choices.reverse();
+    fireEvent.keyDown(control, { key: "Tab" });
+    if (mutation === "reorder") expect(change).toHaveBeenCalledExactlyOnceWith("c");
+    else expect(change).not.toHaveBeenCalled();
+    expect(control).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("commits the rendered pointer option by value when catalog order changes before reconciliation", () => {
+    const choices = options.map((option) => ({ ...option }));
+    const change = vi.fn();
+    render(<CompactSelect aria-label="Type" value="a" options={choices} onValueChange={change} />);
+    fireEvent.click(screen.getByRole("combobox"));
+    const renderedCharlie = screen.getByRole("option", { name: "Charlie" });
+    choices.splice(0, choices.length, choices[2], choices[0], choices[3], choices[1]);
+    fireEvent.click(renderedCharlie);
+    expect(change).toHaveBeenCalledExactlyOnceWith("c");
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+  });
+
+  it("navigates from the pending value in current catalog order after an event-time reorder", () => {
+    const choices = options.map((option) => ({ ...option }));
+    const change = vi.fn();
+    render(<CompactSelect aria-label="Type" value="a" options={choices} onValueChange={change} />);
+    const control = screen.getByRole("combobox");
+    fireEvent.click(control);
+    fireEvent.keyDown(control, { key: "ArrowDown" });
+    choices.splice(0, choices.length, choices[0], choices[3], choices[2], choices[1]);
+    fireEvent.keyDown(control, { key: "ArrowUp" });
+    fireEvent.keyDown(control, { key: "Tab" });
+    expect(change).toHaveBeenCalledExactlyOnceWith("d");
+  });
+
   it("cancels on scope changes while retaining the same control and unrelated draft DOM", () => {
     const change = vi.fn();
     const content = <><input aria-label="Draft" defaultValue="pending" /><CompactSelect aria-label="Type" value="a" options={options} onValueChange={change} /></>;
