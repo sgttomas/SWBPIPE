@@ -1,0 +1,26 @@
+{
+  "candidate": "5ef9de29179a9b814da81d17c2774663404ac93d",
+  "files": {
+    "assets/index-BHIrU4C7.js": "2083b34b6a3d9f04eef47ffc3e49e675e7b3f122bd8b5f50e1969310527bf1b3",
+    "assets/index-BtF7cOwb.css": "5f43a91f508169341740092f1c29122822c328c7ac5d2105edec8b2dec799098",
+    "assets/invented_agent_proposal-Bm57LVt-.js": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c",
+    "assets/invented_demo_rule_pack-dhX9tvT1.js": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a",
+    "assets/invented_design_knowledge-H12r-oKQ.js": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040",
+    "assets/invented_mechanics_result-CleTy2JL.js": "493050a50b346dd1c53de6481da58d3c33d3302c0308f17b49e60584a233be4d",
+    "assets/invented_preview_model-pJA3_nB8.js": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a",
+    "assets/vendor-7OC5HNn7.js": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76",
+    "assets/vendor-icons-BjC2kMFO.js": "c16587f1d30af87974f04473da4620f1eb7bfc4f592da3d8a78c8320b0c50733",
+    "assets/vendor-react-u0ysdD_x.js": "63fc4459119f62f88e22f9114753605a94dc4fb8a870ffca75648df4c68f8901",
+    "assets/vendor-tauri-DlQNAQKj.js": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73",
+    "assets/vendor-three-hE6SPF4C.js": "b46ab73b7015fd1a115511a32fccdc8ea9dab4f93f5f0a8f952aecd0e628a834",
+    "index.html": "24eb42870a05c8deaa4a67b092a666db39b49a583fae2d171dc911c7266eeaa9",
+    "self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+    "self-weight-engine/open_pipe_stress_self_weight_wasm.js": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+    "self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm": "2f5098f005e0ef4e1e80534ef959dd15215bccd1c2489276eea7c1d9aafc72b6",
+    "self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+    "wasm-engine/open_pipe_stress_operation_applier.d.ts": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8",
+    "wasm-engine/open_pipe_stress_operation_applier.js": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+    "wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "dcc6e848ef1a2a02cc99ebd256a44fab52a98e12cdf206a842ebf82bb832e946",
+    "wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16"
+  }
+}

@@ -1,0 +1,253 @@
+File
+Edit
+View
+Insert
+Analyze
+SWBPIPE
+
+Invented Utility Loop Preview
+
+Select
+Table
+Model
+Both
+Run
+Issues
+5
+Inspector
+Agent
+Entered
+SI
+US
+Search or command…
+⌘K
+Model
+Loads
+Results
+Historical
+Review
+Libraries
+Rules
+Issues
+5
+Results
+Evidence
+HISTORICAL SAVED RUN
+
+Saved evidence for run:preview-linear-static-001; mechanics=MECHANICS_SOLVED. Run a fresh solve to establish current results.
+
+Historical results cannot drive current overlays, rule checks, comparisons or report readiness.
+
+HISTORICAL_INPUT_MANIFEST_MISSING
+RESULTS
+Source result units
+MPa, N, N*m, mm, rad, boolean, count, m, mode_code, N*m/rad, N/m, state_code · 830 rows · entered units preserved; displayed quantities follow the display preference where available
+All
+830
+Displacement
+66
+Rotation
+45
+Reaction
+29
+Force
+180
+Moment
+180
+Stress
+278
+Other
+52
+Filter results
+830 of 830 results match filter
+Rows
+50
+100
+200
+Showing 1 to 50 of 830 matching results; page 1 of 17
+Previous
+Next
+Result Detail
+
+Select a computed result row to inspect recovery context and review boundary.
+
+Governing Ratio
+
+unavailable; no user-rule ratio rows are present in this result envelope; mechanics results remain reviewable but no governing rule-check ratio is inferred
+
+This view reports supplied ratio rows only; it does not synthesize allowables or code criteria.
+Displacement
+ID	ENTITY	LOCATION	VALUE	ENTERED SOURCE
+result:nonlinear-support:support-NL-130-FRIC:uz-displacement physical_quantity	support:NL-130-FRIC	uz	-3.879089 mm	Entered: -3.879089 mm
+result:nonlinear-support:support-NL-140:uy-displacement physical_quantity	support:NL-140	uy	0 mm	Entered: 0 mm
+result:disp:node-N-100 physical_quantity	node:N-100	summary	0 mm	Entered: 0 mm
+result:disp:node-N-110 physical_quantity	node:N-110	summary	0.615464 mm	Entered: 0.615464 mm
+result:disp:node-N-120 physical_quantity	node:N-120	summary	0 mm	Entered: 0 mm
+result:disp:node-N-130 physical_quantity	node:N-130	summary	3.960499 mm	Entered: 3.960499 mm
+result:disp:node-N-140 physical_quantity	node:N-140	summary	3.977301 mm	Entered: 3.977301 mm
+result:disp:node-N-100:ux physical_quantity	node:N-100	node	0 mm	Entered: 0 mm
+result:disp:node-N-100:uy physical_quantity	node:N-100	node	0 mm	Entered: 0 mm
+result:disp:node-N-100:uz physical_quantity	node:N-100	node	0 mm	Entered: 0 mm
+result:disp:node-N-110:ux physical_quantity	node:N-110	node	0 mm	Entered: 0 mm
+result:disp:node-N-110:uy physical_quantity	node:N-110	node	0 mm	Entered: 0 mm
+result:disp:node-N-110:uz physical_quantity	node:N-110	node	-0.615464 mm	Entered: -0.615464 mm
+result:disp:node-N-120:ux physical_quantity	node:N-120	node	0 mm	Entered: 0 mm
+result:disp:node-N-120:uy physical_quantity	node:N-120	node	0 mm	Entered: 0 mm
+result:disp:node-N-120:uz physical_quantity	node:N-120	node	0 mm	Entered: 0 mm
+result:disp:node-N-130:ux physical_quantity	node:N-130	node	0.798887 mm	Entered: 0.798887 mm
+result:disp:node-N-130:uy physical_quantity	node:N-130	node	0 mm	Entered: 0 mm
+result:disp:node-N-130:uz physical_quantity	node:N-130	node	-3.879089 mm	Entered: -3.879089 mm
+result:disp:node-N-140:ux physical_quantity	node:N-140	node	1.134213 mm	Entered: 1.134213 mm
+result:disp:node-N-140:uy physical_quantity	node:N-140	node	0 mm	Entered: 0 mm
+Rotation
+ID	ENTITY	LOCATION	VALUE	ENTERED SOURCE
+result:disp:node-N-100:rx physical_quantity	node:N-100	node	0 rad	Entered: 0 rad
+result:disp:node-N-100:ry physical_quantity	node:N-100	node	0 rad	Entered: 0 rad
+result:disp:node-N-100:rz physical_quantity	node:N-100	node	0 rad	Entered: 0 rad
+result:disp:node-N-110:rx physical_quantity	node:N-110	node	0.000228 rad	Entered: 0.000228 rad
+result:disp:node-N-110:ry physical_quantity	node:N-110	node	0.000452 rad	Entered: 0.000452 rad
+result:disp:node-N-110:rz physical_quantity	node:N-110	node	0 rad	Entered: 0 rad
+result:disp:node-N-120:rx physical_quantity	node:N-120	node	0.000247 rad	Entered: 0.000247 rad
+result:disp:node-N-120:ry physical_quantity	node:N-120	node	0.001088 rad	Entered: 0.001088 rad
+result:disp:node-N-120:rz physical_quantity	node:N-120	node	0 rad	Entered: 0 rad
+result:disp:node-N-130:rx physical_quantity	node:N-130	node	0.000022 rad	Entered: 0.000022 rad
+result:disp:node-N-130:ry physical_quantity	node:N-130	node	0.000314 rad	Entered: 0.000314 rad
+result:disp:node-N-130:rz physical_quantity	node:N-130	node	0 rad	Entered: 0 rad
+Reaction
+ID	ENTITY	LOCATION	VALUE	ENTERED SOURCE
+result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction physical_quantity	support:NL-130-FRIC	uy	41.120279 N	Entered: 41.120279 N
+result:nonlinear-support:support-NL-130-FRIC:uz-reaction physical_quantity	support:NL-130-FRIC	uz	0.411203 N	Entered: 0.411203 N
+result:nonlinear-support:support-NL-140:uy-reaction physical_quantity	support:NL-140	uy	-308.879721 N	Entered: -308.879721 N
+Other
+ID	ENTITY	LOCATION	VALUE	ENTERED SOURCE
+result:solver-mode:linear-solve-basis solver_mode	solver:linear_static_preview	load:L-100	1 mode_code	Entered: 1 mode_code
+result:nonlinear-support:iteration-count count	nonlinear_supports	load_case	2 count	Entered: 2 count
+result:nonlinear-support:final-residual-count count	nonlinear_supports	load_case	0 count	Entered: 0 count
+result:nonlinear-support:converged-flag flag	nonlinear_supports	load_case	1 boolean	Entered: 1 boolean
+result:nonlinear-support:max-translation-delta diagnostic_observation	nonlinear_supports	final_iteration	0.003475 mm	Entered: 0.003475 mm
+result:nonlinear-support:max-rotation-delta diagnostic_observation	nonlinear_supports	final_iteration	0.000001 rad	Entered: 0.000001 rad
+result:nonlinear-support:max-force-reaction-delta diagnostic_observation	nonlinear_supports	final_iteration	0.411203 N	Entered: 0.411203 N
+result:nonlinear-support:max-moment-reaction-delta diagnostic_observation	nonlinear_supports	final_iteration	0.136155 N*m	Entered: 0.136155 N*m
+result:nonlinear-support:free-dof-force-residual diagnostic_observation	nonlinear_supports	final_iteration	0 N	Entered: 0 N
+result:nonlinear-support:free-dof-moment-residual diagnostic_observation	nonlinear_supports	final_iteration	0 N*m	Entered: 0 N*m
+result:nonlinear-support:free-dof-work-residual diagnostic_work	nonlinear_supports	final_iteration	0 N*m	Entered: 0 N*m
+result:nonlinear-support:support-NL-130-FRIC:state-code state	support:NL-130-FRIC	uz	3 state_code	Entered: 3 state_code
+result:nonlinear-support:support-NL-140:state-code state	support:NL-140	uy	1 state_code	Entered: 1 state_code
+result:pressure-thrust:component-C-150 review_evidence	component:C-150	pipe:P-130	21600 N	Entered: 21600 N
+Mechanics Gap Ledger
+Endpoint-j local force/moment recovery
+implemented
+
+End-i and end-j local force/moment preview results are emitted and paired in result detail; arbitrary station sweeps remain deferred.
+
+Endpoint stress component recovery
+implemented
+
+End-i and end-j open-mechanics stress component preview results are emitted and paired when stress recovery succeeds.
+
+Intermediate station result recovery
+implemented
+
+Fixed station-grid preview force, moment, shear force, and stress rows are emitted from interpolated endpoint resultants; arbitrary station sweeps, exact internal diagrams, and shear stress recovery remain deferred.
+
+Pressure-to-frame load conversion
+implemented
+
+Closed-end pressure thrust for straight preview pipes is applied to frame resultants; broader pressure behavior remains deferred.
+
+Thermal behavior
+implemented
+
+Uniform axial temperature-change loads for straight preview pipes are implemented with explicit material expansion input; temperature-dependent properties and thermal combinations remain deferred.
+
+Support stiffness completeness
+deferred
+
+Linear support restraints are preview inputs; richer stiffness and nonlinear behavior require explicit data.
+
+Load combinations
+implemented
+
+Explicit mechanics-basis user load combinations are emitted from matching scalar load-case result rows; code/rule combinations remain deferred/private.
+
+Protected rule/code checks
+requires private inputs
+
+Private criteria, allowables, SIF/flexibility tables, and code checks are not bundled publicly.
+
+COMPARISON
+
+Run mechanics preview to populate the local comparison workspace from stable result IDs and explicit source result references.
+
+DESIGN WORKSPACE
+Include known private values in this local export
+decisions=112; findings=112; blocked=true
+Details
+Workspace JSON
+knowledge=3; states=0; runs=0; comparisons=0; operations=0
+Core contract
+records=2; warnings=1; states=2; runs=2; overlays=5
+Current browser
+analysis_run=not generated; comparison=not generated; result_rows=0
+Operation review
+records=0; accepted_mutation=false; application=empty_operation_queue
+Routing
+selected=none; route=no_selected_review_target
+Units
+model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=none; comparison=none; conversion=false
+Boundary
+private_payload=false; protected=false; professional_claim=false
+Design workspace evidence is a local composition of GUI state, comparison context, and operation-review metadata. It does not apply operations or mutate accepted model state.
+3D Centerline
+Deformation · unavailable
+Labels
+Loads
+Grid
+Box Select
+Selection filter
+All
+Pipes
+Nodes
+Supports
+Components
+Hide
+Isolate
+Show All
+Fit Model
+Fit Visible
+Fit Selection
+Schematic
+Actual OD
+Measure
+Selected: project:invented-loop-01
+Schematic centerline geometry
+Measurement enabled.
+P-110
+C-120
+N-110
+N-120
+P-120
+P-100
+P-130
+C-130
+N-100
+N-130
+N-140
+NL-130-FRIC
+NL-140
+S-100
+Front
+Top
+Isometric
+1 m
+Node
+Pipe
+Support
+Component
+Load
+Select
+Selection & navigation
+Agent
+5 Issues
+project: project:invented-loop-01
+Entered

@@ -1,0 +1,96 @@
+File
+Edit
+View
+Insert
+Analyze
+SWBPIPE
+
+Invented Utility Loop Preview
+
+Select
+Table
+Model
+Both
+Run
+Issues
+36
+Inspector
+Agent
+Entered
+SI
+US
+Search or command…
+⌘K
+Model
+Loads
+Results
+Review
+Libraries
+Rules
+Issues
+36
+Report
+Project
+Create local
+New blank
+Open local
+List local
+Save local
+Close
+Saved local browser-preview project snapshot without external file copies.
+Details
+PROJECT STORAGE AUDIT
+Include known private values in this local export
+decisions=134; findings=134; blocked=true
+Details
+Local storage JSON
+operation=save; pending operations=0; proposals=0; accepted_state_mutated=false
+Storage capability
+Browser memory preview; mode=browser_memory_preview; FTS5=false
+Local-only boundary
+network=false; daemon=false; telemetry=false; repository_default_private_write=false
+Project snapshot
+project:invented-loop-01; browser_memory_preview; persisted_editor_intents=0; persisted_proposals=0; persisted_review_targets=0; persisted_review_target_ref=not_selected; persisted_mechanics_results=1; persisted_analysis_runs=1; persisted_analysis_run_ref=run:preview-linear-static-001; copied_external_files=false
+Project index
+state=not_requested; listed_projects=0; refs=none
+Model hash persistence
+persisted_model_hashes=1; persisted_model_hash_ref=sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3
+Model hash integrity
+no open-verification has run this session; review-only integrity signal for human review
+Unit round-trip
+status=unit_metadata_preserved_in_local_project_envelope; checked_refs=26; signature=load_cases.load:L-100.primitive_loads.load:L-100-P-EJ.magnitude=Pa|load_cases.load:L-100.primitive_loads.load:L-100-P.magnitude=Pa|load_cases.load:L-100.primitive_loads.load:L-100-T.magnitude=degC|load_cases.load:L-100.primitive_loads.load:L-100-Y.magnitude=N|load_cases.load:L-100.primitive_loads.load:L-100-Z.magnitude=N/m|load_cases.load:L-200.primitive_loads.load:L-200-P-EJ.magnitude=Pa|load_cases.load:L-200.primitive_loads.load:L-200-P.magnitude=Pa|load_cases.load:L-200.primitive_loads.load:L-200-Y.magnitude=N|load_cases.load:L-200.primitive_loads.load:L-200-Z.magnitude=N/m|materials.material:invented-carbon-steel.elastic_modulus=Pa|materials.material:invented-carbon-steel.shear_modulus=Pa|materials.material:invented-carbon-steel.thermal_expansion_coefficient=1/degC|pipe_segments.pipe:P-100.section.outside_diameter=m|pipe_segments.pipe:P-100.section.wall_thickness=m|pipe_segments.pipe:P-110.section.outside_diameter=m|pipe_segments.pipe:P-110.section.wall_thickness=m|pipe_segments.pipe:P-120.section.outside_diameter=m|pipe_segments.pipe:P-120.section.wall_thickness=m|pipe_segments.pipe:P-130.section.outside_diameter=m|pipe_segments.pipe:P-130.section.wall_thickness=m|project.units.angle=rad|project.units.force=N|project.units.length=m|project.units.pressure=Pa|project.units.stress=MPa|project.units.temperature=degC; model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; conversion=false
+Payload boundary
+private payload=false; protected content=false; release/professional claim=false
+Storage audit packets are local evidence only; create/open/save operations do not accept model changes or copy external project files.
+PROJECT VALIDATION PREFLIGHT
+Include known private values in this local export
+decisions=270; findings=270; blocked=true
+Details
+Validation JSON
+validation=preview_current; version=stale; migration=browser_memory_snapshot_no_sql_store_migrations_applicable; round_trip=semantic_categories_declared
+Schema and version
+schema_version=0.1.0; document_kind=openpipestress.product_preview.model; profile=technical_preview_project_persistence_preflight
+Round-trip manifest
+6 categories; unit metadata=ready_for_preview_round_trip; provenance=ready_for_preview_round_trip; reproducibility=model_hash_persisted_open_verification_not_run
+Unit round-trip evidence
+status=unit_metadata_preserved_in_local_project_envelope; checked_refs=26; signature=load_cases.load:L-100.primitive_loads.load:L-100-P-EJ.magnitude=Pa|load_cases.load:L-100.primitive_loads.load:L-100-P.magnitude=Pa|load_cases.load:L-100.primitive_loads.load:L-100-T.magnitude=degC|load_cases.load:L-100.primitive_loads.load:L-100-Y.magnitude=N|load_cases.load:L-100.primitive_loads.load:L-100-Z.magnitude=N/m|load_cases.load:L-200.primitive_loads.load:L-200-P-EJ.magnitude=Pa|load_cases.load:L-200.primitive_loads.load:L-200-P.magnitude=Pa|load_cases.load:L-200.primitive_loads.load:L-200-Y.magnitude=N|load_cases.load:L-200.primitive_loads.load:L-200-Z.magnitude=N/m|materials.material:invented-carbon-steel.elastic_modulus=Pa|materials.material:invented-carbon-steel.shear_modulus=Pa|materials.material:invented-carbon-steel.thermal_expansion_coefficient=1/degC|pipe_segments.pipe:P-100.section.outside_diameter=m|pipe_segments.pipe:P-100.section.wall_thickness=m|pipe_segments.pipe:P-110.section.outside_diameter=m|pipe_segments.pipe:P-110.section.wall_thickness=m|pipe_segments.pipe:P-120.section.outside_diameter=m|pipe_segments.pipe:P-120.section.wall_thickness=m|pipe_segments.pipe:P-130.section.outside_diameter=m|pipe_segments.pipe:P-130.section.wall_thickness=m|project.units.angle=rad|project.units.force=N|project.units.length=m|project.units.pressure=Pa|project.units.stress=MPa|project.units.temperature=degC
+Unit policy
+model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; records=45; round_trip=unit_metadata_preserved_in_local_project_envelope; conversion=false
+Model hash evidence
+model_hash=model_hash_persisted_open_verification_not_run; persisted_model_hashes=1; persisted_model_hash_ref=sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3; integrity=open_verification_not_run_this_session
+Envelope hash evidence
+envelope_hash=project_envelope_hash_persisted_open_verification_not_run; persisted_envelope_hashes=1; persisted_envelope_hash_ref=sha256:35d53cfaae11ff4c5312e31fccdd77de5cdfe91dd5c9b4e53bc6ce9871a75552; integrity=open_verification_not_run_this_session
+Store migration evidence
+framework=browser_memory_preview_no_sqlite_migration_ledger; store_schema_version=0; target=0; applied_on_open=0; status=browser_memory_snapshot_no_sql_store_migrations_applicable
+Model document migration
+status=migrated; source=0.1.0; target=0.2.0; framework=application_service_separate_db_and_product_schema; persistence=in_memory_only_not_yet_saved; ledger_records=0
+Persistence operations
+validate=preflight_generated_preview_current; version_check=stale; migrate=browser_memory_snapshot_no_sql_store_migrations_applicable; pending operations=0; persisted editor intents=0; proposals=0; persisted proposals=0; persisted review targets=0; persisted review target ref=not_selected; persisted mechanics results=1; persisted analysis runs=1; persisted analysis run ref=run:preview-linear-static-001
+Validation boundary
+accepted_state_mutated=false; network=false; telemetry=false; private/protected payload=false
+Validation preflight records version, migration, and round-trip review evidence locally without applying queued operations.
+Agent
+Solver · Mechanics solved
+36 Issues
+node: node:N-100
+Entered

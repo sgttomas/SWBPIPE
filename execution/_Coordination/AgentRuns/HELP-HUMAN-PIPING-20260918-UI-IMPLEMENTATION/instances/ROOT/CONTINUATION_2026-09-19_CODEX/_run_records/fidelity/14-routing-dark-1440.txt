@@ -1,0 +1,180 @@
+File
+Edit
+View
+Insert
+Analyze
+SWBPIPE
+
+Invented Utility Loop Preview
+
+Select
+Table
+Model
+Both
+Run
+Issues
+5
+Inspector
+Agent
+Entered
+SI
+US
+Search or command…
+⌘K
+Model
+Loads
+Results
+Review
+Libraries
+Rules
+Issues
+5
+Model
+Review changes
+3D Centerline
+Deformation · unavailable
+Labels
+Loads
+Grid
+Box Select
+Selection filter
+All
+Pipes
+Nodes
+Supports
+Components
+Hide
+Isolate
+Show All
+Fit Model
+Fit Visible
+Fit Selection
+Schematic
+Actual OD
+Measure
+Selected: node:N-100
+Schematic centerline geometry
+Measurement uses authored node coordinates and does not change the model.
+N-100
+P-110
+C-120
+N-110
+N-120
+P-120
+P-130
+C-130
+N-130
+N-140
+NL-130-FRIC
+NL-140
+S-100
+Front
+Top
+Isometric
+1 m
+Node
+Pipe
+Support
+Component
+Load
+Pipe tool armed
+Selection & navigation
+Measure · node: node:N-100 → node: node:N-110
+Distance 3.200000 m ·ΔX 3.200000 m ·ΔY 0.000000 m ·ΔZ 0.000000 m
+Create pipe
+Pipe ID
+Label
+From
+Pick
+New pipe from node
+No target selected
+5 of 5 targets
+Pump nozzle
+node:N-100
+Low point elbow
+node:N-110
+Riser elbow
+node:N-120
+Rack turn
+node:N-130
+Terminal tie-in
+node:N-140
+End mode
+Existing node
+New node
+To
+Pick
+New pipe to node
+No target selected
+5 of 5 targets
+Pump nozzle
+node:N-100
+Low point elbow
+node:N-110
+Riser elbow
+node:N-120
+Rack turn
+node:N-130
+Terminal tie-in
+node:N-140
+New pipe material
+No target selected
+1 of 1 targets
+Invented carbon-steel-like material
+material:invented-carbon-steel
+OD
+Wall
+Length unit
+m
+Pipe geometry: m, model metadata
+Construction plane inactive: existing endpoint uses exact node IDs.
+No route ghost is visible.
+Yref X
+Yref Y
+Yref Z
+Provenance
+Continue from end after Apply; keep the entered material, dimensions, orientation and provenance
+Cancel pipe draft
+Add route
+Choose an existing start node.; Choose an existing end node.; Enter a pipe ID.; Enter a pipe label.; Choose an existing material ID.; Enter positive outside diameter and wall thickness values.; Enter a finite, nonzero y-reference vector.; Enter pipe provenance.
+Review and Apply
+
+The affected selection changed. Add again to review the current draft.
+
+Add a complete node or route to generate the service validation and exact diff.
+
+Apply
+Unit source
+Pending changes (0)
+Pump nozzle — node: node:N-100
+Properties
+Task
+All properties
+Sources and units
+New support configuration
+New section
+New material
+New support
+New component
+Delete node
+Queue delete node
+Operation
+op:delete-node-node:N-100; delete; proposed
+Target
+Node; node:N-100
+Change
+delete_node; Explicit node deletion; nodes; before=Pump nozzle; x=0; y=0; z=0; after=not_present
+Unit basis
+dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required
+Validation
+not_run; not_run; not_required_dimensionless; not_generated; not_applied
+Audit boundary
+Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied
+Professional boundary
+Requires human review; no compliance claim; no approval claim
+Rationale
+explicit user-entered node deletion for project:invented-loop-01; requires reference validation before durable model change.
+Agent
+5 Issues
+node: node:N-100
+Entered

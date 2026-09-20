@@ -1,0 +1,14 @@
+{
+  "node": "v24.18.0",
+  "chromium": "148.0.7778.96",
+  "platform": "darwin",
+  "arch": "arm64",
+  "headless": true,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "context": "fresh ephemeral browser context; no persistent user profile",
+  "baseURL": "http://127.0.0.1:5183",
+  "closedAt": "2026-09-20T04:55:27.245Z"
+}

@@ -1,122 +1,106 @@
 # Piping / Runtime coordination status
 
-Updated 2026-09-20 04:28 UTC. Sole editor: Piping HELP_HUMAN (this ROOT).
+Updated 2026-09-20 05:04 UTC. Sole editor: Piping HELP_HUMAN (ROOT).
 Peer: **dev - app**, task `01a07cd1-86da-7d30-9b17-e2cbbad3f10a`, host local.
 Piping task: `01a0bc58-e7c0-7f11-a2ca-7b00e261014e`.
-One shared note; acknowledged handoffs precede any ownership change. Silence
-does not transfer a write scope. Both leads remain peers under the owner.
+The peer acknowledged this as the sole shared note. Both leads remain peers under
+the owner; acknowledged handoffs precede ownership changes. Silence transfers nothing.
 
-## Authority and current work
+## Authority, ownership and active state
 
-The owner's active-chat instruction: “This message authorizes coordination
-discussion, not new integration implementation or changes to existing ownership.”
-The peer subsequently reported separate owner authorization to implement
-Runtime's generic application-specific dynamic-tool mechanism now, with SWBPIPE
-as its first consumer. We acknowledged Runtime-only work as disjoint; no Piping
-adoption or live binding is inferred. These are distinct authority records.
+Owner: “This message authorizes coordination discussion, not new integration
+implementation or changes to existing ownership.” The peer separately reported
+owner authorization for Runtime's generic application-specific dynamic tools now.
+Both leads acknowledged that Runtime-only work is disjoint; no Piping adoption or
+live binding is inferred. No substantive ownership/design disagreement is open.
 
-Live `origin/main` revalidated at `485051eac923c759238948a54cd7bb094eee4899`.
-Its change from the prior `c459a0fa1` baseline is App release metadata only.
-
-| Worktree name / branch | Owner and active scope |
+| Worktree name / branch | Owner and current scope |
 |---|---|
-| `b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality` / `codex/swbpipe-continuation-20260919` | Piping ROOT: run graph, direction/coordination records, independent reviews and integration; HEAD `88d0228dd`, further records uncommitted. |
-| `swbpipe-wt3` / `codex/swbpipe-b-shell-20260918` | B3 WORKING_ITEMS manager: Piping desktop shell/controller/styles, scoped viewport portal, native host/menu and tests; product `2882acab94120cfa6c3c115ddb416a368cebd9cd`. |
-| `swbpipe-wt2` / `codex/swbpipe-b3-20260919` | ROOT review/integration checkout `1658a2511`; not yet the latest native repair. |
-| `swbpipe-b3-native-probe-20260919` / detached | Manager's isolated native popup prototype; diagnostic writes only, never implicit production adoption. |
-| `chirality-runtime-application-tools/chirality` / `codex/runtime-application-tools` | Peer: `projects/chirality-runtime/**` generic contracts, daemon, client, tests and evidence; base `485051eac`. No Piping, App or Root writes. |
+| `b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality` / `codex/swbpipe-continuation-20260919` | Piping ROOT: graph, records, coordination, independent reviews and integration. Records checkpoint `7d5603ece`, later evidence pending. |
+| `swbpipe-wt3` / `codex/swbpipe-b-shell-20260918` | B3 manager: desktop shell/controller/styles, scoped routing controls, native menu/host and tests. Product checkpoint `2882acab9`; compact-selector repair active. |
+| `swbpipe-wt2` / `codex/swbpipe-b3-20260919` | ROOT review checkout `5ef9de291`, matching product2882; contains main485051eac. Runtime merge21175b5d awaits the next clean integration point. |
+| `chirality-runtime-application-tools/chirality` / `codex/runtime-application-tools` | Peer: Runtime only. PR824 merged as `21175b5d3668f29acd408812d95a33ed4f14bfc8`; reviewed head `cb08dbe2f`. Clean worktree; no active writers or processes. Peer retains Runtime ownership. |
 
-B3 manager (Astra/high), original native worker (existing Sol/high assignment)
-and fresh popup prototype worker (Astra/low) remain active. Independent code
-reviewer is Astra/xhigh; prior three accessibility findings are closed. All new
+Piping retains domain schemas/tools, live controller, UI and future Tauri host
+adapter. Peer is the explicitly acknowledged generic Runtime-contract writer.
+No Root/shared-governance or Piping-domain ownership is transferred.
+
+Active Piping work: B3 manager Astra/high integrates compact selectors and a
+New Blank stage/view reset. Compact-selector implementer Astra/low and structure
+reviewer Astra/high have returned; repair backchecks remain. Original native
+worker completed its Sol/high assignment. Code review is independent Astra/xhigh. All new
 formerly-Sol deployments use Astra/low. Canvas `f6c0bab8e` and design-system
-`4dddd4412` branches remain parked. B3's native popup Escape repair and final
-native/full-suite/review/sweep/CI gates remain open; B3 is not merged.
+`4dddd4412` stay parked. Native popup prototypes remain diagnostic and unadopted.
+B3 native/full-check/review/sweep/CI gates remain open; no B3 merge is claimed.
 
-## Acknowledged split and resources
+## Resources
 
-Piping owns domain schemas/tools, live controller, UI and the future Tauri host
-adapter. Peer owns reusable Runtime and is the explicitly acknowledged writer
-of its generic contract. Root/shared governance and Piping-domain contract
-writes have no transferred ownership. Substantive scope/design disagreements
-return to the owner before the affected work proceeds.
+Peer claims no ports, servers or native/CUA use and will message before claiming
+them. Piping's B3 manager serializes native/CUA; ROOT released the uninstrumented
+2882 window back to it. Structure review released headless5183/5184 and its lock.
+Source/dist E2E use5174/5175 and one worker; Tauri dev5173 and canvas probes5185/5186
+require reservation. Use isolated test profiles/stores and private sockets; no
+shared live user model. No builds/tests alongside timed D-72 measurements.
 
-Peer claims no ports, test servers or native/CUA use and will message before
-claiming them. Piping serializes native/CUA through its B3 manager; the correlated
-popup prototype currently owns that slot. Source/dist E2E reserve 5174/5175 via
-`with_e2e_lock.sh`, one Playwright worker. Tauri dev 5173, ROOT preview 5183/5184
-and canvas probes 5185/5186 require explicit reservation before use. Use isolated
-test profiles/stores and sockets; never share a live user model. Builds/tests
-must not overlap timed D-72 measurements. No Runtime native slot is implied.
+## Contract fit and corrections
 
-## Interface discussion, not a frozen integration contract
+The Rust operation engine and live controller are the right seam. However,
+`workspaceSession.ts:handleQueueOperationBatch` captures the basis at arrival
+and returns no receipt. Preserve a host-issued workspace generation, revision
+AND canonical hash from inspection through queue and human acceptance; a naive
+wrapper would silently rebase. Equal contents after Undo do not revive an old
+revision. Success must confirm the live model/history commit, not a detached
+engine result or scheduled React update.
 
-The shared Rust engine and live workspace controller are the right foundation.
-However, `workspaceSession.ts:handleQueueOperationBatch` captures the model at
-queue time and returns no receipt. A naive wrapper would silently rebase an
-older inspection. The adapter must preserve the issued workspace generation,
-revision and canonical hash through preview, queue and human acceptance. An
-equal hash after Undo does not restore the original revision or revive a stale
-proposal. Success must report a committed live-state/history receipt, not only
-the detached engine result or a scheduled React update.
+Both leads support the discussion sketch: inspect selection, preview operations,
+submit proposal and get proposal status. Human UI/controller acceptance applies
+changes. Submit returns a review ticket promptly; Piping retains proposal status
+beyond Runtime's transient call retention. Bound trusted context supplies workspace
+and caller identity; later selection cannot retarget a proposal. Deduplicate by
+proposal identity plus binding/invocation/caller context. Project switch, cancellation
+or Runtime restart must never replay an application.
 
-Proposed first tools, accepted as a discussion sketch by both leads:
+ROOT inspected the proposed generic contract at `da95ec194`; peer's independently
+backchecked cancellation repair `cb08dbe2f` leaves that API unchanged. PR824 merged
+at `21175b5d3668f29acd408812d95a33ed4f14bfc8`; ROOT fetched and verified that live
+main change touches only Runtime. This is the proposed pin for future adoption. See Runtime
+`docs/APPLICATION_TOOLS.md` and `packages/contracts/src/application-tools.ts`.
+Consumer-fit review found no substantive blocker; this is not Piping adoption.
+Peer reports401 Runtime tests plus focused repair/backcheck coverage; actual stock
+tool turns/resume/inheritance and SWBPIPE mutation remain unqualified.
 
-- `swbpipe_inspect_selection`: explicit object refs, bounded values/units,
-  host-issued basis token and capability/schema identity.
-- `swbpipe_preview_operations`: existing batch validation/diff; no live mutation.
-- `swbpipe_submit_proposal`: explicit queued/stale/cancelled/busy/unavailable
-  receipt, review ticket and trusted Runtime/thread/turn/call idempotency scope.
-- `swbpipe_get_proposal_status`: review state and actual live commit/refusal.
-
-Human UI/controller acceptance performs the change. No agent Apply tool in this
-first target. Later selection never retargets a submitted proposal. Project
-switch/reopen, cancellation and Runtime restart cannot replay an application.
-Runtime transports application schemas/results; Piping owns their semantics.
-
-Existing Runtime v1 session/turn/event/request APIs are usable building blocks,
-but the Electron launcher and Node client are not a Tauri host adapter. Piping
-still needs process packaging, private socket transport, lifecycle/recovery and
-effective-home configuration. Pin a reviewed Git revision, not just package
-version 0.1.0. Peer verified stock Codex 0.154.0 supplies dynamic tools only at
-thread start: catalog identity must persist across resume, an existing tool-free
-thread needs a new tool-enabled session, and descendant inheritance is not yet
-qualified. The baseline supervisor rejects dynamic calls; the peer's new work
-addresses that missing generic route.
-
-Offline proposal intake is local and author attribution is unverified. Runtime's
-legacy governance proposal envelope is not Piping's OperationBatch contract.
-Runtime permission approval is separate from the engineer's UI acceptance.
-Domain-route equivalence is not isolation from other user-configured Codex tools.
+Missing Piping work includes a Tauri process/private-socket adapter, packaging,
+lifecycle/recovery, effective-home configuration and controller handlers. Existing
+Electron launcher/Node client are not that adapter. Pin a reviewed Git revision.
+Pinned Codex0.154 catalogs are set at thread start, immutable across resume; the
+first target needs a fresh tool-enabled session. Start with the main HELP_HUMAN
+session until descendant inheritance is qualified. Offline intake is not live
+binding; submitted author metadata is untrusted. Runtime's legacy governance
+proposal envelope is not OperationBatch. Tool permission and model acceptance
+are distinct; domain-route equivalence does not isolate other user-enabled tools.
 
 ## Recommended order and first journey
 
-Continue B3; generic Runtime work may proceed independently under the peer's
-reported grant. Begin Piping adoption after B3, preferably after already-authorized
-B3A/B3B settle dirty/save/busy controller semantics. Agree the exact Runtime SHA,
-schema/basis/receipt contracts, failure behavior, scopes and resource slots before
-integration writes. Do not wait for the entire closing visual pass.
+Finish B3, preferably B3A/B3B dirty/save/busy behaviour, then an explicitly
+authorized Piping adoption/journey tranche. Agree exact Runtime revision,
+schemas/basis/receipts, failure behaviour, scopes and resource slots before writes.
+Do not wait for the whole closing visual pass. Peer acknowledged this sequence
+and is not scheduling Piping work.
 
-Refine the proposed journey to one supported load-magnitude update in an invented
-fixture: inspect selected load; preview without mutation; submit for human review;
-accept once; verify model, one history entry and Current-result invalidation;
-Undo and Redo without reviving Current results. Reject stale submissions both
-before arrival and after preview, including equal-hash-after-Undo; cover duplicate
-delivery, project switch and cancellation. Start with the main HELP_HUMAN session,
-not descendant tools. This target is recommended, not yet committed for execution.
+First target: one supported load-magnitude update in an invented fixture. Inspect,
+preview without mutation, submit, human accept once, verify value/history and
+Current-result invalidation, then Undo/Redo without reviving Current results.
+Reject stale-before-arrival and stale-after-preview, including equal-hash-after-Undo;
+cover duplicate delivery, project switch and cancellation. Recommended, not committed
+for execution. Prove this ad hoc journey before authoring reusable workflows.
 
-Piping live binding/adoption remains separately gated by D-58 / DEC-091 and
-DEC-042; this discussion does not lift those holds or add client status. Do not
-misread the historical no-network fence as a new residency approval requirement:
-DEC-051 and `docs/CONTRACT.md` OPS-K-PRIV-1 already permit owner-configured
-model-provider transmission without another app-side opt-in. Preserve that
-ruling, public-commit/IP boundaries and telemetry policy in any adoption proposal.
-No deliverable reconciliation or DAG rebuild is initiated.
+D-58/DEC-091 successor/client adoption and DEC-042 live-binding holds remain.
+DEC-051 and CONTRACT OPS-K-PRIV-1 already permit owner-configured provider
+transmission without another app-side consent/residency gate; preserve that ruling
+alongside public-commit/IP and telemetry boundaries. No reconciliation/DAG rebuild.
 
-Source basis: Piping `workspaceSession.ts`, `operationBatchService.ts`,
-`OfflineProposalIntakePanel.tsx`; Runtime `contracts/src/protocol.ts`,
-`client/src/client.ts`, `daemon/src/codex-supervisor.ts`; DEC-051, D-58 / DEC-091;
-peer's direct task replies. Source paths are under their project package roots;
-peer-reported host/schema details are identified above, not native Piping proof.
+Basis: named Git revisions; Piping workspaceSession, operationBatchService and
+OfflineProposalIntakePanel; Runtime contract/docs/supervisor; DEC-051, D-58/DEC-091;
+peer's acknowledged direct task replies. Peer test claims are identified as such.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

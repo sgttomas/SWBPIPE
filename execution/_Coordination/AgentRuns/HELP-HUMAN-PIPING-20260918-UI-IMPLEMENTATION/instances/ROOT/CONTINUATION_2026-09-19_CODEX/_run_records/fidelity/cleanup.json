@@ -1,0 +1,15 @@
+{
+  "lockExists": false,
+  "ports": {
+    "5183": {
+      "returncode": 1,
+      "output": ""
+    },
+    "5184": {
+      "returncode": 1,
+      "output": ""
+    }
+  },
+  "finalCandidate": "5ef9de29179a9b814da81d17c2774663404ac93d",
+  "distUnchanged": true
+}

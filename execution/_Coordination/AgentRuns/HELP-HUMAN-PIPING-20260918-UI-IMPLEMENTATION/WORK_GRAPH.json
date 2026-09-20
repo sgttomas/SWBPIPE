@@ -305,7 +305,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
-      "status": "Original accessibility findings independently closed through 1658a251. Product 2882acab9 adds predefined native text Undo/Redo; final uninstrumented confirmation pending. Failed DOM popup guard removed and preserved as evidence. Public AppKit signals support bounded isolated correlation prototype; no native popup bridge adopted. Final full lanes, native witness, independent backchecks, structure review, ROOT look, sweep and CI remain.",
+      "status": "Native text responders source-reviewed at 5ef9de291 and uninstrumented witness progressing on product2882. Native popup correlation prototype stopped without adoption after partial evidence; ROOT chose compact web-controlled inspector/routing selectors preserving Escape contract. Fresh Astra/low implementation and Astra/high structure review active. Final integrated checks/native/review/sweep/CI remain.",
       "dependsOn": [
         "B2F-B2G",
         "C1"
@@ -406,6 +406,12 @@
           "sha256": "174fe12bd21785297f4d4d91e14cc217bbd36bf884dae262fff7ef6be31418dd",
           "by": "ROOT; not owner ruling",
           "status": "directed; native proof pending"
+        },
+        {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_NATIVE_SELECT_DECISION.md",
+          "sha256": "9ff7e7f325def1ed4750c14c3b865a6875bc988368024c288cbb23b54f6d8563",
+          "by": "ROOT engineering disposition, not owner product ruling",
+          "status": "manager accepted; scoped implementation active"
         }
       ],
       "historicalBeforeCodex": {
@@ -457,19 +463,26 @@
         {
           "id": "N1",
           "what": "focused-input CmdZ preserves model but does not undo text",
-          "state": "A/B probe supports predefined responders; adopted at 2882acab9; final uninstrumented matrix pending"
+          "state": "Original missing-text-Undo diagnosis closed at demonstrated scope by independent evidence backcheck. Final rebuilt native matrix must include neutral model shortcuts with text redo available and pointer custom native model-menu commands. Earlier first-step/autocorrection/AX observations preserved."
         },
         {
           "id": "N2",
           "what": "first Escape from native select popup also closes inspector",
-          "state": "DOM-only observed-open guard failed silent same-value commits and was removed. Public AppKit lifecycle/action signals identified; isolated correlation prototype exposed overbroad window epoch, narrow correction authorized. No production bridge or repair pass."
+          "state": "Native observer prototype remains unadopted; evidence retained. ROOT selected bounded compact selector replacement for affected inspector/routing controls, preserving first-popup/later-inspector Escape semantics."
         },
         {
           "id": "N3",
           "what": "exact native inner/outer/minimum dimensions not yet observed; standard Inspector access attempts did not expose route",
           "state": "probe measured logical native window1280×800 and32px startup DOM-height delta; final uninstrumented confirmation remains; no800 CSS/D-72 claim"
         }
-      ]
+      ],
+      "rootNativeLook": {
+        "candidate": "2882acab94120cfa6c3c115ddb416a368cebd9cd",
+        "executableSha256": "1836d91ddbc5dd4809e53b12dde92c87fab587b8e9709e19fc920ec2e780af3a",
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ROOT_2882_NATIVE_LOOK.md",
+        "sha256": "7fd698cbc40d83208c5f0af4b5b86c686ba60bd55293c180bb4d76fd69bafdd5",
+        "result": "Original single-character native text Undo/Redo and repeated plain typing cases observed; both-theme structure and drawer clearance inspected. Independent N1 evidence backcheck supports repair, with two final-native coverage cases. Future compact/reset changes not covered."
+      }
     },
     "B3A": {
       "role": "slice",
@@ -755,8 +768,10 @@
           "role": "TASK Type 2",
           "model": "gpt-5.6-sol",
           "reasoning": "high",
-          "state": "running",
-          "evidenceOwner": "instances/B3-CODEX on shell lane"
+          "state": "completed original Sol/high assignment; final new native deployments use Astra/low",
+          "evidenceOwner": "instances/B3-CODEX on shell lane",
+          "return": "instances/B3-CODEX/native/RETURN.md",
+          "returnSha256": "4ff3ad284cbd5334f0fec2e9d1a06c7da514776cb8e65ecb3bea00bda3d0c4dd"
         },
         {
           "agent": "/root/b3_manager/shell_astra",
@@ -764,6 +779,15 @@
           "model": "gpt-6-astra",
           "reasoning": "high",
           "state": "completed and returned; earlier Astra/high substitution preserved, not a new deployment",
+          "evidenceOwner": "instances/B3-CODEX on shell lane"
+        },
+        {
+          "agent": "/root/b3_manager/compact_select",
+          "role": "TASK Type 2 compact selector component/tests",
+          "model": "gpt-6-astra",
+          "reasoning": "low",
+          "state": "launched; manager owns consumer/styles/test-navigation integration",
+          "briefSha256": "4feadbd69dfcf85265783ed7687148ae294959acec212891ed7159be6cba3eae",
           "evidenceOwner": "instances/B3-CODEX on shell lane"
         }
       ],
@@ -833,8 +857,13 @@
         "configuredModel": "gpt-6-astra",
         "configuredReasoning": "low",
         "briefSha256": "39d3b77d249b79887f36d38e6b61f78ceb81618179128fd63de20f55c9e8e250",
-        "state": "Space-open binding observed; process-global window epoch failed same-value commit. One narrow owning-window correction authorized; pointer ownership and remaining native matrix unproven. No production adoption.",
-        "evidenceOwner": "instances/B3-CODEX on shell lane"
+        "state": "completed partial proof; no production adoption. Scoped observer fix worked, but original post-close keydown interception and complete pointer/focus/duplicate-consumer native evidence remain unproved.",
+        "evidenceOwner": "instances/B3-CODEX on shell lane",
+        "return": "instances/B3-CODEX/_run_records/correlated-popup-prototype/RETURN.md",
+        "returnSha256": "fa844e4a373a603eb389be7bfd658423930c959107b759bb01b45e92bc108bfd",
+        "correctedReturn": "instances/B3-CODEX/_run_records/correlated-popup-prototype/CORRECTED_RETURN.md",
+        "correctedReturnSha256": "dc5ac88876b025224a28e64b4bee6df457ce3defd7b6ee4dc6f40cc36b188c16",
+        "addendum1Sha256": "1180e1595b4d6f7a857571171865c46031864dd1e1c342a03d63aa7de50d595f"
       }
     },
     "CONTINUATION-RECORDS-REVIEW": {
@@ -889,7 +918,42 @@
       "backcheckReturnSha256": "69b73e0e7e45504afc31ea361d48a5a07773800a3f729766269242ee39eb134f",
       "reviewedCandidate": "1658a2511e4e7527997bd3c0b0d3047f7287e3a4",
       "backcheck2Return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CODE_BACKCHECK_2_RETURN.md",
-      "backcheck2ReturnSha256": "4c31f2064ef5a80e08313c2aee8e91fcef0acbf05661cd3d77cfee34d6acae72"
+      "backcheck2ReturnSha256": "4c31f2064ef5a80e08313c2aee8e91fcef0acbf05661cd3d77cfee34d6acae72",
+      "nativeResponderBackcheck": {
+        "candidate": "5ef9de29179a9b814da81d17c2774663404ac93d",
+        "status": "source-review PASS; final native proof separately owed",
+        "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_NATIVE_RESPONDER_BACKCHECK_BRIEF.md",
+        "briefSha256": "ceb719566999d8f4c86e461fb9c75d3d4311e2d2ef6e5923612aef220290b060",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_NATIVE_RESPONDER_BACKCHECK_RETURN.md",
+        "returnSha256": "33cae97b9d90a8b73d9774b0dd8c3c4cad0c6c474da62aa7d919591f6b666204"
+      },
+      "n1NativeEvidenceBackcheck": {
+        "status": "Original N1 repair supported; two final-native coverage cases owed, no remaining product defect established",
+        "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_N1_NATIVE_EVIDENCE_BACKCHECK_BRIEF.md",
+        "briefSha256": "a646149aa58665fe2c741e1d967681599430b28f44ae4d569659f656c133b0b2",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_N1_NATIVE_EVIDENCE_BACKCHECK_RETURN.md",
+        "returnSha256": "5c14832c02c7ca1933565721f508b60f6545a997e8538539df683541bf74001b",
+        "suppliedPathCorrection": "Native return hash4ff3ad... is instances/B3-CODEX/native/RETURN.md; sealed brief incorrectly implied _run_records/native. Reviewer independently found and verified correct file; sealed bytes retained."
+      }
+    },
+    "B3-FIDELITY-CODEX": {
+      "role": "TASK Type 2 independent structure fidelity review",
+      "parent": "ROOT",
+      "configuredModel": "gpt-6-astra",
+      "configuredReasoning": "high",
+      "actualAgent": "/root/b3_fidelity_review",
+      "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
+      "candidate": "5ef9de29179a9b814da81d17c2774663404ac93d",
+      "status": "completed FINDINGS: one medium New Blank stage/view reset; manager repair has focused3pass, code/fidelity backcheck pending. Other checked structure held; compact-selector affected review remains.",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_FIDELITY_BRIEF.md",
+      "briefSha256": "7dfde495da628a4fc7c9a8b127e9602246f4e0675a2f0c2269556faff31eefb7",
+      "inputs": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/fidelity/INPUTS.json",
+      "inputsSha256": "dddfacc8b5bc5416504115f0c457a94ab32b901cc57a2ea95296b26d8e9fe81b",
+      "resources": "headless 5183/5184 under run lock; no native/CUA/foreground; manager acknowledged compatibility",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/fidelity/RETURN.md",
+      "returnSha256": "6aff563fee64f57ef4650e15c849aa3f40276ce8ef8af207e5115c36ebc78c14",
+      "artifactManifestSha256": "d6d55761b9dcef8a08edbefa395d847ff9a7c01262752f21865323c667a04506",
+      "rootValidation": "125 artifact hashes matched; reviewer reports40 screenshots; no native proof"
     }
   },
   "edges": [
@@ -1034,7 +1098,7 @@
       "B3-CODE-REVIEW"
     ]
   ],
-  "current_frontier": "Finish B3. Product 2882acab9 includes native text responders; select-popup Escape remains in isolated correlated-native prototype after failed DOM guard. Final native witness, repaired full lanes, code backcheck, structure review, ROOT look, clean sweep and CI remain. Runtime peer may advance disjoint generic mechanism under its reported owner grant; Piping integration is discussion only. No deliverable reconciliation or DAG rebuild.",
+  "current_frontier": "Finish B3. Compact web-controlled inspector/routing selectors now address native popup Escape ambiguity; failed native prototypes are retained and unadopted. Uninstrumented2882 unaffected native witness and frozen5ef structure review run in separate resources. Final integrated selector code/native/fidelity checks, full lanes, ROOT look, clean sweep and actual CI remain. Runtime generic mechanism is a separate peer PR; Piping integration remains discussion only. No reconciliation or DAG rebuild.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -1242,7 +1306,11 @@
     "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RUNTIME_COORDINATION_STATUS.md",
     "editor": "ROOT only",
     "peerThread": "01a07cd1-86da-7d30-9b17-e2cbbad3f10a",
-    "state": "discussion for Piping; peer reports separate owner grant for Runtime-only generic application tools; no Piping adoption or ownership transfer",
-    "originMainRevalidated": "485051eac923c759238948a54cd7bb094eee4899"
+    "state": "Runtime generic mechanism merged separately; Piping adoption/handler/live qualification remains pending, discussion only",
+    "originMainRevalidated": "21175b5d3668f29acd408812d95a33ed4f14bfc8",
+    "peerProposedContract": "cb08dbe2fbeaf5a34a0abfa2f1d599c7c5bd6b2f",
+    "peerPr": "https://github.com/sgttomas/chirality/pull/824",
+    "peerAcknowledgment": "Direct task reply acknowledged sole editor, disjoint scope, resources, DEC-051 correction and B3/B3A/B3B adoption sequence.",
+    "peerMerge": "21175b5d3668f29acd408812d95a33ed4f14bfc8"
   }
 }

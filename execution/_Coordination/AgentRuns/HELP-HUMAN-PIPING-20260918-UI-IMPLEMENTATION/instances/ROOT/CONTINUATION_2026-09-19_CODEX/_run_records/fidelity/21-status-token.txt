@@ -1,0 +1,70 @@
+File
+Edit
+View
+Insert
+Analyze
+SWBPIPE
+
+Invented Utility Loop Preview
+
+Select
+Table
+Model
+Both
+Run
+Issues
+36
+Inspector
+Agent
+Entered
+SI
+US
+Search or command…
+⌘K
+Model
+Loads
+Results
+Review
+Libraries
+Rules
+Issues
+36
+Report
+RENDERED REPORT (FR-016)
+Render report
+Include known private values in this local package
+Save Report Package…
+unit_system=unit-system:dec-018-si-dual-display; model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=MPa,N,N*m,N*m/rad,N/m,boolean,count,m,mm,mode_code,rad,state_code; conversion=false; source=renderable_report_input
+REPORT PACKET
+decisions=996; findings=996; blocked=false
+Details
+Local JSON
+14 refs; 34 diagnostics; no private payload
+
+Raw report DOM suppressed by redaction controls; the sanitized JSON packet is available above (996 redacted values).
+
+Uses invented or cleared preview data for project:invented-loop-01; private rule criteria are not bundled.
+REPORT CONTENT LINT
+decisions=921; findings=537; blocked=false
+Details
+Lint JSON
+available; targets=47; findings=0; blocking=0
+Scan scope
+explicit_public_surfaces; private=skip_unless_explicitly_authorized
+Fixture policy
+invented_synthetic_markers_only
+Clean scan
+clearance=false; heuristic_only=true
+Unit policy
+unit_targets=44; conversion_witness_targets=2; lint_conversion=false; source=public_surface_inventory
+Boundary
+legal=false; professional=false; ci=TBD; redaction=TBD
+Lint output is deterministic review evidence for public preview surfaces only.
+Agent
+Solver · Mechanics solved
+MECHANICS_SOLVED
+Solver
+Human · Human review required
+36 Issues
+node: node:N-100
+Entered

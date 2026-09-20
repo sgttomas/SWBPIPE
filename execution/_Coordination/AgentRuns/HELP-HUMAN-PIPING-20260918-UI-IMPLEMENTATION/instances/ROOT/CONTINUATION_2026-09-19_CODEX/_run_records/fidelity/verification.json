@@ -1,0 +1,293 @@
+{
+  "head": "5ef9de29179a9b814da81d17c2774663404ac93d",
+  "verification": [
+    {
+      "path": "AGENTS.md",
+      "expected": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b",
+      "actual": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b",
+      "match": true
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "expected": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "actual": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "expected": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005",
+      "actual": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "expected": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94",
+      "actual": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_FIDELITY_BRIEF.md",
+      "expected": "7dfde495da628a4fc7c9a8b127e9602246f4e0675a2f0c2269556faff31eefb7",
+      "actual": "7dfde495da628a4fc7c9a8b127e9602246f4e0675a2f0c2269556faff31eefb7",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md",
+      "expected": "5dc9bfbaefc2fb2de35b6145f23762900556723c67dba15bb843bc026f0aac1a",
+      "actual": "5dc9bfbaefc2fb2de35b6145f23762900556723c67dba15bb843bc026f0aac1a",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_APPROVAL.md",
+      "expected": "c13f02ac0b19ea1e1fae86ff89f90f9472f3bfb8ad93074b13db4504670321d9",
+      "actual": "c13f02ac0b19ea1e1fae86ff89f90f9472f3bfb8ad93074b13db4504670321d9",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/UX-SPEC/UX_SPEC_V1.md",
+      "expected": "2141c1e844109d4869287048c695e79677f423acae965d5dd0436b7f6aeff682",
+      "actual": "2141c1e844109d4869287048c695e79677f423acae965d5dd0436b7f6aeff682",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/MOCKS_V4.md",
+      "expected": "98da94b2dda5913eaec20ebc65e6de8ef981a460ad335a00e7c0f4d72dd80a10",
+      "actual": "98da94b2dda5913eaec20ebc65e6de8ef981a460ad335a00e7c0f4d72dd80a10",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/frames/s1_both_light.html",
+      "expected": "995bdb62b3fb4ba14a893cb49f1301f041314a6584d0f77e717b4d6a18904417",
+      "actual": "995bdb62b3fb4ba14a893cb49f1301f041314a6584d0f77e717b4d6a18904417",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/shots/s1_both_light.png",
+      "expected": "411ee69b116de024cce95ab7f3062f12790fccb32e56576333163524899a45dc",
+      "actual": "411ee69b116de024cce95ab7f3062f12790fccb32e56576333163524899a45dc",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/frames/s2_model_light.html",
+      "expected": "73af73c3fb5490aec8c9871dd6213b88bf3c9ec7f54cc731af6a882f67a5f238",
+      "actual": "73af73c3fb5490aec8c9871dd6213b88bf3c9ec7f54cc731af6a882f67a5f238",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/shots/s2_model_light.png",
+      "expected": "ebe1d0cd806e174e86e3201bd00065fc0afa27ed41847181daa544dfb0b6b502",
+      "actual": "ebe1d0cd806e174e86e3201bd00065fc0afa27ed41847181daa544dfb0b6b502",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/frames/s2_model_dark.html",
+      "expected": "0e26169631fa2d92e39d1aef8c2f59fd863724007b854874566c9df2fa0cacd9",
+      "actual": "0e26169631fa2d92e39d1aef8c2f59fd863724007b854874566c9df2fa0cacd9",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/shots/s2_model_dark.png",
+      "expected": "b63dfb8a1cb4c203a1b4832dbdb2b704ee5ce6258f9991983e20d2dbffdf94ae",
+      "actual": "b63dfb8a1cb4c203a1b4832dbdb2b704ee5ce6258f9991983e20d2dbffdf94ae",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/frames/s3_table_light.html",
+      "expected": "0fc7b447af94923a3e08718726dbfa1dc36f79ab2183cf7a92c6b5044c993706",
+      "actual": "0fc7b447af94923a3e08718726dbfa1dc36f79ab2183cf7a92c6b5044c993706",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/shots/s3_table_light.png",
+      "expected": "314a627f504c4b6dd2818b8c35020f33bca01e51509f98b491433f58c2157eb5",
+      "actual": "314a627f504c4b6dd2818b8c35020f33bca01e51509f98b491433f58c2157eb5",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/frames/s4_both_light.html",
+      "expected": "ea33eed6047565691f05b83e2959bb9db189007832fd8f0e9bc412faa69aa80e",
+      "actual": "ea33eed6047565691f05b83e2959bb9db189007832fd8f0e9bc412faa69aa80e",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/shots/s4_both_light.png",
+      "expected": "bd7d7b8622fe34ee5d4725556ab0689d94f5c99f5764cab53a3b16d2e449580f",
+      "actual": "bd7d7b8622fe34ee5d4725556ab0689d94f5c99f5764cab53a3b16d2e449580f",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/frames/s7_both_light.html",
+      "expected": "07de12dcbba5cc41906d852da18797a151a426fadb5d7fb752a6f433ba310629",
+      "actual": "07de12dcbba5cc41906d852da18797a151a426fadb5d7fb752a6f433ba310629",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/shots/s7_both_light.png",
+      "expected": "ebd8f62159f3af636600dc86a3bd91d2abf4af1ea1f5e662a0396ac9f54347c5",
+      "actual": "ebd8f62159f3af636600dc86a3bd91d2abf4af1ea1f5e662a0396ac9f54347c5",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/frames/s7_both_light_historical.html",
+      "expected": "54a9f7dc4b64a63bfc128693636d6c8cf4162643a47ca0ce907a62997ac64a0a",
+      "actual": "54a9f7dc4b64a63bfc128693636d6c8cf4162643a47ca0ce907a62997ac64a0a",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/shots/s7_both_light_historical.png",
+      "expected": "209c05acf659d39100a81883085da3423066d3707d90964f6f2c7f1325ef44e2",
+      "actual": "209c05acf659d39100a81883085da3423066d3707d90964f6f2c7f1325ef44e2",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/frames/s9_table_light.html",
+      "expected": "9939bf5832f7366e19d8ca800eb9ef8e0db19c07752311e59067a0d5c8b0f072",
+      "actual": "9939bf5832f7366e19d8ca800eb9ef8e0db19c07752311e59067a0d5c8b0f072",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/shots/s9_table_light.png",
+      "expected": "61ef7c23e3360d36cbc179807e67bf67a979785aeb095f83be351270d1f09642",
+      "actual": "61ef7c23e3360d36cbc179807e67bf67a979785aeb095f83be351270d1f09642",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/fidelity/build-5ef9de291.log",
+      "expected": "511be72bdfa818b043e5b3c628237cbe8d1a60a71b0b38612690920dbc78835d",
+      "actual": "511be72bdfa818b043e5b3c628237cbe8d1a60a71b0b38612690920dbc78835d",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/fidelity/DIST_SHA256.json",
+      "expected": "8398aacb28e61870d4df7b17491ebeddef2d50f11790c45f120111e570708655",
+      "actual": "8398aacb28e61870d4df7b17491ebeddef2d50f11790c45f120111e570708655",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/assets/index-BHIrU4C7.js",
+      "expected": "2083b34b6a3d9f04eef47ffc3e49e675e7b3f122bd8b5f50e1969310527bf1b3",
+      "actual": "2083b34b6a3d9f04eef47ffc3e49e675e7b3f122bd8b5f50e1969310527bf1b3",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/assets/index-BtF7cOwb.css",
+      "expected": "5f43a91f508169341740092f1c29122822c328c7ac5d2105edec8b2dec799098",
+      "actual": "5f43a91f508169341740092f1c29122822c328c7ac5d2105edec8b2dec799098",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/assets/invented_agent_proposal-Bm57LVt-.js",
+      "expected": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c",
+      "actual": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/assets/invented_demo_rule_pack-dhX9tvT1.js",
+      "expected": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a",
+      "actual": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/assets/invented_design_knowledge-H12r-oKQ.js",
+      "expected": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040",
+      "actual": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/assets/invented_mechanics_result-CleTy2JL.js",
+      "expected": "493050a50b346dd1c53de6481da58d3c33d3302c0308f17b49e60584a233be4d",
+      "actual": "493050a50b346dd1c53de6481da58d3c33d3302c0308f17b49e60584a233be4d",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/assets/invented_preview_model-pJA3_nB8.js",
+      "expected": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a",
+      "actual": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/assets/vendor-7OC5HNn7.js",
+      "expected": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76",
+      "actual": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/assets/vendor-icons-BjC2kMFO.js",
+      "expected": "c16587f1d30af87974f04473da4620f1eb7bfc4f592da3d8a78c8320b0c50733",
+      "actual": "c16587f1d30af87974f04473da4620f1eb7bfc4f592da3d8a78c8320b0c50733",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/assets/vendor-react-u0ysdD_x.js",
+      "expected": "63fc4459119f62f88e22f9114753605a94dc4fb8a870ffca75648df4c68f8901",
+      "actual": "63fc4459119f62f88e22f9114753605a94dc4fb8a870ffca75648df4c68f8901",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/assets/vendor-tauri-DlQNAQKj.js",
+      "expected": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73",
+      "actual": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/assets/vendor-three-hE6SPF4C.js",
+      "expected": "b46ab73b7015fd1a115511a32fccdc8ea9dab4f93f5f0a8f952aecd0e628a834",
+      "actual": "b46ab73b7015fd1a115511a32fccdc8ea9dab4f93f5f0a8f952aecd0e628a834",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/index.html",
+      "expected": "24eb42870a05c8deaa4a67b092a666db39b49a583fae2d171dc911c7266eeaa9",
+      "actual": "24eb42870a05c8deaa4a67b092a666db39b49a583fae2d171dc911c7266eeaa9",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "expected": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+      "actual": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "expected": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+      "actual": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "expected": "2f5098f005e0ef4e1e80534ef959dd15215bccd1c2489276eea7c1d9aafc72b6",
+      "actual": "2f5098f005e0ef4e1e80534ef959dd15215bccd1c2489276eea7c1d9aafc72b6",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "expected": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+      "actual": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "expected": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8",
+      "actual": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.js",
+      "expected": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+      "actual": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "expected": "dcc6e848ef1a2a02cc99ebd256a44fab52a98e12cdf206a842ebf82bb832e946",
+      "actual": "dcc6e848ef1a2a02cc99ebd256a44fab52a98e12cdf206a842ebf82bb832e946",
+      "match": true
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "expected": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16",
+      "actual": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16",
+      "match": true
+    }
+  ]
+}
