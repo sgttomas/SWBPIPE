@@ -3858,7 +3858,7 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .shell-both-splitter::after { content: ""; position: absolute; inset: 0 11px; background: transparent; }
 .app-shell .shell-both-splitter:hover::after, .app-shell .shell-both-splitter:focus-visible::after { background: var(--ui-accent); }
 .app-shell .shell-surfaces:not([data-view="both"]) .shell-both-splitter { display: none; }
-.app-shell .shell-drawer-splitter { position: absolute; z-index: 35; left: 0; right: var(--layout-inspector-model); bottom: var(--shell-rendered-drawer); flex: none; width: auto; height: 24px; min-height: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: row-resize; }
+.app-shell .shell-drawer-splitter { position: absolute; z-index: 35; left: 0; right: var(--layout-inspector-model); bottom: calc(var(--shell-rendered-drawer) - 24px); flex: none; width: auto; height: 24px; min-height: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: row-resize; }
 .app-shell .shell-drawer-splitter::after { content: ""; position: absolute; inset: 22px 0 0; background: transparent; }
 .app-shell .shell-drawer-splitter:hover::after, .app-shell .shell-drawer-splitter:focus-visible::after { background: var(--ui-accent); }
 .app-shell .shell-surfaces:not([data-view="model"]) .shell-drawer-splitter, .app-shell .shell-surfaces.tree-collapsed .shell-drawer-splitter { display: none; }
@@ -3913,7 +3913,7 @@ body { min-width: 760px; min-height: 540px; }
 
 /* The collapsed strip is an overlay: readout and passive canvas furniture lift
    without subtracting the strip from the drawn canvas. */
-.app-shell .viewport-measurement-strip { position: relative; bottom: var(--viewport-presentation-bottom-inset, 0px); }
+.app-shell .viewport-measurement-strip { position: relative; z-index: 2; bottom: var(--viewport-presentation-bottom-inset, 0px); }
 .app-shell .shell-routing-panel:empty { display: none; }
 .app-shell .shell-routing-panel > .viewport-intents { display: none; }
 .app-shell .shell-routing-panel > .viewport-intents.active { display: block; position: static; width: auto; min-width: 0; padding: var(--space-4); border-bottom: 1px solid var(--ui-divider); }
@@ -3925,3 +3925,15 @@ body { min-width: 760px; min-height: 540px; }
 @media (max-width: 1279px) {
   .app-shell .shell-surfaces[data-view="both"].tree-collapsed { grid-template-rows: minmax(0, 1fr) var(--shell-tab-strip); }
 }
+
+/* Keep the expanded drawer's resize hit target inside its own reserved header
+   area, so it cannot intercept the viewport measurement readout above it. */
+.app-shell .shell-surfaces[data-view="model"]:not(.tree-collapsed) .shell-table-pane { padding-top: 24px; }
+@media (max-width: 1279px) {
+  .app-shell .shell-surfaces[data-view="both"]:not(.tree-collapsed) .shell-table-pane { padding-top: 24px; }
+}
+/* Portalled routing and properties share the inspector's finite height. Each
+   owns its scrolling, so a long routing form remains inside the pane. */
+.app-shell .shell-routing-panel { display: contents; }
+.app-shell .shell-routing-panel > .viewport-intents.active { flex: 1 1 auto; min-height: 0; overflow: auto; }
+.app-shell .workspace-pane-inspector:has(.viewport-intents.active) > .panel { flex: 1 1 auto; min-height: 0; overflow: auto; }

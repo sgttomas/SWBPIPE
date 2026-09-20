@@ -726,6 +726,7 @@ for (const theme of APPEARANCE_THEMES) {
             };
           });
           evidence.push({ phase, geometry });
+          await testInfo.attach(`canvas-budget-${phase.replace(/[^a-z0-9]+/gi, "-")}`, { body: JSON.stringify(geometry, null, 2), contentType: "application/json" });
           expect(geometry.canvas.width, `${phase} canvas width`).toBeGreaterThanOrEqual(200);
           expect(geometry.canvas.height, `${phase} canvas height`).toBeGreaterThanOrEqual(200);
           expect(geometry.canvas.x).toBeGreaterThanOrEqual(0);
@@ -782,6 +783,8 @@ for (const theme of APPEARANCE_THEMES) {
             await expect(control).toBeFocused();
           }
         }
+        // Routing now lives in the inspector; reopen its home after checking the viewport toolbar.
+        await ensureRail(page, "inspector", true);
         await page.getByTestId("cancel-pipe-draft").scrollIntoViewIfNeeded();
         await page.getByTestId("cancel-pipe-draft").focus();
         await expect(page.getByTestId("cancel-pipe-draft")).toBeFocused();

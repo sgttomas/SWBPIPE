@@ -5,6 +5,7 @@ import {
   expectStatusChip,
   expectTreeEntity,
   expectTreeEntityMissing,
+  ensureInspectorExpanded,
   expectVirtualTarget,
   openWorkspaceSection,
   projectCommand,
@@ -162,6 +163,8 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await openWorkspaceSection(page, "operations");
   await expect(page.getByTestId("operation-applied-ledger")).toContainText("Applied through local_wasm_engine");
   await closeWorkspacePanels(page);
+  // Return from the table to the routing panel's inspector home.
+  await ensureInspectorExpanded(page);
   await expectVirtualTarget(page, "viewport-create-pipe-from", "node:UI-A-110");
   await expect(page.getByRole("radio", { name: "New node", exact: true })).toBeChecked();
   await expect(page.getByTestId("viewport-routing-plane")).toHaveValue("XZ");

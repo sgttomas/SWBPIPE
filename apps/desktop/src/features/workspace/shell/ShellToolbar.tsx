@@ -71,8 +71,8 @@ export function ShellToolbar({ issueCount, children }: { issueCount: number; chi
         <p className="shell-project-name" data-testid="toolbar-project-name" title={projectName}>{projectName}</p>
       </div>
       <div className="shell-toolbar-group" role="group" aria-label="Editing tools">
-        <button type="button" className="shell-icon-button" data-testid="workspace-undo" aria-label="Undo model edit" disabled={!canUndo} onClick={handleUndoSessionModelEdit} title={canUndo ? "Undo" : "Nothing to undo"}><Undo2 size={16} aria-hidden="true" /></button>
-        <button type="button" className="shell-icon-button" data-testid="workspace-redo" aria-label="Redo model edit" disabled={!canRedo} onClick={handleRedoSessionModelEdit} title={canRedo ? "Redo" : "Nothing to redo"}><Redo2 size={16} aria-hidden="true" /></button>
+        <button type="button" className="shell-icon-button" data-testid="workspace-undo" aria-label="Undo model edit" disabled={!canUndo} onClick={handleUndoSessionModelEdit} title={canUndo ? "Undo (⌘Z)" : "Nothing to undo"}><Undo2 size={16} aria-hidden="true" /></button>
+        <button type="button" className="shell-icon-button" data-testid="workspace-redo" aria-label="Redo model edit" disabled={!canRedo} onClick={handleRedoSessionModelEdit} title={canRedo ? "Redo (⇧⌘Z)" : "Nothing to redo"}><Redo2 size={16} aria-hidden="true" /></button>
         <button type="button" className="shell-icon-button shell-select-tool" data-testid="workspace-select" aria-pressed={armedCreationTool === null} onClick={() => handleArmCreationTool(null)} title="Select (⎋)"><MousePointer2 size={16} aria-hidden="true" /><span className="shell-toolbar-label">Select</span></button>
       </div>
       <div className="shell-view-switch" role="group" aria-label="View">

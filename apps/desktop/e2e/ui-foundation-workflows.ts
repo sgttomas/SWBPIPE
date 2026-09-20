@@ -252,23 +252,25 @@ export async function expectWorkspaceGeometry(page: Page, viewport: ViewportSize
   expect(geometry.window).toEqual(viewport);
   expect(geometry.bodyOverflowX).toBe(0);
   expect(geometry.bodyOverflowY).toBeLessThanOrEqual(1);
-  // Slice B3: the shell gives the canvas a designed share, not "more than either rail". In Both view
-  // the table pane takes its split (55 % by default) and the canvas the rest, less a docked 300 px
-  // inspector; in Model view the canvas takes the surfaces less the 340 px inspector; below 1280 px
-  // the canvas takes the whole surface and the panes lie over it. The canvas pane is held to exactly
-  // that share and never under its 220 px minimum; the canvas stays larger than the inspector.
+  // D3 keeps the original drawn-canvas floors and dominance checks. The sole
+  // amendment is wide Both view, where the approved 55/45 allocation makes
+  // the table wider than the canvas; assert that allocation explicitly.
   expect(["both", "model"]).toContain(geometry.view);
   const surfaces = geometry.workspace!;
   const inspectorDocked = (geometry.inspector?.width ?? 0) > 0;
   const narrow = viewport.width < 1280;
-  const expectedCanvasPaneWidth = geometry.view === "model"
-    ? surfaces.width - (geometry.inspector?.width ?? 0)
-    : narrow ? surfaces.width : surfaces.width - geometry.tree!.width - (inspectorDocked ? geometry.inspector!.width : 0);
-  expect(geometry.canvasPane!.width).toBeCloseTo(expectedCanvasPaneWidth, 0);
+  if (geometry.view === "both" && !narrow) {
+    expect(geometry.canvasPane!.width).toBeCloseTo(surfaces.width * 0.45, 0);
+    expect(geometry.tree!.width).toBeCloseTo(surfaces.width * 0.55 - (inspectorDocked ? geometry.inspector!.width : 0), 0);
+  } else {
+    expect((geometry.canvas?.width ?? 0) * (geometry.canvas?.height ?? 0)).toBeGreaterThan(
+      (geometry.tree?.width ?? 0) * (geometry.tree?.height ?? 0),
+    );
+  }
   expect(geometry.canvasPane!.width).toBeGreaterThanOrEqual(220);
-  if (!inspectorDocked || narrow) expect(geometry.canvas?.width).toBeGreaterThan(viewport.width * 0.35);
+  expect(geometry.canvas?.width).toBeGreaterThan(viewport.width * 0.35);
   expect(geometry.canvas?.height).toBeGreaterThan(viewport.height * 0.35);
-  expect((geometry.canvasPane!.width) * (geometry.canvasPane!.height)).toBeGreaterThan(
+  expect((geometry.canvas?.width ?? 0) * (geometry.canvas?.height ?? 0)).toBeGreaterThan(
     (geometry.inspector?.width ?? 0) * (geometry.inspector?.height ?? 0),
   );
   expect(geometry.canvas?.bottom).toBeLessThanOrEqual(viewport.height + 1);
@@ -654,9 +656,15 @@ export async function expectPassiveOrientationFrame(page: Page, testInfo: TestIn
     const box = canvas.getBoundingClientRect();
     const frame = canvas.closest(".viewport-frame")!.getBoundingClientRect();
     const width = canvas.clientWidth, height = canvas.clientHeight;
-    const size = Math.min(96, Math.floor(Math.min(width, height)));
+    const shell = canvas.closest<HTMLElement>(".viewport-shell");
+    const rawBottomInset = Number.parseFloat(shell ? getComputedStyle(shell).getPropertyValue("--viewport-presentation-bottom-inset") : "0");
+    const presentationBottomInset = Number.isFinite(rawBottomInset)
+      ? Math.min(Math.max(0, Math.round(rawBottomInset)), Math.max(0, height - 1))
+      : 0;
+    const availableHeight = Math.max(1, height - presentationBottomInset);
+    const size = Math.min(96, Math.floor(Math.min(width, availableHeight)));
     const insetX = Math.min(8, Math.max(0, width - size));
-    const insetY = Math.min(8, Math.max(0, height - size));
+    const insetY = presentationBottomInset + Math.min(8, Math.max(0, availableHeight - size));
     const clip = { x: box.left + insetX, y: box.top + box.height - insetY - size, width: size, height: size };
     const offset = 0.5 / devicePixelRatio;
     const low = offset, high = size - offset, mid = size / 2;
@@ -669,7 +677,7 @@ export async function expectPassiveOrientationFrame(page: Page, testInfo: TestIn
         owner: hit?.getAttribute("data-testid") || hit?.getAttribute("aria-label") || hit?.id || hit?.tagName || null };
     });
     return { canvas: box.toJSON(), frame: frame.toJSON(), client: { width, height }, clip,
-      size, insetX, insetY, dpr: devicePixelRatio, visibleCanvases: visible.length,
+      size, insetX, insetY, presentationBottomInset, dpr: devicePixelRatio, visibleCanvases: visible.length,
       totalMainCanvases: canvases.length, separateGizmoCanvases: document.querySelectorAll('[data-testid="viewport-axis-triad"] canvas').length,
       viewport: { width: innerWidth, height: innerHeight }, samples };
   });

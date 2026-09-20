@@ -69,7 +69,7 @@ export async function showModelTree(page: Page): Promise<void> {
   await expect(host).toBeVisible();
 }
 
-/** Close the Both view's docked inspector, which takes its 300 px from the canvas. */
+/** Close the Both view inspector (table-first lending when docked, slide-over when narrow). */
 export async function ensureInspectorCollapsed(page: Page): Promise<void> {
   const toggle = page.getByTestId("toggle-inspector");
   if (await toggle.getAttribute("aria-disabled") !== "true" && await toggle.getAttribute("aria-expanded") === "true") await toggle.click();
@@ -92,7 +92,14 @@ export async function ensureInspectorExpanded(page: Page): Promise<void> {
 
 async function ensureRailExpanded(page: Page, testId: "toggle-tree" | "toggle-inspector"): Promise<void> {
   const toggle = page.getByTestId(testId);
-  if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
+  if (await toggle.getAttribute("aria-expanded") !== "true") {
+    // The narrow inspector overlays the table chevron. Close it through its
+    // toolbar control before the pointer opens the table's successor drawer.
+    if (testId === "toggle-tree" && (page.viewportSize()?.width ?? Infinity) < 1280) {
+      await ensureInspectorCollapsed(page);
+    }
+    await toggle.click();
+  }
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
 }
 

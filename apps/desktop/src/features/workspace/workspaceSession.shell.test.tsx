@@ -253,3 +253,59 @@ describe("WorkspaceSessionContext", () => {
     quiet.mockRestore();
   });
 });
+
+
+it("webview history accelerators use one checkpoint route in both runtimes and preserve text undo", async () => {
+  const { result } = await readySession();
+  const key = (shiftKey = false, altKey = false) => {
+    const event = new KeyboardEvent("keydown", { key: "z", metaKey: true, shiftKey, altKey, cancelable: true });
+    act(() => window.dispatchEvent(event));
+    return event;
+  };
+  expect(key().defaultPrevented).toBe(false);
+  expect(key(true).defaultPrevented).toBe(false);
+  const basis = result.current.model.model!;
+  const intent = makeRichIntent({ object_type: "Node", ref: basis.nodes[0].id }, "set_field", "position.x", String(basis.nodes[0].position.x), basis.nodes[0].position.x + 0.25, "X coordinate");
+  intent.change.unit = basis.project.units.length;
+  intent.change.dimension = "length";
+  await act(async () => { expect(await result.current.operations.handleApplyIntent(intent)).toBe(true); });
+  await waitFor(() => expect(result.current.operations.undoStack).toHaveLength(1));
+  const edited = result.current.model.model!;
+  expect(key(false, true).defaultPrevented).toBe(false);
+  const consumed = new KeyboardEvent("keydown", { key: "z", metaKey: true, cancelable: true });
+  consumed.preventDefault();
+  act(() => window.dispatchEvent(consumed));
+  expect(result.current.model.model).toBe(edited);
+  for (const tag of ["input", "textarea", "div"]) {
+    const editing = document.createElement(tag);
+    if (tag === "div") editing.setAttribute("contenteditable", "true");
+    document.body.append(editing);
+    editing.focus();
+    for (const shiftKey of [false, true]) {
+      const event = new KeyboardEvent("keydown", { key: "z", metaKey: true, shiftKey, cancelable: true, bubbles: true });
+      act(() => editing.dispatchEvent(event));
+      expect(event.defaultPrevented).toBe(false);
+      expect(result.current.model.model).toBe(edited);
+    }
+    editing.remove();
+  }
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  const nativeText = document.createElement("input");
+  document.body.append(nativeText);
+  nativeText.focus();
+  const nativeTextUndo = new KeyboardEvent("keydown", { key: "z", metaKey: true, cancelable: true, bubbles: true });
+  act(() => nativeText.dispatchEvent(nativeTextUndo));
+  expect(nativeTextUndo.defaultPrevented).toBe(false);
+  expect(result.current.model.model).toBe(edited);
+  nativeText.remove();
+  expect(key().defaultPrevented).toBe(true);
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+  expect(result.current.operations.undoStack).toHaveLength(0);
+  expect(result.current.operations.redoStack).toHaveLength(1);
+  expect(result.current.model.model!.nodes[0].position.x).toBe(basis.nodes[0].position.x);
+  expect(key(true).defaultPrevented).toBe(true);
+  expect(result.current.operations.undoStack).toHaveLength(1);
+  expect(result.current.operations.redoStack).toHaveLength(0);
+  expect(result.current.model.model!.nodes[0].position.x).toBe(edited.nodes[0].position.x);
+  expect(key(true).defaultPrevented).toBe(false);
+});

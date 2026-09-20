@@ -341,7 +341,7 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
         await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
         await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
         await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=830");
-        await page.getByTestId("workspace-dock-close").click();
+        await showModelTree(page);
       }
       const pipe = model.pipe_segments[0];
       await selectTreeRow(page, "pipe", pipe.id);
@@ -356,13 +356,16 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
       const target = page.getByRole("button", { name: `Select ${pipe.label} in viewport`, exact: true });
       const readSizes = () => page.evaluate(() => {
         const preferences = JSON.parse(localStorage.getItem("chirality.desktop.ui-preferences.v1")!);
-        return { left: preferences.leftRailPx, right: preferences.rightRailPx, dock: preferences.dockPx };
+        return { bothSplitPct: preferences.bothSplitPct, tableDrawerPx: preferences.tableDrawerPx };
       });
       for (const section of content === "regular" ? ["operations", "results"] as const : ["operations"] as const) {
         for (const desired of [180, 600]) {
+          // Open the drawer before the section helper asserts its content is visible.
+          await ensureRail(page, "tree", true);
           await openWorkspaceSection(page, section);
-          const dock = page.getByTestId("workspace-dock");
-          await expect(dock).not.toHaveClass(/collapsed/);
+          const dock = page.locator(".workspace-pane-tree");
+          const drawerToggle = page.getByTestId("toggle-tree");
+          await expect(drawerToggle).toHaveAttribute("aria-expanded", "true");
           if (section === "results") await expect(page.getByTestId("result-group-displacement")).toBeVisible();
           const splitter = page.getByTestId("resize-task-dock");
           await splitter.focus();
@@ -373,7 +376,7 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
           await expect(splitter).toHaveAttribute("aria-valuenow", String(desired));
           const saved = await readSizes();
           for (const state of ["open", "closed"] as const) {
-            if (state === "closed") await page.getByTestId("workspace-dock-close").click();
+            if (state === "closed") await drawerToggle.click();
             const name = `budget-${theme}-${density}-${content}-${section}-${desired}-${state}`;
             try {
               await expect.poll(async () => (await page.getByTestId("viewport-canvas").locator("canvas").boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(200);
@@ -391,10 +394,10 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
               await target.focus(); await expect(target).toBeFocused();
               await expectCenterUnobscured(target, { minimumTarget: true });
               if (state === "open") {
-                await expect(dock).not.toHaveClass(/collapsed/);
+                await expect(drawerToggle).toHaveAttribute("aria-expanded", "true");
                 await expectCenterUnobscured(splitter, { minimumTarget: true });
-                await expectCenterUnobscured(page.getByTestId("workspace-dock-close"), { minimumTarget: true });
-                const body = page.locator(".workspace-dock-body");
+                await expectCenterUnobscured(drawerToggle, { minimumTarget: true });
+                const body = dock.locator(".workspace-dock-body");
                 if (section === "operations") {
                   const tab = page.getByTestId("operation-tab-geometry");
                   await tab.scrollIntoViewIfNeeded(); await tab.focus();
@@ -477,7 +480,7 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
                     scrollTop: await body.evaluate((element) => element.scrollTop), activeTab: "Review changes",
                   }), contentType: "application/json" });
                 }
-              } else await expect(dock).toHaveClass(/collapsed/);
+              } else await expect(drawerToggle).toHaveAttribute("aria-expanded", "false");
               expect(await readSizes()).toEqual(saved);
               await expect(inspector.getByTestId("inspector-frozen-task-target")).toContainText(`pipe: ${pipe.id}`);
               await expect(inspector.getByTestId("editor-intent-value")).toHaveValue(`Retained ${content} measurement task`);
@@ -488,7 +491,7 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
                 const rect = (selector: string) => document.querySelector(selector)?.getBoundingClientRect().toJSON();
                 return { canvas: rect('[data-testid="viewport-canvas"] canvas'), command: rect(".command-bar"),
                   toolbar: rect(".viewport-toolbar"), measurement: rect(".viewport-measurement-strip"),
-                  dock: rect(".workspace-dock"), body: rect(".workspace-dock-body"),
+                  dock: rect(".workspace-pane-tree"), body: rect(".workspace-pane-tree .workspace-dock-body"),
                   reserve: document.querySelector<HTMLElement>(".workspace")?.style.getPropertyValue("--workspace-modeling-reserve"),
                   overflowX: document.documentElement.scrollWidth - innerWidth,
                   overflowY: document.documentElement.scrollHeight - innerHeight };
@@ -1285,12 +1288,15 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
           children: assignment ? [...assignment.querySelectorAll<HTMLElement>("p, select, button")].map((element) => ({ tag: element.tagName, text: element.textContent, rect: element.getBoundingClientRect().toJSON(), overflow: element.scrollWidth - element.clientWidth })) : [] };
       });
       const check = async (splitPct: number, label: string) => {
-        const tableWidth = Math.round(surfaceWidth * splitPct / 100);
+        const closedTableWidth = Math.min(Math.round(surfaceWidth * splitPct / 100), surfaceWidth - 220);
+        const lent = Math.max(0, Math.min(300, closedTableWidth - 320));
+        const tableWidth = closedTableWidth - lent;
         await expect.poll(async () => Math.round((await readShellGeometry(page)).tablePane!.width)).toBe(tableWidth);
         const geometry = await readShellGeometry(page);
         witnesses.push({ label, ...geometry });
         expect(geometry.pageOverflow).toBeLessThanOrEqual(1);
-        // The inspector is 300 px and the canvas takes what is left; the table never gives way to the inspector.
+        // D2: the inspector borrows from the closed table split down to 320 px,
+        // then consumes canvas width down to its 220 px minimum.
         expect(Math.round(geometry.inspector!.width)).toBe(300);
         expect(Math.round(geometry.canvasPane!.width)).toBe(surfaceWidth - tableWidth - 300);
         expect(geometry.canvasPane!.width).toBeGreaterThanOrEqual(220);
@@ -1314,7 +1320,8 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
         await page.mouse.move(box.x + box.width / 2 + dx, box.y + box.height / 2 + dy, { steps: 8 }); await page.mouse.up();
       };
       const initial = await check(55, "default split");
-      // A drag of one tenth of the surface moves the split ten points; the canvas gives exactly what the table takes.
+      // A drag changes the stored closed split. The open layout applies D2's
+      // lending rule while keeping the stored percentage unchanged.
       await drag("resize-model-tree", -Math.round(surfaceWidth / 10)); const narrower = await check(45, "pointer, table narrower");
       expect(narrower.canvasPane!.width - initial.canvasPane!.width).toBeCloseTo(initial.tablePane!.width - narrower.tablePane!.width, 0);
       for (const preset of ["Front", "Top", "Isometric"]) {
@@ -1383,14 +1390,14 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
   }
 }
 
-test("below 1280 px the table drawer and the inspector lie over the canvas, keep its geometry, and return focus to their openers", async ({ page }, testInfo) => {
+test("below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 920 });
   await gotoRoutedFixture(page, "ui-foundation-1000.model.json");
   await page.getByTestId("resize-model-tree").focus(); await page.keyboard.press("ArrowRight");
   await page.setViewportSize({ width: 1024, height: 768 });
   await ensureRail(page, "tree", false); await ensureRail(page, "inspector", false);
   const before = await readShellGeometry(page);
-  // The narrow fallback: the canvas takes the surface; the table pane is its 28 px strip at the foot.
+  // Collapsed, the 28 px strip overlays the canvas foot.
   expect(before.canvasPane).toEqual(before.surfaces);
   expect(Math.round(before.tablePane!.height)).toBe(28);
   expect(before.inspector).toBeNull();
@@ -1400,11 +1407,21 @@ test("below 1280 px the table drawer and the inspector lie over the canvas, keep
     if (side === "tree") {
       expect(Math.round(during.tablePane!.height)).toBe(280);
       expect(Math.round(during.tablePane!.width)).toBe(Math.round(during.surfaces!.width));
+      expect(Math.round(during.canvasPane!.height + during.tablePane!.height)).toBe(Math.round(during.surfaces!.height));
+      await expect(page.getByTestId("resize-task-dock")).toBeVisible();
+      const drawerSplitter = (await page.getByTestId("resize-task-dock").boundingBox())!;
+      expect(drawerSplitter.height).toBe(24);
+      await page.getByTestId("resize-task-dock").focus();
+      for (let press = 0; press < 12; press += 1) await page.keyboard.press("ArrowDown");
+      await expect(page.getByTestId("resize-task-dock")).toHaveAttribute("aria-valuenow", "180");
+      for (let press = 0; press < 30; press += 1) await page.keyboard.press("ArrowUp");
+      await expect(page.getByTestId("resize-task-dock")).toHaveAttribute("aria-valuenow", "600");
+      expect((await readShellGeometry(page)).stored.tableDrawerPx).toBe(600);
     } else {
       expect(Math.round(during.inspector!.width)).toBe(300);
       expect(Math.round(during.inspector!.x + during.inspector!.width)).toBe(Math.round(during.surfaces!.x + during.surfaces!.width));
     }
-    expect(during.canvasPane).toEqual(before.canvasPane);
+    if (side === "inspector") expect(during.canvasPane).toEqual(before.canvasPane);
     expect(during.pageOverflow).toBeLessThanOrEqual(1);
     await expect(page.getByTestId("resize-model-tree")).toBeHidden();
     const control = side === "tree" ? page.getByTestId("model-tree-filter-input") : page.getByTestId("property-inspector").getByRole("tab", { name: "Task", exact: true });

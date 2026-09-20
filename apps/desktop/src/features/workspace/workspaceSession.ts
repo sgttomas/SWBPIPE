@@ -1842,7 +1842,11 @@ export function useWorkspaceSession() {
         view: "properties",
         focusTestId: "create-support-id"
       });
-    } else exposeViewportForNarrowInteraction(`authoring-${tool}`);
+    } else {
+      exposeViewportForNarrowInteraction(`authoring-${tool}`);
+      // Re-selecting an armed routing tool also reveals its inspector home.
+      setInspectorCollapsed(false);
+    }
   }
 
   function handleToolkitCommand(capability: ToolkitCapability) {
@@ -1862,7 +1866,12 @@ export function useWorkspaceSession() {
       routingInspectorRestore.current = inspectorCollapsed;
     }
     setArmedCreationTool(route.tool ?? null);
-    if (route.tool && route.surface === "viewport") exposeViewportForNarrowInteraction(`authoring-${route.tool}`);
+    if (route.tool && route.surface === "viewport") {
+      exposeViewportForNarrowInteraction(`authoring-${route.tool}`);
+      // Commit visibility with the focus request. A later auto-open effect is
+      // too late for a browser to focus a control in the hidden inspector.
+      if (route.tool === "node" || route.tool === "pipe" || route.tool === "component") setInspectorCollapsed(false);
+    }
     if (route.surface === "operations") {
       const tabs: Record<string, string> = { "geometry-tools": "geometry", "boundary-authoring": "supports", "hanger-selection": "supports", "self-weight-plan": "weight", "offline-proposal-intake": "agent" };
       setOperationTab(tabs[route.elementId ?? ""] ?? "review");
@@ -2207,8 +2216,8 @@ export function useWorkspaceSession() {
     _interaction: ViewportExposureInteraction | `authoring-${CreationTool}`
   ) {
     if (window.innerWidth >= 1280) return;
-    // Below 1280 px the table pane and the inspector lie over the canvas. Their
-    // mounted children and drafts remain alive; only their exposure changes.
+    // Below 1280 px the table drawer is in flow and the inspector slides over
+    // the canvas. Mounted children and drafts remain alive as exposure changes.
     // A page over the stage closes onto it; the stage itself is never left.
     closeWorkspaceRail("tree");
     closeWorkspaceRail("inspector");
@@ -2268,16 +2277,33 @@ export function useWorkspaceSession() {
     setStageViewMemory((memory) => viewForStage(memory, "model") === "table" ? rememberStageView(memory, "model", "both") : memory);
   }
 
-  // ⌘1 ⌘2 ⌘3 accelerate the view switch's segments and ⌘I the Inspector toggle.
+  // ⌘1 ⌘2 ⌘3 accelerate the view switch, ⌘I the Inspector toggle, and
+  // ⌘Z / ⇧⌘Z the same model history handlers as the toolbar and menu.
   // Each key does what its visible control does, and nothing when that control is disabled.
-  const shellKeyHandlersRef = useRef({ chooseStageView, toggleWorkspaceRail });
-  shellKeyHandlersRef.current = { chooseStageView, toggleWorkspaceRail };
+  const shellKeyHandlers = {
+    chooseStageView, toggleWorkspaceRail,
+    canUndo: undoStack.length > 0 && !operationBusy,
+    canRedo: redoStack.length > 0 && !operationBusy
+  };
+  const shellKeyHandlersRef = useRef(shellKeyHandlers);
+  shellKeyHandlersRef.current = shellKeyHandlers;
   useEffect(() => {
     function handleShellAccelerator(event: KeyboardEvent) {
-      // Tauri's native menu owns these accelerators and emits the same command.
-      if (isTauriRuntime()) return;
-      if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.shiftKey || event.defaultPrevented) return;
+      if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
+      if (key === "z") {
+        const target = event.target instanceof HTMLElement ? event.target : document.activeElement;
+        if (target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, [contenteditable="true"], [contenteditable=""]'))) return;
+        const handlers = shellKeyHandlersRef.current;
+        if (event.shiftKey ? handlers.canRedo : handlers.canUndo) {
+          event.preventDefault();
+          runMenuCommandRef.current(event.shiftKey ? "edit.redo" : "edit.undo");
+        }
+        return;
+      }
+      // AppKit owns the remaining shell keys. History stays in the webview in
+      // both runtimes so editable controls retain their normal text undo.
+      if (isTauriRuntime() || event.shiftKey) return;
       const now = shellNowRef.current;
       if (key === "1" || key === "2" || key === "3") {
         const view = SHELL_VIEWS[Number(key) - 1];

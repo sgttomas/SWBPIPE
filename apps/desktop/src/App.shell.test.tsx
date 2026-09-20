@@ -616,3 +616,14 @@ it("an explicit native Inspector choice during routing supersedes automatic rest
   fireEvent.click(screen.getByTestId("workspace-select"));
   expect(surfaces).not.toHaveClass("inspector-collapsed");
 });
+
+
+it("reissuing a native routing command reveals its closed inspector home", async () => {
+  const surfaces = await renderShell(1024);
+  fireEvent.click(screen.getByTestId("command-node"));
+  fireEvent.click(screen.getByTestId("toggle-inspector"));
+  expect(surfaces).toHaveClass("inspector-collapsed");
+  act(() => nativeMenuCommand("insert.node"));
+  expect(surfaces).not.toHaveClass("inspector-collapsed");
+  expect(screen.getByTestId("command-node")).toHaveAttribute("aria-pressed", "true");
+});

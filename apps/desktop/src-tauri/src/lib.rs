@@ -4004,6 +4004,29 @@ fn dispatch_native_menu_command<R: tauri::Runtime>(app: &tauri::AppHandle<R>, co
     }
 }
 
+fn restore_native_check_item_after_activation<R: tauri::Runtime>(
+    app: &tauri::AppHandle<R>,
+    command_id: &str,
+) {
+    let Some(menu) = app.menu() else {
+        return;
+    };
+    let Some(item) = find_native_menu_item(menu.items().unwrap_or_default(), command_id) else {
+        return;
+    };
+    let Some(item) = item.as_check_menuitem() else {
+        return;
+    };
+    // muda toggles check items before delivering the menu event. React owns
+    // the actual shell state, so restore the last synchronized value first;
+    // the resulting React state change will then synchronize the next value.
+    if let Ok(checked) = item.is_checked() {
+        if let Err(error) = item.set_checked(!checked) {
+            eprintln!("native menu check-state restore failed: {error}");
+        }
+    }
+}
+
 // Native macOS menu bar (TP-R3UX-CADSHELL). Each custom item carries the same
 // command id the in-DOM menu uses; on click the backend injects one typed DOM
 // event into the main webview, where the React command sink dispatches it.
@@ -4569,6 +4592,7 @@ pub fn run() {
         .manage(native_result_download::SaveAdmission::default())
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {
+            restore_native_check_item_after_activation(app, &event.id().0);
             dispatch_native_menu_command(app, &event.id().0);
         })
         .invoke_handler(tauri::generate_handler![

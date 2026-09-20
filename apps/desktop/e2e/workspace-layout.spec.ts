@@ -1,4 +1,5 @@
-import { gotoRoutedFixture, selectTreeRow, ensureRail, setAppearance, expectCenterUnobscured, attachBrowserIdentity } from "./ui-foundation-workflows";
+import { writeFile } from "node:fs/promises";
+import { gotoRoutedFixture, selectTreeRow, ensureRail, setAppearance, expectCenterUnobscured, expectPassiveOrientationFrame, keyboardMeasureTargets, attachBrowserIdentity, captureState } from "./ui-foundation-workflows";
 import { expect, test, type Page } from "@playwright/test";
 import { openWorkspaceSection, selectTreeEntity, startPropertyTaskFromCurrentSelection } from "./workspace-driver";
 
@@ -109,6 +110,7 @@ async function readShellGeometry(page: Page) {
       tablePane: box(".workspace-pane-tree"),
       tabStrip: box('[data-testid="stage-tab-strip"]'),
       canvasPane: box(".workspace-pane-viewport"),
+      drawnCanvas: box('[data-testid="viewport-canvas"] canvas'),
       canvasHidden: getComputedStyle(document.querySelector(".workspace-pane-viewport")!).visibility === "hidden",
       inspector: box(".workspace-pane-inspector"),
       paneCounts: [document.querySelectorAll(".workspace-pane-tree").length, document.querySelectorAll(".workspace-pane-inspector").length],
@@ -170,8 +172,8 @@ test("D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the
   await chevron.click();
   await expect(chevron).toHaveAttribute("aria-expanded", "true");
 
-  // Both view: 55 % / 45 %, D-72's 603 x 828; the inspector docks at 300 px and takes its width
-  // from the canvas, never from the table.
+  // Both view: 55 % / 45 %, D-72's 603 x 828. The inspector borrows from
+  // the table, so the canvas keeps its width and moves 300 px left.
   await chooseView(page, "both");
   const both = await readShellGeometry(page);
   expect(both.tablePane).toEqual({ x: 56, y: 48, width: 737, height: 828 });
@@ -179,8 +181,8 @@ test("D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the
   expect(both.inspector).toBeNull();
   await page.getByTestId("toggle-inspector").click();
   const docked = await readShellGeometry(page);
-  expect(docked.tablePane).toEqual(both.tablePane);
-  expect(docked.canvasPane).toEqual({ x: 793, y: 48, width: 303, height: 828 });
+  expect(docked.tablePane).toEqual({ x: 56, y: 48, width: 437, height: 828 });
+  expect(docked.canvasPane).toEqual({ x: 493, y: 48, width: 603, height: 828 });
   expect(docked.inspector).toEqual({ x: 1096, y: 48, width: 300, height: 828 });
   await page.getByTestId("inspector-close").click();
   await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
@@ -202,12 +204,11 @@ test("D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the
   await testInfo.attach("shell-geometry-1440x900", { body: JSON.stringify({ browserBoth, native: { model, collapsed, both, docked, table } }, null, 2), contentType: "application/json" });
 });
 
-// INTERIM rule (ROOT, slice B3; retires when the routing block moves into the inspector). With the
-// canvas's own authoring panel on screen, the Both view's docked inspector takes its 300 px from the
-// table pane and not from the canvas pane; with no tool armed and nothing pending the specification's
-// rule holds and the table does not move.
+// D2 and routing portal: the docked inspector always borrows its 300 px from
+// the table first. Arming moves the existing editor into that inspector without
+// changing either pane's dimensions; disarming restores prior inspector state.
 for (const [width, height, table, canvas] of [[1440, 900, 737, 603], [1280, 800, 649, 531]] as const) {
-  test(`interim: an armed drawing tool makes the docked inspector take from the table pane, ${width} x ${height}, native-runtime class`, async ({ page }, testInfo) => {
+  test(`routing uses the inspector without changing the D2 pane allocation, ${width} x ${height}, native-runtime class`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height });
     await page.goto("/");
     await expect(page.getByTestId("viewport-canvas").locator("canvas").first()).toBeVisible();
@@ -218,18 +219,19 @@ for (const [width, height, table, canvas] of [[1440, 900, 737, 603], [1280, 800,
     const intents = page.getByTestId("viewport-editor-intents");
     const surfaces = page.getByTestId("modeling-workspace");
 
-    await page.getByTestId("toggle-inspector").click();
-    const spec = await readShellGeometry(page);
+    const closed = await readShellGeometry(page);
     await expect(intents).toHaveClass(/collapsed/);
     await expect(surfaces).not.toHaveAttribute("data-canvas-authoring", "true");
-    expect(spec.tablePane).toEqual({ x: 56, y: 48, width: table, height: surfacesHeight });
-    expect(spec.canvasPane).toEqual({ x: 56 + table, y: 48, width: canvas - 300, height: surfacesHeight });
+    expect(closed.tablePane).toEqual({ x: 56, y: 48, width: table, height: surfacesHeight });
+    expect(closed.canvasPane).toEqual({ x: 56 + table, y: 48, width: canvas, height: surfacesHeight });
 
-    // Arm the pipe tool: the canvas's authoring panel comes on screen, and the session's own reading
-    // of that state (data-canvas-authoring) agrees with the component's class.
+    // Arm from a closed inspector: the session opens it and the unchanged
+    // authoring panel is portalled into its stable routing container.
     await page.getByTestId("command-pipe").click();
     await expect(intents).toHaveClass(/active/);
     await expect(surfaces).toHaveAttribute("data-canvas-authoring", "true");
+    await expect(page.locator("#shell-routing-panel").getByTestId("viewport-editor-intents")).toBeVisible();
+    await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
     const armed = await readShellGeometry(page);
     expect(armed.tablePane).toEqual({ x: 56, y: 48, width: table - 300, height: surfacesHeight });
     expect(armed.canvasPane).toEqual({ x: 56 + table - 300, y: 48, width: canvas, height: surfacesHeight });
@@ -237,12 +239,11 @@ for (const [width, height, table, canvas] of [[1440, 900, 737, 603], [1280, 800,
     const drawn = (await page.locator(".viewport-canvas canvas").first().boundingBox())!;
     expect(drawn.width).toBeGreaterThanOrEqual(200);
     expect(drawn.height).toBeGreaterThanOrEqual(200);
-    // Nothing closes and nothing is disarmed.
-    await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
     await expect(page.getByTestId("command-pipe")).toHaveAttribute("aria-pressed", "true");
-    // The splitter follows the table pane's edge and keeps the engineer's stored split.
+    // The 24 px splitter lies wholly on the table side and keeps the engineer's stored split.
     const splitter = (await page.getByTestId("resize-model-tree").boundingBox())!;
-    expect(splitter.x + splitter.width / 2).toBeCloseTo(56 + table - 300, 0);
+    expect(splitter.width).toBe(24);
+    expect(splitter.x + splitter.width).toBeCloseTo(56 + table - 300, 0);
     await expect(page.getByTestId("resize-model-tree")).toHaveAttribute("aria-valuenow", "55");
 
     // The table pane lends down to 320 px and no further; past that the canvas gives the rest.
@@ -254,42 +255,80 @@ for (const [width, height, table, canvas] of [[1440, 900, 737, 603], [1280, 800,
     expect(Math.round(lendingMinimum.canvasPane!.width)).toBe(width - 100 - 320 - 300);
     for (let press = 0; press < 13; press += 1) await page.keyboard.press("ArrowRight");
 
-    // Disarm (Select): the specification's rule returns.
+    // Disarm (Select): the shell-owned inspector closes because it began
+    // closed, while the stored split and closed geometry remain unchanged.
     await page.getByTestId("workspace-select").click();
     await expect(intents).toHaveClass(/collapsed/);
     const disarmed = await readShellGeometry(page);
-    expect(disarmed.tablePane).toEqual(spec.tablePane);
-    expect(disarmed.canvasPane).toEqual(spec.canvasPane);
-    await testInfo.attach(`interim-inspector-rule-${width}x${height}`, { body: JSON.stringify({ spec, armed, lendingMinimum, disarmed, drawn }, null, 2), contentType: "application/json" });
+    await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
+    expect(disarmed.tablePane).toEqual(closed.tablePane);
+    expect(disarmed.canvasPane).toEqual(closed.canvasPane);
+
+    // If the engineer had it open, disarming leaves it open.
+    await page.getByTestId("toggle-inspector").click();
+    const openBeforeArm = await readShellGeometry(page);
+    await page.getByTestId("command-node").click();
+    await page.getByTestId("workspace-select").click();
+    await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
+    expect(await readShellGeometry(page)).toMatchObject({
+      tablePane: openBeforeArm.tablePane,
+      canvasPane: openBeforeArm.canvasPane,
+      inspector: openBeforeArm.inspector
+    });
+    await testInfo.attach(`routing-inspector-rule-${width}x${height}`, { body: JSON.stringify({ closed, armed, lendingMinimum, disarmed, openBeforeArm, drawn }, null, 2), contentType: "application/json" });
   });
 }
 
-test("the collapsed table strip lies over the canvas's foot without covering the scale bar or the axis triad", async ({ page }) => {
+test("the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/");
+  const model = await gotoRoutedFixture(page);
   await expect(page.getByTestId("viewport-canvas").locator("canvas").first()).toBeVisible();
   const rects = () => page.evaluate(() => {
     const rect = (selector: string) => { const r = document.querySelector(selector)!.getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }; };
-    return { strip: rect('[data-testid="stage-tab-strip"]'), pane: rect(".workspace-pane-tree"), scaleBar: rect(".viewport-scale-bar"), triad: rect('[data-testid="viewport-axis-triad"]'), canvasPane: rect(".workspace-pane-viewport") };
+    return { strip: rect('[data-testid="stage-tab-strip"]'), pane: rect(".workspace-pane-tree"), scaleBar: rect(".viewport-scale-bar"), triad: rect('[data-testid="viewport-axis-triad"]'), readout: rect('[data-testid="viewport-measurement-readout"]'), canvasPane: rect(".workspace-pane-viewport") };
   });
   const intersects = (a: { left: number; top: number; right: number; bottom: number }, b: typeof a) =>
     a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
   const check = async (label: string) => {
+    const readoutTopmost = await page.getByTestId("viewport-measurement-readout").evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      const point = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      const owner = document.elementFromPoint(point.x, point.y);
+      const ancestry = [];
+      for (let node = owner; node; node = node.parentElement) {
+        ancestry.push({ tag: node.tagName, id: node.id, class: node.getAttribute("class"), testId: node.getAttribute("data-testid") });
+      }
+      return { rect: rect.toJSON(), point, owner: owner?.getAttribute("data-testid") ?? owner?.getAttribute("aria-label") ?? owner?.tagName ?? null,
+        ownerClass: owner?.getAttribute("class"), ownerRect: owner?.getBoundingClientRect().toJSON(), ancestry };
+    });
+    const witnessPath = testInfo.outputPath(`${label.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-readout-topmost.json`);
+    await writeFile(witnessPath, JSON.stringify({ ...readoutTopmost, rectangles: await rects() }, null, 2));
+    await testInfo.attach("readout-topmost", { path: witnessPath, contentType: "application/json" });
+    await expectCenterUnobscured(page.getByTestId("viewport-measurement-readout"));
     const measured = await rects();
-    for (const furniture of ["scaleBar", "triad"] as const) {
+    const orientation = await expectPassiveOrientationFrame(page, testInfo, label.replace(/[^a-z0-9]+/gi, "-").toLowerCase());
+    const painted = { left: orientation.clip.x, top: orientation.clip.y, right: orientation.clip.x + orientation.clip.width, bottom: orientation.clip.y + orientation.clip.height };
+    for (const furniture of ["scaleBar", "triad", "readout"] as const) {
       expect(intersects(measured[furniture], measured.pane), `${label}: ${furniture} ${JSON.stringify(measured[furniture])} against the table pane ${JSON.stringify(measured.pane)}`).toBe(false);
       expect(measured[furniture].bottom).toBeLessThanOrEqual(measured.canvasPane.bottom);
     }
-    return measured;
+    expect(intersects(painted, measured.pane), `${label}: painted orientation ${JSON.stringify(painted)} against the table pane ${JSON.stringify(measured.pane)}`).toBe(false);
+    expect(painted.bottom).toBeLessThanOrEqual(measured.canvasPane.bottom);
+    return { ...measured, painted, orientation };
   };
   await chooseView(page, "model");
+  const measurementPipe = model.pipe_segments[10];
+  await selectTreeRow(page, "pipe", measurementPipe.id);
+  await page.getByTestId("clear-model-tree-filter").click();
+  await keyboardMeasureTargets(page, [`Select ${measurementPipe.label} in viewport`]);
   await check("Model view, drawer open");
   await page.getByTestId("toggle-tree").click();
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "false");
   const collapsed = await check("Model view, drawer collapsed");
   expect(collapsed.canvasPane.bottom).toBeCloseTo(collapsed.pane.bottom, 0);
   await page.getByTestId("toggle-tree").click();
-  // The narrow fallback's equivalent: the drawer, open or collapsed, lies over the canvas's foot.
+  // In narrow Both view the expanded drawer is in flow; only its collapsed
+  // 28 px strip overlays the unchanged drawn canvas.
   await chooseView(page, "both");
   await page.setViewportSize({ width: 1024, height: 768 });
   await ensureRail(page, "tree", true);
@@ -318,6 +357,47 @@ test("a switch to Table view hides the canvas without resizing its renderer", as
   expect(await camera()).toEqual(before.camera);
 });
 
+test("browser native-class structural review captures retain pane and drawn-canvas geometry", async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await gotoRoutedFixture(page);
+  await page.evaluate(() => { (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {}; });
+  await chooseView(page, "model");
+  await chooseView(page, "both");
+  await expect(page.getByTestId("desktop-preview-shell")).toHaveClass(/native-menu/);
+  const records: Array<{ name: string; geometry: Awaited<ReturnType<typeof readShellGeometry>> }> = [];
+  const capture = async (name: string) => {
+    const geometry = await readShellGeometry(page);
+    expect(geometry.pageOverflow, name).toBeLessThanOrEqual(1);
+    if (geometry.drawnCanvas && geometry.canvasPane) {
+      expect(geometry.drawnCanvas.x, name).toBeGreaterThanOrEqual(geometry.canvasPane.x);
+      expect(geometry.drawnCanvas.y, name).toBeGreaterThanOrEqual(geometry.canvasPane.y);
+      expect(geometry.drawnCanvas.x + geometry.drawnCanvas.width, name).toBeLessThanOrEqual(geometry.canvasPane.x + geometry.canvasPane.width + 1);
+      expect(geometry.drawnCanvas.y + geometry.drawnCanvas.height, name).toBeLessThanOrEqual(geometry.canvasPane.y + geometry.canvasPane.height + 1);
+    }
+    records.push({ name, geometry });
+    await captureState(page, testInfo, `browser-native-class-${name}`);
+  };
+
+  await capture("both-inspector-closed");
+  await ensureRail(page, "inspector", true);
+  await capture("both-inspector-open");
+  await page.getByTestId("command-pipe").click();
+  await expect(page.locator("#shell-routing-panel").getByTestId("viewport-editor-intents")).toBeVisible();
+  await capture("both-routing");
+  await page.getByTestId("workspace-select").click();
+  await chooseView(page, "model");
+  await ensureRail(page, "tree", true);
+  await capture("model-drawer-open");
+  await ensureRail(page, "tree", false);
+  await capture("model-drawer-collapsed");
+  await chooseView(page, "both");
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await ensureRail(page, "inspector", false);
+  await ensureRail(page, "tree", true);
+  await capture("narrow-both-drawer-open");
+  await testInfo.attach("browser-native-class-structural-geometry", { body: JSON.stringify(records, null, 2), contentType: "application/json" });
+});
+
 for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800 }]) {
   for (const [theme, density] of [["light", "comfortable"], ["dark", "compact"]] as const) {
     test(`the split and the drawer resize actual panes, persist, and keep the inspector's controls contained ${theme} ${viewport.width}`, async ({ page }, testInfo) => {
@@ -338,12 +418,15 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
           children: assignment ? [...assignment.querySelectorAll<HTMLElement>("p, select, button")].map((element) => ({ tag: element.tagName, text: element.textContent, rect: element.getBoundingClientRect().toJSON(), overflow: element.scrollWidth - element.clientWidth })) : [] };
       });
       const check = async (splitPct: number, label: string) => {
-        const tableWidth = Math.round(surfaceWidth * splitPct / 100);
+        const closedTableWidth = Math.min(Math.round(surfaceWidth * splitPct / 100), surfaceWidth - 220);
+        const lent = Math.max(0, Math.min(300, closedTableWidth - 320));
+        const tableWidth = closedTableWidth - lent;
         await expect.poll(async () => Math.round((await readShellGeometry(page)).tablePane!.width)).toBe(tableWidth);
         const geometry = await readShellGeometry(page);
         witnesses.push({ label, ...geometry });
         expect(geometry.pageOverflow).toBeLessThanOrEqual(1);
-        // The inspector is 300 px and the canvas takes what is left; the table never gives way to the inspector.
+        // D2: the inspector borrows from the closed table split down to 320 px,
+        // then consumes canvas width down to its 220 px minimum.
         expect(Math.round(geometry.inspector!.width)).toBe(300);
         expect(Math.round(geometry.canvasPane!.width)).toBe(surfaceWidth - tableWidth - 300);
         expect(geometry.canvasPane!.width).toBeGreaterThanOrEqual(220);
@@ -367,7 +450,8 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
         await page.mouse.move(box.x + box.width / 2 + dx, box.y + box.height / 2 + dy, { steps: 8 }); await page.mouse.up();
       };
       const initial = await check(55, "default split");
-      // A drag of one tenth of the surface moves the split ten points; the canvas gives exactly what the table takes.
+      // A drag changes the stored closed split. The open layout applies D2's
+      // lending rule while keeping the stored percentage unchanged.
       await drag("resize-model-tree", -Math.round(surfaceWidth / 10)); const narrower = await check(45, "pointer, table narrower");
       expect(narrower.canvasPane!.width - initial.canvasPane!.width).toBeCloseTo(initial.tablePane!.width - narrower.tablePane!.width, 0);
       for (const preset of ["Front", "Top", "Isometric"]) {
@@ -436,14 +520,14 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
   }
 }
 
-test("below 1280 px the table drawer and the inspector lie over the canvas, keep its geometry, and return focus to their openers", async ({ page }, testInfo) => {
+test("below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 920 });
   await gotoRoutedFixture(page, "ui-foundation-1000.model.json");
   await page.getByTestId("resize-model-tree").focus(); await page.keyboard.press("ArrowRight");
   await page.setViewportSize({ width: 1024, height: 768 });
   await ensureRail(page, "tree", false); await ensureRail(page, "inspector", false);
   const before = await readShellGeometry(page);
-  // The narrow fallback: the canvas takes the surface; the table pane is its 28 px strip at the foot.
+  // Collapsed, the 28 px strip overlays the canvas foot.
   expect(before.canvasPane).toEqual(before.surfaces);
   expect(Math.round(before.tablePane!.height)).toBe(28);
   expect(before.inspector).toBeNull();
@@ -453,11 +537,21 @@ test("below 1280 px the table drawer and the inspector lie over the canvas, keep
     if (side === "tree") {
       expect(Math.round(during.tablePane!.height)).toBe(280);
       expect(Math.round(during.tablePane!.width)).toBe(Math.round(during.surfaces!.width));
+      expect(Math.round(during.canvasPane!.height + during.tablePane!.height)).toBe(Math.round(during.surfaces!.height));
+      await expect(page.getByTestId("resize-task-dock")).toBeVisible();
+      const drawerSplitter = (await page.getByTestId("resize-task-dock").boundingBox())!;
+      expect(drawerSplitter.height).toBe(24);
+      await page.getByTestId("resize-task-dock").focus();
+      for (let press = 0; press < 12; press += 1) await page.keyboard.press("ArrowDown");
+      await expect(page.getByTestId("resize-task-dock")).toHaveAttribute("aria-valuenow", "180");
+      for (let press = 0; press < 30; press += 1) await page.keyboard.press("ArrowUp");
+      await expect(page.getByTestId("resize-task-dock")).toHaveAttribute("aria-valuenow", "600");
+      expect((await readShellGeometry(page)).stored.tableDrawerPx).toBe(600);
     } else {
       expect(Math.round(during.inspector!.width)).toBe(300);
       expect(Math.round(during.inspector!.x + during.inspector!.width)).toBe(Math.round(during.surfaces!.x + during.surfaces!.width));
     }
-    expect(during.canvasPane).toEqual(before.canvasPane);
+    if (side === "inspector") expect(during.canvasPane).toEqual(before.canvasPane);
     expect(during.pageOverflow).toBeLessThanOrEqual(1);
     await expect(page.getByTestId("resize-model-tree")).toBeHidden();
     const control = side === "tree" ? page.getByTestId("model-tree-filter-input") : page.getByTestId("property-inspector").getByRole("tab", { name: "Task", exact: true });
