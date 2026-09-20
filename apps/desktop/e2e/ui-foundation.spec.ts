@@ -1123,7 +1123,7 @@ test("live Properties routes follow catalogue target B while frozen Task A remai
   const freshPanel = await openSectionAssignment();
   await expect(inspector.locator(":scope > h2")).toContainText(`pipe: ${pipeA.id}`);
   await expect(freshPanel).toContainText(`Shared section: ${pipeA.section_ref}`);
-  await expect(freshPanel.getByRole("combobox", { name: "Shared section" })).toHaveValue("");
+  await expect(freshPanel.getByRole("combobox", { name: "Shared section" })).toHaveAttribute("data-value", "");
   await selectCompactOption(freshPanel.getByRole("combobox", { name: "Shared section" }), alternateForA.id);
   await expect(freshPanel.getByRole("button", { name: "Queue section assignment", exact: true })).toBeEnabled();
 
@@ -1141,7 +1141,7 @@ test("live Properties routes follow catalogue target B while frozen Task A remai
   await expect(inspector.locator(":scope > h2")).toContainText(`pipe: ${pipeB.id}`);
   await expect(liveBPanel).toContainText(`Shared section: ${pipeB.section_ref}`);
   const liveSection = liveBPanel.getByRole("combobox", { name: "Shared section" });
-  await expect(liveSection).toHaveValue("");
+  await expect(liveSection).toHaveAttribute("data-value", "");
   await selectCompactOption(liveSection, alternateForB.id);
   await activateWithKeyboard(page, liveBPanel.getByRole("button", { name: "Queue section assignment", exact: true }));
 

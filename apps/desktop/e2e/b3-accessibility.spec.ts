@@ -278,3 +278,28 @@ for (const layout of ["configured", "narrow"] as const) {
     await expect(page.getByTestId("workspace-redo")).toBeDisabled();
   });
 }
+
+test("support family popup dismissal does not invent a missing engineering choice", async ({ page }) => {
+  await page.goto("/");
+  await selectTreeEntity(page, "node", "node:N-100");
+  await page.getByTestId("toolkit-entry").click();
+  await page.getByTestId("toolkit-supports.restraint").click();
+  const form = page.getByRole("region", { name: "Support configuration", exact: true });
+  const family = form.getByRole("combobox", { name: "Support family", exact: true });
+  await expect(family).toHaveAttribute("data-value", "");
+  await expect(family).toContainText("Not provided (preserved)");
+  await family.click();
+  await expect(family).toHaveAttribute("aria-expanded", "true");
+  await page.keyboard.press("Tab");
+  await expect(family).toHaveAttribute("aria-expanded", "false");
+  await expect(family).toHaveAttribute("data-value", "");
+  await form.getByRole("textbox", { name: "Support ID", exact: true }).fill("support:compact-preserved");
+  await form.getByRole("textbox", { name: "Support label", exact: true }).fill("Explicit source preservation test");
+  await form.getByRole("textbox", { name: "Support provenance", exact: true }).fill("Explicit browser test draft");
+  await family.click();
+  await form.getByRole("button", { name: "Queue support creation", exact: true }).click();
+  await expect(form).toContainText("Support creation queued for validation and review.");
+  await expect(family).toHaveAttribute("data-value", "");
+  await expect(family).toContainText("Not provided (preserved)");
+  await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+});
