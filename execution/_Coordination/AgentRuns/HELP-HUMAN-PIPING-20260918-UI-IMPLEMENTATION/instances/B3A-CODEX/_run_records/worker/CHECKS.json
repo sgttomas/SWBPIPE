@@ -1,0 +1,66 @@
+{
+  "workdir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "checks": [
+    {
+      "log": "fail-before.log",
+      "command": "npx vitest run src/App.projectHandlers.test.tsx src/features/workspace/shellLayout.test.ts -t B3A",
+      "outcome": "4 failed; reproduced absent marker and missing fallbacks",
+      "sha256": "d14e1f9131c2169c624eed99fc4176c384365a0e98efcebdf92a687a52a39ef2"
+    },
+    {
+      "log": "selected-unit-final.log",
+      "command": "npx vitest run src/App.projectHandlers.test.tsx src/App.shell.test.tsx src/features/workspace/shellLayout.test.ts src/features/workspace/statusLabels.test.ts src/features/workspace/statusLabels.tokens.test.ts",
+      "outcome": "131 passed before final focused corrections",
+      "sha256": "b0b3f6660cf9f68ecf37403b0762e2f2efdc512c78db6bddce2a58a4b7027c67"
+    },
+    {
+      "log": "persistence-existing-2.log",
+      "command": "npx vitest run src/App.test.tsx -t 'opens saved results as readable history|refreshes only the still-owned|lets a fresh same-model solve|adopts a changed native persistence model|rejects an unrelated differing persistence|keeps a same-model Current solve|discards a pending batch'",
+      "outcome": "7 passed, 211 filtered; existing read-only fixtures",
+      "sha256": "a67ddd7042792d5cc2a56f5b18a25d0c2612adc83716b967589c4aefc1da0472"
+    },
+    {
+      "log": "historical-carrier-fail.log",
+      "command": "npx vitest run src/App.projectHandlers.test.tsx -t 'exact retained hash carrier'",
+      "outcome": "1 failed before Historical carrier correction",
+      "sha256": "10344fc0dcce65483e5e30a72a2bbfe9c0bb8992d865f0651e1ae1783c83742c"
+    },
+    {
+      "log": "historical-carrier-and-a11y-pass.log",
+      "command": "npx vitest run src/App.projectHandlers.test.tsx src/App.shell.test.tsx -t 'B3A|after a failed run'",
+      "outcome": "21 passed, 48 filtered; final product bytes",
+      "sha256": "d132a527bc8756467f87b44dc96658569837d3ce5bf3d318eb6b1ebd35e896f3"
+    },
+    {
+      "log": "typescript-sealed.log",
+      "command": "npx tsc -b --pretty false",
+      "outcome": "exit 0; final product bytes",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "log": "rust-title-final.log",
+      "command": "cargo test --manifest-path src-tauri/Cargo.toml native_window_title_uses_normalized_project_identity --lib",
+      "outcome": "1 passed; final Rust bytes",
+      "sha256": "fd0ed25b4e0a49f551c3a074833eceeda934b8844b4a86fd43c7f5c0d55b5f81"
+    },
+    {
+      "log": "browser-1.log",
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH='/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing' PLAYWRIGHT_WORKERS=1 sh ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh npx playwright test e2e/b3a-session-status.spec.ts --output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3A-CODEX/_run_records/worker/browser-results",
+      "outcome": "interrupted at obsolete Close click after successful reopen; second profile not run",
+      "sha256": "5ecf548ea1369763ed85d3e240f0b3e163d3318929b00d5f5ce76cddce4a3aba"
+    },
+    {
+      "log": "browser-2.log",
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH='/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing' PLAYWRIGHT_WORKERS=1 sh ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh npx playwright test e2e/b3a-session-status.spec.ts --output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3A-CODEX/_run_records/worker/browser-results-2",
+      "outcome": "2 passed 5.9s; precedes Historical-only helper arm and safe chip popover ID; manager owns final exact-source reassessment",
+      "sha256": "bbe6ba9a6c1d8b9fa00f22fe603145cbe24dce81f9c01de09ab78247b09271a3"
+    }
+  ],
+  "limits": [
+    "No native app build, launch or witness by worker",
+    "No full unit/browser suite or source/dist sweep",
+    "No independent review/acceptance/release claim",
+    "Known jsdom Canvas getContext and mock native-sync warnings retained in raw logs",
+    "No Git mutation/push/PR"
+  ]
+}

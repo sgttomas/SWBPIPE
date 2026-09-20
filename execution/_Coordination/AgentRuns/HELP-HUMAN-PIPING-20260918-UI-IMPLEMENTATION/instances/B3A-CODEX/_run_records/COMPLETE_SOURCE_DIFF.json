@@ -1,0 +1,71 @@
+{
+  "candidate": "d2ef16848841616a26c35bfc03e68c7b64e79380",
+  "base": "7e6a7f2578e5df12ea891c2d604d0cd48e869934",
+  "entries": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b3a-session-status.spec.ts",
+      "gitBlob": "9fb02b4ccaa84f73489f8afd79a05f0fcc5224f5",
+      "sha256": "194b929d314cb58eca25d5d688800a93857391ab54aef412f0d90315ef69fa38"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "gitBlob": "ab3e2f7cbf12d9f0eeae524e517ab35a51bf5402",
+      "sha256": "2574fbb8ab1029a023be68843bd50b6378b5f1b4ddf8b868e9b5c0551b6754e6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+      "gitBlob": "4728030889f56aee27f452d19a61a45ba7f9ace3",
+      "sha256": "19b6b4c15e4271b29221461b83c2dd001e54a6a5b8d05429150aa69e4d6c2a99"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.shell.test.tsx",
+      "gitBlob": "d7eb75eabd2f10fd4712f55afc3e57a2d4e5ef03",
+      "sha256": "1aac485d7fa146a1430e8b2c0e63a0ba602362c7be2269d6f22631fe52779d1e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx",
+      "gitBlob": "571c15b66f413154bb9d07c225378ab0c44857b8",
+      "sha256": "e3aa7600d846e4ab5e8e3db78e5e24ad5bb292e4c708a62ebd0001be6467817d"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/savedModelBasis.ts",
+      "gitBlob": "67e55f4f8b5b5853cd41813b4ca617e030ac6b86",
+      "sha256": "9ae794ba66d94abe0ef859cac7e5d6095e8a89f3889d4b28b514960f17a1cbb4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/ShellStatusBar.tsx",
+      "gitBlob": "b957e756996391087562789fd89ddffa3e28ca61",
+      "sha256": "a9fa97ad6679229d14a17c04c91639080c0294d7bf10c3357fd1a5bad5e312ab"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/ShellToolbar.tsx",
+      "gitBlob": "1667063e6258a5e8d9ba2dc64bde991f1415aad1",
+      "sha256": "bd0b089dc49dac828cb347b1b82c7876e2c2e7e802ad806e39515d4622c58fec"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.test.ts",
+      "gitBlob": "de8ace38b24ff4577811ac59c53b43e4f7525530",
+      "sha256": "7761cd20ced2573cb428ae578c9d326515bce70918a3c6636708a9b63385e928"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.ts",
+      "gitBlob": "ee25fed953a28d24d7dc2cc04a92a77bda743adb",
+      "sha256": "52dc1849d3458cf54a30308d0d035f7187aad90ce2cf3fd71dab1f4cf2aa52f2"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/statusLabels.ts",
+      "gitBlob": "3414fdcbe664fa0757d0c1ac8d0689eec05c0211",
+      "sha256": "455dac444b0b60ff4631f9eecbffe42f6914baf81b5b56d7dd35ede536122cf0"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "gitBlob": "b7a3f9fb65053b8ee6841da468580a0481b8ef3e",
+      "sha256": "334430176ec9e18b5c1d4eda21e8ccb9f2435b28bae7ccca4b79d26292dda0f6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts",
+      "gitBlob": "016292bb3471ad3136cfc66d539b6ad8ba5833bb",
+      "sha256": "03ca5ee1f7fb73e632d904a5a7cf42596fc2399e4b6424c824f46a725d3e92d9"
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+Window: "Blank Local Model · Edited — SWBPIPE", App: SWBPIPE.
+0 standard window Blank Local Model · Edited — SWBPIPE, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: SWBPIPE, URL: tauri://localhost
+			3 container
+				4 container Toolbar
+					5 heading SWBPIPE, Value: 1
+						6 text SWBPIPE
+					7 container Blank Local Model
+						8 text Blank Local Model
+						9 container Unsaved model edits
+							10 text  · Edited
+					11 container Editing tools
+						12 button Undo model edit, Help: Undo (⌘Z)
+						13 button (disabled) Redo model edit, Help: Nothing to redo
+						14 toggle button Select, Help: Select (⎋), Value: off
+					15 container View
+						16 toggle button Table, Help: Table view (⌘1), Value: off
+						17 toggle button Model, Help: Model view (⌘2), Value: off
+						18 toggle button Both, Help: Both view (⌘3), Value: on
+					19 button Run
+					20 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					21 container Panels
+						22 button (expanded) Inspector, Help: Inspector (⌘I), Secondary Actions: Collapse
+						23 button (disabled) Agent, Help: Agent: not available yet
+					24 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					25 summary Appearance, Value: off
+					26 container Human toolkit
+						27 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				28 container Stages
+					29 content list
+						30 toggle button Model, Value: on
+						31 toggle button Loads, Value: off
+						32 toggle button (disabled) Results, Help: No run yet, Value: off
+						33 toggle button (disabled) Review, Help: No run yet, Value: off
+					34 content list
+						35 button (collapsed) Libraries, Secondary Actions: Expand
+						36 button (collapsed) Rules, Secondary Actions: Expand
+						37 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				38 container Modeling workspace
+					39 container Tables
+						40 toggle button Model, Value: on
+						41 toggle button Review changes, Value: off
+						42 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
+					43 container Model tree
+						44 text MODEL
+						45 container Layout grid mode
+							46 toggle button Tree, Value: on
+							47 toggle button Grid, Value: off
+						48 container Model tree filtering
+							49 container
+								50 text Filter model
+								51 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									52 text Name, ID, type, or group
+							53 text 4  of  4  model entities visible
+							54 button (disabled) Clear model tree filter
+						55 container Model
+							56 button Blank Local Model project:blank-local-20260920t163409z, Help: Blank Local Model (project:blank-local-20260920t163409z)
+							57 button (expanded) Nodes, Secondary Actions: Collapse
+							58 button DISPOSABLE B3A native A node:B3A-native-163409-A, Help: DISPOSABLE B3A native A (node:B3A-native-163409-A)
+							59 button (selected) DISPOSABLE B3A native B node:B3A-native-163409-B, Help: DISPOSABLE B3A native B (node:B3A-native-163409-B)
+							60 button (expanded) Diagnostics, Secondary Actions: Collapse
+							61 button BLANK_PROJECT_AUTHORING_TARGET diagnostic:blank-project:authoring-target, Help: BLANK_PROJECT_AUTHORING_TARGET (diagnostic:blank-project:authoring-target)
+					62 splitter Resize table and canvas, Value: 55
+					63 container Viewport controls
+						64 text 3D Centerline
+						65 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+							66 summary Deformation · unavailable, Value: off
+								67 text Deformation · unavailable
+						68 container Viewport display toggles
+							69 toggle button Labels, Help: Show or hide entity labels, Value: on
+							70 toggle button Loads, Help: Show or hide load arrows, Value: on
+							71 toggle button Grid, Help: Show or hide the ground grid, Value: on
+						72 container Viewport selection tools
+							73 toggle button Box Select, Value: off
+							74 container
+								75 text Selection filter
+								76 pop up button Selection filter, Value: All
+							77 button Hide, Help: Hide selected geometry.
+							78 button Isolate, Help: Isolate selected geometry with authored context.
+							79 button (disabled) Show All, Help: All eligible entities are already shown.
+							80 button Fit Model
+							81 button Fit Visible
+							82 button Fit Selection, Help: Fit currently visible selected geometry.
+						83 container Viewport geometry
+							84 toggle button Schematic, Value: on
+							85 toggle button Actual OD, Value: off
+							86 toggle button Measure, Value: off
+					87 container Viewport status
+						88 text Selected:  node:B3A-native-163409-B
+						89 container Schematic centerline geometry
+							90 text Schematic centerline geometry
+						91 container View command status, Help: No view command dispatched.
+							92 text No view command dispatched.
+					93 container
+						94 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						95 container Viewport entity selection
+						96 image Orientation gizmo showing X, Y, Z axes
+						97 container View controls
+							98 toggle button Front, Value: off
+							99 toggle button Top, Value: off
+							100 toggle button Isometric, Value: on
+						101 text 1 m
+					102 container Command and selection bar
+						103 container Object creation tools
+							104 toggle button Node, Help: Arm node creation, Value: on
+							105 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							106 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							107 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							108 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						109 text Node tool armed
+						110 summary Selection & navigation, Value: off
+							111 text Selection & navigation
+					112 button Close inspector, Help: Close (⎋)
+					113 container Viewport editor intents
+						114 heading Create node, Value: 3
+							115 text Create node
+						116 container
+							117 container Explicit node geometry
+								118 container
+									119 text Node ID
+									120 text field (settable) New node ID, Placeholder: node:N-3
+								121 container
+									122 text Label
+									123 text field (settable) New node label, Placeholder: Node label
+								124 container
+									125 text X
+									126 text field (settable) New node X coordinate, Placeholder: 0
+								127 container
+									128 text Y
+									129 text field (settable) New node Y coordinate, Placeholder: 0
+								130 container
+									131 text Z
+									132 text field (settable) New node Z coordinate, Placeholder: 0
+								133 container
+									134 text Coordinate unit
+									135 combo box (collapsed, settable) New node coordinate unit, Secondary Actions: Expand, Value: m
+
+										136 text m
+										137 text ▾
+								138 text Coordinates:  m, DEC-018 canonical Pointer plane: global XZ · Y=0  m Click within 4 CSS pixels on the visible 3D canvas to capture on global XZ at Y=0.
+								139 container
+									140 text Provenance
+									141 text field (settable) New node provenance
+								142 button (disabled) Add node, Help: Enter a node ID.; Enter a node label.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
+								143 text Enter a node ID.; Enter a node label.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
+							144 container Route review
+								145 heading Review and Apply, Value: 4
+									146 text Review and Apply
+								147 text The affected selection changed. Add again to review the current draft.
+								148 text Add a complete node or route to generate the service validation and exact diff.
+								149 button (disabled) Apply, Help: Add and review a draft before applying.
+							150 summary Unit source, Value: off
+								151 text Unit source
+						152 summary Pending changes (0), Value: off
+							153 text Pending changes (
+							154 text 0
+							155 text )
+					156 container Property inspector
+						157 heading DISPOSABLE B3A native B — node:node:B3A-native-163409-B, Value: 2
+							158 text DISPOSABLE B3A native B —  node : node:B3A-native-163409-B
+						159 tab group (selectable) Inspector views
+							160 tab (selected) Properties
+							161 tab (selectable) Task
+						162 summary All properties, Value: off
+							163 text All properties
+						164 summary Sources and units, Value: off
+							165 text Sources and units
+						166 summary New support configuration, Value: off
+							167 text New support configuration
+						168 summary New section, Value: off
+							169 text New section
+						170 summary New material, Value: off
+							171 text New material
+						172 summary New support, Value: off
+							173 text New support
+						174 summary New component, Value: off
+							175 text New component
+						176 container Delete node intent
+							177 heading Delete node, Value: 3
+								178 text Delete node
+							179 button Queue delete node, Help: Queue node delete intent
+							180 container
+								181 text Operation op:delete-node-node:B3A-native-163409-B; delete; proposed Target Node; node:B3A-native-163409-B Change delete_node; Explicit node deletion; nodes; before=DISPOSABLE B3A native B; x=4; y=5; z=6; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:blank-local-20260920t163409z; requires reference validation before durable model change.
+				182 container Agent
+					183 button (disabled) Agent, Help: Agent: not available yet
+				184 container Workspace status
+					185 container Analysis statuses
+						186 button (collapsed) Solver · Model incomplete, Help: MODEL_INCOMPLETE, Secondary Actions: Expand
+					187 button (collapsed) 5 Issues, Secondary Actions: Expand
+					188 text node: node:B3A-native-163409-B Entered
+					189 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	190 close button
+	191 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	192 minimize button
+	193 text Blank Local Model · Edited — SWBPIPE
+194 menu bar
+	195 SWBPIPE
+	196 File
+	197 Edit
+	198 View
+	199 Insert
+	200 Analyze
+
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost
