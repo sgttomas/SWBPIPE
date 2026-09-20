@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Flag, Info } from "lucide-react";
 import { useDisplayUnits } from "../../display-units";
 import { shellLocation, statusChipInputsFromCells, statusChipText, statusChips } from "../shellLayout";
@@ -83,7 +83,7 @@ export function ShellStatusBar({ issueCount }: { issueCount: number }) {
 }
 
 function StatusChipButton({ chip, open, onToggle, onClose }: { chip: StatusChip; open: boolean; onToggle: () => void; onClose: () => void }) {
-  const popoverId = `status-chip-popover-${chip.token}`;
+  const popoverId = useId();
   return (
     <span className="shell-chip-anchor">
       <button
@@ -93,7 +93,7 @@ function StatusChipButton({ chip, open, onToggle, onClose }: { chip: StatusChip;
         data-status-token={chip.token}
         aria-expanded={open}
         aria-controls={open ? popoverId : undefined}
-        title={chip.token}
+        title={chip.source ? `${chip.source}: ${chip.token}` : chip.token}
         onClick={onToggle}
         onKeyDown={(event) => { if (event.key === "Escape" && open) { event.stopPropagation(); onClose(); } }}
       >
@@ -102,7 +102,8 @@ function StatusChipButton({ chip, open, onToggle, onClose }: { chip: StatusChip;
       {open ? (
         <>
           <span className="shell-chip-backdrop" aria-hidden="true" onClick={onClose} />
-          <span className="shell-chip-popover" id={popoverId} role="dialog" aria-label={`${statusChipText(chip)}: recorded token`} data-testid={`${CHIP_TEST_IDS[chip.domain]}-popover`}>
+          <span className="shell-chip-popover" id={popoverId} role="dialog" aria-label={`${statusChipText(chip)}: ${chip.source ?? "recorded token"}`} data-testid={`${CHIP_TEST_IDS[chip.domain]}-popover`}>
+            {chip.source ? <span>{chip.source}</span> : null}
             <code>{chip.token}</code>
             <span>{chip.domain}</span>
           </span>

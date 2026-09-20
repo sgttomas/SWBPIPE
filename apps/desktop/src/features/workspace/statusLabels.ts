@@ -5,10 +5,11 @@
 // token (docs/SPEC.md §4.3). Rules carried here:
 //   - a label is never shown without its token reachable in place;
 //   - a label is always shown with its authority domain;
-//   - no label exists outside this table (ENGINEER_ACCEPTED stays reserved and
+//   - no registered label exists outside this table (ENGINEER_ACCEPTED stays reserved and
 //     has no display form).
 // Values that are not among the eight tokens are not status labels. They are
 // made readable by `readableStatusValue` and never given a registered form.
+// The owner-adopted Solver fallback below is display-only, not a registry entry.
 
 export type StatusAuthorityDomain = "Solver" | "Rule pack" | "Human" | "Evidence";
 
@@ -99,4 +100,20 @@ export function ruleCheckStatusToken(value: string): string {
 
 export function professionalStatusToken(value: string): string {
   return value.toLowerCase() === "not_provided" ? "HUMAN_REVIEW_REQUIRED" : value;
+}
+
+/** Owner-adopted display fallback, not a ninth registered authority token. */
+export const SOLVER_NOT_SOLVED = Object.freeze({ label: "Not solved", domain: "Solver" as const });
+
+export function solverDisplayWithToken(value: string): string {
+  const row = registeredStatusLabel(value);
+  return row?.domain === "Solver" && row.kind === "status"
+    ? `${row.domain} · ${row.label} (${value})`
+    : `${SOLVER_NOT_SOLVED.domain} · ${SOLVER_NOT_SOLVED.label} (${value})`;
+}
+
+/** Known absence/readiness values do not assert a failed or blocked solve. */
+export function hasRecordedUnsolvedModelStatus(value: string | null): value is string {
+  return value !== null && value.trim() !== "" &&
+    !["NOT_RUN", "NOT_COMPUTED", "READY", "READY_FOR_PREVIEW_DIAGNOSTICS", "MECHANICS_SOLVED"].includes(value.trim().toUpperCase());
 }

@@ -12,11 +12,12 @@
 // results, operations or project cell other than the few plain values its
 // callers pass in. And the interface asserts no status of its own: a chip is a
 // status the model document, the run record or the rule-check aggregate
-// carries, shown through the one registered table (`statusLabels.ts`).
+// carries, shown through the registered table or the owner-adopted display-only
+// Solver fallback (`statusLabels.ts`).
 
 import type { SolveJobEvent } from "../../types";
-import { professionalStatusToken, registeredStatusLabel } from "./statusLabels";
-import type { RegisteredStatusToken, StatusAuthorityDomain } from "./statusLabels";
+import { SOLVER_NOT_SOLVED, hasRecordedUnsolvedModelStatus, professionalStatusToken, registeredStatusLabel } from "./statusLabels";
+import type { StatusAuthorityDomain } from "./statusLabels";
 import type { WorkspaceSectionId } from "./workspaceSections";
 
 // ---------------------------------------------------------------------------
@@ -349,7 +350,7 @@ export const RAIL_FOOT_ITEMS: readonly RailFootItem[] = Object.freeze([
 // The status chip policy (§5.4). The status bar speaks for the current model
 // and its Current run, and for nothing else.
 
-export type StatusChip = { token: RegisteredStatusToken; label: string; domain: StatusAuthorityDomain };
+export type StatusChip = { token: string; label: string; domain: StatusAuthorityDomain; source?: "Solve job state" };
 
 export type StatusChipInputs = RunPresence & {
   /** `model.analysis_status.mechanics`: the status the model document records; null with no model. */
@@ -386,7 +387,7 @@ export function statusChips(inputs: StatusChipInputs, stage: ShellStage, pageOpe
   // the current model's standing, which a Historical record never supplies.
   if (inputs.historicalRunShown) return [];
   if (inputs.hasResult) {
-    const solver = chipFor(inputs.resultMechanicsStatus, "Solver");
+    const solver = chipFor(inputs.resultMechanicsStatus, "Solver") ?? (inputs.resultMechanicsStatus === null ? null : { token: inputs.resultMechanicsStatus, ...SOLVER_NOT_SOLVED });
     // Rule 7, first row: a run that did not solve shows whatever Solver status its record carries.
     if (!inputs.hasCurrentSolvedResult) return solver ? [solver] : [];
     // Rules 3 and 4: one chip per authority domain for the Current solved run.
@@ -403,12 +404,15 @@ export function statusChips(inputs: StatusChipInputs, stage: ShellStage, pageOpe
     }
     return chips;
   }
-  // Rule 7, second row: a stopped or failed run whose record carries no status
-  // leaves the bar empty; Model incomplete is not carried over from before the run.
+  // B3A: recorded failure has a display fallback sourced from job state.
+  // Cancellation without a solver status keeps the no-chip policy.
+  if (inputs.solveJobState === "failed") return [{ token: inputs.solveJobState, ...SOLVER_NOT_SOLVED, source: "Solve job state" }];
   if (runEnded(inputs.solveJobState)) return [];
   // Rule 1: the model document records that it cannot be solved. Rule 2: otherwise no chip.
   const incomplete = chipFor(inputs.modelMechanicsStatus, "Solver");
-  return incomplete && incomplete.token === "MODEL_INCOMPLETE" ? [incomplete] : [];
+  if (incomplete && incomplete.token === "MODEL_INCOMPLETE") return [incomplete];
+  return hasRecordedUnsolvedModelStatus(inputs.modelMechanicsStatus)
+    ? [{ token: inputs.modelMechanicsStatus, ...SOLVER_NOT_SOLVED }] : [];
 }
 
 /** "Solver · Mechanics solved": the chip's face. The raw token is its tooltip and its popover's monospace line. */
