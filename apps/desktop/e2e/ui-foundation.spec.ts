@@ -1,3 +1,4 @@
+import { selectCompactOption } from "./workspace-driver";
 import { buildModelIndex } from "../src/features/workspace/modelIndex";
 import { displayedBoundsForEntityKeys, fittedViewportDistance } from "../src/features/viewport/viewportSelection";
 import { expect, test, type Locator, type Page } from "@playwright/test";
@@ -679,7 +680,7 @@ for (const theme of APPEARANCE_THEMES) {
         };
         await startPropertyTaskFromTreeEntity(page, "node", "node:N-100");
         const inspector = page.getByTestId("property-inspector");
-        await inspector.getByTestId("editor-intent-field").selectOption("label");
+        await selectCompactOption(inspector.getByTestId("editor-intent-field"), "label");
         await inspector.getByTestId("editor-intent-value").fill("Retained inspector task");
         if (viewport.width < 1280) await ensureRail(page, "inspector", false);
         await activateWithKeyboard(page, page.getByTestId("command-pipe"));
@@ -1123,7 +1124,7 @@ test("live Properties routes follow catalogue target B while frozen Task A remai
   await expect(inspector.locator(":scope > h2")).toContainText(`pipe: ${pipeA.id}`);
   await expect(freshPanel).toContainText(`Shared section: ${pipeA.section_ref}`);
   await expect(freshPanel.getByRole("combobox", { name: "Shared section" })).toHaveValue("");
-  await freshPanel.getByRole("combobox", { name: "Shared section" }).selectOption(alternateForA.id);
+  await selectCompactOption(freshPanel.getByRole("combobox", { name: "Shared section" }), alternateForA.id);
   await expect(freshPanel.getByRole("button", { name: "Queue section assignment", exact: true })).toBeEnabled();
 
   await activateWithKeyboard(page, taskTab);
@@ -1141,7 +1142,7 @@ test("live Properties routes follow catalogue target B while frozen Task A remai
   await expect(liveBPanel).toContainText(`Shared section: ${pipeB.section_ref}`);
   const liveSection = liveBPanel.getByRole("combobox", { name: "Shared section" });
   await expect(liveSection).toHaveValue("");
-  await liveSection.selectOption(alternateForB.id);
+  await selectCompactOption(liveSection, alternateForB.id);
   await activateWithKeyboard(page, liveBPanel.getByRole("button", { name: "Queue section assignment", exact: true }));
 
   const queued = page.getByTestId("operation-apply-row-editor-intent-1");

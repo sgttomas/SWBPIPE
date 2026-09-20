@@ -1,3 +1,4 @@
+import { selectCompactOption } from "./workspace-driver";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 const defaultPreviewModel = JSON.parse(readFileSync(fileURLToPath(
@@ -1007,8 +1008,8 @@ for (const theme of APPEARANCE_THEMES) {
         await openWorkspaceSection(page, "operations");
         await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
         const editor = await startPropertyTaskFromTreeEntity(page, "load", "load:L-100");
-        await editor.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
-        await expect(editor.getByTestId("editor-intent-unit")).toHaveValue("N/m");
+        await selectCompactOption(editor.getByTestId("editor-intent-field"), "primitive_loads.0.magnitude.value");
+        await expect(editor.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "N/m");
         await editor.getByLabel("New first primitive magnitude", { exact: true }).fill("-225");
         await editor.getByTestId("queue-editor-intent").click();
         await openWorkspaceSection(page, "operations");

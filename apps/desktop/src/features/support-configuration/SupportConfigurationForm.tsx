@@ -1,3 +1,4 @@
+import { CompactSelect } from "../workspace/CompactSelect";
 import { useEffect, useMemo, useState } from "react";
 import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
@@ -22,17 +23,14 @@ function FamilyField({ value, onChange }: { value: unknown; onChange: (value: st
       ? "Null source value (preserved)"
       : `Unsupported source value ${JSON.stringify(value)} (preserved)`;
   return <label>Support family
-    <select
+    <CompactSelect
       aria-label="Support family"
       value={recognized ? String(value) : ""}
-      onChange={event => {
-        const selected = event.target.value;
+      onValueChange={selected => {
         if (FAMILIES.some(family => family.value === selected)) onChange(selected);
       }}
-    >
-      {!recognized && <option value="" disabled>{preservedLabel}</option>}
-      {FAMILIES.map(family => <option key={family.value} value={family.value}>{family.label}</option>)}
-    </select>
+      options={[...(!recognized ? [{ value: "", label: preservedLabel, disabled: true }] : []), ...FAMILIES]}
+    />
   </label>;
 }
 const CONFIG = ["family", "restraints", "stiffness", "hanger", "nonlinear", "provenance"];
@@ -63,6 +61,7 @@ function StiffnessFields({ label, value, onChange }: {
     <TextField
       label={`${label} DOF`}
       value={s.dof}
+      compactSelect
       choices={DOFS}
       onChange={dof => onChange(setMember(s, "dof", dof))}
     />
@@ -223,6 +222,7 @@ function SupportEditor(props: RichFormProps & {
         <TextField
           label="Hanger type"
           value={hanger.hanger_type}
+          compactSelect
           choices={["variable_spring_hanger", "spring_hanger", "constant_effort_support"]}
           onChange={v => setH("hanger_type", v)}
         />
@@ -255,18 +255,21 @@ function SupportEditor(props: RichFormProps & {
         <TextField
           label="Nonlinear behavior"
           value={nonlinear.behavior}
+          compactSelect
           choices={["one_way", "gap", "lift_off", "friction"]}
           onChange={v => setN("behavior", v)}
         />
         <TextField
           label="Nonlinear DOF"
           value={nonlinear.dof}
+          compactSelect
           choices={DOFS}
           onChange={v => setN("dof", v)}
         />
         <TextField
           label="Initial state"
           value={nonlinear.initial_state}
+          compactSelect
           choices={["active", "inactive", "sticking", "sliding"]}
           onChange={v => setN("initial_state", v)}
         />
@@ -274,6 +277,7 @@ function SupportEditor(props: RichFormProps & {
           key={key}
           label={key.replaceAll("_", " ")}
           value={nonlinear[key]}
+          compactSelect
           choices={key === "closes_when" ? ["positive_displacement", "negative_displacement"] : ["positive_reaction", "negative_reaction"]}
           onChange={v => setN(key, v)}
         />)}
@@ -300,6 +304,7 @@ function SupportEditor(props: RichFormProps & {
             <TextField
               label="Reaction source DOF"
               value={source.dof}
+              compactSelect
               choices={selectedSource?.restraints.filter(d => ["UX", "UY", "UZ"].includes(d.toUpperCase())) ?? []}
               onChange={v => setN("normal_reaction_source", setMember(source, "dof", v))}
             />

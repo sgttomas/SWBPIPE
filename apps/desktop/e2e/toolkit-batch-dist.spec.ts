@@ -1,3 +1,4 @@
+import { selectCompactOption } from "./workspace-driver";
 import { expect, test } from "@playwright/test";
 import {
   expectTreeEntity,
@@ -23,7 +24,7 @@ test("dist self-weight plan previews, applies atomically and restores one batch 
   await page.getByTestId("toolkit-view.select").click();
   await selectTreeEntity(page, "pipe", "pipe:P-100");
   await startPropertyTaskFromCurrentSelection(page, "pipe", "pipe:P-100");
-  await page.getByTestId("editor-intent-field").selectOption("section.material_density.value");
+  await selectCompactOption(page.getByTestId("editor-intent-field"), "section.material_density.value");
   await page.getByTestId("editor-intent-value").fill("7800");
   await page.getByTestId("editor-intent-unit").fill("kg/m^3");
   await page.getByTestId("queue-editor-intent").click();
@@ -63,7 +64,7 @@ test("dist self-weight plan previews, applies atomically and restores one batch 
   await expect(inspector.getByTestId("inspector-frozen-task-target")).toContainText("Draft target: pipe: pipe:P-100");
   await inspector.getByRole("button", { name: "Cancel", exact: true }).click();
   await startPropertyTaskFromCurrentSelection(page, "pipe", "pipe:P-100");
-  await page.getByTestId("editor-intent-field").selectOption("section.material_density.value");
+  await selectCompactOption(page.getByTestId("editor-intent-field"), "section.material_density.value");
   await expect(page.getByTestId("editor-intent-value")).toHaveValue("7800");
   expect(artifacts.some(url => url.includes("open_pipe_stress_operation_applier_bg.wasm"))).toBe(true);
   expect(artifacts.some(url => url.includes("open_pipe_stress_self_weight_wasm_bg.wasm"))).toBe(true);

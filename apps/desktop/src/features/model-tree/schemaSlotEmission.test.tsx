@@ -1,3 +1,4 @@
+import { changeFormControl, expectFormControlValue } from "../../test-support/workspaceTestControls";
 // TP-PMM-GUIEMIT-001 — GUI entry and emission of user-entered schema slots
 // adopted under DEC-068 / DEC-070 and extended by DEC-077:
 //
@@ -82,7 +83,7 @@ function intentPanel(): HTMLElement {
 
 function queueFieldValue(fieldPath: string, value: string): void {
   const panel = intentPanel();
-  fireEvent.change(within(panel).getByTestId("editor-intent-field"), {
+  changeFormControl(within(panel).getByTestId("editor-intent-field"), {
     target: { value: fieldPath }
   });
   fireEvent.change(within(panel).getByTestId("editor-intent-value"), {
@@ -107,7 +108,7 @@ describe("TP-PMM-GUIEMIT-001 user-entered schema slot entry", () => {
 
     renderInspector(model, { type: "component", id: "component:C-110" });
     const panel = intentPanel();
-    fireEvent.change(within(panel).getByTestId("editor-intent-field"), {
+    changeFormControl(within(panel).getByTestId("editor-intent-field"), {
       target: { value: "geometry.bend_pipe_ref" }
     });
     expect(within(panel).getByTestId("editor-intent-value")).toHaveValue("TBD");
@@ -137,12 +138,12 @@ describe("TP-PMM-GUIEMIT-001 user-entered schema slot entry", () => {
     const queued = renderInspector(model, { type: "pipe", id: "pipe:P-120" });
 
     const panel = intentPanel();
-    fireEvent.change(within(panel).getByTestId("editor-intent-field"), {
+    changeFormControl(within(panel).getByTestId("editor-intent-field"), {
       target: { value: "section.mill_tolerance.value" }
     });
     // The unit control offers display metadata only; the VALUE starts TBD.
     expect(within(panel).getByTestId("editor-intent-value")).toHaveValue("TBD");
-    expect(within(panel).getByTestId("editor-intent-unit")).toHaveValue("m");
+    expectFormControlValue(within(panel).getByTestId("editor-intent-unit"), "m");
     fireEvent.change(within(panel).getByTestId("editor-intent-value"), {
       target: { value: "0.0016" }
     });

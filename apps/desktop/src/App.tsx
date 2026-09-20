@@ -1,3 +1,4 @@
+import { CompactSelectScope } from "./features/workspace/CompactSelect";
 import { HangerSelectionPanel } from "./features/hanger-selection";
 import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
 import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
@@ -305,6 +306,7 @@ function AppSession() {
 
   return (
     <WorkspaceSessionProvider session={session}>
+    <CompactSelectScope scopeKey={JSON.stringify([projectSessionGeneration, shell.stage, stageView, activeSection, inspectorCollapsed, armedCreationTool])}>
     <main
       className={showInAppMenuBar ? "app-shell" : "app-shell native-menu"}
       data-density={uiPreferences.density}
@@ -1013,6 +1015,7 @@ function AppSession() {
         />
       ) : null}
     </main>
+    </CompactSelectScope>
     </WorkspaceSessionProvider>
   );
 }

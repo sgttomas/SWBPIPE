@@ -1,3 +1,4 @@
+import { changeFormControl, expectFormControlValue, compactOptionRecords } from "./test-support/workspaceTestControls";
 import type { ViewportViewCommand } from "./features/viewport/viewportSelection";
 import {
   act,
@@ -277,12 +278,12 @@ function setControlValue(panel: HTMLElement, testId: string, value: string) {
     chooseVirtualTarget(panel, testId, value);
     return;
   }
-  fireEvent.change(control, { target: { value } });
+  changeFormControl(control, { target: { value } });
 }
 
 function fillExistingReviewedRoute(panel: HTMLElement, model: PreviewModel, id: string) {
   const change = (field: string, value: string) =>
-    fireEvent.change(within(panel).getByTestId(field), { target: { value } });
+    changeFormControl(within(panel).getByTestId(field), { target: { value } });
   change("viewport-create-pipe-id", id);
   change("viewport-create-pipe-label", `Reviewed ${id}`);
   chooseVirtualTarget(panel, "viewport-create-pipe-from", model.nodes[0].id);
@@ -300,7 +301,7 @@ function fillNewEndReviewedRoute(panel: HTMLElement, model: PreviewModel, pipeId
   fillExistingReviewedRoute(panel, model, pipeId);
   fireEvent.click(within(panel).getByLabelText("New node"));
   const change = (field: string, value: string) =>
-    fireEvent.change(within(panel).getByTestId(field), { target: { value } });
+    changeFormControl(within(panel).getByTestId(field), { target: { value } });
   change("viewport-route-end-id", nodeId);
   change("viewport-route-end-label", `Reviewed ${nodeId}`);
   change("viewport-route-end-x", "3.2");
@@ -4970,12 +4971,10 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(intentPanel).getByTestId("queue-editor-intent"),
     ).toBeDisabled();
-    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), {
+    changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), {
       target: { value: "elastic_modulus.value" },
     });
-    expect(within(intentPanel).getByTestId("editor-intent-unit")).toHaveValue(
-      "Pa",
-    );
+    expectFormControlValue(within(intentPanel).getByTestId("editor-intent-unit"), "Pa");
     expect(
       await within(intentPanel).findByText(
         /^New .*\(Pa\)$/,
@@ -6964,13 +6963,11 @@ describe("SWBPIPE desktop preview", () => {
     const intentPanel = within(inspector).getByLabelText(
       "Editor operation intent",
     );
-    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), {
+    changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), {
       target: { value: "position.y" },
     });
 
-    expect(within(intentPanel).getByTestId("editor-intent-unit")).toHaveValue(
-      "m",
-    );
+    expectFormControlValue(within(intentPanel).getByTestId("editor-intent-unit"), "m");
     expect(
       within(intentPanel).getByText(/^New .*\(m\)$/),
     ).toBeInTheDocument();
@@ -7016,13 +7013,11 @@ describe("SWBPIPE desktop preview", () => {
     const intentPanel = within(inspector).getByLabelText(
       "Editor operation intent",
     );
-    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), {
+    changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), {
       target: { value: "primitive_loads.0.magnitude.value" },
     });
 
-    expect(within(intentPanel).getByTestId("editor-intent-unit")).toHaveValue(
-      "N/m",
-    );
+    expectFormControlValue(within(intentPanel).getByTestId("editor-intent-unit"), "N/m");
     expect(
       within(intentPanel).getByText(/^New .*\(N\/m\)$/),
     ).toBeInTheDocument();
@@ -7186,7 +7181,7 @@ describe("SWBPIPE desktop preview", () => {
     const inspector = screen.getByLabelText("Property inspector");
     const intentPanel = startPropertyTask("material", "material:invented-carbon-steel");
 
-    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), {
+    changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), {
       target: { value: "elastic_modulus.value" },
     });
     fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
@@ -8540,10 +8535,11 @@ describe("SWBPIPE desktop preview", () => {
       within(storageAudit).getByTestId("model-hash-integrity").textContent,
     ).toContain("no open-verification has run this session");
 
+    fireEvent.click(screen.getByTestId("workspace-dock-close"));
     const tree = screen.getByLabelText("Model tree");
     selectTreeRow("material", "material:invented-carbon-steel");
     const intentPanel = startPropertyTask("material", "material:invented-carbon-steel");
-    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), {
+    changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), {
       target: { value: "elastic_modulus.value" },
     });
     fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
@@ -8554,6 +8550,7 @@ describe("SWBPIPE desktop preview", () => {
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("1 pending operation; applied_operations=0");
 
+    openWorkspaceSection("project");
     fireEvent.click(
       within(controls).getByRole("button", { name: /Create local/i }),
     );
@@ -13715,7 +13712,7 @@ describe("SWBPIPE desktop preview", () => {
 
     // Queue two edits of the same field; applying the first must make the
     // second stale rather than silently double-applying.
-    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), {
+    changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), {
       target: { value: "elastic_modulus.value" },
     });
     fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
@@ -13883,12 +13880,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       screen.getByTestId("property-unit-basis-summary").textContent,
     ).toContain("1/degC, model metadata");
-    expect(
-      within(createMaterialPanel).getByTestId("create-material-stress-unit"),
-    ).toHaveValue("Pa");
-    expect(
-      within(createMaterialPanel).getByTestId("create-material-thermal-unit"),
-    ).toHaveValue("1/degC");
+    expectFormControlValue(within(createMaterialPanel).getByTestId("create-material-stress-unit"), "Pa");
+    expectFormControlValue(within(createMaterialPanel).getByTestId("create-material-thermal-unit"), "1/degC");
     expect(
       within(createMaterialPanel).getByText(
         "Elastic modulus (Pa, model metadata)",
@@ -14014,9 +14007,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       screen.getByTestId("property-unit-basis-summary").textContent,
     ).toContain("m, model metadata");
-    expect(
-      within(createSectionPanel).getByTestId("create-section-length-unit"),
-    ).toHaveValue("m");
+    expectFormControlValue(within(createSectionPanel).getByTestId("create-section-length-unit"), "m");
     expect(
       within(createSectionPanel).getByText(
         "Outside diameter (m, model metadata)",
@@ -14140,9 +14131,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(
       within(createSupportPanel).getByTestId("create-support-restraint-RX"),
     );
-    expect(
-      within(createSupportPanel).getByTestId("create-support-stiffness-unit"),
-    ).toHaveValue("N/m");
+    expectFormControlValue(within(createSupportPanel).getByTestId("create-support-stiffness-unit"), "N/m");
     await waitFor(() =>
       expect(
         within(createSupportPanel).getByText(
@@ -14720,9 +14709,7 @@ describe("SWBPIPE desktop preview", () => {
           .textContent,
       ).toContain("browser preview uses model metadata"),
     );
-    expect(
-      within(viewportIntentPanel).getByTestId("viewport-create-node-unit"),
-    ).toHaveValue("m");
+    expectFormControlValue(within(viewportIntentPanel).getByTestId("viewport-create-node-unit"), "m");
     await waitFor(() =>
       expect(
         within(viewportIntentPanel).getByTestId(
@@ -14945,11 +14932,9 @@ describe("SWBPIPE desktop preview", () => {
           .textContent,
       ).toContain("browser preview uses model metadata"),
     );
-    expect(
-      within(viewportIntentPanel).getByTestId(
+    expectFormControlValue(within(viewportIntentPanel).getByTestId(
         "viewport-create-pipe-length-unit",
-      ),
-    ).toHaveValue("m");
+      ), "m");
     await waitFor(() =>
       expect(
         within(viewportIntentPanel).getByTestId(
@@ -15482,7 +15467,7 @@ describe("SWBPIPE desktop preview", () => {
       expect(queueButton).not.toBeDisabled();
       fireEvent.click(queueButton);
 
-      expect(within(panel).getByTestId("create-component-kind")).toHaveValue(kind);
+      expectFormControlValue(within(panel).getByTestId("create-component-kind"), kind);
       expectVirtualTargetEmpty(panel, "create-component-pipe");
       if (kind === "tee") {
         expectVirtualTargetEmpty(panel, "create-component-secondary-pipe");
@@ -15515,7 +15500,7 @@ describe("SWBPIPE desktop preview", () => {
       expect(queueButton).not.toBeDisabled();
       fireEvent.click(queueButton);
 
-      expect(within(panel).getByTestId("viewport-create-component-kind")).toHaveValue(kind);
+      expectFormControlValue(within(panel).getByTestId("viewport-create-component-kind"), kind);
       expectVirtualTargetEmpty(panel, "viewport-create-component-pipe");
       if (kind === "tee") {
         expectVirtualTargetEmpty(panel, "viewport-create-component-secondary-pipe");
@@ -15669,7 +15654,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(preview.textContent).toContain('"provenance":"user_entered_expansion_joint_no_catalog"');
     fireEvent.click(queueButton);
 
-    expect(within(panel).getByTestId("create-component-kind")).toHaveValue("expansion_joint");
+    expectFormControlValue(within(panel).getByTestId("create-component-kind"), "expansion_joint");
     expectVirtualTargetEmpty(panel, "create-component-pipe");
     expect(queueButton).toBeDisabled();
     fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
@@ -15740,7 +15725,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
 
-    expect(within(componentPanel).getByTestId("create-component-kind")).toHaveValue("tee");
+    expectFormControlValue(within(componentPanel).getByTestId("create-component-kind"), "tee");
     expectVirtualTargetEmpty(componentPanel, "create-component-pipe");
     expectVirtualTargetEmpty(componentPanel, "create-component-secondary-pipe");
     expect(queueButton).toBeDisabled();
@@ -15874,7 +15859,7 @@ describe("existing toolkit v2 bound section", () => {
     expect(screen.getByTestId("pipe-section-basis")).toHaveTextContent("section:shared-test");
     fireEvent.click(screen.getByRole("tab", { name: /^Task$/ }));
     fireEvent.click(screen.getByTestId("inspector-start-task"));
-    const options = within(screen.getByTestId("editor-intent-field")).getAllByRole("option").map((option) => option.getAttribute("value"));
+    const options = compactOptionRecords(screen.getByTestId("editor-intent-field")).map((option) => option.value);
     expect(options).not.toContain("section.outside_diameter.value"); expect(options).not.toContain("section.wall_thickness.value");
     expect(options).toContain("section.mill_tolerance.value");
   });
@@ -15894,7 +15879,7 @@ describe("existing toolkit v3 integration", () => {
     selectTreeRow("load", model.load_cases[0].id);
     fireEvent.click(screen.getByTestId("toolkit-entry")); expect(screen.getByTestId("toolkit-loads.wind-exposure")).toBeDisabled();
     fireEvent.click(screen.getByTestId("toolkit-loads.wind"));
-    fireEvent.change(screen.getByTestId("editor-intent-field"), { target: { value: "equivalent_static.wind.pressure.value" } });
+    changeFormControl(screen.getByTestId("editor-intent-field"), { target: { value: "equivalent_static.wind.pressure.value" } });
     fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value: "50" } });
     fireEvent.click(screen.getByTestId("queue-editor-intent")); fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
     await waitFor(() => expect(reviewControl("operation-apply-summary")).toHaveTextContent("1 applied"));
@@ -15985,7 +15970,7 @@ describe("native straight-route Add and Apply", () => {
     expect(within(panel).getByTestId("viewport-create-pipe-yref-z")).toHaveValue("1");
     expect(within(panel).getByTestId("viewport-create-pipe-provenance")).toHaveValue("explicit_app_route_provenance");
     expect(within(panel).getByLabelText("New node")).toBeChecked();
-    expect(within(panel).getByTestId("viewport-routing-plane")).toHaveValue("XZ");
+    expectFormControlValue(within(panel).getByTestId("viewport-routing-plane"), "XZ");
     expect(within(panel).getByRole("radio", { name: "Free" })).toBeChecked();
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("1 applied");
     expect(reviewControl("session-history-chip")).toHaveTextContent("1 undo / 0 redo");
@@ -16004,7 +15989,7 @@ describe("native straight-route Add and Apply", () => {
     fireEvent.click(screen.getByTestId("command-pipe"));
     const panel = screen.getByTestId("viewport-editor-intents");
     fillNewEndReviewedRoute(panel, model, "pipe:UI-continue-plane", "node:UI-continue-plane");
-    fireEvent.change(within(panel).getByTestId("viewport-routing-plane"), { target: { value: "YZ" } });
+    changeFormControl(within(panel).getByTestId("viewport-routing-plane"), { target: { value: "YZ" } });
     fireEvent.click(within(panel).getByRole("radio", { name: "Y" }));
     fireEvent.click(within(panel).getByTestId("continue-pipe-after-queue"));
     fireEvent.click(within(panel).getByTestId("queue-explicit-pipe-intent"));
@@ -16014,9 +15999,9 @@ describe("native straight-route Add and Apply", () => {
 
     expectVirtualTargetValue(panel, "viewport-create-pipe-from", "node:UI-continue-plane");
     expect(within(panel).getByLabelText("New node")).toBeChecked();
-    expect(within(panel).getByTestId("viewport-routing-plane")).toHaveValue("YZ");
+    expectFormControlValue(within(panel).getByTestId("viewport-routing-plane"), "YZ");
     expect(within(panel).getByRole("radio", { name: "Y" })).toBeChecked();
-    expect(within(panel).getByTestId("viewport-route-end-unit")).toHaveValue("m");
+    expectFormControlValue(within(panel).getByTestId("viewport-route-end-unit"), "m");
     expectVirtualTargetValue(panel, "viewport-create-pipe-material", model.materials![0].id);
     expect(within(panel).getByTestId("viewport-create-pipe-provenance")).toHaveValue("explicit_app_route_provenance");
     expect(within(panel).getByTestId("viewport-route-end-id")).toHaveValue("");
@@ -16389,7 +16374,7 @@ describe("native straight-route Add and Apply", () => {
     await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(screen.getByTestId(typedTreeRowTestId("load", model.load_cases[0].id)));
     let intentPanel = startPropertyTask("load", model.load_cases[0].id);
-    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), { target: { value: "primitive_loads.0.magnitude.value" } });
+    changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), { target: { value: "primitive_loads.0.magnitude.value" } });
     const original = within(intentPanel).getByTestId("editor-intent-value") as HTMLInputElement;
     const originalValue = original.value;
     expect(originalValue).not.toBe("500");
@@ -16398,15 +16383,15 @@ describe("native straight-route Add and Apply", () => {
     fireEvent.click(screen.getByTestId("workspace-review"));
     await waitFor(() => expect(reviewControl("operation-apply-summary")).toHaveTextContent("1 applied"));
     intentPanel = startPropertyTask("load", model.load_cases[0].id);
-    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), { target: { value: "primitive_loads.0.magnitude.value" } });
+    changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), { target: { value: "primitive_loads.0.magnitude.value" } });
     expect(within(intentPanel).getByTestId("editor-intent-value")).toHaveValue("500");
     fireEvent.click(reviewControl("undo-session-model-edit"));
     intentPanel = startPropertyTask("load", model.load_cases[0].id);
-    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), { target: { value: "primitive_loads.0.magnitude.value" } });
+    changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), { target: { value: "primitive_loads.0.magnitude.value" } });
     expect(within(intentPanel).getByTestId("editor-intent-value")).toHaveValue(originalValue);
     fireEvent.click(reviewControl("redo-session-model-edit"));
     intentPanel = startPropertyTask("load", model.load_cases[0].id);
-    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), { target: { value: "primitive_loads.0.magnitude.value" } });
+    changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), { target: { value: "primitive_loads.0.magnitude.value" } });
     expect(within(intentPanel).getByTestId("editor-intent-value")).toHaveValue("500");
   });
 

@@ -1,3 +1,4 @@
+import { CompactSelect } from "../workspace/CompactSelect";
 import { QuantityReadout } from "../display-units";
 import { SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
@@ -440,18 +441,13 @@ export function PropertyInspector({
             <div className="editor-intent-controls">
               <label>
                 <span>Property</span>
-                <select
+                <CompactSelect
                   aria-label="Property to edit"
                   data-testid="editor-intent-field"
-                  onChange={(event) => handleFieldChange(event.target.value)}
+                  onValueChange={(value) => handleFieldChange(value)}
                   value={selectedField?.fieldPath ?? ""}
-                >
-                  {editableFields.map((field) => (
-                    <option key={field.fieldPath} value={field.fieldPath}>
-                      {propertyLabel(field)}
-                    </option>
-                  ))}
-                </select>
+                  options={editableFields.map((field) => ({ value: field.fieldPath, label: propertyLabel(field) }))}
+                />
               </label>
               {selectedField ? <SelectedFieldValue field={selectedField} basis={selectedFieldUnitBasis} /> : null}
               <label>
@@ -479,21 +475,16 @@ export function PropertyInspector({
                       taskGenerationRef.current += 1;
                       setProposedUnit(event.target.value);
                     }}
-                  /> : <select
+                  /> : <CompactSelect
                     aria-label="Proposed editor unit"
                     data-testid="editor-intent-unit"
-                    onChange={(event) => {
+                    onValueChange={(value) => {
                       taskGenerationRef.current += 1;
-                      setProposedUnit(event.target.value);
+                      setProposedUnit(value);
                     }}
                     value={proposedUnit || selectedField.unit}
-                  >
-                    {selectedFieldUnitOptions.map((option) => (
-                      <option key={option.symbol} value={option.symbol}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>}
+                    options={selectedFieldUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+                  />}
                   <datalist id="mass-unit-options">{selectedFieldUnitOptions.filter((option) => option.symbol && option.symbol !== "TBD").map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}</datalist>
                 </label>
               ) : null}
@@ -600,29 +591,23 @@ export function PropertyInspector({
           </label>
           <label>
             <span>Type</span>
-            <select
+            <CompactSelect
               aria-label="New section type"
               data-testid="create-section-type"
-              onChange={(event) => updateSectionDraft("sectionType", event.target.value)}
+              onValueChange={(value) => updateSectionDraft("sectionType", value)}
               value={sectionDraft.sectionType}
-            >
-              <option value="pipe">pipe</option>
-            </select>
+              options={[{ value: "pipe", label: "pipe" }]}
+            />
           </label>
           <label>
             <span>Length unit</span>
-            <select
+            <CompactSelect
               aria-label="New section length unit"
               data-testid="create-section-length-unit"
-              onChange={(event) => updateSectionDraft("lengthUnit", event.target.value)}
+              onValueChange={(value) => updateSectionDraft("lengthUnit", value)}
               value={sectionDraft.lengthUnit}
-            >
-              {lengthUnitOptions.map((option) => (
-                <option key={option.symbol} value={option.symbol}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              options={lengthUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+            />
           </label>
           <label>
             <span>Outside diameter ({lengthBasis.label})</span>
@@ -691,18 +676,13 @@ export function PropertyInspector({
           </label>
           <label>
             <span>Modulus unit</span>
-            <select
+            <CompactSelect
               aria-label="New material modulus unit"
               data-testid="create-material-stress-unit"
-              onChange={(event) => updateMaterialDraft("stressUnit", event.target.value)}
+              onValueChange={(value) => updateMaterialDraft("stressUnit", value)}
               value={materialDraft.stressUnit}
-            >
-              {stressUnitOptions.map((option) => (
-                <option key={option.symbol} value={option.symbol}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              options={stressUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+            />
           </label>
           <label>
             <span>Elastic modulus ({stressBasis.label})</span>
@@ -726,18 +706,13 @@ export function PropertyInspector({
           </label>
           <label>
             <span>Thermal expansion unit</span>
-            <select
+            <CompactSelect
               aria-label="New material thermal expansion unit"
               data-testid="create-material-thermal-unit"
-              onChange={(event) => updateMaterialDraft("thermalExpansionUnit", event.target.value)}
+              onValueChange={(value) => updateMaterialDraft("thermalExpansionUnit", value)}
               value={materialDraft.thermalExpansionUnit}
-            >
-              {thermalExpansionUnitOptions.map((option) => (
-                <option key={option.symbol} value={option.symbol}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              options={thermalExpansionUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+            />
           </label>
           <label>
             <span>Thermal expansion ({thermalExpansionBasis.label})</span>
@@ -810,18 +785,13 @@ export function PropertyInspector({
           </div>
           <label>
             <span>Linear stiffness unit</span>
-            <select
+            <CompactSelect
               aria-label="New support linear stiffness unit"
               data-testid="create-support-stiffness-unit"
-              onChange={(event) => updateSupportDraft("linearStiffnessUnit", event.target.value)}
+              onValueChange={(value) => updateSupportDraft("linearStiffnessUnit", value)}
               value={supportDraft.linearStiffnessUnit}
-            >
-              {supportStiffnessUnitOptions.map((option) => (
-                <option key={option.symbol} value={option.symbol}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              options={supportStiffnessUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+            />
           </label>
           <label>
             <span>Linear stiffness ({supportStiffnessBasis.label})</span>
@@ -880,18 +850,17 @@ export function PropertyInspector({
           </label>
           <label>
             <span>Kind</span>
-            <select
+            <CompactSelect
               aria-label="New component kind"
               data-testid="create-component-kind"
               value={componentDraft.kind}
-              onChange={(event) =>
+              onValueChange={(value) =>
                 setComponentDraft((current) =>
-                  componentDraftForKind(model, current, event.target.value as CreatableComponentKind)
+                  componentDraftForKind(model, current, value as CreatableComponentKind)
                 )
               }
-            >
-              {creatableComponentKinds.map((kind) => <option key={kind} value={kind}>{kind}</option>)}
-            </select>
+              options={creatableComponentKinds.map((kind) => ({ value: kind, label: kind }))}
+            />
           </label>
           <VirtualTargetPicker label="New component node" testId="create-component-node" options={nodeTargetOptions} value={componentDraft.node} onChange={(value) => setComponentDraft((current) => componentDraftForNode(model, current, value))} />
           <VirtualTargetPicker label={componentDraft.kind === "tee" ? "New tee header pipe" : "New component realized pipe"} testId="create-component-pipe" options={connectedPipeTargetOptions} value={componentDraft.primaryPipeRef} onChange={(value) => updateComponentDraft("primaryPipeRef", value)} />
@@ -1177,15 +1146,13 @@ function ComponentUnitSelect({
   return (
     <label>
       <span>{label}</span>
-      <select
+      <CompactSelect
         aria-label={`New component ${label.toLowerCase()}`}
         data-testid={testId}
-        onChange={(event) => onChange(event.target.value)}
+        onValueChange={(value) => onChange(value)}
         value={value}
-      >
-        {value === "" ? <option value="">Select unit</option> : null}
-        {options.map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}
-      </select>
+        options={[...(value === "" ? [{ value: "", label: "Select unit" }] : []), ...options.map((option) => ({ value: option.symbol, label: option.label }))]}
+      />
     </label>
   );
 }

@@ -1,3 +1,4 @@
+import { CompactSelect } from "../workspace/CompactSelect";
 import { useEffect, useState } from "react";
 import { canonicalJsonString } from "../../services/hashService";
 import { makeRichIntent } from "../rich-authoring/formSupport";
@@ -81,20 +82,14 @@ export function SectionAssignment({ model, selection, onQueueIntent, operationBu
       </p>
       <label>
         Shared section
-        <select
+        <CompactSelect
           aria-label="Shared section"
           value={sectionId}
-          onChange={(event) => setSectionId(event.target.value)}
-        >
-          <option value="">Choose a section</option>
-          {(model.sections ?? [])
+          onValueChange={setSectionId}
+          options={[{ value: "", label: "Choose a section" }, ...(model.sections ?? [])
             .filter((section) => section.section_type === "pipe")
-            .map((section) => (
-              <option key={section.id} value={section.id}>
-                {section.name} ({section.id})
-              </option>
-            ))}
-        </select>
+            .map((section) => ({ value: section.id, label: `${section.name} (${section.id})` }))]}
+        />
       </label>
       {!model.sections?.length ? <p>Create a section first to assign shared dimensions.</p> : null}
       <button

@@ -1,3 +1,4 @@
+import { selectCompactOption } from "./workspace-driver";
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -193,11 +194,11 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   // Edit explicit invented load data through the visible inspector and apply it
   // through the product's local WASM operation engine.
   const editor = await startPropertyTaskFromTreeEntity(page, "load", editedLoadCase.id);
-  await editor.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
+  await selectCompactOption(editor.getByTestId("editor-intent-field"), "primitive_loads.0.magnitude.value");
   await expect(editor.getByTestId("editor-intent-value")).toHaveValue(
     String(editedLoadCase.primitive_loads[0].magnitude.value)
   );
-  await expect(editor.getByTestId("editor-intent-unit")).toHaveValue(editedLoadCase.primitive_loads[0].magnitude.unit);
+  await expect(editor.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", editedLoadCase.primitive_loads[0].magnitude.unit);
   await editor.getByLabel("New first primitive magnitude", { exact: true }).fill("-225");
   await expect(page.getByTestId("viewport-canvas")).toBeVisible();
   for (const controlId of ["editor-intent-field", "editor-intent-value", "editor-intent-unit", "queue-editor-intent"]) {
@@ -273,9 +274,9 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
 
   // The edited unit-bearing value is still the current value after reopen.
   await startPropertyTaskFromTreeEntity(page, "load", editedLoadCase.id);
-  await editor.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
+  await selectCompactOption(editor.getByTestId("editor-intent-field"), "primitive_loads.0.magnitude.value");
   await expect(editor.getByTestId("editor-intent-value")).toHaveValue("-225");
-  await expect(editor.getByTestId("editor-intent-unit")).toHaveValue("N/m");
+  await expect(editor.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "N/m");
 
   // Browser Playwright intentionally has no native solver fallback for an
   // edited model. Validate the user-visible blocking state instead of allowing

@@ -1,6 +1,6 @@
 import { writeFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
-import { ensureInspectorExpanded, openWorkspaceSection, selectTreeEntity, startPropertyTaskFromCurrentSelection } from "./workspace-driver";
+import { ensureInspectorExpanded, openWorkspaceSection, selectCompactOption, selectTreeEntity, startPropertyTaskFromCurrentSelection } from "./workspace-driver";
 
 // Playwright ariaSnapshot is DOM-derived and includes inert content; query Chromium AX directly.
 async function nativeAXNames(page: Page) {
@@ -195,5 +195,86 @@ for (const section of ["libraries", "project", "solve"] as const) {
     expect(await draft!.evaluate(el => el === document.querySelector('[data-testid="editor-intent-value"]'))).toBe(true);
     await expect(page.getByTestId("editor-intent-value")).toHaveValue("Retained keyboard Close draft");
     expect(await nativeAXNames(page)).toContain("region: Modeling workspace");
+  });
+}
+
+for (const layout of ["configured", "narrow"] as const) {
+  test(`compact routing selector owns popup Escape before ${layout} shell consumers`, async ({ page }, info) => {
+    if (layout === "narrow") await page.setViewportSize({ width: 1200, height: 800 });
+    await page.goto("/");
+    await page.getByTestId("command-node").click();
+    const unit = page.getByTestId("viewport-create-node-unit");
+    const draft = page.getByTestId("viewport-create-node-label");
+    await draft.fill("Retained popup draft");
+    const retained = await draft.elementHandle();
+    await unit.focus();
+    await page.keyboard.press("Space");
+    await expect(unit).toHaveAttribute("aria-expanded", "true");
+    const list = page.getByRole("listbox", { name: "New node coordinate unit" });
+    await expect(list).toBeVisible();
+    const placement = await list.evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      const center = document.elementFromPoint((rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2);
+      return { rect: rect.toJSON(), width: innerWidth, height: innerHeight, portalled: el.parentElement === document.body,
+        topmost: el.contains(center) };
+    });
+    await witness(info, `compact-${layout}-popup-placement`, placement);
+    expect(placement.portalled).toBe(true);
+    expect(placement.topmost).toBe(true);
+    expect(placement.rect.left).toBeGreaterThanOrEqual(0);
+    expect(placement.rect.right).toBeLessThanOrEqual(placement.width);
+    expect(placement.rect.top).toBeGreaterThanOrEqual(0);
+    expect(placement.rect.bottom).toBeLessThanOrEqual(placement.height);
+    await page.keyboard.press("ArrowDown");
+    await expect(unit).toHaveAttribute("data-value", "m");
+    await page.keyboard.press("Escape");
+    await expect(list).toHaveCount(0);
+    await expect(unit).toBeFocused();
+    await expect(unit).toHaveAttribute("data-value", "m");
+    await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByTestId("toggle-inspector")).toBeFocused();
+    await page.getByTestId("toggle-inspector").click();
+    await expect(draft).toHaveValue("Retained popup draft");
+    expect(await draft.evaluate((el, old) => el === old, retained)).toBe(true);
+
+    // Silent same-value commits use the same explicit lifecycle as changed commits.
+    await unit.click();
+    await list.locator('[role="option"][data-value="m"]').click();
+    await expect(unit).toHaveAttribute("aria-expanded", "false");
+    await expect(unit).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
+    await page.getByTestId("toggle-inspector").click();
+    await unit.focus();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("Enter");
+    await expect(unit).toHaveAttribute("aria-expanded", "false");
+    await expect(unit).toHaveAttribute("data-value", "m");
+    // Browser preview has entered-unit metadata only; alternate unit catalog
+    // choices are an actual Tauri check, not injected into this browser scenario.
+    await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+    await expect(page.getByTestId("workspace-redo")).toBeDisabled();
+    await witness(info, `compact-${layout}-ax`, await nativeAXNames(page));
+
+    // A retained control's open popup is dismissed on stage change, without remounting its draft.
+    await unit.click();
+    await page.getByTestId("rail-stage-loads").click();
+    await expect(list).toHaveCount(0);
+    await expect(page.getByTestId("rail-stage-loads")).toBeFocused();
+    await page.getByTestId("rail-stage-model").click();
+    await expect(draft).toHaveValue("Retained popup draft");
+    expect(await draft.evaluate((el, old) => el === old, retained)).toBe(true);
+
+    // Exercise a changed value using options actually available in browser mode.
+    await page.getByTestId("workspace-select").click();
+    await selectTreeEntity(page, "node", "node:N-100");
+    await startPropertyTaskFromCurrentSelection(page, "node", "node:N-100");
+    const field = page.getByTestId("editor-intent-field");
+    await selectCompactOption(field, "position.x");
+    await expect(field).toHaveAttribute("data-value", "position.x");
+    await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+    await expect(page.getByTestId("workspace-redo")).toBeDisabled();
   });
 }

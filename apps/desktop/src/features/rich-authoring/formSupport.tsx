@@ -1,3 +1,4 @@
+import { CompactSelect } from "../workspace/CompactSelect";
 import { useEffect, useRef, useState } from "react";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import { canonicalJsonString } from "../../services/hashService";
@@ -47,15 +48,21 @@ export function parseQuantities(value: unknown, path = "Input"): unknown {
   }
   return value;
 }
-export function TextField({ label, value, onChange, choices }: {
+export function TextField({ label, value, onChange, choices, compactSelect = false }: {
   label: string;
   value: unknown;
   onChange: (value: string) => void;
   choices?: readonly string[];
+  compactSelect?: boolean;
 }) {
   const entered = typeof value === "string" ? value : "";
   return <label>{label}
-    {choices ? <select
+    {choices && compactSelect ? <CompactSelect
+      aria-label={label}
+      value={entered}
+      onValueChange={onChange}
+      options={[{ value: "", label: "Not provided" }, ...Array.from(new Set([...choices, ...(entered ? [entered] : [])])).map(v => ({ value: v, label: v.replaceAll("_", " ") }))]}
+    /> : choices ? <select
       aria-label={label}
       value={entered}
       onChange={e => onChange(e.target.value)}
