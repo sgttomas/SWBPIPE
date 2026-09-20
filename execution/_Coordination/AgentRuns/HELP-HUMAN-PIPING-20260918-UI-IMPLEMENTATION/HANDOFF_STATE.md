@@ -189,3 +189,9 @@ ROOT integrated the batch at52142dbd. Fresh independent whole-range review found
 All16 unique connected B3B/C3/legacy scenarios now pass across recorded affected-first runs. Earlier CSS and test-navigation failures remain failed evidence. Native manager received the explicit resource handback and exact226b source for one combined build/witness. Final clean sweep and hosted current-candidate checks remain ahead.
 
 Owner asked to sharpen the publishing MVP and expressly affirmed that implementation can justify preferable paths and PRD amendments. ROOT's MVP_PUBLISHING_DISCUSSION.md is a proposed journey-based product boundary, not an accepted amendment. Whether one live agent-assisted journey is required is open in the owner discussion; unaffected UI work continues. No DAG rebuild or deliverable reconciliation begins.
+
+## Current supersession and resource state
+
+The previous entry's open agent question is resolved by the owner's correction: agent control of SWBPIPE enables planned CAEPIPE validation. Owner subsequently selected Codex as the first controller, with embedding later, and CAEPIPE on this Mac through a Windows environment. Exact words are in continuation OWNER_MVP_AGENT_CORRECTION_2026-09-20.md and OWNER_CODEX_VALIDATION_CONTROLLER_2026-09-20.md. The sealed next-controls preparation brief keeps its historical optional-agent sentence; NEXT_CONTROLS_CONTEXT_ADDENDUM.md explicitly supersedes that context.
+
+C3 browser resources are released; all16 unique focused cases passed. Normal native226b witness and ROOT own look are complete; the shell manager currently owns native/build/CUA for the isolated Save-busy probe and final original-bundle check. Code/test P2 backcheck passes at a635; two narrow records corrections are addressed in the current shared note and _run_records/C3_SOURCE_INSPECTION_QUALIFICATION.md, retaining raw evidence unchanged. Final records backcheck, clean sweep/current collection and hosted proof remain.
