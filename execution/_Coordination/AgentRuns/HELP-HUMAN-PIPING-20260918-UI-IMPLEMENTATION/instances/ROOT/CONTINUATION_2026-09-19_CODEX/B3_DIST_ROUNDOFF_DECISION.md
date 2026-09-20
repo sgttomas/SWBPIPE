@@ -52,6 +52,6 @@ passing surfaces for PR825 only. General local DEC025 remains unchanged.
 
 Current source and dist tests are the evidence; no vendor-source patch, viewport
 engine change, new skip, timeout increase, benchmark/profile rebind, release or
-acceptance is proposed. No Runtime integration or DAG reco nciliation.
+acceptance is proposed. No Runtime integration or DAG reconciliation.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
