@@ -741,17 +741,20 @@ describe("New Blank starts a fresh shell context", () => {
     expect(window.localStorage.getItem("chirality.desktop.ui-preferences.v1")).toBe(preferences);
   });
 
-  it("does not reset the shell when a later project request supersedes New Blank", async () => {
+  it("blocks Open while New Blank owns busy and lets the owning create reset the shell", async () => {
     const workspace = await renderShell();
     act(() => nativeMenuCommand("view.stage.loads"));
     act(() => nativeMenuCommand("view.view.table"));
     const priorName = screen.getByTestId("toolbar-project-name").textContent;
     let completeCreate: ((value: LocalProjectEnvelope) => void) | undefined;
     let requestedBlank: PreviewModel | undefined;
+    const requestedHashes: { model: LocalProjectEnvelope["model_hash"]; envelope: LocalProjectEnvelope["project_envelope_hash"] } = { model: null, envelope: null };
     setTauriRuntime(true);
-    invokeMock.mockImplementation((command: string, payload: { model?: PreviewModel } = {}) => {
+    invokeMock.mockImplementation((command: string, payload: { model?: PreviewModel; modelHash?: LocalProjectEnvelope["model_hash"]; projectEnvelopeHash?: LocalProjectEnvelope["project_envelope_hash"] } = {}) => {
       if (command === "create_local_project") {
         requestedBlank = payload.model;
+        requestedHashes.model = payload.modelHash ?? null;
+        requestedHashes.envelope = payload.projectEnvelopeHash ?? null;
         return new Promise<LocalProjectEnvelope>(resolve => { completeCreate = resolve; });
       }
       return Promise.resolve(null);
@@ -759,12 +762,34 @@ describe("New Blank starts a fresh shell context", () => {
     act(() => nativeMenuCommand("file.new-blank"));
     await waitFor(() => expect(completeCreate).toBeDefined());
     act(() => nativeMenuCommand("file.open-local"));
-    await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("No local project snapshot found."));
-    await act(async () => completeCreate!(inventedOpenEnvelope(requestedBlank!)));
+    expect(invokeMock.mock.calls.some(([command]) => command === "open_local_project")).toBe(false);
+    expect(screen.getByTestId("open-local-project")).toBeDisabled();
     expect(workspace).toHaveAttribute("data-stage", "loads");
     expect(workspace).toHaveAttribute("data-view", "table");
     expect(rail("loads")).toHaveAttribute("aria-current", "page");
     expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(priorName!);
+    // Create echoes its requested blank identity; the shared Open fixture deliberately does not.
+    const created = inventedOpenEnvelope(requestedBlank!);
+    created.model = structuredClone(requestedBlank!);
+    created.model_hash = requestedHashes.model;
+    created.project_envelope_hash = requestedHashes.envelope;
+    created.summary = {
+      ...created.summary,
+      project_id: created.model.project.id,
+      project_name: created.model.project.name,
+      persisted_mechanics_result_count: 0,
+      persisted_analysis_run_count: 0,
+      persisted_model_hash_count: requestedHashes.model ? 1 : 0,
+      persisted_model_hash_ref: requestedHashes.model?.value ?? "none",
+      persisted_project_envelope_hash_count: requestedHashes.envelope ? 1 : 0,
+      persisted_project_envelope_hash_ref: requestedHashes.envelope?.value ?? "none"
+    };
+    await act(async () => completeCreate!(created));
+    await waitFor(() => expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent("Blank Local Model"));
+    expect(workspace).toHaveAttribute("data-stage", "model");
+    expect(workspace).toHaveAttribute("data-view", "both");
+    expect(rail("model")).toHaveAttribute("aria-current", "page");
+    expect(screen.getByTestId("open-local-project")).toBeEnabled();
   });
 
 });

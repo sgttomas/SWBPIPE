@@ -1,0 +1,21 @@
+{
+  "source": "fa9d246c5410d2cbdd9a133f6cea2219d0f3ab01",
+  "files": [
+    {
+      "path": "INPUTS.json",
+      "sha256": "bdca13e3d5406d9c3ef863d7fae230b4d40b31bfa45b9d26380506c3da640c96"
+    },
+    {
+      "path": "REPRODUCTION.json",
+      "sha256": "d45761dcc46de237ef78c290d1312c8730a6cd52abf51dbc5136bd09ee44418d"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "4cebefe3ae0e034316447a08cfb670dff3f005c227642ef973565ccac4ce67ad"
+    },
+    {
+      "path": "focused-reproduction.log",
+      "sha256": "2dd887ac4c67f3be11964e2774de8981bb05c27937aa82fad28627a6a383aff3"
+    }
+  ]
+}

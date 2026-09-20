@@ -1,0 +1,72 @@
+{
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "vitest": "4.1.10 from logs",
+  "workers": 1,
+  "checks": [
+    {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "src/App.shell.test.tsx",
+        "src/App.test.tsx",
+        "src/App.projectHandlers.test.tsx",
+        "-t",
+        "blocks Open while New Blank owns busy|keeps a same-model Current solve Current after native save|keeps both recorded mismatches when a model edit drops a pending blank",
+        "--maxWorkers=1"
+      ],
+      "raw": "affected.log",
+      "result": "3 passed,295 filtered;5.02s Vitest; prior to final faithful stale fixture/type-only capture refinement"
+    },
+    {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "src/App.shell.test.tsx",
+        "src/App.test.tsx",
+        "src/App.projectHandlers.test.tsx",
+        "-t",
+        "resets Loads/Table and armed routing|leaves a reopened Historical Results context on successful New Blank|preserves previous shell and preferences when New Blank fails|keeps both recorded mismatches when a model edit drops a pending blank|does not clear edits after wrong project identity|rejects an unrelated differing persistence response",
+        "--maxWorkers=1"
+      ],
+      "raw": "adjacent.log",
+      "result": "6 passed,292 filtered;5.90s; includes final faithful stale-Blank response"
+    },
+    {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "src/App.shell.test.tsx",
+        "-t",
+        "blocks Open while New Blank owns busy",
+        "--maxWorkers=1"
+      ],
+      "raw": "final-busy-fixture.log",
+      "result": "1 passed,39 filtered;2.15s after final callback-capture typing correction"
+    },
+    {
+      "command": [
+        "npx",
+        "tsc",
+        "--noEmit",
+        "-p",
+        "tsconfig.json"
+      ],
+      "raw": "test-types.log",
+      "result": "failed: callback-assigned nullable locals narrowed to never; retained fixture-only attempt"
+    },
+    {
+      "command": [
+        "npx",
+        "tsc",
+        "--noEmit",
+        "-p",
+        "tsconfig.json"
+      ],
+      "raw": "test-types-final.log",
+      "result": "passed, empty output; use typed mutable capture holder"
+    }
+  ]
+}
