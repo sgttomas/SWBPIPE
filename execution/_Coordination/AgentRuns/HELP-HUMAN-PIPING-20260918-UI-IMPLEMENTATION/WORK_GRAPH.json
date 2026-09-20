@@ -305,7 +305,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
-      "status": "Product code/fidelity/native/ROOT checks and all independent backchecks complete at documented scopes. Unit1436, source410/20existing skips and dist53 pass. Final manager evidence fan-in, records checks, clean sweep, actual CI and merge pending. No Runtime adoption.",
+      "status": "All local product/native/review checks and clean9cf five-surface sweep PASS. Final records/harness checks, actual PR CI and merge pending. Runtime adoption remains separate.",
       "dependsOn": [
         "B2F-B2G",
         "C1"
@@ -355,8 +355,7 @@
         }
       ],
       "gatesOwed": [
-        "remaining records/evidence fan-in and checks",
-        "clean-candidate DEC-025 sweep",
+        "final closeout records/harness checks",
         "actual-candidate required CI",
         "merge commit"
       ],
@@ -382,8 +381,7 @@
         }
       ],
       "gatesOwedCurrent": [
-        "remaining records/evidence fan-in and checks",
-        "clean-candidate DEC-025 sweep",
+        "final closeout records/harness checks",
         "actual-candidate required CI",
         "merge commit"
       ],
@@ -439,7 +437,7 @@
         "owner strategy agreement",
         "owner D1-D3 product dispositions"
       ],
-      "candidate": "d3758edf45795dd2c0eddcd840d9100fc3d0cd23",
+      "candidate": "9cf1654d2d0b317774290feb72d1a397a1d6cefa",
       "nativeHostState": {
         "prior": "Mac lock blocked CUA; manual unlock requested",
         "ownerReply": "unlocked",
@@ -498,6 +496,13 @@
         "reported": "53passed/exit0/3.2minutes",
         "log": "instances/B3-CODEX/_run_records/full-dist-completed.log",
         "standing": "manager reported; ROOT hash verification at fan-in"
+      },
+      "sweep": {
+        "commit": "9cf1654d2d0b317774290feb72d1a397a1d6cefa",
+        "status": "pass",
+        "summary": "validation/evidence/sweeps/SWEEP_20260920T065239Z_9cf1654d2d0b.json",
+        "summarySha256": "64871b1d85bc974b0dcff8ca049c1e55113f222eaf13eef6729b2c83bf97f8d1",
+        "rawLogManifest": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-sweep/MANIFEST.json"
       }
     },
     "B3A": {
@@ -750,11 +755,11 @@
       "parent": "ROOT",
       "modelRequested": "gpt-6-astra",
       "reasoningRequested": "high",
-      "status": "all required manager product checks passed; final inherited inventory/return/evidence commit in preparation",
+      "status": "complete; clean frozen handoffc613; source/native/browser processes and lock released",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_BRIEF.md",
       "briefSha256": "e494ccdc4763cca0ff53ae238a33c3d3a83299f66a701b75b107c1a5bdb5fb3f",
-      "candidate": "d3758edf45795dd2c0eddcd840d9100fc3d0cd23",
-      "returnSha256": null,
+      "candidate": "c613922f1725a9b86d81c6c120b05b7df2e0558d",
+      "returnSha256": "b46ab5122037f244a38886fce493f02b7b1ca6046d91725be23693f9c1c7ce91",
       "actualAgent": "/root/b3_manager",
       "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
       "modelRan": "gpt-6-astra",
@@ -890,7 +895,8 @@
         "correctedReturn": "instances/B3-CODEX/_run_records/correlated-popup-prototype/CORRECTED_RETURN.md",
         "correctedReturnSha256": "dc5ac88876b025224a28e64b4bee6df457ce3defd7b6ee4dc6f40cc36b188c16",
         "addendum1Sha256": "1180e1595b4d6f7a857571171865c46031864dd1e1c342a03d63aa7de50d595f"
-      }
+      },
+      "return": "instances/B3-CODEX/RETURN.md"
     },
     "CONTINUATION-RECORDS-REVIEW": {
       "role": "TASK Type 2 read-only independent review",
@@ -1172,7 +1178,7 @@
       "B3-CODE-REVIEW"
     ]
   ],
-  "current_frontier": "Finish B3 source-control closeout. Product24f5/testd375 has1436unit,410source/20existing skips,53dist passes; independent code/fidelity, actual native and ROOT checks complete with documented limits. Manager final evidence consolidation, records review/checks, clean sweep and actual CI/merge remain. Runtime generic21175b5d is separate; Piping adoption/command adapter remains discussion only. No reconciliation/DAG rebuild.",
+  "current_frontier": "B3 local work and independent review complete; clean9cf sweep PASS. ROOT completing closeout records/harness validation, actual PR CI and merge. B3A/B3B remain next authorized UI work; Runtime adoption/command adapter remains separately owner-steered. No deliverable reconciliation/DAG rebuild.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
