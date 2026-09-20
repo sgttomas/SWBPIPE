@@ -1,0 +1,13 @@
+{
+  "parent": "/root/b3_manager",
+  "role": "same TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "mechanism": "Codex delegated-harness-native",
+  "brief": {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3A-CODEX/briefs/REVIEW_REPAIR_1.md",
+    "sha256": "ab97cbed6eaf3021c3010d5ed896e389fa95ce8acac30114395eb2bd1a7d1699"
+  },
+  "base": "80b9efb48c31da0d8dc58a2d728db56adcf17d22",
+  "limits": "Original scope; no Git/native/browser/build/delegation; unrestricted filesystem, written scope only"
+}

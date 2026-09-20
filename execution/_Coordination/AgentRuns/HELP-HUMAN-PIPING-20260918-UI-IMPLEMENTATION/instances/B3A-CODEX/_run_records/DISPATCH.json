@@ -1,0 +1,43 @@
+{
+  "manager": "/root/b3_manager",
+  "role": "WORKING_ITEMS",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "parent": "ROOT HELP_HUMAN",
+  "child": {
+    "id": "/root/b3_manager/b3a_implementation",
+    "role": "TASK",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "mechanism": "Codex delegated-harness-native fresh context",
+    "brief": "briefs/IMPLEMENTATION.md",
+    "sha256": "29c38d450b7f166d77b2c2758e2d0ff0bda9ef1cf86eab52074b3db7f0f2376b",
+    "status": "Repair1 completed2paths, manager checkpointd2ef16848; tests/source manifests verified; no resources",
+    "return": "_run_records/worker/FINAL_MESSAGE.md",
+    "returnSha256": "cd8851e85a358a05731a66b8bdbc7dd63bd0379e1022e4f07816ecf1130bde49",
+    "repairBrief": "briefs/REVIEW_REPAIR_1.md",
+    "repairBriefSha256": "ab97cbed6eaf3021c3010d5ed896e389fa95ce8acac30114395eb2bd1a7d1699",
+    "repairReturn": "_run_records/worker/REPAIR_1_FINAL_MESSAGE.md",
+    "repairReturnSha256": "ef697f2a44c9aa83d87c116c738d88d0396d9349c0217edaf609f5f52471bc10"
+  },
+  "scopeGrant": "ROOT approved exact paths listed in sealed brief; optional SolvePanel only for fallback/raw-source disclosure; one coupled writer",
+  "interpretation": "Loaded-source startup baseline is not saved-file evidence. Unknown/blocked recorded solver token gets display fallback; failed job without result uses actual failed job state distinctly labelled Solve job state. Ordinary cancellation/no failure token remains no chip; never-run and Historical unchanged.",
+  "enforcement": "Unrestricted shared filesystem; written scopes and one writer, not OS isolation. ROOT owns independent review/graph/sweep/CI/merge.",
+  "nativeChild": {
+    "id": "/root/b3_manager/b3a_native",
+    "role": "TASK",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "mechanism": "Codex delegated-harness-native fresh context",
+    "brief": "briefs/NATIVE_WITNESS.md",
+    "sha256": "d0d8c0f84ec252bf03abc939216d407d42879a08ff4e21e85b80531e7368e1b5",
+    "scope": "CUA native witness and own raw evidence only; no product/build/Git writes",
+    "status": "Final d2ef native check complete and ROOT ownlook passed; ROOT quit38905, manager ps absent verified; all B3A resources released",
+    "return": "_run_records/native/RETURN.md",
+    "returnSha256": "a155efe35c10ff854f583702c2365b61c64173025202676f7ae849a9e3154dc6",
+    "repairBrief": "briefs/NATIVE_REPAIR1_BACKCHECK.md",
+    "repairBriefSha256": "e5bcb8c9993d7dfbc95f9df4d584d4365b2ef75aeaa94f7685400f866e349a94",
+    "repairReturn": "_run_records/native/REPAIR1_RETURN.md",
+    "repairReturnSha256": "27d242a1cb0e766d1775947ca8d365c55fab03f93fe3a59cccf3b25f9e2c27ea"
+  }
+}

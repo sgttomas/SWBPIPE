@@ -1,0 +1,59 @@
+{
+  "at": "2026-09-20T16:33:15.124021+00:00",
+  "agent": "/root/b3_manager/b3a_native",
+  "parent": "/root/b3_manager",
+  "role": "TASK Type2",
+  "model": "GPT-6 Astra",
+  "effort": "low",
+  "mechanism": "delegated-harness-native",
+  "enforcement": "instruction scope; unrestricted host",
+  "source": "80b9efb48c31da0d8dc58a2d728db56adcf17d22",
+  "origins": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3A-CODEX/briefs/NATIVE_WITNESS.md",
+      "sha256": "d0d8c0f84ec252bf03abc939216d407d42879a08ff4e21e85b80531e7368e1b5"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3A-CODEX/INVENTORY_AND_PLAN.md",
+      "sha256": "3ff11201c826a8d82308a272d1b505c18b667a76bd26f056632f822db4b84296"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3A-CODEX/VERIFICATION_PLAN.md",
+      "sha256": "01063f6bf15e1c3a0196f15423042370e61a9763a860e43813dce51f33c29b66"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3A_MANAGER_BRIEF_DRAFT.md",
+      "sha256": "708b45cc91878cca3ee6d964cdbb0b1f263694d1d65b910b76595da26da849c9"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3A-CODEX/_run_records/NATIVE_BUILD.json",
+      "sha256": "f655bd3a5e3e3bd2cd62c9fdaac2c305466154f87b5d385dd6d471061c9d6c5f"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+      "sha256": "5de40398acc28fb9bb9e715be87317f61b80f86ba5e348f107308a8af7117c0d"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3A_MANAGER_BRIEF.md",
+      "sha256": "98986a724525d0e5d3fe1465b6ad2185d8d436fccd56f9f9494d24f417d195f2"
+    }
+  ],
+  "prelaunch_process_check": "pgrep -fl openpipestress-desktop: exit1, no match",
+  "scope": "Native UI witness; writes only this native evidence directory; no source/Git/build writes"
+}

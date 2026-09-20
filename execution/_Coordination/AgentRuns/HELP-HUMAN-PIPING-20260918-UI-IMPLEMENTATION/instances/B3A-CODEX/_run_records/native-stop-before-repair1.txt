@@ -1,0 +1,4 @@
+35624 Sun Sep 20 10:33:34 2026     /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop
+Binary SHA256 5de40398acc28fb9bb9e715be87317f61b80f86ba5e348f107308a8af7117c0d
+ROOT authorized stop of verified own idle synthetic app before d2ef rebuild. SIGTERM sent.
+Subsequent ps exit1/no output: absent.

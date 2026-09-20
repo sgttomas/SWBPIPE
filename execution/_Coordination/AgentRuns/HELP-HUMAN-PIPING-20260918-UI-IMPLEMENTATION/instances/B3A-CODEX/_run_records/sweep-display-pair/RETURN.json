@@ -1,0 +1,32 @@
+{
+  "parent": "/root/b3_manager",
+  "role": "same TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "briefSha256": "7de93e434f21a22e138f097c0002f45f812862fc2e133b1a2bcc7c699771e65e",
+  "head": "9b3b86dd039001aa5d2f798cb9a9743d7c57bb01",
+  "source": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+  "sourceSha256": "e8fbfed55cb7cd8167fb340e9c7af0591d2c2c4e4763e1d50fc5b01968edacfb",
+  "onlyChangedTrackedPath": [
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx"
+  ],
+  "unchangedPrefixSha256": "844fa50bb543c263981e28ef2339aa025ac4b91dbf9fd708eecc3683c1fa5ffd",
+  "unchangedSuffixSha256": "dfeb70b8f01dba003e6ec1b611c2e1fec2c9fbfc1881012a6c6f9cbd2d2e20c3",
+  "preservation": "Everything outside exact authorized comment/display assertion span is byte-identical to HEAD, including initial overlay fixtures and every later solved-only/diagnostic/deformation assertion.",
+  "productBytes": "unchanged",
+  "failureEvidenceVerified": true,
+  "canonicalFailureOrigin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_I1_SWEEP_46436a60/sweep.log.gz",
+  "failureManifestSha256": "80d01ec1125825b58b953777273287a35ed4017f64192847dc58a60fc08f68c7",
+  "command": "npx vitest run src/App.test.tsx -t 'keeps (MECHANICS_BLOCKED|MECHANICS_NONCONVERGED) diagnostics while barring solved-only consumers'",
+  "workdir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "outcome": "2 passed, 216 filtered; exit0",
+  "rawLog": "pass-after.log",
+  "rawLogSha256": "b600f38c772021c4bc5fa940f430ce59803182192bec8b6de18552a510b4a4c0",
+  "diffCheck": "git diff --check exit0",
+  "limits": [
+    "No product changes",
+    "No new fail-before run; retained combined sweep failure used",
+    "No full suite/type/browser/native/build/Git/delegation actions",
+    "ROOT independent backcheck and new combined sweep outstanding"
+  ]
+}

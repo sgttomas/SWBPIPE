@@ -1,0 +1,97 @@
+[
+  {
+    "name": "01-startup",
+    "actions": "cua.getApp explicit bundle path; no model actions",
+    "at": "2026-09-20T16:33:48.843Z"
+  },
+  {
+    "name": "02-newblank",
+    "actions": "File menu > New Blank Project",
+    "at": "2026-09-20T16:34:10.032Z"
+  },
+  {
+    "name": "03-node-review",
+    "actions": "Node tool; set ID node:B3A-native-163409-A, label DISPOSABLE B3A native A, XYZ 1,2,3 m, provenance Invented disposable B3A native title witness 2026-09-20; Add node",
+    "at": "2026-09-20T16:34:29.503Z"
+  },
+  {
+    "name": "04-first-apply",
+    "actions": "Click Apply for validated node A",
+    "at": "2026-09-20T16:34:33.810Z"
+  },
+  {
+    "name": "05-save",
+    "actions": "Native keyboard Cmd+S Save Local Project",
+    "at": "2026-09-20T16:34:37.886Z"
+  },
+  {
+    "name": "06-save-settled",
+    "actions": "Subsequent full observation after Cmd+S; retain immediate preceding observation",
+    "at": "2026-09-20T16:34:42.504Z"
+  },
+  {
+    "name": "07-file-save",
+    "actions": "File menu > Save Local Project after Cmd+S had no observed effect",
+    "at": "2026-09-20T16:34:57.426Z"
+  },
+  {
+    "name": "08-second-review",
+    "actions": "Set node B ID/label, XYZ4,5,6 m, explicit invented provenance; Add node",
+    "at": "2026-09-20T16:35:14.787Z"
+  },
+  {
+    "name": "09-second-apply",
+    "actions": "Apply validated second node B",
+    "at": "2026-09-20T16:35:20.204Z"
+  },
+  {
+    "name": "10-undo-saved",
+    "actions": "Toolbar Undo model edit once",
+    "at": "2026-09-20T16:35:29.377Z"
+  },
+  {
+    "name": "11-redo",
+    "actions": "Toolbar Redo model edit once",
+    "at": "2026-09-20T16:35:35.093Z"
+  },
+  {
+    "name": "12-undo-again",
+    "actions": "Toolbar Undo to saved snapshot again",
+    "at": "2026-09-20T16:35:39.860Z"
+  },
+  {
+    "name": "13-native-open-result",
+    "actions": "File > Open Local Project… directly reopened same own row, without chooser; history now disabled; no claim of exact-selector action",
+    "at": "2026-09-20T16:35:50.897Z"
+  },
+  {
+    "name": "14-selection-table",
+    "actions": "After native reopen: accidental Edit menu dismissed via Cancel; Escape had disarmed/closed inspector. File List Local Projects no visible panel; toolkit opened/closed. Selected own node A and switched Table view.",
+    "at": "2026-09-20T16:36:47.943Z"
+  },
+  {
+    "name": "15-display-si",
+    "actions": "Display units Entered→SI",
+    "at": "2026-09-20T16:36:57.879Z"
+  },
+  {
+    "name": "16-exact-row-open",
+    "actions": "Restored Entered display units; View > Project > summary Details > exact Blank Local Model (project:blank-local-20260920t163409z) button",
+    "at": "2026-09-20T16:37:32.735Z"
+  },
+  {
+    "name": "17-exact-reopen-content",
+    "actions": "Grid display verifies exactly1 node A with label/provenance and XYZ1,2,3 m; no history or Edited",
+    "at": "2026-09-20T16:37:44.709Z"
+  },
+  {
+    "name": "18-save-message",
+    "actions": "Native File > Save Local Project repeated on unchanged own row with Project page visible solely to observe success message",
+    "at": "2026-09-20T16:38:09.294Z"
+  },
+  {
+    "name": "19-final-handoff",
+    "actions": "Click exact own project ID again after unchanged save; leave Model stage/Both/Tree/Entered units, Select armed, inspector closed, no history, one saved node A",
+    "at": "2026-09-20T16:38:14.450Z"
+  }
+]

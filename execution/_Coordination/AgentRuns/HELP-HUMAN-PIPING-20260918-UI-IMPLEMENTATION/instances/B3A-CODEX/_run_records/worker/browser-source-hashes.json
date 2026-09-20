@@ -1,0 +1,54 @@
+[
+  {
+    "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+    "sha256": "f185a28740d6ccc47c7badbc7434b88ad17a23e80385c1751fa9c16064e7c56f"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+    "sha256": "cf773df92ca7453941bbc1396c9309aeabbcbc5c475de7c68888cc7544a501f5"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/App.shell.test.tsx",
+    "sha256": "b5203642022a5a33600b5a840c9cf0a8e3945356a976ea9328dbc033be8a40f9"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx",
+    "sha256": "e3aa7600d846e4ab5e8e3db78e5e24ad5bb292e4c708a62ebd0001be6467817d"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/ShellStatusBar.tsx",
+    "sha256": "3f24e52bdd602b91f963249ba962093284447483ae3d0353edd189996bbdfdae"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/ShellToolbar.tsx",
+    "sha256": "bd0b089dc49dac828cb347b1b82c7876e2c2e7e802ad806e39515d4622c58fec"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.test.ts",
+    "sha256": "7761cd20ced2573cb428ae578c9d326515bce70918a3c6636708a9b63385e928"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.ts",
+    "sha256": "306602ff4137c70e4ac16b68a426de72bb2372788654f7073452bfb8cd27b7d2"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/statusLabels.ts",
+    "sha256": "455dac444b0b60ff4631f9eecbffe42f6914baf81b5b56d7dd35ede536122cf0"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+    "sha256": "8d3a0a413bd3d01683f28b53d435a239b14158a053418d60a3e10729bb4cfe65"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts",
+    "sha256": "03ca5ee1f7fb73e632d904a5a7cf42596fc2399e4b6424c824f46a725d3e92d9"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/savedModelBasis.ts",
+    "sha256": "98ed497ef564a4eef06f0b24dbcab2a1e575f672c0a10bf66cf6ab74f886e11d"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/b3a-session-status.spec.ts",
+    "sha256": "502d9cc94f8d038c435a869821c470ef1824e7ff876db32c24935eb5172b734a"
+  }
+]

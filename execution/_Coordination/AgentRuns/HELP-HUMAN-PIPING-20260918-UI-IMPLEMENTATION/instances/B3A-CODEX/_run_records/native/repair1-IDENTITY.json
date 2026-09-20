@@ -1,0 +1,11 @@
+{
+  "source": "d2ef16848841616a26c35bfc03e68c7b64e79380",
+  "brief_sha256": "e5bcb8c9993d7dfbc95f9df4d584d4365b2ef75aeaa94f7685400f866e349a94",
+  "process": "38905 Sun Sep 20 10:46:23 2026     /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop\n",
+  "prelaunch": "pgrep exit1 no matching process",
+  "model": "GPT-6 Astra/low",
+  "role": "TASK Type2",
+  "parent": "/root/b3_manager",
+  "binary_sha256": "0aaca40dd0d08ff8e4f7e6dce70f58544e26741b3a907379deb5836084a6fbbe",
+  "build_manifest_sha256": "5cfeceed6daec0534518f548eeedec40b4baa717ebc0d24a8830f0b28cd8c72a"
+}

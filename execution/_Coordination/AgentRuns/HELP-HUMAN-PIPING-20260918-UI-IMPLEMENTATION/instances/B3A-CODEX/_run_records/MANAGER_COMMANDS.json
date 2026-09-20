@@ -1,0 +1,30 @@
+{
+  "workdir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "commands": [
+    {
+      "log": "selected-unit-frozen.log",
+      "source": "80b9efb48c31da0d8dc58a2d728db56adcf17d22",
+      "command": "npx vitest run src/App.projectHandlers.test.tsx src/App.shell.test.tsx src/features/workspace/shellLayout.test.ts src/features/workspace/statusLabels.test.ts src/features/workspace/statusLabels.tokens.test.ts",
+      "exitCode": 0
+    },
+    {
+      "log": "session-boundary-frozen.log",
+      "source": "80b9efb48c31da0d8dc58a2d728db56adcf17d22",
+      "command": "npx vitest run src/features/workspace/sessionBoundary.test.ts src/features/workspace/workspaceSession.shell.test.tsx",
+      "exitCode": 0
+    },
+    {
+      "log": "browser-repair1.log",
+      "source": "d2ef16848841616a26c35bfc03e68c7b64e79380",
+      "command": "Pinned Playwright chromium.executablePath override; PLAYWRIGHT_WORKERS=1; run-lock wrapper; npx playwright test e2e/b3a-session-status.spec.ts --reporter=line --output=<B3A-CODEX/_run_records/browser-repair1-artifacts>",
+      "exitCode": 0,
+      "browserVersion": "Google Chrome for Testing 148.0.7778.96; installed Playwright chromium-1223"
+    },
+    {
+      "log": "native-build-repair1.log",
+      "source": "d2ef16848841616a26c35bfc03e68c7b64e79380",
+      "command": "npm run tauri -- build --debug --bundles app",
+      "exitCode": 0
+    }
+  ]
+}

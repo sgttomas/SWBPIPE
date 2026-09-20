@@ -1,0 +1,9 @@
+{
+  "testPair": "  it.each([\"MECHANICS_BLOCKED\", \"MECHANICS_NONCONVERGED\"])(\"keeps %s diagnostics while barring solved-only consumers\", async (mechanics) => {",
+  "scope": "Only old display-policy comment/readiness/no-chip lines may change",
+  "prefixSha256": "9589d313581e2f485046abd13061ee139cf7a3354ff3eb0771c764e43a957344",
+  "suffixSha256": "114ea87933774f27344829c0a93486569f412e65d5366b8535d4ec834f38d2e4",
+  "prefixLines": 20,
+  "suffixLines": 13,
+  "outsidePairSha256": "04aa323a6196dd2756516a3f4852e0149b76df0f6047251ef90b7d9f79c7237f"
+}

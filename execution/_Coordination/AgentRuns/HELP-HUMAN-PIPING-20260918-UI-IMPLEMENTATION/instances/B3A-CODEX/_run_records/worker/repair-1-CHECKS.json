@@ -1,0 +1,45 @@
+{
+  "workdir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "checks": [
+    {
+      "log": "repair-1-fail-before.log",
+      "command": "npx vitest run src/App.projectHandlers.test.tsx -t 'B3A P2'",
+      "outcome": "3 failed, 29 filtered; base product80b9",
+      "sha256": "e744c6cc6cb1f85d08530622c8209e9258fda5daf4fdd14f64aef49ddb35294d"
+    },
+    {
+      "log": "repair-1-pass-after.log",
+      "command": "npx vitest run src/App.projectHandlers.test.tsx -t 'B3A P2'",
+      "outcome": "3 passed, 29 filtered; first repair",
+      "sha256": "f3b363171bc9f912958b209ca4cc3778080a8213773053e05782c3f2f9b02379"
+    },
+    {
+      "log": "repair-1-project-tests.log",
+      "command": "npx vitest run src/App.projectHandlers.test.tsx",
+      "outcome": "33 passed; final repair source",
+      "sha256": "5cc068362facd9345f03c4d2178cc1bcb6b7d66baae6b955dc013786f06e4385"
+    },
+    {
+      "log": "repair-1-existing-persistence.log",
+      "command": "npx vitest run src/App.test.tsx -t 'opens saved results as readable history|refreshes only the still-owned|lets a fresh same-model solve|adopts a changed native persistence model|rejects an unrelated differing persistence|keeps a same-model Current solve|discards a pending batch'",
+      "outcome": "7 passed, 211 filtered; final repair source",
+      "sha256": "158ad40ccc1d26f79c5c04992629c505996936b81271a813b12bf73178e31abc"
+    },
+    {
+      "log": "repair-1-typescript.log",
+      "command": "npx tsc -b --pretty false",
+      "outcome": "exit0; final repair source",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "diffCheck": "git diff --check: exit0",
+  "orderingEvidence": "Monotonic renderer observation of successful create/save service fulfillment, assigned before asynchronous canonical verification; only verified observations advance accepted sequence. Request initiation is not write evidence.",
+  "protocolLimit": "No backend commit sequence is exposed. Native reply-delivery reordering independently of actual commit order cannot be reconstructed by this frontend-only repair.",
+  "scope": "Only marker observation ownership changed. Existing latest-request integrity handling, UIepoch/model/history/metadata adoption and normalization/claim validation retained.",
+  "limits": [
+    "No native/browser/build/Git/delegation actions",
+    "No independent review or native exact-source claim",
+    "Intermediate80b9 native bundle left untouched",
+    "Original worker evidence preserved"
+  ]
+}
