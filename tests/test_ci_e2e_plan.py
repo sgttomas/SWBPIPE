@@ -27,10 +27,10 @@ class PolicyTests(unittest.TestCase):
         self.git('config', 'user.email', 'ci-fixture@example.invalid')
         self.git('config', 'user.name', 'CI fixture')
         for file in {ci.FAST, *ci.LEAN_TITLES, 'e2e/c3-viewport-visibility.spec.ts',
-                     'e2e/b3b-project-persistence.spec.ts'}:
+                     'e2e/b3b-project-persistence.spec.ts', 'e2e/b4-table-editing.spec.ts'}:
             self.write(ci.DESKTOP + file, '// fixture')
         for file in ['src/styles.css', 'src/features/viewport/viewportDimmingPresentation.ts',
-                     'src/features/workspace/projectPersistenceIntegrity.ts']:
+                     'src/features/workspace/projectPersistenceIntegrity.ts', 'src/features/model-tree/ModelTree.tsx']:
             self.write(ci.DESKTOP + file, '// original production fixture')
         self.base = self.commit()
 
@@ -68,7 +68,8 @@ class PolicyTests(unittest.TestCase):
                      ci.PROJECT + 'tools/ci/e2e_duration_hints.json', ci.PROJECT + 'package-lock.json',
                      ci.PROJECT + 'schemas/model.json', ci.PROJECT + 'core/solver/a.rs',
                      ci.DESKTOP + 'playwright.config.ts', ci.DESKTOP + 'src/App.tsx',
-                     ci.DESKTOP + 'src/features/workspace/workspaceSession.ts', ci.PROJECT + 'unknown.ts']:
+                     ci.DESKTOP + 'src/features/workspace/workspaceSession.ts',
+                     ci.DESKTOP + 'src/features/workspace/table/EngineeringTable.tsx', ci.PROJECT + 'unknown.ts']:
             self.write(path)
             self.commit()
             self.assertEqual(self.plan()['mode'], 'full', path)
@@ -123,6 +124,13 @@ class PolicyTests(unittest.TestCase):
 
     def test_c3_dedicated_spec_follows_product_only_layout_change(self):
         self.assert_dedicated_product_coverage('src/styles.css', 'e2e/c3-viewport-visibility.spec.ts')
+
+    def test_b4_dedicated_spec_follows_product_only_table_host_change(self):
+        self.assert_dedicated_product_coverage('src/features/model-tree/ModelTree.tsx',
+                                              'e2e/b4-table-editing.spec.ts')
+
+    def test_b4_dedicated_spec_follows_product_only_layout_change(self):
+        self.assert_dedicated_product_coverage('src/styles.css', 'e2e/b4-table-editing.spec.ts')
 
     def test_b3b_dedicated_spec_follows_product_only_persistence_change(self):
         self.assert_dedicated_product_coverage('src/features/workspace/projectPersistenceIntegrity.ts',
