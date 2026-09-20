@@ -1,0 +1,20 @@
+# Remaining path inspection
+
+Confirmed post-delete Review changes→Tree correction uses existing showModelTree, which selects the model-tree tab and opens its rail. Existing clear/delete/dim assertions unchanged. Added bounded visibility/enabled witnesses before delete, node input/Add/Apply, and solver Run clicks. Added node ID review witness and visible newly-created tree row before Select to wait for published creation, matching maintained linear-authoring.spec.ts blank-to-straight Add/review/Apply/tree witness route.
+
+New Blank uses maintained projectCommand(new-blank) as in B3B persistence and linear-authoring; command handler calls handleCreateBlankProject. Existing Show All disabled/count0 assertions await replacement. No hidden-pane transition found there.
+
+Current/Historical: maintained solve/results/projectCommand save/open route matches ui-foundation-dist retained journey. showCanvas closes solve page; following selectTreeRow restores Tree itself. Saved status text is inside the inactive Project strip when Results is active, but toContainText intentionally reads state text without a visibility claim, as the maintained journey does. Historical deformation summary similarly is textual state inside disclosure. Results and Evidence helpers actively expose those sections; no further navigation edit proposed.
+
+No product, shared helper, shared stylesheet or required behavior/assertion weakened. Prior failure directory remains immutable. New source stopped for parent freeze; collection-only deletion2 passes.
+
+## All remaining transitions audited
+
+- Deletion: selection helper reveals Tree→start task expands inspector/Task→explicit Properties tab reveals Delete→Queue→openWorkspaceSection(operations) exposes Apply→new showModelTree restores Tree→clear filter→absence asserted. Prior trace established delete Apply succeeds; new transition fixes hidden-tree access.
+- New node: workspaceSession handleArmCreationTool clears active section and reveals model canvas/open routing inspector; maintained linear-authoring uses command-node→visible fields→Add→review→Apply→visible tree row. Added matching bounded witnesses before leaving authoring via Select. Cleared filter remains empty, seven fixture rows fit. Fit Model and new label dim assertion follow publication.
+- New Blank: projectCommand uses visible File menu; handleCreateBlankProject commits first-open shell state (clears active section/tool, resets stage view, collapses inspector) and model only after verified response. Existing disabled Show All/count0 assertions await successful replacement.
+- Current/Historical: openWorkspaceSection(solve) exposes Run→bounded Run enabled→completed solve→showCanvas closes page→selectTreeRow independently reveals model Tree→visibility controls→openWorkspaceSection(results) exposes result designation→File Save/Open operates globally without needing Project page. Existing Saved text is a state-text check, not visibility. Reopen→results→showCanvas→selectTreeRow restores Model/Tree→visibility→Historical summary→results→evidence. Last helpers explicitly expose their respective sections; maintained production journey uses this same sequence.
+- Compact B3B: visible File commands and explicit Project section before packet controls; same path as passing desktop; no viewport-dependence. Compact hover/click/box, near-dim/narrow focus, V=I tests use selection helper to ensure Tree and canvas-local controls, no page opens beyond fixture route. These exact scenarios already passed desktop. Compact1280 is not the below1280 drawer mode (workspaceSession397 uses innerWidth<1280); splitter remains visible at1280 and its existing bounds are respected.
+- Legacy visibility both sizes: every row lookup uses revealTreeRow→showModelTree; export hash helper explicitly opens/closes Project page; keyboard activation focuses visible controls. Shared legacy case remains untouched.
+
+No additional missing transition found in source inspection. This is precondition inspection, not live browser proof. Await frozen-candidate browser run for remaining outcomes.

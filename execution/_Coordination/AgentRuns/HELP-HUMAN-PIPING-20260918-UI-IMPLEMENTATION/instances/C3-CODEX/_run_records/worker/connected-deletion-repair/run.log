@@ -1,0 +1,58 @@
+[2m[WebServer] [22m(node:76361) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:76363) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:76363) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it (11.9s)
+[31mTesting stopped early after 1 maximum allowed failures.[39m
+
+
+  1) [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+
+    Locator:  getByTestId('clear-model-tree-filter')
+    Expected: focused
+    Received: inactive
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('clear-model-tree-filter')[22m
+    [2m    24 × locator resolved to <button type="button" aria-label="Clear model tree filter" data-testid="clear-model-tree-filter">…</button>[22m
+    [2m       - unexpected value "inactive"[22m
+
+
+       at ui-foundation-workflows.ts:176
+
+      174 | export async function activateWithKeyboard(page: Page, control: Locator): Promise<void> {
+      175 |   await control.focus();
+    > 176 |   await expect(control).toBeFocused();
+          |                         ^
+      177 |   await page.keyboard.press("Enter");
+      178 | }
+      179 |
+        at activateWithKeyboard (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts:176:25)
+        at clearTreeFilter (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts:170:32)
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts:254:3
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected-deletion-repair/artifacts/c3-viewport-visibility-C3--80df0-oject-replacement-clears-it-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected-deletion-repair/artifacts/c3-viewport-visibility-C3--80df0-oject-replacement-clears-it-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected-deletion-repair/artifacts/c3-viewport-visibility-C3--80df0-oject-replacement-clears-it-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it 
+  1 did not run
+  1 error was not a part of any test, see above for details
+
+EXIT 1

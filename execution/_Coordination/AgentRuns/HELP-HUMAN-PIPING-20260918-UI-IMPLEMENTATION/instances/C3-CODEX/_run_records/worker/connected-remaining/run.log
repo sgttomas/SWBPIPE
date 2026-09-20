@@ -1,0 +1,66 @@
+[2m[WebServer] [22m(node:75265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 1 worker
+
+(node:75269) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:75269) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium-desktop] › e2e/b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence (2.0s)
+  ✓   2 [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:153:1 › C3 dimmed geometry remains available to hover, click and box selection (1.7s)
+  ✓   3 [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:188:1 › C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible (1.9s)
+  ✓   4 [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:227:1 › C3 isolation remains clearable when every drawable entity belongs to the snapshot (958ms)
+  ✘   5 [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it (2.0m)
+[31mTesting stopped early after 1 maximum allowed failures.[39m
+
+
+  1) [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it 
+
+    [31mTest timeout of 120000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('queue-delete-node-intent')[22m
+    [2m    - locator resolved to <button type="button" title="Queue node delete intent" data-testid="queue-delete-node-intent">…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not visible[22m
+    [2m    - retrying click action[22m
+    [2m    - waiting 20ms[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not visible[22m
+    [2m    - retrying click action[22m
+    [2m      - waiting 100ms[22m
+    [2m    231 × waiting for element to be visible, enabled and stable[22m
+    [2m        - element is not visible[22m
+    [2m      - retrying click action[22m
+    [2m        - waiting 500ms[22m
+
+
+      247 |   await control(page, "Isolate").click();
+      248 |   await startPropertyTaskFromTreeEntity(page, "node", "node:C3-loose");
+    > 249 |   await page.getByTestId("queue-delete-node-intent").click();
+          |                                                      ^
+      250 |   await openWorkspaceSection(page, "operations");
+      251 |   await page.locator('[data-testid^="operation-apply-row-"]').filter({ hasText: "node:C3-loose" }).getByRole("button", { name: "Apply", exact: true }).click();
+      252 |   await showCanvas(page);
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts:249:54
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected-remaining/artifacts/c3-viewport-visibility-C3--80df0-oject-replacement-clears-it-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected-remaining/artifacts/c3-viewport-visibility-C3--80df0-oject-replacement-clears-it-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected-remaining/artifacts/c3-viewport-visibility-C3--80df0-oject-replacement-clears-it-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it 
+  9 did not run
+  4 passed (2.1m)
+  1 error was not a part of any test, see above for details
+
+EXIT 1

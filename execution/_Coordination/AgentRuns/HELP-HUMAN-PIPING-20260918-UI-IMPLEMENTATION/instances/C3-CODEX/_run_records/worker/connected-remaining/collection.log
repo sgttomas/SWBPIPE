@@ -1,0 +1,16 @@
+Listing tests:
+  [chromium-desktop] › b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:153:1 › C3 dimmed geometry remains available to hover, click and box selection
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:188:1 › C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:227:1 › C3 isolation remains clearable when every drawable entity belongs to the snapshot
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it
+  [chromium-desktop] › c3-viewport-visibility.spec.ts:271:1 › C3 visibility leaves Current results current and never revives Historical overlays
+  [chromium-desktop] › ui-foundation.spec.ts:1337:1 › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded
+  [chromium-compact] › b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence
+  [chromium-compact] › c3-viewport-visibility.spec.ts:153:1 › C3 dimmed geometry remains available to hover, click and box selection
+  [chromium-compact] › c3-viewport-visibility.spec.ts:188:1 › C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible
+  [chromium-compact] › c3-viewport-visibility.spec.ts:227:1 › C3 isolation remains clearable when every drawable entity belongs to the snapshot
+  [chromium-compact] › c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it
+  [chromium-compact] › c3-viewport-visibility.spec.ts:271:1 › C3 visibility leaves Current results current and never revives Historical overlays
+  [chromium-compact] › ui-foundation.spec.ts:1337:1 › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded
+Total: 14 tests in 3 files

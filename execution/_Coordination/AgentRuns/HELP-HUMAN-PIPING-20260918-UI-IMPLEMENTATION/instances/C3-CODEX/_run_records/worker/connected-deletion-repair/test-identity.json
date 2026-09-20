@@ -1,0 +1,6 @@
+{
+  "path": "projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts",
+  "sha256": "ab77338ab6d466ea9c1289451b41ba7a078dea73add63ed5ea992c769a6e995a",
+  "change": "Visible scoped Properties tab click after starting task, before existing delete control. Assertions unchanged.",
+  "parentCandidate": "c15a095588d49b1bab931c27e79d0a45838ede1c"
+}

@@ -1,0 +1,520 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 1,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected-remaining/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected-remaining/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": true,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b3b-project-persistence.spec.ts",
+      "file": "b3b-project-persistence.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "B3B blank/create/save/open snapshot evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1982,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-20T19:15:36.830Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE0OC4wLjc3NzguOTYiLAogICAgInJldmlzaW9uIjogIkA4NjI1ZTA2NmZlYmM3MjFlMDE1ZWE5OTg0MmRhMTI5MDFlYjdlZDczIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTQ4LjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNC44LjE3OC4xNCIKICB9LAogICJwbGF5d3JpZ2h0QnJvd3NlclZlcnNpb24iOiAiMTQ4LjAuNzc3OC45NiIsCiAgImV4ZWN1dGFibGVQYXRoIjogIi9Vc2Vycy9yeWFuL0xpYnJhcnkvQ2FjaGVzL21zLXBsYXl3cmlnaHQvY2hyb21pdW0tMTIyMy9jaHJvbWUtbWFjLWFybTY0L0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmcuYXBwL0NvbnRlbnRzL01hY09TL0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmciLAogICJleGVjdXRhYmxlU2hhMjU2IjogIjI0NDdjN2JkZWE4ZThhZDM4YjUyNTk0ZjFiYTUzZTE4ODIxYzA1NDQ1ZThhMDdhZDFjZjNiMGYyMzkzMWQ4OWQiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e7444d2420ea7018ffa2-9c27473997249086328e",
+          "file": "b3b-project-persistence.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "B3B blank/create/save/open snapshot evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e7444d2420ea7018ffa2-91511e9e195b13c5ea5f",
+          "file": "b3b-project-persistence.spec.ts",
+          "line": 16,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "c3-viewport-visibility.spec.ts",
+      "file": "c3-viewport-visibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "C3 dimmed geometry remains available to hover, click and box selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1688,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-20T19:15:39.106Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "dimmed-hover",
+                      "contentType": "image/png",
+                      "body": "iVBORw0KGgoAAAANSUhEUgAAAlsAAAKnCAIAAAA+9x9EAAAQAElEQVR4nOzdCYBkVX3v8VNbd1cv0z09K8ywDIsKsimuoIAsAYSg4SFojO8ZfTHxEXdjNFGj0Wg0USMB3KIxGlGMERd8osCIsgVkVyQoMOwzQ8/e+1JV+f/vmb7UVC/TS1Xdc879fhyHnurqrlvb/dX/nv85N9+3dbsBACD1sgYAAJCIAABYJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAAAqbwAAM/jvx/ou+8YXbrntl5VKxTRXJpN54fNe8LrzLzj0oENqvrWpb8uNt9/92w2P1n2r5EafsW7/4489evWK5U270caZ5e5Mf31W+gaAaf164+i5X3hSdv/veP7AH5/9EtN037r8q9/69lcv/uSnqkNRkulfv/PDc884+bjnHiV7fFNXknY33XHPd69a/8fn/X51ijT0Rhtnprszk9x7/vK9BgAwxQeu3Lph67h88abTD9+3p8U03RFHHCN///yG6172khPiC39y/c0nvuhYqXsakUzyO/ffd3VnR/vtv7rv8EMOas6NNs5Md2cmjCMCwPR+dv+Q/eJ5B3aahLz6gtffctut1ZfIcUsp1Ewjye+XW2nyjTbO1LszE8YRAWB6jgyX1YzbyT8bXajJ72/+jTbO1LszE2pEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQDgmaGhofXX/dzUG4kIAAv0xUv/6aQXHxX/+fWv7jIL8oMrvr1p45NmcT71mYsOftaR1X8uvvQLpvHOOff8X952h2mMkZHRiy7+3NTZhA8+tOEDH/pIqVQydcUMfQBYINlTv/6Nb37N695g/1koFMyCfP+73z5w3SGr99nXLMLb33rhhW/+08HBwRccf+Kdt97U0tJSKHi/hx8dG/3sxZde+OY35XK56suPPOLZN153jak3akQAWLhcPt86KZvNXn3VlX/7wfe88XXnfeC975Dvfu0rX3jVK06TP/KFvf5n/uGj//yZT/zheS+XP3JlueTvP/L+Bx/47XvfdeF3Lv93swiSGW1trfJHvrZfyCXXXPuzs17xv4469kXves/7hoaH5Vsf/PBHP/GPnzn1jLPlQgkbUz/f+8GVJ512pvzav/7gh8fHdT3YhzY8/Eev/79Srcrf8rW9jmzJH7zqNXK1r3/jm+97/9/Id8+74LWbn3oqvr58608vfOuOHTvkktPO/H35+8UnnHzHnXfJz77tXe+Ru/Pmt7z90Ucfk5+yt3vJ5794/EmnyucAuTvlctksAokIAAv3yIYHb77x5/Ln1v+6Uf45PDx05223/tXffOyDH/nk+quvWn/NVZ/78mXyR76Qf8oVdu3c+cjDD33p3779jr94/2f+4e/kuN97P/DRgw95xt9/6pLzLvgjU1ePPfb4O9/zvo/+7d/81/XrJR0//ol/lAslaa6+5tpvfO0rV115xRXf/+FPr77W1INEoETdv3zu4ltv/Hl7e7vNvze86c0vP+P37r3rNvlbvjbR+N/1N970+Us++41/+/KHPvKxo4484r9/dcey5ct++KMfy3ff9OY/f+U5Z99y43WHHnywJLdccvWPfyh/3/yL9c99zjHyszf/1y2f+uTHL/r0P0yUShs3b5ZvXfmjH1/xvR989/LLvv+dy3945f+//oabzCKQiACwcBseeuDnP7tG/tx0w3X2kuNecpIknBxBvfOOW19x7gXLl6+QP/KF/NNe4bQzzu7o6Hz+C4+TrzdtfMI0zF333PPS4497ztFHSUS94fX/O25F+T+ve+2qlSv33Wef15z/ql/eXp8hQLm/zz78sI987BM/uPJHf/LG1z/zGYc+uXHjtm3bX3PBq6Ralb/la7lErnnaKSfLrcthT/n69049RX7w2Occs23bto0bN214+JHt27f/+2Xf2tXf/6Mf/2TqrZzyspOe9cxnVB+dvvmWW/XurFq5zz6rr7nqyhNPWNRJuxhHBICFO+mU01/3+j+pvqTQsnt/LWVTLr979Eu+sAcShRxftV90dHY29OS7E+MTudzuske+iDcgn8/HWzUxeeHiXX7Z135x/Q3X/fx6ORZ6xX98s6e720SrbMd/y/ZU37rdqvi7Y+Nj8vc+q1fL3/Ih4vDDnjW1oUYGR2sukSJbDlabOqFGBICGOPLo51z1o++PROSLo4557kzXLLZ3bN680dTbUUcded0vbpAhNxld+4//vOKElxxvL//2d747PDIyODgoxxuPPro+53iS2u6fPnvxcS960cc+8iG5od/+7oH99lsr1aE9Kit/y9dyySy/Yb+1a5ct6+3o6Dj7rDMPPGD/vr4tkpQ2AjdFB0in9fznHXv5f/ynHFCVeyQHZuWwqlkEakQAWKBpT5CUyeyuNM4865W//e/fnHvWy4weKT3rjJe/Yror699nn3Pu333ofdu29F3w2teb+jn4oHV//d6/OO81fzQyMnrEsw+/9KJP28v3W7vmxFNOlwvPOvP0c85+uamHpUuXjo2NHX/Sqb29Sw9ad+Bpp54sD86/fP6Sd/7Fe9/93r9euWL5lz53sX24slMfNHt5NvvFS//53X/5V29713skPmW8UC4strW9+vzzTjj59G9f9rVpf/YPXvH7v/71vS966cnytYxWvuD5zzOLkOnbut0AAKY49EMb7Bf3fPgYs1ATE7WHCqclR/8kMKY9APiKc0/86X/+IP7nxy79yqff/04zZ3LscWR0VKLF/vOt73j3Gaf/3umnnTI2Ph5fONU7P/rpv/p/b5jvjU6oku13jUn1NssNTSXFqwx8Vn/akF86+wMoV5C7Ocvsl5q7MxNqRABooL1moVUz366OJFqqA0kOS7YUCnJzxQbcYj5Sc+G84tBEWzj115q93a6pBxIRAFLk4x/9sMEM6KwBAECRiAAAKBIRAABFIgIAoEhEAAAUiQgA08sYJ9SsAyD/rDR08bdoCmPzb7Rxpt6dmZCIADC9lz2z3X5x28MDJiHfuvyrL3zeC6oveca6/W+64x7TSPL75VaafKONM/XuzIREBIDpveWkHltZ/OrXd5kkSBx+69tffd35F1RfePyxR3/3qvU33n53I4o2+Z3ym+X3y6007UYbZ6a7MxNWcQOAGd3/8GP/+r2f3nnDD5qfBHKgT6pDicNDDzqk5lub+rbIjv63Gx6t+1bJjUo5JfmxesXypt1o48xyd6a/PokIAIDhqCkAABaJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAACpvPDQ6NiZ/t7a0GACAY/zdRXuWiP0DA0NDQ8Zkon9V8vl8V2dnC9EIAEkbGBjsHxzIZjJ2F12pVDo62mUXbfyR6du63Xhiy9ZtpVIpo8w3bqvElxcKBQMASNT4+Hj89Wufl6lUNBTzudyyZb3GE94kolSHw8PDGaP/+/jVlaNXDKxqH7Pfkgc9m820t7cbAEDTSRaOjo5psTLpp4/0vu+0jJFQNKZYbPOlUvTmqOngwGAul7OHS9csKR1/kHzVOvnNSjaT7enpMgCAptuxY2e50jo5nqXu3V7SfJESpqJ7bxKxnmScNpPNxI+2fCWVePUVSuWSjCkaAEDTSSmYz+2xB95jf53NGE/4MfsiHqqdiVTrY2PjBgDQXLLvrT5eOp1M9RCjy/xIRO2dqVRmu0bFpiYAoKlaWgqmMvtVKr70P3pzpLGjo31oeMSm3uO7sqVSqeqblUq5It8qTUwYAEBzlUsl2QtXH8mTvbT9QmqZQt6b6QDeJGJLS+vg0FBGitroMb/hocqqjrjXtJzN5DYO9hsAQNMNDU+Uy6VMZncKbh6cnCOuEzDKnZ3dxhM+zUfs7x8YGh7KRKO037i9qkqXzyAtTEkEgCTtMR/x2EwlKlfai+1dXd5M0vcpEY0O4Y4NDAyOP310tOLXww0AobJFi3Y6mmhgsVJpb/ds/+xZIsbsbNAWSkMAcInULTJ22Nrq5eKavs7h8/ThBoCweb3QNGeDAgBAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRL5nDYAAAEABJREFUAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgPI1EcfGxgwAwD3+7p/zxiv9/QNj4+MTExP2n/l8vrOzo7WlxQAAEhXA/jnTt3W78UT/wMDQ0HAmkzn+kn4DhOJ3H1pnvzj0QxsMEIobL+yqVCrt7cWuzk7jCW8ScXRsbMeOHdlM9rgoDg8cuMleXon+L59KypWyAXzzi4v+2ERZaHPxhLf+qwF8I3tmqQhNRv6ndrTsJ3/ki5su7JI9c7HYvqTLj1D05qjp4MBgJpO1j/fawvZz1g1Uf1c+idT+QMYAjnvrhX9mJktDG4oSkBdd8nkDOG7PPa7sgbPZ6q6U+y7q00SU/XDWZCfGx40nvEnE8fHxbG73I95WbFt30EHV321tbTWAV047+QSz55FSG4oSk1ev/4UB/FEql8sl/Su+5JDR4Qd2FfWrjO69jSf8SEQ5ZGoyexR9P3m896oneg3gJ3uMdOrAoQ1FCUvGFOGvM9Zs2+PfmYzsw71osfEjEfWh1OOiT4fi6Wu3yZ/4n9lcrpD3rG8WaXb1+sck9iT8apLPJqXUiJeeYABfSHVYUwg+cN+ap/9RqfjScepNihQKhVKpZDNRivGHHnqo+rvyfGQyjBzCJ7/5zW/e9ud/Vh2KNg4/ezHjiPBMpVLOZnPVlwwPLzOmGH1L997GE970mu7qHxgeHop7TXvGHpM/hl5TeI5eUwSgptdUPNx5nJnsNe3p6fGlRvRqPmL/wNAw8xERGuYjIki75yMWi12eTL0wfiWiGB0dGxgcnJjYfcA6n5dyvODLTBcACFgA+2fPEjE2NjbWwuJtAOAef/fPvvZnEocA4CZ/98+cDQoAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAAikQEAECRiAAAKBIRAABFIgIAoEhEAAAUiQgAgCIRAQBQJCIAAIpEBABAkYgAACgSEQAARSICAKBIRAAAFIkIAIAiEQEAUCQiAAAqbxpvbGysVCobAAAWJJfLtrS0mAZrbCKOqfGWloL8Mc0lt1sqleR2c7mcaTq5dXn+ErnpkiondeuJ3/Hmv9Ks1N7x4eGRYrHNJCHxO57g7kX+TuSOJ7hfldsdGBiU223orWf6tm43DVCVhQ1P9RrR+6Rk9BXT7Ju2t253jgneenJv1DGT0MNuEt1DJX7rsqfo7OwwSUj2SU/w1hN/r9lPA4kkUxzJ4d16nWtE+wK1L5RE3qL2hZJUICX4Mo1vPdkP7AneutHjKskEkt2AXC6Z+54seaNJHieViHK78lkkevCb/dTLLRaLObn1XK7U/Lsvtzj54bvZt27v+GQyNfszQaNvvW41os1CK6k0SqoqNUmXhibpj+om3SWaffaT+jRgkr77ib/2EiyRjQNVcoKfwl04JGbqWi/WoddUnhJ5RdqvWyKmueINkHdFCsPYpD4OEy8QEye7JPsgJEJeeHbHlBT5LCKvQJMQ+76rLgmaKdrjFuTxT2QDoopNPwjKHrj5r0B76/bu20MFZtEWVSPaJDAJjfFa8vnIjvSa5Ng4NMlhA5LdANtKLbFkEsIGsAGJb0BULOaS2gAbBIvvu1lgIsZVkUmOCxtgEv00YMhCN7Yh8Q1IfG9oeBDc+HTuyIOQbDSaRUzVmHdnTZyFyR64T/Yopd2GZDfATDa+J91OUk72QXDhiYiauXLJPhHROyLJB8FK/B3hxhNRSHAbkh1ZNJMPQtJdfqWo4Wvee4Z5xHjiw3WubUOCb/74+U78zZ9gO4nlQhIk0utYTW49wXFEK/HRRJP0gKKJngg7rJXssG6y2xAP78k+KqnRTXkIbM0m2zCvIcY5HTV1pCZLfBuMAz0sJulZFrFku2ksF54ORz4Z8HRYPB3V22CiTwkmOYkXrGaeLamzJWL15MJkszDBKYbVm0Eku7YZybbdW87UyjwjuznyUESHcLOJfz5wYWxlLLkZ/fPdjOkTMfHJhTG7JcmODRhyiM1gM9gMbzfDhWLRl1ysTcS4LjQOTPByZJ6ZO9PdEh+vYjPYjL3iAWEzZtkM49IufWouPp2I1RMqki7Iklyku2ZLklq+2c0tSXZt5Wo8NTXceWp4kdRw5Li6cWPCmHl6pZucCxO3zJ71Yt64MaHCirfEhVEZF0YNLRdG6a3EO8tjpdKIC7sY48yWyJMSnRmALXmavHddaEW2gz4uvHeKxVy8Z0twS2wvqAtbMnWJ1MyGRx53Yb8fj1y6kECOHP03bgyMx1wKZoeeIEc+/hueoOm49lJx4QlKfBHmmi0xSQ8umqfnUJayCU7si7kThzaBXNgSM1mnyhPkyD7OkaOUZnJGvIGrXJibaCW76Gg1O0sv2amK1Vtioo9QyW5MIxYmXcyWyM42yWWfzJ6z3V0IZneOlNr3sCPFhzsftI1j63pHDQsJv4liya73XSPazSWfQ8alUDTROzqpVblrJLtEeLXqXEx8YxJcFjb51WdicWnoyPFJ1xIoapRwYmOMGyupxqhWZ+JOmWh2n02w7MjHBfsx152y1ThQLJo9T6OR4IOT2fTUFtNc7jQaWXaP79IhQVda9Sw7kGnc4NqD407Lq+HB2RunXsmuvXLcaZozifbEZh59fKNpFqeOd1nuzOKy2J7ZsT2zY3tmx/bMzrVddPO3J9+0D022NcM4czDQqVFDy522Uss+Ze48PtEnWVfGVo1722OiI05ObY9Tx/+Ne9vjWnHmThuq1fxm1GaMIzrVPmPZN4YLQ5iWC+eyqOHavsM4NoLoJhdOglHNqdFE41iXjXHjXBnVnBpZNEk03TQ2EZ1qn7FcOJdTDadmWViuddMYdw+5u9JoajnVbmq503RqORiKjszKiCV+PqkazWy6adT72cEsNO6VhsaxWRaWU7POYw4WiDSazoVrZaJxrPXUcmdWhhXndLLnm6wWn/KwofVr/RMxqnhcDB7XSkPj5JFJ42j2OFcguik6alo2jnGtTDS7N8mtnHZnVkYsPvGvg/Vrg3Kxzono1GJsMQcT2rgah+6sBFbNzRFE1xoFjXvjiJaDZWK01GjWvZx264iuiR4o2XM6VSw2dKWbuiWig+0zxtXS0LhbHTq0VFuMAjEATpaJzsWPmdwqd+LHsgnkSLuN1aCmm/rMR3R2n+Xgp3jDwzVPbm6V4eGaD57EeWHHNS913LD8Yg5GxScydO2IlrMb5tr0o5htLnWtm8ZMvtbdPGRqHN2wrFMr10wquLakzqSCa2vrRPRRcm8IQ7fKyZ2YblhdTqz79BmD5yV6cds9glvH/YyrByRNtGFupo5xdfjQsGHz5/Lr3zi5YSZq60/87LDTcvNl5tpE/tjiZ/QvZBzRzp8z7r24nTqXUw0HZ1nEnN25M4K4AG62mxpXx+0seWO6NnRnuTYrw3JtIn9s8U0380vEuFElulXnukJcW5Ut5vKnYze7aSyXF6lxdmDMzXZTx7nZemo5OCvDcud8UjUW03Qz10R0c8a95dq5nGo4HofG1W2jQAyPy2Ui27YAzhaLZs+Vbua+bXtPRHkabN44mIXG7dLQOB85ri3VVo0CccEoExfG/VB089Cus8WimVzpZu4HUfeSiJM7dKfzxs3S0Ey+fJ2NQweXaotRIC6Gg6ubxlxOHePkYgIxGzxuhqLLxaKZnE85l1ycMRGr57a7eSjSzan3VnwuCyqwhWHzkBRnu2zM5LkynFpWrZrLxWJN081MV8tsempLzUWuneN+KlcnNu3m+OYZHsBFc3IG29N4ABfJ8c0zk+dSNa6Kp0AYJ80ypXKPNWvcP1TlxRY6fqyPLVw8tnDx2MLFYwsXaWqg5OPWXvuh0tmjfMa9U7pP5f4WOnja9xrub6Fx71T1U7GFi+dyW5zlxRY6uyyJmW5Gv44jOt4+Y5wfNbTcf3U63k1juT9E5/4Hc+NDu6mDa3/XcPA0ijUcb1MykyOLzg58Tp3Rn3W5fcZy81xONdyPQ+NJ2BhaTOvB5XZTy+WuzpjLXTaWy7MyLAfPJ1WjOhezLieNF6WhcXuWRczZpdqqedHDGdWI9T/Vdgq5XyYaT2pZZ2dlxBw8+XANm4vuvrG9KA3dn2VhubxUW8yXAlGOpHly1NTF1U2reVEmun9k0jg/K8OKi0WXH0wXE9GX0tAulyPPsfOFlwdHdA2T/OrKl2VrPCkT/QhFmzeOP+8uT+Q3DiaiF6WhcftcFtUcX6ot5tEIohedNb7wokw0PnTZWG6eK6OGyxP5HUpEl8/lVMOXqss4P5M35kuB6FEcUibWl/tdNpaz58qo5uyqb64kouMLdlcjDusu5S2m4+Pjo/LqH69zqeR+u6nlS5lo/AlFLw7zGieLxT3WrEmKXztEj6oEXzY1tQ/pwMDA0PBIJrP7n4V8ob29WK8PW7xQG4FNbQR3NjWf7KGqmvUCHGdXO/Ti4J5Hm2o/D/nSUyOfZevVtdvfPzBRKrW2RvknoVjR/w4ND1cqla6uTrNopVLW8dVNqxR8OZ4hm+r+srGTdAs9eWB1U11YDTWfYBS5v+ZZzI5xOnvaqRqTGePBA2smRxD9OWQ6Hp1vfbFbK4dJR8dG5e1nMnt+oyLfGs0O5ZbUJxQ9mChiyWtAXrdevGjlIY0WJ/Nja22vjRdvsWIxFw+fJbW1yYwj+jK/wrKLn7k/y8LyYqm2an61btZrawf6BzKZbG0cGi0W5fLxegyr+NJZY3k0mmj8aT01k1MV3Z+VYSU+sphAIvoyv8Kyn1k8Chi/ZvXJg+vR1tYxvMcnxjMzfCsTfdfUg2+h6EfTqWV33MYHtrHT/ejf8BgAABAASURBVFkZVrJtqE1NRL9KQ+PPpMOYF0u1VYvy248XQx3JIdOMycxyhUwmM1qfMtGPdlPLrzIxOnae9SjCvZiVEUuqWGxeIvpVGhqvZllYXizVVs2vAtHUb0XT1paWymyBaCoVvY5JH9/KRD8mOcT82uDqYtE0SzMS0bvS0PgZh8arDTYeFoh1bFTpbG+vzPAtubxQyJtU8qtMNN6GohezKq0mn0+q4YnoXWloPDmXRTVflmqr5l2BWF8tLa2VStlMTcWK0dkXnV2mHrxY77uGX2Wi8arLxvLiXBnVmnk+qQYmoo+loS/nsqjh4xrZPo4g1rGzRp6v9mJ7uVKWA6S7c1Gz0Mgl7cVivZ5NvzprLO/KROPPWjYx24Dq7HLb02rO+aQalYg+loZ+zbKIeddNY/wsEOs+S6Srq7Onuyefy0kKljUby1JpFIvtdZmeH/MzFD0rE423oejLrAyrCeeTqv9whUcrlFaLptyWPWortbzrprHsJw+Teq2tLfJndHQs/qepN9tu6tcrRHYd0aEan3YgUetpKfqo581mR60rOQly2XKPNjuaSTLWoEog88TGzaauPD3LHZvdTD5uth2Qq0uvaTOx2c3EZjeNHbu1c2BM/dTtd8n2ubAq3QJ4utnRC8KXVSv34GmK12vqBebCr5mUMfsK8a6bycfNjtdtjg781m3L83UpluOZ7B4evhvz7gCvmWwu9e4Yr9mdK561xVp26oV3r3A7Ou7vMgg+brkc8vXxvenpyJF9hZs6vVQW+5k3Ps2vj3Ho3SyLmKdllvF5y70bjbN87KyxfGw6tbzrsrG8m5Vh1XfVt0UloqdNNMbbWRaWp900xuczA3sah77zsenUeLjAW8zHWRlWvVZ9W3gi+nuk1NNZFpaPa9PE/C0QvUaZ2HzerWUT83FWhlWXYnEhiejj1PuYd+eyqObj2jQxfwtE43lbjaddKpanZaLxPBQ9OldGjUUWi/N+k/s49T7m3bksqnl34sMaXheIHp16NzD+lonGwwXeqvl1roxqiykW55GIXpeGxvPjjcb7RPG4QPSdj6ubVvO3TDTedtlY/pa5ZqHF4lwT0evS0Pgfhz4u1VbN9xFErztr/B1HtLwuE43nie51KC7gfFJ7T0TfS0Pj8ywLy9/mUsv3ApFG08QRKgny7gRSNeZ1Pqm9JKLvpaGdLunpLAvL9+rW0GLqAMrEZAUQip7OyrDmfj6pGRMxgNJwcrUOjw82et1cagUwghjA+m1et5taXpeJxvMuG+PzrIzYXM4nNf373PfS0FTNsvB6XyyfaPxtLrUCKBBpNHWB7/1BxvMuG+P5rAxrr+eTyjz6+Maai8JoCwxg7CeM4SueCEfwRLiA15IjZroL+erP75Kc8YLi/grmXnh9vNcK414MD5cCGAcN4F6USllPz/dSpTA5FMK9SNbu82aYPU98lLd7qwA6UCzblsm9cIE92OD7vbDCOGrq+72Q7Y/Oz+DT6W2n4l64o1jMxatz23eHjiPai7weNbR8n2VhBdBNY4XRYhrM1Avf201D4nvrqeX7rAyrZiJ/Nj6Xk/FZMDWu70u1xVikxjUBtJuaULLE+N96avk+K8OqnsifDSZFAhivMgFN3eOOALOzpYnxXACzMiyb7h6vhGKFMcvC8n2pthgFooMCmL1gBVMm+nsaxRoBzMqwcr7PO/b6XBY1fF+qrVpIdRXjiGicYNLd+HyujGoeJ2IAy5vFQrovFIhotJCChPviFF8TMbAICaO51KJAdBZlopvC6LKxfA9FLxMxjFkWsQCWaotRILosjHZTK6QUMf4v8FbN61kZniViMLMsYiHFoQmuMzOANb4DFlLAm+BC0dNZGT6920OaZWGF1E1jQiwQA1vjO5h2U8v3U0TVCKb11PJ0VoY3iRjSLAsrpKFQi6l7jgtvHNH3U0TVCKnLxlTNyvDoVedHIoY0y8IKrJvGBDqCGFhnTXgCKxNNcKFoov22R1MVPUjE8GqpYJZqqxZegRhkHFImui+8mPdoqmLmiY2bjdtC3NXqWE5gLRtBHjLltecFniYveHGnnN64qSevCoA9fSO7JPcF1lYTsMA6hsxkbAR5pxwvf/POHo200xIC2yXJcYOQpo5Y0dHFoMZErWCWma022bAd2pM1MDAY2DCECXHAyDg/ZcDFSkUeMnl9B7kzCqybxqLF1COhLlsT3miiCbHLxjg/K8O5RIxPXxzkZ/PwPsYGvEgNjaYeCa8bxQpsaR7L5VkZbiVieLMsYqEWUqHer4DjkDLRLyGtZVPNzVkZDiVikAfNrSBHpCwKKe8EtvhZLNQy0QQd9saxw8KuJGLAcRjYUm3VbKOQCRErmvoo1OQIckDRcu2uOfGeD+xcFtUCTnqz+5BpmHeNqRc+CrpMDDwUHTkynHwiBnYui2qhNpdaAReIYQtv9l61UMtEE2iXjeXOuTKSTMRQZ1lYoTaXxgIuEA2dNd4KuEw04XbZGGdmZSSWiKHOsoiFPUsv7AIx+Hah0EMx2DLRhB6Kic/KSCYRA55lYQXcTWOFXSAGL9R2UyvsMjGw0yhOleysjAQSMexmE5OOOxj2CCKNpr4Lu0wMuMvGSnBWRrPf9sGnRdjdNFbwBSKNpr4Lu0w0KQjFpO5gUxMx4FkWVvDdNIYW0yCE3W5qhV0mmqBbT61EZmU0LxEDnmURS8Oa12kYQaSzJgDBl4lmd+oHXgrbWRmmWZqRiGHPsogFvFRbLA1rtqVkXbp0hGLgZWLwXTZmclaGJEhzXq4NT8TgZ1lYwTeXWpz4CR5JR5kY+ICiiUJREqQ5szIyT2zcbBopJftQ7mYw7ABb8L2m3M2QpORuyv7HlsWmYRr4q+2nszTsQKPmUuIwEEy9CEnYMy9j9hWbhm4p0+C7mW9Ql4TtSEzDJG45wC0VvQldlBOBzyqx7NSLNAyXpmqZhZTsi8JudLcaOoWvIZ+Fg590GBseHknDS9CkaQSRzprApGE00Qp4gbdqDZ2VUf9EDH7SYSwl3TQmCgkT7UNN6DgBcpCCbzq10tB6ajVuVkY9EzGeZZGSODTpCH5Di2mgKBPDk4bWU6tBszLypk7kOZABmDqOqJXL5eHhocGBwXxePrNXossyExOljs6OYrE9m034PFZyZ1NyvDQ9BaJJWVuN7TpJyTNry8Q0fISN4n8sDXfWzsqIJoLXbQdVn0Ss+7ksRkdH+/t3tbe17bN6ZVdXVz6v2zkxMdGvBrZt29rVtaS1tdUkIQ1LtVVLVYGYkrbhFJJ4iI5gpeKgTqrurB09leMddbm/dfg4XPfjh6MjI/27di3t6V6xekVLsaVsJnttM0b+uXzVcvmWXEGuZpKQsoRIUYGYNmlY3bRaSkYTrZR02Vh1PFfGYhOx7nEou+DBocHe3p7e3qUbNm245s5r73rwbvutDZse/tld19336H09S7vlCnK15o+CpGGptmppG0FMVWdNesYRrfSMJpo0ddlY9RpAXVQiNqK7ZHh4OJvJrFyxQr6ulCtfv+2b37j5mzsHd46Xxn98508uvflLo+Oj8i25glxNrmyaKD3NpRYFIgKTqjIxPV02Vl1mZSw8ERs0y2JkZLinu1u+KOQLB64+4Ixnnvqbrfff/sAdj/c98bOHfv6iNc8/bL/DWvJ6o3I1ubJpllQ1l1oUiMFLW5mYNikMxUXOylhIIjZ0lkVpotTT022/bmtpO+Wok1cVV37vzh9ec/e1E+WJlz/nzM5iRyaTke/K1eTKpinScB7gGhSIaZCSRc5iaUsIk4LTKNZY5KyMeSdio89lUS6XbWepkCOUa5atOfuIM2/YeMvX7/nWcfu98FlrnxF/V76QK5umSOGEPO4yEIZUddmYxZ0rY36JWPdZFlNJ+VedcxJ7Jx154oq23v6JISkQpWrMmIz9llwtkzFNkLZuGkOBmBppazc1qSwTTcoGUC3JKQnF+d7reSRicwbSsrnc0NDTo4PZTLa3a+kzeg/NZjIHrDpAqsb4W3K1bON32WnrprHSWS0xjohQpfNzwAJmZcw1EZvWVyI3sXXbtpoLs1FdqMOHVUWhXK3R25PCbhpDgYjQpbVM5F7v3ZwSsZnB0NnZNTKq4kskBvfpWn1s71GZqoOkcgW5mlzZNEwKu2ksCsRUoUxMj7R12VjzmpWR6du6ffZrRAvkZJsZDIODA3L094D99ysUdL9cqVT6dmwplSZW9q60R03Hx8cfefSxQktLR0enaYy0LdUW446blEnngRCT4jueklO61pjjG3y2RJRfYc//1/zPzkNDQ1IEHrDfWl13IZu11aFEY7msH3Aeeezx1ta29vZ20zAp7KaxuOMmZUhEkzIp/9Q7+9s8P/sPJ/VRQtKutbX18Sc3SgyuWrUyX5DtrEyMlzZvfkqGE5cs6W7oniud3TSGEcRUkqc7PWubVUvPOSJqRAu8ldJ5x+UeR6E4415u+kS0p3ZK9kOEbHFX1xKpCwcGh79+22UynPi6Y/+ws2tJJmIaJrWfHA0T8lIpGkdM0WQ1mHR/GigWc7OcK2OazpomTDqcI0k+OWSqB0710Gm2+ghqg6S2m8akvkBMbWdNmqVq7e8a6Ww9tWaZlZGXUdZpf8apF4rd9Jk2te6adkMO4r6nE/c9tVL7mcBMd9/z1SOFzh4wtJvU6EHN1PZWmBQPtlspv/tpHikwae29tHjl14wPPn3UtEHnsvBFmuPQpH4EMTpkWoezZ8NHKVzhLJa20yjWmHquDN0LNPRcFl5IbXOpRYupfE5M891P4eqm1dI8mmjSPaBoJs+VIaFod4PZeJZFisujVB8yMrSYph7L1qS5TDSEYhSK9lwZ2TQfRDbpbi61KBANjaapl/Iy0aR1gbdYNCtDz5WRTXMcmmj4MOWPAAUicWgoE1NfJpr0nUZxKnkEUt1NQBxSIMKScfTUJ2Lay0RDKM73jMEhSXk3jUWBaGg0xSTKxJS3nprUJiLdNIYCcVLKG02tlLebWpSJJvVdNmlMRLppLGojoAZlokl3KKZuh5jyNRqqRYdM0/6xwNBZE6GzxqJMtFLbepq6RGTkzIqWvedxIA6fRihalImWnaJnUiZdiZjypdqqUSCiBu2mFmWilc4um7xxkrwzx8fGRkZHx8fHpHRvHdFqZvOmjdlcrlBoaWttLbS0zDfYaC6NUSDGGEzFVLZM5CNjCk+j6FwiVioV2UlNTEyMjAy3F4tLVq0oFouHHfbM6FtS5A3v2rlraHjYZDJyTYm3OZ4ukebSanbdPoOo0ZQPB6ghO4poqWd2F6kLRecScXR0dGhocNWKFct7l+byeo7gTES+VTEVycjW1tbSREmutrmvr729o61t7z0ytrmUbhqLAhHTks+XHC2MUSbG5EGwC2Gn4QCbQ4koNZ/k3PDw0Mrlyzs62jPZXLlsJqdIVSavJdGYK8gR03xuZWV539atcpFk5OyV4uzdNFKPDgz0y6tfDs9KGZrNZuWXt7VJaVqdT8oRAAALTklEQVQM8hVAgVgtep/zUUlFnTWpXq+kGmViNSknUnIWSYcSUfZNUh1KHPb0dJfKlS07x3b0T/+Jtas9v3Jpa3dPt3z91JYt+chMv3b2bprBwUE5PCsDk6tXrmxvL0ocSkDu2LFzx86dO8dGO9o7WtuC2l1SIFaj0bSGbTflMbEoE6vZBd6CP9LmSiLasUM5WNrR2SGF2th4+fq7tnzzhi3TXvnMo7vPP2WN5GJnV6dUh/2DQ/L3tG/j2btpJIDHx0YPWLumRQI1k8lGhaYcp+3t6ZY/fVu3bd+xUy6XGtSEggIRs7DtpiSiRZlYLWo9LQX/EcGVRNTO0pFhGTuUoUNJRDk4Wshnu9t3vzPLFTMwVt48WHpyuJzNmFMmKlF4ZeTKEld9W7aYSjFXLNb8ztm7aeSdLwdpD9x/v8rw8M7HHjPZTNeaNfm24siOHSNSd7a1LVuxQkJSUrFQWCa1o/EfBWINGk0xO8rEamnosnElEUdGR9tl3C6vEShpV8hlX/zspYcf0GmihhoZ4Htq+9hX12/eOjq2upg9eN/2lvzusJQfkR8cGhlt2zMRZ++mkTHLwcGBA/ZbWygUhrZvf/Cyy4buu/ewD3yw58B1j1977aYf/mDN+eevOeHElStWjAyPyNBmR0en8R99lTV4QDA7ysQawXfZuPIBeXx8bEn3ktxkKZbLZpb3tK7bt0P+HLhP5+plxdsf6P/ttvFVbZnzj+0+9lk9LQV7jFMPcsoPyo9X/7a9LtUmiWiiyRvydfvKlfucemq+d9mmX/ziyZtv2nHPPZ3PPmLZkUe1Llki3+3q6hwcGDT+Y11v7BXrfU/FEjY1wj5jlCuJWC6VisVi3DIq/81mM/l8Vv6MjJVuvGfr+vv6uwqZEw/uOPu4Vd2dhbi3VH5EfrC851obe12qTRJx1aqV8bHQVc9//pKjj9l27TUPf+Hzo48+IgEpR1Dtt7q6uvL5EFKE5eumYsysBgu5TcUSNlMFHIrudNaUc1PG6qSQmyiV731o1zdv3LJlpPzi/dpeffJqqRfzuafnWmhPjTHbb7zRlCbiC/d6pLtULi974xvjAM63tq459dShxx4duPmm1ee9qnvduuxk82rUxVoxnqNAnIo4xBwxmlgj4C4bp9sKyuXKIxuHrrip78EdE/t35c89bsVB+3bKAdWp14wja65r01SiOrT6tiYmKhMaG+M7d5XHQ/tISIGIOaJMnIoycapQzxjlSo2obd/lcnZyeRoxPlHu2zF6+XUbf/XkSG9r5tXHLTvykO5CoTYP5fhnuVLpPf74Vav3mfuZnrTRdGIiVyjYm5sYGnri6p+OPvi7/MpVcuy05/DDWru789FMxImJiWhZAI9RIE6LRtNpMQFjWpSJUwXZepp3JOSlHBwaGupob9+9YFvF9A9N/Pjmp9bfPzBcNucc0XXSc5e3t8qnV60GJRXj6JRElB+UH4+emvE5DoOXy+WNG3euO/AA+85/8qabdt199/Kzzu5at27T+vUbr7qqY/U+Sw89VL61a9eukZFRrz8K2V4JugNq8LBMi4dlJpSJ0wrsYXGlRswXCjt37Gxra8tmsxKHUiDeef/2y2/bvmmk8sJ9W196xNId/WP9Q+O2XGtvy/V0FvJ5rRelspQflB+f14FBiVP5Qan/JBH7H39803U/y1Qqq1/ykq41a0e2bt10xXefuv32tt7e4rJlO3f1t3e0G2/ZHRzF0FRSCXEkGXNnG3F5K9Wwp1EM5q2Ud6Tg7ersHBkZLk2UClFLy9h4+aEnhx8e0JrwiV0TX7tuc2fL07Pkjz248+wXr87LSzNj5EdGRkfz+bwcLJ3XoR75kUcff+LA/ffLtbWte80f5lpbl6xdqy02J71s6WGHZ1sKcslTfX1SHvb2ejxDn1NCzoQzRM5kYGCQZfGnxSMzizDeTa7UiAV5NDOZUcm2Qj5qOq0UcpkjundvXt+O8b6qKx+8sq0czSiUj2zyI7lcPl+Y9+kSc9F6N488+tiafVb3HnpoRlf4zsk2FJcubVuyRA7Obtm2bfuOXV1Llvgbh4wgzoShMiwAo4nTCmlAMdO3dbtxgxzD3LVr58rly7t7uicmypu2DO8cmGGl747CviuKkpw7d+58YuPGrq4l7e0LPLAZr/S9rLe3ZqVvCV3fV/qmQJzJ3JuwUoiXzSxScgqIBQjjHLQOJWJ8NqgVy5Z1dHZkM7lyZfqJgNlMplwpDQ4Mbu7ry2bzPT3dczxv8LRCPRsUO/1ZcAbpWfDgzIIHZxYBfJZy6GxQkmr29L9PbdmyKjrjRO0ZgyOlcnl8XBfpfkoX+M4sXdpjFkcGFHt6lprgMAdxFqxoCtRdAKdRdCgRLQlCiaj+waG+LVvai8Ul3Uu0VosSUUrG4eHhXTt3DQ0PtxXbW1pa28I6eWEdMYKIBZOXDTMNZuLLmFlPd5dJQs+SLqlbMlm35nDv2Nk/x2s6l4hSDkoialFY0TNa7Ox/ohydxcJEUwiyuVyh0CKHNOVBl1fkLCcKTjkKxNlFnTV8nJpeNM0g2KWc0ViT08QXM5KVIEcTRZfNkwp8yikPLQ7lz44CEWicNJwmcDEkC+0Il4+h6N+8AnviQ16Ls6BAnB1TL/aK1U2xGHHnh/GNZ4lI/+ReUSBi8ezqpgYzCHWd6zqKRr78O2+QZ4lI9bNXPER7xUMENIE9fGq84lMiMnF4rygQURd2DU+DmVEm7l1G//gVit4korzy5EgO+/rZUf3MBeOIe8U4IurCuwFFPxKR5tK5oEAEmoky0br//t+dftYrn/nsY774pS9P/a5foehBItJcOkcUiHNBgThHlImYi6uvWX/Oua96+OGHTbSIyrTX8ajLxoNEZEc/FxSIqC/aTecimpuY6vV97rz7npcef9y73v6Wqd966KENUjt+8lP/9Ja3vfNZRz7nre9897333nfOH7zquS847qMf/6Sbry7XE5Fumjnic8McRTUiJ31F3dhTRJm0OvcV53zpC5esXr1q6rdGRkaldvzyV746Mjq6bFnvT356zbnnv2bt2jXyra//+2W3/PI24x6ndw1008wRBeLcRadB54HaO9pN5yjlZeIhhxw0+9o0x734RV/6/CXvf99fytfnnfvKSy76zLve/lb5+uENDxv3uJuIdNPMHQUi6o5xxLlLeZk4u/2ionDJkiXy96pVq+Vvl0+O4Wgi0k0zdxSI80JnDeqO0cS5c3yxUxcTkaXa5oUCce6Iw3mhTJw7ysS5czkUXUxEdvFzR4GIxqHddO4oE40uULOXqLNRmM1o7rg5QzHTt3W7cQnDh/NCL+688OqaFx6ueXHq4UrqjMFzZxOxOfXi3M8Y7FaNyDtwXigQ54tG03mh3XReKBPnxc21bBxKRLpp5ovDy2goxhHni9HEeXEwFF1JRLpp5osCcQHorEFDUSbOl2sLvLmSiJQ788UjNl/E4QJQJs4XZeJ8ZbKZcsWVg/NOJCLtIQvA/h1NQLvpfFEmLoA75xZOPhFZqm0B5EGjQJwvVjRFc1Amzpc7A4oJ7yBoLl2Y6JApD9r80GiK5qBMXABHQjHJRKS5dGEoENE0TMBYGMrEBXChyybJRJThQ5pLF4ACcWEYeV0AOmsWhjJxYRLvsslLLJkk2N1TUrfuOx63heFxWxget4VJ8HHr7uo03qqU61wnzv2JyCd3/I3jfgvGQ7cwPG4Lw+O2MEk+bo6fYmIWe10cdQHmHnN5jiMBQGCeecQxBpNuuen6OV6TZnQAABSJCACAIhEBAFDOnR8RAIBEUCMCAKBIRAAAFIkIAIAiEQEAUCQiAACKRAQAQJGIAAAoEhEAAEUiAgCgSEQAABSJCACAIhEBAFAkIgAA6n8AAAD//3baW7IAAAAGSURBVAMANO/DDIL0W6MAAAAASUVORK5CYII="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "14450bf276482cd979c4-28dfebd0a593c837daea",
+          "file": "c3-viewport-visibility.spec.ts",
+          "line": 153,
+          "column": 1
+        },
+        {
+          "title": "C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1863,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-20T19:15:40.800Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "canvas-keyboard-focus",
+                      "contentType": "image/png",
+                      "body": "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hyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghUqKyxQAACw1JREFUhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghhyghx+uoisVidXW1NdU1Xq/HceLJea5IJJqVnRUIBN1ufp3SlmiU9fX1VVWVQb+/Y0lxTk6O15v4PCORSFVC9fr163JycjMzMx2kI8Uo60MhS6+gIC83PzcWi8ac2MYbXE5GIKNdsF1VRdWGDRVOTk6m3+8g7chFGY1Ga2prCgvzCwryv1z51ZcrvuxY2PGwfQ+1mxatWrxg2YKORR17dz/A5XKVV1R6fT6Px+MgvchtmdXV1bldruL27W06Hos/Pfu5Z2c+V1FTEY6G35zz1tiZj9WH6+0mW8AWs4UdpB25KEOhuvy8PJvweX3dS7qdtO+Qf61b8PFXnywvW/HOwneP6Hxor669MrwZtoAtZgs7SDtyUUYj0fz8vNS0P8M/uO/xHQLFL895bfLcKZFY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"
+                    },
+                    {
+                      "name": "canvas-focus-style",
+                      "contentType": "application/json",
+                      "body": "eyJ2aXNpYmxlIjp0cnVlLCJ3aWR0aCI6IjJweCIsIm9mZnNldCI6Ii0ycHgiLCJjb2xvciI6InJnYigyNiwgMTE1LCAyMTMpIiwicmVjdCI6eyJ4IjoxMTc2LCJ5IjoyMTcsIndpZHRoIjoyMjAsImhlaWdodCI6Njc5LCJ0b3AiOjIxNywicmlnaHQiOjEzOTYsImJvdHRvbSI6ODk2LCJsZWZ0IjoxMTc2fX0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "14450bf276482cd979c4-7a15ddfa4e66597b2ac5",
+          "file": "c3-viewport-visibility.spec.ts",
+          "line": 188,
+          "column": 1
+        },
+        {
+          "title": "C3 isolation remains clearable when every drawable entity belongs to the snapshot",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 958,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-20T19:15:42.667Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "14450bf276482cd979c4-6ac309413179182884c0",
+          "file": "c3-viewport-visibility.spec.ts",
+          "line": 227,
+          "column": 1
+        },
+        {
+          "title": "C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 120109,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts",
+                        "column": 54,
+                        "line": 249
+                      },
+                      "message": "Error: locator.click: Test timeout of 120000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('queue-delete-node-intent')\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" title=\"Queue node delete intent\" data-testid=\"queue-delete-node-intent\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    231 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m        - element is not visible\u001b[22m\n\u001b[2m      - retrying click action\u001b[22m\n\u001b[2m        - waiting 500ms\u001b[22m\n\n\n  247 |   await control(page, \"Isolate\").click();\n  248 |   await startPropertyTaskFromTreeEntity(page, \"node\", \"node:C3-loose\");\n> 249 |   await page.getByTestId(\"queue-delete-node-intent\").click();\n      |                                                      ^\n  250 |   await openWorkspaceSection(page, \"operations\");\n  251 |   await page.locator('[data-testid^=\"operation-apply-row-\"]').filter({ hasText: \"node:C3-loose\" }).getByRole(\"button\", { name: \"Apply\", exact: true }).click();\n  252 |   await showCanvas(page);\n    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts:249:54"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-20T19:15:43.631Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected-remaining/artifacts/c3-viewport-visibility-C3--80df0-oject-replacement-clears-it-chromium-desktop/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected-remaining/artifacts/c3-viewport-visibility-C3--80df0-oject-replacement-clears-it-chromium-desktop/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "14450bf276482cd979c4-037a53e39c3543d56c5a",
+          "file": "c3-viewport-visibility.spec.ts",
+          "line": 244,
+          "column": 1
+        },
+        {
+          "title": "C3 visibility leaves Current results current and never revives Historical overlays",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "14450bf276482cd979c4-a0594e4a77ca083d641a",
+          "file": "c3-viewport-visibility.spec.ts",
+          "line": 271,
+          "column": 1
+        },
+        {
+          "title": "C3 dimmed geometry remains available to hover, click and box selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "14450bf276482cd979c4-1be5191eece771a93976",
+          "file": "c3-viewport-visibility.spec.ts",
+          "line": 153,
+          "column": 1
+        },
+        {
+          "title": "C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "14450bf276482cd979c4-d2e0dd0d1fbf9821560e",
+          "file": "c3-viewport-visibility.spec.ts",
+          "line": 188,
+          "column": 1
+        },
+        {
+          "title": "C3 isolation remains clearable when every drawable entity belongs to the snapshot",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "14450bf276482cd979c4-03cee194cb9089b8d200",
+          "file": "c3-viewport-visibility.spec.ts",
+          "line": 227,
+          "column": 1
+        },
+        {
+          "title": "C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "14450bf276482cd979c4-5f86173d05fceb2ed1f3",
+          "file": "c3-viewport-visibility.spec.ts",
+          "line": 244,
+          "column": 1
+        },
+        {
+          "title": "C3 visibility leaves Current results current and never revives Historical overlays",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "14450bf276482cd979c4-a2bb9e5ecd5d7ab8506b",
+          "file": "c3-viewport-visibility.spec.ts",
+          "line": 271,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "ui-foundation.spec.ts",
+      "file": "ui-foundation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "node visibility owns attached symbols while connected spans remain independent, and isolate is bounded",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-83e70c7838763b8c794a",
+          "file": "ui-foundation.spec.ts",
+          "line": 1337,
+          "column": 1
+        },
+        {
+          "title": "node visibility owns attached symbols while connected spans remain independent, and isolate is bounded",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-f24d6749beda8212bac6",
+          "file": "ui-foundation.spec.ts",
+          "line": 1337,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "message": "\u001b[31mTesting stopped early after 1 maximum allowed failures.\u001b[39m"
+    }
+  ],
+  "stats": {
+    "startTime": "2026-09-20T19:15:36.093Z",
+    "duration": 127781.155,
+    "expected": 4,
+    "skipped": 9,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
   activateWithKeyboard, clearTreeFilter, currentModelHashThroughVisibleExport, gotoModel,
-  readFixture, selectTreeRow, setAppearance, typedTreeRow
+  readFixture, selectTreeRow, setAppearance, showModelTree, typedTreeRow
 } from "./ui-foundation-workflows";
 import { openWorkspaceSection, projectCommand, showCanvas, startPropertyTaskFromTreeEntity } from "./workspace-driver";
 
@@ -246,20 +246,28 @@ test("C3 deletion retains active empty snapshot; new geometry dims; project repl
   await selectTreeRow(page, "node", "node:C3-loose");
   await control(page, "Isolate").click();
   await startPropertyTaskFromTreeEntity(page, "node", "node:C3-loose");
+  await page.getByTestId("property-inspector").getByRole("tab", { name: "Properties", exact: true }).click();
+  await expect(page.getByTestId("queue-delete-node-intent")).toBeVisible();
+  await expect(page.getByTestId("queue-delete-node-intent")).toBeEnabled();
   await page.getByTestId("queue-delete-node-intent").click();
   await openWorkspaceSection(page, "operations");
   await page.locator('[data-testid^="operation-apply-row-"]').filter({ hasText: "node:C3-loose" }).getByRole("button", { name: "Apply", exact: true }).click();
-  await showCanvas(page);
+  await showModelTree(page);
   await clearTreeFilter(page);
   await expect(typedTreeRow(page, "node", "node:C3-loose")).toHaveCount(0);
   await expect(control(page, "Show All")).toBeEnabled();
   await expect(label(page, "pipe:C3-A")).toHaveAttribute("data-dimmed", "true");
   await page.getByTestId("command-node").click();
+  await expect(page.getByTestId("viewport-create-node-id")).toBeVisible();
   for (const [field, value] of Object.entries({ id: "node:C3-new", label: "C3 new", x: "1", y: "-2", z: "0", provenance: "invented_c3_visibility_input" })) {
     await page.getByTestId(`viewport-create-node-${field}`).fill(value);
   }
+  await expect(page.getByTestId("queue-explicit-node-intent")).toBeEnabled();
   await page.getByTestId("queue-explicit-node-intent").click();
+  await expect(page.getByTestId("viewport-draft-review-preview")).toContainText("node:C3-new");
+  await expect(page.getByTestId("apply-reviewed-draft")).toBeEnabled();
   await page.getByTestId("apply-reviewed-draft").click();
+  await expect(typedTreeRow(page, "node", "node:C3-new")).toBeVisible();
   await page.getByTestId("workspace-select").click();
   await page.getByTestId("viewport-fit-model").click();
   await expect(label(page, "node:C3-new")).toHaveAttribute("data-dimmed", "true");
@@ -271,6 +279,7 @@ test("C3 deletion retains active empty snapshot; new geometry dims; project repl
 test("C3 visibility leaves Current results current and never revives Historical overlays", async ({ page }) => {
   await page.goto("/");
   await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("run-mechanics-preview")).toBeEnabled();
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await showCanvas(page);
