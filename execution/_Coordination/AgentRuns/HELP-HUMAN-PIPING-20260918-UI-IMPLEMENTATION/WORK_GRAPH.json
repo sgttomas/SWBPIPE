@@ -305,12 +305,20 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
-      "status": "active verification; first full unit repair rerun 87 files / 1385 tests green. Browser triage found toolkit focus timing and expanded-drawer splitter hit-coverage defects; repairs and backchecks underway. Native menu reselect and Undo/Redo accelerators being completed and verified. Sol capacity interruptions caused same-scope Astra/high continuation. Final full lanes and exact native dimension witness remain before freeze.",
+      "status": "product/test checkpoint 26a7478b5b7e85760a8f9f8847690c548a01f9e5 frozen for complete-diff code review; final unit 87 files / 1387 tests, viewport 12 files / 240 tests, harness 379 and Rust 101 reported pass. Full source lane running; dist follows. Final debug native bundle built; final native CUA witness and ROOT own look blocked by locked macOS pending manual unlock. No completion/merge claim.",
       "dependsOn": [
         "B2F-B2G",
         "C1"
       ],
-      "blockedBy": [],
+      "blockedBy": [
+        {
+          "what": "macOS locked; CUA automatic unlock failed and requires manual unlock",
+          "with": "owner / host",
+          "blocks": "final native witness and ROOT own look; B3 merge",
+          "independentWork": "full headless lanes and frozen-diff code review continue",
+          "not": "no approval-review rejection; product decisions D1-D3 are resolved"
+        }
+      ],
       "nextInstrument": {
         "brief": "instances/B-SHELL/briefs/B3-FLOORS.md",
         "sha256": "fe295e2b575e651e77b6ec4c75d6ef1455af319119337b4ac96d6008536c0290",
@@ -434,7 +442,8 @@
       "satisfiedEntryGates": [
         "owner strategy agreement",
         "owner D1-D3 product dispositions"
-      ]
+      ],
+      "candidate": "26a7478b5b7e85760a8f9f8847690c548a01f9e5"
     },
     "B3A": {
       "role": "slice",
@@ -689,7 +698,7 @@
       "status": "launched; implementation and verification in progress",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_BRIEF.md",
       "briefSha256": "e494ccdc4763cca0ff53ae238a33c3d3a83299f66a701b75b107c1a5bdb5fb3f",
-      "candidate": null,
+      "candidate": "26a7478b5b7e85760a8f9f8847690c548a01f9e5",
       "returnSha256": null,
       "actualAgent": "/root/b3_manager",
       "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
@@ -748,7 +757,7 @@
       "reasoningRequested": "xhigh",
       "candidate": "c805bcc1a",
       "base": "c459a0fa15e8d33613b6b95f529b5d369c707874",
-      "status": "tail review on46f052d99 found two graph attribution/current-state issues; corrections prepared for backcheck",
+      "status": "PASS through 2fd1416ac after tail backcheck; subsequent candidate changes still require review coverage",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RECORDS_REVIEW_BRIEF.md",
       "briefSha256": "941f528cd80e5adfdddaeb4d5922609091fd4d72f34231dc1abc63b641cf23de",
       "actualAgent": "/root/continuation_records_review",
@@ -761,11 +770,13 @@
         "P2 discovery evidence classification: corrected by byte-preserving relocation and pointer",
         "P2 local merge boundary: clarified by sealed addendum 1; original brief retained"
       ],
-      "reviewedCandidate": "d080c334424f500dd4c8d2f745b475c474bf474f",
+      "reviewedCandidate": "2fd1416ac141e51b638a2ca88b620ae2c5a76df8",
       "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_REVIEW_BACKCHECK.md",
       "backcheckReturnSha256": "93a22fa8a46b44424b00026c9febcfd21a3b900810c51ba40f7096c8b52ec569",
       "tailReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_TAIL_REVIEW_RETURN.md",
-      "tailReturnSha256": "b792b8d848960e6abd6be3f8dc0582638c3922c4e6d35ca32c8cfe4a2ca3934a"
+      "tailReturnSha256": "b792b8d848960e6abd6be3f8dc0582638c3922c4e6d35ca32c8cfe4a2ca3934a",
+      "tailBackcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_TAIL_BACKCHECK.md",
+      "tailBackcheckReturnSha256": "d41f5768865f09f204ec243a188dd9bb53c2b05ecfbaf7aa605363987b455c8e"
     }
   },
   "edges": [
@@ -906,7 +917,7 @@
       "CONTINUATION-RECORDS-REVIEW"
     ]
   ],
-  "current_frontier": "B3 first, active verification under approved strategy and D1-D3. Astra/high manager owns product fan-in; the current shell continuation is Astra/high following a ROOT availability decision, and the already-running native worker is Sol/high. New deployments formerly allocated to Sol are Astra/low under the later owner direction. ROOT owns records, independent review and final integration. Browser geometry repairs and final native backchecks precede freeze. Records review passed through d080c3344; later tail review in progress. Canvas I1 and parked design preserved; no reconciliation/DAG rebuild.",
+  "current_frontier": "B3 source/test checkpoint 26a7478b5 frozen; ROOT preparing independent complete-diff review in swbpipe-wt2. Headless full source/dist verification continues. Native bundle passes build/Rust checks; final native CUA witness and ROOT look need manual Mac unlock, requested asynchronously. Owner Astra/low policy governs new Sol-designated workers. No merge, qualification, reconciliation or DAG rebuild claimed.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
