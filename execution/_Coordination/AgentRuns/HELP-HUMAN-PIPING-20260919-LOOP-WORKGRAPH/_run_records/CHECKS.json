@@ -1,0 +1,62 @@
+{
+  "candidate": "0ca9903b9b1e30c6a0afac6c3e0b714680a72ccc",
+  "clean_at_start": true,
+  "checks": [
+    {
+      "command": [
+        "repository-venv-python",
+        "tools/validation/validate_instruction_entrypoints.py"
+      ],
+      "exit_code": 0,
+      "log": "validate_instruction_entrypoints.log"
+    },
+    {
+      "command": [
+        "repository-venv-python",
+        "tools/validation/validate_path_anchors.py"
+      ],
+      "exit_code": 0,
+      "log": "validate_path_anchors.log"
+    },
+    {
+      "command": [
+        "repository-venv-python",
+        "tools/validation/validate_claims_language.py"
+      ],
+      "exit_code": 0,
+      "log": "validate_claims_language.log"
+    },
+    {
+      "command": [
+        "repository-venv-python",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "exit_code": 0,
+      "log": "validate_piping_loop_receipts.log"
+    },
+    {
+      "command": [
+        "repository-venv-python",
+        "tools/validation/validate_instruction_tranche_manifest.py",
+        "--base",
+        "origin/main",
+        "--head",
+        "0ca9903b9b1e30c6a0afac6c3e0b714680a72ccc",
+        "--added-manifests-only"
+      ],
+      "exit_code": 0,
+      "log": "validate_instruction_tranche_manifest.log"
+    },
+    {
+      "command": [
+        "repository-venv-python",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ],
+      "exit_code": 0,
+      "log": "harness.log"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "base": "7866f0a3c2c846cf071f735ea9b263a44fb00ca9",
   "selectionAuthority": "owner authorization 2026-09-18 (instances/ROOT/ACTIVATION_2026-09-18.md)",
   "parent": "owner",
@@ -7,8 +7,8 @@
   "nodes": {
     "ROOT": {
       "role": "HELP_HUMAN Type 0",
-      "model": "Claude Fable 5.1",
-      "status": "active to the session handoff of 2026-09-19 (instances/ROOT/SESSION_HANDOFF_2026-09-19.md); a successor ROOT continues under amendment 1"
+      "model": "the session of 2026-09-19 began as Claude Opus 5 (claude-opus-5) and the host changed it to Claude Fable 5.1 (claude-fable-5-1) during the day",
+      "status": "handed off a second time on 2026-09-19 (instances/ROOT/SESSION_HANDOFF_2026-09-19B.md, which stands on its own; SESSION_HANDOFF_2026-09-19.md is superseded); both lanes paused clean and confirmed; a successor continues. How the successor organizes the work is its own choice within AGENTS.md (the owner's word of 2026-09-19 in session; the two-lane shape recorded here is the earlier sessions' practice, not the owner's direction)."
     },
     "A1-LINT": {
       "role": "TASK Type 2 implementer",
@@ -58,9 +58,7 @@
       "brief": "briefs/B1-TOKENS_design_tokens.md",
       "returnSha256": "bf372185b1ad9f0bd2342bb350d7f750a73ac27389ea43f8bf6ad1ce64e38db2",
       "candidate": "bf1ad5662e7e21ee3ce065940ed29bbe50511f1c",
-      "dependsOn": [
-        "A1 merged 7866f0a3c"
-      ],
+      "dependsOn": [],
       "correction1ReturnSha256": "5cbe4c0e8a3a9be61cd8fca5ccdf0f67e961f8cd603aa2047664e17c7ba5662e",
       "model_ran": "Claude Fable 5.1",
       "sweep": {
@@ -72,37 +70,69 @@
         "pullRequest": 801,
         "mergeCommit": "4dcab750501d039af5b2973991cbe0f3f423b80a",
         "ciHead": "0439d1babd7539507f4608dfcc2cdb05934e101f"
-      }
+      },
+      "dependsOnNote": [
+        "A1 merged 7866f0a3c"
+      ]
     },
     "B-SHELL": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "fable",
-      "status": "paused: slice B2 merged (PR #803, b9a07040857d2e6d3ec0f6a530697720801c7b59); addenda 2 and 3 sealed on the lane's branch (head 5f70ad178f951afbdc7b126a4f1006975c0266c1, pushed); next slice B2F; the manager of 2026-09-19 cannot be resumed from another session",
+      "status": "paused clean, confirmed by ROOT: branch codex/swbpipe-b-shell-20260918 at a9be4aaefa432e1eed56e87482391e90958cb087, pushed; contains origin/main at d20eb1294 (not PR #807). Merged: B2 (PR #803), B2F and B2G (PR #805). In progress: B3. The managers of 2026-09-18 and 2026-09-19 cannot be resumed from another session; instances/B-SHELL/LANE_LOG.md ends with a section for a fresh start.",
       "briefSha256": "00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75",
       "brief": "briefs/B-SHELL_shell_lane.md",
       "returnSha256": null,
       "candidate": null,
-      "dependsOn": [
-        "B1-TOKENS merged 4dcab7505"
-      ],
+      "dependsOn": [],
       "laneRecords": "lanes/B-SHELL/INDEX.md",
       "launched": "2026-09-19T00:05Z",
-      "branch": "codex/swbpipe-b-shell-20260918"
+      "branch": "codex/swbpipe-b-shell-20260918",
+      "launchBrief": "briefs/B-SHELL_launch_2026-09-19.md",
+      "launchBriefSha256": "2a2542c7e5b4584589203b07f1837c9b0d594d0bb3a1cab25d89bf40ccf7e33e",
+      "writeScope": "apps/desktop/src/** except features/viewport/** and features/workspace/modelIndex.ts; apps/desktop/e2e/** except e2e/ui-foundation/**; owns App.tsx and styles.css",
+      "order": [
+        "B2",
+        "B2F-B2G",
+        "B3",
+        "B3A",
+        "B3B",
+        "B4",
+        "B5",
+        "B6",
+        "G-11",
+        "B7"
+      ],
+      "dependsOnNote": [
+        "B1-TOKENS merged 4dcab7505"
+      ]
     },
     "B-CANVAS": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "fable",
-      "status": "paused clean: product head 3a5f7c103bde915d800792112dec2dea19a0813e; addenda 2 to 5 sealed on the lane's branch (head 4a7408e5512c425cbf9cdedd0b17396ad176607b, pushed, never merged); F1 and F2 done, F3 and slice C1E not started, the T1 probe unfinished; the manager of 2026-09-19 cannot be resumed from another session",
+      "status": "paused clean, confirmed by ROOT: branch codex/swbpipe-b-canvas-20260918 at f6c0bab8e8893237f83f57656b98039d68efb2b4, pushed; contains origin/main at d20eb1294 and slice C2's commits (merged as PR #807; merge main first). Merged: C1 (PR #806), C2 (PR #807). In progress: I1, a labelled pause point. instances/B-CANVAS/LANE_LOG.md has a PAUSE STATUS section for a fresh start; two of its carried items are overtaken by ROOT's B3 rulings (--shell-canvas-foot-inset is removed by B3; the routing block moves in B3, not B5).",
       "briefSha256": "df89f5b622a63f206ccc0f879e7255642e4b9ee16174faf84e539ab51bc12084",
       "brief": "briefs/B-CANVAS_canvas_lane.md",
       "returnSha256": null,
       "candidate": null,
-      "dependsOn": [
-        "B1-TOKENS merged 4dcab7505"
-      ],
+      "dependsOn": [],
       "laneRecords": "lanes/B-CANVAS/INDEX.md",
       "launched": "2026-09-19T00:05Z",
-      "branch": "codex/swbpipe-b-canvas-20260918"
+      "branch": "codex/swbpipe-b-canvas-20260918",
+      "launchBrief": "briefs/B-CANVAS_launch_2026-09-19.md",
+      "launchBriefSha256": "8b712cc65c83ba8320bd872d40e6d4e5a533586af6049ea4f486ce17a9c78986",
+      "writeScope": "apps/desktop/src/features/viewport/** and features/workspace/modelIndex.ts; apps/desktop/e2e/ui-foundation/** (the benchmark instrument); scoped colour rows of styles.css by addendum 2",
+      "order": [
+        "C1",
+        "C2",
+        "I1",
+        "C3",
+        "C4",
+        "C5",
+        "SECOND-PROFILE"
+      ],
+      "dependsOnNote": [
+        "B1-TOKENS merged 4dcab7505"
+      ]
     },
     "B1-REVIEW": {
       "role": "TASK Type 2 software-code-review, read-only",
@@ -123,9 +153,7 @@
       "brief": "briefs/A1F-FOLLOWUPS_identifier_notices_documents.md",
       "returnSha256": "d36704cc405e9b64a31996d4a87f93cfa049e342197907d9ce45f89051c272f7",
       "candidate": "bb7c7a2e8e128c91b001d69734369f1b211c7122",
-      "dependsOn": [
-        "A1 merged 7866f0a3c"
-      ],
+      "dependsOn": [],
       "worktree": "second worktree, branch codex/swbpipe-a1-followups-20260918",
       "model_ran": "Claude Fable 5.1",
       "return": "instances/A1F-FOLLOWUPS/RETURN.md",
@@ -139,7 +167,10 @@
         "mergeCommit": "8e4c5df6ec84928ca343224e5244ccdae5771cd4",
         "ciHead": "e989522aacfee98fa9a4ab7207c06ffbe1852c43",
         "mergedAt": "2026-09-19T00:47:54Z"
-      }
+      },
+      "dependsOnNote": [
+        "A1 merged 7866f0a3c"
+      ]
     },
     "A1F-REVIEW": {
       "role": "TASK Type 2 software-code-review, read-only",
@@ -156,19 +187,20 @@
     "DESIGN-SYSTEM-05": {
       "role": "HELPS_HUMANS Type 1 design manager, working alone",
       "model": "fable",
-      "status": "parked with its branch (ROOT's decision DS5-D3, open to the owner): candidate ff4c71689 with correction 1 checked by ROOT; correction 2 sealed and not executed; the reviewer's backcheck not run; branch head 4dddd44128e052cfe518f84c0b718e6125cb2b69, pushed, no pull request",
+      "status": "parked with its branch (DS5-D3, adopted by the owner on 2026-09-19: reopened at the closing visual pass): candidate ff4c71689 with correction 1 checked by ROOT; correction 2 sealed and not executed; the reviewer's backcheck not run; branch head 4dddd44128e052cfe518f84c0b718e6125cb2b69, pushed, no pull request",
       "launched": "2026-09-19T00:07Z",
       "briefSha256": "322ca33b2f191f4cb812155e4e2631f8938239551a84f200a4c7144b4c5e7c11",
       "brief": "lanes/DESIGN-SYSTEM-05/briefs/DESIGN-SYSTEM-05_control_contrast.md",
       "laneRecords": "lanes/DESIGN-SYSTEM-05/INDEX.md",
       "branch": "codex/swbpipe-design-system-v14-20260918",
       "returnSha256": "0f324a149a7f2e353a62cfc5dd3c70e2416fd46bc6708154d60b39f552c25b34",
-      "dependsOn": [
-        "B1-TOKENS merged 4dcab7505"
-      ],
+      "dependsOn": [],
       "return": "lanes/DESIGN-SYSTEM-05/returns/DESIGN-SYSTEM-05_RETURN.md",
       "model_ran": "Claude Fable 5.1",
-      "rootDecision": "DS5-D1 (disabled ink lifted; ROOT's decision, open to the owner): lanes/DESIGN-SYSTEM-05/HANDOFF.md"
+      "rootDecision": "DS5-D1 (disabled ink lifted; ROOT's decision, open to the owner): lanes/DESIGN-SYSTEM-05/HANDOFF.md",
+      "dependsOnNote": [
+        "B1-TOKENS merged 4dcab7505"
+      ]
     },
     "B1B-TOKENS13": {
       "role": "TASK Type 2 implementer (token adoption, tokens.json 1.3)",
@@ -186,19 +218,19 @@
       "model": "fable (design author, fidelity review), opus (independent review), sonnet (adoption, stylesheet rows, contrast script runs)",
       "status": "planned: after both lanes' control work",
       "dependsOn": [
-        "B-SHELL",
-        "B-CANVAS",
-        "DESIGN-SYSTEM-05",
-        "B1B-TOKENS13"
+        "B7",
+        "C5"
       ],
-      "record": "ORCHESTRATION_PLAN.md, amendment 1"
+      "record": "ORCHESTRATION_PLAN.md, amendment 1",
+      "carries": "the appearance items the owner adopted on 2026-09-19 (OWNER_DIRECTION_2026-09-19_SECTION7_DECISIONS.md group 2); design system V1.4 reopened; token adoption; C6; one fidelity review over every surface; contrast on every touched control; the deformation view as a drawn proposal for the owner"
     },
     "D72-QUALIFICATION": {
       "role": "TASK Type 2 benchmark runner",
       "model": "sonnet",
       "status": "planned: last in Tranche B, after the closing visual pass; the second profile's freeze goes to the owner first",
       "dependsOn": [
-        "CLOSING-VISUAL-PASS"
+        "CLOSING-VISUAL-PASS",
+        "SECOND-PROFILE"
       ]
     },
     "PROBE-NESTED-FOREGROUND": {
@@ -221,6 +253,364 @@
       "return": "instances/HANDOFF-REVIEW/RETURN.md",
       "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
       "backcheckReturnSha256": "d6aeac38120cba011a008ad3bb4d4ec904b29493d0a8f4d3d807796ef49fccdc"
+    },
+    "B2": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "state extraction, no behaviour change",
+      "status": "merged",
+      "pr": 803,
+      "mergeCommit": "b9a07040857d2e6d3ec0f6a530697720801c7b59",
+      "deliverableBinding": {
+        "id": "DEL-07-08",
+        "basis": "tentative, unverified: bound by precedent or folder name, not checked against the deliverable's scope; the owner reconciles deliverables to the code later"
+      }
+    },
+    "B2F-B2G": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "project-handler repairs (B2F, B2G, corrections B2G-C1 and B2G-C2)",
+      "status": "merged",
+      "dependsOn": [
+        "B2"
+      ],
+      "pr": 805,
+      "head": "71e4959c725f48faa45020b0f0a6b286f52c627e",
+      "mergeCommit": "172cd5689",
+      "reviewedCandidate": "13311e4aad46b74dbae7a4e2e25052e8f7c04c0a",
+      "sweepCommit": "a1f7f8fe14f7a1266e595cc8bea40f518e4154c8",
+      "closeout": "lanes/B-SHELL/CLOSEOUT_CHECKS_B2F_B2G.json",
+      "files": [
+        "src/features/workspace/workspaceSession.ts",
+        "src/App.projectHandlers.test.tsx"
+      ],
+      "semanticChanges": "lanes/B-SHELL/returns/B2F_RETURN.md and B2G_RETURN.md; summary in the run record",
+      "defers": [
+        {
+          "item": "the native menu is not disabled during a busy project request; a save superseded by another project request after its bytes landed keeps the open-time record",
+          "retiresWith": "B3B"
+        },
+        {
+          "item": "a landed save nulls the integrity record instead of re-deriving it",
+          "retiresWith": "B3B"
+        }
+      ],
+      "deliverableBinding": {
+        "id": "DEL-07-08",
+        "basis": "tentative, unverified: bound by precedent or folder name, not checked against the deliverable's scope; the owner reconciles deliverables to the code later"
+      }
+    },
+    "B3": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
+      "status": "in progress, paused: shell built; last product checkpoint 46db29e92; unit suite green at the merge of main (85 files, 1,354 tests); five frozen-floor items red; ROOT's rulings sealed and not yet implemented; neither full Playwright lane run",
+      "dependsOn": [
+        "B2F-B2G",
+        "C1"
+      ],
+      "blockedBy": [
+        {
+          "what": "the frozen helper's assertion 'canvas area larger than the tree's' cannot hold in Both view under the approved 55/45 split (table 737, canvas 603)",
+          "with": "owner",
+          "recommendation": "keep it where the tree is a side region; in Both view replace it with the 35 % width floor plus canvas-larger-than-inspector",
+          "blocks": "merge only; every other ruling can be built meanwhile"
+        }
+      ],
+      "nextInstrument": {
+        "brief": "instances/B-SHELL/briefs/B3-FLOORS.md",
+        "sha256": "fe295e2b575e651e77b6ec4c75d6ef1455af319119337b4ac96d6008536c0290",
+        "where": "on the lane branch",
+        "state": "sealed, not launched"
+      },
+      "rulings": "instances/ROOT/SESSION_HANDOFF_2026-09-19B.md section 3",
+      "specDepartures": [
+        {
+          "what": "in Both view the docked inspector always takes its width from the table pane (canvas 603 at 1440, 531 at 1280), against specification 10.9",
+          "by": "ROOT, told to the owner, open"
+        },
+        {
+          "what": "the collapsed drawer strip does not overlay the viewport; the canvas pane keeps D-72's box and takes bottom padding; replaces the mechanism of item 5 of the owner's eight items",
+          "by": "ROOT, told to the owner, not answered"
+        },
+        {
+          "what": "the Appearance disclosure and the Select tool in the toolbar",
+          "by": "accepted by the owner for now; Appearance leaves the toolbar at the closing visual pass"
+        }
+      ],
+      "crossLane": [
+        {
+          "what": "scoped exception in features/viewport/PipeViewport.tsx: one optional prop, the authoring panel rendered through createPortal into the inspector",
+          "grantedBy": "ROOT"
+        }
+      ],
+      "defers": [
+        {
+          "item": "specification 10.9 states C to E: the slide-over inspector and the agent-column collapse",
+          "retiresWith": "B5"
+        },
+        {
+          "item": "contrast witnesses for rail captions and the Inspector toggle's label",
+          "retiresWith": "CLOSING-VISUAL-PASS"
+        }
+      ],
+      "gatesOwed": [
+        "Opus code review with a structural checklist",
+        "one Fable design-fidelity review by screenshot, structure only",
+        "ROOT's look",
+        "DEC-025 sweep",
+        "CI",
+        "merge commit"
+      ],
+      "deliverableBinding": {
+        "id": "DEL-07-02",
+        "basis": "tentative, unverified: bound by precedent or folder name, not checked against the deliverable's scope; the owner reconciles deliverables to the code later"
+      }
+    },
+    "B3A": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "the unsaved-edits mark; the 'Solver · Not solved' fallback chip",
+      "status": "planned, authorized by the owner 2026-09-19",
+      "dependsOn": [
+        "B3"
+      ],
+      "authority": "instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md items 1 and 2",
+      "also": "two requests from the canvas lane for the shell lane's files wait for B3's freeze: the label plate's selected border colour in styles.css; a hover field in uiDiagnostics.ts"
+    },
+    "B3B": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "the native menu disabled during a busy project request (with its src-tauri part); a landed save re-derives the integrity record as verified at save",
+      "status": "planned, authorized by the owner 2026-09-19",
+      "dependsOn": [
+        "B3"
+      ],
+      "authority": "OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md items 3 and 4",
+      "returnsToOwnerIf": "'verified at save' needs a persisted field (then it is a typed-interface gap)"
+    },
+    "B4": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "the table component through the one operation route",
+      "status": "planned",
+      "dependsOn": [
+        "B3"
+      ]
+    },
+    "B5": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "the docked inspector's remainder and the slide-over",
+      "status": "planned",
+      "dependsOn": [
+        "B4"
+      ]
+    },
+    "B6": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "results header, run menu, the Historical band, issues drawer, palette search",
+      "status": "planned",
+      "dependsOn": [
+        "B5"
+      ]
+    },
+    "G-11": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "a Stale run stays readable (typed-interface gap, authorized by the owner 2026-09-19, with a result-integrity review); G-17 with it or later",
+      "status": "planned",
+      "dependsOn": [
+        "B6"
+      ]
+    },
+    "B7": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "the Review page's chrome",
+      "status": "planned",
+      "dependsOn": [
+        "B6"
+      ]
+    },
+    "C1": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "canvas colours from tokens, the edge line (C1E), the guidance probe T1, the stylesheet rows (C1b), the empty-layer guard",
+      "status": "merged",
+      "pr": 806,
+      "head": "beff4fede947314ac2653f3a486a38bb61c1bdc1",
+      "mergeCommit": "d20eb1294",
+      "reviewedCandidate": "4e267d02bccd320607cf6ccab4c52f05cf4048b3",
+      "sweepCommit": "16d339ac0d9950cf769409fcb9bd69455bd85bf1",
+      "closeout": "lanes/B-CANVAS/CLOSEOUT_CHECKS_PR1.json",
+      "semanticChanges": "lanes/B-CANVAS/returns/PR1_RETURN.md and C1A_RETURN.md",
+      "defers": [
+        {
+          "item": "C1E stage 3: side rings at free ends and section changes",
+          "retiresWith": "C5"
+        },
+        {
+          "item": "derived silhouette shades, the line at device pixel ratio 1, unnamed roles, the deformed shape's ink (C1-D1)",
+          "retiresWith": "CLOSING-VISUAL-PASS"
+        }
+      ],
+      "note": "from this slice the benchmark's first profile no longer describes the product's cue colours (addendum 2, ASK-11)",
+      "deliverableBinding": {
+        "id": "DEL-07-01",
+        "basis": "tentative, unverified: bound by precedent or folder name, not checked against the deliverable's scope; the owner reconciles deliverables to the code later"
+      }
+    },
+    "C2": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "selection and hover as halos over the element's own colour (G-31); depth mask, no renderer-construction change",
+      "status": "merged",
+      "dependsOn": [
+        "C1"
+      ],
+      "pr": 807,
+      "head": "06088fcca82f2968a1cdf036d9c111108db81fb7",
+      "mergeCommit": "b313ce821d334aa741292248fba748c5d531d972",
+      "reviewedCandidate": "0758e91e378dcbf2927bd787194248a8a23980f4",
+      "sweepCommit": "031f1855c1732b1c92d9f7a1837933f25065b5e9",
+      "closeout": "lanes/B-CANVAS/CLOSEOUT_CHECKS_C2.json",
+      "semanticChanges": "lanes/B-CANVAS/returns/C2_RETURN.md",
+      "rootDecision": "the stencil question (P1 ASK-5) under the owner's rule of 2026-09-19: form (b), the depth mask",
+      "defers": [
+        {
+          "item": "the casing (P1 ASK-4): the halo alone fails the pair rule in dense fixtures",
+          "retiresWith": "the owner's decision, with the second profile's freeze package"
+        },
+        {
+          "item": "halo and hover contrast, coverage at ratio 1, the diamond beside the halo",
+          "retiresWith": "CLOSING-VISUAL-PASS"
+        },
+        {
+          "item": "review's residual risks: matrixWorld read at sync time; open-ended torus and the front-face mask",
+          "retiresWith": "C3 and C5 notes"
+        }
+      ],
+      "deliverableBinding": {
+        "id": "DEL-07-01",
+        "basis": "tentative, unverified: bound by precedent or folder name, not checked against the deliverable's scope; the owner reconciles deliverables to the code later"
+      }
+    },
+    "I1": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "repair of the benchmark first profile's four defects (instrument code only)",
+      "status": "in progress, paused: committed as a labelled pause point 240a246f3, not a candidate; checked in part by the manager (fixtures, samples and the manifest byte-identical; the generator's --check mode reproduces the frozen bytes and writes nothing; picking 69); the whole diff not yet read; full lanes not run on the committed head",
+      "dependsOn": [
+        "C2"
+      ],
+      "authority": "OWNER_DIRECTION_2026-09-19_SECTION7_DECISIONS.md group 3(b); the lane's proposal P4 accepted by ROOT; sequenced before C3 by ROOT, not by the owner",
+      "brief": "instances/B-CANVAS/briefs/I1-REPAIR.md (on the lane branch)",
+      "openForRoot": [
+        "defect 2: a header comment or retirement to history",
+        "whether the nine protocol-history files are preserved in the repository",
+        "seventeen hash literals bind artifacts never committed"
+      ]
+    },
+    "C3": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "isolate as dimming, a stated pick rule, a total hidden count (G-30)",
+      "status": "planned",
+      "dependsOn": [
+        "I1"
+      ]
+    },
+    "C4": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "the label budget with All, Budget and Off",
+      "status": "planned",
+      "dependsOn": [
+        "C3"
+      ]
+    },
+    "C5": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "real outside diameter, the HUD, the fitted camera (G-32); C1E's side rings",
+      "status": "planned",
+      "dependsOn": [
+        "C4"
+      ]
+    },
+    "SECOND-PROFILE": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "the benchmark's second profile prepared; its freeze, with the casing, goes to the owner as one package before any timed run",
+      "status": "planned",
+      "dependsOn": [
+        "C5",
+        "B3"
+      ],
+      "inputsFromShell": "both panes visible at every boundary against D-72's inspector-closed 603 px canvas; the window at 1440 by 920 against D-72's 900; the in-app menu row's 33 px in the browser runtime; resource-accounting.ts must open the Project page or use File, Save; the runtime a timed run uses"
+    },
+    "TRANCHE-A2": {
+      "role": "tranche",
+      "status": "planned: after the closing visual pass, not overlapping it (the owner, 2026-09-19); its own plan",
+      "dependsOn": [
+        "CLOSING-VISUAL-PASS"
+      ]
+    },
+    "B2F-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "model_ran": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "status": "returned_pass_no_actionable_finding",
+      "brief": "lanes/B-SHELL/briefs/B2F-REVIEW_code_review.md",
+      "briefSha256": "28c09b8c20c02c5d4cf14ed75929a6c5178fc11cfccae0a7e83de7956b6073d7",
+      "return": "lanes/B-SHELL/reviews/B2F-REVIEW_RETURN.md",
+      "returnSha256": "d3747d7018cbea0a6812fc5f85aea777f90604a98f6eea39b3bc8ea1179f7118"
+    },
+    "B2G-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "model_ran": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "status": "returned FINDINGS (one, corrected as B2G-C1); backcheck found one more (corrected as B2G-C2); second backcheck PASS for the combined candidate",
+      "brief": "lanes/B-SHELL/briefs/B2G-REVIEW_code_review.md",
+      "briefSha256": "992f3b4fe99b31623dd5191953077dfd9aec079ef5a0c59fc6e0203e5a7f3d8a",
+      "return": "lanes/B-SHELL/reviews/B2G-REVIEW_RETURN.md",
+      "returnSha256": "46ac4ec047d6ed249cef8138e4bc2c11f935abe61c05d85c964653ab1b423b22",
+      "backchecks": {
+        "lanes/B-SHELL/reviews/B2G-REVIEW_BACKCHECK_RETURN.md": "445f8fb92d23c1552b450e57125952945bbd26660153220ab72b7fff07c57639",
+        "lanes/B-SHELL/reviews/B2G-REVIEW_BACKCHECK2_RETURN.md": "d15363dc9920afed3dce763f3003c00d77f130ceed3281156ff47c9527004484"
+      }
+    },
+    "C-PR1-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "model_ran": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "status": "returned_pass_no_actionable_finding",
+      "brief": "lanes/B-CANVAS/briefs/PR1-REVIEW_code_review.md",
+      "briefSha256": "1e71331109c9e748162ce65f407cc38445bf8531c8241045a02e3fee9c64176d",
+      "return": "lanes/B-CANVAS/reviews/PR1-REVIEW_RETURN.md",
+      "returnSha256": "eebd23af3e001c81d46c32bd7258fd11a7e16fcbdccaf287dc38f99b2073b7b5"
+    },
+    "C2-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "model_ran": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "status": "returned_pass_no_actionable_finding",
+      "brief": "lanes/B-CANVAS/briefs/C2-REVIEW_code_review.md",
+      "briefSha256": "a8bcb95d09678071dacd57c1a7594798a8982db277d08a70b3b2db1e2d3a14da",
+      "return": "lanes/B-CANVAS/reviews/C2-REVIEW_RETURN.md",
+      "returnSha256": "88540a9f47d6628714ff4b5e7e42aaff5cbe29915c3dc404423d5e0811a32285"
+    },
+    "HANDOFF2-REVIEW": {
+      "role": "TASK Type 2, records check, read-only",
+      "model": "opus",
+      "model_ran": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "status": "returned FINDINGS, eight, none blocking; all applied; no backcheck run, to spare the owner's usage",
+      "brief": "briefs/HANDOFF2-REVIEW_records_review.md",
+      "briefSha256": "0cdfff48b0fa07a44097f8db892b1e3fd9976bce8590cf76e77353a7e0b8d36a",
+      "return": "instances/HANDOFF2-REVIEW/RETURN.md",
+      "returnSha256": "d6775a94b61b31c2693ac87f017fd6fce31dc3a079338345c294e02680728e87"
     }
   },
   "edges": [
@@ -259,9 +649,101 @@
     [
       "ROOT",
       "HANDOFF-REVIEW"
+    ],
+    [
+      "B-SHELL",
+      "B2"
+    ],
+    [
+      "B-SHELL",
+      "B2F-B2G"
+    ],
+    [
+      "B-SHELL",
+      "B3"
+    ],
+    [
+      "B-SHELL",
+      "B3A"
+    ],
+    [
+      "B-SHELL",
+      "B3B"
+    ],
+    [
+      "B-SHELL",
+      "B4"
+    ],
+    [
+      "B-SHELL",
+      "B5"
+    ],
+    [
+      "B-SHELL",
+      "B6"
+    ],
+    [
+      "B-SHELL",
+      "G-11"
+    ],
+    [
+      "B-SHELL",
+      "B7"
+    ],
+    [
+      "B-CANVAS",
+      "C1"
+    ],
+    [
+      "B-CANVAS",
+      "C2"
+    ],
+    [
+      "B-CANVAS",
+      "I1"
+    ],
+    [
+      "B-CANVAS",
+      "C3"
+    ],
+    [
+      "B-CANVAS",
+      "C4"
+    ],
+    [
+      "B-CANVAS",
+      "C5"
+    ],
+    [
+      "B-CANVAS",
+      "SECOND-PROFILE"
+    ],
+    [
+      "ROOT",
+      "TRANCHE-A2"
+    ],
+    [
+      "ROOT",
+      "B2F-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B2G-REVIEW"
+    ],
+    [
+      "ROOT",
+      "C-PR1-REVIEW"
+    ],
+    [
+      "ROOT",
+      "C2-REVIEW"
+    ],
+    [
+      "ROOT",
+      "HANDOFF2-REVIEW"
     ]
   ],
-  "current_frontier": "Paused at the owner's word; handed off on 2026-09-19 under amendment 1 (the control layer first). Merged: PRs #800 to #803. Next, for a successor ROOT: start a manager per lane from the lanes' records. Shell lane: slice B2F, then B3 to B7, each with one Opus code review, the sweep, PR, CI and merge; a structure-only fidelity review on B3's candidate. Canvas lane: merge main, F3, the T1 probe, slice C1E, slice C1b, then the first pull request's complete review and merge; then C2 to C5. Then the closing visual pass, D-72 qualification, and Tranche A2 with its own plan.",
+  "current_frontier": "Paused at the owner's word on 2026-09-19, near the weekly usage limit; handed off by instances/ROOT/SESSION_HANDOFF_2026-09-19B.md. Merged: PRs #800 to #803, then #805 (B2F and B2G), #806 (C1), #807 (C2), #808 (records). main is at f42cadba4 before the pull request that carries this graph. In progress and paused clean: B3 (shell branch at a9be4aaef; next instrument B3-FLOORS, sealed; one owner answer blocks its merge) and I1 (canvas branch at f6c0bab8e; a pause point to be read whole, checked and returned). Then B3A, B3B, B4 to B7 with G-11 after B6; C3 to C5; the second profile's freeze package with the casing; the closing visual pass; D-72 qualification; Tranche A2. Nothing is running: no agent, no sweep, no server, no browser-test lock.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -282,6 +764,10 @@
     {
       "until": "2026-09-19T04:11Z (the owner's word to pause)",
       "frontier": "A1 follow-ups merged (PR #802, 8e4c5df6e). DESIGN-SYSTEM-05 returned and read; next its independent review, pull request, CI and merge, then the product slice adopting tokens.json 1.3. Shell lane: slice B2 with its manager for the slice return, then ROOT's Opus review, sweep, PR and merge, then the named handler fix slice. Canvas lane: slice C1 with its implementer; the second-profile and edge-line proposals are being drafted."
+    },
+    {
+      "until": "2026-09-19, the second handoff",
+      "frontier": "Paused at the owner's word; handed off on 2026-09-19 under amendment 1 (the control layer first). Merged: PRs #800 to #803. Next, for a successor ROOT: start a manager per lane from the lanes' records. Shell lane: slice B2F, then B3 to B7, each with one Opus code review, the sweep, PR, CI and merge; a structure-only fidelity review on B3's candidate. Canvas lane: merge main, F3, the T1 probe, slice C1E, slice C1b, then the first pull request's complete review and merge; then C2 to C5. Then the closing visual pass, D-72 qualification, and Tranche A2 with its own plan."
     }
   ],
   "base_note": "base is the commit Tranche B opened from; slice B1 merged at 4dcab750501d039af5b2973991cbe0f3f423b80a",
@@ -310,5 +796,71 @@
         }
       }
     }
-  ]
+  ],
+  "ownerDirections": [
+    {
+      "date": "2026-09-19",
+      "record": "instances/ROOT/OWNER_DIRECTION_2026-09-19_CONTROL_LAYER_FIRST.md",
+      "sha256": "bc41f82680cfcb69a193ee3820cb0861f36fbe872fae970df1be1729f9a23268"
+    },
+    {
+      "date": "2026-09-19",
+      "record": "instances/ROOT/OWNER_DIRECTION_2026-09-19_SECTION7_DECISIONS.md",
+      "sha256": "c9049e543dd1a46b1fdcf3d7f23cd5551c89b24185c66c70d2d03eb77c2fee2e"
+    },
+    {
+      "date": "2026-09-19",
+      "record": "instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md",
+      "sha256": "5b86c2783c5d460adf63b69dc3a49db7df672795f0feeb59079a2f93a82c0f4e"
+    },
+    {
+      "date": "2026-09-19",
+      "record": "in session, not yet in a custody record; the next session records them",
+      "summary": [
+        "'the piping loop stays on hold' means only that the earlier session does no more work, so no coordination with another session is needed",
+        "the two-lane shape with managers was never the owner's direction: how the work is organized is the agent's choice within AGENTS.md; think in parent and child relationships; a parent launches its own children; ROOT may dispatch the independent reviews",
+        "a work graph per tranche is essential: ad hoc, built from the code and the run's records, not tied to the repository's deliverable DAG; the owner will reconcile deliverables and scopes to the code later, once the app has its first functional form",
+        "the owner found the session's work good and its outcomes acceptable, and is reluctant to change course",
+        "evidence therefore stays in the run and is not filed under a deliverable by guess (ROOT's proposal in session; the owner did not object and asked for the work graph; recorded as ROOT's practice, open to the owner)",
+        "a question of preference is tested against the owner's two exemplar products and consistency in ontology, epistemology, praxeology and axiology before it is brought to the owner; where they agree the agent decides, tells the owner and says how to reverse it (the owner's prompt, SUCCESSOR_PROMPT_2026-09-19B.md)"
+      ]
+    }
+  ],
+  "openWithOwner": {
+    "blocking": [
+      "B3's merge: the Both-view 'canvas larger than the tree' assertion (node B3, blockedBy)"
+    ],
+    "notBlocking": [
+      "ROOT's change to the drawer strip's mechanism (item 5 of the eight items)",
+      "the docked inspector takes its width from the table (specification 10.9)",
+      "the second profile's freeze with the casing",
+      "the deformation view",
+      "whether 'verified at save' needs a persisted field",
+      "the earlier handoff's section 7 items not disposed by the two direction records (copy items as first seen in the product; frames questions Q-23 to Q-33)"
+    ]
+  },
+  "deliverableBindingNote": "Bindings on slice nodes are tentative and unverified. Run records and _STATUS.md lines were filed under DEL-07-08 (B2, B2F-B2G) and DEL-07-01 (C1, C2) by precedent and folder name. From here evidence stays in the run and the binding is recorded here; the owner's later reconciliation files it.",
+  "graphNote": "Version 2 adds slice nodes with dependsOn, blockedBy, defers, specDepartures and a tentative deliverable binding, so that a handoff can be derived from this file. Edges run parent to child (who launched or owns what); dependsOn carries the order of work.",
+  "continuationSteering": {
+    "record": "instances/ROOT/CONTINUATION_STEER_2026-09-19.md",
+    "amendment": "../HELP-HUMAN-PIPING-20260919-LOOP-CLARIFICATIONS/OWNER_DIRECTION.md",
+    "status": "owner-approved clarification; product decisions remain unresolved",
+    "precedence": "Later steering supersedes identified procedural/model-allocation/DAG-link conflicts and the contrary B3 execution permission identified in currentB3Override; historical owner words and execution attribution are preserved.",
+    "productDecisionPackage": [
+      "drawer-strip mechanism",
+      "docked inspector width source",
+      "Both-view protected geometry assertion"
+    ],
+    "verification": "Native menu, window minimum and title bar require Tauri evidence for B3.",
+    "liveState": "Revalidate lane heads and working trees before continuation; this records steering, not a fresh product-state audit.",
+    "currentB3Override": {
+      "historicalFields": [
+        "nodes.B3.blockedBy[0].blocks",
+        "nodes.B3.rulings",
+        "nodes.B3.specDepartures"
+      ],
+      "disposition": "Where these inherited fields imply that the drawer-strip mechanism or inspector-width proposal may be implemented as an authorised ruling, that permission is superseded. Present the drawer-strip mechanism, docked inspector width source and Both-view protected geometry assertion together for owner disposition before dependent implementation or B3 merge. No product choice or test change is accepted here.",
+      "unchanged": "Original field values remain historical; independent authorised discovery and strategy/decision-package preparation may proceed."
+    }
+  }
 }

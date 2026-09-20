@@ -1,0 +1,46 @@
+{
+  "candidate": "571bfa8ffb4c97841c95ecc84036251262a73fcc",
+  "working_state": "candidate tracked files unchanged during checks; dispatch/adoption-check metadata added untracked",
+  "checks": [
+    {
+      "name": "instruction entrypoints",
+      "result": "PASS"
+    },
+    {
+      "name": "path anchors",
+      "result": "PASS; 9007 live surfaces"
+    },
+    {
+      "name": "claims language",
+      "result": "PASS; 338 surfaces"
+    },
+    {
+      "name": "receipt ledger",
+      "result": "PASS"
+    },
+    {
+      "name": "G4 actual candidate range",
+      "result": "PASS"
+    },
+    {
+      "name": "practitioner harness plus five affected validator suites",
+      "result": "491 passed in 60.49s"
+    },
+    {
+      "name": "self-check",
+      "result": "exit 0; REVIEW/WARN/INFO findings retained as report-only, no claim of a finding-free repository"
+    }
+  ],
+  "operational_attempts": [
+    {
+      "command": "system python3 -m pytest",
+      "result": "could not start: No module named pytest"
+    },
+    {
+      "command": "system python3 tools/validation/validate_instruction_tranche_manifest.py",
+      "result": "exit 2: PyYAML not importable"
+    }
+  ],
+  "recovery": "Used existing repository .venv Python; no tests, tooling or dependencies changed in the candidate.",
+  "scope": "Documentation-only; no DEC-025 product runtime sweep required or claimed. Amended entrypoint and final metadata receive affected checks separately."
+}

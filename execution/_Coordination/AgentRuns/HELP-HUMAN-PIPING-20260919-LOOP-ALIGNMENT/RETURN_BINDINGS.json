@@ -1,0 +1,23 @@
+{
+  "returns": [
+    {
+      "path": "_run_records/REVIEW_RETURN.md",
+      "sha256": "d0249ac51c39f772bf4c69e8046495f7031118dc636c50628f9e22e47894eb3e",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "high",
+      "agent": "/root/loop_alignment_review",
+      "candidate": "571bfa8ffb4c97841c95ecc84036251262a73fcc",
+      "retention": "verbatim final return, newline terminated"
+    },
+    {
+      "path": "_run_records/AMENDMENT_REVIEW_RETURN.md",
+      "sha256": "72bdf5bc4c461d1ad39831d343097ce3480e39bdc92e389fbbff53b119fbb428",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "high",
+      "agent": "/root/loop_alignment_review",
+      "candidate": "50ba48f9bde885df603cfd16cb348c120440724e",
+      "retention": "verbatim final return, newline terminated"
+    }
+  ],
+  "location_correction": "The unchanged path-anchor validator classified run-root REVIEW_RETURN.md as live instructions. Exact raw bytes moved to the existing canonical _run_records evidence location; no validator change."
+}

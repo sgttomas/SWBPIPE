@@ -28,7 +28,8 @@ import {
 import { createFigureMaterial } from "./viewportFigureMaterial";
 import { viewportRoleHex, viewportShadeRatio, viewportTokenColour } from "./viewportPalette";
 
-// The selected colour is the design token `canvas.selection` in each theme.
+// Selection is a halo (`viewportHalo.ts`, tested in `viewportHalo.test.ts`): a selected element is
+// painted exactly as an unselected one. The selected colour must therefore never reach an element.
 const SELECTED_LIGHT = viewportTokenColour("light", "canvas.selection").hex;
 const SELECTED_DARK = viewportTokenColour("dark", "canvas.selection").hex;
 
@@ -352,7 +353,7 @@ describe("viewport resource primitives", () => {
     expect(second.dispose).toHaveBeenCalledTimes(1);
   });
 
-  it("updates selection and theme presentation without replacing stable resource objects", () => {
+  it("keeps a selected mesh at its own colour, and updates theme presentation, without replacing stable resource objects", () => {
     const scene = new THREE.Scene();
     const layer = new THREE.Group();
     const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -366,7 +367,8 @@ describe("viewport resource primitives", () => {
 
     applySelectionPresentation([layer], new Set([key]));
     applyThemePresentation(scene, "dark");
-    expect(material.color.getHex()).toBe(SELECTED_DARK);
+    expect(material.color.getHex()).toBe(0x24705a);
+    expect(material.color.getHex()).not.toBe(SELECTED_DARK);
     expect(resourceIdentity).toEqual({ scene, layer, mesh, geometry, material });
     expect(layer.children[0]).toBe(mesh);
     expect(mesh.geometry).toBe(geometry);
@@ -398,7 +400,7 @@ describe("viewport resource primitives", () => {
     expect(colors.getX(0)).not.toBeCloseTo(darkX.r);
   });
 
-  it("updates instanced selection colors without replacing matrices or geometry", () => {
+  it("keeps a selected instance at its base colour without replacing matrices or geometry", () => {
     const geometry = new THREE.SphereGeometry(1, 8, 6);
     const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
     const mesh = new THREE.InstancedMesh(geometry, material, 2);
@@ -412,7 +414,7 @@ describe("viewport resource primitives", () => {
     expect(mesh.instanceMatrix).toBe(matrix);
     expect(mesh.instanceColor).not.toBeNull();
     expect(new THREE.Color().fromBufferAttribute(mesh.instanceColor!, 0).getHex()).toBe(0x2f6f73);
-    expect(new THREE.Color().fromBufferAttribute(mesh.instanceColor!, 1).getHex()).toBe(SELECTED_DARK);
+    expect(new THREE.Color().fromBufferAttribute(mesh.instanceColor!, 1).getHex()).toBe(0x2f6f73);
   });
 
   it("retires each instanced mesh and its owned assets exactly once", () => {
@@ -518,7 +520,7 @@ describe("viewport resource primitives", () => {
     const hiddenMatrix = new THREE.Matrix4();
     mesh.getMatrixAt(0, hiddenMatrix);
     expect(hiddenMatrix.determinant()).toBe(0);
-    expect(new THREE.Color().fromBufferAttribute(mesh.instanceColor!, 1).getHex()).toBe(SELECTED_LIGHT);
+    expect(new THREE.Color().fromBufferAttribute(mesh.instanceColor!, 1).getHex()).toBe(0x4f6f73);
     expect(ground.visible).toBe(false);
 
     const load = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial());
@@ -769,22 +771,24 @@ describe("viewport palette repaint", () => {
     expect((material.uniforms.shadeRatio.value as THREE.Color).toArray()).toEqual([...viewportShadeRatio("light")]);
   });
 
-  it("keeps the selected colour on a selected instance across a repaint while an unselected one takes the new base", () => {
+  it("repaints a selected instance with the new base across a repaint, exactly as an unselected one", () => {
     const unselected = entityKey({ type: "pipe", id: "p:plain" });
     const selected = entityKey({ type: "pipe", id: "p:selected" });
     const { resource, modelLayer } = paletteResource("light", new Set([selected]));
     const mesh = rolePipes([unselected, selected]);
     resource.replaceLayer(modelLayer, [mesh]);
     expect(instanceHex(mesh, 0)).toBe(viewportRoleHex("light", "pipe"));
-    expect(instanceHex(mesh, 1)).toBe(SELECTED_LIGHT);
+    expect(instanceHex(mesh, 1)).toBe(viewportRoleHex("light", "pipe"));
+    expect(viewportRoleHex("light", "pipe")).not.toBe(SELECTED_LIGHT);
 
     resource.setThemePresentation("dark");
     expect(instanceHex(mesh, 0)).toBe(viewportRoleHex("dark", "pipe"));
-    expect(instanceHex(mesh, 1)).toBe(SELECTED_DARK);
+    expect(instanceHex(mesh, 1)).toBe(viewportRoleHex("dark", "pipe"));
+    expect(viewportRoleHex("dark", "pipe")).not.toBe(SELECTED_DARK);
 
     resource.setThemePresentation("light");
     expect(instanceHex(mesh, 0)).toBe(viewportRoleHex("light", "pipe"));
-    expect(instanceHex(mesh, 1)).toBe(SELECTED_LIGHT);
+    expect(instanceHex(mesh, 1)).toBe(viewportRoleHex("light", "pipe"));
 
     // Deselecting after a repaint returns the instance to the repainted base, not to a stale one.
     resource.setThemePresentation("dark");
@@ -904,7 +908,7 @@ describe("viewport palette repaint", () => {
 
     resource.setThemePresentation("dark");
     expect(invalidate).toHaveBeenCalledTimes(1);
-    expect(instanceHex(pipes, 0)).toBe(SELECTED_DARK);
+    expect(instanceHex(pipes, 0)).toBe(viewportRoleHex("dark", "pipe"));
     expect(instanceHex(pipes, 1)).toBe(viewportRoleHex("dark", "pipe"));
     expect(instanceHex(arrows, 0)).toBe(viewportRoleHex("dark", "loadForce"));
     expect(instanceHex(deformed, 0)).toBe(viewportRoleHex("dark", "deformedShape"));
@@ -920,7 +924,7 @@ describe("viewport palette repaint", () => {
 
     resource.setThemePresentation("light");
     expect(invalidate).toHaveBeenCalledTimes(2);
-    expect(instanceHex(pipes, 0)).toBe(SELECTED_LIGHT);
+    expect(instanceHex(pipes, 0)).toBe(viewportRoleHex("light", "pipe"));
     expect(instanceHex(arrows, 0)).toBe(viewportRoleHex("light", "loadForce"));
     expect((ghost.material as THREE.LineDashedMaterial).color.getHex()).toBe(viewportRoleHex("light", "routeDraft"));
 

@@ -12,6 +12,7 @@ import {
 } from "./viewportSelection";
 
 import { ViewportSelectionPresentation } from "./viewportSelectionPresentation";
+import { ViewportHaloPresentation } from "./viewportHalo";
 import { isFigureMaterial, setFigureEdge, setFigureShadeRatio } from "./viewportFigureMaterial";
 import {
   DEFAULT_VIEWPORT_PALETTE_THEME,
@@ -195,7 +196,8 @@ export type ViewportThemePresentation = "light" | "dark";
 
 // The scene's ground, the selected colour and the selection cue's rim are design tokens like
 // every other canvas colour: `canvas.bg`, `canvas.selection`, and `canvas.bg` again for the rim,
-// which separates the cue from whatever it lies over. The stylesheet's `--ui-canvas` and
+// which separates the cue from whatever it lies over. The selected colour paints the cue here and
+// the halo in `viewportHalo.ts`; no element is recoloured by selection. The stylesheet's `--ui-canvas` and
 // `--ui-viewport-selection-geometry` mirror the first two. No colour literal belongs in this folder.
 function sceneBackground(theme: ViewportThemePresentation): number {
   return viewportTokenColour(theme, "canvas.bg").hex;
@@ -253,9 +255,9 @@ export type ViewportRendererInfo = Readonly<{
   lines: number;
 }>;
 
-// Scratch colours for repaint and selection: no colour object is allocated per instance.
+// Scratch colours for repaint: no colour object is allocated per instance.
 const scratchBaseColor = new THREE.Color();
-const scratchSelectedColor = new THREE.Color();
+const scratchSecondColor = new THREE.Color();
 
 export function registerSelectionPresentation(object: THREE.Object3D, key: EntityKey): void {
   const ownershipKind = ownershipKindFromKey(key);
@@ -295,7 +297,7 @@ export function registerInstancedSelectionPresentation(
   mesh.computeBoundingSphere();
   const ownershipKind = keys[0] ? ownershipKindFromKey(keys[0]) : null;
   if (ownershipKind) mesh.userData.viewportOwnershipKind = ownershipKind;
-  applyInstancedSelection(mesh, new Set(), selectedColour(DEFAULT_VIEWPORT_PALETTE_THEME));
+  paintInstancedBase(mesh);
 }
 
 /**
@@ -344,8 +346,8 @@ export function registerGridPaletteRoles(
  * Paints every role-coloured object under the roots for a theme, in place: instance base
  * colours, material tints, the figure materials' shade ratio and edge line, line-material
  * colours and the colour attribute of each grid helper. It creates and disposes nothing.
- * Instances are left at their base colour, so a caller that shows a selection re-applies it
- * afterwards. `edgeWidth` is the edge line's width in device pixels: the renderer's pixel ratio,
+ * Instances are left at their base colour, which a selected instance keeps: selection is a halo
+ * (`viewportHalo.ts`) and never a colour of the element. `edgeWidth` is the edge line's width in device pixels: the renderer's pixel ratio,
  * for a line of one CSS pixel.
  */
 export function applyPalettePresentation(
@@ -356,25 +358,31 @@ export function applyPalettePresentation(
   for (const root of roots) root.traverse((object) => paintObjectForTheme(object, theme, edgeWidth));
 }
 
+/**
+ * Returns every selectable object under the roots to its own colour: each instance to its mesh's
+ * base colour, each registered material to its base colour and base emissive. A selected element
+ * is painted exactly as an unselected one, because selection is drawn as a halo outside the
+ * element's silhouette (`viewportHalo.ts`, design system 6.6) and the element keeps its colour.
+ * The keys and the theme stay in the signature for the callers that pass them; neither changes a
+ * colour.
+ */
 export function applySelectionPresentation(
   roots: readonly THREE.Object3D[],
-  selectedKeys: ReadonlySet<EntityKey>,
-  theme: ViewportThemePresentation = "dark"
+  _selectedKeys: ReadonlySet<EntityKey>,
+  _theme: ViewportThemePresentation = "dark"
 ): void {
-  const selectedColor = selectedColour(theme);
   for (const root of roots) {
     root.traverse((object) => {
       if (object instanceof THREE.InstancedMesh && Array.isArray(object.userData.instanceEntityKeys)) {
-        applyInstancedSelection(object, selectedKeys, selectedColor);
+        paintInstancedBase(object);
         return;
       }
       const key = object.userData.selectionEntityKey as EntityKey | undefined;
       if (!key) return;
-      const selected = selectedKeys.has(key);
       for (const material of objectMaterials(object)) {
         if ("color" in material && material.color instanceof THREE.Color &&
             typeof material.userData.viewportBaseColor === "number") {
-          material.color.setHex(selected ? selectedColor : material.userData.viewportBaseColor);
+          material.color.setHex(material.userData.viewportBaseColor);
         }
         if ("emissive" in material && material.emissive instanceof THREE.Color &&
             typeof material.userData.viewportBaseEmissive === "number") {
@@ -479,6 +487,10 @@ export class ViewportResource {
   private modelIndex: ModelIndex | null = null;
   private hiddenKeys: ReadonlySet<EntityKey> = new Set();
   private selectedKeys: ReadonlySet<EntityKey> = new Set();
+  private hoveredKey: EntityKey | null = null;
+  // Selection and hover halos. Display-only: never given to either picking path. Absent only on a
+  // resource that was not built by this constructor.
+  private readonly halo: ViewportHaloPresentation | null;
   private themePresentation: ViewportThemePresentation = "light";
   private gridVisible = true;
   private authoredLoadsVisible = true;
@@ -514,6 +526,14 @@ export class ViewportResource {
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.08;
     this.scene.add(this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer, this.routingLayer);
+    // The halo accounts to the ledger for exactly what it creates, and disposes it itself: its
+    // masks share the figure's geometries, which the layers own.
+    this.halo = new ViewportHaloPresentation({
+      created: (counts) => this.ownership.createLifecycle(counts),
+      disposed: (counts) => this.ownership.disposeLifecycle(counts)
+    });
+    this.halo.setTheme(this.themePresentation);
+    this.scene.add(this.halo.group);
     // No light: every material in the scene is unlit (the matte figure, the load arrows, the
     // lines, the selection cue), so a drawn colour is its token.
     const gizmoAxes = new THREE.AxesHelper(1.25);
@@ -646,7 +666,20 @@ export class ViewportResource {
       this.selectedKeys,
       this.themePresentation
     );
+    this.syncHalo();
     this.updateSelectionCue();
+    this.invalidate();
+  }
+
+  /**
+   * The hovered element, or none. Display-only. A change costs one scan for the key, one halo
+   * instance and one invalidation; the same key again costs nothing. A selected or hidden element
+   * shows no hover halo.
+   */
+  setHoverPresentation(hoveredKey: EntityKey | null): void {
+    if (hoveredKey === this.hoveredKey) return;
+    this.hoveredKey = hoveredKey;
+    this.halo?.syncHover([this.modelLayer], this.selectedKeys, this.hiddenKeys, this.hoveredKey);
     this.invalidate();
   }
 
@@ -665,6 +698,8 @@ export class ViewportResource {
       this.selectedKeys,
       this.themePresentation
     );
+    // In place: two colour uniforms, nothing created or disposed.
+    this.halo?.setTheme(theme);
     this.updateSelectionCue();
     this.invalidate();
   }
@@ -682,6 +717,7 @@ export class ViewportResource {
       [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
       this.hiddenKeys
     );
+    this.syncHalo();
     this.updateSelectionCue();
     this.invalidate();
   }
@@ -712,8 +748,19 @@ export class ViewportResource {
       this.hiddenKeys
     );
     this.applyAuxiliaryVisibility();
+    // After the layer holds its new objects: halos of geometries that left with the old layer are
+    // disposed, and the selected and hovered elements are haloed from the new ones.
+    this.syncHalo();
     this.notifyResourceStateChange(false);
     this.invalidate();
+  }
+
+  /**
+   * Halos follow the model layer alone: the elements the product draws and picks. A load arrow and
+   * a deformed overlay carry their owner's key for visibility, and are not the element.
+   */
+  private syncHalo(): void {
+    this.halo?.sync([this.modelLayer], this.selectedKeys, this.hiddenKeys, this.hoveredKey);
   }
 
   private updateSelectionCue(): void {
@@ -833,6 +880,9 @@ export class ViewportResource {
     this.controls.removeEventListener("end", this.handleControlsEnd);
     this.renderer.domElement.removeEventListener("webglcontextlost", this.handleContextLost);
     this.renderer.domElement.removeEventListener("webglcontextrestored", this.handleContextRestored);
+    // The halo first: it leaves the scene, counts out what it created and disposes it, and never
+    // touches the geometries it shares with the layers, which the walk below counts and disposes.
+    this.halo?.dispose();
     this.ownership.disposeObjects(this.scene.children);
     this.ownership.disposeObjects(this.gizmoScene.children);
     this.ownership.disposeLifecycle({
@@ -935,6 +985,8 @@ export class ViewportResource {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
+    // The halo's width and its pixel arithmetic: read here, where the renderer is sized, never per frame.
+    this.halo?.setViewportFromRenderer(this.renderer);
     this.markCameraProjectionChanged();
     this.invalidate();
   };
@@ -1082,17 +1134,11 @@ function objectMaterials(object: THREE.Object3D): THREE.Material[] {
   return Array.isArray(material) ? material : material ? [material] : [];
 }
 
-function applyInstancedSelection(
-  mesh: THREE.InstancedMesh,
-  selectedKeys: ReadonlySet<EntityKey>,
-  selectedColor: number
-): void {
+/** Every instance at its mesh's base colour. Selection does not enter: it is a halo. */
+function paintInstancedBase(mesh: THREE.InstancedMesh): void {
   const keys = mesh.userData.instanceEntityKeys as readonly EntityKey[];
   const base = scratchBaseColor.setHex(mesh.userData.viewportBaseColor as number);
-  const selected = scratchSelectedColor.setHex(selectedColor);
-  for (let index = 0; index < keys.length; index += 1) {
-    mesh.setColorAt(index, selectedKeys.has(keys[index]) ? selected : base);
-  }
+  for (let index = 0; index < keys.length; index += 1) mesh.setColorAt(index, base);
   if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
 }
 
@@ -1140,7 +1186,7 @@ function paintGridColors(grid: THREE.LineSegments, roles: GridPaletteRoles, them
   const lineIndices = colors.count / 4;
   const centreIndex = (lineIndices - 1) / 2;
   const centre = scratchBaseColor.setHex(viewportRoleHex(theme, roles.centreLine));
-  const line = scratchSelectedColor.setHex(viewportRoleHex(theme, roles.line));
+  const line = scratchSecondColor.setHex(viewportRoleHex(theme, roles.line));
   for (let index = 0; index < lineIndices; index += 1) {
     const color = index === centreIndex ? centre : line;
     for (let vertex = index * 4; vertex < index * 4 + 4; vertex += 1) colors.setXYZ(vertex, color.r, color.g, color.b);

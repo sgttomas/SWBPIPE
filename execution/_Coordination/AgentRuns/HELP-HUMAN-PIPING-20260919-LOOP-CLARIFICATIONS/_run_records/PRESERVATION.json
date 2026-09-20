@@ -1,0 +1,62 @@
+{
+  "basis": "2fabfcda85bbb7f89f17c2365d8046e025bcf292",
+  "candidate": "90e87b38c89acade6da0eacd238fb5a26cce2c8d",
+  "checks": [
+    {
+      "source": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "check": "exact archive basis bytes and hash",
+      "result": "pass"
+    },
+    {
+      "source": "projects/chirality-piping/init/dev-loop-init-prompt.md",
+      "check": "exact archive basis bytes and hash",
+      "result": "pass"
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json",
+      "check": "exact archive basis bytes and hash",
+      "result": "pass"
+    },
+    {
+      "source": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "check": "historical receipt prefix unchanged",
+      "result": "pass"
+    },
+    {
+      "source": "projects/chirality-app-dev/AGENTS.md",
+      "check": "exact archive basis bytes and hash",
+      "result": "pass"
+    },
+    {
+      "source": "projects/chirality-app-dev/loop/LOOP_INIT.md",
+      "check": "exact archive basis bytes and hash",
+      "result": "pass"
+    },
+    {
+      "source": "projects/chirality-app-dev/init/dev-loop-init-prompt.md",
+      "check": "exact archive basis bytes and hash",
+      "result": "pass"
+    },
+    {
+      "source": "projects/chirality-app-dev/loop/LOOP_RECEIPTS.md",
+      "check": "historical receipt prefix unchanged",
+      "result": "pass"
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json",
+      "check": "all inherited fields preserved, only continuationSteering added",
+      "result": "pass"
+    },
+    {
+      "source": "init/dev-loop-init-prompt.md",
+      "check": "all non-Piping/App launcher entries unchanged",
+      "result": "pass"
+    },
+    {
+      "source": "projects/chirality-app-dev/instructions/AGENTS.md",
+      "check": "packaged guidance unchanged",
+      "result": "pass"
+    }
+  ],
+  "method": "Byte compare archives and receipt prefixes with git show basis:path; recompute SHA-256; compare every inherited UI graph field and catalog prefix through section 4."
+}

@@ -1,0 +1,17 @@
+arithmetic: all checks passed
+build cases: a directory without index.html and a variant with no build are refused before any browser starts
+  run 1 first: intervals 119, mean 16.666 ms, p50 16.7, p95 16.8, max 16.8; main thread 3.15 ms/frame; load 4.7 -> 4.57
+  run 2 second: intervals 119, mean 16.666 ms, p50 16.7, p95 16.8, max 16.8; main thread 2.974 ms/frame; load 4.57 -> 4.48
+  wrote {OUTSIDE_REPOSITORY}/self-test.json
+output shape: valid; two copies of one build report equal build identities, each run served from its own copy
+summarize: produced a row for each variant and named the shared build identity
+  run 1 only: intervals 89, mean 16.665 ms, p50 16.7, p95 16.7, max 16.8; main thread 2.251 ms/frame; selected 100; load 4.48 -> 4.29
+  wrote {OUTSIDE_REPOSITORY}/c2-orbit-hundred.json
+  run 1 only: intervals 89, mean 16.666 ms, p50 16.7, p95 16.8, max 16.8; main thread 1.929 ms/frame; selected 1000; load 4.29 -> 3.85
+  wrote {OUTSIDE_REPOSITORY}/c2-orbit-all.json
+  run 1 only: intervals 89, mean 16.666 ms, p50 16.7, p95 16.7, max 16.8; main thread 3.095 ms/frame; selected 1; 310 pointer events, 0.9 ms each, 1 to the canvas; load 3.85 -> 3.71
+  wrote {OUTSIDE_REPOSITORY}/c2-hover-one.json
+  pairs: 4 of 4 samples pass with no casing (measured 4; no cue seen 0, no ground beside 0, too few pairs 0; not attempted 0, failed 0); selected = nominal expected 1, = anchor 0, nothing selected 0
+  wrote {OUTSIDE_REPOSITORY}/c2-pairs.json
+select, hover and pairs: run --select hundred and all, hover --select one and pairs on four samples gave valid output; the counts reported are the counts asked for
+self-test: PASS

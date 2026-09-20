@@ -1,5 +1,7 @@
 # The prompt that starts the next session (a draft for the owner to send)
 
+> **Superseded on 2026-09-19 by `SUCCESSOR_PROMPT_2026-09-19B.md` beside this file. Kept as history.** Its lines on two lanes, managers and foreground launches were ROOT's conclusions written in the owner's voice, not the owner's direction.
+
 Drafted by ROOT (HELP_HUMAN, Agent 0) on 2026-09-19 at the owner's direction ("prepare the handoff and the prompt according to the revised sequencing you recommend"). It is the owner's message to a new session, so every direction in it is the owner's only once the owner sends it, and the owner may change any line. It is short on purpose: the state of the run is in `SESSION_HANDOFF_2026-09-19.md` beside this file, and the prompt points there.
 
 ~~~

@@ -3240,3 +3240,31 @@
   - Model-Attribution: HELP_HUMAN Astra/high, independent runner and read-only review TASK Astra/low; parentage, sealed briefs, returns and instruction/config enforcement limits in the successor runtime graph.
   - Checks: Landed source CI, both-size untimed smoke and the fresh single N10000 full-workload run passed; exact completeness, validity, targets, binding/cleanup and offline observations are in the owning report. Metadata-only review, affected local checks and actual-head publication CI remain separate before merge.
   - Gate-Outcome: `EXECUTED` — root accepts the bounded landed repair and valid single demonstration under the recorded owner direction. Historical D70 verdicts and redesigned-product performance/resource and independent-usability duties remain; no five-run qualification, decomposition/DAG/stage/lifecycle/release change or professional reliance is inferred. Standard F-PIP-2/DEC-081 fence applies.
+
+- **2026-09-19 — Receipt 147** (owner-accepted standing-loop alignment).
+  - Receipt-ID: `Receipt-147`
+  - Examined-Through: `29453e367b2f9f2cfb87b712660c31256191db0d`
+  - Parent-Receipt: `Receipt-146`
+  - Pointers: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260919-LOOP-ALIGNMENT/OWNER_ACCEPTANCE.md`; same run `WORK_GRAPH.json`, `ADOPTION_TRANSFORMS.json`, `STEERING_AMENDMENT.md` and `REVIEW_BRIEF.md`; `execution/_Coordination/NOTICE_2026-09-19_STANDING_LOOP_ALIGNMENT.md` carries continuation pointers; `loop/.archive/2026-09-19-standing-loop/SNAPSHOT.json`. The scoped PR owns actual-candidate CI and merge history.
+  - Model-Attribution: HELP_HUMAN Astra/high for preparation and closeout; fresh direct TASK Astra/high for complete-diff review. Actual dispatch and return recorded in the owning run; instruction-asserted enforcement limits apply.
+  - Checks: Draft entrypoint checks and archive byte verification passed before adoption. Independent review and final candidate checks remain pending at this receipt's preparation; their results belong to the run and PR. No product/runtime verification is claimed by this documentation amendment.
+  - Gate-Outcome: `EXECUTED` — owner accepted the proposed standing procedure and bounded review strategy, then directed separation of recurrent instructions, state pointers and per-run steering. Initial adoption used marker substitutions; the subsequent entrypoint amendment is recorded in the owning run. Product work, protected criteria, DAG, lifecycle, release and independent-usability holds remain unchanged. Standard F-PIP-2/DEC-081 fence applies.
+
+- **2026-09-19 — Receipt 148** (recurrent loop and session work graph).
+  - Receipt-ID: `Receipt-148`
+  - Examined-Through: `82e42a047a9a8d6b4ebcd67d9c28d0b7f2c21328`
+  - Parent-Receipt: `Receipt-147`
+  - Pointers: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260919-LOOP-WORKGRAPH/OWNER_DIRECTION.md`; same run `WORK_GRAPH.json` and `REVIEW_BRIEF.md`; `execution/_Coordination/NOTICE_2026-09-19_PIPING_LOOP_WORKGRAPH.md`; `loop/.archive/2026-09-19-workgraph-transition/SNAPSHOT.json`. The scoped PR owns final candidate review, CI and merge disposition.
+  - Model-Attribution: HELP_HUMAN Astra/high; fresh direct TASK Astra/high review. Supplied context, actual launch, return and instruction-asserted boundaries are in the owning run and PR.
+  - Checks: Independent complete-diff review and instruction/receipt/archive checks precede merge; final results are in the run/PR. No product runtime proof is claimed by this documentation amendment.
+  - Gate-Outcome: `EXECUTED` — owner directed Piping implementation of the agreed recurrent-procedure/session-workgraph arrangement. Owner-directed phase transitions remain; no App, product, DAG, lifecycle, protected criterion or hold change. Standard F-PIP-2/DEC-081 fence applies.
+
+- **2026-09-19 — Receipt 149** (owner-approved loop clarifications).
+  - Receipt-ID: `Receipt-149`
+  - Examined-Through: `2fabfcda85bbb7f89f17c2365d8046e025bcf292`
+  - Parent-Receipt: `Receipt-148`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING; verbatim approval and accepted scope in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260919-LOOP-CLARIFICATIONS/OWNER_DIRECTION.md`.
+  - Pointers: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260919-LOOP-CLARIFICATIONS/OWNER_DIRECTION.md`; same run `WORK_GRAPH.json`, review and check evidence; `execution/_Coordination/NOTICE_2026-09-19_LOOP_CLARIFICATIONS.md`. UI continuation: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json` and `instances/ROOT/CONTINUATION_STEER_2026-09-19.md` in that run.
+  - Checks: pre-append receipt checks passed; scoped validation, independent review and actual-candidate CI recorded in the owning run and PR before merge. No product/native evidence is claimed.
+  - Model-Attribution: HELP_HUMAN Astra/high; fresh direct TASK Astra/high review, parentage and instruction-asserted boundaries in the owning run.
+  - Gate-Outcome: `EXECUTED` — shared instruction clarification only. Protected criteria, product decisions, DAG, lifecycle, release and holds unchanged. UI successor owes strategy agreement, product decision package and B3 native checks.

@@ -1,0 +1,24 @@
+{
+  "basis": "82e42a047a9a8d6b4ebcd67d9c28d0b7f2c21328",
+  "status": "historical; not executable instructions",
+  "files": [
+    {
+      "source": "projects/chirality-piping/AGENTS.md",
+      "snapshot": "AGENTS.pre-transition.md",
+      "sha256": "548c84a8f5fc60741871df0ff7712283aa40c7971caafe401357074611546f19",
+      "bytes": 11846
+    },
+    {
+      "source": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "snapshot": "LOOP_INIT.md",
+      "sha256": "71afde128ce678f1950bef9a81c3eb5104a4795e0a05d22e46ebcd366ee5e2c5",
+      "bytes": 2395
+    },
+    {
+      "source": "projects/chirality-piping/loop/WORKPLAN_2026-09-19_piping_loop.md",
+      "snapshot": "WORKPLAN_2026-09-19_piping_loop.md",
+      "sha256": "d3f3a939e6983c373f3bc8f55b3d63a6b5f90106f13f913a777d779f6229c5d4",
+      "bytes": 1201
+    }
+  ]
+}

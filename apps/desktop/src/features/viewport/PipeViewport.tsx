@@ -1374,6 +1374,12 @@ export function PipeViewport({
     if (resource) applySelectionPresentation(resource, orderedSelectionKeys);
   }, [orderedSelectionKeys]);
 
+  // The hover halo (design system 6.6). The hovered element stays React state, as it was; the
+  // resource is told only when it changes, and does nothing when told the same key again.
+  useEffect(() => {
+    viewportResourceRef.current?.setHoverPresentation(hoveredEntityKey);
+  }, [hoveredEntityKey]);
+
   useEffect(() => {
     viewportResourceRef.current?.setVisibilityPresentation(hiddenKeys);
   }, [activeModelIndex.generation, hiddenKeys]);

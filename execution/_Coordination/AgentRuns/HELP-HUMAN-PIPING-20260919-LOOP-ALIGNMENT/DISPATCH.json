@@ -1,0 +1,23 @@
+{
+  "parent": "/root",
+  "child": "/root/loop_alignment_review",
+  "role": "TASK Type 2",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "high",
+  "fork_turns": "none",
+  "mechanism": "delegated-harness-native collaboration.spawn_agent",
+  "launch_recorded_utc": "2026-09-19T20:13:53.046883+00:00",
+  "candidate": "571bfa8ffb4c97841c95ecc84036251262a73fcc",
+  "base": "29453e367b2f9f2cfb87b712660c31256191db0d",
+  "write_scope": [],
+  "context_files": {
+    "AGENTS.md": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+    "agents/AGENT_HELP_HUMAN.md": "0c2fe7a3097ad26c93c0267e4da6aaf90c9264489df8dc368fad657bcac69183",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "workflows/create-workflow/WORKFLOW.md": "7d4443b63c474a8727a1391dca2e4c20b3a81a04d344d575d862be8f8536cf10",
+    ".agents/skills/chirality-change/SKILL.md": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260919-LOOP-ALIGNMENT/REVIEW_BRIEF.md": "d3ee5be7844f046a045d729e6546b95b2129dcbee302781b1a7532996ede533d"
+  },
+  "context_note": "HELP_HUMAN/create-workflow/chirality-change are parent consultation; child supplied root/TASK/sealed review brief plus frozen diff and referenced sources as needed.",
+  "enforcement": "Fresh context configured; no writes and no delegation instruction-asserted, not mechanism-proven."
+}
