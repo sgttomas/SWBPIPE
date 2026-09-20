@@ -1,0 +1,837 @@
+--- a/.github/workflows/piping-desktop-e2e.yml
++++ b/.github/workflows/piping-desktop-e2e.yml
+@@ -6,7 +6,7 @@
+     # also matched governance records (execution/, plans/, docs/, governance/,
+     # provenance/, loop/, NOTICE_*.md), so record-only pull requests paid for a
+     # ~25 minute, 342-test browser suite that could not observe their change.
+-    # Every path below is read by a step of `desktop-e2e`:
++    # Inputs include selection policy, setup and regression tests:
+     #   package.json / package-lock.json  -> `npm ci`, the setup-node cache key,
+     #                                        and the pinned Playwright resolve step
+     #   apps/**                           -> the desktop workspace: src, e2e specs,
+@@ -30,6 +30,9 @@
+     # add a path here whenever a new input can change product behaviour.
+     paths:
+       - ".github/workflows/piping-desktop-e2e.yml"
++      - ".github/actions/setup-piping-e2e/**"
++      - "projects/chirality-piping/tools/ci/**"
++      - "projects/chirality-piping/tests/test_ci_e2e_plan.py"
+       - "projects/chirality-piping/package.json"
+       - "projects/chirality-piping/package-lock.json"
+       - "projects/chirality-piping/apps/**"
+@@ -47,143 +50,118 @@
+   group: piping-desktop-e2e-${{ github.event.pull_request.number || github.ref }}
+   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+ 
++env:
++  CI: "true"
++  PLAYWRIGHT_HTML_OPEN: never
++  PLAYWRIGHT_WORKERS: "1"
++
+ jobs:
+-  desktop-e2e:
+-    name: Desktop E2E (source mode)
++  selection:
++    name: Select source coverage
++    runs-on: ubuntu-latest
++    outputs:
++      mode: ${{ steps.plan.outputs.mode }}
++    steps:
++      - uses: actions/checkout@v4
++        with:
++          ref: ${{ github.event.pull_request.head.sha || github.sha }}
++          fetch-depth: 0
++      - name: Test selection policy
++        run: python3 -m unittest discover -s projects/chirality-piping/tests -p test_ci_e2e_plan.py -v
++      - name: Plan complete PR diff
++        id: plan
++        env:
++          EVENT: ${{ github.event_name }}
++          BASE: ${{ github.event.pull_request.base.sha }}
++          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
++          PR: ${{ github.event.pull_request.number }}
++        run: >-
++          python3 projects/chirality-piping/tools/ci/e2e_plan.py plan
++          --event "$EVENT" --base "$BASE" --head "$HEAD" --pr "$PR"
++          --output piping-e2e-plan.json
++      - uses: actions/upload-artifact@v4
++        with:
++          name: piping-e2e-selection
++          path: piping-e2e-plan.json
++          if-no-files-found: error
++          retention-days: 14
++
++  barrier:
++    name: Accessibility barrier and selected coverage
++    needs: selection
+     runs-on: ubuntu-latest
+     timeout-minutes: 45
+-    env:
+-      CI: "true"
+-      PLAYWRIGHT_HTML_OPEN: never
+-      PLAYWRIGHT_WORKERS: "1"
+-
+     steps:
+-      - name: Checkout
+-        uses: actions/checkout@v4
+-
+-      - name: Setup Node.js
+-        uses: actions/setup-node@v4
++      - uses: actions/checkout@v4
+         with:
+-          node-version: "24"
+-          cache: npm
+-          cache-dependency-path: projects/chirality-piping/package-lock.json
+-
+-      - name: Setup pinned Rust toolchain
+-        uses: dtolnay/rust-toolchain@stable
++          ref: ${{ github.event.pull_request.head.sha || github.sha }}
++          fetch-depth: 0
++      - uses: actions/download-artifact@v4
+         with:
+-          toolchain: 1.97.1
+-          targets: wasm32-unknown-unknown
+-
+-      - name: Cache pinned wasm-bindgen CLI
+-        id: wasm-bindgen-cache
+-        uses: actions/cache@v4
+-        with:
+-          path: ~/.cargo/bin/wasm-bindgen
+-          key: ${{ runner.os }}-wasm-bindgen-cli-0.2.123
+-
+-      - name: Install pinned wasm-bindgen CLI
+-        if: steps.wasm-bindgen-cache.outputs.cache-hit != 'true'
+-        run: cargo install wasm-bindgen-cli --version 0.2.123 --locked
+-
+-      - name: Cache Cargo registry and WASM target
+-        uses: actions/cache@v4
+-        with:
+-          path: |
+-            ~/.cargo/registry/
+-            projects/chirality-piping/core/model_operations/operation_applier/target
+-          key: ${{ runner.os }}-rust-1.97.1-${{ hashFiles('projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock', 'projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock') }}
+-          restore-keys: |
+-            ${{ runner.os }}-rust-1.97.1-
+-
+-      - name: Install project dependencies
+-        run: npm ci
+-        working-directory: projects/chirality-piping
+-
+-      # The desktop build is deliberately offline. Populate the complete
+-      # locked graphs, including host/transitive dependencies, before building.
+-      - name: Fetch complete locked WASM dependency graphs
+-        run: |
+-          cargo fetch --locked --manifest-path core/model_operations/operation_applier/Cargo.toml
+-          cargo fetch --locked --manifest-path core/loads/self_weight_wasm/Cargo.toml
+-        working-directory: projects/chirality-piping
+-
+-      - name: Build desktop WASM engine
+-        run: npm run build:wasm:desktop
+-        working-directory: projects/chirality-piping
+-
+-      - name: Resolve pinned Playwright version
+-        id: playwright-version
+-        shell: bash
+-        run: |
+-          set -euo pipefail
+-          version="$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")"
+-          test -n "${version}"
+-          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+-        working-directory: projects/chirality-piping
+-
+-      - name: Cache Playwright Chromium
+-        id: playwright-cache
+-        uses: actions/cache@v4
+-        with:
+-          path: ~/.cache/ms-playwright
+-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+-
+-      - name: Configure canonical Ubuntu package sources
+-        shell: bash
+-        run: |
+-          set -euo pipefail
+-          source /etc/os-release
+-          test -n "${VERSION_CODENAME}"
+-          test -f /usr/share/keyrings/ubuntu-archive-keyring.gpg
+-          sudo tee /etc/apt/sources.list.d/ubuntu.sources >/dev/null <<EOF
+-          Types: deb
+-          URIs: https://archive.ubuntu.com/ubuntu/
+-          Suites: ${VERSION_CODENAME} ${VERSION_CODENAME}-updates ${VERSION_CODENAME}-backports
+-          Components: main restricted universe multiverse
+-          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+-
+-          Types: deb
+-          URIs: https://security.ubuntu.com/ubuntu/
+-          Suites: ${VERSION_CODENAME}-security
+-          Components: main restricted universe multiverse
+-          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+-          EOF
+-
+-      - name: Install Chromium system dependencies
+-        if: steps.playwright-cache.outputs.cache-hit == 'true'
+-        run: npx playwright install-deps chromium
+-        working-directory: projects/chirality-piping
+-
+-      - name: Install Chromium and system dependencies
+-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+-        run: npx playwright install --with-deps chromium
+-        working-directory: projects/chirality-piping
+-
+-      - name: List source-mode desktop tests
+-        run: >-
+-          ../../node_modules/.bin/playwright test --list
+-          --project=chromium-desktop
+-          --project=chromium-compact
+-        working-directory: projects/chirality-piping/apps/desktop
+-
+-      # The registered 120s ceiling is measured on local hosts; a fresh,
+-      # serial hosted-Ubuntu runner needs 180s for the existing full journey.
+-      - name: Run source-mode desktop tests
+-        run: >-
+-          ../../node_modules/.bin/playwright test
+-          --project=chromium-desktop
+-          --project=chromium-compact
+-          --timeout=180000
+-          --reporter=list,html
+-        working-directory: projects/chirality-piping/apps/desktop
+-
+-      - name: Upload Playwright failure artifacts
++          name: piping-e2e-selection
++      - uses: ./.github/actions/setup-piping-e2e
++      - name: Run accessibility first, then any reduced selection
++        run: python3 projects/chirality-piping/tools/ci/e2e_plan.py run --plan piping-e2e-plan.json --stage barrier
++      - name: Upload failure artifacts
+         if: failure()
+         uses: actions/upload-artifact@v4
+         with:
+-          name: piping-desktop-e2e-failure-${{ github.run_id }}-${{ github.run_attempt }}
++          name: piping-desktop-e2e-barrier-failure-${{ github.run_id }}-${{ github.run_attempt }}
+           path: |
+             projects/chirality-piping/apps/desktop/playwright-report
+             projects/chirality-piping/apps/desktop/test-results
+           if-no-files-found: warn
+           retention-days: 14
++
++  remainder:
++    name: Source remainder (${{ matrix.shard }}/4)
++    needs: [selection, barrier]
++    if: needs.selection.outputs.mode == 'full'
++    runs-on: ubuntu-latest
++    timeout-minutes: 45
++    strategy:
++      fail-fast: true
++      matrix:
++        shard: [1, 2, 3, 4]
++    steps:
++      - uses: actions/checkout@v4
++        with:
++          ref: ${{ github.event.pull_request.head.sha || github.sha }}
++          fetch-depth: 0
++      - uses: actions/download-artifact@v4
++        with:
++          name: piping-e2e-selection
++      - uses: ./.github/actions/setup-piping-e2e
++      - name: Run isolated source remainder shard
++        env:
++          SHARD: ${{ matrix.shard }}
++        run: python3 projects/chirality-piping/tools/ci/e2e_plan.py run --plan piping-e2e-plan.json --stage remainder --shard "$SHARD"
++      - name: Upload failure artifacts
++        if: failure()
++        uses: actions/upload-artifact@v4
++        with:
++          name: piping-desktop-e2e-shard-${{ matrix.shard }}-failure-${{ github.run_id }}-${{ github.run_attempt }}
++          path: |
++            projects/chirality-piping/apps/desktop/playwright-report
++            projects/chirality-piping/apps/desktop/test-results
++          if-no-files-found: warn
++          retention-days: 14
++
++  desktop-e2e:
++    name: Desktop E2E (source mode)
++    needs: [selection, barrier, remainder]
++    if: always()
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v4
++        with:
++          ref: ${{ github.event.pull_request.head.sha || github.sha }}
++      - name: Require all planned coverage
++        env:
++          MODE: ${{ needs.selection.outputs.mode }}
++          SELECTION: ${{ needs.selection.result }}
++          BARRIER: ${{ needs.barrier.result }}
++          REMAINDER: ${{ needs.remainder.result }}
++        run: >-
++          python3 projects/chirality-piping/tools/ci/e2e_plan.py aggregate
++          --mode "$MODE" --selection "$SELECTION" --barrier "$BARRIER" --remainder "$REMAINDER"
+--- /dev/null
++++ b/.github/actions/setup-piping-e2e/action.yml
+@@ -0,0 +1,109 @@
++name: Setup Piping E2E
++description: Pinned source-mode desktop browser dependencies
++runs:
++  using: composite
++  steps:
++    - name: Setup Node.js
++      uses: actions/setup-node@v4
++      with:
++        node-version: "24"
++        cache: npm
++        cache-dependency-path: projects/chirality-piping/package-lock.json
++
++    - name: Setup pinned Rust toolchain
++      uses: dtolnay/rust-toolchain@stable
++      with:
++        toolchain: 1.97.1
++        targets: wasm32-unknown-unknown
++
++    - name: Cache pinned wasm-bindgen CLI
++      id: wasm-bindgen-cache
++      uses: actions/cache@v4
++      with:
++        path: ~/.cargo/bin/wasm-bindgen
++        key: ${{ runner.os }}-wasm-bindgen-cli-0.2.123
++
++    - name: Install pinned wasm-bindgen CLI
++      if: steps.wasm-bindgen-cache.outputs.cache-hit != 'true'
++      shell: bash
++      run: cargo install wasm-bindgen-cli --version 0.2.123 --locked
++
++    - name: Cache Cargo registry and WASM target
++      uses: actions/cache@v4
++      with:
++        path: |
++          ~/.cargo/registry/
++          projects/chirality-piping/core/model_operations/operation_applier/target
++        key: ${{ runner.os }}-rust-1.97.1-${{ hashFiles('projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock', 'projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock') }}
++        restore-keys: |
++          ${{ runner.os }}-rust-1.97.1-
++
++    - name: Install project dependencies
++      shell: bash
++      run: npm ci
++      working-directory: projects/chirality-piping
++
++    # The desktop build is deliberately offline. Populate the complete
++    # locked graphs, including host/transitive dependencies, before building.
++    - name: Fetch complete locked WASM dependency graphs
++      shell: bash
++      run: |
++        cargo fetch --locked --manifest-path core/model_operations/operation_applier/Cargo.toml
++        cargo fetch --locked --manifest-path core/loads/self_weight_wasm/Cargo.toml
++      working-directory: projects/chirality-piping
++
++    - name: Build desktop WASM engine
++      shell: bash
++      run: npm run build:wasm:desktop
++      working-directory: projects/chirality-piping
++
++    - name: Resolve pinned Playwright version
++      id: playwright-version
++      shell: bash
++      run: |
++        set -euo pipefail
++        version="$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")"
++        test -n "${version}"
++        echo "version=${version}" >> "${GITHUB_OUTPUT}"
++      working-directory: projects/chirality-piping
++
++    - name: Cache Playwright Chromium
++      id: playwright-cache
++      uses: actions/cache@v4
++      with:
++        path: ~/.cache/ms-playwright
++        key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
++
++    - name: Configure canonical Ubuntu package sources
++      shell: bash
++      run: |
++        set -euo pipefail
++        source /etc/os-release
++        test -n "${VERSION_CODENAME}"
++        test -f /usr/share/keyrings/ubuntu-archive-keyring.gpg
++        sudo tee /etc/apt/sources.list.d/ubuntu.sources >/dev/null <<EOF
++        Types: deb
++        URIs: https://archive.ubuntu.com/ubuntu/
++        Suites: ${VERSION_CODENAME} ${VERSION_CODENAME}-updates ${VERSION_CODENAME}-backports
++        Components: main restricted universe multiverse
++        Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
++
++        Types: deb
++        URIs: https://security.ubuntu.com/ubuntu/
++        Suites: ${VERSION_CODENAME}-security
++        Components: main restricted universe multiverse
++        Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
++        EOF
++
++    - name: Install Chromium system dependencies
++      if: steps.playwright-cache.outputs.cache-hit == 'true'
++      shell: bash
++      run: npx playwright install-deps chromium
++      working-directory: projects/chirality-piping
++
++    - name: Install Chromium and system dependencies
++      if: steps.playwright-cache.outputs.cache-hit != 'true'
++      shell: bash
++      run: npx playwright install --with-deps chromium
++      working-directory: projects/chirality-piping
++
+--- /dev/null
++++ b/projects/chirality-piping/tools/ci/e2e_plan.py
+@@ -0,0 +1,211 @@
++#!/usr/bin/env python3
++"""Conservative source-mode CI routing. No shell execution or external packages."""
++import argparse
++import json
++import os
++from pathlib import Path
++import re
++import subprocess
++
++PROJECT = 'projects/chirality-piping/'
++DESKTOP = PROJECT + 'apps/desktop/'
++E2E = DESKTOP + 'e2e/'
++FAST = 'e2e/b3-accessibility.spec.ts'
++PROJECTS = ['chromium-desktop', 'chromium-compact']
++BASELINE = '002dff0f244976f98b36517d920b3761f6f88704'
++FOCUSED = [FAST, 'e2e/workspace-layout.spec.ts', 'e2e/gui-workflow-validation.spec.ts']
++FOCUSED_TITLES = [
++    'keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls',
++    'decorative viewport overlays pass real canvas gestures while view controls stay interactive',
++    'workspace Escape event ownership consumed palette',
++    'workspace Escape event ownership consumed drawer',
++]
++# Owner-authorized PR825 exception only; further product paths require ROOT review.
++REPAIR_PATHS = {DESKTOP + 'src/styles.css', E2E + 'b3-accessibility.spec.ts',
++                DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx'}
++STRATEGY_PATHS = {'.github/workflows/piping-desktop-e2e.yml',
++                  '.github/actions/setup-piping-e2e/action.yml',
++                  PROJECT + 'tests/test_ci_e2e_plan.py',
++                  'docs/governance_harness/tranche_manifests/PIPING-CI-STRATEGY-20260920.yaml'}
++RUN = PROJECT + 'execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/'
++REPAIR_EVIDENCE = [RUN + p for p in (
++    'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/',
++    'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-repo-checks/',
++    'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-sweep/',
++    'instances/B3-CODEX/ci-tooltip-repair/', 'instances/CI-STRATEGY-CODEX/',
++)]
++
++
++def git(root, *args):
++    return subprocess.check_output(['git', '-C', str(root), *args], stderr=subprocess.PIPE).decode('utf-8')
++
++
++def changes(root, base, head):
++    fields = git(root, 'diff', '--name-status', '--no-renames', '-z', base, head, '--').split('\0')
++    return [{'status': fields[i], 'path': fields[i + 1]} for i in range(0, len(fields) - 1, 2)]
++
++
++def inventory(root):
++    desktop = Path(root) / DESKTOP
++    return sorted(p.relative_to(desktop).as_posix() for p in (desktop / 'e2e').rglob('*')
++                  if p.is_file() and re.search(r'\.(spec|test)\.[cm]?[jt]sx?$', p.name)
++                  and not p.name.endswith('-dist.spec.ts'))
++
++
++def record(path):
++    # Only prose and record data in explicitly non-runtime directories qualify.
++    prefixes = [PROJECT + x for x in ('execution/', 'docs/', 'plans/', 'governance/', 'provenance/', 'loop/')]
++    return (any(path.startswith(x) for x in prefixes)
++            and Path(path).suffix in {'.md', '.json', '.csv', '.txt', '.log', '.sha256', '.jsonl'})
++
++
++def repair_record(path):
++    return (record(path)
++            or (any(path.startswith(x) for x in REPAIR_EVIDENCE)
++                and Path(path).suffix in {'.gz', '.png', '.zip'})
++            or (path.startswith(PROJECT + 'validation/evidence/sweeps/')
++                and Path(path).suffix == '.json'))
++
++
++def strategy(path):
++    return path in STRATEGY_PATHS or path.startswith(PROJECT + 'tools/ci/')
++
++
++def make_plan(root, event, base='', head='HEAD', pr=''):
++    specs = inventory(root)
++    if FAST not in specs:
++        raise ValueError('Required accessibility barrier is missing')
++    head = git(root, 'rev-parse', '--verify', head + '^{commit}').strip()
++    plan = dict(version=1, mode='full', coverage_full=True, event=event, pr=str(pr),
++                base=None, head=head, baseline=None, changed_paths=[], baseline_delta=[],
++                projects=PROJECTS, inventory=specs, selected_specs=specs,
++                focused_spec=None, focused_titles=[], reasons=[], coverage_note='Full source coverage requires barrier and all four shards to succeed.')
++    if event != 'pull_request':
++        plan['reasons'] = ['Manual or unknown event: full source suite']
++        return plan
++    try:
++        merge_base = git(root, 'merge-base', base, head).strip()
++        delta = changes(root, merge_base, head)
++        plan.update(base=merge_base, changed_paths=delta)
++    except (subprocess.CalledProcessError, UnicodeError, IndexError):
++        plan['reasons'] = ['Unavailable PR merge-base/diff: full source suite']
++        return plan
++    if str(pr) == '825':
++        try:
++            git(root, 'merge-base', '--is-ancestor', BASELINE, head)
++            repair = changes(root, BASELINE, head)
++            plan.update(baseline=BASELINE, baseline_delta=repair)
++            if repair and all(c['status'] in {'A', 'M'} and
++                              (c['path'] in REPAIR_PATHS or strategy(c['path']) or repair_record(c['path'])) for c in repair):
++                if not set(FOCUSED + ['e2e/ui-foundation.spec.ts']).issubset(specs):
++                    raise ValueError('Required repair selection file is missing')
++                plan.update(mode='pr825-repair', selected_specs=FOCUSED,
++                            focused_spec='e2e/ui-foundation.spec.ts', focused_titles=FOCUSED_TITLES,
++                            reasons=['Owner-authorized PR825 repair delta from prior tested head'])
++        except (subprocess.CalledProcessError, UnicodeError, IndexError):
++            plan['reasons'].append('PR825 baseline unavailable or not an ancestor')
++    if plan['mode'] == 'full':
++        active = [c for c in delta if not record(c['path'])]
++        valid = active and all(c['status'] in {'A', 'M'} for c in active)
++        if valid and all(c['path'].startswith(E2E + 'ui-foundation/') for c in active):
++            plan.update(mode='instruments', selected_specs=sorted({FAST} | {s for s in specs if s.startswith('e2e/ui-foundation/')}),
++                        reasons=['Complete PR diff contains instrument inputs and optional records only; no benchmarks'])
++        elif valid and all(c['path'].startswith(E2E) and c['path'][len(DESKTOP):] in specs and
++                         c['path'].endswith('.spec.ts') for c in active):
++            plan.update(mode='changed-specs', selected_specs=sorted({FAST} | {c['path'][len(DESKTOP):] for c in active}),
++                        reasons=['Complete PR diff contains source specs and optional records only'])
++        else:
++            plan['reasons'].append('Broad, empty, deleted, renamed or unclassified input: full source suite')
++    if plan['mode'] != 'full':
++        plan.update(coverage_full=False, coverage_note='Partial coverage on this revision; not DEC093 full surface4 evidence.')
++    return plan
++
++
++def validate(root, plan):
++    if not isinstance(plan, dict) or plan.get('version') != 1:
++        raise ValueError('Invalid plan schema')
++    # Recompute instead of trusting downloaded command/filter data.
++    expected = make_plan(root, plan.get('event'), plan.get('base') or '', plan.get('head', ''), plan.get('pr', ''))
++    if plan != expected:
++        raise ValueError('Plan differs from checkout and conservative routing policy')
++    if git(root, 'rev-parse', 'HEAD').strip() != plan['head']:
++        raise ValueError('Plan head differs from checkout')
++
++
++def commands(plan, stage, shard=None, list_only=False):
++    common = ['../../node_modules/.bin/playwright', 'test', '--project=chromium-desktop',
++              '--project=chromium-compact', '--workers=1', '--timeout=180000', '--reporter=list,html']
++    if list_only:
++        common[-1] = '--reporter=json'
++        common += ['--list']
++    def selected(specs, extra=()):
++        if not specs:
++            raise ValueError('Empty source selection is forbidden')
++        return common + list(extra) + [re.escape(s) + '$' for s in specs]
++    if stage == 'remainder':
++        if plan['mode'] != 'full' or shard not in range(1, 5):
++            raise ValueError('Remainder requires full mode and shard 1..4')
++        return [selected([s for s in plan['inventory'] if s != FAST], [f'--shard={shard}/4'])]
++    if stage != 'barrier':
++        raise ValueError('Unknown execution stage')
++    result = [selected([FAST], ['--max-failures=1'])]
++    if plan['mode'] != 'full':
++        rest = [s for s in plan['selected_specs'] if s != FAST]
++        if rest:
++            result.append(selected(rest, ['--max-failures=1']))
++        if plan['focused_titles']:
++            grep = '(?:' + '|'.join(re.escape(t) for t in plan['focused_titles']) + ')$'
++            result.append(selected(['e2e/ui-foundation.spec.ts'], ['--max-failures=1', '--grep', grep]))
++    return result
++
++
++def aggregate(mode, selection, barrier, remainder):
++    return (mode in {'full', 'changed-specs', 'instruments', 'pr825-repair'}
++            and selection == barrier == 'success'
++            and remainder == ('success' if mode == 'full' else 'skipped'))
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    sub = parser.add_subparsers(dest='action', required=True)
++    build = sub.add_parser('plan')
++    build.add_argument('--event', required=True)
++    build.add_argument('--base', default='')
++    build.add_argument('--head', default='HEAD')
++    build.add_argument('--pr', default='')
++    build.add_argument('--output', required=True)
++    run = sub.add_parser('run')
++    run.add_argument('--plan', required=True)
++    run.add_argument('--stage', choices=['barrier', 'remainder'], required=True)
++    run.add_argument('--shard', type=int)
++    run.add_argument('--list', action='store_true')
++    gate = sub.add_parser('aggregate')
++    for key in ('mode', 'selection', 'barrier', 'remainder'):
++        gate.add_argument('--' + key, required=True)
++    args = parser.parse_args()
++    root = Path(__file__).resolve().parents[4]
++    if args.action == 'aggregate':
++        ok = aggregate(args.mode, args.selection, args.barrier, args.remainder)
++        print('Required source CI jobs succeeded' if ok else 'Required source CI job failed, cancelled, absent or invalid')
++        raise SystemExit(0 if ok else 1)
++    if args.action == 'plan':
++        plan = make_plan(root, args.event, args.base, args.head, args.pr)
++        Path(args.output).write_text(json.dumps(plan, indent=2) + '\n')
++        if os.getenv('GITHUB_OUTPUT'):
++            with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
++                out.write('mode=' + plan['mode'] + '\n')
++        summary = '## Piping source CI selection\n\n' + plan['coverage_note'] + '\n\n```json\n' + json.dumps(plan, indent=2) + '\n```\n'
++        if os.getenv('GITHUB_STEP_SUMMARY'):
++            with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
++                out.write(summary)
++        print(summary)
++    else:
++        plan = json.loads(Path(args.plan).read_text())
++        validate(root, plan)
++        for command in commands(plan, args.stage, args.shard, args.list):
++            print(json.dumps(command), flush=True)
++            subprocess.run(command, cwd=root / DESKTOP, check=True)
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/projects/chirality-piping/tests/test_ci_e2e_plan.py
+@@ -0,0 +1,242 @@
++"""CI routing contracts. Temporary Git history is isolated from the worktree."""
++import importlib.util
++import json
++from pathlib import Path
++import re
++import subprocess
++import tempfile
++import unittest
++from unittest.mock import patch
++
++MODULE = Path(__file__).resolve().parents[1] / 'tools/ci/e2e_plan.py'
++spec = importlib.util.spec_from_file_location('e2e_plan', MODULE)
++ci = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(ci)
++
++
++class SelectionTests(unittest.TestCase):
++    def setUp(self):
++        self.temp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.temp.cleanup)
++        self.root = Path(self.temp.name)
++        self.git('init', '-q')
++        self.git('config', 'user.email', 'ci-test@example.invalid')
++        self.git('config', 'user.name', 'CI fixture')
++        for path in ci.FOCUSED + ['e2e/ui-foundation.spec.ts', 'e2e/new.test.mts',
++                                 'e2e/ui-foundation/a.spec.ts', 'e2e/ui-foundation/b.spec.ts',
++                                 'e2e/example-dist.spec.ts', 'e2e/ui-foundation/a.benchmark.ts']:
++            self.write(ci.DESKTOP + path, '// fixture\n')
++        self.write(ci.DESKTOP + 'src/styles.css', 'old')
++        self.write(ci.DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx', 'old')
++        self.base = self.commit()
++        self.baseline = patch.object(ci, 'BASELINE', self.base)
++        self.baseline.start()
++        self.addCleanup(self.baseline.stop)
++
++    def git(self, *args):
++        return subprocess.check_output(['git', '-C', str(self.root), *args], stderr=subprocess.PIPE).decode().strip()
++
++    def write(self, path, text='changed'):
++        target = self.root / path
++        target.parent.mkdir(parents=True, exist_ok=True)
++        target.write_text(text)
++
++    def commit(self):
++        self.git('add', '.')
++        self.git('commit', '-qm', 'fixture')
++        return self.git('rev-parse', 'HEAD')
++
++    def plan(self, **kwargs):
++        return ci.make_plan(self.root, kwargs.pop('event', 'pull_request'),
++                            kwargs.pop('base', self.base), 'HEAD', kwargs.pop('pr', '826'))
++
++    def test_manual_and_unavailable_diff_are_full(self):
++        self.assertEqual(self.plan(event='workflow_dispatch')['mode'], 'full')
++        self.assertEqual(self.plan(base='unavailable')['mode'], 'full')
++        self.assertEqual(self.plan()['mode'], 'full')
++
++    def test_complete_pr_diff_not_last_commit(self):
++        self.write(ci.DESKTOP + 'src/App.tsx')
++        self.commit()
++        self.write(ci.E2E + 'b3-accessibility.spec.ts')
++        self.commit()
++        plan = self.plan()
++        self.assertEqual(plan['mode'], 'full')
++        self.assertEqual(len(plan['changed_paths']), 2)
++
++    def test_merge_base_excludes_base_branch_only_changes(self):
++        self.git('checkout', '-qb', 'target')
++        self.write(ci.DESKTOP + 'src/base-only.ts')
++        target = self.commit()
++        self.git('checkout', '-qb', 'candidate', self.base)
++        self.write(ci.E2E + 'workspace-layout.spec.ts')
++        self.commit()
++        plan = self.plan(base=target)
++        self.assertEqual(plan['base'], self.base)
++        self.assertEqual(plan['mode'], 'changed-specs')
++
++    def test_spec_and_record_reduction(self):
++        self.write(ci.E2E + 'workspace-layout.spec.ts')
++        self.write(ci.PROJECT + 'execution/run/record.json', '{}')
++        self.commit()
++        plan = self.plan()
++        self.assertEqual(plan['mode'], 'changed-specs')
++        self.assertEqual(set(plan['selected_specs']), {ci.FAST, 'e2e/workspace-layout.spec.ts'})
++        self.assertFalse(plan['coverage_full'])
++        ci.validate(self.root, plan)
++
++    def test_instrument_inputs_select_all_instruments_without_benchmarks(self):
++        self.write(ci.E2E + 'ui-foundation/helper.ts')
++        self.commit()
++        plan = self.plan()
++        self.assertEqual(plan['mode'], 'instruments')
++        self.assertEqual(set(plan['selected_specs']), {ci.FAST, 'e2e/ui-foundation/a.spec.ts', 'e2e/ui-foundation/b.spec.ts'})
++
++    def test_instrument_spec_changes_still_select_all_instruments(self):
++        self.write(ci.E2E + 'ui-foundation/a.spec.ts')
++        self.commit()
++        plan = self.plan()
++        self.assertEqual(plan['mode'], 'instruments')
++        self.assertIn('e2e/ui-foundation/b.spec.ts', plan['selected_specs'])
++
++    def test_unknown_input_and_executable_record_fall_back(self):
++        for path in ['unclassified.config', ci.PROJECT + 'execution/run/code.py',
++                     ci.PROJECT + 'schemas/a.json', ci.PROJECT + 'core/a.rs',
++                     ci.PROJECT + 'fixtures/a.json', ci.DESKTOP + 'playwright.config.ts']:
++            with self.subTest(path=path):
++                self.write(path)
++                self.commit()
++                self.assertEqual(self.plan()['mode'], 'full')
++
++    def test_deleted_and_renamed_specs_fall_back(self):
++        old = self.root / (ci.E2E + 'workspace-layout.spec.ts')
++        old.rename(old.with_name('renamed.spec.ts'))
++        self.commit()
++        self.assertEqual(self.plan()['mode'], 'full')
++        old.with_name('renamed.spec.ts').unlink()
++        self.commit()
++        self.assertEqual(self.plan()['mode'], 'full')
++
++    def test_pr825_exception_is_narrow_and_partial(self):
++        self.write(ci.DESKTOP + 'src/styles.css')
++        self.write(ci.DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx')
++        self.write(ci.PROJECT + 'tools/ci/e2e_plan.py')
++        self.write(ci.PROJECT + 'docs/CI_STRATEGY.md')
++        self.commit()
++        plan = self.plan(pr='825')
++        self.assertEqual(plan['mode'], 'pr825-repair')
++        self.assertEqual(plan['baseline'], self.base)
++        self.assertEqual(plan['selected_specs'], ci.FOCUSED)
++        self.assertEqual(plan['focused_titles'], ci.FOCUSED_TITLES)
++        self.assertFalse(plan['coverage_full'])
++        ci.validate(self.root, plan)
++        self.assertEqual(self.plan(pr='826')['mode'], 'full')
++        self.write(ci.DESKTOP + 'src/App.tsx')
++        self.commit()
++        self.assertEqual(self.plan(pr='825')['mode'], 'full')
++
++    def test_missing_or_nonancestor_baseline_cannot_enable_exception(self):
++        self.write(ci.DESKTOP + 'src/styles.css')
++        candidate = self.commit()
++        with patch.object(ci, 'BASELINE', 'a' * 40):
++            self.assertEqual(self.plan(pr='825')['mode'], 'full')
++        self.git('checkout', '--orphan', 'unrelated')
++        other = self.commit()
++        self.git('checkout', candidate)
++        with patch.object(ci, 'BASELINE', other):
++            self.assertEqual(self.plan(pr='825')['mode'], 'full')
++
++    def test_manifest_and_named_evidence_can_accompany_repair(self):
++        self.write(ci.DESKTOP + 'src/styles.css')
++        self.write('docs/governance_harness/tranche_manifests/PIPING-CI-STRATEGY-20260920.yaml')
++        self.write(ci.REPAIR_EVIDENCE[0] + 'trace.zip')
++        self.write(ci.PROJECT + 'validation/evidence/sweeps/new.json', '{}')
++        self.commit()
++        self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
++        self.write(ci.PROJECT + 'execution/other/trace.zip')
++        self.commit()
++        self.assertEqual(self.plan(pr='825')['mode'], 'full')
++
++    def test_deleted_allowed_component_falls_back(self):
++        (self.root / (ci.DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx')).unlink()
++        self.commit()
++        self.assertEqual(self.plan(pr='825')['mode'], 'full')
++
++    def test_malformed_or_stale_plan_is_rejected(self):
++        plan = self.plan()
++        ci.validate(self.root, plan)
++        for key, value in [('mode', 'changed-specs'), ('selected_specs', []),
++                           ('projects', ['other']), ('inventory', []), ('coverage_full', False)]:
++            with self.subTest(key=key):
++                with self.assertRaises(ValueError):
++                    ci.validate(self.root, {**plan, key: value})
++        self.write(ci.E2E + 'new.spec.ts')
++        with self.assertRaises(ValueError):
++            ci.validate(self.root, plan)
++        (self.root / ci.DESKTOP / ci.FAST).unlink()
++        with self.assertRaises(ValueError):
++            self.plan()
++
++    def test_argument_arrays_escape_regex_and_preserve_spaces(self):
++        unusual = 'e2e/odd [a] $(touch nope);.spec.ts'
++        self.write(ci.DESKTOP + unusual)
++        self.commit()
++        plan = self.plan()
++        command = ci.commands(plan, 'barrier')[-1]
++        self.assertIn(re.escape(unusual) + '$', command)
++        self.assertEqual(command[0], '../../node_modules/.bin/playwright')
++        self.assertIn('--workers=1', command)
++        self.assertNotIn('--fully-parallel', command)
++
++    def test_full_barrier_remainder_partition_and_new_spec_discovery(self):
++        plan = self.plan(event='workflow_dispatch')
++        barrier = ci.commands(plan, 'barrier')[0]
++        remainder = ci.commands(plan, 'remainder', 1)[0]
++        patterns = lambda command: [v for v in command if v.startswith('e2e/')]
++        seen = patterns(barrier) + patterns(remainder)
++        self.assertEqual(len(seen), len(set(seen)))
++        self.assertEqual(set(seen), {re.escape(s) + '$' for s in plan['inventory']})
++        self.assertIn('e2e/new.test.mts', plan['inventory'])
++        self.assertNotIn('e2e/example-dist.spec.ts', plan['inventory'])
++        for shard in range(1, 5):
++            self.assertIn(f'--shard={shard}/4', ci.commands(plan, 'remainder', shard)[0])
++        for shard in [None, 0, 5]:
++            with self.assertRaises(ValueError):
++                ci.commands(plan, 'remainder', shard)
++
++    def test_focused_cases_use_separate_invocation_and_exact_suffix(self):
++        self.write(ci.DESKTOP + 'src/styles.css')
++        self.commit()
++        plan = self.plan(pr='825')
++        commands = ci.commands(plan, 'barrier')
++        self.assertEqual(len(commands), 3)
++        self.assertEqual(commands[0][-1], re.escape(ci.FAST) + '$')
++        grep = commands[-1][commands[-1].index('--grep') + 1]
++        self.assertEqual(commands[-1][-1], re.escape('e2e/ui-foundation.spec.ts') + '$')
++        for title in ci.FOCUSED_TITLES:
++            self.assertIsNotNone(re.search(grep, '[chromium-desktop] file ' + title))
++            self.assertIsNone(re.search(grep, title + ' changed'))
++        with self.assertRaises(ValueError):
++            ci.commands(plan, 'remainder', 1)
++
++
++class GateTests(unittest.TestCase):
++    def test_full_requires_every_dependency_success(self):
++        self.assertTrue(ci.aggregate('full', 'success', 'success', 'success'))
++        for state in ['failure', 'cancelled', 'skipped', '', 'unknown']:
++            for i in range(3):
++                values = ['success'] * 3
++                values[i] = state
++                self.assertFalse(ci.aggregate('full', *values))
++
++    def test_only_explicit_reduced_remainder_can_skip(self):
++        for mode in ['changed-specs', 'instruments', 'pr825-repair']:
++            self.assertTrue(ci.aggregate(mode, 'success', 'success', 'skipped'))
++            self.assertFalse(ci.aggregate(mode, 'success', 'success', 'failure'))
++            self.assertFalse(ci.aggregate(mode, 'failure', 'success', 'skipped'))
++            self.assertFalse(ci.aggregate(mode, 'success', 'cancelled', 'skipped'))
++        self.assertFalse(ci.aggregate('', 'success', 'success', 'skipped'))
++
++
++if __name__ == '__main__':
++    unittest.main()

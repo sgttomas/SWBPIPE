@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "mode": "full",
+  "coverage_full": true,
+  "event": "workflow_dispatch",
+  "pr": "",
+  "base": null,
+  "head": "002dff0f244976f98b36517d920b3761f6f88704",
+  "baseline": null,
+  "changed_paths": [],
+  "baseline_delta": [],
+  "projects": [
+    "chromium-desktop",
+    "chromium-compact"
+  ],
+  "inventory": [
+    "e2e/b3-accessibility.spec.ts",
+    "e2e/gui-workflow-validation.spec.ts",
+    "e2e/linear-authoring.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/result-compatibility.spec.ts",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/ui-foundation/causal-method-contract.spec.ts",
+    "e2e/ui-foundation/fresh-demo-policy.spec.ts",
+    "e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "e2e/ui-foundation/performance-targets.spec.ts",
+    "e2e/workspace-layout.spec.ts"
+  ],
+  "selected_specs": [
+    "e2e/b3-accessibility.spec.ts",
+    "e2e/gui-workflow-validation.spec.ts",
+    "e2e/linear-authoring.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/result-compatibility.spec.ts",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/ui-foundation/causal-method-contract.spec.ts",
+    "e2e/ui-foundation/fresh-demo-policy.spec.ts",
+    "e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "e2e/ui-foundation/performance-targets.spec.ts",
+    "e2e/workspace-layout.spec.ts"
+  ],
+  "focused_spec": null,
+  "focused_titles": [],
+  "reasons": [
+    "Manual or unknown event: full source suite"
+  ],
+  "coverage_note": "Full source coverage requires barrier and all four shards to succeed."
+}

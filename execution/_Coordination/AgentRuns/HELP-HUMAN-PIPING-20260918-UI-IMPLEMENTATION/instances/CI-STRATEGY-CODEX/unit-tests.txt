@@ -1,0 +1,23 @@
+test_full_requires_every_dependency_success (test_ci_e2e_plan.GateTests) ... ok
+test_only_explicit_reduced_remainder_can_skip (test_ci_e2e_plan.GateTests) ... ok
+test_argument_arrays_escape_regex_and_preserve_spaces (test_ci_e2e_plan.SelectionTests) ... ok
+test_complete_pr_diff_not_last_commit (test_ci_e2e_plan.SelectionTests) ... ok
+test_deleted_allowed_component_falls_back (test_ci_e2e_plan.SelectionTests) ... ok
+test_deleted_and_renamed_specs_fall_back (test_ci_e2e_plan.SelectionTests) ... ok
+test_focused_cases_use_separate_invocation_and_exact_suffix (test_ci_e2e_plan.SelectionTests) ... ok
+test_full_barrier_remainder_partition_and_new_spec_discovery (test_ci_e2e_plan.SelectionTests) ... ok
+test_instrument_inputs_select_all_instruments_without_benchmarks (test_ci_e2e_plan.SelectionTests) ... ok
+test_instrument_spec_changes_still_select_all_instruments (test_ci_e2e_plan.SelectionTests) ... ok
+test_malformed_or_stale_plan_is_rejected (test_ci_e2e_plan.SelectionTests) ... ok
+test_manifest_and_named_evidence_can_accompany_repair (test_ci_e2e_plan.SelectionTests) ... ok
+test_manual_and_unavailable_diff_are_full (test_ci_e2e_plan.SelectionTests) ... ok
+test_merge_base_excludes_base_branch_only_changes (test_ci_e2e_plan.SelectionTests) ... ok
+test_missing_or_nonancestor_baseline_cannot_enable_exception (test_ci_e2e_plan.SelectionTests) ... ok
+test_pr825_exception_is_narrow_and_partial (test_ci_e2e_plan.SelectionTests) ... ok
+test_spec_and_record_reduction (test_ci_e2e_plan.SelectionTests) ... ok
+test_unknown_input_and_executable_record_fall_back (test_ci_e2e_plan.SelectionTests) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 2.925s
+
+OK

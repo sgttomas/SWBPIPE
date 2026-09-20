@@ -1,0 +1,22 @@
+{
+  "source_head": "002dff0f244976f98b36517d920b3761f6f88704",
+  "supplied_files": {
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/AGENTS.md": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/AGENTS.md": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/loop/LOOP_INIT.md": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/software-workflow.json": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/.agents/skills/chirality-change/SKILL.md": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/playwright.config.ts": "d06b8c52bad88e5299ca9dad1feb8170f85f7b76682d837ee209060b93460db0",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/playwright.dist.config.ts": "d53c01817b11718850b2b2b52e0132825931741998d4214a0d0c7e533c2b5756",
+    "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_IMPLEMENTER_BRIEF.md": "b9768cb8f945dbf1308bc92520da48465aa39a2963ca13745feb6ad9dedda8fd",
+    "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_IMPLEMENTER_ADDENDUM_1.md": "d29fc79d6cec698f2428201555bf22cfc767e5a1324c0e1b6ba26f7e90683f4f",
+    "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md": "79bcb9f838b0391a93d51a35257339a5bc06ea2ad2117a0b3a79d6cba8fd7858"
+  },
+  "output_files": {
+    ".github/workflows/piping-desktop-e2e.yml": "59d367ef8365dd9b95f4a515ba6e9bcb7a684b7f95fbdace461f3cf297dc1f2e",
+    ".github/actions/setup-piping-e2e/action.yml": "2a2e3ab91028826924a8d752664b337fad345c32ee22c795c5faa5b9e8c1bfd2",
+    "projects/chirality-piping/tools/ci/e2e_plan.py": "eb5f78dc32774c3ab33e16dc09e40e871fd43b60463d9413f9db9fd13359d19e",
+    "projects/chirality-piping/tests/test_ci_e2e_plan.py": "0b8848fc900598c4ddfd3b8f8de43b48ba512060d7a6514034be729b5c2ceccc"
+  }
+}
