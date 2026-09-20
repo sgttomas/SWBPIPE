@@ -230,6 +230,10 @@ export function useWorkspaceSession() {
     source: "loaded-source" | "open" | "create" | "save";
   } | null>(null);
   const savedBasisSequence = useRef(0);
+  // Service fulfillment is our observable landed-write order, before canonical
+  // verification can complete out of order. This is not a backend commit clock.
+  const persistedWriteObservation = useRef(0);
+  const latestVerifiedWriteObservation = useRef(0);
   const modelHashOwner = useRef<{ generation: number; revision: number } | null>(null);
   const currentHashOwned = modelHashOwner.current?.generation === projectSessionGeneration &&
     modelHashOwner.current?.revision === uiModelRevision;
@@ -1467,7 +1471,7 @@ export function useWorkspaceSession() {
     const requestModel = model;
     const generation = projectSessionGenerationRef.current;
     const requestRevision = uiModelRevisionRef.current;
-    const ownsPersistence = () => request === projectRequest.current && generation === projectSessionGenerationRef.current;
+    const sameProjectSession = () => generation === projectSessionGenerationRef.current && currentModel.current?.project.id === requestModel.project.id;
     const requestHistoricalRun = historicalRun;
     const requestMigrationLedgerCount = modelMigrationLedger.length;
     const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
@@ -1500,6 +1504,7 @@ export function useWorkspaceSession() {
         snapshotModelHash,
         envelopeHash
       );
+      const writeObservation = ++persistedWriteObservation.current;
       // The persisted bytes have been rewritten, so the open-time verification
       // no longer describes them, even when a model edit has since advanced the
       // epoch and this response is dropped. A later project request owns the
@@ -1508,9 +1513,9 @@ export function useWorkspaceSession() {
         setModelHashIntegrity(null);
         setProjectEnvelopeHashIntegrity(null);
       }
-      if (!ownsPersistence()) return;
+      if (!sameProjectSession()) return;
       const returnedModelHash = await computeModelHash(created.model);
-      if (!ownsPersistence()) return;
+      if (!sameProjectSession()) return;
       const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
         model: created.model,
         editor_intents: created.editor_intents,
@@ -1520,7 +1525,7 @@ export function useWorkspaceSession() {
         analysis_run: created.analysis_run,
         model_hash: created.model_hash
       });
-      if (!ownsPersistence()) return;
+      if (!sameProjectSession()) return;
       const responseModelChanged = returnedModelHash?.value !== actualRequestModelHash?.value;
       const modelChanged = isSupportedChangedModelPersistenceResponse(
         created,
@@ -1540,9 +1545,11 @@ export function useWorkspaceSession() {
         setProjectOperation("create_failed");
         return;
       }
-      // A landed same-project write owns this comparison even if a later edit
-      // owns the visible model. Never adopt that older model/history for chrome.
-      if (verifiedResponse) {
+      // Failed/missing later requests do not retire an actual same-session
+      // write. Only a newer verified fulfillment may supersede this observation;
+      // current-only metadata/model/history adoption keeps its stricter gate.
+      if (verifiedResponse && writeObservation > latestVerifiedWriteObservation.current) {
+        latestVerifiedWriteObservation.current = writeObservation;
         savedBasisSequence.current += 1;
         setSavedModelBasis({ generation, revision: responseModelChanged ? -1 : requestRevision, hash: returnedModelHash!.value, source: "create" });
       }
@@ -1554,7 +1561,7 @@ export function useWorkspaceSession() {
       if (modelChanged) {
         adoptNormalizedPersistenceModel(created, returnedHistory, returnedModelHash);
         epoch = requestEpochRef.current;
-        if (verifiedResponse) setSavedModelBasis({ generation, revision: uiModelRevisionRef.current, hash: returnedModelHash!.value, source: "create" });
+        if (verifiedResponse && writeObservation === latestVerifiedWriteObservation.current) setSavedModelBasis({ generation, revision: uiModelRevisionRef.current, hash: returnedModelHash!.value, source: "create" });
       } else if (requestHistoricalRun) {
         setHistoricalRun((current) => current === requestHistoricalRun ? returnedHistory : current);
       }
@@ -1770,7 +1777,7 @@ export function useWorkspaceSession() {
     const requestModel = model;
     const generation = projectSessionGenerationRef.current;
     const requestRevision = uiModelRevisionRef.current;
-    const ownsPersistence = () => request === projectRequest.current && generation === projectSessionGenerationRef.current;
+    const sameProjectSession = () => generation === projectSessionGenerationRef.current && currentModel.current?.project.id === requestModel.project.id;
     const requestHistoricalRun = historicalRun;
     const requestMigrationLedgerCount = modelMigrationLedger.length;
     const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
@@ -1804,6 +1811,7 @@ export function useWorkspaceSession() {
         envelopeHash,
         modelDocumentMigration
       );
+      const writeObservation = ++persistedWriteObservation.current;
       // The persisted bytes have been rewritten, so the open-time verification
       // no longer describes them, even when a model edit has since advanced the
       // epoch and this response is dropped. A later project request owns the
@@ -1812,9 +1820,9 @@ export function useWorkspaceSession() {
         setModelHashIntegrity(null);
         setProjectEnvelopeHashIntegrity(null);
       }
-      if (!ownsPersistence()) return;
+      if (!sameProjectSession()) return;
       const returnedModelHash = await computeModelHash(saved.model);
-      if (!ownsPersistence()) return;
+      if (!sameProjectSession()) return;
       const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
         model: saved.model,
         editor_intents: saved.editor_intents,
@@ -1824,7 +1832,7 @@ export function useWorkspaceSession() {
         analysis_run: saved.analysis_run,
         model_hash: saved.model_hash
       });
-      if (!ownsPersistence()) return;
+      if (!sameProjectSession()) return;
       const responseModelChanged = returnedModelHash?.value !== actualRequestModelHash?.value;
       const modelChanged = isSupportedChangedModelPersistenceResponse(
         saved,
@@ -1844,9 +1852,11 @@ export function useWorkspaceSession() {
         setProjectOperation("save_failed");
         return;
       }
-      // A landed same-project write owns this comparison even if a later edit
-      // owns the visible model. Never adopt that older model/history for chrome.
-      if (verifiedResponse) {
+      // Failed/missing later requests do not retire an actual same-session
+      // write. Only a newer verified fulfillment may supersede this observation;
+      // current-only metadata/model/history adoption keeps its stricter gate.
+      if (verifiedResponse && writeObservation > latestVerifiedWriteObservation.current) {
+        latestVerifiedWriteObservation.current = writeObservation;
         savedBasisSequence.current += 1;
         setSavedModelBasis({ generation, revision: responseModelChanged ? -1 : requestRevision, hash: returnedModelHash!.value, source: "save" });
       }
@@ -1858,7 +1868,7 @@ export function useWorkspaceSession() {
       if (modelChanged) {
         adoptNormalizedPersistenceModel(saved, returnedHistory, returnedModelHash);
         epoch = requestEpochRef.current;
-        if (verifiedResponse) setSavedModelBasis({ generation, revision: uiModelRevisionRef.current, hash: returnedModelHash!.value, source: "save" });
+        if (verifiedResponse && writeObservation === latestVerifiedWriteObservation.current) setSavedModelBasis({ generation, revision: uiModelRevisionRef.current, hash: returnedModelHash!.value, source: "save" });
       } else if (requestHistoricalRun) {
         // Preserve a fresh Current solve that completed while the native save
         // was pending. Only the still-owned Historical snapshot may refresh.

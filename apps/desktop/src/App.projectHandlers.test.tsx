@@ -984,3 +984,94 @@ it("B3A verifies unchanged Historical save against its exact retained hash carri
   await flushPendingWork();
   expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
 });
+
+// Independent-review P2: unsuccessful request initiation cannot retire a
+// same-session write that subsequently lands. No B3B menu/integrity changes.
+describe("B3A P2 landed-write observation", () => {
+  it.each(["missing", "failed"])("retains landed B after a later %s Open, with truthful Undo/Redo and unchanged integrity guards", async (openOutcome) => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const opened = await openProjectWithBothMismatchesRecorded(model);
+    await applyGridEditWhilePending();
+    const pending = deferred<LocalProjectEnvelope>();
+    let request: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") { request = args!.request; return pending.promise; }
+      if (command === "open_local_project") return openOutcome === "missing" ? Promise.resolve(null) : Promise.reject(new Error("Invented later Open failure"));
+      return Promise.resolve({});
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(request).toBeDefined());
+    expect((request!.model as PreviewModel).nodes[0].position.y).toBe(0.5);
+    act(() => nativeMenuCommand("file.open-local"));
+    const openMessage = openOutcome === "missing" ? "No local project snapshot found." : "Open failed: Error: Invented later Open failure";
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(openMessage));
+    await act(async () => pending.resolve(savedEnvelopeFor(opened.model, request!, "Obsolete UI response, real landed B")));
+    await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
+    expect(projectMessage()).toHaveTextContent(openMessage);
+    expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
+    expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required");
+    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+    fireEvent.click(screen.getByTestId("workspace-undo"));
+    await waitFor(() => expect(screen.getByTestId("project-edited")).toBeInTheDocument());
+    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0");
+    fireEvent.click(screen.getByTestId("workspace-redo"));
+    await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
+    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+  });
+
+  it.each([true, false])("orders verified responses independently of hash completion (later response valid=%s)", async (laterValid) => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    await applyGridEditWhilePending();
+    const first = deferred<LocalProjectEnvelope>();
+    const second = deferred<LocalProjectEnvelope>();
+    const requests: Record<string, unknown>[] = [];
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") {
+        requests.push(args!.request!);
+        return requests.length === 1 ? first.promise : second.promise;
+      }
+      return Promise.resolve({});
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(requests).toHaveLength(1));
+    fireEvent.click(screen.getByTestId("workspace-undo"));
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(requests).toHaveLength(2));
+    const firstResponse = savedEnvelopeFor(model, requests[0], "First response B");
+    const original = hashService.computeModelHash;
+    const gate = deferred<void>();
+    let firstVerifying = false;
+    vi.spyOn(hashService, "computeModelHash").mockImplementation(async (input) => {
+      if (input === firstResponse.model) { firstVerifying = true; await gate.promise; }
+      return original(input);
+    });
+    try {
+      await act(async () => first.resolve(firstResponse));
+      await waitFor(() => expect(firstVerifying).toBe(true));
+      const secondResponse = savedEnvelopeFor(model, requests[1], "Second response A");
+      if (!laterValid) secondResponse.model_hash = { ...secondResponse.model_hash!, value: "sha256:unverified-later-claim" };
+      await act(async () => second.resolve(secondResponse));
+      await waitFor(() => expect(projectMessage()).toHaveTextContent("Second response A"));
+      expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+      await act(async () => gate.resolve());
+      await flushPendingWork();
+      if (laterValid) expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+      else expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+      expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0");
+      fireEvent.click(screen.getByTestId("workspace-redo"));
+      await waitFor(() => laterValid
+        ? expect(screen.getByTestId("project-edited")).toBeInTheDocument()
+        : expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
+      expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+      fireEvent.click(screen.getByTestId("workspace-undo"));
+      await waitFor(() => laterValid
+        ? expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument()
+        : expect(screen.getByTestId("project-edited")).toBeInTheDocument());
+      expect(projectMessage()).toHaveTextContent("Second response A");
+    } finally { await act(async () => gate.resolve()); }
+  });
+});
