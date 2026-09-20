@@ -1,0 +1,27 @@
+{
+  "candidate": "002dff0f244976f98b36517d920b3761f6f88704",
+  "files": {
+    "harness-pytest.log": {
+      "bytes": 511,
+      "sha256": "d26bbbad721a2da7d59db8019ffa5890e1fa3600d631772ad9c45e5a5aefddb4",
+      "exitCode": 0
+    },
+    "harness-self-check.log": {
+      "bytes": 41362,
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+      "exitCode": 0
+    },
+    "instruction-range.log": {
+      "bytes": 14901,
+      "sha256": "28b7f8447b7370c3d3bed0f3bbf33d3eed7bb0c833381dd742a41ba701b393a4",
+      "exitCode": 0
+    }
+  },
+  "harness": "379passed",
+  "selfCheck": "exit0;INFO14/NOT_APPLICABLE1/REVIEW4/WARN112;noBLOCK",
+  "otherObservedChecks": {
+    "pathAnchors": "PASS9987surfaces",
+    "claims": "PASS346surfaces",
+    "pipingReceipts": "VALID frozen-through44/versioned contract"
+  }
+}

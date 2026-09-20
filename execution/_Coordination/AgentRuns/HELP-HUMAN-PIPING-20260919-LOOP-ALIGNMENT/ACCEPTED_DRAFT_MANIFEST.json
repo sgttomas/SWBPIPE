@@ -1,0 +1,24 @@
+{
+  "basis_commit": "29453e367b2f9f2cfb87b712660c31256191db0d",
+  "status": "proposed",
+  "files": [
+    {
+      "draft": "proposed/AGENTS.md",
+      "destination": "projects/chirality-piping/AGENTS.md",
+      "bytes": 11881,
+      "sha256": "b8e502531b993138510a9bfcb692f3baa4f1462d9ad92b51eaaf3e4ea427bc87"
+    },
+    {
+      "draft": "proposed/LOOP_INIT.md",
+      "destination": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "bytes": 1344,
+      "sha256": "a67777b0769e532df26323356c15499eca40227e94b8a6bcaedaf878b9c17cbe"
+    },
+    {
+      "draft": "proposed/WORKPLAN_2026-09-19_piping_loop.md",
+      "destination": "projects/chirality-piping/loop/WORKPLAN_2026-09-19_piping_loop.md",
+      "bytes": 1202,
+      "sha256": "b9a2c67dc044d1c8e3aa435a5462e1ad0c290188e5826649a294f5bd5f5c6a99"
+    }
+  ]
+}

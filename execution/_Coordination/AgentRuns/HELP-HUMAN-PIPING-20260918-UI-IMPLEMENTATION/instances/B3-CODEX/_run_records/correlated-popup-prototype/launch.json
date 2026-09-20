@@ -1,0 +1,7 @@
+{
+  "pid": 24955,
+  "binary": "/private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+  "sha256": "ebcc87e9b6dbd68d9d99833018c8649d1833854908300dee87c157a7ed493c10",
+  "utc": "2026-09-20T04:28:44.624214+00:00",
+  "head": "f5bc01f8beaa1c210b988fe28aea95573781f963"
+}

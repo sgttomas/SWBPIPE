@@ -1,0 +1,9 @@
+ProductName:		macOS
+ProductVersion:		26.6.2
+BuildVersion:		25G83
+rustc 1.97.1 (8bab26f4f 2026-07-14)
+cargo 1.97.1 (c980f4866 2026-06-30)
+v24.18.0
+11.16.0
+  PID STARTED                      COMMAND
+92269 Sat Sep 19 20:52:15 2026     /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop

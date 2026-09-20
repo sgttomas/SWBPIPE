@@ -1,0 +1,53 @@
+{
+  "basis_commit": "29453e367b2f9f2cfb87b712660c31256191db0d",
+  "status": "proposed",
+  "files": [
+    {
+      "draft": "proposed/AGENTS.md",
+      "destination": "projects/chirality-piping/AGENTS.md",
+      "bytes": 11881,
+      "sha256": "b8e502531b993138510a9bfcb692f3baa4f1462d9ad92b51eaaf3e4ea427bc87",
+      "substitutions": [
+        [
+          "status: proposed",
+          "status: active"
+        ],
+        [
+          "This is a proposed replacement; it has not been adopted. On adoption, these\nproject instructions replace the previous standing development-loop procedure.",
+          "Accepted by the owner on 2026-09-19; these project instructions replace the\nprevious standing development-loop procedure."
+        ]
+      ],
+      "installed_sha256": "548c84a8f5fc60741871df0ff7712283aa40c7971caafe401357074611546f19"
+    },
+    {
+      "draft": "proposed/LOOP_INIT.md",
+      "destination": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "bytes": 1344,
+      "sha256": "a67777b0769e532df26323356c15499eca40227e94b8a6bcaedaf878b9c17cbe",
+      "substitutions": [
+        [
+          "Proposed replacement; not adopted.",
+          "Owner-adopted replacement, 2026-09-19."
+        ]
+      ],
+      "installed_sha256": "31c02f63eb3c7d93b053c30db0881d3f4f057ebf23fdcbf42fcd304aeee4aca2"
+    },
+    {
+      "draft": "proposed/WORKPLAN_2026-09-19_piping_loop.md",
+      "destination": "projects/chirality-piping/loop/WORKPLAN_2026-09-19_piping_loop.md",
+      "bytes": 1202,
+      "sha256": "b9a2c67dc044d1c8e3aa435a5462e1ad0c290188e5826649a294f5bd5f5c6a99",
+      "substitutions": [
+        [
+          "Proposed successor; not adopted.",
+          "Owner-adopted successor, 2026-09-19."
+        ],
+        [
+          "On owner adoption, this successor retires",
+          "This owner-adopted successor retires"
+        ]
+      ],
+      "installed_sha256": "d3f3a939e6983c373f3bc8f55b3d63a6b5f90106f13f913a777d779f6229c5d4"
+    }
+  ]
+}

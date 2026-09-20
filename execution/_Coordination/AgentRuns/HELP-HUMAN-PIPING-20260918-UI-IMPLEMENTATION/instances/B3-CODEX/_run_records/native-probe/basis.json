@@ -1,0 +1,42 @@
+[
+  {
+    "origin": "/tmp/swbpipe-b3-native-probe-20260919/AGENTS.md",
+    "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+  },
+  {
+    "origin": "/tmp/swbpipe-b3-native-probe-20260919/agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+  },
+  {
+    "origin": "/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/AGENTS.md",
+    "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+  },
+  {
+    "origin": "/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/loop/LOOP_INIT.md",
+    "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+  },
+  {
+    "origin": "/tmp/swbpipe-b3-native-probe-20260919/.agents/skills/software-defect-diagnosis/SKILL.md",
+    "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/briefs/NATIVE_KEYBOARD_PROBE.md",
+    "sha256": "d5233a0f5618687b104583605897ef30245f02b53f246b64fe1a11b1acb87296"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/briefs/NATIVE_KEYBOARD_DIAGNOSIS.md",
+    "sha256": "187bb52467dc6aafd0066e2b1ffdde64dce19431805f669aae57904035d5b743"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/native-keyboard-diagnosis/RETURN.md",
+    "sha256": "e173dbd2962a284c9b4c7ef6d0a88535b543390ae974e080529766325710ac25"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/native/F5_CUA_ACTION_LOG.md",
+    "sha256": "9c355eb4a23446149f2d48dd4ef1045a7e085f93512dae911dee1cbf156d5a14"
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/native/F5_NATIVE_WITNESS.md",
+    "sha256": "f29f26e01c812530dc69ddf2f68bd741afb40af57a4c3fff391073f2d5ca699c"
+  }
+]

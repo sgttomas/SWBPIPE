@@ -1,0 +1,33 @@
+[2m[WebServer] [22m(node:6708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 18 tests using 1 worker
+
+(node:6746) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6746) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium-desktop] › e2e/b3-accessibility.spec.ts:29:1 › disabled rail and Agent reasons escape clipping under keyboard focus (2.4s)
+  ✓   2 [chromium-desktop] › e2e/b3-accessibility.spec.ts:56:1 › covered pages exclude retained stage controls from Tab and accessibility (4.7s)
+  ✓   3 [chromium-desktop] › e2e/b3-accessibility.spec.ts:90:1 › Both inspector Escape closes from property tab and input to opener (1.2s)
+  ✓   4 [chromium-desktop] › e2e/b3-accessibility.spec.ts:103:1 › Model inspector stays docked on Escape (926ms)
+  ✓   5 [chromium-desktop] › e2e/b3-accessibility.spec.ts:113:1 › toolkit child consumes first Escape before inspector close (1.1s)
+  ✓   6 [chromium-desktop] › e2e/b3-accessibility.spec.ts:129:1 › portalled routing Escape closes explicitly and supersedes automatic restore (989ms)
+  ✓   7 [chromium-desktop] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: libraries (1.8s)
+  ✓   8 [chromium-desktop] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: project (1.9s)
+  ✓   9 [chromium-desktop] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: solve (1.8s)
+(node:8405) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:8405) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [chromium-compact] › e2e/b3-accessibility.spec.ts:29:1 › disabled rail and Agent reasons escape clipping under keyboard focus (2.1s)
+  ✓  11 [chromium-compact] › e2e/b3-accessibility.spec.ts:56:1 › covered pages exclude retained stage controls from Tab and accessibility (4.7s)
+  ✓  12 [chromium-compact] › e2e/b3-accessibility.spec.ts:90:1 › Both inspector Escape closes from property tab and input to opener (1.5s)
+  ✓  13 [chromium-compact] › e2e/b3-accessibility.spec.ts:103:1 › Model inspector stays docked on Escape (878ms)
+  ✓  14 [chromium-compact] › e2e/b3-accessibility.spec.ts:113:1 › toolkit child consumes first Escape before inspector close (1.1s)
+  ✓  15 [chromium-compact] › e2e/b3-accessibility.spec.ts:129:1 › portalled routing Escape closes explicitly and supersedes automatic restore (1.2s)
+  ✓  16 [chromium-compact] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: libraries (2.3s)
+  ✓  17 [chromium-compact] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: project (1.9s)
+  ✓  18 [chromium-compact] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: solve (1.9s)
+
+  18 passed (36.8s)

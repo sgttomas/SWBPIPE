@@ -111,6 +111,9 @@ export function typedTreeRow(page: Page, type: string, id: string): Locator {
   return page.getByTestId(treeRowTestId({ type, id }, "candidate"));
 }
 
+// Slice B3: "tree" is the table pane (its collapse chevron keeps `toggle-tree`; the pane is a
+// drawer in Model view and below 1280 px, and always open elsewhere) and "inspector" is the
+// docked inspector (the toolbar's Inspector toggle keeps `toggle-inspector`; it acts in Both view).
 export async function ensureRail(page: Page, side: "tree" | "inspector", open: boolean): Promise<void> {
   const toggle = page.getByTestId(side === "tree" ? "toggle-tree" : "toggle-inspector");
   const expected = String(open);
@@ -120,7 +123,24 @@ export async function ensureRail(page: Page, side: "tree" | "inspector", open: b
   await expect(toggle).toHaveAttribute("aria-expanded", expected);
 }
 
+/** The model tree is the Model stage's first tab. */
+export async function showModelTree(page: Page): Promise<void> {
+  const host = page.getByTestId("shell-tree-host");
+  // An open page lies over the tree without hiding it from the layout: close it first.
+  const close = page.getByTestId("workspace-dock-close");
+  if (await close.isVisible()) await activateWithKeyboard(page, close);
+  if (!await host.isVisible()) {
+    const stage = page.getByTestId("rail-stage-model");
+    if (await stage.getAttribute("aria-current") !== "page") await activateWithKeyboard(page, stage);
+    const tab = page.getByTestId("stage-tab-model-tree");
+    if (await tab.getAttribute("aria-pressed") !== "true") await activateWithKeyboard(page, tab);
+    await ensureRail(page, "tree", true);
+  }
+  await expect(host).toBeVisible();
+}
+
 export async function revealTreeRow(page: Page, type: string, id: string): Promise<Locator> {
+  await showModelTree(page);
   await ensureRail(page, "tree", true);
   const filter = page.getByTestId("model-tree-filter-input");
   await filter.fill(id);
@@ -162,8 +182,13 @@ export async function setAppearance(
   theme: AppearanceTheme,
   density: AppearanceDensity,
 ): Promise<void> {
+  // Slice B3: the two labelled selects live in the toolbar's Appearance disclosure.
+  const appearance = page.getByTestId("toolbar-appearance");
+  if (await appearance.getAttribute("open") === null) await appearance.locator("summary").click();
   await page.getByLabel("Appearance theme").selectOption(theme);
   await page.getByLabel("Workspace density").selectOption(density);
+  await appearance.locator("summary").click();
+  await expect(page.getByLabel("Appearance theme")).toBeHidden();
   const shell = page.getByTestId("desktop-preview-shell");
   await expect(shell).toHaveAttribute("data-theme", theme);
   await expect(shell).toHaveAttribute("data-theme-preference", theme);
@@ -173,7 +198,9 @@ export async function setAppearance(
 export async function openWorkspaceSection(page: Page, id: string): Promise<Locator> {
   const section = page.getByTestId(`workspace-section-${id}`);
   if (!await section.isVisible()) {
-    if (id === "operations") {
+    // Review changes is a tab of the Model stage's strip; from another stage it is summoned by the
+    // section command, as every other section is.
+    if (id === "operations" && await page.getByTestId("workspace-review").isVisible()) {
       await activateWithKeyboard(page, page.getByTestId("workspace-review"));
     } else {
       await activateWithKeyboard(page, page.getByTestId("menu-view"));
@@ -216,6 +243,8 @@ export async function expectWorkspaceGeometry(page: Page, viewport: ViewportSize
       workspace: rect('[data-testid="modeling-workspace"]'),
       tree: rect(".workspace-pane-tree"),
       inspector: rect(".workspace-pane-inspector"),
+      canvasPane: rect(".workspace-pane-viewport"),
+      view: document.querySelector('[data-testid="modeling-workspace"]')?.getAttribute("data-view") ?? null,
       shell: rect('[data-testid="desktop-preview-shell"]'),
       window: { width: innerWidth, height: innerHeight },
     };
@@ -223,13 +252,26 @@ export async function expectWorkspaceGeometry(page: Page, viewport: ViewportSize
   expect(geometry.window).toEqual(viewport);
   expect(geometry.bodyOverflowX).toBe(0);
   expect(geometry.bodyOverflowY).toBeLessThanOrEqual(1);
+  // D3 keeps the original drawn-canvas floors and dominance checks. The sole
+  // amendment is wide Both view, where the approved 55/45 allocation makes
+  // the table wider than the canvas; assert that allocation explicitly.
+  expect(["both", "model"]).toContain(geometry.view);
+  const surfaces = geometry.workspace!;
+  const inspectorDocked = (geometry.inspector?.width ?? 0) > 0;
+  const narrow = viewport.width < 1280;
+  if (geometry.view === "both" && !narrow) {
+    expect(geometry.canvasPane!.width).toBeCloseTo(surfaces.width * 0.45, 0);
+    expect(geometry.tree!.width).toBeCloseTo(surfaces.width * 0.55 - (inspectorDocked ? geometry.inspector!.width : 0), 0);
+  } else {
+    expect((geometry.canvas?.width ?? 0) * (geometry.canvas?.height ?? 0)).toBeGreaterThan(
+      (geometry.tree?.width ?? 0) * (geometry.tree?.height ?? 0),
+    );
+  }
+  expect(geometry.canvasPane!.width).toBeGreaterThanOrEqual(220);
   expect(geometry.canvas?.width).toBeGreaterThan(viewport.width * 0.35);
   expect(geometry.canvas?.height).toBeGreaterThan(viewport.height * 0.35);
   expect((geometry.canvas?.width ?? 0) * (geometry.canvas?.height ?? 0)).toBeGreaterThan(
-    Math.max(
-      (geometry.tree?.width ?? 0) * (geometry.tree?.height ?? 0),
-      (geometry.inspector?.width ?? 0) * (geometry.inspector?.height ?? 0),
-    ),
+    (geometry.inspector?.width ?? 0) * (geometry.inspector?.height ?? 0),
   );
   expect(geometry.canvas?.bottom).toBeLessThanOrEqual(viewport.height + 1);
   expect(geometry.shell?.right).toBeLessThanOrEqual(viewport.width + 1);
@@ -281,10 +323,16 @@ export async function expectResolvedStyleAndTargets(page: Page): Promise<void> {
         outlineWidth: Number.parseFloat(style.outlineWidth),
       };
     };
+    // Slice B3: a panel toggle's witness is taken from one that is enabled in this view. The table
+    // pane's chevron is disabled (with its reason) where the pane is always open; the toolbar's
+    // Inspector toggle is then the enabled panel toggle on screen.
+    const treeToggleEnabled = document.querySelector('[data-testid="toggle-tree"]')?.getAttribute("aria-disabled") !== "true";
     return {
-      command: measure('[data-testid="workspace-review"]'),
+      // The command witness is a toolbar command with a control boundary, on screen in every stage
+      // (Review changes became a borderless tab of the Model stage's strip).
+      command: measure('[data-testid="toolbar-issues"]'),
       focus: measure('[data-testid="workspace-select"]'),
-      treeToggle: measure('[data-testid="toggle-tree"]'),
+      treeToggle: measure(treeToggleEnabled ? '[data-testid="toggle-tree"]' : '[data-testid="toggle-inspector"]'),
       disabled: measure('[data-testid="workspace-undo"]'),
       selected: measure('[role="treeitem"][aria-selected="true"]', true),
     };
@@ -608,9 +656,15 @@ export async function expectPassiveOrientationFrame(page: Page, testInfo: TestIn
     const box = canvas.getBoundingClientRect();
     const frame = canvas.closest(".viewport-frame")!.getBoundingClientRect();
     const width = canvas.clientWidth, height = canvas.clientHeight;
-    const size = Math.min(96, Math.floor(Math.min(width, height)));
+    const shell = canvas.closest<HTMLElement>(".viewport-shell");
+    const rawBottomInset = Number.parseFloat(shell ? getComputedStyle(shell).getPropertyValue("--viewport-presentation-bottom-inset") : "0");
+    const presentationBottomInset = Number.isFinite(rawBottomInset)
+      ? Math.min(Math.max(0, Math.round(rawBottomInset)), Math.max(0, height - 1))
+      : 0;
+    const availableHeight = Math.max(1, height - presentationBottomInset);
+    const size = Math.min(96, Math.floor(Math.min(width, availableHeight)));
     const insetX = Math.min(8, Math.max(0, width - size));
-    const insetY = Math.min(8, Math.max(0, height - size));
+    const insetY = presentationBottomInset + Math.min(8, Math.max(0, availableHeight - size));
     const clip = { x: box.left + insetX, y: box.top + box.height - insetY - size, width: size, height: size };
     const offset = 0.5 / devicePixelRatio;
     const low = offset, high = size - offset, mid = size / 2;
@@ -623,7 +677,7 @@ export async function expectPassiveOrientationFrame(page: Page, testInfo: TestIn
         owner: hit?.getAttribute("data-testid") || hit?.getAttribute("aria-label") || hit?.id || hit?.tagName || null };
     });
     return { canvas: box.toJSON(), frame: frame.toJSON(), client: { width, height }, clip,
-      size, insetX, insetY, dpr: devicePixelRatio, visibleCanvases: visible.length,
+      size, insetX, insetY, presentationBottomInset, dpr: devicePixelRatio, visibleCanvases: visible.length,
       totalMainCanvases: canvases.length, separateGizmoCanvases: document.querySelectorAll('[data-testid="viewport-axis-triad"] canvas').length,
       viewport: { width: innerWidth, height: innerHeight }, samples };
   });

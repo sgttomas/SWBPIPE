@@ -1,10 +1,11 @@
+import { selectCompactOption } from "./workspace-driver";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 const defaultPreviewModel = JSON.parse(readFileSync(fileURLToPath(
   new URL("../../../fixtures/product_preview/invented_preview_model.json", import.meta.url),
 ), "utf8"));
 import { expect, test, type Page } from "@playwright/test";
-import { startPropertyTaskFromTreeEntity } from "./workspace-driver";
+import { expectStatusChip, projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
 import {
   APPEARANCE_DENSITIES,
   APPEARANCE_THEMES,
@@ -36,6 +37,7 @@ import {
   openWorkspaceSection,
   selectTreeRow,
   setAppearance,
+  showModelTree,
 } from "./ui-foundation-workflows";
 
 test.beforeAll(async ({ browser }, testInfo) => {
@@ -58,16 +60,23 @@ test("[preflight] production dist exposes compact command groups and keyboard me
     "Select and View": "view.select",
     Review: "review.pending",
   } as const;
+  // Slice B3: the seven command groups are the palette's own band, reached through the palette
+  // field; closing the palette returns focus to the field that opened it.
+  const paletteField = page.getByTestId("toolkit-entry");
+  await expect(paletteField).toContainText("Search or command…");
   for (const group of COMMAND_GROUPS) {
+    await activateWithKeyboard(page, paletteField);
+    await expect(dialog).toBeVisible();
     const control = commandGroupControl(page, group);
     await expect(control).toBeVisible();
     await activateWithKeyboard(page, control);
-    await expect(dialog).toBeVisible();
+    await expect(control).toHaveAttribute("aria-pressed", "true");
     await expect(dialog.getByText(`Showing ${group} commands. Search stays within this group.`, { exact: true })).toBeVisible();
     await expect(dialog.getByTestId(`toolkit-${groupWitnesses[group]}`)).toBeVisible();
     if (group !== "Build") await expect(dialog.getByTestId("toolkit-build.node")).toHaveCount(0);
     await page.keyboard.press("Escape");
-    await expect(control).toBeFocused();
+    await expect(dialog).toHaveCount(0);
+    await expect(paletteField).toBeFocused();
   }
 
   await page.keyboard.press(`${process.platform === "darwin" ? "Meta" : "Control"}+k`);
@@ -76,9 +85,9 @@ test("[preflight] production dist exposes compact command groups and keyboard me
   await expect(dialog.getByTestId("toolkit-loads.cases")).toBeVisible();
   await page.keyboard.press("Escape");
 
-  for (const invoker of ["group", "shortcut"] as const) {
-    const trigger = invoker === "group" ? commandGroupControl(page, "Build") : page.getByTestId("toolkit-entry");
-    if (invoker === "group") await trigger.click();
+  for (const invoker of ["field", "shortcut"] as const) {
+    const trigger = paletteField;
+    if (invoker === "field") await trigger.click();
     else await page.keyboard.press(`${process.platform === "darwin" ? "Meta" : "Control"}+k`);
     await expect(dialog).toBeVisible();
     const point = { x: 10, y: 738 };
@@ -87,9 +96,10 @@ test("[preflight] production dist exposes compact command groups and keyboard me
     await expect(dialog).toHaveCount(0);
     await expect(trigger).toBeFocused();
   }
+  await paletteField.click();
   await commandGroupControl(page, "Build").click();
   await dialog.getByRole("button", { name: "Close toolkit" }).click();
-  await expect(commandGroupControl(page, "Build")).toBeFocused();
+  await expect(paletteField).toBeFocused();
   await choosePaletteNodeThenSelectWithFocusEvidence(page, testInfo, "pointer");
 
   const pipe = model.pipe_segments[10];
@@ -121,6 +131,10 @@ test("[visual-clarification] measurement and real pipe task remain unobscured as
   const model = await gotoRoutedFixture(page);
   await setAppearance(page, "light", "comfortable");
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
+  // Slice B3: the Both view's inspector is closed at first open (named semantic change 13); the
+  // toolbar's Inspector toggle opens it, and the rest of the test runs with both panes open as before.
+  await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
+  await ensureRail(page, "inspector", true);
   await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
   await captureState(page, testInfo, "visual-clarification-1440x920-both-rails-default");
 
@@ -188,17 +202,23 @@ test("[visual-clarification] measurement and real pipe task remain unobscured as
     contentType: "application/json",
   });
 
+  // Slice B3: the stored panel sizes are the Both view's split and the table drawer's height
+  // (the three rail and dock sizes are no longer used by the shell).
   const readSavedPanelSizes = () => page.evaluate(() => {
     const saved = JSON.parse(localStorage.getItem("chirality.desktop.ui-preferences.v1")!);
-    return { left: saved.leftRailPx, right: saved.rightRailPx, dock: saved.dockPx };
+    return { split: saved.bothSplitPct, drawer: saved.tableDrawerPx };
   });
   const savedPanels = await readSavedPanelSizes();
+  // Slice B3: Review changes is a tab of the table pane, which below 1280 px is the bottom drawer
+  // (the task dock's successor). Summoning the section opens the drawer; "closed" is the drawer
+  // collapsed by its chevron, where the old dock was closed by its close control.
+  const drawerToggle = page.getByTestId("toggle-tree");
   await openWorkspaceSection(page, "operations");
-  await expect(page.getByTestId("workspace-dock")).not.toHaveClass(/collapsed/);
+  await expect(drawerToggle).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
   for (const dockState of ["open", "closed"] as const) {
-    if (dockState === "closed") await page.getByTestId("workspace-dock-close").click();
-    await expect(page.getByTestId("workspace-dock")).toHaveClass(dockState === "closed" ? /collapsed/ : /^(?!.*collapsed)/);
+    if (dockState === "closed") await drawerToggle.click();
+    await expect(drawerToggle).toHaveAttribute("aria-expanded", String(dockState === "open"));
     await target.focus();
     await expect(target).toBeFocused();
     await expectCenterUnobscured(target, { minimumTarget: true });
@@ -208,7 +228,7 @@ test("[visual-clarification] measurement and real pipe task remain unobscured as
     const orientation = await expectPassiveOrientationFrame(page, testInfo, `narrow-measurement-dock-${dockState}`);
     expect(orientation.canvas.width).toBeGreaterThanOrEqual(200);
     expect(orientation.canvas.height).toBeGreaterThanOrEqual(200);
-    await expect(page.getByTestId("workspace-dock")).toHaveClass(dockState === "closed" ? /collapsed/ : /^(?!.*collapsed)/);
+    await expect(drawerToggle).toHaveAttribute("aria-expanded", String(dockState === "open"));
     expect(await readSavedPanelSizes()).toEqual(savedPanels);
     await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("Retained through measurement drawer close");
     await expect(inspector.getByTestId("inspector-frozen-task-target")).toContainText(`pipe: ${pipe.id}`);
@@ -322,7 +342,7 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
         await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
         await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
         await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=830");
-        await page.getByTestId("workspace-dock-close").click();
+        await showModelTree(page);
       }
       const pipe = model.pipe_segments[0];
       await selectTreeRow(page, "pipe", pipe.id);
@@ -337,13 +357,16 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
       const target = page.getByRole("button", { name: `Select ${pipe.label} in viewport`, exact: true });
       const readSizes = () => page.evaluate(() => {
         const preferences = JSON.parse(localStorage.getItem("chirality.desktop.ui-preferences.v1")!);
-        return { left: preferences.leftRailPx, right: preferences.rightRailPx, dock: preferences.dockPx };
+        return { bothSplitPct: preferences.bothSplitPct, tableDrawerPx: preferences.tableDrawerPx };
       });
       for (const section of content === "regular" ? ["operations", "results"] as const : ["operations"] as const) {
         for (const desired of [180, 600]) {
+          // Open the drawer before the section helper asserts its content is visible.
+          await ensureRail(page, "tree", true);
           await openWorkspaceSection(page, section);
-          const dock = page.getByTestId("workspace-dock");
-          await expect(dock).not.toHaveClass(/collapsed/);
+          const dock = page.locator(".workspace-pane-tree");
+          const drawerToggle = page.getByTestId("toggle-tree");
+          await expect(drawerToggle).toHaveAttribute("aria-expanded", "true");
           if (section === "results") await expect(page.getByTestId("result-group-displacement")).toBeVisible();
           const splitter = page.getByTestId("resize-task-dock");
           await splitter.focus();
@@ -354,7 +377,7 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
           await expect(splitter).toHaveAttribute("aria-valuenow", String(desired));
           const saved = await readSizes();
           for (const state of ["open", "closed"] as const) {
-            if (state === "closed") await page.getByTestId("workspace-dock-close").click();
+            if (state === "closed") await drawerToggle.click();
             const name = `budget-${theme}-${density}-${content}-${section}-${desired}-${state}`;
             try {
               await expect.poll(async () => (await page.getByTestId("viewport-canvas").locator("canvas").boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(200);
@@ -372,10 +395,10 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
               await target.focus(); await expect(target).toBeFocused();
               await expectCenterUnobscured(target, { minimumTarget: true });
               if (state === "open") {
-                await expect(dock).not.toHaveClass(/collapsed/);
+                await expect(drawerToggle).toHaveAttribute("aria-expanded", "true");
                 await expectCenterUnobscured(splitter, { minimumTarget: true });
-                await expectCenterUnobscured(page.getByTestId("workspace-dock-close"), { minimumTarget: true });
-                const body = page.locator(".workspace-dock-body");
+                await expectCenterUnobscured(drawerToggle, { minimumTarget: true });
+                const body = dock.locator(".workspace-dock-body");
                 if (section === "operations") {
                   const tab = page.getByTestId("operation-tab-geometry");
                   await tab.scrollIntoViewIfNeeded(); await tab.focus();
@@ -458,7 +481,7 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
                     scrollTop: await body.evaluate((element) => element.scrollTop), activeTab: "Review changes",
                   }), contentType: "application/json" });
                 }
-              } else await expect(dock).toHaveClass(/collapsed/);
+              } else await expect(drawerToggle).toHaveAttribute("aria-expanded", "false");
               expect(await readSizes()).toEqual(saved);
               await expect(inspector.getByTestId("inspector-frozen-task-target")).toContainText(`pipe: ${pipe.id}`);
               await expect(inspector.getByTestId("editor-intent-value")).toHaveValue(`Retained ${content} measurement task`);
@@ -469,7 +492,7 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
                 const rect = (selector: string) => document.querySelector(selector)?.getBoundingClientRect().toJSON();
                 return { canvas: rect('[data-testid="viewport-canvas"] canvas'), command: rect(".command-bar"),
                   toolbar: rect(".viewport-toolbar"), measurement: rect(".viewport-measurement-strip"),
-                  dock: rect(".workspace-dock"), body: rect(".workspace-dock-body"),
+                  dock: rect(".workspace-pane-tree"), body: rect(".workspace-pane-tree .workspace-dock-body"),
                   reserve: document.querySelector<HTMLElement>(".workspace")?.style.getPropertyValue("--workspace-modeling-reserve"),
                   overflowX: document.documentElement.scrollWidth - innerWidth,
                   overflowY: document.documentElement.scrollHeight - innerHeight };
@@ -490,7 +513,12 @@ for (const width of [1024, 1440] as const) {
     await page.setViewportSize({ width, height: width === 1024 ? 768 : 920 });
     await gotoRoutedFixture(page);
     const inspectorToggle = page.getByTestId("toggle-inspector");
-    const obstacle = page.getByTestId(width < 1280 ? "toggle-inspector" : "resize-property-inspector");
+    // Slice B3: the docked inspector has no splitter. At 1440 the inspector layer's control that the
+    // outer drawers actually cross is the inspector's first tab (the drawers open below the toolbar and
+    // below the inspector's close button); it is focusable and answers the same key.
+    const obstacle = width < 1280
+      ? page.getByTestId("toggle-inspector")
+      : page.getByTestId("property-inspector").getByRole("tab", { name: "Properties", exact: true });
     for (const railOpen of width < 1280 ? [false, true] : [true]) {
       await ensureRail(page, "inspector", railOpen);
       for (const [drawerId, toggleId] of [
@@ -614,7 +642,8 @@ for (const theme of APPEARANCE_THEMES) {
 
         if (viewport.width >= 1280) {
           await expect(treeToggle).toHaveAttribute("aria-expanded", "true");
-          await expect(inspectorToggle).toHaveAttribute("aria-expanded", "true");
+          // Slice B3: the Both view's inspector is closed at first open (named semantic change 13).
+          await expect(inspectorToggle).toHaveAttribute("aria-expanded", "false");
         } else {
           await expect(treeToggle).toHaveAttribute("aria-expanded", "false");
           await expect(inspectorToggle).toHaveAttribute("aria-expanded", "false");
@@ -625,6 +654,17 @@ for (const theme of APPEARANCE_THEMES) {
         try {
           for (const rail of ["tree", "inspector"] as const) {
             const toggle = page.getByTestId(`toggle-${rail}`);
+            // Slice B3: the table pane collapses only where it is a drawer. In the wide Both view its
+            // chevron is disabled with its reason, so at 1280 px and wider its two states are reached
+            // in Model view, where it is the drawer's chevron; the Inspector toggle acts in Both view.
+            const viaModelView = rail === "tree" && viewport.width >= 1280;
+            if (viaModelView) {
+              await expect(toggle).toHaveAttribute("aria-disabled", "true");
+              await expect(toggle).toHaveAttribute("title", "Both view keeps the tables open");
+              await activateWithKeyboard(page, page.getByTestId("view-switch-model"));
+              await expect(page.getByTestId("modeling-workspace")).toHaveAttribute("data-view", "model");
+              await expect(toggle).not.toHaveAttribute("aria-disabled", "true");
+            }
             const originalOpen = await toggle.getAttribute("aria-expanded") === "true";
             for (const open of [false, true]) {
               await ensureRail(page, rail, open);
@@ -632,10 +672,14 @@ for (const theme of APPEARANCE_THEMES) {
               await expect(toggle).toHaveAttribute("aria-expanded", String(open));
               await expectCenterUnobscured(toggle, { minimumTarget: true });
               await captureElementState(toggle, testInfo, `rail-hover-${theme}-${density}-${viewport.width}-${rail}-${open}`);
+              // Slice B3: the rails' handles, with their hover label and separate disclosure glyph, are
+              // gone. The successor toggles draw one glyph each (the drawer's chevron is its disclosure
+              // glyph; the Inspector toggle's panel icon), witnessed here under hover at the same floor.
+              // The hover label has no successor element common to the two toggles (reported).
+              const glyphs = await toggle.locator("svg").all();
+              expect(glyphs.length, `${rail} toggle draws a glyph`).toBeGreaterThan(0);
               railHoverWitnesses.push(...await expectResolvedContrast([
-                { name: `${rail} ${open ? "expanded" : "collapsed"} hovered label`, locator: toggle.locator(".workspace-pane-toggle-label"), minimum: 4.5 },
-                { name: `${rail} hovered disclosure glyph`, locator: toggle.locator(".workspace-pane-toggle-icon"), source: "graphic", minimum: 3 },
-                ...await Promise.all((await toggle.locator("svg").all()).map(async (locator, index) => ({
+                ...await Promise.all(glyphs.map(async (locator, index) => ({
                   name: `${rail} hovered icon ${index}`, locator, source: "graphic" as const, minimum: 3 as const,
                 }))),
               ]));
@@ -644,6 +688,10 @@ for (const theme of APPEARANCE_THEMES) {
               await expect(toggle).toBeFocused();
             }
             await ensureRail(page, rail, originalOpen);
+            if (viaModelView) {
+              await activateWithKeyboard(page, page.getByTestId("view-switch-both"));
+              await expect(page.getByTestId("modeling-workspace")).toHaveAttribute("data-view", "both");
+            }
           }
         } finally {
           await testInfo.attach(`rail-hover-contrast-${theme}-${density}-${viewport.width}`, {
@@ -765,7 +813,8 @@ for (const theme of APPEARANCE_THEMES) {
         ]));
         const overlayWitness = await expectOverlayAboveWorkspaceControls(page, issues, [
           { name: "Model rail splitter", locator: page.getByTestId("resize-model-tree") },
-          { name: "Property inspector splitter", locator: page.getByTestId("resize-property-inspector") },
+          // Slice B3: the docked inspector has no splitter; its own layer's control is its close button.
+          { name: "Property inspector close control", locator: page.getByTestId("inspector-close") },
           { name: "Model rail handle", locator: treeToggle },
           { name: "Property inspector rail handle", locator: inspectorToggle },
         ]);
@@ -865,8 +914,8 @@ test("System follows the emulated OS preference; explicit theme and density pers
   await page.emulateMedia({ colorScheme: "light" });
   await expect(shell).toHaveAttribute("data-theme", "light");
 
-  await page.getByLabel("Appearance theme").selectOption("dark");
-  await page.getByLabel("Workspace density").selectOption("compact");
+  // Slice B3: the two labelled selects live in the toolbar's Appearance disclosure.
+  await setAppearance(page, "dark", "compact");
   await page.reload();
   await expect(page.getByLabel("Appearance theme")).toHaveValue("dark");
   await expect(page.getByLabel("Workspace density")).toHaveValue("compact");
@@ -879,26 +928,32 @@ test("production browser keeps reopened results Historical until a fresh exact-b
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   await openWorkspaceSection(page, "solve");
   await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
-  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MECHANICS_SOLVED");
+  await expectStatusChip(page, "status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
+  // Slice B3: the solve proof left the status bar; it is read on the Results stage's Evidence tab.
+  await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toBeVisible();
 
-  await activateWithKeyboard(page, page.getByRole("button", { name: "Save local", exact: true }));
+  await projectCommand(page, "save-local", true);
   await expect(page.getByTestId("local-project-message")).toContainText("Saved");
-  await activateWithKeyboard(page, page.getByTestId("open-local-project"));
+  await projectCommand(page, "open-local", true);
   await openWorkspaceSection(page, "results");
   const historical = page.getByTestId("historical-run-context");
   await expect(historical).toBeVisible();
   await expect(historical).toContainText("Historical");
   await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
   await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
+  await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
+  // Specification §5.4 rule 6: a Historical run lights no chip.
+  await expect(page.getByTestId("status-chips").getByRole("button")).toHaveCount(0);
 
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("rule-check-run")).toBeDisabled();
   await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
-  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MECHANICS_SOLVED");
+  await expectStatusChip(page, "status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
   await openWorkspaceSection(page, "results");
   await expect(historical).toHaveCount(0);
+  await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toBeVisible();
 });
 
@@ -950,11 +1005,12 @@ for (const theme of APPEARANCE_THEMES) {
     const tones = new Set<string>();
     for (const phase of ["before-solve", "solved", "blocked"] as const) {
       if (phase === "blocked") {
+        await activateWithKeyboard(page, page.getByTestId("workspace-dock-close"));
         await openWorkspaceSection(page, "operations");
         await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
         const editor = await startPropertyTaskFromTreeEntity(page, "load", "load:L-100");
-        await editor.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
-        await expect(editor.getByTestId("editor-intent-unit")).toHaveValue("N/m");
+        await selectCompactOption(editor.getByTestId("editor-intent-field"), "primitive_loads.0.magnitude.value");
+        await expect(editor.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "N/m");
         await editor.getByLabel("New first primitive magnitude", { exact: true }).fill("-225");
         await editor.getByTestId("queue-editor-intent").click();
         await openWorkspaceSection(page, "operations");
@@ -965,7 +1021,8 @@ for (const theme of APPEARANCE_THEMES) {
       if (phase !== "before-solve") {
         await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
         await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-        await expect(page.getByTestId("status-pill-mechanics")).toContainText(phase === "solved" ? "MECHANICS_SOLVED" : "MODEL_INCOMPLETE");
+        if (phase === "solved") await expectStatusChip(page, "status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
+        else await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
       }
       if (phase === "blocked") {
         await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
@@ -1015,7 +1072,7 @@ for (const theme of APPEARANCE_THEMES) {
     await setAppearance(page, theme, "comfortable");
     await openWorkspaceSection(page, "solve");
     await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
-    await expect(page.getByTestId("status-pill-mechanics")).toContainText("MECHANICS_SOLVED");
+    await expectStatusChip(page, "status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
     await openWorkspaceSection(page, "results");
     const results = page.getByTestId("results-panel");
     const row = results.locator("tbody tr").first();
@@ -1024,8 +1081,13 @@ for (const theme of APPEARANCE_THEMES) {
     await expect(row).toHaveAttribute("aria-selected", "false");
     await expect(entered).toContainText("Entered:");
     const originalEnteredText = await entered.innerText();
+    // Slice B3: Results is a stage surface; the dock header's heading is gone and the surface's
+    // title is carried by the Results stage's latched tab. The contrast floor is unchanged.
+    const resultsTitle = page.getByTestId("stage-tab-results");
+    await expect(resultsTitle).toHaveText("Results");
+    await expect(resultsTitle).toHaveAttribute("aria-pressed", "true");
     const witnesses = [...await expectResolvedContrast([
-      { name: "Results dock title", locator: page.getByTestId("workspace-dock-header").getByRole("heading", { name: "Results", exact: true }), minimum: 4.5 },
+      { name: "Results dock title", locator: resultsTitle, minimum: 4.5 },
       { name: "Results entered source value", locator: entered, minimum: 4.5 },
     ])];
     const headers = await results.getByRole("columnheader").all();
@@ -1037,6 +1099,8 @@ for (const theme of APPEARANCE_THEMES) {
     await activateWithKeyboard(page, row);
     await expect(row).toHaveAttribute("aria-selected", "true");
     await expect(entered).toHaveText(originalEnteredText);
+    // Slice B3: the Both view's inspector is closed at first open; open it to read the selected target.
+    await ensureRail(page, "inspector", true);
     const requiredFlag = page.getByTestId("property-inspector").getByTestId("inspector-required-flags").locator(".required-flag");
     await expect(requiredFlag).toContainText("Restraints");
     witnesses.push(...await expectResolvedContrast([
@@ -1064,9 +1128,9 @@ for (const theme of APPEARANCE_THEMES) {
       geometryWitnesses.push(await expectPopulatedResultsGeometry(page, width, false));
       await captureState(page, testInfo, `populated-results-current-${theme}-${width}`);
     }
-    await activateWithKeyboard(page, page.getByRole("button", { name: "Save local", exact: true }));
+    await projectCommand(page, "save-local", true);
     await expect(page.getByTestId("local-project-message")).toContainText("Saved");
-    await activateWithKeyboard(page, page.getByTestId("open-local-project"));
+    await projectCommand(page, "open-local", true);
     await openWorkspaceSection(page, "results");
     await expect(page.getByTestId("historical-run-context")).toBeVisible();
     const historicalHeaders = await results.getByRole("columnheader").all();
@@ -1163,24 +1227,52 @@ test("narrow canvas fits visible and selected envelopes in every view preset", a
   await testInfo.attach("narrow-fit-envelope-witnesses", { body: JSON.stringify(witnesses, null, 2), contentType: "application/json" });
 });
 
-async function readRailGeometry(page: Page) {
+// Slice B3: the rails and their two splitters are gone. The old rail-preferences test and the old
+// 1024-drawers test are carried by their successors from the source lane's workspace-layout.spec.ts,
+// verbatim, against the built dist: the stored preference survives a reload and its bounds hold, on
+// the Both view's split and the Model view's table drawer; below 1280 px the drawer and the
+// inspector lie over an unchanged canvas and Escape returns focus to the opener.
+type Box = { x: number; y: number; width: number; height: number };
+
+async function readShellGeometry(page: Page) {
   return page.evaluate(() => {
-    const rect = (selector: string) => document.querySelector(selector)!.getBoundingClientRect().toJSON();
-    const pane = document.querySelector<HTMLElement>(".workspace-pane-inspector")!;
-    const inspector = document.querySelector<HTMLElement>('[data-testid="property-inspector"]')!;
-    const assignment = document.querySelector<HTMLElement>("#section-assignment");
-    return { tree: rect(".workspace-pane-tree"), inspector: rect(".workspace-pane-inspector"), canvas: rect('[data-testid="viewport-canvas"] canvas'),
+    const box = (selector: string): Box | null => {
+      const element = document.querySelector<HTMLElement>(selector);
+      if (!element) return null;
+      const style = getComputedStyle(element);
+      if (style.display === "none") return null;
+      const r = element.getBoundingClientRect();
+      return { x: r.x, y: r.y, width: r.width, height: r.height };
+    };
+    type Box = { x: number; y: number; width: number; height: number };
+    return {
+      window: { width: innerWidth, height: innerHeight },
+      menuBar: box('[data-testid="app-menu-bar"]'),
+      toolbar: box('[data-testid="workspace-toolbar"]'),
+      rail: box('[data-testid="stage-rail"]'),
+      surfaces: box('[data-testid="modeling-workspace"]'),
+      agentStrip: box('[data-testid="agent-strip"]'),
+      statusBar: box('[data-testid="workspace-status-bar"]'),
+      tablePane: box(".workspace-pane-tree"),
+      tabStrip: box('[data-testid="stage-tab-strip"]'),
+      canvasPane: box(".workspace-pane-viewport"),
+      canvasHidden: getComputedStyle(document.querySelector(".workspace-pane-viewport")!).visibility === "hidden",
+      inspector: box(".workspace-pane-inspector"),
+      paneCounts: [document.querySelectorAll(".workspace-pane-tree").length, document.querySelectorAll(".workspace-pane-inspector").length],
       pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      inspectorOverflow: inspector.scrollWidth - inspector.clientWidth,
-      paneOverflow: pane.scrollWidth - pane.clientWidth,
-      children: assignment ? [...assignment.querySelectorAll<HTMLElement>("p, select, button")].map((element) => ({ tag: element.tagName, text: element.textContent, rect: element.getBoundingClientRect().toJSON(), overflow: element.scrollWidth - element.clientWidth })) : [],
-      stored: JSON.parse(localStorage.getItem("chirality.desktop.ui-preferences.v1") ?? "null") };
+      stored: JSON.parse(localStorage.getItem("chirality.desktop.ui-preferences.v1") ?? "null")
+    };
   });
+}
+
+async function chooseView(page: Page, view: "table" | "model" | "both") {
+  await page.getByTestId(`view-switch-${view}`).click();
+  await expect(page.getByTestId("modeling-workspace")).toHaveAttribute("data-view", view);
 }
 
 for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800 }]) {
   for (const [theme, density] of [["light", "comfortable"], ["dark", "compact"]] as const) {
-    test(`rail preferences resize actual panes and preserve contained controls ${theme} ${viewport.width}`, async ({ page }, testInfo) => {
+    test(`the split and the drawer resize actual panes, persist, and keep the inspector's controls contained ${theme} ${viewport.width}`, async ({ page }, testInfo) => {
       await page.setViewportSize(viewport);
       const model = await gotoRoutedFixture(page, "ui-foundation-1000.model.json");
       await setAppearance(page, theme, density);
@@ -1188,41 +1280,52 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
       expect(pipe).toBeTruthy();
       await selectTreeRow(page, "pipe", pipe.id);
       await ensureRail(page, "tree", true); await ensureRail(page, "inspector", true);
-      const witnesses = [];
-      const check = async (left: number, right: number, label: string) => {
-        await expect.poll(async () => Math.round((await readRailGeometry(page)).tree.width)).toBe(left);
-        await expect.poll(async () => Math.round((await readRailGeometry(page)).inspector.width)).toBe(right);
-        const geometry = await readRailGeometry(page);
+      const surfaceWidth = viewport.width - 56 - 44;
+      const witnesses: unknown[] = [];
+      const inspectorChildren = () => page.evaluate(() => {
+        const pane = document.querySelector<HTMLElement>(".workspace-pane-inspector")!;
+        const inspector = document.querySelector<HTMLElement>('[data-testid="property-inspector"]')!;
+        const assignment = document.querySelector<HTMLElement>("#section-assignment");
+        return { pane: pane.getBoundingClientRect().toJSON(), paneOverflow: pane.scrollWidth - pane.clientWidth, inspectorOverflow: inspector.scrollWidth - inspector.clientWidth,
+          children: assignment ? [...assignment.querySelectorAll<HTMLElement>("p, select, button")].map((element) => ({ tag: element.tagName, text: element.textContent, rect: element.getBoundingClientRect().toJSON(), overflow: element.scrollWidth - element.clientWidth })) : [] };
+      });
+      const check = async (splitPct: number, label: string) => {
+        const closedTableWidth = Math.min(Math.round(surfaceWidth * splitPct / 100), surfaceWidth - 220);
+        const lent = Math.max(0, Math.min(300, closedTableWidth - 320));
+        const tableWidth = closedTableWidth - lent;
+        await expect.poll(async () => Math.round((await readShellGeometry(page)).tablePane!.width)).toBe(tableWidth);
+        const geometry = await readShellGeometry(page);
         witnesses.push({ label, ...geometry });
         expect(geometry.pageOverflow).toBeLessThanOrEqual(1);
-        expect(geometry.canvas.width).toBeGreaterThan(0); expect(geometry.canvas.height).toBeGreaterThan(0);
-        expect(geometry.paneOverflow).toBeLessThanOrEqual(1);
-        expect(geometry.inspectorOverflow).toBeLessThanOrEqual(1);
-        expect(geometry.children.length).toBeGreaterThan(0);
-        for (const child of geometry.children) {
-          expect(child.rect.left, child.text ?? child.tag).toBeGreaterThanOrEqual(geometry.inspector.left);
-          expect(child.rect.right, child.text ?? child.tag).toBeLessThanOrEqual(geometry.inspector.right + 1);
+        // D2: the inspector borrows from the closed table split down to 320 px,
+        // then consumes canvas width down to its 220 px minimum.
+        expect(Math.round(geometry.inspector!.width)).toBe(300);
+        expect(Math.round(geometry.canvasPane!.width)).toBe(surfaceWidth - tableWidth - 300);
+        expect(geometry.canvasPane!.width).toBeGreaterThanOrEqual(220);
+        const contained = await inspectorChildren();
+        expect(contained.paneOverflow).toBeLessThanOrEqual(1);
+        expect(contained.inspectorOverflow).toBeLessThanOrEqual(1);
+        expect(contained.children.length).toBeGreaterThan(0);
+        for (const child of contained.children) {
+          expect(child.rect.left, child.text ?? child.tag).toBeGreaterThanOrEqual(contained.pane.left);
+          expect(child.rect.right, child.text ?? child.tag).toBeLessThanOrEqual(contained.pane.right + 1);
           expect(child.overflow, child.text ?? child.tag).toBeLessThanOrEqual(1);
         }
-        await expect(page.getByTestId("resize-model-tree")).toHaveAttribute("aria-valuenow", String(left));
-        await expect(page.getByTestId("resize-property-inspector")).toHaveAttribute("aria-valuenow", String(right));
-        expect(geometry.stored.leftRailPx).toBe(left); expect(geometry.stored.rightRailPx).toBe(right);
-        if (label === "defaults" || label === "pointer lower clamps" || label === "both pointer max") {
-          await captureState(page, testInfo, `rail-${theme}-${viewport.width}-${label}`);
-        }
+        await expect(page.getByTestId("resize-model-tree")).toHaveAttribute("aria-valuenow", String(splitPct));
+        expect(geometry.stored.bothSplitPct).toBe(splitPct);
         return geometry;
       };
-      const drag = async (id: string, dx: number) => {
+      const drag = async (id: string, dx: number, dy = 0) => {
         const splitter = page.getByTestId(id); await expectCenterUnobscured(splitter, { minimumTarget: true });
         const box = (await splitter.boundingBox())!;
         await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down();
-        await page.mouse.move(box.x + box.width / 2 + dx, box.y + box.height / 2, { steps: 8 }); await page.mouse.up();
+        await page.mouse.move(box.x + box.width / 2 + dx, box.y + box.height / 2 + dy, { steps: 8 }); await page.mouse.up();
       };
-      const initial = await check(280, 340, "defaults");
-      await drag("resize-model-tree", 140); const leftMax = await check(420, 340, "tree pointer max");
-      expect(initial.canvas.width - leftMax.canvas.width).toBeCloseTo(140, 0);
-      await drag("resize-property-inspector", -180); const bothMax = await check(420, 520, "both pointer max");
-      expect(leftMax.canvas.width - bothMax.canvas.width).toBeCloseTo(180, 0);
+      const initial = await check(55, "default split");
+      // A drag changes the stored closed split. The open layout applies D2's
+      // lending rule while keeping the stored percentage unchanged.
+      await drag("resize-model-tree", -Math.round(surfaceWidth / 10)); const narrower = await check(45, "pointer, table narrower");
+      expect(narrower.canvasPane!.width - initial.canvasPane!.width).toBeCloseTo(initial.tablePane!.width - narrower.tablePane!.width, 0);
       for (const preset of ["Front", "Top", "Isometric"]) {
         await page.getByRole("button", { name: preset, exact: true }).click();
         for (const command of ["Fit Visible", "Fit Selection"]) {
@@ -1240,47 +1343,95 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
             if (projection.status !== "available") throw new Error("Projection unavailable");
             expect(projection.insideClosedNdc).toBe(true);
           }
-          witnesses.push({ label: `supported rail-driven ${preset} ${command}`, ...fit });
+          witnesses.push({ label: `supported split-driven ${preset} ${command}`, ...fit });
         }
       }
-      await drag("resize-model-tree", -240); await drag("resize-property-inspector", 280);
-      await check(220, 280, "pointer lower clamps");
-      await page.getByTestId("resize-model-tree").focus(); await page.keyboard.press("ArrowRight");
-      await page.getByTestId("resize-property-inspector").focus(); await page.keyboard.press("ArrowRight");
-      await check(236, 296, "keyboard steps");
-      await page.reload(); await selectTreeRow(page, "pipe", pipe.id);
-      await check(236, 296, "reload persisted geometry");
-      await ensureRail(page, "tree", false); await ensureRail(page, "inspector", false);
-      await expect(page.getByTestId("resize-model-tree")).toBeHidden(); await expect(page.getByTestId("resize-property-inspector")).toBeHidden();
-      const collapsed = await readRailGeometry(page);
-      expect(collapsed.tree.width).toBeCloseTo(30, 0); expect(collapsed.inspector.width).toBeCloseTo(30, 0);
-      await ensureRail(page, "tree", true); await ensureRail(page, "inspector", true);
-      await check(236, 296, "reexpanded persisted geometry");
-      await testInfo.attach("actual-rail-geometry", { body: JSON.stringify(witnesses, null, 2), contentType: "application/json" });
+      // The splitter stops where the canvas would fall under 220 px: the stored share is bounded at 85 %,
+      // and with the inspector docked the layout holds the canvas at its minimum whatever is stored.
+      await drag("resize-model-tree", surfaceWidth);
+      await expect(page.getByTestId("resize-model-tree")).toHaveAttribute("aria-valuenow", "85");
+      const clamped = await readShellGeometry(page);
+      expect(Math.round(clamped.canvasPane!.width)).toBe(220);
+      expect(Math.round(clamped.inspector!.width)).toBe(300);
+      expect(Math.round(clamped.tablePane!.width)).toBe(surfaceWidth - 520);
+      expect(clamped.pageOverflow).toBeLessThanOrEqual(1);
+      witnesses.push({ label: "canvas minimum", ...clamped });
+      await drag("resize-model-tree", -surfaceWidth);
+      await expect(page.getByTestId("resize-model-tree")).toHaveAttribute("aria-valuenow", "15");
+      await page.getByTestId("resize-model-tree").focus();
+      for (let press = 0; press < 20; press += 1) await page.keyboard.press("ArrowRight");
+      await check(55, "keyboard steps of two points");
+      await page.keyboard.press("ArrowLeft");
+      await check(53, "keyboard step back");
+      await page.reload(); await selectTreeRow(page, "pipe", pipe.id); await ensureRail(page, "inspector", true);
+      await check(53, "reload persisted split");
+
+      // The Model view's drawer: 280 px by default, resized by its splitter, persisted, collapsible to 28 px.
+      await chooseView(page, "model");
+      const drawerDefault = await readShellGeometry(page);
+      expect(Math.round(drawerDefault.tablePane!.height)).toBe(280);
+      expect(Math.round(drawerDefault.inspector!.width)).toBe(340);
+      await drag("resize-task-dock", 0, -60);
+      await expect(page.getByTestId("resize-task-dock")).toHaveAttribute("aria-valuenow", "340");
+      await expect.poll(async () => Math.round((await readShellGeometry(page)).tablePane!.height)).toBe(340);
+      await page.getByTestId("resize-task-dock").focus(); await page.keyboard.press("ArrowDown");
+      await expect(page.getByTestId("resize-task-dock")).toHaveAttribute("aria-valuenow", "324");
+      const resized = await readShellGeometry(page);
+      expect(Math.round(resized.tablePane!.height)).toBe(324);
+      expect(Math.round(resized.canvasPane!.height + resized.tablePane!.height)).toBe(Math.round(resized.surfaces!.height));
+      expect(resized.stored.tableDrawerPx).toBe(324);
+      await ensureRail(page, "tree", false);
+      await expect(page.getByTestId("resize-task-dock")).toBeHidden();
+      const collapsed = await readShellGeometry(page);
+      expect(Math.round(collapsed.tablePane!.height)).toBe(28);
+      expect(Math.round(collapsed.canvasPane!.height)).toBe(Math.round(collapsed.surfaces!.height));
+      await ensureRail(page, "tree", true);
+      await expect.poll(async () => Math.round((await readShellGeometry(page)).tablePane!.height)).toBe(324);
+      await testInfo.attach("actual-shell-geometry", { body: JSON.stringify(witnesses, null, 2), contentType: "application/json" });
     });
   }
 }
 
-test("1024 drawers retain overlay geometry and keyboard focus after desktop rail preferences", async ({ page }, testInfo) => {
+test("below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 920 });
   await gotoRoutedFixture(page, "ui-foundation-1000.model.json");
   await page.getByTestId("resize-model-tree").focus(); await page.keyboard.press("ArrowRight");
-  await page.getByTestId("resize-property-inspector").focus(); await page.keyboard.press("ArrowRight");
   await page.setViewportSize({ width: 1024, height: 768 });
   await ensureRail(page, "tree", false); await ensureRail(page, "inspector", false);
-  const before = await readRailGeometry(page);
-  expect(before.tree.width).toBeCloseTo(40, 0); expect(before.inspector.width).toBeCloseTo(40, 0);
+  const before = await readShellGeometry(page);
+  // Collapsed, the 28 px strip overlays the canvas foot.
+  expect(before.canvasPane).toEqual(before.surfaces);
+  expect(Math.round(before.tablePane!.height)).toBe(28);
+  expect(before.inspector).toBeNull();
   for (const side of ["tree", "inspector"] as const) {
     await ensureRail(page, side, true);
-    const during = await readRailGeometry(page);
-    expect(during[side].width).toBeCloseTo(390, 0); expect(during.canvas).toEqual(before.canvas);
+    const during = await readShellGeometry(page);
+    if (side === "tree") {
+      expect(Math.round(during.tablePane!.height)).toBe(280);
+      expect(Math.round(during.tablePane!.width)).toBe(Math.round(during.surfaces!.width));
+      expect(Math.round(during.canvasPane!.height + during.tablePane!.height)).toBe(Math.round(during.surfaces!.height));
+      await expect(page.getByTestId("resize-task-dock")).toBeVisible();
+      const drawerSplitter = (await page.getByTestId("resize-task-dock").boundingBox())!;
+      expect(drawerSplitter.height).toBe(24);
+      await page.getByTestId("resize-task-dock").focus();
+      for (let press = 0; press < 12; press += 1) await page.keyboard.press("ArrowDown");
+      await expect(page.getByTestId("resize-task-dock")).toHaveAttribute("aria-valuenow", "180");
+      for (let press = 0; press < 30; press += 1) await page.keyboard.press("ArrowUp");
+      await expect(page.getByTestId("resize-task-dock")).toHaveAttribute("aria-valuenow", "600");
+      expect((await readShellGeometry(page)).stored.tableDrawerPx).toBe(600);
+    } else {
+      expect(Math.round(during.inspector!.width)).toBe(300);
+      expect(Math.round(during.inspector!.x + during.inspector!.width)).toBe(Math.round(during.surfaces!.x + during.surfaces!.width));
+    }
+    if (side === "inspector") expect(during.canvasPane).toEqual(before.canvasPane);
     expect(during.pageOverflow).toBeLessThanOrEqual(1);
-    await expect(page.getByTestId("resize-model-tree")).toBeHidden(); await expect(page.getByTestId("resize-property-inspector")).toBeHidden();
+    await expect(page.getByTestId("resize-model-tree")).toBeHidden();
     const control = side === "tree" ? page.getByTestId("model-tree-filter-input") : page.getByTestId("property-inspector").getByRole("tab", { name: "Task", exact: true });
     await control.focus(); await page.keyboard.press("Escape");
     await expect(page.getByTestId(side === "tree" ? "toggle-tree" : "toggle-inspector")).toBeFocused();
+    await expect(page.getByTestId(side === "tree" ? "toggle-tree" : "toggle-inspector")).toHaveAttribute("aria-expanded", "false");
   }
-  await testInfo.attach("drawer-geometry", { body: JSON.stringify({ before, after: await readRailGeometry(page) }, null, 2), contentType: "application/json" });
+  await testInfo.attach("drawer-geometry", { body: JSON.stringify({ before, after: await readShellGeometry(page) }, null, 2), contentType: "application/json" });
 });
 
 for (const route of ["toolbar", "Insert menu"] as const) {
@@ -1323,7 +1474,8 @@ test("empty ordered selection publishes independently from project inspector", a
   await ensureRail(page, "inspector", true);
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toHaveCount(1);
-  await activateWithKeyboard(page, page.getByTestId("workspace-dock-close"));
+  // Slice B3: Results is a stage surface with no close control; return to the Model stage's tree.
+  await showModelTree(page);
   const read = async () => page.evaluate(() => {
     const snapshot = globalThis.__openPipeStressUiDiagnosticsV1.readCurrent();
     if ("status" in snapshot.viewport) throw new Error("Committed viewport unavailable");
@@ -1429,13 +1581,13 @@ test("empty ordered selection publishes independently from project inspector", a
   }
   expect(await page.getByTestId("results-panel").allTextContents()).toEqual(resultsBefore);
   await expect(page.getByTestId("command-selection-readout")).toContainText("0 queued");
-  await activateWithKeyboard(page, page.getByRole("button", { name: "Save local", exact: true }));
+  await projectCommand(page, "save-local", true);
   await expect(page.getByTestId("local-project-message")).toContainText("Saved");
   await selectTreeRow(page, node.type, node.id);
   await identity([node], node, node);
   await selectTreeRow(page, node.type, node.id, { toggle: true });
   const beforeReplacement = await identity([], null, project);
-  await activateWithKeyboard(page, page.getByTestId("open-local-project"));
+  await projectCommand(page, "open-local", true);
   await expect.poll(async () => (await read()).model.generation).not.toBe(beforeReplacement.model.generation);
   const reopened = await identity([project], project, project);
   expect(reopened.model.identityHash).toBe(baseline.model.identityHash);
@@ -1454,7 +1606,17 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   // shell gave a 1440 x 920 window while it still carried its footer (about 21 px).
   // DEC-105 removed that footer, so the window is 21 px shorter here to keep
   // the canvas, the gizmo and the frozen endpoints in the same geometry.
-  await page.setViewportSize({ width: 1440, height: 899 });
+  // 2026-09-19, slice B3 (the shell): the same move again. Before the shell a
+  // 1440 x 899 window gave this test a drawn canvas of 794 x 559 CSS px
+  // (measured on main at d20eb1294). The shell's Both view gives that same box
+  // to a 1688 x 787 window with the stored split at 50 % (surfaces 1588 wide,
+  // canvas pane 794; 787 less the 228 px of bars above and below the drawn canvas is 559).
+  // The box is asserted below, so the geometry the frozen endpoints depend on is
+  // pinned and not implied. The endpoints and every other assertion are untouched.
+  await page.setViewportSize({ width: 1688, height: 787 });
+  await page.addInitScript(() => {
+    window.localStorage.setItem("chirality.desktop.ui-preferences.v1", JSON.stringify({ version: 1, bothSplitPct: 50 }));
+  });
   const model = await gotoRoutedFixture(page);
   expect(model.components ?? []).toHaveLength(0);
   await activateWithKeyboard(page, page.getByTestId("toggle-viewport-labels"));
@@ -1464,6 +1626,7 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   const scale = page.getByTestId("viewport-scale-bar");
   await expect(axis).toBeVisible(); await expect(scale).toHaveText(/1\s*m/);
   const rect = (await canvas.boundingBox())!;
+  expect({ width: rect.width, height: rect.height }).toEqual({ width: 794, height: 559 });
   const axisRect = (await axis.boundingBox())!;
   const scaleRect = (await scale.boundingBox())!;
   // Preserve both frozen Box16 endpoints. This component-free control fixture
@@ -1530,7 +1693,15 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   await page.mouse.move(scalePoint.x, scalePoint.y); await page.mouse.wheel(0, -120);
   await expect.poll(async () => distance(await read())).toBeLessThan(distance(panAfter));
   const wheelAfter = await settled();
-  expect(wheelAfter.camera.target).toEqual(panAfter.camera.target);
+  // Active OrbitControls updates normalize/rescale the target even without a
+  // target-radius constraint. Allow binary64 roundoff from that arithmetic and
+  // the local/authored translation; idle and Box invariants stay exact above.
+  const targetScale = Math.max(1, ...panAfter.camera.target.map(Math.abs), ...panAfter.camera.localRenderOrigin.map(Math.abs));
+  const targetRoundoff = 16 * Number.EPSILON * targetScale;
+  wheelAfter.camera.target.forEach((value, i) => {
+    expect(Number.isFinite(value)).toBe(true);
+    expect(Math.abs(value - panAfter.camera.target[i])).toBeLessThanOrEqual(targetRoundoff);
+  });
   const front = page.getByRole("button", { name: "Front", exact: true });
   await front.click(); await expect(front).toHaveAttribute("aria-pressed", "true");
   const frontAfter = await settled(); expect(frontAfter.camera.position).not.toEqual(wheelAfter.camera.position);
@@ -1623,10 +1794,10 @@ test("Escape retires captured Box before delayed pointer up", async ({ page }, i
 
 test("same-ID Open retires old captured Box before delayed pointer up", async ({ page }, info) => {
   const model = await setup(page); const project = { type: "project", id: model.project.id };
-  await page.getByRole("button", { name: "Save local", exact: true }).click();
+  await projectCommand(page, "save-local");
   await expect(page.getByTestId("local-project-message")).toContainText("Saved");
   const beforeOrdinaryOpen = await settle(page);
-  await activateWithKeyboard(page, page.getByTestId("open-local-project"));
+  await projectCommand(page, "open-local", true);
   await expect.poll(async () => (await read(page)).snapshot.model.projectSessionGeneration).toBe(beforeOrdinaryOpen.snapshot.model.projectSessionGeneration + 1);
   await expect.poll(async () => (await read(page)).snapshot.viewport.selection.orderedRefs).toEqual([project]);
   const ordinaryOpen = await settle(page);
@@ -1635,7 +1806,7 @@ test("same-ID Open retires old captured Box before delayed pointer up", async ({
   await selectTreeRow(page, "node", model.nodes[10].id);
   const input = await begin(page);
   // Public keyboard route: keep the genuine mouse button held and captured.
-  await page.getByTestId("open-local-project").focus(); await page.keyboard.press("Enter");
+  await projectCommand(page, "open-local", true);
   await expect.poll(async () => (await read(page)).snapshot.model.projectSessionGeneration).toBe(input.before.snapshot.model.projectSessionGeneration + 1);
   await expect.poll(async () => (await read(page)).snapshot.viewport.selection.orderedRefs).toEqual([project]);
   const replaced = await settle(page);
@@ -1659,8 +1830,9 @@ test("same-ID Open retires old captured Box before delayed pointer up", async ({
 
 for (const route of ["Select", "New blank"] as const) test(`${route} retires captured Box before delayed pointer up`, async ({ page }, info) => {
   await setup(page); const input = await begin(page);
-  const control = route === "Select" ? page.getByTestId("workspace-select") : page.getByRole("button", { name: "New blank", exact: true });
-  await control.focus(); await page.keyboard.press("Enter");
+  // Slice B3: New blank is a File-menu command here; the Project page would cover the canvas whose pointer is held.
+  if (route === "Select") { await page.getByTestId("workspace-select").focus(); await page.keyboard.press("Enter"); }
+  else await projectCommand(page, "new-blank", true);
   if (route === "New blank") {
     await expect.poll(async () => (await read(page)).snapshot.model.projectSessionGeneration).toBe(input.before.snapshot.model.projectSessionGeneration + 1);
     await expect.poll(async () => (await read(page)).snapshot.viewport.selection.primaryRef?.type).toBe("project");

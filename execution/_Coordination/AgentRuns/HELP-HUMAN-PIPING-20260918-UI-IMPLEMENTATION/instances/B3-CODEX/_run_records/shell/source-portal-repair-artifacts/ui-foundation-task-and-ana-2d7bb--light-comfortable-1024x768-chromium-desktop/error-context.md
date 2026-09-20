@@ -1,0 +1,225 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: ui-foundation.spec.ts >> task and analysis dock preserve usable canvas light comfortable 1024x768
+- Location: e2e/ui-foundation.spec.ts:671:7
+
+# Error details
+
+```
+Test timeout of 120000ms exceeded.
+```
+
+# Page snapshot
+
+```yaml
+- main [ref=e3]:
+  - navigation "Application menu" [ref=e4]:
+    - button "File" [ref=e6] [cursor=pointer]
+    - button "Edit" [ref=e8] [cursor=pointer]
+    - button "View" [ref=e10] [cursor=pointer]
+    - button "Insert" [ref=e12] [cursor=pointer]
+    - button "Analyze" [ref=e14] [cursor=pointer]
+  - generic "Toolbar" [ref=e15]:
+    - heading "SWBPIPE" [level=1] [ref=e17]
+    - group "Editing tools" [ref=e18]:
+      - button "Undo model edit" [disabled] [ref=e19]:
+        - img [ref=e20]
+      - button "Redo model edit" [disabled] [ref=e23]:
+        - img [ref=e24]
+      - button "Select (⎋)" [ref=e27] [cursor=pointer]:
+        - img [ref=e28]
+    - group "View" [ref=e30]:
+      - button "Table view (⌘1)" [ref=e32] [cursor=pointer]:
+        - img [ref=e33]
+      - button "Model view (⌘2)" [ref=e36] [cursor=pointer]:
+        - img [ref=e37]
+      - button "Both view (⌘3)" [pressed] [ref=e41] [cursor=pointer]:
+        - img [ref=e42]
+    - generic [ref=e44]:
+      - button "Run" [ref=e45] [cursor=pointer]:
+        - img [ref=e46]
+        - generic [ref=e48]: Run
+      - button "Issues, 5" [ref=e49] [cursor=pointer]:
+        - img [ref=e50]
+        - generic [ref=e52]: Issues
+        - generic [ref=e53]: "5"
+    - group "Panels" [ref=e54]:
+      - button "Inspector" [ref=e56] [cursor=pointer]:
+        - img [ref=e57]
+      - button "Agent" [disabled] [ref=e60]:
+        - img [ref=e61]
+    - generic "Display units" [ref=e64]:
+      - combobox "Display units" [ref=e65]:
+        - option "Entered" [selected]
+        - option "SI"
+        - option "US"
+    - group [ref=e66]:
+      - generic "Appearance" [ref=e67] [cursor=pointer]:
+        - img [ref=e68]
+      - option "System"
+      - option "Light" [selected]
+      - option "Dark"
+      - option "Comfortable" [selected]
+      - option "Compact"
+    - region "Human toolkit" [ref=e70]:
+      - button "Find modeling commands" [ref=e71] [cursor=pointer]:
+        - img [ref=e72]
+        - generic [ref=e75]: Search or command…
+        - generic "Command K" [ref=e76]: ⌘K
+  - generic [ref=e77]:
+    - navigation "Stages" [ref=e78]:
+      - list [ref=e79]:
+        - listitem [ref=e80]:
+          - button "Model" [pressed] [ref=e81] [cursor=pointer]:
+            - img [ref=e82]
+            - generic [ref=e85]: Model
+        - listitem [ref=e86]:
+          - button "Loads" [ref=e87] [cursor=pointer]:
+            - img [ref=e88]
+            - generic [ref=e92]: Loads
+        - listitem [ref=e93]:
+          - button "Results" [disabled] [ref=e94]:
+            - img [ref=e95]
+            - generic [ref=e98]: Results
+        - listitem [ref=e99]:
+          - button "Review" [disabled] [ref=e100]:
+            - img [ref=e101]
+            - generic [ref=e105]: Review
+      - separator [ref=e106]
+      - list [ref=e107]:
+        - listitem [ref=e108]:
+          - button "Libraries" [ref=e109] [cursor=pointer]:
+            - img [ref=e110]
+            - generic [ref=e112]: Libraries
+        - listitem [ref=e113]:
+          - button "Rules" [ref=e114] [cursor=pointer]:
+            - img [ref=e115]
+            - generic [ref=e119]: Rules
+        - listitem [ref=e120]:
+          - button "Issues, 5" [ref=e121] [cursor=pointer]:
+            - img [ref=e122]
+            - generic [ref=e124]: Issues
+            - generic [ref=e125]: "5"
+    - region "Modeling workspace" [ref=e127]:
+      - group "Tables" [ref=e129]:
+        - button "Model" [pressed] [ref=e130] [cursor=pointer]
+        - button "Review changes" [ref=e131] [cursor=pointer]
+        - button "Expand table drawer" [ref=e134] [cursor=pointer]:
+          - img [ref=e135]
+      - generic [ref=e138]:
+        - generic [ref=e139]:
+          - group "Viewport controls" [ref=e140]:
+            - generic [ref=e141]: 3D Centerline
+            - group "Viewport deformation overlay status" [ref=e142]:
+              - generic "Deformation · unavailable" [ref=e143] [cursor=pointer]
+            - group "Viewport display toggles" [ref=e144]:
+              - button "Labels" [pressed] [ref=e145]
+              - button "Loads" [pressed] [ref=e146]
+              - button "Grid" [pressed] [ref=e147]
+            - group "Viewport selection tools" [ref=e148]:
+              - button "Box Select" [ref=e149]
+              - generic [ref=e150]:
+                - generic [ref=e151]: Selection filter
+                - combobox "Selection filter" [ref=e152]:
+                  - option "All" [selected]
+                  - option "Pipes"
+                  - option "Nodes"
+                  - option "Supports"
+                  - option "Components"
+              - button "Hide" [ref=e153]
+              - button "Isolate" [ref=e154]
+              - button "Show All" [disabled] [ref=e155]
+              - button "Fit Model" [ref=e156]
+              - button "Fit Visible" [ref=e157]
+              - button "Fit Selection" [ref=e158]
+            - group "Viewport geometry" [ref=e159]:
+              - button "Schematic" [pressed] [ref=e160]
+              - button "Actual OD" [ref=e161]
+              - button "Measure" [active] [ref=e162]
+          - generic "Viewport status" [ref=e163]:
+            - 'generic "Selected node: node:N-110" [ref=e164]': "Selected: node:N-110"
+            - status "Schematic centerline geometry" [ref=e165]
+            - status "View command status" [ref=e166]: No view command dispatched.
+        - generic [ref=e167]:
+          - generic "Three.js pipe centerline viewport" [ref=e168]
+          - generic "Viewport entity selection":
+            - button "Select Low point elbow in viewport" [pressed] [ref=e170] [cursor=pointer]:
+              - img [ref=e171]
+              - generic [ref=e174]: N-110
+            - button "Select Vertical riser in viewport" [ref=e175] [cursor=pointer]:
+              - img [ref=e176]
+              - generic [ref=e180]: P-110
+            - button "Select Invented branch connection marker in viewport" [ref=e181] [cursor=pointer]:
+              - img [ref=e182]
+              - generic [ref=e185]: C-120
+            - button "Select Riser elbow in viewport" [ref=e186] [cursor=pointer]:
+              - img [ref=e187]
+              - generic [ref=e190]: N-120
+            - button "Select Rack span in viewport" [ref=e191] [cursor=pointer]:
+              - img [ref=e192]
+              - generic [ref=e196]: P-120
+            - button "Select Tie-in rise in viewport" [ref=e197] [cursor=pointer]:
+              - img [ref=e198]
+              - generic [ref=e202]: P-130
+            - button "Select Invented semi-rigid valve marker in viewport" [ref=e203] [cursor=pointer]:
+              - img [ref=e204]
+              - generic [ref=e207]: C-130
+            - button "Select Pump nozzle in viewport" [ref=e208] [cursor=pointer]:
+              - img [ref=e209]
+              - generic [ref=e212]: N-100
+            - button "Select Terminal tie-in in viewport" [ref=e213] [cursor=pointer]:
+              - img [ref=e214]
+              - generic [ref=e217]: N-140
+            - button "Select Preview one-way terminal stop in viewport" [ref=e218] [cursor=pointer]:
+              - img [ref=e219]
+              - generic [ref=e222]: NL-140
+            - button "Select Anchor at pump nozzle in viewport" [ref=e223] [cursor=pointer]:
+              - img [ref=e224]
+              - generic [ref=e227]: S-100
+          - img "Orientation gizmo showing X, Y, Z axes"
+          - generic "View controls" [ref=e228]:
+            - button "Front" [ref=e229] [cursor=pointer]
+            - button "Top" [ref=e230] [cursor=pointer]
+            - button "Isometric" [pressed] [ref=e231] [cursor=pointer]
+          - generic:
+            - generic: 1 m
+        - region "Command and selection bar" [ref=e232]:
+          - generic "Object creation tools" [ref=e233]:
+            - button "Node" [ref=e234] [cursor=pointer]:
+              - img [ref=e235]
+              - text: Node
+            - button "Pipe" [pressed] [ref=e237] [cursor=pointer]:
+              - img [ref=e238]
+              - text: Pipe
+            - button "Support" [ref=e242] [cursor=pointer]:
+              - img [ref=e243]
+              - text: Support
+            - button "Component" [ref=e246] [cursor=pointer]:
+              - img [ref=e247]
+              - text: Component
+            - button "Load" [ref=e250] [cursor=pointer]:
+              - img [ref=e251]
+              - text: Load
+          - 'generic "Pipe tool armed: pick from/to nodes or complete the pipe form." [ref=e253]': Pipe tool armed
+          - group [ref=e254]:
+            - generic "Selection & navigation" [ref=e255] [cursor=pointer]
+    - complementary "Agent" [ref=e256]:
+      - button "Agent" [disabled] [ref=e258]:
+        - img [ref=e259]
+        - generic [ref=e262]: Agent
+  - generic "Workspace status" [ref=e263]:
+    - generic "Analysis statuses"
+    - button "5 Issues" [ref=e264] [cursor=pointer]:
+      - img [ref=e265]
+      - text: 5 Issues
+    - generic "Selection" [ref=e267]: "node: node:N-110"
+    - generic "Display units" [ref=e268]: Entered
+    - button "About SWBPIPE…" [ref=e269] [cursor=pointer]:
+      - img [ref=e270]
+```

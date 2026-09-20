@@ -1,0 +1,54 @@
+{
+  "schema": "ad-hoc-work-graph/v1",
+  "basis": "2fabfcda85bbb7f89f17c2365d8046e025bcf292",
+  "scope": "Owner-approved App/Piping instruction clarification; no product execution",
+  "strategy": "Agent0 author/integrator and fresh direct TASK review, Astra/high; carries approved bounded arrangement",
+  "phase_mapping": "Instruction maintenance only; no phase transition or deliverable/DAG amendment",
+  "nodes": [
+    {
+      "id": "instructions",
+      "state": "implemented",
+      "depends_on": [],
+      "semantic_changes": [
+        "shared clarifications in both loops",
+        "matching thin launchers",
+        "Piping continuation steering and receipt navigation"
+      ],
+      "departures": [],
+      "blockers": []
+    },
+    {
+      "id": "review_checks",
+      "state": "500 tests and scoped checks passed; F1 repaired, final independent backcheck pending",
+      "depends_on": [
+        "instructions"
+      ],
+      "findings": [
+        {
+          "id": "F1",
+          "severity": "P2",
+          "disposition": "Added explicit currentB3Override naming the inherited fields whose implementation permission is superseded; no product decision made.",
+          "backcheck": "pending"
+        }
+      ]
+    },
+    {
+      "id": "integration",
+      "state": "pending final review and actual-candidate CI",
+      "depends_on": [
+        "review_checks"
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "work": "B3 design decisions and implementation",
+      "until": "Successor presents product decision package and owner rules; no product ruling here"
+    },
+    {
+      "work": "App reconciliation and prior corpus drift",
+      "until": "Owner supplies phase steering"
+    }
+  ],
+  "terminal_record": "PR owns final review, CI and merge disposition; no merge is claimed before it occurs."
+}

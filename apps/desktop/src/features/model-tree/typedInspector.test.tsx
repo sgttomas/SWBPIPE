@@ -1,3 +1,4 @@
+import { changeFormControl } from "../../test-support/workspaceTestControls";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadPreviewModel } from "../../services/previewService";
@@ -28,7 +29,7 @@ function startTask() {
 }
 
 function chooseField(path: string) {
-  fireEvent.change(screen.getByTestId("editor-intent-field"), { target: { value: path } });
+  changeFormControl(screen.getByTestId("editor-intent-field"), { target: { value: path } });
 }
 
 const collisionTargets = [

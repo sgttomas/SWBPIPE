@@ -1,0 +1,13 @@
+diff --git a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+index 865a28fde..cf73e4fee 100644
+--- a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
++++ b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+@@ -4053,6 +4053,8 @@ fn build_app_menu<R: tauri::Runtime>(
+     let edit = SubmenuBuilder::new(handle, "Edit")
+         .text("edit.undo", "Undo Model Edit")
+         .text("edit.redo", "Redo Model Edit")
++        .undo()
++        .redo()
+         .separator()
+         .cut()
+         .copy()

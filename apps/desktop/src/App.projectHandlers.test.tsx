@@ -22,6 +22,15 @@ import type {
 // an `inventedOpenEnvelope` equivalent, `openWorkspaceSection` and
 // `runMechanicsButton`. Nothing is imported from the safety net.
 
+// Slice B3: the status bar carries the chips of specification §5.4. A chip's face is
+// "Domain · Label" from statusLabels.ts; the recorded token is its tooltip (and, on a
+// click, its popover). These helpers hold both, where a pill's body used to show the token.
+function expectStatusChip(testId: string, token: string, face: string) {
+  const chip = screen.getByTestId(testId);
+  expect(chip).toHaveAttribute("title", token);
+  expect(chip).toHaveTextContent(face);
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
   invokeMock.mockReset();
@@ -391,7 +400,7 @@ describe("project handlers: a failed or empty open leaves the open project as it
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(await runMechanicsButton());
-    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MECHANICS_SOLVED"));
+    await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
 
     const previewService = await import("./services/previewService");
     const realBuild = previewService.buildAnalysisRunPreview.bind(previewService);

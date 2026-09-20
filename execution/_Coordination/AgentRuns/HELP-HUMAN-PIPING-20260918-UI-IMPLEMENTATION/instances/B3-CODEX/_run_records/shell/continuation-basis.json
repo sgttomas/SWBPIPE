@@ -1,0 +1,103 @@
+{
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "role": "TASK Type 2",
+  "parent": "B3-CODEX WORKING_ITEMS",
+  "mechanism": "Codex delegated-harness-native descendant",
+  "head": "8f9c2d07104d467d635e78b6a405afb17ddc94f4",
+  "sources": [
+    {
+      "origin": "AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "origin": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "origin": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/briefs/SHELL_ASTRA_CONTINUATION.md",
+      "sha256": "b56daa60620d4d147dd8235184c14f0c112ef5666981d1c34096e8a28cfa77d6"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/briefs/SHELL.md",
+      "sha256": "5b43f0b5a63d194fe70698470f42d17cc61ec0b8ea801162dbb6d0cfbdb262e4"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/BASIS.json",
+      "sha256": "a3eaa7bd2c9f1aeb09e42f83f8ecd90d6da30e1b6ec9689f9ffa6a489a3131f1"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/INTEGRATION_NOTES.md",
+      "sha256": "0aa3830c81e3fc02fe9f43c29bb67419dd79d247383d54cba2585c30a2729e8e"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/SCENARIOS.md",
+      "sha256": "e67f293383d96888bafed1557c2bfc4f8b851b58b62ee8d8d09fd248d519c52d"
+    }
+  ],
+  "consultedReferences": [
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-DIST_RETURN.md",
+      "sha256": "97a0793051ee51765e235d0fda841fd4b0506330a577828928505072fe9b27a7",
+      "readScope": "Task-relevant sections only; no wider role loaded"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-SHELL_STAGE1_RETURN.md",
+      "sha256": "c791309e3f6532986905b09e12578687434961d40fedcabec2ae3345ac8743da",
+      "readScope": "Task-relevant sections only; no wider role loaded"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-SHELL_STAGE2_INTERIM_RETURN.md",
+      "sha256": "ed88bfe45ac714819efc1edbc7013e5de6c697c1d18906309b0bfef180dda67e",
+      "readScope": "Task-relevant sections only; no wider role loaded"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-SHELL_STAGE2_SECOND_RETURN.md",
+      "sha256": "d5097732d9556ce44bc3ce0ee4afdc1de42d72b8127aa66dcb2b2e79c4433fae",
+      "readScope": "Task-relevant sections only; no wider role loaded"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/briefs/B3-FLOORS.md",
+      "sha256": "fe295e2b575e651e77b6ec4c75d6ef1455af319119337b4ac96d6008536c0290",
+      "readScope": "Task-relevant sections only; no wider role loaded"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/lanes/B-SHELL/briefs/B-SHELL_addendum_4.md",
+      "sha256": "08b51c66b50994c92d98658b2d96b1eedd3c66599c791207ea1c7d97801c3088",
+      "readScope": "Task-relevant sections only; no wider role loaded"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md",
+      "sha256": "5b86c2783c5d460adf63b69dc3a49db7df672795f0feeb59079a2f93a82c0f4e",
+      "readScope": "Task-relevant sections only; no wider role loaded"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/UX-SPEC/UX_SPEC_V1.md",
+      "sha256": "2141c1e844109d4869287048c695e79677f423acae965d5dd0436b7f6aeff682",
+      "readScope": "Task-relevant sections only; no wider role loaded"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/ROOT/IMPLEMENTATION_HANDOFF_2026-09-18.md",
+      "sha256": "0711b0e35f8d02f404dcae9a2b440bcf4506d5f0f9b76dc748195952bf7ab9a7",
+      "readScope": "Task-relevant sections only; no wider role loaded"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/frames/s1_both_light.html",
+      "sha256": "995bdb62b3fb4ba14a893cb49f1301f041314a6584d0f77e717b4d6a18904417",
+      "readScope": "Task-relevant sections only; no wider role loaded"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/frames/s2_model_light.html",
+      "sha256": "73af73c3fb5490aec8c9871dd6213b88bf3c9ec7f54cc731af6a882f67a5f238",
+      "readScope": "Task-relevant sections only; no wider role loaded"
+    }
+  ]
+}

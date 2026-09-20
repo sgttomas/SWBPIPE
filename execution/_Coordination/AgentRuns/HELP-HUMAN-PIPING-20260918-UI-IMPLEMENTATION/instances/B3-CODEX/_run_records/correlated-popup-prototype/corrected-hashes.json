@@ -1,0 +1,30 @@
+[
+  {
+    "path": "/private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/build.rs",
+    "sha256": "b4db726d0a14c3da55041ed7c30b752fd2cec59c803324cc0d016079c6d3545b"
+  },
+  {
+    "path": "/private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+    "sha256": "389efac8add23f14dd5a2fcbe5bf14349466527de311005d988118f168b86f06"
+  },
+  {
+    "path": "/private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/public_menu_probe.m",
+    "sha256": "343c1d7f7969d7645fbea2668fcfe8b480b90912a5972b8ab69c74524bbe98e2"
+  },
+  {
+    "path": "/private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+    "sha256": "e20e156c59f8d6d7801838ba33e46b06694bb1680e76a8a475fcb531ecf4a815"
+  },
+  {
+    "path": "/private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src/features/workspace/correlatedPopup.ts",
+    "sha256": "7b2b8a917e24c470eb2c8a172d2720a52e91f760f49262aea8137ff27cef092a"
+  },
+  {
+    "path": "/private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src/features/workspace/correlatedPopup.test.ts",
+    "sha256": "bfadf6ef1350562da76a357a1750405ad89995842aad1ba715320c5e12fec117"
+  },
+  {
+    "path": "/private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+    "sha256": "a28e07c99b9005f67016b564a4d714871612062422fc63767a01fb14625aded5"
+  }
+]

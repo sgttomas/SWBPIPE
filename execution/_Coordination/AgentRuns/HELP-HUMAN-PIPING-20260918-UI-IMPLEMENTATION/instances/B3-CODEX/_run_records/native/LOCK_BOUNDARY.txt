@@ -1,0 +1,7 @@
+Final native CUA attempt after the integrated Tauri build:
+
+The Mac is locked and automatic unlock could not unlock it. Ask the user to unlock the Mac manually before continuing.
+
+No further CUA input or unlock retry was attempted after this response. The final
+bundle had been built, but had not been launched or operated for its final
+witness at this boundary.

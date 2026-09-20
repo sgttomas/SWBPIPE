@@ -1,0 +1,27 @@
+[2m[WebServer] [22m(node:89589) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 1 worker
+
+(node:89591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:89591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium-desktop] › e2e/b3-accessibility.spec.ts:28:1 › disabled rail and Agent reasons escape clipping under keyboard focus (2.2s)
+  ✓   2 [chromium-desktop] › e2e/b3-accessibility.spec.ts:54:1 › covered pages exclude retained stage controls from Tab and accessibility (5.3s)
+  ✓   3 [chromium-desktop] › e2e/b3-accessibility.spec.ts:86:1 › Both inspector Escape closes from property tab and input to opener (1.2s)
+  ✓   4 [chromium-desktop] › e2e/b3-accessibility.spec.ts:99:1 › Model inspector stays docked on Escape (849ms)
+  ✓   5 [chromium-desktop] › e2e/b3-accessibility.spec.ts:109:1 › toolkit child consumes first Escape before inspector close (941ms)
+  ✓   6 [chromium-desktop] › e2e/b3-accessibility.spec.ts:125:1 › portalled routing Escape closes explicitly and supersedes automatic restore (977ms)
+(node:89653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:89653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [chromium-compact] › e2e/b3-accessibility.spec.ts:28:1 › disabled rail and Agent reasons escape clipping under keyboard focus (1.7s)
+  ✓   8 [chromium-compact] › e2e/b3-accessibility.spec.ts:54:1 › covered pages exclude retained stage controls from Tab and accessibility (4.5s)
+  ✓   9 [chromium-compact] › e2e/b3-accessibility.spec.ts:86:1 › Both inspector Escape closes from property tab and input to opener (1.2s)
+  ✓  10 [chromium-compact] › e2e/b3-accessibility.spec.ts:99:1 › Model inspector stays docked on Escape (824ms)
+  ✓  11 [chromium-compact] › e2e/b3-accessibility.spec.ts:109:1 › toolkit child consumes first Escape before inspector close (946ms)
+  ✓  12 [chromium-compact] › e2e/b3-accessibility.spec.ts:125:1 › portalled routing Escape closes explicitly and supersedes automatic restore (989ms)
+
+  12 passed (23.8s)

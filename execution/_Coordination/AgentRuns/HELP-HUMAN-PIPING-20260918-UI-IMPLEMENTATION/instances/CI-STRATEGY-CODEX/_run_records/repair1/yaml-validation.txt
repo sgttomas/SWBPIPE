@@ -1,0 +1,1 @@
+Workflow YAML parsed; existing DAG/matrix/always gate preserved; both execution stages require collection evidence and retain it with always-upload and missing-file error.

@@ -1,0 +1,3 @@
+2026-09-19T23:21:25.044139
+Exact bundle open returned exit 0. No prior app PID observed.
+36554 Sat Sep 19 23:20:48 2026     /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop

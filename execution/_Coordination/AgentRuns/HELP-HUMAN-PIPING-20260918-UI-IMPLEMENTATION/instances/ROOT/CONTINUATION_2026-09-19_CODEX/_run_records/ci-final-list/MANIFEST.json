@@ -1,0 +1,89 @@
+{
+  "sourceCandidate": "160941d3f9ffcce393583aa73f4dc72b32013117",
+  "productCandidate": "3861b614362d8da925e148d7506ecc9902c7f808",
+  "method": "retained validate_inventory.py.txt executed with cwd swbpipe-wt2; Playwright --list only",
+  "outcome": "exactfull436=30+147+59+144+56;focused68=30+30+8",
+  "scope": "pre CI-policy repair1 collection validation; no browser/test execution or hosted pass",
+  "files": {
+    "full.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "focused-1.json": {
+      "sha256": "19f135beef75b933062f7bb47635d498e28dcc8ccda80771a1655b2e5c6f0750",
+      "bytes": 22813
+    },
+    "focused-0.json": {
+      "sha256": "3677686690a8b7ef9ddb5905830dea6f07f54c19338e847fdd45bc632f9e557a",
+      "bytes": 21647
+    },
+    "shard-2.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "inventory-validation.json": {
+      "sha256": "fdb6a14f78f137bd25b4d4d2151eedad74bcd5d5729f70089415ad461d36b5c7",
+      "bytes": 5539
+    },
+    "validate_inventory.py.txt": {
+      "sha256": "c62e04d328f75bb8a1d1da3c8cc362bd7362b5e473e04ec411ca020a1b2501ab",
+      "bytes": 2599
+    },
+    "shard-1.json": {
+      "sha256": "329829584dc623a3d32d5475f399fc7b13e55c0ce7bfd123d1ba54ad26bcd581",
+      "bytes": 102032
+    },
+    "focused-1.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "focused-2.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "barrier.json": {
+      "sha256": "e71363d865446ddbf3145044397cede9d9c4f4eccc109b006590bb15c00e9552",
+      "bytes": 21647
+    },
+    "full.json": {
+      "sha256": "6c474690924b1c399ec1f7a1e781d7327a21e8fa428bb395687d71dcc902eae2",
+      "bytes": 294661
+    },
+    "shard-3.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "shard-2.json": {
+      "sha256": "92efc3369d88ddf217ca6bdda57bc9856911c33f2e25eed11ccd87ffedabdae8",
+      "bytes": 42443
+    },
+    "shard-3.json": {
+      "sha256": "b8b87a111e85691322042b88dba654a9e0825b853827c9e184b87618abc3c677",
+      "bytes": 99853
+    },
+    "shard-4.json": {
+      "sha256": "11c4a75866efba1cddae362803140c123141525919e894f783fc3e4394f6f692",
+      "bytes": 40275
+    },
+    "focused-0.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "barrier.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "shard-1.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "focused-2.json": {
+      "sha256": "57226c0c00a2e77de6fb81eaccddd4f400113dd36f414395ace2cb04e5b7814c",
+      "bytes": 8190
+    },
+    "shard-4.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

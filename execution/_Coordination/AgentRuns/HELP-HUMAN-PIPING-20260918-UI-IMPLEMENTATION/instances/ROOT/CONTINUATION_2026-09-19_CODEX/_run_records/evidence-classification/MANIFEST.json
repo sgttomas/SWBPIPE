@@ -1,0 +1,36 @@
+{
+  "basis": "73fc5fd6a4fe91a23508909b3c6a8c3b00addfdd plus byte-preserving raw-evidence relocation",
+  "before": "378passed,1GEN8failure;30rawreports misclassified",
+  "after": "379passed,56.12seconds;self-check exit0, no raw-path findings",
+  "change": "75raw artifacts moved under CI-STRATEGY-CODEX/_run_records with exact hash map; sealed returns preserved",
+  "files": {
+    "harness-after.log": {
+      "bytes": 501,
+      "sha256": "4bbebd337b595299876ef00c22f01c39f4bf9a2c8fd0e4caeb862f04a2ba4447"
+    },
+    "selfcheck-after.log": {
+      "bytes": 41362,
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+    },
+    "selfcheck-before.log": {
+      "bytes": 55562,
+      "sha256": "44028719ab19df46aa9a2db4cee1e05c7cfbeb54ba4b9b9c55e437c4f42e5e4b"
+    },
+    "g4.log": {
+      "bytes": 15142,
+      "sha256": "e3ec597e8877623c249f07ac6c345038dd7b79fce79954aebf90be9ae464087e"
+    },
+    "harness-before.log": {
+      "bytes": 1887,
+      "sha256": "d60a45dc96138e9994ebd3fa6c9e146f17fb96b5475dee917ad5370b3b52b788"
+    }
+  },
+  "selfCheckConfirmed": {
+    "command": "python3 tools/practitioner_harness/harness.py self-check",
+    "exitCode": 0,
+    "basis": "same byte-preserving relocation; standalone command exit recorded by exec",
+    "file": "selfcheck-confirmed.log",
+    "bytes": 41362,
+    "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+  }
+}

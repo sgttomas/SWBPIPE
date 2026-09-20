@@ -35,6 +35,8 @@ describe("UI preferences", () => {
       leftRailPx: 999,
       rightRailPx: 1,
       dockPx: 330,
+      bothSplitPct: 99,
+      tableDrawerPx: 10,
       lastPanelTabs: { inspector: "properties" }
     });
     writeUiPreferences(preferences, storage);
@@ -45,6 +47,8 @@ describe("UI preferences", () => {
       leftRailPx: 420,
       rightRailPx: 280,
       dockPx: 330,
+      bothSplitPct: 85,
+      tableDrawerPx: 180,
       lastPanelTabs: { inspector: "properties" }
     });
     expect(JSON.parse(storage.value()!)).not.toHaveProperty("projectId");
@@ -64,5 +68,18 @@ describe("UI preferences", () => {
     };
     expect(readUiPreferences(denied)).toBe(defaultUiPreferences());
     expect(() => writeUiPreferences(defaultUiPreferences(), denied)).not.toThrow();
+  });
+
+  it("reads a record written before slice B3 without error and gives the new sizes their defaults", () => {
+    const storage = memoryStorage();
+    storage.setItem(UI_PREFERENCES_STORAGE_KEY, JSON.stringify({
+      version: 1, theme: "light", density: "comfortable", leftRailPx: 300, rightRailPx: 360, dockPx: 240, lastPanelTabs: {}
+    }));
+    expect(readUiPreferences(storage)).toEqual({
+      version: 1, theme: "light", density: "comfortable", leftRailPx: 300, rightRailPx: 360, dockPx: 240,
+      bothSplitPct: 55, tableDrawerPx: 280, lastPanelTabs: {}
+    });
+    expect(updateUiPreferences(readUiPreferences(storage), { bothSplitPct: 2, tableDrawerPx: 9999 })).toMatchObject({ bothSplitPct: 15, tableDrawerPx: 600 });
+    expect(updateUiPreferences(readUiPreferences(storage), { bothSplitPct: Number.NaN })).toMatchObject({ bothSplitPct: 55 });
   });
 });

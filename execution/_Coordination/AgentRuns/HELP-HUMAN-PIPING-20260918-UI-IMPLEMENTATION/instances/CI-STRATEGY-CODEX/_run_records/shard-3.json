@@ -1,0 +1,3032 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": {
+      "current": 3,
+      "total": 4
+    },
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": false,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "linear-authoring.spec.ts",
+      "file": "linear-authoring.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "compact blank-to-straight authoring keeps the canvas and exact Add/Apply review",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "3014788e718664926f50-4d931543954fc47a1116",
+          "file": "linear-authoring.spec.ts",
+          "line": 60,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "r2-smoke.spec.ts",
+      "file": "r2-smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "guided workbench shell keeps journey steps, details, and compact status reachable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-65c3590770936e9d327e",
+          "file": "r2-smoke.spec.ts",
+          "line": 148,
+          "column": 1
+        },
+        {
+          "title": "DEC-077 solve temperature queues an explicit unit-bearing operation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-7568544b6534eab05f7c",
+          "file": "r2-smoke.spec.ts",
+          "line": 225,
+          "column": 1
+        },
+        {
+          "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-6ac6ecaad09abe729ff5",
+          "file": "r2-smoke.spec.ts",
+          "line": 250,
+          "column": 1
+        },
+        {
+          "title": "viewport gesture placeholders record unit validation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-25540f0b9303034b0487",
+          "file": "r2-smoke.spec.ts",
+          "line": 828,
+          "column": 1
+        },
+        {
+          "title": "R2 from-blank GUI journey authors the A12 rehearsal script",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-0af10443a1135dbc5a28",
+          "file": "r2-smoke.spec.ts",
+          "line": 865,
+          "column": 1
+        },
+        {
+          "title": "diagnostic detail exposes linked result unit context",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-2e529f2c3edb5b917f0c",
+          "file": "r2-smoke.spec.ts",
+          "line": 1085,
+          "column": 1
+        },
+        {
+          "title": "rule-pack manager drafts privately and reports the desktop-only backend seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-b94a88386d9decf4ac5a",
+          "file": "r2-smoke.spec.ts",
+          "line": 1108,
+          "column": 1
+        },
+        {
+          "title": "library manager loads an invented private sample and reports the desktop-only backend seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-37c37f114978742f7b09",
+          "file": "r2-smoke.spec.ts",
+          "line": 1331,
+          "column": 1
+        },
+        {
+          "title": "run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-4e3fc4a0b138167e1f3b",
+          "file": "r2-smoke.spec.ts",
+          "line": 1495,
+          "column": 1
+        },
+        {
+          "title": "R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-7e4344db1dcfc06f4d14",
+          "file": "r2-smoke.spec.ts",
+          "line": 1623,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "result-compatibility.spec.ts",
+      "file": "result-compatibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fresh Current exports strict 0.2 result and stress-neutral evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "ad4d63015ca33e87347b-a01803b61d2d6f774a36",
+          "file": "result-compatibility.spec.ts",
+          "line": 14,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "ui-foundation/fresh-demo-policy.spec.ts",
+      "file": "ui-foundation/fresh-demo-policy.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fresh policy requires exact one-run authorization and all prospective bindings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7bb6bb788da8470d50fa-2f2c93a32342ab6c1801",
+          "file": "ui-foundation/fresh-demo-policy.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "fresh hash and exclusive entry reject policy drift and output replay",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7bb6bb788da8470d50fa-cda990c334253db3dc7d",
+          "file": "ui-foundation/fresh-demo-policy.spec.ts",
+          "line": 23,
+          "column": 1
+        },
+        {
+          "title": "fresh smoke is explicit, keeps both-size controls and never consumes timed entry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7bb6bb788da8470d50fa-f3e9e6ccda14903b71c3",
+          "file": "ui-foundation/fresh-demo-policy.spec.ts",
+          "line": 35,
+          "column": 1
+        },
+        {
+          "title": "single demonstration retains target failure and invalid/incomplete disposition",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7bb6bb788da8470d50fa-e796de583d07363478b9",
+          "file": "ui-foundation/fresh-demo-policy.spec.ts",
+          "line": 41,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "ui-foundation/full-cohort-controller.spec.ts",
+      "file": "ui-foundation/full-cohort-controller.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "frozen controller recipe retains prescribed workload and bounded independent segments",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-d6d25ec426b6be7fcf87",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "tree oracle is independently derived with complete typed order and ARIA groups",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-0a95bcc1fab6be66fe81",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: assignment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-ab70467fe0bdf8dd4cfe",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 32,
+          "column": 3
+        },
+        {
+          "title": "only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: tree-filter",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-61892bda235a719aa2ec",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 32,
+          "column": 3
+        },
+        {
+          "title": "presented gap bounds widen outward and never subtract observer work",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-3ee830afde10fccc2629",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 45,
+          "column": 1
+        },
+        {
+          "title": "paired cue permits contrasting rim replacing orange and rejects unchanged/outside changes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-aa9e97e8aaf0dbde52f7",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 81,
+          "column": 1
+        },
+        {
+          "title": "exact four distinct paired witnesses and actual contrast boundary remain mandatory",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-69747b2e4f176eab6f4a",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 90,
+          "column": 1
+        },
+        {
+          "title": "cue plan rejects wrong typed winner anchor camera DPR clip and corrupt PNG mappings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-e4af6c1acda9a338588d",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 102,
+          "column": 1
+        },
+        {
+          "title": "geometry pairing is deterministic conservative and one-to-one",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-27af854cb598e9f0ec53",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 114,
+          "column": 1
+        },
+        {
+          "title": "real caller observer requirements retain complete observations and DOM zero RAF class",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-8401bac6b6b9fe9609c6",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 122,
+          "column": 1
+        },
+        {
+          "title": "actual product pre-box unavailable and status-less active union is strict",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-23494b0730681e43e1b2",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 132,
+          "column": 1
+        },
+        {
+          "title": "stopped box rejection persists exact fields before throwing and never overwrites evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-92d1c3d8a30a7daa56e5",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 146,
+          "column": 1
+        },
+        {
+          "title": "cross-action camera accepts finite sub-nanounit 7 to 8 publication and rejects incomplete or changed geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-e2eb7e50a400c7df725c",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 266,
+          "column": 1
+        },
+        {
+          "title": "first applied tuple binds same or later submission only for the exact unchanged application and pointer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-a2b0c31af26bc4580676",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 293,
+          "column": 1
+        },
+        {
+          "title": "actual first callback copies application and capture rejects replacement drift or later backfill",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-4f7a29257d2280640189",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 325,
+          "column": 1
+        },
+        {
+          "title": "winner plan requires geometry provenance even when the altered plan is rehashed and self-consistent",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-3ee11e7de694088d13b4",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 415,
+          "column": 1
+        },
+        {
+          "title": "cue at the wrong attachment location cannot qualify the frozen winner center",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-f411db18192389de4969",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 424,
+          "column": 1
+        },
+        {
+          "title": "actual ReturnAsStream beyond former64MiB preserves EOF exact hash and unsafe identifiers",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-3ad339f024f8a5542f73",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 456,
+          "column": 1
+        },
+        {
+          "title": "actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-d94c4f71d26e6451a731",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 468,
+          "column": 1
+        },
+        {
+          "title": "tree oracle restores accepted project restraint provenance and component vocabulary",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-7175984722ec1d0e9e50",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 480,
+          "column": 1
+        },
+        {
+          "title": "tree oracle matches all 40 independently frozen ordered query memberships",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-a0acfdcd9833df633b7b",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 550,
+          "column": 1
+        },
+        {
+          "title": "runtime geometry pin rejects old and mutated plan sources after valid selfhash rebinding",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-1b06d672f8b6b6434ed7",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 565,
+          "column": 1
+        },
+        {
+          "title": "runtime geometry pin checks self-contained manifests and actual disk source",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-91cd2b9695bc678c1b95",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 577,
+          "column": 1
+        },
+        {
+          "title": "orbit constructor preserves full qualified sequence and unchanged interval gaps",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-8adf9f9f32fc15597493",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 634,
+          "column": 1
+        },
+        {
+          "title": "same-trace integer arithmetic matches independent rational bounds and translation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-f69b0779b2f6add4ee93",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 674,
+          "column": 1
+        },
+        {
+          "title": "same-trace boundary rejects mixed raw clock source document action epoch process and lineage",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-eb5590d9db1fafbcfcdf",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 683,
+          "column": 1
+        },
+        {
+          "title": "actual extractor and binder retain reusable tracks distinct raw pairs and tied timestamps",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-f293f45f621d215343ee",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 880,
+          "column": 1
+        },
+        {
+          "title": "source-shaped extractor still rejects overlap missing pair and mismatched track endpoints",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-b99b0c4e0eed076ac68d",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 900,
+          "column": 1
+        },
+        {
+          "title": "actual action lifecycle persists once before host tail and blocks next action through finalization",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-f500ad72256a584e824d",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 909,
+          "column": 1
+        },
+        {
+          "title": "actual lifecycle retains injected work stop persistence tail and finalization failures without replacement stop",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-93b7a00df0cda141e749",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 931,
+          "column": 1
+        },
+        {
+          "title": "assignment diagnostics freeze ten fresh identities and cannot qualify full or focused workload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-8e487d3dd88cde415e6f",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 959,
+          "column": 1
+        },
+        {
+          "title": "characterization rejects malformed/conflicting modes and every partial/reordered plan",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-b227b8cb8214193b0504",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 984,
+          "column": 1
+        },
+        {
+          "title": "real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-f872f3daec1943ad11eb",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 994,
+          "column": 1
+        },
+        {
+          "title": "attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-241cebc71430ab1453a4",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1013,
+          "column": 1
+        },
+        {
+          "title": "required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-9c3796e76f6f86bd4c89",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1026,
+          "column": 1
+        },
+        {
+          "title": "keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-e350d25cbe619dd98156",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1035,
+          "column": 1
+        },
+        {
+          "title": "reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-b1f2384b15d0c5d42333",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1041,
+          "column": 1
+        },
+        {
+          "title": "product inventory rejects omission duplicates split overlap and wrong final provenance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-63f405b1678b5de76c46",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1055,
+          "column": 1
+        },
+        {
+          "title": "frozen actual product/profile inputs validate read-only when explicitly supplied",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-c30e903fd90e827a07e7",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1063,
+          "column": 1
+        },
+        {
+          "title": "uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-2f1e9e42b442debec466",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1078,
+          "column": 1
+        },
+        {
+          "title": "continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-a150da7b866386c7f64c",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1100,
+          "column": 1
+        },
+        {
+          "title": "continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-056ba6a9f1be724ca5df",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1130,
+          "column": 1
+        },
+        {
+          "title": "phase label rejection preserves actual boundary metadata: point-selection-1-stopped",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-0635af56f87ca71ca818",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1197,
+          "column": 3
+        },
+        {
+          "title": "phase label rejection preserves actual boundary metadata: orbit-1-ready",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-498848f1668c4b425500",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1197,
+          "column": 3
+        },
+        {
+          "title": "captured scrollable inspector dimensions remain observations while true layout drift rejects",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-a126f3a81ab6d0a4ea35",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1215,
+          "column": 1
+        },
+        {
+          "title": "owner one-success transition preserves history and bounded dispatch: target-miss",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-e298abe4008c052e6950",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1246,
+          "column": 3
+        },
+        {
+          "title": "owner one-success transition preserves history and bounded dispatch: invalid,valid",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-aff588c3cd35712948bc",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1246,
+          "column": 3
+        },
+        {
+          "title": "owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-27567b4247875b65494c",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1246,
+          "column": 3
+        },
+        {
+          "title": "owner one-success transition preserves history and bounded dispatch: interrupted,valid",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-68dca826af74f0ebf4a2",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1246,
+          "column": 3
+        },
+        {
+          "title": "owner one-success transition preserves history and bounded dispatch: empty-exit0,valid",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-c0995db7d37c943c393e",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1246,
+          "column": 3
+        },
+        {
+          "title": "owner one-success transition preserves history and bounded dispatch: stale-success",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-1ddf9b4f5b39bc7df8d2",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1246,
+          "column": 3
+        },
+        {
+          "title": "explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-6c379957683ac649d92b",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1333,
+          "column": 1
+        },
+        {
+          "title": "fresh demonstration provenance accepts only its bound revision and internal120 profile",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "7b95faf15d973edf89ba-73dfe07a097130757c3a",
+          "file": "ui-foundation/full-cohort-controller.spec.ts",
+          "line": 1382,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "ui-foundation/performance-targets.spec.ts",
+      "file": "ui-foundation/performance-targets.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "all exact owner boundaries pass despite raw observer reference exceedance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-3b0aa79e10f772f17789",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 40,
+          "column": 1
+        },
+        {
+          "title": "each target rejects tiny excess and scores upper rather than lower endpoint",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-6561aeddf0ce4e4f89af",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 47,
+          "column": 1
+        },
+        {
+          "title": "nearest rank uses the 190th of 200 and retains all tail samples",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-d118397861b5c2239e94",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 63,
+          "column": 1
+        },
+        {
+          "title": "all twenty box and filter rows are required and nineteenth upper is scored",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-7d7e1ed5e7c6b04d8281",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 71,
+          "column": 1
+        },
+        {
+          "title": "missing duplicate reordered sparse or unqualified action populations fail without survivor p95",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-daf362b302699230b45f",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 80,
+          "column": 1
+        },
+        {
+          "title": "invalid duration intervals and absent assignment never qualify",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-eaebd0158c39b3ae0e91",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 93,
+          "column": 1
+        },
+        {
+          "title": "settled owned RAF must be observed exact zero",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-eaeb50380bd932f7d9f0",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 103,
+          "column": 1
+        },
+        {
+          "title": "orbit requires exact windows complete contiguous brackets correct modes and current OD",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-a9906dca350e890ade2e",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 110,
+          "column": 1
+        },
+        {
+          "title": "run identity bindings freshness and qualification are mandatory",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-504c7c08098d748ff0b8",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 125,
+          "column": 1
+        },
+        {
+          "title": "exact ten-run cohort preserves each result without pooling sizes or modes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-729cd1362246cae24dfb",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 136,
+          "column": 1
+        },
+        {
+          "title": "missing repeated mixed-binding or nonfresh cohort cannot pass",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-ea66366b9ce78c52d003",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 146,
+          "column": 1
+        },
+        {
+          "title": "outside orbit brackets survive exact left right and both boundary alignment: centerline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-56ac4bc7be07503550f5",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 160,
+          "column": 3
+        },
+        {
+          "title": "boundary endpoints cannot replace missing left right or both outside brackets: centerline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-2280cd024a6013ba677c",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 175,
+          "column": 3
+        },
+        {
+          "title": "outside orbit brackets survive exact left right and both boundary alignment: actual-od",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-bdf1240b2240cf9d4c23",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 160,
+          "column": 3
+        },
+        {
+          "title": "boundary endpoints cannot replace missing left right or both outside brackets: actual-od",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-fa04529ae8717eac2c11",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 175,
+          "column": 3
+        },
+        {
+          "title": "qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: centerline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-d35893fdf7a2afd3c2da",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 197,
+          "column": 3
+        },
+        {
+          "title": "tied coordinates do not waive identity population interval or window guards: centerline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-94b636c9a0a3145bc5e4",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 221,
+          "column": 3
+        },
+        {
+          "title": "qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: actual-od",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-db0b0c04640d4a8b8136",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 197,
+          "column": 3
+        },
+        {
+          "title": "tied coordinates do not waive identity population interval or window guards: actual-od",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-48b17bd7b264e9ad8950",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 221,
+          "column": 3
+        },
+        {
+          "title": "uncertain right boundary is qualified rather than nominally rejected",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-7c20edd330615ebc928a",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 259,
+          "column": 1
+        },
+        {
+          "title": "independent dyadic1199 versus1200 dilution must fail using maximum population p95",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-b73827408fde6b3bb2be",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 266,
+          "column": 1
+        },
+        {
+          "title": "all left right both-edge cuts retain ties and no omitted candidates",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-52969515e8a5603bb833",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 281,
+          "column": 1
+        },
+        {
+          "title": "endpoint and envelope defects never become a favorable boundary population",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-64b629bf4e6d071eb58e",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 298,
+          "column": 1
+        },
+        {
+          "title": "same-trace scorer independently rejects narrow bounds and false carried context",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-f8c8217d43f9792c8bf1",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 333,
+          "column": 1
+        },
+        {
+          "title": "same-trace complete populations retain ties and prevent boundary dilution",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-9fcfbfc6e83bd76e534a",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 349,
+          "column": 1
+        },
+        {
+          "title": "same capture forbids every raw event reuse while tracks and raw index order may repeat",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "dac7153c386c67feed44-3ca08aad05857ec3d25b",
+          "file": "ui-foundation/performance-targets.spec.ts",
+          "line": 367,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "ui-foundation.spec.ts",
+      "file": "ui-foundation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "[preflight] maintained fixture supports typed selection and a keyboard-authored measurement",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-95782ef079471d39f317",
+          "file": "ui-foundation.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-15e6c6d028d0e1105a6b",
+          "file": "ui-foundation.spec.ts",
+          "line": 82,
+          "column": 1
+        },
+        {
+          "title": "typed raw-ID collisions remain distinct through ordered selection and an ABA membership change",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-abb7a337552180e3563e",
+          "file": "ui-foundation.spec.ts",
+          "line": 242,
+          "column": 1
+        },
+        {
+          "title": "Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-fd969770222bad39aec5",
+          "file": "ui-foundation.spec.ts",
+          "line": 270,
+          "column": 3
+        },
+        {
+          "title": "Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-71fc2bcf6e1fc4841252",
+          "file": "ui-foundation.spec.ts",
+          "line": 270,
+          "column": 3
+        },
+        {
+          "title": "virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-62043fcac9c902f9c9da",
+          "file": "ui-foundation.spec.ts",
+          "line": 309,
+          "column": 1
+        },
+        {
+          "title": "Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-5941f403a6b68c6caee7",
+          "file": "ui-foundation.spec.ts",
+          "line": 349,
+          "column": 1
+        },
+        {
+          "title": "real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-c4e8a0b901ed83660b85",
+          "file": "ui-foundation.spec.ts",
+          "line": 394,
+          "column": 1
+        },
+        {
+          "title": "Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-cc9b93a703ffafae6da6",
+          "file": "ui-foundation.spec.ts",
+          "line": 479,
+          "column": 1
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light comfortable 1024x768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-ddd8dda9a0673a5d61b3",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light comfortable 1280x800",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-b560c23e4a6531f8de58",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light comfortable 1440x920",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-2ab7c680420c3e25b4b5",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light compact 1024x768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-adc2887b1982443493c3",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light compact 1280x800",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-b1b89791176bcf1e2579",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light compact 1440x920",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-05151a98a52445de5e43",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark comfortable 1024x768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-2b45e82e5e8898be6805",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark comfortable 1280x800",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-bc774dfd26ddffc9f286",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark comfortable 1440x920",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-14842758ce774b5acc00",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark compact 1024x768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-14a2f2639ce3d5b33c2e",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark compact 1280x800",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-b0e21fd22e9b18e9cab9",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark compact 1440x920",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-1a2c345d5cf2b6173e48",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-9daa3e5853bdb8107f1f",
+          "file": "ui-foundation.spec.ts",
+          "line": 963,
+          "column": 1
+        },
+        {
+          "title": "a property task keeps its typed target and entered value through filter, collapse, and selection ABA",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-8d66c997957b9b2f16a5",
+          "file": "ui-foundation.spec.ts",
+          "line": 1037,
+          "column": 1
+        },
+        {
+          "title": "live Properties routes follow catalogue target B while frozen Task A remains unchanged",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-fa1189968ab748210d39",
+          "file": "ui-foundation.spec.ts",
+          "line": 1093,
+          "column": 1
+        },
+        {
+          "title": "an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-a1bb1142ad2df309f617",
+          "file": "ui-foundation.spec.ts",
+          "line": 1162,
+          "column": 1
+        },
+        {
+          "title": "a prepared direct review is rejected after selection membership leaves and returns to the same primary",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-c8688f2a6acbe31dfc8a",
+          "file": "ui-foundation.spec.ts",
+          "line": 1205,
+          "column": 1
+        },
+        {
+          "title": "selected-pipe actions copy a stable draft target snapshot instead of following later selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-ceb51d344f5661b97e3b",
+          "file": "ui-foundation.spec.ts",
+          "line": 1230,
+          "column": 1
+        },
+        {
+          "title": "filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-0a8db9737a535a7758b1",
+          "file": "ui-foundation.spec.ts",
+          "line": 1267,
+          "column": 1
+        },
+        {
+          "title": "node visibility owns attached symbols while connected spans remain independent, and isolate is bounded",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-f24d6749beda8212bac6",
+          "file": "ui-foundation.spec.ts",
+          "line": 1337,
+          "column": 1
+        },
+        {
+          "title": "Actual OD uses valid spans and explains the independently injected centerline fallback",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-c420a33205413a930a71",
+          "file": "ui-foundation.spec.ts",
+          "line": 1373,
+          "column": 1
+        },
+        {
+          "title": "ordinary typed edit preserves view state and same-ID project replacement clears it",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-8a43272359ea48bb2236",
+          "file": "ui-foundation.spec.ts",
+          "line": 1384,
+          "column": 1
+        },
+        {
+          "title": "keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-980dbfe0e38266e8c767",
+          "file": "ui-foundation.spec.ts",
+          "line": 1420,
+          "column": 1
+        },
+        {
+          "title": "narrow canvas fits visible and selected envelopes in every view preset",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-f43aa4468ee4637a71a3",
+          "file": "ui-foundation.spec.ts",
+          "line": 1728,
+          "column": 1
+        },
+        {
+          "title": "standard 1000 camera recipe compares legacy and corrected fit without changing targets",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-e11ef27c0ffbd8c933cb",
+          "file": "ui-foundation.spec.ts",
+          "line": 1764,
+          "column": 3
+        },
+        {
+          "title": "standard 10000 camera recipe compares legacy and corrected fit without changing targets",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-3b18cc3c02a3ee19fe36",
+          "file": "ui-foundation.spec.ts",
+          "line": 1764,
+          "column": 3
+        },
+        {
+          "title": "filtered tree collapse controls retain typed selection and frozen draft across search changes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-971ac21ddad2001d6eda",
+          "file": "ui-foundation.spec.ts",
+          "line": 1784,
+          "column": 1
+        },
+        {
+          "title": "empty ordered selection publishes independently from project inspector",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-614d81815d981c136f48",
+          "file": "ui-foundation.spec.ts",
+          "line": 1832,
+          "column": 1
+        },
+        {
+          "title": "decorative viewport overlays pass real canvas gestures while view controls stay interactive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-ad2a1195ec69982d74c3",
+          "file": "ui-foundation.spec.ts",
+          "line": 1966,
+          "column": 1
+        }
+      ],
+      "suites": [
+        {
+          "title": "captured Box lifetime",
+          "file": "ui-foundation.spec.ts",
+          "line": 2084,
+          "column": 6,
+          "specs": [
+            {
+              "title": "ordinary real Box applies independent empty Components membership",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-1cf4710d76ef4da2c7cd",
+              "file": "ui-foundation.spec.ts",
+              "line": 2133,
+              "column": 1
+            },
+            {
+              "title": "Escape retires captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-fa641fae81badb5b2bd9",
+              "file": "ui-foundation.spec.ts",
+              "line": 2141,
+              "column": 1
+            },
+            {
+              "title": "same-ID Open retires old captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-da16ee93d8cd34ba23df",
+              "file": "ui-foundation.spec.ts",
+              "line": 2157,
+              "column": 1
+            },
+            {
+              "title": "Select retires captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-8e029c8c1ea0c2ae7e6d",
+              "file": "ui-foundation.spec.ts",
+              "line": 2193,
+              "column": 55
+            },
+            {
+              "title": "New blank retires captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-a08865b9451cd55511bb",
+              "file": "ui-foundation.spec.ts",
+              "line": 2193,
+              "column": 55
+            },
+            {
+              "title": "Measure cannot revive a captured Box through a mode ABA",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-f86ebc0df4675b253492",
+              "file": "ui-foundation.spec.ts",
+              "line": 2222,
+              "column": 70
+            },
+            {
+              "title": "palette Node and Select cannot revive a captured Box through a mode ABA",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-9938dab956785bab3d0d",
+              "file": "ui-foundation.spec.ts",
+              "line": 2222,
+              "column": 70
+            },
+            {
+              "title": "workspace Escape event ownership body idle",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-26984f2f64a54f631937",
+              "file": "ui-foundation.spec.ts",
+              "line": 2245,
+              "column": 39
+            },
+            {
+              "title": "workspace Escape event ownership body captured",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-8eb05f9afd0162177f7a",
+              "file": "ui-foundation.spec.ts",
+              "line": 2245,
+              "column": 39
+            },
+            {
+              "title": "workspace Escape event ownership consumed palette",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-dedaf998da2dca6399cb",
+              "file": "ui-foundation.spec.ts",
+              "line": 2269,
+              "column": 55
+            },
+            {
+              "title": "workspace Escape event ownership consumed drawer",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-6f8c869342b5e1568058",
+              "file": "ui-foundation.spec.ts",
+              "line": 2269,
+              "column": 55
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-20T08:26:38.451Z",
+    "duration": 217.80400000000003,
+    "expected": 0,
+    "skipped": 144,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

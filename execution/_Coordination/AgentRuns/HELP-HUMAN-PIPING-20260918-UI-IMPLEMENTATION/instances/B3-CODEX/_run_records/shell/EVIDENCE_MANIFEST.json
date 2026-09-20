@@ -1,0 +1,797 @@
+[
+  {
+    "path": "COMMANDS.md",
+    "sha256": "91b6052db2c67d10b9a2cad7be1f27a5306f1d20d409b351100a94bf5e40431e",
+    "bytes": 3132
+  },
+  {
+    "path": "RETURN.md",
+    "sha256": "bf43cae79a2daa517166bfd448d6fd5b21a9d8edbc3790725b6240d807ae2d8e",
+    "bytes": 10923
+  },
+  {
+    "path": "authoring-repair-artifacts/.last-run.json",
+    "sha256": "7caad02aef8a25d36e6e8e2f09d6983081f2fa97d4a0d57cf1f7a6197a3735e6",
+    "bytes": 96
+  },
+  {
+    "path": "authoring-repair-artifacts/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/error-context.md",
+    "sha256": "1a5f0a59cb7491e7ccebaa9f18b8ae92120c16b8e1544b738680962be6c01546",
+    "bytes": 19961
+  },
+  {
+    "path": "authoring-repair-artifacts/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip",
+    "sha256": "34303f7693637a96d532560bdf1468e69a3baa0c226931004771448652f9c29f",
+    "bytes": 7701855
+  },
+  {
+    "path": "authoring-repair.json.gz",
+    "sha256": "e41cb4f8bf0fec7b731f2cb0e79d9e42e6a476841886d78b1cd16001533e0cb8",
+    "bytes": 1876
+  },
+  {
+    "path": "authoring-repair.log.gz",
+    "sha256": "6302eeac1fdf77df32fa27e3599130d5b65f44de318376d3e81e2ecf56f83855",
+    "bytes": 1087
+  },
+  {
+    "path": "authoring-repair2-artifacts/.last-run.json",
+    "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+    "bytes": 45
+  },
+  {
+    "path": "authoring-repair2.json.gz",
+    "sha256": "df242b2328398c5da1c8fe70e6d08075a4dbf49dc34f4da574adbcc21a7d785a",
+    "bytes": 1170
+  },
+  {
+    "path": "authoring-repair2.log.gz",
+    "sha256": "a6e3c3d6002fa7e7fe7f9cf003b60cd57652b23930facac1470b94baf05e1f76",
+    "bytes": 331
+  },
+  {
+    "path": "browser-identity.json",
+    "sha256": "437330743cba55d04787eddcaa3aae179db5a3bb7d8aebdfda61fc526dc49b13",
+    "bytes": 552
+  },
+  {
+    "path": "chromium-compact-structural-geometry.json",
+    "sha256": "7c65878b54cf0fa86a114b0a81cf3bf19b5530639153f44c39f4cdcde7b2d955",
+    "bytes": 9552
+  },
+  {
+    "path": "chromium-desktop-structural-geometry.json",
+    "sha256": "7c65878b54cf0fa86a114b0a81cf3bf19b5530639153f44c39f4cdcde7b2d955",
+    "bytes": 9552
+  },
+  {
+    "path": "clearance-diagnostic-artifacts/.last-run.json",
+    "sha256": "69aed76ae0d4664ee943fa040eb10533f6d643d418d5aad074d7b31ad0cca18a",
+    "bytes": 145
+  },
+  {
+    "path": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-8a8ee4ba10232091278cb42910fc1a6169a82d2c.json",
+    "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544",
+    "bytes": 2485
+  },
+  {
+    "path": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-e7a7208fa663adf10dfc32540cb759fc4aae36bb.json",
+    "sha256": "17237fbaf5445b3c4eecfc98cd50885dde2ad1528de9dca7741e13439cec968e",
+    "bytes": 2383
+  },
+  {
+    "path": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/error-context.md",
+    "sha256": "168988bf3acd1af0c4da541f095cc63d488855561e8864cd90bfefcf97b33bb5",
+    "bytes": 27789
+  },
+  {
+    "path": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/trace.zip",
+    "sha256": "7aae3338a07f65f334dafdec47786ade241ec5603962fd68fb1456828e4982b9",
+    "bytes": 1741254
+  },
+  {
+    "path": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/error-context.md",
+    "sha256": "168988bf3acd1af0c4da541f095cc63d488855561e8864cd90bfefcf97b33bb5",
+    "bytes": 27789
+  },
+  {
+    "path": "clearance-diagnostic.json.gz",
+    "sha256": "bdd7661486893dea55a55ecf3244a2a162b9a9a4834213d0917f57eb17ad33a1",
+    "bytes": 340774
+  },
+  {
+    "path": "clearance-diagnostic.log.gz",
+    "sha256": "0e1b88cde66cd54e43761b3bb1b1e8c5bc068c7793cfd495bfcadf58d35f9b90",
+    "bytes": 1297
+  },
+  {
+    "path": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-33f0eea8c7699adacd22173aa77982ea07bf96cf.json",
+    "sha256": "4c25b0acb1df670c85f811e52a6851c71c53fcae034e829e313516b1381ca405",
+    "bytes": 2330
+  },
+  {
+    "path": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-83ffb2da6ce32752de8e3873f19a1c7c9388b7bb.json",
+    "sha256": "c067f126f5fb3782c815d9feb76f350b7e113e8aec30e5a0ab0722df2b08b33c",
+    "bytes": 2500
+  },
+  {
+    "path": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-ccc955d7e6b99ad27506804c7e7cdf446ba68c5e.json",
+    "sha256": "0e7db1880d85be8ddf9cb0633932bb619e09337c8e6ac0655b4ee587c1c25735",
+    "bytes": 2345
+  },
+  {
+    "path": "clearance-repaired.json.gz",
+    "sha256": "d60196d15a81b57267ebf2f473ed30cc8e1b823ff26e467c498c87820f9fe225",
+    "bytes": 1054313
+  },
+  {
+    "path": "clearance-repaired.log.gz",
+    "sha256": "13fe34b15ce1eb158bfb3e35bfe5cde9dd5df2bb2337430ee2722f4455ebdee3",
+    "bytes": 366
+  },
+  {
+    "path": "compressed-raw-evidence.json",
+    "sha256": "f3eec6ab858506f0357cb21543736c063ceb02dc8bed0d8fe82c778a456fdf1c",
+    "bytes": 6933
+  },
+  {
+    "path": "continuation-basis.json",
+    "sha256": "af23710ae35944d707d6c51dc8cf71693c47a7a5b9c82243a782207104f4db1d",
+    "bytes": 5875
+  },
+  {
+    "path": "deduplicated-artifacts.json",
+    "sha256": "2099b4e4ffdd644d3ebd0335b7c97ed3e1f5cff57e89d26ef5fa1cb28eca92cf",
+    "bytes": 101141
+  },
+  {
+    "path": "dist-budget-artifacts/.last-run.json",
+    "sha256": "7568e93e2c4cb984cfe6f6da61f1bbea1297629cf86908845b01759884dcb18f",
+    "bytes": 243
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-closed-7fcb2d5d378ed4848a401055f724bfd49afc6c08.png",
+    "sha256": "93a57510b425607c48071c96aac9c42935dc38d380ab18d5c49845be43c06fe9",
+    "bytes": 113824
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-open-476eaf9819486e293888badad4c7fdb5328e8b85.png",
+    "sha256": "61c00479a6369f083e92da5290e267682959b96fa3dfec5301808869938943df",
+    "bytes": 125660
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-open-actual-page-control-19aba8b8e70a2424146849f0528cb230a48e81c9.png",
+    "sha256": "767969e05d9fe0b306a3a7a91c33df536bdf8e709555192cb4f5977e467f3f88",
+    "bytes": 113627
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/error-context.md",
+    "sha256": "235487256376bfd58b8c312306c984bf8eb472716aba54bbcda0fa295f7828b1",
+    "bytes": 15952
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/trace.zip",
+    "sha256": "88451d1ab704df9cd04605002637d8caa5287f3f87ea3f018363ff3e3821dd13",
+    "bytes": 4486098
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-closed-73a9f6f8dc1379ade8db2ad3a9ff4a092d89bf8f.png",
+    "sha256": "c53b4eaf57bcde3be702cb7db6ae258801a6da6133576fdc91f4f5589704c223",
+    "bytes": 111673
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-open-96c677fd5961e3a49102131a3bae7b26b197785d.png",
+    "sha256": "c65cc826f50ffa045cf83587b7bf3e3d0a5acd1a14e264d9350f719ef5f3966f",
+    "bytes": 121573
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-open-actual-page-control-4463a96b41d2be43f413fa3411599e8b56470b23.png",
+    "sha256": "54307eef98a4c67765ccc22bca309a129521a138649a0929c8750571673b7903",
+    "bytes": 110664
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/error-context.md",
+    "sha256": "d2cbe73f331582532a9e26ad72007e0aa3f2ce0b16b54d52b7636a20eb32158d",
+    "bytes": 15947
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-closed-4f93fb838334990772717c916179fad2bc261f70.png",
+    "sha256": "26765d81930c773547b3121148898a0bade3a2d98491ac9c49bd53fa0814175d",
+    "bytes": 116536
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-open-actual-page-control-96c6b40e2e0d9d0dbbe9bba180ee5b0f36790521.png",
+    "sha256": "a2be23f71c3645a03e1b56942f32c92040c18ba0443716837730eedd177c520d",
+    "bytes": 115838
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-open-ec6319923109e63183c9270c4abf32250485833f.png",
+    "sha256": "b8e345a46d625ce9f79510f2d254aaf1a26bae8138b181147805d4df8d2a7f81",
+    "bytes": 127840
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/error-context.md",
+    "sha256": "51bc6c652508764d07c1cd5577f66603dbaf1851957dff5952cb1dcc61ca0510",
+    "bytes": 15948
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-closed-46227737f0243bba8ddac100ab69ca791f71e6e9.png",
+    "sha256": "e2231e3df98f87920cee11389fd20f8aba4742877f705638af7a80a1065d50be",
+    "bytes": 108762
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-open-06ea9c85f3cad7161da556c4d3230be29988ae04.png",
+    "sha256": "eef6bb8f34cbcaaaafb3364b19ad946ad382160c46d81f16b08f4a2ec260bbc0",
+    "bytes": 118382
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-open-actual-page-control-96e36a4d1ccfe5b4eca34ab4bacd55085f6705e7.png",
+    "sha256": "a3b0b70c94971b7374b7b9bdfb2f16a5ddc6e7b524023ac197f3e4e2d50d375c",
+    "bytes": 107406
+  },
+  {
+    "path": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/error-context.md",
+    "sha256": "f783e13ab169176c2f658e9415ef4a745c5644bdeb6362a515d1232816b40e5f",
+    "bytes": 15951
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-600-open-96ac23a201d151ea13126b3769157bba6782b85c.png",
+    "sha256": "66aa79eac21fedf9324f3f1e80367119bc2564c7f664c2d6d19d10424a64981c",
+    "bytes": 146498
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-600-open-actual-page-control-d99f9a97ef9088b8c60b7fece06adcb99758a7db.png",
+    "sha256": "5d64833df07c5964abe5a13208ea90b234f4aba077fbaf091ff9ecd6b9cb15b7",
+    "bytes": 122356
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-180-closed-db744a83c75f97ee0a7e872726e9d094eff7123a.png",
+    "sha256": "9c1fab0d7c2a7b69f26738ac61f9a52c6c138c0668cb4ab6f073ba090bf4149f",
+    "bytes": 113136
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-180-open-337bc795b46a98294d9bd15bac7733cb968ca06e.png",
+    "sha256": "8809fef98ac572b0a79aebe9abdf063ba4fe1893fe1548a081862112b458e7f6",
+    "bytes": 125539
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-600-open-0d7561cdad3ee95c7c7b169e78bf00d13a4dc2a3.png",
+    "sha256": "2790f2fa022a34d0bb1f9915d92de2e5069fb59e5dc8c239fd64774c669b9edd",
+    "bytes": 129446
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-180-closed-942539854688411a25b40f23c7cc56d7202f215c.png",
+    "sha256": "92378b0c678a1f9b2daf67abdd66cce9331629c0ac42f4c0c476562485c6f956",
+    "bytes": 103004
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-180-open-8e7d01884ae8aa729fa35268f6a0795ad72b5350.png",
+    "sha256": "7cd1896970a0017c58457ac1853fb16660ffcca2aa2599b362465739b4dcc5b6",
+    "bytes": 114241
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-180-open-actual-page-control-afbfaf0958754512cc4282dfec9e016643f8898a.png",
+    "sha256": "12f7feab024dc631cc3c1ed277b24be4f6987380bf1a314532c818d7760c6589",
+    "bytes": 102303
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-600-open-8fc10c30c1440fe25df349dd4c27a176429d6299.png",
+    "sha256": "02d255273e7efaedd424d577f950ba4d1c8b09059f66f4acabe0f693b97b2f6f",
+    "bytes": 133527
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-600-open-actual-page-control-c90dd5d19a91204513e4baabe7741e1626b88829.png",
+    "sha256": "644da5a1c5c40d37915133b0681f0dba95f1e1a3914708001a22183e49fc323a",
+    "bytes": 112792
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-600-open-0978dd378af4b8b4debb4cd77af9914603eab68b.png",
+    "sha256": "aa9ffc1a426d301652922c0990df7076d156426d9fb2aa752455f22a489ca01f",
+    "bytes": 140932
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-600-open-actual-page-control-48073213299f02e3d27822ae9e9a092f35442d45.png",
+    "sha256": "6a8b6b6689e1d34ad0e55c16e1c8e99bd135f8a07d2873718dee8c332049b6a5",
+    "bytes": 120532
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-180-closed-bc50abb31284db78e27b85215e0b4dad68efe25e.png",
+    "sha256": "6a2e8192dc58239e93f8a25304a7f2622bf102e6f7b3938df6b721033c9fef36",
+    "bytes": 111003
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-180-open-7d82acf7232809d82e96e1f582fbb6cd3ca0af82.png",
+    "sha256": "b16cf8a4253cf0d7ffb83ccec0c6e5dbc0066dd6964e01117d2f46e1d876e0e0",
+    "bytes": 122245
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-600-open-actual-page-control-cc75f018c8344b64e0b020e760d85320c4821629.png",
+    "sha256": "5bb9b5547c2425325e629551301732d30fc5a3aeb33b30f2a0d6423005d2413a",
+    "bytes": 130193
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-180-closed-491d6f362f54188ffdeaf0a9a10880151ccb7bd5.png",
+    "sha256": "1612d4b3b2a8b52a035cbe8df4da07623ef1a977ea069b3a4f9c56e5dffd486e",
+    "bytes": 99914
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-180-open-6aa651ee57ca9694e0a839bb08d6b56ccd4a812d.png",
+    "sha256": "86ac37cbc12afc05b78ccaefdf6dba62e583952e5d00c6cef655ed99562dd6c5",
+    "bytes": 110026
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-180-open-actual-page-control-061dda4400fe6dc8d6f6562d32210952ac6331ce.png",
+    "sha256": "d42147bf2323f79b208fab7493309f814129f732d2b4f800d5ee94396c9faa77",
+    "bytes": 99119
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-600-open-7f094d8f9eeff174b968c90985abc022015c81ac.png",
+    "sha256": "7ffa008fdfe3368f1a154b40fd311083710fbe0c107f2a74b03227a9ba753457",
+    "bytes": 129148
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-600-open-actual-page-control-6c305ea8f1680b7109bdf94dee2c9752fb17f531.png",
+    "sha256": "ea3804bb65c6ed5bfdd690fdeb6aad49f619ff9d9872c1e185592e545d2ab7f9",
+    "bytes": 107304
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-600-open-actual-page-control-0fb9b9d8f35f930808b4fd2ef782dc34cdc48d9a.png",
+    "sha256": "cdfa7955d806d82dd5aa8befecc740bf755a2302b24a50221f94f78d7d5478f8",
+    "bytes": 127370
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-600-open-cac0a67bfdb13457b16b8da903f5e36585c9dd74.png",
+    "sha256": "0c981bd4c64c31320060befb825aab148a1b5906acd937f91d3b2a1da6adcaa1",
+    "bytes": 148035
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-180-closed-4c6532640269f42634762590610cc225d28bfddf.png",
+    "sha256": "2c5e5edac94bcaa6530c0c4eadb1a43fe3181638ea6688743f9d8a4d872d25d8",
+    "bytes": 115813
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-180-open-actual-page-control-153e70693122e98c8e415aa719c6dc1ab6ef411a.png",
+    "sha256": "cdda653d3ca7a6a847c96c1481fac1f27ccc468d88fea3316d00b3f988ebb416",
+    "bytes": 127832
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-600-open-actual-page-control-3bf7af2cadde745ec03bbcac6f65223b7896e9dc.png",
+    "sha256": "c750ac9acb4c75eb240c6e0c3b87b2dd8dc5a16c14497282156d331c336f03d7",
+    "bytes": 135911
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-180-closed-0d6f5a5cc1d1e813f9e9511160d1c50f2cc8151d.png",
+    "sha256": "44b1f26f86c31b7234baa682c9715335daaef3eb0a99f90e83b8d6f27eb2c8f2",
+    "bytes": 104716
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-180-open-0130ea2002524c51dcff000282ce29c7e6e2dfb4.png",
+    "sha256": "ffbf244b34310fa9e76f1eba9f3f41bceb233209e188399d0ec09ec5cf5172ce",
+    "bytes": 116113
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-180-open-actual-page-control-c610e5218d536a6f53eb7f7d9a0b1d096e23c4c2.png",
+    "sha256": "33818ff5db8f2a472892efeab66fc76faddff169606e0ca91134c60297e5b2c8",
+    "bytes": 104191
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-600-open-5ee0af18ae9e3e8cd9fb293ab8556d071a6d2143.png",
+    "sha256": "ba8fb51c01f333b4dcafe4b9c4ffa412c9b7f66bd0e428c2f5e818ce76e04fed",
+    "bytes": 136435
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-600-open-actual-page-control-35b86509a93d3588fec552de92815a16f116b3c4.png",
+    "sha256": "2db3591d3edf7d7fc2d1067017c6720a0b5413a32874d8e771bfc0c7749bb3ac",
+    "bytes": 113691
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-600-open-4db8f422154a86986dc1d8442771ecc6fd961e43.png",
+    "sha256": "3dba01f45c825a30b178fb17551765b95cfca8ae4997b99389814342a9ca1644",
+    "bytes": 138472
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-600-open-actual-page-control-e433324980510fd9d109eaba76e4c9d3f4a9d87e.png",
+    "sha256": "2c974f4922606c1947ff6b3ca97546e3333459be9a83af2d5d80d68aed8bbf13",
+    "bytes": 115152
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-180-closed-fb4910dd0eeff0987b7418d4f70cfd44266f1881.png",
+    "sha256": "34e085054a199787d31c263ced66826e764c22c3cb133ec1656383af7efe3172",
+    "bytes": 108306
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-180-open-a01741d4bd0f0cd5c6034042817aa93c40447a22.png",
+    "sha256": "25c4d39a06aba48effa3f0a708a91d3949ab3e207a38edb6a43ec0e07cb50833",
+    "bytes": 118978
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-600-open-actual-page-control-e8bb0fb4ff80fcbe00947d0700314d4be5f7e22c.png",
+    "sha256": "18062b9e3cdf04169965e076c482ca9d24fae517bb1012727a53d47858f4c8cf",
+    "bytes": 123368
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-180-closed-8dab21aae13218188abed2d339d0efffb011b01f.png",
+    "sha256": "37f4c8d5f95245016974af146a7f5eb2c0693b26154a4e35dd828990ea3b966d",
+    "bytes": 97346
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-180-open-actual-page-control-a18173d5b811ef9912ef70cd6895e15bd265a12a.png",
+    "sha256": "cb83ea671df31f12fc79d91c7dd6503179ea9b512c1399577d822f60385fb3b2",
+    "bytes": 96694
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-180-open-c13ab2482e884d5f99ac61533a7f9f7a281b2bdb.png",
+    "sha256": "38bf3a069aaf1917a006c43eb3c6053b34db6c559ed0ae9e4ce3ed2a3995ac41",
+    "bytes": 107619
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-600-open-8e2ca29b1ecd0b92b4cf9fce4970e76de6229ba5.png",
+    "sha256": "fdad4e8c5592cf8d3a10246edf0f414ef5e454357ba7fb4106bd43ede1684c97",
+    "bytes": 125546
+  },
+  {
+    "path": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-600-open-actual-page-control-4d4adb0472b32edaade1357d3d403627cb8f1fc6.png",
+    "sha256": "24b6c74e2b639270ed57223b15310357cf5fe9ed966b34d2c1367a69642481c9",
+    "bytes": 105474
+  },
+  {
+    "path": "dist-budget-repair.json.gz",
+    "sha256": "174fd75832e97096a3227d88652c77f1c85a92e8cb4269904b9919b253a76518",
+    "bytes": 5882357
+  },
+  {
+    "path": "dist-budget-repair.log.gz",
+    "sha256": "3dd4ba579a5c8337ce1041e05a461afeff9685cf82c2f149dc87fb21614e02aa",
+    "bytes": 357
+  },
+  {
+    "path": "dist-budget.json.gz",
+    "sha256": "f0314b8015751406a16c18a2d7df9e0e01a02bbd53ab7834d1b29bdf8d6b307f",
+    "bytes": 992445
+  },
+  {
+    "path": "dist-budget.log.gz",
+    "sha256": "a2452798688245d4d19ef432463a60c2ad937f930045982f07e3daa4a642480e",
+    "bytes": 1877
+  },
+  {
+    "path": "dist-build-portal-repair.log",
+    "sha256": "8e137150eba76f938e0291755be3db262a57ab724671df5e739c5cef3096fcf0",
+    "bytes": 1640
+  },
+  {
+    "path": "dist-build.log",
+    "sha256": "965bb4657134692ed971ac6adfc1b2f53e2572739d4e6236bbc183509301d4a0",
+    "bytes": 1640
+  },
+  {
+    "path": "final-source-hashes.json",
+    "sha256": "23ee34d2ef2bfe1f8dcfcdd5a1e025895e2701ae58d9bd5df45f8abd900efb8d",
+    "bytes": 52517
+  },
+  {
+    "path": "focus-clearance.log.gz",
+    "sha256": "93f61dd7d50ac1523ffa847bb0dc1657bfcb0915f7dee3eb72d6e95378e6d3da",
+    "bytes": 365
+  },
+  {
+    "path": "frontend-before-final-repairs-hashes.json",
+    "sha256": "7aaa25b31179c7bb7c1966707d58ed981b6821ed2e5be501586e55eafc7419ab",
+    "bytes": 52517
+  },
+  {
+    "path": "frontend-candidate.diff",
+    "sha256": "e2b082f381055e5f5c4448b930b14ff227a6c7388a541012577c69ac494d28e4",
+    "bytes": 58921
+  },
+  {
+    "path": "removed-transient-caches.json",
+    "sha256": "60d8bc22a3b86748f954239f57cbb0dcbbdeeee140a360207c72cd6f97233f68",
+    "bytes": 200
+  },
+  {
+    "path": "shell-file-hashes.json",
+    "sha256": "0e0db655682b0cf2f12885a4d05309d8de400e55d7480aa6056af9df98ca2d36",
+    "bytes": 2953
+  },
+  {
+    "path": "source-budget-narrow.json.gz",
+    "sha256": "be9c73b3c5e92c2380dea9a2baac5eb187ec2d11aea8b44f2f79180b76af5200",
+    "bytes": 188490
+  },
+  {
+    "path": "source-budget-narrow.log.gz",
+    "sha256": "7255d6a7bed9bbf655486fea37a1525f660f8175c044db8c44765960d813d601",
+    "bytes": 331
+  },
+  {
+    "path": "source-budget-wide.json.gz",
+    "sha256": "66c080a22d3ff0c6e76e5b10186ab7007a5322611402890e6f8efd0b87887c5c",
+    "bytes": 199421
+  },
+  {
+    "path": "source-budget-wide.log.gz",
+    "sha256": "f8d2c38c94284e9bee1f5abdb3f6b9216b96d2deb421f130119cc6a506df0ffc",
+    "bytes": 330
+  },
+  {
+    "path": "source-complete-artifacts/.last-run.json",
+    "sha256": "1a7281262a1426ac837fe9b61ce6b843b45093c204769011f34ad6eafcf2763d",
+    "bytes": 50
+  },
+  {
+    "path": "source-complete-artifacts/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-desktop/error-context.md",
+    "sha256": "189246a517a0f9dcbca7c1ca6aac13f61d6560e9e9178a7c508a28ae092efe8f",
+    "bytes": 14749
+  },
+  {
+    "path": "source-complete-artifacts/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-desktop/trace.zip",
+    "sha256": "d3b6f998133a343162d5cee9d5338f87c71089e1d12c9355c8baf97649ee4eda",
+    "bytes": 48319
+  },
+  {
+    "path": "source-complete.json.gz",
+    "sha256": "28846ceeb5d28847869718db2b5cce50e095b3b9d607781afcc5c24bfb00d0d7",
+    "bytes": 1436748
+  },
+  {
+    "path": "source-complete.log.gz",
+    "sha256": "f70bdf08258546eb63b92a614975b9d72193b0a9ed438788d68af6585c703db8",
+    "bytes": 1136
+  },
+  {
+    "path": "source-final-artifacts/.last-run.json",
+    "sha256": "abef260909ff30cc78eb21f59ba6a1fed3e9b28e50a38036f38b871521bc3b7e",
+    "bytes": 1223
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-compact/error-context.md",
+    "sha256": "48ef106810b4f9cb673c7971d4f049951bca09a2f77f3e10c80491123bceb406",
+    "bytes": 45433
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-compact/trace.zip",
+    "sha256": "0cde0845833fbed6e7f854afeb02e69c2b72025f0b5962a32b1daac4929b29ae",
+    "bytes": 1834257
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-13926-anvas-dark-compact-1024x768-chromium-desktop/error-context.md",
+    "sha256": "d48748093a97da84048184392a6a62a347a46a204b092b5396b215abadbdba77",
+    "bytes": 45324
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-2979b-nvas-light-compact-1280x800-chromium-compact/error-context.md",
+    "sha256": "5f1b251f7992dfc4d5cd8e8a717442dbe3822864634e78f446d4ae4eea4c1062",
+    "bytes": 47835
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-2979b-nvas-light-compact-1280x800-chromium-desktop/error-context.md",
+    "sha256": "5f1b251f7992dfc4d5cd8e8a717442dbe3822864634e78f446d4ae4eea4c1062",
+    "bytes": 47835
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-compact/error-context.md",
+    "sha256": "e4e6aa57aa22c30b2cc290e7d1bcbd8026e8b468413050a5ee5467215487a24b",
+    "bytes": 45164
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-desktop/error-context.md",
+    "sha256": "e4e6aa57aa22c30b2cc290e7d1bcbd8026e8b468413050a5ee5467215487a24b",
+    "bytes": 45164
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-2ebec-s-dark-comfortable-1024x768-chromium-compact/error-context.md",
+    "sha256": "36ac0a1940b2c19de15595e26f84b78ae519cf2a61d3bcbbf301503bf655b55d",
+    "bytes": 45163
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-2ebec-s-dark-comfortable-1024x768-chromium-desktop/error-context.md",
+    "sha256": "36ac0a1940b2c19de15595e26f84b78ae519cf2a61d3bcbbf301503bf655b55d",
+    "bytes": 45163
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-5443d--light-comfortable-1440x920-chromium-compact/error-context.md",
+    "sha256": "e2bc73d3bbd45d4057e532999fc55410491932c2c483d1bd97eac045ce75db80",
+    "bytes": 48301
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-5443d--light-comfortable-1440x920-chromium-desktop/error-context.md",
+    "sha256": "e2bc73d3bbd45d4057e532999fc55410491932c2c483d1bd97eac045ce75db80",
+    "bytes": 48301
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-compact/error-context.md",
+    "sha256": "251207728f6ca42b6eedafc2bead62614fd6b82ff6f05b6bbaa76d929add62b8",
+    "bytes": 48409
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-5e25e-s-dark-comfortable-1440x920-chromium-desktop/error-context.md",
+    "sha256": "1e409f0510f0a70c9de8280b0acc2d58fae4dfc9f33d234191a66bbe036cf7fa",
+    "bytes": 48300
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-6d9e6-nvas-light-compact-1440x920-chromium-compact/error-context.md",
+    "sha256": "d43cf4717328af72b8c42feb41ca68d1413f74c00806a6e4960726c309ab9bd1",
+    "bytes": 48302
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-6d9e6-nvas-light-compact-1440x920-chromium-desktop/error-context.md",
+    "sha256": "d43cf4717328af72b8c42feb41ca68d1413f74c00806a6e4960726c309ab9bd1",
+    "bytes": 48302
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-72367--light-comfortable-1280x800-chromium-compact/error-context.md",
+    "sha256": "680aab820dfb5beadda829c60c67be9c6b6663eaf52ced479c749388d1d86e14",
+    "bytes": 47834
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-72367--light-comfortable-1280x800-chromium-desktop/error-context.md",
+    "sha256": "680aab820dfb5beadda829c60c67be9c6b6663eaf52ced479c749388d1d86e14",
+    "bytes": 47834
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-8746c-s-dark-comfortable-1280x800-chromium-compact/error-context.md",
+    "sha256": "61db37d16a0d5340ac3fbd1e0d85f7b307ed89f3a70f59533902a8e651fd4004",
+    "bytes": 47833
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-8746c-s-dark-comfortable-1280x800-chromium-desktop/error-context.md",
+    "sha256": "61db37d16a0d5340ac3fbd1e0d85f7b307ed89f3a70f59533902a8e651fd4004",
+    "bytes": 47833
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-94b10-anvas-dark-compact-1440x920-chromium-compact/error-context.md",
+    "sha256": "019c753df9871ac41e36493cc6e596457ba1cc0289430d525ff5e89ded4dc8bf",
+    "bytes": 48410
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-94b10-anvas-dark-compact-1440x920-chromium-desktop/error-context.md",
+    "sha256": "6241d5b5c3d080cc60d09616ddc789bb7345a130f3079639ca2d959317f7b485",
+    "bytes": 48301
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-e5cbc-nvas-light-compact-1024x768-chromium-compact/error-context.md",
+    "sha256": "893bbd7bd5adb10b1497a5edbdf1bd80564bebef7c9774fc337f72cd4f615dfb",
+    "bytes": 45325
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-e5cbc-nvas-light-compact-1024x768-chromium-desktop/error-context.md",
+    "sha256": "893bbd7bd5adb10b1497a5edbdf1bd80564bebef7c9774fc337f72cd4f615dfb",
+    "bytes": 45325
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-f4536-anvas-dark-compact-1280x800-chromium-compact/error-context.md",
+    "sha256": "1e11d02e705b449ef08921c2b1c8db1066b92153e9bb8f700adaf53f37932590",
+    "bytes": 47943
+  },
+  {
+    "path": "source-final-artifacts/ui-foundation-task-and-ana-f4536-anvas-dark-compact-1280x800-chromium-desktop/error-context.md",
+    "sha256": "e8340c6fb936b596bab7fa5db1e6871e99933d37ca55255fc126792f8337eb00",
+    "bytes": 47834
+  },
+  {
+    "path": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-closed-c954351c80a2d0443abace6d8e51e08c81af1b12.png",
+    "sha256": "4dc55043b9c04ff2c1b2602287cb0ed8f120653aa6bb2e6226d19568e3b7b2ad",
+    "bytes": 152821
+  },
+  {
+    "path": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-open-ebba709e7040df22423b781742814edfd7b137be.png",
+    "sha256": "7c9691299c9c866d7718c82a497695efc9c5c63342fc2ac69b5be730eedb8aa6",
+    "bytes": 174903
+  },
+  {
+    "path": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-routing-98ee31d4c28c8d2a4177dfee252c92e4c4926b39.png",
+    "sha256": "d4694883d47e6bc980cf7e40854b0d5470c5f888cd2a52d6387eef9d5da490ea",
+    "bytes": 219018
+  },
+  {
+    "path": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-collapsed-d7fb1dbe142323429e7db2c947f0b73845f01433.png",
+    "sha256": "c07816c1e76764b6bb9d4f8bfab25774f86ff44f904871e83d73033da2c4b233",
+    "bytes": 127677
+  },
+  {
+    "path": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-open-4e30e8bd83576b2ddb3c2460c0f01a099c726299.png",
+    "sha256": "a1ce1ea89ab1fbb6a08f5b183d24779a20a5ceec48f13a6be3f41e663d025cfb",
+    "bytes": 132084
+  },
+  {
+    "path": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-narrow-both-drawer-open-04f6fabbc2b4ee7500c77c1bfb2175656a8079bd.png",
+    "sha256": "8aeb79d614c06df1a7ae000d1b9a64d3fc88cbcf672e45ff34bcc2510f79ade3",
+    "bytes": 87169
+  },
+  {
+    "path": "source-final.json.gz",
+    "sha256": "d76724ad3a3a69d826f07aa7af6902e44d83a69e3c74cd71a1c4ef1b4ba3a0ba",
+    "bytes": 4430082
+  },
+  {
+    "path": "source-final.log.gz",
+    "sha256": "31468dcaa67257c9ff725a37608f58ba0977c2ebcde1231405fb988b941bf147",
+    "bytes": 3214
+  },
+  {
+    "path": "source-portal-repair-artifacts/.last-run.json",
+    "sha256": "df4a3cbd77db07676c590ee141b4a830722b93594e03da55f6ce594b65c80935",
+    "bytes": 101
+  },
+  {
+    "path": "source-portal-repair-artifacts/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-desktop/error-context.md",
+    "sha256": "463489cd9cdfebeff1a6d314465655ca9ed3b837ac144f63bbcdc28a3e3f9820",
+    "bytes": 9536
+  },
+  {
+    "path": "source-portal-repair-artifacts/ui-foundation-task-and-ana-2d7bb--light-comfortable-1024x768-chromium-desktop/trace.zip",
+    "sha256": "6d04fb42e94967337da21dc819135674820ae59c1c243329292762cf8ee58e73",
+    "bytes": 4136298
+  },
+  {
+    "path": "source-portal-repair-artifacts/ui-foundation-task-and-ana-e5cbc-nvas-light-compact-1024x768-chromium-desktop/error-context.md",
+    "sha256": "3a7691fa058869841f0b6348bb22205b09115e7376ddd58daac5720a1c16b882",
+    "bytes": 9738
+  },
+  {
+    "path": "source-portal-repair.json.gz",
+    "sha256": "a2379f90107446ec4527b926b294679481caa4643a23619131ee0a056c00453f",
+    "bytes": 364117
+  },
+  {
+    "path": "source-portal-repair.log.gz",
+    "sha256": "3d942f9d1ed567db4f4117ec57ee6c71197d8926cf9c5c1cf9d105887665088b",
+    "bytes": 1322
+  },
+  {
+    "path": "source-verified-artifacts/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/error-context.md",
+    "sha256": "35703f115d166f24d6aa01ed572166359aa6555258fa1bd3a5ad2a76ccc341f7",
+    "bytes": 26088
+  },
+  {
+    "path": "source-verified-artifacts/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip",
+    "sha256": "d4ef7dc50abd2efdfbfbbd2108d0e5c7dd4d6efa8426e1ad7779d5bde968798a",
+    "bytes": 1472257
+  },
+  {
+    "path": "source-verified.json.gz",
+    "sha256": "e92263a4116918b735994b85eadc00f893193f0289f15d570e81ce22ca3bd990",
+    "bytes": 3984
+  },
+  {
+    "path": "source-verified.log.gz",
+    "sha256": "5ea010ee331767ff3caea031e8189c6cd40bee63075d7255ec715ba00588b472",
+    "bytes": 1462
+  },
+  {
+    "path": "trace-retention.json",
+    "sha256": "f6b7a80ec3e4a7c5272e02fd34eb863b588bce455494a6758dd589f98019d757",
+    "bytes": 11418
+  },
+  {
+    "path": "viewport-continuation.diff",
+    "sha256": "3623e1f5c7b45ea81dff12ef6e83126dc427778c38486517a59840ac11770984",
+    "bytes": 8179
+  },
+  {
+    "path": "viewport-final-closeout.log",
+    "sha256": "e6f102350328ab16d17447a728e2b93e197f39fad18a2b642510b9f63ba12424",
+    "bytes": 289
+  },
+  {
+    "path": "viewport-final.log",
+    "sha256": "2c8b2fe586e0f1b6249b1ebe2e88fe84977b6a36e80c73283aea96af1385470a",
+    "bytes": 289
+  },
+  {
+    "path": "workspace-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/error-context.md",
+    "sha256": "2e970dc120b19bffce93273f8b930d86d881790bcf16eeae461bd37a1f58d290",
+    "bytes": 27789
+  },
+  {
+    "path": "workspace-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/error-context.md",
+    "sha256": "2e970dc120b19bffce93273f8b930d86d881790bcf16eeae461bd37a1f58d290",
+    "bytes": 27789
+  },
+  {
+    "path": "workspace.log.gz",
+    "sha256": "a8ea1ed384198e41e1f43a0f22630b43ea5840918fb740614c10f50b4548273b",
+    "bytes": 1702
+  }
+]

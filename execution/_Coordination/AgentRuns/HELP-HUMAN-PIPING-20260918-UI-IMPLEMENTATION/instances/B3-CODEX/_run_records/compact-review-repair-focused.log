@@ -1,0 +1,84 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > consumes the first Escape before duplicate React/window shell consumers, but leaves closed Escape untouched 93ms
+ ✓ src/features/toolkit/GuardedRemoval.test.tsx > guarded removal > queues exact material identity and whole snapshot without mutating the model 78ms
+ ✓ src/features/toolkit/GuardedRemoval.test.tsx > guarded removal > queues exact section identity and whole snapshot without mutating the model 13ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > queues a partial material row with exact entered quantities and omitted unentered slots 79ms
+ ✓ src/features/toolkit/GuardedRemoval.test.tsx > guarded removal > queues exact component identity and whole snapshot without mutating the model 10ms
+ ✓ src/features/toolkit/GuardedRemoval.test.tsx > guarded removal > discards stale preparation and fails closed when canonicalization is unavailable 17ms
+ ✓ src/features/toolkit/GuardedRemoval.test.tsx > existing toolkit assignment preparation > discards an old selection snapshot before queuing assignment 49ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > closes same-value pointer and keyboard commits without duplicate changes 39ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > keeps selected and active distinct, skips disabled options, and commits once after rapid keys 20ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > supports typeahead, preserves unavailable current values, and handles empty options 21ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > commits on Tab without preventing native focus traversal and on outside focus without stealing it 26ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > portals beyond clipping ancestors, preserves trigger focus on option pointerdown, and cancels trigger closing 16ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > rejects half-entered quantities and duplicate material IDs 76ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > removes an existing point while canonicalizing the exact previous array 15ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > drops an async result after selection changes 4ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > honors explicit and inherited disabled states including the fieldset legend exception 19ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > closes earlier controls on outside pointer/focus and removes portalled state on unmount 16ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels a popup when its ancestor becomes hidden 21ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels a popup when its ancestor becomes inert 14ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels a popup when its ancestor becomes aria-hidden 14ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > retains labels/descriptions, bounds a lower-edge popup and reveals keyboard-active options 14ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels when disabled after opening and cycles repeated typeahead without committing 14ms
+ ✓ src/features/rich-authoring/supportFamilyEngine.test.tsx > support family shared-operation engine parity > creates and updates canonical line_stop with explicit UX 211ms
+ ✓ src/features/rich-authoring/supportFamilyEngine.test.tsx > support family shared-operation engine parity > creates and updates canonical vertical_support with explicit UZ 83ms
+ ✓ src/features/rich-authoring/supportFamilyEngine.test.tsx > support family shared-operation engine parity > rejects noncanonical family LineStop without mutation 2ms
+ ✓ src/features/rich-authoring/supportFamilyEngine.test.tsx > support family shared-operation engine parity > rejects noncanonical family VerticalSupport without mutation 2ms
+ ✓ src/features/rich-authoring/supportFamilyEngine.test.tsx > support family shared-operation engine parity > rejects noncanonical family  without mutation 1ms
+ ✓ src/features/rich-authoring/supportFamilyEngine.test.tsx > support family shared-operation engine parity > rejects noncanonical family  line_stop  without mutation 1ms
+ ✓ src/features/rich-authoring/supportFamilyEngine.test.tsx > support family shared-operation engine parity > rejects noncanonical family one_way without mutation 1ms
+ ✓ src/features/rich-authoring/supportFamilyEngine.test.tsx > support family shared-operation engine parity > rejects noncanonical family gap without mutation 1ms
+ ✓ src/features/rich-authoring/supportFamilyEngine.test.tsx > support family shared-operation engine parity > rejects noncanonical family lift_off without mutation 1ms
+ ✓ src/features/rich-authoring/supportFamilyEngine.test.tsx > support family shared-operation engine parity > rejects noncanonical family friction without mutation 1ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels on window blur without committing or refocusing the trigger 11ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > preserves source missing on no-navigation Tab and outside dismissal 21ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > preserves source  on no-navigation Tab and outside dismissal 18ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > preserves source b on no-navigation Tab and outside dismissal 22ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > permits deliberate Enter choice from an unavailable source 8ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > permits deliberate pointer choice from an unavailable source 13ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > permits deliberate navigation choice from an unavailable source 9ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > preserves pending value across option reordering instead of committing its old index 10ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > atomically switches whole-pipe wind exposure to an entered partial span 73ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > blocks overlapping wind spans before queuing 85ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels pending choice on remove active basis change 11ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels pending choice on disable active basis change 8ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels pending choice on remove selected basis change 9ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels pending choice on disable selected basis change 8ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels pending choice on rename basis change 8ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels pending choice on canonical basis change 7ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > does not infer a value when a catalog arrives after opening an empty unavailable source 8ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > rechecks remove option changes at commit time before a render/effect can reconcile them 6ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > rechecks disable option changes at commit time before a render/effect can reconcile them 7ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > rechecks rename option changes at commit time before a render/effect can reconcile them 6ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > rechecks reorder option changes at commit time before a render/effect can reconcile them 8ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > commits the rendered pointer option by value when catalog order changes before reconciliation 7ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > navigates from the pending value in current catalog order after an event-time reorder 10ms
+ ✓ src/features/workspace/CompactSelect.test.tsx > CompactSelect > cancels on scope changes while retaining the same control and unrelated draft DOM 14ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > creates an explicitly named support with nested stiffness through the creation envelope 84ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > preserves hanger quantities and removes optional support blocks explicitly 48ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > queues a friction support using a restrained source DOF and explicit coefficient 110ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > rich authoring structured forms > blocks duplicate support IDs and competing queued updates 22ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > offers exactly nine canonical choices with readable labels and no inferred configuration 37ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > preserves the exact source family undefined until an explicit canonical choice 27ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > preserves the exact source family null until an explicit canonical choice 25ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > preserves the exact source family Unsupported family until an explicit canonical choice 26ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > preserves the exact source family  until an explicit canonical choice 24ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > preserves the exact source family  line_stop  until an explicit canonical choice 27ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > preserves the exact source family LineStop until an explicit canonical choice 27ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > creates line_stop with only the explicitly selected UX restraint 35ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > canonical support family authoring > creates vertical_support with only the explicitly selected UZ restraint 35ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > Tab without a choice preserves exact source family undefined 20ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > Tab without a choice preserves exact source family null 18ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > Tab without a choice preserves exact source family Unsupported family 19ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > outside Queue without a choice preserves exact source family undefined 16ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > outside Queue without a choice preserves exact source family null 17ms
+ ✓ src/features/rich-authoring/richForms.test.tsx > preserved support families survive compact-popup dismissal > outside Queue without a choice preserves exact source family Unsupported family 15ms
+
+ Test Files  4 passed (4)
+      Tests  75 passed (75)
+   Start at  23:39:17
+   Duration  1.74s (transform 675ms, setup 461ms, import 759ms, tests 2.00s, environment 1.33s)
+

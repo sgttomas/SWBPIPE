@@ -1,14 +1,15 @@
 {
-  "version": 1,
+  "version": 2,
   "base": "7866f0a3c2c846cf071f735ea9b263a44fb00ca9",
   "selectionAuthority": "owner authorization 2026-09-18 (instances/ROOT/ACTIVATION_2026-09-18.md)",
   "parent": "owner",
-  "rootModel": "Claude Fable 5.1 (claude-fable-5-1)",
+  "rootModel": "GPT-6 Astra; continuation allocation high or greater under current steer",
   "nodes": {
     "ROOT": {
       "role": "HELP_HUMAN Type 0",
-      "model": "Claude Fable 5.1",
-      "status": "active to the session handoff of 2026-09-19 (instances/ROOT/SESSION_HANDOFF_2026-09-19.md); a successor ROOT continues under amendment 1"
+      "model": "GPT-6 Astra",
+      "status": "active: owner-adopted B3 implementation, independent reviews, integration and run evidence; peer Runtime coordination discussion only",
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md"
     },
     "A1-LINT": {
       "role": "TASK Type 2 implementer",
@@ -58,9 +59,7 @@
       "brief": "briefs/B1-TOKENS_design_tokens.md",
       "returnSha256": "bf372185b1ad9f0bd2342bb350d7f750a73ac27389ea43f8bf6ad1ce64e38db2",
       "candidate": "bf1ad5662e7e21ee3ce065940ed29bbe50511f1c",
-      "dependsOn": [
-        "A1 merged 7866f0a3c"
-      ],
+      "dependsOn": [],
       "correction1ReturnSha256": "5cbe4c0e8a3a9be61cd8fca5ccdf0f67e961f8cd603aa2047664e17c7ba5662e",
       "model_ran": "Claude Fable 5.1",
       "sweep": {
@@ -72,37 +71,75 @@
         "pullRequest": 801,
         "mergeCommit": "4dcab750501d039af5b2973991cbe0f3f423b80a",
         "ciHead": "0439d1babd7539507f4608dfcc2cdb05934e101f"
-      }
+      },
+      "dependsOnNote": [
+        "A1 merged 7866f0a3c"
+      ]
     },
     "B-SHELL": {
       "role": "WORKING_ITEMS Type 1 lane manager",
-      "model": "fable",
-      "status": "paused: slice B2 merged (PR #803, b9a07040857d2e6d3ec0f6a530697720801c7b59); addenda 2 and 3 sealed on the lane's branch (head 5f70ad178f951afbdc7b126a4f1006975c0266c1, pushed); next slice B2F; the manager of 2026-09-19 cannot be resumed from another session",
+      "model": "current WORKING_ITEMS gpt-6-astra/high; historical Fable allocation preserved separately",
+      "status": "Active B3 manager /root/b3_manager in preserved wt3; original B3 completed locally, bounded hosted tooltip repair now active. No B3A/B3B started.",
       "briefSha256": "00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75",
       "brief": "briefs/B-SHELL_shell_lane.md",
       "returnSha256": null,
       "candidate": null,
-      "dependsOn": [
-        "B1-TOKENS merged 4dcab7505"
-      ],
+      "dependsOn": [],
       "laneRecords": "lanes/B-SHELL/INDEX.md",
       "launched": "2026-09-19T00:05Z",
-      "branch": "codex/swbpipe-b-shell-20260918"
+      "branch": "codex/swbpipe-b-shell-20260918",
+      "launchBrief": "briefs/B-SHELL_launch_2026-09-19.md",
+      "launchBriefSha256": "2a2542c7e5b4584589203b07f1837c9b0d594d0bb3a1cab25d89bf40ccf7e33e",
+      "writeScope": "apps/desktop/src/** except features/viewport/** and features/workspace/modelIndex.ts; apps/desktop/e2e/** except e2e/ui-foundation/**; owns App.tsx and styles.css",
+      "order": [
+        "B2",
+        "B2F-B2G",
+        "B3",
+        "B3A",
+        "B3B",
+        "B4",
+        "B5",
+        "B6",
+        "G-11",
+        "B7",
+        "G-17"
+      ],
+      "dependsOnNote": [
+        "B1-TOKENS merged 4dcab7505"
+      ],
+      "historicalPreCodexState": {
+        "model": "fable",
+        "status": "paused clean, confirmed by ROOT: branch codex/swbpipe-b-shell-20260918 at a9be4aaefa432e1eed56e87482391e90958cb087, pushed; contains origin/main at d20eb1294 (not PR #807). Merged: B2 (PR #803), B2F and B2G (PR #805). In progress: B3. The managers of 2026-09-18 and 2026-09-19 cannot be resumed from another session; instances/B-SHELL/LANE_LOG.md ends with a section for a fresh start."
+      },
+      "currentExecutionNode": "B3-CODEX-MANAGER"
     },
     "B-CANVAS": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "fable",
-      "status": "paused clean: product head 3a5f7c103bde915d800792112dec2dea19a0813e; addenda 2 to 5 sealed on the lane's branch (head 4a7408e5512c425cbf9cdedd0b17396ad176607b, pushed, never merged); F1 and F2 done, F3 and slice C1E not started, the T1 probe unfinished; the manager of 2026-09-19 cannot be resumed from another session",
+      "status": "paused clean, confirmed by ROOT: branch codex/swbpipe-b-canvas-20260918 at f6c0bab8e8893237f83f57656b98039d68efb2b4, pushed; contains origin/main at d20eb1294 and slice C2's commits (merged as PR #807; merge main first). Merged: C1 (PR #806), C2 (PR #807). In progress: I1, a labelled pause point. instances/B-CANVAS/LANE_LOG.md has a PAUSE STATUS section for a fresh start; two of its carried items are overtaken by ROOT's B3 rulings (--shell-canvas-foot-inset is removed by B3; the routing block moves in B3, not B5).",
       "briefSha256": "df89f5b622a63f206ccc0f879e7255642e4b9ee16174faf84e539ab51bc12084",
       "brief": "briefs/B-CANVAS_canvas_lane.md",
       "returnSha256": null,
       "candidate": null,
-      "dependsOn": [
-        "B1-TOKENS merged 4dcab7505"
-      ],
+      "dependsOn": [],
       "laneRecords": "lanes/B-CANVAS/INDEX.md",
       "launched": "2026-09-19T00:05Z",
-      "branch": "codex/swbpipe-b-canvas-20260918"
+      "branch": "codex/swbpipe-b-canvas-20260918",
+      "launchBrief": "briefs/B-CANVAS_launch_2026-09-19.md",
+      "launchBriefSha256": "8b712cc65c83ba8320bd872d40e6d4e5a533586af6049ea4f486ce17a9c78986",
+      "writeScope": "apps/desktop/src/features/viewport/** and features/workspace/modelIndex.ts; apps/desktop/e2e/ui-foundation/** (the benchmark instrument); scoped colour rows of styles.css by addendum 2",
+      "order": [
+        "C1",
+        "C2",
+        "I1",
+        "C3",
+        "C4",
+        "C5",
+        "SECOND-PROFILE"
+      ],
+      "dependsOnNote": [
+        "B1-TOKENS merged 4dcab7505"
+      ]
     },
     "B1-REVIEW": {
       "role": "TASK Type 2 software-code-review, read-only",
@@ -123,9 +160,7 @@
       "brief": "briefs/A1F-FOLLOWUPS_identifier_notices_documents.md",
       "returnSha256": "d36704cc405e9b64a31996d4a87f93cfa049e342197907d9ce45f89051c272f7",
       "candidate": "bb7c7a2e8e128c91b001d69734369f1b211c7122",
-      "dependsOn": [
-        "A1 merged 7866f0a3c"
-      ],
+      "dependsOn": [],
       "worktree": "second worktree, branch codex/swbpipe-a1-followups-20260918",
       "model_ran": "Claude Fable 5.1",
       "return": "instances/A1F-FOLLOWUPS/RETURN.md",
@@ -139,7 +174,10 @@
         "mergeCommit": "8e4c5df6ec84928ca343224e5244ccdae5771cd4",
         "ciHead": "e989522aacfee98fa9a4ab7207c06ffbe1852c43",
         "mergedAt": "2026-09-19T00:47:54Z"
-      }
+      },
+      "dependsOnNote": [
+        "A1 merged 7866f0a3c"
+      ]
     },
     "A1F-REVIEW": {
       "role": "TASK Type 2 software-code-review, read-only",
@@ -156,19 +194,20 @@
     "DESIGN-SYSTEM-05": {
       "role": "HELPS_HUMANS Type 1 design manager, working alone",
       "model": "fable",
-      "status": "parked with its branch (ROOT's decision DS5-D3, open to the owner): candidate ff4c71689 with correction 1 checked by ROOT; correction 2 sealed and not executed; the reviewer's backcheck not run; branch head 4dddd44128e052cfe518f84c0b718e6125cb2b69, pushed, no pull request",
+      "status": "parked with its branch (DS5-D3, adopted by the owner on 2026-09-19: reopened at the closing visual pass): candidate ff4c71689 with correction 1 checked by ROOT; correction 2 sealed and not executed; the reviewer's backcheck not run; branch head 4dddd44128e052cfe518f84c0b718e6125cb2b69, pushed, no pull request",
       "launched": "2026-09-19T00:07Z",
       "briefSha256": "322ca33b2f191f4cb812155e4e2631f8938239551a84f200a4c7144b4c5e7c11",
       "brief": "lanes/DESIGN-SYSTEM-05/briefs/DESIGN-SYSTEM-05_control_contrast.md",
       "laneRecords": "lanes/DESIGN-SYSTEM-05/INDEX.md",
       "branch": "codex/swbpipe-design-system-v14-20260918",
       "returnSha256": "0f324a149a7f2e353a62cfc5dd3c70e2416fd46bc6708154d60b39f552c25b34",
-      "dependsOn": [
-        "B1-TOKENS merged 4dcab7505"
-      ],
+      "dependsOn": [],
       "return": "lanes/DESIGN-SYSTEM-05/returns/DESIGN-SYSTEM-05_RETURN.md",
       "model_ran": "Claude Fable 5.1",
-      "rootDecision": "DS5-D1 (disabled ink lifted; ROOT's decision, open to the owner): lanes/DESIGN-SYSTEM-05/HANDOFF.md"
+      "rootDecision": "DS5-D1 (disabled ink lifted; ROOT's decision, open to the owner): lanes/DESIGN-SYSTEM-05/HANDOFF.md",
+      "dependsOnNote": [
+        "B1-TOKENS merged 4dcab7505"
+      ]
     },
     "B1B-TOKENS13": {
       "role": "TASK Type 2 implementer (token adoption, tokens.json 1.3)",
@@ -186,19 +225,20 @@
       "model": "fable (design author, fidelity review), opus (independent review), sonnet (adoption, stylesheet rows, contrast script runs)",
       "status": "planned: after both lanes' control work",
       "dependsOn": [
-        "B-SHELL",
-        "B-CANVAS",
-        "DESIGN-SYSTEM-05",
-        "B1B-TOKENS13"
+        "B7",
+        "G-17",
+        "C5"
       ],
-      "record": "ORCHESTRATION_PLAN.md, amendment 1"
+      "record": "ORCHESTRATION_PLAN.md, amendment 1",
+      "carries": "the appearance items the owner adopted on 2026-09-19 (OWNER_DIRECTION_2026-09-19_SECTION7_DECISIONS.md group 2); design system V1.4 reopened; token adoption; C6; one fidelity review over every surface; contrast on every touched control; the deformation view as a drawn proposal for the owner"
     },
     "D72-QUALIFICATION": {
       "role": "TASK Type 2 benchmark runner",
       "model": "sonnet",
       "status": "planned: last in Tranche B, after the closing visual pass; the second profile's freeze goes to the owner first",
       "dependsOn": [
-        "CLOSING-VISUAL-PASS"
+        "CLOSING-VISUAL-PASS",
+        "SECOND-PROFILE"
       ]
     },
     "PROBE-NESTED-FOREGROUND": {
@@ -221,6 +261,966 @@
       "return": "instances/HANDOFF-REVIEW/RETURN.md",
       "modelThatRan": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
       "backcheckReturnSha256": "d6aeac38120cba011a008ad3bb4d4ec904b29493d0a8f4d3d807796ef49fccdc"
+    },
+    "B2": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "state extraction, no behaviour change",
+      "status": "merged",
+      "pr": 803,
+      "mergeCommit": "b9a07040857d2e6d3ec0f6a530697720801c7b59",
+      "deliverableBinding": {
+        "id": "DEL-07-08",
+        "basis": "tentative, unverified: bound by precedent or folder name, not checked against the deliverable's scope; the owner reconciles deliverables to the code later"
+      }
+    },
+    "B2F-B2G": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "project-handler repairs (B2F, B2G, corrections B2G-C1 and B2G-C2)",
+      "status": "merged",
+      "dependsOn": [
+        "B2"
+      ],
+      "pr": 805,
+      "head": "71e4959c725f48faa45020b0f0a6b286f52c627e",
+      "mergeCommit": "172cd5689",
+      "reviewedCandidate": "13311e4aad46b74dbae7a4e2e25052e8f7c04c0a",
+      "sweepCommit": "a1f7f8fe14f7a1266e595cc8bea40f518e4154c8",
+      "closeout": "lanes/B-SHELL/CLOSEOUT_CHECKS_B2F_B2G.json",
+      "files": [
+        "src/features/workspace/workspaceSession.ts",
+        "src/App.projectHandlers.test.tsx"
+      ],
+      "semanticChanges": "lanes/B-SHELL/returns/B2F_RETURN.md and B2G_RETURN.md; summary in the run record",
+      "defers": [
+        {
+          "item": "the native menu is not disabled during a busy project request; a save superseded by another project request after its bytes landed keeps the open-time record",
+          "retiresWith": "B3B"
+        },
+        {
+          "item": "a landed save nulls the integrity record instead of re-deriving it",
+          "retiresWith": "B3B"
+        }
+      ],
+      "deliverableBinding": {
+        "id": "DEL-07-08",
+        "basis": "tentative, unverified: bound by precedent or folder name, not checked against the deliverable's scope; the owner reconciles deliverables to the code later"
+      }
+    },
+    "B3": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
+      "status": "Reviewed owner-approved parity applied; full corrected dist53 and remaining build pass. Unchanged065 successes reused under explicit ruling; original sweep remains failed. Final records and focused hosted CI/merge pending.",
+      "dependsOn": [
+        "B2F-B2G",
+        "C1"
+      ],
+      "blockedBy": [
+        {
+          "what": "final verification/publication gates, not an unresolved owner product decision",
+          "with": "ROOT",
+          "blocks": "B3 merge"
+        }
+      ],
+      "nextInstrument": {
+        "brief": "instances/B-SHELL/briefs/B3-FLOORS.md",
+        "sha256": "fe295e2b575e651e77b6ec4c75d6ef1455af319119337b4ac96d6008536c0290",
+        "where": "on the lane branch",
+        "state": "historically sealed and unlaunched; do not execute unchanged; reseal against current owner steer and pending product dispositions"
+      },
+      "rulings": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_APPROVAL.md adopting D1-D3 of DECISION_AND_STRATEGY.md; earlier owner directions retained where applicable",
+      "specDepartures": [
+        {
+          "what": "Both-view inspector takes width from table first down to320px lending floor, then canvas subject to220px minimum; explicit departure from fixed-table UX10.9",
+          "by": "owner adopted D2 in current OWNER_APPROVAL.md"
+        },
+        {
+          "what": "Collapsed drawer strip overlays canvas foot, with complete readout/DOM/painted-frame clearance and named placement-witness amendment; historical padding proposal rejected",
+          "by": "owner adopted D1, reaffirming overlay adopted in eight-item direction"
+        },
+        {
+          "what": "Appearance disclosure and Select tool in toolbar remain temporary",
+          "by": "owner eight-item direction; closing visual pass retires appearance departure"
+        }
+      ],
+      "crossLane": [
+        {
+          "what": "scoped exception in features/viewport/PipeViewport.tsx: one optional prop, the authoring panel rendered through createPortal into the inspector",
+          "grantedBy": "ROOT"
+        }
+      ],
+      "defers": [
+        {
+          "item": "specification 10.9 states C to E: the slide-over inspector and the agent-column collapse",
+          "retiresWith": "B5"
+        },
+        {
+          "item": "contrast witnesses for rail captions and the Inspector toggle's label",
+          "retiresWith": "CLOSING-VISUAL-PASS"
+        }
+      ],
+      "gatesOwed": [
+        "final records/collection checks",
+        "actual-publication-head focused hosted CI",
+        "merge"
+      ],
+      "deliverableBinding": {
+        "id": "DEL-07-02",
+        "basis": "tentative, unverified: bound by precedent or folder name, not checked against the deliverable's scope; the owner reconciles deliverables to the code later"
+      },
+      "continuationDecisionDependencies": [
+        {
+          "id": "D1",
+          "what": "drawer-strip mechanism and named orientation-placement witness",
+          "status": "owner approved 2026-09-19; OWNER_APPROVAL.md"
+        },
+        {
+          "id": "D2",
+          "what": "inspector table-first lending and 320 px lending floor",
+          "status": "owner approved 2026-09-19; OWNER_APPROVAL.md"
+        },
+        {
+          "id": "D3",
+          "what": "Both-only protected dominance assertion amendment",
+          "status": "owner approved 2026-09-19; OWNER_APPROVAL.md"
+        }
+      ],
+      "gatesOwedCurrent": [
+        "final records/collection checks",
+        "actual-publication-head focused hosted CI",
+        "merge"
+      ],
+      "continuationEngineeringDecisions": [
+        {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_UNDO_OWNERSHIP_DECISION.md",
+          "sha256": "174fe12bd21785297f4d4d91e14cc217bbd36bf884dae262fff7ef6be31418dd",
+          "by": "ROOT; not owner ruling",
+          "status": "directed; native proof pending"
+        },
+        {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_NATIVE_SELECT_DECISION.md",
+          "sha256": "9ff7e7f325def1ed4750c14c3b865a6875bc988368024c288cbb23b54f6d8563",
+          "by": "ROOT engineering disposition, not owner product ruling",
+          "status": "manager accepted; scoped implementation active"
+        }
+      ],
+      "historicalBeforeCodex": {
+        "blockedBy": [
+          {
+            "what": "the frozen helper's assertion 'canvas area larger than the tree's' cannot hold in Both view under the approved 55/45 split (table 737, canvas 603)",
+            "with": "owner",
+            "recommendation": "keep it where the tree is a side region; in Both view replace it with the 35 % width floor plus canvas-larger-than-inspector",
+            "blocks": "merge only; every other ruling can be built meanwhile"
+          }
+        ],
+        "rulings": "instances/ROOT/SESSION_HANDOFF_2026-09-19B.md section 3",
+        "specDepartures": [
+          {
+            "what": "in Both view the docked inspector always takes its width from the table pane (canvas 603 at 1440, 531 at 1280), against specification 10.9",
+            "by": "ROOT, told to the owner, open"
+          },
+          {
+            "what": "the collapsed drawer strip does not overlay the viewport; the canvas pane keeps D-72's box and takes bottom padding; replaces the mechanism of item 5 of the owner's eight items",
+            "by": "ROOT, told to the owner, not answered"
+          },
+          {
+            "what": "the Appearance disclosure and the Select tool in the toolbar",
+            "by": "accepted by the owner for now; Appearance leaves the toolbar at the closing visual pass"
+          }
+        ],
+        "gatesOwed": [
+          "Opus code review with a structural checklist",
+          "one Fable design-fidelity review by screenshot, structure only",
+          "ROOT's look",
+          "DEC-025 sweep",
+          "CI",
+          "merge commit"
+        ],
+        "note": "Original pre-Codex fields preserved here; current fields below reflect subsequent owner approval and model strategy. Historical source commits and handoffs remain unchanged."
+      },
+      "satisfiedEntryGates": [
+        "owner strategy agreement",
+        "owner D1-D3 product dispositions"
+      ],
+      "candidate": "065485671c7bf1c9b100643316bb263dd39421d8",
+      "nativeHostState": {
+        "prior": "Mac lock blocked CUA; manual unlock requested",
+        "ownerReply": "unlocked",
+        "custody": "active chat supplied text, not transport bytes",
+        "status": "Second lock was reported on rebuilt app; owner replied Unlocked and same Astra/low assignment resumed. Native and ROOT affected checks completed; CUA released.",
+        "laterOwnerReply": {
+          "text": "Unlocked",
+          "source": "active request_user_input_async reply to Mac locked again question",
+          "custody": "supplied active-chat text, not transport bytes"
+        }
+      },
+      "nativeFindings": [
+        {
+          "id": "N1",
+          "what": "focused-input CmdZ preserves model but does not undo text",
+          "state": "Original N1 closed; final9d0b native witness also covers genuine text redo retained during neutral model shortcuts and pointer custom native model-menu Undo/Redo. Native code unchanged in24f5/5045."
+        },
+        {
+          "id": "N2",
+          "what": "first Escape from native select popup also closes inspector",
+          "state": "Closed by compact web-controlled selector. Independent code/fidelity and actual24f5 native + ROOT look cover popup-first/later-inspector Escape and preserved missing values. Failed DOM/native bridge prototypes remain unadopted evidence."
+        },
+        {
+          "id": "N3",
+          "what": "exact native inner/outer/minimum dimensions not yet observed; standard Inspector access attempts did not expose route",
+          "state": "Exact native1280x800 logical public-API probe retained with unchanged host config/initializer; later uninstrumented shrink/title/chrome witnessed. ROOT_FINAL_NATIVE_LOOK documents linkage, unsuccessful Accessibility Inspector route and32px DOM delta. No new final-binary API measurement,800CSS orD72 claim."
+        }
+      ],
+      "rootNativeLook": {
+        "candidate": "2882acab94120cfa6c3c115ddb416a368cebd9cd",
+        "executableSha256": "1836d91ddbc5dd4809e53b12dde92c87fab587b8e9709e19fc920ec2e780af3a",
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ROOT_2882_NATIVE_LOOK.md",
+        "sha256": "7fd698cbc40d83208c5f0af4b5b86c686ba60bd55293c180bb4d76fd69bafdd5",
+        "result": "Original single-character native text Undo/Redo and repeated plain typing cases observed; both-theme structure and drawer clearance inspected. Independent N1 evidence backcheck supports repair, with two final-native coverage cases. Future compact/reset changes not covered."
+      },
+      "productCheckpoint": "3861b614362d8da925e148d7506ecc9902c7f808",
+      "reviewCandidate": "6ef382c5092819e9c1fed4b8f2fc9ab467618f00",
+      "finalNative": {
+        "product": "24f5d9db073fae34d165029f33d1a8bf8f9d0a3c",
+        "binarySha256": "55b95a087816c0340adae31758164b51c21d2a9910b46d9d8f0873817b2df1b7",
+        "initialReturn": "instances/B3-CODEX/_run_records/native-final-compact/RETURN.md",
+        "initialReturnSha256": "3a200d5050701f5bdb1e60379e4b0d26db62e44b99cd6c21ac35a424718721a3",
+        "valueBackcheck": "instances/B3-CODEX/_run_records/native-final-compact/VALUE_BACKCHECK_RETURN.md",
+        "valueBackcheckSha256": "f8606e9e343ef46fb7560b57e2964dc022b07c175e864e2817fd8748f1f064a9",
+        "rootLook": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ROOT_FINAL_NATIVE_LOOK.md",
+        "rootLookSha256": "d5bacc9928530dde33d7fba7d5dd2412f9eadd95afd27fd3c75d492fe0e01efa"
+      },
+      "sourceFinal": {
+        "candidate": "065485671c7bf1c9b100643316bb263dd39421d8",
+        "status": "pass",
+        "reported": "416passed,20existing skips,10.9minutes"
+      },
+      "distFinal": {
+        "candidate": "7a37a8f2b2d4f55460ebeaa7d201bae4d840cf9b",
+        "status": "pass",
+        "reported": "53passed exit0,2.9minutes",
+        "log": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/parity-rerun/full-dist.log"
+      },
+      "sweep": {
+        "commit": "065485671c7bf1c9b100643316bb263dd39421d8",
+        "status": "fail",
+        "summary": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/SWEEP_20260920T085415Z_065485671c7b.json",
+        "rawEvidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/",
+        "fullSource": "416passed,20existing skips",
+        "python": "1133passed,304warnings,19subtests",
+        "unit": "88files1436passed",
+        "dist": "52passed,1exactwheel-targetfailure",
+        "productionBuildSurface": "not_run after dist stop; dist build itself passed",
+        "originalToolOutputPath": "validation/evidence/sweeps/SWEEP_20260920T085415Z_065485671c7b.json; identical generated duplicate remains in integration checkout until archived outside Git"
+      },
+      "hostedCi": {
+        "harness": "PASS",
+        "desktopSource": "FAILURE",
+        "passed": 408,
+        "skipped": 20,
+        "failed": 2,
+        "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/MANIFEST.json"
+      },
+      "verificationBeforeCiFailure": {
+        "candidate": "002dff0f244976f98b36517d920b3761f6f88704",
+        "productCheckpoint": "24f5d9db073fae34d165029f33d1a8bf8f9d0a3c",
+        "sourceFinal": {
+          "candidate": "5045bd1c2c92b4c018e5652111ee6093434ead78",
+          "reported": "410passed/20existing skips/exit0/11.7minutes",
+          "log": "instances/B3-CODEX/_run_records/full-source-final.log",
+          "standing": "manager reported; ROOT hash verification at fan-in"
+        },
+        "distFinal": {
+          "candidate": "d3758edf45795dd2c0eddcd840d9100fc3d0cd23",
+          "reported": "53passed/exit0/3.2minutes",
+          "log": "instances/B3-CODEX/_run_records/full-dist-completed.log",
+          "standing": "manager reported; ROOT hash verification at fan-in"
+        },
+        "sweep": {
+          "commit": "9cf1654d2d0b317774290feb72d1a397a1d6cefa",
+          "status": "pass",
+          "summary": "validation/evidence/sweeps/SWEEP_20260920T065239Z_9cf1654d2d0b.json",
+          "summarySha256": "64871b1d85bc974b0dcff8ca049c1e55113f222eaf13eef6729b2c83bf97f8d1",
+          "rawLogManifest": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-sweep/MANIFEST.json"
+        },
+        "standing": "local passes on prior candidate; hosted tooltip failure retained and repaired separately"
+      },
+      "ciRepair": {
+        "product": "3861b614362d8da925e148d7506ecc9902c7f808",
+        "managerHandoff": "f7dcbf027a0fb0d740d46568a1e81f92dd178ecd",
+        "return": "instances/B3-CODEX/ci-tooltip-repair/RETURN.md",
+        "returnSha256": "49022d0a04bf0f61472ff7282155a4c899beade65710524f350a82464a921a8a",
+        "manifest": "instances/B3-CODEX/ci-tooltip-repair/_run_records/PACKET_MANIFEST.json",
+        "manifestSha256": "5fb4cd91cefcdcadc3bfe053696fc1bb211438ae8504f67a629375fd9e2156e7",
+        "verifiedManifestEntries": 345,
+        "verifiedTraceArchives": 6,
+        "sourcePasses": 68,
+        "distPasses": 17,
+        "unitPasses": 44,
+        "nativeBinarySha256": "e9eda3cca4e626dd00cfee62279113d0d5161a751ba40cd58cea091cd23ca5f9",
+        "rootNativeLook": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ROOT_CI_REPAIR_NATIVE_LOOK.md",
+        "rootNativeLookSha256": "9ef269ca1085973df66a689e20906b1e6e9c7f2ae2957c8e5f3e13733b248b69",
+        "nativeLimit": "pure native hover persistence unobserved; pinned browser hover demonstrated",
+        "state": "independent product and complete evidence reviews pass; app/ports/lock released",
+        "B3_CI_REPAIR_REVIEW_RETURN.md": {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CI_REPAIR_REVIEW_RETURN.md",
+          "sha256": "f37a151a441f7cade072f3e43c8f1e05cafe760a2a07c192633b4936e43c79c7"
+        },
+        "B3_CI_PACKET_REVIEW_RETURN.md": {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CI_PACKET_REVIEW_RETURN.md",
+          "sha256": "2d27aaa3c5b44e081927ff90d7a9598e865ddef763545d95d247cb4c8d9ed31d"
+        },
+        "CI_BACKCHECK_RETURN.md": {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_BACKCHECK_RETURN.md",
+          "sha256": "dbfc515089a6422066001725451ed201fadb64de0176f56295439f75a34f9341"
+        },
+        "RESUME_RECORDS_BACKCHECK_RETURN.md": {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RESUME_RECORDS_BACKCHECK_RETURN.md",
+          "sha256": "f121711027e86940cb3a5e88efeaeb4d37c298cab3a9210d923d4e8be7062922"
+        }
+      },
+      "distParityProposal": {
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_DIST_ROUNDOFF_DECISION.md",
+        "patch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_DIST_WHEEL_PARITY.patch.txt",
+        "patchSha256": "bd12b88355b25690b04ea3400a7637fe572597912e07383af8d9b6d6f006d94f",
+        "state": "owner approved parity and bounded reruns; exact reviewed patch applied, verification pending",
+        "sourcePredicateOrigin": "306a74ba9d; independently confirmed already present in origin/main",
+        "approval": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_DIST_PARITY_APPROVAL.md"
+      },
+      "finalGovernance": {
+        "harness": "379passed after raw-evidence relocation",
+        "selfCheck": "standalone exit0, existingWARN/REVIEW retained, no rawpath findings",
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/evidence-classification/MANIFEST.json"
+      },
+      "combinedVerification": {
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/parity-rerun/COMBINED_VERIFICATION.json",
+        "sha256": "4a25ccc1fe8b1704c89084db6e600744e08f274efec79040905d282eb4ea0a20",
+        "standing": "Combined delta verification under explicit PR825-only owner ruling; NOT a fresh complete sweep"
+      }
+    },
+    "B3A": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "the unsaved-edits mark; the 'Solver \u00b7 Not solved' fallback chip",
+      "status": "planned, authorized by the owner 2026-09-19",
+      "dependsOn": [
+        "B3"
+      ],
+      "authority": "instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md items 1 and 2",
+      "also": "two requests from the canvas lane for the shell lane's files wait for B3's freeze: the label plate's selected border colour in styles.css; a hover field in uiDiagnostics.ts"
+    },
+    "B3B": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "the native menu disabled during a busy project request (with its src-tauri part); a landed save re-derives the integrity record as verified at save",
+      "status": "planned, authorized by the owner 2026-09-19",
+      "dependsOn": [
+        "B3A"
+      ],
+      "authority": "OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md items 3 and 4",
+      "returnsToOwnerIf": "'verified at save' needs a persisted field (then it is a typed-interface gap)"
+    },
+    "B4": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "the table component through the one operation route",
+      "status": "planned",
+      "dependsOn": [
+        "B3B"
+      ]
+    },
+    "B5": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "the docked inspector's remainder and the slide-over",
+      "status": "planned",
+      "dependsOn": [
+        "B4"
+      ]
+    },
+    "B6": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "results header, run menu, the Historical band, issues drawer, palette search",
+      "status": "planned",
+      "dependsOn": [
+        "B5"
+      ]
+    },
+    "G-11": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "a Stale run stays readable (typed-interface gap, authorized by the owner 2026-09-19, with a result-integrity review); G-17 with it or later",
+      "status": "planned",
+      "dependsOn": [
+        "B6"
+      ]
+    },
+    "B7": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "the Review page's chrome",
+      "status": "planned",
+      "dependsOn": [
+        "G-11"
+      ]
+    },
+    "C1": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "canvas colours from tokens, the edge line (C1E), the guidance probe T1, the stylesheet rows (C1b), the empty-layer guard",
+      "status": "merged",
+      "pr": 806,
+      "head": "beff4fede947314ac2653f3a486a38bb61c1bdc1",
+      "mergeCommit": "d20eb1294",
+      "reviewedCandidate": "4e267d02bccd320607cf6ccab4c52f05cf4048b3",
+      "sweepCommit": "16d339ac0d9950cf769409fcb9bd69455bd85bf1",
+      "closeout": "lanes/B-CANVAS/CLOSEOUT_CHECKS_PR1.json",
+      "semanticChanges": "lanes/B-CANVAS/returns/PR1_RETURN.md and C1A_RETURN.md",
+      "defers": [
+        {
+          "item": "C1E stage 3: side rings at free ends and section changes",
+          "retiresWith": "C5"
+        },
+        {
+          "item": "derived silhouette shades, the line at device pixel ratio 1, unnamed roles, the deformed shape's ink (C1-D1)",
+          "retiresWith": "CLOSING-VISUAL-PASS"
+        }
+      ],
+      "note": "from this slice the benchmark's first profile no longer describes the product's cue colours (addendum 2, ASK-11)",
+      "deliverableBinding": {
+        "id": "DEL-07-01",
+        "basis": "tentative, unverified: bound by precedent or folder name, not checked against the deliverable's scope; the owner reconciles deliverables to the code later"
+      }
+    },
+    "C2": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "selection and hover as halos over the element's own colour (G-31); depth mask, no renderer-construction change",
+      "status": "merged",
+      "dependsOn": [
+        "C1"
+      ],
+      "pr": 807,
+      "head": "06088fcca82f2968a1cdf036d9c111108db81fb7",
+      "mergeCommit": "b313ce821d334aa741292248fba748c5d531d972",
+      "reviewedCandidate": "0758e91e378dcbf2927bd787194248a8a23980f4",
+      "sweepCommit": "031f1855c1732b1c92d9f7a1837933f25065b5e9",
+      "closeout": "lanes/B-CANVAS/CLOSEOUT_CHECKS_C2.json",
+      "semanticChanges": "lanes/B-CANVAS/returns/C2_RETURN.md",
+      "rootDecision": "the stencil question (P1 ASK-5) under the owner's rule of 2026-09-19: form (b), the depth mask",
+      "defers": [
+        {
+          "item": "the casing (P1 ASK-4): the halo alone fails the pair rule in dense fixtures",
+          "retiresWith": "the owner's decision, with the second profile's freeze package"
+        },
+        {
+          "item": "halo and hover contrast, coverage at ratio 1, the diamond beside the halo",
+          "retiresWith": "CLOSING-VISUAL-PASS"
+        },
+        {
+          "item": "review's residual risks: matrixWorld read at sync time; open-ended torus and the front-face mask",
+          "retiresWith": "C3 and C5 notes"
+        }
+      ],
+      "deliverableBinding": {
+        "id": "DEL-07-01",
+        "basis": "tentative, unverified: bound by precedent or folder name, not checked against the deliverable's scope; the owner reconciles deliverables to the code later"
+      }
+    },
+    "I1": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "repair of the benchmark first profile's four defects (instrument code only)",
+      "status": "in progress, paused: committed as a labelled pause point 240a246f3, not a candidate; checked in part by the manager (fixtures, samples and the manifest byte-identical; the generator's --check mode reproduces the frozen bytes and writes nothing; picking 69); the whole diff not yet read; full lanes not run on the committed head",
+      "dependsOn": [
+        "C2"
+      ],
+      "authority": "OWNER_DIRECTION_2026-09-19_SECTION7_DECISIONS.md group 3(b); the lane's proposal P4 accepted by ROOT; sequenced before C3 by ROOT, not by the owner",
+      "brief": "instances/B-CANVAS/briefs/I1-REPAIR.md (on the lane branch)",
+      "openForRoot": [
+        "defect 2: a header comment or retirement to history",
+        "whether the nine protocol-history files are preserved in the repository",
+        "seventeen hash literals bind artifacts never committed"
+      ],
+      "preparationSourceAudit": {
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/I1_PREPARATION_SOURCE_AUDIT.json",
+        "result": "ROOT read-only found all9 historical preimages in preserved old worktree, hash-matched; no I1 implementation or launch yet"
+      }
+    },
+    "C3": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "isolate as dimming, a stated pick rule, a total hidden count (G-30)",
+      "status": "planned",
+      "dependsOn": [
+        "I1"
+      ]
+    },
+    "C4": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "the label budget with All, Budget and Off",
+      "status": "planned",
+      "dependsOn": [
+        "C3"
+      ]
+    },
+    "C5": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "real outside diameter, the HUD, the fitted camera (G-32); C1E's side rings",
+      "status": "planned",
+      "dependsOn": [
+        "C4"
+      ]
+    },
+    "SECOND-PROFILE": {
+      "role": "slice",
+      "lane": "B-CANVAS",
+      "title": "the benchmark's second profile prepared; its freeze, with the casing, goes to the owner as one package before any timed run",
+      "status": "planned",
+      "dependsOn": [
+        "C5",
+        "B3"
+      ],
+      "inputsFromShell": "both panes visible at every boundary against D-72's inspector-closed 603 px canvas; the window at 1440 by 920 against D-72's 900; the in-app menu row's 33 px in the browser runtime; resource-accounting.ts must open the Project page or use File, Save; the runtime a timed run uses"
+    },
+    "TRANCHE-A2": {
+      "role": "tranche",
+      "status": "planned: after the closing visual pass, not overlapping it (the owner, 2026-09-19); its own plan",
+      "dependsOn": [
+        "CLOSING-VISUAL-PASS"
+      ]
+    },
+    "B2F-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "model_ran": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "status": "returned_pass_no_actionable_finding",
+      "brief": "lanes/B-SHELL/briefs/B2F-REVIEW_code_review.md",
+      "briefSha256": "28c09b8c20c02c5d4cf14ed75929a6c5178fc11cfccae0a7e83de7956b6073d7",
+      "return": "lanes/B-SHELL/reviews/B2F-REVIEW_RETURN.md",
+      "returnSha256": "d3747d7018cbea0a6812fc5f85aea777f90604a98f6eea39b3bc8ea1179f7118"
+    },
+    "B2G-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "model_ran": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "status": "returned FINDINGS (one, corrected as B2G-C1); backcheck found one more (corrected as B2G-C2); second backcheck PASS for the combined candidate",
+      "brief": "lanes/B-SHELL/briefs/B2G-REVIEW_code_review.md",
+      "briefSha256": "992f3b4fe99b31623dd5191953077dfd9aec079ef5a0c59fc6e0203e5a7f3d8a",
+      "return": "lanes/B-SHELL/reviews/B2G-REVIEW_RETURN.md",
+      "returnSha256": "46ac4ec047d6ed249cef8138e4bc2c11f935abe61c05d85c964653ab1b423b22",
+      "backchecks": {
+        "lanes/B-SHELL/reviews/B2G-REVIEW_BACKCHECK_RETURN.md": "445f8fb92d23c1552b450e57125952945bbd26660153220ab72b7fff07c57639",
+        "lanes/B-SHELL/reviews/B2G-REVIEW_BACKCHECK2_RETURN.md": "d15363dc9920afed3dce763f3003c00d77f130ceed3281156ff47c9527004484"
+      }
+    },
+    "C-PR1-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "model_ran": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "status": "returned_pass_no_actionable_finding",
+      "brief": "lanes/B-CANVAS/briefs/PR1-REVIEW_code_review.md",
+      "briefSha256": "1e71331109c9e748162ce65f407cc38445bf8531c8241045a02e3fee9c64176d",
+      "return": "lanes/B-CANVAS/reviews/PR1-REVIEW_RETURN.md",
+      "returnSha256": "eebd23af3e001c81d46c32bd7258fd11a7e16fcbdccaf287dc38f99b2073b7b5"
+    },
+    "C2-REVIEW": {
+      "role": "TASK Type 2, software-code-review, read-only",
+      "model": "opus",
+      "model_ran": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "status": "returned_pass_no_actionable_finding",
+      "brief": "lanes/B-CANVAS/briefs/C2-REVIEW_code_review.md",
+      "briefSha256": "a8bcb95d09678071dacd57c1a7594798a8982db277d08a70b3b2db1e2d3a14da",
+      "return": "lanes/B-CANVAS/reviews/C2-REVIEW_RETURN.md",
+      "returnSha256": "88540a9f47d6628714ff4b5e7e42aaff5cbe29915c3dc404423d5e0811a32285"
+    },
+    "HANDOFF2-REVIEW": {
+      "role": "TASK Type 2, records check, read-only",
+      "model": "opus",
+      "model_ran": "Claude Opus 5 (claude-opus-5[1m]), by its own statement",
+      "status": "returned FINDINGS, eight, none blocking; all applied; no backcheck run, to spare the owner's usage",
+      "brief": "briefs/HANDOFF2-REVIEW_records_review.md",
+      "briefSha256": "0cdfff48b0fa07a44097f8db892b1e3fd9976bce8590cf76e77353a7e0b8d36a",
+      "return": "instances/HANDOFF2-REVIEW/RETURN.md",
+      "returnSha256": "d6775a94b61b31c2693ac87f017fd6fce31dc3a079338345c294e02680728e87"
+    },
+    "B3-CODEX-MANAGER": {
+      "role": "WORKING_ITEMS Type 1",
+      "parent": "ROOT",
+      "modelRequested": "gpt-6-astra",
+      "reasoningRequested": "high",
+      "status": "bounded CI repair complete; clean handofff7dcbf and all resources released; post-B3 activation awaits merge",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_BRIEF.md",
+      "briefSha256": "e494ccdc4763cca0ff53ae238a33c3d3a83299f66a701b75b107c1a5bdb5fb3f",
+      "candidate": "c613922f1725a9b86d81c6c120b05b7df2e0558d",
+      "returnSha256": "b46ab5122037f244a38886fce493f02b7b1ca6046d91725be23693f9c1c7ce91",
+      "actualAgent": "/root/b3_manager",
+      "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
+      "modelRan": "gpt-6-astra",
+      "reasoningRan": "high",
+      "integrationBase": "a63607e5c6d805f364c969eb6963f768baefb300",
+      "addenda": [
+        {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_ADDENDUM_1.md",
+          "sha256": "9deba418f41a372e4b7f3522ebe58ada2b5360b50fbefadd8bceb812cfd15b61"
+        },
+        {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_ADDENDUM_2.md",
+          "sha256": "f3363e5a2b365af8d0a95cfc1893d80f29ee21dd6aa8aaabd40a63ddb9147ae2"
+        }
+      ],
+      "children": [
+        {
+          "agent": "/root/b3_manager/shell",
+          "role": "TASK Type 2",
+          "model": "gpt-5.6-sol",
+          "reasoning": "high",
+          "state": "capacity-interrupted; preserved messages/checkpoints; remaining work assigned fresh Astra/high child",
+          "evidenceOwner": "instances/B3-CODEX on shell lane"
+        },
+        {
+          "agent": "/root/b3_manager/native",
+          "role": "TASK Type 2",
+          "model": "gpt-5.6-sol",
+          "reasoning": "high",
+          "state": "completed original Sol/high assignment; final new native deployments use Astra/low",
+          "evidenceOwner": "instances/B3-CODEX on shell lane",
+          "return": "instances/B3-CODEX/native/RETURN.md",
+          "returnSha256": "4ff3ad284cbd5334f0fec2e9d1a06c7da514776cb8e65ecb3bea00bda3d0c4dd"
+        },
+        {
+          "agent": "/root/b3_manager/shell_astra",
+          "role": "TASK Type 2",
+          "model": "gpt-6-astra",
+          "reasoning": "high",
+          "state": "completed and returned; earlier Astra/high substitution preserved, not a new deployment",
+          "evidenceOwner": "instances/B3-CODEX on shell lane"
+        },
+        {
+          "agent": "/root/b3_manager/compact_select",
+          "role": "TASK Type 2 compact selector component/tests",
+          "model": "gpt-6-astra",
+          "reasoning": "low",
+          "state": "completed component and bounded review repairs; final value-preservation code independently backchecked",
+          "briefSha256": "4feadbd69dfcf85265783ed7687148ae294959acec212891ed7159be6cba3eae",
+          "evidenceOwner": "instances/B3-CODEX on shell lane"
+        },
+        {
+          "agent": "/root/b3_manager/native_final_compact",
+          "role": "TASK Type 2 final native witness and affected repair backcheck",
+          "model": "gpt-6-astra",
+          "reasoning": "low",
+          "state": "completed and released CUA; final same-assignment follow-up retained",
+          "briefSha256": "01196775bb6a69ceca1735df17b23051efea931e211b6e2c61355a4cb02e54f7",
+          "followupSha256": "7b2b78c9b45ea0b7b579f9fd84f3309a13001a64532ad8ebbbf90129caaff1b0",
+          "evidenceOwner": "instances/B3-CODEX on shell lane"
+        }
+      ],
+      "availabilitySubstitution": {
+        "scope": "remaining shell assignment",
+        "from": "gpt-5.6-sol/high",
+        "to": "gpt-6-astra/high",
+        "reason": "repeated model capacity interruptions after temporary successful retries",
+        "authorization": "ROOT operational decision on repeated capacity failure, disclosed in active commentary; the package named Astra/high for hard diagnosis but did not expressly approve the capacity case. This records the actual substitution, not a new owner ruling. Later owner model direction governs all new deployments.",
+        "evidenceOwner": "instances/B3-CODEX on shell lane",
+        "reviewIndependence": "separate author and fresh context; no model-diversity claim for substituted portion"
+      },
+      "nativeDiagnosis": {
+        "agent": "/root/b3_manager/native_keyboard_diagnosis",
+        "role": "TASK Type 2 read-only diagnosis",
+        "configuredModel": "gpt-6-astra",
+        "configuredReasoning": "low",
+        "briefSha256": "187bb52467dc6aafd0066e2b1ffdde64dce19431805f669aae57904035d5b743",
+        "evidenceOwner": "instances/B3-CODEX on shell lane",
+        "probeMethod": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_NATIVE_DIAGNOSIS_DECISION.md",
+        "probeMethodSha256": "6bb9db8364d4255e316bb740fd0c864cf1307f621a4d34ba35435662d3a85d90",
+        "appliedSkill": {
+          "origin": ".agents/skills/software-defect-diagnosis/SKILL.md",
+          "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23",
+          "consultedBy": "ROOT and manager; manager binds child context separately"
+        },
+        "state": "read-only diagnosis returned; causal hypotheses under probe",
+        "return": "instances/B3-CODEX/_run_records/native-keyboard-diagnosis/RETURN.md",
+        "returnSha256": "e173dbd2962a284c9b4c7ef6d0a88535b543390ae974e080529766325710ac25"
+      },
+      "nativeProbe": {
+        "agent": "/root/b3_manager/native_keyboard_probe",
+        "role": "TASK Type 2 isolated diagnostic probe",
+        "configuredModel": "gpt-6-astra",
+        "configuredReasoning": "low",
+        "briefSha256": "d5233a0f5618687b104583605897ef30245f02b53f246b64fe1a11b1acb87296",
+        "worktreeName": "swbpipe-b3-native-probe-20260919",
+        "base": "f5bc01f8beaa1c210b988fe28aea95573781f963",
+        "state": "completed; diagnostic evidence only",
+        "evidenceOwner": "instances/B3-CODEX on shell lane",
+        "return": "instances/B3-CODEX/_run_records/native-probe/RETURN.md",
+        "returnSha256": "b4381b46a97710573876f91d40bd64cbf533a80309edbb8732a4e5d1c5c334bd"
+      },
+      "selectPopupRepair": {
+        "agent": "/root/b3_manager/select_popup_repair",
+        "role": "TASK Type 2 bounded lifecycle module and isolated proof",
+        "configuredModel": "gpt-6-astra",
+        "configuredReasoning": "low",
+        "briefSha256": "693a1c83ca44c0a6953bcffa8dce87b48544a6d2faedd53d7656e2cdd3cbbe0a",
+        "status": "failed native same-value commit checks; production module/consumer removed; exact evidence retained on shell lane",
+        "disposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_NATIVE_REPAIR_DISPOSITION.md",
+        "initialDispositionSha256": "d21965f2ea3c1e8f405ce276e59dd89637d91b41c722e41d98bf101df3abee50",
+        "currentDispositionSha256": "29d36d269f60f96db5cd4dd8d5d6d94aae8a181acd79c2b295a4389fb9f5ef35"
+      },
+      "publicMenuSignalProbe": {
+        "agent": "/root/b3_manager/public_menu_signal_probe",
+        "role": "TASK Type 2 isolated public-API diagnostic probe",
+        "configuredModel": "gpt-6-astra",
+        "configuredReasoning": "low",
+        "state": "completed; tested commits emit action after end, cancellation does not; original Escape-keydown failure not reproduced; no production proof",
+        "return": "instances/B3-CODEX/_run_records/public-menu-signal-probe/RETURN.md",
+        "returnSha256": "7d2cfac5e2810d22bfd37e9ab82ae3acf65f63f1dae92338b34f081f8f641943"
+      },
+      "correlatedPopupPrototype": {
+        "agent": "/root/b3_manager/correlated_popup_prototype",
+        "role": "TASK Type 2 isolated native correlation prototype",
+        "configuredModel": "gpt-6-astra",
+        "configuredReasoning": "low",
+        "briefSha256": "39d3b77d249b79887f36d38e6b61f78ceb81618179128fd63de20f55c9e8e250",
+        "state": "completed partial proof; no production adoption. Scoped observer fix worked, but original post-close keydown interception and complete pointer/focus/duplicate-consumer native evidence remain unproved.",
+        "evidenceOwner": "instances/B3-CODEX on shell lane",
+        "return": "instances/B3-CODEX/_run_records/correlated-popup-prototype/RETURN.md",
+        "returnSha256": "fa844e4a373a603eb389be7bfd658423930c959107b759bb01b45e92bc108bfd",
+        "correctedReturn": "instances/B3-CODEX/_run_records/correlated-popup-prototype/CORRECTED_RETURN.md",
+        "correctedReturnSha256": "dc5ac88876b025224a28e64b4bee6df457ce3defd7b6ee4dc6f40cc36b188c16",
+        "addendum1Sha256": "1180e1595b4d6f7a857571171865c46031864dd1e1c342a03d63aa7de50d595f"
+      },
+      "return": "instances/B3-CODEX/RETURN.md",
+      "ciRepair": {
+        "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CI_REPAIR_MANAGER_BRIEF.md",
+        "briefSha256": "14b3fe08cb8c169f3fd56491c7c650991a9f46d9af80e3c654c65a1fed55411e",
+        "addendum": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CI_REPAIR_MANAGER_ADDENDUM_1.md",
+        "addendumSha256": "acd5945e8bcccbf20b11830a5b57a75b599a7b7fffb614b03ef632382a7bec3b",
+        "actualMechanism": "collaboration.followup_task to existing independent lane manager; manager owns child launch",
+        "childReported": "/root/b3_manager/ci_tooltip_repair; Astra/low; brief89b9f53eaa61a76de09a01317706b136c0e5bbb869c2404539795e82ee450d72",
+        "state": "completed and independently reviewed; B3A draft prepared by ROOT but unlaunched"
+      }
+    },
+    "CONTINUATION-RECORDS-REVIEW": {
+      "role": "TASK Type 2 read-only independent review",
+      "modelRequested": "gpt-6-astra",
+      "reasoningRequested": "xhigh",
+      "candidate": "c805bcc1a",
+      "base": "c459a0fa15e8d33613b6b95f529b5d369c707874",
+      "status": "PASS through 2fd1416ac after tail backcheck; subsequent candidate changes still require review coverage",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RECORDS_REVIEW_BRIEF.md",
+      "briefSha256": "941f528cd80e5adfdddaeb4d5922609091fd4d72f34231dc1abc63b641cf23de",
+      "actualAgent": "/root/continuation_records_review",
+      "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
+      "modelRan": "gpt-6-astra",
+      "reasoningRan": "xhigh",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_REVIEW_RETURN.md",
+      "returnSha256": "279673ad27d70ad99a8139ea2cbb748bf8f8bc9b47f39c4fc3967c8081d05aed",
+      "findings": [
+        "P2 discovery evidence classification: corrected by byte-preserving relocation and pointer",
+        "P2 local merge boundary: clarified by sealed addendum 1; original brief retained"
+      ],
+      "reviewedCandidate": "2fd1416ac141e51b638a2ca88b620ae2c5a76df8",
+      "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_REVIEW_BACKCHECK.md",
+      "backcheckReturnSha256": "93a22fa8a46b44424b00026c9febcfd21a3b900810c51ba40f7096c8b52ec569",
+      "tailReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_TAIL_REVIEW_RETURN.md",
+      "tailReturnSha256": "b792b8d848960e6abd6be3f8dc0582638c3922c4e6d35ca32c8cfe4a2ca3934a",
+      "tailBackcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_TAIL_BACKCHECK.md",
+      "tailBackcheckReturnSha256": "d41f5768865f09f204ec243a188dd9bb53c2b05ecfbaf7aa605363987b455c8e",
+      "resumedRecords": {
+        "initial": "49acd61a3b9ba92c98edd23279d48d997984aa1c",
+        "finding": "P3 return-table row order",
+        "backcheck": "62650612a418418f8c88d30d9474d5b105a1ddde",
+        "status": "PASS custody corrected"
+      },
+      "ciRepairPacket": {
+        "candidate": "f7dcbf027a0fb0d740d46568a1e81f92dd178ecd",
+        "status": "PASS346paths345manifestentries6traces",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CI_PACKET_REVIEW_RETURN.md"
+      }
+    },
+    "B3-CODE-REVIEW": {
+      "role": "TASK Type 2 independent complete-diff read-only code review",
+      "parent": "ROOT",
+      "configuredModel": "gpt-6-astra",
+      "configuredReasoning": "xhigh",
+      "actualAgent": "/root/b3_code_review",
+      "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
+      "status": "All original accessibility, native responder and selector findings independently closed; final test-only3line backcheck passed7afd; full lanes/sweep/CI remain",
+      "candidate": "8c0f1593963e4cc8ee3f8ca750f14587afb8c2e0",
+      "base": "c459a0fa15e8d33613b6b95f529b5d369c707874",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CODE_REVIEW_BRIEF.md",
+      "briefSha256": "9381ac27b96b702ad244b6e3129a4824ed79d03bb476b908bcd4b26af14c6e7f",
+      "inputEvidenceIndex": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CODE_REVIEW_INPUTS.json",
+      "returnSha256": "b57e9452df4b826cc4061ee2678802f3020c9831418311a1f44bc99f782f4a40",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CODE_REVIEW_RETURN.md",
+      "findings": [
+        "covered shell stage remains keyboard/accessibility active under pages",
+        "rail/agent disabled-reason tooltips clipped",
+        "wide Both inspector Escape does not close"
+      ],
+      "backcheckCandidate": "99c0bf0e404982c7de358af56d8292317af730ad",
+      "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CODE_BACKCHECK_1_RETURN.md",
+      "backcheckReturnSha256": "69b73e0e7e45504afc31ea361d48a5a07773800a3f729766269242ee39eb134f",
+      "reviewedCandidate": "6ef382c5092819e9c1fed4b8f2fc9ab467618f00",
+      "backcheck2Return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CODE_BACKCHECK_2_RETURN.md",
+      "backcheck2ReturnSha256": "4c31f2064ef5a80e08313c2aee8e91fcef0acbf05661cd3d77cfee34d6acae72",
+      "nativeResponderBackcheck": {
+        "candidate": "5ef9de29179a9b814da81d17c2774663404ac93d",
+        "status": "source-review PASS; final native proof separately owed",
+        "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_NATIVE_RESPONDER_BACKCHECK_BRIEF.md",
+        "briefSha256": "ceb719566999d8f4c86e461fb9c75d3d4311e2d2ef6e5923612aef220290b060",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_NATIVE_RESPONDER_BACKCHECK_RETURN.md",
+        "returnSha256": "33cae97b9d90a8b73d9774b0dd8c3c4cad0c6c474da62aa7d919591f6b666204"
+      },
+      "n1NativeEvidenceBackcheck": {
+        "status": "Original N1 repair supported; two final-native coverage cases owed, no remaining product defect established",
+        "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_N1_NATIVE_EVIDENCE_BACKCHECK_BRIEF.md",
+        "briefSha256": "a646149aa58665fe2c741e1d967681599430b28f44ae4d569659f656c133b0b2",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_N1_NATIVE_EVIDENCE_BACKCHECK_RETURN.md",
+        "returnSha256": "5c14832c02c7ca1933565721f508b60f6545a997e8538539df683541bf74001b",
+        "suppliedPathCorrection": "Native return hash4ff3ad... is instances/B3-CODEX/native/RETURN.md; sealed brief incorrectly implied _run_records/native. Reviewer independently found and verified correct file; sealed bytes retained."
+      },
+      "compactResetReview": {
+        "candidate": "41098f1e18edf58c59b2694119ea76a37ab9a1bc",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_COMPACT_RESET_CODE_BACKCHECK_RETURN.md",
+        "returnSha256": "2719211b8e1029717446dcc43a21e72eee146abc5ec3fd1ce16ef79f0e9249d2",
+        "findings": [
+          "implicit first-enabled fallback on passive dismissal",
+          "pending selection retargeted by option index",
+          "two HTML value assertions on button controls"
+        ]
+      },
+      "selectorValueBackcheck": {
+        "candidate": "bf15aed87571df3601b99c350fc5296fb337cd91",
+        "status": "PASS all3 findings closed",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_SELECTOR_VALUE_CODE_BACKCHECK_RETURN.md",
+        "returnSha256": "b2c10b2cf21cabeeb8b45f9866d69c2cd69bf1328dbb1885e6780ef103a4a14b"
+      },
+      "finalTestAdapterBackcheck": {
+        "candidate": "7afd31493beee6538d576e69d79777166cf40ff8",
+        "status": "PASS exact3testlines, no product/oracle/floor/timeout change",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_FINAL_TEST_ADAPTER_BACKCHECK_RETURN.md",
+        "returnSha256": "aee2a76a268caa4b9e8186f248f9adaff6a17e9a11d3e00a8bfdc31f87e6cd92"
+      },
+      "distCloseBackcheck": {
+        "candidate": "6ef382c5092819e9c1fed4b8f2fc9ab467618f00",
+        "status": "PASS one real-control Close line; no oracle/product/source-input changes",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_CLOSE_BACKCHECK_RETURN.md",
+        "returnSha256": "b742ac42a7ab0a6c107a18221430f1d1a25797cf49b1e1c41787dcbcbf8f702b"
+      },
+      "ciRepairReview": {
+        "candidate": "3861b614362d8da925e148d7506ecc9902c7f808",
+        "status": "PASS3product/testpaths",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CI_REPAIR_REVIEW_RETURN.md"
+      },
+      "ciStrategyReview": {
+        "initial": "097decd6d4c89bacb0909c9c798933835ed0f27b",
+        "initialFindings": "3P2: instrument dependencies, stale target base, missing focused collection cases",
+        "repair": "7174f78b7bda3497ab9007d3aaef5850f1fd3b54",
+        "status": "PASS all3closed",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_BACKCHECK_RETURN.md"
+      }
+    },
+    "B3-FIDELITY-CODEX": {
+      "role": "TASK Type 2 independent structure fidelity review",
+      "parent": "ROOT",
+      "configuredModel": "gpt-6-astra",
+      "configuredReasoning": "high",
+      "actualAgent": "/root/b3_fidelity_review",
+      "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
+      "candidate": "5ef9de29179a9b814da81d17c2774663404ac93d",
+      "status": "F1 and affected compact-control backchecks passed; native is separately bound; no acceptance claim",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_FIDELITY_BRIEF.md",
+      "briefSha256": "7dfde495da628a4fc7c9a8b127e9602246f4e0675a2f0c2269556faff31eefb7",
+      "inputs": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/fidelity/INPUTS.json",
+      "inputsSha256": "dddfacc8b5bc5416504115f0c457a94ab32b901cc57a2ea95296b26d8e9fe81b",
+      "resources": "headless 5183/5184 under run lock; no native/CUA/foreground; manager acknowledged compatibility",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/fidelity/RETURN.md",
+      "returnSha256": "6aff563fee64f57ef4650e15c849aa3f40276ce8ef8af207e5115c36ebc78c14",
+      "artifactManifestSha256": "d6d55761b9dcef8a08edbefa395d847ff9a7c01262752f21865323c667a04506",
+      "rootValidation": "Original125 artifacts plus71first-backcheck and20value-backcheck artifact hashes matched",
+      "backchecks": [
+        {
+          "candidate": "41098f1e18edf58c59b2694119ea76a37ab9a1bc",
+          "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/fidelity-backcheck/RETURN.md",
+          "returnSha256": "38bf1c9effa93a99406b31ca2167a6339636b7ea5fbf868138b8b4a516b08505",
+          "scope": "F1 closed across3paths, compact geometry/focus/Escape; later code edge cases not covered"
+        },
+        {
+          "candidate": "bf15aed87571df3601b99c350fc5296fb337cd91",
+          "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/fidelity-value-backcheck/RETURN.md",
+          "returnSha256": "7e726e3b8d1d7537970b7989c3ff03f974b2e2aff65324a73dcac51015228a85",
+          "scope": "PASS passive missing-family dismissal and explicit choice; no injected dynamic options"
+        }
+      ],
+      "supplementalContextRecovery": {
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/FIDELITY_GRAPH_RECOVERY.md",
+        "snapshot": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/fidelity-recovered-WORK_GRAPH.json",
+        "sha256": "3b61958cb02f6c5549763e3b94bb868e241a39fd12ab658bc03047948babb7eb",
+        "standing": "post-review exact-byte recovery independently verified; original manifests unchanged"
+      }
+    },
+    "CI-STRATEGY": {
+      "role": "slice",
+      "lane": "ROOT-owned Piping CI",
+      "title": "Early interaction gate, conservative affected selection and isolated full-run shards",
+      "status": "Repaired7174f78b independently PASS; target ancestry, exact collections and conservative full fallback validated; actual selected hosted execution pending.",
+      "authority": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md",
+      "dependsOn": [],
+      "scope": "Piping-specific workflow, optional composite, selector/tests, strategy docs, own notice/tranche; no other workflow or branch protection",
+      "limits": "Full local DEC025 unchanged; no assertion/oracle/timeout/profile weakening; reduced result never full DEC093 evidence",
+      "deliverableBinding": {
+        "status": "provisional/unmapped",
+        "basis": "run verification infrastructure; retained for owner-directed reconciliation, no new deliverable asserted"
+      }
+    },
+    "CI-INVENTORY": {
+      "role": "TASK Type2",
+      "parent": "ROOT",
+      "actualAgent": "/root/ci_inventory",
+      "actualMechanism": "Codex collaboration.spawn_agent, fork_turns none",
+      "configuredModel": "gpt-6-astra",
+      "configuredReasoning": "low",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_INVENTORY_BRIEF.md",
+      "briefSha256": "91937ad15e627f47be708c687e5ac1bea2d2bd29eab1ec663765b49afd04e574",
+      "status": "returned; independent custody/source/timing review PASS after row-order correction",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_INVENTORY_RETURN.md",
+      "returnSha256": "63e8527268bb761bf5c4c46070e598ce5c7564c368adfc3dd0d235b4aade6a01",
+      "custodyCorrection": "Independent reviewer found one table-row reordering in ROOT transcription at49acd. Corrected current retained return to actual collaboration.list_agents final ordering; values unchanged, historical commit preserved."
+    },
+    "CI-IMPLEMENTER": {
+      "role": "TASK Type2",
+      "parent": "ROOT",
+      "actualAgent": "/root/ci_strategy",
+      "actualMechanism": "Codex collaboration.spawn_agent, fork_turns none",
+      "configuredModel": "gpt-6-astra",
+      "configuredReasoning": "low",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_IMPLEMENTER_BRIEF.md",
+      "briefSha256": "b9768cb8f945dbf1308bc92520da48465aa39a2963ca13745feb6ad9dedda8fd",
+      "status": "returned repaired candidate7174f78b;28unitpasses; independent backcheck PASS; no browser/full-suite/hosted claim",
+      "evidenceLocations": "instances/CI-STRATEGY-CODEX/EVIDENCE_LOCATIONS.json;75raw artifacts moved byte-identically under _run_records, independently reviewed"
+    },
+    "G-17": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "compatible persisted view state",
+      "status": "authorized, scheduled after G-11; bounded brief not yet launched",
+      "dependsOn": [
+        "G-11",
+        "B7"
+      ],
+      "authority": "instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md item7",
+      "limits": "explicit persistence compatibility evidence and independent review; no broadened engineering/schema authority",
+      "deliverableBinding": {
+        "status": "provisional/unmapped",
+        "basis": "owner-authorized typed UI gap; reconcile only in later owner-directed phase"
+      }
     }
   },
   "edges": [
@@ -259,9 +1259,129 @@
     [
       "ROOT",
       "HANDOFF-REVIEW"
+    ],
+    [
+      "B-SHELL",
+      "B2"
+    ],
+    [
+      "B-SHELL",
+      "B2F-B2G"
+    ],
+    [
+      "B-SHELL",
+      "B3"
+    ],
+    [
+      "B-SHELL",
+      "B3A"
+    ],
+    [
+      "B-SHELL",
+      "B3B"
+    ],
+    [
+      "B-SHELL",
+      "B4"
+    ],
+    [
+      "B-SHELL",
+      "B5"
+    ],
+    [
+      "B-SHELL",
+      "B6"
+    ],
+    [
+      "B-SHELL",
+      "G-11"
+    ],
+    [
+      "B-SHELL",
+      "B7"
+    ],
+    [
+      "B-CANVAS",
+      "C1"
+    ],
+    [
+      "B-CANVAS",
+      "C2"
+    ],
+    [
+      "B-CANVAS",
+      "I1"
+    ],
+    [
+      "B-CANVAS",
+      "C3"
+    ],
+    [
+      "B-CANVAS",
+      "C4"
+    ],
+    [
+      "B-CANVAS",
+      "C5"
+    ],
+    [
+      "B-CANVAS",
+      "SECOND-PROFILE"
+    ],
+    [
+      "ROOT",
+      "TRANCHE-A2"
+    ],
+    [
+      "ROOT",
+      "B2F-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B2G-REVIEW"
+    ],
+    [
+      "ROOT",
+      "C-PR1-REVIEW"
+    ],
+    [
+      "ROOT",
+      "C2-REVIEW"
+    ],
+    [
+      "ROOT",
+      "HANDOFF2-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B3-CODEX-MANAGER"
+    ],
+    [
+      "ROOT",
+      "CONTINUATION-RECORDS-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B3-CODE-REVIEW"
+    ],
+    [
+      "ROOT",
+      "CI-STRATEGY"
+    ],
+    [
+      "ROOT",
+      "CI-INVENTORY"
+    ],
+    [
+      "ROOT",
+      "CI-IMPLEMENTER"
+    ],
+    [
+      "ROOT",
+      "B3-FIDELITY-CODEX"
     ]
   ],
-  "current_frontier": "Paused at the owner's word; handed off on 2026-09-19 under amendment 1 (the control layer first). Merged: PRs #800 to #803. Next, for a successor ROOT: start a manager per lane from the lanes' records. Shell lane: slice B2F, then B3 to B7, each with one Opus code review, the sweep, PR, CI and merge; a structure-only fidelity review on B3's candidate. Canvas lane: merge main, F3, the T1 probe, slice C1E, slice C1b, then the first pull request's complete review and merge; then C2 to C5. Then the closing visual pass, D-72 qualification, and Tranche A2 with its own plan.",
+  "current_frontier": "B3 bounded verification complete under owner ruling; final records and68-case focused hosted CI then merge PR825. After merge activate prepared B3A and I1 lanes; remaining product and Runtime holds unchanged.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -282,6 +1402,14 @@
     {
       "until": "2026-09-19T04:11Z (the owner's word to pause)",
       "frontier": "A1 follow-ups merged (PR #802, 8e4c5df6e). DESIGN-SYSTEM-05 returned and read; next its independent review, pull request, CI and merge, then the product slice adopting tokens.json 1.3. Shell lane: slice B2 with its manager for the slice return, then ROOT's Opus review, sweep, PR and merge, then the named handler fix slice. Canvas lane: slice C1 with its implementer; the second-profile and edge-line proposals are being drafted."
+    },
+    {
+      "until": "2026-09-19, the second handoff",
+      "frontier": "Paused at the owner's word; handed off on 2026-09-19 under amendment 1 (the control layer first). Merged: PRs #800 to #803. Next, for a successor ROOT: start a manager per lane from the lanes' records. Shell lane: slice B2F, then B3 to B7, each with one Opus code review, the sweep, PR, CI and merge; a structure-only fidelity review on B3's candidate. Canvas lane: merge main, F3, the T1 probe, slice C1E, slice C1b, then the first pull request's complete review and merge; then C2 to C5. Then the closing visual pass, D-72 qualification, and Tranche A2 with its own plan."
+    },
+    {
+      "until": "2026-09-19 Codex continuation discovery",
+      "frontier": "Paused at the owner's word on 2026-09-19, near the weekly usage limit; handed off by instances/ROOT/SESSION_HANDOFF_2026-09-19B.md. Merged: PRs #800 to #803, then #805 (B2F and B2G), #806 (C1), #807 (C2), #808 (records). main is at f42cadba4 before the pull request that carries this graph. In progress and paused clean: B3 (shell branch at a9be4aaef; next instrument B3-FLOORS, sealed; one owner answer blocks its merge) and I1 (canvas branch at f6c0bab8e; a pause point to be read whole, checked and returned). Then B3A, B3B, B4 to B7 with G-11 after B6; C3 to C5; the second profile's freeze package with the casing; the closing visual pass; D-72 qualification; Tranche A2. Nothing is running: no agent, no sweep, no server, no browser-test lock."
     }
   ],
   "base_note": "base is the commit Tranche B opened from; slice B1 merged at 4dcab750501d039af5b2973991cbe0f3f423b80a",
@@ -310,5 +1438,211 @@
         }
       }
     }
-  ]
+  ],
+  "ownerDirections": [
+    {
+      "date": "2026-09-19",
+      "record": "instances/ROOT/OWNER_DIRECTION_2026-09-19_CONTROL_LAYER_FIRST.md",
+      "sha256": "bc41f82680cfcb69a193ee3820cb0861f36fbe872fae970df1be1729f9a23268"
+    },
+    {
+      "date": "2026-09-19",
+      "record": "instances/ROOT/OWNER_DIRECTION_2026-09-19_SECTION7_DECISIONS.md",
+      "sha256": "c9049e543dd1a46b1fdcf3d7f23cd5551c89b24185c66c70d2d03eb77c2fee2e"
+    },
+    {
+      "date": "2026-09-19",
+      "record": "instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md",
+      "sha256": "5b86c2783c5d460adf63b69dc3a49db7df672795f0feeb59079a2f93a82c0f4e"
+    },
+    {
+      "date": "2026-09-19",
+      "record": "in session, not yet in a custody record; the next session records them",
+      "summary": [
+        "'the piping loop stays on hold' means only that the earlier session does no more work, so no coordination with another session is needed",
+        "the two-lane shape with managers was never the owner's direction: how the work is organized is the agent's choice within AGENTS.md; think in parent and child relationships; a parent launches its own children; ROOT may dispatch the independent reviews",
+        "a work graph per tranche is essential: ad hoc, built from the code and the run's records, not tied to the repository's deliverable DAG; the owner will reconcile deliverables and scopes to the code later, once the app has its first functional form",
+        "the owner found the session's work good and its outcomes acceptable, and is reluctant to change course",
+        "evidence therefore stays in the run and is not filed under a deliverable by guess (ROOT's proposal in session; the owner did not object and asked for the work graph; recorded as ROOT's practice, open to the owner)",
+        "a question of preference is tested against the owner's two exemplar products and consistency in ontology, epistemology, praxeology and axiology before it is brought to the owner; where they agree the agent decides, tells the owner and says how to reverse it (the owner's prompt, SUCCESSOR_PROMPT_2026-09-19B.md)"
+      ]
+    },
+    {
+      "date": "2026-09-19",
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_STEER.md",
+      "custody": "active-chat text, no transport-byte claim",
+      "sha256": "da28b028d8100b207d4f1742d9fde2383441f650f0e7d779edef0e38fb5c397e"
+    },
+    {
+      "date": "2026-09-19",
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MODEL_DIRECTION.md",
+      "sha256": "29af1ded5d35ec10efd0820db164ea6d7dca2ae4330dfdc9eb2c9e1e1720cd14",
+      "custody": "active-chat text, not transport bytes"
+    }
+  ],
+  "openWithOwner": {
+    "blockingCurrentB3": [],
+    "reservedForLater": [
+      "second-profile freeze and casing before timed qualification",
+      "deformation view drawn proposal at closing pass",
+      "verified-at-save persistence field only if implementation proves one necessary",
+      "remaining specification copy/frame questions when concrete and not already disposed"
+    ],
+    "resolvedB3": "D1 drawer overlay, D2 inspector lending and D3 protected Both assertion all owner-adopted; no repeat question."
+  },
+  "deliverableBindingNote": "Bindings on slice nodes are tentative and unverified. Run records and _STATUS.md lines were filed under DEL-07-08 (B2, B2F-B2G) and DEL-07-01 (C1, C2) by precedent and folder name. From here evidence stays in the run and the binding is recorded here; the owner's later reconciliation files it.",
+  "graphNote": "Version 2 adds slice nodes with dependsOn, blockedBy, defers, specDepartures and a tentative deliverable binding, so that a handoff can be derived from this file. Edges run parent to child (who launched or owns what); dependsOn carries the order of work.",
+  "continuationSteering": {
+    "record": "instances/ROOT/CONTINUATION_STEER_2026-09-19.md",
+    "amendment": "../HELP-HUMAN-PIPING-20260919-LOOP-CLARIFICATIONS/OWNER_DIRECTION.md",
+    "status": "owner-approved clarification; product decisions remain unresolved",
+    "precedence": "Later steering supersedes identified procedural/model-allocation/DAG-link conflicts and the contrary B3 execution permission identified in currentB3Override; historical owner words and execution attribution are preserved.",
+    "productDecisionPackage": [
+      "drawer-strip mechanism",
+      "docked inspector width source",
+      "Both-view protected geometry assertion"
+    ],
+    "verification": "Native menu, window minimum and title bar require Tauri evidence for B3.",
+    "liveState": "Revalidate lane heads and working trees before continuation; this records steering, not a fresh product-state audit.",
+    "currentB3Override": {
+      "historicalFields": [
+        "nodes.B3.blockedBy[0].blocks",
+        "nodes.B3.rulings",
+        "nodes.B3.specDepartures"
+      ],
+      "disposition": "Where these inherited fields imply that the drawer-strip mechanism or inspector-width proposal may be implemented as an authorised ruling, that permission is superseded. Present the drawer-strip mechanism, docked inspector width source and Both-view protected geometry assertion together for owner disposition before dependent implementation or B3 merge. No product choice or test change is accepted here.",
+      "unchanged": "Original field values remain historical; independent authorised discovery and strategy/decision-package preparation may proceed.",
+      "historicalFieldsNowAt": "nodes.B3.historicalBeforeCodex; original former path names remain in historicalFields as provenance"
+    }
+  },
+  "rootExecutionHistory": [
+    {
+      "rootModel": "Claude Fable 5.1 (claude-fable-5-1)",
+      "rootNode": {
+        "role": "HELP_HUMAN Type 0",
+        "model": "the session of 2026-09-19 began as Claude Opus 5 (claude-opus-5) and the host changed it to Claude Fable 5.1 (claude-fable-5-1) during the day",
+        "status": "handed off a second time on 2026-09-19 (instances/ROOT/SESSION_HANDOFF_2026-09-19B.md, which stands on its own; SESSION_HANDOFF_2026-09-19.md is superseded); both lanes paused clean and confirmed; a successor continues. How the successor organizes the work is its own choice within AGENTS.md (the owner's word of 2026-09-19 in session; the two-lane shape recorded here is the earlier sessions' practice, not the owner's direction)."
+      },
+      "note": "Historical state preserved before Codex continuation; earlier attribution is unchanged."
+    }
+  ],
+  "continuationDiscovery": {
+    "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/DISCOVERY.json",
+    "decisionAndStrategy": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md",
+    "ownerSteer": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_STEER.md",
+    "status": "strategy and three product dispositions approved; see OWNER_APPROVAL.md",
+    "agentsLaunched": true,
+    "productChanged": true,
+    "originMain": "c459a0fa15e8d33613b6b95f529b5d369c707874",
+    "supersedesLiveSummaryFields": [
+      "older current_frontier",
+      "historical openWithOwner blocking/notBlocking classification for D1/D2/D3"
+    ],
+    "nativeScopeNote": "Historical addendum 4 explicitly deferred native menu and minimum by ROOT; discrepancy carried into proposed B3 strategy, not silently attributed to owner.",
+    "approval": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_APPROVAL.md",
+    "productChangeNote": "Subsequent to discovery, approved implementation is active in the shell lane; discovery artifact remains its original snapshot."
+  },
+  "phaseTrace": {
+    "approvedDag": "execution/_DAG/DAG-010/",
+    "pointer": "execution/_DAG/_LATEST.md",
+    "authority": "approved_active_graph_authority",
+    "use": "trace only; not rebuilt or reconciled",
+    "deliverableLinks": {
+      "B3": {
+        "ids": [
+          "DEL-07-02"
+        ],
+        "status": "provisional",
+        "basis": "existing graph binding; unverified against full deliverable scope"
+      },
+      "B2/B2F-B2G": {
+        "ids": [
+          "DEL-07-08"
+        ],
+        "status": "provisional",
+        "basis": "historical filing; retained without reconciliation"
+      },
+      "C1/C2": {
+        "ids": [
+          "DEL-07-01"
+        ],
+        "status": "provisional",
+        "basis": "historical filing; retained without reconciliation"
+      }
+    }
+  },
+  "modelPolicy": {
+    "authority": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MODEL_DIRECTION.md",
+    "effective": "new deployments after this active-chat direction",
+    "replacementForSol": {
+      "model": "gpt-6-astra",
+      "reasoning": "low"
+    },
+    "newSolDeployments": false,
+    "existingInstances": "finish current bounded assignment with actual allocation preserved; no new assignment to evade direction",
+    "otherAllocations": "Agent0/managers Astra high or greater; code review Astra xhigh; structure review Astra high, per approved strategy"
+  },
+  "runtimeCoordination": {
+    "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RUNTIME_COORDINATION_STATUS.md",
+    "editor": "ROOT only",
+    "peerThread": "01a07cd1-86da-7d30-9b17-e2cbbad3f10a",
+    "state": "Owner parity/reuse ruling approved and applied; corrected complete dist/build passed, rerun resources released. PR825 publication/CI/merge pending. Runtime adoption still discussion only.",
+    "originMainRevalidated": "21175b5d3668f29acd408812d95a33ed4f14bfc8",
+    "peerProposedContract": "cb08dbe2fbeaf5a34a0abfa2f1d599c7c5bd6b2f",
+    "peerPr": "https://github.com/sgttomas/chirality/pull/824",
+    "peerAcknowledgment": "Direct task reply acknowledged sole editor, disjoint scope, resources, DEC-051 correction and B3/B3A/B3B adoption sequence.",
+    "peerMerge": "21175b5d3668f29acd408812d95a33ed4f14bfc8",
+    "reportedOwnerCommandPreference": {
+      "text": "Use what is the most effective. If there's a way to more directly interact with the command layer, that could provide a significant speed advantage.",
+      "source": "dev - app direct task message reporting owner words; no Piping integration write authorization inferred",
+      "application": "prefer shared typed command/controller API where effective; retain actor/basis/review/history semantics; literal input events do not establish human acceptance"
+    }
+  },
+  "pause": {
+    "ownerText": "Pause your work",
+    "source": "active chat; supplied text, not transport bytes",
+    "recordedAt": "2026-09-20T07:42:01.208428+00:00",
+    "state": "resumed by explicit owner direction",
+    "previousFrontier": "B3 local work and independent review complete; clean9cf sweep PASS. ROOT completing closeout records/harness validation, actual PR CI and merge. B3A/B3B remain next authorized UI work; Runtime adoption/command adapter remains separately owner-steered. No deliverable reconciliation/DAG rebuild.",
+    "candidate": "002dff0f244976f98b36517d920b3761f6f88704",
+    "pr": "https://github.com/sgttomas/chirality/pull/825",
+    "ciAtPause": {
+      "harness": "PASS",
+      "desktopSource": "IN_PROGRESS"
+    },
+    "agents": "all bounded assignments returned; no new agents launched",
+    "resources": "no local app/test/server process; local CI watcher stopped; hosted CI left running",
+    "resume": "Wait for explicit owner resume. Repair manager brief14b3fe08 is prepared and unlaunched. No product or CI workflow edits, new agents, reruns or merge have occurred.",
+    "mergeExceptionOwnerText": "Merge the PR and then I'll tell you when you resume.",
+    "ciFinal": {
+      "harness": "PASS",
+      "desktopSource": "FAILURE",
+      "passed": 408,
+      "skipped": 20,
+      "failed": 2,
+      "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/MANIFEST.json"
+    },
+    "boundedException": "Owner asks one-time reduced CI to complete PR825; ROOT applies to bounded tooltip/Close repair and necessary CI routing only, then pause. OWNER_CI_REPAIR_DIRECTION.md.",
+    "latestOwnerText": "that's great, but I still need you to pause work for a moment.  Then I will tell you to resume.",
+    "resumeRecord": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md"
+  },
+  "historicalOpenWithOwner": {
+    "blocking": [
+      "B3's merge: the Both-view 'canvas larger than the tree' assertion (node B3, blockedBy)"
+    ],
+    "notBlocking": [
+      "ROOT's change to the drawer strip's mechanism (item 5 of the eight items)",
+      "the docked inspector takes its width from the table (specification 10.9)",
+      "the second profile's freeze with the casing",
+      "the deformation view",
+      "whether 'verified at save' needs a persisted field",
+      "the earlier handoff's section 7 items not disposed by the two direction records (copy items as first seen in the product; frames questions Q-23 to Q-33)"
+    ]
+  },
+  "continuationPlan": {
+    "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/NEXT_CONTROL_LAYER_PHASE.md",
+    "state": "prepared; post-B3 dispatch waits for B3 merge",
+    "phase": "existing UI implementation; no DAG rebuild/reconciliation",
+    "sequenceCorrections": "B3B after B3A; B4 after B3B; B7 after G-11 as recorded shell order. G17 explicitly scheduled after G11/B7 without new scope."
+  }
 }

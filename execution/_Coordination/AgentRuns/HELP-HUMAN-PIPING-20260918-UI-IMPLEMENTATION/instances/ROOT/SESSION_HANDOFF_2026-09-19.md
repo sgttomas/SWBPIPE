@@ -1,5 +1,7 @@
 # Session handoff, 2026-09-19 — SWBPIPE interface implementation
 
+> **Superseded on 2026-09-19 by `SESSION_HANDOFF_2026-09-19B.md` beside this file, which stands on its own. Kept as history and not to be followed.** The owner has since said that three things this file states or implies as the owner's direction were not: the two-lane structure with a manager each (the organization of the work is the agent's choice within `AGENTS.md`), the foreground and background launch wording (the owner thinks in parent and child relationships), and any reading of "the piping loop stays on hold" beyond "the session handing off does no more work".
+
 Written by ROOT (HELP_HUMAN, Agent 0; Claude Fable 5.1) at the owner's direction of 2026-09-19T05:01Z, for whoever continues this run: a new session of ROOT, or this one after its context is summarized again. It is a pointer document. If it disagrees with the owner's words, a ruling, a sealed instrument or a retained record, that other thing governs; say so to the owner and correct this file.
 
 Path placeholders, as everywhere in this run: `{REPO_ROOT}` is `git rev-parse --show-toplevel`; `{WORKING_ROOT}` is `{REPO_ROOT}/projects/chirality-piping`; `{RUN}` is `{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`; `{DESIGN}` is `{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM`; `{DESKTOP}` is `{WORKING_ROOT}/apps/desktop`. No authored file carries a machine path.

@@ -1,10 +1,11 @@
+import { CompactSelectScope } from "./features/workspace/CompactSelect";
 import { HangerSelectionPanel } from "./features/hanger-selection";
 import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
 import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
 import operationSchema from "../../../schemas/model_operation.schema.json";
 import { GeometryToolsPanel } from "./features/geometry-tools/GeometryToolsPanel";
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
-import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
+import { DisplayUnitsProvider } from "./features/display-units";
 import { BatchReviewPanel } from "./features/toolkit/BatchReviewPanel";
 import {
   Bot,
@@ -21,15 +22,30 @@ import {
   Save,
   ShieldCheck,
   Sparkles,
-  PanelLeft,
-  PanelRight,
   X
 } from "lucide-react";
-import { WorkspaceToolbar } from "./features/workspace/WorkspaceToolbar";
+import { AgentStrip } from "./features/workspace/shell/AgentStrip";
+import { ShellStatusBar } from "./features/workspace/shell/ShellStatusBar";
+import { ShellToolbar } from "./features/workspace/shell/ShellToolbar";
+import { StageRail } from "./features/workspace/shell/StageRail";
+import { StageTabStrip } from "./features/workspace/shell/StageTabStrip";
+import {
+  SHELL_STAGE_LABELS,
+  canvasAuthoringPanelActive,
+  inspectorToggleState,
+  railStageStates,
+  runPresenceFromCells,
+  shellLocation,
+  tableDrawerState,
+  viewForStage,
+  viewSwitchItems
+} from "./features/workspace/shellLayout";
+import type { ShellStage, ShellView, TableDrawerState } from "./features/workspace/shellLayout";
 import { DormantSection } from "./features/workspace/dormantSection";
-import { updateUiPreferences } from "./features/workspace/uiPreferences";
+import { BOTH_SPLIT_PCT_BOUNDS, TABLE_DRAWER_PX_BOUNDS } from "./features/workspace/uiPreferences";
+import type { UiDensityPreference, UiThemePreference } from "./features/workspace/uiPreferences";
 import type React from "react";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
@@ -65,6 +81,7 @@ import {
   type MenuItemSpec
 } from "./features/workspace/menuCommands";
 import { useWorkspaceSession } from "./features/workspace/workspaceSession";
+import { WorkspaceSessionProvider } from "./features/workspace/WorkspaceSessionContext";
 import { ModelTree } from "./features/model-tree/ModelTree";
 import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
 import { OperationApplyPanel } from "./features/operations/OperationApplyPanel";
@@ -72,7 +89,7 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
-import { ToolkitPalette } from "./features/toolkit/ToolkitPalette";
+import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { ReportLintPanel } from "./features/report-lint/ReportLintPanel";
@@ -131,6 +148,7 @@ export function App() {
 
 function AppSession() {
   const session = useWorkspaceSession();
+  const [routingPanelContainer, setRoutingPanelContainer] = useState<HTMLDivElement | null>(null);
   const {
     model,
     knowledge,
@@ -250,12 +268,16 @@ function AppSession() {
     reviewDetailsOpen, setReviewDetailsOpen,
     auditDrawerOpen, setAuditDrawerOpen,
     issuesDrawerOpen, setIssuesDrawerOpen,
+    stageSurface,
+    stageViewMemory,
+    narrowWindow,
+    closeShellPage,
+    rememberShellFocus,
     recordR3JourneyEvent,
     handleArmCreationTool,
     handleToolkitCommand,
     runMenuCommand,
     handleWorkspaceSplitterKeyDown,
-    handleDockSplitterKeyDown,
     beginWorkspaceResize,
     handleNarrowDrawerKeyDown,
     exposeViewportForNarrowInteraction,
@@ -272,99 +294,29 @@ function AppSession() {
     return <div className="loading-screen">Loading local SWBPIPE preview fixture.</div>;
   }
 
+  // Where the shell is, derived from the one navigation cell (shellLayout.ts).
+  const shell = shellLocation(activeSection, stageSurface);
+  const stageView = viewForStage(stageViewMemory, shell.stage);
+  const tableDrawer = tableDrawerState(stageView, narrowWindow, treeCollapsed);
+  const issueCount = issueCountFor(model, knowledge, result, operationOutcomes);
+  const pendingOperationCount = editorIntents.length + queuedBatches.reduce((count, entry) => count + (Array.isArray(entry.batch?.operations) ? entry.batch.operations.length : 1), 0);
+  // The solve proof left the status bar (specification §5.5: no hashes, no proofs there).
+  // It is read on the Results stage's Evidence tab, in the same words as before.
+  const visibleSolveProof = solveProofStatus(model, modelHash, result, solveJob, solveProof);
+
   return (
+    <WorkspaceSessionProvider session={session}>
+    <CompactSelectScope scopeKey={JSON.stringify([projectSessionGeneration, shell.stage, stageView, activeSection, inspectorCollapsed, armedCreationTool])}>
     <main
       className={showInAppMenuBar ? "app-shell" : "app-shell native-menu"}
       data-density={uiPreferences.density}
       data-theme={resolvedTheme}
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
-      style={{
-        "--workspace-left-rail": `${uiPreferences.leftRailPx}px`,
-        "--workspace-right-rail": `${uiPreferences.rightRailPx}px`,
-        "--workspace-dock-height": `${uiPreferences.dockPx}px`
-      } as React.CSSProperties}
       ref={workspaceShellRef}
+      onFocusCapture={rememberShellFocus}
+      onPointerDownCapture={rememberShellFocus}
     >
-      <header className="titlebar">
-        <div>
-          <h1>SWBPIPE</h1>
-          <p>{projectSummary?.project_name ?? model.project.name}</p>
-        </div>
-        <div className="titlebar-actions" aria-label="Local project controls">
-          <details className="display-preference-control"><summary>Units</summary><DisplayUnitSelector /></details>
-          <label className="titlebar-preference">
-            <span>Theme</span>
-            <select
-              aria-label="Appearance theme"
-              onChange={(event) => setUiPreferences((current) => updateUiPreferences(current, {
-                theme: event.target.value as typeof current.theme
-              }))}
-              value={uiPreferences.theme}
-            >
-              <option value="system">System</option>
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-            </select>
-          </label>
-          <label className="titlebar-preference">
-            <span>Density</span>
-            <select
-              aria-label="Workspace density"
-              onChange={(event) => setUiPreferences((current) => updateUiPreferences(current, {
-                density: event.target.value as typeof current.density
-              }))}
-              value={uiPreferences.density}
-            >
-              <option value="comfortable">Comfortable</option>
-              <option value="compact">Compact</option>
-            </select>
-          </label>
-
-          <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
-            <Database size={15} aria-hidden="true" />
-            Create local
-          </button>
-          <button type="button" onClick={handleCreateBlankProject} disabled={projectBusy}>
-            <FilePlus size={15} aria-hidden="true" />
-            New blank
-          </button>
-          <button data-testid="open-local-project" type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
-            <FolderOpen size={15} aria-hidden="true" />
-            Open local
-          </button>
-          <button type="button" onClick={handleListProjects} disabled={projectBusy}>
-            <List size={15} aria-hidden="true" />
-            List local
-          </button>
-          <button type="button" onClick={handleSaveProject} disabled={projectBusy}>
-            <Save size={15} aria-hidden="true" />
-            Save local
-          </button>
-        </div>
-      </header>
-
-      <details className="project-strip" aria-label="Project summary">
-        <summary><span data-testid="local-project-message" role="status">{projectMessage}</span><span className="project-details-label">Details</span></summary>
-        <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
-        {projectIndex && projectIndex.length > 0 ? (
-          <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open listed project by id">
-            {projectIndex.map((entry) => (
-              <button
-                key={entry.project_id}
-                type="button"
-                data-testid={`project-index-open-${entry.project_id}`}
-                onClick={() => handleOpenProject(entry.project_id)}
-                disabled={projectBusy}
-              >
-                <FolderOpen size={15} aria-hidden="true" />
-                {entry.project_name} ({entry.project_id})
-              </button>
-            ))}
-          </div>
-        ) : null}
-      </details>
-
       {showInAppMenuBar ? (
         <MenuBar
           activeSection={activeSection}
@@ -379,52 +331,65 @@ function AppSession() {
           running={running}
           treeCollapsed={treeCollapsed}
           armedCreationTool={armedCreationTool}
+          stage={shell.stage}
+          stageViewMemory={stageViewMemory}
+          pageOpen={shell.page !== null}
+          tableDrawer={tableDrawer}
+          run={runPresenceFromCells({ result, historicalRun, solveJob })}
+          theme={uiPreferences.theme}
+          density={uiPreferences.density}
           onCommand={runMenuCommand}
           onOpenMenu={setOpenMenu}
         />
       ) : null}
 
-      <WorkspaceToolbar
-        activeSection={activeSection}
-        selecting={armedCreationTool === null}
-        pendingCount={editorIntents.length + queuedBatches.reduce((count, entry) => count + (Array.isArray(entry.batch?.operations) ? entry.batch.operations.length : 1), 0)}
-        canUndo={undoStack.length > 0 && !operationBusy}
-        canRedo={redoStack.length > 0 && !operationBusy}
-        onSelect={() => handleArmCreationTool(null)}
-        onSection={(section) => { setActiveSection(section); if (section === "operations") setOperationTab("review"); }}
-        onUndo={handleUndoSessionModelEdit}
-        onRedo={handleRedoSessionModelEdit}
-      >
+      <ShellToolbar issueCount={issueCount}>
           <ToolkitPalette
             context={{ selection, selectionCardinality: orderedSelection.orderedKeys.length, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationRequest.current.busy || operationBusy, windConfigured: Boolean(selection.type === "load" && model.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) }}
             onChoose={handleToolkitCommand}
+            shellCommands={shellPaletteCommands({
+              stage: shell.stage,
+              pageOpen: shell.page !== null,
+              stageViewMemory,
+              run: runPresenceFromCells({ result, historicalRun, solveJob }),
+              theme: uiPreferences.theme,
+              density: uiPreferences.density,
+              onCommand: runMenuCommand
+            })}
           />
-      </WorkspaceToolbar>
+      </ShellToolbar>
 
-      <div ref={workspaceBudgetRef} className={activeSection ? "workspace" : "workspace dock-collapsed"}>
+      <div className="shell-body">
+        <StageRail issueCount={issueCount} />
+        <div ref={workspaceBudgetRef} className="workspace shell-surfaces-frame">
         <section
-          className={`modeling-workspace${treeCollapsed ? " tree-collapsed" : ""}${
+          className={`modeling-workspace shell-surfaces${treeCollapsed ? " tree-collapsed" : ""}${
             inspectorCollapsed ? " inspector-collapsed" : ""
           }`}
           aria-label="Modeling workspace"
+          inert={Boolean(shell.page)}
           data-testid="modeling-workspace"
+          data-stage={shell.stage}
+          data-view={stageView}
+          data-narrow={narrowWindow ? "true" : undefined}
+          data-canvas-authoring={canvasAuthoringPanelActive(armedCreationTool, editorIntents) ? "true" : undefined}
+          style={{
+            "--shell-both-split": `${uiPreferences.bothSplitPct}%`,
+            "--shell-drawer-height": `${uiPreferences.tableDrawerPx}px`
+          } as React.CSSProperties}
         >
-          <div className="workspace-pane workspace-pane-tree" onKeyDown={(event) => handleNarrowDrawerKeyDown(event, "tree")}>
-            <button
-              type="button"
-              className="workspace-pane-toggle"
-              ref={treeToggleRef}
-              data-testid="toggle-tree"
-              aria-expanded={!treeCollapsed}
-              aria-label={treeCollapsed ? "Expand model tree" : "Collapse model tree"}
-              title={treeCollapsed ? "Expand model tree" : "Collapse model tree"}
-              onClick={() => toggleWorkspaceRail("tree")}
-            >
-              <PanelLeft size={16} aria-hidden="true" /><span className="workspace-pane-toggle-label">Model</span>
-              <span className="workspace-pane-toggle-icon" aria-hidden="true">
-                {treeCollapsed ? "›" : "‹"}
-              </span>
-            </button>
+          <div className="workspace-pane workspace-pane-tree shell-table-pane" onKeyDown={(event) => handleNarrowDrawerKeyDown(event, "tree")}>
+            <StageTabStrip
+              stage={shell.stage}
+              tab={shell.tab}
+              pendingCount={pendingOperationCount}
+              drawer={tableDrawer}
+              toggleRef={treeToggleRef}
+              onTab={(section) => { setActiveSection(section); if (section === "operations") setOperationTab("review"); }}
+              onToggle={() => toggleWorkspaceRail("tree")}
+            />
+            <div className="shell-table-body" id="shell-table-body">
+            <div className={shell.tab === "model-tree" ? "shell-tree-host" : "shell-tree-host inactive"} data-testid="shell-tree-host">
             <ModelTree
               density={uiPreferences.density}
               hiddenKeys={effectiveHiddenKeys}
@@ -438,130 +403,8 @@ function AppSession() {
               onFocusChange={(key) => commitSelectionState(setSelectionFocus(orderedSelectionRef.current, key))}
               onFilterPublication={handleTreePublication}
             />
-          </div>
-          <button
-            aria-label="Resize model tree"
-            aria-orientation="vertical"
-            aria-valuemax={420}
-            aria-valuemin={220}
-            aria-valuenow={uiPreferences.leftRailPx}
-            className="workspace-splitter workspace-splitter-tree"
-            data-testid="resize-model-tree"
-            onKeyDown={(event) => handleWorkspaceSplitterKeyDown(event, "tree")}
-            onPointerDown={(event) => beginWorkspaceResize(event, "tree")}
-            role="separator"
-            tabIndex={0}
-            type="button"
-          />
-          <div className="workspace-pane workspace-pane-viewport">
-            <PipeViewport
-              viewCommandRef={viewportViewCommandRef}
-              armedCreationTool={armedCreationTool}
-              assignment={modelAssignment}
-              model={model}
-              modelIdentityHash={modelAssignment?.identityHash ?? null}
-              hiddenKeys={effectiveHiddenKeys}
-              explicitHiddenKeys={hiddenEntityKeys}
-              isolateHiddenKeys={isolateHiddenEntityKeys}
-              modelIndex={activeModelIndex ?? undefined}
-              modelCommitToken={directDraftCommitToken}
-              onAddDraft={handleAddDraftReview}
-              onApplyDraft={handleApplyDraftReview}
-              onArmCreationTool={handleArmCreationTool}
-              onBoxSelection={handleBoxSelection}
-              onHiddenKeysChange={setHiddenEntityKeys}
-              onIsolateKeysChange={setIsolateHiddenEntityKeys}
-              onClearVisibility={() => { setHiddenEntityKeys(new Set()); setIsolateHiddenEntityKeys(new Set()); }}
-              onViewportInteractionStart={exposeViewportForNarrowInteraction}
-              onInvalidateDraft={invalidateDirectDraftContext}
-              onQueueIntent={handleQueueEditorIntent}
-              onSelect={handleSelectEntity}
-              queuedIntents={editorIntents}
-              reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
-              result={result}
-              selection={selection}
-              selectionState={orderedSelection}
-              theme={resolvedTheme}
-              treePublication={treePublication}
-            />
-          </div>
-          <button
-            aria-label="Resize property inspector"
-            aria-orientation="vertical"
-            aria-valuemax={520}
-            aria-valuemin={280}
-            aria-valuenow={uiPreferences.rightRailPx}
-            className="workspace-splitter workspace-splitter-inspector"
-            data-testid="resize-property-inspector"
-            onKeyDown={(event) => handleWorkspaceSplitterKeyDown(event, "inspector")}
-            onPointerDown={(event) => beginWorkspaceResize(event, "inspector")}
-            role="separator"
-            tabIndex={0}
-            type="button"
-          />
-          <div className="workspace-pane workspace-pane-inspector" onKeyDown={(event) => handleNarrowDrawerKeyDown(event, "inspector")}>
-            <button
-              type="button"
-              className="workspace-pane-toggle"
-              ref={inspectorToggleRef}
-              data-testid="toggle-inspector"
-              aria-expanded={!inspectorCollapsed}
-              aria-label={inspectorCollapsed ? "Expand inspector" : "Collapse inspector"}
-              title={inspectorCollapsed ? "Expand inspector" : "Collapse inspector"}
-              onClick={() => toggleWorkspaceRail("inspector")}
-            >
-              <PanelRight size={16} aria-hidden="true" /><span className="workspace-pane-toggle-label">Properties</span>
-              <span className="workspace-pane-toggle-icon" aria-hidden="true">
-                {inspectorCollapsed ? "‹" : "›"}
-              </span>
-            </button>
-            <PropertyInspector
-              getPreparationEpoch={getPreparationEpoch}
-              model={model}
-              onQueueIntent={handleQueueEditorIntent}
-              onValidateIntent={handleValidateIntent}
-              onApplyIntent={handleApplyIntent}
-              operationBusy={operationBusy}
-              operationOutcomes={operationOutcomes}
-              projectSessionGeneration={projectSessionGeneration}
-              queuedIntents={editorIntents}
-              selection={selection}
-              selectionState={orderedSelection}
-              taskRequest={propertyTaskRequest}
-            />
-          </div>
-        </section>
-
-        <section
-          className={activeSection ? "workspace-dock" : "workspace-dock collapsed"}
-          aria-label="Workspace sections"
-          data-testid="workspace-dock"
-        >
-          {activeSection ? (
-            <button
-              aria-label="Resize task dock"
-              aria-orientation="horizontal"
-              aria-valuemax={600}
-              aria-valuemin={180}
-              aria-valuenow={uiPreferences.dockPx}
-              className="workspace-dock-splitter"
-              data-testid="resize-task-dock"
-              onKeyDown={handleDockSplitterKeyDown}
-              onPointerDown={(event) => beginWorkspaceResize(event, "dock")}
-              role="separator"
-              tabIndex={0}
-              type="button"
-            />
-          ) : null}
-          {activeSection ? (
-            <header className="workspace-dock-header" data-testid="workspace-dock-header">
-              <h2>{WORKSPACE_SECTIONS.find((candidate) => candidate.id === activeSection)?.label ?? activeSection}</h2>
-              <button type="button" data-testid="workspace-dock-close" onClick={() => setActiveSection(null)}>
-                <X size={14} aria-hidden="true" /> Close
-              </button>
-            </header>
-          ) : null}
-          <div className="workspace-dock-body">
+            </div>
+          <div className={shell.tab === "model-tree" ? "workspace-dock-body shell-stage-sections inactive" : "workspace-dock-body shell-stage-sections"}>
             <section
               className={dockSectionClass("operations", activeSection)}
               aria-label="Operation Apply section"
@@ -748,6 +591,251 @@ function AppSession() {
             </section>
 
             <section
+              className={dockSectionClass("results", activeSection)}
+              aria-label="Results section"
+              data-testid="workspace-section-results"
+            >
+              {activeSection === "results" || activatedExpensiveSections.has("results") ? (
+              <DormantSection active={activeSection === "results"} sessionGeneration={projectSessionGeneration}>
+              <Fragment key={`results:${dormantOutputBasis}`}>
+              {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
+                result={result}
+                knowledge={knowledge}
+                analysisRun={analysisRun}
+                selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
+                onSelectResult={handleSelectResult}
+              />}
+              <ComparisonPanel comparison={comparison} result={currentSolvedResult} onSelectResult={handleSelectResult} />
+              <DesignWorkspacePanel
+                model={model}
+                knowledge={knowledge}
+                result={currentSolvedResult}
+                analysisRun={analysisRun}
+                comparison={comparison}
+                editorIntents={editorIntents}
+                proposal={proposal}
+                selectedReviewTarget={selectedReviewTarget}
+              />
+              </Fragment>
+              </DormantSection>) : null}
+            </section>
+
+            <section
+              className={dockSectionClass("evidence", activeSection)}
+              aria-label="Audit and boundaries section"
+              data-testid="workspace-section-evidence"
+            >
+              {visibleSolveProof ? (
+                <StatusPill
+                  label="Solve proof"
+                  value={visibleSolveProof}
+                  summaryText="Run identity matches"
+                  testId="status-pill-solve-proof"
+                />
+              ) : null}
+              {activeSection === "evidence" || activatedExpensiveSections.has("evidence") ? (
+              <DormantSection active={activeSection === "evidence"} sessionGeneration={projectSessionGeneration}>
+              <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
+              <ValidationEvidencePanel model={model} />
+              <BuildReadinessPanel model={model} />
+              <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
+              <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
+              <SecurityThreatModelPanel model={model} storageCapability={storageCapability} />
+              <AccessibilityBaselinePanel model={model} />
+              </DormantSection>) : null}
+            </section>
+
+            <section
+              className={dockSectionClass("report", activeSection)}
+              aria-label="Report section"
+              data-testid="workspace-section-report"
+            >
+              {activeSection === "report" || activatedExpensiveSections.has("report") ? (
+              <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
+              <Fragment key={`report:${dormantOutputBasis}`}>
+              <RenderedReportPanel
+                model={model}
+                result={currentSolvedResult}
+                analysisRun={analysisRun}
+                projectSummary={projectSummary}
+                packagePrivateIntent={reportPackagePrivateIntent}
+                packageBusy={reportPackageBusy}
+                packageRedaction={reportPackageRedaction}
+                packageRoute={reportPackageRoute}
+                onPackagePrivateIntentChange={setReportPackagePrivateIntent}
+                onSaveReportPackage={() => void handleSaveReportPackage()}
+              />
+              <ReportPanel
+                model={model}
+                knowledge={knowledge}
+                result={currentSolvedResult}
+                analysisRun={analysisRun}
+                comparison={comparison}
+                editorIntents={editorIntents}
+                projectOperation={projectOperation}
+                projectSummary={projectSummary}
+                proposal={proposal}
+                selectedReviewTarget={selectedReviewTarget}
+                storageCapability={storageCapability}
+              />
+              <ReportLintPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              </Fragment>
+              </DormantSection>) : null}
+            </section>
+          </div>
+            </div>
+          </div>
+          <button
+            aria-label="Resize table and canvas"
+            aria-orientation="vertical"
+            aria-valuemax={BOTH_SPLIT_PCT_BOUNDS.max}
+            aria-valuemin={BOTH_SPLIT_PCT_BOUNDS.min}
+            aria-valuenow={uiPreferences.bothSplitPct}
+            className="workspace-splitter workspace-splitter-tree shell-both-splitter"
+            data-testid="resize-model-tree"
+            onKeyDown={(event) => handleWorkspaceSplitterKeyDown(event, "both")}
+            onPointerDown={(event) => beginWorkspaceResize(event, "both")}
+            role="separator"
+            tabIndex={0}
+            type="button"
+          />
+          <div className="workspace-pane workspace-pane-viewport">
+            <PipeViewport
+              authoringPanelContainer={routingPanelContainer}
+              presentationBottomInsetPx={treeCollapsed && (stageView === "model" || (stageView === "both" && narrowWindow)) ? 28 : 0}
+              viewCommandRef={viewportViewCommandRef}
+              armedCreationTool={armedCreationTool}
+              assignment={modelAssignment}
+              model={model}
+              modelIdentityHash={modelAssignment?.identityHash ?? null}
+              hiddenKeys={effectiveHiddenKeys}
+              explicitHiddenKeys={hiddenEntityKeys}
+              isolateHiddenKeys={isolateHiddenEntityKeys}
+              modelIndex={activeModelIndex ?? undefined}
+              modelCommitToken={directDraftCommitToken}
+              onAddDraft={handleAddDraftReview}
+              onApplyDraft={handleApplyDraftReview}
+              onArmCreationTool={handleArmCreationTool}
+              onBoxSelection={handleBoxSelection}
+              onHiddenKeysChange={setHiddenEntityKeys}
+              onIsolateKeysChange={setIsolateHiddenEntityKeys}
+              onClearVisibility={() => { setHiddenEntityKeys(new Set()); setIsolateHiddenEntityKeys(new Set()); }}
+              onViewportInteractionStart={exposeViewportForNarrowInteraction}
+              onInvalidateDraft={invalidateDirectDraftContext}
+              onQueueIntent={handleQueueEditorIntent}
+              onSelect={handleSelectEntity}
+              queuedIntents={editorIntents}
+              reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
+              result={result}
+              selection={selection}
+              selectionState={orderedSelection}
+              theme={resolvedTheme}
+              treePublication={treePublication}
+            />
+          </div>
+          <button
+            aria-label="Resize table drawer"
+            aria-orientation="horizontal"
+            aria-valuemax={TABLE_DRAWER_PX_BOUNDS.max}
+            aria-valuemin={TABLE_DRAWER_PX_BOUNDS.min}
+            aria-valuenow={uiPreferences.tableDrawerPx}
+            className="workspace-dock-splitter shell-drawer-splitter"
+            data-testid="resize-task-dock"
+            onKeyDown={(event) => handleWorkspaceSplitterKeyDown(event, "drawer")}
+            onPointerDown={(event) => beginWorkspaceResize(event, "drawer")}
+            role="separator"
+            tabIndex={0}
+            type="button"
+          />
+          <div id="shell-inspector" className="workspace-pane workspace-pane-inspector" onKeyDown={(event) => handleNarrowDrawerKeyDown(event, "inspector")}>
+            {stageView === "both" ? (
+              <button
+                type="button"
+                className="shell-inspector-close"
+                data-testid="inspector-close"
+                aria-label="Close inspector"
+                title="Close (⎋)"
+                onClick={() => toggleWorkspaceRail("inspector")}
+              ><X size={14} aria-hidden="true" /></button>
+            ) : null}
+            <div id="shell-routing-panel" className="shell-routing-panel" ref={setRoutingPanelContainer} />
+            <PropertyInspector
+              getPreparationEpoch={getPreparationEpoch}
+              model={model}
+              onQueueIntent={handleQueueEditorIntent}
+              onValidateIntent={handleValidateIntent}
+              onApplyIntent={handleApplyIntent}
+              operationBusy={operationBusy}
+              operationOutcomes={operationOutcomes}
+              projectSessionGeneration={projectSessionGeneration}
+              queuedIntents={editorIntents}
+              selection={selection}
+              selectionState={orderedSelection}
+              taskRequest={propertyTaskRequest}
+            />
+          </div>
+        </section>
+
+        <section
+          className={shell.page ? "workspace-dock shell-page" : "workspace-dock shell-page collapsed"}
+          aria-label="Workspace sections"
+          data-testid="workspace-dock"
+          data-page={shell.page ?? undefined}
+        >
+          <header className="workspace-dock-header" data-testid="workspace-dock-header">
+            <h2>{shell.page ? WORKSPACE_SECTIONS.find((candidate) => candidate.id === shell.page)?.label ?? shell.page : ""}</h2>
+            <div className={shell.page === "project" ? "titlebar-actions shell-project-controls" : "titlebar-actions shell-project-controls inactive"} aria-label="Local project controls">
+          <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
+            <Database size={15} aria-hidden="true" />
+            Create local
+          </button>
+          <button type="button" onClick={handleCreateBlankProject} disabled={projectBusy}>
+            <FilePlus size={15} aria-hidden="true" />
+            New blank
+          </button>
+          <button data-testid="open-local-project" type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
+            <FolderOpen size={15} aria-hidden="true" />
+            Open local
+          </button>
+          <button type="button" onClick={handleListProjects} disabled={projectBusy}>
+            <List size={15} aria-hidden="true" />
+            List local
+          </button>
+          <button type="button" onClick={handleSaveProject} disabled={projectBusy}>
+            <Save size={15} aria-hidden="true" />
+            Save local
+          </button>
+            </div>
+            {shell.page ? (
+              <button type="button" data-testid="workspace-dock-close" title="Close (⎋)" onClick={closeShellPage}>
+                <X size={14} aria-hidden="true" /> Close
+              </button>
+            ) : null}
+          </header>
+          <div className={shell.page === "project" ? "shell-project-strip" : "shell-project-strip inactive"}>
+      <details className="project-strip" aria-label="Project summary">
+        <summary><span data-testid="local-project-message" role="status">{projectMessage}</span><span className="project-details-label">Details</span></summary>
+        <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
+        {projectIndex && projectIndex.length > 0 ? (
+          <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open listed project by id">
+            {projectIndex.map((entry) => (
+              <button
+                key={entry.project_id}
+                type="button"
+                data-testid={`project-index-open-${entry.project_id}`}
+                onClick={() => handleOpenProject(entry.project_id)}
+                disabled={projectBusy}
+              >
+                <FolderOpen size={15} aria-hidden="true" />
+                {entry.project_name} ({entry.project_id})
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </details>
+          </div>
+          <div className="workspace-dock-body shell-page-sections">
+            <section
               className={dockSectionClass("libraries", activeSection)}
               aria-label="Libraries section"
               data-testid="workspace-section-libraries"
@@ -802,74 +890,6 @@ function AppSession() {
                 onR3JourneyEvent={recordR3JourneyEvent}
               />
               <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
-              </DormantSection>) : null}
-            </section>
-
-            <section
-              className={dockSectionClass("results", activeSection)}
-              aria-label="Results section"
-              data-testid="workspace-section-results"
-            >
-              {activeSection === "results" || activatedExpensiveSections.has("results") ? (
-              <DormantSection active={activeSection === "results"} sessionGeneration={projectSessionGeneration}>
-              <Fragment key={`results:${dormantOutputBasis}`}>
-              {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
-                result={result}
-                knowledge={knowledge}
-                analysisRun={analysisRun}
-                selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
-                onSelectResult={handleSelectResult}
-              />}
-              <ComparisonPanel comparison={comparison} result={currentSolvedResult} onSelectResult={handleSelectResult} />
-              <DesignWorkspacePanel
-                model={model}
-                knowledge={knowledge}
-                result={currentSolvedResult}
-                analysisRun={analysisRun}
-                comparison={comparison}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                selectedReviewTarget={selectedReviewTarget}
-              />
-              </Fragment>
-              </DormantSection>) : null}
-            </section>
-
-            <section
-              className={dockSectionClass("report", activeSection)}
-              aria-label="Report section"
-              data-testid="workspace-section-report"
-            >
-              {activeSection === "report" || activatedExpensiveSections.has("report") ? (
-              <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
-              <Fragment key={`report:${dormantOutputBasis}`}>
-              <RenderedReportPanel
-                model={model}
-                result={currentSolvedResult}
-                analysisRun={analysisRun}
-                projectSummary={projectSummary}
-                packagePrivateIntent={reportPackagePrivateIntent}
-                packageBusy={reportPackageBusy}
-                packageRedaction={reportPackageRedaction}
-                packageRoute={reportPackageRoute}
-                onPackagePrivateIntentChange={setReportPackagePrivateIntent}
-                onSaveReportPackage={() => void handleSaveReportPackage()}
-              />
-              <ReportPanel
-                model={model}
-                knowledge={knowledge}
-                result={currentSolvedResult}
-                analysisRun={analysisRun}
-                comparison={comparison}
-                editorIntents={editorIntents}
-                projectOperation={projectOperation}
-                projectSummary={projectSummary}
-                proposal={proposal}
-                selectedReviewTarget={selectedReviewTarget}
-                storageCapability={storageCapability}
-              />
-              <ReportLintPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-              </Fragment>
               </DormantSection>) : null}
             </section>
 
@@ -965,41 +985,13 @@ function AppSession() {
               </Fragment>
               </DormantSection>) : null}
             </section>
-
-            <section
-              className={dockSectionClass("evidence", activeSection)}
-              aria-label="Audit and boundaries section"
-              data-testid="workspace-section-evidence"
-            >
-              {activeSection === "evidence" || activatedExpensiveSections.has("evidence") ? (
-              <DormantSection active={activeSection === "evidence"} sessionGeneration={projectSessionGeneration}>
-              <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
-              <ValidationEvidencePanel model={model} />
-              <BuildReadinessPanel model={model} />
-              <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
-              <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
-              <SecurityThreatModelPanel model={model} storageCapability={storageCapability} />
-              <AccessibilityBaselinePanel model={model} />
-              </DormantSection>) : null}
-            </section>
           </div>
         </section>
+        </div>
+        <AgentStrip />
       </div>
 
-      <StatusBar
-        model={model}
-        modelHash={modelHash}
-        knowledge={knowledge}
-        result={result}
-        solveJob={solveJob}
-        solveProof={solveProof}
-        storageCapability={storageCapability}
-        operationOutcomes={operationOutcomes}
-        auditDrawerOpen={auditDrawerOpen}
-        issuesDrawerOpen={issuesDrawerOpen}
-        onOpenAudit={() => setAuditDrawerOpen((open) => !open)}
-        onOpenIssues={() => setIssuesDrawerOpen((open) => !open)}
-      />
+      <ShellStatusBar issueCount={issueCount} />
 
       {auditDrawerOpen ? (
         <AuditBoundaryDrawer
@@ -1023,7 +1015,41 @@ function AppSession() {
         />
       ) : null}
     </main>
+    </CompactSelectScope>
+    </WorkspaceSessionProvider>
   );
+}
+
+// The palette's View commands: the same commands, states and reasons as the
+// in-app View menu, so the native runtime (whose menu lists none of them) still
+// has a pointer home for each beside the toolbar and the rail.
+function shellPaletteCommands({ stage, pageOpen, stageViewMemory, run, theme, density, onCommand }: {
+  stage: ShellStage;
+  pageOpen: boolean;
+  stageViewMemory: Parameters<typeof viewSwitchItems>[1];
+  run: Parameters<typeof railStageStates>[0];
+  theme: UiThemePreference;
+  density: UiDensityPreference;
+  onCommand: (command: MenuCommandId) => void;
+}): PaletteShellCommand[] {
+  return [
+    ...viewSwitchItems(stage, stageViewMemory).map((segment): PaletteShellCommand => ({
+      id: `view.view.${segment.view}`, label: `${segment.label} view`, active: segment.pressed, disabled: !segment.enabled, reason: segment.reason,
+      run: () => onCommand(`view.view.${segment.view}`)
+    })),
+    ...railStageStates(run).map((state): PaletteShellCommand => ({
+      id: `view.stage.${state.stage}`, label: `${state.label} stage`, active: state.stage === stage && !pageOpen, disabled: !state.enabled, reason: state.reason,
+      run: () => onCommand(`view.stage.${state.stage}`)
+    })),
+    ...(["light", "dark", "system"] as const).map((value): PaletteShellCommand => ({
+      id: `view.theme.${value}`, label: `${{ light: "Light", dark: "Dark", system: "System" }[value]} theme`, active: theme === value,
+      run: () => onCommand(`view.theme.${value}`)
+    })),
+    ...(["comfortable", "compact"] as const).map((value): PaletteShellCommand => ({
+      id: `view.density.${value}`, label: `${{ comfortable: "Comfortable", compact: "Compact" }[value]} density`, active: density === value,
+      run: () => onCommand(`view.density.${value}`)
+    }))
+  ];
 }
 
 // Once activated, sections stay mounted so form drafts and queue previews
@@ -1046,9 +1072,23 @@ function MenuBar({
   running,
   treeCollapsed,
   armedCreationTool,
+  stage,
+  stageViewMemory,
+  pageOpen,
+  tableDrawer,
+  run,
+  theme,
+  density,
   onCommand,
   onOpenMenu
 }: {
+  stage: ShellStage;
+  stageViewMemory: Parameters<typeof viewSwitchItems>[1];
+  pageOpen: boolean;
+  tableDrawer: TableDrawerState;
+  run: Parameters<typeof railStageStates>[0];
+  theme: UiThemePreference;
+  density: UiDensityPreference;
   activeSection: WorkspaceSectionId | null;
   auditOpen: boolean;
   canRedo: boolean;
@@ -1064,6 +1104,9 @@ function MenuBar({
   onCommand: (command: MenuCommandId) => void;
   onOpenMenu: (menu: MenuId | null) => void;
 }) {
+  const segments = viewSwitchItems(stage, stageViewMemory);
+  const currentView: ShellView = segments.find((segment) => segment.pressed)?.view ?? "both";
+  const inspector = inspectorToggleState(currentView, !inspectorCollapsed);
   const menus: ReadonlyArray<{ id: MenuId; label: string; items: MenuItemSpec[] }> = [
     {
       id: "file",
@@ -1091,8 +1134,35 @@ function MenuBar({
       id: "view",
       label: "View",
       items: [
-        { kind: "command", id: "view.tree", label: "Model Tree", active: !treeCollapsed },
-        { kind: "command", id: "view.inspector", label: "Inspector", active: !inspectorCollapsed },
+        // The three views and the four stages: the same setters, states and
+        // reasons as the toolbar's view switch and the rail (shellLayout.ts).
+        ...segments.map((segment): MenuItemSpec => ({
+          kind: "command",
+          id: `view.view.${segment.view}`,
+          label: segment.label,
+          active: segment.pressed,
+          disabled: !segment.enabled,
+          reason: segment.reason
+        })),
+        { kind: "separator" },
+        ...railStageStates(run).map((state): MenuItemSpec => ({
+          kind: "command",
+          id: `view.stage.${state.stage}`,
+          label: SHELL_STAGE_LABELS[state.stage],
+          active: state.stage === stage && !pageOpen,
+          disabled: !state.enabled,
+          reason: state.reason
+        })),
+        { kind: "separator" },
+        {
+          kind: "command",
+          id: "view.tree",
+          label: "Table Drawer",
+          active: tableDrawer.expanded,
+          disabled: !tableDrawer.collapsible,
+          reason: tableDrawer.reason
+        },
+        { kind: "command", id: "view.inspector", label: "Inspector", active: inspector.latched, disabled: !inspector.enabled, reason: inspector.reason },
         { kind: "separator" },
         ...WORKSPACE_SECTIONS.map(
           (section): MenuItemSpec => ({
@@ -1106,7 +1176,15 @@ function MenuBar({
         { kind: "command", id: "view.issues", label: "Issues", active: issuesOpen },
         { kind: "command", id: "view.audit", label: "Audit & Boundaries", active: auditOpen },
         { kind: "separator" },
-        { kind: "command", id: "view.close-panels", label: "Close Panel (show viewport)", disabled: !activeSection }
+        ...(["light", "dark", "system"] as const).map((value): MenuItemSpec => ({
+          kind: "command", id: `view.theme.${value}`, label: { light: "Light", dark: "Dark", system: "System" }[value], active: theme === value
+        })),
+        { kind: "separator" },
+        ...(["comfortable", "compact"] as const).map((value): MenuItemSpec => ({
+          kind: "command", id: `view.density.${value}`, label: { comfortable: "Comfortable", compact: "Compact" }[value], active: density === value
+        })),
+        { kind: "separator" },
+        { kind: "command", id: "view.close-panels", label: "Close Page", disabled: !pageOpen, reason: pageOpen ? null : "No page is open" }
       ]
     },
     {
@@ -1165,9 +1243,11 @@ function MenuBar({
                       data-testid={`menu-item-${item.id}`}
                       aria-pressed={item.active ?? undefined}
                       disabled={item.disabled}
+                      title={item.disabled && item.reason ? item.reason : undefined}
                       onClick={() => onCommand(item.id)}
                     >
                       {item.label}
+                      {item.disabled && item.reason ? <small className="app-menu-reason">{item.reason}</small> : null}
                     </button>
                   )
                 )}
@@ -1285,80 +1365,6 @@ function AgentFocusFact({ label, value, testId }: { label: string; value: string
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
-  );
-}
-
-function StatusBar({
-  model,
-  modelHash,
-  knowledge,
-  result,
-  solveJob,
-  solveProof,
-  storageCapability,
-  operationOutcomes,
-  auditDrawerOpen,
-  issuesDrawerOpen,
-  onOpenAudit,
-  onOpenIssues
-}: {
-  model: PreviewModel;
-  modelHash: ModelHashEvidence | null;
-  knowledge: DesignKnowledge | null;
-  result: MechanicsResult | null;
-  solveJob: SolveJobAuditState;
-  solveProof: SolveProofEvidence | null;
-  storageCapability: LocalStorageCapability | null;
-  operationOutcomes: Record<string, OperationOutcome>;
-  auditDrawerOpen: boolean;
-  issuesDrawerOpen: boolean;
-  onOpenAudit: () => void;
-  onOpenIssues: () => void;
-}) {
-  const status = result?.status ?? model.analysis_status;
-  const issueCount = issueCountFor(model, knowledge, result, operationOutcomes);
-  const visibleSolveProof = solveProofStatus(model, modelHash, result, solveJob, solveProof);
-  return (
-    <section className="status-bar" aria-label="Workspace status" data-testid="workspace-status-bar">
-      <div className="status-pill-group" aria-label="Analysis statuses">
-        <StatusPill label="Mechanics" value={status.mechanics} testId="status-pill-mechanics" />
-        <StatusPill label="Rule check" value={ruleCheckStatusToken(status.rule_check)} testId="status-pill-rule-check" />
-        <StatusPill
-          label="Professional"
-          value={professionalStatusToken(status.professional_acceptance)}
-          testId="status-pill-professional"
-        />
-        {visibleSolveProof ? (
-          <StatusPill
-            label="Solve proof"
-            value={visibleSolveProof}
-            summaryText="Run identity matches"
-            testId="status-pill-solve-proof"
-          />
-        ) : null}
-      </div>
-      <div className="status-bar-actions">
-        <button
-          type="button"
-          className="status-drawer-button"
-          data-testid="audit-drawer-toggle"
-          aria-expanded={auditDrawerOpen}
-          onClick={onOpenAudit}
-        >
-          Local · no network · no telemetry
-          <small>{storageCapability ? storageBadgeLabel(storageCapability) : "checking storage"}</small>
-        </button>
-        <button
-          type="button"
-          className="status-drawer-button issue-button"
-          data-testid="issues-drawer-toggle"
-          aria-expanded={issuesDrawerOpen}
-          onClick={onOpenIssues}
-        >
-          ⚑ {issueCount} Issues
-        </button>
-      </div>
-    </section>
   );
 }
 

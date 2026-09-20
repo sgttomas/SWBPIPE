@@ -1,0 +1,172 @@
+[2m[WebServer] [22m(node:75858) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:75860) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:75860) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium-desktop] › e2e/b3-accessibility.spec.ts:328:1 › disabled reasons own only visible unconsumed Escape and reset on reentry (11.2s)
+(node:75880) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:75880) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [chromium-desktop] › e2e/b3-accessibility.spec.ts:379:1 › simultaneous hovered and focused reasons dismiss before the page (11.1s)
+(node:75930) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:75930) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [chromium-compact] › e2e/b3-accessibility.spec.ts:328:1 › disabled reasons own only visible unconsumed Escape and reset on reentry (11.0s)
+(node:75947) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:75947) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 [chromium-compact] › e2e/b3-accessibility.spec.ts:379:1 › simultaneous hovered and focused reasons dismiss before the page (11.0s)
+
+
+  1) [chromium-desktop] › e2e/b3-accessibility.spec.ts:328:1 › disabled reasons own only visible unconsumed Escape and reset on reentry 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+
+    Locator:  getByTestId('agent-strip-open')
+    Expected: focused
+    Received: inactive
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('agent-strip-open')[22m
+    [2m    24 × locator resolved to <button type="button" aria-label="Agent" aria-disabled="true" class="shell-rail-item" data-testid="agent-strip-open" title="Agent: not available yet" aria-describedby="agent-strip-reason">…</button>[22m
+    [2m       - unexpected value "inactive"[22m
+
+
+      341 |   await page.keyboard.press("Escape");
+      342 |   await expect(reason).toBeHidden();
+    > 343 |   await expect(agent).toBeFocused();
+          |                       ^
+      344 |   await expect(close).toBeVisible();
+      345 |   await close.focus();
+      346 |   await agent.focus();
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:343:23
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/implementer/escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/implementer/escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/implementer/escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-desktop] › e2e/b3-accessibility.spec.ts:379:1 › simultaneous hovered and focused reasons dismiss before the page 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeHidden[2m([22m[2m)[22m failed
+
+    Locator:  locator('#rail-reason-results')
+    Expected: hidden
+    Received: visible
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toBeHidden" with timeout 10000ms[22m
+    [2m  - waiting for locator('#rail-reason-results')[22m
+    [2m    24 × locator resolved to <span role="tooltip" class="shell-reason" id="rail-reason-results">No run yet</span>[22m
+    [2m       - unexpected value "visible"[22m
+
+
+      390 |   await expect(reason).toBeVisible();
+      391 |   await page.keyboard.press("Escape");
+    > 392 |   await expect(railReason).toBeHidden();
+          |                            ^
+      393 |   await expect(reason).toBeHidden();
+      394 |   await expect(close).toBeVisible();
+      395 |   await expect(agent).toBeFocused();
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:392:28
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/implementer/escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/implementer/escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/implementer/escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium-compact] › e2e/b3-accessibility.spec.ts:328:1 › disabled reasons own only visible unconsumed Escape and reset on reentry 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+
+    Locator:  getByTestId('agent-strip-open')
+    Expected: focused
+    Received: inactive
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('agent-strip-open')[22m
+    [2m    24 × locator resolved to <button type="button" aria-label="Agent" aria-disabled="true" class="shell-rail-item" data-testid="agent-strip-open" title="Agent: not available yet" aria-describedby="agent-strip-reason">…</button>[22m
+    [2m       - unexpected value "inactive"[22m
+
+
+      341 |   await page.keyboard.press("Escape");
+      342 |   await expect(reason).toBeHidden();
+    > 343 |   await expect(agent).toBeFocused();
+          |                       ^
+      344 |   await expect(close).toBeVisible();
+      345 |   await close.focus();
+      346 |   await agent.focus();
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:343:23
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/implementer/escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-compact/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/implementer/escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-compact/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/implementer/escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-compact/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium-compact] › e2e/b3-accessibility.spec.ts:379:1 › simultaneous hovered and focused reasons dismiss before the page 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeHidden[2m([22m[2m)[22m failed
+
+    Locator:  locator('#rail-reason-results')
+    Expected: hidden
+    Received: visible
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toBeHidden" with timeout 10000ms[22m
+    [2m  - waiting for locator('#rail-reason-results')[22m
+    [2m    24 × locator resolved to <span role="tooltip" class="shell-reason" id="rail-reason-results">No run yet</span>[22m
+    [2m       - unexpected value "visible"[22m
+
+
+      390 |   await expect(reason).toBeVisible();
+      391 |   await page.keyboard.press("Escape");
+    > 392 |   await expect(railReason).toBeHidden();
+          |                            ^
+      393 |   await expect(reason).toBeHidden();
+      394 |   await expect(close).toBeVisible();
+      395 |   await expect(agent).toBeFocused();
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts:392:28
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/implementer/escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-compact/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/implementer/escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-compact/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/implementer/escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-compact/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [chromium-desktop] › e2e/b3-accessibility.spec.ts:328:1 › disabled reasons own only visible unconsumed Escape and reset on reentry 
+    [chromium-desktop] › e2e/b3-accessibility.spec.ts:379:1 › simultaneous hovered and focused reasons dismiss before the page 
+    [chromium-compact] › e2e/b3-accessibility.spec.ts:328:1 › disabled reasons own only visible unconsumed Escape and reset on reentry 
+    [chromium-compact] › e2e/b3-accessibility.spec.ts:379:1 › simultaneous hovered and focused reasons dismiss before the page 

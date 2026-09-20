@@ -1,0 +1,36 @@
+{
+  "authority": "ROOT explicit session clarification; ordinary reversible index staging only",
+  "text": "Authorize ordinary git add -f for exactly the six manifest-bound in-scope fail-before trace.zip files under ci-tooltip-repair (no ignore/history force or other paths).",
+  "files": [
+    {
+      "path": "_run_records/implementer/before-artifacts/b3-accessibility-Agent-rea-0f8e0-e-Close-receive-the-pointer-chromium-compact/trace.zip",
+      "sha256": "efa2b7ab5e323636db351c53e55f10c944f3c07d9ecc6b757b0980693870bd86",
+      "bytes": 659441
+    },
+    {
+      "path": "_run_records/implementer/before-artifacts/b3-accessibility-Agent-rea-0f8e0-e-Close-receive-the-pointer-chromium-desktop/trace.zip",
+      "sha256": "e69b871e65160a85d98ab5876e67c15128bd4bcb9af9227314d4ad279b815b02",
+      "bytes": 607619
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-compact/trace.zip",
+      "sha256": "60683d7b58c4de008dd22302fab64c16cf23beabc86c663f305fbee7c7370c54",
+      "bytes": 743980
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-desktop/trace.zip",
+      "sha256": "716c068bf2a51de9f8e58e36941e69e96c1b48b68d4f97971b5edbd769af1e83",
+      "bytes": 750818
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-compact/trace.zip",
+      "sha256": "00512de4dde517d554e26f6b6515645895d91a6ed38ecd53c7cb9659da2f853a",
+      "bytes": 740666
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-desktop/trace.zip",
+      "sha256": "963e52bc977cb14ffecb2b315cdeb46a4a6f8e1b63e999058c4f230826f34a9b",
+      "bytes": 747229
+    }
+  ]
+}

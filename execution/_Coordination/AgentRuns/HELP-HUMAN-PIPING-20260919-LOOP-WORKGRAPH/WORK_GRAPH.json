@@ -1,0 +1,47 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260919-LOOP-WORKGRAPH",
+  "basis": "82e42a047a9a8d6b4ebcd67d9c28d0b7f2c21328",
+  "direction": "OWNER_DIRECTION.md",
+  "strategy": {
+    "root": "HELP_HUMAN gpt-6-astra/high; authoring, checks and integration",
+    "reviewer": "one fresh direct TASK gpt-6-astra/high; complete frozen diff, no writes or delegation",
+    "authority": "same bounded owner-accepted review/closeout arrangement as preceding alignment",
+    "concurrency": "review and documentation checks; no product/native work",
+    "enforcement": "delegated-harness-native; read-only/no-delegation instruction asserted"
+  },
+  "slices": [
+    {
+      "id": "LOOP-WORKGRAPH",
+      "state": "source independently reviewed; local checks passed; metadata backcheck and actual-candidate CI/merge pending",
+      "depends_on": [],
+      "blockers": [],
+      "semantic_changes": [
+        "recurrent procedure moves to LOOP_INIT; project constraints remain AGENTS",
+        "mandatory dated-workplan selector retired",
+        "session work graph replaces session workplan and maps to phase-level DAG",
+        "owner-directed phase transitions and scaled empirical evidence"
+      ],
+      "departures": [
+        "supersedes procedure placement/selector introduced in PR814; preserves its behavioural safeguards"
+      ],
+      "deferred": [
+        {
+          "work": "App instruction amendment",
+          "retirement": "owner discussion after this Piping change"
+        }
+      ],
+      "deliverable_binding": {
+        "status": "unverified",
+        "candidate": null
+      },
+      "dag_basis": "existing accepted pointer projects/chirality-piping/execution/_DAG/_LATEST.md; unchanged by this scope",
+      "evidence": [
+        "OWNER_DIRECTION.md",
+        "REVIEW_BRIEF.md",
+        "DISPATCH.json",
+        "VERIFICATION.md"
+      ]
+    }
+  ],
+  "closure_pointer": "The scoped PR owns final metadata review, actual candidate CI and merge disposition."
+}

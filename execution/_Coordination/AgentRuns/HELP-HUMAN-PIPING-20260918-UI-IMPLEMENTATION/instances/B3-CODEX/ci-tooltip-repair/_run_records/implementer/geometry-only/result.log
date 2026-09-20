@@ -1,0 +1,21 @@
+[2m[WebServer] [22m(node:75617) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:75619) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:75619) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/b3-accessibility.spec.ts:29:1 › disabled rail and Agent reasons escape clipping under keyboard focus (2.2s)
+  ✓  2 [chromium-desktop] › e2e/b3-accessibility.spec.ts:56:1 › covered pages exclude retained stage controls from Tab and accessibility (4.3s)
+  ✓  3 [chromium-desktop] › e2e/b3-accessibility.spec.ts:308:1 › Agent reason preserves hover and lets focused page Close receive the pointer (918ms)
+(node:75655) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:75655) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [chromium-compact] › e2e/b3-accessibility.spec.ts:29:1 › disabled rail and Agent reasons escape clipping under keyboard focus (2.0s)
+  ✓  5 [chromium-compact] › e2e/b3-accessibility.spec.ts:56:1 › covered pages exclude retained stage controls from Tab and accessibility (3.9s)
+  ✓  6 [chromium-compact] › e2e/b3-accessibility.spec.ts:308:1 › Agent reason preserves hover and lets focused page Close receive the pointer (919ms)
+
+  6 passed (16.0s)

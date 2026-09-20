@@ -1,0 +1,74 @@
+test_full_requires_every_dependency_success (test_ci_e2e_plan.GateTests) ... ok
+test_only_explicit_reduced_remainder_can_skip (test_ci_e2e_plan.GateTests) ... ok
+test_argument_arrays_escape_regex_and_preserve_spaces (test_ci_e2e_plan.SelectionTests) ... ok
+test_complete_pr_diff_not_last_commit (test_ci_e2e_plan.SelectionTests) ... ok
+test_deleted_allowed_component_falls_back (test_ci_e2e_plan.SelectionTests) ... ok
+test_deleted_and_renamed_specs_fall_back (test_ci_e2e_plan.SelectionTests) ... ok
+test_focused_cases_use_separate_invocation_and_exact_suffix (test_ci_e2e_plan.SelectionTests) ... ok
+test_full_barrier_remainder_partition_and_new_spec_discovery (test_ci_e2e_plan.SelectionTests) ... ok
+test_instrument_inputs_select_all_instruments_without_benchmarks (test_ci_e2e_plan.SelectionTests) ... FAIL
+test_instrument_spec_changes_still_select_all_instruments (test_ci_e2e_plan.SelectionTests) ... FAIL
+test_malformed_or_stale_plan_is_rejected (test_ci_e2e_plan.SelectionTests) ... ok
+test_manifest_and_named_evidence_can_accompany_repair (test_ci_e2e_plan.SelectionTests) ... ok
+test_manual_and_unavailable_diff_are_full (test_ci_e2e_plan.SelectionTests) ... ok
+test_merge_base_excludes_base_branch_only_changes (test_ci_e2e_plan.SelectionTests) ... ERROR
+test_missing_or_nonancestor_baseline_cannot_enable_exception (test_ci_e2e_plan.SelectionTests) ... ok
+test_pr825_exception_is_narrow_and_partial (test_ci_e2e_plan.SelectionTests) ... ok
+test_shared_instrument_helper_and_fixture_force_full (test_ci_e2e_plan.SelectionTests) ... FAIL
+test_spec_and_record_reduction (test_ci_e2e_plan.SelectionTests) ... ok
+test_unavailable_target_base_blocks_execution (test_ci_e2e_plan.SelectionTests) ... FAIL
+test_unknown_input_and_executable_record_fall_back (test_ci_e2e_plan.SelectionTests) ... ok
+
+======================================================================
+ERROR: test_merge_base_excludes_base_branch_only_changes (test_ci_e2e_plan.SelectionTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/tests/test_ci_e2e_plan.py", line 77, in test_merge_base_excludes_base_branch_only_changes
+    self.assertEqual(plan['target_base'], target)
+KeyError: 'target_base'
+
+======================================================================
+FAIL: test_instrument_inputs_select_all_instruments_without_benchmarks (test_ci_e2e_plan.SelectionTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/tests/test_ci_e2e_plan.py", line 95, in test_instrument_inputs_select_all_instruments_without_benchmarks
+    self.assertEqual(plan['mode'], 'full')
+AssertionError: 'instruments' != 'full'
+- instruments
++ full
+
+
+======================================================================
+FAIL: test_instrument_spec_changes_still_select_all_instruments (test_ci_e2e_plan.SelectionTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/tests/test_ci_e2e_plan.py", line 102, in test_instrument_spec_changes_still_select_all_instruments
+    self.assertEqual(plan['mode'], 'changed-specs')
+AssertionError: 'instruments' != 'changed-specs'
+- instruments
++ changed-specs
+
+
+======================================================================
+FAIL: test_shared_instrument_helper_and_fixture_force_full (test_ci_e2e_plan.SelectionTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/tests/test_ci_e2e_plan.py", line 118, in test_shared_instrument_helper_and_fixture_force_full
+    self.assertEqual(self.plan()['mode'], 'full')
+AssertionError: 'instruments' != 'full'
+- instruments
++ full
+
+
+======================================================================
+FAIL: test_unavailable_target_base_blocks_execution (test_ci_e2e_plan.SelectionTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/tests/test_ci_e2e_plan.py", line 124, in test_unavailable_target_base_blocks_execution
+    ci.validate(self.root, plan)
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 20 tests in 3.111s
+
+FAILED (failures=4, errors=1)

@@ -1,0 +1,13 @@
+{
+  "initial_checks": "CHECKS.json",
+  "amendment_checks": "_run_records/FINAL_CHECKS_B90645ED/RESULT.json",
+  "amendment_failure": {
+    "check": "path anchors",
+    "cause": "verbatim reviewer return at unclassified run-root path",
+    "repair": "move exact bytes to _run_records/REVIEW_RETURN.md",
+    "repair_candidate": "50ba48f9bde885df603cfd16cb348c120440724e",
+    "affected_rerun": "PASS: no literal home-dir absolute paths found in 9012 live path-anchor surfaces",
+    "validator_changed": false
+  },
+  "remaining": "Final metadata review and actual-candidate CI before merge; no product-runtime claims."
+}

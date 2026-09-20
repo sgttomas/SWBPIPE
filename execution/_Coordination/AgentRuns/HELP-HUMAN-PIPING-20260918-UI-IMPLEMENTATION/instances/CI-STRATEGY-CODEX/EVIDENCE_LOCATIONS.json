@@ -1,0 +1,458 @@
+{
+  "reason": "byte-preserving raw-evidence classification under SPEC0.2.4/GEN8; no empirical output rewritten",
+  "priorRevision": "73fc5fd6a4fe91a23508909b3c6a8c3b00addfdd",
+  "relativeTo": "this instance directory",
+  "returns": "RETURN.md and repair1/RETURN.md remain immutable in their original locations; their historical relative evidence paths resolve through this map",
+  "moves": [
+    {
+      "priorPath": "full.stderr.txt",
+      "currentPath": "_run_records/full.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "focused-1.json",
+      "currentPath": "_run_records/focused-1.json",
+      "sha256": "0d0de46473d6da7c40c787937abd4fffd0af93cd21f95a3ec2ef49c686823547",
+      "bytes": 22825
+    },
+    {
+      "priorPath": "focused-0.json",
+      "currentPath": "_run_records/focused-0.json",
+      "sha256": "1b964280b3ea293359dd0e98f39d9838d9a01eaa3820f011e62461fa0e008571",
+      "bytes": 17797
+    },
+    {
+      "priorPath": "shard-2.stderr.txt",
+      "currentPath": "_run_records/shard-2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "inventory-validation.json",
+      "currentPath": "_run_records/inventory-validation.json",
+      "sha256": "c9ac35cd1121d24262024592fd3df375982fce111edcd6f215b1e00d9a9e579e",
+      "bytes": 5539
+    },
+    {
+      "priorPath": "validate_inventory.py.txt",
+      "currentPath": "_run_records/validate_inventory.py.txt",
+      "sha256": "c62e04d328f75bb8a1d1da3c8cc362bd7362b5e473e04ec411ca020a1b2501ab",
+      "bytes": 2599
+    },
+    {
+      "priorPath": "shard-1.json",
+      "currentPath": "_run_records/shard-1.json",
+      "sha256": "033d62f7369ad4664d45bd80fea72ff6292b0879c2b8190eab03d2cb10cfeab9",
+      "bytes": 102043
+    },
+    {
+      "priorPath": "hashes.json",
+      "currentPath": "_run_records/hashes.json",
+      "sha256": "de769e32300e782a9b8d4c2d2cf4b51fa3580ce3e8cd0989a89d24a0e4da66e6",
+      "bytes": 2955
+    },
+    {
+      "priorPath": "focused-1.stderr.txt",
+      "currentPath": "_run_records/focused-1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "manual-plan-summary.txt",
+      "currentPath": "_run_records/manual-plan-summary.txt",
+      "sha256": "3eb65dc42a35f33a5f65d0561946c2b37983f36ccadfd4d83f2ffd7551cc2e00",
+      "bytes": 1618
+    },
+    {
+      "priorPath": "focused-2.stderr.txt",
+      "currentPath": "_run_records/focused-2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "barrier.json",
+      "currentPath": "_run_records/barrier.json",
+      "sha256": "b389974bbb28cce9d9dac4e828f5d07017841d11bdc5f24b82e0d7ee40d1ca88",
+      "bytes": 17809
+    },
+    {
+      "priorPath": "yaml-validation.txt",
+      "currentPath": "_run_records/yaml-validation.txt",
+      "sha256": "070dbd36917ca17986e8dde171b3651ee9a4977aa041cc501fef43b858a9f579",
+      "bytes": 103
+    },
+    {
+      "priorPath": "full.json",
+      "currentPath": "_run_records/full.json",
+      "sha256": "6e0c2f8b4ed1aa2238b3dae177756b22011810073b3473cc16f9dc8302ba7ef9",
+      "bytes": 290823
+    },
+    {
+      "priorPath": "shard-3.stderr.txt",
+      "currentPath": "_run_records/shard-3.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "shard-2.json",
+      "currentPath": "_run_records/shard-2.json",
+      "sha256": "bf12fc8302df264551465454dbfeef42f37ef446daa6e940318e8f96007a6b2f",
+      "bytes": 42454
+    },
+    {
+      "priorPath": "shard-3.json",
+      "currentPath": "_run_records/shard-3.json",
+      "sha256": "880c926e321e4f1171c301343d41ff1096e0c72acf618af696b3c3b7582cd24d",
+      "bytes": 99864
+    },
+    {
+      "priorPath": "shard-4.json",
+      "currentPath": "_run_records/shard-4.json",
+      "sha256": "725ac58d18cc0209ba7bc5380184d5b38a136468514ae41663c154a8a118a1d5",
+      "bytes": 40275
+    },
+    {
+      "priorPath": "focused-0.stderr.txt",
+      "currentPath": "_run_records/focused-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "barrier.stderr.txt",
+      "currentPath": "_run_records/barrier.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "shard-1.stderr.txt",
+      "currentPath": "_run_records/shard-1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "manual-plan.json",
+      "currentPath": "_run_records/manual-plan.json",
+      "sha256": "af696ec7ccd91e1acc69fd26ce85112de614d2312163f003603cbf7a91865de2",
+      "bytes": 1503
+    },
+    {
+      "priorPath": "focused-2.json",
+      "currentPath": "_run_records/focused-2.json",
+      "sha256": "a69f55b99696d760d7c934f9c628a8561ba6ecf618aefd8679172d24b20ce278",
+      "bytes": 8190
+    },
+    {
+      "priorPath": "working-diff.patch.txt",
+      "currentPath": "_run_records/working-diff.patch.txt",
+      "sha256": "7693bb1a1226b3418875862c820afa446168e8f7636456c9ec98f14a94d40a84",
+      "bytes": 37884
+    },
+    {
+      "priorPath": "shard-4.stderr.txt",
+      "currentPath": "_run_records/shard-4.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "cli-barrier-list.txt",
+      "currentPath": "_run_records/cli-barrier-list.txt",
+      "sha256": "2b7c6e1175d01d410396d47fc8bde3dc67c43ca3cab754e1b079060929c5d0ee",
+      "bytes": 18037
+    },
+    {
+      "priorPath": "unit-tests.txt",
+      "currentPath": "_run_records/unit-tests.txt",
+      "sha256": "e05bfe2c851a8efcf080fb81656afdd7acd406a150a2ec175dc59fb0f8684575",
+      "bytes": 1709
+    },
+    {
+      "priorPath": "repair1/full-plan.json",
+      "currentPath": "_run_records/repair1/full-plan.json",
+      "sha256": "1b5b9f3671b25c0f45114b83f4f0ac684c87a1742c2ed22d0b8b6585840afc54",
+      "bytes": 1524
+    },
+    {
+      "priorPath": "repair1/hosted-event.json",
+      "currentPath": "_run_records/repair1/hosted-event.json",
+      "sha256": "cdb97737d9f5e816f0176da22cc5bf82f6f992d082d06788794629d844ead359",
+      "bytes": 156
+    },
+    {
+      "priorPath": "repair1/full-plan-summary.txt",
+      "currentPath": "_run_records/repair1/full-plan-summary.txt",
+      "sha256": "cbfd01cf57183b4a6bd95d80e8a883dccea416ebc025a8f8bba59fd82eebe149",
+      "bytes": 1639
+    },
+    {
+      "priorPath": "repair1/hashes.json",
+      "currentPath": "_run_records/repair1/hashes.json",
+      "sha256": "9daab9b30efed9a6913c7930a40a3f2730a6dbd8cad2b2b8e8798fe4db0b052e",
+      "bytes": 6425
+    },
+    {
+      "priorPath": "repair1/after-tests.txt",
+      "currentPath": "_run_records/repair1/after-tests.txt",
+      "sha256": "8d8255ff1da2d91bdec1b393bfca6974092b90f9a3a5e2f66c22099d4c3b7e9e",
+      "bytes": 2620
+    },
+    {
+      "priorPath": "repair1/yaml-validation.txt",
+      "currentPath": "_run_records/repair1/yaml-validation.txt",
+      "sha256": "7dcc19ebfac941460d06e5aede091e158aa81ad6004e08aedc3218b0672e580e",
+      "bytes": 172
+    },
+    {
+      "priorPath": "repair1/focused-plan.json",
+      "currentPath": "_run_records/repair1/focused-plan.json",
+      "sha256": "ce497b44a6e0083649a95dee8c18cca1bf8a4b09ea1067caa50e5922c73b9c41",
+      "bytes": 882617
+    },
+    {
+      "priorPath": "repair1/focused-plan-summary.txt",
+      "currentPath": "_run_records/repair1/focused-plan-summary.txt",
+      "sha256": "1d6ab4f312654156cbfb308edcdaa384cd121dac70939ee61791dd347274993a",
+      "bytes": 882732
+    },
+    {
+      "priorPath": "repair1/before-tests.txt",
+      "currentPath": "_run_records/repair1/before-tests.txt",
+      "sha256": "c1e3a772e2f6f7a7e09f1c1a14f2fe4c7f46046da2a65c9cf0ce6380a5ad01ab",
+      "bytes": 4710
+    },
+    {
+      "priorPath": "repair1/working-diff.patch.txt",
+      "currentPath": "_run_records/repair1/working-diff.patch.txt",
+      "sha256": "309258a8948333293ee9ecbc72e6e3ac52a0b38c764bef966811afdbb6153639",
+      "bytes": 26712
+    },
+    {
+      "priorPath": "repair1/full-collection/shard-2.stdout.json",
+      "currentPath": "_run_records/repair1/full-collection/shard-2.stdout.json",
+      "sha256": "019b647bafcd580bcded7c1ef5af455ed94020c85195a82d791e1d7955014802",
+      "bytes": 42442
+    },
+    {
+      "priorPath": "repair1/full-collection/shard-2.stderr.txt",
+      "currentPath": "_run_records/repair1/full-collection/shard-2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/full-collection/summary.md",
+      "currentPath": "_run_records/repair1/full-collection/summary.md",
+      "sha256": "9bd7b6eef55546b685934092977527b4d813f88869ccd3908c6c4b4387332c91",
+      "bytes": 210
+    },
+    {
+      "priorPath": "repair1/full-collection/shard-4.stdout.json",
+      "currentPath": "_run_records/repair1/full-collection/shard-4.stdout.json",
+      "sha256": "bf229e0f0bcb1b1fd9932b8dc8da6efd74bc1a068908a192d1cb18c43b4c0e31",
+      "bytes": 40264
+    },
+    {
+      "priorPath": "repair1/full-collection/source.stderr.txt",
+      "currentPath": "_run_records/repair1/full-collection/source.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/full-collection/shard-1.stdout.json",
+      "currentPath": "_run_records/repair1/full-collection/shard-1.stdout.json",
+      "sha256": "d4c8f355f56050186bd4125dce8fe1cd9c31c867c89bc3cc594293328eb28567",
+      "bytes": 102031
+    },
+    {
+      "priorPath": "repair1/full-collection/source.stdout.json",
+      "currentPath": "_run_records/repair1/full-collection/source.stdout.json",
+      "sha256": "8ece2bb3d529cbd8accbb66a0060ccc78dfe57cf8adb6f7e5eeefbc110a86006",
+      "bytes": 294661
+    },
+    {
+      "priorPath": "repair1/full-collection/shard-3.stderr.txt",
+      "currentPath": "_run_records/repair1/full-collection/shard-3.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/full-collection/barrier-0.stdout.json",
+      "currentPath": "_run_records/repair1/full-collection/barrier-0.stdout.json",
+      "sha256": "985d5c9c602ed5803eadb6eaa212bb63b2b85c6e9d53a0f067fb0b9def596213",
+      "bytes": 21646
+    },
+    {
+      "priorPath": "repair1/full-collection/shard-3.stdout.json",
+      "currentPath": "_run_records/repair1/full-collection/shard-3.stdout.json",
+      "sha256": "08be4571448d625a4c9a61731bf958653844580e5aba2077badb2eaf2d151b22",
+      "bytes": 99864
+    },
+    {
+      "priorPath": "repair1/full-collection/collection.json",
+      "currentPath": "_run_records/repair1/full-collection/collection.json",
+      "sha256": "c38f2373aa497d31356f525c2215c58c44fcf75dba1b97812f844ec164a336be",
+      "bytes": 301658
+    },
+    {
+      "priorPath": "repair1/full-collection/shard-1.stderr.txt",
+      "currentPath": "_run_records/repair1/full-collection/shard-1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/full-collection/shard-4.stderr.txt",
+      "currentPath": "_run_records/repair1/full-collection/shard-4.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/full-collection/barrier-0.stderr.txt",
+      "currentPath": "_run_records/repair1/full-collection/barrier-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/shard-2.stdout.json",
+      "currentPath": "_run_records/repair1/shard-1-collection/shard-2.stdout.json",
+      "sha256": "7ce92bb5c4d863e40a332c3293ca9132d90370d87ec72225bcb1b6fc73e1c90f",
+      "bytes": 42454
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/shard-2.stderr.txt",
+      "currentPath": "_run_records/repair1/shard-1-collection/shard-2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/summary.md",
+      "currentPath": "_run_records/repair1/shard-1-collection/summary.md",
+      "sha256": "55b6fa4c0362b01c9ea0113b4d369a9c78b4f643943cc82f105308a3bd8bd178",
+      "bytes": 214
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/shard-4.stdout.json",
+      "currentPath": "_run_records/repair1/shard-1-collection/shard-4.stdout.json",
+      "sha256": "d91fcc821ce629c73dfc09f02229b0d831f68a507fbee29bd40b0677cc71d151",
+      "bytes": 40275
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/source.stderr.txt",
+      "currentPath": "_run_records/repair1/shard-1-collection/source.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/shard-1.stdout.json",
+      "currentPath": "_run_records/repair1/shard-1-collection/shard-1.stdout.json",
+      "sha256": "f7e761c85c68f4cbe97c48571e4c1a519c554b418a967588d5d5295dd31ad654",
+      "bytes": 102032
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/source.stdout.json",
+      "currentPath": "_run_records/repair1/shard-1-collection/source.stdout.json",
+      "sha256": "9b613dcef041883676f12bd37b44c1233173b8d6909e97c71205ef13081ffaa0",
+      "bytes": 294661
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/shard-3.stderr.txt",
+      "currentPath": "_run_records/repair1/shard-1-collection/shard-3.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/barrier-0.stdout.json",
+      "currentPath": "_run_records/repair1/shard-1-collection/barrier-0.stdout.json",
+      "sha256": "1239b9f3ad34bcd82be99d8915936c56b9dc3f47833744e01ef6754cb4d430dc",
+      "bytes": 21646
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/shard-3.stdout.json",
+      "currentPath": "_run_records/repair1/shard-1-collection/shard-3.stdout.json",
+      "sha256": "c86866f1560932cbd42610614bd5ebc8b600ca2313f0daf0d17291ca11822f36",
+      "bytes": 99864
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/collection.json",
+      "currentPath": "_run_records/repair1/shard-1-collection/collection.json",
+      "sha256": "3644f9bdb8b4a5fe07cfaf7fb78bf08ffc9baa468be36d8be4461e643be90b39",
+      "bytes": 335846
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/shard-1.stderr.txt",
+      "currentPath": "_run_records/repair1/shard-1-collection/shard-1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/shard-4.stderr.txt",
+      "currentPath": "_run_records/repair1/shard-1-collection/shard-4.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/shard-1-collection/barrier-0.stderr.txt",
+      "currentPath": "_run_records/repair1/shard-1-collection/barrier-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/focused-collection/barrier-1.stdout.json",
+      "currentPath": "_run_records/repair1/focused-collection/barrier-1.stdout.json",
+      "sha256": "6d0069c612f5b957f1a49495c65382139b6c2a3041ea2009e8de968e489fa869",
+      "bytes": 22824
+    },
+    {
+      "priorPath": "repair1/focused-collection/summary.md",
+      "currentPath": "_run_records/repair1/focused-collection/summary.md",
+      "sha256": "a23dc4a75d98c5af9a862d2245261e602e8cca957cf2d981e704a6dcaedce6f2",
+      "bytes": 287
+    },
+    {
+      "priorPath": "repair1/focused-collection/barrier-1.stderr.txt",
+      "currentPath": "_run_records/repair1/focused-collection/barrier-1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/focused-collection/source.stderr.txt",
+      "currentPath": "_run_records/repair1/focused-collection/source.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/focused-collection/barrier-2.stdout.json",
+      "currentPath": "_run_records/repair1/focused-collection/barrier-2.stdout.json",
+      "sha256": "cd6375bc1ebb396f85f4c2aa185bf3be2b37ba1098ea9d330071dd1a8a211c05",
+      "bytes": 8190
+    },
+    {
+      "priorPath": "repair1/focused-collection/source.stdout.json",
+      "currentPath": "_run_records/repair1/focused-collection/source.stdout.json",
+      "sha256": "6e1be6ab51c4cf38039555d295e05bad5574b0c723ff995ea0fc0c1cf92a4903",
+      "bytes": 294661
+    },
+    {
+      "priorPath": "repair1/focused-collection/barrier-0.stdout.json",
+      "currentPath": "_run_records/repair1/focused-collection/barrier-0.stdout.json",
+      "sha256": "87a1c3fd3db0d177a6fcf29daf661211ddda62ec0d3cd2f2de29768f66511e39",
+      "bytes": 21647
+    },
+    {
+      "priorPath": "repair1/focused-collection/barrier-2.stderr.txt",
+      "currentPath": "_run_records/repair1/focused-collection/barrier-2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "priorPath": "repair1/focused-collection/collection.json",
+      "currentPath": "_run_records/repair1/focused-collection/collection.json",
+      "sha256": "e16f1133eabcd3d63f08c17fbd6fb5b95c9ce68f4442dd4004a502e796120ce3",
+      "bytes": 207744
+    },
+    {
+      "priorPath": "repair1/focused-collection/barrier-0.stderr.txt",
+      "currentPath": "_run_records/repair1/focused-collection/barrier-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ]
+}

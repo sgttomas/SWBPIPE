@@ -1,0 +1,143 @@
+--- a/projects/chirality-piping/apps/desktop/src/App.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.tsx
+@@ -362,6 +362,7 @@
+             inspectorCollapsed ? " inspector-collapsed" : ""
+           }`}
+           aria-label="Modeling workspace"
++          inert={Boolean(shell.page)}
+           data-testid="modeling-workspace"
+           data-stage={shell.stage}
+           data-view={stageView}
+--- a/projects/chirality-piping/apps/desktop/src/styles.css
++++ b/projects/chirality-piping/apps/desktop/src/styles.css
+@@ -1705,9 +1705,9 @@
+     padding: 8px 10px;
+   }
+ 
+-  
+-
+-  
++
++
++
+ 
+   .workspace-dock {
+     flex: 1 1 0;
+@@ -2881,7 +2881,7 @@
+     min-width: 960px;
+   }
+ 
+-  
++
+ 
+   .workspace {
+     gap: 8px;
+@@ -3353,9 +3353,9 @@
+ @media (max-width: 1100px) {
+   .workspace-toolbar { gap: 4px; padding-inline: 7px; }
+   .workspace-toolbar button { padding-inline: 6px; gap: 4px; font-size: 11px; }
+-  
+-  
+-  
++
++
++
+   .viewport-shell:has(.viewport-intents.active) { grid-template-columns: minmax(310px, 1fr) 250px; }
+   .viewport-intents.active { padding: 8px; }
+ }
+@@ -3787,7 +3787,7 @@
+ .app-shell .app-menu-reason { color: var(--ui-disabled-text); font-size: var(--type-size-caption); }
+ 
+ .app-shell .shell-body { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: var(--layout-rail) minmax(0, 1fr) var(--layout-agent-strip); grid-template-rows: minmax(0, 1fr); }
+-.app-shell .shell-rail, .app-shell .shell-agent-strip { display: flex; flex-direction: column; align-items: stretch; min-height: 0; overflow: hidden; color: var(--ui-text); background: var(--ui-bg); }
++.app-shell .shell-rail, .app-shell .shell-agent-strip { display: flex; flex-direction: column; align-items: stretch; min-height: 0; overflow: visible; color: var(--ui-text); background: var(--ui-bg); }
+ .app-shell .shell-rail { border-inline-end: 1px solid var(--ui-divider); }
+ .app-shell .shell-agent-strip { border-inline-start: 1px solid var(--ui-divider); }
+ .app-shell .shell-rail ul { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+--- a/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts
+@@ -2112,6 +2112,18 @@
+     function handleWorkspaceEscape(event: KeyboardEvent) {
+       const shell = workspaceShellRef.current;
+       if (!shell || event.key !== "Escape" || event.defaultPrevented) return;
++      // Inspect the DOM home, including portalled routing controls, after child
++      // controls have had their cancellation opportunity. Model stays docked.
++      const target = event.target instanceof Node ? event.target : document.activeElement;
++      const inspector = document.getElementById("shell-inspector");
++      const surfaces = shell.querySelector(".shell-surfaces");
++      if (shellNowRef.current.view === "both" && !shellNowRef.current.location.page &&
++          target && inspector?.contains(target) && surfaces && !surfaces.classList.contains("inspector-collapsed")) {
++        event.preventDefault();
++        runMenuCommandRef.current("view.inspector");
++        inspectorToggleRef.current?.focus();
++        return;
++      }
+       viewportViewCommandRef.current?.({ type: "cancel-box-selection" });
+       setOpenMenu(null);
+       setArmedCreationTool(null);
+@@ -2177,10 +2189,13 @@
+     event: React.KeyboardEvent<HTMLDivElement>,
+     side: "tree" | "inspector"
+   ) {
++    if (event.defaultPrevented) return;
++    if (side === "inspector" && event.key === "Escape" && shellNowRef.current.view !== "both") return;
+     if (window.innerWidth >= 1280 || (side === "tree" ? treeCollapsed : inspectorCollapsed)) return;
+     const pane = event.currentTarget;
+     if (event.key === "Escape") {
+       event.preventDefault();
++      if (side === "inspector") routingInspectorRestore.current = null;
+       closeWorkspaceRail(side, true);
+       return;
+     }
+--- a/projects/chirality-piping/apps/desktop/src/App.shell.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.shell.test.tsx
+@@ -627,3 +627,49 @@
+   expect(surfaces).not.toHaveClass("inspector-collapsed");
+   expect(screen.getByTestId("command-node")).toHaveAttribute("aria-pressed", "true");
+ });
++
++
++describe("reviewed shell accessibility boundaries", () => {
++  it("keeps covered stage state mounted while marking it inert", async () => {
++    const surfaces = await renderShell();
++    const canvas = screen.getByTestId("viewport-canvas");
++    const filter = screen.getByTestId("model-tree-filter-input");
++    fireEvent.change(filter, { target: { value: "Retained filter" } });
++    fireEvent.click(screen.getByTestId("rail-page-libraries"));
++    expect(surfaces).toHaveAttribute("inert");
++    expect(screen.getByTestId("viewport-canvas")).toBe(canvas);
++    expect(filter).toHaveValue("Retained filter");
++    fireEvent.click(screen.getByTestId("workspace-dock-close"));
++    expect(surfaces).not.toHaveAttribute("inert");
++    expect(screen.getByTestId("viewport-canvas")).toBe(canvas);
++    expect(filter).toHaveValue("Retained filter");
++  });
++
++  it.each([1280, 1440])("Escape closes the Both inspector at %s and preserves Model docking", async (width) => {
++    const surfaces = await renderShell(width);
++    fireEvent.click(screen.getByTestId("toggle-inspector"));
++    const tab = within(screen.getByTestId("property-inspector")).getByRole("tab", { name: "Properties", exact: true });
++    tab.focus();
++    fireEvent.keyDown(tab, { key: "Escape" });
++    expect(surfaces).toHaveClass("inspector-collapsed");
++    expect(screen.getByTestId("toggle-inspector")).toHaveFocus();
++    fireEvent.click(screen.getByTestId("view-switch-model"));
++    tab.focus();
++    fireEvent.keyDown(tab, { key: "Escape" });
++    expect(surfaces).toHaveAttribute("data-view", "model");
++    expect(screen.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
++  });
++
++  it("Escape in portalled routing closes explicitly and cannot be undone by automatic restoration", async () => {
++    const surfaces = await renderShell();
++    fireEvent.click(screen.getByTestId("toggle-inspector"));
++    fireEvent.click(screen.getByTestId("command-node"));
++    const input = screen.getByTestId("viewport-create-node-id");
++    input.focus();
++    fireEvent.keyDown(input, { key: "Escape" });
++    expect(surfaces).toHaveClass("inspector-collapsed");
++    expect(screen.getByTestId("toggle-inspector")).toHaveFocus();
++    fireEvent.click(screen.getByTestId("workspace-select"));
++    expect(surfaces).toHaveClass("inspector-collapsed");
++  });
++});

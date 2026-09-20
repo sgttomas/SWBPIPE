@@ -1,0 +1,32 @@
+{
+  "parent": "/root",
+  "reviewer": "/root/loop_clarifications_review",
+  "configured_model": "gpt-6-astra",
+  "configured_reasoning": "high",
+  "files": [
+    {
+      "path": "_run_records/CHECKS.json",
+      "sha256": "ca6e66753ebe74986455034eac0dca1135d036eaa0c1783d272c8361ccf1528e"
+    },
+    {
+      "path": "_run_records/CLAIMS_RETRY.json",
+      "sha256": "b167530c53aa8aa77b081d15d7eea5fcee91e0faaf73f858c5f664ef34898e8d"
+    },
+    {
+      "path": "_run_records/PRESERVATION.json",
+      "sha256": "142986cc4b3778c3ea3d1b45112fa38fecc495f7a4fec122e368ca1011945b9d"
+    },
+    {
+      "path": "_run_records/PRE_APPEND_CHECKS.json",
+      "sha256": "ac79e6d286d40fead147fd9e079e347eff762583599f0ee6450e0aa0842d8fe3"
+    },
+    {
+      "path": "_run_records/REVIEW_LAUNCH.json",
+      "sha256": "aa35f49def8573bea90158b1a4a2f0f3862498c3217e60e2ed95b30b1198253a"
+    },
+    {
+      "path": "_run_records/REVIEW_RETURN_1.md",
+      "sha256": "09f1e47f6cf0c4dfe84f7f165cd12165339a51b8abadcae0c0a2f2fe4c8fe477"
+    }
+  ]
+}

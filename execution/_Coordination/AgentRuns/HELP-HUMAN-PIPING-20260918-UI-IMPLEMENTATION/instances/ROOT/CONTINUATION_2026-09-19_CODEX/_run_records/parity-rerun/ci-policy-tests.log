@@ -1,0 +1,35 @@
+test_collection_json_must_be_nonempty_and_error_free (test_ci_e2e_plan.CollectionTests.test_collection_json_must_be_nonempty_and_error_free) ... ok
+test_empty_selected_file_or_profile_is_refused (test_ci_e2e_plan.CollectionTests.test_empty_selected_file_or_profile_is_refused) ... ok
+test_missing_duplicate_empty_partition_refused (test_ci_e2e_plan.CollectionTests.test_missing_duplicate_empty_partition_refused) ... ok
+test_missing_duplicate_focused_title_and_profile_are_refused (test_ci_e2e_plan.CollectionTests.test_missing_duplicate_focused_title_and_profile_are_refused) ... ok
+test_missing_filtered_case_cannot_hide_behind_other_matches (test_ci_e2e_plan.CollectionTests.test_missing_filtered_case_cannot_hide_behind_other_matches) ... ok
+test_valid_full_and_reduced_collections (test_ci_e2e_plan.CollectionTests.test_valid_full_and_reduced_collections) ... ok
+test_full_requires_every_dependency_success (test_ci_e2e_plan.GateTests.test_full_requires_every_dependency_success) ... ok
+test_only_explicit_reduced_remainder_can_skip (test_ci_e2e_plan.GateTests.test_only_explicit_reduced_remainder_can_skip) ... ok
+test_argument_arrays_escape_regex_and_preserve_spaces (test_ci_e2e_plan.SelectionTests.test_argument_arrays_escape_regex_and_preserve_spaces) ... ok
+test_complete_pr_diff_not_last_commit (test_ci_e2e_plan.SelectionTests.test_complete_pr_diff_not_last_commit) ... ok
+test_deleted_allowed_component_falls_back (test_ci_e2e_plan.SelectionTests.test_deleted_allowed_component_falls_back) ... ok
+test_deleted_and_renamed_specs_fall_back (test_ci_e2e_plan.SelectionTests.test_deleted_and_renamed_specs_fall_back) ... ok
+test_focused_cases_use_separate_invocation_and_exact_suffix (test_ci_e2e_plan.SelectionTests.test_focused_cases_use_separate_invocation_and_exact_suffix) ... ok
+test_full_barrier_remainder_partition_and_new_spec_discovery (test_ci_e2e_plan.SelectionTests.test_full_barrier_remainder_partition_and_new_spec_discovery) ... ok
+test_hosted_event_cannot_be_relabelled_or_drop_target_base (test_ci_e2e_plan.SelectionTests.test_hosted_event_cannot_be_relabelled_or_drop_target_base) ... ok
+test_instrument_inputs_use_full_fallback (test_ci_e2e_plan.SelectionTests.test_instrument_inputs_use_full_fallback) ... ok
+test_instrument_spec_only_changes_use_changed_specs (test_ci_e2e_plan.SelectionTests.test_instrument_spec_only_changes_use_changed_specs) ... ok
+test_malformed_or_stale_plan_is_rejected (test_ci_e2e_plan.SelectionTests.test_malformed_or_stale_plan_is_rejected) ... ok
+test_manifest_and_named_evidence_can_accompany_repair (test_ci_e2e_plan.SelectionTests.test_manifest_and_named_evidence_can_accompany_repair) ... ok
+test_manual_and_unavailable_diff_are_full (test_ci_e2e_plan.SelectionTests.test_manual_and_unavailable_diff_are_full) ... ok
+test_merge_base_excludes_base_branch_only_changes (test_ci_e2e_plan.SelectionTests.test_merge_base_excludes_base_branch_only_changes) ... ok
+test_missing_or_nonancestor_baseline_cannot_enable_exception (test_ci_e2e_plan.SelectionTests.test_missing_or_nonancestor_baseline_cannot_enable_exception) ... ok
+test_only_exact_reproduction_scripts_are_exception_records (test_ci_e2e_plan.SelectionTests.test_only_exact_reproduction_scripts_are_exception_records) ... ok
+test_pr825_accepts_only_the_approved_dist_blob (test_ci_e2e_plan.SelectionTests.test_pr825_accepts_only_the_approved_dist_blob) ... ok
+test_pr825_exception_is_narrow_and_partial (test_ci_e2e_plan.SelectionTests.test_pr825_exception_is_narrow_and_partial) ... ok
+test_pr825_roundoff_binary_evidence_is_scoped (test_ci_e2e_plan.SelectionTests.test_pr825_roundoff_binary_evidence_is_scoped) ... ok
+test_shared_instrument_helper_and_fixture_force_full (test_ci_e2e_plan.SelectionTests.test_shared_instrument_helper_and_fixture_force_full) ... ok
+test_spec_and_record_reduction (test_ci_e2e_plan.SelectionTests.test_spec_and_record_reduction) ... ok
+test_unavailable_target_base_blocks_execution (test_ci_e2e_plan.SelectionTests.test_unavailable_target_base_blocks_execution) ... ok
+test_unknown_input_and_executable_record_fall_back (test_ci_e2e_plan.SelectionTests.test_unknown_input_and_executable_record_fall_back) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 4.081s
+
+OK

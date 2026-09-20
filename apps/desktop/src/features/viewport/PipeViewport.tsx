@@ -1,7 +1,9 @@
+import { CompactSelect } from "../workspace/CompactSelect";
 import { SelectionPresentationBinding } from "./selectionPresentationBinding";
 import { QuantityReadout, useDisplayQuantity } from "../display-units";
 import { Box, CircleDot, CirclePlus, GitBranch, MoveDown, Anchor } from "lucide-react";
-import { type PointerEvent as ReactPointerEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import * as THREE from "three";
 import { convertDisplayQuantities } from "../../services/displayQuantityService";
 import {
@@ -137,6 +139,8 @@ function ViewportMeasurementQuantityReadout({ label, unit, value }: { label: str
 }
 
 type Props = {
+  /** Optional shell-owned home for the existing authoring panel. */
+  authoringPanelContainer?: HTMLElement | null;
   armedCreationTool?: CreationTool | null;
   assignment?: {
     status: "started" | "committed";
@@ -174,9 +178,19 @@ type Props = {
   result?: MechanicsResult | null;
   selection: EntityRef;
   selectionState?: OrderedSelectionState;
+  /** Presentation-only clearance below viewport furniture and the painted orientation frame. */
+  presentationBottomInsetPx?: number;
   theme?: "light" | "dark";
   treePublication?: { actionSequence: number; publicationSequence: number; query: string; visibleCount: number; inputAt: number | null; inputEventTimeStamp: number | null; publishedAt: number } | null;
 };
+
+function OptionalPortal({ children, container }: { children: ReactNode; container?: HTMLElement | null }) {
+  return container ? createPortal(children, container) : children;
+}
+
+function normalizedPresentationInset(value: number | undefined): number {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
+}
 
 export type CreationTool = "node" | "pipe" | "support" | "component" | "load";
 export type ViewportExposureInteraction = "measurement" | "box-selection";
@@ -300,15 +314,13 @@ function ViewportComponentUnitSelect({
   return (
     <label>
       <span>{label}</span>
-      <select
+      <CompactSelect
         aria-label={`New component ${label.toLowerCase()}`}
         data-testid={testId}
-        onChange={(event) => onChange(event.target.value)}
+        onValueChange={(value) => onChange(value)}
         value={value}
-      >
-        {value === "" ? <option value="">Select unit</option> : null}
-        {options.map((option) => <option key={option.symbol} value={option.symbol}>{option.symbol}</option>)}
-      </select>
+        options={[...(value === "" ? [{ value: "", label: "Select unit" }] : []), ...options.map((option) => ({ value: option.symbol, label: option.symbol }))]}
+      />
     </label>
   );
 }
@@ -323,6 +335,7 @@ type DeformationOverlay = {
 };
 
 export function PipeViewport({
+  authoringPanelContainer = null,
   armedCreationTool = null,
   assignment = null,
   model,
@@ -349,9 +362,11 @@ export function PipeViewport({
   result = null,
   selection,
   selectionState,
+  presentationBottomInsetPx = 0,
   theme = "light",
   treePublication = null
 }: Props) {
+  const presentationBottomInset = normalizedPresentationInset(presentationBottomInsetPx);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const viewportResourceRef = useRef<ViewportResource | null>(null);
   const selectionPresentationBindingRef = useRef(new SelectionPresentationBinding());
@@ -730,6 +745,10 @@ export function PipeViewport({
   }, []);
 
   useEffect(() => {
+    viewportResourceRef.current?.setPresentationBottomInsetPx(presentationBottomInset);
+  }, [presentationBottomInset]);
+
+  useEffect(() => {
     if (geometryMode !== "actual-od") return;
     const cacheKey = `${activeModelIndex.generation}:${defaultLengthUnit}`;
     if (actualOdCacheRef.current?.key === cacheKey) {
@@ -940,6 +959,7 @@ export function PipeViewport({
       };
     }
     setWebglAvailable(true);
+    resource.setPresentationBottomInsetPx(presentationBottomInset);
     viewportResourceRef.current = resource;
     // Register stable lazy factories once. Product callbacks update only
     // bounded refs; diagnostics materialization happens on an explicit pull.
@@ -2169,7 +2189,10 @@ export function PipeViewport({
   }
 
   return (
-    <div className="viewport-shell">
+    <div
+      className="viewport-shell"
+      style={{ "--viewport-presentation-bottom-inset": `${presentationBottomInset}px` } as CSSProperties}
+    >
       <div className="viewport-toolbar">
         <div className="viewport-toolbar-controls" role="group" aria-label="Viewport controls">
         <span>3D Centerline</span>
@@ -2452,11 +2475,12 @@ export function PipeViewport({
             : measurementReadout.reason}</span>
         </div>
       ) : null}
-      <section
-        className={`viewport-intents${viewportIntentPanelActive ? " active" : " collapsed"}`}
-        aria-label="Viewport editor intents"
-        data-testid="viewport-editor-intents"
-      >
+      <OptionalPortal container={authoringPanelContainer}>
+        <section
+          className={`viewport-intents${viewportIntentPanelActive ? " active" : " collapsed"}`}
+          aria-label="Viewport editor intents"
+          data-testid="viewport-editor-intents"
+        >
         <h3 className="viewport-tool-heading">{nodeToolActive ? "Create node" : pipeToolActive ? "Create pipe" : componentToolActive ? "Insert component" : "Pending changes"}</h3>
         <fieldset className="viewport-intent-controls" disabled={draftReviewBusy} data-testid="viewport-draft-flight-controls">
           <div className={`viewport-node-form${nodeToolActive ? " active" : ""}`} aria-label="Explicit node geometry">
@@ -2515,18 +2539,13 @@ export function PipeViewport({
             </label>
             <label>
               <span>Coordinate unit</span>
-              <select
+              <CompactSelect
                 aria-label="New node coordinate unit"
                 data-testid="viewport-create-node-unit"
-                onChange={(event) => updateNodeDraft("coordinateUnit", event.target.value)}
+                onValueChange={(value) => updateNodeDraft("coordinateUnit", value)}
                 value={nodeDraft.coordinateUnit}
-              >
-                {nodeLengthUnitOptions.map((option) => (
-                  <option key={option.symbol} value={option.symbol}>
-                    {option.symbol}
-                  </option>
-                ))}
-              </select>
+                options={nodeLengthUnitOptions.map((option) => ({ value: option.symbol, label: option.symbol }))}
+              />
             </label>
             <small data-testid="viewport-create-node-unit-basis">Coordinates: {nodeUnitBasis.label}</small>
             <small data-testid="viewport-node-construction-plane">Pointer plane: global XZ · Y=0 {defaultLengthUnit}</small>
@@ -2635,15 +2654,14 @@ export function PipeViewport({
                 <legend>Pointer routing aids</legend>
                 <label>
                   <span>Plane</span>
-                  <select
+                  <CompactSelect
                     aria-label="Route construction plane"
                     data-testid="viewport-routing-plane"
                     value={routingPlane}
-                    onChange={(event) => changeRoutingPlane(event.target.value as RoutingPlane)}
+                    onValueChange={(value) => changeRoutingPlane(value as RoutingPlane)}
                     title={routingControlReason}
-                  >
-                    {(["XY", "XZ", "YZ"] as const).map((plane) => <option key={plane} value={plane}>{plane}</option>)}
-                  </select>
+                    options={(["XY", "XZ", "YZ"] as const).map((plane) => ({ value: plane, label: plane }))}
+                  />
                 </label>
                 <div className="viewport-routing-axis" role="group" aria-label="Route axis constraint">
                   {(["Free", "X", "Y", "Z"] as const).map((axis) => {
@@ -2673,7 +2691,13 @@ export function PipeViewport({
               <label><span>X</span><input aria-label="Route end X coordinate" data-testid="viewport-route-end-x" inputMode="decimal" value={newEndDraft.x} onChange={(event) => updateNewEndDraft("x", event.target.value)} /></label>
               <label><span>Y</span><input aria-label="Route end Y coordinate" data-testid="viewport-route-end-y" inputMode="decimal" value={newEndDraft.y} onChange={(event) => updateNewEndDraft("y", event.target.value)} /></label>
               <label><span>Z</span><input aria-label="Route end Z coordinate" data-testid="viewport-route-end-z" inputMode="decimal" value={newEndDraft.z} onChange={(event) => updateNewEndDraft("z", event.target.value)} /></label>
-              <label><span>Coordinate unit</span><select aria-label="Route end coordinate unit" data-testid="viewport-route-end-unit" value={newEndDraft.coordinateUnit} onChange={(event) => updateNewEndDraft("coordinateUnit", event.target.value)}>{nodeLengthUnitOptions.map((option) => <option key={option.symbol} value={option.symbol}>{option.symbol}</option>)}</select></label>
+              <label><span>Coordinate unit</span><CompactSelect
+                aria-label="Route end coordinate unit"
+                data-testid="viewport-route-end-unit"
+                value={newEndDraft.coordinateUnit}
+                onValueChange={(value) => updateNewEndDraft("coordinateUnit", value)}
+                options={nodeLengthUnitOptions.map((option) => ({ value: option.symbol, label: option.symbol }))}
+              /></label>
               <label><span>Provenance</span><input aria-label="Route end provenance" data-testid="viewport-route-end-provenance" value={newEndDraft.provenance} onChange={(event) => updateNewEndDraft("provenance", event.target.value)} /></label>
             </div>
             <VirtualTargetPicker label="New pipe material" testId="viewport-create-pipe-material" options={materialTargetOptions} value={pipeDraft.material} onChange={(value) => updatePipeDraft("material", value)} />
@@ -2701,18 +2725,13 @@ export function PipeViewport({
             </label>
             <label>
               <span>Length unit</span>
-              <select
+              <CompactSelect
                 aria-label="New pipe length unit"
                 data-testid="viewport-create-pipe-length-unit"
-                onChange={(event) => updatePipeDraft("lengthUnit", event.target.value)}
+                onValueChange={(value) => updatePipeDraft("lengthUnit", value)}
                 value={pipeDraft.lengthUnit}
-              >
-                {pipeLengthUnitOptions.map((option) => (
-                  <option key={option.symbol} value={option.symbol}>
-                    {option.symbol}
-                  </option>
-                ))}
-              </select>
+                options={pipeLengthUnitOptions.map((option) => ({ value: option.symbol, label: option.symbol }))}
+              />
             </label>
             <small data-testid="viewport-create-pipe-unit-basis">Pipe geometry: {pipeUnitBasis.label}</small>
             <small data-testid="viewport-construction-plane">{routeEndMode === "new" ? constructionPlaneReadout : "Construction plane inactive: existing endpoint uses exact node IDs."}</small>
@@ -2814,18 +2833,17 @@ export function PipeViewport({
             </label>
             <label>
               <span>Kind</span>
-              <select
+              <CompactSelect
                 aria-label="New component kind"
                 data-testid="viewport-create-component-kind"
                 value={componentDraft.kind}
-                onChange={(event) =>
+                onValueChange={(value) =>
                   setComponentDraft((current) =>
-                    componentDraftForKind(model, current, event.target.value as CreatableComponentKind)
+                    componentDraftForKind(model, current, value as CreatableComponentKind)
                   )
                 }
-              >
-                {creatableComponentKinds.map((kind) => <option key={kind} value={kind}>{kind}</option>)}
-              </select>
+                options={creatableComponentKinds.map((kind) => ({ value: kind, label: kind }))}
+              />
             </label>
             <VirtualTargetPicker label="New component node" testId="viewport-create-component-node" options={nodeTargetOptions} value={componentDraft.node} onChange={(value) => setComponentDraft((current) => componentDraftForNode(model, current, value))} />
             <VirtualTargetPicker label={componentDraft.kind === "tee" ? "New tee header pipe" : "New component realized pipe"} testId="viewport-create-component-pipe" options={connectedPipeTargetOptions} value={componentDraft.primaryPipeRef} onChange={(value) => updateComponentDraft("primaryPipeRef", value)} />
@@ -2969,7 +2987,8 @@ export function PipeViewport({
             ))
           )}
         </div></details>
-      </section>
+        </section>
+      </OptionalPortal>
     </div>
   );
 }

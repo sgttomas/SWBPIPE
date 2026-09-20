@@ -1,0 +1,336 @@
+{
+  "plan": {
+    "schema": "winner-cue-pair/v1",
+    "sample": 13,
+    "expectedHitRef": {
+      "type": "pipe",
+      "id": "winner"
+    },
+    "anchorRef": {
+      "type": "node",
+      "id": "anchor"
+    },
+    "authoredAnchor": [
+      0,
+      0,
+      0
+    ],
+    "authoredCenter": [
+      1,
+      0,
+      0
+    ],
+    "centerCss": {
+      "x": 100.25,
+      "y": 100.25
+    },
+    "clip": {
+      "x": 76,
+      "y": 76,
+      "width": 48,
+      "height": 48
+    },
+    "dpr": 2,
+    "centerDevice": {
+      "x": 48.5,
+      "y": 48.5
+    },
+    "cue": {
+      "cssSize": 11,
+      "interior": 0.34,
+      "outer": 0.5,
+      "erosionDevice": 1,
+      "rimSrgb": [
+        255,
+        255,
+        255
+      ]
+    },
+    "source": {
+      "geometrySourceSha256": "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e",
+      "cueSourceSha256": "00384d2831797e5cba8acff21e82e36f21a853c398e8c2a801ccfed0f3a55931",
+      "visualTokensSha256": "009b27db887e3de224f72d0df221966fbaaa0305de218ee20848050ac6a1be1b"
+    },
+    "camera": {
+      "sequence": 7,
+      "kind": "perspective",
+      "position": [
+        16.232120013664673,
+        11.814889013664672,
+        11.182067013664671
+      ],
+      "target": [
+        5.05,
+        0.6327689999999999,
+        -0.00005299999999998448
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "fovDegrees": 42,
+      "near": 0.001,
+      "far": 1000,
+      "aspect": 1.640495867768595,
+      "localRenderOrigin": [
+        5,
+        0.629966,
+        0.000015000000000000256
+      ]
+    },
+    "canvas": {
+      "cssLeft": 0,
+      "cssTop": 0,
+      "cssWidth": 400,
+      "cssHeight": 300,
+      "dpr": 2,
+      "bufferWidth": 800,
+      "bufferHeight": 600
+    },
+    "sha256": "f30b8ca2b5010aa7c72f015c0e4037161c8788eff6a66f50fbeed368f03ce5f3"
+  },
+  "before": {
+    "model": {
+      "generation": 1
+    },
+    "viewport": {
+      "generation": 1,
+      "camera": {
+        "sequence": 7,
+        "kind": "perspective",
+        "position": [
+          16.232120013664673,
+          11.814889013664672,
+          11.182067013664671
+        ],
+        "target": [
+          5.05,
+          0.6327689999999999,
+          -0.00005299999999998448
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.640495867768595,
+        "localRenderOrigin": [
+          5,
+          0.629966,
+          0.000015000000000000256
+        ]
+      },
+      "canvas": {
+        "cssLeft": 0,
+        "cssTop": 0,
+        "cssWidth": 400,
+        "cssHeight": 300,
+        "dpr": 2,
+        "bufferWidth": 800,
+        "bufferHeight": 600
+      },
+      "mainRender": {
+        "generation": 1,
+        "submissionSequence": 11,
+        "selectionPresentation": {
+          "resourceGeneration": 1,
+          "modelGeneration": 1,
+          "revision": 12,
+          "appliedAfterSubmissionSequence": 9,
+          "renderedSubmissionSequence": 11,
+          "orderedRefs": [
+            {
+              "type": "pipe",
+              "id": "winner"
+            }
+          ]
+        }
+      },
+      "selection": {
+        "generation": 1,
+        "actionSequence": 6,
+        "orderedRefs": [
+          {
+            "type": "pipe",
+            "id": "winner"
+          }
+        ],
+        "primaryRef": {
+          "type": "pipe",
+          "id": "winner"
+        },
+        "inputKind": "pointer",
+        "pointerDownAt": 1.5,
+        "publishedAt": 2.5,
+        "renderSubmissionSequence": 11
+      },
+      "inspector": {
+        "generation": 1,
+        "ref": {
+          "type": "pipe",
+          "id": "winner"
+        }
+      }
+    }
+  },
+  "after": {
+    "model": {
+      "generation": 1
+    },
+    "viewport": {
+      "generation": 1,
+      "camera": {
+        "sequence": 7,
+        "kind": "perspective",
+        "position": [
+          16.232120013664673,
+          11.814889013664672,
+          11.182067013665671
+        ],
+        "target": [
+          5.05,
+          0.6327689999999999,
+          -0.00005299999999998448
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.640495867768595,
+        "localRenderOrigin": [
+          5,
+          0.629966,
+          0.000015000000000000256
+        ]
+      },
+      "canvas": {
+        "cssLeft": 0,
+        "cssTop": 0,
+        "cssWidth": 400,
+        "cssHeight": 300,
+        "dpr": 2,
+        "bufferWidth": 800,
+        "bufferHeight": 600
+      },
+      "mainRender": {
+        "generation": 1,
+        "submissionSequence": 11,
+        "selectionPresentation": {
+          "resourceGeneration": 1,
+          "modelGeneration": 1,
+          "revision": 12,
+          "appliedAfterSubmissionSequence": 9,
+          "renderedSubmissionSequence": 11,
+          "orderedRefs": [
+            {
+              "type": "pipe",
+              "id": "winner"
+            }
+          ]
+        }
+      },
+      "selection": {
+        "generation": 1,
+        "actionSequence": 6,
+        "orderedRefs": [
+          {
+            "type": "pipe",
+            "id": "winner"
+          }
+        ],
+        "primaryRef": {
+          "type": "pipe",
+          "id": "winner"
+        },
+        "inputKind": "pointer",
+        "pointerDownAt": 1.5,
+        "publishedAt": 2.5,
+        "renderSubmissionSequence": 11
+      },
+      "inspector": {
+        "generation": 1,
+        "ref": {
+          "type": "pipe",
+          "id": "winner"
+        }
+      }
+    }
+  },
+  "canvas": {
+    "locator": {},
+    "box": {
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 300
+    },
+    "identity": {
+      "hostCount": 1,
+      "canvasCount": 1,
+      "connected": true,
+      "hostContainsCanvas": true,
+      "hostIsCanvas": false,
+      "hostTestId": "viewport-canvas",
+      "canvasTestId": "viewport-canvas",
+      "canvasTagName": "CANVAS"
+    }
+  },
+  "dpr": 2,
+  "geometry": true,
+  "noDrift": false,
+  "identityBefore": {
+    "canvasEpoch": 1,
+    "contextEpoch": 1,
+    "token": "point",
+    "pointerDown": {
+      "eventKind": "pointerdown",
+      "browserEventTimeStamp": 1,
+      "listenerObservedAt": 0.5,
+      "pointerId": 9,
+      "clientX": 100,
+      "clientY": 100,
+      "testId": "viewport-canvas",
+      "targetTag": "CANVAS",
+      "actionIdentity": {
+        "sample": 13,
+        "expectedRef": {
+          "type": "pipe",
+          "id": "winner"
+        }
+      }
+    },
+    "valid": true
+  },
+  "identityAfter": {
+    "canvasEpoch": 1,
+    "contextEpoch": 1,
+    "token": "point",
+    "pointerDown": {
+      "eventKind": "pointerdown",
+      "browserEventTimeStamp": 1,
+      "listenerObservedAt": 0.5,
+      "pointerId": 9,
+      "clientX": 100,
+      "clientY": 100,
+      "testId": "viewport-canvas",
+      "targetTag": "CANVAS",
+      "actionIdentity": {
+        "sample": 13,
+        "expectedRef": {
+          "type": "pipe",
+          "id": "winner"
+        }
+      }
+    },
+    "valid": true
+  },
+  "claim": "later bound visual capture, not marker-time framebuffer"
+}

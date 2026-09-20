@@ -1,0 +1,140 @@
+{
+  "rect": {
+    "x": 56,
+    "y": 566,
+    "width": 1000,
+    "height": 30,
+    "top": 566,
+    "right": 1056,
+    "bottom": 596,
+    "left": 56
+  },
+  "point": {
+    "x": 556,
+    "y": 581
+  },
+  "owner": "ΔY: 0.000678 m; full-precision numeric value 0.0006780000000000002 m.",
+  "ownerClass": null,
+  "ownerRect": {
+    "x": 522.84375,
+    "y": 574.796875,
+    "width": 81.59375,
+    "height": 13,
+    "top": 574.796875,
+    "right": 604.4375,
+    "bottom": 587.796875,
+    "left": 522.84375
+  },
+  "ancestry": [
+    {
+      "tag": "SPAN",
+      "id": "",
+      "class": null,
+      "testId": null
+    },
+    {
+      "tag": "SPAN",
+      "id": "",
+      "class": null,
+      "testId": null
+    },
+    {
+      "tag": "DIV",
+      "id": "",
+      "class": "viewport-measurement-strip",
+      "testId": "viewport-measurement-readout"
+    },
+    {
+      "tag": "DIV",
+      "id": "",
+      "class": "viewport-shell",
+      "testId": null
+    },
+    {
+      "tag": "DIV",
+      "id": "",
+      "class": "workspace-pane workspace-pane-viewport",
+      "testId": null
+    },
+    {
+      "tag": "SECTION",
+      "id": "",
+      "class": "modeling-workspace shell-surfaces inspector-collapsed",
+      "testId": "modeling-workspace"
+    },
+    {
+      "tag": "DIV",
+      "id": "",
+      "class": "workspace shell-surfaces-frame",
+      "testId": null
+    },
+    {
+      "tag": "DIV",
+      "id": "",
+      "class": "shell-body",
+      "testId": null
+    },
+    {
+      "tag": "MAIN",
+      "id": "",
+      "class": "app-shell",
+      "testId": "desktop-preview-shell"
+    },
+    {
+      "tag": "DIV",
+      "id": "root",
+      "class": null,
+      "testId": null
+    },
+    {
+      "tag": "BODY",
+      "id": "",
+      "class": null,
+      "testId": null
+    },
+    {
+      "tag": "HTML",
+      "id": "",
+      "class": null,
+      "testId": null
+    }
+  ],
+  "rectangles": {
+    "strip": {
+      "left": 56,
+      "top": 621,
+      "right": 1056,
+      "bottom": 649
+    },
+    "pane": {
+      "left": 56,
+      "top": 596,
+      "right": 1056,
+      "bottom": 876
+    },
+    "scaleBar": {
+      "left": 952,
+      "top": 519.203125,
+      "right": 1042,
+      "bottom": 552
+    },
+    "triad": {
+      "left": 68,
+      "top": 458,
+      "right": 164,
+      "bottom": 554
+    },
+    "readout": {
+      "left": 56,
+      "top": 566,
+      "right": 1056,
+      "bottom": 596
+    },
+    "canvasPane": {
+      "left": 56,
+      "top": 81,
+      "right": 1056,
+      "bottom": 596
+    }
+  }
+}

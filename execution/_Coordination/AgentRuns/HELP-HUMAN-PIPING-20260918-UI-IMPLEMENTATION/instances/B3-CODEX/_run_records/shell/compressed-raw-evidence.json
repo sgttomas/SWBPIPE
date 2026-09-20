@@ -1,0 +1,158 @@
+[
+  {
+    "original": "focus-clearance.log",
+    "sha256": "c02ef6b15b0993ebc82cf5a2eccb1e74c3bff29a280bf30737dd57cd4c325501",
+    "retained": "focus-clearance.log.gz",
+    "compressedSha256": "93f61dd7d50ac1523ffa847bb0dc1657bfcb0915f7dee3eb72d6e95378e6d3da"
+  },
+  {
+    "original": "workspace.log",
+    "sha256": "99a2214f65c99133cb58fbc2883f89cfc852cf66efa5f6abb137859eced2ce11",
+    "retained": "workspace.log.gz",
+    "compressedSha256": "a8ea1ed384198e41e1f43a0f22630b43ea5840918fb740614c10f50b4548273b"
+  },
+  {
+    "original": "clearance-diagnostic.json",
+    "sha256": "91f548aece1c1cdeb38ad57aea0e4cba0af22eaa367d3f3776adb348644f5cca",
+    "retained": "clearance-diagnostic.json.gz",
+    "compressedSha256": "bdd7661486893dea55a55ecf3244a2a162b9a9a4834213d0917f57eb17ad33a1"
+  },
+  {
+    "original": "clearance-diagnostic.log",
+    "sha256": "a57e5b5467a6904769ba1a1b478554dd66300e918e96da6bd6a31239f06568cf",
+    "retained": "clearance-diagnostic.log.gz",
+    "compressedSha256": "0e1b88cde66cd54e43761b3bb1b1e8c5bc068c7793cfd495bfcadf58d35f9b90"
+  },
+  {
+    "original": "clearance-repaired.json",
+    "sha256": "5196ada8bab85257569136df18c7cff12cf1dd50c0fd231fe4e9475749bb81bd",
+    "retained": "clearance-repaired.json.gz",
+    "compressedSha256": "d60196d15a81b57267ebf2f473ed30cc8e1b823ff26e467c498c87820f9fe225"
+  },
+  {
+    "original": "clearance-repaired.log",
+    "sha256": "aac1be84265230dbaa668eb36c6b3864c1055476753b8f3f4d7a4a73579e5cdf",
+    "retained": "clearance-repaired.log.gz",
+    "compressedSha256": "13fe34b15ce1eb158bfb3e35bfe5cde9dd5df2bb2337430ee2722f4455ebdee3"
+  },
+  {
+    "original": "source-final.json",
+    "sha256": "032714e2f476beb85b4397cda13342ccc0ca3fb1f031383790bc80fbb59bb6e5",
+    "retained": "source-final.json.gz",
+    "compressedSha256": "d76724ad3a3a69d826f07aa7af6902e44d83a69e3c74cd71a1c4ef1b4ba3a0ba"
+  },
+  {
+    "original": "source-final.log",
+    "sha256": "8b868aeb8d86de55c7ecebb30c071cddd5f76cfde951b5f4ff6bc5406ea8bca1",
+    "retained": "source-final.log.gz",
+    "compressedSha256": "31468dcaa67257c9ff725a37608f58ba0977c2ebcde1231405fb988b941bf147"
+  },
+  {
+    "original": "dist-budget.json",
+    "sha256": "d3ec06c731a9af069ba737bf52fb34f271c78f6c7e5a45712cfab33398489480",
+    "retained": "dist-budget.json.gz",
+    "compressedSha256": "f0314b8015751406a16c18a2d7df9e0e01a02bbd53ab7834d1b29bdf8d6b307f"
+  },
+  {
+    "original": "dist-budget.log",
+    "sha256": "500aaf5eeec87cf8f5075c191078df02d2665cdd3a6d932b411c6d463d10b934",
+    "retained": "dist-budget.log.gz",
+    "compressedSha256": "a2452798688245d4d19ef432463a60c2ad937f930045982f07e3daa4a642480e"
+  },
+  {
+    "original": "source-portal-repair.json",
+    "sha256": "b05b06b0176846a2e245cad452f4bd36b5f624a8c37c26798048d0bfa46d9b5e",
+    "retained": "source-portal-repair.json.gz",
+    "compressedSha256": "a2379f90107446ec4527b926b294679481caa4643a23619131ee0a056c00453f"
+  },
+  {
+    "original": "source-portal-repair.log",
+    "sha256": "21ff20fe8438e8d351a7aa8ff6a9b6db1a1386e12b228214eab81c9482b60075",
+    "retained": "source-portal-repair.log.gz",
+    "compressedSha256": "3d942f9d1ed567db4f4117ec57ee6c71197d8926cf9c5c1cf9d105887665088b"
+  },
+  {
+    "original": "source-budget-narrow.json",
+    "sha256": "6cc41b294db4431a5e69dba4a1f3e327b55277aa570b1f0c2bdb068196a67b58",
+    "retained": "source-budget-narrow.json.gz",
+    "compressedSha256": "be9c73b3c5e92c2380dea9a2baac5eb187ec2d11aea8b44f2f79180b76af5200"
+  },
+  {
+    "original": "source-budget-narrow.log",
+    "sha256": "32603f41fc2f20792eeaa65048b62851748feacb1452436bfb2a85478ca179b1",
+    "retained": "source-budget-narrow.log.gz",
+    "compressedSha256": "7255d6a7bed9bbf655486fea37a1525f660f8175c044db8c44765960d813d601"
+  },
+  {
+    "original": "dist-budget-repair.log",
+    "sha256": "e9ac548205b3418a8bb700dc878e4712a54666870e1282a3ac0a201c14010a15",
+    "retained": "dist-budget-repair.log.gz",
+    "compressedSha256": "3dd4ba579a5c8337ce1041e05a461afeff9685cf82c2f149dc87fb21614e02aa"
+  },
+  {
+    "original": "dist-budget-repair.json",
+    "sha256": "eb463b07c8a5467163e99378a79961a2b946eb8df8ac8257b3a9ae4a87201cda",
+    "retained": "dist-budget-repair.json.gz",
+    "compressedSha256": "174fd75832e97096a3227d88652c77f1c85a92e8cb4269904b9919b253a76518"
+  },
+  {
+    "original": "source-budget-wide.log",
+    "sha256": "a31757b6d4bc238e8d67202ff051194678427d6074b31f4e83c067b100622761",
+    "retained": "source-budget-wide.log.gz",
+    "compressedSha256": "f8d2c38c94284e9bee1f5abdb3f6b9216b96d2deb421f130119cc6a506df0ffc"
+  },
+  {
+    "original": "source-budget-wide.json",
+    "sha256": "88532238d0f25560a587f006286a1213b17453a8838c3252e02eda32c066211a",
+    "retained": "source-budget-wide.json.gz",
+    "compressedSha256": "66c080a22d3ff0c6e76e5b10186ab7007a5322611402890e6f8efd0b87887c5c"
+  },
+  {
+    "original": "source-verified.log",
+    "sha256": "b2c39d50011e5376863d6d496ed1cc696e30a429f26f05099cfa39b18e2354e3",
+    "retained": "source-verified.log.gz",
+    "compressedSha256": "5ea010ee331767ff3caea031e8189c6cd40bee63075d7255ec715ba00588b472"
+  },
+  {
+    "original": "source-verified.json",
+    "sha256": "6935fe007b2090823c31fb8f1fc32431a6541c90fe80b57d3be1df1b09cc92d5",
+    "retained": "source-verified.json.gz",
+    "compressedSha256": "e92263a4116918b735994b85eadc00f893193f0289f15d570e81ce22ca3bd990"
+  },
+  {
+    "original": "authoring-repair.log",
+    "sha256": "5e3655cf4743ea92781cc8c8e83ac40412640159e047efbcce7234bdb0a6ab9e",
+    "retained": "authoring-repair.log.gz",
+    "compressedSha256": "6302eeac1fdf77df32fa27e3599130d5b65f44de318376d3e81e2ecf56f83855"
+  },
+  {
+    "original": "authoring-repair.json",
+    "sha256": "d5c5e5a117a0c83dad138a92835f7b9d0e0a1deb8e78c718a2a41c7963f9c874",
+    "retained": "authoring-repair.json.gz",
+    "compressedSha256": "e41cb4f8bf0fec7b731f2cb0e79d9e42e6a476841886d78b1cd16001533e0cb8"
+  },
+  {
+    "original": "authoring-repair2.log",
+    "sha256": "555475819fd65a482e30382f05c7921d1dc9ff6313e4c74017055f9134e1817b",
+    "retained": "authoring-repair2.log.gz",
+    "compressedSha256": "a6e3c3d6002fa7e7fe7f9cf003b60cd57652b23930facac1470b94baf05e1f76"
+  },
+  {
+    "original": "authoring-repair2.json",
+    "sha256": "e63c66b6f20d895cc78ddf97b651610ae86aceab7b4c8ce2d02bbd9b463c2bcd",
+    "retained": "authoring-repair2.json.gz",
+    "compressedSha256": "df242b2328398c5da1c8fe70e6d08075a4dbf49dc34f4da574adbcc21a7d785a"
+  },
+  {
+    "original": "source-complete.log",
+    "sha256": "116ed2579467dd966abf194304082b8305d0e07ae0a4d84e99c49e0dddfe07ac",
+    "retained": "source-complete.log.gz",
+    "compressedSha256": "f70bdf08258546eb63b92a614975b9d72193b0a9ed438788d68af6585c703db8"
+  },
+  {
+    "original": "source-complete.json",
+    "sha256": "f2db1a81878360a8698fda65451026f67dbf62653c8d340aaa9b6f9668c2375d",
+    "retained": "source-complete.json.gz",
+    "compressedSha256": "28846ceeb5d28847869718db2b5cce50e095b3b9d607781afcc5c24bfb00d0d7"
+  }
+]

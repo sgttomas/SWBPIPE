@@ -1,0 +1,23 @@
+{
+  "parent": "/root",
+  "child": "/root/piping_loop_workgraph_review",
+  "role": "TASK Type 2",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "high",
+  "fork_turns": "none",
+  "mechanism": "delegated-harness-native collaboration.spawn_agent",
+  "candidate": "0ca9903b9b1e30c6a0afac6c3e0b714680a72ccc",
+  "recorded_at_utc": "2026-09-19T20:51:21.731841+00:00",
+  "context_sha256": {
+    "AGENTS.md": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260919-LOOP-WORKGRAPH/REVIEW_BRIEF.md": "e45e66ab851cf533136b1b60a3c61e9b1dcd3f63d307be2d2f2541c0f406168c",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260919-LOOP-WORKGRAPH/OWNER_DIRECTION.md": "14648c01da73226dd8e5d98879e46f0ca933a670075350bab60f0c8b658a0cc4"
+  },
+  "enforcement": "read-only and no-delegation instruction-asserted",
+  "return": {
+    "path": "_run_records/REVIEW_RETURN.md",
+    "sha256": "1a0a8a0125b2cea976ddd5d11d4fd150b83d384cf5852dcd50f37b41bba2345c",
+    "verbatim": true
+  }
+}

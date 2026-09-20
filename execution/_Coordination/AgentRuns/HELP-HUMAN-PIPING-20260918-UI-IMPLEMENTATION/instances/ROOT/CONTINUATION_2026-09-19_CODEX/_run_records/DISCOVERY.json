@@ -1,0 +1,464 @@
+{
+  "recordedAt": "2026-09-20T01:10:37.942775+00:00",
+  "kind": "read-only discovery; no fresh product test claim",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "origin/main"
+      ],
+      "exitCode": 0,
+      "stdout": "c459a0fa15e8d33613b6b95f529b5d369c707874\nc459a0fa15e8d33613b6b95f529b5d369c707874\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "exitCode": 0,
+      "stdout": "## codex/swbpipe-continuation-20260919...origin/main\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-8",
+        "--oneline",
+        "origin/main"
+      ],
+      "exitCode": 0,
+      "stdout": "c459a0fa1 Merge pull request #822 from sgttomas/codex/root-four-graph-orientation-20260919\n083e97da7 Orient root agents to four views of project information\na3088a6c7 Merge pull request #821 from sgttomas/codex/deferred-four-graphs-orientation-20260919\nd61a04494 Save deferred four-graph orientation draft\n1e3fdcf8b Merge pull request #820 from sgttomas/codex/manual-theory-20260919\n9a8c3ac2a Connect the four structures and retain manual coherence reviews\n3142dca02 Draft theory of project management for AI software teams\n35d8b93ae Merge pull request #819 from sgttomas/codex/plans-four-graphs-20260919\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--state",
+        "open",
+        "--limit",
+        "100",
+        "--json",
+        "number,title,headRefName,baseRefName"
+      ],
+      "exitCode": 0,
+      "stdout": "[]\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--stat",
+        "1e3fdcf8bd4d198e4dce0b7d3b2b17b081e2b5da..origin/main",
+        "--",
+        "projects/chirality-piping"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "lsof",
+        "-nP",
+        "-iTCP:5174",
+        "-iTCP:5175",
+        "-iTCP:5183",
+        "-iTCP:5184",
+        "-sTCP:LISTEN"
+      ],
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "worktrees": {
+    "shell": {
+      "worktreeName": "swbpipe-wt3",
+      "accessible": true,
+      "dependenciesPresent": true,
+      "checks": [
+        {
+          "argv": [
+            "git",
+            "rev-parse",
+            "HEAD"
+          ],
+          "exitCode": 0,
+          "stdout": "a9be4aaefa432e1eed56e87482391e90958cb087\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--short",
+            "--branch"
+          ],
+          "exitCode": 0,
+          "stdout": "## codex/swbpipe-b-shell-20260918...origin/codex/swbpipe-b-shell-20260918\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "rev-list",
+            "--left-right",
+            "--count",
+            "origin/main...HEAD"
+          ],
+          "exitCode": 0,
+          "stdout": "72\t16\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--stat",
+            "origin/main...HEAD",
+            "--",
+            "projects/chirality-piping/apps/desktop"
+          ],
+          "exitCode": 0,
+          "stdout": " .../desktop/e2e/gui-workflow-validation.spec.ts    |  49 +-\n .../apps/desktop/e2e/linear-authoring.spec.ts      |  25 +-\n .../apps/desktop/e2e/r2-smoke.spec.ts              |  61 +-\n .../apps/desktop/e2e/toolkit-batch-dist.spec.ts    |   3 +\n .../apps/desktop/e2e/ui-foundation-dist.spec.ts    | 339 ++++++---\n .../apps/desktop/e2e/ui-foundation-workflows.ts    |  64 +-\n .../apps/desktop/e2e/ui-foundation.spec.ts         | 120 ++-\n .../apps/desktop/e2e/wasm-engine-dist.spec.ts      |   4 +-\n .../apps/desktop/e2e/workspace-driver.ts           | 127 +++-\n .../apps/desktop/e2e/workspace-layout.spec.ts      | 405 ++++++++--\n .../apps/desktop/src/App.projectHandlers.test.tsx  |  11 +-\n .../apps/desktop/src/App.shell.test.tsx            | 546 ++++++++++++++\n .../chirality-piping/apps/desktop/src/App.test.tsx | 146 ++--\n projects/chirality-piping/apps/desktop/src/App.tsx | 837 ++++++++++-----------\n .../desktop/src/features/display-units/index.tsx   |   7 +-\n .../src/features/toolkit/ToolkitPalette.test.tsx   |  12 +-\n .../src/features/toolkit/ToolkitPalette.tsx        |  83 +-\n .../features/workspace/WorkspaceSessionContext.tsx |  50 ++\n .../features/workspace/WorkspaceToolbar.test.tsx   |  33 -\n .../src/features/workspace/WorkspaceToolbar.tsx    |  44 --\n .../src/features/workspace/chromeSessionState.ts   |  35 +-\n .../desktop/src/features/workspace/menuCommands.ts |  17 +-\n .../src/features/workspace/sessionBoundary.test.ts |  80 ++\n .../src/features/workspace/shell/AgentStrip.tsx    |  27 +\n .../features/workspace/shell/DisabledReason.tsx    |   9 +\n .../features/workspace/shell/ShellStatusBar.tsx    | 113 +++\n .../src/features/workspace/shell/ShellToolbar.tsx  | 178 +++++\n .../src/features/workspace/shell/StageRail.tsx     |  93 +++\n .../src/features/workspace/shell/StageTabStrip.tsx |  70 ++\n .../src/features/workspace/shellLayout.test.ts     | 530 +++++++++++++\n .../desktop/src/features/workspace/shellLayout.ts  | 556 ++++++++++++++\n .../features/workspace/statusLabels.tokens.test.ts |  37 +\n .../src/features/workspace/uiPreferences.test.ts   |  17 +\n .../src/features/workspace/uiPreferences.ts        |  18 +\n .../workspace/workspaceSession.shell.test.tsx      | 255 +++++++\n .../src/features/workspace/workspaceSession.ts     | 182 ++++-\n .../chirality-piping/apps/desktop/src/styles.css   | 441 ++++++-----\n 37 files changed, 4526 insertions(+), 1098 deletions(-)\n",
+          "stderr": ""
+        }
+      ]
+    },
+    "canvas": {
+      "worktreeName": "swbpipe-wt4",
+      "accessible": true,
+      "dependenciesPresent": true,
+      "checks": [
+        {
+          "argv": [
+            "git",
+            "rev-parse",
+            "HEAD"
+          ],
+          "exitCode": 0,
+          "stdout": "f6c0bab8e8893237f83f57656b98039d68efb2b4\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--short",
+            "--branch"
+          ],
+          "exitCode": 0,
+          "stdout": "## codex/swbpipe-b-canvas-20260918...origin/codex/swbpipe-b-canvas-20260918\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "rev-list",
+            "--left-right",
+            "--count",
+            "origin/main...HEAD"
+          ],
+          "exitCode": 0,
+          "stdout": "64\t3\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--stat",
+            "origin/main...HEAD",
+            "--",
+            "projects/chirality-piping/apps/desktop"
+          ],
+          "exitCode": 0,
+          "stdout": " .../apps/desktop/e2e/ui-foundation/README.md       |  63 ++++++-\n .../ui-foundation/REPAIR_2026-09_FIRST_PROFILE.md  | 186 +++++++++++++++++++++\n .../desktop/e2e/ui-foundation/benchmark-harness.ts |  11 ++\n .../characterization-observations.d.mts            |   2 +\n .../characterization-observations.mjs              |  17 +-\n .../ui-foundation/full-cohort-controller.spec.ts   |  89 ++++++++++\n .../e2e/ui-foundation/generate-fixtures.mjs        | 110 +++++++++---\n 7 files changed, 454 insertions(+), 24 deletions(-)\n",
+          "stderr": ""
+        }
+      ]
+    },
+    "parkedDesign": {
+      "worktreeName": "task-management-gen-pass-518da2",
+      "accessible": true,
+      "dependenciesPresent": true,
+      "checks": [
+        {
+          "argv": [
+            "git",
+            "rev-parse",
+            "HEAD"
+          ],
+          "exitCode": 0,
+          "stdout": "4dddd44128e052cfe518f84c0b718e6125cb2b69\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--short",
+            "--branch"
+          ],
+          "exitCode": 0,
+          "stdout": "## codex/swbpipe-design-system-v14-20260918...origin/codex/swbpipe-design-system-v14-20260918\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "rev-list",
+            "--left-right",
+            "--count",
+            "origin/main...HEAD"
+          ],
+          "exitCode": 0,
+          "stdout": "147\t9\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--stat",
+            "origin/main...HEAD",
+            "--",
+            "projects/chirality-piping/apps/desktop"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "origin": "active-checkout/AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "origin": "active-checkout/agents/AGENT_HELP_HUMAN.md",
+      "sha256": "0c2fe7a3097ad26c93c0267e4da6aaf90c9264489df8dc368fad657bcac69183"
+    },
+    {
+      "origin": "active-checkout/agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "origin": "active-checkout/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json",
+      "sha256": "4d4d2085b43d01294bfea9d508ae1214890298a1a7cddb3b28ea316551f0f766"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/ORCHESTRATION_PLAN.md",
+      "sha256": "37ad3b7be003f9cdf20acf736eaed16b474152d3cddede7e12f1ff7396d91b89"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_STEER_2026-09-19.md",
+      "sha256": "ded2ea3a871fc2629c8da8a0f2461955d587c1b35d838407b9dfbfee86dd3b34"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/SESSION_HANDOFF_2026-09-19B.md",
+      "sha256": "6646adce112a8602ad919005a765e374462b9374543dda08f1466029297b4b40"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/ACTIVATION_2026-09-18.md",
+      "sha256": "0369ea60973f50d03f9772e024f3847656626d0889aeacde49003654f6f967e3"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/OWNER_DIRECTION_2026-09-19_CONTROL_LAYER_FIRST.md",
+      "sha256": "bc41f82680cfcb69a193ee3820cb0861f36fbe872fae970df1be1729f9a23268"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/OWNER_DIRECTION_2026-09-19_SECTION7_DECISIONS.md",
+      "sha256": "c9049e543dd1a46b1fdcf3d7f23cd5551c89b24185c66c70d2d03eb77c2fee2e"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md",
+      "sha256": "5b86c2783c5d460adf63b69dc3a49db7df672795f0feeb59079a2f93a82c0f4e"
+    },
+    {
+      "origin": "git:1e3fdcf8bd4d198e4dce0b7d3b2b17b081e2b5da:AGENTS.md (entry bytes before checkout advanced)",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64"
+    },
+    {
+      "origin": "shell-lane/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/briefs/B3-FLOORS.md",
+      "sha256": "fe295e2b575e651e77b6ec4c75d6ef1455af319119337b4ac96d6008536c0290",
+      "readScope": "selected sections; see discovery tool transcript"
+    },
+    {
+      "origin": "shell-lane/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/lanes/B-SHELL/briefs/B-SHELL_addendum_4.md",
+      "sha256": "08b51c66b50994c92d98658b2d96b1eedd3c66599c791207ea1c7d97801c3088",
+      "readScope": "selected sections; see discovery tool transcript"
+    },
+    {
+      "origin": "shell-lane/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/LANE_LOG.md",
+      "sha256": "7cb84de57fcf4dc5146bf21fa5f171724c90471bf9ee2e8e47f599eef9499e01",
+      "readScope": "selected sections; see discovery tool transcript"
+    },
+    {
+      "origin": "shell-lane/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-SHELL_STAGE1_RETURN.md",
+      "sha256": "c791309e3f6532986905b09e12578687434961d40fedcabec2ae3345ac8743da",
+      "readScope": "hash recorded only; manager summary read, full return remains mandatory for implementer"
+    },
+    {
+      "origin": "shell-lane/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-SHELL_STAGE2_INTERIM_RETURN.md",
+      "sha256": "ed88bfe45ac714819efc1edbc7013e5de6c697c1d18906309b0bfef180dda67e",
+      "readScope": "selected sections; see discovery tool transcript"
+    },
+    {
+      "origin": "shell-lane/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-SHELL_STAGE2_SECOND_RETURN.md",
+      "sha256": "d5097732d9556ce44bc3ce0ee4afdc1de42d72b8127aa66dcb2b2e79c4433fae",
+      "readScope": "hash recorded only; manager summary read, full return remains mandatory for implementer"
+    },
+    {
+      "origin": "shell-lane/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-DIST_RETURN.md",
+      "sha256": "97a0793051ee51765e235d0fda841fd4b0506330a577828928505072fe9b27a7",
+      "readScope": "selected sections; see discovery tool transcript"
+    },
+    {
+      "origin": "canvas-lane/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/LANE_LOG.md",
+      "sha256": "35aa9b7c3e365dca5a297182032d1c655cd9727916087b4b5d82f482e20ffd52",
+      "readScope": "selected sections; see discovery tool transcript"
+    },
+    {
+      "origin": "canvas-lane/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/briefs/I1-REPAIR.md",
+      "sha256": "590e1557cc913ed1b313bd1571360ea90ae146bf3df4d2e9bb6958b1307e8805",
+      "readScope": "selected sections; see discovery tool transcript"
+    },
+    {
+      "origin": "active-checkout/.agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba",
+      "purpose": "applied repository conventions"
+    },
+    {
+      "origin": "active-checkout/.agents/skills/proposal-format/SKILL.md",
+      "sha256": "63e6d2545c31df939511a5a137c214d5444ca562f6abf9b048de3aa2f8dac59d",
+      "purpose": "consulted; not selected: no declared deliverable"
+    },
+    {
+      "origin": "/Users/ryan/.codex/skills/.system/openai-docs/SKILL.md",
+      "sha256": "aa6829e21df2223167c85d2e49b6337a7345c84c1033f1ec10182c7882b36d45",
+      "purpose": "applied model guidance"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md",
+      "sha256": "76f2eff773d75b2ee1d9facc1f0dcf8196635e5f520d0dbf7abc66b09063e62b",
+      "readScope": "relevant sections for decision package"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-72_redesigned_product_performance_acceptance_criteria.md",
+      "sha256": "609d044ece07d98d52d1032142a0511a87e78cecdf3ad3d3830596ab7d9bfe3c",
+      "readScope": "relevant sections for decision package"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/UX-SPEC/UX_SPEC_V1.md",
+      "sha256": "2141c1e844109d4869287048c695e79677f423acae965d5dd0436b7f6aeff682",
+      "readScope": "relevant sections for decision package"
+    },
+    {
+      "origin": "active-checkout/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/ROOT/IMPLEMENTATION_HANDOFF_2026-09-18.md",
+      "sha256": "0711b0e35f8d02f404dcae9a2b440bcf4506d5f0f9b76dc748195952bf7ab9a7",
+      "readScope": "relevant sections for decision package"
+    }
+  ],
+  "graphMergeChecks": [
+    {
+      "node": "B1-TOKENS",
+      "commit": "4dcab750501d039af5b2973991cbe0f3f423b80a",
+      "ancestorOfOriginMain": true
+    },
+    {
+      "node": "A1F-FOLLOWUPS",
+      "commit": "8e4c5df6ec84928ca343224e5244ccdae5771cd4",
+      "ancestorOfOriginMain": true
+    },
+    {
+      "node": "B2",
+      "commit": "b9a07040857d2e6d3ec0f6a530697720801c7b59",
+      "ancestorOfOriginMain": true
+    },
+    {
+      "node": "B2F-B2G",
+      "commit": "172cd5689",
+      "ancestorOfOriginMain": true
+    },
+    {
+      "node": "C1",
+      "commit": "d20eb1294",
+      "ancestorOfOriginMain": true
+    },
+    {
+      "node": "C2",
+      "commit": "b313ce821d334aa741292248fba748c5d531d972",
+      "ancestorOfOriginMain": true
+    }
+  ],
+  "browserLockExists": false,
+  "widerRoleConsultation": "WORKING_ITEMS and TASK read deliberately to design the delegation strategy; neither role activated in this session.",
+  "scopeLimit": "No product execution or native witness; historical test counts and rectangles are attributed to the retained lane records. Dependencies exist but equivalence has not been freshly built.",
+  "packageSha256": "5dc9bfbaefc2fb2de35b6145f23762900556723c67dba15bb843bc026f0aac1a",
+  "ownerSteerSha256": "da28b028d8100b207d4f1742d9fde2383441f650f0e7d779edef0e38fb5c397e",
+  "preparationChecks": [
+    {
+      "argv": [
+        "python3",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "exitCode": 0,
+      "stdout": "VALID /Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/loop/LOOP_RECEIPTS.md: frozen through Receipt-44; versioned receipt contract satisfied\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only"
+      ],
+      "exitCode": 0,
+      "stdout": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/HANDOFF_STATE.md\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json\nprojects/chirality-piping/loop/LOOP_RECEIPTS.md\n",
+      "stderr": ""
+    }
+  ]
+}

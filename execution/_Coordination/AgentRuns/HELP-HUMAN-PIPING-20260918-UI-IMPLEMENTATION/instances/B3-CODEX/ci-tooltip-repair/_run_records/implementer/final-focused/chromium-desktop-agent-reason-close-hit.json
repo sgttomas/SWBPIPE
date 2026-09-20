@@ -1,0 +1,15 @@
+{
+  "close": {
+    "x": 1316.140625,
+    "y": 82.5,
+    "width": 71.859375,
+    "height": 32,
+    "top": 82.5,
+    "right": 1388,
+    "bottom": 114.5,
+    "left": 1316.140625
+  },
+  "hit": "<button type=\"button\" data-testid=\"workspace-dock-close\" title=\"Close (⎋)\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x\" aria-hidden=\"true\"><path d=\"M18 6 6 18\"></path><path d=\"m6 6 12 12\"></path></svg> Close</button>",
+  "ownsPointer": true,
+  "focused": "<button type=\"button\" class=\"shell-rail-item\" data-testid=\"agent-strip-open\" aria-label=\"Agent\" aria-disabled=\"true\" aria-describedby=\"agent-strip-reason\" title=\"Agent: not available yet\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-bot\" aria-hidden=\"true\"><path d=\"M12 8V4H8\"></path><rect width=\"16\" height=\"12\" x=\"4\" y=\"8\" rx=\"2\"></rect><path d=\"M2 14h2\"></path><path d=\"M20 14h2\"></path><path d=\"M15 13v2\"></path><path d=\"M9 13v2\"></path></svg><span class=\"shell-rail-label\">Agent</span></button>"
+}

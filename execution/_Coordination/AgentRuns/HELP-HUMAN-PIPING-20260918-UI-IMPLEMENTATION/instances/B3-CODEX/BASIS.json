@@ -1,0 +1,161 @@
+{
+  "entryHead": "a9be4aaefa432e1eed56e87482391e90958cb087",
+  "integrationBase": "c459a0fa15e8d33613b6b95f529b5d369c707874",
+  "mergedHead": "a63607e5c6d805f364c969eb6963f768baefb300",
+  "manager": {
+    "model": "gpt-6-astra",
+    "effort": "high",
+    "role": "WORKING_ITEMS",
+    "parent": "ROOT",
+    "mechanism": "Codex delegated-harness-native"
+  },
+  "sources": [
+    {
+      "origin": "AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "origin": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "origin": "projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "origin": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "origin": "git:c805bcc1a:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_APPROVAL.md",
+      "sha256": "c13f02ac0b19ea1e1fae86ff89f90f9472f3bfb8ad93074b13db4504670321d9"
+    },
+    {
+      "origin": "git:c805bcc1a:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md",
+      "sha256": "5dc9bfbaefc2fb2de35b6145f23762900556723c67dba15bb843bc026f0aac1a"
+    },
+    {
+      "origin": "git:c805bcc1a:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/DISCOVERY.json",
+      "sha256": "9d60678885d31884c0372fb487962e90831460ded9a9ebd3874335caca5c8c22"
+    },
+    {
+      "origin": "git:c805bcc1a:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_BRIEF.md",
+      "sha256": "e494ccdc4763cca0ff53ae238a33c3d3a83299f66a701b75b107c1a5bdb5fb3f"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/ORCHESTRATION_PLAN.md",
+      "sha256": "37ad3b7be003f9cdf20acf736eaed16b474152d3cddede7e12f1ff7396d91b89",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/LANE_LOG.md",
+      "sha256": "7cb84de57fcf4dc5146bf21fa5f171724c90471bf9ee2e8e47f599eef9499e01",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/briefs/B3-FLOORS.md",
+      "sha256": "fe295e2b575e651e77b6ec4c75d6ef1455af319119337b4ac96d6008536c0290",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/briefs/B3-DIST.md",
+      "sha256": "7851610832b6572ecb8bb44e7c3d5e3d1c38fc827dfe09261f2e3a12b048aa4f",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/briefs/B3-SHELL.md",
+      "sha256": "079876c393d2a93ae7969ee2c6294f5225e3eccb95c3d487b8d96e0d9af29cec",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-SHELL_STAGE1_RETURN.md",
+      "sha256": "c791309e3f6532986905b09e12578687434961d40fedcabec2ae3345ac8743da",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-SHELL_STAGE2_INTERIM_RETURN.md",
+      "sha256": "ed88bfe45ac714819efc1edbc7013e5de6c697c1d18906309b0bfef180dda67e",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-DIST_RETURN.md",
+      "sha256": "97a0793051ee51765e235d0fda841fd4b0506330a577828928505072fe9b27a7",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-SHELL_STAGE2_SECOND_RETURN.md",
+      "sha256": "d5097732d9556ce44bc3ce0ee4afdc1de42d72b8127aa66dcb2b2e79c4433fae",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/lanes/B-SHELL/briefs/B-SHELL_addendum_1.md",
+      "sha256": "f91f8d2bf55de8c9eb524abc38ea196cba7782d25492f79239b7d2a90c833aa2",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/lanes/B-SHELL/briefs/B-SHELL_addendum_4.md",
+      "sha256": "08b51c66b50994c92d98658b2d96b1eedd3c66599c791207ea1c7d97801c3088",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/lanes/B-SHELL/briefs/B-SHELL_addendum_3.md",
+      "sha256": "4b928f286036aa5a4e7de1152d9fa7b72bcb9d39dd3f038e02d6ad3735f93b35",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/lanes/B-SHELL/briefs/B-SHELL_addendum_2.md",
+      "sha256": "60406868afad389c56126276a1a06f4ee00967400363e3973ab2bc01e0cb7509",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/OWNER_DIRECTION_2026-09-19_CONTROL_LAYER_FIRST.md",
+      "sha256": "bc41f82680cfcb69a193ee3820cb0861f36fbe872fae970df1be1729f9a23268",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md",
+      "sha256": "5b86c2783c5d460adf63b69dc3a49db7df672795f0feeb59079a2f93a82c0f4e",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/OWNER_DIRECTION_2026-09-19_SECTION7_DECISIONS.md",
+      "sha256": "c9049e543dd1a46b1fdcf3d7f23cd5551c89b24185c66c70d2d03eb77c2fee2e",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/UX-SPEC/UX_SPEC_V1.md",
+      "sha256": "2141c1e844109d4869287048c695e79677f423acae965d5dd0436b7f6aeff682",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/ROOT/IMPLEMENTATION_HANDOFF_2026-09-18.md",
+      "sha256": "0711b0e35f8d02f404dcae9a2b440bcf4506d5f0f9b76dc748195952bf7ab9a7",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/frames/s1_both_light.html",
+      "sha256": "995bdb62b3fb4ba14a893cb49f1301f041314a6584d0f77e717b4d6a18904417",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/MOCKS/frames/s2_model_light.html",
+      "sha256": "73af73c3fb5490aec8c9871dd6213b88bf3c9ec7f54cc731af6a882f67a5f238",
+      "readScope": "Task-relevant sections; selected frame structure; complete brief/return when supplied in task discovery"
+    }
+  ],
+  "widerRoleConsultation": "agents/AGENT_TASK.md read deliberately to seal child contexts; manager remains WORKING_ITEMS."
+}

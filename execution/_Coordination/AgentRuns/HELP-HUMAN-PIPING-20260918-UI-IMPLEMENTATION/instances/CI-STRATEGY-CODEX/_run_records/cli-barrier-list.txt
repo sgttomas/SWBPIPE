@@ -1,0 +1,572 @@
+["../../node_modules/.bin/playwright", "test", "--project=chromium-desktop", "--project=chromium-compact", "--workers=1", "--timeout=180000", "--reporter=json", "--list", "--max-failures=1", "e2e/b3\\-accessibility\\.spec\\.ts$"]
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 1,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": true,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b3-accessibility.spec.ts",
+      "file": "b3-accessibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "disabled rail and Agent reasons escape clipping under keyboard focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-1f007a24c01a0ee66e51",
+          "file": "b3-accessibility.spec.ts",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "covered pages exclude retained stage controls from Tab and accessibility",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-d920963396db44ee6237",
+          "file": "b3-accessibility.spec.ts",
+          "line": 56,
+          "column": 1
+        },
+        {
+          "title": "Both inspector Escape closes from property tab and input to opener",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-677db6e37e4a621be487",
+          "file": "b3-accessibility.spec.ts",
+          "line": 90,
+          "column": 1
+        },
+        {
+          "title": "Model inspector stays docked on Escape",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-7bd1a841b758c629e185",
+          "file": "b3-accessibility.spec.ts",
+          "line": 103,
+          "column": 1
+        },
+        {
+          "title": "toolkit child consumes first Escape before inspector close",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-a65f4bdf983b10cb4ca9",
+          "file": "b3-accessibility.spec.ts",
+          "line": 113,
+          "column": 1
+        },
+        {
+          "title": "portalled routing Escape closes explicitly and supersedes automatic restore",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-b7eb053ea925daf444dc",
+          "file": "b3-accessibility.spec.ts",
+          "line": 129,
+          "column": 1
+        },
+        {
+          "title": "keyboard page Close restores visible focus and retained state: libraries",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-dfeec6501dc3180b824a",
+          "file": "b3-accessibility.spec.ts",
+          "line": 146,
+          "column": 3
+        },
+        {
+          "title": "keyboard page Close restores visible focus and retained state: project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-dd7071c1f1a94322a457",
+          "file": "b3-accessibility.spec.ts",
+          "line": 146,
+          "column": 3
+        },
+        {
+          "title": "keyboard page Close restores visible focus and retained state: solve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-f2641d281a40322b9467",
+          "file": "b3-accessibility.spec.ts",
+          "line": 146,
+          "column": 3
+        },
+        {
+          "title": "compact routing selector owns popup Escape before configured shell consumers",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-0677ae17013ada0e45b5",
+          "file": "b3-accessibility.spec.ts",
+          "line": 202,
+          "column": 3
+        },
+        {
+          "title": "compact routing selector owns popup Escape before narrow shell consumers",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-6dd48708431fdb5c432b",
+          "file": "b3-accessibility.spec.ts",
+          "line": 202,
+          "column": 3
+        },
+        {
+          "title": "support family popup dismissal does not invent a missing engineering choice",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-ca2ffa275e9086ee6135",
+          "file": "b3-accessibility.spec.ts",
+          "line": 282,
+          "column": 1
+        },
+        {
+          "title": "disabled rail and Agent reasons escape clipping under keyboard focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-6b87a714546a7e6392da",
+          "file": "b3-accessibility.spec.ts",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "covered pages exclude retained stage controls from Tab and accessibility",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-335b1c64877639eed205",
+          "file": "b3-accessibility.spec.ts",
+          "line": 56,
+          "column": 1
+        },
+        {
+          "title": "Both inspector Escape closes from property tab and input to opener",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-80db137c671002b5c871",
+          "file": "b3-accessibility.spec.ts",
+          "line": 90,
+          "column": 1
+        },
+        {
+          "title": "Model inspector stays docked on Escape",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-43df3be748a6886bdaed",
+          "file": "b3-accessibility.spec.ts",
+          "line": 103,
+          "column": 1
+        },
+        {
+          "title": "toolkit child consumes first Escape before inspector close",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-9bdc6bf24cc013ac2efc",
+          "file": "b3-accessibility.spec.ts",
+          "line": 113,
+          "column": 1
+        },
+        {
+          "title": "portalled routing Escape closes explicitly and supersedes automatic restore",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-8c10bc7cf6c439a63b7b",
+          "file": "b3-accessibility.spec.ts",
+          "line": 129,
+          "column": 1
+        },
+        {
+          "title": "keyboard page Close restores visible focus and retained state: libraries",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-e059db1ecfd3d1a8a929",
+          "file": "b3-accessibility.spec.ts",
+          "line": 146,
+          "column": 3
+        },
+        {
+          "title": "keyboard page Close restores visible focus and retained state: project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-ce94e47c7a5a96a73dbc",
+          "file": "b3-accessibility.spec.ts",
+          "line": 146,
+          "column": 3
+        },
+        {
+          "title": "keyboard page Close restores visible focus and retained state: solve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-25676cb0ea08c39746ba",
+          "file": "b3-accessibility.spec.ts",
+          "line": 146,
+          "column": 3
+        },
+        {
+          "title": "compact routing selector owns popup Escape before configured shell consumers",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-dd67afcf4f300f85744d",
+          "file": "b3-accessibility.spec.ts",
+          "line": 202,
+          "column": 3
+        },
+        {
+          "title": "compact routing selector owns popup Escape before narrow shell consumers",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-b6b56dc2fc147824f87b",
+          "file": "b3-accessibility.spec.ts",
+          "line": 202,
+          "column": 3
+        },
+        {
+          "title": "support family popup dismissal does not invent a missing engineering choice",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "736d088b42a1d7bf7ac1-b61164ed9d8af0bcdfca",
+          "file": "b3-accessibility.spec.ts",
+          "line": 282,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-20T08:29:31.283Z",
+    "duration": 19.99399999999997,
+    "expected": 0,
+    "skipped": 24,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

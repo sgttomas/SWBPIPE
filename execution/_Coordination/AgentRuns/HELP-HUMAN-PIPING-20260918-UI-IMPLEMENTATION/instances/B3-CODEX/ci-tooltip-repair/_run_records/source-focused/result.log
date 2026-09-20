@@ -1,0 +1,83 @@
+[1A[2K[2m[WebServer] [22m(node:77574) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 60 tests using 1 worker
+
+[1A[2K(node:77576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:77576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:29:1 › disabled rail and Agent reasons escape clipping under keyboard focus
+[1A[2K[2/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:56:1 › covered pages exclude retained stage controls from Tab and accessibility
+[1A[2K[3/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:90:1 › Both inspector Escape closes from property tab and input to opener
+[1A[2K[4/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:103:1 › Model inspector stays docked on Escape
+[1A[2K[5/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:113:1 › toolkit child consumes first Escape before inspector close
+[1A[2K[6/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:129:1 › portalled routing Escape closes explicitly and supersedes automatic restore
+[1A[2K[7/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: libraries
+[1A[2K[8/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: project
+[1A[2K[9/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: solve
+[1A[2K[10/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:202:3 › compact routing selector owns popup Escape before configured shell consumers
+[1A[2K[11/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:202:3 › compact routing selector owns popup Escape before narrow shell consumers
+[1A[2K[12/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:282:1 › support family popup dismissal does not invent a missing engineering choice
+[1A[2K[13/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:307:1 › Agent reason preserves hover and lets focused page Close receive the pointer
+[1A[2K[14/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:326:1 › disabled reasons own only visible unconsumed Escape and reset on reentry
+[1A[2K[15/60] [chromium-desktop] › e2e/b3-accessibility.spec.ts:378:1 › simultaneous hovered and focused reasons dismiss before the page
+[1A[2K[16/60] [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:90:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions
+[1A[2K[17/60] [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:329:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home
+[1A[2K[18/60] [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:329:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer
+[1A[2K[19/60] [chromium-desktop] › e2e/workspace-layout.spec.ts:27:1 › workspace preserves the visible model during discovery, routing, property editing and analysis navigation
+[1A[2K[20/60] [chromium-desktop] › e2e/workspace-layout.spec.ts:128:1 › D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class
+[1A[2K[21/60] [chromium-desktop] › e2e/workspace-layout.spec.ts:211:3 › routing uses the inspector without changing the D2 pane allocation, 1440 x 900, native-runtime class
+[1A[2K[22/60] [chromium-desktop] › e2e/workspace-layout.spec.ts:211:3 › routing uses the inspector without changing the D2 pane allocation, 1280 x 800, native-runtime class
+[1A[2K[23/60] [chromium-desktop] › e2e/workspace-layout.spec.ts:282:1 › the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views
+[1A[2K[24/60] [chromium-desktop] › e2e/workspace-layout.spec.ts:340:1 › a switch to Table view hides the canvas without resizing its renderer
+[1A[2K[25/60] [chromium-desktop] › e2e/workspace-layout.spec.ts:360:1 › browser native-class structural review captures retain pane and drawn-canvas geometry
+[1A[2K[26/60] [chromium-desktop] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440
+[1A[2K[27/60] [chromium-desktop] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1440
+[1A[2K[28/60] [chromium-desktop] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1280
+[1A[2K[29/60] [chromium-desktop] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280
+[1A[2K[30/60] [chromium-desktop] › e2e/workspace-layout.spec.ts:523:1 › below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over
+[1A[2K(node:78777) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:78777) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[31/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:29:1 › disabled rail and Agent reasons escape clipping under keyboard focus
+[1A[2K[32/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:56:1 › covered pages exclude retained stage controls from Tab and accessibility
+[1A[2K[33/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:90:1 › Both inspector Escape closes from property tab and input to opener
+[1A[2K[34/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:103:1 › Model inspector stays docked on Escape
+[1A[2K[35/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:113:1 › toolkit child consumes first Escape before inspector close
+[1A[2K[36/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:129:1 › portalled routing Escape closes explicitly and supersedes automatic restore
+[1A[2K[37/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: libraries
+[1A[2K[38/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: project
+[1A[2K[39/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:146:3 › keyboard page Close restores visible focus and retained state: solve
+[1A[2K[40/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:202:3 › compact routing selector owns popup Escape before configured shell consumers
+[1A[2K[41/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:202:3 › compact routing selector owns popup Escape before narrow shell consumers
+[1A[2K[42/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:282:1 › support family popup dismissal does not invent a missing engineering choice
+[1A[2K[43/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:307:1 › Agent reason preserves hover and lets focused page Close receive the pointer
+[1A[2K[44/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:326:1 › disabled reasons own only visible unconsumed Escape and reset on reentry
+[1A[2K[45/60] [chromium-compact] › e2e/b3-accessibility.spec.ts:378:1 › simultaneous hovered and focused reasons dismiss before the page
+[1A[2K[46/60] [chromium-compact] › e2e/gui-workflow-validation.spec.ts:90:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions
+[1A[2K[47/60] [chromium-compact] › e2e/gui-workflow-validation.spec.ts:329:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home
+[1A[2K[48/60] [chromium-compact] › e2e/gui-workflow-validation.spec.ts:329:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer
+[1A[2K[49/60] [chromium-compact] › e2e/workspace-layout.spec.ts:27:1 › workspace preserves the visible model during discovery, routing, property editing and analysis navigation
+[1A[2K[50/60] [chromium-compact] › e2e/workspace-layout.spec.ts:128:1 › D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class
+[1A[2K[51/60] [chromium-compact] › e2e/workspace-layout.spec.ts:211:3 › routing uses the inspector without changing the D2 pane allocation, 1440 x 900, native-runtime class
+[1A[2K[52/60] [chromium-compact] › e2e/workspace-layout.spec.ts:211:3 › routing uses the inspector without changing the D2 pane allocation, 1280 x 800, native-runtime class
+[1A[2K[53/60] [chromium-compact] › e2e/workspace-layout.spec.ts:282:1 › the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views
+[1A[2K[54/60] [chromium-compact] › e2e/workspace-layout.spec.ts:340:1 › a switch to Table view hides the canvas without resizing its renderer
+[1A[2K[55/60] [chromium-compact] › e2e/workspace-layout.spec.ts:360:1 › browser native-class structural review captures retain pane and drawn-canvas geometry
+[1A[2K[56/60] [chromium-compact] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440
+[1A[2K[57/60] [chromium-compact] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1440
+[1A[2K[58/60] [chromium-compact] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1280
+[1A[2K[59/60] [chromium-compact] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280
+[1A[2K[60/60] [chromium-compact] › e2e/workspace-layout.spec.ts:523:1 › below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over
+[1A[2K  60 passed (2.5m)

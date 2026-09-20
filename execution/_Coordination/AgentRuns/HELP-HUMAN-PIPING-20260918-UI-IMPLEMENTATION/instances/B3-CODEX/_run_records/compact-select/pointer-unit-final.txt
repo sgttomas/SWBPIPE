@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/workspace/CompactSelect.test.tsx
+
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  35 passed (35)
+   Start at  23:38:19
+   Duration  728ms (transform 67ms, setup 75ms, import 63ms, tests 311ms, environment 197ms)
+

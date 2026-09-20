@@ -1,0 +1,44 @@
+{
+  "scope": "B3 software development/source-control closeout; no governed or product acceptance",
+  "productCheckpoint": "24f5d9db073fae34d165029f33d1a8bf8f9d0a3c",
+  "productAndTests": "d3758edf45795dd2c0eddcd840d9100fc3d0cd23",
+  "managerEvidenceCommit": "c613922f1725a9b86d81c6c120b05b7df2e0558d",
+  "sweptCandidate": "9cf1654d2d0b317774290feb72d1a397a1d6cefa",
+  "managerReturnSha256": "b46ab5122037f244a38886fce493f02b7b1ca6046d91725be23693f9c1c7ce91",
+  "managerManifestSha256": "e7b08b9c73e7c677487d4cb59656701f86247633a6b35e843adfb700b98c868f",
+  "rootManifestVerification": "all2344 entries matched; evidence commit contains2345 scoped paths",
+  "reviewStanding": "all actionable product, fidelity and records findings closed; returns retained in run",
+  "localResults": {
+    "rust": "all registered crate-sweep commands exit0",
+    "pipingPython": "1105passed;304warnings retained in raw log",
+    "desktopUnits": "88files/1436passed",
+    "sourceE2E": "410passed/20existing skips",
+    "distE2E": "53passed",
+    "productionBuild": "exit0",
+    "native": "actual uninstrumented menu/title/history/picker/reset and ROOT looks; numeric minimum linked to unchanged native config and actual diagnostic measurement"
+  },
+  "sweep": {
+    "candidate": "9cf1654d2d0b317774290feb72d1a397a1d6cefa",
+    "summary": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260920T065239Z_9cf1654d2d0b.json",
+    "summarySha256": "64871b1d85bc974b0dcff8ca049c1e55113f222eaf13eef6729b2c83bf97f8d1",
+    "rawLogBytes": 1776948,
+    "rawLogSha256": "46fc6eedddd83194af32a5f2d8a1cc7c5af658214de5c4d662e33ecdd6ad8a7f",
+    "archive": "sweep.log.gz",
+    "archiveSha256": "357a48349c8a69666b396dad5b80202d466e5959427edbd2a20142c04f77b055",
+    "archiveVerified": "decompression byte-identical",
+    "processExitCode": 0,
+    "actualHost": "unrestricted local host; runner surface capability labels are not sandbox enforcement"
+  },
+  "remaining": [
+    "final closeout records/harness checks",
+    "PR actual-candidate CI",
+    "merge"
+  ],
+  "nativeLimits": "No new final-binary size API reading, native checkmark-glyph capture,800CSS,D72,usability or release claim. ROOT_FINAL_NATIVE_LOOK and native returns retain exact scope.",
+  "scopeLimits": [
+    "B3A/B3B untouched",
+    "fullB5/C5/closing appearance deferred",
+    "Piping Runtime adoption remains discussion only",
+    "provisional DAG010 links retained; no reconciliation/rebuild"
+  ]
+}

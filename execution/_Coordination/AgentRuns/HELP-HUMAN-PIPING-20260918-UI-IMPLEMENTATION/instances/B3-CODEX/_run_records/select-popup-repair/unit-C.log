@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/workspace/nativeSelectPopup.test.ts
+
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  16 passed (16)
+   Start at  21:51:36
+   Duration  365ms (transform 46ms, setup 72ms, import 12ms, tests 12ms, environment 189ms)
+

@@ -1,0 +1,529 @@
+{
+  "productAndTestCandidate": "d3758edf45795dd2c0eddcd840d9100fc3d0cd23",
+  "integrationBase": "21175b5d3668f29acd408812d95a33ed4f14bfc8",
+  "scope": "Complete inherited tracked B3 product/test and historical lane diff; manager evidence package is separately committed at handoff. Not just continuation edits.",
+  "entries": [
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts",
+      "group": "browser tests/adapters",
+      "gitBlob": "7592b1db79b89cbc002fe6e893c75d81e2a1be60"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "group": "browser tests/adapters",
+      "gitBlob": "99170d848a7762c04bc0710e32239c121742e8d1"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "group": "browser tests/adapters",
+      "gitBlob": "80895bd23e4c11873550a368847433d2ff839f60"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "group": "browser tests/adapters",
+      "gitBlob": "2bf909fcae76f83bac8614645cdf900d2bc810b8"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/e2e/toolkit-batch-dist.spec.ts",
+      "group": "browser tests/adapters",
+      "gitBlob": "829d66354b4d32bc2197d969757549839b8f7ae0"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "group": "browser tests/adapters",
+      "gitBlob": "aa19c36fee7c34261aeaf03fc0b2c15b487ad966"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts",
+      "group": "browser tests/adapters",
+      "gitBlob": "e3578dbf6df203096c5d29f575567f89ef73a4ea"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "group": "browser tests/adapters",
+      "gitBlob": "5afb0268ca57054819099b33d34e9fa186d31d5a"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/e2e/wasm-engine-dist.spec.ts",
+      "group": "browser tests/adapters",
+      "gitBlob": "e124e925381d39d32dfdee0eb8537df247295bb5"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts",
+      "group": "browser tests/adapters",
+      "gitBlob": "b058441d4171747b1d857c2c37e24b6de5af837d"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts",
+      "group": "browser tests/adapters",
+      "gitBlob": "64a9748450d4070e0efd2dbe38ba129274728979"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "group": "native shell",
+      "gitBlob": "cf73e4fee01afc3e4b6afd38bb3fa21887c41df1"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+      "group": "native shell",
+      "gitBlob": "ee5be1d3fe9bd463b791e507ea0f18c09ca84151"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/App.deadControls.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "c48d7b4967ddc64758acd187798a6d0d2e41a773"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "f32384e6ca28a45f66193538547c3b3826aabb6a"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/App.shell.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "26ddc2fa0b0e2cd04cd6532e9bcc036c61edc801"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "0c8a0df42c31f3eaacc532c0fe92622ba692ac65"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "group": "frontend product",
+      "gitBlob": "2477ca096578775c0e68e45d229c76042aceda2d"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/index.tsx",
+      "group": "frontend product",
+      "gitBlob": "3328b97b942b9171b22589f58df359272a513f71"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "group": "frontend product",
+      "gitBlob": "7ffd2230e4c03f5b38da3e7270e04cb4b3bf7513"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/schemaSlotEmission.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "9fef9ce313e01283f3577fad50f9a5781e858e03"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "17d58d7f58fecb76fb395b0df97da3c97f4a9647"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.tsx",
+      "group": "frontend product",
+      "gitBlob": "90dcf21b0c76968d794e4f9f65dcd5abaaba19f1"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "fefd0f8dcea3afd81721ccb9809aa7819c229602"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "2684b31ca6e208234c883faf0a913608b8a73048"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+      "group": "frontend product",
+      "gitBlob": "553a218ecaa881d38b7c07e42deb6e57c61e4ed8"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "123a76e300ea87d1142c3affdb4859a11233f99d"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ExistingToolkitEngine.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "db998224ed3779bb633337eeac8d94422ef05ede"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "6bff973fa359e52139ea42210eacdc6a615d7ed9"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/SectionAssignment.tsx",
+      "group": "frontend product",
+      "gitBlob": "76b1871178c61b665919ae59895624c8d10e4e39"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "be9d761cdf87c9308e8d204cd1400764d213eea9"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+      "group": "frontend product",
+      "gitBlob": "4fd640883e118d87c97497b5ea000679391776a4"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "group": "frontend product",
+      "gitBlob": "da963b5029e4b1c1ed7e2eba10e06fae9f837040"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.test.ts",
+      "group": "unit tests/adapters",
+      "gitBlob": "9176c8b87cb0d816483d32d3a381e7f1b34f8882"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts",
+      "group": "frontend product",
+      "gitBlob": "023b9bc476d2ea7416562511ed80ca852a6a3605"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/CompactSelect.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "2432ff5ef6580602b04252110df2d8dfcd9821f4"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/CompactSelect.tsx",
+      "group": "frontend product",
+      "gitBlob": "8186e4b445badf82d3fef730b5d5a71cb9b3746d"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceSessionContext.tsx",
+      "group": "frontend product",
+      "gitBlob": "01c92df2378616021cee498e843a61b39a591c32"
+    },
+    {
+      "status": "D",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": null
+    },
+    {
+      "status": "D",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.tsx",
+      "group": "frontend product",
+      "gitBlob": null
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/chromeSessionState.ts",
+      "group": "frontend product",
+      "gitBlob": "269a7a3e6b3c99577a9722eb253742ab8c8d74e1"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/menuCommands.ts",
+      "group": "frontend product",
+      "gitBlob": "694ce8199c6e916ed34e289e7bcd583dac7df953"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/sessionBoundary.test.ts",
+      "group": "unit tests/adapters",
+      "gitBlob": "ad5535e4ce42765bd3ec9f01b41b6c5432f75500"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/AgentStrip.tsx",
+      "group": "frontend product",
+      "gitBlob": "e50da94e16e763314a5675d58765a7f3464be9c1"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/DisabledReason.tsx",
+      "group": "frontend product",
+      "gitBlob": "b645655c3aec3c2e3e0cb1180bb927c790e046f8"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/ShellStatusBar.tsx",
+      "group": "frontend product",
+      "gitBlob": "f2381b52b46c85e26ef860cf37df74a912c9763b"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/ShellToolbar.tsx",
+      "group": "frontend product",
+      "gitBlob": "621786315a2ad171cb9f99ea32df9a45e79569c4"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/StageRail.tsx",
+      "group": "frontend product",
+      "gitBlob": "c214ad95f885c3e9210f8eaa1d4caa4bcdf0a2f4"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/StageTabStrip.tsx",
+      "group": "frontend product",
+      "gitBlob": "08c7af6f266aef0d3a00f5d26870f179b389c6cb"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.test.ts",
+      "group": "unit tests/adapters",
+      "gitBlob": "2aff3d141548ba783a0cf615915b69d0dda69464"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.ts",
+      "group": "frontend product",
+      "gitBlob": "995baacdc70e211c16faa248e6e7f2a35c37ca9c"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/statusLabels.tokens.test.ts",
+      "group": "unit tests/adapters",
+      "gitBlob": "a818ab4bf83f49433da15f311b7c632bdad1c721"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/uiPreferences.test.ts",
+      "group": "unit tests/adapters",
+      "gitBlob": "437d7adb04a3b44f3cc853dad0bfad5af7438750"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/uiPreferences.ts",
+      "group": "frontend product",
+      "gitBlob": "8ececa1e540945331979559da40137ef54dd13c1"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/viewportPortal.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "c0da51d3a4e5ecd54afdc24e2e68bea45b962d0f"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+      "group": "unit tests/adapters",
+      "gitBlob": "2da61b199f9ce47385cb34bc6bf6e5a313363ea8"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "group": "frontend product",
+      "gitBlob": "d794b08ba31915ec0859a60650ec91ccf421a583"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts",
+      "group": "frontend product",
+      "gitBlob": "4be5cfeb7a93f93d9540de3a519ce69641d78dd5"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "group": "frontend product",
+      "gitBlob": "d7c6f44dfb049fc30980d318bce05b40a5e593d8"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/src/test-support/workspaceTestControls.ts",
+      "group": "unit tests/adapters",
+      "gitBlob": "81128a99637b531ab5095201ff0a41b7cb8ecc62"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/B2_RENDER_ORDER_FINDING.md",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "a1e755f2d9f69f39a20b884c86aa998d6931961c"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/LANE_LOG.md",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "608b7c152597527f92cd53e658a073e26706df76"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/briefs/B3-DIST.md",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "811977e942b60ee5008a54cf877a5668c8ae3bcd"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/briefs/B3-FLOORS.md",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "7675d2d958b77cd1eb82ade03b66ae1aa2435088"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/briefs/_INDEX.md",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "007ad9c8724d5d055c59cdbfe119e0f8b99c8e37"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-DIST_RETURN.md",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "d724fb50e693716936e740b18821a911dbfd643c"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-SHELL_STAGE1_RETURN.md",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "5e8a5c56de2119ae3c91ea8600208d4e1fa240b3"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-SHELL_STAGE2_INTERIM_RETURN.md",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "557985bd254ee52f3f09d5a62fe41b5f2cc63f1d"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/B3-SHELL_STAGE2_SECOND_RETURN.md",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "936988135e3b473efb7a23302c2e413b49cf925b"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/returns/_INDEX.md",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "fff44ec6ae2acbd2567f5c320ef22e52fd81785e"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/loads_both_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "3dc067ff50e58d1472bbd5237f54d53d39b648a9"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/loads_model_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "7c635f1a5ac67b4febb30bdfb0761f86ef4ab81a"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/loads_table_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "3d1ccf44b35976cd056da0e8b1f4e2f60ecd615b"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/model_both_dark.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "5d7cb80c748c23c77054ae13c030ecd0d2aa42ab"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/model_both_inspector_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "dbec540308c9a65a30cd9fb5abe97a9496c7073f"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/model_both_inspector_tool_armed_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "ad010383c6a442fd51ed232c98b410ea9df6c78f"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/model_both_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "e368d94c204b53f837e658be38ab26bb87f4bd39"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/model_model_drawer_collapsed_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "cee9371b89486951bc1abec868230a480092fa22"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/model_model_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "03c2af8a1cca514fb313791bce5899da4a142029"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/model_table_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "a3cb61d76be628fd5682063f11a750a4b5556bdd"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/native_model_both_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "8116b281dff142a74a8f13324c3a7fdb46ce3072"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/native_model_model_drawer_collapsed_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "7f4e93d89e8ed9914dfab47dabf241c502d60cc9"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/project_page_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "826f25c6e9b4031a1fcaefecb462c5d1eefa70fc"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/results_both_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "a2924e81c0949fba935949470f5e04fba0a1164b"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/results_model_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "665bc1ce8a858ff4d19af35ac5a5c03fdcd8d9eb"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/results_table_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "7d95b544140d9fe2e0313b42d81166d9032d3766"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/shots/B3/review_table_light.png",
+      "group": "historical B-SHELL records/assets",
+      "gitBlob": "cb8d73fa221bd8b8b7ecb59bb142e6896a7edd04"
+    }
+  ]
+}

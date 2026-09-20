@@ -1,0 +1,50 @@
+{
+  "observedAt": "2026-09-20T02:35:07.777988+00:00",
+  "candidate": "26a7478b5b7e85760a8f9f8847690c548a01f9e5",
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "--version"
+      ],
+      "exitCode": 0,
+      "stdout": "v24.18.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "npm",
+        "--version"
+      ],
+      "exitCode": 0,
+      "stdout": "11.16.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "--version"
+      ],
+      "exitCode": 0,
+      "stdout": "git version 2.55.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "sw_vers"
+      ],
+      "exitCode": 0,
+      "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.2\nBuildVersion:\t\t25G83\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "--version"
+      ],
+      "exitCode": 0,
+      "stdout": "Python 3.13.14\n",
+      "stderr": ""
+    }
+  ]
+}

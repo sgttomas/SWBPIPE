@@ -1,0 +1,169 @@
+diff --git a/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts b/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts
+index 7592b1db7..4f45d853b 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts
+@@ -303,3 +303,95 @@ test("support family popup dismissal does not invent a missing engineering choic
+   await expect(family).toContainText("Not provided (preserved)");
+   await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+ });
++
++test("Agent reason preserves hover and lets focused page Close receive the pointer", async ({ page }, info) => {
++  await page.goto("/");
++  await openWorkspaceSection(page, "libraries");
++  const agent = page.getByTestId("agent-strip-open");
++  const reason = page.locator("#agent-strip-reason");
++  const close = page.getByTestId("workspace-dock-close");
++  await agent.focus();
++  await expect(reason).toBeVisible();
++  await reason.hover();
++  await expect(reason).toBeVisible();
++  await witness(info, "agent-reason-close-hit", await close.evaluate(el => {
++    const r = el.getBoundingClientRect();
++    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
++    return { close: r.toJSON(), hit: hit?.outerHTML, ownsPointer: el.contains(hit), focused: document.activeElement?.outerHTML };
++  }));
++  await close.click();
++  await expect(close).toHaveCount(0);
++});
++
++test("disabled reasons own only visible unconsumed Escape and reset on reentry", async ({ page }) => {
++  await page.goto("/");
++  await openWorkspaceSection(page, "libraries");
++  const agent = page.getByTestId("agent-strip-open");
++  const reason = page.locator("#agent-strip-reason");
++  const close = page.getByTestId("workspace-dock-close");
++  await agent.focus();
++  await expect(reason).toBeVisible();
++  // A child has already consumed this Escape; the reason and page must remain.
++  await agent.evaluate(el => el.addEventListener("keydown", event => event.preventDefault(), { once: true }));
++  await page.keyboard.press("Escape");
++  await expect(reason).toBeVisible();
++  await expect(close).toBeVisible();
++  await page.keyboard.press("Escape");
++  await expect(reason).toBeHidden();
++  await expect(agent).toHaveAccessibleDescription("Agent: not available yet");
++  await expect(agent).toBeFocused();
++  await expect(close).toBeVisible();
++  await close.focus();
++  await agent.focus();
++  await expect(reason).toBeVisible();
++
++  // Hover alone persists across the visible gap and over the tooltip itself.
++  await close.focus();
++  await agent.hover();
++  const anchorBox = await agent.boundingBox();
++  const reasonBox = await reason.boundingBox();
++  expect(anchorBox).not.toBeNull();
++  expect(reasonBox).not.toBeNull();
++  await page.mouse.move(anchorBox!.x + anchorBox!.width / 2, reasonBox!.y + reasonBox!.height / 2, { steps: 12 });
++  await expect(reason).toBeVisible();
++  await reason.hover();
++  await expect(reason).toBeVisible();
++  const placement = await reason.evaluate(el => {
++    const r = el.getBoundingClientRect();
++    return { contained: r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight,
++      topmost: el.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)) };
++  });
++  expect(placement).toEqual({ contained: true, topmost: true });
++  await page.keyboard.press("Escape");
++  await expect(reason).toBeHidden();
++  await expect(close).toBeVisible();
++  await close.hover();
++  await agent.hover();
++  await expect(reason).toBeVisible();
++  await close.hover();
++  await expect(reason).toBeHidden();
++  // No visible reason may consume the page's normal Escape command.
++  await page.keyboard.press("Escape");
++  await expect(close).toHaveCount(0);
++});
++
++test("simultaneous hovered and focused reasons dismiss before the page", async ({ page }) => {
++  await page.goto("/");
++  await openWorkspaceSection(page, "libraries");
++  const rail = page.getByTestId("rail-stage-results");
++  const railReason = page.locator(`#${await rail.getAttribute("aria-describedby")}`);
++  const agent = page.getByTestId("agent-strip-open");
++  const reason = page.locator("#agent-strip-reason");
++  const close = page.getByTestId("workspace-dock-close");
++  await rail.hover();
++  await agent.focus();
++  await expect(railReason).toBeVisible();
++  await expect(reason).toBeVisible();
++  await page.keyboard.press("Escape");
++  await expect(railReason).toBeHidden();
++  await expect(reason).toBeHidden();
++  await expect(close).toBeVisible();
++  await expect(agent).toBeFocused();
++  await page.keyboard.press("Escape");
++  await expect(close).toHaveCount(0);
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/features/workspace/shell/DisabledReason.tsx b/projects/chirality-piping/apps/desktop/src/features/workspace/shell/DisabledReason.tsx
+index b645655c3..cb95bccae 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/workspace/shell/DisabledReason.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/workspace/shell/DisabledReason.tsx
+@@ -1,9 +1,41 @@
++import { useEffect, useRef, useState } from "react";
++
++// One Escape can dismiss a hovered reason and a different focused reason.
++// A child-consumed Escape must still be left alone.
++const reasonEscapes = new WeakSet<KeyboardEvent>();
++
+ /**
+- * The reason a control is disabled, shown to the pointer (hover) and to the
+- * keyboard (focus) by the stylesheet, and read with the control through
+- * `aria-describedby`. The control itself stays focusable: it is `aria-disabled`,
+- * never `disabled`, so that its reason can be reached.
++ * A disabled control stays focusable and keeps its aria-describedby reason
++ * mounted, including after Escape dismisses the visual tooltip.
+  */
+ export function DisabledReason({ id, text }: { id: string; text: string }) {
+-  return <span className="shell-reason" id={id} role="tooltip">{text}</span>;
++  const reasonRef = useRef<HTMLSpanElement>(null);
++  const [dismissed, setDismissed] = useState(false);
++
++  useEffect(() => {
++    const reason = reasonRef.current;
++    const anchor = reason?.parentElement;
++    if (!reason || !anchor) return;
++    const ownerDocument = reason.ownerDocument;
++    const reopen = () => setDismissed(false);
++    const dismiss = (event: KeyboardEvent) => {
++      if (event.key !== "Escape" || (event.defaultPrevented && !reasonEscapes.has(event))) return;
++      if (!reason.getClientRects().length || getComputedStyle(reason).visibility !== "visible") return;
++      reasonEscapes.add(event);
++      event.preventDefault();
++      event.stopPropagation();
++      setDismissed(true);
++    };
++    anchor.addEventListener("pointerenter", reopen);
++    anchor.addEventListener("focusin", reopen);
++    // Bubble after child handlers, before the shell's window Escape handler.
++    ownerDocument.addEventListener("keydown", dismiss);
++    return () => {
++      anchor.removeEventListener("pointerenter", reopen);
++      anchor.removeEventListener("focusin", reopen);
++      ownerDocument.removeEventListener("keydown", dismiss);
++    };
++  }, []);
++
++  return <span ref={reasonRef} className="shell-reason" id={id} role="tooltip" data-dismissed={dismissed || undefined}>{text}</span>;
+ }
+diff --git a/projects/chirality-piping/apps/desktop/src/styles.css b/projects/chirality-piping/apps/desktop/src/styles.css
+index d7c6f44df..d2f9dffb3 100644
+--- a/projects/chirality-piping/apps/desktop/src/styles.css
++++ b/projects/chirality-piping/apps/desktop/src/styles.css
+@@ -3778,8 +3778,12 @@ body { min-width: 760px; min-height: 540px; }
+   color: var(--ui-text); background: var(--surface-raised); border: 1px solid var(--ui-border); border-radius: var(--radius-control); box-shadow: var(--elevation-2); font-size: var(--type-size-caption); white-space: normal;
+ }
+ .app-shell .shell-reason-anchor:hover > .shell-reason, .app-shell .shell-reason-anchor:focus-within > .shell-reason { display: block; }
++.app-shell .shell-reason-anchor > .shell-reason[data-dismissed="true"] { display: none; }
+ .app-shell .shell-rail .shell-reason { top: 0; left: calc(100% + var(--space-2)); }
+-.app-shell .shell-agent-strip .shell-reason { top: 0; left: auto; right: calc(100% + var(--space-2)); }
++/* Place the Agent reason below its trigger, clear of the adjacent page Close.
++   The transparent bridge keeps the reason hoverable across the visual gap. */
++.app-shell .shell-agent-strip .shell-reason { top: calc(100% + var(--space-2)); left: auto; right: 0; }
++.app-shell .shell-agent-strip .shell-reason::before { content: ""; position: absolute; bottom: 100%; left: 0; width: 100%; height: var(--space-2); }
+ .app-shell .shell-panel-toggles .shell-reason { left: auto; right: 0; }
+ 
+ .app-shell .app-menu-bar { flex: 0 0 auto; }

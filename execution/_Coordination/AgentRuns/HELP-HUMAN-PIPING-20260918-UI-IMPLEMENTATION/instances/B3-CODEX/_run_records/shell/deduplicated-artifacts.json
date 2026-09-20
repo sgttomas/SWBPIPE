@@ -1,0 +1,1002 @@
+[
+  {
+    "removed": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/model-view-drawer-collapsed-readout-topmost.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-e7a7208fa663adf10dfc32540cb759fc4aae36bb.json",
+    "sha256": "17237fbaf5445b3c4eecfc98cd50885dde2ad1528de9dca7741e13439cec968e"
+  },
+  {
+    "removed": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/model-view-drawer-open-readout-topmost.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-8a8ee4ba10232091278cb42910fc1a6169a82d2c.json",
+    "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+  },
+  {
+    "removed": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-79517cd68cfbedaa14b18b118a5e60c956deadee.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-8a8ee4ba10232091278cb42910fc1a6169a82d2c.json",
+    "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+  },
+  {
+    "removed": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-b81986dc889875338c02dd9840b4a484237f99f0.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-e7a7208fa663adf10dfc32540cb759fc4aae36bb.json",
+    "sha256": "17237fbaf5445b3c4eecfc98cd50885dde2ad1528de9dca7741e13439cec968e"
+  },
+  {
+    "removed": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/model-view-drawer-collapsed-readout-topmost.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-e7a7208fa663adf10dfc32540cb759fc4aae36bb.json",
+    "sha256": "17237fbaf5445b3c4eecfc98cd50885dde2ad1528de9dca7741e13439cec968e"
+  },
+  {
+    "removed": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/model-view-drawer-open-readout-topmost.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-8a8ee4ba10232091278cb42910fc1a6169a82d2c.json",
+    "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-7c642851869f14b0b1f5c058ecb0e42c344b48d7.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-8a8ee4ba10232091278cb42910fc1a6169a82d2c.json",
+    "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/below-1280-px-drawer-collapsed-readout-topmost.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-ccc955d7e6b99ad27506804c7e7cdf446ba68c5e.json",
+    "sha256": "0e7db1880d85be8ddf9cb0633932bb619e09337c8e6ac0655b4ee587c1c25735"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/below-1280-px-drawer-open-readout-topmost.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-33f0eea8c7699adacd22173aa77982ea07bf96cf.json",
+    "sha256": "4c25b0acb1df670c85f811e52a6851c71c53fcae034e829e313516b1381ca405"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/model-view-drawer-collapsed-readout-topmost.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-83ffb2da6ce32752de8e3873f19a1c7c9388b7bb.json",
+    "sha256": "c067f126f5fb3782c815d9feb76f350b7e113e8aec30e5a0ab0722df2b08b33c"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/model-view-drawer-open-readout-topmost.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-8a8ee4ba10232091278cb42910fc1a6169a82d2c.json",
+    "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-907e54d6c047b553385ad981c19acd015fd2232b.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-33f0eea8c7699adacd22173aa77982ea07bf96cf.json",
+    "sha256": "4c25b0acb1df670c85f811e52a6851c71c53fcae034e829e313516b1381ca405"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-9fe0ea05f45162d0ee2201d654689754a53d5486.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-8a8ee4ba10232091278cb42910fc1a6169a82d2c.json",
+    "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-a68754cb6e7b7fed4e31ca943e2038626e8181cd.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-ccc955d7e6b99ad27506804c7e7cdf446ba68c5e.json",
+    "sha256": "0e7db1880d85be8ddf9cb0633932bb619e09337c8e6ac0655b4ee587c1c25735"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-b56f273d109fdf13d87a2458e1e3e334d0dd354a.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-83ffb2da6ce32752de8e3873f19a1c7c9388b7bb.json",
+    "sha256": "c067f126f5fb3782c815d9feb76f350b7e113e8aec30e5a0ab0722df2b08b33c"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/below-1280-px-drawer-collapsed-readout-topmost.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-ccc955d7e6b99ad27506804c7e7cdf446ba68c5e.json",
+    "sha256": "0e7db1880d85be8ddf9cb0633932bb619e09337c8e6ac0655b4ee587c1c25735"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/below-1280-px-drawer-open-readout-topmost.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-33f0eea8c7699adacd22173aa77982ea07bf96cf.json",
+    "sha256": "4c25b0acb1df670c85f811e52a6851c71c53fcae034e829e313516b1381ca405"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/model-view-drawer-collapsed-readout-topmost.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-83ffb2da6ce32752de8e3873f19a1c7c9388b7bb.json",
+    "sha256": "c067f126f5fb3782c815d9feb76f350b7e113e8aec30e5a0ab0722df2b08b33c"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/model-view-drawer-open-readout-topmost.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-8a8ee4ba10232091278cb42910fc1a6169a82d2c.json",
+    "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+  },
+  {
+    "removed": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-180-closed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-closed-7fcb2d5d378ed4848a401055f724bfd49afc6c08.png",
+    "sha256": "93a57510b425607c48071c96aac9c42935dc38d380ab18d5c49845be43c06fe9"
+  },
+  {
+    "removed": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-180-open-actual-page-control.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-open-actual-page-control-19aba8b8e70a2424146849f0528cb230a48e81c9.png",
+    "sha256": "767969e05d9fe0b306a3a7a91c33df536bdf8e709555192cb4f5977e467f3f88"
+  },
+  {
+    "removed": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-180-open.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-open-476eaf9819486e293888badad4c7fdb5328e8b85.png",
+    "sha256": "61c00479a6369f083e92da5290e267682959b96fa3dfec5301808869938943df"
+  },
+  {
+    "removed": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-180-closed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-closed-73a9f6f8dc1379ade8db2ad3a9ff4a092d89bf8f.png",
+    "sha256": "c53b4eaf57bcde3be702cb7db6ae258801a6da6133576fdc91f4f5589704c223"
+  },
+  {
+    "removed": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-180-open-actual-page-control.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-open-actual-page-control-4463a96b41d2be43f413fa3411599e8b56470b23.png",
+    "sha256": "54307eef98a4c67765ccc22bca309a129521a138649a0929c8750571673b7903"
+  },
+  {
+    "removed": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-180-open.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-open-96c677fd5961e3a49102131a3bae7b26b197785d.png",
+    "sha256": "c65cc826f50ffa045cf83587b7bf3e3d0a5acd1a14e264d9350f719ef5f3966f"
+  },
+  {
+    "removed": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-180-closed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-closed-4f93fb838334990772717c916179fad2bc261f70.png",
+    "sha256": "26765d81930c773547b3121148898a0bade3a2d98491ac9c49bd53fa0814175d"
+  },
+  {
+    "removed": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-180-open-actual-page-control.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-open-actual-page-control-96c6b40e2e0d9d0dbbe9bba180ee5b0f36790521.png",
+    "sha256": "a2be23f71c3645a03e1b56942f32c92040c18ba0443716837730eedd177c520d"
+  },
+  {
+    "removed": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-180-open.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-open-ec6319923109e63183c9270c4abf32250485833f.png",
+    "sha256": "b8e345a46d625ce9f79510f2d254aaf1a26bae8138b181147805d4df8d2a7f81"
+  },
+  {
+    "removed": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-180-closed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-closed-46227737f0243bba8ddac100ab69ca791f71e6e9.png",
+    "sha256": "e2231e3df98f87920cee11389fd20f8aba4742877f705638af7a80a1065d50be"
+  },
+  {
+    "removed": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-180-open-actual-page-control.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-open-actual-page-control-96e36a4d1ccfe5b4eca34ab4bacd55085f6705e7.png",
+    "sha256": "a3b0b70c94971b7374b7b9bdfb2f16a5ddc6e7b524023ac197f3e4e2d50d375c"
+  },
+  {
+    "removed": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-180-open.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-open-06ea9c85f3cad7161da556c4d3230be29988ae04.png",
+    "sha256": "eef6bb8f34cbcaaaafb3364b19ad946ad382160c46d81f16b08f4a2ec260bbc0"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/.last-run.json",
+    "canonical": "authoring-repair2-artifacts/.last-run.json",
+    "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-closed-ddbdf848829c7bf0dc50d8faea271090fd8f71a4.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-closed-7fcb2d5d378ed4848a401055f724bfd49afc6c08.png",
+    "sha256": "93a57510b425607c48071c96aac9c42935dc38d380ab18d5c49845be43c06fe9"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-open-69cf404e9c147263f4f0ed91a4689bf8fb8dbb3b.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-open-476eaf9819486e293888badad4c7fdb5328e8b85.png",
+    "sha256": "61c00479a6369f083e92da5290e267682959b96fa3dfec5301808869938943df"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-open-actual-page-control-90652ea1e1def401de8a35cde4f8da36feb18bed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-open-actual-page-control-19aba8b8e70a2424146849f0528cb230a48e81c9.png",
+    "sha256": "767969e05d9fe0b306a3a7a91c33df536bdf8e709555192cb4f5977e467f3f88"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-600-closed-00f9a50838c76c43222fbfb6864f6b4a32184ee4.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-closed-7fcb2d5d378ed4848a401055f724bfd49afc6c08.png",
+    "sha256": "93a57510b425607c48071c96aac9c42935dc38d380ab18d5c49845be43c06fe9"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-180-open-actual-page-control-44b6352d306ce5d8dc54352ea281b15ab43e7a39.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-180-open-337bc795b46a98294d9bd15bac7733cb968ca06e.png",
+    "sha256": "8809fef98ac572b0a79aebe9abdf063ba4fe1893fe1548a081862112b458e7f6"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-600-closed-992fe24207dc372af6edbb3ac032326ccc78cd18.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-180-closed-db744a83c75f97ee0a7e872726e9d094eff7123a.png",
+    "sha256": "9c1fab0d7c2a7b69f26738ac61f9a52c6c138c0668cb4ab6f073ba090bf4149f"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-600-open-actual-page-control-f89e4a12762c2d7dc62a9df54e1e889a50ccf43f.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-600-open-0d7561cdad3ee95c7c7b169e78bf00d13a4dc2a3.png",
+    "sha256": "2790f2fa022a34d0bb1f9915d92de2e5069fb59e5dc8c239fd64774c669b9edd"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-600-closed-33231ed70a9953d8b25198e8c88456dfd79407e5.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-180-closed-942539854688411a25b40f23c7cc56d7202f215c.png",
+    "sha256": "92378b0c678a1f9b2daf67abdd66cce9331629c0ac42f4c0c476562485c6f956"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-180-closed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-closed-7fcb2d5d378ed4848a401055f724bfd49afc6c08.png",
+    "sha256": "93a57510b425607c48071c96aac9c42935dc38d380ab18d5c49845be43c06fe9"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-180-open-actual-page-control.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-open-actual-page-control-19aba8b8e70a2424146849f0528cb230a48e81c9.png",
+    "sha256": "767969e05d9fe0b306a3a7a91c33df536bdf8e709555192cb4f5977e467f3f88"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-180-open.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-open-476eaf9819486e293888badad4c7fdb5328e8b85.png",
+    "sha256": "61c00479a6369f083e92da5290e267682959b96fa3dfec5301808869938943df"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-600-closed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-180-closed-7fcb2d5d378ed4848a401055f724bfd49afc6c08.png",
+    "sha256": "93a57510b425607c48071c96aac9c42935dc38d380ab18d5c49845be43c06fe9"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-600-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-600-open-actual-page-control-d99f9a97ef9088b8c60b7fece06adcb99758a7db.png",
+    "sha256": "5d64833df07c5964abe5a13208ea90b234f4aba077fbaf091ff9ecd6b9cb15b7"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-operations-600-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-operations-600-open-96ac23a201d151ea13126b3769157bba6782b85c.png",
+    "sha256": "66aa79eac21fedf9324f3f1e80367119bc2564c7f664c2d6d19d10424a64981c"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-results-180-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-180-closed-db744a83c75f97ee0a7e872726e9d094eff7123a.png",
+    "sha256": "9c1fab0d7c2a7b69f26738ac61f9a52c6c138c0668cb4ab6f073ba090bf4149f"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-results-180-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-180-open-337bc795b46a98294d9bd15bac7733cb968ca06e.png",
+    "sha256": "8809fef98ac572b0a79aebe9abdf063ba4fe1893fe1548a081862112b458e7f6"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-results-180-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-180-open-337bc795b46a98294d9bd15bac7733cb968ca06e.png",
+    "sha256": "8809fef98ac572b0a79aebe9abdf063ba4fe1893fe1548a081862112b458e7f6"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-results-600-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-180-closed-db744a83c75f97ee0a7e872726e9d094eff7123a.png",
+    "sha256": "9c1fab0d7c2a7b69f26738ac61f9a52c6c138c0668cb4ab6f073ba090bf4149f"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-results-600-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-600-open-0d7561cdad3ee95c7c7b169e78bf00d13a4dc2a3.png",
+    "sha256": "2790f2fa022a34d0bb1f9915d92de2e5069fb59e5dc8c239fd64774c669b9edd"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-regular-results-600-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-regular-results-600-open-0d7561cdad3ee95c7c7b169e78bf00d13a4dc2a3.png",
+    "sha256": "2790f2fa022a34d0bb1f9915d92de2e5069fb59e5dc8c239fd64774c669b9edd"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-wrapped-operations-180-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-180-closed-942539854688411a25b40f23c7cc56d7202f215c.png",
+    "sha256": "92378b0c678a1f9b2daf67abdd66cce9331629c0ac42f4c0c476562485c6f956"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-wrapped-operations-180-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-180-open-actual-page-control-afbfaf0958754512cc4282dfec9e016643f8898a.png",
+    "sha256": "12f7feab024dc631cc3c1ed277b24be4f6987380bf1a314532c818d7760c6589"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-wrapped-operations-180-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-180-open-8e7d01884ae8aa729fa35268f6a0795ad72b5350.png",
+    "sha256": "7cd1896970a0017c58457ac1853fb16660ffcca2aa2599b362465739b4dcc5b6"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-wrapped-operations-600-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-180-closed-942539854688411a25b40f23c7cc56d7202f215c.png",
+    "sha256": "92378b0c678a1f9b2daf67abdd66cce9331629c0ac42f4c0c476562485c6f956"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-wrapped-operations-600-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-600-open-actual-page-control-c90dd5d19a91204513e4baabe7741e1626b88829.png",
+    "sha256": "644da5a1c5c40d37915133b0681f0dba95f1e1a3914708001a22183e49fc323a"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/budget-light-comfortable-wrapped-operations-600-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-2b756-as-budget-light-comfortable-chromium-desktop-dist/attachments/budget-light-comfortable-wrapped-operations-600-open-8fc10c30c1440fe25df349dd4c27a176429d6299.png",
+    "sha256": "02d255273e7efaedd424d577f950ba4d1c8b09059f66f4acabe0f693b97b2f6f"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-closed-1280ff13a21162cf18af6fe50f3a58eccdf26b01.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-closed-73a9f6f8dc1379ade8db2ad3a9ff4a092d89bf8f.png",
+    "sha256": "c53b4eaf57bcde3be702cb7db6ae258801a6da6133576fdc91f4f5589704c223"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-open-actual-page-control-78c04a3a86338740ad3720150e94086ef2d2b219.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-open-actual-page-control-4463a96b41d2be43f413fa3411599e8b56470b23.png",
+    "sha256": "54307eef98a4c67765ccc22bca309a129521a138649a0929c8750571673b7903"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-open-e8dd15b4a330b6853eee34c713dfcc092680e5b5.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-open-96c677fd5961e3a49102131a3bae7b26b197785d.png",
+    "sha256": "c65cc826f50ffa045cf83587b7bf3e3d0a5acd1a14e264d9350f719ef5f3966f"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-600-closed-3ab132c946b95f90d8d64be5d6ee691b90e9aaee.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-closed-73a9f6f8dc1379ade8db2ad3a9ff4a092d89bf8f.png",
+    "sha256": "c53b4eaf57bcde3be702cb7db6ae258801a6da6133576fdc91f4f5589704c223"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-180-open-actual-page-control-259333d2ffe02f28c05601eebdf486a6c0a2256e.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-180-open-7d82acf7232809d82e96e1f582fbb6cd3ca0af82.png",
+    "sha256": "b16cf8a4253cf0d7ffb83ccec0c6e5dbc0066dd6964e01117d2f46e1d876e0e0"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-600-closed-ee1a0a4ed80bbe57fbb8d1c64034402b7d9c14f1.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-180-closed-bc50abb31284db78e27b85215e0b4dad68efe25e.png",
+    "sha256": "6a2e8192dc58239e93f8a25304a7f2622bf102e6f7b3938df6b721033c9fef36"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-600-open-b8ca1222f7af3bd7bf3e7add7e71f5fa919090f4.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-600-open-actual-page-control-cc75f018c8344b64e0b020e760d85320c4821629.png",
+    "sha256": "5bb9b5547c2425325e629551301732d30fc5a3aeb33b30f2a0d6423005d2413a"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-600-closed-d6be68e3cefaf84ccd591a33abfbaa6ef2538d8a.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-180-closed-491d6f362f54188ffdeaf0a9a10880151ccb7bd5.png",
+    "sha256": "1612d4b3b2a8b52a035cbe8df4da07623ef1a977ea069b3a4f9c56e5dffd486e"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-180-closed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-closed-73a9f6f8dc1379ade8db2ad3a9ff4a092d89bf8f.png",
+    "sha256": "c53b4eaf57bcde3be702cb7db6ae258801a6da6133576fdc91f4f5589704c223"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-180-open-actual-page-control.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-open-actual-page-control-4463a96b41d2be43f413fa3411599e8b56470b23.png",
+    "sha256": "54307eef98a4c67765ccc22bca309a129521a138649a0929c8750571673b7903"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-180-open.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-open-96c677fd5961e3a49102131a3bae7b26b197785d.png",
+    "sha256": "c65cc826f50ffa045cf83587b7bf3e3d0a5acd1a14e264d9350f719ef5f3966f"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-600-closed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-180-closed-73a9f6f8dc1379ade8db2ad3a9ff4a092d89bf8f.png",
+    "sha256": "c53b4eaf57bcde3be702cb7db6ae258801a6da6133576fdc91f4f5589704c223"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-600-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-600-open-actual-page-control-48073213299f02e3d27822ae9e9a092f35442d45.png",
+    "sha256": "6a8b6b6689e1d34ad0e55c16e1c8e99bd135f8a07d2873718dee8c332049b6a5"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-operations-600-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-operations-600-open-0978dd378af4b8b4debb4cd77af9914603eab68b.png",
+    "sha256": "aa9ffc1a426d301652922c0990df7076d156426d9fb2aa752455f22a489ca01f"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-results-180-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-180-closed-bc50abb31284db78e27b85215e0b4dad68efe25e.png",
+    "sha256": "6a2e8192dc58239e93f8a25304a7f2622bf102e6f7b3938df6b721033c9fef36"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-results-180-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-180-open-7d82acf7232809d82e96e1f582fbb6cd3ca0af82.png",
+    "sha256": "b16cf8a4253cf0d7ffb83ccec0c6e5dbc0066dd6964e01117d2f46e1d876e0e0"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-results-180-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-180-open-7d82acf7232809d82e96e1f582fbb6cd3ca0af82.png",
+    "sha256": "b16cf8a4253cf0d7ffb83ccec0c6e5dbc0066dd6964e01117d2f46e1d876e0e0"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-results-600-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-180-closed-bc50abb31284db78e27b85215e0b4dad68efe25e.png",
+    "sha256": "6a2e8192dc58239e93f8a25304a7f2622bf102e6f7b3938df6b721033c9fef36"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-results-600-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-600-open-actual-page-control-cc75f018c8344b64e0b020e760d85320c4821629.png",
+    "sha256": "5bb9b5547c2425325e629551301732d30fc5a3aeb33b30f2a0d6423005d2413a"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-regular-results-600-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-regular-results-600-open-actual-page-control-cc75f018c8344b64e0b020e760d85320c4821629.png",
+    "sha256": "5bb9b5547c2425325e629551301732d30fc5a3aeb33b30f2a0d6423005d2413a"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-wrapped-operations-180-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-180-closed-491d6f362f54188ffdeaf0a9a10880151ccb7bd5.png",
+    "sha256": "1612d4b3b2a8b52a035cbe8df4da07623ef1a977ea069b3a4f9c56e5dffd486e"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-wrapped-operations-180-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-180-open-actual-page-control-061dda4400fe6dc8d6f6562d32210952ac6331ce.png",
+    "sha256": "d42147bf2323f79b208fab7493309f814129f732d2b4f800d5ee94396c9faa77"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-wrapped-operations-180-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-180-open-6aa651ee57ca9694e0a839bb08d6b56ccd4a812d.png",
+    "sha256": "86ac37cbc12afc05b78ccaefdf6dba62e583952e5d00c6cef655ed99562dd6c5"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-wrapped-operations-600-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-180-closed-491d6f362f54188ffdeaf0a9a10880151ccb7bd5.png",
+    "sha256": "1612d4b3b2a8b52a035cbe8df4da07623ef1a977ea069b3a4f9c56e5dffd486e"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-wrapped-operations-600-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-600-open-actual-page-control-6c305ea8f1680b7109bdf94dee2c9752fb17f531.png",
+    "sha256": "ea3804bb65c6ed5bfdd690fdeb6aad49f619ff9d9872c1e185592e545d2ab7f9"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/budget-dark-compact-wrapped-operations-600-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-77db6--canvas-budget-dark-compact-chromium-desktop-dist/attachments/budget-dark-compact-wrapped-operations-600-open-7f094d8f9eeff174b968c90985abc022015c81ac.png",
+    "sha256": "7ffa008fdfe3368f1a154b40fd311083710fbe0c107f2a74b03227a9ba753457"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-closed-bcf83a91a91f23afee8f38c4b8788c6e5b65add0.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-closed-4f93fb838334990772717c916179fad2bc261f70.png",
+    "sha256": "26765d81930c773547b3121148898a0bade3a2d98491ac9c49bd53fa0814175d"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-open-0b03f88519c421a3fff4eadd6f7f2179e789b0c8.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-open-ec6319923109e63183c9270c4abf32250485833f.png",
+    "sha256": "b8e345a46d625ce9f79510f2d254aaf1a26bae8138b181147805d4df8d2a7f81"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-open-actual-page-control-11c6484357416965d7442ba30f837c9aa3f112be.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-open-actual-page-control-96c6b40e2e0d9d0dbbe9bba180ee5b0f36790521.png",
+    "sha256": "a2be23f71c3645a03e1b56942f32c92040c18ba0443716837730eedd177c520d"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-600-closed-e4fbada28e25499fcb0da7832319e16e208684dc.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-closed-4f93fb838334990772717c916179fad2bc261f70.png",
+    "sha256": "26765d81930c773547b3121148898a0bade3a2d98491ac9c49bd53fa0814175d"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-180-open-d7496a995ed0bf3e89a5e5ab6335a09e1508e277.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-180-open-actual-page-control-153e70693122e98c8e415aa719c6dc1ab6ef411a.png",
+    "sha256": "cdda653d3ca7a6a847c96c1481fac1f27ccc468d88fea3316d00b3f988ebb416"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-600-closed-0fb2a0ef50dd3c09a114a45563bfe90f0a1afcc4.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-180-closed-4c6532640269f42634762590610cc225d28bfddf.png",
+    "sha256": "2c5e5edac94bcaa6530c0c4eadb1a43fe3181638ea6688743f9d8a4d872d25d8"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-600-open-b8aa9316dcccc892695c0f66f2e1594a918f461d.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-600-open-actual-page-control-3bf7af2cadde745ec03bbcac6f65223b7896e9dc.png",
+    "sha256": "c750ac9acb4c75eb240c6e0c3b87b2dd8dc5a16c14497282156d331c336f03d7"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-600-closed-24baceec1d5fe7d7a348b94a5a15496d7cff7006.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-180-closed-0d6f5a5cc1d1e813f9e9511160d1c50f2cc8151d.png",
+    "sha256": "44b1f26f86c31b7234baa682c9715335daaef3eb0a99f90e83b8d6f27eb2c8f2"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-180-closed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-closed-4f93fb838334990772717c916179fad2bc261f70.png",
+    "sha256": "26765d81930c773547b3121148898a0bade3a2d98491ac9c49bd53fa0814175d"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-180-open-actual-page-control.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-open-actual-page-control-96c6b40e2e0d9d0dbbe9bba180ee5b0f36790521.png",
+    "sha256": "a2be23f71c3645a03e1b56942f32c92040c18ba0443716837730eedd177c520d"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-180-open.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-open-ec6319923109e63183c9270c4abf32250485833f.png",
+    "sha256": "b8e345a46d625ce9f79510f2d254aaf1a26bae8138b181147805d4df8d2a7f81"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-600-closed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-180-closed-4f93fb838334990772717c916179fad2bc261f70.png",
+    "sha256": "26765d81930c773547b3121148898a0bade3a2d98491ac9c49bd53fa0814175d"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-600-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-600-open-actual-page-control-0fb9b9d8f35f930808b4fd2ef782dc34cdc48d9a.png",
+    "sha256": "cdfa7955d806d82dd5aa8befecc740bf755a2302b24a50221f94f78d7d5478f8"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-operations-600-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-operations-600-open-cac0a67bfdb13457b16b8da903f5e36585c9dd74.png",
+    "sha256": "0c981bd4c64c31320060befb825aab148a1b5906acd937f91d3b2a1da6adcaa1"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-results-180-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-180-closed-4c6532640269f42634762590610cc225d28bfddf.png",
+    "sha256": "2c5e5edac94bcaa6530c0c4eadb1a43fe3181638ea6688743f9d8a4d872d25d8"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-results-180-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-180-open-actual-page-control-153e70693122e98c8e415aa719c6dc1ab6ef411a.png",
+    "sha256": "cdda653d3ca7a6a847c96c1481fac1f27ccc468d88fea3316d00b3f988ebb416"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-results-180-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-180-open-actual-page-control-153e70693122e98c8e415aa719c6dc1ab6ef411a.png",
+    "sha256": "cdda653d3ca7a6a847c96c1481fac1f27ccc468d88fea3316d00b3f988ebb416"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-results-600-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-180-closed-4c6532640269f42634762590610cc225d28bfddf.png",
+    "sha256": "2c5e5edac94bcaa6530c0c4eadb1a43fe3181638ea6688743f9d8a4d872d25d8"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-results-600-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-600-open-actual-page-control-3bf7af2cadde745ec03bbcac6f65223b7896e9dc.png",
+    "sha256": "c750ac9acb4c75eb240c6e0c3b87b2dd8dc5a16c14497282156d331c336f03d7"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-regular-results-600-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-regular-results-600-open-actual-page-control-3bf7af2cadde745ec03bbcac6f65223b7896e9dc.png",
+    "sha256": "c750ac9acb4c75eb240c6e0c3b87b2dd8dc5a16c14497282156d331c336f03d7"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-wrapped-operations-180-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-180-closed-0d6f5a5cc1d1e813f9e9511160d1c50f2cc8151d.png",
+    "sha256": "44b1f26f86c31b7234baa682c9715335daaef3eb0a99f90e83b8d6f27eb2c8f2"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-wrapped-operations-180-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-180-open-actual-page-control-c610e5218d536a6f53eb7f7d9a0b1d096e23c4c2.png",
+    "sha256": "33818ff5db8f2a472892efeab66fc76faddff169606e0ca91134c60297e5b2c8"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-wrapped-operations-180-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-180-open-0130ea2002524c51dcff000282ce29c7e6e2dfb4.png",
+    "sha256": "ffbf244b34310fa9e76f1eba9f3f41bceb233209e188399d0ec09ec5cf5172ce"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-wrapped-operations-600-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-180-closed-0d6f5a5cc1d1e813f9e9511160d1c50f2cc8151d.png",
+    "sha256": "44b1f26f86c31b7234baa682c9715335daaef3eb0a99f90e83b8d6f27eb2c8f2"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-wrapped-operations-600-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-600-open-actual-page-control-35b86509a93d3588fec552de92815a16f116b3c4.png",
+    "sha256": "2db3591d3edf7d7fc2d1067017c6720a0b5413a32874d8e771bfc0c7749bb3ac"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/budget-light-compact-wrapped-operations-600-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-cbec0-canvas-budget-light-compact-chromium-desktop-dist/attachments/budget-light-compact-wrapped-operations-600-open-5ee0af18ae9e3e8cd9fb293ab8556d071a6d2143.png",
+    "sha256": "ba8fb51c01f333b4dcafe4b9c4ffa412c9b7f66bd0e428c2f5e818ce76e04fed"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-closed-45be07c0199febaf7fc667bcd9691e4dce21d9ee.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-closed-46227737f0243bba8ddac100ab69ca791f71e6e9.png",
+    "sha256": "e2231e3df98f87920cee11389fd20f8aba4742877f705638af7a80a1065d50be"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-open-actual-page-control-4fc68e84d13d694f33aa16e8156d2b04175fa5bb.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-open-actual-page-control-96e36a4d1ccfe5b4eca34ab4bacd55085f6705e7.png",
+    "sha256": "a3b0b70c94971b7374b7b9bdfb2f16a5ddc6e7b524023ac197f3e4e2d50d375c"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-open-aec1a2f956b26cbbd6653e536d2b5c86d4004885.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-open-06ea9c85f3cad7161da556c4d3230be29988ae04.png",
+    "sha256": "eef6bb8f34cbcaaaafb3364b19ad946ad382160c46d81f16b08f4a2ec260bbc0"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-600-closed-b79229b1af1f8d5e40febef4eccc6a88a30a39fc.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-closed-46227737f0243bba8ddac100ab69ca791f71e6e9.png",
+    "sha256": "e2231e3df98f87920cee11389fd20f8aba4742877f705638af7a80a1065d50be"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-180-open-actual-page-control-474218cecebbda57240375311b0a02fa4425bdd6.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-180-open-a01741d4bd0f0cd5c6034042817aa93c40447a22.png",
+    "sha256": "25c4d39a06aba48effa3f0a708a91d3949ab3e207a38edb6a43ec0e07cb50833"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-600-closed-c6c42e3f009034cb887b80d90263350d9e5e9316.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-180-closed-fb4910dd0eeff0987b7418d4f70cfd44266f1881.png",
+    "sha256": "34e085054a199787d31c263ced66826e764c22c3cb133ec1656383af7efe3172"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-600-open-c788602bbc2ea29934ad897f0aebbb2abf241542.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-600-open-actual-page-control-e8bb0fb4ff80fcbe00947d0700314d4be5f7e22c.png",
+    "sha256": "18062b9e3cdf04169965e076c482ca9d24fae517bb1012727a53d47858f4c8cf"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-600-closed-0f8b325c67beb80c03abd06580f1615ad19d850b.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-180-closed-8dab21aae13218188abed2d339d0efffb011b01f.png",
+    "sha256": "37f4c8d5f95245016974af146a7f5eb2c0693b26154a4e35dd828990ea3b966d"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-180-closed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-closed-46227737f0243bba8ddac100ab69ca791f71e6e9.png",
+    "sha256": "e2231e3df98f87920cee11389fd20f8aba4742877f705638af7a80a1065d50be"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-180-open-actual-page-control.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-open-actual-page-control-96e36a4d1ccfe5b4eca34ab4bacd55085f6705e7.png",
+    "sha256": "a3b0b70c94971b7374b7b9bdfb2f16a5ddc6e7b524023ac197f3e4e2d50d375c"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-180-open.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-open-06ea9c85f3cad7161da556c4d3230be29988ae04.png",
+    "sha256": "eef6bb8f34cbcaaaafb3364b19ad946ad382160c46d81f16b08f4a2ec260bbc0"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-600-closed.png",
+    "canonical": "dist-budget-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-180-closed-46227737f0243bba8ddac100ab69ca791f71e6e9.png",
+    "sha256": "e2231e3df98f87920cee11389fd20f8aba4742877f705638af7a80a1065d50be"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-600-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-600-open-actual-page-control-e433324980510fd9d109eaba76e4c9d3f4a9d87e.png",
+    "sha256": "2c974f4922606c1947ff6b3ca97546e3333459be9a83af2d5d80d68aed8bbf13"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-operations-600-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-operations-600-open-4db8f422154a86986dc1d8442771ecc6fd961e43.png",
+    "sha256": "3dba01f45c825a30b178fb17551765b95cfca8ae4997b99389814342a9ca1644"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-results-180-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-180-closed-fb4910dd0eeff0987b7418d4f70cfd44266f1881.png",
+    "sha256": "34e085054a199787d31c263ced66826e764c22c3cb133ec1656383af7efe3172"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-results-180-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-180-open-a01741d4bd0f0cd5c6034042817aa93c40447a22.png",
+    "sha256": "25c4d39a06aba48effa3f0a708a91d3949ab3e207a38edb6a43ec0e07cb50833"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-results-180-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-180-open-a01741d4bd0f0cd5c6034042817aa93c40447a22.png",
+    "sha256": "25c4d39a06aba48effa3f0a708a91d3949ab3e207a38edb6a43ec0e07cb50833"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-results-600-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-180-closed-fb4910dd0eeff0987b7418d4f70cfd44266f1881.png",
+    "sha256": "34e085054a199787d31c263ced66826e764c22c3cb133ec1656383af7efe3172"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-results-600-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-600-open-actual-page-control-e8bb0fb4ff80fcbe00947d0700314d4be5f7e22c.png",
+    "sha256": "18062b9e3cdf04169965e076c482ca9d24fae517bb1012727a53d47858f4c8cf"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-regular-results-600-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-regular-results-600-open-actual-page-control-e8bb0fb4ff80fcbe00947d0700314d4be5f7e22c.png",
+    "sha256": "18062b9e3cdf04169965e076c482ca9d24fae517bb1012727a53d47858f4c8cf"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-wrapped-operations-180-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-180-closed-8dab21aae13218188abed2d339d0efffb011b01f.png",
+    "sha256": "37f4c8d5f95245016974af146a7f5eb2c0693b26154a4e35dd828990ea3b966d"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-wrapped-operations-180-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-180-open-actual-page-control-a18173d5b811ef9912ef70cd6895e15bd265a12a.png",
+    "sha256": "cb83ea671df31f12fc79d91c7dd6503179ea9b512c1399577d822f60385fb3b2"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-wrapped-operations-180-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-180-open-c13ab2482e884d5f99ac61533a7f9f7a281b2bdb.png",
+    "sha256": "38bf3a069aaf1917a006c43eb3c6053b34db6c559ed0ae9e4ce3ed2a3995ac41"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-wrapped-operations-600-closed.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-180-closed-8dab21aae13218188abed2d339d0efffb011b01f.png",
+    "sha256": "37f4c8d5f95245016974af146a7f5eb2c0693b26154a4e35dd828990ea3b966d"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-wrapped-operations-600-open-actual-page-control.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-600-open-actual-page-control-4d4adb0472b32edaade1357d3d403627cb8f1fc6.png",
+    "sha256": "24b6c74e2b639270ed57223b15310357cf5fe9ed966b34d2c1367a69642481c9"
+  },
+  {
+    "removed": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/budget-dark-comfortable-wrapped-operations-600-open.png",
+    "canonical": "dist-budget-repair-artifacts/ui-foundation-dist-content-f03c1-vas-budget-dark-comfortable-chromium-desktop-dist/attachments/budget-dark-comfortable-wrapped-operations-600-open-8e2ca29b1ecd0b92b4cf9fce4970e76de6229ba5.png",
+    "sha256": "fdad4e8c5592cf8d3a10246edf0f414ef5e454357ba7fb4106bd43ede1684c97"
+  },
+  {
+    "removed": "focus-clearance-artifacts/.last-run.json",
+    "canonical": "authoring-repair2-artifacts/.last-run.json",
+    "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+  },
+  {
+    "removed": "source-budget-narrow-artifacts/.last-run.json",
+    "canonical": "authoring-repair2-artifacts/.last-run.json",
+    "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+  },
+  {
+    "removed": "source-budget-wide-artifacts/.last-run.json",
+    "canonical": "authoring-repair2-artifacts/.last-run.json",
+    "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-both-inspector-closed.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-closed-c954351c80a2d0443abace6d8e51e08c81af1b12.png",
+    "sha256": "4dc55043b9c04ff2c1b2602287cb0ed8f120653aa6bb2e6226d19568e3b7b2ad"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-both-inspector-open.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-open-ebba709e7040df22423b781742814edfd7b137be.png",
+    "sha256": "7c9691299c9c866d7718c82a497695efc9c5c63342fc2ac69b5be730eedb8aa6"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-both-routing.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-routing-98ee31d4c28c8d2a4177dfee252c92e4c4926b39.png",
+    "sha256": "d4694883d47e6bc980cf7e40854b0d5470c5f888cd2a52d6387eef9d5da490ea"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-model-drawer-collapsed.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-collapsed-d7fb1dbe142323429e7db2c947f0b73845f01433.png",
+    "sha256": "c07816c1e76764b6bb9d4f8bfab25774f86ff44f904871e83d73033da2c4b233"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-model-drawer-open.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-open-4e30e8bd83576b2ddb3c2460c0f01a099c726299.png",
+    "sha256": "a1ce1ea89ab1fbb6a08f5b183d24779a20a5ceec48f13a6be3f41e663d025cfb"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-narrow-both-drawer-open.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-narrow-both-drawer-open-04f6fabbc2b4ee7500c77c1bfb2175656a8079bd.png",
+    "sha256": "8aeb79d614c06df1a7ae000d1b9a64d3fc88cbcf672e45ff34bcc2510f79ade3"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-both-inspector-closed-a1350a889bfb950a5d9ec9f1aae14a1203afafc2.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-closed-c954351c80a2d0443abace6d8e51e08c81af1b12.png",
+    "sha256": "4dc55043b9c04ff2c1b2602287cb0ed8f120653aa6bb2e6226d19568e3b7b2ad"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-both-inspector-open-55f33d34dd2c0a37ad1fd1bd1925eaf2a3661b16.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-open-ebba709e7040df22423b781742814edfd7b137be.png",
+    "sha256": "7c9691299c9c866d7718c82a497695efc9c5c63342fc2ac69b5be730eedb8aa6"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-both-routing-a54e0203366992dd4be7ab3b69bdaa900b4e2f24.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-routing-98ee31d4c28c8d2a4177dfee252c92e4c4926b39.png",
+    "sha256": "d4694883d47e6bc980cf7e40854b0d5470c5f888cd2a52d6387eef9d5da490ea"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-model-drawer-collapsed-48cde13bc5af573851b63ce991f06009616e15b1.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-collapsed-d7fb1dbe142323429e7db2c947f0b73845f01433.png",
+    "sha256": "c07816c1e76764b6bb9d4f8bfab25774f86ff44f904871e83d73033da2c4b233"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-model-drawer-open-75a67739116653b80fdc734f5dd93d01e307c141.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-open-4e30e8bd83576b2ddb3c2460c0f01a099c726299.png",
+    "sha256": "a1ce1ea89ab1fbb6a08f5b183d24779a20a5ceec48f13a6be3f41e663d025cfb"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-narrow-both-drawer-open-f7ccc37ec464bad34cf6ab5b4b90a2e538991028.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-narrow-both-drawer-open-04f6fabbc2b4ee7500c77c1bfb2175656a8079bd.png",
+    "sha256": "8aeb79d614c06df1a7ae000d1b9a64d3fc88cbcf672e45ff34bcc2510f79ade3"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-both-inspector-closed.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-closed-c954351c80a2d0443abace6d8e51e08c81af1b12.png",
+    "sha256": "4dc55043b9c04ff2c1b2602287cb0ed8f120653aa6bb2e6226d19568e3b7b2ad"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-both-inspector-open.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-open-ebba709e7040df22423b781742814edfd7b137be.png",
+    "sha256": "7c9691299c9c866d7718c82a497695efc9c5c63342fc2ac69b5be730eedb8aa6"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-both-routing.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-routing-98ee31d4c28c8d2a4177dfee252c92e4c4926b39.png",
+    "sha256": "d4694883d47e6bc980cf7e40854b0d5470c5f888cd2a52d6387eef9d5da490ea"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-model-drawer-collapsed.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-collapsed-d7fb1dbe142323429e7db2c947f0b73845f01433.png",
+    "sha256": "c07816c1e76764b6bb9d4f8bfab25774f86ff44f904871e83d73033da2c4b233"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-model-drawer-open.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-open-4e30e8bd83576b2ddb3c2460c0f01a099c726299.png",
+    "sha256": "a1ce1ea89ab1fbb6a08f5b183d24779a20a5ceec48f13a6be3f41e663d025cfb"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-narrow-both-drawer-open.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-narrow-both-drawer-open-04f6fabbc2b4ee7500c77c1bfb2175656a8079bd.png",
+    "sha256": "8aeb79d614c06df1a7ae000d1b9a64d3fc88cbcf672e45ff34bcc2510f79ade3"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-0f1a3ce2037c0f21758ffcee5364293274f26671.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-33f0eea8c7699adacd22173aa77982ea07bf96cf.json",
+    "sha256": "4c25b0acb1df670c85f811e52a6851c71c53fcae034e829e313516b1381ca405"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-405489647e60ae4788709e9682247b732b1b41cf.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-ccc955d7e6b99ad27506804c7e7cdf446ba68c5e.json",
+    "sha256": "0e7db1880d85be8ddf9cb0633932bb619e09337c8e6ac0655b4ee587c1c25735"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-4ca5dee2665ee2fb7a86f59ab5f1be48f7fc8d88.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-83ffb2da6ce32752de8e3873f19a1c7c9388b7bb.json",
+    "sha256": "c067f126f5fb3782c815d9feb76f350b7e113e8aec30e5a0ab0722df2b08b33c"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-89072323dc90fba8028c72a144401d908a991c56.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-8a8ee4ba10232091278cb42910fc1a6169a82d2c.json",
+    "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/below-1280-px-drawer-collapsed-readout-topmost.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-ccc955d7e6b99ad27506804c7e7cdf446ba68c5e.json",
+    "sha256": "0e7db1880d85be8ddf9cb0633932bb619e09337c8e6ac0655b4ee587c1c25735"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/below-1280-px-drawer-open-readout-topmost.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-33f0eea8c7699adacd22173aa77982ea07bf96cf.json",
+    "sha256": "4c25b0acb1df670c85f811e52a6851c71c53fcae034e829e313516b1381ca405"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/model-view-drawer-collapsed-readout-topmost.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-83ffb2da6ce32752de8e3873f19a1c7c9388b7bb.json",
+    "sha256": "c067f126f5fb3782c815d9feb76f350b7e113e8aec30e5a0ab0722df2b08b33c"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/model-view-drawer-open-readout-topmost.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-8a8ee4ba10232091278cb42910fc1a6169a82d2c.json",
+    "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-9e8c61ca18e7605ffa77b45ccd235daa40032178.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-83ffb2da6ce32752de8e3873f19a1c7c9388b7bb.json",
+    "sha256": "c067f126f5fb3782c815d9feb76f350b7e113e8aec30e5a0ab0722df2b08b33c"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-bb70c5fe57aee5e6acad013b15448571ca2876da.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-33f0eea8c7699adacd22173aa77982ea07bf96cf.json",
+    "sha256": "4c25b0acb1df670c85f811e52a6851c71c53fcae034e829e313516b1381ca405"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-d5e6a79a131a057d2a0b142e8db6a0492dadbfc5.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-8a8ee4ba10232091278cb42910fc1a6169a82d2c.json",
+    "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-e446e6e1f118a8a4fe35ff996cae8f740a88993b.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-ccc955d7e6b99ad27506804c7e7cdf446ba68c5e.json",
+    "sha256": "0e7db1880d85be8ddf9cb0633932bb619e09337c8e6ac0655b4ee587c1c25735"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/below-1280-px-drawer-collapsed-readout-topmost.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-ccc955d7e6b99ad27506804c7e7cdf446ba68c5e.json",
+    "sha256": "0e7db1880d85be8ddf9cb0633932bb619e09337c8e6ac0655b4ee587c1c25735"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/below-1280-px-drawer-open-readout-topmost.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-33f0eea8c7699adacd22173aa77982ea07bf96cf.json",
+    "sha256": "4c25b0acb1df670c85f811e52a6851c71c53fcae034e829e313516b1381ca405"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/model-view-drawer-collapsed-readout-topmost.json",
+    "canonical": "clearance-repaired-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-83ffb2da6ce32752de8e3873f19a1c7c9388b7bb.json",
+    "sha256": "c067f126f5fb3782c815d9feb76f350b7e113e8aec30e5a0ab0722df2b08b33c"
+  },
+  {
+    "removed": "source-final-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/model-view-drawer-open-readout-topmost.json",
+    "canonical": "clearance-diagnostic-artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-8a8ee4ba10232091278cb42910fc1a6169a82d2c.json",
+    "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+  },
+  {
+    "removed": "workspace-artifacts/.last-run.json",
+    "canonical": "clearance-diagnostic-artifacts/.last-run.json",
+    "sha256": "69aed76ae0d4664ee943fa040eb10533f6d643d418d5aad074d7b31ad0cca18a"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-closed-88d153e87dc2b6b30fa5513bf5ba35da0b82684d.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-closed-c954351c80a2d0443abace6d8e51e08c81af1b12.png",
+    "sha256": "4dc55043b9c04ff2c1b2602287cb0ed8f120653aa6bb2e6226d19568e3b7b2ad"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-open-00e3102bb59a7f1e5591674633dfe90a83f8712b.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-open-ebba709e7040df22423b781742814edfd7b137be.png",
+    "sha256": "7c9691299c9c866d7718c82a497695efc9c5c63342fc2ac69b5be730eedb8aa6"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-routing-541750b994969989e2b8f9be43151faf53637a4b.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-routing-98ee31d4c28c8d2a4177dfee252c92e4c4926b39.png",
+    "sha256": "d4694883d47e6bc980cf7e40854b0d5470c5f888cd2a52d6387eef9d5da490ea"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-collapsed-e928ae28b074241b565b269a5a7cd1f0c770da82.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-collapsed-d7fb1dbe142323429e7db2c947f0b73845f01433.png",
+    "sha256": "c07816c1e76764b6bb9d4f8bfab25774f86ff44f904871e83d73033da2c4b233"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-open-2e2b7280f29583be07f447d8a49827d568d27075.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-open-4e30e8bd83576b2ddb3c2460c0f01a099c726299.png",
+    "sha256": "a1ce1ea89ab1fbb6a08f5b183d24779a20a5ceec48f13a6be3f41e663d025cfb"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-narrow-both-drawer-open-d5a0c56ebce5db0e685e6b9392d885c136b2443b.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-narrow-both-drawer-open-04f6fabbc2b4ee7500c77c1bfb2175656a8079bd.png",
+    "sha256": "8aeb79d614c06df1a7ae000d1b9a64d3fc88cbcf672e45ff34bcc2510f79ade3"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-both-inspector-closed.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-closed-c954351c80a2d0443abace6d8e51e08c81af1b12.png",
+    "sha256": "4dc55043b9c04ff2c1b2602287cb0ed8f120653aa6bb2e6226d19568e3b7b2ad"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-both-inspector-open.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-open-ebba709e7040df22423b781742814edfd7b137be.png",
+    "sha256": "7c9691299c9c866d7718c82a497695efc9c5c63342fc2ac69b5be730eedb8aa6"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-both-routing.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-routing-98ee31d4c28c8d2a4177dfee252c92e4c4926b39.png",
+    "sha256": "d4694883d47e6bc980cf7e40854b0d5470c5f888cd2a52d6387eef9d5da490ea"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-model-drawer-collapsed.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-collapsed-d7fb1dbe142323429e7db2c947f0b73845f01433.png",
+    "sha256": "c07816c1e76764b6bb9d4f8bfab25774f86ff44f904871e83d73033da2c4b233"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-model-drawer-open.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-open-4e30e8bd83576b2ddb3c2460c0f01a099c726299.png",
+    "sha256": "a1ce1ea89ab1fbb6a08f5b183d24779a20a5ceec48f13a6be3f41e663d025cfb"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-narrow-both-drawer-open.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-narrow-both-drawer-open-04f6fabbc2b4ee7500c77c1bfb2175656a8079bd.png",
+    "sha256": "8aeb79d614c06df1a7ae000d1b9a64d3fc88cbcf672e45ff34bcc2510f79ade3"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-both-inspector-closed-9eadda5d1217754aa92758671296c7bf11039ff0.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-closed-c954351c80a2d0443abace6d8e51e08c81af1b12.png",
+    "sha256": "4dc55043b9c04ff2c1b2602287cb0ed8f120653aa6bb2e6226d19568e3b7b2ad"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-both-inspector-open-73fe63855a04b1bda773f177544de4b50c9916c9.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-open-ebba709e7040df22423b781742814edfd7b137be.png",
+    "sha256": "7c9691299c9c866d7718c82a497695efc9c5c63342fc2ac69b5be730eedb8aa6"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-both-routing-671260f144915830e12dbc920356adf3145eb4bf.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-routing-98ee31d4c28c8d2a4177dfee252c92e4c4926b39.png",
+    "sha256": "d4694883d47e6bc980cf7e40854b0d5470c5f888cd2a52d6387eef9d5da490ea"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-model-drawer-collapsed-2d93559a20589c36d0650b96d3518bd6fec43a98.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-collapsed-d7fb1dbe142323429e7db2c947f0b73845f01433.png",
+    "sha256": "c07816c1e76764b6bb9d4f8bfab25774f86ff44f904871e83d73033da2c4b233"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-model-drawer-open-0d5670acc902234e9eb099983c5d4bdce120dbe3.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-open-4e30e8bd83576b2ddb3c2460c0f01a099c726299.png",
+    "sha256": "a1ce1ea89ab1fbb6a08f5b183d24779a20a5ceec48f13a6be3f41e663d025cfb"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-narrow-both-drawer-open-37fd3f1373376678c55f262f5f6bcac1537836a4.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-narrow-both-drawer-open-04f6fabbc2b4ee7500c77c1bfb2175656a8079bd.png",
+    "sha256": "8aeb79d614c06df1a7ae000d1b9a64d3fc88cbcf672e45ff34bcc2510f79ade3"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-both-inspector-closed.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-closed-c954351c80a2d0443abace6d8e51e08c81af1b12.png",
+    "sha256": "4dc55043b9c04ff2c1b2602287cb0ed8f120653aa6bb2e6226d19568e3b7b2ad"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-both-inspector-open.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-open-ebba709e7040df22423b781742814edfd7b137be.png",
+    "sha256": "7c9691299c9c866d7718c82a497695efc9c5c63342fc2ac69b5be730eedb8aa6"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-both-routing.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-routing-98ee31d4c28c8d2a4177dfee252c92e4c4926b39.png",
+    "sha256": "d4694883d47e6bc980cf7e40854b0d5470c5f888cd2a52d6387eef9d5da490ea"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-model-drawer-collapsed.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-collapsed-d7fb1dbe142323429e7db2c947f0b73845f01433.png",
+    "sha256": "c07816c1e76764b6bb9d4f8bfab25774f86ff44f904871e83d73033da2c4b233"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-model-drawer-open.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-open-4e30e8bd83576b2ddb3c2460c0f01a099c726299.png",
+    "sha256": "a1ce1ea89ab1fbb6a08f5b183d24779a20a5ceec48f13a6be3f41e663d025cfb"
+  },
+  {
+    "removed": "workspace-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-narrow-both-drawer-open.png",
+    "canonical": "source-final-artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-narrow-both-drawer-open-04f6fabbc2b4ee7500c77c1bfb2175656a8079bd.png",
+    "sha256": "8aeb79d614c06df1a7ae000d1b9a64d3fc88cbcf672e45ff34bcc2510f79ade3"
+  },
+  {
+    "removed": "clearance-repaired-artifacts/.last-run.json",
+    "canonical": "authoring-repair2-artifacts/.last-run.json",
+    "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+  },
+  {
+    "removed": "source-verified-artifacts/.last-run.json",
+    "canonical": "authoring-repair-artifacts/.last-run.json",
+    "sha256": "7caad02aef8a25d36e6e8e2f09d6983081f2fa97d4a0d57cf1f7a6197a3735e6"
+  }
+]

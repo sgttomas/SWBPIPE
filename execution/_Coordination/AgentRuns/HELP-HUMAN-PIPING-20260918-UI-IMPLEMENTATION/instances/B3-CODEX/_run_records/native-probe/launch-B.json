@@ -1,0 +1,8 @@
+{
+  "variant": "B predefined Undo Redo hypothesis",
+  "pid": 13719,
+  "binary": "/private/tmp/swbpipe-b3-native-probe-20260919/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+  "sha256": "d1d1589b2a72f4b26d237ea125f9049e30d223913fc8afd091319db6d0fcf801",
+  "source_sha256": "55dbb7559f98754a18f03d3f6dbad9eacaa10100566e3cd640050696670d4c06",
+  "start": "Sat Sep 19 21:27:50 2026    "
+}

@@ -1,0 +1,52 @@
+{
+  "role": "TASK Type 2",
+  "model": "GPT-6 Astra",
+  "reasoning": "low",
+  "mechanism": "delegated-harness-native",
+  "parent": "/root/b3_manager (B3-CODEX WORKING_ITEMS)",
+  "child": "/root/b3_manager/compact_select",
+  "basis": "2882acab94120cfa6c3c115ddb416a368cebd9cd",
+  "filesystem_enforcement": "Unrestricted host filesystem; bounded writes are instructions, not sandbox enforcement",
+  "sources": [
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/.agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/briefs/COMPACT_SELECT.md",
+      "sha256": "4feadbd69dfcf85265783ed7687148ae294959acec212891ed7159be6cba3eae"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/workspace/VirtualTargetPicker.tsx",
+      "sha256": "5511fa36d899477c0652578528d9d66b85274a3806c3437dcc99705bb222d108"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/workspace/VirtualList.tsx",
+      "sha256": "0ef58bdc7c98188be7b1a828125ac056de25bb7646ca38bff76f3ad11d49c92c"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+      "sha256": "793fcba9dfd4eadc925b62a73fa36796e59cef64daa6626b0adde41e576d3490"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_NATIVE_SELECT_DECISION.md",
+      "sha256": "9ff7e7f325def1ed4750c14c3b865a6875bc988368024c288cbb23b54f6d8563"
+    }
+  ]
+}

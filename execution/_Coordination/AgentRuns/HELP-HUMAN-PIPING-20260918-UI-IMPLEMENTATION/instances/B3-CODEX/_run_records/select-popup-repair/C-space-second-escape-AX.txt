@@ -1,0 +1,4 @@
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 108-169
+~						21 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+The focused UI element is 21 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand

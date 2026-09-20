@@ -1,3 +1,4 @@
+import { changeFormControl } from "../../test-support/workspaceTestControls";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SectionAssignment } from "./SectionAssignment";
@@ -50,7 +51,7 @@ describe("existing toolkit assignment preparation", () => {
     const queue = vi.fn();
     const view = render(<SectionAssignment model={model} selection={{ type: "pipe", id: model.pipe_segments[0].id }} onQueueIntent={queue} />);
     view.rerender(<SectionAssignment model={model} selection={{ type: "pipe", id: model.pipe_segments[1].id }} onQueueIntent={queue} />);
-    fireEvent.change(screen.getByLabelText("Shared section"), { target: { value: "section:invented" } });
+    changeFormControl(screen.getByLabelText("Shared section"), { target: { value: "section:invented" } });
     await act(async () => { first(JSON.stringify(model.pipe_segments[0])); });
     expect(screen.getByRole("button", { name: "Queue section assignment" })).toBeDisabled();
     await act(async () => { second(JSON.stringify(model.pipe_segments[1])); });

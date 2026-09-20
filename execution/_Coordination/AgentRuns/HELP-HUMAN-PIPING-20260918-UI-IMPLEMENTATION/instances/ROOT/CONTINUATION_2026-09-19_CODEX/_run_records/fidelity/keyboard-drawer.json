@@ -1,0 +1,231 @@
+{
+  "found": true,
+  "trail": [
+    {
+      "role": null,
+      "label": null,
+      "text": "Table"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Model"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Both"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Run"
+    },
+    {
+      "role": null,
+      "label": "Issues, 5",
+      "text": "Issues5"
+    },
+    {
+      "role": null,
+      "label": "Inspector",
+      "text": "Inspector"
+    },
+    {
+      "role": null,
+      "label": "Agent",
+      "text": "Agent"
+    },
+    {
+      "role": null,
+      "label": "Display units",
+      "text": "EnteredSIUS"
+    },
+    {
+      "role": null,
+      "label": "Appearance",
+      "text": ""
+    },
+    {
+      "role": null,
+      "label": "Find modeling commands",
+      "text": " Search or command… ⌘K"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Model"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Loads"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Results"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Review"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Libraries"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Rules"
+    },
+    {
+      "role": null,
+      "label": "Issues, 5",
+      "text": "Issues5"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Model"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Review changes"
+    },
+    {
+      "role": null,
+      "label": "Collapse table drawer",
+      "text": ""
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Tree"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Grid"
+    },
+    {
+      "role": null,
+      "label": "Filter model tree",
+      "text": ""
+    },
+    {
+      "role": "tree",
+      "label": "Model",
+      "text": "Blank Local Modelproject:blank-local-20260920"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Deformation · unavailable"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Labels"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Loads"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Grid"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Box Select"
+    },
+    {
+      "role": null,
+      "label": "Selection filter",
+      "text": "AllPipesNodesSupportsComponents"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Fit Model"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Fit Visible"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Schematic"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Actual OD"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Measure"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Front"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Top"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Isometric"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Node"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Pipe"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Support"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Component"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Load"
+    },
+    {
+      "role": null,
+      "label": null,
+      "text": "Selection & navigation"
+    },
+    {
+      "role": "separator",
+      "label": "Resize table drawer",
+      "text": ""
+    }
+  ],
+  "value": "180"
+}

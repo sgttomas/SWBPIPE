@@ -1,3 +1,4 @@
+import { selectCompactOption } from "./workspace-driver";
 import { buildModelIndex } from "../src/features/workspace/modelIndex";
 import { displayedBoundsForEntityKeys, fittedViewportDistance } from "../src/features/viewport/viewportSelection";
 import { expect, test, type Locator, type Page } from "@playwright/test";
@@ -20,13 +21,15 @@ import {
   readFixture,
   revealTreeRow,
   selectTreeRow,
+  setAppearance,
+  showModelTree,
   typedTreeRow,
   waitForSettledGlobalRaf,
   withOneInvalidOd,
   withTypedCollision,
 } from "./ui-foundation-workflows";
 
-import { startPropertyTaskFromTreeEntity } from "./workspace-driver";
+import { expectStatusChip, projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
 
 test.beforeAll(async ({ browser }, testInfo) => {
   await attachBrowserIdentity(browser, testInfo);
@@ -58,9 +61,8 @@ test("[preflight] maintained fixture supports typed selection and a keyboard-aut
   await expect(readout.getByText(`Measure · pipe: ${pipe.id}`, { exact: true })).toBeVisible();
   await expectMeasurementQuantities(readout, expectedMetres, "m", "entered");
 
-  const unitPreference = page.locator("details.display-preference-control");
-  await unitPreference.locator("summary").click();
-  const unitSelector = unitPreference.getByRole("combobox", { name: "Display units", exact: true });
+  // Slice B3: the display units selector is a toolbar control, no longer inside a Units disclosure.
+  const unitSelector = page.getByTestId("workspace-toolbar").getByRole("combobox", { name: "Display units", exact: true });
   await unitSelector.selectOption("SI");
   await expect(unitSelector).toHaveValue("SI");
   await expectMeasurementQuantities(readout, expectedMetres, "m", "converted");
@@ -381,6 +383,8 @@ test("Grid drafts survive Tree round-trips and a filtered queue clears only its 
   await expect(queued).toContainText("position.x");
   await expect(queued).not.toContainText(retainedNode.id);
 
+  // Slice B3: the model tree and Review changes are two tabs of one pane; return to the tree's tab.
+  await showModelTree(page);
   await filter.fill("");
   await expect(visibleInput).toHaveValue(visibleBase);
   await expect(retainedInput).toHaveValue(retainedDraft);
@@ -656,19 +660,27 @@ test("Box Select keeps the camera and authored projection invariant for plain, S
   });
 });
 
-// Frozen regression floor: simultaneous authoring and analysis must retain a
-// 200 × 200 CSS-pixel canvas, with controls and drafts still usable.
+// Frozen regression floor: authoring and analysis together must retain a
+// 200 × 200 CSS-pixel canvas, with controls and drafts still usable. The floor is unchanged.
+// Slice B3 moves the structure it is measured in: Analyze is a page that opens over the stage's
+// surfaces (the dock under the canvas is gone), so the canvas keeps its box under the open page,
+// the page's controls are checked with the page open, and the canvas's own controls and drafts are
+// checked with it closed. The solve proof is read on the Results stage's Evidence tab.
 for (const theme of APPEARANCE_THEMES) {
   for (const density of APPEARANCE_DENSITIES) {
     for (const viewport of APPEARANCE_VIEWPORTS) {
       test(`task and analysis dock preserve usable canvas ${theme} ${density} ${viewport.width}x${viewport.height}`, async ({ page }, testInfo) => {
         await page.setViewportSize(viewport);
         await page.goto("/");
-        await page.getByLabel("Appearance theme").selectOption(theme);
-        await page.getByLabel("Workspace density").selectOption(density);
+        await setAppearance(page, theme, density);
+        const closePage = async () => {
+          const close = page.getByTestId("workspace-dock-close");
+          if (await close.isVisible()) await activateWithKeyboard(page, close);
+          await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
+        };
         await startPropertyTaskFromTreeEntity(page, "node", "node:N-100");
         const inspector = page.getByTestId("property-inspector");
-        await inspector.getByTestId("editor-intent-field").selectOption("label");
+        await selectCompactOption(inspector.getByTestId("editor-intent-field"), "label");
         await inspector.getByTestId("editor-intent-value").fill("Retained inspector task");
         if (viewport.width < 1280) await ensureRail(page, "inspector", false);
         await activateWithKeyboard(page, page.getByTestId("command-pipe"));
@@ -683,6 +695,7 @@ for (const theme of APPEARANCE_THEMES) {
 
         const evidence: unknown[] = [];
         const measure = async (phase: string) => {
+          await openWorkspaceSection(page, "solve");
           await expect(pipeForm).toHaveClass(/active/);
           await expect(dock).not.toHaveClass(/collapsed/);
           const geometry = await page.evaluate(() => {
@@ -691,7 +704,7 @@ for (const theme of APPEARANCE_THEMES) {
               const box = element.getBoundingClientRect();
               return { x: box.x, y: box.y, width: box.width, height: box.height, right: box.right, bottom: box.bottom };
             };
-            const body = document.querySelector<HTMLElement>(".workspace-dock-body")!;
+            const body = document.querySelector<HTMLElement>(".workspace-dock .workspace-dock-body")!;
             const bodyBox = body.getBoundingClientRect();
             const bodyClip = { top: Math.max(0, bodyBox.top + body.clientTop),
               bottom: Math.min(innerHeight, bodyBox.top + body.clientTop + body.clientHeight) };
@@ -702,24 +715,29 @@ for (const theme of APPEARANCE_THEMES) {
               bodyClip.bottom = Math.min(bodyClip.bottom, box.top + ancestor.clientTop + ancestor.clientHeight);
             }
             return {
-              dockBody: { ...rect(".workspace-dock-body"), clientHeight: body.clientHeight,
+              dockBody: { ...rect(".workspace-dock .workspace-dock-body"), clientHeight: body.clientHeight,
                 scrollHeight: body.scrollHeight, scrollTop: body.scrollTop, clip: bodyClip,
                 usableHeight: Math.max(0, bodyClip.bottom - bodyClip.top) },
               canvas: rect(".viewport-canvas canvas"), toolbar: rect(".viewport-toolbar"),
               task: rect('[data-testid="viewport-editor-intents"]'), dock: rect(".workspace-dock"),
+              surfaces: rect('[data-testid="modeling-workspace"]'),
               status: rect('[data-testid="workspace-status-bar"]'),
               bodyOverflowX: document.documentElement.scrollWidth - innerWidth,
               bodyOverflowY: document.documentElement.scrollHeight - innerHeight,
             };
           });
           evidence.push({ phase, geometry });
+          await testInfo.attach(`canvas-budget-${phase.replace(/[^a-z0-9]+/gi, "-")}`, { body: JSON.stringify(geometry, null, 2), contentType: "application/json" });
           expect(geometry.canvas.width, `${phase} canvas width`).toBeGreaterThanOrEqual(200);
           expect(geometry.canvas.height, `${phase} canvas height`).toBeGreaterThanOrEqual(200);
           expect(geometry.canvas.x).toBeGreaterThanOrEqual(0);
           expect(geometry.canvas.y).toBeGreaterThanOrEqual(0);
           expect(geometry.canvas.right).toBeLessThanOrEqual(viewport.width);
-          expect(geometry.canvas.bottom).toBeLessThanOrEqual(geometry.dock.y);
-          expect(geometry.task.bottom).toBeLessThanOrEqual(geometry.dock.y);
+          // The open page covers the stage's surfaces exactly; the canvas and the task form keep
+          // their boxes inside those surfaces, under the page.
+          for (const edge of ["x", "y", "width", "height"] as const) expect(geometry.dock[edge], `${phase} page ${edge}`).toBeCloseTo(geometry.surfaces[edge], 0);
+          expect(geometry.canvas.bottom).toBeLessThanOrEqual(geometry.surfaces.bottom + 1);
+          expect(geometry.task.bottom).toBeLessThanOrEqual(geometry.surfaces.bottom + 1);
           expect(geometry.dock.bottom).toBeLessThanOrEqual(geometry.status.y);
           expect(geometry.bodyOverflowX).toBeLessThanOrEqual(0);
           expect(geometry.bodyOverflowY).toBeLessThanOrEqual(0);
@@ -731,14 +749,12 @@ for (const theme of APPEARANCE_THEMES) {
         const beforeSelection = await measure("before solve");
         const selected = await selectTreeRow(page, "node", "node:N-110");
         await expect(selected).toHaveAttribute("aria-selected", "true");
-        if (viewport.width < 1280) {
-          // Narrow rail navigation normally dismisses the dock. Restore the
-          // same simultaneous task/dock layout before comparing rectangles.
-          await ensureRail(page, "tree", false);
-          await openWorkspaceSection(page, "solve");
-        }
+        // Selecting in the tree closes the page onto the Model stage. Restore the same task and
+        // page layout before comparing rectangles (measure reopens the page).
+        if (viewport.width < 1280) await ensureRail(page, "tree", false);
         await expect(page.locator(".viewport-toolbar-selection-status")).toHaveText("Selected: node:N-110");
         expect(await measure("changed primary; task/dock restored")).toEqual(beforeSelection);
+        await closePage();
         await ensureRail(page, "inspector", true);
         await expect(inspector.getByTestId("inspector-frozen-task-target")).toContainText("node: node:N-100");
         await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("Retained inspector task");
@@ -753,12 +769,12 @@ for (const theme of APPEARANCE_THEMES) {
         }
         if (viewport.width < 1280) {
           await ensureRail(page, "inspector", false);
-          await openWorkspaceSection(page, "solve");
         } else {
           await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
           await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
         }
         expect(await measure("after footer navigation; task/dock restored")).toEqual(beforeSelection);
+        await closePage();
         const toolbar = page.getByRole("group", { name: "Viewport controls", exact: true });
         for (const control of await toolbar.locator("button, select, summary").all()) {
           await control.scrollIntoViewIfNeeded();
@@ -768,12 +784,15 @@ for (const theme of APPEARANCE_THEMES) {
             await expect(control).toBeFocused();
           }
         }
+        // Routing now lives in the inspector; reopen its home after checking the viewport toolbar.
+        await ensureRail(page, "inspector", true);
         await page.getByTestId("cancel-pipe-draft").scrollIntoViewIfNeeded();
         await page.getByTestId("cancel-pipe-draft").focus();
         await expect(page.getByTestId("cancel-pipe-draft")).toBeFocused();
         await expectCenterUnobscured(page.getByTestId("cancel-pipe-draft"));
         await page.getByTestId("queue-explicit-pipe-intent").scrollIntoViewIfNeeded();
         await expectCenterUnobscured(page.getByTestId("queue-explicit-pipe-intent"));
+        await openWorkspaceSection(page, "solve");
         await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
         await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
         await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=830");
@@ -842,6 +861,7 @@ for (const theme of APPEARANCE_THEMES) {
           }
         };
         await verifySolvedDockControls("solved controls before proof disclosure");
+        await openWorkspaceSection(page, "evidence");
         const proof = page.getByTestId("status-pill-solve-proof");
         const proofSummary = proof.locator("summary");
         await expect(proofSummary).toHaveText("Solve proof Run identity matches");
@@ -860,8 +880,11 @@ for (const theme of APPEARANCE_THEMES) {
         await proofSummary.click();
         await expect(proof).not.toHaveAttribute("open", "");
         await expect(rawProof).toBeHidden();
+        await openWorkspaceSection(page, "solve");
         await verifySolvedDockControls("solved controls after proof disclosure");
         await measure("solved after proof disclosure");
+        await closePage();
+        await activateWithKeyboard(page, page.getByTestId("rail-stage-model"));
         const deformation = page.getByTestId("viewport-deformation-status");
         await deformation.locator("summary").click();
         await expect(deformation.getByTestId("viewport-deformation-summary")).toContainText("available; nodes=5");
@@ -924,6 +947,7 @@ for (const theme of APPEARANCE_THEMES) {
             fragment.fullLineHeightVisible && fragment.owned), `${testId} has readable owned text inside the scroll clip`).toBe(true);
         }
         await measure("expanded deformation details");
+        await closePage();
         await deformation.locator("summary").click();
         await expect(page.getByTestId("viewport-create-pipe-label")).toHaveValue("Retained pipe draft");
         await expect(page.getByTestId("viewport-create-pipe-provenance")).toHaveValue("layout regression draft");
@@ -1061,7 +1085,9 @@ test("a property task keeps its typed target and entered value through filter, c
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("Frozen task value");
   await activateWithKeyboard(page, inspector.getByTestId("queue-editor-intent"));
   await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
-  await expect(page.getByTestId("workspace-dock-header")).toContainText("Review changes");
+  // Slice B3: Review changes is the Model stage's second tab; its name is on the latched tab.
+  await expect(page.getByTestId("workspace-review")).toContainText("Review changes");
+  await expect(page.getByTestId("workspace-review")).toHaveAttribute("aria-pressed", "true");
 });
 
 test("live Properties routes follow catalogue target B while frozen Task A remains unchanged", async ({ page }) => {
@@ -1078,6 +1104,7 @@ test("live Properties routes follow catalogue target B while frozen Task A remai
   const propertiesTab = inspector.getByRole("tab", { name: "Properties", exact: true });
   const taskTab = inspector.getByRole("tab", { name: "Task", exact: true });
   const openSectionAssignment = async () => {
+    await activateWithKeyboard(page, page.getByTestId("toolkit-entry"));
     await activateWithKeyboard(page, commandGroupControl(page, "Properties"));
     const palette = page.getByRole("dialog", { name: "Find a modeling tool" });
     await expect(palette).toBeVisible();
@@ -1096,8 +1123,8 @@ test("live Properties routes follow catalogue target B while frozen Task A remai
   const freshPanel = await openSectionAssignment();
   await expect(inspector.locator(":scope > h2")).toContainText(`pipe: ${pipeA.id}`);
   await expect(freshPanel).toContainText(`Shared section: ${pipeA.section_ref}`);
-  await expect(freshPanel.getByRole("combobox", { name: "Shared section" })).toHaveValue("");
-  await freshPanel.getByRole("combobox", { name: "Shared section" }).selectOption(alternateForA.id);
+  await expect(freshPanel.getByRole("combobox", { name: "Shared section" })).toHaveAttribute("data-value", "");
+  await selectCompactOption(freshPanel.getByRole("combobox", { name: "Shared section" }), alternateForA.id);
   await expect(freshPanel.getByRole("button", { name: "Queue section assignment", exact: true })).toBeEnabled();
 
   await activateWithKeyboard(page, taskTab);
@@ -1114,8 +1141,8 @@ test("live Properties routes follow catalogue target B while frozen Task A remai
   await expect(inspector.locator(":scope > h2")).toContainText(`pipe: ${pipeB.id}`);
   await expect(liveBPanel).toContainText(`Shared section: ${pipeB.section_ref}`);
   const liveSection = liveBPanel.getByRole("combobox", { name: "Shared section" });
-  await expect(liveSection).toHaveValue("");
-  await liveSection.selectOption(alternateForB.id);
+  await expect(liveSection).toHaveAttribute("data-value", "");
+  await selectCompactOption(liveSection, alternateForB.id);
   await activateWithKeyboard(page, liveBPanel.getByRole("button", { name: "Queue section assignment", exact: true }));
 
   const queued = page.getByTestId("operation-apply-row-editor-intent-1");
@@ -1141,6 +1168,7 @@ test("an unqueued rich Properties draft survives aggregate inspection with mutat
 
   await selectTreeRow(page, "support", support.id);
   await ensureRail(page, "inspector", true);
+  await activateWithKeyboard(page, page.getByTestId("toolkit-entry"));
   await activateWithKeyboard(page, commandGroupControl(page, "Supports"));
   const palette = page.getByRole("dialog", { name: "Find a modeling tool" });
   await expect(palette).toBeVisible();
@@ -1214,6 +1242,10 @@ test("selected-pipe actions copy a stable draft target snapshot instead of follo
   await expect(geometry.getByText("Frozen source snapshot: 2 pipes.", { exact: true })).toBeVisible();
 
   await selectTreeRow(page, "pipe", third.id);
+  // Slice B3: selecting in the tree shows the tree's tab; the geometry tools stay mounted on the
+  // Review changes tab (its Geometry sub-tab) and are read again there.
+  await openWorkspaceSection(page, "operations");
+  await activateWithKeyboard(page, page.getByTestId("operation-tab-geometry"));
   await expect(geometry.getByText("Frozen source snapshot: 2 pipes.", { exact: true })).toBeVisible();
   const thirdOption = geometry.getByTestId("geometry-source-pipes").getByRole("option", { name: new RegExp(`${escapeRegExp(third.id)}$`) });
   await geometry.getByTestId("geometry-source-pipes").getByRole("combobox").fill(third.id);
@@ -1226,6 +1258,9 @@ test("selected-pipe actions copy a stable draft target snapshot instead of follo
   await activateWithKeyboard(page, selfWeight.getByRole("button", { name: "Use selected pipes", exact: true }));
   await expect(selfWeight.getByText(`Frozen selected-pipe snapshot: ${third.id}`, { exact: true })).toBeVisible();
   await selectTreeRow(page, "pipe", first.id);
+  // Slice B3: as above, the plan stays mounted on the Review changes tab (its Self weight sub-tab).
+  await openWorkspaceSection(page, "operations");
+  await activateWithKeyboard(page, page.getByTestId("operation-tab-weight"));
   await expect(selfWeight.getByText(`Frozen selected-pipe snapshot: ${third.id}`, { exact: true })).toBeVisible();
 });
 
@@ -1349,7 +1384,7 @@ test("Actual OD uses valid spans and explains the independently injected centerl
 test("ordinary typed edit preserves view state and same-ID project replacement clears it", async ({ page }) => {
   const model = await gotoRoutedFixture(page);
   const node = model.nodes[5];
-  await activateWithKeyboard(page, page.getByRole("button", { name: "Save local", exact: true }));
+  await projectCommand(page, "save-local", true);
   await expect(page.getByTestId("local-project-message")).toContainText("Saved");
   await selectTreeRow(page, "node", node.id);
   await activateWithKeyboard(page, page.getByRole("button", { name: "Hide", exact: true }));
@@ -1375,7 +1410,7 @@ test("ordinary typed edit preserves view state and same-ID project replacement c
   await activateWithKeyboard(page, page.getByTestId("toolkit-edit.redo"));
   await expect(await revealTreeRow(page, "node", node.id)).toContainText("Edited while hidden");
 
-  await activateWithKeyboard(page, page.getByTestId("open-local-project"));
+  await projectCommand(page, "open-local", true);
   await expect(page.getByTestId("command-selection-readout")).toContainText(`project: ${model.project.id}`);
   await expect(page.getByRole("button", { name: "Show All", exact: true })).toBeDisabled();
   await expect(page.getByTestId("viewport-measurement-readout")).toHaveCount(0);
@@ -1385,25 +1420,31 @@ test("ordinary typed edit preserves view state and same-ID project replacement c
 test("keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 920 });
   await gotoRoutedFixture(page);
-  for (const name of ["Resize model tree", "Resize property inspector"] as const) {
+  // Slice B3: the shell's splitters are the Both view's split and the Model view's table drawer;
+  // the docked inspector has a fixed width and no splitter.
+  await expect(page.getByRole("separator", { name: "Resize property inspector" })).toHaveCount(0);
+  for (const name of ["Resize table and canvas"] as const) {
     const separator = page.getByRole("separator", { name });
     const before = Number(await separator.getAttribute("aria-valuenow"));
     await separator.focus();
-    await page.keyboard.press(name.includes("tree") ? "ArrowRight" : "ArrowLeft");
+    await page.keyboard.press("ArrowRight");
     const after = Number(await separator.getAttribute("aria-valuenow"));
     expect(after).not.toBe(before);
     expect(after).toBeGreaterThanOrEqual(Number(await separator.getAttribute("aria-valuemin")));
     expect(after).toBeLessThanOrEqual(Number(await separator.getAttribute("aria-valuemax")));
   }
   await openWorkspaceSection(page, "operations");
-  const dock = page.getByRole("separator", { name: "Resize task dock" });
+  await activateWithKeyboard(page, page.getByTestId("view-switch-model"));
+  const dock = page.getByRole("separator", { name: "Resize table drawer" });
   await dock.focus();
   const dockBefore = Number(await dock.getAttribute("aria-valuenow"));
   await page.keyboard.press("ArrowUp");
   expect(Number(await dock.getAttribute("aria-valuenow"))).toBeGreaterThan(dockBefore);
+  expect(Number(await dock.getAttribute("aria-valuenow"))).toBeLessThanOrEqual(Number(await dock.getAttribute("aria-valuemax")));
+  await activateWithKeyboard(page, page.getByTestId("view-switch-both"));
 
   await page.setViewportSize({ width: 1024, height: 768 });
-  await activateWithKeyboard(page, page.getByTestId("workspace-dock-close"));
+  await showModelTree(page);
   await ensureRail(page, "tree", false);
   await ensureRail(page, "inspector", false);
   const treeToggle = page.getByTestId("toggle-tree");
@@ -1795,7 +1836,8 @@ test("empty ordered selection publishes independently from project inspector", a
   await ensureRail(page, "inspector", true);
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toHaveCount(1);
-  await activateWithKeyboard(page, page.getByTestId("workspace-dock-close"));
+  // Slice B3: Results is a stage surface with no close control; return to the Model stage's tree.
+  await showModelTree(page);
   const read = async () => page.evaluate(() => {
     const snapshot = globalThis.__openPipeStressUiDiagnosticsV1.readCurrent();
     if ("status" in snapshot.viewport) throw new Error("Committed viewport unavailable");
@@ -1901,13 +1943,13 @@ test("empty ordered selection publishes independently from project inspector", a
   }
   expect(await page.getByTestId("results-panel").allTextContents()).toEqual(resultsBefore);
   await expect(page.getByTestId("command-selection-readout")).toContainText("0 queued");
-  await activateWithKeyboard(page, page.getByRole("button", { name: "Save local", exact: true }));
+  await projectCommand(page, "save-local", true);
   await expect(page.getByTestId("local-project-message")).toContainText("Saved");
   await selectTreeRow(page, node.type, node.id);
   await identity([node], node, node);
   await selectTreeRow(page, node.type, node.id, { toggle: true });
   const beforeReplacement = await identity([], null, project);
-  await activateWithKeyboard(page, page.getByTestId("open-local-project"));
+  await projectCommand(page, "open-local", true);
   await expect.poll(async () => (await read()).model.generation).not.toBe(beforeReplacement.model.generation);
   const reopened = await identity([project], project, project);
   expect(reopened.model.identityHash).toBe(baseline.model.identityHash);
@@ -1926,7 +1968,17 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   // shell gave a 1440 x 920 window while it still carried its footer (about 21 px).
   // DEC-105 removed that footer, so the window is 21 px shorter here to keep
   // the canvas, the gizmo and the frozen endpoints in the same geometry.
-  await page.setViewportSize({ width: 1440, height: 899 });
+  // 2026-09-19, slice B3 (the shell): the same move again. Before the shell a
+  // 1440 x 899 window gave this test a drawn canvas of 794 x 559 CSS px
+  // (measured on main at d20eb1294). The shell's Both view gives that same box
+  // to a 1688 x 787 window with the stored split at 50 % (surfaces 1588 wide,
+  // canvas pane 794; 787 less the 228 px of bars above and below the drawn canvas is 559).
+  // The box is asserted below, so the geometry the frozen endpoints depend on is
+  // pinned and not implied. The endpoints and every other assertion are untouched.
+  await page.setViewportSize({ width: 1688, height: 787 });
+  await page.addInitScript(() => {
+    window.localStorage.setItem("chirality.desktop.ui-preferences.v1", JSON.stringify({ version: 1, bothSplitPct: 50 }));
+  });
   const model = await gotoRoutedFixture(page);
   expect(model.components ?? []).toHaveLength(0);
   await activateWithKeyboard(page, page.getByTestId("toggle-viewport-labels"));
@@ -1936,6 +1988,7 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   const scale = page.getByTestId("viewport-scale-bar");
   await expect(axis).toBeVisible(); await expect(scale).toHaveText(/1\s*m/);
   const rect = (await canvas.boundingBox())!;
+  expect({ width: rect.width, height: rect.height }).toEqual({ width: 794, height: 559 });
   const axisRect = (await axis.boundingBox())!;
   const scaleRect = (await scale.boundingBox())!;
   // Preserve both frozen Box16 endpoints. This component-free control fixture
@@ -2103,10 +2156,10 @@ test("Escape retires captured Box before delayed pointer up", async ({ page }, i
 
 test("same-ID Open retires old captured Box before delayed pointer up", async ({ page }, info) => {
   const model = await setup(page); const project = { type: "project", id: model.project.id };
-  await page.getByRole("button", { name: "Save local", exact: true }).click();
+  await projectCommand(page, "save-local");
   await expect(page.getByTestId("local-project-message")).toContainText("Saved");
   const beforeOrdinaryOpen = await settle(page);
-  await activateWithKeyboard(page, page.getByTestId("open-local-project"));
+  await projectCommand(page, "open-local", true);
   await expect.poll(async () => (await read(page)).snapshot.model.projectSessionGeneration).toBe(beforeOrdinaryOpen.snapshot.model.projectSessionGeneration + 1);
   await expect.poll(async () => (await read(page)).snapshot.viewport.selection.orderedRefs).toEqual([project]);
   const ordinaryOpen = await settle(page);
@@ -2115,7 +2168,7 @@ test("same-ID Open retires old captured Box before delayed pointer up", async ({
   await selectTreeRow(page, "node", model.nodes[10].id);
   const input = await begin(page);
   // Public keyboard route: keep the genuine mouse button held and captured.
-  await page.getByTestId("open-local-project").focus(); await page.keyboard.press("Enter");
+  await projectCommand(page, "open-local", true);
   await expect.poll(async () => (await read(page)).snapshot.model.projectSessionGeneration).toBe(input.before.snapshot.model.projectSessionGeneration + 1);
   await expect.poll(async () => (await read(page)).snapshot.viewport.selection.orderedRefs).toEqual([project]);
   const replaced = await settle(page);
@@ -2139,8 +2192,9 @@ test("same-ID Open retires old captured Box before delayed pointer up", async ({
 
 for (const route of ["Select", "New blank"] as const) test(`${route} retires captured Box before delayed pointer up`, async ({ page }, info) => {
   await setup(page); const input = await begin(page);
-  const control = route === "Select" ? page.getByTestId("workspace-select") : page.getByRole("button", { name: "New blank", exact: true });
-  await control.focus(); await page.keyboard.press("Enter");
+  // Slice B3: New blank is a File-menu command here; the Project page would cover the canvas whose pointer is held.
+  if (route === "Select") { await page.getByTestId("workspace-select").focus(); await page.keyboard.press("Enter"); }
+  else await projectCommand(page, "new-blank", true);
   if (route === "New blank") {
     await expect.poll(async () => (await read(page)).snapshot.model.projectSessionGeneration).toBe(input.before.snapshot.model.projectSessionGeneration + 1);
     await expect.poll(async () => (await read(page)).snapshot.viewport.selection.primaryRef?.type).toBe("project");

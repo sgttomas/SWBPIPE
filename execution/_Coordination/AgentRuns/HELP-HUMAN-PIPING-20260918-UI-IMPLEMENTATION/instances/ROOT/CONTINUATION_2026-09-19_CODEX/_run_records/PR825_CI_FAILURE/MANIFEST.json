@@ -1,0 +1,25 @@
+{
+  "recordedAt": "2026-09-20T08:04:26.387259+00:00",
+  "pr": "https://github.com/sgttomas/chirality/pull/825",
+  "head": "002dff0f244976f98b36517d920b3761f6f88704",
+  "runId": 35496887667,
+  "jobId": 106041394519,
+  "status": "FAILURE",
+  "counts": {
+    "passed": 408,
+    "skipped": 20,
+    "failed": 2
+  },
+  "failedScenario": "covered pages exclude retained stage controls from Tab and accessibility",
+  "profiles": [
+    "chromium-desktop",
+    "chromium-compact"
+  ],
+  "failure": "agent-strip-reason tooltip intercepts workspace-dock-close pointer click at e2e/b3-accessibility.spec.ts:79; both reach180000ms timeout",
+  "captureCommand": "gh run view 35496887667 --repo sgttomas/chirality --log-failed",
+  "rawSha256": "a2487a02b1ec2601c53bc9f9322cf1a26b5b0aaa2c88ab30cacf28efff488c4a",
+  "rawBytes": 131359,
+  "archive": "failed-job.log.gz",
+  "archiveSha256": "e8dc4ae8d13adcd2bbc31fcd7acadf6e588b571fa2b223b16a24f21d16021f78",
+  "standing": "actual candidate hosted failure; no repair, rerun or merge performed; owner pause remains"
+}

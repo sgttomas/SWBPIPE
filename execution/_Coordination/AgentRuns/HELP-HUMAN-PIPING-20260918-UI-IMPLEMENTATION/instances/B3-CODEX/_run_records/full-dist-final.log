@@ -1,0 +1,296 @@
+
+> @openpipestress/desktop@0.1.0 test:e2e:dist
+> npm run build:wasm && npm run build && playwright test --config playwright.dist.config.ts --reporter=line --output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts
+
+
+> @openpipestress/desktop@0.1.0 build:wasm
+> node scripts/build-wasm-engine.mjs
+
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/wasm-engine.tmp-46004
+[build-wasm-engine] OK — wasm operation engine generated at public/wasm-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/self-weight-engine.tmp-46004
+[build-wasm-engine] OK — wasm operation engine generated at public/self-weight-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+
+> @openpipestress/desktop@0.1.0 build
+> tsc -b && vite build
+
+vite v7.3.3 building client environment for production...
+transforming...
+✓ 1745 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                        1.13 kB │ gzip:   0.55 kB
+dist/assets/index-CvYMQUwC.css                       101.72 kB │ gzip:  18.11 kB
+dist/assets/vendor-tauri-DlQNAQKj.js                   0.09 kB │ gzip:   0.11 kB
+dist/assets/invented_design_knowledge-H12r-oKQ.js      1.66 kB │ gzip:   0.76 kB
+dist/assets/invented_agent_proposal-Bm57LVt-.js        1.82 kB │ gzip:   0.85 kB
+dist/assets/vendor-7OC5HNn7.js                         3.61 kB │ gzip:   1.58 kB
+dist/assets/invented_demo_rule_pack-dhX9tvT1.js       10.86 kB │ gzip:   2.59 kB
+dist/assets/invented_preview_model-pJA3_nB8.js        12.67 kB │ gzip:   3.05 kB
+dist/assets/vendor-icons-BjC2kMFO.js                  18.99 kB │ gzip:   6.25 kB
+dist/assets/vendor-react-u0ysdD_x.js                 188.76 kB │ gzip:  59.03 kB
+dist/assets/invented_mechanics_result-CleTy2JL.js    502.61 kB │ gzip:  22.14 kB
+dist/assets/vendor-three-hE6SPF4C.js                 528.57 kB │ gzip: 136.05 kB
+dist/assets/index-EUwcsP_i.js                      1,416.45 kB │ gzip: 353.01 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.98s
+[1A[2K[2m[WebServer] [22m(node:46496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 53 tests using 1 worker
+
+[1A[2K(node:46498) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:46498) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/53] [chromium-desktop-dist] › e2e/report-package-dist.spec.ts:4:1 › production dist exposes the report-package File route and fails honestly in browser mode
+[1A[2K[2/53] [chromium-desktop-dist] › e2e/result-compatibility-dist.spec.ts:10:1 › built dist carries checked 0.2 Current and stress-neutral packages
+[1A[2K[3/53] [chromium-desktop-dist] › e2e/toolkit-batch-dist.spec.ts:13:1 › dist self-weight plan previews, applies atomically and restores one batch with one undo
+[1A[2K[4/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:47:1 › [preflight] production dist exposes compact command groups and keyboard measurement
+[1A[2K[5/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:129:1 › [visual-clarification] measurement and real pipe task remain unobscured as narrow drawers close
+[1A[2K[6/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:251:1 › [rail-clearance] closed rail handles leave active viewport controls and complete measurement content usable
+[1A[2K[7/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:314:3 › content-aware narrow canvas budget light comfortable
+[1A[2K[8/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:314:3 › content-aware narrow canvas budget light compact
+[1A[2K[9/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:314:3 › content-aware narrow canvas budget dark comfortable
+[1A[2K[10/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:314:3 › content-aware narrow canvas budget dark compact
+[1A[2K[11/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:512:3 › outer overlays own actual workspace intersections and restore controls 1024
+[1A[2K[12/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:512:3 › outer overlays own actual workspace intersections and restore controls 1440
+[1A[2K[13/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light comfortable 1024x768
+[1A[2K[14/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light comfortable 1280x800
+[1A[2K[15/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light comfortable 1440x920
+[1A[2K[16/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light compact 1024x768
+[1A[2K[17/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light compact 1280x800
+[1A[2K[18/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light compact 1440x920
+[1A[2K[19/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark comfortable 1024x768
+[1A[2K[20/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark comfortable 1280x800
+[1A[2K[21/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark comfortable 1440x920
+[1A[2K[22/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark compact 1024x768
+[1A[2K[23/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark compact 1280x800
+[1A[2K[24/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark compact 1440x920
+[1A[2K[25/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:908:1 › System follows the emulated OS preference; explicit theme and density persist after reload
+[1A[2K[26/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:926:1 › production browser keeps reopened results Historical until a fresh exact-basis solve succeeds
+[1A[2K[27/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1000:3 › Solve readiness rows retain resolved contrast in light
+[1A[2K  1) [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1000:3 › Solve readiness rows retain resolved contrast in light 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+
+    Locator:  getByTestId('workspace-review')
+    Expected: focused
+    Received: inactive
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('workspace-review')[22m
+    [2m    24 × locator resolved to <button type="button" class="shell-tab" aria-pressed="false" title="Review changes" data-testid="workspace-review">Review changes</button>[22m
+    [2m       - unexpected value "inactive"[22m
+
+
+       at ui-foundation-workflows.ts:176
+
+      174 | export async function activateWithKeyboard(page: Page, control: Locator): Promise<void> {
+      175 |   await control.focus();
+    > 176 |   await expect(control).toBeFocused();
+          |                         ^
+      177 |   await page.keyboard.press("Enter");
+      178 | }
+      179 |
+        at activateWithKeyboard (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts:176:25)
+        at openWorkspaceSection (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts:204:7)
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts:1008:9
+
+    attachment #1: readiness-light-before-solve-readiness-mechanics-info (image/png) ───────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-mechanics-info-880579f1474048076289053951a020acd905ff3f.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: readiness-light-before-solve-readiness-rule-warning (image/png) ─────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-rule-warning-1209596d3970e20f0e520ed5ac2bf91a40f1b495.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: readiness-light-before-solve-readiness-diagnostics-warning (image/png) ──────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-diagnostics-warning-97780bd71b640823c16f221d47e5ae5c38a91c5e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: readiness-light-before-solve-readiness-professional-warning (image/png) ─────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-readiness-professional-warning-b947cf88e41f21a5d802166839fd8c31bf8f2b9c.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: readiness-light-before-solve (image/png) ────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-before-solve-ae20d894a9e3d4f1bdb70dbaa4eb65a6ceaea792.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: readiness-light-solved-readiness-mechanics-ok (image/png) ───────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-mechanics-ok-e233c35d72d0c6f0bd637cf24f6bd93966bf7b1a.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: readiness-light-solved-readiness-rule-warning (image/png) ───────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-rule-warning-47d79b46336d5639caf0ea844ec4e5eb6958a8cd.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: readiness-light-solved-readiness-diagnostics-warning (image/png) ────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-diagnostics-warning-56ee614481770780df4a13bd2d318cd295efe45e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: readiness-light-solved-readiness-professional-warning (image/png) ──────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-readiness-professional-warning-0609b8475d159013f453f4f2f4a0f5a7eb69a825.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: readiness-light-solved (image/png) ─────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/attachments/readiness-light-solved-f52cf095ea975728c4ef577e9caec1fc27ee5773.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-6c1cf--resolved-contrast-in-light-chromium-desktop-dist/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:47350) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:47350) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[28/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1000:3 › Solve readiness rows retain resolved contrast in dark
+[1A[2K  2) [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1000:3 › Solve readiness rows retain resolved contrast in dark 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+
+    Locator:  getByTestId('workspace-review')
+    Expected: focused
+    Received: inactive
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('workspace-review')[22m
+    [2m    24 × locator resolved to <button type="button" class="shell-tab" aria-pressed="false" title="Review changes" data-testid="workspace-review">Review changes</button>[22m
+    [2m       - unexpected value "inactive"[22m
+
+
+       at ui-foundation-workflows.ts:176
+
+      174 | export async function activateWithKeyboard(page: Page, control: Locator): Promise<void> {
+      175 |   await control.focus();
+    > 176 |   await expect(control).toBeFocused();
+          |                         ^
+      177 |   await page.keyboard.press("Enter");
+      178 | }
+      179 |
+        at activateWithKeyboard (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts:176:25)
+        at openWorkspaceSection (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts:204:7)
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts:1008:9
+
+    attachment #2: readiness-dark-before-solve-readiness-mechanics-info (image/png) ────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-mechanics-info-ca750d9f8c4314ac608ca8f7431aed9b12337022.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: readiness-dark-before-solve-readiness-rule-warning (image/png) ──────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-rule-warning-4a9ce589c5057903caf4e949039bdaaf0e1025b3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: readiness-dark-before-solve-readiness-diagnostics-warning (image/png) ───────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-diagnostics-warning-bb77cbcf2bfbe3d88098de91f4c39cd578a3e0be.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: readiness-dark-before-solve-readiness-professional-warning (image/png) ──────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-readiness-professional-warning-148e4486c5f8f12b56a782e47cd3f7cf29caabd7.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: readiness-dark-before-solve (image/png) ─────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-before-solve-8163076ae0daf6806bee0573f4ca18dc427c8a03.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: readiness-dark-solved-readiness-mechanics-ok (image/png) ────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-mechanics-ok-91862b57741fbcd83f1cbcef683a61883d56c802.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: readiness-dark-solved-readiness-rule-warning (image/png) ────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-rule-warning-a2fafe087626fd5434de5c210937c54699653565.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: readiness-dark-solved-readiness-diagnostics-warning (image/png) ────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-diagnostics-warning-ca465426759cf27bd564656579e84956ba5fcd8e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: readiness-dark-solved-readiness-professional-warning (image/png) ───────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-readiness-professional-warning-ea0221afca338f366055d1baf461214d332cd89a.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #13: readiness-dark-solved (image/png) ──────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/readiness-dark-solved-5304d2984e68115c5cf71e6f94cdae35d3ef4241.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/error-context.md
+
+    attachment #15: trace (application/zip) ────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-dist-Solve-r-4cd2f-n-resolved-contrast-in-dark-chromium-desktop-dist/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:47373) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:47373) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[29/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1068:3 › populated Results title and entered values retain resolved contrast in light
+[1A[2K[30/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1068:3 › populated Results title and entered values retain resolved contrast in dark
+[1A[2K[31/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1163:1 › same raw ID pipe task retains its typed values and queued intent after node selection
+[1A[2K[32/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1194:1 › narrow canvas fits visible and selected envelopes in every view preset
+[1A[2K[33/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1274:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440
+[1A[2K[34/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1274:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1440
+[1A[2K[35/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1274:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1280
+[1A[2K[36/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1274:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280
+[1A[2K[37/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1394:1 › below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over
+[1A[2K[38/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1437:3 › Support creation preserves an active property Task through toolbar
+[1A[2K[39/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1437:3 › Support creation preserves an active property Task through Insert menu
+[1A[2K[40/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1469:1 › empty ordered selection publishes independently from project inspector
+[1A[2K[41/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1603:1 › decorative viewport overlays pass real canvas gestures while view controls stay interactive
+[1A[2K[42/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1762:1 › captured Box lifetime › ordinary real Box applies independent empty Components membership
+[1A[2K[43/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1770:1 › captured Box lifetime › Escape retires captured Box before delayed pointer up
+[1A[2K[44/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1786:1 › captured Box lifetime › same-ID Open retires old captured Box before delayed pointer up
+[1A[2K[45/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1822:55 › captured Box lifetime › Select retires captured Box before delayed pointer up
+[1A[2K[46/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1822:55 › captured Box lifetime › New blank retires captured Box before delayed pointer up
+[1A[2K[47/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1851:70 › captured Box lifetime › Measure cannot revive a captured Box through a mode ABA
+[1A[2K[48/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1851:70 › captured Box lifetime › palette Node and Select cannot revive a captured Box through a mode ABA
+[1A[2K[49/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1874:39 › captured Box lifetime › workspace Escape event ownership body idle
+[1A[2K[50/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1874:39 › captured Box lifetime › workspace Escape event ownership body captured
+[1A[2K[51/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1898:55 › captured Box lifetime › workspace Escape event ownership consumed palette
+[1A[2K[52/53] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1898:55 › captured Box lifetime › workspace Escape event ownership consumed drawer
+[1A[2K[53/53] [chromium-desktop-dist] › e2e/wasm-engine-dist.spec.ts:9:1 › production dist serves the wasm engine and New blank succeeds
+[1A[2K  2 failed
+    [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1000:3 › Solve readiness rows retain resolved contrast in light 
+    [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1000:3 › Solve readiness rows retain resolved contrast in dark 
+  51 passed (3.5m)
+npm error Lifecycle script `test:e2e:dist` failed with error:
+npm error code 1
+npm error path /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c npm run build:wasm && npm run build && playwright test --config playwright.dist.config.ts --reporter=line --output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts
