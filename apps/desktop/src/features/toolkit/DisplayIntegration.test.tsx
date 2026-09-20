@@ -31,6 +31,7 @@ describe("typed model display integration", () => {
     startInspectorTask();
     changeFormControl(screen.getByTestId("editor-intent-field"), { target: { value: "position.x" } });
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     const draft = screen.getByTestId(`entity-grid-input-${model.nodes[0].id}-x`);
     fireEvent.change(draft, { target: { value: "2.3450" } });
     fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "US" } });
@@ -172,3 +173,9 @@ describe("support stiffness dimensional presentation (N7 F2)", () => {
     expect(row).toHaveTextContent("no SI catalog target for unknown");
   });
 });
+
+// Existing review journeys explicitly enter the retained multi-change workflow.
+function openNodeGridReview() {
+  const summary = screen.getByTestId("node-grid-review-disclosure");
+  if (!(summary.parentElement as HTMLDetailsElement).open) fireEvent.click(summary);
+}

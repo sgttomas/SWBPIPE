@@ -3984,3 +3984,26 @@ body { min-width: 760px; min-height: 540px; }
   line-height: 22px;
 }
 .app-shell .viewport-hidden-count:focus-visible { outline-offset: -2px; }
+
+/* B4.1 entered-coordinate interaction; remaining table grammar is incremental. */
+.engineering-table { min-width: 0; color: var(--ui-text); background: var(--ui-surface); }
+.engineering-table [role="grid"] { overflow-x: auto; }
+.engineering-table-row { min-width: 420px; display: grid; align-items: stretch; min-height: 100%; border-bottom: 1px solid var(--ui-divider); }
+.engineering-table-row > div { min-width: 0; border-right: 1px solid var(--ui-divider); }
+.engineering-table-row.selected { background: var(--ui-selection); }
+.engineering-table-row.stripe { background-color: var(--surface-zebra, var(--ui-bg)); }
+.engineering-table-row.selected { background-color: var(--ui-selection); }
+.engineering-table-header { min-height: 30px; background: var(--ui-raised); font-weight: 600; }
+.engineering-table-header > div:first-child { padding: 5px 8px; }
+.engineering-table-row button, .engineering-table-cell input { width: 100%; height: 100%; min-height: 28px; margin: 0; padding: 3px 8px; border: 0; border-radius: 0; background: transparent; color: inherit; text-align: right; font-variant-numeric: tabular-nums; }
+.engineering-table-row [role="rowheader"] button { text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.engineering-table-cell[aria-selected="true"] { outline: 1px solid var(--ui-focus); outline-offset: -1px; }
+.engineering-table-cell.editing { background: var(--ui-surface); outline: 2px solid var(--ui-focus); outline-offset: -2px; }
+.engineering-table-cell.invalid { outline-color: var(--ui-error-border); }
+.engineering-table-footer { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; min-height: 32px; padding: 4px 8px; border-top: 1px solid var(--ui-divider); font-size: 12px; }
+.engineering-table-footer button { padding: 3px 8px; }
+.engineering-table-message { margin: 0; padding: 5px 8px; font-size: 12px; }
+.engineering-table-message[role="alert"] { color: var(--ui-error-text); }
+.entity-grid-review > summary { cursor: pointer; padding: 6px 8px; border-top: 1px solid var(--ui-divider); font-size: 12px; }
+.entity-grid-review.other-family { display: contents; }
+.entity-grid [hidden] { display: none !important; }

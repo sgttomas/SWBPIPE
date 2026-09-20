@@ -6,6 +6,9 @@ import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, Previ
 import { entityKey, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
 import { modelIndexFor, type ModelIndex } from "../workspace/modelIndex";
 import { VirtualList } from "../workspace/VirtualList";
+import { EngineeringTable, type TableApplyResult } from "../workspace/table/EngineeringTable";
+import { buildGridOperationIntent, nodeCoordinateColumns, type GridColumn, type GridRow } from "../workspace/table/modelTableAdapter";
+import { capturedCellIsCurrent, type CapturedCell, type TableRow } from "../workspace/table/tableState";
 
 type Props = {
   model: PreviewModel;
@@ -23,6 +26,8 @@ type Props = {
   onFocusChange?: (key: EntityKey | null) => void;
   onFilterPublication?: (publication: { actionSequence: number; publicationSequence: number; query: string; visibleCount: number; inputAt: number | null; inputEventTimeStamp: number | null; publishedAt: number }) => void;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
+  onApplyCellIntent?: (intent: EditorOperationIntent) => Promise<TableApplyResult>;
+  operationBusy?: boolean;
 };
 
 type LayoutMode = "tree" | "grid";
@@ -47,9 +52,10 @@ const GRID_ENTITY_TYPES: ReadonlyArray<{ id: GridEntityType; label: string }> = 
   { id: "combinations", label: "Combinations" }
 ];
 
-export function ModelTree({ model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent }: Props) {
+export function ModelTree({ model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy }: Props) {
   const [filterText, setFilterText] = useState("");
   const [layoutMode, setLayoutMode] = useState<LayoutMode>("tree");
+  const [gridOpened, setGridOpened] = useState(false);
   const [gridEntityType, setGridEntityType] = useState<GridEntityType>(() => gridEntityTypeFromSelection(selection));
   const [gridDrafts, setGridDrafts] = useState<Record<string, string>>({});
   const [focusedGridKey, setFocusedGridKey] = useState<EntityKey | null>(null);
@@ -131,7 +137,7 @@ export function ModelTree({ model, modelIndex, selection, selectionState, densit
         <button
           aria-pressed={layoutMode === "grid"}
           data-testid="layout-mode-grid"
-          onClick={() => setLayoutMode("grid")}
+          onClick={() => { setGridOpened(true); setLayoutMode("grid"); }}
           type="button"
         >
           <Table2 size={14} aria-hidden="true" />
@@ -149,7 +155,7 @@ export function ModelTree({ model, modelIndex, selection, selectionState, densit
           setFilterText(value);
         }}
       />
-      {layoutMode === "grid" ? (
+      {gridOpened ? <div hidden={layoutMode !== "grid"} inert={layoutMode !== "grid"}>
         <EntityGrid
           density={density}
           drafts={gridDrafts}
@@ -159,13 +165,16 @@ export function ModelTree({ model, modelIndex, selection, selectionState, densit
           model={model}
           onEntityTypeChange={setGridEntityType}
           onQueueIntent={onQueueIntent}
+          onApplyCellIntent={onApplyCellIntent}
+          operationBusy={operationBusy}
           onSelect={onSelect}
           projectSessionGeneration={projectSessionGeneration}
           selection={selection}
           setDrafts={setGridDrafts}
           setFocusedGridKey={setFocusedGridKey}
         />
-      ) : (
+      </div> : null}
+      {layoutMode !== "grid" ? (
         treeRows.length > 0 ? (
           <VirtualList
             activeIndex={focusedTreeIndex}
@@ -249,7 +258,7 @@ export function ModelTree({ model, modelIndex, selection, selectionState, densit
               No model entities match this filter.
             </p>
         )
-      )}
+      ) : null}
     </div>
   );
 
@@ -657,30 +666,6 @@ function treeRowDomId(row: FlatTreeRow): string {
     : `tree-row-${encodeURIComponent(row.item.type)}-${encodeURIComponent(row.item.id)}`;
 }
 
-type GridColumn = {
-  key: string;
-  label: string;
-  fieldPath: string;
-  objectType: EditorOperationObjectType;
-  changeKind: EditorOperationIntent["change"]["change_kind"];
-  dimension: string;
-  sourceNote: string;
-  unit: (row: GridRow) => string;
-  value: (row: GridRow) => string;
-  unitEditable?: boolean;
-  quantity?: boolean;
-  readonly?: boolean;
-  options?: readonly string[];
-};
-
-type GridRow = {
-  id: string;
-  label: string;
-  type: EntityRef["type"];
-  searchText: string;
-  raw: unknown;
-};
-
 function EntityGrid({
   density,
   drafts,
@@ -690,6 +675,8 @@ function EntityGrid({
   model,
   onEntityTypeChange,
   onQueueIntent,
+  onApplyCellIntent,
+  operationBusy,
   onSelect,
   selection,
   setDrafts,
@@ -704,6 +691,8 @@ function EntityGrid({
   model: PreviewModel;
   onEntityTypeChange: (entityType: GridEntityType) => void;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
+  onApplyCellIntent?: (intent: EditorOperationIntent) => Promise<TableApplyResult>;
+  operationBusy?: boolean;
   onSelect: (selection: EntityRef) => void;
   selection: EntityRef;
   setDrafts: React.Dispatch<React.SetStateAction<Record<string, string>>>;
@@ -711,6 +700,31 @@ function EntityGrid({
   projectSessionGeneration: number;
 }) {
   const [queuedMessage, setQueuedMessage] = useState("");
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const nodeRows = useMemo(() => gridRows(model, "nodes"), [model]);
+  const nodeGridColumns = useMemo(() => gridColumns(model, "nodes").filter((column) => ["x", "y", "z"].includes(column.key)), [model]);
+  const coordinateColumns = useMemo(() => nodeCoordinateColumns(model.project.units.length ?? ""), [model.project.units.length]);
+  const tableRows: TableRow[] = useMemo(() => nodeRows.map((row) => ({ key: entityKey(row), label: row.id, searchText: row.searchText,
+    cells: Object.fromEntries(nodeGridColumns.map((column) => [column.key, { value: column.value(row), unit: model.project.units.length ?? "" }]))
+  })), [nodeRows, nodeGridColumns, model.project.units.length]);
+  const tableGeneration = JSON.stringify([model.project.id, projectSessionGeneration]);
+  const operationSequence = useRef(0);
+  const retainedNodeDrafts = changedGridCells({ columns: gridColumns(model, "nodes"), drafts, rows: nodeRows, projectSessionGeneration }).length;
+  async function applyCoordinate(captured: CapturedCell, value: string): Promise<TableApplyResult> {
+    if (!onApplyCellIntent) return { applied: false, messages: ["The operation route is unavailable."] };
+    if (!capturedCellIsCurrent(captured, tableRows, tableGeneration)) return { applied: false, messages: ["The cell or project changed. Cancel and edit the current value."] };
+    const row = nodeRows.find((candidate) => entityKey(candidate) === captured.rowKey);
+    const column = nodeGridColumns.find((candidate) => candidate.key === captured.columnKey);
+    if (!row || !column) return { applied: false, messages: ["The target cell is unavailable."] };
+    if (!captured.unit.trim()) return { applied: false, messages: ["The model has no declared length unit. Direct coordinate Apply is unavailable."] };
+    const capturedColumn = { ...column, unit: () => captured.unit, value: () => captured.before };
+    const intent = buildGridOperationIntent({ row, column: capturedColumn, model, sequence: ++operationSequence.current, value, interaction: "cell" });
+    // Direct edits need unique outcome identity even after a view/session remount.
+    const identity = crypto.randomUUID();
+    intent.operation_id = `op:table-cell-${identity}`;
+    intent.change.change_id = `change:table-cell-${identity}`;
+    return onApplyCellIntent(intent);
+  }
   const rows = useMemo(() => gridRows(model, entityType), [model, entityType]);
   const columns = useMemo(() => gridColumns(model, entityType), [model, entityType]);
   const visibleRows = useMemo(() => {
@@ -783,6 +797,16 @@ function EntityGrid({
           </button>
         ))}
       </div>
+      <div hidden={entityType !== "nodes"} inert={entityType !== "nodes"}>
+        <EngineeringTable label="Node coordinates" rows={tableRows} columns={coordinateColumns} generation={tableGeneration}
+          filter={filterText} density={density} selectedKey={entityKey(selection)} busy={operationBusy}
+          onSelect={(key) => { const row = nodeRows.find((candidate) => entityKey(candidate) === key); if (row) onSelect({ type: row.type, id: row.id }); }}
+          onApply={applyCoordinate} />
+      </div>
+      <details className={`entity-grid-review${entityType !== "nodes" ? " other-family" : ""}`} open={entityType !== "nodes" || reviewOpen}
+        onToggle={(event) => { if (entityType === "nodes") setReviewOpen(event.currentTarget.open); }}>
+        <summary hidden={entityType !== "nodes"} data-testid="node-grid-review-disclosure">Review multiple changes{!reviewOpen && retainedNodeDrafts > 0 ? ` · ${retainedNodeDrafts} retained draft${retainedNodeDrafts === 1 ? "" : "s"}` : ""}</summary>
+        <div inert={entityType === "nodes" && !reviewOpen}>
       <div className="entity-grid-summary">
         <span data-testid="entity-grid-summary">
           {visibleRows.length} of {rows.length}{" "}
@@ -913,6 +937,8 @@ function EntityGrid({
           {queuedMessage}
         </p>
       ) : null}
+        </div>
+      </details>
     </section>
   );
 }
@@ -1475,77 +1501,6 @@ function changedGridCells({
   );
 }
 
-function buildGridOperationIntent({
-  column,
-  model,
-  row,
-  sequence,
-  value
-}: {
-  column: GridColumn;
-  model: PreviewModel;
-  row: GridRow;
-  sequence: number;
-  value: string;
-}): EditorOperationIntent {
-  const operationToken = `${safeToken(row.id)}-${safeToken(column.fieldPath)}-${sequence.toString().padStart(2, "0")}`;
-  const unit = column.unit(row);
-  const after =
-    column.dimension === "dimensionless"
-      ? value.trim() || "TBD"
-      : JSON.stringify({ value: parseQuantityPayloadValue(value), unit });
-
-  return {
-    operation_id: `op:grid-intent-${operationToken}`,
-    operation_kind: "modify",
-    operation_status: "proposed",
-    author_type: "user",
-    source: {
-      source_ref: `grid:${model.project.id}:${row.id}`,
-      source_channel: "local_desktop_preview",
-      source_role: "gui_editor"
-    },
-    target: {
-      object_type: column.objectType,
-      ref: row.id
-    },
-    change: {
-      change_id: `change:grid:${operationToken}`,
-      change_kind: column.changeKind,
-      field_label: column.label,
-      field_path: column.fieldPath,
-      before: column.value(row),
-      after,
-      unit,
-      dimension: column.dimension,
-      source_note: `layout_grid_bulk_tabular; ${column.sourceNote}`
-    },
-    validation: {
-      schema_validation: "not_run",
-      constraint_validation: "not_run",
-      unit_validation:
-        column.dimension === "dimensionless" ? "not_required_dimensionless" : "model_metadata_unit_dimension_declared",
-      diff_preview_status: "not_generated",
-      application_status: "not_applied"
-    },
-    audit_boundary: {
-      mutation_route: "structured_operations_only",
-      direct_model_mutation_allowed: false,
-      requires_user_acceptance: true,
-      mutates_accepted_model_state: false
-    },
-    professional_boundary: {
-      human_review_required: true,
-      software_makes_compliance_claim: false,
-      software_makes_certification_claim: false,
-      software_makes_sealing_claim: false,
-      software_makes_approval_claim: false,
-      software_makes_authentication_claim: false
-    },
-    rationale: "layout_grid_bulk_tabular_review_change"
-  };
-}
-
 function gridEntityTypeFromSelection(selection: EntityRef): GridEntityType {
   if (selection.type === "material") return "materials";
   if (selection.type === "section") return "sections";
@@ -1580,13 +1535,6 @@ function quantityUnitValue(source: unknown, valuePath: string, fallbackUnit: str
   const unitPath = valuePath.replace(/\.value$/, ".unit");
   if (unitPath === valuePath) return fallbackUnit;
   return stringValueAtPath(source, unitPath) || fallbackUnit;
-}
-
-function parseQuantityPayloadValue(raw: string): number | string {
-  const trimmed = raw.trim();
-  if (!trimmed) return "TBD";
-  const parsed = Number(trimmed);
-  return Number.isFinite(parsed) ? parsed : trimmed;
 }
 
 function safeToken(value: string): string {

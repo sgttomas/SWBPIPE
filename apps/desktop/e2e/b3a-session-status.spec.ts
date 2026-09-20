@@ -9,6 +9,7 @@ test("canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
   await expect(page.getByTestId("project-edited")).toHaveCount(0);
   await ensureTreeExpanded(page);
   await page.getByTestId("layout-mode-grid").click();
+  await openNodeGridReview(page);
   await page.getByTestId("entity-grid-input-node:N-100-y").fill("0.5");
   await page.getByTestId("queue-entity-grid-intents").click();
   await page.getByTestId("apply-intent-editor-intent-1").click();
@@ -31,6 +32,15 @@ test("canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
   await expect(page.getByTestId("workspace-undo")).toBeDisabled();
   await ensureTreeExpanded(page);
   await page.getByTestId("layout-mode-grid").click();
+  await openNodeGridReview(page);
   await expect(page.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
   await page.screenshot({ path: info.outputPath("reopened-clean.png") });
 });
+
+// Preserve this journey's reviewed multi-cell operation setup.
+async function openNodeGridReview(page: import("@playwright/test").Page) {
+  const summary = page.getByTestId("node-grid-review-disclosure");
+  if (!(await summary.evaluate((element) => element.parentElement?.hasAttribute("open")))) {
+    await summary.click();
+  }
+}
