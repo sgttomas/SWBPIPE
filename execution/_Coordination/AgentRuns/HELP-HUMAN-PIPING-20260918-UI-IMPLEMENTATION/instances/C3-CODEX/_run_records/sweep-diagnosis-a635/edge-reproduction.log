@@ -1,0 +1,287 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/viewport/viewportFigureEdge.test.ts (24 tests | 1 failed | 23 skipped) 16ms
+     × adds no object, no geometry, no attribute and no texture: the line is the element's own drawing 15ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 23 skipped (24)
+   Start at  14:05:27
+   Duration  627ms (transform 124ms, setup 94ms, import 120ms, tests 16ms, environment 310ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/viewport/viewportFigureEdge.test.ts > viewport edge line: repaint, ownership, hiding and selection > adds no object, no geometry, no attribute and no texture: the line is the element's own drawing
+AssertionError: expected [ …(3) ] to deeply equal [ …(2) ]
+
+- Expected
++ Received
+
+@@ -1061,6 +1061,255 @@
+          "viewportPaletteRole": "pipe",
+        },
+        "uuid": "0c0fc093-398f-4df6-8151-a78428989866",
+      },
+    },
++   {
++     "geometries": [
++       {
++         "height": 1,
++         "heightSegments": 1,
++         "openEnded": false,
++         "radialSegments": 10,
++         "radiusBottom": 1,
++         "radiusTop": 1,
++         "thetaLength": 6.283185307179586,
++         "thetaStart": 0,
++         "type": "CylinderGeometry",
++         "uuid": "5de7bbbb-c222-44ba-8d57-1de6fe05d9a3",
++       },
++     ],
++     "materials": [
++       {
++         "blendColor": 0,
++         "clipping": false,
++         "color": 16777215,
++         "defines": {
++           "FIGURE_EDGE_RADIUS": "1.0",
++           "FIGURE_EDGE_SIDES": "10.0",
++         },
++         "depthWrite": false,
++         "fog": false,
++         "forceSinglePass": true,
++         "fragmentShader": "
++   uniform vec3 tint;
++   uniform float opacity;
++   uniform vec3 shadeRatio;
++
++   uniform vec3 edge;
++   uniform float edgeWidth;
++   float figureEdgePixels( float value ) {
++     return value / max( length( vec2( dFdx( value ), dFdy( value ) ) ), 1e-12 );
++   }
++   float figureEdgeBandAt( float pixels, float width ) {
++     return 1.0 - smoothstep( width - 0.5, width + 0.5, pixels );
++   }
++
++   varying vec4 vFigureEdge;
++   #include <color_pars_fragment>
++   varying vec3 vFigureViewNormal;
++   varying vec3 vFigureViewPosition;
++   void main() {
++     vec3 base = tint;
++     #if defined( USE_COLOR_ALPHA )
++       base *= vColor.rgb;
++     #elif defined( USE_COLOR )
++       base *= vColor;
++     #endif
++     vec3 viewDirection = isOrthographic ? vec3( 0.0, 0.0, 1.0 ) : normalize( vFigureViewPosition );
++     float facing = abs( dot( normalize( vFigureViewNormal ), viewDirection ) );
++     float figureEdgeSide = min( figureEdgePixels( vFigureEdge.x ), figureEdgePixels( vFigureEdge.y ) );
++     float figureEdgeRim = mix( 1e9, figureEdgePixels( vFigureEdge.z ), step( 0.5, vFigureEdge.w ) );
++     float figureEdgeBand = figureEdgeBandAt( min( figureEdgeSide, figureEdgeRim ), edgeWidth );
++     gl_FragColor = vec4( mix( mix( base * shadeRatio, base, smoothstep( 0.0, 0.75, facing ) ), edge, figureEdgeBand ), opacity );
++     #include <colorspace_fragment>
++   }
++ ",
++         "glslVersion": null,
++         "lights": false,
++         "opacity": 0.2,
++         "toneMapped": false,
++         "transparent": true,
++         "type": "ShaderMaterial",
++         "uniforms": {
++           "edge": {
++             "type": "c",
++             "value": 4343887,
++           },
++           "edgeWidth": {
++             "value": 2,
++           },
++           "opacity": {
++             "value": 0.2,
++           },
++           "shadeRatio": {
++             "type": "c",
++             "value": 13159372,
++           },
++           "tint": {
++             "type": "c",
++             "value": 16777215,
++           },
++         },
++         "uuid": "d1494e52-10be-4562-9641-5bbbc6b1153a",
++         "vertexShader": "
++   #include <color_pars_vertex>
++   varying vec3 vFigureViewNormal;
++   varying vec3 vFigureViewPosition;
++
++   vec3 figureEdgeCameraLocal() {
++     #ifdef USE_INSTANCING
++       mat4 figureModelView = modelViewMatrix * instanceMatrix;
++     #else
++       mat4 figureModelView = modelViewMatrix;
++     #endif
++     vec3 toCamera = -figureModelView[ 3 ].xyz;
++     vec3 axisX = figureModelView[ 0 ].xyz;
++     vec3 axisY = figureModelView[ 1 ].xyz;
++     vec3 axisZ = figureModelView[ 2 ].xyz;
++     return vec3(
++       dot( toCamera, axisX ) / max( dot( axisX, axisX ), 1e-30 ),
++       dot( toCamera, axisY ) / max( dot( axisY, axisY ), 1e-30 ),
++       dot( toCamera, axisZ ) / max( dot( axisZ, axisZ ), 1e-30 )
++     );
++   }
++
++   varying vec4 vFigureEdge;
++   float figureEdgePlane( vec2 point, vec2 eye, float theta ) {
++     vec2 vertex = vec2( sin( theta ), cos( theta ) );
++     vec2 along = eye - vertex;
++     vec2 toAxis = normalize( vec2( -along.y, along.x ) );
++     toAxis = dot( vertex, toAxis ) > 0.0 ? -toAxis : toAxis;
++     return dot( point - vertex, toAxis );
++   }
++   void main() {
++     #include <color_vertex>
++     #include <beginnormal_vertex>
++     #include <defaultnormal_vertex>
++     #include <begin_vertex>
++     #include <project_vertex>
++     vFigureViewNormal = transformedNormal;
++     vFigureViewPosition = -mvPosition.xyz;
++     vec2 figureEdgeEye = figureEdgeCameraLocal().xz / FIGURE_EDGE_RADIUS;
++     vec2 figureEdgePoint = transformed.xz / FIGURE_EDGE_RADIUS;
++     float figureEdgeRho = length( figureEdgeEye );
++     vec2 figureEdgeSides = vec2( 1e4 );
++     if ( figureEdgeRho > 1.0 && ! isOrthographic ) {
++       float figureEdgeStep = 6.283185307179586 / FIGURE_EDGE_SIDES;
++       float figureEdgeAlpha = atan( figureEdgeEye.x, figureEdgeEye.y );
++       float figureEdgeBeta = acos( min( cos( 0.5 * figureEdgeStep ) / figureEdgeRho, 1.0 ) );
++       figureEdgeSides = vec2(
++         figureEdgePlane( figureEdgePoint, figureEdgeEye,
++           ( floor( ( figureEdgeAlpha + figureEdgeBeta - 0.5 * figureEdgeStep ) / figureEdgeStep ) + 1.0 ) * figureEdgeStep ),
++         figureEdgePlane( figureEdgePoint, figureEdgeEye,
++           ceil( ( figureEdgeAlpha - figureEdgeBeta - 0.5 * figureEdgeStep ) / figureEdgeStep ) * figureEdgeStep )
++       );
++     }
++     vFigureEdge = vec4( figureEdgeSides, 1.0 - length( figureEdgePoint ), step( 0.5, abs( normal.y ) ) );
++   }
++ ",
++         "wireframeLinecap": undefined,
++         "wireframeLinejoin": undefined,
++       },
++     ],
++     "metadata": {
++       "generator": "Object3D.toJSON",
++       "type": "Object",
++       "version": 4.7,
++     },
++     "object": {
++       "count": 0,
++       "geometry": "5de7bbbb-c222-44ba-8d57-1de6fe05d9a3",
++       "instanceColor": {
++         "array": [
++           0.38132601976394653,
++           0.40724021196365356,
++           0.43965718150138855,
++           0.38132601976394653,
++           0.40724021196365356,
++           0.43965718150138855,
++         ],
++         "isInstancedBufferAttribute": true,
++         "itemSize": 3,
++         "meshPerAttribute": 1,
++         "normalized": false,
++         "type": "Float32Array",
++       },
++       "instanceMatrix": {
++         "array": [
++           1,
++           0,
++           0,
++           0,
++           0,
++           1,
++           0,
++           0,
++           0,
++           0,
++           1,
++           0,
++           0,
++           0,
++           0,
++           1,
++           1,
++           0,
++           0,
++           0,
++           0,
++           1,
++           0,
++           0,
++           0,
++           0,
++           1,
++           0,
++           0,
++           0,
++           0,
++           1,
++         ],
++         "isInstancedBufferAttribute": true,
++         "itemSize": 16,
++         "meshPerAttribute": 1,
++         "normalized": false,
++         "type": "Float32Array",
++       },
++       "layers": 1,
++       "material": "d1494e52-10be-4562-9641-5bbbc6b1153a",
++       "matrix": [
++         1,
++         0,
++         0,
++         0,
++         0,
++         1,
++         0,
++         0,
++         0,
++         0,
++         1,
++         0,
++         0,
++         0,
++         0,
++         1,
++       ],
++       "name": "viewport-dimmed",
++       "type": "InstancedMesh",
++       "up": [
++         0,
++         1,
++         0,
++       ],
++       "userData": {
++         "instanceBaseMatrices": [],
++         "instanceEntityKeys": [],
++         "viewportBaseColor": 10922929,
++         "viewportOwnershipKind": "pipe",
++         "viewportPaletteRole": "pipe",
++       },
++       "uuid": "b15426d8-a64e-4bb1-9a44-1d046be35300",
++     },
++   },
+  ]
+
+ ❯ src/features/viewport/viewportFigureEdge.test.ts:365:19
+    363|     modelLayer.traverse((object) => drawn.push(object));
+    364|     // The layer and the one mesh it was given: nothing a pick, a box …
+    365|     expect(drawn).toEqual([modelLayer, edged]);
+       |                   ^
+    366|   });
+    367|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

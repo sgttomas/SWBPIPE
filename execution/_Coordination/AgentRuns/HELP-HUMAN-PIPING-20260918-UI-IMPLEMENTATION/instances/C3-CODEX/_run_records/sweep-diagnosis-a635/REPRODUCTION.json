@@ -1,0 +1,59 @@
+{
+  "failedCandidate": "a635b01ad67e85a10b542e889f0de29715358e49",
+  "ownedHead": "9fb4b88b828808ccbb064405c12b28fde8c60138",
+  "inputs": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportFigureEdge.test.ts",
+      "sha256": "a442ff1060b39e41c8adf2165eb40a3e5a67ecb74050471e1bc6c1ee008c3055",
+      "equalToFailedCandidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportFigureMaterial.ts",
+      "sha256": "127117c24d4ef9b358a7cbfe542eee207bccfa224220c5244dbedce5bb669790",
+      "equalToFailedCandidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts",
+      "sha256": "ecc235baa8867101b9ac913d37f3072f3493992393f1253ae65b50fc47b98153",
+      "equalToFailedCandidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportDimmingPresentation.ts",
+      "sha256": "eab3c269122dfa2e7e132fadd657b2e932a1bc615092d889f1a412624cea8dbc",
+      "equalToFailedCandidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportHalo.test.ts",
+      "sha256": "531a267ff69532185a8fb09ccc29ad330cb74782b19e9633683e180b42057a55",
+      "equalToFailedCandidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.ts",
+      "sha256": "fdf3eaa49b9685b932bce404421086c45a82fa22e5c8abc3f8146fc09cb846d5",
+      "equalToFailedCandidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportSelection.test.ts",
+      "sha256": "bff08f70bdf0259e94e56eaac2e8911c76f1e7be77f3adc9f8335eb6b36b1aa0",
+      "equalToFailedCandidate": true
+    }
+  ],
+  "briefSha256": "6ac49f64f05e431dc5689d1c820aea706ab24c3da99e72ba83e039224f4d125a",
+  "skill": {
+    "path": ".agents/skills/software-defect-diagnosis/SKILL.md",
+    "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+  },
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "src/features/viewport/viewportFigureEdge.test.ts",
+    "--maxWorkers=1",
+    "--testNamePattern",
+    "adds no object, no geometry, no attribute and no texture:"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop",
+  "nodeVersion": "v24.18.0",
+  "exitCode": 1,
+  "logSha256": "b894971cfbd0b1bc71643e5c9ef2812afed4a2272772a6531af0798805cfe2f9"
+}

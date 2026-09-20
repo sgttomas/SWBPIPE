@@ -1,0 +1,12 @@
+{
+  "_run_records/sweep-diagnosis-a635/DIAGNOSIS.md": "cf44270586045fccd2c37266ab064d5bdb0d5580fc4dfab3c20c7d6e9ec3eb79",
+  "_run_records/sweep-diagnosis-a635/DIAGNOSIS_BINDINGS.json": "b78dde023dc3690b3b7c31584515acf010409a543f3b1f4ba99eaa7a044f6d3a",
+  "_run_records/sweep-diagnosis-a635/REPRODUCTION.json": "cc9cd8bd60f3fa305bb68d95e9adf1ebe06b2fc92b7531f1e42e364e1160f412",
+  "_run_records/sweep-diagnosis-a635/edge-reproduction.log": "b894971cfbd0b1bc71643e5c9ef2812afed4a2272772a6531af0798805cfe2f9",
+  "_run_records/sweep-test-repair-a635/PRESERVATION.json": "2ea129ded4ef77fd6ab83de2c59bd9cb3d05fb15208de523081940a5dd25c509",
+  "_run_records/sweep-test-repair-a635/RESULTS.json": "e1df5a640c2099c3b7cc67086e23535b675fce607bfea3890db2c536685acbb8",
+  "_run_records/sweep-test-repair-a635/RETURN.md": "61d00eec34421dc622316963be72b94083ab3f530e193c9d988fcebdc8c23257",
+  "_run_records/sweep-test-repair-a635/affected.log": "997f140f5798d4f62e33e9bf161122f1c8306c04807b954c3a5ac1294fd6e066",
+  "_run_records/sweep-test-repair-a635/edge-file.log": "a9ed25bf0598ea3f8cd2819d2a7ff06f4cec4004dd3db5512122a4a525c40e9a",
+  "_run_records/sweep-test-repair-a635/test.patch": "95f60162caf64c88d1f03e99055c17ad7046a29d23a073031d09ab0e3e1a781e"
+}

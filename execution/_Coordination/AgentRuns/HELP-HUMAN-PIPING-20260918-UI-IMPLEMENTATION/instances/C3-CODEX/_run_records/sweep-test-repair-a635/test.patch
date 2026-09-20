@@ -1,0 +1,34 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/features/viewport/viewportFigureEdge.test.ts b/projects/chirality-piping/apps/desktop/src/features/viewport/viewportFigureEdge.test.ts
+index 480a1633c..d2aee7e5a 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/viewport/viewportFigureEdge.test.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/viewport/viewportFigureEdge.test.ts
+@@ -357,12 +357,23 @@ describe("viewport edge line: repaint, ownership, hiding and selection", () => {
+     expect(counts[1]).toEqual(counts[0]);
+     expect(counts[1]).toMatchObject({ pipeMeshes: 1, geometries: 1, materials: 1, textures: 0, instanceMatrices: 1, instanceColors: 1 });
+ 
+-    const { resource, modelLayer } = edgeResource("light", 2);
+-    resource.replaceLayer(modelLayer, [edged]);
+-    const drawn: THREE.Object3D[] = [];
+-    modelLayer.traverse((object) => drawn.push(object));
+-    // The layer and the one mesh it was given: nothing a pick, a box or a filter could newly meet.
+-    expect(drawn).toEqual([modelLayer, edged]);
++    // C3 admits the same dim companion with or without an edge. Compare both through
++    // that common path: the edge line must still add no object or owned resource.
++    const admittedCounts = [plain, edged].map((mesh) => {
++      const { resource, ownership, modelLayer } = edgeResource("light", 2);
++      resource.replaceLayer(modelLayer, [mesh]);
++      expect(mesh.children).toHaveLength(1);
++      const companion = mesh.children[0];
++      expect(companion).toBeInstanceOf(THREE.InstancedMesh);
++      expect((companion as THREE.InstancedMesh).geometry).toBe(mesh.geometry);
++      expect((companion as THREE.InstancedMesh).count).toBe(0);
++      const drawn: THREE.Object3D[] = [];
++      modelLayer.traverse((object) => drawn.push(object));
++      expect(drawn).toEqual([modelLayer, mesh, companion]);
++      return ownership.snapshot().live;
++    });
++    expect(admittedCounts[1]).toEqual(admittedCounts[0]);
++    expect(admittedCounts[1]).toMatchObject({ pipeMeshes: 2, geometries: 1, materials: 2, textures: 0, instanceMatrices: 2, instanceColors: 2 });
+   });
+ 
+   it("hides a line with its element by the same zero matrix, and by nothing else", () => {

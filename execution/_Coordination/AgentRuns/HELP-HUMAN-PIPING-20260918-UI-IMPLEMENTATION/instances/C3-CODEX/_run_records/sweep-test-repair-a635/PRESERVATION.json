@@ -1,0 +1,16 @@
+{
+  "allowedMaintainedPath": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportFigureEdge.test.ts",
+  "onlyMaintainedPathChanged": true,
+  "bytesBeforeFinalBlockPreserved": true,
+  "bytesAfterNamedCasePreserved": true,
+  "oldSha256": "a442ff1060b39e41c8adf2165eb40a3e5a67ecb74050471e1bc6c1ee008c3055",
+  "newSha256": "9cad88ad83ce7b88e023b67be72276fe03b686a77f1ba8c1283af031b6fdba24",
+  "diffSha256": "95f60162caf64c88d1f03e99055c17ad7046a29d23a073031d09ab0e3e1a781e",
+  "protectedFilesChecked": 83,
+  "protectedFilesEqual": true,
+  "productionAndOtherTestsUnchanged": true,
+  "srcTreeBefore": "24c4da4d47dd6b558f4198664a58411de8848db6",
+  "srcTreeBeforeMatchesA635": true,
+  "srcTauriTree": "14d002f968cfcdde0442d9cfdf88c3fa6f684a1e",
+  "diagnosisAndFailurePreserved": true
+}
