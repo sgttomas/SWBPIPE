@@ -159,3 +159,5 @@ Product/CI strategy and all new evidence corrections have independent PASS retur
 ## Owner approval — parity and bounded reruns
 
 The owner approved parity with the existing source test and bounded reruns. Exact supplied text and scope are in continuation OWNER_DIST_PARITY_APPROVAL.md. The reviewed patch is applied with expected dist SHA256 f6def858ca800f0f65fa338a92847e6ad8e0b11052dc6063f56d31d809cca4f3. Original failed065 sweep remains failed. Next: full corrected dist/build, unchanged-input binding, affected CI-policy checks, independent backchecks and selected hosted CI; then merge825 and activate B3A/I1. No other test or general sweep requirement changes.
+
+Bounded reruns completed on clean7a37a8f2: corrected complete dist and production build pass; affected CI policy tests pass. COMBINED_VERIFICATION.json binds unchanged product/source/domain inputs to failed065's passing surfaces, preserving its failed verdict. Current peer note and graph now reflect approval/application and released rerun resources. Final current-head collection/records checks and selected hosted CI remain before merge.

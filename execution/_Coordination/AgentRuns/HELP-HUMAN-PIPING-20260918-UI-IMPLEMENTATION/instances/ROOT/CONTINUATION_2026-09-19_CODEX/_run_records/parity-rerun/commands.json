@@ -1,0 +1,30 @@
+[
+  {
+    "name": "full-dist",
+    "candidate": "7a37a8f2b2d4f55460ebeaa7d201bae4d840cf9b",
+    "cwd": "projects/chirality-piping/apps/desktop",
+    "command": [
+      "npm",
+      "run",
+      "test:e2e:dist"
+    ],
+    "exitCode": 0,
+    "seconds": 184.29201197624207,
+    "log": "/tmp/swbpipe-parity-full-dist.log",
+    "browser": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+  },
+  {
+    "name": "production-build",
+    "candidate": "7a37a8f2b2d4f55460ebeaa7d201bae4d840cf9b",
+    "cwd": "projects/chirality-piping",
+    "command": [
+      "npm",
+      "run",
+      "build:desktop"
+    ],
+    "exitCode": 0,
+    "seconds": 6.864761829376221,
+    "log": "/tmp/swbpipe-parity-production-build.log",
+    "browser": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+  }
+]

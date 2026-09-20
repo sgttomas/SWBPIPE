@@ -1,0 +1,106 @@
+
+> @openpipestress/desktop@0.1.0 test:e2e:dist
+> npm run build:wasm && npm run build && playwright test --config playwright.dist.config.ts
+
+
+> @openpipestress/desktop@0.1.0 build:wasm
+> node scripts/build-wasm-engine.mjs
+
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/wasm-engine.tmp-18796
+[build-wasm-engine] OK — wasm operation engine generated at public/wasm-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/self-weight-engine.tmp-18796
+[build-wasm-engine] OK — wasm operation engine generated at public/self-weight-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+
+> @openpipestress/desktop@0.1.0 build
+> tsc -b && vite build
+
+vite v7.3.3 building client environment for production...
+transforming...
+✓ 1745 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                        1.13 kB │ gzip:   0.55 kB
+dist/assets/index-CEJ1wtiX.css                       101.94 kB │ gzip:  18.16 kB
+dist/assets/vendor-tauri-DlQNAQKj.js                   0.09 kB │ gzip:   0.11 kB
+dist/assets/invented_design_knowledge-H12r-oKQ.js      1.66 kB │ gzip:   0.76 kB
+dist/assets/invented_agent_proposal-Bm57LVt-.js        1.82 kB │ gzip:   0.85 kB
+dist/assets/vendor-7OC5HNn7.js                         3.61 kB │ gzip:   1.58 kB
+dist/assets/invented_demo_rule_pack-dhX9tvT1.js       10.86 kB │ gzip:   2.59 kB
+dist/assets/invented_preview_model-pJA3_nB8.js        12.67 kB │ gzip:   3.05 kB
+dist/assets/vendor-icons-BjC2kMFO.js                  18.99 kB │ gzip:   6.25 kB
+dist/assets/vendor-react-u0ysdD_x.js                 188.76 kB │ gzip:  59.03 kB
+dist/assets/invented_mechanics_result-CleTy2JL.js    502.61 kB │ gzip:  22.14 kB
+dist/assets/vendor-three-hE6SPF4C.js                 528.57 kB │ gzip: 136.05 kB
+dist/assets/index-Djwh7i3V.js                      1,417.07 kB │ gzip: 353.23 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.93s
+[2m[WebServer] [22m(node:19286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 53 tests using 1 worker
+
+(node:19288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium-desktop-dist] › e2e/report-package-dist.spec.ts:4:1 › production dist exposes the report-package File route and fails honestly in browser mode (1.7s)
+  ✓   2 [chromium-desktop-dist] › e2e/result-compatibility-dist.spec.ts:10:1 › built dist carries checked 0.2 Current and stress-neutral packages (16.8s)
+  ✓   3 [chromium-desktop-dist] › e2e/toolkit-batch-dist.spec.ts:13:1 › dist self-weight plan previews, applies atomically and restores one batch with one undo (2.1s)
+  ✓   4 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:47:1 › [preflight] production dist exposes compact command groups and keyboard measurement (2.8s)
+  ✓   5 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:129:1 › [visual-clarification] measurement and real pipe task remain unobscured as narrow drawers close (2.8s)
+  ✓   6 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:251:1 › [rail-clearance] closed rail handles leave active viewport controls and complete measurement content usable (1.8s)
+  ✓   7 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:314:3 › content-aware narrow canvas budget light comfortable (11.8s)
+  ✓   8 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:314:3 › content-aware narrow canvas budget light compact (12.2s)
+  ✓   9 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:314:3 › content-aware narrow canvas budget dark comfortable (11.8s)
+  ✓  10 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:314:3 › content-aware narrow canvas budget dark compact (11.7s)
+  ✓  11 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:512:3 › outer overlays own actual workspace intersections and restore controls 1024 (3.7s)
+  ✓  12 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:512:3 › outer overlays own actual workspace intersections and restore controls 1440 (2.1s)
+  ✓  13 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light comfortable 1024x768 (3.0s)
+  ✓  14 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light comfortable 1280x800 (3.1s)
+  ✓  15 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light comfortable 1440x920 (3.1s)
+  ✓  16 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light compact 1024x768 (3.0s)
+  ✓  17 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light compact 1280x800 (3.1s)
+  ✓  18 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light compact 1440x920 (3.1s)
+  ✓  19 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark comfortable 1024x768 (3.0s)
+  ✓  20 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark comfortable 1280x800 (3.1s)
+  ✓  21 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark comfortable 1440x920 (3.1s)
+  ✓  22 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark compact 1024x768 (3.0s)
+  ✓  23 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark compact 1280x800 (3.1s)
+  ✓  24 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark compact 1440x920 (3.1s)
+  ✓  25 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:908:1 › System follows the emulated OS preference; explicit theme and density persist after reload (973ms)
+  ✓  26 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:926:1 › production browser keeps reopened results Historical until a fresh exact-basis solve succeeds (1.9s)
+  ✓  27 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1000:3 › Solve readiness rows retain resolved contrast in light (3.7s)
+  ✓  28 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1000:3 › Solve readiness rows retain resolved contrast in dark (3.8s)
+  ✓  29 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1069:3 › populated Results title and entered values retain resolved contrast in light (3.6s)
+  ✓  30 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1069:3 › populated Results title and entered values retain resolved contrast in dark (3.6s)
+  ✓  31 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1164:1 › same raw ID pipe task retains its typed values and queued intent after node selection (959ms)
+  ✓  32 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1195:1 › narrow canvas fits visible and selected envelopes in every view preset (1.1s)
+  ✓  33 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1275:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440 (4.3s)
+  ✓  34 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1275:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1440 (4.3s)
+  ✓  35 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1275:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1280 (4.3s)
+  ✓  36 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1275:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280 (4.3s)
+  ✓  37 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1395:1 › below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over (1.5s)
+  ✓  38 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1438:3 › Support creation preserves an active property Task through toolbar (922ms)
+  ✓  39 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1438:3 › Support creation preserves an active property Task through Insert menu (928ms)
+  ✓  40 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1470:1 › empty ordered selection publishes independently from project inspector (2.9s)
+  ✓  41 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1604:1 › decorative viewport overlays pass real canvas gestures while view controls stay interactive (2.7s)
+  ✓  42 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1771:1 › captured Box lifetime › ordinary real Box applies independent empty Components membership (803ms)
+  ✓  43 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1779:1 › captured Box lifetime › Escape retires captured Box before delayed pointer up (875ms)
+  ✓  44 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1795:1 › captured Box lifetime › same-ID Open retires old captured Box before delayed pointer up (1.2s)
+  ✓  45 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1831:55 › captured Box lifetime › Select retires captured Box before delayed pointer up (841ms)
+  ✓  46 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1831:55 › captured Box lifetime › New blank retires captured Box before delayed pointer up (847ms)
+  ✓  47 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1860:70 › captured Box lifetime › Measure cannot revive a captured Box through a mode ABA (852ms)
+  ✓  48 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1860:70 › captured Box lifetime › palette Node and Select cannot revive a captured Box through a mode ABA (1.0s)
+  ✓  49 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1883:39 › captured Box lifetime › workspace Escape event ownership body idle (657ms)
+  ✓  50 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1883:39 › captured Box lifetime › workspace Escape event ownership body captured (834ms)
+  ✓  51 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1907:55 › captured Box lifetime › workspace Escape event ownership consumed palette (751ms)
+  ✓  52 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1907:55 › captured Box lifetime › workspace Escape event ownership consumed drawer (874ms)
+  ✓  53 [chromium-desktop-dist] › e2e/wasm-engine-dist.spec.ts:9:1 › production dist serves the wasm engine and New blank succeeds (758ms)
+
+  53 passed (2.9m)

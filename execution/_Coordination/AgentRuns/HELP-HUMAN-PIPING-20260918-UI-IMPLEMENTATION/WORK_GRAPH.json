@@ -312,7 +312,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
-      "status": "Owner approved exact source/dist wheel-target parity and PR825-only bounded reruns. Reviewed patch applied; corrected full dist/build and final hosted CI pending.",
+      "status": "Reviewed owner-approved parity applied; full corrected dist53 and remaining build pass. Unchanged065 successes reused under explicit ruling; original sweep remains failed. Final records and focused hosted CI/merge pending.",
       "dependsOn": [
         "B2F-B2G",
         "C1"
@@ -362,9 +362,8 @@
         }
       ],
       "gatesOwed": [
-        "corrected full dist and remaining production build with final hash binding",
-        "independent applied-patch/CI-scope and records backchecks",
-        "actual-candidate selected hosted CI",
+        "final records/collection checks",
+        "actual-publication-head focused hosted CI",
         "merge"
       ],
       "deliverableBinding": {
@@ -389,9 +388,8 @@
         }
       ],
       "gatesOwedCurrent": [
-        "corrected full dist and remaining production build with final hash binding",
-        "independent applied-patch/CI-scope and records backchecks",
-        "actual-candidate selected hosted CI",
+        "final records/collection checks",
+        "actual-publication-head focused hosted CI",
         "merge"
       ],
       "continuationEngineeringDecisions": [
@@ -500,10 +498,10 @@
         "reported": "416passed,20existing skips,10.9minutes"
       },
       "distFinal": {
-        "candidate": "065485671c7bf1c9b100643316bb263dd39421d8",
-        "status": "fail",
-        "reported": "52passed,1failed",
-        "detail": "z target changes6.938893903907228e-18 afterwheel; source twin already has16EPS bound, dist exact"
+        "candidate": "7a37a8f2b2d4f55460ebeaa7d201bae4d840cf9b",
+        "status": "pass",
+        "reported": "53passed exit0,2.9minutes",
+        "log": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/parity-rerun/full-dist.log"
       },
       "sweep": {
         "commit": "065485671c7bf1c9b100643316bb263dd39421d8",
@@ -595,6 +593,11 @@
         "harness": "379passed after raw-evidence relocation",
         "selfCheck": "standalone exit0, existingWARN/REVIEW retained, no rawpath findings",
         "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/evidence-classification/MANIFEST.json"
+      },
+      "combinedVerification": {
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/parity-rerun/COMBINED_VERIFICATION.json",
+        "sha256": "4a25ccc1fe8b1704c89084db6e600744e08f274efec79040905d282eb4ea0a20",
+        "standing": "Combined delta verification under explicit PR825-only owner ruling; NOT a fresh complete sweep"
       }
     },
     "B3A": {
@@ -1378,7 +1381,7 @@
       "B3-FIDELITY-CODEX"
     ]
   ],
-  "current_frontier": "Owner approved exact dist parity and bounded reruns. Apply reviewed patch, verify unchanged passing surfaces plus corrected full dist/build and current CI checks, then merge PR825 and launch prepared B3A/I1 lanes.",
+  "current_frontier": "B3 bounded verification complete under owner ruling; final records and68-case focused hosted CI then merge PR825. After merge activate prepared B3A and I1 lanes; remaining product and Runtime holds unchanged.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -1583,7 +1586,7 @@
     "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RUNTIME_COORDINATION_STATUS.md",
     "editor": "ROOT only",
     "peerThread": "01a07cd1-86da-7d30-9b17-e2cbbad3f10a",
-    "state": "Piping B3 verification awaits owner protected-test ruling; all host resources released. Runtime integration remains discussion only.",
+    "state": "Owner parity/reuse ruling approved and applied; corrected complete dist/build passed, rerun resources released. PR825 publication/CI/merge pending. Runtime adoption still discussion only.",
     "originMainRevalidated": "21175b5d3668f29acd408812d95a33ed4f14bfc8",
     "peerProposedContract": "cb08dbe2fbeaf5a34a0abfa2f1d599c7c5bd6b2f",
     "peerPr": "https://github.com/sgttomas/chirality/pull/824",

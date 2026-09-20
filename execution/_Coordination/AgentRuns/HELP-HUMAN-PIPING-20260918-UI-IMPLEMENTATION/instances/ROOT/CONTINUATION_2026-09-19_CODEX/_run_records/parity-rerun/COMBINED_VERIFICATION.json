@@ -1,0 +1,64 @@
+{
+  "standing": "Combined delta verification under explicit PR825-only owner ruling; NOT a fresh complete sweep",
+  "authority": "OWNER_DIST_PARITY_APPROVAL.md",
+  "testedCandidate": "7a37a8f2b2d4f55460ebeaa7d201bae4d840cf9b",
+  "reusedCandidate": "065485671c7bf1c9b100643316bb263dd39421d8",
+  "originalSweepStatus": "fail, preserved",
+  "reusedResults": {
+    "cargo": "all registered commands passed",
+    "python": "1133 passed;304 warnings;19 subtests; changed CI subset separately rerun",
+    "desktopUnit": "88files1436passed",
+    "sourceE2E": "416passed20existing skips"
+  },
+  "newResults": {
+    "completeDist": "53passed;exit0",
+    "productionBuild": "exit0",
+    "changedCiPolicy": "30passed;exit0"
+  },
+  "unchangedInputScopes": [
+    "projects/chirality-piping/apps/desktop/src",
+    "projects/chirality-piping/apps/desktop/src-tauri",
+    "projects/chirality-piping/core",
+    "projects/chirality-piping/schemas",
+    "projects/chirality-piping/fixtures",
+    "projects/chirality-piping/package.json",
+    "projects/chirality-piping/package-lock.json",
+    "projects/chirality-piping/apps/desktop/package.json",
+    "projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "projects/chirality-piping/apps/desktop/playwright.dist.config.ts",
+    "projects/chirality-piping/apps/desktop/vite.config.ts"
+  ],
+  "unchangedInputDiff": [],
+  "e2eDiffOnly": [
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts"
+  ],
+  "pythonToolAndTestDiffOnly": [
+    "projects/chirality-piping/tests/test_ci_e2e_plan.py",
+    "projects/chirality-piping/tools/ci/e2e_plan.py"
+  ],
+  "sourceSpecSha256": "0f212e8de2eb8b5901e5fd159db5c4d220f4ba6ff9e8993c9f3987ed4bd9b754",
+  "approvedDistSpecSha256": "f6def858ca800f0f65fa338a92847e6ad8e0b11052dc6063f56d31d809cca4f3",
+  "files": {
+    "ci-policy-tests.log": {
+      "bytes": 4265,
+      "sha256": "e67f47ea4f8d191a51c3d5ec84d12aa3f2b7edd71fd274de6435b2afdf1967cb"
+    },
+    "commands.json": {
+      "bytes": 967,
+      "sha256": "6f980cf05d70c4caf1a1269698fc5daf278ff5159c7d59ffec75ba39171d50c2"
+    },
+    "full-dist.log": {
+      "bytes": 11621,
+      "sha256": "c3b018280b16a1ef84c95536df5f9573b1a393124407361f726e5199c154adc6"
+    },
+    "production-build.log": {
+      "bytes": 1730,
+      "sha256": "91889449a20c23ef6dd20361a53d54705d0aea7fcda0fe6d5d8e681ed11b19e9"
+    }
+  },
+  "stillRequired": [
+    "final publication equality check",
+    "selected hosted CI on publication head",
+    "merge"
+  ]
+}
