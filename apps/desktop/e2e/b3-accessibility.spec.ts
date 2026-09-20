@@ -303,3 +303,95 @@ test("support family popup dismissal does not invent a missing engineering choic
   await expect(family).toContainText("Not provided (preserved)");
   await expect(page.getByTestId("workspace-undo")).toBeDisabled();
 });
+
+test("Agent reason preserves hover and lets focused page Close receive the pointer", async ({ page }, info) => {
+  await page.goto("/");
+  await openWorkspaceSection(page, "libraries");
+  const agent = page.getByTestId("agent-strip-open");
+  const reason = page.locator("#agent-strip-reason");
+  const close = page.getByTestId("workspace-dock-close");
+  await agent.focus();
+  await expect(reason).toBeVisible();
+  await reason.hover();
+  await expect(reason).toBeVisible();
+  await witness(info, "agent-reason-close-hit", await close.evaluate(el => {
+    const r = el.getBoundingClientRect();
+    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return { close: r.toJSON(), hit: hit?.outerHTML, ownsPointer: el.contains(hit), focused: document.activeElement?.outerHTML };
+  }));
+  await close.click();
+  await expect(close).toHaveCount(0);
+});
+
+test("disabled reasons own only visible unconsumed Escape and reset on reentry", async ({ page }) => {
+  await page.goto("/");
+  await openWorkspaceSection(page, "libraries");
+  const agent = page.getByTestId("agent-strip-open");
+  const reason = page.locator("#agent-strip-reason");
+  const close = page.getByTestId("workspace-dock-close");
+  await agent.focus();
+  await expect(reason).toBeVisible();
+  // A child has already consumed this Escape; the reason and page must remain.
+  await agent.evaluate(el => el.addEventListener("keydown", event => event.preventDefault(), { once: true }));
+  await page.keyboard.press("Escape");
+  await expect(reason).toBeVisible();
+  await expect(close).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(reason).toBeHidden();
+  await expect(agent).toHaveAccessibleDescription("Agent: not available yet");
+  await expect(agent).toBeFocused();
+  await expect(close).toBeVisible();
+  await close.focus();
+  await agent.focus();
+  await expect(reason).toBeVisible();
+
+  // Hover alone persists across the visible gap and over the tooltip itself.
+  await close.focus();
+  await agent.hover();
+  const anchorBox = await agent.boundingBox();
+  const reasonBox = await reason.boundingBox();
+  expect(anchorBox).not.toBeNull();
+  expect(reasonBox).not.toBeNull();
+  await page.mouse.move(anchorBox!.x + anchorBox!.width / 2, reasonBox!.y + reasonBox!.height / 2, { steps: 12 });
+  await expect(reason).toBeVisible();
+  await reason.hover();
+  await expect(reason).toBeVisible();
+  const placement = await reason.evaluate(el => {
+    const r = el.getBoundingClientRect();
+    return { contained: r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight,
+      topmost: el.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)) };
+  });
+  expect(placement).toEqual({ contained: true, topmost: true });
+  await page.keyboard.press("Escape");
+  await expect(reason).toBeHidden();
+  await expect(close).toBeVisible();
+  await close.hover();
+  await agent.hover();
+  await expect(reason).toBeVisible();
+  await close.hover();
+  await expect(reason).toBeHidden();
+  // No visible reason may consume the page's normal Escape command.
+  await page.keyboard.press("Escape");
+  await expect(close).toHaveCount(0);
+});
+
+test("simultaneous hovered and focused reasons dismiss before the page", async ({ page }) => {
+  await page.goto("/");
+  await openWorkspaceSection(page, "libraries");
+  const rail = page.getByTestId("rail-stage-results");
+  const railReason = page.locator(`#${await rail.getAttribute("aria-describedby")}`);
+  const agent = page.getByTestId("agent-strip-open");
+  const reason = page.locator("#agent-strip-reason");
+  const close = page.getByTestId("workspace-dock-close");
+  await rail.hover();
+  await agent.focus();
+  await expect(railReason).toBeVisible();
+  await expect(reason).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(railReason).toBeHidden();
+  await expect(reason).toBeHidden();
+  await expect(close).toBeVisible();
+  await expect(agent).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(close).toHaveCount(0);
+});
