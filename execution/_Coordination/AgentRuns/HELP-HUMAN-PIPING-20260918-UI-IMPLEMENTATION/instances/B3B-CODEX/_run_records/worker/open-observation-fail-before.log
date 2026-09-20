@@ -1,0 +1,37 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/workspaceSession.shell.test.tsx (10 tests | 1 failed | 9 skipped) 129ms
+   × publishes committed Open observations after the actual draft invalidation callback 128ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/workspaceSession.shell.test.tsx > publishes committed Open observations after the actual draft invalidation callback
+AssertionError: expected null to match object { …(3) }
+
+- Expected:
+{
+  "integrity_status": "verified_match",
+  "persisted_value": "sha256:cc5fb8337aba8e1ba9f146c661e6283c52e5fc6f560ca63d81cf727cc6652c95",
+  "verification_source": "open",
+}
+
++ Received:
+null
+
+ ❯ src/features/workspace/workspaceSession.shell.test.tsx:340:55
+    338|     expect(result.current.operations.requestEpoch).toBeGreaterThan(epo…
+    339|     await act(async () => { release(); await opening; });
+    340|     expect(result.current.project.modelHashIntegrity).toMatchObject({ …
+       |                                                       ^
+    341|     expect(result.current.project.projectEnvelopeHashIntegrity).toMatc…
+    342|     expect(result.current.project.projectBusy).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 skipped (10)
+   Start at  12:41:41
+   Duration  1.04s (transform 307ms, setup 92ms, import 413ms, tests 129ms, environment 315ms)
+

@@ -77,6 +77,7 @@ import { useModelSessionState } from "./modelSessionState";
 import { useOperationsSessionState } from "./operationsSessionState";
 import {
   canPublishPersistenceObservation,
+  ownsOpenPersistenceObservation,
   verifiedWriteBasis, isLocalModelEdited,
   deriveModelHashIntegrity,
   deriveProjectEnvelopeHashIntegrity,
@@ -1750,6 +1751,11 @@ export function useWorkspaceSession() {
       const openedGeneration = projectSessionGenerationRef.current;
       const openedRevision = uiModelRevisionRef.current;
       const openedBasisSequence = ++savedBasisSequence.current;
+      const observationOwner = { request, generation: openedGeneration, projectId: opened.model.project.id, basisSequence: openedBasisSequence };
+      const stillOwnsOpenedObservation = () => ownsOpenPersistenceObservation(observationOwner, {
+        request: projectRequest.current, generation: projectSessionGenerationRef.current,
+        projectId: currentModel.current?.project.id, basisSequence: savedBasisSequence.current
+      });
       setSelection(defaultSelection(opened.model));
       epoch = requestEpochRef.current;
       setUndoStack([]);
@@ -1785,7 +1791,7 @@ export function useWorkspaceSession() {
       if (recomputedHash && openedGeneration === projectSessionGenerationRef.current && openedBasisSequence === savedBasisSequence.current) {
         setSavedModelBasis({ generation: openedGeneration, revision: openedRevision, hash: recomputedHash.value, source: "open" });
       }
-      if (!stillCurrent()) return;
+      if (!stillOwnsOpenedObservation()) return;
       setModelHashIntegrity(deriveModelHashIntegrity(opened.model_hash ?? null, recomputedHash, opened.model.project.id));
       const recomputedEnvelopeHash = await computeProjectEnvelopeHash({
         model: opened.model,
@@ -1796,7 +1802,7 @@ export function useWorkspaceSession() {
         analysis_run: opened.analysis_run ?? null,
         model_hash: opened.model_hash ?? null
       });
-      if (!stillCurrent()) return;
+      if (!stillOwnsOpenedObservation()) return;
       setProjectEnvelopeHashIntegrity(
         deriveProjectEnvelopeHashIntegrity(
           opened.project_envelope_hash ?? null,

@@ -169,3 +169,16 @@ export function isLocalModelEdited(basis: PersistedModelBasis | null, generation
   return !basis || basis.generation !== generation ||
     (basis.revision !== revision && (!currentHashOwned || !hash || hash.value !== basis.hash));
 }
+
+interface OpenObservationOwner {
+  request: number;
+  generation: number;
+  projectId: string | undefined;
+  basisSequence: number;
+}
+
+/** An adopted snapshot stays observable through draft invalidation and local edits. */
+export function ownsOpenPersistenceObservation(captured: OpenObservationOwner, current: OpenObservationOwner): boolean {
+  return captured.request === current.request && captured.generation === current.generation &&
+    captured.projectId === current.projectId && captured.basisSequence === current.basisSequence;
+}

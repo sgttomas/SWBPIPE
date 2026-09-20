@@ -1,0 +1,26 @@
+{
+  "base": "52f1baf01bf90f6af959042cc94e18366f48f1ae",
+  "frozen_at": "2026-09-20T18:43:25.888278+00:00",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+      "sha256": "8f498dfe86b45a7f3093e685efeff0e747f82f718fe6be9aae792b64edb3a663"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/projectPersistenceIntegrity.test.ts",
+      "sha256": "56766ae478d14b0dbf02832b2ac078eb0c8696c051bca1e3a22f29e9cecdf2a9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/projectPersistenceIntegrity.ts",
+      "sha256": "9ee4b9d7bccc09e0814126e22a83f7eac17135b7b7a00422018243e6ae1f59bf"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+      "sha256": "299890b6ca24ed3cd80b2fcfd0d2def7715bfe6bd276b3268cb1a51a6605cdae"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "90fc1b07c37f4bdf98a64f949a441d25f2b8d2952c57eb69d4bdf0a42434c644"
+    }
+  ]
+}

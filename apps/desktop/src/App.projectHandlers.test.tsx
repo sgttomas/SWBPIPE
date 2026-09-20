@@ -778,6 +778,10 @@ describe("B3A asynchronous canonical comparison", () => {
     await applyGridEditWhilePending();
     await act(async () => gate.resolve());
     await flushPendingWork();
+    expect(modelHashLine()).toHaveTextContent("integrity=not_persisted");
+    expect(modelHashLine()).toHaveTextContent("source=open");
+    expect(envelopeHashLine()).toHaveTextContent("source=open");
+    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
     expect(screen.getByTestId("project-edited")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("workspace-undo"));
     await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());

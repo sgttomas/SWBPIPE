@@ -1,0 +1,90 @@
+[2m[WebServer] [22m(node:70138) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:70140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:70140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium-desktop] › e2e/b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence (11.9s)
+(node:70158) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:70158) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [chromium-compact] › e2e/b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence (11.7s)
+
+
+  1) [chromium-desktop] › e2e/b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByTestId('project-validation-model-hash')
+    Expected substring: [32m"model_hash_verified_on_open"[39m
+    Received string:    [31m"Model hash evidencemodel_hash=model_hash_persisted_open_verification_not_run; persisted_model_hashes=1; persisted_model_hash_ref=sha256:65971a7aa85a00d844676ba6f534ed70d9ac062a35bc95d3c065210101d89280; integrity=persistence_verification_not_run_this_session; claim_standing=not_recorded; source=none; observed_at=not_recorded; persisted snapshot only; later local edits are not verified"[39m
+    Timeout: 10000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('project-validation-model-hash')[22m
+    [2m    24 × locator resolved to <div class="report-line" data-testid="project-validation-model-hash">…</div>[22m
+    [2m       - unexpected value "Model hash evidencemodel_hash=model_hash_persisted_open_verification_not_run; persisted_model_hashes=1; persisted_model_hash_ref=sha256:65971a7aa85a00d844676ba6f534ed70d9ac062a35bc95d3c065210101d89280; integrity=persistence_verification_not_run_this_session; claim_standing=not_recorded; source=none; observed_at=not_recorded; persisted snapshot only; later local edits are not verified"[22m
+
+
+      34 |     await projectCommand(page, "open-local");
+      35 |     await openWorkspaceSection(page, "project");
+    > 36 |     await expect(page.getByTestId("project-validation-model-hash")).toContainText("model_hash_verified_on_open");
+         |                                                                     ^
+      37 |     const reopened = await packet(page, "validation");
+      38 |     expect(reopened.model_hash_integrity.persisted_value).toBe(saved.model_hash_integrity.persisted_value);
+      39 |     expect(reopened.model_hash_integrity.verification_source).toBe("open");
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3b-project-persistence.spec.ts:36:69
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3B-CODEX/_run_records/browser/artifacts/b3b-project-persistence-B3-0a512-save-open-snapshot-evidence-chromium-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3B-CODEX/_run_records/browser/artifacts/b3b-project-persistence-B3-0a512-save-open-snapshot-evidence-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3B-CODEX/_run_records/browser/artifacts/b3b-project-persistence-B3-0a512-save-open-snapshot-evidence-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-compact] › e2e/b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByTestId('project-validation-model-hash')
+    Expected substring: [32m"model_hash_verified_on_open"[39m
+    Received string:    [31m"Model hash evidencemodel_hash=model_hash_persisted_open_verification_not_run; persisted_model_hashes=1; persisted_model_hash_ref=sha256:c48155b207ccaa823d5296fe3e7959a1fc503801890425d02b76777fecc98a35; integrity=persistence_verification_not_run_this_session; claim_standing=not_recorded; source=none; observed_at=not_recorded; persisted snapshot only; later local edits are not verified"[39m
+    Timeout: 10000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('project-validation-model-hash')[22m
+    [2m    24 × locator resolved to <div class="report-line" data-testid="project-validation-model-hash">…</div>[22m
+    [2m       - unexpected value "Model hash evidencemodel_hash=model_hash_persisted_open_verification_not_run; persisted_model_hashes=1; persisted_model_hash_ref=sha256:c48155b207ccaa823d5296fe3e7959a1fc503801890425d02b76777fecc98a35; integrity=persistence_verification_not_run_this_session; claim_standing=not_recorded; source=none; observed_at=not_recorded; persisted snapshot only; later local edits are not verified"[22m
+
+
+      34 |     await projectCommand(page, "open-local");
+      35 |     await openWorkspaceSection(page, "project");
+    > 36 |     await expect(page.getByTestId("project-validation-model-hash")).toContainText("model_hash_verified_on_open");
+         |                                                                     ^
+      37 |     const reopened = await packet(page, "validation");
+      38 |     expect(reopened.model_hash_integrity.persisted_value).toBe(saved.model_hash_integrity.persisted_value);
+      39 |     expect(reopened.model_hash_integrity.verification_source).toBe("open");
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b3b-project-persistence.spec.ts:36:69
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3B-CODEX/_run_records/browser/artifacts/b3b-project-persistence-B3-0a512-save-open-snapshot-evidence-chromium-compact/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3B-CODEX/_run_records/browser/artifacts/b3b-project-persistence-B3-0a512-save-open-snapshot-evidence-chromium-compact/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3B-CODEX/_run_records/browser/artifacts/b3b-project-persistence-B3-0a512-save-open-snapshot-evidence-chromium-compact/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium-desktop] › e2e/b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence 
+    [chromium-compact] › e2e/b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence 

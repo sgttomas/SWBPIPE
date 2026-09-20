@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { canPublishPersistenceObservation, deriveModelHashIntegrity, deriveProjectEnvelopeHashIntegrity } from "./projectPersistenceIntegrity";
+import { canPublishPersistenceObservation, ownsOpenPersistenceObservation, deriveModelHashIntegrity, deriveProjectEnvelopeHashIntegrity } from "./projectPersistenceIntegrity";
 import type { ModelHashEvidence } from "../../types";
 const model: ModelHashEvidence = { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "model_payload", payload_ref: "project:test", value: `sha256:${"a".repeat(64)}`, hash_status: "computed_local_preview" };
 describe("B3B persisted snapshot observations", () => {
@@ -55,4 +55,16 @@ it.each([true, false])("preserves saved canonical basis under reversed verificat
   complete(3, true, hashA, 1); // Same ID from a replaced session cannot publish.
   expect(basis).toBe(retained);
   expect(isLocalModelEdited(basis, 2, 11, false, hashB)).toBe(true); // Delayed live hash is not owned.
+});
+
+
+it("keeps Open snapshot ownership separate from UI epoch, rejecting replacement and newer evidence", () => {
+  const captured = { request: 2, generation: 3, projectId: "same-id", basisSequence: 4 };
+  expect(ownsOpenPersistenceObservation(captured, { ...captured })).toBe(true);
+  for (const next of [
+    { ...captured, request: 3 },
+    { ...captured, generation: 4 },
+    { ...captured, projectId: "different-id" },
+    { ...captured, basisSequence: 5 }
+  ]) expect(ownsOpenPersistenceObservation(captured, next)).toBe(false);
 });

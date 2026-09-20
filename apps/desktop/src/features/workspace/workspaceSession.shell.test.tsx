@@ -16,6 +16,8 @@ import {
 } from "./shellLayout";
 import type { ShellStage, ShellView } from "./shellLayout";
 import { useWorkspaceSession } from "./workspaceSession";
+import * as hashService from "../../services/hashService";
+import { createLocalProject } from "../../services/projectService";
 import type { WorkspaceSession } from "./workspaceSession";
 import { WorkspaceSessionProvider, useSessionChrome, useWorkspaceSessionContext } from "./WorkspaceSessionContext";
 
@@ -308,4 +310,35 @@ it("webview history accelerators use one checkpoint route in both runtimes and p
   expect(result.current.operations.redoStack).toHaveLength(0);
   expect(result.current.model.model!.nodes[0].position.x).toBe(edited.nodes[0].position.x);
   expect(key(true).defaultPrevented).toBe(false);
+});
+
+
+it("publishes committed Open observations after the actual draft invalidation callback", async () => {
+  const { result } = await readySession();
+  const model = structuredClone(result.current.model.model!);
+  model.project.id = "project:b3b-open-observation";
+  const modelHash = await hashService.computeModelHash(model);
+  const envelopeHash = await hashService.computeProjectEnvelopeHash({ model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: null, analysis_run: null, model_hash: modelHash });
+  const opened = await createLocalProject(model, [], null, null, null, null, modelHash, envelopeHash);
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => { release = resolve; });
+  const original = hashService.computeModelHash;
+  vi.spyOn(hashService, "computeModelHash").mockImplementation(async (input) => {
+    if (input === opened.model) await gate;
+    return original(input);
+  });
+  invokeMock.mockImplementation((command: string) => command === "open_local_project" ? Promise.resolve(opened) : Promise.resolve({}));
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  try {
+    let opening!: Promise<void>;
+    act(() => { opening = result.current.project.handleOpenProject(); });
+    await waitFor(() => expect(result.current.model.model?.project.id).toBe(opened.model.project.id));
+    const epoch = result.current.operations.requestEpoch;
+    act(() => result.current.operations.invalidateDirectDraftContext());
+    expect(result.current.operations.requestEpoch).toBeGreaterThan(epoch);
+    await act(async () => { release(); await opening; });
+    expect(result.current.project.modelHashIntegrity).toMatchObject({ integrity_status: "verified_match", verification_source: "open", persisted_value: modelHash!.value });
+    expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match", verification_source: "open", persisted_value: envelopeHash!.value });
+    expect(result.current.project.projectBusy).toBe(false);
+  } finally { release(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; }
 });
