@@ -1,0 +1,131 @@
+$ sh /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh env PLAYWRIGHT_WORKERS=1 npx playwright test e2e/ui-foundation/full-cohort-controller.spec.ts --output /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/worker/playwright-artifacts
+[2m[WebServer] [22m(node:23904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 112 tests using 1 worker
+
+(node:23906) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:23906) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    1 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:12:1 › frozen controller recipe retains prescribed workload and bounded independent segments (3ms)
+  ✓    2 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:16:1 › tree oracle is independently derived with complete typed order and ARIA groups (2ms)
+  ✓    3 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:32:3 › only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: assignment (11ms)
+  ✓    4 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:32:3 › only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: tree-filter (2ms)
+  ✓    5 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:45:1 › presented gap bounds widen outward and never subtract observer work (1ms)
+  ✓    6 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:81:1 › paired cue permits contrasting rim replacing orange and rejects unchanged/outside changes (61ms)
+  ✓    7 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:90:1 › exact four distinct paired witnesses and actual contrast boundary remain mandatory (11ms)
+  ✓    8 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:102:1 › cue plan rejects wrong typed winner anchor camera DPR clip and corrupt PNG mappings (37ms)
+  ✓    9 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:114:1 › geometry pairing is deterministic conservative and one-to-one (44ms)
+  ✓   10 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:122:1 › real caller observer requirements retain complete observations and DOM zero RAF class (1ms)
+  ✓   11 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:132:1 › actual product pre-box unavailable and status-less active union is strict (4ms)
+  ✓   12 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:146:1 › stopped box rejection persists exact fields before throwing and never overwrites evidence (61ms)
+  ✓   13 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:266:1 › cross-action camera accepts finite sub-nanounit 7 to 8 publication and rejects incomplete or changed geometry (5ms)
+  ✓   14 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:293:1 › first applied tuple binds same or later submission only for the exact unchanged application and pointer (5ms)
+  ✓   15 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:325:1 › actual first callback copies application and capture rejects replacement drift or later backfill (52ms)
+  ✓   16 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:415:1 › winner plan requires geometry provenance even when the altered plan is rehashed and self-consistent (0ms)
+  ✓   17 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:424:1 › cue at the wrong attachment location cannot qualify the frozen winner center (3ms)
+  ✓   18 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:456:1 › actual ReturnAsStream beyond former64MiB preserves EOF exact hash and unsafe identifiers (684ms)
+  ✓   19 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:468:1 › actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix (1.7s)
+  ✓   20 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:480:1 › tree oracle restores accepted project restraint provenance and component vocabulary (14ms)
+  ✓   21 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:550:1 › tree oracle matches all 40 independently frozen ordered query memberships (14.3s)
+  ✓   22 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:565:1 › runtime geometry pin rejects old and mutated plan sources after valid selfhash rebinding (1ms)
+  ✓   23 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:577:1 › runtime geometry pin checks self-contained manifests and actual disk source (46ms)
+  ✓   24 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:634:1 › orbit constructor preserves full qualified sequence and unchanged interval gaps (5ms)
+  ✓   25 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:674:1 › same-trace integer arithmetic matches independent rational bounds and translation (3ms)
+  ✓   26 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:683:1 › same-trace boundary rejects mixed raw clock source document action epoch process and lineage (5ms)
+  ✓   27 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:880:1 › actual extractor and binder retain reusable tracks distinct raw pairs and tied timestamps (6ms)
+  ✓   28 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:900:1 › source-shaped extractor still rejects overlap missing pair and mismatched track endpoints (7ms)
+  ✓   29 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:909:1 › actual action lifecycle persists once before host tail and blocks next action through finalization (7ms)
+  ✓   30 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:931:1 › actual lifecycle retains injected work stop persistence tail and finalization failures without replacement stop (14ms)
+  ✓   31 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:959:1 › assignment diagnostics freeze ten fresh identities and cannot qualify full or focused workload (5ms)
+  ✓   32 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:984:1 › characterization rejects malformed/conflicting modes and every partial/reordered plan (5ms)
+  ✓   33 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:994:1 › real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries (2ms)
+  ✓   34 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1013:1 › attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs (1ms)
+  ✓   35 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1026:1 › required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions (6ms)
+  ✓   36 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1035:1 › keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers (0ms)
+  ✓   37 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1041:1 › reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles (2ms)
+  ✓   38 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1055:1 › product inventory rejects omission duplicates split overlap and wrong final provenance (2ms)
+  -   39 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1063:1 › frozen actual product/profile inputs validate read-only when explicitly supplied
+  ✓   40 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1078:1 › uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs (5ms)
+  ✓   41 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1100:1 › continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence (827ms)
+  -   42 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1130:1 › continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates
+  ✓   43 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1197:3 › phase label rejection preserves actual boundary metadata: point-selection-1-stopped (2ms)
+  ✓   44 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1197:3 › phase label rejection preserves actual boundary metadata: orbit-1-ready (6ms)
+  -   45 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1215:1 › captured scrollable inspector dimensions remain observations while true layout drift rejects
+  -   46 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: target-miss
+  -   47 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: invalid,valid
+  -   48 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid
+  -   49 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: interrupted,valid
+  -   50 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: empty-exit0,valid
+  -   51 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: stale-success
+  -   52 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1333:1 › explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates
+  ✓   53 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1382:1 › fresh demonstration provenance accepts only its bound revision and internal120 profile (2ms)
+  ✓   54 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1400:1 › first profile repair: historical geometry preserves its pinned preimage (0ms)
+  ✓   55 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1408:1 › first profile repair: D-70 inventory retains the original acceptance independently of later inventories (7ms)
+  ✓   56 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:1421:1 › first profile repair: generator checks and preflight failures never write (28.5s)
+(node:24732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   57 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:12:1 › frozen controller recipe retains prescribed workload and bounded independent segments (2ms)
+  ✓   58 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:16:1 › tree oracle is independently derived with complete typed order and ARIA groups (2ms)
+  ✓   59 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:32:3 › only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: assignment (9ms)
+  ✓   60 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:32:3 › only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: tree-filter (2ms)
+  ✓   61 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:45:1 › presented gap bounds widen outward and never subtract observer work (1ms)
+  ✓   62 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:81:1 › paired cue permits contrasting rim replacing orange and rejects unchanged/outside changes (59ms)
+  ✓   63 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:90:1 › exact four distinct paired witnesses and actual contrast boundary remain mandatory (10ms)
+  ✓   64 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:102:1 › cue plan rejects wrong typed winner anchor camera DPR clip and corrupt PNG mappings (34ms)
+  ✓   65 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:114:1 › geometry pairing is deterministic conservative and one-to-one (43ms)
+  ✓   66 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:122:1 › real caller observer requirements retain complete observations and DOM zero RAF class (0ms)
+  ✓   67 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:132:1 › actual product pre-box unavailable and status-less active union is strict (4ms)
+  ✓   68 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:146:1 › stopped box rejection persists exact fields before throwing and never overwrites evidence (48ms)
+  ✓   69 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:266:1 › cross-action camera accepts finite sub-nanounit 7 to 8 publication and rejects incomplete or changed geometry (5ms)
+  ✓   70 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:293:1 › first applied tuple binds same or later submission only for the exact unchanged application and pointer (4ms)
+  ✓   71 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:325:1 › actual first callback copies application and capture rejects replacement drift or later backfill (42ms)
+  ✓   72 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:415:1 › winner plan requires geometry provenance even when the altered plan is rehashed and self-consistent (0ms)
+  ✓   73 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:424:1 › cue at the wrong attachment location cannot qualify the frozen winner center (2ms)
+  ✓   74 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:456:1 › actual ReturnAsStream beyond former64MiB preserves EOF exact hash and unsafe identifiers (693ms)
+  ✓   75 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:468:1 › actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix (1.6s)
+  ✓   76 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:480:1 › tree oracle restores accepted project restraint provenance and component vocabulary (14ms)
+  ✓   77 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:550:1 › tree oracle matches all 40 independently frozen ordered query memberships (14.0s)
+  ✓   78 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:565:1 › runtime geometry pin rejects old and mutated plan sources after valid selfhash rebinding (1ms)
+  ✓   79 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:577:1 › runtime geometry pin checks self-contained manifests and actual disk source (46ms)
+  ✓   80 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:634:1 › orbit constructor preserves full qualified sequence and unchanged interval gaps (5ms)
+  ✓   81 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:674:1 › same-trace integer arithmetic matches independent rational bounds and translation (3ms)
+  ✓   82 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:683:1 › same-trace boundary rejects mixed raw clock source document action epoch process and lineage (5ms)
+  ✓   83 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:880:1 › actual extractor and binder retain reusable tracks distinct raw pairs and tied timestamps (5ms)
+  ✓   84 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:900:1 › source-shaped extractor still rejects overlap missing pair and mismatched track endpoints (6ms)
+  ✓   85 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:909:1 › actual action lifecycle persists once before host tail and blocks next action through finalization (7ms)
+  ✓   86 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:931:1 › actual lifecycle retains injected work stop persistence tail and finalization failures without replacement stop (14ms)
+  ✓   87 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:959:1 › assignment diagnostics freeze ten fresh identities and cannot qualify full or focused workload (4ms)
+  ✓   88 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:984:1 › characterization rejects malformed/conflicting modes and every partial/reordered plan (5ms)
+  ✓   89 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:994:1 › real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries (2ms)
+  ✓   90 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1013:1 › attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs (1ms)
+  ✓   91 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1026:1 › required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions (5ms)
+  ✓   92 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1035:1 › keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers (0ms)
+  ✓   93 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1041:1 › reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles (2ms)
+  ✓   94 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1055:1 › product inventory rejects omission duplicates split overlap and wrong final provenance (1ms)
+  -   95 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1063:1 › frozen actual product/profile inputs validate read-only when explicitly supplied
+  ✓   96 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1078:1 › uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs (5ms)
+  ✓   97 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1100:1 › continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence (826ms)
+  -   98 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1130:1 › continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates
+  ✓   99 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1197:3 › phase label rejection preserves actual boundary metadata: point-selection-1-stopped (2ms)
+  ✓  100 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1197:3 › phase label rejection preserves actual boundary metadata: orbit-1-ready (4ms)
+  -  101 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1215:1 › captured scrollable inspector dimensions remain observations while true layout drift rejects
+  -  102 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: target-miss
+  -  103 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: invalid,valid
+  -  104 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid
+  -  105 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: interrupted,valid
+  -  106 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: empty-exit0,valid
+  -  107 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1246:3 › owner one-success transition preserves history and bounded dispatch: stale-success
+  -  108 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1333:1 › explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates
+  ✓  109 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1382:1 › fresh demonstration provenance accepts only its bound revision and internal120 profile (2ms)
+  ✓  110 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1400:1 › first profile repair: historical geometry preserves its pinned preimage (0ms)
+  ✓  111 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1408:1 › first profile repair: D-70 inventory retains the original acceptance independently of later inventories (6ms)
+  ✓  112 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:1421:1 › first profile repair: generator checks and preflight failures never write (28.5s)
+
+  20 skipped
+  92 passed (1.6m)
+
+exit=0

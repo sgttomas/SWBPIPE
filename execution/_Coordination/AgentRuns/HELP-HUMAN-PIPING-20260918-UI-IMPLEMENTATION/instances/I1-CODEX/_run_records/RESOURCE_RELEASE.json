@@ -1,0 +1,7 @@
+{
+  "sourcePort": 5174,
+  "lsofExitCode": 1,
+  "lsofOutput": "",
+  "lockExistsAtManagerCheck": false,
+  "note": "I1 released lock; any later owner may legitimately acquire the shared resource"
+}

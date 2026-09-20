@@ -1,0 +1,44 @@
+$ sh /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh npx playwright test e2e/ui-foundation/full-cohort-controller.spec.ts --project=chromium-desktop --grep runtime geometry pin checks self-contained manifests and actual disk source --output /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/worker/EXPECTED_CURRENT_SOURCE_DRIFT_REFUSAL-artifacts
+UI_FOUNDATION_CANDIDATE_SOURCE_ROOT=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping
+[2m[WebServer] [22m(node:30010) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:30012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:577:1 › runtime geometry pin checks self-contained manifests and actual disk source (6ms)
+
+
+  1) [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:577:1 › runtime geometry pin checks self-contained manifests and actual disk source 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e"[39m
+    Received: [31m"fdf3eaa49b9685b932bce404421086c45a82fa22e5c8abc3f8146fc09cb846d5"[39m
+
+      585 |   const cuePath = `${sourceRoot}/apps/desktop/src/features/viewport/viewportSelectionPresentation.ts`;
+      586 |   const geometry = await readFile(geometryPath);
+    > 587 |   expect(hash(geometry)).toBe(CUE_GEOMETRY_SOURCE_SHA256);
+          |                          ^
+      588 |   expect(hash(await readFile(cuePath))).toBe(CUE_SOURCE_SHA256);
+      589 |   const dependencies = await Promise.all(["freeze-candidate-point-oracle.mjs", "point-hit-oracle.mjs", "box-selection-oracle.mjs"]
+      590 |     .map(async name => ({ path: name, sha256: hash(await readFile(new URL(name, methodRoot))) })));
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:587:26
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/worker/EXPECTED_CURRENT_SOURCE_DRIFT_REFUSAL-artifacts/ui-foundation-full-cohort--07ec4-ests-and-actual-disk-source-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/worker/EXPECTED_CURRENT_SOURCE_DRIFT_REFUSAL-artifacts/ui-foundation-full-cohort--07ec4-ests-and-actual-disk-source-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/worker/EXPECTED_CURRENT_SOURCE_DRIFT_REFUSAL-artifacts/ui-foundation-full-cohort--07ec4-ests-and-actual-disk-source-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/ui-foundation/full-cohort-controller.spec.ts:577:1 › runtime geometry pin checks self-contained manifests and actual disk source 
+
+exit=1

@@ -25,10 +25,9 @@ const BASELINE_CANVAS_CSS = [919, 628];
 //   node generate-fixtures.mjs [--protocol-history-dir <absolute dir>]
 //     the original writing mode. It needs the nine preserved protocol-history files, and it now
 //     verifies them BEFORE the first write, so a missing history can no longer leave a partial write.
-// The nine files were never committed to this repository (no blob of any ref has their hashes):
-// the closeout of the run that made them kept them "as evidence rather than current method source".
-// They are therefore supplied from outside with --protocol-history-dir; the default location is
-// kept only so that a checkout that does hold them still works. No pinned hash below has changed.
+// The original closeout kept the nine preimages as evidence, not packaged method source.
+// Recovered run evidence can now be supplied explicitly with --protocol-history-dir; the default
+// location remains supported for checkouts that hold it. No pinned hash below has changed.
 const ARGS = process.argv.slice(2);
 const CHECK = ARGS.includes("--check");
 const HISTORY_FLAG = "--protocol-history-dir";
@@ -473,8 +472,8 @@ async function verifyPreservedProtocolHistory() {
     try { if ((await stat(fallback)).isDirectory()) directory = fallback; } catch (error) { if (error.code !== "ENOENT") throw error; }
   }
   if (!directory) {
-    if (!CHECK) throw new Error(`preserved protocol history is not in this repository: supply the nine files with ${HISTORY_FLAG} <absolute directory>, or use --check (which writes nothing); nothing was written`);
-    return { status: "NOT_SUPPLIED_NINE_FILES_NOT_IN_REPOSITORY", verified_files: 0, required_files: PRESERVED_PROTOCOL_HISTORY.length };
+    if (!CHECK) throw new Error(`preserved protocol history was not supplied and the default directory is absent: supply the nine files with ${HISTORY_FLAG} <absolute directory>, or use --check (which writes nothing); nothing was written`);
+    return { status: "NOT_SUPPLIED_NINE_PINNED_FILES", verified_files: 0, required_files: PRESERVED_PROTOCOL_HISTORY.length };
   }
   for (const [name, expectedHash] of PRESERVED_PROTOCOL_HISTORY) {
     let bytes;

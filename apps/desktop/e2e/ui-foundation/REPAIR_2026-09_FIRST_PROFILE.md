@@ -184,3 +184,31 @@ literal was found.** One observation for the second profile: most of the instrum
 are outside the repository, so their hashes can be compared but not re-derived here.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+## I1-CODEX completion, 2026-09-20
+
+The preceding account records the original I1-REPAIR work and its then-available inputs.
+The continuation adds a header to `verify-winner-cue-plan.mjs` identifying its earlier
+97b18c96 attachment-centre transition, both required old/new input directories and
+the unavailable-input limitation. Every executable byte and acceptance check remains unchanged.
+
+The nine pinned protocol-history preimages plus README have now been recovered into
+`execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/protocol-history/`.
+The manager records their custody and explicit-directory verification separately. The
+original missing-history account is historical; it is not a claim that the bytes remain
+unavailable globally. Default-directory and explicit-directory generator semantics remain unchanged.
+
+Maintained tests now run every generator invocation in an isolated scratch copy. They
+check successful frozen-byte reproduction, absent/invalid explicit history, invalid
+default history, malformed/unknown arguments, and corrupted/missing frozen-byte negative
+controls, comparing content and mtimes after each invocation. No writing-mode invocation
+runs against the live tree. D-70 tests exercise the original 34-entry unique-path acceptance
+and refusal directly; they no longer derive the historical inventory from an evolving
+controller list or assert incidental comment/source formatting. Raw historical manifest
+compatibility remains a separate run-evidence check. The new, unmerged missing-history report token is now `NOT_SUPPLIED_NINE_PINNED_FILES`;
+the refusal describes absent supplied/default history rather than global repository absence.
+Consumer search found no accepted consumer beyond this repair's code, test and documentation.
+The historical token quoted above remains a record of the original implementation. No generator
+acceptance behavior, historical pin, frozen artifact, tolerance or product source changed.
+
+Validation and actual execution attribution are recorded in I1-CODEX/WORKER_RETURN.md.

@@ -1,0 +1,160 @@
+{
+  "prior": {
+    "kind": "unavailable",
+    "actionSequence": 0,
+    "generation": 3
+  },
+  "priorRender": 1,
+  "projectId": "p",
+  "resourceGeneration": 1,
+  "expectedInspectorHeading": "2 selected items",
+  "dom": {
+    "readout": "Selected pipe: b; 0 queued",
+    "inspectorHeading": "3 selected items",
+    "aggregateCount": 1,
+    "aggregatePrimary": "pipe: b"
+  },
+  "actionIdentity": {
+    "sample": 1
+  },
+  "canvas": {
+    "box": {
+      "width": 794,
+      "height": 484
+    }
+  },
+  "pointerEvents": {
+    "pointerup": {
+      "listenerObservedAt": 10
+    }
+  },
+  "expected": {
+    "direction": "left-to-right",
+    "filter": "all",
+    "orderedRefs": [
+      {
+        "type": "pipe",
+        "id": "collision"
+      },
+      {
+        "type": "pipe",
+        "id": "b"
+      }
+    ],
+    "primaryRef": {
+      "type": "pipe",
+      "id": "b"
+    }
+  },
+  "after": {
+    "model": {
+      "generation": 3
+    },
+    "viewport": {
+      "generation": 3,
+      "camera": {
+        "sequence": 5
+      },
+      "box": {
+        "generation": 3,
+        "actionSequence": 1,
+        "renderSubmissionSequence": 2,
+        "publishedAt": 11,
+        "direction": "left-to-right",
+        "filter": "all",
+        "orderedRefs": [
+          {
+            "type": "pipe",
+            "id": "collision"
+          },
+          {
+            "type": "pipe",
+            "id": "b"
+          }
+        ],
+        "primaryRef": {
+          "type": "pipe",
+          "id": "b"
+        }
+      },
+      "selection": {
+        "generation": 3,
+        "actionSequence": 1,
+        "publishedAt": 11,
+        "renderSubmissionSequence": 2,
+        "orderedRefs": [
+          {
+            "type": "pipe",
+            "id": "collision"
+          },
+          {
+            "type": "pipe",
+            "id": "b"
+          }
+        ],
+        "primaryRef": {
+          "type": "pipe",
+          "id": "b"
+        }
+      },
+      "inspector": {
+        "generation": 3,
+        "publicationSequence": 1,
+        "ref": {
+          "type": "pipe",
+          "id": "b"
+        }
+      },
+      "mainRender": {
+        "generation": 3,
+        "submissionSequence": 2,
+        "submittedAt": 12,
+        "selectionPresentation": {
+          "resourceGeneration": 1,
+          "modelGeneration": 3,
+          "revision": 1,
+          "appliedAfterSubmissionSequence": 1,
+          "renderedSubmissionSequence": 2,
+          "orderedRefs": [
+            {
+              "type": "pipe",
+              "id": "collision"
+            },
+            {
+              "type": "pipe",
+              "id": "b"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "checks": {
+    "selectionPublication": true,
+    "inspectorPublication": true,
+    "selectionRender": true,
+    "renderedResource": true,
+    "renderedModel": true,
+    "renderedRevision": true,
+    "renderedBarrier": true,
+    "renderedOrderedRefs": true,
+    "readout": true,
+    "inspectorHeading": false,
+    "aggregatePrimary": true,
+    "generation": true,
+    "actionSequence": true,
+    "render": true,
+    "publication": true,
+    "direction": true,
+    "filter": true,
+    "boxOrderedRefs": true,
+    "selectionOrderedRefs": true,
+    "boxPrimary": true,
+    "selectionPrimary": true,
+    "inspector": true
+  },
+  "failedFields": [
+    "inspectorHeading"
+  ],
+  "status": "FAIL_STOPPED_BOX_POSTCONDITION"
+}

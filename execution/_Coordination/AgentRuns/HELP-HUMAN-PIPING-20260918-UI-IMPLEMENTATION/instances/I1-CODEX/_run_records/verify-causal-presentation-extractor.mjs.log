@@ -1,0 +1,461 @@
+{
+  "schema": "openpipestress.ui-foundation.causal-presentation-extractor-synthetic-validation/v1",
+  "status": "PASS_ALL_SYNTHETIC_EXTRACTION_CASES",
+  "caseCount": 104,
+  "differential": {
+    "referencePath": null,
+    "referenceSha256": null,
+    "calls": 0,
+    "APIsPerCall": 2
+  },
+  "sourceBinding": {
+    "browserVersion": "153.0.8010.36",
+    "revision": "@507c6ee3e2f3b2ca0e660547e5b9ea4820c67f4c",
+    "primarySourceManifestSha256": "f87fd65324e795fbaea89bb96f72ef00c387f06beb8bff8651eb2a500d37a109",
+    "diagnosisSha256": "15102056e9924b645aafa344cf808f3e36dcf2e4cfa05375c30be2565cff01fb",
+    "diagnosisOutputManifestSha256": "dce9bc5a1271367a8e05fb213592ce0fcac2d1fa077147d265e185335176ba68",
+    "methodBriefSha256": "bc21adf308ba8983265c4d0dd66521d53566c5be168098f07f76d3bb091a0fae"
+  },
+  "cases": [
+    {
+      "name": "exact lineage with unrelated boundary crossings",
+      "status": "PASS_ALL_CAUSAL_PRESENTATIONS_EXACT_AND_UNAMBIGUOUS",
+      "unmatched": {
+        "unmatchedBeginCount": 1,
+        "unmatchedEndCount": 1,
+        "note": "Boundary-crossing unrelated reporter occurrences are retained but cannot qualify; each accepted result has its own complete pair."
+      }
+    },
+    {
+      "name": "compatible source quantization isolated=false",
+      "status": "PASS",
+      "interval": {
+        "lower": 99.89999999999938,
+        "upper": 100.20000000000064,
+        "scoredConservativeBound": 100.20000000000064
+      }
+    },
+    {
+      "name": "compatible source quantization isolated=true",
+      "status": "PASS",
+      "interval": {
+        "lower": 99.89999999999938,
+        "upper": 100.20000000000064,
+        "scoredConservativeBound": 100.20000000000064
+      }
+    },
+    {
+      "name": "truly disjoint source-bounded clocks rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "reversed clock bracket rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "clock source revision mismatch rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "missing prospective isolation evidence rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "preceding, measured and trailing orbit coverage",
+      "status": "PASS_COMPLETE_MEASURED_WINDOW_CAUSAL_PRESENTATION_COVERAGE",
+      "presentationGapsMs": [
+        80,
+        60
+      ]
+    },
+    {
+      "name": "raw unsafe integer becomes exact decimal string",
+      "status": "PASS",
+      "convertedCount": 1
+    },
+    {
+      "name": "unsafe non-integer raw number rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "unbound Chromium revision rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "rounded Number ID rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "missing update rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "partial reporter rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "partial presentation rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "reporter without contained submit-stage start rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "reused S with two compatible reporter occurrences rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "overlapping same-track reporter occurrence rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "cross-process main-frame ID join rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "unpaired input transaction rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "delayed main origin with simultaneous fork and later current ALL",
+      "status": "PASS",
+      "origin": {
+        "sourceId": "4294967296",
+        "sequenceNumber": "690"
+      }
+    },
+    {
+      "name": "disjoint reused reporter track binds intended complete occurrence",
+      "status": "PASS"
+    },
+    {
+      "name": "missing origin Send",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "duplicate origin Send",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "wrong-process Send",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "wrong-compositor-thread Send",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "Send after main execution",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "misbound Send main-frame ID",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "proxy origin sequence mismatch",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "wrong reporter source with equal sequence",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "unsafe rounded Send source",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "unsafe rounded reporter sequence",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "unsafe rounded origin surface ID",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "only forked ALL reporter",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "only backfill ALL reporter",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "only dropped reporter",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "reporter missing content",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "reporter needs raster",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "reporter needs recording",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "origin reporter child starts outside generation",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "missing child endpoint",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "misassociated child endpoint namespace",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "child endpoint outside reporter occurrence",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "child ends before current submission",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "two compatible child occurrences",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "wrong current submit S",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "ambiguous current submission",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "current draw sequence mismatch",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "main frame aborted",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "assignment original product start survives later stopped publication",
+      "status": "PASS"
+    },
+    {
+      "name": "DOM ready outside BMF uses native document lifecycle without WebGL callback",
+      "status": "PASS"
+    },
+    {
+      "name": "assignment replacement original start rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "assignment stale model identity rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "assignment unresolved pending mutations rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "DOM wrong native document frame rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "DOM missing frame Layerize rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "DOM content after style pass rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "DOM ABA epoch cannot requalify older content",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "DOM stopped publication wrong native input rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "DOM untrusted event rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "DOM incomplete main frame tail rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "DOM duplicate lifecycle pass rejected",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "DOM earlier eligible lifecycle with missing origin cannot use later valid frame",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "ambiguous tied DOM paired-duplicates",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "ambiguous tied DOM reversed-ties",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "ambiguous tied DOM interleaved-ties",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "ordered two-pass DOM",
+      "status": "PASS"
+    },
+    {
+      "name": "enclosed thread instant Layerize",
+      "status": "PASS"
+    },
+    {
+      "name": "duplicate terminal PrePaint",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "overlapping passes",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "reversed pass",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "missing terminal PrePaint",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "terminal style before final marker",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "mixed instant and complete Layerize",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "instant wrong frame",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "instant wrong PID",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "instant wrong TID",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "instant wrong category",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "instant wrong scope",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "instant duration invented",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "instant outside complete paint",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "absent paint duration",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "malformed paint duration",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "missing complete paint parent",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "negative paint duration",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "missing instant scope",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "complete Layerize wrong category",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "absent proxy duration",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "first missing DOM tail cannot use proven later valid frame",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "first partial DOM tail cannot use proven later valid frame",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "first aborted DOM tail cannot use proven later valid frame",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "first ambiguous DOM tail cannot use proven later valid frame",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "event index differential: irrelevant padding",
+      "status": "REFERENCE_NOT_REQUESTED"
+    },
+    {
+      "name": "event index differential: equal-time duplicate",
+      "status": "REFERENCE_NOT_REQUESTED"
+    },
+    {
+      "name": "event index differential: typed process collision",
+      "status": "REFERENCE_NOT_REQUESTED"
+    },
+    {
+      "name": "event index differential: malformed matching pipeline",
+      "status": "REFERENCE_NOT_REQUESTED"
+    },
+    {
+      "name": "event index differential: nonmatching malformed pipeline",
+      "status": "REFERENCE_NOT_REQUESTED"
+    },
+    {
+      "name": "event index differential: global invalid irrelevant timestamp",
+      "status": "REFERENCE_NOT_REQUESTED"
+    },
+    {
+      "name": "whole retrospective target absent despite complete old outer and child pairs",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "restoring only original whole occurrence preserves source timestamps and interval",
+      "status": "PASS"
+    },
+    {
+      "name": "later full reporter cannot rescue absent original retrospective occurrence",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "retrospective capture shape begin-only",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "retrospective capture shape end-only",
+      "status": "PASS_EXPECTED_REJECTION"
+    },
+    {
+      "name": "retrospective capture shape incomplete-child",
+      "status": "PASS_EXPECTED_REJECTION"
+    }
+  ]
+}

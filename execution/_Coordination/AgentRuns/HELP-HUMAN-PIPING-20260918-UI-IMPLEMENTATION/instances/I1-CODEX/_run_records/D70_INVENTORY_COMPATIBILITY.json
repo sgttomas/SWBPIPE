@@ -1,0 +1,69 @@
+{
+  "rows": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/CONTENT_WIDTH_REPAIR/METHOD_MANIFEST_SUCCESSOR.json",
+      "sha256": "d1b04c4e279081d0e0b2e9e45702f0aab1adb157f7537f2c8a46fd8eebcccf52",
+      "count": 34,
+      "originalAccepted": true,
+      "repairedAccepted": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/CONTENT_WIDTH_REPAIR/PORTABLE_BACKCHECK/METHOD_MANIFEST_SUCCESSOR.json",
+      "sha256": "6ea1ed09a39eccb305cc1c5c7de5ae63b7d319b95dd4f2d39d5407c62668690a",
+      "count": 34,
+      "originalAccepted": true,
+      "repairedAccepted": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/INTERNAL120/METHOD_MANIFEST_SUCCESSOR.json",
+      "sha256": "1e0ab8a4e4a57753084d7ceca695b0b4b952aa047923cb48e3dbd3074bf22a78",
+      "count": 34,
+      "originalAccepted": true,
+      "repairedAccepted": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/LABEL_POLICY_REPAIR/METHOD_MANIFEST_SUCCESSOR.json",
+      "sha256": "c130feec3c729adb71502ca60af32e3a37f137b3ef3b8e5291175985ddef7871",
+      "count": 34,
+      "originalAccepted": true,
+      "repairedAccepted": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/MANAGER/CONTINUATION/ONE_SUCCESS/METHOD_MANIFEST_SUCCESSOR.json",
+      "sha256": "29e22f296e569c2c20824f77403a6fdbac805ea9560f149fdcd9e24e4f93ca36",
+      "count": 34,
+      "originalAccepted": true,
+      "repairedAccepted": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/CONTINUATION/METHOD_MANIFEST_SUCCESSOR.json",
+      "sha256": "79efe4a3915b270f5b00853032c59a740ac3284ee49984566c26d6895b557cbd",
+      "count": 34,
+      "originalAccepted": true,
+      "repairedAccepted": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/METHOD_MANIFEST_CANDIDATE.json",
+      "sha256": "98e5449b202b19eee841e8846200c885195770be73326bff61f9e6d45f83480e",
+      "count": 34,
+      "originalAccepted": true,
+      "repairedAccepted": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/ORBIT_ALIGNMENT/METHOD_MANIFEST_SUCCESSOR.json",
+      "sha256": "c36048c44d14acdceb7b15a898c96e38a473e96adb985a07a9694496324426b1",
+      "count": 34,
+      "originalAccepted": true,
+      "repairedAccepted": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/instances/WRITER/SMOKE_REPAIR/METHOD_MANIFEST_SUCCESSOR.json",
+      "sha256": "064195227bf8ef4c050757f280b2b5dc6b1b29e45154e2c5aa1833426410e123",
+      "count": 34,
+      "originalAccepted": true,
+      "repairedAccepted": true
+    }
+  ],
+  "passed": true,
+  "scope": "Recorded inventory admission only, not path-bound continuation qualification"
+}

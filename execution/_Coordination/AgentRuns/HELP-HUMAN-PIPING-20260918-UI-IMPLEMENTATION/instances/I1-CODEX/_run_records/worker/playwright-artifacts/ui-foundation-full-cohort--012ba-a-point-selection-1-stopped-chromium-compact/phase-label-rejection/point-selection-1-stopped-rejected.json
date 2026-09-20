@@ -1,0 +1,234 @@
+{
+  "status": "REJECTED_BOUNDARY_METADATA",
+  "actual": {
+    "id": "point-selection-1-stopped",
+    "runId": "r",
+    "referenceProfileSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "bindings": {
+      "source": "s"
+    },
+    "snapshot": {
+      "model": {
+        "generation": 1,
+        "identityHash": "m"
+      },
+      "viewport": {
+        "canvas": {
+          "cssLeft": 0,
+          "cssTop": 0,
+          "cssWidth": 400,
+          "cssHeight": 300,
+          "bufferWidth": 800,
+          "bufferHeight": 600,
+          "dpr": 2
+        },
+        "labels": {
+          "enabled": true,
+          "renderedCount": 0,
+          "budget": 200
+        },
+        "geometry": {
+          "mode": "schematic",
+          "odGeneration": 0,
+          "odStatus": "idle"
+        },
+        "camera": {
+          "sequence": 1,
+          "kind": "perspective",
+          "position": [
+            1,
+            2,
+            3
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "localRenderOrigin": [
+            0,
+            0,
+            0
+          ],
+          "fovDegrees": 45,
+          "near": 0.1,
+          "far": 1000,
+          "aspect": 1.3333333333333333
+        }
+      }
+    },
+    "presentation": {
+      "browserDpr": 2,
+      "windowWidth": 1440,
+      "windowHeight": 920,
+      "theme": "light",
+      "density": "comfortable",
+      "panes": [
+        {
+          "selector": ".workspace-pane-tree",
+          "visible": true,
+          "x": 0,
+          "y": 0,
+          "width": 300,
+          "height": 500
+        },
+        {
+          "selector": ".workspace-pane-inspector",
+          "visible": true,
+          "x": 1000,
+          "y": 0,
+          "width": 300,
+          "height": 500
+        }
+      ],
+      "panels": [
+        {
+          "visible": true,
+          "width": 300,
+          "height": 400
+        },
+        {
+          "visible": true,
+          "width": 300,
+          "height": 400
+        }
+      ]
+    },
+    "contentGeometryTransitions": []
+  },
+  "expected": {
+    "runId": "r",
+    "fixtureSize": 1000,
+    "runNumber": 2,
+    "bindings": {
+      "source": "s"
+    }
+  },
+  "reference": {
+    "id": "initial-presentation",
+    "runId": "r",
+    "referenceProfileSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "bindings": {
+      "source": "s"
+    },
+    "snapshot": {
+      "model": {
+        "generation": 1,
+        "identityHash": "m"
+      },
+      "viewport": {
+        "canvas": {
+          "cssLeft": 0,
+          "cssTop": 0,
+          "cssWidth": 400,
+          "cssHeight": 300,
+          "bufferWidth": 800,
+          "bufferHeight": 600,
+          "dpr": 2
+        },
+        "labels": {
+          "enabled": false,
+          "renderedCount": 0,
+          "budget": 200
+        },
+        "geometry": {
+          "mode": "schematic",
+          "odGeneration": 0,
+          "odStatus": "idle"
+        },
+        "camera": {
+          "sequence": 1,
+          "kind": "perspective",
+          "position": [
+            1,
+            2,
+            3
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "localRenderOrigin": [
+            0,
+            0,
+            0
+          ],
+          "fovDegrees": 45,
+          "near": 0.1,
+          "far": 1000,
+          "aspect": 1.3333333333333333
+        }
+      }
+    },
+    "presentation": {
+      "browserDpr": 2,
+      "windowWidth": 1440,
+      "windowHeight": 920,
+      "theme": "light",
+      "density": "comfortable",
+      "panes": [
+        {
+          "selector": ".workspace-pane-tree",
+          "visible": true,
+          "x": 0,
+          "y": 0,
+          "width": 300,
+          "height": 500
+        },
+        {
+          "selector": ".workspace-pane-inspector",
+          "visible": true,
+          "x": 1000,
+          "y": 0,
+          "width": 300,
+          "height": 500
+        }
+      ],
+      "panels": [
+        {
+          "visible": true,
+          "width": 300,
+          "height": 400
+        },
+        {
+          "visible": true,
+          "width": 300,
+          "height": 400
+        }
+      ]
+    }
+  },
+  "referenceId": "initial-presentation",
+  "referenceSha256": "5a2914f190116369f34e537192b5f82cf844934420e509708d45a1d76f16bd60",
+  "fieldDifferences": [
+    {
+      "field": "id",
+      "before": "initial-presentation",
+      "after": "point-selection-1-stopped"
+    },
+    {
+      "field": "snapshot.viewport.labels.enabled",
+      "before": false,
+      "after": true
+    },
+    {
+      "field": "contentGeometryTransitions",
+      "before": {
+        "unavailable": true
+      },
+      "after": []
+    }
+  ],
+  "error": "Error: phase label policy mismatch"
+}

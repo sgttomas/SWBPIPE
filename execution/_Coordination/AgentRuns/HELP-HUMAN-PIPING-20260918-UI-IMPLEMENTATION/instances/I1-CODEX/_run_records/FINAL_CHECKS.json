@@ -1,0 +1,22 @@
+[
+  {
+    "name": "picking-last",
+    "command": [
+      "npx",
+      "vitest",
+      "run",
+      "src/features/viewport/viewportSelection.test.ts"
+    ],
+    "cwd": "projects/chirality-piping/apps/desktop",
+    "exitCode": 0
+  },
+  {
+    "name": "claims-final",
+    "command": [
+      "python3",
+      "tools/validation/validate_claims_language.py"
+    ],
+    "cwd": ".",
+    "exitCode": 0
+  }
+]

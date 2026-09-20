@@ -1,0 +1,22 @@
+[
+  {
+    "name": "harness-self-check",
+    "command": [
+      "python3",
+      "tools/practitioner_harness/harness.py",
+      "self-check"
+    ],
+    "exitCode": 2
+  },
+  {
+    "name": "harness-pytest",
+    "command": [
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "tools/practitioner_harness"
+    ],
+    "exitCode": 1
+  }
+]

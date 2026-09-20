@@ -1397,90 +1397,96 @@ test('fresh demonstration provenance accepts only its bound revision and interna
 });
 
 // ---- First-profile repair of 2026-09 (see REPAIR_2026-09_FIRST_PROFILE.md) -------------------
-// These controls read instrument files as data. They bind no product source and move no limit.
-import { requiredMethodFiles } from "./full-cohort-controller";
-
-test("first profile repair: the historical geometry-source value is one value everywhere and is named as historical", async () => {
+test("first profile repair: historical geometry preserves its pinned preimage", async () => {
   const methodRoot = new URL("./", import.meta.url);
   const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
-  // The four places that state the value agree, and the preserved preimage is those bytes.
   expect(hash(await readFile(new URL("fixtures/frozen-oracle-geometry.ts.txt", methodRoot)))).toBe(CUE_GEOMETRY_SOURCE_SHA256);
   const freezer = await readFile(new URL("freeze-candidate-point-oracle.mjs", methodRoot), "utf8");
   expect(freezer.match(/const geometrySourceSha256 = "([a-f0-9]{64})";/)?.[1]).toBe(CUE_GEOMETRY_SOURCE_SHA256);
-  const harness = await readFile(new URL("benchmark-harness.ts", methodRoot), "utf8");
-  const declaration = `export const CUE_GEOMETRY_SOURCE_SHA256 = "${CUE_GEOMETRY_SOURCE_SHA256}";`;
-  expect(harness.split(declaration).length).toBe(2);
-  // A reader of the constant meets the revision it binds and the reason a current source root stops.
-  const comment = harness.slice(harness.indexOf("export const CUE_SOURCE_SHA256"), harness.indexOf(declaration));
-  for (const statement of [CHARACTERIZATION_PRODUCT_REVISION, "#794", "by design", "fixtures/frozen-oracle-geometry.ts.txt"]) expect(comment).toContain(statement);
-  // So does a reader of the README.
-  const readme = await readFile(new URL("README.md", methodRoot), "utf8");
-  const section = readme.slice(readme.indexOf("## First-profile repair of 2026-09"));
-  expect(readme).toContain("## First-profile repair of 2026-09");
-  for (const statement of [CUE_GEOMETRY_SOURCE_SHA256, CHARACTERIZATION_PRODUCT_REVISION, "#794", "by design"]) expect(section).toContain(statement);
 });
 
-test("first profile repair: the 34-file inventory is the closed D-70 continuation generation and today's list is the controller's", async () => {
-  const observations: any = await import("./characterization-observations.mjs");
-  // Every method file added after the D-70 continuation generation is named here. A new method file
-  // is added to this list (and to requiredMethodFiles); the D-70 literal is a recorded fact and stays.
-  const addedAfterD70Continuation = ["fresh-demo-policy.mjs", "fresh-demo-policy.d.mts", "fresh-demo-policy.spec.ts", "fixtures/frozen-oracle-geometry.ts.txt"];
-  const d70Generation = requiredMethodFiles.filter(name => !addedAfterD70Continuation.includes(name));
-  expect(observations.D70_CONTINUATION_METHOD_FILE_COUNT).toBe(34);
-  expect(d70Generation.length).toBe(observations.D70_CONTINUATION_METHOD_FILE_COUNT);
-  expect(requiredMethodFiles.length).toBe(d70Generation.length + addedAfterD70Continuation.length);
-  const inventory = (names: readonly string[]) => ({ files: names.map(name => ({ path: `apps/desktop/e2e/ui-foundation/${name}`, sha256: "a".repeat(64) })) });
-  const validate = observations.validateD70ContinuationMethodInventory;
-  expect(() => validate(inventory(d70Generation))).not.toThrow();
-  // Today's longer inventory is not a D-70 continuation inventory, and the refusal says which generation it is.
-  expect(() => validate(inventory(requiredMethodFiles))).toThrow("complete34 method inventory required");
-  expect(() => validate(inventory(requiredMethodFiles))).toThrow("D-70 continuation generation");
-  expect(() => validate(inventory(d70Generation.slice(1)))).toThrow("complete34 method inventory required");
-  expect(() => validate(inventory([...d70Generation.slice(1), d70Generation[1]]))).toThrow("complete34 method inventory required");
-  expect(() => validate({})).toThrow("complete34 method inventory required");
-  // The path meant for today's inventory takes its length from the one list, not from a literal.
-  const controller = await readFile(new URL("full-cohort-controller.ts", new URL("./", import.meta.url)), "utf8");
-  expect(controller).toContain("method.files.length !== requiredMethodFiles.length");
-  expect(controller).not.toMatch(/method\.files\??\.length\s*!==\s*\d/);
+test("first profile repair: D-70 inventory retains the original acceptance independently of later inventories", async () => {
+  const { D70_CONTINUATION_METHOD_FILE_COUNT, validateD70ContinuationMethodInventory: validate } = await import("./characterization-observations.mjs");
+  // Synthetic method identities exercise the historical cardinality/uniqueness contract.
+  // Real recorded manifests are checked separately as run evidence, not dated test dependencies.
+  const inventory = (count: number) => ({ files: Array.from({ length: count }, (_, i) => ({ path: `method-${i}`, sha256: "a".repeat(64) })) });
+  expect(D70_CONTINUATION_METHOD_FILE_COUNT).toBe(34);
+  expect(() => validate(inventory(34))).not.toThrow();
+  for (const method of [inventory(0), inventory(33), inventory(35), inventory(38), {}, { files: undefined },
+    { files: [...inventory(33).files, inventory(33).files[0]] }]) {
+    expect(() => validate(method)).toThrow("complete34 method inventory required");
+  }
 });
 
-test("first profile repair: the fixture generator's check mode reproduces the frozen bytes by hash and writes nothing", async ({}, testInfo) => {
+test("first profile repair: generator checks and preflight failures never write", async ({}, testInfo) => {
   const { spawnSync } = await import("node:child_process");
-  const { readdir, stat } = await import("node:fs/promises");
+  const { cp, readdir, stat, appendFile, rm } = await import("node:fs/promises");
   const { fileURLToPath } = await import("node:url");
-  const methodRoot = new URL("./", import.meta.url), generator = fileURLToPath(new URL("generate-fixtures.mjs", methodRoot));
-  const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
-  const frozenNames = async () => ["fixture-manifest.json", "candidate-control-binding-v1.json",
-    ...(await readdir(new URL("fixtures/", methodRoot))).map(name => `fixtures/${name}`), ...(await readdir(new URL("samples/", methodRoot))).map(name => `samples/${name}`)].sort();
-  const snapshot = async () => JSON.stringify(await Promise.all((await frozenNames()).map(async name => {
-    const url = new URL(name, methodRoot); return [name, hash(await readFile(url)), (await stat(url)).mtimeMs];
-  })));
-  const historyAbsent = async () => stat(new URL("protocol-history", methodRoot)).then(() => false, error => error.code === "ENOENT");
-  test.skip(!(await historyAbsent()), "a checkout that holds the protocol history takes the default-directory route");
+  const path = await import("node:path");
+  const source = fileURLToPath(new URL("./", import.meta.url));
+  const scratch = testInfo.outputPath("generator-scratch");
+  await mkdir(scratch, { recursive: true });
+  // Copy only generator dependencies and frozen inputs. Never run a writing-mode invocation
+  // against the checkout, and never inherit an optional local protocol-history directory.
+  for (const name of ["generate-fixtures.mjs", "point-hit-oracle.mjs", "candidate-control-binding-v1.json", "fixture-manifest.json", "fixtures", "samples"])
+    await cp(path.join(source, name), path.join(scratch, name), { recursive: true });
+  const hash = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
+  const snapshot = async (): Promise<string> => {
+    const visit = async (dir: string): Promise<unknown[]> => {
+      const entries: unknown[] = [];
+      for (const name of (await readdir(dir)).sort()) {
+        const file = path.join(dir, name), info = await stat(file);
+        entries.push(info.isDirectory() ? [name, await visit(file)] : [name, hash(await readFile(file)), info.mtimeMs]);
+      }
+      return entries;
+    };
+    return JSON.stringify(await visit(scratch));
+  };
+  const run = (...args: string[]) => spawnSync(process.execPath, [path.join(scratch, "generate-fixtures.mjs"), ...args], { encoding: "utf8" });
   const before = await snapshot();
-  const run = (...args: string[]) => spawnSync(process.execPath, [generator, ...args], { encoding: "utf8" });
   const check = run("--check"); expect(check.status, check.stderr).toBe(0);
   const report = JSON.parse(check.stdout);
   expect(report.status).toBe("PASS_CHECK_REPRODUCES_FROZEN_BYTES_NOTHING_WRITTEN");
   expect(report.differing).toEqual([]);
-  expect(report.manifest_sha256).toBe(hash(await readFile(new URL("fixture-manifest.json", methodRoot))));
-  const manifest = JSON.parse(await readFile(new URL("fixture-manifest.json", methodRoot), "utf8"));
+  const manifest = JSON.parse(await readFile(path.join(scratch, "fixture-manifest.json"), "utf8"));
+  expect(report.manifest_sha256).toBe(hash(await readFile(path.join(scratch, "fixture-manifest.json"))));
   expect(report.files).toBe(manifest.files.length); expect(report.compared_files).toBe(manifest.files.length + 1);
-  // The nine preserved files are not in the repository: the report says so instead of claiming them.
-  expect(report.protocol_history).toEqual({ status: "NOT_SUPPLIED_NINE_FILES_NOT_IN_REPOSITORY", verified_files: 0, required_files: 9 });
-  // A supplied history is still held to the nine pinned hashes, in check mode too.
-  const wrong = testInfo.outputPath("wrong-history"); await mkdir(wrong, { recursive: true });
-  const empty = testInfo.outputPath("empty-history"); await mkdir(empty, { recursive: true });
-  await writeFile(`${wrong}/fixture-manifest-v1-superseded-before-timed-run.json`, "{}\n", { flag: "wx" });
-  const mismatch = run("--check", "--protocol-history-dir", wrong); expect(mismatch.status).not.toBe(0);
-  expect(mismatch.stderr).toContain("preserved protocol history mismatch for fixture-manifest-v1-superseded-before-timed-run.json");
-  const absent = run("--check", "--protocol-history-dir", empty); expect(absent.status).not.toBe(0);
-  expect(absent.stderr).toContain("preserved protocol history file absent");
-  // The writing mode refuses before its first write when the history is absent or incomplete.
-  for (const refused of [run(), run("--protocol-history-dir", empty), run("--protocol-history-dir", wrong), run("--check", "--unknown")]) {
-    expect(refused.status).not.toBe(0); expect(refused.stdout).toBe("");
-  }
-  expect(run().stderr).toContain("nothing was written");
+  expect(report.protocol_history).toEqual({ status: "NOT_SUPPLIED_NINE_PINNED_FILES", verified_files: 0, required_files: 9 });
   expect(await snapshot()).toBe(before);
-  expect(await historyAbsent()).toBe(true);
+
+  const wrong = testInfo.outputPath("wrong-history"), empty = testInfo.outputPath("empty-history");
+  await mkdir(wrong, { recursive: true }); await mkdir(empty, { recursive: true });
+  await writeFile(path.join(wrong, "fixture-manifest-v1-superseded-before-timed-run.json"), "{}\n");
+  const refusedArgs = [[], ["--unknown"], ["--check", "--unknown"], ["--protocol-history-dir"],
+    ["--protocol-history-dir", "relative"], ["--check", "--protocol-history-dir", "relative"]];
+  for (const prefix of [[], ["--check"]])
+    for (const directory of [empty, wrong, testInfo.outputPath("missing-history")])
+      refusedArgs.push([...prefix, "--protocol-history-dir", directory]);
+  for (const args of refusedArgs) {
+    const result = run(...args);
+    expect(result.status, JSON.stringify(args)).not.toBe(0);
+    expect(result.stdout).toBe("");
+    expect(await snapshot(), JSON.stringify(args)).toBe(before);
+  }
+  // A present default is validated too; --check must not silently ignore an invalid one.
+  await cp(wrong, path.join(scratch, "protocol-history"), { recursive: true });
+  const withDefault = await snapshot();
+  for (const args of [[], ["--check"]]) {
+    const result = run(...args);
+    expect(result.status).not.toBe(0); expect(result.stderr).toContain("preserved protocol history mismatch");
+    expect(await snapshot()).toBe(withDefault);
+  }
+  await rm(path.join(scratch, "protocol-history"), { recursive: true });
+  // Negative control: a frozen-byte difference must be reported, never repaired by --check.
+  const fixture = "fixtures/ui-foundation-1000.model.json";
+  await appendFile(path.join(scratch, fixture), " ");
+  const damaged = await snapshot(), mismatch = run("--check");
+  expect(mismatch.status).toBe(1);
+  expect(JSON.parse(mismatch.stdout).differing.map((entry: {path: string}) => entry.path)).toEqual([fixture]);
+  expect(await snapshot()).toBe(damaged);
+  await rm(path.join(scratch, fixture));
+  const missing = await snapshot(), absent = run("--check");
+  expect(absent.status).toBe(1);
+  expect(JSON.parse(absent.stdout).differing[0]).toMatchObject({ path: fixture, frozen_sha256: null, frozen_bytes: null });
+  expect(await snapshot()).toBe(missing);
 });

@@ -1,0 +1,158 @@
+[
+  {
+    "path": "playwright-artifacts/ui-foundation-full-cohort--1d2fa-flight-failures-never-write-chromium-desktop/wrong-history",
+    "files": [
+      {
+        "path": "fixture-manifest-v1-superseded-before-timed-run.json",
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      }
+    ]
+  },
+  {
+    "path": "playwright-artifacts/ui-foundation-full-cohort--1d2fa-flight-failures-never-write-chromium-desktop/generator-scratch",
+    "files": [
+      {
+        "path": "generate-fixtures.mjs",
+        "sha256": "046e9e1205c9ede6cc5269bcf61a8be72e983036364f73538c6204de7f73db21"
+      },
+      {
+        "path": "candidate-control-binding-v1.json",
+        "sha256": "fea322ba1a94caecde05690978301d3df7a3689ac0fc8b018243e27f170ec374"
+      },
+      {
+        "path": "fixture-manifest.json",
+        "sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739"
+      },
+      {
+        "path": "point-hit-oracle.mjs",
+        "sha256": "d9f4e01f80b62c777b3b48645b3d2180e7327fb0e335358c5aba6b4f96b992b4"
+      },
+      {
+        "path": "samples/ui-foundation-1000.interactions.json",
+        "sha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+      },
+      {
+        "path": "samples/ui-foundation-1000.point-oracle-v3.json",
+        "sha256": "57582d0b08b9edf91c6c61cc3ec37f149db89ebb055220291700366fb871de93"
+      },
+      {
+        "path": "samples/ui-foundation-10000.point-oracle-v3.json",
+        "sha256": "2bfaffbc5a720d641888152a2a463455a3ced1c316699e960843d5a831f1b6fd"
+      },
+      {
+        "path": "samples/ui-foundation-10000.interactions.json",
+        "sha256": "590fc0c7a0ab50f1f255150ce522a4a6626393d0ba8469ac62bdae2afdce29da"
+      },
+      {
+        "path": "fixtures/ui-foundation-10000.model.json",
+        "sha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85"
+      },
+      {
+        "path": "fixtures/precision-origin-base.model.json",
+        "sha256": "91464bd04ecd21c5a3e5fc63bca45e772c6ef64a1dfd955bec931ef503da09ff"
+      },
+      {
+        "path": "fixtures/precision-origin-expectations.json",
+        "sha256": "ca0cedc7816c7b622bcf724b4b0ea818897291b209637b1e5c7ab25cba496bb2"
+      },
+      {
+        "path": "fixtures/ui-foundation-1000.deformation-overlay.json",
+        "sha256": "36957eb7ef2958b34cc7138500889f26829c2612d9b95b23c34dea56e7aa6081"
+      },
+      {
+        "path": "fixtures/precision-origin-translated.model.json",
+        "sha256": "d16d71af895e44663315c24d8716a53981f2bfaaa440624e6266458c48ce6e5a"
+      },
+      {
+        "path": "fixtures/frozen-oracle-geometry.ts.txt",
+        "sha256": "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e"
+      },
+      {
+        "path": "fixtures/ui-foundation-10000.deformation-overlay.json",
+        "sha256": "bd39138c90e5c21689cf5778220976d5ad65ba932b63c21303d491af6a5fffc9"
+      }
+    ]
+  },
+  {
+    "path": "playwright-artifacts/ui-foundation-full-cohort--1d2fa-flight-failures-never-write-chromium-desktop/empty-history",
+    "files": []
+  },
+  {
+    "path": "playwright-artifacts/ui-foundation-full-cohort--1d2fa-flight-failures-never-write-chromium-compact/wrong-history",
+    "files": [
+      {
+        "path": "fixture-manifest-v1-superseded-before-timed-run.json",
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      }
+    ]
+  },
+  {
+    "path": "playwright-artifacts/ui-foundation-full-cohort--1d2fa-flight-failures-never-write-chromium-compact/generator-scratch",
+    "files": [
+      {
+        "path": "generate-fixtures.mjs",
+        "sha256": "046e9e1205c9ede6cc5269bcf61a8be72e983036364f73538c6204de7f73db21"
+      },
+      {
+        "path": "candidate-control-binding-v1.json",
+        "sha256": "fea322ba1a94caecde05690978301d3df7a3689ac0fc8b018243e27f170ec374"
+      },
+      {
+        "path": "fixture-manifest.json",
+        "sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739"
+      },
+      {
+        "path": "point-hit-oracle.mjs",
+        "sha256": "d9f4e01f80b62c777b3b48645b3d2180e7327fb0e335358c5aba6b4f96b992b4"
+      },
+      {
+        "path": "samples/ui-foundation-1000.interactions.json",
+        "sha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4"
+      },
+      {
+        "path": "samples/ui-foundation-1000.point-oracle-v3.json",
+        "sha256": "57582d0b08b9edf91c6c61cc3ec37f149db89ebb055220291700366fb871de93"
+      },
+      {
+        "path": "samples/ui-foundation-10000.point-oracle-v3.json",
+        "sha256": "2bfaffbc5a720d641888152a2a463455a3ced1c316699e960843d5a831f1b6fd"
+      },
+      {
+        "path": "samples/ui-foundation-10000.interactions.json",
+        "sha256": "590fc0c7a0ab50f1f255150ce522a4a6626393d0ba8469ac62bdae2afdce29da"
+      },
+      {
+        "path": "fixtures/ui-foundation-10000.model.json",
+        "sha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85"
+      },
+      {
+        "path": "fixtures/precision-origin-base.model.json",
+        "sha256": "91464bd04ecd21c5a3e5fc63bca45e772c6ef64a1dfd955bec931ef503da09ff"
+      },
+      {
+        "path": "fixtures/precision-origin-expectations.json",
+        "sha256": "ca0cedc7816c7b622bcf724b4b0ea818897291b209637b1e5c7ab25cba496bb2"
+      },
+      {
+        "path": "fixtures/ui-foundation-1000.deformation-overlay.json",
+        "sha256": "36957eb7ef2958b34cc7138500889f26829c2612d9b95b23c34dea56e7aa6081"
+      },
+      {
+        "path": "fixtures/precision-origin-translated.model.json",
+        "sha256": "d16d71af895e44663315c24d8716a53981f2bfaaa440624e6266458c48ce6e5a"
+      },
+      {
+        "path": "fixtures/frozen-oracle-geometry.ts.txt",
+        "sha256": "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e"
+      },
+      {
+        "path": "fixtures/ui-foundation-10000.deformation-overlay.json",
+        "sha256": "bd39138c90e5c21689cf5778220976d5ad65ba932b63c21303d491af6a5fffc9"
+      }
+    ]
+  },
+  {
+    "path": "playwright-artifacts/ui-foundation-full-cohort--1d2fa-flight-failures-never-write-chromium-compact/empty-history",
+    "files": []
+  }
+]

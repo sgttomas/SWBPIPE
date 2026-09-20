@@ -713,7 +713,7 @@ A later product is bound by its own profile, not by this one.
 
 **The offline plan verifier.** `verify-winner-cue-plan.mjs` pins the older value
 `97b18c9671fc7f98e1cbb94bf6833f737c91e3ef4580d02c711d306c82486aee`, which the harness
-rejects. That is deliberate and was left unchanged: the verifier is a one-transition
+rejects. That is deliberate; its executable bytes remain unchanged and its header now names the boundary. The verifier is a one-transition
 historical control (it requires that component and support visual geometry **changed**
 between an old and a new generated oracle directory), written for the generation of
 plans made when the product file had that pre-merge hash, and the run's own review
@@ -739,10 +739,17 @@ It now verifies the history **before its first write**, takes it from
 `--protocol-history-dir <absolute directory>` (the default directory is still honoured
 if present), and has a `--check` mode that regenerates everything in memory, compares
 it by SHA-256 and byte count with the frozen bytes, reports the protocol history as
-`NOT_SUPPLIED_NINE_FILES_NOT_IN_REPOSITORY` when it is not supplied, and writes nothing.
+`NOT_SUPPLIED_NINE_PINNED_FILES` when it is not supplied, and writes nothing.
 `verify-fixtures.mjs` is a different check (frozen bytes against the manifest) and is
 unchanged. The nine pinned hashes are unchanged.
 
-The controls for these statements are the three "first profile repair" tests at the end
+The nine audited preimages and their README have since been recovered as canonical run evidence
+under `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/protocol-history/`.
+Their availability does not populate the optional default directory or change the historical pins.
+Supply that absolute directory explicitly when verifying recovered history; maintained tests do not depend on it.
+
+The three "first profile repair" tests cover preserved geometry bytes, the closed D-70 inventory
+contract, and isolated generator checks/refusals (including corrupted/missing frozen bytes).
+Every generator invocation in those controls uses a scratch copy. They are at the end
 of `full-cohort-controller.spec.ts`, which the ordinary source lane (`npm run test:e2e`)
 runs.

@@ -1,0 +1,295 @@
+{
+  "generatorSha256": "fe5216044284c86f075614177981f0d55c67a738723afb2ddf655d0e4615a0aa",
+  "writeBoundary": "Node permission model read-only filesystem; no --allow-fs-write",
+  "before": {
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixture-manifest.json": {
+      "sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+      "mtimeNs": 1789774773530894056
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/frozen-oracle-geometry.ts.txt": {
+      "sha256": "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e",
+      "mtimeNs": 1789774773531062976
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-base.model.json": {
+      "sha256": "91464bd04ecd21c5a3e5fc63bca45e772c6ef64a1dfd955bec931ef503da09ff",
+      "mtimeNs": 1789774773531166353
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-expectations.json": {
+      "sha256": "ca0cedc7816c7b622bcf724b4b0ea818897291b209637b1e5c7ab25cba496bb2",
+      "mtimeNs": 1789774773531235270
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-translated.model.json": {
+      "sha256": "d16d71af895e44663315c24d8716a53981f2bfaaa440624e6266458c48ce6e5a",
+      "mtimeNs": 1789774773531297563
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.deformation-overlay.json": {
+      "sha256": "36957eb7ef2958b34cc7138500889f26829c2612d9b95b23c34dea56e7aa6081",
+      "mtimeNs": 1789774773531468066
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.model.json": {
+      "sha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+      "mtimeNs": 1789774773533289637
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.deformation-overlay.json": {
+      "sha256": "bd39138c90e5c21689cf5778220976d5ad65ba932b63c21303d491af6a5fffc9",
+      "mtimeNs": 1789774773534355029
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.model.json": {
+      "sha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+      "mtimeNs": 1789774773537155949
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-1000.interactions.json": {
+      "sha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4",
+      "mtimeNs": 1789774773540476836
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-1000.point-oracle-v3.json": {
+      "sha256": "57582d0b08b9edf91c6c61cc3ec37f149db89ebb055220291700366fb871de93",
+      "mtimeNs": 1789774773540951510
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-10000.interactions.json": {
+      "sha256": "590fc0c7a0ab50f1f255150ce522a4a6626393d0ba8469ac62bdae2afdce29da",
+      "mtimeNs": 1789774773541147430
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-10000.point-oracle-v3.json": {
+      "sha256": "2bfaffbc5a720d641888152a2a463455a3ced1c316699e960843d5a831f1b6fd",
+      "mtimeNs": 1789774773541970568
+    }
+  },
+  "after": {
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixture-manifest.json": {
+      "sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+      "mtimeNs": 1789774773530894056
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/frozen-oracle-geometry.ts.txt": {
+      "sha256": "c0c09ebdb05a49565bf61e576ff0b391037916c614f5add8f05f4270539f5f8e",
+      "mtimeNs": 1789774773531062976
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-base.model.json": {
+      "sha256": "91464bd04ecd21c5a3e5fc63bca45e772c6ef64a1dfd955bec931ef503da09ff",
+      "mtimeNs": 1789774773531166353
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-expectations.json": {
+      "sha256": "ca0cedc7816c7b622bcf724b4b0ea818897291b209637b1e5c7ab25cba496bb2",
+      "mtimeNs": 1789774773531235270
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/precision-origin-translated.model.json": {
+      "sha256": "d16d71af895e44663315c24d8716a53981f2bfaaa440624e6266458c48ce6e5a",
+      "mtimeNs": 1789774773531297563
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.deformation-overlay.json": {
+      "sha256": "36957eb7ef2958b34cc7138500889f26829c2612d9b95b23c34dea56e7aa6081",
+      "mtimeNs": 1789774773531468066
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.model.json": {
+      "sha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+      "mtimeNs": 1789774773533289637
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.deformation-overlay.json": {
+      "sha256": "bd39138c90e5c21689cf5778220976d5ad65ba932b63c21303d491af6a5fffc9",
+      "mtimeNs": 1789774773534355029
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.model.json": {
+      "sha256": "dcdcac0ff2031050c3de2c4cdef23a052ec68f2f663acc2ab53e7dab648f8b85",
+      "mtimeNs": 1789774773537155949
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-1000.interactions.json": {
+      "sha256": "f95d7ad6c7cbc1549e2089ad507e867053371bd1867239b8935c6aa987fc6fc4",
+      "mtimeNs": 1789774773540476836
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-1000.point-oracle-v3.json": {
+      "sha256": "57582d0b08b9edf91c6c61cc3ec37f149db89ebb055220291700366fb871de93",
+      "mtimeNs": 1789774773540951510
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-10000.interactions.json": {
+      "sha256": "590fc0c7a0ab50f1f255150ce522a4a6626393d0ba8469ac62bdae2afdce29da",
+      "mtimeNs": 1789774773541147430
+    },
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/samples/ui-foundation-10000.point-oracle-v3.json": {
+      "sha256": "2bfaffbc5a720d641888152a2a463455a3ced1c316699e960843d5a831f1b6fd",
+      "mtimeNs": 1789774773541970568
+    }
+  },
+  "runs": [
+    {
+      "name": "without-history",
+      "command": [
+        "node",
+        "--permission",
+        "--allow-fs-read=*",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "report": {
+        "status": "PASS_CHECK_REPRODUCES_FROZEN_BYTES_NOTHING_WRITTEN",
+        "mode": "check",
+        "manifest_sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+        "files": 12,
+        "compared_files": 13,
+        "differing": [],
+        "protocol_history": {
+          "status": "NOT_SUPPLIED_NINE_PINNED_FILES",
+          "verified_files": 0,
+          "required_files": 9
+        },
+        "fixtures": [
+          {
+            "pipe_count": 1000,
+            "model_path": "fixtures/ui-foundation-1000.model.json",
+            "overlay_path": "fixtures/ui-foundation-1000.deformation-overlay.json",
+            "samples_path": "samples/ui-foundation-1000.interactions.json",
+            "point_oracle_path": "samples/ui-foundation-1000.point-oracle-v3.json",
+            "counts": {
+              "nodes": 1001,
+              "pipe_segments": 1000,
+              "supports": 50,
+              "components": 10,
+              "nodal_force_arrows": 100,
+              "materials": 1,
+              "sections": 4
+            },
+            "selected_set_sizes": {
+              "empty": 0,
+              "one_pipe": 1,
+              "one_hundred_pipes": 100,
+              "all_pipes": 1000
+            },
+            "typed_collision": {
+              "raw_id": "entity:UIF-TYPED-COLLISION-01000",
+              "types": [
+                "node",
+                "pipe",
+                "support",
+                "component"
+              ]
+            }
+          },
+          {
+            "pipe_count": 10000,
+            "model_path": "fixtures/ui-foundation-10000.model.json",
+            "overlay_path": "fixtures/ui-foundation-10000.deformation-overlay.json",
+            "samples_path": "samples/ui-foundation-10000.interactions.json",
+            "point_oracle_path": "samples/ui-foundation-10000.point-oracle-v3.json",
+            "counts": {
+              "nodes": 10001,
+              "pipe_segments": 10000,
+              "supports": 500,
+              "components": 100,
+              "nodal_force_arrows": 1000,
+              "materials": 1,
+              "sections": 4
+            },
+            "selected_set_sizes": {
+              "empty": 0,
+              "one_pipe": 1,
+              "one_hundred_pipes": 100,
+              "all_pipes": 10000
+            },
+            "typed_collision": {
+              "raw_id": "entity:UIF-TYPED-COLLISION-01000",
+              "types": [
+                "node",
+                "pipe",
+                "support",
+                "component"
+              ]
+            }
+          }
+        ]
+      },
+      "frozenSnapshotEqual": true
+    },
+    {
+      "name": "verified-history",
+      "command": [
+        "node",
+        "--permission",
+        "--allow-fs-read=*",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop/e2e/ui-foundation/generate-fixtures.mjs",
+        "--check",
+        "--protocol-history-dir",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/I1-CODEX/_run_records/protocol-history"
+      ],
+      "exitCode": 0,
+      "report": {
+        "status": "PASS_CHECK_REPRODUCES_FROZEN_BYTES_NOTHING_WRITTEN",
+        "mode": "check",
+        "manifest_sha256": "6e7fba8fdba11853ad7aa558c7e7c29ffb1a82e79c11a1b7633827335f458739",
+        "files": 12,
+        "compared_files": 13,
+        "differing": [],
+        "protocol_history": {
+          "status": "VERIFIED_NINE_PINNED_HASHES",
+          "source": "supplied-directory",
+          "verified_files": 9,
+          "required_files": 9
+        },
+        "fixtures": [
+          {
+            "pipe_count": 1000,
+            "model_path": "fixtures/ui-foundation-1000.model.json",
+            "overlay_path": "fixtures/ui-foundation-1000.deformation-overlay.json",
+            "samples_path": "samples/ui-foundation-1000.interactions.json",
+            "point_oracle_path": "samples/ui-foundation-1000.point-oracle-v3.json",
+            "counts": {
+              "nodes": 1001,
+              "pipe_segments": 1000,
+              "supports": 50,
+              "components": 10,
+              "nodal_force_arrows": 100,
+              "materials": 1,
+              "sections": 4
+            },
+            "selected_set_sizes": {
+              "empty": 0,
+              "one_pipe": 1,
+              "one_hundred_pipes": 100,
+              "all_pipes": 1000
+            },
+            "typed_collision": {
+              "raw_id": "entity:UIF-TYPED-COLLISION-01000",
+              "types": [
+                "node",
+                "pipe",
+                "support",
+                "component"
+              ]
+            }
+          },
+          {
+            "pipe_count": 10000,
+            "model_path": "fixtures/ui-foundation-10000.model.json",
+            "overlay_path": "fixtures/ui-foundation-10000.deformation-overlay.json",
+            "samples_path": "samples/ui-foundation-10000.interactions.json",
+            "point_oracle_path": "samples/ui-foundation-10000.point-oracle-v3.json",
+            "counts": {
+              "nodes": 10001,
+              "pipe_segments": 10000,
+              "supports": 500,
+              "components": 100,
+              "nodal_force_arrows": 1000,
+              "materials": 1,
+              "sections": 4
+            },
+            "selected_set_sizes": {
+              "empty": 0,
+              "one_pipe": 1,
+              "one_hundred_pipes": 100,
+              "all_pipes": 10000
+            },
+            "typed_collision": {
+              "raw_id": "entity:UIF-TYPED-COLLISION-01000",
+              "types": [
+                "node",
+                "pipe",
+                "support",
+                "component"
+              ]
+            }
+          }
+        ]
+      },
+      "frozenSnapshotEqual": true
+    }
+  ]
+}

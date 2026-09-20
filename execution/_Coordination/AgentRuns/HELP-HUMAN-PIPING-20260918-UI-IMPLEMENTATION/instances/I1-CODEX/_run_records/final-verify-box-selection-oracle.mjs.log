@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "policy": "BOX_SELECTION_POLICY_V1",
+  "checks": [
+    "closed near-plane clipping",
+    "left-to-right clipped containment",
+    "right-to-left clipped intersection",
+    "typed treeOrder and last-hit primary",
+    "type filter",
+    "hidden exclusion"
+  ]
+}

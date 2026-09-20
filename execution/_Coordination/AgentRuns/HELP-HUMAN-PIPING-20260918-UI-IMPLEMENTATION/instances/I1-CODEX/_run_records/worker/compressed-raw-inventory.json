@@ -1,0 +1,26 @@
+[
+  {
+    "path": "playwright-artifacts/ui-foundation-full-cohort--fbc53-hash-and-unsafe-identifiers-chromium-compact/over-old-cap.json",
+    "bytes": 67112960,
+    "sha256": "e40a0431d55bcb24fcbe0830c5da4820b644d171eaa8ddf8e23dc7704ccd2cf6",
+    "lossless_gzip": "playwright-artifacts/ui-foundation-full-cohort--fbc53-hash-and-unsafe-identifiers-chromium-compact/over-old-cap.json.gz"
+  },
+  {
+    "path": "playwright-artifacts/ui-foundation-full-cohort--a030f-erving-exact-bounded-prefix-chromium-compact/over-new-cap-prefix.json",
+    "bytes": 268435456,
+    "sha256": "915fa1ee4cf9052c07f27795e3b73b472194ae9179ca0cdf47c675c29e5cfbb9",
+    "lossless_gzip": "playwright-artifacts/ui-foundation-full-cohort--a030f-erving-exact-bounded-prefix-chromium-compact/over-new-cap-prefix.json.gz"
+  },
+  {
+    "path": "playwright-artifacts/ui-foundation-full-cohort--a030f-erving-exact-bounded-prefix-chromium-desktop/over-new-cap-prefix.json",
+    "bytes": 268435456,
+    "sha256": "915fa1ee4cf9052c07f27795e3b73b472194ae9179ca0cdf47c675c29e5cfbb9",
+    "lossless_gzip": "playwright-artifacts/ui-foundation-full-cohort--a030f-erving-exact-bounded-prefix-chromium-desktop/over-new-cap-prefix.json.gz"
+  },
+  {
+    "path": "playwright-artifacts/ui-foundation-full-cohort--fbc53-hash-and-unsafe-identifiers-chromium-desktop/over-old-cap.json",
+    "bytes": 67112960,
+    "sha256": "e40a0431d55bcb24fcbe0830c5da4820b644d171eaa8ddf8e23dc7704ccd2cf6",
+    "lossless_gzip": "playwright-artifacts/ui-foundation-full-cohort--fbc53-hash-and-unsafe-identifiers-chromium-desktop/over-old-cap.json.gz"
+  }
+]
