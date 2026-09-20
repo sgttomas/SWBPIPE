@@ -192,4 +192,45 @@ describe("EngineeringTable interaction ownership", () => {
     act(() => cell(1).focus()); expect(select).toHaveBeenLastCalledWith(initial[1].key);
   });
 
+  it("owns valid pointer Cancel before a browser default blur with null relatedTarget", async () => {
+    const apply = vi.fn(async () => ({ applied: true, messages: [] })); render(<Harness apply={apply} />);
+    const input = edit(); fireEvent.change(input, { target: { value: "6.2" } });
+    const cancel = screen.getByRole("button", { name: "Cancel" });
+    // Native evidence has no DOM telemetry. Exercise the inferred default-action ordering:
+    // pointer-down may blur the input to body before the eventual button click.
+    if (fireEvent.pointerDown(cancel)) fireEvent.blur(input, { relatedTarget: null });
+    expect(input).toHaveValue("6.2");
+    fireEvent.pointerUp(cancel); fireEvent.click(cancel);
+    await waitFor(() => expect(cell()).toHaveTextContent("0")); expect(apply).not.toHaveBeenCalled();
+  });
+  it("does not activate Apply on pointer-down and applies exactly once on the eventual click", async () => {
+    const apply = vi.fn(async () => ({ applied: true, messages: [] })); render(<Harness apply={apply} />);
+    const input = edit(); fireEvent.change(input, { target: { value: "4.6" } }); const button = screen.getByRole("button", { name: "Apply" });
+    if (fireEvent.pointerDown(button)) fireEvent.blur(input, { relatedTarget: null });
+    expect(apply).not.toHaveBeenCalled(); expect(input).toHaveValue("4.6");
+    fireEvent.pointerUp(button); fireEvent.click(button); fireEvent.click(button);
+    await waitFor(() => expect(cell()).toHaveTextContent("4.6")); expect(apply).toHaveBeenCalledTimes(1);
+  });
+  it.each(["Apply", "Cancel"].flatMap((name) => ["drag-away", "pointercancel"].map((abandon) => ({ name, abandon }))))("abandons $name via $abandon without leaving a guard against ordinary blur Apply", async ({ name, abandon }) => {
+    const apply = vi.fn(async () => ({ applied: true, messages: [] })); render(<Harness apply={apply} />);
+    const input = edit(); fireEvent.change(input, { target: { value: "5.1" } }); const button = screen.getByRole("button", { name });
+    if (fireEvent.pointerDown(button)) fireEvent.blur(input, { relatedTarget: null });
+    fireEvent.pointerLeave(button);
+    if (abandon === "pointercancel") fireEvent.pointerCancel(button);
+    else fireEvent.pointerUp(screen.getByRole("button", { name: "Outside" }));
+    expect(apply).not.toHaveBeenCalled(); expect(input).toHaveValue("5.1");
+    const outside = screen.getByRole("button", { name: "Outside" }); act(() => outside.focus());
+    await waitFor(() => expect(cell()).toHaveTextContent("5.1")); expect(apply).toHaveBeenCalledTimes(1); expect(outside).toHaveFocus();
+  });
+
+  it.each(["Apply", "Cancel"])("preserves keyboard footer %s activation", async (name) => {
+    const apply = vi.fn(async () => ({ applied: true, messages: [] })); render(<Harness apply={apply} />);
+    const input = edit(); fireEvent.change(input, { target: { value: "2.5" } }); const button = screen.getByRole("button", { name });
+    act(() => button.focus()); expect(apply).not.toHaveBeenCalled();
+    // Keyboard-produced click: no pointer-down path and no pointer click count.
+    fireEvent.click(button, { detail: 0 });
+    await waitFor(() => expect(cell()).toHaveTextContent(name === "Apply" ? "2.5" : "0"));
+    expect(apply).toHaveBeenCalledTimes(name === "Apply" ? 1 : 0);
+  });
+
 });
