@@ -115,13 +115,27 @@ test("C3 snapshot, Hide precedence, persistent hidden count, theme and Show All 
   await page.keyboard.press("Shift+Tab"); await page.keyboard.press("Tab");
   await expect(hidden).toBeFocused();
   const containment = await hidden.evaluate(el => {
-    const r = el.getBoundingClientRect(), parent = el.closest(".viewport-toolbar-status-strip")!.getBoundingClientRect();
+    const parentElement = el.closest(".viewport-toolbar-status-strip")!;
+    const r = el.getBoundingClientRect(), parent = parentElement.getBoundingClientRect();
     const style = getComputedStyle(el);
+    const details = (element: Element) => {
+      const css = getComputedStyle(element);
+      return { rect: element.getBoundingClientRect().toJSON(), clientHeight: element.clientHeight, clientWidth: element.clientWidth,
+        scrollHeight: element.scrollHeight, scrollWidth: element.scrollWidth, scrollTop: element.scrollTop, scrollLeft: element.scrollLeft,
+        height: css.height, minHeight: css.minHeight, padding: css.padding, lineHeight: css.lineHeight,
+        overflowX: css.overflowX, overflowY: css.overflowY, scrollbarWidth: css.scrollbarWidth };
+    };
     const points = [[r.left + 2, r.top + 2], [r.right - 2, r.top + 2], [r.left + 2, r.bottom - 2], [r.right - 2, r.bottom - 2], [(r.left + r.right) / 2, (r.top + r.bottom) / 2]];
     return { top: r.top >= parent.top, bottom: r.bottom <= parent.bottom, left: r.left >= parent.left, right: r.right <= parent.right,
       width: r.width, height: r.height, focusVisible: el.matches(":focus-visible"), outlineWidth: style.outlineWidth, outlineOffset: style.outlineOffset,
-      unobscured: points.every(([x, y]) => el.contains(document.elementFromPoint(x, y))) };
+      unobscured: points.every(([x, y]) => el.contains(document.elementFromPoint(x, y))),
+      button: details(el), parent: details(parentElement), hitPoints: points.map(([x, y]) => {
+        const hit = document.elementFromPoint(x, y);
+        return { x, y, owned: el.contains(hit), tag: hit?.tagName, className: hit?.getAttribute("class"), testId: hit?.getAttribute("data-testid") };
+      }) };
   });
+  await info.attach("hidden-count-pre-assert-geometry", { body: JSON.stringify(containment), contentType: "application/json" });
+  await info.attach("hidden-count-pre-assert-toolbar", { body: await page.locator(".viewport-toolbar").screenshot(), contentType: "image/png" });
   expect(containment).toMatchObject({ top: true, bottom: true, left: true, right: true, focusVisible: true, unobscured: true });
   expect(containment.width).toBeGreaterThanOrEqual(24); expect(containment.height).toBeGreaterThanOrEqual(24);
   expect(parseFloat(containment.outlineWidth)).toBeGreaterThan(0); expect(parseFloat(containment.outlineOffset)).toBeLessThan(0);
