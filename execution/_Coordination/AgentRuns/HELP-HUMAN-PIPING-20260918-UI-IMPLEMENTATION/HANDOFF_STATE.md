@@ -143,3 +143,11 @@ Renewed owner pause: “that's great, but I still need you to pause work for a m
 ## 2026-09-20 — resumed repair, CI strategy and authorized UI continuation
 
 OWNER_RESUME_2026-09-20.md retains explicit owner resume/repair/merge/CI-economy/continuation direction. B3 manager reactivated with sealed brief/addendum; pinned Playwright Chromium reproduces actual Agent tooltip interception of Close. New Astra/low CI inventory and separate CI implementer have disjoint scopes; ROOT owns CI integration/manifest and shared records. CI strategy uses early interaction coverage, conservative reductions and isolated full-run shards; tests/limits and local clean DEC025 stay intact. Work graph has current state. Remaining product rulings and Runtime adoption remain pending, not inferred from resume.
+
+## 2026-09-20 — repaired product, reviewed CI, new dist assertion ruling pending
+
+Tooltip product3861b614 and manager packetf7dcbf02 independently passed; actual native pointer/escape and ROOT own look passed, with pure native hover explicitly unobserved. CI strategy7174f78b passed independent backcheck after removing unsafe instrument routing, binding target-base ancestry and validating actual collected test identities. ROOT's three checkout blob-filter additions were separately reviewed; they preserve full ancestry/current checkout.
+
+Clean pinned-Chromium sweep06548567 passed Rust, Python, unit and full source surfaces, then failed one dist wheel-target exact-equality assertion on a binary64-scale difference. The source twin already uses a finite16EPS scale-aware predicate from merged306a74ba9d; the dist twin remains exact. No protected assertion has changed. The exact unapplied parity patch and proposal to reuse unchanged passing surfaces are in continuation B3_DIST_ROUNDOFF_DECISION.md and B3_DIST_WHEEL_PARITY.patch.txt; raw failure evidence is under _run_records/B3_DIST_ROUNDOFF. Owner ruling is pending via active asynchronous question. The failed sweep remains failed.
+
+B3A and I1 manager briefs are drafted but unlaunched. ROOT located all9historical I1 preimages and verified their pins read-only; no I1 implementation began. Current gate and scope state is WORK_GRAPH.json.

@@ -1,0 +1,43 @@
+import importlib.util
+import json
+import os
+from pathlib import Path
+import subprocess
+from collections import Counter
+root = Path.cwd()
+evidence = Path(__file__).resolve().parent
+spec = importlib.util.spec_from_file_location('ci', root / 'projects/chirality-piping/tools/ci/e2e_plan.py')
+ci = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(ci)
+plan = ci.make_plan(root, 'workflow_dispatch')
+commands = {'full': ['../../node_modules/.bin/playwright', 'test', '--project=chromium-desktop', '--project=chromium-compact', '--workers=1', '--list', '--reporter=json']}
+commands['barrier'] = ci.commands(plan, 'barrier', list_only=True)[0]
+for n in range(1, 5): commands[f'shard-{n}'] = ci.commands(plan, 'remainder', n, list_only=True)[0]
+focused = {**plan, 'mode': 'pr825-repair', 'selected_specs': ci.FOCUSED, 'focused_titles': ci.FOCUSED_TITLES}
+for n, command in enumerate(ci.commands(focused, 'barrier', list_only=True)): commands[f'focused-{n}'] = command
+results = {}
+def entries(report):
+    found = []
+    def visit(suite):
+        for spec in suite.get('specs', []):
+            for test in spec['tests']:
+                found.append((spec['file'], spec['line'], spec['title'], test['projectName']))
+        for child in suite.get('suites', []): visit(child)
+    visit(report)
+    return found
+for name, command in commands.items():
+    result = subprocess.run(command, cwd=root / ci.DESKTOP, env={**os.environ, 'CI': 'true', 'PLAYWRIGHT_HTML_OPEN': 'never'}, text=True, capture_output=True)
+    (evidence / (name + '.json')).write_text(result.stdout)
+    (evidence / (name + '.stderr.txt')).write_text(result.stderr)
+    if result.returncode: raise RuntimeError((name, result.returncode, result.stderr))
+    report = json.loads(result.stdout)
+    if report.get('errors'): raise RuntimeError(report['errors'])
+    results[name] = entries(report)
+combined = results['barrier'] + sum((results[f'shard-{n}'] for n in range(1, 5)), [])
+assert Counter(combined) == Counter(results['full'])
+assert len(combined) == len(set(combined))
+assert len(results['focused-2']) == 8
+assert Counter(x[3] for x in results['focused-2']) == {'chromium-desktop': 4, 'chromium-compact': 4}
+summary = {'commands': commands, 'counts': {k: len(v) for k,v in results.items()}, 'partition_exact_once': True, 'focused_case_profiles': dict(Counter(x[3] for x in results['focused-2'])), 'note': 'Listing only. No browser/test execution; no full-mode hosted qualification.'}
+(evidence / 'inventory-validation.json').write_text(json.dumps(summary, indent=2)+'\n')
+print(json.dumps(summary['counts'], indent=2))

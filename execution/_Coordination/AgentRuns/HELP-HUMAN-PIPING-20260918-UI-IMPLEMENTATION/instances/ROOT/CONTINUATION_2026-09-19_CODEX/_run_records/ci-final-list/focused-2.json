@@ -1,0 +1,261 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 1,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": false,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "ui-foundation.spec.ts",
+      "file": "ui-foundation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-193fd1a05ab1891997ce",
+          "file": "ui-foundation.spec.ts",
+          "line": 1420,
+          "column": 1
+        },
+        {
+          "title": "decorative viewport overlays pass real canvas gestures while view controls stay interactive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-f21f7306a3ec3d0d88d9",
+          "file": "ui-foundation.spec.ts",
+          "line": 1966,
+          "column": 1
+        },
+        {
+          "title": "keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-980dbfe0e38266e8c767",
+          "file": "ui-foundation.spec.ts",
+          "line": 1420,
+          "column": 1
+        },
+        {
+          "title": "decorative viewport overlays pass real canvas gestures while view controls stay interactive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-ad2a1195ec69982d74c3",
+          "file": "ui-foundation.spec.ts",
+          "line": 1966,
+          "column": 1
+        }
+      ],
+      "suites": [
+        {
+          "title": "captured Box lifetime",
+          "file": "ui-foundation.spec.ts",
+          "line": 2084,
+          "column": 6,
+          "specs": [
+            {
+              "title": "workspace Escape event ownership consumed palette",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-e3d833f64f99af20e764",
+              "file": "ui-foundation.spec.ts",
+              "line": 2269,
+              "column": 55
+            },
+            {
+              "title": "workspace Escape event ownership consumed drawer",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-dae598642f967f4c3c1c",
+              "file": "ui-foundation.spec.ts",
+              "line": 2269,
+              "column": 55
+            },
+            {
+              "title": "workspace Escape event ownership consumed palette",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-dedaf998da2dca6399cb",
+              "file": "ui-foundation.spec.ts",
+              "line": 2269,
+              "column": 55
+            },
+            {
+              "title": "workspace Escape event ownership consumed drawer",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-6f8c869342b5e1568058",
+              "file": "ui-foundation.spec.ts",
+              "line": 2269,
+              "column": 55
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-20T08:33:54.582Z",
+    "duration": 76.66900000000004,
+    "expected": 0,
+    "skipped": 8,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

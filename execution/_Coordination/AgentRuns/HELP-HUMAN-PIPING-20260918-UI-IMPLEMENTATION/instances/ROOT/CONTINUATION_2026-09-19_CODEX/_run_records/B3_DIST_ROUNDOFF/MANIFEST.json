@@ -1,0 +1,27 @@
+{
+  "candidate": "065485671c7bf1c9b100643316bb263dd39421d8",
+  "fullSource": "416passed,20existing skips",
+  "dist": "52passed,1failed",
+  "failure": "active wheel target expected-0.027936806875621, observed-0.027936806875620994; exact equality fails",
+  "absoluteDifference": 6.938893903907228e-18,
+  "productChangesSinceCandidate": false,
+  "proposedPatch": "B3_DIST_WHEEL_PARITY.patch.txt; prepared only, not applied",
+  "files": {
+    "trace.zip": {
+      "bytes": 4197350,
+      "sha256": "28adbd751a225527c06f57da282d3f3ecc556061732ec9a6dc7cdb7ae72e8e4e"
+    },
+    "sweep.log.gz": {
+      "bytes": 56725,
+      "sha256": "c0e0ab36a2f16dc8717f3bb363de5d69952b99e226326ede4adfd79073765557"
+    },
+    "error-context.md": {
+      "bytes": 41978,
+      "sha256": "376d34ff5e06c0e5906513475e8fbd04ab361eb78408cf26c8d1c011e7c23cd6"
+    },
+    "SWEEP_20260920T085415Z_065485671c7b.json": {
+      "bytes": 3631,
+      "sha256": "89339793fd5a08e43e311e1ac582d0a1798fec6828791a818e78465ddb5c1055"
+    }
+  }
+}

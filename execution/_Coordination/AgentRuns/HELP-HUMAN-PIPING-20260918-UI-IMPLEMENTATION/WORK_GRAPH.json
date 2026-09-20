@@ -312,15 +312,15 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
-      "status": "B3 CI repair reactivated; ROOT owns CI strategy; complete local baseline and failed hosted run retained.",
+      "status": "Product/CI repairs reviewed; clean065 sweep passed Rust/Python/unit and full source, then failed one exact wheel-target dist assertion on binary64-scale difference. Owner parity/verification-reuse ruling pending; no protected change applied.",
       "dependsOn": [
         "B2F-B2G",
         "C1"
       ],
       "blockedBy": [
         {
-          "what": "final evidence/records checks, clean-candidate sweep and actual-candidate CI",
-          "with": "manager and ROOT",
+          "what": "final verification/publication gates, not an unresolved owner product decision",
+          "with": "ROOT",
           "blocks": "B3 merge"
         }
       ],
@@ -362,9 +362,10 @@
         }
       ],
       "gatesOwed": [
-        "final closeout records/harness checks",
-        "actual-candidate required CI",
-        "merge commit"
+        "owner ruling on named dist predicate and proposed one-time delta verification",
+        "approved affected verification and independent backcheck",
+        "final records/harness/actual-candidate hosted CI",
+        "merge"
       ],
       "deliverableBinding": {
         "id": "DEL-07-02",
@@ -388,9 +389,9 @@
         }
       ],
       "gatesOwedCurrent": [
-        "bounded tooltip repair and independent backcheck",
-        "affected native/browser verification and clean-candidate sweep",
-        "reviewed CI strategy and actual-candidate selected CI",
+        "owner ruling on named dist predicate and proposed one-time delta verification",
+        "approved affected verification and independent backcheck",
+        "final records/harness/actual-candidate hosted CI",
         "merge"
       ],
       "continuationEngineeringDecisions": [
@@ -445,7 +446,7 @@
         "owner strategy agreement",
         "owner D1-D3 product dispositions"
       ],
-      "candidate": "002dff0f244976f98b36517d920b3761f6f88704",
+      "candidate": "065485671c7bf1c9b100643316bb263dd39421d8",
       "nativeHostState": {
         "prior": "Mac lock blocked CUA; manual unlock requested",
         "ownerReply": "unlocked",
@@ -481,7 +482,7 @@
         "sha256": "7fd698cbc40d83208c5f0af4b5b86c686ba60bd55293c180bb4d76fd69bafdd5",
         "result": "Original single-character native text Undo/Redo and repeated plain typing cases observed; both-theme structure and drawer clearance inspected. Independent N1 evidence backcheck supports repair, with two final-native coverage cases. Future compact/reset changes not covered."
       },
-      "productCheckpoint": "24f5d9db073fae34d165029f33d1a8bf8f9d0a3c",
+      "productCheckpoint": "3861b614362d8da925e148d7506ecc9902c7f808",
       "reviewCandidate": "6ef382c5092819e9c1fed4b8f2fc9ab467618f00",
       "finalNative": {
         "product": "24f5d9db073fae34d165029f33d1a8bf8f9d0a3c",
@@ -494,23 +495,26 @@
         "rootLookSha256": "d5bacc9928530dde33d7fba7d5dd2412f9eadd95afd27fd3c75d492fe0e01efa"
       },
       "sourceFinal": {
-        "candidate": "5045bd1c2c92b4c018e5652111ee6093434ead78",
-        "reported": "410passed/20existing skips/exit0/11.7minutes",
-        "log": "instances/B3-CODEX/_run_records/full-source-final.log",
-        "standing": "manager reported; ROOT hash verification at fan-in"
+        "candidate": "065485671c7bf1c9b100643316bb263dd39421d8",
+        "status": "pass",
+        "reported": "416passed,20existing skips,10.9minutes"
       },
       "distFinal": {
-        "candidate": "d3758edf45795dd2c0eddcd840d9100fc3d0cd23",
-        "reported": "53passed/exit0/3.2minutes",
-        "log": "instances/B3-CODEX/_run_records/full-dist-completed.log",
-        "standing": "manager reported; ROOT hash verification at fan-in"
+        "candidate": "065485671c7bf1c9b100643316bb263dd39421d8",
+        "status": "fail",
+        "reported": "52passed,1failed",
+        "detail": "z target changes6.938893903907228e-18 afterwheel; source twin already has16EPS bound, dist exact"
       },
       "sweep": {
-        "commit": "9cf1654d2d0b317774290feb72d1a397a1d6cefa",
-        "status": "pass",
-        "summary": "validation/evidence/sweeps/SWEEP_20260920T065239Z_9cf1654d2d0b.json",
-        "summarySha256": "64871b1d85bc974b0dcff8ca049c1e55113f222eaf13eef6729b2c83bf97f8d1",
-        "rawLogManifest": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-sweep/MANIFEST.json"
+        "commit": "065485671c7bf1c9b100643316bb263dd39421d8",
+        "status": "fail",
+        "summary": "validation/evidence/sweeps/SWEEP_20260920T085415Z_065485671c7b.json",
+        "rawEvidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/",
+        "fullSource": "416passed,20existing skips",
+        "python": "1133passed,304warnings,19subtests",
+        "unit": "88files1436passed",
+        "dist": "52passed,1exactwheel-targetfailure",
+        "productionBuildSurface": "not_run after dist stop; dist build itself passed"
       },
       "hostedCi": {
         "harness": "PASS",
@@ -519,6 +523,71 @@
         "skipped": 20,
         "failed": 2,
         "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/MANIFEST.json"
+      },
+      "verificationBeforeCiFailure": {
+        "candidate": "002dff0f244976f98b36517d920b3761f6f88704",
+        "productCheckpoint": "24f5d9db073fae34d165029f33d1a8bf8f9d0a3c",
+        "sourceFinal": {
+          "candidate": "5045bd1c2c92b4c018e5652111ee6093434ead78",
+          "reported": "410passed/20existing skips/exit0/11.7minutes",
+          "log": "instances/B3-CODEX/_run_records/full-source-final.log",
+          "standing": "manager reported; ROOT hash verification at fan-in"
+        },
+        "distFinal": {
+          "candidate": "d3758edf45795dd2c0eddcd840d9100fc3d0cd23",
+          "reported": "53passed/exit0/3.2minutes",
+          "log": "instances/B3-CODEX/_run_records/full-dist-completed.log",
+          "standing": "manager reported; ROOT hash verification at fan-in"
+        },
+        "sweep": {
+          "commit": "9cf1654d2d0b317774290feb72d1a397a1d6cefa",
+          "status": "pass",
+          "summary": "validation/evidence/sweeps/SWEEP_20260920T065239Z_9cf1654d2d0b.json",
+          "summarySha256": "64871b1d85bc974b0dcff8ca049c1e55113f222eaf13eef6729b2c83bf97f8d1",
+          "rawLogManifest": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-sweep/MANIFEST.json"
+        },
+        "standing": "local passes on prior candidate; hosted tooltip failure retained and repaired separately"
+      },
+      "ciRepair": {
+        "product": "3861b614362d8da925e148d7506ecc9902c7f808",
+        "managerHandoff": "f7dcbf027a0fb0d740d46568a1e81f92dd178ecd",
+        "return": "instances/B3-CODEX/ci-tooltip-repair/RETURN.md",
+        "returnSha256": "49022d0a04bf0f61472ff7282155a4c899beade65710524f350a82464a921a8a",
+        "manifest": "instances/B3-CODEX/ci-tooltip-repair/_run_records/PACKET_MANIFEST.json",
+        "manifestSha256": "5fb4cd91cefcdcadc3bfe053696fc1bb211438ae8504f67a629375fd9e2156e7",
+        "verifiedManifestEntries": 345,
+        "verifiedTraceArchives": 6,
+        "sourcePasses": 68,
+        "distPasses": 17,
+        "unitPasses": 44,
+        "nativeBinarySha256": "e9eda3cca4e626dd00cfee62279113d0d5161a751ba40cd58cea091cd23ca5f9",
+        "rootNativeLook": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/ROOT_CI_REPAIR_NATIVE_LOOK.md",
+        "rootNativeLookSha256": "9ef269ca1085973df66a689e20906b1e6e9c7f2ae2957c8e5f3e13733b248b69",
+        "nativeLimit": "pure native hover persistence unobserved; pinned browser hover demonstrated",
+        "state": "independent product and complete evidence reviews pass; app/ports/lock released",
+        "B3_CI_REPAIR_REVIEW_RETURN.md": {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CI_REPAIR_REVIEW_RETURN.md",
+          "sha256": "f37a151a441f7cade072f3e43c8f1e05cafe760a2a07c192633b4936e43c79c7"
+        },
+        "B3_CI_PACKET_REVIEW_RETURN.md": {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CI_PACKET_REVIEW_RETURN.md",
+          "sha256": "2d27aaa3c5b44e081927ff90d7a9598e865ddef763545d95d247cb4c8d9ed31d"
+        },
+        "CI_BACKCHECK_RETURN.md": {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_BACKCHECK_RETURN.md",
+          "sha256": "dbfc515089a6422066001725451ed201fadb64de0176f56295439f75a34f9341"
+        },
+        "RESUME_RECORDS_BACKCHECK_RETURN.md": {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RESUME_RECORDS_BACKCHECK_RETURN.md",
+          "sha256": "f121711027e86940cb3a5e88efeaeb4d37c298cab3a9210d923d4e8be7062922"
+        }
+      },
+      "distParityProposal": {
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_DIST_ROUNDOFF_DECISION.md",
+        "patch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_DIST_WHEEL_PARITY.patch.txt",
+        "patchSha256": "bd12b88355b25690b04ea3400a7637fe572597912e07383af8d9b6d6f006d94f",
+        "state": "prepared/unapplied; owner async ruling pending",
+        "sourcePredicateOrigin": "306a74ba9d; independently confirmed already present in origin/main"
       }
     },
     "B3A": {
@@ -665,7 +734,11 @@
         "defect 2: a header comment or retirement to history",
         "whether the nine protocol-history files are preserved in the repository",
         "seventeen hash literals bind artifacts never committed"
-      ]
+      ],
+      "preparationSourceAudit": {
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/I1_PREPARATION_SOURCE_AUDIT.json",
+        "result": "ROOT read-only found all9 historical preimages in preserved old worktree, hash-matched; no I1 implementation or launch yet"
+      }
     },
     "C3": {
       "role": "slice",
@@ -771,7 +844,7 @@
       "parent": "ROOT",
       "modelRequested": "gpt-6-astra",
       "reasoningRequested": "high",
-      "status": "reactivated for bounded CI tooltip repair, preserving completed original handoff",
+      "status": "bounded CI repair complete; clean handofff7dcbf and all resources released; post-B3 activation awaits merge",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_BRIEF.md",
       "briefSha256": "e494ccdc4763cca0ff53ae238a33c3d3a83299f66a701b75b107c1a5bdb5fb3f",
       "candidate": "c613922f1725a9b86d81c6c120b05b7df2e0558d",
@@ -920,7 +993,7 @@
         "addendumSha256": "acd5945e8bcccbf20b11830a5b57a75b599a7b7fffb614b03ef632382a7bec3b",
         "actualMechanism": "collaboration.followup_task to existing independent lane manager; manager owns child launch",
         "childReported": "/root/b3_manager/ci_tooltip_repair; Astra/low; brief89b9f53eaa61a76de09a01317706b136c0e5bbb869c2404539795e82ee450d72",
-        "state": "pinned Chromium repro established; repair/checks active"
+        "state": "completed and independently reviewed; B3A draft prepared by ROOT but unlaunched"
       }
     },
     "CONTINUATION-RECORDS-REVIEW": {
@@ -948,7 +1021,18 @@
       "tailReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_TAIL_REVIEW_RETURN.md",
       "tailReturnSha256": "b792b8d848960e6abd6be3f8dc0582638c3922c4e6d35ca32c8cfe4a2ca3934a",
       "tailBackcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_TAIL_BACKCHECK.md",
-      "tailBackcheckReturnSha256": "d41f5768865f09f204ec243a188dd9bb53c2b05ecfbaf7aa605363987b455c8e"
+      "tailBackcheckReturnSha256": "d41f5768865f09f204ec243a188dd9bb53c2b05ecfbaf7aa605363987b455c8e",
+      "resumedRecords": {
+        "initial": "49acd61a3b9ba92c98edd23279d48d997984aa1c",
+        "finding": "P3 return-table row order",
+        "backcheck": "62650612a418418f8c88d30d9474d5b105a1ddde",
+        "status": "PASS custody corrected"
+      },
+      "ciRepairPacket": {
+        "candidate": "f7dcbf027a0fb0d740d46568a1e81f92dd178ecd",
+        "status": "PASS346paths345manifestentries6traces",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CI_PACKET_REVIEW_RETURN.md"
+      }
     },
     "B3-CODE-REVIEW": {
       "role": "TASK Type 2 independent complete-diff read-only code review",
@@ -1019,6 +1103,18 @@
         "status": "PASS one real-control Close line; no oracle/product/source-input changes",
         "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_CLOSE_BACKCHECK_RETURN.md",
         "returnSha256": "b742ac42a7ab0a6c107a18221430f1d1a25797cf49b1e1c41787dcbcbf8f702b"
+      },
+      "ciRepairReview": {
+        "candidate": "3861b614362d8da925e148d7506ecc9902c7f808",
+        "status": "PASS3product/testpaths",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CI_REPAIR_REVIEW_RETURN.md"
+      },
+      "ciStrategyReview": {
+        "initial": "097decd6d4c89bacb0909c9c798933835ed0f27b",
+        "initialFindings": "3P2: instrument dependencies, stale target base, missing focused collection cases",
+        "repair": "7174f78b7bda3497ab9007d3aaef5850f1fd3b54",
+        "status": "PASS all3closed",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_BACKCHECK_RETURN.md"
       }
     },
     "B3-FIDELITY-CODEX": {
@@ -1064,7 +1160,7 @@
       "role": "slice",
       "lane": "ROOT-owned Piping CI",
       "title": "Early interaction gate, conservative affected selection and isolated full-run shards",
-      "status": "implementation active; independent review/verification pending",
+      "status": "Repaired7174f78b independently PASS; target ancestry, exact collections and conservative full fallback validated; actual selected hosted execution pending.",
       "authority": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md",
       "dependsOn": [],
       "scope": "Piping-specific workflow, optional composite, selector/tests, strategy docs, own notice/tranche; no other workflow or branch protection",
@@ -1083,7 +1179,7 @@
       "configuredReasoning": "low",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_INVENTORY_BRIEF.md",
       "briefSha256": "91937ad15e627f47be708c687e5ac1bea2d2bd29eab1ec663765b49afd04e574",
-      "status": "returned; ROOT selected conservative routes and retained all viewport entries; evidence/context verification pending review",
+      "status": "returned; independent custody/source/timing review PASS after row-order correction",
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_INVENTORY_RETURN.md",
       "returnSha256": "63e8527268bb761bf5c4c46070e598ce5c7564c368adfc3dd0d235b4aade6a01",
       "custodyCorrection": "Independent reviewer found one table-row reordering in ROOT transcription at49acd. Corrected current retained return to actual collaboration.list_agents final ordering; values unchanged, historical commit preserved."
@@ -1097,7 +1193,7 @@
       "configuredReasoning": "low",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_IMPLEMENTER_BRIEF.md",
       "briefSha256": "b9768cb8f945dbf1308bc92520da48465aa39a2963ca13745feb6ad9dedda8fd",
-      "status": "active"
+      "status": "returned repaired candidate7174f78b;28unitpasses; independent backcheck PASS; no browser/full-suite/hosted claim"
     },
     "G-17": {
       "role": "slice",
@@ -1256,9 +1352,25 @@
     [
       "ROOT",
       "B3-CODE-REVIEW"
+    ],
+    [
+      "ROOT",
+      "CI-STRATEGY"
+    ],
+    [
+      "ROOT",
+      "CI-INVENTORY"
+    ],
+    [
+      "ROOT",
+      "CI-IMPLEMENTER"
+    ],
+    [
+      "ROOT",
+      "B3-FIDELITY-CODEX"
     ]
   ],
-  "current_frontier": "Resumed: repair B3 hosted tooltip/Close failure, implement reviewed CI economy, merge PR825; then authorized B3A/B3B and I1 continuation per approved strategy. Runtime adoption and fixed unresolved product rulings remain separate.",
+  "current_frontier": "B3 merge awaits owner ruling on a newly observed protected dist wheel-target roundoff mismatch. Full source416/20skip, Rust/Python/unit passed; failed full sweep retained. Exact source/dist parity patch prepared and under independent proposal review; affected implementation pending ruling. Continue independent preparation only.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -1358,7 +1470,9 @@
     }
   ],
   "openWithOwner": {
-    "blockingCurrentB3": [],
+    "blockingCurrentB3": [
+      "Named dist active-wheel assertion parity with existing source16EPS rule; optional PR825-only verification reuse instead of another complete sweep. Exact reviewable package and patch prepared; nothing applied."
+    ],
     "reservedForLater": [
       "second-profile freeze and casing before timed qualification",
       "deformation view drawn proposal at closing pass",

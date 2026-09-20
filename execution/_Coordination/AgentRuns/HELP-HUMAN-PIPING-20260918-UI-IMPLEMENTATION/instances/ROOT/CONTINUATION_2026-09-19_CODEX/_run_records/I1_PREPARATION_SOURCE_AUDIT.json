@@ -1,0 +1,66 @@
+{
+  "purpose": "read-only preparation of I1 continuation; no I1 agent or new implementation started before B3 merge",
+  "sourceWorktree": "chirality-ui-verification-20260915",
+  "sourceRelativeDirectory": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/protocol-history",
+  "pinSourceBranch": "codex/swbpipe-b-canvas-20260918",
+  "pinSourceHead": "f6c0bab8e8893237f83f57656b98039d68efb2b4",
+  "entries": [
+    {
+      "name": "fixture-manifest-v1-superseded-before-timed-run.json",
+      "bytes": 7065,
+      "sha256": "285b918088cae236e38d8e9af31945782e14aed26e68440a612aef336ba939c1",
+      "matchesI1Pin": true
+    },
+    {
+      "name": "fixture-manifest-v2-superseded-after-baseline-load-filter-orbit.json",
+      "bytes": 8095,
+      "sha256": "df35d5291c0cd39f6cc137c7af7e20758811410e8cf35f7308077aa7e62bc5b6",
+      "matchesI1Pin": true
+    },
+    {
+      "name": "fixture-manifest-v3-superseded-before-canvas-point-timing.json",
+      "bytes": 9871,
+      "sha256": "8ca81f73de7267c66b1d2c07778e6e08f71778a151e008edb0c4e248ad234575",
+      "matchesI1Pin": true
+    },
+    {
+      "name": "fixture-manifest-v4-superseded-before-candidate-camera-preflight.json",
+      "bytes": 11347,
+      "sha256": "d6dcc757d1024da020e4333e1f7f624243920821c04946c418384875573f72bc",
+      "matchesI1Pin": true
+    },
+    {
+      "name": "fixture-manifest-v5-superseded-before-resource-route-calibration.json",
+      "bytes": 12105,
+      "sha256": "d086af9e6301ba5d2f55d6363576c46296713a18e19ced3dbc8666d9892309aa",
+      "matchesI1Pin": true
+    },
+    {
+      "name": "fixture-manifest-v6-superseded-before-box-policy-binding.json",
+      "bytes": 12979,
+      "sha256": "3fe26201623736b7810ce9885a43f1ea0edb0400b0f65b4e104b842e2b5254df",
+      "matchesI1Pin": true
+    },
+    {
+      "name": "fixture-manifest-v7-superseded-before-final-control-binding.json",
+      "bytes": 13853,
+      "sha256": "962b7970428a08eab1ff25583d85e548147220b9118d931b16d32385f95bb926",
+      "matchesI1Pin": true
+    },
+    {
+      "name": "ui-foundation-1000.interactions-v1-label-proxy.json",
+      "bytes": 84957,
+      "sha256": "0a68da5acf202c943ad6441e8731429ed1c156fb0f7cee02493d2f9b6ede3bed",
+      "matchesI1Pin": true
+    },
+    {
+      "name": "ui-foundation-10000.interactions-v1-label-proxy.json",
+      "bytes": 237958,
+      "sha256": "97ce2688aa79492402664ec091f2da43cb8f696fefc3c64d6b5d7b59690ac3a5",
+      "matchesI1Pin": true
+    }
+  ],
+  "readmeSha256": "7db967cd8f4971e480183d83a748c48225d1e492658a9dc610762343b8a0746b",
+  "result": "all nine exact historical preimages remain available and match pinned hashes; future I1 manager may retain them as run evidence without changing frozen fixture/sample bytes",
+  "limits": "no generator invocation, write, timed run, source repair, performance or product acceptance"
+}
