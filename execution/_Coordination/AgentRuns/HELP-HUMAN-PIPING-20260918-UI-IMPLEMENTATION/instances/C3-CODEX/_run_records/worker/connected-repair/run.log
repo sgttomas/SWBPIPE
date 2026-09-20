@@ -1,0 +1,19 @@
+[2m[WebServer] [22m(node:74940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:74942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:74942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/c3-viewport-visibility.spec.ts:78:1 › C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history (3.8s)
+(node:74959) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:74959) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium-compact] › e2e/c3-viewport-visibility.spec.ts:78:1 › C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history (3.6s)
+
+  2 passed (9.4s)
+
+EXIT 0

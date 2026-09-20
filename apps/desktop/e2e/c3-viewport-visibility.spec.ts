@@ -246,6 +246,7 @@ test("C3 deletion retains active empty snapshot; new geometry dims; project repl
   await selectTreeRow(page, "node", "node:C3-loose");
   await control(page, "Isolate").click();
   await startPropertyTaskFromTreeEntity(page, "node", "node:C3-loose");
+  await page.getByTestId("property-inspector").getByRole("tab", { name: "Properties", exact: true }).click();
   await page.getByTestId("queue-delete-node-intent").click();
   await openWorkspaceSection(page, "operations");
   await page.locator('[data-testid^="operation-apply-row-"]').filter({ hasText: "node:C3-loose" }).getByRole("button", { name: "Apply", exact: true }).click();
