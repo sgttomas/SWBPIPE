@@ -1,0 +1,33 @@
+{
+  "candidate": "720e9d0ecf241bf712a5076e947abf35c8154a1c",
+  "base": "55932683916fd1cd0ca047a0a76c32adaf9b65ab",
+  "complete_sweep": {
+    "candidate": "143c863366c0ee5ae7fa3d56405f8bf7d35935aa",
+    "status": "pass"
+  },
+  "collection": {
+    "candidate": "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee",
+    "status": "validated",
+    "source_ids": 435,
+    "omitted": 0
+  },
+  "harness": {
+    "initial": "378pass/1fail portability",
+    "corrected": "379pass"
+  },
+  "self_check": {
+    "exit_code": 0,
+    "counts": {
+      "REVIEW": 4,
+      "INFO": 14,
+      "WARN": 112,
+      "NOT_APPLICABLE": 1
+    },
+    "active_absolute_paths": 0
+  },
+  "receipt_claim_tests": "32pass",
+  "receipt_validation": "valid",
+  "claims_validation": "VALID claims-language surfaces: 350 files scanned; DEC-081 registry taxonomy satisfied",
+  "G4": "PASS current complete diff at ee9; no maintained input changes afterward",
+  "held": "published-head hosted CI, final records backcheck and merge remain pending"
+}

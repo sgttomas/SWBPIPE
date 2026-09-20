@@ -1,0 +1,24 @@
+{
+  "current_candidate": "720e9d0ecf241bf712a5076e947abf35c8154a1c",
+  "actual_collection_candidate": "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee",
+  "collection_status": "validated",
+  "selected": 435,
+  "omitted": 0,
+  "partition_counts": {
+    "barrier": 30,
+    "shard-1": 80,
+    "shard-2": 123,
+    "shard-3": 50,
+    "shard-4": 152
+  },
+  "estimated_seconds": {
+    "barrier": 124.7,
+    "shard-1": 590.66,
+    "shard-2": 590.74,
+    "shard-3": 591.0,
+    "shard-4": 589.93
+  },
+  "mapping_unchanged": true,
+  "browser_launched": false,
+  "note": "One actual source+five exact-list collection; current record-only candidate rebind uses identical complete software inputs and recomputed identical plan mapping. No test execution or hosted result is claimed."
+}

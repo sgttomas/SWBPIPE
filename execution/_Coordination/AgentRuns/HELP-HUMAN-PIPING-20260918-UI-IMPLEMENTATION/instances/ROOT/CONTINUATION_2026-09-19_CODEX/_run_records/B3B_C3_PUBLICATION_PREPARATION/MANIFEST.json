@@ -1,0 +1,26 @@
+{
+  "SUMMARY.json": {
+    "sha256": "add6721ac8bb4af47ab87ff2d2b956b2da54165f50443140fd4889b131d819ce",
+    "bytes": 999
+  },
+  "ARCHIVE_INDEX.json": {
+    "sha256": "ed6231a7fcc147dbb68c1806593b6d9e53386dc0956bf3cb9c375d75e0a5b734",
+    "bytes": 5442
+  },
+  "CURRENT_PLAN.json": {
+    "sha256": "cd2060566859aaa79834156966a25e8cf4da5c943b6073304efc977e28c8c215",
+    "bytes": 98523
+  },
+  "SOFTWARE_INPUT_BINDINGS.json": {
+    "sha256": "dc6abcd16091658430fe10760c226b45182c1f478ccf2b0af2bec2d544f09fbb",
+    "bytes": 5932
+  },
+  "evidence.tar.gz": {
+    "sha256": "69fe6130ea1842d2ebb628fa951edfeb3cb10fbc28a0daad5dfc13fccdc5a22b",
+    "bytes": 150620
+  },
+  "COLLECTION_BINDING.json": {
+    "sha256": "7eee4246c68d13121761cd1a691c69ae49c2eaf1bcbe439b0e24a5d5c507d7bb",
+    "bytes": 765
+  }
+}

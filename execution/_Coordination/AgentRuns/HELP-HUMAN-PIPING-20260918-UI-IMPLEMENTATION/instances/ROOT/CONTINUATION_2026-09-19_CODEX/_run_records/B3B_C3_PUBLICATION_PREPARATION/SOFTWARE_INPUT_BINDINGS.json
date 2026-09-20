@@ -1,0 +1,95 @@
+{
+  "revisions": [
+    "143c863366c0ee5ae7fa3d56405f8bf7d35935aa",
+    "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee",
+    "720e9d0ecf241bf712a5076e947abf35c8154a1c"
+  ],
+  "paths": {
+    ".github/workflows/piping-desktop-e2e.yml": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "688fb267f0ad55cf19781f77833f159923e2e3a3",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "688fb267f0ad55cf19781f77833f159923e2e3a3",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "688fb267f0ad55cf19781f77833f159923e2e3a3"
+    },
+    ".github/actions/setup-piping-e2e": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "3c20d99ac2bcc4f27f88e73a51ed5294b0ff36c3",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "3c20d99ac2bcc4f27f88e73a51ed5294b0ff36c3",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "3c20d99ac2bcc4f27f88e73a51ed5294b0ff36c3"
+    },
+    "projects/chirality-piping/apps/desktop": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "db7512203cb17529f5185366502f82809d3cfe40",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "db7512203cb17529f5185366502f82809d3cfe40",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "db7512203cb17529f5185366502f82809d3cfe40"
+    },
+    "projects/chirality-piping/core": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "7b88406df20f69653dc9c7de16cc52127e0be5fe",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "7b88406df20f69653dc9c7de16cc52127e0be5fe",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "7b88406df20f69653dc9c7de16cc52127e0be5fe"
+    },
+    "projects/chirality-piping/fixtures": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "627954a95bcb19a4a3a8dbf6ebc5254d3eb9daed",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "627954a95bcb19a4a3a8dbf6ebc5254d3eb9daed",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "627954a95bcb19a4a3a8dbf6ebc5254d3eb9daed"
+    },
+    "projects/chirality-piping/schemas": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "11d15a5666a9a3efa3b3ee8d271d870d1c6abaeb",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "11d15a5666a9a3efa3b3ee8d271d870d1c6abaeb",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "11d15a5666a9a3efa3b3ee8d271d870d1c6abaeb"
+    },
+    "projects/chirality-piping/tests": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "eabe81744d20a2f99cee7d897f6fc16721e22bfc",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "eabe81744d20a2f99cee7d897f6fc16721e22bfc",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "eabe81744d20a2f99cee7d897f6fc16721e22bfc"
+    },
+    "projects/chirality-piping/validation": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "dde0a67f2ca1c8b1cedab7f92cd6d9711026bf29",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "dde0a67f2ca1c8b1cedab7f92cd6d9711026bf29",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "dde0a67f2ca1c8b1cedab7f92cd6d9711026bf29"
+    },
+    "projects/chirality-piping/tools": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "03a66d9598e575f9da57a456f6880e21165c5577",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "03a66d9598e575f9da57a456f6880e21165c5577",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "03a66d9598e575f9da57a456f6880e21165c5577"
+    },
+    "projects/chirality-piping/package.json": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "d24b2f7784cb822c8ae4a6756e405bbe167a5887",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "d24b2f7784cb822c8ae4a6756e405bbe167a5887",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "d24b2f7784cb822c8ae4a6756e405bbe167a5887"
+    },
+    "projects/chirality-piping/package-lock.json": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "490bae945bd016ee6c43b879b36b71c184b8cb67",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "490bae945bd016ee6c43b879b36b71c184b8cb67",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "490bae945bd016ee6c43b879b36b71c184b8cb67"
+    },
+    "projects/chirality-piping/software-workflow.json": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "71feb5d68fc5790b414965c9714456a38f06900b",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "71feb5d68fc5790b414965c9714456a38f06900b",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "71feb5d68fc5790b414965c9714456a38f06900b"
+    },
+    "tools/practitioner_harness": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "a620a0693b062720de93e8045b7c7db1bd5c39d9",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "a620a0693b062720de93e8045b7c7db1bd5c39d9",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "a620a0693b062720de93e8045b7c7db1bd5c39d9"
+    },
+    "tools/validation": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "03ca92dfe595efc6e8666e2d024bfc839e74581b",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "03ca92dfe595efc6e8666e2d024bfc839e74581b",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "03ca92dfe595efc6e8666e2d024bfc839e74581b"
+    },
+    "AGENTS.md": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "d54c321bd12465faadab08771a6b887a0a30ef21",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "d54c321bd12465faadab08771a6b887a0a30ef21",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "d54c321bd12465faadab08771a6b887a0a30ef21"
+    },
+    "projects/chirality-piping/AGENTS.md": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "20eec666436d2f76d26495bc3be2eb11278a20f6",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "20eec666436d2f76d26495bc3be2eb11278a20f6",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "20eec666436d2f76d26495bc3be2eb11278a20f6"
+    },
+    "projects/chirality-piping/loop/LOOP_INIT.md": {
+      "143c863366c0ee5ae7fa3d56405f8bf7d35935aa": "aa4acd0fbfc217ba8006b1a203bce378d26613e7",
+      "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee": "aa4acd0fbfc217ba8006b1a203bce378d26613e7",
+      "720e9d0ecf241bf712a5076e947abf35c8154a1c": "aa4acd0fbfc217ba8006b1a203bce378d26613e7"
+    }
+  },
+  "scope": "Product/tests/CI/harness inputs unchanged; later deltas are run records and peer Runtime evidence only."
+}

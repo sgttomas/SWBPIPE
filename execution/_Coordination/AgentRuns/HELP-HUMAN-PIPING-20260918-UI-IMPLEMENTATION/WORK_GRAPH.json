@@ -619,7 +619,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the native menu disabled during a busy project request (with its src-tauri part); a landed save re-derives the integrity record as verified at save",
-      "status": "controller/browser repaired and passed; shell CSS repair d6e integrated; combined native/review/sweep gates pending",
+      "status": "ready for source-control integration: native/probe/code/backcheck/full clean sweep pass; publication tail/hosted checks pending",
       "dependsOn": [
         "B3A"
       ],
@@ -775,7 +775,7 @@
       "role": "slice",
       "lane": "B-CANVAS",
       "title": "isolate as dimming, a stated pick rule, a total hidden count (G-30)",
-      "status": "all16 unique connected cases pass across bounded candidate-bound runs; final protected/picking/evidence freeze in progress; no timed qualification",
+      "status": "ready for source-control integration: connected16/picking69/protected83, full sweep and differential edge repair reviewed; no timed qualification",
       "dependsOn": [
         "I1"
       ]
@@ -1492,7 +1492,7 @@
       "actualAgent": "/root/ci_strategy",
       "model": "gpt-6-astra",
       "reasoning": "low",
-      "status": "reviewer P2 repaired d361bc59;29 policy tests/7subtests pass; independent backcheck pending",
+      "status": "reviewed;435actual IDs partition exactly once;23duplicate repetitions removed; lean/affected/full routing verified; hosted full milestone pending",
       "branch": "codex/swbpipe-ci-economy-20260920",
       "base": "88c6c7463199d1d69caebde04678fa74facca78f",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_ECONOMY_IMPLEMENTATION_BRIEF.md",
@@ -1535,6 +1535,26 @@
         "durationSeconds": 1031.0871080001816,
         "canonical": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_SWEEP_143",
         "observed": "Rust allregisteredpass;Python1134/304warnings/7subtests;unit91files1491pass;source415pass20existing-skips;dist53pass;buildpass;candidate clean after run"
+      },
+      "publicationPreparation": {
+        "sourceCandidate": "720e9d0ecf241bf712a5076e947abf35c8154a1c",
+        "actualCollectionCandidate": "ee9e2d648a9ebbbc62320b5f50a3fd9c03cd93ee",
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_PUBLICATION_PREPARATION",
+        "manifestSha256": "21321e2c69949f6b160a4a4cccce945b9b3c267a00de01eadf06cd2c29552252",
+        "sourceIDs": 435,
+        "partitions": [
+          30,
+          80,
+          123,
+          50,
+          152
+        ],
+        "omitted": 0,
+        "softwareBindingsUnchanged": 17,
+        "harness": "379pass after6record portability repairs; initial378pass/1fail retained",
+        "selfCheck": "0active-absolute-path findings,0BLOCK; baseline4REVIEW/112WARN retained",
+        "receiptClaimsTests": "32pass",
+        "hosted": "not started"
       }
     },
     "B3B-C3-CI-REVIEW": {
@@ -1775,7 +1795,7 @@
       "CI-ECONOMY-CODEX"
     ]
   ],
-  "current_frontier": "Corrected full clean143 sweep PASS and independent113path review PASS. Prepare current full collection and one draft integration PR, wait applicable hosted checks then merge. B4.1 prepared; C4 protected label decisions pending. CLI-first target adopted, bounded live-binding activation still under preparation.",
+  "current_frontier": "Publication preparation passes after6record portability repairs; product inputs remain identical to passed143 sweep. Final records/collection backcheck then one draftPR/full hosted milestone, merge only after applicable checks. B4.1 prepared; C4 label rulings pending. CLI-first contract adopted at high level, bounded activation still under preparation.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
