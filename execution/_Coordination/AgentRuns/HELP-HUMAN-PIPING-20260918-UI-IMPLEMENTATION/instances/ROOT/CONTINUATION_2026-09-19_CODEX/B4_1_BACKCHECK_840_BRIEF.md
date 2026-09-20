@@ -1,0 +1,9 @@
+# B4.1 focus-ownership backcheck at840a
+
+ROOT HELP_HUMAN → retained independent /root/b4_1_code_review, TASK Type2 gpt-6-astra/xhigh; no delegation. Read-only under unrestricted host, prior full source/context review retained. Review complete87faf4b240d1be8b197843cd869b22408e85be3b..840a21647983948c2f9930dd2fc56afb9e5d3eff: exactly EngineeringTable.tsx, its test, and e2e/b4-table-editing.spec.ts. Frozen initial review remains not-ready, with its findings preserved; do not rewrite it.
+
+Backcheck all three P2s: last unchanged-editor Tab ownership, visible roving entry after filter/deletion without stealing external focus, and selection-only deferred-navigation replacement including observed A→C→A. Inspect consequences for invalid/rejected drafts, async apply, generation reset, file-order movement, virtualization and current DOM/selection ownership. No oracle or tolerance amendment is authorized. The large-fixture journey now adds real row-header→Tab reentry while retaining scroll/invalid/hash assertions.
+
+Manager freeze04 manifest SHA2565d0719aae57de2cc332434d768b4567e86608bc597b792c51f964b9169d8cf7d and return addendum SHAf3c76f086930d20ed83e7d0c42c2837127cf5b85c98c3179b18598bbd7462e2b are under instances/B4-1-CODEX. Reported23core tests/TS pass; new source4cases pass11.4s and legacy6cases pass14.8s in both pinned profiles, one worker. Earlier new-01 two failures and legacy-01 zero-selection tooling failure remain historical. Verify available raw evidence and exact boundaries. Native/build/CUA is requested next but not yet completed; final sweep and combined-candidate gates remain.
+
+No tests/builds/browser/native/CUA/ports/network, source/evidence edits or Git mutation. Return actionable findings or exact-delta PASS closing the named P2s, complete changed path count, evidence limits and actual model/context continuity. Source changes beyond840a require another bounded backcheck.

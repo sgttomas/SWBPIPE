@@ -1,0 +1,11 @@
+# B4.1 native Cancel repair source backcheck
+
+ROOT HELP_HUMAN → retained independent /root/b4_1_code_review, TASK Type2 Astra/xhigh, no delegation. Same read-only boundaries and prior complete20-path context apply. Review exact840a21647983948c2f9930dd2fc56afb9e5d3eff..6dd0e466f4432f21d3ce6913782b95f9a325f700: EngineeringTable.tsx/test and the new B4 browser spec only. Product delta is two own-footer-button pointer-down preventDefault handlers plus explanation; no native/lib edit or armed state.
+
+Actual uninstrumented840a native Cancel with valid draft applied the value, reproduced through actual physical coordinates as well as prior actions. Native PID25376/binary identity and captures are in B4-1-CODEX native evidence; original failed record remains failed. Ordinary WebKit blur with null relatedTarget reached autoapply before Cancel click. Old browser Cancel used invalid text, which could not expose this valid-draft defect. New browser oracle uses a changed valid value and demands original model/value/history/Edited standing remain unchanged.
+
+Inspect capture/default-action ordering, own-controls-only scope, click-only activation, pointer-down then abandoned drag/pointercancel, later ordinary external blur Apply, exactly-once explicit Apply, keyboard Cancel/Escape, selection/focus ownership and generation consequences. No regression oracle or semantic limit may be weakened. Modeled unit default-focus event sequences are explicitly not actual native telemetry; the actual rebuilt native witness remains decisive and pending.
+
+Freeze05 SHA256846c95b48ab8f20265cf1a9d8f21a6653ebd22e8485992b48e4d49d97dc1ac93; reported31core tests and TypeScript pass, four fail-before unit cases retained. Affected4browser cases are authorized next; legacy6 had passed at840a and are not broadly rerun for these two handlers. Native fit horizontal reachability remains separately unobserved and must be checked, not inferred from clipped screenshots/CSS. Final sweep/combined-candidate checks also remain.
+
+No tests/builds/UI/CUA/ports/network, edits or Git mutations. Return exact3-path source verdict, evidence boundaries and any concrete issue. A source PASS does not close the native Cancel failure until the new binary passes the actual affected witness.
