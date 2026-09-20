@@ -1,0 +1,11 @@
+# C3 worker phase 1 return
+
+Completed only the pure visibility helper/type and six focused tests. Parent checkpoint required before phase 2; worker stopped edits after this return. Actual execution: Codex gpt-6-astra / low, TASK Type 2, delegated-harness-native child /root/i1_manager/c3_worker of WORKING_ITEMS /root/i1_manager under ROOT HELP_HUMAN. Host filesystem unrestricted; scope instruction-enforced. No delegation or Git mutation.
+
+Baseline: 88c6c7463199d1d69caebde04678fa74facca78f. Source and supplied instruction origins/hashes: `_run_records/worker/phase1-identities.json`.
+
+Exports ViewportVisibilityProjection and deriveViewportVisibility(index, explicitHiddenKeys, isolationSelectionKeys). Reuses effectiveHiddenEntityKeys, counts only eligible hidden keys, dims eligible keys outside the literal active snapshot after Hide. Null is inactive; empty remains active. No inputs mutate. Stale/nongeometry explicit hidden keys remain in expanded Hide for compatibility but never inflate hiddenCount.
+
+Command (apps/desktop): `npx vitest run src/features/viewport/viewportVisibility.test.ts --maxWorkers=1`. Vitest 4.1.10: 1 file, 6 tests passed. Coverage: inactive/empty, literal node/attachment membership, new/deleted geometry, Hide expansion/precedence/count independent of snapshot, invalid/nongeometry/stale exclusion, input nonmutation. No browser/native/build/full suite or performance timing run; no connected application claim. Existing viewportSelection.ts/test hashes match pre-edit identities. No product controls touched. No shared writes requested in phase 1. No shared test resource held. F-PIP-2/DEC-081 fence retained; no qualification/acceptance.
+
+Parent-requested TypeScript validation: initial `npx tsc --noEmit -p tsconfig.app.json` failed TS5058 because this repository uses tsconfig.json. `npx tsc --noEmit -p tsconfig.json` exposed TS2345 at test line 68: the mixed snapshot array inferred an empty Set as Set<unknown>. Added explicit EntityKey to that empty test set (no production semantics change). Repeated `npx tsc --noEmit -p tsconfig.json` passed; repeated focused Vitest passed 6/6. These are compiler/test checks, not a production build. Final source identities supersede pre-repair test hash.
