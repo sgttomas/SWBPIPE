@@ -586,8 +586,13 @@
         "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_DIST_ROUNDOFF_DECISION.md",
         "patch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_DIST_WHEEL_PARITY.patch.txt",
         "patchSha256": "bd12b88355b25690b04ea3400a7637fe572597912e07383af8d9b6d6f006d94f",
-        "state": "prepared/unapplied; owner async ruling pending",
+        "state": "technically reviewed suitable; owner async ruling stillpending; patchunapplied",
         "sourcePredicateOrigin": "306a74ba9d; independently confirmed already present in origin/main"
+      },
+      "finalGovernance": {
+        "harness": "379passed after raw-evidence relocation",
+        "selfCheck": "standalone exit0, existingWARN/REVIEW retained, no rawpath findings",
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/evidence-classification/MANIFEST.json"
       }
     },
     "B3A": {
@@ -1193,7 +1198,8 @@
       "configuredReasoning": "low",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_IMPLEMENTER_BRIEF.md",
       "briefSha256": "b9768cb8f945dbf1308bc92520da48465aa39a2963ca13745feb6ad9dedda8fd",
-      "status": "returned repaired candidate7174f78b;28unitpasses; independent backcheck PASS; no browser/full-suite/hosted claim"
+      "status": "returned repaired candidate7174f78b;28unitpasses; independent backcheck PASS; no browser/full-suite/hosted claim",
+      "evidenceLocations": "instances/CI-STRATEGY-CODEX/EVIDENCE_LOCATIONS.json;75raw artifacts moved byte-identically under _run_records, independently reviewed"
     },
     "G-17": {
       "role": "slice",
@@ -1370,7 +1376,7 @@
       "B3-FIDELITY-CODEX"
     ]
   ],
-  "current_frontier": "B3 merge awaits owner ruling on a newly observed protected dist wheel-target roundoff mismatch. Full source416/20skip, Rust/Python/unit passed; failed full sweep retained. Exact source/dist parity patch prepared and under independent proposal review; affected implementation pending ruling. Continue independent preparation only.",
+  "current_frontier": "Awaiting owner ruling only for the named dist active-wheel assertion amendment and proposed one-time verification reuse. Product/CI/evidence repairs independently pass; full065 source passed416/20skip but fullsweep failed52/1dist. Proposed parity patch technically reviewed, remainsunapplied. No newworkers, apps, servers or testsrunning; B3A/I1 drafts wait for B3merge.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -1577,7 +1583,7 @@
     "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RUNTIME_COORDINATION_STATUS.md",
     "editor": "ROOT only",
     "peerThread": "01a07cd1-86da-7d30-9b17-e2cbbad3f10a",
-    "state": "Piping resumed B3 and authorized UI work; Runtime adoption remains discussion only. Peer acknowledged no active host reservations and Piping CI scope.",
+    "state": "Piping B3 verification awaits owner protected-test ruling; all host resources released. Runtime integration remains discussion only.",
     "originMainRevalidated": "21175b5d3668f29acd408812d95a33ed4f14bfc8",
     "peerProposedContract": "cb08dbe2fbeaf5a34a0abfa2f1d599c7c5bd6b2f",
     "peerPr": "https://github.com/sgttomas/chirality/pull/824",
