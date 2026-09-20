@@ -1,0 +1,33 @@
+{
+  "refs": {
+    "failed": "a635b01ad67e85a10b542e889f0de29715358e49",
+    "owned": "fa9d246c5410d2cbdd9a133f6cea2219d0f3ab01"
+  },
+  "briefSha256": "6ac49f64f05e431dc5689d1c820aea706ab24c3da99e72ba83e039224f4d125a",
+  "rawSweepOrigin": "/tmp/swbpipe-b3b-c3-ci-sweep-a635b01a/run.log",
+  "rawSweepSha256": "abe802d911fe55d75f7aa54b84c29f2e05d3511cbe02887d9452a009b50282d8",
+  "bindings": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src",
+      "failed": "24c4da4d47dd6b558f4198664a58411de8848db6",
+      "owned": "24c4da4d47dd6b558f4198664a58411de8848db6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/package.json",
+      "failed": "bc154c963df739f3535ae1056638d11f179dccd4",
+      "owned": "bc154c963df739f3535ae1056638d11f179dccd4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/vite.config.ts",
+      "failed": "9a88b44298317fba8a26c7c2cface178dc47b090",
+      "owned": "9a88b44298317fba8a26c7c2cface178dc47b090"
+    },
+    {
+      "path": "projects/chirality-piping/package-lock.json",
+      "failed": "490bae945bd016ee6c43b879b36b71c184b8cb67",
+      "owned": "490bae945bd016ee6c43b879b36b71c184b8cb67"
+    }
+  ],
+  "noSourceOrTestEdits": true,
+  "initialPreflight": "An attempted rev-parse for nonexistent vitest.config.ts failed before any test. Actual configuration discovered at vite.config.ts and verified here."
+}

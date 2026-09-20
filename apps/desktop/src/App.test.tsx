@@ -17964,7 +17964,7 @@ describe("historical lifecycle history transitions", () => {
         return Promise.resolve({
           ...inventedOpenEnvelope(model),
           ...args.request,
-          summary: { ...inventedOpenEnvelope(model).summary, message: "Saved unchanged Current model." },
+          summary: { ...inventedOpenEnvelope(model).summary, project_id: model.project.id, project_name: model.project.name, message: "Saved unchanged Current model." },
         });
       }
       return Promise.reject(new Error(command));

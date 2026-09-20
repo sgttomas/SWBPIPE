@@ -666,14 +666,28 @@ describe("project handlers: a landed write records snapshot verification even wh
     const envelope = await openProjectWithBothMismatchesRecorded(model);
 
     const pendingCreate = deferred<LocalProjectEnvelope>();
-    invokeMock.mockImplementation((command: string) =>
-      command === "create_local_project" ? pendingCreate.promise : Promise.reject(new Error(`Unexpected command ${command}`)),
-    );
+    let createRequest: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      if (command === "create_local_project") {
+        createRequest = args;
+        return pendingCreate.promise;
+      }
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
     act(() => nativeMenuCommand("file.new-blank"));
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("create_local_project", expect.any(Object)));
     await applyGridEditWhilePending();
+    // This reachable model edit supersedes Create; a second project command is now blocked.
+    act(() => nativeMenuCommand("view.stage.loads"));
+    act(() => nativeMenuCommand("view.view.table"));
+    const workspace = screen.getByTestId("modeling-workspace");
+    expect(workspace).toHaveAttribute("data-stage", "loads");
+    expect(workspace).toHaveAttribute("data-view", "table");
+    expect(screen.getByTestId("workspace-undo")).toBeEnabled();
     await act(async () => {
-      pendingCreate.resolve(inventedOpenEnvelope(envelope.model));
+      const requestedBlank = createRequest!.model as PreviewModel;
+      expect(requestedBlank.project.id).not.toBe(envelope.model.project.id);
+      pendingCreate.resolve(savedEnvelopeFor(requestedBlank, createRequest!, "Created blank after the original model was edited."));
       await pendingCreate.promise;
     });
     await flushPendingWork();
@@ -681,6 +695,19 @@ describe("project handlers: a landed write records snapshot verification even wh
     expect(projectMessage()).toHaveTextContent(envelope.summary.message);
     expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
     expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required");
+    expect(workspace).toHaveAttribute("data-stage", "loads");
+    expect(workspace).toHaveAttribute("data-view", "table");
+    expect(screen.getByTestId("rail-stage-loads")).toHaveAttribute("aria-current", "page");
+    expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(envelope.model.project.name);
+    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+    expect(screen.getByTestId("workspace-undo")).toBeEnabled();
+    fireEvent.click(screen.getByTestId("workspace-undo"));
+    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue(String(envelope.model.nodes.find((node) => node.id === "node:N-100")!.position.y));
+    expect(screen.getByTestId("workspace-redo")).toBeEnabled();
+    fireEvent.click(screen.getByTestId("workspace-redo"));
+    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+    fireEvent.click(screen.getByTestId("layout-mode-tree"));
+    expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(envelope.model.project.id)}`)).toBeInTheDocument();
   });
 });
 

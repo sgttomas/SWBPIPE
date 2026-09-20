@@ -1,0 +1,24 @@
+{
+  "base": "fa9d246c5410d2cbdd9a133f6cea2219d0f3ab01",
+  "failedCandidate": "a635b01ad67e85a10b542e889f0de29715358e49",
+  "authorityBriefSha256": "3e9d015f7459777c17fe8902da8b9bc8e9006515a170d601f6948aa93289d2d8",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.shell.test.tsx",
+      "sha256": "e6fe75ef2c582a6577e51bb2b2b8006734f1fada2dc2c5f6333830844ee26a8c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "d1c36740f6fc114379af0ed16c994daabe7be21a743906543cffb29cee6b3965"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+      "sha256": "c12ea5a5bb543dc4e52ba565b4e313ad9dd4efa8461658b7181093ec2eef3e54"
+    }
+  ],
+  "outsideNamedTestBodiesUnchanged": true,
+  "currentSaveOnlyLocalSummaryIdentityChanged": true,
+  "onlyRuntimeInputDiffIsTheseThreeTests": true,
+  "noProductionConfigLockSchemaCoreChanges": true,
+  "nativeProductionInputsUnchanged": true
+}

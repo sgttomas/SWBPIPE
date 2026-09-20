@@ -1,0 +1,16 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "src/App.shell.test.tsx",
+    "src/App.test.tsx",
+    "-t",
+    "does not reset the shell when a later project request supersedes New Blank|keeps a same-model Current solve Current after native save",
+    "--maxWorkers=1"
+  ],
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "exitCode": 1,
+  "seconds": 5.996,
+  "rawSha256": "2dd887ac4c67f3be11964e2774de8981bb05c27937aa82fad28627a6a383aff3"
+}

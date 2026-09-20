@@ -1,0 +1,17 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "src/App.shell.test.tsx",
+    "src/App.test.tsx",
+    "src/App.projectHandlers.test.tsx",
+    "-t",
+    "blocks Open while New Blank owns busy|keeps a same-model Current solve Current after native save|keeps both recorded mismatches when a model edit drops a pending blank",
+    "--maxWorkers=1"
+  ],
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "exitCode": 0,
+  "seconds": 5.657,
+  "logSha256": "fc2884d68a87bfc1d0b69df926ec852e4f3a99338f180d5f2ffd57d72a7e84f8"
+}

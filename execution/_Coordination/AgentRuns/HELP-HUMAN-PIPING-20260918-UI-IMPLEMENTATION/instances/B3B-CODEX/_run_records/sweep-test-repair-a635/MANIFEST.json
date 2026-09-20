@@ -1,0 +1,55 @@
+{
+  "base": "fa9d246c5410d2cbdd9a133f6cea2219d0f3ab01",
+  "files": [
+    {
+      "path": "AFFECTED.json",
+      "bytes": 530,
+      "sha256": "b8c551b3f6a1f2107ca65a812a278a6ae271d8005481889a57845e4886e13d46"
+    },
+    {
+      "path": "CHECKS.json",
+      "bytes": 2240,
+      "sha256": "b1c73114a4adc17b18255197120b90f44a1585fbe9fd54b8d99f5c39b8840089"
+    },
+    {
+      "path": "PRESERVATION.json",
+      "bytes": 1002,
+      "sha256": "ce4cc1472533e4c49bdbd25dce9592fd855dff2734c18a966e89dc017ded8ed4"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 3401,
+      "sha256": "4dea84c7ce44e334ea566931e343c2440a1aefb5c11e25f4d503018ca88f40c6"
+    },
+    {
+      "path": "adjacent.log",
+      "bytes": 22775,
+      "sha256": "49d713a04d55b00444d300a4ab85a398df5bd822c0449fa3afbfdb5b72dddc9b"
+    },
+    {
+      "path": "affected.log",
+      "bytes": 11537,
+      "sha256": "fc2884d68a87bfc1d0b69df926ec852e4f3a99338f180d5f2ffd57d72a7e84f8"
+    },
+    {
+      "path": "final-busy-fixture.log",
+      "bytes": 4042,
+      "sha256": "e9e6063c08cf3d25b4cc684f352a7707b6d6c4045c296c621f84cfd1850f15c8"
+    },
+    {
+      "path": "test-diff.patch",
+      "bytes": 8705,
+      "sha256": "abca08722fe20425579f572eb8ae25b72f5162b71baa2cc33e4f082275d274ae"
+    },
+    {
+      "path": "test-types-final.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "test-types.log",
+      "bytes": 190,
+      "sha256": "2683c0297a593939cb8e31eb17115cd06e374c3cc361e3c8b6996e009d0a23ff"
+    }
+  ]
+}
