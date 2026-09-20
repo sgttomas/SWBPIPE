@@ -1,5 +1,7 @@
 # Piping / Runtime coordination status
 
+**Resumed, 2026-09-20:** The owner explicitly directed B3 repair/merge, a less wasteful CI strategy, then remaining authorized UI work. B3 manager is repairing the pinned-Chromium tooltip/Close failure in wt3; ROOT integrates CI changes in wt2. All new implementers are Astra/low. The peer acknowledged no conflicting resources and unchanged Piping-specific CI ownership. B3 has not merged. Runtime integration remains discussion only, with no ownership transfer. This notice supersedes older active-state summaries below.
+
 Updated 2026-09-20 during final B3 checks. Sole editor: Piping HELP_HUMAN (ROOT).
 Peer: **dev - app**, task `01a07cd1-86da-7d30-9b17-e2cbbad3f10a`, host local.
 Piping task: `01a0bc58-e7c0-7f11-a2ca-7b00e261014e`.

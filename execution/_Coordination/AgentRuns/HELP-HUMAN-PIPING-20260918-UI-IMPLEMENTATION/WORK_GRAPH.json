@@ -78,8 +78,8 @@
     },
     "B-SHELL": {
       "role": "WORKING_ITEMS Type 1 lane manager",
-      "model": "fable",
-      "status": "paused clean, confirmed by ROOT: branch codex/swbpipe-b-shell-20260918 at a9be4aaefa432e1eed56e87482391e90958cb087, pushed; contains origin/main at d20eb1294 (not PR #807). Merged: B2 (PR #803), B2F and B2G (PR #805). In progress: B3. The managers of 2026-09-18 and 2026-09-19 cannot be resumed from another session; instances/B-SHELL/LANE_LOG.md ends with a section for a fresh start.",
+      "model": "current WORKING_ITEMS gpt-6-astra/high; historical Fable allocation preserved separately",
+      "status": "Active B3 manager /root/b3_manager in preserved wt3; original B3 completed locally, bounded hosted tooltip repair now active. No B3A/B3B started.",
       "briefSha256": "00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75",
       "brief": "briefs/B-SHELL_shell_lane.md",
       "returnSha256": null,
@@ -101,11 +101,17 @@
         "B5",
         "B6",
         "G-11",
-        "B7"
+        "B7",
+        "G-17"
       ],
       "dependsOnNote": [
         "B1-TOKENS merged 4dcab7505"
-      ]
+      ],
+      "historicalPreCodexState": {
+        "model": "fable",
+        "status": "paused clean, confirmed by ROOT: branch codex/swbpipe-b-shell-20260918 at a9be4aaefa432e1eed56e87482391e90958cb087, pushed; contains origin/main at d20eb1294 (not PR #807). Merged: B2 (PR #803), B2F and B2G (PR #805). In progress: B3. The managers of 2026-09-18 and 2026-09-19 cannot be resumed from another session; instances/B-SHELL/LANE_LOG.md ends with a section for a fresh start."
+      },
+      "currentExecutionNode": "B3-CODEX-MANAGER"
     },
     "B-CANVAS": {
       "role": "WORKING_ITEMS Type 1 lane manager",
@@ -220,6 +226,7 @@
       "status": "planned: after both lanes' control work",
       "dependsOn": [
         "B7",
+        "G-17",
         "C5"
       ],
       "record": "ORCHESTRATION_PLAN.md, amendment 1",
@@ -305,7 +312,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
-      "status": "All local product/native/review checks and clean9cf five-surface sweep PASS. Final records/harness checks, actual PR CI and merge pending. Runtime adoption remains separate.",
+      "status": "B3 CI repair reactivated; ROOT owns CI strategy; complete local baseline and failed hosted run retained.",
       "dependsOn": [
         "B2F-B2G",
         "C1"
@@ -381,9 +388,10 @@
         }
       ],
       "gatesOwedCurrent": [
-        "final closeout records/harness checks",
-        "actual-candidate required CI",
-        "merge commit"
+        "bounded tooltip repair and independent backcheck",
+        "affected native/browser verification and clean-candidate sweep",
+        "reviewed CI strategy and actual-candidate selected CI",
+        "merge"
       ],
       "continuationEngineeringDecisions": [
         {
@@ -437,7 +445,7 @@
         "owner strategy agreement",
         "owner D1-D3 product dispositions"
       ],
-      "candidate": "9cf1654d2d0b317774290feb72d1a397a1d6cefa",
+      "candidate": "002dff0f244976f98b36517d920b3761f6f88704",
       "nativeHostState": {
         "prior": "Mac lock blocked CUA; manual unlock requested",
         "ownerReply": "unlocked",
@@ -503,12 +511,20 @@
         "summary": "validation/evidence/sweeps/SWEEP_20260920T065239Z_9cf1654d2d0b.json",
         "summarySha256": "64871b1d85bc974b0dcff8ca049c1e55113f222eaf13eef6729b2c83bf97f8d1",
         "rawLogManifest": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-sweep/MANIFEST.json"
+      },
+      "hostedCi": {
+        "harness": "PASS",
+        "desktopSource": "FAILURE",
+        "passed": 408,
+        "skipped": 20,
+        "failed": 2,
+        "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/MANIFEST.json"
       }
     },
     "B3A": {
       "role": "slice",
       "lane": "B-SHELL",
-      "title": "the unsaved-edits mark; the 'Solver · Not solved' fallback chip",
+      "title": "the unsaved-edits mark; the 'Solver \u00b7 Not solved' fallback chip",
       "status": "planned, authorized by the owner 2026-09-19",
       "dependsOn": [
         "B3"
@@ -522,7 +538,7 @@
       "title": "the native menu disabled during a busy project request (with its src-tauri part); a landed save re-derives the integrity record as verified at save",
       "status": "planned, authorized by the owner 2026-09-19",
       "dependsOn": [
-        "B3"
+        "B3A"
       ],
       "authority": "OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md items 3 and 4",
       "returnsToOwnerIf": "'verified at save' needs a persisted field (then it is a typed-interface gap)"
@@ -533,7 +549,7 @@
       "title": "the table component through the one operation route",
       "status": "planned",
       "dependsOn": [
-        "B3"
+        "B3B"
       ]
     },
     "B5": {
@@ -569,7 +585,7 @@
       "title": "the Review page's chrome",
       "status": "planned",
       "dependsOn": [
-        "B6"
+        "G-11"
       ]
     },
     "C1": {
@@ -755,7 +771,7 @@
       "parent": "ROOT",
       "modelRequested": "gpt-6-astra",
       "reasoningRequested": "high",
-      "status": "complete; clean frozen handoffc613; source/native/browser processes and lock released",
+      "status": "reactivated for bounded CI tooltip repair, preserving completed original handoff",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_BRIEF.md",
       "briefSha256": "e494ccdc4763cca0ff53ae238a33c3d3a83299f66a701b75b107c1a5bdb5fb3f",
       "candidate": "c613922f1725a9b86d81c6c120b05b7df2e0558d",
@@ -896,7 +912,16 @@
         "correctedReturnSha256": "dc5ac88876b025224a28e64b4bee6df457ce3defd7b6ee4dc6f40cc36b188c16",
         "addendum1Sha256": "1180e1595b4d6f7a857571171865c46031864dd1e1c342a03d63aa7de50d595f"
       },
-      "return": "instances/B3-CODEX/RETURN.md"
+      "return": "instances/B3-CODEX/RETURN.md",
+      "ciRepair": {
+        "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CI_REPAIR_MANAGER_BRIEF.md",
+        "briefSha256": "14b3fe08cb8c169f3fd56491c7c650991a9f46d9af80e3c654c65a1fed55411e",
+        "addendum": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CI_REPAIR_MANAGER_ADDENDUM_1.md",
+        "addendumSha256": "acd5945e8bcccbf20b11830a5b57a75b599a7b7fffb614b03ef632382a7bec3b",
+        "actualMechanism": "collaboration.followup_task to existing independent lane manager; manager owns child launch",
+        "childReported": "/root/b3_manager/ci_tooltip_repair; Astra/low; brief89b9f53eaa61a76de09a01317706b136c0e5bbb869c2404539795e82ee450d72",
+        "state": "pinned Chromium repro established; repair/checks active"
+      }
     },
     "CONTINUATION-RECORDS-REVIEW": {
       "role": "TASK Type 2 read-only independent review",
@@ -1033,6 +1058,60 @@
         "snapshot": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/fidelity-recovered-WORK_GRAPH.json",
         "sha256": "3b61958cb02f6c5549763e3b94bb868e241a39fd12ab658bc03047948babb7eb",
         "standing": "post-review exact-byte recovery independently verified; original manifests unchanged"
+      }
+    },
+    "CI-STRATEGY": {
+      "role": "slice",
+      "lane": "ROOT-owned Piping CI",
+      "title": "Early interaction gate, conservative affected selection and isolated full-run shards",
+      "status": "implementation active; independent review/verification pending",
+      "authority": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md",
+      "dependsOn": [],
+      "scope": "Piping-specific workflow, optional composite, selector/tests, strategy docs, own notice/tranche; no other workflow or branch protection",
+      "limits": "Full local DEC025 unchanged; no assertion/oracle/timeout/profile weakening; reduced result never full DEC093 evidence",
+      "deliverableBinding": {
+        "status": "provisional/unmapped",
+        "basis": "run verification infrastructure; retained for owner-directed reconciliation, no new deliverable asserted"
+      }
+    },
+    "CI-INVENTORY": {
+      "role": "TASK Type2",
+      "parent": "ROOT",
+      "actualAgent": "/root/ci_inventory",
+      "actualMechanism": "Codex collaboration.spawn_agent, fork_turns none",
+      "configuredModel": "gpt-6-astra",
+      "configuredReasoning": "low",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_INVENTORY_BRIEF.md",
+      "briefSha256": "91937ad15e627f47be708c687e5ac1bea2d2bd29eab1ec663765b49afd04e574",
+      "status": "returned; ROOT selected conservative routes and retained all viewport entries; evidence/context verification pending review",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_INVENTORY_RETURN.md",
+      "returnSha256": "12861fea877a4f4fa6df1d17a18a03c00208dc309faae67f1ee656fbc1df7a30"
+    },
+    "CI-IMPLEMENTER": {
+      "role": "TASK Type2",
+      "parent": "ROOT",
+      "actualAgent": "/root/ci_strategy",
+      "actualMechanism": "Codex collaboration.spawn_agent, fork_turns none",
+      "configuredModel": "gpt-6-astra",
+      "configuredReasoning": "low",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_IMPLEMENTER_BRIEF.md",
+      "briefSha256": "b9768cb8f945dbf1308bc92520da48465aa39a2963ca13745feb6ad9dedda8fd",
+      "status": "active"
+    },
+    "G-17": {
+      "role": "slice",
+      "lane": "B-SHELL",
+      "title": "compatible persisted view state",
+      "status": "authorized, scheduled after G-11; bounded brief not yet launched",
+      "dependsOn": [
+        "G-11",
+        "B7"
+      ],
+      "authority": "instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md item7",
+      "limits": "explicit persistence compatibility evidence and independent review; no broadened engineering/schema authority",
+      "deliverableBinding": {
+        "status": "provisional/unmapped",
+        "basis": "owner-authorized typed UI gap; reconcile only in later owner-directed phase"
       }
     }
   },
@@ -1178,7 +1257,7 @@
       "B3-CODE-REVIEW"
     ]
   ],
-  "current_frontier": "B3 local work and independent review complete; clean9cf sweep PASS. ROOT completing closeout records/harness validation, actual PR CI and merge. B3A/B3B remain next authorized UI work; Runtime adoption/command adapter remains separately owner-steered. No deliverable reconciliation/DAG rebuild.",
+  "current_frontier": "Resumed: repair B3 hosted tooltip/Close failure, implement reviewed CI economy, merge PR825; then authorized B3A/B3B and I1 continuation per approved strategy. Runtime adoption and fixed unresolved product rulings remain separate.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -1278,17 +1357,14 @@
     }
   ],
   "openWithOwner": {
-    "blocking": [
-      "B3's merge: the Both-view 'canvas larger than the tree' assertion (node B3, blockedBy)"
+    "blockingCurrentB3": [],
+    "reservedForLater": [
+      "second-profile freeze and casing before timed qualification",
+      "deformation view drawn proposal at closing pass",
+      "verified-at-save persistence field only if implementation proves one necessary",
+      "remaining specification copy/frame questions when concrete and not already disposed"
     ],
-    "notBlocking": [
-      "ROOT's change to the drawer strip's mechanism (item 5 of the eight items)",
-      "the docked inspector takes its width from the table (specification 10.9)",
-      "the second profile's freeze with the casing",
-      "the deformation view",
-      "whether 'verified at save' needs a persisted field",
-      "the earlier handoff's section 7 items not disposed by the two direction records (copy items as first seen in the product; frames questions Q-23 to Q-33)"
-    ]
+    "resolvedB3": "D1 drawer overlay, D2 inspector lending and D3 protected Both assertion all owner-adopted; no repeat question."
   },
   "deliverableBindingNote": "Bindings on slice nodes are tentative and unverified. Run records and _STATUS.md lines were filed under DEL-07-08 (B2, B2F-B2G) and DEL-07-01 (C1, C2) by precedent and folder name. From here evidence stays in the run and the binding is recorded here; the owner's later reconciliation files it.",
   "graphNote": "Version 2 adds slice nodes with dependsOn, blockedBy, defers, specDepartures and a tentative deliverable binding, so that a handoff can be derived from this file. Edges run parent to child (who launched or owns what); dependsOn carries the order of work.",
@@ -1386,7 +1462,7 @@
     "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RUNTIME_COORDINATION_STATUS.md",
     "editor": "ROOT only",
     "peerThread": "01a07cd1-86da-7d30-9b17-e2cbbad3f10a",
-    "state": "Runtime generic mechanism merged separately; Piping adoption/handler/live qualification remains pending, discussion only",
+    "state": "Piping resumed B3 and authorized UI work; Runtime adoption remains discussion only. Peer acknowledged no active host reservations and Piping CI scope.",
     "originMainRevalidated": "21175b5d3668f29acd408812d95a33ed4f14bfc8",
     "peerProposedContract": "cb08dbe2fbeaf5a34a0abfa2f1d599c7c5bd6b2f",
     "peerPr": "https://github.com/sgttomas/chirality/pull/824",
@@ -1397,5 +1473,52 @@
       "source": "dev - app direct task message reporting owner words; no Piping integration write authorization inferred",
       "application": "prefer shared typed command/controller API where effective; retain actor/basis/review/history semantics; literal input events do not establish human acceptance"
     }
+  },
+  "pause": {
+    "ownerText": "Pause your work",
+    "source": "active chat; supplied text, not transport bytes",
+    "recordedAt": "2026-09-20T07:42:01.208428+00:00",
+    "state": "resumed by explicit owner direction",
+    "previousFrontier": "B3 local work and independent review complete; clean9cf sweep PASS. ROOT completing closeout records/harness validation, actual PR CI and merge. B3A/B3B remain next authorized UI work; Runtime adoption/command adapter remains separately owner-steered. No deliverable reconciliation/DAG rebuild.",
+    "candidate": "002dff0f244976f98b36517d920b3761f6f88704",
+    "pr": "https://github.com/sgttomas/chirality/pull/825",
+    "ciAtPause": {
+      "harness": "PASS",
+      "desktopSource": "IN_PROGRESS"
+    },
+    "agents": "all bounded assignments returned; no new agents launched",
+    "resources": "no local app/test/server process; local CI watcher stopped; hosted CI left running",
+    "resume": "Wait for explicit owner resume. Repair manager brief14b3fe08 is prepared and unlaunched. No product or CI workflow edits, new agents, reruns or merge have occurred.",
+    "mergeExceptionOwnerText": "Merge the PR and then I'll tell you when you resume.",
+    "ciFinal": {
+      "harness": "PASS",
+      "desktopSource": "FAILURE",
+      "passed": 408,
+      "skipped": 20,
+      "failed": 2,
+      "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/MANIFEST.json"
+    },
+    "boundedException": "Owner asks one-time reduced CI to complete PR825; ROOT applies to bounded tooltip/Close repair and necessary CI routing only, then pause. OWNER_CI_REPAIR_DIRECTION.md.",
+    "latestOwnerText": "that's great, but I still need you to pause work for a moment.  Then I will tell you to resume.",
+    "resumeRecord": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md"
+  },
+  "historicalOpenWithOwner": {
+    "blocking": [
+      "B3's merge: the Both-view 'canvas larger than the tree' assertion (node B3, blockedBy)"
+    ],
+    "notBlocking": [
+      "ROOT's change to the drawer strip's mechanism (item 5 of the eight items)",
+      "the docked inspector takes its width from the table (specification 10.9)",
+      "the second profile's freeze with the casing",
+      "the deformation view",
+      "whether 'verified at save' needs a persisted field",
+      "the earlier handoff's section 7 items not disposed by the two direction records (copy items as first seen in the product; frames questions Q-23 to Q-33)"
+    ]
+  },
+  "continuationPlan": {
+    "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/NEXT_CONTROL_LAYER_PHASE.md",
+    "state": "prepared; post-B3 dispatch waits for B3 merge",
+    "phase": "existing UI implementation; no DAG rebuild/reconciliation",
+    "sequenceCorrections": "B3B after B3A; B4 after B3B; B7 after G-11 as recorded shell order. G17 explicitly scheduled after G11/B7 without new scope."
   }
 }

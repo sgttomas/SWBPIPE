@@ -3278,3 +3278,13 @@
   - Checks: pre-append receipt validation passed; Git and source discovery only. No fresh product or native test pass, independent review, CI or merge claimed.
   - Model-Attribution: HELP_HUMAN GPT-6 Astra; proposed allocation and context provenance in the package; no child launched.
   - Gate-Outcome: `AWAITING_OWNER` — requested strategy agreement before agent launches/substantial implementation, and three pending product dispositions before dependent work or B3 merge. Preparation records remain uncommitted. No product, deliverable reconciliation, DAG, lifecycle, release or usability-hold change. Standard F-PIP-2/DEC-081 fence applies.
+
+- **2026-09-20 — Receipt 151** (owner pause before B3 merge).
+  - Receipt-ID: `Receipt-151`
+  - Examined-Through: `f7274d30b89991391bcfa2dab9d922e72f53213d`
+  - Parent-Receipt: `Receipt-150`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING; “Pause your work”, then “Merge the PR and then I'll tell you when you resume.” Active-chat supplied text, not transport bytes; narrow merge exception recorded in the owning work graph.
+  - Pointers: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json`; same run `HANDOFF_STATE.md`, `instances/B3-CODEX/RETURN.md`, and `instances/ROOT/CONTINUATION_2026-09-19_CODEX/RUNTIME_COORDINATION_STATUS.md`; PR #825.
+  - Checks: bounded B3 local product/native checks, independent review and clean five-surface sweep passed; final repository checks passed with retained warnings. Harness CI passed; desktop CI was in progress at pause and then failed; the requested merge remains blocked, with raw failure evidence in continuation `_run_records/PR825_CI_FAILURE/`. Canonical counts, candidate bindings and native limits remain in the run. These pause records are uncommitted and not yet independently reviewed.
+  - Model-Attribution: HELP_HUMAN Astra/high-or-greater; WORKING_ITEMS Astra/high; actual child allocations and independent reviews retained in the run. New formerly-Sol workers use Astra/low; historical settings unchanged. All bounded assignments returned.
+  - Gate-Outcome: `EXECUTED` — owner-requested pause and state preservation only. B3 PR remains open; the later owner direction authorizes this PR merge only, but its failed CI gate prevents merge. No repair or rerun was made; further implementation remains paused. No Piping Runtime adoption, ownership transfer, deliverable reconciliation, DAG rebuild, lifecycle, release or usability-hold change. Standard F-PIP-2/DEC-081 fence applies.
