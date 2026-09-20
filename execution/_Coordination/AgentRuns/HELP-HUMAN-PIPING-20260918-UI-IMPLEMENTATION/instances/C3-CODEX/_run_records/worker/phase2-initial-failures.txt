@@ -1,0 +1,15 @@
+Preserved verbatim error excerpts from tool outputs (not a later reproduction).
+
+Initial compiler, exit2:
+src/features/viewport/viewportDimmingPresentation.ts(81,5): error TS2322: Type 'BufferAttribute | null' is not assignable to type 'InstancedBufferAttribute | null'.
+  Type 'BufferAttribute' is missing the following properties from type 'InstancedBufferAttribute': meshPerAttribute, isInstancedBufferAttribute
+Repair: explicit InstancedBufferAttribute construction from copied colour array.
+
+Initial npx vitest run src/features/viewport/viewportDimmingPresentation.test.ts src/features/viewport/viewportResource.test.ts src/features/viewport/viewportHalo.test.ts --maxWorkers=1, exit1:
+FAIL src/features/viewport/viewportHalo.test.ts > halo resources > follows a replaced layer: the old shape's halo objects are disposed, the shared geometry is not, and the new elements are haloed
+AssertionError: expected { Object (pipeMeshes, nodeMeshes, ...) } to match object { pipeMeshes: 1, geometries: 2, …(4) }
+Expected→received: pipeMeshes1→2; materials4→5; instanceMatrices3→4; instanceColors1→2; geometries2 and textures0 unchanged.
+viewportHalo.test.ts:452:27
+Test Files 1 failed | 2 passed (3)
+Tests 1 failed | 60 passed (61)
+Disposition: manager obtained ROOT approval for the exact companion-resource accounting consequence, then worker changed only that ledger oracle and explanatory comment. No picking/halo geometric oracle, tolerance, profile limit or production behavior changed to force the pass.

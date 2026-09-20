@@ -1,0 +1,42 @@
+Intentional temporary opacity0.5 mutant; restored immediately after run.
+COMMAND npx vitest run src/features/viewport/viewportDimmingPresentation.test.ts --maxWorkers=1 -t literal 0.2
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/viewport/viewportDimmingPresentation.test.ts (6 tests | 1 failed | 5 skipped) 8ms
+     × uses literal 0.2 for opaque and translucent owned graphics and preserves normal material flags 7ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 skipped (6)
+   Start at  12:33:52
+   Duration  604ms (transform 122ms, setup 90ms, import 117ms, tests 8ms, environment 303ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/viewport/viewportDimmingPresentation.test.ts > persistent viewport dimming > uses literal 0.2 for opaque and translucent owned graphics and preserves normal material flags
+AssertionError: expected [ 0.5, true, false, false ] to deeply equal [ 0.2, true, false, false ]
+
+- Expected
++ Received
+
+  [
+-   0.2,
++   0.5,
+    true,
+    false,
+    false,
+  ]
+
+ ❯ src/features/viewport/viewportDimmingPresentation.test.ts:93:77
+     91|       const dim = material(companion(source));
+     92|       applyVisibilityPresentation([source], empty, new Set([a]));
+     93|       expect([dim.opacity, dim.transparent, dim.depthWrite, dim.depthT…
+       |                                                                             ^
+     94|       expect(isFigureMaterial(dim) && dim.uniforms.opacity.value).toBe…
+     95|       applyVisibilityPresentation([source], empty, empty);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+EXIT 1
