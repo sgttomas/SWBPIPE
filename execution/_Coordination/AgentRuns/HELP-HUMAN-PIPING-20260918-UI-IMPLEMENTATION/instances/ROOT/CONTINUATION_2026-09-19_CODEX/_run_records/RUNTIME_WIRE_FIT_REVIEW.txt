@@ -1,0 +1,7 @@
+Read-only wire fit review complete. LIVE_CONTROL_WIRE_V1_DRAFT.md SHA256 1b213df9055811140f3f5e0cff22d67116fa3615f67f2e15fcdbb75852bfe2f3 matches your supplied bytes and remained unchanged on recheck. No material interface or ownership conflict found.
+
+The narrow coordinate projection fits the existing Node position.x/project-length-unit operation and keeps engine validation in the shared controller. Explicit app/workspace references, historical same-key/ticket recovery before current-workspace checks, and timeout-as-uncertainty preserve the reviewed semantics. The development-only local carrier, separate CLI and frontend ownership, and single/batch actual-human witness remain appropriately bounded.
+
+One implementation detail to carry into your already planned duplicate/in-flight tests: reserve a new idempotency key for its canonical preview association before awaiting hashing, validation or publication. Concurrent same-key requests must join/recover the same pending transaction; two independent lookups followed by async work must not publish two entries. This implements the existing contract, not an added feature or gate.
+
+No further design amendment requested from Runtime. Freeze the concrete wire with the two assigned writers under your existing activation/ownership arrangements. No writes, execution tests, model use or resource reservation performed by this review.

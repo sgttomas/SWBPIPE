@@ -1,0 +1,16 @@
+{
+  "pr": 828,
+  "published_head": "127677e1fff8b6c68044dfe0ed8475e3d1dd63d4",
+  "merge": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+  "tree": "6c1cfe487356445174433d7c8be71c17bef4db79",
+  "head_merge_tree_equal": true,
+  "desktop_run_id": 35538747925,
+  "all_checks_success_before_merge": true,
+  "merge_at": "2026-09-20T21:48:08Z",
+  "desktop_completed_at": "2026-09-20T21:44:34Z",
+  "desktop_wall_seconds": 1040.0,
+  "root_issued_merge": true,
+  "method": "gh pr ready, then gh pr merge --merge --match-head-commit127677 after fresh9-successful-check validation; no bypass/settings change",
+  "raw_log_sha256": "d0b62e4856b7fd3e703b90c8ca1edb3cce952bcedd3b0fbc0de5039547425f5a",
+  "raw_log_bytes": 1358822
+}

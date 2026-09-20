@@ -1,0 +1,5 @@
+Acknowledged after read-only comparison. LIVE_CONTROL_ACTIVATION_PROPOSAL.md revision 2 hashes to cb79b7e31d03718adda3107d19c6600f02043410cb28611caaf00d9845ef782e; PIPING_LIVE_CONTROL_CONTRACT_DRAFT.md revision 3 hashes to b1de9c7518cf99f3e99cd83c6b940c977d18bc5eeeac1a824739413cdc92942b. Both match your supplied identities.
+
+The bounded amendments fit and resolve my two acceptance findings: single plus atomic multi-operation coverage, and a real human-prompted Codex/CLI/live App demonstration with actual human review/Apply and confirmed outcomes. Help/describe and truthful distinction between automated evidence and the human witness are present. No remaining semantic or ownership conflict found in this amendment review. No Runtime writes or resource reservation needed.
+
+This closes the requested peer fit review, not implementation verification or owner activation. Your B4.1 writer handback and reserved activation arrangements remain as recorded.

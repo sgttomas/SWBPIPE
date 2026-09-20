@@ -1,0 +1,25 @@
+{
+  "kind": "supplied-message-custody",
+  "source": "Codex task messages from dev - app, local 01a07cd1-86da-7d30-9b17-e2cbbad3f10a; supplied message text retained, not transport bytes",
+  "date": "2026-09-20",
+  "files": {
+    "RUNTIME_COMMAND_LOOP_DIRECTION.txt": {
+      "sha256": "674d5fe43657baec2eef48c222fc5372d8475221216daf149a07585430a5a2ce",
+      "bytes": 1606
+    },
+    "RUNTIME_ACTIVATION_FIT_REVIEW.txt": {
+      "sha256": "c208a667998b274715b8282f336faf61da1f9c0ed2f7c859e6611a9fee8c4f1a",
+      "bytes": 2534
+    },
+    "RUNTIME_ACTIVATION_AMENDMENT_ACK.txt": {
+      "sha256": "98d5b1ecb97b6e03304d694688d85ea613bd9d7f25c7ac6ecf8a35a3a83a5270",
+      "bytes": 960
+    },
+    "RUNTIME_WIRE_FIT_REVIEW.txt": {
+      "sha256": "d286206eb4d9d343c6e19f6139053ba993c5992e231ba1319f88e3c9ab9aae69",
+      "bytes": 1392
+    }
+  },
+  "disposition": "Two bounded acceptance amendments incorporated; peer fit review closed. Owner activation pending. No Runtime/source ownership transfer.",
+  "wire": "Draft1b213df9055811140f3f5e0cff22d67116fa3615f67f2e15fcdbb75852bfe2f3 read-only fit PASS; reserve same-key canonical preview association synchronously before awaits, as already required. Writer freeze and owner activation still pending."
+}

@@ -1,0 +1,13 @@
+# Bounded MVP comparison capability inventory
+
+Parent ROOT HELP_HUMAN; retained /root/ci_inventory TASK Type2, gpt-6-astra/low. Read-only Codex harness-native continuation; no descendants. Host is unrestricted, this boundary is instruction-asserted. Resolve REPO_ROOT with git rev-parse and WORKING_ROOT projects/chirality-piping. Use committed merged source fd195cf4287e84572a12183169478a6f7ddf6a92, not dirty B4 files. No tests/build/UI/ports/model calls/Git mutations or file writes.
+
+Purpose: settle the concrete capability distinction behind MVP_PUBLISHING_DISCUSSION.md's proposed baseline → changed design → compare journey. The initial inventory found ComparisonPanel/resultsSessionState builds a single-run load-basis comparison; that does not by itself prove two saved design alternatives. Inspect source before assuming the broader capability absent. Keep installed-package state, dormant helpers and actual user-reachable paths separate.
+
+Read applicable TASK/Root/Piping instructions, current discussion draft and your retained _run_records/MVP_BASIS_INVENTORY_RETURN.md. The owner regards PRD as the starting basis and permits development of explicit amendments; no whole proposed MVP or broader States/Comparison/R7 scope has been adopted. DEC-042 live/stage holds and current exact pending CLI activation remain. No deliverable reconciliation or DAG rebuild.
+
+Answer one bounded question: What is already available to preserve a baseline, create a changed alternative, and compare the relevant model and result differences through the actual SWBPIPE user path, and what is the smallest honest next capability proposal?
+
+Inspect PRD §23/§24 only as needed; model/project persistence, run storage/list/result bindings, ComparisonPanel/resultsSessionState/comparison services and maintained tests. Follow a referenced implementation only when material. Do not inventory every product feature or private corpus. Check exact current input/output identities: single-run load-case/combination comparison versus two run/model bases; saved project revisions versus immutable named states; reopen standing; whether cross-project copying/identity would undermine a comparison.
+
+Return concise evidence-grounded findings with source paths/line spans and hashes, actual reachable flow, available but unwired pieces, unresolved uncertainty and one or two bounded alternatives. Distinguish implementation gaps from owner scope decisions. Recommend truthful wording for the proposed first-publication journey without silently deleting the PRD requirement. No source changes, test-oracle proposals, runtime integration or new acceptance claims. ROOT retains graph/MVP records and any owner decision.

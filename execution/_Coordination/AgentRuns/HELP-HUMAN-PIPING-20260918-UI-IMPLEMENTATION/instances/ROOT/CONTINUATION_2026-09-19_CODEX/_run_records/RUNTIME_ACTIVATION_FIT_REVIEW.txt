@@ -1,0 +1,13 @@
+Read-only fit review complete for LIVE_CONTROL_ACTIVATION_PROPOSAL.md as read twice with unchanged SHA256 1890912d2430f2e51106a9d0741c2a5feb26d49e8ca348e8d9c1fed364425228, at ROOT fd195cf4. I also inspected the current queue/apply controller, operationBatchService and atomic_batch implementation. No files, tests, native state or resource reservations changed.
+
+Assessment: the composition, bounded reconnect guarantee, publication acknowledgements, attribution and writer separation fit. No Runtime/shared Root product change is needed. Same-controller recovery with explicit restart expiry is an appropriate bounded first implementation.
+
+Two narrow acceptance amendments before freezing the implementation brief:
+
+1. Single AND batch. Lines 9 and 61 currently name one Node position.x change and one native journey. The owner's clarified target includes individual and batched typed changes. Explicitly include a multi-operation batch using the same supported primitive, for example two node-coordinate edits. Existing operationBatchService/atomic_batch already represents all-or-nothing publication and workspaceSession creates one Undo checkpoint. Preserve that behavior and demonstrate an invalid later operation publishes none of the batch. This adds coverage of the existing command path, not new domain operations.
+
+2. Distinguish implementation verification from completion of the requested loop. The test-driver qualification at line 9 is correct, but 'owner-reviewed acceptance ... separately when available' could make the actual human-approved agent loop optional. Include a short real development-Codex → CLI → live App demonstration initiated by a human prompt, with the actual human reviewing/applying the proposal and the agent reading the confirmed outcome. Automated native/UI tests establish implementation behavior and may precede that witness. If the human is unavailable, report that final witness pending rather than claim the complete human-approved loop finished. No broader model benchmark, engineering assignment or autonomous campaign is needed.
+
+For the native/CLI brief, include concise help/describe, one canonical request/result example and actionable error output in the already proposed developer guidance. This is ordinary usability work, not an additional gate.
+
+With those two acceptance clarifications, I see no semantic or ownership conflict in the proposed tranche. Preserve your reserved owner activation and B4.1 writer handback; this is peer engineering review, not owner activation.
