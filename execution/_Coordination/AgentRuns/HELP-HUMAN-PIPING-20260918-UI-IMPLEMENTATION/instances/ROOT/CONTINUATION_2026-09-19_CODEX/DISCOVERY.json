@@ -1,0 +1,6 @@
+{
+  "kind": "portable evidence pointer",
+  "artifact": "_run_records/DISCOVERY.json",
+  "sha256": "9d60678885d31884c0372fb487962e90831460ded9a9ebd3874335caca5c8c22",
+  "reason": "Original discovery evidence preserved byte-for-byte in the classified evidence directory. This pointer keeps the adopted package reference valid without altering its accepted bytes."
+}

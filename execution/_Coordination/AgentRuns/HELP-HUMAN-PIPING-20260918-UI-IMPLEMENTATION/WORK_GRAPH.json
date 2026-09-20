@@ -3,12 +3,13 @@
   "base": "7866f0a3c2c846cf071f735ea9b263a44fb00ca9",
   "selectionAuthority": "owner authorization 2026-09-18 (instances/ROOT/ACTIVATION_2026-09-18.md)",
   "parent": "owner",
-  "rootModel": "Claude Fable 5.1 (claude-fable-5-1)",
+  "rootModel": "GPT-6 Astra; continuation allocation high or greater under current steer",
   "nodes": {
     "ROOT": {
       "role": "HELP_HUMAN Type 0",
-      "model": "the session of 2026-09-19 began as Claude Opus 5 (claude-opus-5) and the host changed it to Claude Fable 5.1 (claude-fable-5-1) during the day",
-      "status": "handed off a second time on 2026-09-19 (instances/ROOT/SESSION_HANDOFF_2026-09-19B.md, which stands on its own; SESSION_HANDOFF_2026-09-19.md is superseded); both lanes paused clean and confirmed; a successor continues. How the successor organizes the work is its own choice within AGENTS.md (the owner's word of 2026-09-19 in session; the two-lane shape recorded here is the earlier sessions' practice, not the owner's direction)."
+      "model": "GPT-6 Astra",
+      "status": "active: owner approval recorded; sealing B3 manager and maintaining integration/review/evidence",
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md"
     },
     "A1-LINT": {
       "role": "TASK Type 2 implementer",
@@ -304,38 +305,39 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
-      "status": "in progress, paused: shell built; last product checkpoint 46db29e92; unit suite green at the merge of main (85 files, 1,354 tests); five frozen-floor items red; ROOT's rulings sealed and not yet implemented; neither full Playwright lane run",
+      "status": "product/test checkpoint 26a7478b5b7e85760a8f9f8847690c548a01f9e5 frozen for complete-diff code review; final unit 87 files / 1387 tests, viewport 12 files / 240 tests, harness 379 and Rust 101 reported pass. Full source lane running; dist follows. Final debug native bundle built; final native CUA witness and ROOT own look blocked by locked macOS pending manual unlock. No completion/merge claim.",
       "dependsOn": [
         "B2F-B2G",
         "C1"
       ],
       "blockedBy": [
         {
-          "what": "the frozen helper's assertion 'canvas area larger than the tree's' cannot hold in Both view under the approved 55/45 split (table 737, canvas 603)",
-          "with": "owner",
-          "recommendation": "keep it where the tree is a side region; in Both view replace it with the 35 % width floor plus canvas-larger-than-inspector",
-          "blocks": "merge only; every other ruling can be built meanwhile"
+          "what": "macOS locked; CUA automatic unlock failed and requires manual unlock",
+          "with": "owner / host",
+          "blocks": "final native witness and ROOT own look; B3 merge",
+          "independentWork": "full headless lanes and frozen-diff code review continue",
+          "not": "no approval-review rejection; product decisions D1-D3 are resolved"
         }
       ],
       "nextInstrument": {
         "brief": "instances/B-SHELL/briefs/B3-FLOORS.md",
         "sha256": "fe295e2b575e651e77b6ec4c75d6ef1455af319119337b4ac96d6008536c0290",
         "where": "on the lane branch",
-        "state": "sealed, not launched"
+        "state": "historically sealed and unlaunched; do not execute unchanged; reseal against current owner steer and pending product dispositions"
       },
-      "rulings": "instances/ROOT/SESSION_HANDOFF_2026-09-19B.md section 3",
+      "rulings": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_APPROVAL.md adopting D1-D3 of DECISION_AND_STRATEGY.md; earlier owner directions retained where applicable",
       "specDepartures": [
         {
-          "what": "in Both view the docked inspector always takes its width from the table pane (canvas 603 at 1440, 531 at 1280), against specification 10.9",
-          "by": "ROOT, told to the owner, open"
+          "what": "Both-view inspector takes width from table first down to320px lending floor, then canvas subject to220px minimum; explicit departure from fixed-table UX10.9",
+          "by": "owner adopted D2 in current OWNER_APPROVAL.md"
         },
         {
-          "what": "the collapsed drawer strip does not overlay the viewport; the canvas pane keeps D-72's box and takes bottom padding; replaces the mechanism of item 5 of the owner's eight items",
-          "by": "ROOT, told to the owner, not answered"
+          "what": "Collapsed drawer strip overlays canvas foot, with complete readout/DOM/painted-frame clearance and named placement-witness amendment; historical padding proposal rejected",
+          "by": "owner adopted D1, reaffirming overlay adopted in eight-item direction"
         },
         {
-          "what": "the Appearance disclosure and the Select tool in the toolbar",
-          "by": "accepted by the owner for now; Appearance leaves the toolbar at the closing visual pass"
+          "what": "Appearance disclosure and Select tool in toolbar remain temporary",
+          "by": "owner eight-item direction; closing visual pass retires appearance departure"
         }
       ],
       "crossLane": [
@@ -355,17 +357,93 @@
         }
       ],
       "gatesOwed": [
-        "Opus code review with a structural checklist",
-        "one Fable design-fidelity review by screenshot, structure only",
-        "ROOT's look",
-        "DEC-025 sweep",
-        "CI",
+        "final candidate registered checks and source/dist Playwright lanes",
+        "connected workflow and actual Tauri menu/window minimum/title-bar/Undo witness",
+        "independent complete frozen-diff review and backchecks",
+        "fresh structure-only fidelity review",
+        "ROOT own app inspection",
+        "clean-candidate DEC-025 sweep",
+        "actual-candidate required CI",
         "merge commit"
       ],
       "deliverableBinding": {
         "id": "DEL-07-02",
         "basis": "tentative, unverified: bound by precedent or folder name, not checked against the deliverable's scope; the owner reconciles deliverables to the code later"
-      }
+      },
+      "continuationDecisionDependencies": [
+        {
+          "id": "D1",
+          "what": "drawer-strip mechanism and named orientation-placement witness",
+          "status": "owner approved 2026-09-19; OWNER_APPROVAL.md"
+        },
+        {
+          "id": "D2",
+          "what": "inspector table-first lending and 320 px lending floor",
+          "status": "owner approved 2026-09-19; OWNER_APPROVAL.md"
+        },
+        {
+          "id": "D3",
+          "what": "Both-only protected dominance assertion amendment",
+          "status": "owner approved 2026-09-19; OWNER_APPROVAL.md"
+        }
+      ],
+      "gatesOwedCurrent": [
+        "final candidate registered checks and source/dist Playwright lanes",
+        "connected workflow and actual Tauri menu/window minimum/title-bar/Undo witness",
+        "independent complete frozen-diff review and backchecks",
+        "fresh structure-only fidelity review",
+        "ROOT own app inspection",
+        "clean-candidate DEC-025 sweep",
+        "actual-candidate required CI",
+        "merge commit"
+      ],
+      "continuationEngineeringDecisions": [
+        {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_UNDO_OWNERSHIP_DECISION.md",
+          "sha256": "174fe12bd21785297f4d4d91e14cc217bbd36bf884dae262fff7ef6be31418dd",
+          "by": "ROOT; not owner ruling",
+          "status": "directed; native proof pending"
+        }
+      ],
+      "historicalBeforeCodex": {
+        "blockedBy": [
+          {
+            "what": "the frozen helper's assertion 'canvas area larger than the tree's' cannot hold in Both view under the approved 55/45 split (table 737, canvas 603)",
+            "with": "owner",
+            "recommendation": "keep it where the tree is a side region; in Both view replace it with the 35 % width floor plus canvas-larger-than-inspector",
+            "blocks": "merge only; every other ruling can be built meanwhile"
+          }
+        ],
+        "rulings": "instances/ROOT/SESSION_HANDOFF_2026-09-19B.md section 3",
+        "specDepartures": [
+          {
+            "what": "in Both view the docked inspector always takes its width from the table pane (canvas 603 at 1440, 531 at 1280), against specification 10.9",
+            "by": "ROOT, told to the owner, open"
+          },
+          {
+            "what": "the collapsed drawer strip does not overlay the viewport; the canvas pane keeps D-72's box and takes bottom padding; replaces the mechanism of item 5 of the owner's eight items",
+            "by": "ROOT, told to the owner, not answered"
+          },
+          {
+            "what": "the Appearance disclosure and the Select tool in the toolbar",
+            "by": "accepted by the owner for now; Appearance leaves the toolbar at the closing visual pass"
+          }
+        ],
+        "gatesOwed": [
+          "Opus code review with a structural checklist",
+          "one Fable design-fidelity review by screenshot, structure only",
+          "ROOT's look",
+          "DEC-025 sweep",
+          "CI",
+          "merge commit"
+        ],
+        "note": "Original pre-Codex fields preserved here; current fields below reflect subsequent owner approval and model strategy. Historical source commits and handoffs remain unchanged."
+      },
+      "satisfiedEntryGates": [
+        "owner strategy agreement",
+        "owner D1-D3 product dispositions"
+      ],
+      "candidate": "26a7478b5b7e85760a8f9f8847690c548a01f9e5"
     },
     "B3A": {
       "role": "slice",
@@ -611,6 +689,94 @@
       "briefSha256": "0cdfff48b0fa07a44097f8db892b1e3fd9976bce8590cf76e77353a7e0b8d36a",
       "return": "instances/HANDOFF2-REVIEW/RETURN.md",
       "returnSha256": "d6775a94b61b31c2693ac87f017fd6fce31dc3a079338345c294e02680728e87"
+    },
+    "B3-CODEX-MANAGER": {
+      "role": "WORKING_ITEMS Type 1",
+      "parent": "ROOT",
+      "modelRequested": "gpt-6-astra",
+      "reasoningRequested": "high",
+      "status": "launched; implementation and verification in progress",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_BRIEF.md",
+      "briefSha256": "e494ccdc4763cca0ff53ae238a33c3d3a83299f66a701b75b107c1a5bdb5fb3f",
+      "candidate": "26a7478b5b7e85760a8f9f8847690c548a01f9e5",
+      "returnSha256": null,
+      "actualAgent": "/root/b3_manager",
+      "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
+      "modelRan": "gpt-6-astra",
+      "reasoningRan": "high",
+      "integrationBase": "a63607e5c6d805f364c969eb6963f768baefb300",
+      "addenda": [
+        {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_ADDENDUM_1.md",
+          "sha256": "9deba418f41a372e4b7f3522ebe58ada2b5360b50fbefadd8bceb812cfd15b61"
+        },
+        {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_ADDENDUM_2.md",
+          "sha256": "f3363e5a2b365af8d0a95cfc1893d80f29ee21dd6aa8aaabd40a63ddb9147ae2"
+        }
+      ],
+      "children": [
+        {
+          "agent": "/root/b3_manager/shell",
+          "role": "TASK Type 2",
+          "model": "gpt-5.6-sol",
+          "reasoning": "high",
+          "state": "capacity-interrupted; preserved messages/checkpoints; remaining work assigned fresh Astra/high child",
+          "evidenceOwner": "instances/B3-CODEX on shell lane"
+        },
+        {
+          "agent": "/root/b3_manager/native",
+          "role": "TASK Type 2",
+          "model": "gpt-5.6-sol",
+          "reasoning": "high",
+          "state": "running",
+          "evidenceOwner": "instances/B3-CODEX on shell lane"
+        },
+        {
+          "agent": "/root/b3_manager/shell_astra",
+          "role": "TASK Type 2",
+          "model": "gpt-6-astra",
+          "reasoning": "high",
+          "state": "running; launched for same bounded shell assignment before owner prospective Astra/low direction",
+          "evidenceOwner": "instances/B3-CODEX on shell lane"
+        }
+      ],
+      "availabilitySubstitution": {
+        "scope": "remaining shell assignment",
+        "from": "gpt-5.6-sol/high",
+        "to": "gpt-6-astra/high",
+        "reason": "repeated model capacity interruptions after temporary successful retries",
+        "authorization": "ROOT operational decision on repeated capacity failure, disclosed in active commentary; the package named Astra/high for hard diagnosis but did not expressly approve the capacity case. This records the actual substitution, not a new owner ruling. Later owner model direction governs all new deployments.",
+        "evidenceOwner": "instances/B3-CODEX on shell lane",
+        "reviewIndependence": "separate author and fresh context; no model-diversity claim for substituted portion"
+      }
+    },
+    "CONTINUATION-RECORDS-REVIEW": {
+      "role": "TASK Type 2 read-only independent review",
+      "modelRequested": "gpt-6-astra",
+      "reasoningRequested": "xhigh",
+      "candidate": "c805bcc1a",
+      "base": "c459a0fa15e8d33613b6b95f529b5d369c707874",
+      "status": "PASS through 2fd1416ac after tail backcheck; subsequent candidate changes still require review coverage",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RECORDS_REVIEW_BRIEF.md",
+      "briefSha256": "941f528cd80e5adfdddaeb4d5922609091fd4d72f34231dc1abc63b641cf23de",
+      "actualAgent": "/root/continuation_records_review",
+      "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
+      "modelRan": "gpt-6-astra",
+      "reasoningRan": "xhigh",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_REVIEW_RETURN.md",
+      "returnSha256": "279673ad27d70ad99a8139ea2cbb748bf8f8bc9b47f39c4fc3967c8081d05aed",
+      "findings": [
+        "P2 discovery evidence classification: corrected by byte-preserving relocation and pointer",
+        "P2 local merge boundary: clarified by sealed addendum 1; original brief retained"
+      ],
+      "reviewedCandidate": "2fd1416ac141e51b638a2ca88b620ae2c5a76df8",
+      "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_REVIEW_BACKCHECK.md",
+      "backcheckReturnSha256": "93a22fa8a46b44424b00026c9febcfd21a3b900810c51ba40f7096c8b52ec569",
+      "tailReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_TAIL_REVIEW_RETURN.md",
+      "tailReturnSha256": "b792b8d848960e6abd6be3f8dc0582638c3922c4e6d35ca32c8cfe4a2ca3934a",
+      "tailBackcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_TAIL_BACKCHECK.md",
+      "tailBackcheckReturnSha256": "d41f5768865f09f204ec243a188dd9bb53c2b05ecfbaf7aa605363987b455c8e"
     }
   },
   "edges": [
@@ -741,9 +907,17 @@
     [
       "ROOT",
       "HANDOFF2-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B3-CODEX-MANAGER"
+    ],
+    [
+      "ROOT",
+      "CONTINUATION-RECORDS-REVIEW"
     ]
   ],
-  "current_frontier": "Paused at the owner's word on 2026-09-19, near the weekly usage limit; handed off by instances/ROOT/SESSION_HANDOFF_2026-09-19B.md. Merged: PRs #800 to #803, then #805 (B2F and B2G), #806 (C1), #807 (C2), #808 (records). main is at f42cadba4 before the pull request that carries this graph. In progress and paused clean: B3 (shell branch at a9be4aaef; next instrument B3-FLOORS, sealed; one owner answer blocks its merge) and I1 (canvas branch at f6c0bab8e; a pause point to be read whole, checked and returned). Then B3A, B3B, B4 to B7 with G-11 after B6; C3 to C5; the second profile's freeze package with the casing; the closing visual pass; D-72 qualification; Tranche A2. Nothing is running: no agent, no sweep, no server, no browser-test lock.",
+  "current_frontier": "B3 source/test checkpoint 26a7478b5 frozen; ROOT preparing independent complete-diff review in swbpipe-wt2. Headless full source/dist verification continues. Native bundle passes build/Rust checks; final native CUA witness and ROOT look need manual Mac unlock, requested asynchronously. Owner Astra/low policy governs new Sol-designated workers. No merge, qualification, reconciliation or DAG rebuild claimed.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -768,6 +942,10 @@
     {
       "until": "2026-09-19, the second handoff",
       "frontier": "Paused at the owner's word; handed off on 2026-09-19 under amendment 1 (the control layer first). Merged: PRs #800 to #803. Next, for a successor ROOT: start a manager per lane from the lanes' records. Shell lane: slice B2F, then B3 to B7, each with one Opus code review, the sweep, PR, CI and merge; a structure-only fidelity review on B3's candidate. Canvas lane: merge main, F3, the T1 probe, slice C1E, slice C1b, then the first pull request's complete review and merge; then C2 to C5. Then the closing visual pass, D-72 qualification, and Tranche A2 with its own plan."
+    },
+    {
+      "until": "2026-09-19 Codex continuation discovery",
+      "frontier": "Paused at the owner's word on 2026-09-19, near the weekly usage limit; handed off by instances/ROOT/SESSION_HANDOFF_2026-09-19B.md. Merged: PRs #800 to #803, then #805 (B2F and B2G), #806 (C1), #807 (C2), #808 (records). main is at f42cadba4 before the pull request that carries this graph. In progress and paused clean: B3 (shell branch at a9be4aaef; next instrument B3-FLOORS, sealed; one owner answer blocks its merge) and I1 (canvas branch at f6c0bab8e; a pause point to be read whole, checked and returned). Then B3A, B3B, B4 to B7 with G-11 after B6; C3 to C5; the second profile's freeze package with the casing; the closing visual pass; D-72 qualification; Tranche A2. Nothing is running: no agent, no sweep, no server, no browser-test lock."
     }
   ],
   "base_note": "base is the commit Tranche B opened from; slice B1 merged at 4dcab750501d039af5b2973991cbe0f3f423b80a",
@@ -824,6 +1002,18 @@
         "evidence therefore stays in the run and is not filed under a deliverable by guess (ROOT's proposal in session; the owner did not object and asked for the work graph; recorded as ROOT's practice, open to the owner)",
         "a question of preference is tested against the owner's two exemplar products and consistency in ontology, epistemology, praxeology and axiology before it is brought to the owner; where they agree the agent decides, tells the owner and says how to reverse it (the owner's prompt, SUCCESSOR_PROMPT_2026-09-19B.md)"
       ]
+    },
+    {
+      "date": "2026-09-19",
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_STEER.md",
+      "custody": "active-chat text, no transport-byte claim",
+      "sha256": "da28b028d8100b207d4f1742d9fde2383441f650f0e7d779edef0e38fb5c397e"
+    },
+    {
+      "date": "2026-09-19",
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MODEL_DIRECTION.md",
+      "sha256": "29af1ded5d35ec10efd0820db164ea6d7dca2ae4330dfdc9eb2c9e1e1720cd14",
+      "custody": "active-chat text, not transport bytes"
     }
   ],
   "openWithOwner": {
@@ -860,7 +1050,75 @@
         "nodes.B3.specDepartures"
       ],
       "disposition": "Where these inherited fields imply that the drawer-strip mechanism or inspector-width proposal may be implemented as an authorised ruling, that permission is superseded. Present the drawer-strip mechanism, docked inspector width source and Both-view protected geometry assertion together for owner disposition before dependent implementation or B3 merge. No product choice or test change is accepted here.",
-      "unchanged": "Original field values remain historical; independent authorised discovery and strategy/decision-package preparation may proceed."
+      "unchanged": "Original field values remain historical; independent authorised discovery and strategy/decision-package preparation may proceed.",
+      "historicalFieldsNowAt": "nodes.B3.historicalBeforeCodex; original former path names remain in historicalFields as provenance"
     }
+  },
+  "rootExecutionHistory": [
+    {
+      "rootModel": "Claude Fable 5.1 (claude-fable-5-1)",
+      "rootNode": {
+        "role": "HELP_HUMAN Type 0",
+        "model": "the session of 2026-09-19 began as Claude Opus 5 (claude-opus-5) and the host changed it to Claude Fable 5.1 (claude-fable-5-1) during the day",
+        "status": "handed off a second time on 2026-09-19 (instances/ROOT/SESSION_HANDOFF_2026-09-19B.md, which stands on its own; SESSION_HANDOFF_2026-09-19.md is superseded); both lanes paused clean and confirmed; a successor continues. How the successor organizes the work is its own choice within AGENTS.md (the owner's word of 2026-09-19 in session; the two-lane shape recorded here is the earlier sessions' practice, not the owner's direction)."
+      },
+      "note": "Historical state preserved before Codex continuation; earlier attribution is unchanged."
+    }
+  ],
+  "continuationDiscovery": {
+    "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/DISCOVERY.json",
+    "decisionAndStrategy": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md",
+    "ownerSteer": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_STEER.md",
+    "status": "strategy and three product dispositions approved; see OWNER_APPROVAL.md",
+    "agentsLaunched": true,
+    "productChanged": true,
+    "originMain": "c459a0fa15e8d33613b6b95f529b5d369c707874",
+    "supersedesLiveSummaryFields": [
+      "older current_frontier",
+      "historical openWithOwner blocking/notBlocking classification for D1/D2/D3"
+    ],
+    "nativeScopeNote": "Historical addendum 4 explicitly deferred native menu and minimum by ROOT; discrepancy carried into proposed B3 strategy, not silently attributed to owner.",
+    "approval": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_APPROVAL.md",
+    "productChangeNote": "Subsequent to discovery, approved implementation is active in the shell lane; discovery artifact remains its original snapshot."
+  },
+  "phaseTrace": {
+    "approvedDag": "execution/_DAG/DAG-010/",
+    "pointer": "execution/_DAG/_LATEST.md",
+    "authority": "approved_active_graph_authority",
+    "use": "trace only; not rebuilt or reconciled",
+    "deliverableLinks": {
+      "B3": {
+        "ids": [
+          "DEL-07-02"
+        ],
+        "status": "provisional",
+        "basis": "existing graph binding; unverified against full deliverable scope"
+      },
+      "B2/B2F-B2G": {
+        "ids": [
+          "DEL-07-08"
+        ],
+        "status": "provisional",
+        "basis": "historical filing; retained without reconciliation"
+      },
+      "C1/C2": {
+        "ids": [
+          "DEL-07-01"
+        ],
+        "status": "provisional",
+        "basis": "historical filing; retained without reconciliation"
+      }
+    }
+  },
+  "modelPolicy": {
+    "authority": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MODEL_DIRECTION.md",
+    "effective": "new deployments after this active-chat direction",
+    "replacementForSol": {
+      "model": "gpt-6-astra",
+      "reasoning": "low"
+    },
+    "newSolDeployments": false,
+    "existingInstances": "finish current bounded assignment with actual allocation preserved; no new assignment to evade direction",
+    "otherAllocations": "Agent0/managers Astra high or greater; code review Astra xhigh; structure review Astra high, per approved strategy"
   }
 }
