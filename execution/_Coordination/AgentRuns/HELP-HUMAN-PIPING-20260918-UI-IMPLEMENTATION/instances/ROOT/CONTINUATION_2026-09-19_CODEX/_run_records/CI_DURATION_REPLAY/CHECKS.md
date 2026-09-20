@@ -1,0 +1,7 @@
+# Scheduling-hint check record
+
+ROOT executed the retained replay.py against frozenfd195 source/partition code and canonical PR828 logs. SUMMARY.json is the script's generated result. Only maintained tools/ci/e2e_duration_hints.json changes:415 observed passing durations,20 explicitly observed skips at an openly declared0.05second scheduling floor, and prior-only historical hints retained. The floor is not a measured duration. New/unobserved identities still use30seconds. Coverage, grouping algorithm, assertions and acceptance limits are unchanged.
+
+Command: `python3 -m pytest -q projects/chirality-piping/tests/test_ci_e2e_plan.py` from REPO_ROOT, using the configured mise Python3.13 executable. Tool execution session78615 completed exit0. Pytest's session setup compiled the existing canonical_json crate in5.57s; no browser/native app/server was launched. Supplied final test output: `29 passed, 7 subtests passed in 3.22s`.
+
+Replay retains all435 source identities exactly once, zero omissions/duplicates. Prior observed longest remainder433.218s; redistributed observation319.549s. This is an offline scheduling estimate for one completed run, excluding future setup/contention and not a new test or performance qualification. Confirm the effect in the next normal full applicable CI; do not start a CI/full sweep solely for this scheduling update. B4's new cases retain conservative unknown weights until observed.

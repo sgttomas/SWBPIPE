@@ -1,0 +1,52 @@
+{
+  "kind": "offline-scheduling-replay-not-test-execution",
+  "source": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+  "published_head": "127677e1fff8b6c68044dfe0ed8475e3d1dd63d4",
+  "hosted_run": 35538747925,
+  "log_sha256": "d0b62e4856b7fd3e703b90c8ca1edb3cce952bcedd3b0fbc0de5039547425f5a",
+  "source_identities": 435,
+  "observed_passes": 415,
+  "observed_skips": 20,
+  "skip_floor_is_measured_duration": false,
+  "unknown_seconds_unchanged": true,
+  "results": {
+    "previous": {
+      "counts": {
+        "barrier": 30,
+        "shard-1": 80,
+        "shard-2": 123,
+        "shard-3": 50,
+        "shard-4": 152
+      },
+      "replayed_observed_seconds": {
+        "barrier": 118.2,
+        "shard-1": 266.812,
+        "shard-2": 268.099,
+        "shard-3": 308.4,
+        "shard-4": 433.218
+      },
+      "omitted": 0,
+      "duplicated": 0
+    },
+    "updated": {
+      "counts": {
+        "barrier": 30,
+        "shard-1": 105,
+        "shard-2": 97,
+        "shard-3": 90,
+        "shard-4": 113
+      },
+      "replayed_observed_seconds": {
+        "barrier": 118.2,
+        "shard-1": 318.737,
+        "shard-2": 319.549,
+        "shard-3": 319.512,
+        "shard-4": 318.731
+      },
+      "omitted": 0,
+      "duplicated": 0
+    }
+  },
+  "updated_hints_sha256": "3ec74a15f33615dbfd8f7530972e3ddb9a25ccfdd30266cee4234e97f41af175",
+  "limitations": "One-run scheduling estimate; skipped cases contribute zero replayed test duration. Does not predict setup, contention or future duration, and is not a new CI/test/performance pass. Confirm scheduling effect in the next normal applicable CI run."
+}

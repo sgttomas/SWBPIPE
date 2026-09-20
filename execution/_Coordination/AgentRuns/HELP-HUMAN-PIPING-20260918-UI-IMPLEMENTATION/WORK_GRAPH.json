@@ -1645,7 +1645,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "Codex delegated-harness-native retained manager; new bounded TASK",
-      "status": "active: new core unit/type checks reported; ROOT authorizes bounded temporary direct/bulk coexistence for integration",
+      "status": "active guarded integration; invalid-draft replacement and late-navigation ownership regressions reproduced/repaired; final focused checks before clean browser freeze",
       "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
       "branch": "codex/swbpipe-b-shell-20260918",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_MANAGER_BRIEF.md",
@@ -1657,7 +1657,7 @@
       "childBriefSha256": "56df2fc1dec4fffac347042287cc90f9b50f548df24fa810d2d456e4fef43578",
       "childInputsSha256": "58a86b65a5d125e481ceb0e46a05090cd2befeaaee25f9bd46f43ef0ef0b8d6a",
       "writeLease": "shell/controller/table; exact sealed brief; no native or external live transport; no shared Root graph writes",
-      "resourceState": "focused unit/type work only; browser/native/build slots not yet reserved",
+      "resourceState": "5174 browser slot granted after clean freeze, one Playwright worker under shared E2E lock; no native/build/CUA grant",
       "enforcement": "instruction-asserted; host unrestricted; Type2 no delegation",
       "compatibilityDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_COMPATIBILITY_DISPOSITION.md",
       "compatibilityDispositionSha256": "f317cddf86edc5faf672629f70c0575d26ff77e2b3b494d7e167687e42865827"
@@ -1717,6 +1717,31 @@
       "relationships": "Touches future persistence, comparison and result-standing work; exact dependency/deliverable mapping remains provisional until owner-directed scope disposition",
       "blockingCurrentWork": false,
       "authorityLimit": "Do not infer DEC-042 scope/stage adoption, PRD amendment, DAG rebuild or deliverable reconciliation"
+    },
+    "PR828-CLOSEOUT-REVIEW": {
+      "role": "TASK Type2 independent records backcheck",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3b_c3_ci_review",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "status": "PASS complete30path records-only candidatef50435cef; B4 source excluded",
+      "candidate": "f50435cef3b9f7f6ff2ed4b33b6e6236668155bd",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/PR828_CLOSEOUT_B4_PREP_REVIEW_BRIEF.md",
+      "briefSha256": "d87893406b9030800e0cc61c701ea86cbefc82a0d640424593b340cfc9ca6636",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR828_CLOSEOUT_B4_PREP_REVIEW_RETURN.md",
+      "returnSha256": "79362f6b4a937bf64b09d50926cb25150b7e86ee4a357c4d469d4f6ab7346b13"
+    },
+    "CI-DURATION-CALIBRATION": {
+      "role": "ROOT bounded scheduling-data update",
+      "parent": "ROOT",
+      "status": "implemented locally;29policy tests/7subtests and frozen435identity replay pass; independent review and next normal applicable CI pending",
+      "authority": "Owner directed effective CI/test-time reductions; no new acceptance threshold or skipped test",
+      "sourceRun": 35538747925,
+      "sourceHead": "127677e1fff8b6c68044dfe0ed8475e3d1dd63d4",
+      "changedSource": "tools/ci/e2e_duration_hints.json relative to WORKING_ROOT",
+      "hintsSha256": "3ec74a15f33615dbfd8f7530972e3ddb9a25ccfdd30266cee4234e97f41af175",
+      "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_DURATION_REPLAY",
+      "note": "Known observed skips previously inherited30second unknown cost. Updated pass durations plus explicit0.05second skip floor balance replayed remainder costs; allnew identities retain30second fallback. Not a measured future walltime or performance qualification."
     }
   },
   "edges": [
@@ -1931,6 +1956,14 @@
     [
       "ROOT",
       "MVP-BASELINE-COMPARISON-PROPOSAL"
+    ],
+    [
+      "ROOT",
+      "PR828-CLOSEOUT-REVIEW"
+    ],
+    [
+      "ROOT",
+      "CI-DURATION-CALIBRATION"
     ]
   ],
   "current_frontier": "PR828 merged after all9actual-head checks passed; full hosted1040s. B4.1 Node table/core is active under one shell writer; temporary direct/bulk coexistence authorized for this internal increment. C4 label rulings and bounded CLI live-binding activation await owner. Peer CLI fit review closed with single/atomic-batch and actual-human-witness requirements. No deliverable reconciliation or DAG rebuild.",
@@ -2213,7 +2246,7 @@
     "scope": "No silence-as-approval; unaffected B4.1 continues"
   },
   "liveContinuationState": {
-    "root": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+    "root": "f50435cef3b9f7f6ff2ed4b33b6e6236668155bd",
     "originMain": "fd195cf4287e84572a12183169478a6f7ddf6a92",
     "integrationBranch": {
       "branch": "codex/swbpipe-ci-economy-20260920",
@@ -2224,7 +2257,7 @@
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "separate two-edit worktree preserved; never fan-in",
-    "resources": "no browser/native/ports or sweep reserved; B4 unit/type only",
+    "resources": "B4.1 source5174 reserved after freeze under shared lock; not yet started at last manager report. No native/build/CUA or full sweep active.",
     "recordStatus": "post-merge continuity records await scoped independent review with next coherent batch"
   }
 }
