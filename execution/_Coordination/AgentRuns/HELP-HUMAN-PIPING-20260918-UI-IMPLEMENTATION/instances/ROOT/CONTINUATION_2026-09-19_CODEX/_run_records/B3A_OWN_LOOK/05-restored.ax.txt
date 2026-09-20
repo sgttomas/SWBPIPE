@@ -1,0 +1,5 @@
+Window: "Blank Local Model — SWBPIPE", App: SWBPIPE.
+0 menu Secondary Actions: Cancel
+	1 (selected) System
+	2 Light
+	3 Dark

@@ -1,0 +1,62 @@
+{
+  "source": "d2ef16848841616a26c35bfc03e68c7b64e79380",
+  "binarySha256": "0aaca40dd0d08ff8e4f7e6dce70f58544e26741b3a907379deb5836084a6fbbe",
+  "pid": 38905,
+  "processAfterQuit": "",
+  "psExit": 1,
+  "method": "ROOT actual cua_repl native interaction",
+  "project": "project:blank-local-20260920t163409z",
+  "initialPreference": "System / Comfortable",
+  "temporaryPreference": "Light",
+  "finalPreference": "System / Comfortable",
+  "observed": "Clean shell heading and native title in dark/System and Light; Undo/Redo remain disabled on reopened saved invented model. No model edit/save by ROOT. Final Appearance collapsed; app quit via Cmd-Q.",
+  "limits": "No new minimum-window measurement, race reproduction, performance/contrast or usability acceptance. Worker native journey and controlled race regressions supply separate evidence.",
+  "toolIssue": "A capture attempt reused a stale AX index after an unobserved full-tree refresh and reopened the theme selector; writeFile received undefined state for that menu capture. Escape plus fresh AX restored the known System selection. Error and recovery were observed; no model edit/save. Quit produced expected App quit (-10005).",
+  "files": [
+    {
+      "path": "01-initial.ax.txt",
+      "bytes": 181,
+      "sha256": "218b95c1d87e4e6ed82820023fe9ab61ecaa1bbe7571c32eefc5e676da40d14d"
+    },
+    {
+      "path": "01-initial.jpg",
+      "bytes": 111161,
+      "sha256": "9dba6156b6e859df23fad37e71dfef0dd166434554e220ba5b810c015b8c96ae"
+    },
+    {
+      "path": "02-appearance.ax.txt",
+      "bytes": 613,
+      "sha256": "56f85b8a0850f58d0dddf3bd2d849a63fe17a11f5f096d0fb16d6039232be84d"
+    },
+    {
+      "path": "03-light.ax.txt",
+      "bytes": 7658,
+      "sha256": "f7309df92e30ba7792437f42c599a783f8a643d81703e3f8cd728789b61d5f89"
+    },
+    {
+      "path": "03-light.jpg",
+      "bytes": 115067,
+      "sha256": "15437fd4c50333ef94598806e4327e6b06361f548a4509eca3b9f08cbe0b7a7c"
+    },
+    {
+      "path": "04-restored-preference.ax.txt",
+      "bytes": 7429,
+      "sha256": "785a86299b271e25cfc251f73ea83d68b680d6d611042828d616f466580146ad"
+    },
+    {
+      "path": "05-restored.ax.txt",
+      "bytes": 126,
+      "sha256": "bbd60a7f3ad7e9442fa4e26bb02732cebe79970cbcf9064f56cf96b7745d2cc2"
+    },
+    {
+      "path": "06-final.ax.txt",
+      "bytes": 7150,
+      "sha256": "0944d6a5cb8cdfbea887a47a761e92f3f510f952fb2fc0e5e728f0eb1573b4c4"
+    },
+    {
+      "path": "06-final.jpg",
+      "bytes": 111214,
+      "sha256": "1fd8c937222e71a6d8a9544521a95d75608935578ef99bb9dc4c923481fd723a"
+    }
+  ]
+}

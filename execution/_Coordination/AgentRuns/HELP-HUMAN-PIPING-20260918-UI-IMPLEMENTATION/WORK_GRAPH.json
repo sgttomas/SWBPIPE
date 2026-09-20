@@ -599,12 +599,13 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the unsaved-edits mark; the 'Solver \u00b7 Not solved' fallback chip",
-      "status": "80b9 source review found one P2 marker race; repair active. Native happy-path witness passed on intermediate 80b9; final repair checks/native reassessment pending.",
+      "status": "production d2ef/native PASS; exact display-test correction d71 and final evidence dada3482 frozen, complete packet backcheck active",
       "dependsOn": [
         "B3"
       ],
       "authority": "instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md items 1 and 2",
-      "also": "two requests from the canvas lane for the shell lane's files wait for B3's freeze: the label plate's selected border colour in styles.css; a hover field in uiDiagnostics.ts"
+      "also": "two requests from the canvas lane for the shell lane's files wait for B3's freeze: the label plate's selected border colour in styles.css; a hover field in uiDiagnostics.ts",
+      "nativeOwnLook": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_OWN_LOOK/MANIFEST.json"
     },
     "B3B": {
       "role": "slice",
@@ -642,6 +643,9 @@
       "status": "planned",
       "dependsOn": [
         "B5"
+      ],
+      "discoveredFollowups": [
+        "Native File Save has no Cmd-S accelerator in current source; B3A native witness used explicit File Save. Review accelerator coverage with menu completion, without claiming a new regression or silently adding it to B3A/B3B."
       ]
     },
     "G-11": {
@@ -1228,7 +1232,7 @@
       "modelRequested": "gpt-6-astra",
       "reasoningRequested": "high",
       "actualMechanism": "collaboration.followup_task to existing Astra/high manager",
-      "status": "repairing confirmed marker P2; native 80b9 happy-path witness retained as intermediate",
+      "status": "complete final frozen handoff dada3482; resources released",
       "scope": "B3A",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3A_MANAGER_BRIEF.md",
       "briefSha256": "98986a724525d0e5d3fe1465b6ad2185d8d436fccd56f9f9494d24f417d195f2",
@@ -1244,7 +1248,11 @@
           "status": "implementation returned"
         }
       ],
-      "candidate": "80b9efb48c31da0d8dc58a2d728db56adcf17d22"
+      "candidate": "dada348294d21b8619b4644a5a690aedb039957d",
+      "return": "instances/B3A-CODEX/RETURN.md",
+      "returnSha256": "4c99540211b947175a32a640f0a11f934fc713e95f1a88422625ea1592d62d35",
+      "supplement": "instances/B3A-CODEX/SWEEP_DISPLAY_PAIR_RETURN.md",
+      "supplementSha256": "9e4e52dbc37ad8a60e6e1ad05cffa527832768ae5b07a703bf6043ef30500e14"
     },
     "I1-CODEX-MANAGER": {
       "role": "WORKING_ITEMS Type1",
@@ -1299,15 +1307,16 @@
       "modelRequested": "gpt-6-astra",
       "reasoningRequested": "xhigh",
       "actualMechanism": "collaboration.spawn_agent, fork_turns none",
-      "status": "complete one P2; backcheck pending repaired candidate",
+      "status": "P2 PASS; final packet and authorized two-case display amendment review active at dada3482",
       "candidate": "80b9efb48c31da0d8dc58a2d728db56adcf17d22",
       "base": "7e6a7f2578e5df12ea891c2d604d0cd48e869934",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3A_INDEPENDENT_REVIEW_BRIEF.md",
       "briefSha256": "ad366d67b2fc0bd64682d84ec75ae3432ac55746df5b5c26e0ef2a24ef6e2fbb",
       "enforcement": "Instruction-enforced read-only on unrestricted host; no UI/tests/Git mutation/delegation",
-      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_INDEPENDENT_REVIEW_RETURN.md",
-      "returnSha256": "9a7735ddfededeafd30c9b8d01036d9fc92f76ef6fa8c46f2dec21c810d5916d",
-      "finding": "Failed later Open must not suppress a verified landed same-session saved-contents comparison basis."
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_P2_BACKCHECK_RETURN.md",
+      "returnSha256": "32cdacbbabd7264aae79aafb8322d10438c5780589c4873bd2fa6b78e071491c",
+      "finding": "Failed later Open must not suppress a verified landed same-session saved-contents comparison basis.",
+      "reviewedCandidate": "d2ef16848841616a26c35bfc03e68c7b64e79380"
     },
     "C3-PREPARATION-CODEX": {
       "role": "WORKING_ITEMS Type 1 preparation only",
@@ -1315,10 +1324,32 @@
       "actualAgent": "/root/i1_manager",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "status": "active read-only, no child launch or implementation",
+      "status": "complete read-only; no implementation or resource use",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/C3_PREPARATION_BRIEF.md",
       "briefSha256": "76e20ba0ae299c7a9ead1520635aa673237d48a8f6e8585c5b9415118a9b22bc",
-      "base": "045acae749fe1acc95bce221cdb58c2db4a7064c"
+      "base": "045acae749fe1acc95bce221cdb58c2db4a7064c",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/C3_PREPARATION_RETURN.md",
+      "returnSha256": "c1ab55ce6653761d8d3d50fda6354763f248fe8b54c87f99c46de48aadc1e4fa"
+    },
+    "B3A-I1-INTEGRATION": {
+      "role": "ROOT integration and verification",
+      "status": "first clean sweep failed at Vitest on two stale display assertions; test-only correction pending",
+      "candidate": "46436a60310819f60d6376bc87cc093c1b33b59f",
+      "productSource": "d2ef16848841616a26c35bfc03e68c7b64e79380",
+      "instrumentSource": "045acae749fe1acc95bce221cdb58c2db4a7064c",
+      "dependsOn": [
+        "B3A",
+        "I1"
+      ],
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_I1_SWEEP_46436a60/DISPOSITION.json",
+      "surfaceResults": {
+        "cargo": "pass",
+        "python": "pass",
+        "vitest": "1460 passed, 2 failed",
+        "sourceAndDist": "not_run",
+        "productionBuild": "not_run"
+      },
+      "disposition": "Owner item 2 already authorized fallback; only stale blocked/nonconverged display assertions may change, all solved-only/geometry/integrity checks preserved. Fresh complete clean sweep follows; failed result is preserved."
     }
   },
   "edges": [
@@ -1499,7 +1530,7 @@
       "C3-PREPARATION-CODEX"
     ]
   ],
-  "current_frontier": "I1 review PASS and locally integrated; B3A repairs one independently found marker race, retaining intermediate native success. ROOT prepares one combined full validation after repair and review. C3 planning is read-only; B3B/C3 implementation not activated.",
+  "current_frontier": "Final B3A handoff dada3482 includes exact two-case display correction; product/native inputs remain d2ef. Complete packet backcheck active. I1 remains independently PASS. Failed 46436 sweep preserved; fresh combined complete sweep and full CI next. B3B/C3 preparation only.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -1763,6 +1794,8 @@
     "phase": "existing UI implementation; no DAG rebuild/reconciliation",
     "sequenceCorrections": "B3B after B3A; B4 after B3B; B7 after G-11 as recorded shell order. G17 explicitly scheduled after G11/B7 without new scope.",
     "integrationBatchNote": "If B3A and I1 are both frozen and independently reviewed at the same milestone, ROOT may integrate their disjoint scopes into one candidate and run one complete clean sweep plus full default hosted coverage. Each slice retains separate review and evidence. No gate waiver.",
-    "integrationBatchDisposition": "ROOT scheduling change from P4 own-PR recommendation: combine disjoint I1/B3A reviewed work in one PR to avoid duplicate complete sweeps under current owner CI-economy/continuation direction. Separate independent slice review and combined full validation remain; no owner product ruling or protected check changes."
+    "integrationBatchDisposition": "ROOT scheduling change from P4 own-PR recommendation: combine disjoint I1/B3A reviewed work in one PR to avoid duplicate complete sweeps under current owner CI-economy/continuation direction. Separate independent slice review and combined full validation remain; no owner product ruling or protected check changes.",
+    "preparedNextBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_MANAGER_BRIEF_DRAFT.md",
+    "canvasPreparation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/C3_PREPARATION_RETURN.md"
   }
 }
