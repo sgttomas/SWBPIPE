@@ -1,0 +1,36 @@
+[chromium-desktop] › b3a-session-status.spec.ts › canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
+[chromium-compact] › b3a-session-status.spec.ts › canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
+[chromium-desktop] › gui-workflow-validation.spec.ts › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions
+[chromium-desktop] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home
+[chromium-desktop] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer
+[chromium-compact] › gui-workflow-validation.spec.ts › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions
+[chromium-compact] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home
+[chromium-compact] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer
+[chromium-desktop] › linear-authoring.spec.ts › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review
+[chromium-compact] › linear-authoring.spec.ts › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review
+[chromium-desktop] › r2-smoke.spec.ts › guided workbench shell keeps journey steps, details, and compact status reachable
+[chromium-desktop] › r2-smoke.spec.ts › DEC-077 solve temperature queues an explicit unit-bearing operation
+[chromium-desktop] › r2-smoke.spec.ts › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[chromium-desktop] › r2-smoke.spec.ts › viewport gesture placeholders record unit validation
+[chromium-desktop] › r2-smoke.spec.ts › R2 from-blank GUI journey authors the A12 rehearsal script
+[chromium-desktop] › r2-smoke.spec.ts › diagnostic detail exposes linked result unit context
+[chromium-desktop] › r2-smoke.spec.ts › rule-pack manager drafts privately and reports the desktop-only backend seam
+[chromium-desktop] › r2-smoke.spec.ts › library manager loads an invented private sample and reports the desktop-only backend seam
+[chromium-desktop] › r2-smoke.spec.ts › run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam
+[chromium-desktop] › r2-smoke.spec.ts › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps
+[chromium-compact] › r2-smoke.spec.ts › guided workbench shell keeps journey steps, details, and compact status reachable
+[chromium-compact] › r2-smoke.spec.ts › DEC-077 solve temperature queues an explicit unit-bearing operation
+[chromium-compact] › r2-smoke.spec.ts › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[chromium-compact] › r2-smoke.spec.ts › viewport gesture placeholders record unit validation
+[chromium-compact] › r2-smoke.spec.ts › R2 from-blank GUI journey authors the A12 rehearsal script
+[chromium-compact] › r2-smoke.spec.ts › diagnostic detail exposes linked result unit context
+[chromium-compact] › r2-smoke.spec.ts › rule-pack manager drafts privately and reports the desktop-only backend seam
+[chromium-compact] › r2-smoke.spec.ts › library manager loads an invented private sample and reports the desktop-only backend seam
+[chromium-compact] › r2-smoke.spec.ts › run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam
+[chromium-compact] › r2-smoke.spec.ts › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps
+[chromium-desktop] › result-compatibility.spec.ts › fresh Current exports strict 0.2 result and stress-neutral evidence
+[chromium-compact] › result-compatibility.spec.ts › fresh Current exports strict 0.2 result and stress-neutral evidence
+[chromium-desktop] › ui-foundation.spec.ts › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement
+[chromium-compact] › ui-foundation.spec.ts › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement
+[chromium-desktop] › workspace-layout.spec.ts › workspace preserves the visible model during discovery, routing, property editing and analysis navigation
+[chromium-compact] › workspace-layout.spec.ts › workspace preserves the visible model during discovery, routing, property editing and analysis navigation

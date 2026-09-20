@@ -1,0 +1,2173 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": false,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b3a-session-status.spec.ts",
+      "file": "b3a-session-status.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "2544a1e3073860e024b5-734028ffbb12e1061322",
+          "file": "b3a-session-status.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "2544a1e3073860e024b5-ebb76bd34849822f4871",
+          "file": "b3a-session-status.spec.ts",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "gui-workflow-validation.spec.ts",
+      "file": "gui-workflow-validation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-3720d90ed423326b654f",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-911741ca6c3aa832901b",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-22525c8411c21aa75b5a",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-6943b9207be490841747",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "title": "linear-authoring.spec.ts",
+      "file": "linear-authoring.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "compact blank-to-straight authoring keeps the canvas and exact Add/Apply review",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "3014788e718664926f50-18ce7a3d16fe101d2937",
+          "file": "linear-authoring.spec.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "compact blank-to-straight authoring keeps the canvas and exact Add/Apply review",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "3014788e718664926f50-4d931543954fc47a1116",
+          "file": "linear-authoring.spec.ts",
+          "line": 60,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "r2-smoke.spec.ts",
+      "file": "r2-smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-e53bc32a6da0ec03a248",
+          "file": "r2-smoke.spec.ts",
+          "line": 250,
+          "column": 1
+        },
+        {
+          "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-6ac6ecaad09abe729ff5",
+          "file": "r2-smoke.spec.ts",
+          "line": 250,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "result-compatibility.spec.ts",
+      "file": "result-compatibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fresh Current exports strict 0.2 result and stress-neutral evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "ad4d63015ca33e87347b-64a324ee696fb7cec5a2",
+          "file": "result-compatibility.spec.ts",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "fresh Current exports strict 0.2 result and stress-neutral evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "ad4d63015ca33e87347b-a01803b61d2d6f774a36",
+          "file": "result-compatibility.spec.ts",
+          "line": 14,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "ui-foundation.spec.ts",
+      "file": "ui-foundation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "[preflight] maintained fixture supports typed selection and a keyboard-authored measurement",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-f3f25afa5846f79ed3cf",
+          "file": "ui-foundation.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-64ce0da9304f1a8deb26",
+          "file": "ui-foundation.spec.ts",
+          "line": 82,
+          "column": 1
+        },
+        {
+          "title": "typed raw-ID collisions remain distinct through ordered selection and an ABA membership change",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-5e3d443c0891987d0929",
+          "file": "ui-foundation.spec.ts",
+          "line": 242,
+          "column": 1
+        },
+        {
+          "title": "Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-654683ad1362be16c468",
+          "file": "ui-foundation.spec.ts",
+          "line": 270,
+          "column": 3
+        },
+        {
+          "title": "Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-dd6f753dc9b31012556e",
+          "file": "ui-foundation.spec.ts",
+          "line": 270,
+          "column": 3
+        },
+        {
+          "title": "virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-43eba3c6d7a631f1c62a",
+          "file": "ui-foundation.spec.ts",
+          "line": 309,
+          "column": 1
+        },
+        {
+          "title": "Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-4c2268238105756f845c",
+          "file": "ui-foundation.spec.ts",
+          "line": 349,
+          "column": 1
+        },
+        {
+          "title": "real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-eb588f46178ea2c21987",
+          "file": "ui-foundation.spec.ts",
+          "line": 394,
+          "column": 1
+        },
+        {
+          "title": "Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-e482486a79170a5665a7",
+          "file": "ui-foundation.spec.ts",
+          "line": 479,
+          "column": 1
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light comfortable 1024x768",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-3ebd890a2e6774a6b723",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light comfortable 1280x800",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-27ef99a26093640925a9",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light comfortable 1440x920",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-6416573bd96886c47bf0",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light compact 1024x768",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-e8bcef4f5fae7f1d0d3e",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light compact 1280x800",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-438d6638f67ecf9f1810",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light compact 1440x920",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-deab3033be6f1104f448",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark comfortable 1024x768",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-bc716ce89e60dd8c601e",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark comfortable 1280x800",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-141bc6bbdb927767dd1f",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark comfortable 1440x920",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-07717c8ba6d0fa8d7d86",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark compact 1024x768",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-85a5c7b2d2b9376174d9",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark compact 1280x800",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-bf63fbb870a1cd0c0f39",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark compact 1440x920",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-32c2fa3ec0924f23301d",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-24b0c83f3725e632276d",
+          "file": "ui-foundation.spec.ts",
+          "line": 963,
+          "column": 1
+        },
+        {
+          "title": "a property task keeps its typed target and entered value through filter, collapse, and selection ABA",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-813f2ab9057fc45f2f52",
+          "file": "ui-foundation.spec.ts",
+          "line": 1037,
+          "column": 1
+        },
+        {
+          "title": "live Properties routes follow catalogue target B while frozen Task A remains unchanged",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-e361be5a436c6044adfb",
+          "file": "ui-foundation.spec.ts",
+          "line": 1093,
+          "column": 1
+        },
+        {
+          "title": "an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-a1abfae8497da8794d60",
+          "file": "ui-foundation.spec.ts",
+          "line": 1162,
+          "column": 1
+        },
+        {
+          "title": "a prepared direct review is rejected after selection membership leaves and returns to the same primary",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-3bb4eb4782a0fd6ee782",
+          "file": "ui-foundation.spec.ts",
+          "line": 1205,
+          "column": 1
+        },
+        {
+          "title": "selected-pipe actions copy a stable draft target snapshot instead of following later selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-f49daa207ee9c0f4b9d3",
+          "file": "ui-foundation.spec.ts",
+          "line": 1230,
+          "column": 1
+        },
+        {
+          "title": "filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-7e1f0f5435f40a4af2fb",
+          "file": "ui-foundation.spec.ts",
+          "line": 1267,
+          "column": 1
+        },
+        {
+          "title": "node visibility owns attached symbols while connected spans remain independent, and isolate is bounded",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-83e70c7838763b8c794a",
+          "file": "ui-foundation.spec.ts",
+          "line": 1337,
+          "column": 1
+        },
+        {
+          "title": "Actual OD uses valid spans and explains the independently injected centerline fallback",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-5eeb9cafd9153adad500",
+          "file": "ui-foundation.spec.ts",
+          "line": 1373,
+          "column": 1
+        },
+        {
+          "title": "ordinary typed edit preserves view state and same-ID project replacement clears it",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-22f12dc661fd4807a6ab",
+          "file": "ui-foundation.spec.ts",
+          "line": 1384,
+          "column": 1
+        },
+        {
+          "title": "keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-193fd1a05ab1891997ce",
+          "file": "ui-foundation.spec.ts",
+          "line": 1420,
+          "column": 1
+        },
+        {
+          "title": "narrow canvas fits visible and selected envelopes in every view preset",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-4c30e52f6da1ca681a45",
+          "file": "ui-foundation.spec.ts",
+          "line": 1728,
+          "column": 1
+        },
+        {
+          "title": "standard 1000 camera recipe compares legacy and corrected fit without changing targets",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-4e25ef6154fb7fc02475",
+          "file": "ui-foundation.spec.ts",
+          "line": 1764,
+          "column": 3
+        },
+        {
+          "title": "standard 10000 camera recipe compares legacy and corrected fit without changing targets",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-92487b6dbf55a690ccf6",
+          "file": "ui-foundation.spec.ts",
+          "line": 1764,
+          "column": 3
+        },
+        {
+          "title": "filtered tree collapse controls retain typed selection and frozen draft across search changes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-3a38a6568dc942d3816e",
+          "file": "ui-foundation.spec.ts",
+          "line": 1784,
+          "column": 1
+        },
+        {
+          "title": "empty ordered selection publishes independently from project inspector",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-a13a4bec8c81e9b152b4",
+          "file": "ui-foundation.spec.ts",
+          "line": 1832,
+          "column": 1
+        },
+        {
+          "title": "decorative viewport overlays pass real canvas gestures while view controls stay interactive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-f21f7306a3ec3d0d88d9",
+          "file": "ui-foundation.spec.ts",
+          "line": 1966,
+          "column": 1
+        },
+        {
+          "title": "[preflight] maintained fixture supports typed selection and a keyboard-authored measurement",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-95782ef079471d39f317",
+          "file": "ui-foundation.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-15e6c6d028d0e1105a6b",
+          "file": "ui-foundation.spec.ts",
+          "line": 82,
+          "column": 1
+        },
+        {
+          "title": "typed raw-ID collisions remain distinct through ordered selection and an ABA membership change",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-abb7a337552180e3563e",
+          "file": "ui-foundation.spec.ts",
+          "line": 242,
+          "column": 1
+        },
+        {
+          "title": "Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-fd969770222bad39aec5",
+          "file": "ui-foundation.spec.ts",
+          "line": 270,
+          "column": 3
+        },
+        {
+          "title": "Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-71fc2bcf6e1fc4841252",
+          "file": "ui-foundation.spec.ts",
+          "line": 270,
+          "column": 3
+        },
+        {
+          "title": "virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-62043fcac9c902f9c9da",
+          "file": "ui-foundation.spec.ts",
+          "line": 309,
+          "column": 1
+        },
+        {
+          "title": "Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-5941f403a6b68c6caee7",
+          "file": "ui-foundation.spec.ts",
+          "line": 349,
+          "column": 1
+        },
+        {
+          "title": "real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-c4e8a0b901ed83660b85",
+          "file": "ui-foundation.spec.ts",
+          "line": 394,
+          "column": 1
+        },
+        {
+          "title": "Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-cc9b93a703ffafae6da6",
+          "file": "ui-foundation.spec.ts",
+          "line": 479,
+          "column": 1
+        },
+        {
+          "title": "selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-9daa3e5853bdb8107f1f",
+          "file": "ui-foundation.spec.ts",
+          "line": 963,
+          "column": 1
+        },
+        {
+          "title": "a property task keeps its typed target and entered value through filter, collapse, and selection ABA",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-8d66c997957b9b2f16a5",
+          "file": "ui-foundation.spec.ts",
+          "line": 1037,
+          "column": 1
+        },
+        {
+          "title": "live Properties routes follow catalogue target B while frozen Task A remains unchanged",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-fa1189968ab748210d39",
+          "file": "ui-foundation.spec.ts",
+          "line": 1093,
+          "column": 1
+        },
+        {
+          "title": "an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-a1bb1142ad2df309f617",
+          "file": "ui-foundation.spec.ts",
+          "line": 1162,
+          "column": 1
+        },
+        {
+          "title": "a prepared direct review is rejected after selection membership leaves and returns to the same primary",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-c8688f2a6acbe31dfc8a",
+          "file": "ui-foundation.spec.ts",
+          "line": 1205,
+          "column": 1
+        },
+        {
+          "title": "selected-pipe actions copy a stable draft target snapshot instead of following later selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-ceb51d344f5661b97e3b",
+          "file": "ui-foundation.spec.ts",
+          "line": 1230,
+          "column": 1
+        },
+        {
+          "title": "filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-0a8db9737a535a7758b1",
+          "file": "ui-foundation.spec.ts",
+          "line": 1267,
+          "column": 1
+        },
+        {
+          "title": "node visibility owns attached symbols while connected spans remain independent, and isolate is bounded",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-f24d6749beda8212bac6",
+          "file": "ui-foundation.spec.ts",
+          "line": 1337,
+          "column": 1
+        },
+        {
+          "title": "Actual OD uses valid spans and explains the independently injected centerline fallback",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-c420a33205413a930a71",
+          "file": "ui-foundation.spec.ts",
+          "line": 1373,
+          "column": 1
+        },
+        {
+          "title": "ordinary typed edit preserves view state and same-ID project replacement clears it",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-8a43272359ea48bb2236",
+          "file": "ui-foundation.spec.ts",
+          "line": 1384,
+          "column": 1
+        },
+        {
+          "title": "keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-980dbfe0e38266e8c767",
+          "file": "ui-foundation.spec.ts",
+          "line": 1420,
+          "column": 1
+        },
+        {
+          "title": "narrow canvas fits visible and selected envelopes in every view preset",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-f43aa4468ee4637a71a3",
+          "file": "ui-foundation.spec.ts",
+          "line": 1728,
+          "column": 1
+        },
+        {
+          "title": "standard 1000 camera recipe compares legacy and corrected fit without changing targets",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-e11ef27c0ffbd8c933cb",
+          "file": "ui-foundation.spec.ts",
+          "line": 1764,
+          "column": 3
+        },
+        {
+          "title": "standard 10000 camera recipe compares legacy and corrected fit without changing targets",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-3b18cc3c02a3ee19fe36",
+          "file": "ui-foundation.spec.ts",
+          "line": 1764,
+          "column": 3
+        },
+        {
+          "title": "filtered tree collapse controls retain typed selection and frozen draft across search changes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-971ac21ddad2001d6eda",
+          "file": "ui-foundation.spec.ts",
+          "line": 1784,
+          "column": 1
+        },
+        {
+          "title": "empty ordered selection publishes independently from project inspector",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-614d81815d981c136f48",
+          "file": "ui-foundation.spec.ts",
+          "line": 1832,
+          "column": 1
+        },
+        {
+          "title": "decorative viewport overlays pass real canvas gestures while view controls stay interactive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-ad2a1195ec69982d74c3",
+          "file": "ui-foundation.spec.ts",
+          "line": 1966,
+          "column": 1
+        }
+      ],
+      "suites": [
+        {
+          "title": "captured Box lifetime",
+          "file": "ui-foundation.spec.ts",
+          "line": 2084,
+          "column": 6,
+          "specs": [
+            {
+              "title": "ordinary real Box applies independent empty Components membership",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-593ea0e15969fab893ac",
+              "file": "ui-foundation.spec.ts",
+              "line": 2133,
+              "column": 1
+            },
+            {
+              "title": "Escape retires captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-d13617be94fddc5cc0da",
+              "file": "ui-foundation.spec.ts",
+              "line": 2141,
+              "column": 1
+            },
+            {
+              "title": "same-ID Open retires old captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-c654a0231962961e2552",
+              "file": "ui-foundation.spec.ts",
+              "line": 2157,
+              "column": 1
+            },
+            {
+              "title": "Select retires captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-0cfa6280e5d12bd4d821",
+              "file": "ui-foundation.spec.ts",
+              "line": 2193,
+              "column": 55
+            },
+            {
+              "title": "New blank retires captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-4b20e278aa88383767d5",
+              "file": "ui-foundation.spec.ts",
+              "line": 2193,
+              "column": 55
+            },
+            {
+              "title": "Measure cannot revive a captured Box through a mode ABA",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-55bdeeb09679f9442191",
+              "file": "ui-foundation.spec.ts",
+              "line": 2222,
+              "column": 70
+            },
+            {
+              "title": "palette Node and Select cannot revive a captured Box through a mode ABA",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-f0e834e73c1ce7a1eae7",
+              "file": "ui-foundation.spec.ts",
+              "line": 2222,
+              "column": 70
+            },
+            {
+              "title": "workspace Escape event ownership body idle",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-46debda1e63896d7d149",
+              "file": "ui-foundation.spec.ts",
+              "line": 2245,
+              "column": 39
+            },
+            {
+              "title": "workspace Escape event ownership body captured",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-5903948b901990d7bb72",
+              "file": "ui-foundation.spec.ts",
+              "line": 2245,
+              "column": 39
+            },
+            {
+              "title": "workspace Escape event ownership consumed palette",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-e3d833f64f99af20e764",
+              "file": "ui-foundation.spec.ts",
+              "line": 2269,
+              "column": 55
+            },
+            {
+              "title": "workspace Escape event ownership consumed drawer",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-dae598642f967f4c3c1c",
+              "file": "ui-foundation.spec.ts",
+              "line": 2269,
+              "column": 55
+            },
+            {
+              "title": "ordinary real Box applies independent empty Components membership",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-1cf4710d76ef4da2c7cd",
+              "file": "ui-foundation.spec.ts",
+              "line": 2133,
+              "column": 1
+            },
+            {
+              "title": "Escape retires captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-fa641fae81badb5b2bd9",
+              "file": "ui-foundation.spec.ts",
+              "line": 2141,
+              "column": 1
+            },
+            {
+              "title": "same-ID Open retires old captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-da16ee93d8cd34ba23df",
+              "file": "ui-foundation.spec.ts",
+              "line": 2157,
+              "column": 1
+            },
+            {
+              "title": "Select retires captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-8e029c8c1ea0c2ae7e6d",
+              "file": "ui-foundation.spec.ts",
+              "line": 2193,
+              "column": 55
+            },
+            {
+              "title": "New blank retires captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-a08865b9451cd55511bb",
+              "file": "ui-foundation.spec.ts",
+              "line": 2193,
+              "column": 55
+            },
+            {
+              "title": "Measure cannot revive a captured Box through a mode ABA",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-f86ebc0df4675b253492",
+              "file": "ui-foundation.spec.ts",
+              "line": 2222,
+              "column": 70
+            },
+            {
+              "title": "palette Node and Select cannot revive a captured Box through a mode ABA",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-9938dab956785bab3d0d",
+              "file": "ui-foundation.spec.ts",
+              "line": 2222,
+              "column": 70
+            },
+            {
+              "title": "workspace Escape event ownership body idle",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-26984f2f64a54f631937",
+              "file": "ui-foundation.spec.ts",
+              "line": 2245,
+              "column": 39
+            },
+            {
+              "title": "workspace Escape event ownership body captured",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-8eb05f9afd0162177f7a",
+              "file": "ui-foundation.spec.ts",
+              "line": 2245,
+              "column": 39
+            },
+            {
+              "title": "workspace Escape event ownership consumed palette",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-dedaf998da2dca6399cb",
+              "file": "ui-foundation.spec.ts",
+              "line": 2269,
+              "column": 55
+            },
+            {
+              "title": "workspace Escape event ownership consumed drawer",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-compact",
+                  "projectName": "chromium-compact",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-6f8c869342b5e1568058",
+              "file": "ui-foundation.spec.ts",
+              "line": 2269,
+              "column": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "workspace-layout.spec.ts",
+      "file": "workspace-layout.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "workspace preserves the visible model during discovery, routing, property editing and analysis navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-669dcdd10d2fc86cd32e",
+          "file": "workspace-layout.spec.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "workspace preserves the visible model during discovery, routing, property editing and analysis navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-2cda96aeef8732f6a7cb",
+          "file": "workspace-layout.spec.ts",
+          "line": 27,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-20T18:38:40.725Z",
+    "duration": 140.947,
+    "expected": 0,
+    "skipped": 100,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

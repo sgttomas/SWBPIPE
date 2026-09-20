@@ -1,0 +1,355 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": false,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "ui-foundation.spec.ts",
+      "file": "ui-foundation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "task and analysis dock preserve usable canvas light comfortable 1024x768",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-3ebd890a2e6774a6b723",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light comfortable 1280x800",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-27ef99a26093640925a9",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light comfortable 1440x920",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-6416573bd96886c47bf0",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light compact 1024x768",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-e8bcef4f5fae7f1d0d3e",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light compact 1280x800",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-438d6638f67ecf9f1810",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light compact 1440x920",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-deab3033be6f1104f448",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark comfortable 1024x768",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-bc716ce89e60dd8c601e",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark comfortable 1280x800",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-141bc6bbdb927767dd1f",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark comfortable 1440x920",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-07717c8ba6d0fa8d7d86",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark compact 1024x768",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-85a5c7b2d2b9376174d9",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark compact 1280x800",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-bf63fbb870a1cd0c0f39",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark compact 1440x920",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-32c2fa3ec0924f23301d",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-20T18:38:44.402Z",
+    "duration": 204.156,
+    "expected": 0,
+    "skipped": 12,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

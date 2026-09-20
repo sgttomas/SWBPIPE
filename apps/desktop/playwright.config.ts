@@ -27,6 +27,12 @@ const workers =
       ? 1
       : undefined;
 
+// Compact omits only scenarios that establish an identical explicit viewport
+// before navigation. Do not let a CLI override reintroduce those repetitions.
+if (process.argv.some(arg => arg === "--grep-invert" || arg.startsWith("--grep-invert="))) {
+  throw new Error("Source projects own --grep-invert for explicit-viewport deduplication; use --grep or --test-list.");
+}
+
 export default defineConfig({
   testDir: "./e2e",
   workers,
@@ -73,6 +79,7 @@ export default defineConfig({
     },
     {
       name: "chromium-compact",
+      grepInvert: /@explicit-viewport/,
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 1280, height: 800 }

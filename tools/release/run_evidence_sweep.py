@@ -5,7 +5,7 @@ Runs the five evidence surfaces sequentially in F-4-safe order (cargo crate
 sweep, Python pytest, desktop Vitest with the wasm engine built first,
 Playwright e2e, desktop production build) and writes a machine-readable
 summary artifact bound to the current commit hash. This sweep is the required
-pre-push/fan-in evidence for every parallel agent development branch
+clean-candidate evidence for each coherent reviewed integration batch before product merge
 (`DEC-025`, recorded in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12;
 basis `execution/_Coordination/_DECISIONS/D-05_ci_provider_workflow.md`
 Option D).

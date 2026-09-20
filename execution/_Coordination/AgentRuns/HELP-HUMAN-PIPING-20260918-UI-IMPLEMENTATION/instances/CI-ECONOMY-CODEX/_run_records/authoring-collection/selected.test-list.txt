@@ -1,0 +1,100 @@
+[chromium-desktop] › b3a-session-status.spec.ts › canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
+[chromium-compact] › b3a-session-status.spec.ts › canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
+[chromium-desktop] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home
+[chromium-desktop] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer
+[chromium-compact] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home
+[chromium-compact] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer
+[chromium-desktop] › linear-authoring.spec.ts › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review
+[chromium-compact] › linear-authoring.spec.ts › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review
+[chromium-desktop] › r2-smoke.spec.ts › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[chromium-compact] › r2-smoke.spec.ts › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[chromium-desktop] › result-compatibility.spec.ts › fresh Current exports strict 0.2 result and stress-neutral evidence
+[chromium-compact] › result-compatibility.spec.ts › fresh Current exports strict 0.2 result and stress-neutral evidence
+[chromium-desktop] › ui-foundation.spec.ts › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement
+[chromium-desktop] › ui-foundation.spec.ts › a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change
+[chromium-desktop] › ui-foundation.spec.ts › typed raw-ID collisions remain distinct through ordered selection and an ABA membership change
+[chromium-desktop] › ui-foundation.spec.ts › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture
+[chromium-desktop] › ui-foundation.spec.ts › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture
+[chromium-desktop] › ui-foundation.spec.ts › virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus
+[chromium-desktop] › ui-foundation.spec.ts › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft
+[chromium-desktop] › ui-foundation.spec.ts › real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures
+[chromium-desktop] › ui-foundation.spec.ts › Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light comfortable 1024x768
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light comfortable 1280x800
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light comfortable 1440x920
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light compact 1024x768
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light compact 1280x800
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light compact 1440x920
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas dark comfortable 1024x768
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas dark comfortable 1280x800
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas dark comfortable 1440x920
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas dark compact 1024x768
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas dark compact 1280x800
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas dark compact 1440x920
+[chromium-desktop] › ui-foundation.spec.ts › selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths
+[chromium-desktop] › ui-foundation.spec.ts › a property task keeps its typed target and entered value through filter, collapse, and selection ABA
+[chromium-desktop] › ui-foundation.spec.ts › live Properties routes follow catalogue target B while frozen Task A remains unchanged
+[chromium-desktop] › ui-foundation.spec.ts › an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled
+[chromium-desktop] › ui-foundation.spec.ts › a prepared direct review is rejected after selection membership leaves and returns to the same primary
+[chromium-desktop] › ui-foundation.spec.ts › selected-pipe actions copy a stable draft target snapshot instead of following later selection
+[chromium-desktop] › ui-foundation.spec.ts › filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles
+[chromium-desktop] › ui-foundation.spec.ts › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded
+[chromium-desktop] › ui-foundation.spec.ts › Actual OD uses valid spans and explains the independently injected centerline fallback
+[chromium-desktop] › ui-foundation.spec.ts › ordinary typed edit preserves view state and same-ID project replacement clears it
+[chromium-desktop] › ui-foundation.spec.ts › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls
+[chromium-desktop] › ui-foundation.spec.ts › narrow canvas fits visible and selected envelopes in every view preset
+[chromium-desktop] › ui-foundation.spec.ts › standard 1000 camera recipe compares legacy and corrected fit without changing targets
+[chromium-desktop] › ui-foundation.spec.ts › standard 10000 camera recipe compares legacy and corrected fit without changing targets
+[chromium-desktop] › ui-foundation.spec.ts › filtered tree collapse controls retain typed selection and frozen draft across search changes
+[chromium-desktop] › ui-foundation.spec.ts › empty ordered selection publishes independently from project inspector
+[chromium-desktop] › ui-foundation.spec.ts › decorative viewport overlays pass real canvas gestures while view controls stay interactive
+[chromium-compact] › ui-foundation.spec.ts › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement
+[chromium-compact] › ui-foundation.spec.ts › a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change
+[chromium-compact] › ui-foundation.spec.ts › typed raw-ID collisions remain distinct through ordered selection and an ABA membership change
+[chromium-compact] › ui-foundation.spec.ts › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture
+[chromium-compact] › ui-foundation.spec.ts › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture
+[chromium-compact] › ui-foundation.spec.ts › virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus
+[chromium-compact] › ui-foundation.spec.ts › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft
+[chromium-compact] › ui-foundation.spec.ts › real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures
+[chromium-compact] › ui-foundation.spec.ts › Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags
+[chromium-compact] › ui-foundation.spec.ts › selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths
+[chromium-compact] › ui-foundation.spec.ts › a property task keeps its typed target and entered value through filter, collapse, and selection ABA
+[chromium-compact] › ui-foundation.spec.ts › live Properties routes follow catalogue target B while frozen Task A remains unchanged
+[chromium-compact] › ui-foundation.spec.ts › an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled
+[chromium-compact] › ui-foundation.spec.ts › a prepared direct review is rejected after selection membership leaves and returns to the same primary
+[chromium-compact] › ui-foundation.spec.ts › selected-pipe actions copy a stable draft target snapshot instead of following later selection
+[chromium-compact] › ui-foundation.spec.ts › filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles
+[chromium-compact] › ui-foundation.spec.ts › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded
+[chromium-compact] › ui-foundation.spec.ts › Actual OD uses valid spans and explains the independently injected centerline fallback
+[chromium-compact] › ui-foundation.spec.ts › ordinary typed edit preserves view state and same-ID project replacement clears it
+[chromium-compact] › ui-foundation.spec.ts › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls
+[chromium-compact] › ui-foundation.spec.ts › narrow canvas fits visible and selected envelopes in every view preset
+[chromium-compact] › ui-foundation.spec.ts › standard 1000 camera recipe compares legacy and corrected fit without changing targets
+[chromium-compact] › ui-foundation.spec.ts › standard 10000 camera recipe compares legacy and corrected fit without changing targets
+[chromium-compact] › ui-foundation.spec.ts › filtered tree collapse controls retain typed selection and frozen draft across search changes
+[chromium-compact] › ui-foundation.spec.ts › empty ordered selection publishes independently from project inspector
+[chromium-compact] › ui-foundation.spec.ts › decorative viewport overlays pass real canvas gestures while view controls stay interactive
+[chromium-desktop] › ui-foundation.spec.ts › captured Box lifetime › ordinary real Box applies independent empty Components membership
+[chromium-desktop] › ui-foundation.spec.ts › captured Box lifetime › Escape retires captured Box before delayed pointer up
+[chromium-desktop] › ui-foundation.spec.ts › captured Box lifetime › same-ID Open retires old captured Box before delayed pointer up
+[chromium-desktop] › ui-foundation.spec.ts › captured Box lifetime › Select retires captured Box before delayed pointer up
+[chromium-desktop] › ui-foundation.spec.ts › captured Box lifetime › New blank retires captured Box before delayed pointer up
+[chromium-desktop] › ui-foundation.spec.ts › captured Box lifetime › Measure cannot revive a captured Box through a mode ABA
+[chromium-desktop] › ui-foundation.spec.ts › captured Box lifetime › palette Node and Select cannot revive a captured Box through a mode ABA
+[chromium-desktop] › ui-foundation.spec.ts › captured Box lifetime › workspace Escape event ownership body idle
+[chromium-desktop] › ui-foundation.spec.ts › captured Box lifetime › workspace Escape event ownership body captured
+[chromium-desktop] › ui-foundation.spec.ts › captured Box lifetime › workspace Escape event ownership consumed palette
+[chromium-desktop] › ui-foundation.spec.ts › captured Box lifetime › workspace Escape event ownership consumed drawer
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › ordinary real Box applies independent empty Components membership
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › Escape retires captured Box before delayed pointer up
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › same-ID Open retires old captured Box before delayed pointer up
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › Select retires captured Box before delayed pointer up
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › New blank retires captured Box before delayed pointer up
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › Measure cannot revive a captured Box through a mode ABA
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › palette Node and Select cannot revive a captured Box through a mode ABA
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › workspace Escape event ownership body idle
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › workspace Escape event ownership body captured
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › workspace Escape event ownership consumed palette
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › workspace Escape event ownership consumed drawer
+[chromium-desktop] › workspace-layout.spec.ts › workspace preserves the visible model during discovery, routing, property editing and analysis navigation
+[chromium-compact] › workspace-layout.spec.ts › workspace preserves the visible model during discovery, routing, property editing and analysis navigation

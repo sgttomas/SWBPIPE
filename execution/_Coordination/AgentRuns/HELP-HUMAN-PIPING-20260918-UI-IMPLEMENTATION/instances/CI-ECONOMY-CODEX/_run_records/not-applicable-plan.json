@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "mode": "not-applicable",
+  "coverage_full": false,
+  "event": "pull_request",
+  "pr": "development",
+  "base": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "target_base": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "head": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "milestone": false,
+  "changed_paths": [
+    {
+      "status": "M",
+      "path": "projects/chirality-app-dev/src/App.tsx"
+    }
+  ],
+  "projects": [
+    "chromium-desktop",
+    "chromium-compact"
+  ],
+  "inventory": [
+    "e2e/b3-accessibility.spec.ts",
+    "e2e/b3a-session-status.spec.ts",
+    "e2e/gui-workflow-validation.spec.ts",
+    "e2e/linear-authoring.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/result-compatibility.spec.ts",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/ui-foundation/causal-method-contract.spec.ts",
+    "e2e/ui-foundation/fresh-demo-policy.spec.ts",
+    "e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "e2e/ui-foundation/performance-targets.spec.ts",
+    "e2e/workspace-layout.spec.ts"
+  ],
+  "selected_specs": [],
+  "selected_titles": {},
+  "appearance": false,
+  "ownership": {},
+  "reasons": [
+    "No relevant Piping source/build/CI inputs changed"
+  ],
+  "coverage_note": "Not applicable: no tests selected or claimed passed."
+}

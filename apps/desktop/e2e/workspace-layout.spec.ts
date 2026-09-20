@@ -125,7 +125,7 @@ async function chooseView(page: Page, view: "table" | "model" | "both") {
   await expect(page.getByTestId("modeling-workspace")).toHaveAttribute("data-view", view);
 }
 
-test("D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class", async ({ page }, testInfo) => {
+test("D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class", { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
@@ -208,7 +208,7 @@ test("D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the
 // the table first. Arming moves the existing editor into that inspector without
 // changing either pane's dimensions; disarming restores prior inspector state.
 for (const [width, height, table, canvas] of [[1440, 900, 737, 603], [1280, 800, 649, 531]] as const) {
-  test(`routing uses the inspector without changing the D2 pane allocation, ${width} x ${height}, native-runtime class`, async ({ page }, testInfo) => {
+  test(`routing uses the inspector without changing the D2 pane allocation, ${width} x ${height}, native-runtime class`, { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height });
     await page.goto("/");
     await expect(page.getByTestId("viewport-canvas").locator("canvas").first()).toBeVisible();
@@ -279,7 +279,7 @@ for (const [width, height, table, canvas] of [[1440, 900, 737, 603], [1280, 800,
   });
 }
 
-test("the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views", async ({ page }, testInfo) => {
+test("the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views", { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const model = await gotoRoutedFixture(page);
   await expect(page.getByTestId("viewport-canvas").locator("canvas").first()).toBeVisible();
@@ -337,7 +337,7 @@ test("the table strip clears DOM readouts and the painted orientation frame in M
   await check("below 1280 px, drawer collapsed");
 });
 
-test("a switch to Table view hides the canvas without resizing its renderer", async ({ page }) => {
+test("a switch to Table view hides the canvas without resizing its renderer", { tag: "@explicit-viewport" }, async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   const canvas = page.getByTestId("viewport-canvas").locator("canvas").first();
@@ -357,7 +357,7 @@ test("a switch to Table view hides the canvas without resizing its renderer", as
   expect(await camera()).toEqual(before.camera);
 });
 
-test("browser native-class structural review captures retain pane and drawn-canvas geometry", async ({ page }, testInfo) => {
+test("browser native-class structural review captures retain pane and drawn-canvas geometry", { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await gotoRoutedFixture(page);
   await page.evaluate(() => { (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {}; });
@@ -400,7 +400,7 @@ test("browser native-class structural review captures retain pane and drawn-canv
 
 for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800 }]) {
   for (const [theme, density] of [["light", "comfortable"], ["dark", "compact"]] as const) {
-    test(`the split and the drawer resize actual panes, persist, and keep the inspector's controls contained ${theme} ${viewport.width}`, async ({ page }, testInfo) => {
+    test(`the split and the drawer resize actual panes, persist, and keep the inspector's controls contained ${theme} ${viewport.width}`, { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
       await page.setViewportSize(viewport);
       const model = await gotoRoutedFixture(page, "ui-foundation-1000.model.json");
       await setAppearance(page, theme, density);
@@ -520,7 +520,7 @@ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800
   }
 }
 
-test("below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over", async ({ page }, testInfo) => {
+test("below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over", { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 920 });
   await gotoRoutedFixture(page, "ui-foundation-1000.model.json");
   await page.getByTestId("resize-model-tree").focus(); await page.keyboard.press("ArrowRight");

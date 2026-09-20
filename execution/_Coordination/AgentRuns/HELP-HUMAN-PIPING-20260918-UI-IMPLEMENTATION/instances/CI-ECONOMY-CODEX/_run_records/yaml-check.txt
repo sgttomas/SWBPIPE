@@ -1,0 +1,1 @@
+PASS: YAML parsed, every-PR selector, explicit NA browser skip, four full-only partitions, milestone-label reevaluation, stable always gate, contents-read permission retained.

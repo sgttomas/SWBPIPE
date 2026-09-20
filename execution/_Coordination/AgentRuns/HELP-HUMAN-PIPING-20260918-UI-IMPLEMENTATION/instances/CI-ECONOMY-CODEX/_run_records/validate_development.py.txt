@@ -1,0 +1,49 @@
+"""Development collection only: synthetic routing diffs, actual dirty source."""
+import importlib.util, json, os, subprocess
+from pathlib import Path
+from unittest.mock import patch
+root=Path.cwd()
+run=root/'projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-ECONOMY-CODEX/_run_records'
+spec=importlib.util.spec_from_file_location('ci',root/'projects/chirality-piping/tools/ci/e2e_plan.py');ci=importlib.util.module_from_spec(spec);spec.loader.exec_module(ci)
+head=ci.git(root,'rev-parse','HEAD').strip()
+source=ci.collected_tests(json.loads((run/'full-collection/source.stdout.json').read_text()))
+before=ci.collected_tests(json.loads((run/'before-dedup.json').read_text()))
+assert {ci.test_key(t) for t in before if t['project']=='chromium-desktop'}=={ci.test_key(t) for t in source if t['project']=='chromium-desktop'}
+after_keys={ci.test_key(t) for t in source}
+removed=[t for t in before if ci.test_key(t) not in after_keys]
+assert len(removed)==23
+mapping=[]
+for row in removed:
+ assert row['project']=='chromium-compact'
+ matches=[t for t in source if t['project']=='chromium-desktop' and t['file']==row['file'] and t['title_path']==row['title_path']]
+ assert len(matches)==1 and '@explicit-viewport' in matches[0]['tags']
+ mapping.append({'removed_repeated_identity':row,'retained_identity':matches[0],'basis':'Same explicit viewport set before navigation; source assertions unchanged'})
+(run/'dedup-map.json').write_text(json.dumps({'before':len(before),'after':len(source),'desktop_unchanged':True,'mapping':mapping},indent=2)+'\n')
+scenarios={
+ 'lean':[ci.DESKTOP+'src/features/workspace/shell/DisabledReason.tsx'],
+ 'layout':[ci.DESKTOP+'src/styles.css'],
+ 'authoring':[ci.DESKTOP+'src/features/viewport/routeDraft.ts'],
+ 'results':[ci.DESKTOP+'src/features/results/ResultsPanel.tsx'],
+ 'instruments':[ci.E2E+'ui-foundation/benchmark-harness.ts'],
+ 'not-applicable':['projects/chirality-app-dev/src/App.tsx'],
+}
+summary={}
+for name,paths in scenarios.items():
+ with patch.object(ci,'changes',return_value=[{'status':'M','path':p} for p in paths]):
+  plan=ci.make_plan(root,'pull_request',head,'HEAD','development')
+  ci.validate(root,plan)
+  (run/(name+'-plan.json')).write_text(json.dumps(plan,indent=2)+'\n')
+  if plan['mode']=='not-applicable':
+   assert ci.aggregate(plan['mode'],'success','skipped','skipped')
+   summary[name]={'mode':plan['mode'],'selected':0,'browser_setup':False}
+  else:
+   data=ci.collect_candidate(root,plan,'barrier',None,run/(name+'-collection'))
+   summary[name]={'mode':plan['mode'],'selected':len(data['selected']),'omitted':len(data['omitted']),'ownership':plan['ownership']}
+for name,args,count in [('grep-appearance',['--grep','task and analysis dock preserve usable canvas'],12),('grep-tag',['--grep','@explicit-viewport'],23),('forbidden-invert',['--grep-invert','nothing'],None)]:
+ result=subprocess.run(ci.command(list_only=True)+args,cwd=root/ci.DESKTOP,env={**os.environ,'CI':'true'},capture_output=True,text=True)
+ (run/(name+('.stdout.json' if count is not None else '.stdout.txt'))).write_text(result.stdout);(run/(name+'.stderr.txt')).write_text(result.stderr)
+ if count is None: assert result.returncode != 0
+ else: assert result.returncode==0 and len(ci.collected_tests(json.loads(result.stdout)))==count
+summary['note']='Synthetic routing diffs with real dirty-source --list collection; no browser/test pass or clean candidate proof.'
+(run/'development-summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+print(json.dumps(summary,indent=2))

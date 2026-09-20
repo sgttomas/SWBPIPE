@@ -1,107 +1,101 @@
-# Piping desktop CI strategy
+# Desktop CI selection and integration cadence
 
-Current direction: owner resume of 2026-09-20, retained in the UI implementation
-run, `instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md`.
-This is a bounded development verification strategy, not release qualification.
+The Piping desktop workflow runs a cheap selector when a pull request opens,
+receives a new head, or reopens. Its
+stable check remains **Desktop E2E (source mode)**. An unrelated App/Runtime PR or
+Piping evidence-only change receives an explicit validated **not-applicable**
+result; no Piping browser setup or tests run, and no test-pass claim is made.
+Runtime is not a Piping dependency before its owning adoption decision.
 
-## Why keep hosted checks
+The owner authorized reduced routine execution frequency and exact scenario
+deduplication on 2026-09-20. Selected coverage is not equivalent to running the
+full suite. Omitted identities and reasons are retained in the collection
+artifact, and partial CI is not DEC093 full surface4 evidence.
 
-Local verification and hosted CI answer overlapping but different questions.
-CI builds a clean checkout with locked dependencies and pinned Playwright Chromium
-on Linux. Local browser configuration can select installed macOS Chrome. PR825
-passed locally but its full hosted run found an actual tooltip hit-testing defect:
-the focused Agent reason blocked the page Close pointer target. The failure is
-retained and repaired; repeating a failed test without fixing it is not evidence.
+| Complete PR diff | Source coverage |
+|---|---|
+| Reviewed reason-tooltip component only | Lean ordinary journeys |
+| Shell/layout/appearance CSS and named layout helpers | Lean plus all distinct layout cases, twelve appearance combinations, Escape ownership and overlay interactions |
+| Viewport, model-tree/properties, geometry/rich authoring and selection state | Lean plus full UI-foundation and linear authoring |
+| Results/report/export/storage display, redaction and persistence-integrity helpers | Lean plus complete result compatibility, GUI, session-status and R2 files |
+| Reviewed instrumentation module | Lean plus its transitive literal-import source-spec consumers; shared benchmark harness reaches UI-foundation and workspace-layout as well as instrument contracts |
+| Only added/modified source specs | Complete changed files plus accessibility |
+| Shared application/session state, dependencies/configuration, native/build/WASM/solver, schemas, CI policy/duration hints, unknown inputs or deleted/renamed test inputs | Full source coverage |
+| No relevant Piping/shared inputs | Not applicable |
 
-The observed run35496887667 took35m55s, including32m22s in source browser tests.
-Two180-second failures contributed to that duration. The complete original run
-had408passes,20existing skips and the same failure in both viewport profiles.
-The four instrument specs accounted for about69seconds of listed test durations;
-removing their duplicated viewport entries would not address the main cost.
-These timings describe that run, not a future runtime guarantee.
+The maintained router enumerates actual ownership paths. Unknown instrument
+helpers, dynamic resource inputs, fixtures and configurations fall back to full;
+no directory-wide hermetic or instrument-only classification exists. Source
+selection does not replace applicable dist, native or protected benchmark checks.
+The closed PR825 exception has been removed; its authorization and results remain
+historical records.
 
-## Selection and execution
+The lean set includes the entire B3 accessibility file and the existing canonical
+save/history/reopen, first workspace editing, straight authoring, R2
+solve/results/report/overlay, strict Current export, both shared drawer/menu Close,
+and typed selection/keyboard measurement journeys. Their original project
+assignments remain intact. No assertion, geometry/oracle tolerance, default test
+timeout or permanent skip was changed to obtain a reduced run.
 
-- Run the complete B3 accessibility spec first in both existing viewport profiles.
-  A failure prevents the expensive remainder from starting.
-- Broad product, shared configuration, dependency, core, schema, fixture and
-  unknown changes retain the full source suite. Manual dispatch also requests full.
-  Run the remainder on four isolated runners, each with one worker. Preserve
-  per-file execution semantics and all test entries; do not enable fullyParallel.
-- For changes confined to source specs, run changed specs plus the accessibility
-  barrier. Instrument helpers and fixtures retain full coverage: some feed ordinary
-  UI-foundation and workspace-layout journeys outside their directory. Source/dist
-  are separate; dist specs and unclassified dependencies do not qualify for the
-  source-spec-only reduction. Rename/deletion/selection uncertainty falls back full.
-- Route from the complete PR diff, never only its last commit. Execute the exact
-  PR head and require the event target-base commit to be integrated into it; an
-  absent or unintegrated base blocks execution. Retain target base separately from
-  merge base. ROOT revalidates live main before merge. Record selection basis,
-  head, changed files, selected/omitted test IDs and reasons. Collect actual tests
-  before execution: every required title/profile must exist exactly once, each
-  selected file must be nonempty in both profiles, and full mode must prove the
-  barrier/remainder partition equals the complete source inventory exactly once.
-  Unknown paths or invalid selection cannot produce a silently empty green run.
-- The stable aggregate check passes only when every job required by the selected
-  plan succeeds. A failed or cancelled shard is incomplete coverage and cannot
-  establish a full pass. Superseded PR runs are cancelled.
+## Exact coverage and duration assignment
 
-The selector and workflow are maintained Piping CI inputs. Their tests cover
-routing boundaries, missing/invalid bases, unknown changes, renamed/deleted specs,
-argument safety and full-suite inventory equality. Changes to routing/configuration
-receive independent review. The first subsequent broad product slice exercises
-full hosted orchestration; until observed, local plan/inventory checks are not
-reported as hosted qualification.
+The explicit appearance matrix sets its viewport before navigation and retains
+all twelve theme/density/window combinations once. Explicit-start workspace cases
+also run once. They carry `@explicit-viewport`; the compact project excludes that
+tag. The desktop project, first workspace journey's two distinct starts, and
+selection-cardinality test's two initial states are preserved. CLI `--grep` and
+exact lists retain the project filter; `--grep-invert` overrides are rejected to
+prevent reintroducing repetitions. Collection also rejects a compact tagged test
+or an incomplete appearance matrix. Removed repetitions map to their retained
+same-title desktop counterparts in the implementation evidence.
 
-## PR825 focused repair exception
+Full CI starts with accessibility. Four isolated runners then execute exact
+Playwright 1.60 `--test-list` partitions with one worker each. Duration hints come
+from completed PR826 source logs and are checked into `tools/ci/e2e_duration_hints.json`;
+new or untimed tests use a conservative 30-second scheduling weight. These values
+are scheduling hints, not acceptance limits or a speed guarantee. Assignment is
+deterministic, using the lightest estimated bin first. Files/projects remain
+atomic except the independently set-up UI-foundation and workspace-layout cases;
+named describe groups and explicitly serial files remain together. No global
+`fullyParallel` change is made.
 
-The owner explicitly requested a reduced rerun for the failed tooltip repair.
-It applies only to PR825, anchored to the already fully exercised candidate
-`002dff0f244976f98b36517d920b3761f6f88704`. The selector verifies ancestry and the
-intervening delta. Only the named reason-tooltip CSS/component and accessibility
-regression files, plus this CI strategy and its records, qualify. Other executable
-changes restore full mode.
+Every runner collects the actual source inventory and checks each exact list before
+browser execution. The selected union must contain every intended identity exactly
+once, with no empty, missing, duplicate or unexpected matches. Required lean titles
+must exist exactly once per original profile. Collection records source/head/target
+base, config/source/policy hashes, browser configuration identity, commands, IDs,
+selection reasons and scheduling estimates. Collection is not a browser-test pass.
+Cancellation, collection failure, selector failure or a missing required job fails
+the stable aggregate; only explicitly unneeded jobs may skip.
 
-The owner subsequently approved parity of one dist wheel-target assertion with
-its already accepted source predicate and PR825-only bounded reruns. This single
-dist file qualifies only at approved SHA256
-`f6def858ca800f0f65fa338a92847e6ad8e0b11052dc6063f56d31d809cca4f3`;
-any other edit restores full mode. The original failed local sweep is retained;
-its unchanged passing surfaces plus corrected complete dist/build checks form
-combined delta verification under OWNER_DIST_PARITY_APPROVAL.md, not a new complete
-sweep. Changed CI policy receives its affected checks separately. General DEC025
-remains unchanged.
+## Full checkpoints and integration
 
-Run all `b3-accessibility.spec.ts`, `workspace-layout.spec.ts` and
-`gui-workflow-validation.spec.ts` in both profiles, plus these existing
-`ui-foundation.spec.ts` cases in both profiles:
+Manual `workflow_dispatch` is the deliberate full integration-milestone mechanism
+and always selects full source coverage. Broad-risk and CI-policy changes also
+select full automatically. There is no label-triggered or unconditional nightly run.
 
-- keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls
-- decorative viewport overlays pass real canvas gestures while view controls stay interactive
-- workspace Escape event ownership consumed palette
-- workspace Escape event ownership consumed drawer
+Body edits, readiness changes and label changes launch no workflow, participate in
+no concurrency group and emit no competing successful/skipped stable check. They
+cannot cancel or replace a meaningful pending validation. Base retargeting is also
+an ignored metadata edit: it does **not** automatically invalidate or rerun GitHub
+checks. A retarget without a new head therefore requires deliberate full dispatch
+on the current candidate with the **target_base** input set to the current target
+commit SHA. Alternatively, updating/reopening the PR validates its current event
+base. The supplied manual target must be an ancestor of the exact dispatched head;
+unresolved or unintegrated targets fail. Manual head, target and merge-base evidence
+remain distinct, and ROOT revalidates the live target before relying on the proof.
 
-This is a focused repair pass supported by prior full-run evidence. It is not a
-full-suite pass on the repaired candidate, cannot supply DEC-093's
-`registered_e2e_specs_executed: true`, and does not erase the failed run. The actual
-repair must remain bounded; shared event/layout changes require reassessment.
+Execution checks the exact PR head and records the event target base separately
+from its Git merge base. The target must be integrated into head; stale or
+unavailable target data blocks the check with an update-base diagnostic. Hosted
+event identity and PR number must match the plan; a manual dispatch also binds its
+requested target and exact head. ROOT rechecks
+live main before merge. Workflow and collection artifacts are bound to the actual
+candidate rather than reused across changed inputs.
 
-## Local and merge evidence
-
-Keep the clean-candidate full DEC-025 sweep required by the Piping loop before
-product merges. Avoid running separate complete source and dist suites immediately
-before that same sweep without a new failure or concern: use focused repair checks,
-independent review, then the registered sweep once on the frozen candidate.
-Native-dependent changes still receive an affected actual-Tauri witness. Browser
-success is not native-menu/window proof, and source success is not dist proof.
-
-Keep independent review, harness checks, raw failure evidence, source/binary
-bindings, existing skips, protected geometry/physics oracles and timeouts. There
-are no branch-protection changes, recurring schedules, broader scope, acceptance,
-release or lifecycle promotions. Full hosted verification remains available for
-explicit checkpoints and mandatory for broad or unclassified changes.
-
-Official orchestration references: [Playwright sharding](https://playwright.dev/docs/test-sharding)
-and [GitHub workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax).
-
-Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+Develop with focused checks, then combine related independently reviewed work into
+one coherent integration candidate and one clean local DEC-025 sweep before product
+integration. Full local source/dist, native witness and governed qualification
+requirements remain distinct from this hosted source check. Fewer internal-worker
+PRs do not weaken review or merge checks, and an early owner merge is not a waiver.
+Branch protections, other project workflows and repository permissions are unchanged.

@@ -1,0 +1,109 @@
+[chromium-desktop] › r2-smoke.spec.ts › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps
+[chromium-desktop] › r2-smoke.spec.ts › diagnostic detail exposes linked result unit context
+[chromium-desktop] › r2-smoke.spec.ts › rule-pack manager drafts privately and reports the desktop-only backend seam
+[chromium-desktop] › r2-smoke.spec.ts › guided workbench shell keeps journey steps, details, and compact status reachable
+[chromium-desktop] › r2-smoke.spec.ts › DEC-077 solve temperature queues an explicit unit-bearing operation
+[chromium-desktop] › r2-smoke.spec.ts › R2 from-blank GUI journey authors the A12 rehearsal script
+[chromium-desktop] › r2-smoke.spec.ts › library manager loads an invented private sample and reports the desktop-only backend seam
+[chromium-desktop] › r2-smoke.spec.ts › viewport gesture placeholders record unit validation
+[chromium-desktop] › r2-smoke.spec.ts › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[chromium-desktop] › r2-smoke.spec.ts › run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam
+[chromium-desktop] › result-compatibility.spec.ts › fresh Current exports strict 0.2 result and stress-neutral evidence
+[chromium-desktop] › linear-authoring.spec.ts › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › ordinary real Box applies independent empty Components membership
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › workspace Escape event ownership body idle
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › workspace Escape event ownership consumed drawer
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › Select retires captured Box before delayed pointer up
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › workspace Escape event ownership body captured
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › palette Node and Select cannot revive a captured Box through a mode ABA
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › New blank retires captured Box before delayed pointer up
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › same-ID Open retires old captured Box before delayed pointer up
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › workspace Escape event ownership consumed palette
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › Measure cannot revive a captured Box through a mode ABA
+[chromium-compact] › ui-foundation.spec.ts › captured Box lifetime › Escape retires captured Box before delayed pointer up
+[chromium-compact] › gui-workflow-validation.spec.ts › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions
+[chromium-compact] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home
+[chromium-compact] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer
+[chromium-desktop] › workspace-layout.spec.ts › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440
+[chromium-desktop] › workspace-layout.spec.ts › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280
+[chromium-compact] › ui-foundation.spec.ts › selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas dark compact 1024x768
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light comfortable 1024x768
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas dark compact 1440x920
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light comfortable 1280x800
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas dark comfortable 1440x920
+[chromium-compact] › ui-foundation.spec.ts › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded
+[chromium-desktop] › workspace-layout.spec.ts › below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over
+[chromium-compact] › ui-foundation.spec.ts › decorative viewport overlays pass real canvas gestures while view controls stay interactive
+[chromium-compact] › workspace-layout.spec.ts › workspace preserves the visible model during discovery, routing, property editing and analysis navigation
+[chromium-compact] › ui-foundation.spec.ts › ordinary typed edit preserves view state and same-ID project replacement clears it
+[chromium-compact] › ui-foundation.spec.ts › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement
+[chromium-compact] › ui-foundation.spec.ts › a property task keeps its typed target and entered value through filter, collapse, and selection ABA
+[chromium-desktop] › workspace-layout.spec.ts › routing uses the inspector without changing the D2 pane allocation, 1440 x 900, native-runtime class
+[chromium-compact] › ui-foundation.spec.ts › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls
+[chromium-desktop] › workspace-layout.spec.ts › browser native-class structural review captures retain pane and drawn-canvas geometry
+[chromium-desktop] › ui-foundation.spec.ts › a prepared direct review is rejected after selection membership leaves and returns to the same primary
+[chromium-desktop] › ui-foundation.spec.ts › Actual OD uses valid spans and explains the independently injected centerline fallback
+[chromium-compact] › ui-foundation.spec.ts › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft
+[chromium-desktop] › ui-foundation.spec.ts › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture
+[chromium-desktop] › ui-foundation.spec.ts › standard 1000 camera recipe compares legacy and corrected fit without changing targets
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › boundary endpoints cannot replace missing left right or both outside brackets: centerline
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › all exact owner boundaries pass despite raw observer reference exceedance
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › same capture forbids every raw event reuse while tracks and raw index order may repeat
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › tied coordinates do not waive identity population interval or window guards: actual-od
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › run identity bindings freshness and qualification are mandatory
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › all left right both-edge cuts retain ties and no omitted candidates
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › outside orbit brackets survive exact left right and both boundary alignment: centerline
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › endpoint and envelope defects never become a favorable boundary population
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › each target rejects tiny excess and scores upper rather than lower endpoint
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › exact ten-run cohort preserves each result without pooling sizes or modes
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › uncertain right boundary is qualified rather than nominally rejected
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › all twenty box and filter rows are required and nineteenth upper is scored
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › tied coordinates do not waive identity population interval or window guards: centerline
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › same-trace complete populations retain ties and prevent boundary dilution
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › orbit requires exact windows complete contiguous brackets correct modes and current OD
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › independent dyadic1199 versus1200 dilution must fail using maximum population p95
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › outside orbit brackets survive exact left right and both boundary alignment: actual-od
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › nearest rank uses the 190th of 200 and retains all tail samples
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: centerline
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › missing duplicate reordered sparse or unqualified action populations fail without survivor p95
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: actual-od
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › missing repeated mixed-binding or nonfresh cohort cannot pass
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › settled owned RAF must be observed exact zero
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › invalid duration intervals and absent assignment never qualify
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › same-trace scorer independently rejects narrow bounds and false carried context
+[chromium-compact] › ui-foundation/performance-targets.spec.ts › boundary endpoints cannot replace missing left right or both outside brackets: actual-od
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › nearest rank uses the 190th of 200 and retains all tail samples
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › outside orbit brackets survive exact left right and both boundary alignment: centerline
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › tied coordinates do not waive identity population interval or window guards: centerline
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › all exact owner boundaries pass despite raw observer reference exceedance
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › tied coordinates do not waive identity population interval or window guards: actual-od
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › missing duplicate reordered sparse or unqualified action populations fail without survivor p95
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › same capture forbids every raw event reuse while tracks and raw index order may repeat
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › missing repeated mixed-binding or nonfresh cohort cannot pass
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › run identity bindings freshness and qualification are mandatory
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › all left right both-edge cuts retain ties and no omitted candidates
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › same-trace scorer independently rejects narrow bounds and false carried context
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › boundary endpoints cannot replace missing left right or both outside brackets: centerline
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › settled owned RAF must be observed exact zero
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › boundary endpoints cannot replace missing left right or both outside brackets: actual-od
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: actual-od
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › independent dyadic1199 versus1200 dilution must fail using maximum population p95
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › same-trace complete populations retain ties and prevent boundary dilution
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › endpoint and envelope defects never become a favorable boundary population
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › exact ten-run cohort preserves each result without pooling sizes or modes
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › all twenty box and filter rows are required and nineteenth upper is scored
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: centerline
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › orbit requires exact windows complete contiguous brackets correct modes and current OD
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › invalid duration intervals and absent assignment never qualify
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › outside orbit brackets survive exact left right and both boundary alignment: actual-od
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › each target rejects tiny excess and scores upper rather than lower endpoint
+[chromium-desktop] › ui-foundation/performance-targets.spec.ts › uncertain right boundary is qualified rather than nominally rejected
+[chromium-desktop] › ui-foundation/fresh-demo-policy.spec.ts › single demonstration retains target failure and invalid/incomplete disposition
+[chromium-desktop] › ui-foundation/fresh-demo-policy.spec.ts › fresh smoke is explicit, keeps both-size controls and never consumes timed entry
+[chromium-desktop] › ui-foundation/fresh-demo-policy.spec.ts › fresh hash and exclusive entry reject policy drift and output replay
+[chromium-desktop] › ui-foundation/fresh-demo-policy.spec.ts › fresh policy requires exact one-run authorization and all prospective bindings
+[chromium-compact] › ui-foundation/fresh-demo-policy.spec.ts › fresh policy requires exact one-run authorization and all prospective bindings
+[chromium-compact] › ui-foundation/fresh-demo-policy.spec.ts › fresh hash and exclusive entry reject policy drift and output replay
+[chromium-compact] › ui-foundation/fresh-demo-policy.spec.ts › single demonstration retains target failure and invalid/incomplete disposition
+[chromium-compact] › ui-foundation/fresh-demo-policy.spec.ts › fresh smoke is explicit, keeps both-size controls and never consumes timed entry

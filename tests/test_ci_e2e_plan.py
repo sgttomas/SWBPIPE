@@ -1,8 +1,7 @@
-"""CI routing contracts. Temporary Git history is isolated from the worktree."""
+"""CI policy and exact collection contracts; no browser execution."""
 import importlib.util
 import json
 from pathlib import Path
-import re
 import subprocess
 import tempfile
 import unittest
@@ -14,9 +13,8 @@ ci = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ci)
 
 
-class SelectionTests(unittest.TestCase):
+class PolicyTests(unittest.TestCase):
     def setUp(self):
-        # Fixture repositories are independent of the outer GitHub event.
         environment = patch.dict(ci.os.environ)
         environment.start()
         self.addCleanup(environment.stop)
@@ -26,343 +24,305 @@ class SelectionTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         self.git('init', '-q')
-        self.git('config', 'user.email', 'ci-test@example.invalid')
+        self.git('config', 'user.email', 'ci-fixture@example.invalid')
         self.git('config', 'user.name', 'CI fixture')
-        for path in ci.FOCUSED + ['e2e/ui-foundation.spec.ts', 'e2e/new.test.mts',
-                                 'e2e/ui-foundation/a.spec.ts', 'e2e/ui-foundation/b.spec.ts',
-                                 'e2e/example-dist.spec.ts', 'e2e/ui-foundation/a.benchmark.ts']:
-            self.write(ci.DESKTOP + path, '// fixture\n')
-        self.write(ci.DESKTOP + 'src/styles.css', 'old')
-        self.write(ci.DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx', 'old')
+        for file in {ci.FAST, *ci.LEAN_TITLES}:
+            self.write(ci.DESKTOP + file, '// fixture')
         self.base = self.commit()
-        self.baseline = patch.object(ci, 'BASELINE', self.base)
-        self.baseline.start()
-        self.addCleanup(self.baseline.stop)
 
     def git(self, *args):
         return subprocess.check_output(['git', '-C', str(self.root), *args], stderr=subprocess.PIPE).decode().strip()
 
-    def write(self, path, text='changed'):
-        target = self.root / path
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(text)
+    def write(self, file, contents='changed'):
+        path = self.root / file
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(contents)
 
     def commit(self):
         self.git('add', '.')
         self.git('commit', '-qm', 'fixture')
         return self.git('rev-parse', 'HEAD')
 
-    def plan(self, **kwargs):
-        return ci.make_plan(self.root, kwargs.pop('event', 'pull_request'),
-                            kwargs.pop('base', self.base), 'HEAD', kwargs.pop('pr', '826'))
+    def plan(self, **kw):
+        return ci.make_plan(self.root, kw.get('event', 'pull_request'), kw.get('base', self.base),
+                            'HEAD', kw.get('pr', '827'))
 
-    def test_pr825_accepts_only_the_approved_dist_blob(self):
-        approved = 'approved source-parity predicate\n'
-        self.write(ci.PARITY_DIST_PATH, approved)
-        self.commit()
-        digest = ci.hashlib.sha256(approved.encode()).hexdigest()
-        with patch.object(ci, 'PARITY_DIST_SHA256', digest):
-            self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
-            self.write(ci.PARITY_DIST_PATH, approved + '// unrelated edit\n')
-            self.commit()
-            self.assertEqual(self.plan(pr='825')['mode'], 'full')
-
-    def test_pr825_roundoff_binary_evidence_is_scoped(self):
-        self.write(ci.RUN + 'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/trace.zip')
-        self.commit()
-        self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
-        self.write(ci.RUN + 'instances/ROOT/CONTINUATION_2026-09-19_CODEX/unclassified.zip')
-        self.commit()
-        self.assertEqual(self.plan(pr='825')['mode'], 'full')
-
-    def test_manual_and_unavailable_diff_are_full(self):
-        self.assertEqual(self.plan(event='workflow_dispatch')['mode'], 'full')
-        self.assertEqual(self.plan(base='unavailable')['mode'], 'full')
-        self.assertEqual(self.plan()['mode'], 'full')
-
-    def test_complete_pr_diff_not_last_commit(self):
-        self.write(ci.DESKTOP + 'src/App.tsx')
-        self.commit()
-        self.write(ci.E2E + 'b3-accessibility.spec.ts')
+    def test_known_unrelated_projects_and_records_are_explicit_na(self):
+        for path in ['projects/chirality-app-dev/src/App.tsx', 'projects/chirality-runtime/core/a.rs',
+                     ci.PROJECT + 'execution/run/evidence.json', 'docs/design.md']:
+            self.write(path)
         self.commit()
         plan = self.plan()
-        self.assertEqual(plan['mode'], 'full')
-        self.assertEqual(len(plan['changed_paths']), 2)
+        self.assertEqual(plan['mode'], 'not-applicable')
+        self.assertEqual(plan['selected_specs'], [])
+        self.assertFalse(plan['coverage_full'])
+        ci.validate(self.root, plan)
 
-    def test_merge_base_excludes_base_branch_only_changes(self):
+    def test_shared_unknown_ci_dependencies_and_model_inputs_are_full(self):
+        for path in ['package.json', '.github/workflows/piping-desktop-e2e.yml',
+                     '.github/actions/setup-piping-e2e/action.yml', ci.PROJECT + 'tools/ci/e2e_plan.py',
+                     ci.PROJECT + 'tools/ci/e2e_duration_hints.json', ci.PROJECT + 'package-lock.json',
+                     ci.PROJECT + 'schemas/model.json', ci.PROJECT + 'core/solver/a.rs',
+                     ci.DESKTOP + 'playwright.config.ts', ci.DESKTOP + 'src/App.tsx',
+                     ci.DESKTOP + 'src/features/workspace/workspaceSession.ts', ci.PROJECT + 'unknown.ts']:
+            self.write(path)
+            self.commit()
+            self.assertEqual(self.plan()['mode'], 'full', path)
+
+    def test_complete_pr_diff_prevents_last_commit_underselection(self):
+        self.write(ci.DESKTOP + 'src/App.tsx')
+        self.commit()
+        self.write(ci.DESKTOP + ci.FAST)
+        self.commit()
+        self.assertEqual(self.plan()['mode'], 'full')
+
+    def test_source_spec_only_and_deleted_renamed_fallback(self):
+        path = ci.DESKTOP + 'e2e/ui-foundation.spec.ts'
+        self.write(path)
+        self.commit()
+        self.assertEqual(self.plan()['mode'], 'changed-specs')
+        (self.root / path).rename(self.root / ci.DESKTOP / 'e2e/renamed.spec.ts')
+        self.commit()
+        self.assertEqual(self.plan()['mode'], 'full')
+
+    def test_lean_and_affected_ownership(self):
+        cases = [
+            ('src/features/workspace/shell/DisabledReason.tsx', 'lean', None),
+            ('src/styles.css', 'lean-affected', 'e2e/workspace-layout.spec.ts'),
+            ('src/features/viewport/routeDraft.ts', 'lean-affected', 'e2e/ui-foundation.spec.ts'),
+            ('src/features/results/ResultsPanel.tsx', 'lean-affected', 'e2e/gui-workflow-validation.spec.ts')]
+        for path, mode, file in cases:
+            with self.subTest(path=path), patch.object(ci, 'changes', return_value=[{'status': 'M', 'path': ci.DESKTOP + path}]):
+                plan = self.plan()
+                self.assertEqual(plan['mode'], mode)
+                self.assertEqual(plan['selected_titles'], {**ci.LEAN_TITLES, **({'e2e/ui-foundation.spec.ts': ci.LEAN_TITLES['e2e/ui-foundation.spec.ts'] + ci.LAYOUT_TITLES} if path == 'src/styles.css' else {})})
+                if file: self.assertIn(file, plan['selected_specs'])
+
+    def test_closed_pr_exception_is_retired(self):
+        self.write(ci.DESKTOP + 'src/App.tsx')
+        self.commit()
+        self.assertEqual(self.plan(pr='825')['mode'], 'full')
+        self.assertNotIn('baseline', self.plan(pr='825'))
+
+    def test_actual_import_closure_includes_shared_instrument_consumers(self):
+        self.write(ci.E2E + 'ui-foundation/benchmark-harness.ts', 'export const x = 1')
+        self.write(ci.E2E + 'ui-foundation-workflows.ts', 'export { x } from "./ui-foundation/benchmark-harness"')
+        self.write(ci.E2E + 'workspace-layout.spec.ts', 'import { x } from "./ui-foundation-workflows"')
+        self.write(ci.E2E + 'ui-foundation.spec.ts', 'import { x } from "./ui-foundation-workflows"')
+        with patch.object(ci, 'changes', return_value=[{'status': 'M', 'path': ci.E2E + 'ui-foundation/benchmark-harness.ts'}]):
+            plan = self.plan()
+            self.assertEqual(plan['mode'], 'lean-affected')
+            self.assertIn('e2e/workspace-layout.spec.ts', plan['selected_specs'])
+            self.assertIn('e2e/ui-foundation.spec.ts', plan['selected_specs'])
+
+    def test_unknown_instrument_and_fixture_inputs_are_full(self):
+        for suffix in ['new-helper.ts', 'fixtures/model.json', 'playwright.custom.config.ts']:
+            with patch.object(ci, 'changes', return_value=[{'status': 'M', 'path': ci.E2E + 'ui-foundation/' + suffix}]):
+                self.assertEqual(self.plan()['mode'], 'full')
+
+    def test_manual_full_is_explicit_milestone(self):
+        self.assertEqual(self.plan(event='workflow_dispatch')['mode'], 'full')
+        self.assertEqual(self.plan()['mode'], 'not-applicable')
+
+    def test_manual_retarget_proof_requires_integrated_explicit_target(self):
+        plan = self.plan(event='workflow_dispatch')
+        self.assertEqual(plan['target_base'], self.base)
+        self.assertEqual(plan['base'], self.base)
+        ci.validate(self.root, plan)
+        for invalid in ['unavailable', 'HEAD']:
+            with self.assertRaisesRegex(ValueError, 'Update the PR base'):
+                ci.validate(self.root, self.plan(event='workflow_dispatch', base=invalid))
+        self.git('checkout', '-qb', 'new-target')
+        self.write(ci.DESKTOP + 'src/target-change.ts')
+        new_target = self.commit()
+        self.git('checkout', '-qb', 'candidate', self.base)
+        with self.assertRaisesRegex(ValueError, 'Update the PR base'):
+            ci.validate(self.root, self.plan(event='workflow_dispatch', base=new_target))
+
+    def test_manual_event_cannot_drop_requested_target_or_change_head(self):
+        plan = self.plan(event='workflow_dispatch')
+        event_file = self.root / 'dispatch.json'
+        event_file.write_text(json.dumps({'inputs': {'target_base': self.base}}))
+        with patch.dict(ci.os.environ, {'GITHUB_EVENT_NAME': 'workflow_dispatch',
+                        'GITHUB_EVENT_PATH': str(event_file), 'GITHUB_SHA': plan['head']}):
+            ci.validate(self.root, plan)
+            for patch_data in [{'target_base': ''}, {'head': 'wrong'}]:
+                with self.assertRaises(ValueError): ci.validate(self.root, {**plan, **patch_data})
+
+    def test_unavailable_target_blocks_even_na(self):
+        for base in ['', 'unavailable']:
+            with self.assertRaisesRegex(ValueError, 'Update the PR base'):
+                ci.validate(self.root, self.plan(base=base))
+
+    def test_stale_target_is_distinct_from_merge_base_and_blocks(self):
         self.git('checkout', '-qb', 'target')
         self.write(ci.DESKTOP + 'src/base-only.ts')
         target = self.commit()
         self.git('checkout', '-qb', 'candidate', self.base)
-        self.write(ci.E2E + 'workspace-layout.spec.ts')
+        self.write(ci.DESKTOP + ci.FAST)
         self.commit()
         plan = self.plan(base=target)
-        self.assertEqual(plan['base'], self.base)
-        self.assertEqual(plan['mode'], 'changed-specs')
         self.assertEqual(plan['target_base'], target)
+        self.assertEqual(plan['base'], self.base)
         with self.assertRaisesRegex(ValueError, 'Update the PR base'):
             ci.validate(self.root, plan)
 
-    def test_spec_and_record_reduction(self):
-        self.write(ci.E2E + 'workspace-layout.spec.ts')
-        self.write(ci.PROJECT + 'execution/run/record.json', '{}')
-        self.commit()
+    def test_malformed_and_stale_plan_are_refused(self):
         plan = self.plan()
-        self.assertEqual(plan['mode'], 'changed-specs')
-        self.assertEqual(set(plan['selected_specs']), {ci.FAST, 'e2e/workspace-layout.spec.ts'})
-        self.assertFalse(plan['coverage_full'])
-        ci.validate(self.root, plan)
+        for data in [{**plan, 'mode': 'full'}, {**plan, 'selected_specs': [ci.FAST]}, {**plan, 'version': 1}]:
+            with self.assertRaises(ValueError): ci.validate(self.root, data)
+        self.write(ci.E2E + 'new.spec.ts')
+        with self.assertRaises(ValueError): ci.validate(self.root, plan)
 
-    def test_instrument_inputs_use_full_fallback(self):
-        self.write(ci.E2E + 'ui-foundation/helper.ts')
-        self.commit()
-        plan = self.plan()
-        self.assertEqual(plan['mode'], 'full')
-        self.assertIn('e2e/workspace-layout.spec.ts', plan['selected_specs'])
-
-    def test_instrument_spec_only_changes_use_changed_specs(self):
-        self.write(ci.E2E + 'ui-foundation/a.spec.ts')
-        self.commit()
-        plan = self.plan()
-        self.assertEqual(plan['mode'], 'changed-specs')
-        self.assertNotIn('e2e/ui-foundation/b.spec.ts', plan['selected_specs'])
-
-    def test_unknown_input_and_executable_record_fall_back(self):
-        for path in ['unclassified.config', ci.PROJECT + 'execution/run/code.py',
-                     ci.PROJECT + 'schemas/a.json', ci.PROJECT + 'core/a.rs',
-                     ci.PROJECT + 'fixtures/a.json', ci.DESKTOP + 'playwright.config.ts']:
-            with self.subTest(path=path):
-                self.write(path)
-                self.commit()
-                self.assertEqual(self.plan()['mode'], 'full')
-
-    def test_shared_instrument_helper_and_fixture_force_full(self):
-        for path in ['benchmark-harness.ts', 'fixtures/input.json']:
-            self.write(ci.E2E + 'ui-foundation/' + path)
-            self.commit()
-            self.assertEqual(self.plan()['mode'], 'full')
-
-    def test_unavailable_target_base_blocks_execution(self):
-        for base in ['', 'unavailable']:
-            plan = self.plan(base=base)
-            with self.assertRaisesRegex(ValueError, 'Update the PR base'):
-                ci.validate(self.root, plan)
-
-    def test_hosted_event_cannot_be_relabelled_or_drop_target_base(self):
+    def test_host_event_cannot_be_relabelled(self):
         plan = self.plan()
         event_file = self.root / 'event.json'
-        event_file.write_text(json.dumps({'number': 826, 'pull_request': {
-            'base': {'sha': self.base}, 'head': {'sha': plan['head']}}}))
+        event_file.write_text(json.dumps({'number': 827, 'pull_request': {
+            'base': {'sha': self.base}, 'head': {'sha': plan['head']}, 'labels': []}}))
         with patch.dict(ci.os.environ, {'GITHUB_EVENT_NAME': 'pull_request', 'GITHUB_EVENT_PATH': str(event_file)}):
             ci.validate(self.root, plan)
             for patch_data in [{'event': 'workflow_dispatch'}, {'target_base': ''}, {'pr': '825'}]:
                 with self.assertRaises(ValueError): ci.validate(self.root, {**plan, **patch_data})
 
-    def test_deleted_and_renamed_specs_fall_back(self):
-        old = self.root / (ci.E2E + 'workspace-layout.spec.ts')
-        old.rename(old.with_name('renamed.spec.ts'))
-        self.commit()
-        self.assertEqual(self.plan()['mode'], 'full')
-        old.with_name('renamed.spec.ts').unlink()
-        self.commit()
-        self.assertEqual(self.plan()['mode'], 'full')
-
-    def test_pr825_exception_is_narrow_and_partial(self):
-        self.write(ci.DESKTOP + 'src/styles.css')
-        self.write(ci.DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx')
-        self.write(ci.PROJECT + 'tools/ci/e2e_plan.py')
-        self.write(ci.PROJECT + 'docs/CI_STRATEGY.md')
-        self.commit()
-        plan = self.plan(pr='825')
-        self.assertEqual(plan['mode'], 'pr825-repair')
-        self.assertEqual(plan['baseline'], self.base)
-        self.assertEqual(plan['selected_specs'], ci.FOCUSED)
-        self.assertEqual(plan['focused_titles'], ci.FOCUSED_TITLES)
-        self.assertFalse(plan['coverage_full'])
-        ci.validate(self.root, plan)
-        self.assertEqual(self.plan(pr='826')['mode'], 'full')
-        self.write(ci.DESKTOP + 'src/App.tsx')
-        self.commit()
-        self.assertEqual(self.plan(pr='825')['mode'], 'full')
-
-    def test_missing_or_nonancestor_baseline_cannot_enable_exception(self):
-        self.write(ci.DESKTOP + 'src/styles.css')
-        candidate = self.commit()
-        with patch.object(ci, 'BASELINE', 'a' * 40):
-            self.assertEqual(self.plan(pr='825')['mode'], 'full')
-        self.git('checkout', '--orphan', 'unrelated')
-        other = self.commit()
-        self.git('checkout', candidate)
-        with patch.object(ci, 'BASELINE', other):
-            self.assertEqual(self.plan(pr='825')['mode'], 'full')
-
-    def test_manifest_and_named_evidence_can_accompany_repair(self):
-        self.write(ci.DESKTOP + 'src/styles.css')
-        self.write('docs/governance_harness/tranche_manifests/PIPING-CI-STRATEGY-20260920.yaml')
-        self.write(ci.REPAIR_EVIDENCE[0] + 'trace.zip')
-        self.write(ci.PROJECT + 'validation/evidence/sweeps/new.json', '{}')
-        self.commit()
-        self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
-        self.write(ci.PROJECT + 'execution/other/trace.zip')
-        self.commit()
-        self.assertEqual(self.plan(pr='825')['mode'], 'full')
-
-    def test_only_exact_reproduction_scripts_are_exception_records(self):
-        self.write(ci.DESKTOP + 'src/styles.css')
-        prefix = ci.RUN + 'instances/B3-CODEX/ci-tooltip-repair/'
-        self.write(prefix + '_run_records/implementer/run-focused.sh')
-        self.commit()
-        self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
-        self.write(prefix + '_run_records/other.sh')
-        self.commit()
-        self.assertEqual(self.plan(pr='825')['mode'], 'full')
-
-    def test_deleted_allowed_component_falls_back(self):
-        (self.root / (ci.DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx')).unlink()
-        self.commit()
-        self.assertEqual(self.plan(pr='825')['mode'], 'full')
-
-    def test_malformed_or_stale_plan_is_rejected(self):
-        plan = self.plan()
-        ci.validate(self.root, plan)
-        for key, value in [('mode', 'changed-specs'), ('selected_specs', []),
-                           ('projects', ['other']), ('inventory', []), ('coverage_full', False)]:
-            with self.subTest(key=key):
-                with self.assertRaises(ValueError):
-                    ci.validate(self.root, {**plan, key: value})
-        self.write(ci.E2E + 'new.spec.ts')
-        with self.assertRaises(ValueError):
-            ci.validate(self.root, plan)
-        (self.root / ci.DESKTOP / ci.FAST).unlink()
-        with self.assertRaises(ValueError):
-            self.plan()
-
-    def test_argument_arrays_escape_regex_and_preserve_spaces(self):
-        unusual = 'e2e/odd [a] $(touch nope);.spec.ts'
-        self.write(ci.DESKTOP + unusual)
-        self.commit()
-        plan = self.plan()
-        command = ci.commands(plan, 'barrier')[-1]
-        self.assertIn(re.escape(unusual) + '$', command)
-        self.assertEqual(command[0], '../../node_modules/.bin/playwright')
-        self.assertIn('--workers=1', command)
-        self.assertNotIn('--fully-parallel', command)
-
-    def test_full_barrier_remainder_partition_and_new_spec_discovery(self):
-        plan = self.plan(event='workflow_dispatch')
-        barrier = ci.commands(plan, 'barrier')[0]
-        remainder = ci.commands(plan, 'remainder', 1)[0]
-        patterns = lambda command: [v for v in command if v.startswith('e2e/')]
-        seen = patterns(barrier) + patterns(remainder)
-        self.assertEqual(len(seen), len(set(seen)))
-        self.assertEqual(set(seen), {re.escape(s) + '$' for s in plan['inventory']})
-        self.assertIn('e2e/new.test.mts', plan['inventory'])
-        self.assertNotIn('e2e/example-dist.spec.ts', plan['inventory'])
-        for shard in range(1, 5):
-            self.assertIn(f'--shard={shard}/4', ci.commands(plan, 'remainder', shard)[0])
-        for shard in [None, 0, 5]:
-            with self.assertRaises(ValueError):
-                ci.commands(plan, 'remainder', shard)
-
-    def test_focused_cases_use_separate_invocation_and_exact_suffix(self):
-        self.write(ci.DESKTOP + 'src/styles.css')
-        self.commit()
-        plan = self.plan(pr='825')
-        commands = ci.commands(plan, 'barrier')
-        self.assertEqual(len(commands), 3)
-        self.assertEqual(commands[0][-1], re.escape(ci.FAST) + '$')
-        grep = commands[-1][commands[-1].index('--grep') + 1]
-        self.assertEqual(commands[-1][-1], re.escape('e2e/ui-foundation.spec.ts') + '$')
-        for title in ci.FOCUSED_TITLES:
-            self.assertIsNotNone(re.search(grep, '[chromium-desktop] file ' + title))
-            self.assertIsNone(re.search(grep, title + ' changed'))
-        with self.assertRaises(ValueError):
-            ci.commands(plan, 'remainder', 1)
-
 
 class CollectionTests(unittest.TestCase):
-    def row(self, file, title, project, suffix=''):
-        return dict(id=file + title + project + suffix, file=file, title=title, project=project, line=1)
+    def source(self):
+        rows = []
+        def add(file, title, projects=ci.PROJECTS, tags=()):
+            for project in projects:
+                rows.append(dict(id=file + title + project, file=file, title=title,
+                                 title_path=[title], tags=list(tags), project=project, line=1))
+        add(ci.FAST, 'accessibility')
+        for file, titles in ci.LEAN_TITLES.items():
+            for title in titles: add(file, title)
+        for title in ci.LAYOUT_TITLES: add('e2e/ui-foundation.spec.ts', title)
+        for theme in ('light', 'dark'):
+            for density in ('comfortable', 'compact'):
+                for width, height in ((1024, 768), (1280, 800), (1440, 920)):
+                    add('e2e/ui-foundation.spec.ts', f'task and analysis dock preserve usable canvas {theme} {density} {width}x{height}', ['chromium-desktop'], ['@explicit-viewport'])
+        return rows
 
-    def basis(self, mode='full'):
-        files = ci.FOCUSED
-        source = [self.row(file, 'ordinary', project) for file in files for project in ci.PROJECTS]
-        source += [self.row('e2e/ui-foundation.spec.ts', title, project)
-                   for title in ci.FOCUSED_TITLES for project in ci.PROJECTS]
-        plan = dict(mode=mode, inventory=files + ['e2e/ui-foundation.spec.ts'],
-                    selected_specs=files + (['e2e/ui-foundation.spec.ts'] if mode == 'full' else []),
-                    focused_spec='e2e/ui-foundation.spec.ts' if mode == 'pr825-repair' else None,
-                    focused_titles=ci.FOCUSED_TITLES if mode == 'pr825-repair' else [])
-        collections = dict(source=source, **{'barrier-0': source[:2]})
-        if mode == 'full':
-            for n in range(4): collections[f'shard-{n+1}'] = source[2+n::4]
-        else:
-            collections['barrier-1'] = source[2:6]
-            if mode == 'pr825-repair': collections['barrier-2'] = source[6:]
-        return plan, collections
+    def plan(self, mode='full'):
+        source = self.source()
+        return dict(mode=mode, selected_specs=sorted({t['file'] for t in source}) if mode == 'full' else [ci.FAST],
+                    selected_titles={} if mode == 'full' else ci.LEAN_TITLES, appearance=False)
 
-    def test_valid_full_and_reduced_collections(self):
-        for mode in ['full', 'changed-specs', 'pr825-repair']:
-            plan, collections = self.basis(mode)
-            selected, omitted = ci.validate_collections(plan, collections)
-            self.assertEqual(len(selected) + len(omitted), len(collections['source']))
-            self.assertEqual(bool(omitted), mode == 'changed-specs')
+    def test_full_and_lean_preserve_explicit_selection(self):
+        source = self.source()
+        self.assertEqual(ci.select_tests(self.plan(), source), source)
+        lean = ci.select_tests(self.plan('lean'), source)
+        self.assertEqual(len(lean), 18)
+        self.assertLess(len(lean), len(source))
 
-    def test_missing_duplicate_focused_title_and_profile_are_refused(self):
-        for mutation in ['missing', 'duplicate', 'profile']:
-            plan, collections = self.basis('pr825-repair')
-            target = collections['source'][-1]
-            if mutation == 'missing': collections['source'].remove(target)
-            elif mutation == 'duplicate': collections['source'].append({**target, 'id': 'distinct-duplicate-title'})
-            else: collections['source'] = [t for t in collections['source'] if t['project'] != ci.PROJECTS[1]]
-            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
-                ci.validate_collections(plan, collections)
+    def test_missing_duplicate_title_or_profile_fails(self):
+        for kind in ['missing', 'duplicate', 'profile']:
+            source = self.source()
+            if kind == 'missing': source.pop(3)
+            elif kind == 'duplicate': source.append({**source[3], 'id': 'another-id'})
+            else: source = [t for t in source if t['project'] != 'chromium-compact']
+            with self.subTest(kind=kind), self.assertRaises(ValueError):
+                ci.select_tests(self.plan('lean'), source)
 
-    def test_empty_selected_file_or_profile_is_refused(self):
-        plan, collections = self.basis()
-        collections['source'] = [t for t in collections['source'] if t['file'] != ci.FOCUSED[1]]
-        with self.assertRaisesRegex(ValueError, 'Empty selected file/profile'):
-            ci.validate_collections(plan, collections)
+    def test_dedup_matrix_loss_and_override_are_refused(self):
+        source = self.source()
+        with self.assertRaises(ValueError): ci.validate_source(source[:-1])
+        duplicate = {**source[-1], 'project': 'chromium-compact', 'id': 'reintroduced'}
+        with self.assertRaisesRegex(ValueError, 'reintroduced'): ci.validate_source(source + [duplicate])
 
-    def test_missing_duplicate_empty_partition_refused(self):
-        for mutation in ['missing', 'duplicate', 'empty', 'lost-test', 'wrong-barrier']:
-            plan, collections = self.basis()
-            if mutation == 'missing': del collections['shard-4']
-            elif mutation == 'duplicate': collections['shard-4'].append(collections['shard-1'][0])
-            elif mutation == 'empty': collections['shard-4'] = []
-            elif mutation == 'lost-test': collections['shard-4'].pop()
-            else: collections['barrier-0'][0], collections['shard-1'][0] = collections['shard-1'][0], collections['barrier-0'][0]
-            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
-                ci.validate_collections(plan, collections)
+    def test_empty_missing_extra_or_duplicate_partition_fails(self):
+        rows = self.source()
+        for actual in [[], rows[:-1], rows + [rows[0]], rows + [{**rows[0], 'id': 'extra'}]]:
+            with self.assertRaises(ValueError): ci.assert_partition(rows, actual)
+        ci.assert_partition(rows, rows[::-1])
 
-    def test_missing_filtered_case_cannot_hide_behind_other_matches(self):
-        plan, collections = self.basis('pr825-repair')
-        collections['barrier-2'].pop()
-        with self.assertRaisesRegex(ValueError, 'partition'):
-            ci.validate_collections(plan, collections)
+    def test_exact_list_preserves_project_file_and_nested_titles(self):
+        row = self.source()[0]
+        row = {**row, 'title_path': ['group [a] $(touch nope)', 'literal > child']}
+        line = ci.exact_list([row])
+        self.assertIn('[chromium-desktop] › b3-accessibility.spec.ts › group [a] $(touch nope) › literal > child', line)
+        args = ci.command('/tmp/list with spaces.txt', list_only=True)
+        self.assertIn(str(Path('/tmp/list with spaces.txt').resolve()), args)
+        self.assertNotIn('--grep', args)
+        with self.assertRaises(ValueError): ci.exact_list([{**row, 'title_path': ['bad\nline']}])
+        with self.assertRaises(ValueError): ci.exact_list([])
 
-    def test_collection_json_must_be_nonempty_and_error_free(self):
-        for report in [{}, {'errors': [{'message': 'collection failed'}]}, {'suites': []}]:
+    def test_balancing_is_deterministic_exact_and_keeps_serial_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for file in {t['file'] for t in self.source()}:
+                path = root / ci.DESKTOP / file
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('// independent')
+            serial_file = 'e2e/workspace-layout.spec.ts'
+            (root / ci.DESKTOP / serial_file).write_text('test.describe.configure({mode: "serial"})')
+            first = ci.assign_partitions(self.plan(), self.source(), root)
+            second = ci.assign_partitions(self.plan(), self.source()[::-1], root)
+            self.assertEqual({k: sorted(map(ci.test_key,v)) for k,v in first.items()},
+                             {k: sorted(map(ci.test_key,v)) for k,v in second.items()})
+            ci.assert_partition(self.source(), [t for rows in first.values() for t in rows])
+            for project in ci.PROJECTS:
+                self.assertEqual(sum(any(t['file'] == serial_file and t['project'] == project for t in rows) for rows in first.values()), 1)
+            unknown = {**self.source()[0], 'title': 'new', 'title_path': ['new']}
+            self.assertEqual(ci.duration_weight(unknown), 30)
+
+    def test_new_unobserved_tests_remain_in_full_union(self):
+        source = self.source()
+        for project in ci.PROJECTS:
+            source.append(dict(id='new-' + project, file='e2e/new.spec.ts', title='unknown',
+                               title_path=['unknown'], tags=[], project=project, line=1))
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for file in {t['file'] for t in source}:
+                path = root / ci.DESKTOP / file
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('// new file remains atomic')
+            partitions = ci.assign_partitions(self.plan(), source, root)
+            ci.assert_partition(source, [t for rows in partitions.values() for t in rows])
+            self.assertEqual(sum(t['file'] == 'e2e/new.spec.ts' for rows in partitions.values() for t in rows), 2)
+
+    def test_json_reporter_tag_spelling_is_normalized(self):
+        report = {'specs': [{'id': 'id', 'file': 'a.spec.ts', 'title': 'case', 'line': 1,
+                            'tags': ['explicit-viewport'], 'tests': [{'projectName': 'chromium-desktop'}]}]}
+        self.assertEqual(ci.collected_tests(report)[0]['tags'], ['@explicit-viewport'])
+
+    def test_empty_error_collection_refused(self):
+        for report in [{}, {'errors': [{'message': 'failed'}]}, {'suites': []}]:
             with self.assertRaises(ValueError): ci.collected_tests(report)
 
 
-class GateTests(unittest.TestCase):
-    def test_full_requires_every_dependency_success(self):
-        self.assertTrue(ci.aggregate('full', 'success', 'success', 'success'))
-        for state in ['failure', 'cancelled', 'skipped', '', 'unknown']:
-            for i in range(3):
-                values = ['success'] * 3
-                values[i] = state
-                self.assertFalse(ci.aggregate('full', *values))
+class WorkflowTriggerTests(unittest.TestCase):
+    def test_metadata_events_cannot_create_or_replace_validation_checks(self):
+        workflow = (MODULE.parents[4] / '.github/workflows/piping-desktop-e2e.yml').read_text()
+        match = ci.re.search(r'types:\s*\[([^]]+)\]', workflow)
+        self.assertIsNotNone(match)
+        subscribed = {event.strip() for event in match.group(1).split(',')}
+        self.assertEqual(subscribed, {'opened', 'synchronize', 'reopened'})
+        for metadata in ['edited', 'ready_for_review', 'labeled', 'unlabeled']:
+            # No workflow event means no job, concurrency participant or stable
+            # success/skipped check can supersede the source validation.
+            self.assertNotIn(metadata, subscribed)
+        self.assertNotIn('pull_request_target:', workflow)
+        self.assertNotIn('labels.*.name', workflow)
+        self.assertIn('workflow_dispatch:', workflow)
+        self.assertIn('inputs.target_base', workflow)
+        self.assertIn('cancel-in-progress: ${{ github.event_name == \'pull_request\' }}', workflow)
+        self.assertIn('github.event.pull_request.number || github.ref', workflow)
 
-    def test_only_explicit_reduced_remainder_can_skip(self):
-        for mode in ['changed-specs', 'pr825-repair']:
-            self.assertTrue(ci.aggregate(mode, 'success', 'success', 'skipped'))
-            self.assertFalse(ci.aggregate(mode, 'success', 'success', 'failure'))
-            self.assertFalse(ci.aggregate(mode, 'failure', 'success', 'skipped'))
-            self.assertFalse(ci.aggregate(mode, 'success', 'cancelled', 'skipped'))
-        self.assertFalse(ci.aggregate('', 'success', 'success', 'skipped'))
-        self.assertFalse(ci.aggregate('instruments', 'success', 'success', 'skipped'))
+
+class GateTests(unittest.TestCase):
+    def test_every_mode_fails_closed(self):
+        valid = [('not-applicable', 'skipped', 'skipped'), ('full', 'success', 'success'),
+                 ('lean', 'success', 'skipped'), ('lean-affected', 'success', 'skipped'), ('changed-specs', 'success', 'skipped')]
+        for mode, barrier, remainder in valid:
+            self.assertTrue(ci.aggregate(mode, 'success', barrier, remainder))
+            for state in ['failure', 'cancelled', '', 'unknown']:
+                self.assertFalse(ci.aggregate(mode, state, barrier, remainder))
+                self.assertFalse(ci.aggregate(mode, 'success', state, remainder))
+                self.assertFalse(ci.aggregate(mode, 'success', barrier, state))
+        for mode in ['', 'pr825-repair', 'instruments']:
+            self.assertFalse(ci.aggregate(mode, 'success', 'success', 'skipped'))
+        self.assertFalse(ci.aggregate('not-applicable', 'success', 'success', 'skipped'))
+        self.assertFalse(ci.aggregate('full', 'success', 'success', 'skipped'))
 
 
 if __name__ == '__main__':

@@ -1,0 +1,22 @@
+{
+  "source_head": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "parent_manifest_sha256": "a579a68a042b6103866dc40ee7e63f90352325604e7186c6bb356358c0b8fe7a",
+  "outputs": {
+    ".github/workflows/piping-desktop-e2e.yml": "dee6e956e0fc0b42a0bb243dab8629954960695017bf983acfca3439fd31f40d",
+    "projects/chirality-piping/tools/ci/e2e_plan.py": "4dbf57a23e63f9bd7304bcc1c36bb446ca81eb3aa735a17a84c24e90cd933311",
+    "projects/chirality-piping/tools/ci/e2e_duration_hints.json": "49bb6cb6b5d45a816a697a60066e4b5f96583e7e785984b1310562e42b632038",
+    "projects/chirality-piping/tests/test_ci_e2e_plan.py": "2eea7a01a57b228883913820259cc9a0d9435ce4e23a1453c9808fd5f4c67fcb",
+    "projects/chirality-piping/apps/desktop/playwright.config.ts": "d861a8567ce54c803e2bef914a5b9965906f90e0eda58ab4d907160d10eed31a",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts": "09753ec4e8124d22d9a89f3cfac0b834a5dbc3b8ab3f0424f6f328c43b756837",
+    "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts": "1c4ee246d36627d85d1b8f455c1052909e0edfd7263368af1c1b78b374c9fe25",
+    "projects/chirality-piping/docs/CI_STRATEGY.md": "bee0c73eaf05305a0289a1def98181769c372f4c80fe6c76ce0e63cfbce25428",
+    "projects/chirality-piping/tools/release/run_evidence_sweep.py": "cdb7bd4914652e6e5497f09f084d755107977dbbf58968dadfebda9f44ddcd3c"
+  },
+  "evidence": {
+    "yaml-check.txt": "f38c2af603ff10b62df023b146e44b96bdbc07ba8c92500bf3878275b509ea95",
+    "input-hashes.json": "0d7fcdffc1e0925c8b96cca3b562aa40a102a34f8497e57f95a04de76acade9f",
+    "RETURN.md": "e04994dc9984eda73c5c691a8485049260d39eb97ca1ca98fdab5e3183778c45",
+    "working-diff.patch.txt": "3fee6771d4d6668e85c0c9089eadb2a5a8820c7ee1365ee005f1b46fb174c7e0",
+    "unit-tests.txt": "2ca2f61e826c8e0b060a263dd284c89e12cab3f74259421a4458af3614808b24"
+  }
+}

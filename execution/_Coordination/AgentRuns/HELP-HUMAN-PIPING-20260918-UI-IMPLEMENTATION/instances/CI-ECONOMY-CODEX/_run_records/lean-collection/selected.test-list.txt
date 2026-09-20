@@ -1,0 +1,16 @@
+[chromium-desktop] › b3a-session-status.spec.ts › canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
+[chromium-compact] › b3a-session-status.spec.ts › canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
+[chromium-desktop] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home
+[chromium-desktop] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer
+[chromium-compact] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home
+[chromium-compact] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer
+[chromium-desktop] › linear-authoring.spec.ts › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review
+[chromium-compact] › linear-authoring.spec.ts › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review
+[chromium-desktop] › r2-smoke.spec.ts › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[chromium-compact] › r2-smoke.spec.ts › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[chromium-desktop] › result-compatibility.spec.ts › fresh Current exports strict 0.2 result and stress-neutral evidence
+[chromium-compact] › result-compatibility.spec.ts › fresh Current exports strict 0.2 result and stress-neutral evidence
+[chromium-desktop] › ui-foundation.spec.ts › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement
+[chromium-compact] › ui-foundation.spec.ts › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement
+[chromium-desktop] › workspace-layout.spec.ts › workspace preserves the visible model during discovery, routing, property editing and analysis navigation
+[chromium-compact] › workspace-layout.spec.ts › workspace preserves the visible model during discovery, routing, property editing and analysis navigation

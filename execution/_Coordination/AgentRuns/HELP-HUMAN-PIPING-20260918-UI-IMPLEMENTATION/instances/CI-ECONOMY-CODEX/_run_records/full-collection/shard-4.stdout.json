@@ -1,0 +1,2027 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": false,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "gui-workflow-validation.spec.ts",
+      "file": "gui-workflow-validation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-c48f4ba6816eaa0a49d8",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 90,
+          "column": 1
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-3720d90ed423326b654f",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-911741ca6c3aa832901b",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "title": "ui-foundation/causal-method-contract.spec.ts",
+      "file": "ui-foundation/causal-method-contract.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "nonzero canvas origin and prescribed orbit start retain client coordinates",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-5b0308bbd8507b6bfedb",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 117,
+          "column": 1
+        },
+        {
+          "title": "overlay target and observer overflow fail closed",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-bbbdb313cb5620d8c7c7",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 127,
+          "column": 1
+        },
+        {
+          "title": "RAF callback percentile cannot be diluted by cheap registrations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-e779341b6007c2a2dbf6",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 136,
+          "column": 1
+        },
+        {
+          "title": "invalid samples fail and crossing samples are charged in full",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-480f7927029714c261ff",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 154,
+          "column": 1
+        },
+        {
+          "title": "forced derivation failure preserves immutable earlier journals and a terminal failure",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-c55314e16a3866eafa5e",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 169,
+          "column": 1
+        },
+        {
+          "title": "observer setup failure still invokes the original RAF callback exactly once and restore removes listeners",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-11ed2331f1996e2ee04d",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 186,
+          "column": 1
+        },
+        {
+          "title": "actual elementFromPoint rejects an intercepting overlay",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-80228942885d620c0911",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 378,
+          "column": 1
+        },
+        {
+          "title": "candidate diagnostics without same-callback DOM and positive submission cannot emit qualifying feedback",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-14e2cac515e532821997",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 386,
+          "column": 1
+        },
+        {
+          "title": "clear sentinel retains original WebGL clear work separately from observer cost",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-242afb530bbadbecd8af",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 416,
+          "column": 1
+        },
+        {
+          "title": "source-bound page-edge uncertainty retains possibly intersecting observer work",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-188aeda044c6991ebc4c",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 448,
+          "column": 1
+        },
+        {
+          "title": "candidate point feedback requires product-shaped compact heading: valid",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-b9f9d66d01083f5d53c6",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 462,
+          "column": 3
+        },
+        {
+          "title": "candidate point feedback requires product-shaped compact heading: wrong-label",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-458c3d4c4defb9149850",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 462,
+          "column": 3
+        },
+        {
+          "title": "candidate point feedback requires product-shaped compact heading: wrong-typed-identity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-0173ae4859f718175d3c",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 462,
+          "column": 3
+        },
+        {
+          "title": "raw zero costs remain uncertain rather than a true-overhead pass",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-c87ba41fb51924342ae3",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 529,
+          "column": 1
+        },
+        {
+          "title": "missing, malformed, negative and nonfinite observer readings fail structurally",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-2188dc20ec2af627ba5a",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 539,
+          "column": 1
+        },
+        {
+          "title": "expected RAF and action operation populations cannot disappear",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-b726823e52a5f4784541",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 551,
+          "column": 1
+        },
+        {
+          "title": "bad or missing observer windows cannot receive structural validity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-d07a50d840d1c1c3b878",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 567,
+          "column": 1
+        },
+        {
+          "title": "extra or unknown observer RAF, product observation RAF, and incomplete restore fail closed",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-14208fad7520020123e9",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 576,
+          "column": 1
+        },
+        {
+          "title": "instrumented preflight still requires complete causal and pixel evidence above raw overhead references",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-7ccc9c36a57c826c4c3e",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 588,
+          "column": 1
+        },
+        {
+          "title": "exact observation coverage accepts extra unrelated callbacks and shared pointer action listener",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-c26c4a67c9772de37ff2",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 627,
+          "column": 1
+        },
+        {
+          "title": "unrelated RAF cost cannot substitute for missing saved feedback cost",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-b320a5a3ce8f76433c52",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 637,
+          "column": 1
+        },
+        {
+          "title": "missing or non-enclosing pointer and action cost records fail",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-8bc4dda9b4acb88d4d3d",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 649,
+          "column": 1
+        },
+        {
+          "title": "malformed or duplicate expected observation identities and boundaries fail",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-d049a307b8dc18380fb9",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 665,
+          "column": 1
+        },
+        {
+          "title": "duplicate ambiguous enclosures and illegal reuse across distinct callbacks fail",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-e24fae4a24ccc25e1c81",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 685,
+          "column": 1
+        },
+        {
+          "title": "zero RAF DOM class requires exact input and mutation records without fabricated callbacks",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-b6d0295aa89edcef61bc",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 701,
+          "column": 1
+        },
+        {
+          "title": "real input DOM observer binds stopped publication and pending mutation: complete",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-adf1732e5f25138c6bd2",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 721,
+          "column": 3
+        },
+        {
+          "title": "real input DOM observer binds stopped publication and pending mutation: pending-mutation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-1d2fe31d2a767218aa7a",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 721,
+          "column": 3
+        },
+        {
+          "title": "box feedback checks full membership even when primary is unchanged: complete",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-2b69f08a0618681709ad",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 776,
+          "column": 3
+        },
+        {
+          "title": "box feedback checks full membership even when primary is unchanged: same-primary-missing-member",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-3e67e117e601acfd0562",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 776,
+          "column": 3
+        },
+        {
+          "title": "assignment retains original product start and reconciles stopped identity: complete",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-ae877d6c711269588998",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 810,
+          "column": 3
+        },
+        {
+          "title": "assignment retains original product start and reconciles stopped identity: stopped-model-drift",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-09f1039fd7a731b4780f",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 810,
+          "column": 3
+        },
+        {
+          "title": "baseline null outside hit records limitation and continues before label lookup",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-6124625d5f712012bfac",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 847,
+          "column": 1
+        },
+        {
+          "title": "secondary inspector capture uses phase-specific exact independently supplied typed heading",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-6e666fa9c1fc77b949a7",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 868,
+          "column": 1
+        },
+        {
+          "title": "assignment epoch history requires genuine eligible advancing frames: two-epochs",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-5d287721a9cb69af0ac8",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 889,
+          "column": 3
+        },
+        {
+          "title": "assignment epoch history requires genuine eligible advancing frames: same-epoch",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-53d8292d3b96c5fd8087",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 889,
+          "column": 3
+        },
+        {
+          "title": "assignment epoch history requires genuine eligible advancing frames: no-clear",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-8d6a5003230217b7a725",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 889,
+          "column": 3
+        },
+        {
+          "title": "assignment epoch history requires genuine eligible advancing frames: stale-submission",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-95c82bedb2b45f982fb8",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 889,
+          "column": 3
+        },
+        {
+          "title": "assignment epoch history requires genuine eligible advancing frames: wrong-model",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-811e4c2ed2f1683789f9",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 889,
+          "column": 3
+        },
+        {
+          "title": "assignment epoch history requires genuine eligible advancing frames: unready-tree",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-1a9e128202e793d1f93a",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 889,
+          "column": 3
+        },
+        {
+          "title": "assignment epoch history requires genuine eligible advancing frames: final-without-frame",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-fee0c01c1dd5cf033a95",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 889,
+          "column": 3
+        },
+        {
+          "title": "assignment epoch history requires genuine eligible advancing frames: pending-at-stop",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-07874a24ef416feed202",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 889,
+          "column": 3
+        },
+        {
+          "title": "assignment epoch history requires genuine eligible advancing frames: capacity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-6deb1d65955e7366a199",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 889,
+          "column": 3
+        },
+        {
+          "title": "box callback consumes actual unavailable or active union and rejects numerical and ordered-state faults",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-6b4fbcbb6283914a7cd9",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 1005,
+          "column": 1
+        },
+        {
+          "title": "Box producer phases are reevaluated only on a fresh genuine callback and retain bounded failed facts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "4f73ab3781fbe85dc34d-590fb26eb3ca3730a983",
+          "file": "ui-foundation/causal-method-contract.spec.ts",
+          "line": 1058,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "ui-foundation.spec.ts",
+      "file": "ui-foundation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-dd6f753dc9b31012556e",
+          "file": "ui-foundation.spec.ts",
+          "line": 270,
+          "column": 3
+        },
+        {
+          "title": "virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-43eba3c6d7a631f1c62a",
+          "file": "ui-foundation.spec.ts",
+          "line": 309,
+          "column": 1
+        },
+        {
+          "title": "real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-eb588f46178ea2c21987",
+          "file": "ui-foundation.spec.ts",
+          "line": 394,
+          "column": 1
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light compact 1024x768",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-e8bcef4f5fae7f1d0d3e",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas light compact 1440x920",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-deab3033be6f1104f448",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark comfortable 1024x768",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-bc716ce89e60dd8c601e",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark comfortable 1280x800",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-141bc6bbdb927767dd1f",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "task and analysis dock preserve usable canvas dark compact 1280x800",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-bf63fbb870a1cd0c0f39",
+          "file": "ui-foundation.spec.ts",
+          "line": 672,
+          "column": 7
+        },
+        {
+          "title": "selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-24b0c83f3725e632276d",
+          "file": "ui-foundation.spec.ts",
+          "line": 963,
+          "column": 1
+        },
+        {
+          "title": "live Properties routes follow catalogue target B while frozen Task A remains unchanged",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-e361be5a436c6044adfb",
+          "file": "ui-foundation.spec.ts",
+          "line": 1093,
+          "column": 1
+        },
+        {
+          "title": "an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-a1abfae8497da8794d60",
+          "file": "ui-foundation.spec.ts",
+          "line": 1162,
+          "column": 1
+        },
+        {
+          "title": "selected-pipe actions copy a stable draft target snapshot instead of following later selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-f49daa207ee9c0f4b9d3",
+          "file": "ui-foundation.spec.ts",
+          "line": 1230,
+          "column": 1
+        },
+        {
+          "title": "filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-7e1f0f5435f40a4af2fb",
+          "file": "ui-foundation.spec.ts",
+          "line": 1267,
+          "column": 1
+        },
+        {
+          "title": "node visibility owns attached symbols while connected spans remain independent, and isolate is bounded",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-83e70c7838763b8c794a",
+          "file": "ui-foundation.spec.ts",
+          "line": 1337,
+          "column": 1
+        },
+        {
+          "title": "typed raw-ID collisions remain distinct through ordered selection and an ABA membership change",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-abb7a337552180e3563e",
+          "file": "ui-foundation.spec.ts",
+          "line": 242,
+          "column": 1
+        },
+        {
+          "title": "Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-fd969770222bad39aec5",
+          "file": "ui-foundation.spec.ts",
+          "line": 270,
+          "column": 3
+        },
+        {
+          "title": "a prepared direct review is rejected after selection membership leaves and returns to the same primary",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-c8688f2a6acbe31dfc8a",
+          "file": "ui-foundation.spec.ts",
+          "line": 1205,
+          "column": 1
+        },
+        {
+          "title": "standard 10000 camera recipe compares legacy and corrected fit without changing targets",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-3b18cc3c02a3ee19fe36",
+          "file": "ui-foundation.spec.ts",
+          "line": 1764,
+          "column": 3
+        },
+        {
+          "title": "filtered tree collapse controls retain typed selection and frozen draft across search changes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-971ac21ddad2001d6eda",
+          "file": "ui-foundation.spec.ts",
+          "line": 1784,
+          "column": 1
+        }
+      ],
+      "suites": [
+        {
+          "title": "captured Box lifetime",
+          "file": "ui-foundation.spec.ts",
+          "line": 2084,
+          "column": 6,
+          "specs": [
+            {
+              "title": "ordinary real Box applies independent empty Components membership",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-593ea0e15969fab893ac",
+              "file": "ui-foundation.spec.ts",
+              "line": 2133,
+              "column": 1
+            },
+            {
+              "title": "Escape retires captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-d13617be94fddc5cc0da",
+              "file": "ui-foundation.spec.ts",
+              "line": 2141,
+              "column": 1
+            },
+            {
+              "title": "same-ID Open retires old captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-c654a0231962961e2552",
+              "file": "ui-foundation.spec.ts",
+              "line": 2157,
+              "column": 1
+            },
+            {
+              "title": "Select retires captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-0cfa6280e5d12bd4d821",
+              "file": "ui-foundation.spec.ts",
+              "line": 2193,
+              "column": 55
+            },
+            {
+              "title": "New blank retires captured Box before delayed pointer up",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-4b20e278aa88383767d5",
+              "file": "ui-foundation.spec.ts",
+              "line": 2193,
+              "column": 55
+            },
+            {
+              "title": "Measure cannot revive a captured Box through a mode ABA",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-55bdeeb09679f9442191",
+              "file": "ui-foundation.spec.ts",
+              "line": 2222,
+              "column": 70
+            },
+            {
+              "title": "palette Node and Select cannot revive a captured Box through a mode ABA",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-f0e834e73c1ce7a1eae7",
+              "file": "ui-foundation.spec.ts",
+              "line": 2222,
+              "column": 70
+            },
+            {
+              "title": "workspace Escape event ownership body idle",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-46debda1e63896d7d149",
+              "file": "ui-foundation.spec.ts",
+              "line": 2245,
+              "column": 39
+            },
+            {
+              "title": "workspace Escape event ownership body captured",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-5903948b901990d7bb72",
+              "file": "ui-foundation.spec.ts",
+              "line": 2245,
+              "column": 39
+            },
+            {
+              "title": "workspace Escape event ownership consumed palette",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-e3d833f64f99af20e764",
+              "file": "ui-foundation.spec.ts",
+              "line": 2269,
+              "column": 55
+            },
+            {
+              "title": "workspace Escape event ownership consumed drawer",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "066a9facc3ff4192384f-dae598642f967f4c3c1c",
+              "file": "ui-foundation.spec.ts",
+              "line": 2269,
+              "column": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "workspace-layout.spec.ts",
+      "file": "workspace-layout.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-b96afe117de2cd6ab9be",
+          "file": "workspace-layout.spec.ts",
+          "line": 282,
+          "column": 1
+        },
+        {
+          "title": "a switch to Table view hides the canvas without resizing its renderer",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-c8270a4aadc6f90084a4",
+          "file": "workspace-layout.spec.ts",
+          "line": 340,
+          "column": 1
+        },
+        {
+          "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1440",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-32d0adad9966d55b78f7",
+          "file": "workspace-layout.spec.ts",
+          "line": 403,
+          "column": 5
+        },
+        {
+          "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1280",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-3968a481bf09d26fb0e8",
+          "file": "workspace-layout.spec.ts",
+          "line": 403,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "linear-authoring.spec.ts",
+      "file": "linear-authoring.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "compact blank-to-straight authoring keeps the canvas and exact Add/Apply review",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "3014788e718664926f50-4d931543954fc47a1116",
+          "file": "linear-authoring.spec.ts",
+          "line": 60,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "r2-smoke.spec.ts",
+      "file": "r2-smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "guided workbench shell keeps journey steps, details, and compact status reachable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-65c3590770936e9d327e",
+          "file": "r2-smoke.spec.ts",
+          "line": 148,
+          "column": 1
+        },
+        {
+          "title": "DEC-077 solve temperature queues an explicit unit-bearing operation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-7568544b6534eab05f7c",
+          "file": "r2-smoke.spec.ts",
+          "line": 225,
+          "column": 1
+        },
+        {
+          "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-6ac6ecaad09abe729ff5",
+          "file": "r2-smoke.spec.ts",
+          "line": 250,
+          "column": 1
+        },
+        {
+          "title": "viewport gesture placeholders record unit validation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-25540f0b9303034b0487",
+          "file": "r2-smoke.spec.ts",
+          "line": 828,
+          "column": 1
+        },
+        {
+          "title": "R2 from-blank GUI journey authors the A12 rehearsal script",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-0af10443a1135dbc5a28",
+          "file": "r2-smoke.spec.ts",
+          "line": 865,
+          "column": 1
+        },
+        {
+          "title": "diagnostic detail exposes linked result unit context",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-2e529f2c3edb5b917f0c",
+          "file": "r2-smoke.spec.ts",
+          "line": 1085,
+          "column": 1
+        },
+        {
+          "title": "rule-pack manager drafts privately and reports the desktop-only backend seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-b94a88386d9decf4ac5a",
+          "file": "r2-smoke.spec.ts",
+          "line": 1108,
+          "column": 1
+        },
+        {
+          "title": "library manager loads an invented private sample and reports the desktop-only backend seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-37c37f114978742f7b09",
+          "file": "r2-smoke.spec.ts",
+          "line": 1331,
+          "column": 1
+        },
+        {
+          "title": "run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-4e3fc4a0b138167e1f3b",
+          "file": "r2-smoke.spec.ts",
+          "line": 1495,
+          "column": 1
+        },
+        {
+          "title": "R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-7e4344db1dcfc06f4d14",
+          "file": "r2-smoke.spec.ts",
+          "line": 1623,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "result-compatibility.spec.ts",
+      "file": "result-compatibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fresh Current exports strict 0.2 result and stress-neutral evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "ad4d63015ca33e87347b-a01803b61d2d6f774a36",
+          "file": "result-compatibility.spec.ts",
+          "line": 14,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-20T18:38:36.226Z",
+    "duration": 174.29500000000002,
+    "expected": 0,
+    "skipped": 93,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

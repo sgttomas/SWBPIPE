@@ -1,0 +1,2089 @@
+--- a/.github/workflows/piping-desktop-e2e.yml
++++ b/.github/workflows/piping-desktop-e2e.yml
+@@ -1,44 +1,10 @@
+ name: Piping Desktop E2E
+ 
++# A cheap selector runs on every PR so the stable check can report a validated
++# not-applicable result for unrelated monorepo changes.
+ on:
+   pull_request:
+-    # Explicit allowlist of this job's real inputs. `projects/chirality-piping/**`
+-    # also matched governance records (execution/, plans/, docs/, governance/,
+-    # provenance/, loop/, NOTICE_*.md), so record-only pull requests paid for a
+-    # ~25 minute, 342-test browser suite that could not observe their change.
+-    # Inputs include selection policy, setup and regression tests:
+-    #   package.json / package-lock.json  -> `npm ci`, the setup-node cache key,
+-    #                                        and the pinned Playwright resolve step
+-    #   apps/**                           -> the desktop workspace: src, e2e specs,
+-    #                                        playwright + vite + tsconfig, index.html,
+-    #                                        public/, scripts/build-wasm-engine.mjs,
+-    #                                        src-tauri (window matrix the lanes use)
+-    #   core/**                           -> the two wasm crates built by
+-    #                                        `npm run build:wasm:desktop`
+-    #                                        (model_operations/operation_applier,
+-    #                                        loads/self_weight_wasm) and their whole
+-    #                                        path-dependency closure, which reaches
+-    #                                        core/product_physics, core/solver/**,
+-    #                                        core/loads/**, core/units and
+-    #                                        core/serialization/canonical_json
+-    #   fixtures/**                       -> JSON fixtures the e2e specs import
+-    #                                        (fixtures/product_preview/*.json)
+-    #   schemas/**                        -> src/App.tsx imports
+-    #                                        schemas/model_operation.schema.json
+-    # Desktop E2E stays required evidence for user-visible desktop changes
+-    # (projects/chirality-piping/AGENTS.md, DEC-025 host-capability surfaces), so
+-    # add a path here whenever a new input can change product behaviour.
+-    paths:
+-      - ".github/workflows/piping-desktop-e2e.yml"
+-      - ".github/actions/setup-piping-e2e/**"
+-      - "projects/chirality-piping/tools/ci/**"
+-      - "projects/chirality-piping/tests/test_ci_e2e_plan.py"
+-      - "projects/chirality-piping/package.json"
+-      - "projects/chirality-piping/package-lock.json"
+-      - "projects/chirality-piping/apps/**"
+-      - "projects/chirality-piping/core/**"
+-      - "projects/chirality-piping/fixtures/**"
+-      - "projects/chirality-piping/schemas/**"
++    types: [opened, synchronize, reopened, ready_for_review, edited, labeled, unlabeled]
+   workflow_dispatch:
+ 
+ permissions:
+@@ -77,9 +43,10 @@
+           BASE: ${{ github.event.pull_request.base.sha }}
+           HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+           PR: ${{ github.event.pull_request.number }}
++          MILESTONE: ${{ contains(github.event.pull_request.labels.*.name, 'piping-full') }}
+         run: >-
+           python3 projects/chirality-piping/tools/ci/e2e_plan.py plan
+-          --event "$EVENT" --base "$BASE" --head "$HEAD" --pr "$PR"
++          --event "$EVENT" --base "$BASE" --head "$HEAD" --pr "$PR" --milestone "$MILESTONE"
+           --output piping-e2e-plan.json
+       - uses: actions/upload-artifact@v4
+         if: always()
+@@ -92,6 +59,7 @@
+   barrier:
+     name: Accessibility barrier and selected coverage
+     needs: selection
++    if: needs.selection.outputs.mode != 'not-applicable'
+     runs-on: ubuntu-latest
+     timeout-minutes: 45
+     steps:
+--- a/projects/chirality-piping/tools/ci/e2e_plan.py
++++ b/projects/chirality-piping/tools/ci/e2e_plan.py
+@@ -1,8 +1,10 @@
+ #!/usr/bin/env python3
+-"""Conservative source-mode CI routing. No shell execution or external packages."""
++"""Candidate-bound lean/affected/full source CI; all omissions are explicit."""
+ import argparse
+ from collections import Counter
+ import hashlib
++from functools import lru_cache
++import math
+ import json
+ import os
+ from pathlib import Path
+@@ -14,32 +16,31 @@
+ E2E = DESKTOP + 'e2e/'
+ FAST = 'e2e/b3-accessibility.spec.ts'
+ PROJECTS = ['chromium-desktop', 'chromium-compact']
+-BASELINE = '002dff0f244976f98b36517d920b3761f6f88704'
+-FOCUSED = [FAST, 'e2e/workspace-layout.spec.ts', 'e2e/gui-workflow-validation.spec.ts']
+-FOCUSED_TITLES = [
++FULL_LABEL = 'piping-full'
++LEAN_TITLES = {
++    'e2e/b3a-session-status.spec.ts': ['canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot'],
++    'e2e/workspace-layout.spec.ts': ['workspace preserves the visible model during discovery, routing, property editing and analysis navigation'],
++    'e2e/linear-authoring.spec.ts': ['compact blank-to-straight authoring keeps the canvas and exact Add/Apply review'],
++    'e2e/r2-smoke.spec.ts': ['R2 desktop preview smoke covers solve, results, report, and viewport overlay'],
++    'e2e/result-compatibility.spec.ts': ['fresh Current exports strict 0.2 result and stress-neutral evidence'],
++    'e2e/gui-workflow-validation.spec.ts': [
++        'shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home',
++        'shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer'],
++    'e2e/ui-foundation.spec.ts': ['[preflight] maintained fixture supports typed selection and a keyboard-authored measurement'],
++}
++LAYOUT_TITLES = [
+     'keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls',
+     'decorative viewport overlays pass real canvas gestures while view controls stay interactive',
+-    'workspace Escape event ownership consumed palette',
+-    'workspace Escape event ownership consumed drawer',
++    'workspace Escape event ownership body idle', 'workspace Escape event ownership body captured',
++    'workspace Escape event ownership consumed palette', 'workspace Escape event ownership consumed drawer',
+ ]
+-# Owner-authorized PR825 exception only; further product paths require ROOT review.
+-REPAIR_PATHS = {DESKTOP + 'src/styles.css', E2E + 'b3-accessibility.spec.ts',
+-                DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx'}
+-# Separate owner ruling: only the exact source-parity dist predicate is admitted.
+-PARITY_DIST_PATH = E2E + 'ui-foundation-dist.spec.ts'
+-PARITY_DIST_SHA256 = 'f6def858ca800f0f65fa338a92847e6ad8e0b11052dc6063f56d31d809cca4f3'
+-STRATEGY_PATHS = {'.github/workflows/piping-desktop-e2e.yml',
+-                  '.github/actions/setup-piping-e2e/action.yml',
+-                  PROJECT + 'tests/test_ci_e2e_plan.py',
+-                  'docs/governance_harness/tranche_manifests/PIPING-CI-STRATEGY-20260920.yaml'}
+-RUN = PROJECT + 'execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/'
+-REPAIR_EVIDENCE = [RUN + p for p in (
+-    'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/',
+-    'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/',
+-    'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-repo-checks/',
+-    'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-sweep/',
+-    'instances/B3-CODEX/ci-tooltip-repair/', 'instances/CI-STRATEGY-CODEX/',
+-)]
++# Only these reviewed module inputs use an actual import-consumer traversal.
++# Fixtures, config, unknown helpers and dynamic resource inputs remain full.
++INSTRUMENT_MODULES = {
++    'benchmark-harness.ts', 'fresh-demo-policy.mjs', 'performance-targets.ts',
++    'full-cohort-controller.ts', 'causal-method-contract.ts',
++    'causal-presentation-extractor.mjs', 'chromium-compositor-trace.ts', 'causal-phase-journal.ts',
++}
+ 
+ 
+ def git(root, *args):
+@@ -58,88 +59,123 @@
+                   and not p.name.endswith('-dist.spec.ts'))
+ 
+ 
+-def record(path):
+-    # Only prose and record data in explicitly non-runtime directories qualify.
+-    prefixes = [PROJECT + x for x in ('execution/', 'docs/', 'plans/', 'governance/', 'provenance/', 'loop/')]
+-    return (any(path.startswith(x) for x in prefixes)
+-            and Path(path).suffix in {'.md', '.json', '.csv', '.txt', '.log', '.sha256', '.jsonl'})
+-
+-
+-def repair_record(path):
+-    reproduction_records = {RUN + 'instances/B3-CODEX/ci-tooltip-repair/' + suffix for suffix in (
+-        '_run_records/implementer/final-source.diff',
+-        '_run_records/implementer/geometry-only.diff',
+-        '_run_records/implementer/run-focused.sh', '_run_records/run-manager-check.sh',
+-    )}
+-    return (path in reproduction_records or record(path)
+-            or (any(path.startswith(x) for x in REPAIR_EVIDENCE)
+-                and Path(path).suffix in {'.gz', '.png', '.zip'})
+-            or (path.startswith(PROJECT + 'validation/evidence/sweeps/')
+-                and Path(path).suffix == '.json'))
+-
+-
+-def strategy(path):
+-    return path in STRATEGY_PATHS or path.startswith(PROJECT + 'tools/ci/')
+-
+-
+-def repair_path(root, path, head):
+-    if path in REPAIR_PATHS:
+-        return True
+-    if path == PARITY_DIST_PATH:
+-        contents = git(root, 'show', head + ':' + path).encode('utf-8')
+-        return hashlib.sha256(contents).hexdigest() == PARITY_DIST_SHA256
+-    return False
+-
+-
+-def make_plan(root, event, base='', head='HEAD', pr=''):
++def irrelevant(path):
++    """Known non-inputs only; unknown root/shared inputs still run full."""
++    if path.startswith('projects/') and not path.startswith(PROJECT):
++        return True  # Runtime is not adopted as a Piping product dependency.
++    if path.startswith(PROJECT):
++        return any(path.startswith(PROJECT + p) for p in
++                   ('execution/', 'docs/', 'plans/', 'governance/', 'provenance/', 'loop/', 'validation/evidence/'))
++    return path.startswith(('docs/', 'agents/')) or path in {'README.md', 'AGENTS.md', 'CLAUDE.md'}
++
++
++def instrument_consumers(root, path, specs):
++    """Transitive literal import ownership, only for reviewed module entrypoints."""
++    if not path.startswith(E2E + 'ui-foundation/') or path[len(E2E + 'ui-foundation/'):] not in INSTRUMENT_MODULES:
++        return None
++    directory = Path(root) / DESKTOP
++    graph = {}
++    # Include test helpers and benchmarks as intermediate importers, never execute benchmarks.
++    for file in (directory / 'e2e').rglob('*'):
++        if not file.is_file() or file.suffix not in {'.ts', '.tsx', '.mjs', '.js'}:
++            continue
++        imports = re.findall(r'''(?:from\s*|import\s*\(\s*|require\s*\(\s*|import\s*)["'](\.[^"']+)["']''', file.read_text())
++        for name in imports:
++            candidate = file.parent / name
++            choices = [candidate] + [Path(str(candidate) + ext) for ext in ('.ts', '.tsx', '.mjs', '.js', '/index.ts')]
++            resolved = next((c.resolve() for c in choices if c.is_file()), None)
++            if resolved:
++                graph.setdefault(resolved, set()).add(file.resolve())
++    seen, pending = set(), [(Path(root) / path).resolve()]
++    while pending:
++        file = pending.pop()
++        if file in seen:
++            continue
++        seen.add(file)
++        pending.extend(graph.get(file, ()))
++    found = sorted(s for s in specs if (directory / s).resolve() in seen)
++    return found or None
++
++
++def owned_area(path):
++    if path == DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx':
++        return 'lean'
++    if path == DESKTOP + 'src/styles.css' or path.startswith(DESKTOP + 'src/features/workspace/shell/') or path in {
++        DESKTOP + 'src/features/workspace/shellLayout.ts', DESKTOP + 'src/features/workspace/uiPreferences.ts',
++        DESKTOP + 'src/features/workspace/workspaceCanvasBudget.ts'}:
++        return 'layout'
++    if any(path.startswith(DESKTOP + 'src/features/' + p) for p in
++           ('viewport/', 'model-tree/', 'geometry-tools/', 'rich-authoring/')) or path == DESKTOP + 'src/features/workspace/selectionState.ts':
++        return 'authoring'
++    if any(path.startswith(DESKTOP + 'src/features/' + p) for p in
++           ('results/', 'report/', 'stress-neutral/', 'project-storage/', 'redaction-controls/')) or path == DESKTOP + 'src/features/workspace/projectPersistenceIntegrity.ts':
++        return 'results'
++    return None
++
++
++def make_plan(root, event, base='', head='HEAD', pr='', milestone=False):
+     specs = inventory(root)
+-    if FAST not in specs:
++    head = git(root, 'rev-parse', '--verify', head + '^{commit}').strip()
++    plan = dict(version=2, mode='full', coverage_full=True, event=event, pr=str(pr),
++                base=None, target_base=base, head=head, milestone=bool(milestone), changed_paths=[],
++                projects=PROJECTS, inventory=specs, selected_specs=specs, selected_titles={},
++                appearance=False, ownership={}, reasons=['Full source coverage'])
++    if event == 'pull_request' and not milestone:
++        try:
++            merge_base = git(root, 'merge-base', base, head).strip()
++            delta = changes(root, merge_base, head)
++            plan.update(base=merge_base, changed_paths=delta)
++        except (subprocess.CalledProcessError, UnicodeError, IndexError):
++            plan['reasons'] = ['Unavailable PR diff; full coverage, target validation still required']
++        else:
++            active = [c for c in delta if not irrelevant(c['path'])]
++            if not active:
++                plan.update(mode='not-applicable', selected_specs=[], reasons=['No relevant Piping source/build/CI inputs changed'])
++            elif all(c['status'] in {'A', 'M'} and c['path'].startswith(E2E) and
++                     c['path'][len(DESKTOP):] in specs and c['path'].endswith('.spec.ts') for c in active):
++                plan.update(mode='changed-specs', selected_specs=sorted({FAST} | {c['path'][len(DESKTOP):] for c in active}),
++                            reasons=['Complete PR diff changes source specs only'])
++            elif all(c['status'] in {'A', 'M'} for c in active):
++                areas, consumers = set(), set()
++                for change in active:
++                    path = change['path']
++                    area = owned_area(path)
++                    found = instrument_consumers(root, path, specs) if area is None else None
++                    if area is None and found is None:
++                        break
++                    areas.add(area or 'instruments')
++                    consumers.update(found or [])
++                    plan['ownership'][path] = found or [area]
++                else:
++                    selected = {FAST} | consumers
++                    titles = {f: list(ts) for f, ts in LEAN_TITLES.items()}
++                    if 'layout' in areas:
++                        selected.add('e2e/workspace-layout.spec.ts')
++                        titles['e2e/ui-foundation.spec.ts'] += LAYOUT_TITLES
++                    if 'authoring' in areas:
++                        selected.update(['e2e/ui-foundation.spec.ts', 'e2e/linear-authoring.spec.ts'])
++                    if 'results' in areas:
++                        selected.update(['e2e/result-compatibility.spec.ts', 'e2e/gui-workflow-validation.spec.ts',
++                                         'e2e/b3a-session-status.spec.ts', 'e2e/r2-smoke.spec.ts'])
++                    plan.update(mode='lean' if areas == {'lean'} else 'lean-affected', selected_specs=sorted(selected),
++                                selected_titles=titles, appearance='layout' in areas,
++                                reasons=['Lean ordinary journeys plus reviewed affected ownership: ' + ', '.join(sorted(areas))])
++    elif event == 'pull_request':
++        plan['base'] = git(root, 'merge-base', base, head).strip()
++        plan['changed_paths'] = changes(root, plan['base'], head)
++        plan['reasons'] = ['Explicit piping-full integration milestone label']
++    else:
++        plan['reasons'] = ['Manual or unknown event: full source coverage']
++    plan['coverage_full'] = plan['mode'] == 'full'
++    plan['coverage_note'] = ('Full deduplicated source coverage requires barrier and four exact partitions to succeed.'
++        if plan['coverage_full'] else 'Not applicable: no tests selected or claimed passed.' if plan['mode'] == 'not-applicable'
++        else 'Partial source coverage; omitted tests are not passed and this is not DEC093 full surface4 evidence.')
++    if plan['mode'] != 'not-applicable' and FAST not in specs:
+         raise ValueError('Required accessibility barrier is missing')
+-    head = git(root, 'rev-parse', '--verify', head + '^{commit}').strip()
+-    plan = dict(version=1, mode='full', coverage_full=True, event=event, pr=str(pr),
+-                base=None, target_base=base, head=head, baseline=None, changed_paths=[], baseline_delta=[],
+-                projects=PROJECTS, inventory=specs, selected_specs=specs,
+-                focused_spec=None, focused_titles=[], reasons=[], coverage_note='Full source coverage requires barrier and all four shards to succeed.')
+-    if event != 'pull_request':
+-        plan['reasons'] = ['Manual or unknown event: full source suite']
+-        return plan
+-    try:
+-        merge_base = git(root, 'merge-base', base, head).strip()
+-        delta = changes(root, merge_base, head)
+-        plan.update(base=merge_base, changed_paths=delta)
+-    except (subprocess.CalledProcessError, UnicodeError, IndexError):
+-        plan['reasons'] = ['Unavailable PR merge-base/diff: full source suite']
+-        return plan
+-    if str(pr) == '825':
+-        try:
+-            git(root, 'merge-base', '--is-ancestor', BASELINE, head)
+-            repair = changes(root, BASELINE, head)
+-            plan.update(baseline=BASELINE, baseline_delta=repair)
+-            if repair and all(c['status'] in {'A', 'M'} and
+-                              (repair_path(root, c['path'], head) or strategy(c['path']) or repair_record(c['path'])) for c in repair):
+-                if not set(FOCUSED + ['e2e/ui-foundation.spec.ts']).issubset(specs):
+-                    raise ValueError('Required repair selection file is missing')
+-                plan.update(mode='pr825-repair', selected_specs=FOCUSED,
+-                            focused_spec='e2e/ui-foundation.spec.ts', focused_titles=FOCUSED_TITLES,
+-                            reasons=['Owner-authorized PR825 repair delta from prior tested head'])
+-        except (subprocess.CalledProcessError, UnicodeError, IndexError):
+-            plan['reasons'].append('PR825 baseline unavailable or not an ancestor')
+-    if plan['mode'] == 'full':
+-        active = [c for c in delta if not record(c['path'])]
+-        valid = active and all(c['status'] in {'A', 'M'} for c in active)
+-        if valid and all(c['path'].startswith(E2E) and c['path'][len(DESKTOP):] in specs and
+-                         c['path'].endswith('.spec.ts') for c in active):
+-            plan.update(mode='changed-specs', selected_specs=sorted({FAST} | {c['path'][len(DESKTOP):] for c in active}),
+-                        reasons=['Complete PR diff contains source specs and optional records only'])
+-        else:
+-            plan['reasons'].append('Broad, empty, deleted, renamed or unclassified input: full source suite')
+-    if plan['mode'] != 'full':
+-        plan.update(coverage_full=False, coverage_note='Partial coverage on this revision; not DEC093 full surface4 evidence.')
+     return plan
+ 
+-
+ def validate(root, plan):
+-    if not isinstance(plan, dict) or plan.get('version') != 1:
++    if not isinstance(plan, dict) or plan.get('version') != 2:
+         raise ValueError('Invalid plan schema')
+     # Bind downloaded metadata to the hosted event, not only to its own fields.
+     if os.getenv('GITHUB_EVENT_NAME'):
+@@ -148,11 +184,14 @@
+         if plan['event'] == 'pull_request':
+             event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
+             request = event['pull_request']
++            labelled = any(label['name'] == FULL_LABEL for label in request.get('labels', []))
++            if plan.get('milestone') != labelled:
++                raise ValueError('Plan milestone differs from hosted PR labels')
+             if (plan.get('target_base'), plan.get('head'), plan.get('pr')) != (
+                     request['base']['sha'], request['head']['sha'], str(event['number'])):
+                 raise ValueError('Plan candidate/base differs from the hosted PR event')
+     # Recompute instead of trusting downloaded command/filter data.
+-    expected = make_plan(root, plan.get('event'), plan.get('target_base') or '', plan.get('head', ''), plan.get('pr', ''))
++    expected = make_plan(root, plan.get('event'), plan.get('target_base') or '', plan.get('head', ''), plan.get('pr', ''), plan.get('milestone', False))
+     if plan != expected:
+         raise ValueError('Plan differs from checkout and conservative routing policy')
+     if plan['event'] == 'pull_request':
+@@ -167,167 +206,211 @@
+         raise ValueError('Plan head differs from checkout')
+ 
+ 
+-def commands(plan, stage, shard=None, list_only=False):
+-    common = ['../../node_modules/.bin/playwright', 'test', '--project=chromium-desktop',
+-              '--project=chromium-compact', '--workers=1', '--timeout=180000', '--reporter=list,html']
+-    if list_only:
+-        common[-1] = '--reporter=json'
+-        common += ['--list']
+-    def selected(specs, extra=()):
+-        if not specs:
+-            raise ValueError('Empty source selection is forbidden')
+-        return common + list(extra) + [re.escape(s) + '$' for s in specs]
+-    if stage == 'remainder':
+-        if plan['mode'] != 'full' or shard not in range(1, 5):
+-            raise ValueError('Remainder requires full mode and shard 1..4')
+-        return [selected([s for s in plan['inventory'] if s != FAST], [f'--shard={shard}/4'])]
+-    if stage != 'barrier':
+-        raise ValueError('Unknown execution stage')
+-    result = [selected([FAST], ['--max-failures=1'])]
+-    if plan['mode'] != 'full':
+-        rest = [s for s in plan['selected_specs'] if s != FAST]
+-        if rest:
+-            result.append(selected(rest, ['--max-failures=1']))
+-        if plan['focused_titles']:
+-            grep = '(?:' + '|'.join(re.escape(t) for t in plan['focused_titles']) + ')$'
+-            result.append(selected(['e2e/ui-foundation.spec.ts'], ['--max-failures=1', '--grep', grep]))
+-    return result
+-
+-
+ def collected_tests(report):
+-    """Normalize real Playwright list JSON without treating list status as a pass."""
+     if not isinstance(report, dict) or report.get('errors'):
+-        raise ValueError('Playwright collection is invalid or contains errors')
++        raise ValueError('Invalid Playwright collection')
+     rows = []
+-    def visit(suite):
++    def visit(suite, titles):
+         for spec in suite.get('specs', []):
+             for test in spec['tests']:
+-                row = dict(id=spec['id'], file='e2e/' + spec['file'], title=spec['title'],
+-                           project=test['projectName'], line=spec['line'])
+-                if not all(isinstance(row[k], str) and row[k] for k in ('id', 'file', 'title', 'project')):
+-                    raise ValueError('Malformed collected test identity')
+-                rows.append(row)
++                rows.append(dict(id=spec['id'], file='e2e/' + spec['file'], title=spec['title'],
++                                 title_path=titles + [spec['title']], tags=['@' + tag.lstrip('@') for tag in spec.get('tags', [])],
++                                 project=test['projectName'], line=spec['line']))
+         for child in suite.get('suites', []):
+-            visit(child)
+-    visit(report)
++            visit(child, titles + [child['title']] if child.get('line', 0) else titles)
++    visit(report, [])
+     if not rows:
+         raise ValueError('Empty Playwright collection')
+     return rows
+ 
+ 
+ def test_key(row):
+-    return row['id'], row['project'], row['file'], row['title']
+-
+-
+-def validate_collections(plan, collections):
+-    """Prove requested case/file/profile coverage and exact full partition."""
+-    full = collections['source']
+-    if not full or set(t['project'] for t in full) != set(PROJECTS):
+-        raise ValueError('Source collection must contain both profiles')
+-    full_ids = Counter(test_key(t) for t in full)
+-    if any(n != 1 for n in full_ids.values()):
+-        raise ValueError('Duplicate source test identities')
++    return row['id'], row['project'], row['file'], tuple(row['title_path'])
++
++
++def validate_source(source):
++    if set(t['project'] for t in source) != set(PROJECTS):
++        raise ValueError('Both source projects are required')
++    if any(n != 1 for n in Counter(test_key(t) for t in source).values()):
++        raise ValueError('Duplicate source identity')
++    if any(t['project'] == 'chromium-compact' and '@explicit-viewport' in t['tags'] for t in source):
++        raise ValueError('Explicit-viewport duplicate reintroduced by a filter override')
++    # The twelve matrix combinations are intentional distinct scenarios.
++    appearance = [t for t in source if t['file'] == 'e2e/ui-foundation.spec.ts'
++                  and t['title'].startswith('task and analysis dock preserve usable canvas ')]
++    expected = {f'task and analysis dock preserve usable canvas {theme} {density} {width}x{height}'
++                for theme in ('light', 'dark') for density in ('comfortable', 'compact')
++                for width, height in ((1024, 768), (1280, 800), (1440, 920))}
++    if {t['title'] for t in appearance} != expected or len(appearance) != 12:
++        raise ValueError('Appearance matrix must retain all twelve distinct setups exactly once')
++    for file in {t['file'] for t in source}:
++        for profile in PROJECTS:
++            if not any(t['file'] == file and t['project'] == profile for t in source):
++                raise ValueError('Missing file/profile in full source collection: ' + file + ' / ' + profile)
++
++
++def select_tests(plan, source):
++    validate_source(source)
++    if plan['mode'] == 'not-applicable':
++        raise ValueError('N/A must not run browser collection')
+     for file in plan['selected_specs']:
+-        for profile in PROJECTS:
+-            if not any(t['file'] == file and t['project'] == profile for t in full):
+-                raise ValueError(f'Empty selected file/profile: {file} / {profile}')
+-    for title in plan['focused_titles']:
+-        for profile in PROJECTS:
+-            found = [t for t in full if t['file'] == plan['focused_spec']
+-                     and t['title'] == title and t['project'] == profile]
+-            if len(found) != 1:
+-                raise ValueError(f'Focused title must occur exactly once: {title} / {profile}')
+-    if plan['mode'] == 'full':
+-        names = ['barrier-0'] + [f'shard-{n}' for n in range(1, 5)]
+-        expected = full
+-    else:
+-        names = [f'barrier-{n}' for n in range(len(commands(plan, 'barrier')))]
+-        expected = [t for t in full if t['file'] in plan['selected_specs'] or
+-                    (t['file'] == plan['focused_spec'] and t['title'] in plan['focused_titles'])]
+-    selected = []
+-    for name in names:
+-        if not collections.get(name):
+-            raise ValueError('Missing or empty required collection: ' + name)
+-        selected.extend(collections[name])
+-    if Counter(test_key(t) for t in selected) != Counter(test_key(t) for t in expected):
+-        raise ValueError('Collected partition has missing, duplicate or unexpected test identities')
+-    barrier_expected = Counter(test_key(t) for t in full if t['file'] == FAST)
+-    if Counter(test_key(t) for t in collections['barrier-0']) != barrier_expected:
+-        raise ValueError('Accessibility barrier collection differs from source inventory')
+-    selected_keys = {test_key(t) for t in selected}
+-    omitted = [dict(t, reason='Outside explicitly partial ' + plan['mode'] + ' selection')
+-               for t in full if test_key(t) not in selected_keys]
+-    return selected, omitted
++        if not any(t['file'] == file for t in source):
++            raise ValueError('Empty selected file: ' + file)
++    for file, titles in plan['selected_titles'].items():
++        for title in titles:
++            for profile in PROJECTS:
++                if sum(t['file'] == file and t['title'] == title and t['project'] == profile for t in source) != 1:
++                    raise ValueError('Required title/profile missing or duplicated: ' + title + ' / ' + profile)
++    selected = [t for t in source if plan['mode'] == 'full' or t['file'] in plan['selected_specs']
++                or t['title'] in plan['selected_titles'].get(t['file'], [])
++                or (plan['appearance'] and t['file'] == 'e2e/ui-foundation.spec.ts' and '@explicit-viewport' in t['tags'])]
++    if not selected or not any(t['file'] == FAST for t in selected):
++        raise ValueError('Missing accessibility barrier')
++    return selected
++
++
++# Scheduling hints only; never acceptance limits. Filled from retained observed
++# source job logs; new/unobserved identities get a conservative 30 second weight.
++DURATION_HINTS = Path(__file__).with_name('e2e_duration_hints.json')
++
++
++@lru_cache(maxsize=1)
++def duration_hints():
++    hints = json.loads(DURATION_HINTS.read_text())
++    if hints.get('version') != 1 or any(not isinstance(n, (float, int)) or not math.isfinite(n) or n <= 0
++                                      for n in [hints['unknown_seconds'], *hints['seconds'].values()]):
++        raise ValueError('Invalid scheduling duration hints')
++    return hints
++
++
++def duration_weight(row):
++    hints = duration_hints()
++    key = ' › '.join([row['project'], row['file'], *row['title_path']])
++    return hints['seconds'].get(key, hints['unknown_seconds'])
++
++
++def assign_partitions(plan, source, root):
++    selected = select_tests(plan, source)
++    barrier = [t for t in selected if t['file'] == FAST]
++    rest = [t for t in selected if t['file'] != FAST]
++    if plan['mode'] != 'full':
++        return {'barrier': barrier, **({'selected': rest} if rest else {})}
++    groups = {}
++    bodies = {file: (Path(root) / DESKTOP / file).read_text() for file in {t['file'] for t in rest}}
++    for row in rest:
++        # Keep named describe groups together. Conservatively preserve any file
++        # with a serial declaration rather than splitting its serial state.
++        body = bodies[row['file']]
++        serial = re.search(r'describe\.serial|mode\s*:\s*["\']serial["\']', body)
++        independent = row['file'] in {'e2e/ui-foundation.spec.ts', 'e2e/workspace-layout.spec.ts'}
++        key = (row['file'], row['project'], () if serial or not independent else tuple(row['title_path'][:-1]) or (row['title'],))
++        groups.setdefault(key, []).append(row)
++    for rows in groups.values():
++        rows.sort(key=test_key)
++    bins = [[] for _ in range(4)]
++    loads = [0.0] * 4
++    ordered = sorted(groups.items(), key=lambda pair: (-sum(duration_weight(t) for t in pair[1]), pair[0]))
++    for _, rows in ordered:
++        target = min(range(4), key=lambda i: (loads[i], i))
++        bins[target].extend(rows)
++        loads[target] += sum(duration_weight(t) for t in rows)
++    if any(not rows for rows in bins):
++        raise ValueError('Full selection needs four nonempty partitions')
++    return {'barrier': barrier, **{f'shard-{i+1}': rows for i, rows in enumerate(bins)}}
++
++
++def exact_list(rows):
++    if not rows:
++        raise ValueError('Empty exact test list')
++    lines = []
++    for row in rows:
++        tokens = [f"[{row['project']}]", row['file'].removeprefix('e2e/'), *row['title_path']]
++        if any(any(char in token for char in ('\n', '\r', '›')) or token.strip() != token for token in tokens):
++            raise ValueError('Test identity cannot be represented exactly in Playwright --test-list')
++        lines.append(' › '.join(tokens))
++    return '\n'.join(lines) + '\n'
++
++
++def command(test_list=None, list_only=False, fast=False):
++    args = ['../../node_modules/.bin/playwright', 'test', '--project=chromium-desktop',
++            '--project=chromium-compact', '--workers=1', '--timeout=180000',
++            '--reporter=json' if list_only else '--reporter=list,html']
++    if list_only:
++        args.append('--list')
++    if test_list is not None:
++        args.extend(['--test-list', str(Path(test_list).resolve())])
++    if fast:
++        args.append('--max-failures=1')
++    return args
++
++
++def assert_partition(expected, actual):
++    if not actual or Counter(test_key(t) for t in expected) != Counter(test_key(t) for t in actual):
++        raise ValueError('Collected exact list has missing, duplicate or unexpected identities')
+ 
+ 
+ def collect_candidate(root, plan, stage, shard, evidence_dir):
+-    """Validate cheap collection before any browser execution, on every runner."""
+-    evidence_dir = Path(evidence_dir)
+-    evidence_dir.mkdir(parents=True, exist_ok=True)
++    directory = Path(evidence_dir).resolve()
++    directory.mkdir(parents=True, exist_ok=True)
+     evidence = dict(kind='collection-only', status='incomplete', head=plan.get('head'),
+-                    merge_base=plan.get('base'), target_base=plan.get('target_base'),
+-                    mode=plan.get('mode'), stage=stage, shard=shard, commands={},
++                    merge_base=plan.get('base'), target_base=plan.get('target_base'), mode=plan.get('mode'),
++                    stage=stage, shard=shard, selected=[], omitted=[], execution_tests=[], commands={},
+                     selection_reasons=plan.get('reasons'),
+-                    plan_sha256=hashlib.sha256(json.dumps(plan, sort_keys=True).encode()).hexdigest(),
+-                    selected=[], omitted=[], execution_tests=[])
++                    plan_sha256=hashlib.sha256(json.dumps(plan, sort_keys=True).encode()).hexdigest())
+     try:
+         validate(root, plan)
+-        evidence['execution_commands'] = commands(plan, stage, shard)
+-        config = Path(root) / DESKTOP / 'playwright.config.ts'
++        if plan['mode'] == 'not-applicable':
++            raise ValueError('N/A mode must not provision or execute Piping browser jobs')
+         registry = Path(root) / PROJECT / 'node_modules/playwright-core/browsers.json'
+-        evidence['identity'] = dict(config_sha256=hashlib.sha256(config.read_bytes()).hexdigest(),
++        evidence['identity'] = dict(config_sha256=hashlib.sha256((Path(root) / DESKTOP / 'playwright.config.ts').read_bytes()).hexdigest(),
+             selector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+-            config_path=DESKTOP + 'playwright.config.ts', browser_registry=json.loads(registry.read_text()),
++            duration_hints_sha256=hashlib.sha256(DURATION_HINTS.read_bytes()).hexdigest(), browser_registry=json.loads(registry.read_text()),
+             configured_chromium_executable=os.getenv('PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH'),
+             mac_chrome_fallback_present=Path('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome').exists(),
+             browser_launched=False, runtime_browser_version=None)
+-        # Unfiltered collection detects specs the filesystem discovery missed.
+-        source_command = commands(plan, 'barrier', list_only=True)[0]
+-        source_command = [arg for arg in source_command if arg != re.escape(FAST) + '$' and arg != '--max-failures=1']
+-        requests = {'source': source_command}
+-        for n, command in enumerate(commands(plan, 'barrier', list_only=True)):
+-            requests[f'barrier-{n}'] = command
+-        if plan['mode'] == 'full':
+-            for n in range(1, 5):
+-                requests[f'shard-{n}'] = commands(plan, 'remainder', n, list_only=True)[0]
+-        collections = {}
+-        for name, command in requests.items():
+-            result = subprocess.run(command, cwd=Path(root) / DESKTOP, capture_output=True, text=True, timeout=180)
+-            evidence['commands'][name] = dict(argv=command, returncode=result.returncode)
+-            (evidence_dir / (name + '.stdout.json')).write_text(result.stdout)
+-            (evidence_dir / (name + '.stderr.txt')).write_text(result.stderr)
++        def collect(name, args):
++            result = subprocess.run(args, cwd=Path(root) / DESKTOP, capture_output=True, text=True, timeout=180)
++            evidence['commands'][name] = dict(argv=args, returncode=result.returncode)
++            (directory / (name + '.stdout.json')).write_text(result.stdout)
++            (directory / (name + '.stderr.txt')).write_text(result.stderr)
+             if result.returncode:
+-                raise ValueError(f'Collection {name} failed with exit {result.returncode}')
++                raise ValueError(f'Collection {name} failed: {result.returncode}')
+             report = json.loads(result.stdout)
+             evidence['commands'][name]['config'] = report.get('config')
+-            collections[name] = collected_tests(report)
+-        selected, omitted = validate_collections(plan, collections)
+-        evidence['identity']['source_file_sha256'] = {file: hashlib.sha256(
+-            (Path(root) / DESKTOP / file).read_bytes()).hexdigest()
+-            for file in sorted({t['file'] for t in collections['source']})}
+-        selected = [dict(t, reason=('Full source coverage' if plan['mode'] == 'full'
+-                    else 'Selected complete source file' if t['file'] in plan['selected_specs']
+-                    else 'Required exact focused title/profile')) for t in selected]
+-        execution_names = ([f'shard-{shard}'] if stage == 'remainder'
+-                           else [name for name in requests if name.startswith('barrier-')])
+-        # Validate stage parameters even when collection is invoked without execution.
+-        commands(plan, stage, shard)
+-        evidence.update(status='validated', selected=selected, omitted=omitted,
+-                        partition={name: rows for name, rows in collections.items() if name != 'source'},
+-                        execution_tests=[row for name in execution_names for row in collections[name]])
++            return collected_tests(report)
++        source = collect('source', command(list_only=True))
++        selected = select_tests(plan, source)
++        partitions = assign_partitions(plan, source, root)
++        actual = {}
++        for name, rows in partitions.items():
++            file = directory / (name + '.test-list.txt')
++            file.write_text(exact_list(rows))
++            actual[name] = collect(name, command(file, list_only=True))
++            assert_partition(rows, actual[name])
++        assert_partition(selected, [t for rows in actual.values() for t in rows])
++        names = ([f'shard-{shard}'] if stage == 'remainder' and plan['mode'] == 'full' and shard in range(1, 5)
++                 else ['barrier'] + (['selected'] if 'selected' in partitions else []) if stage == 'barrier' else [])
++        if not names or any(name not in actual for name in names):
++            raise ValueError('Invalid execution stage or shard')
++        keys = {test_key(t) for t in selected}
++        evidence.update(status='validated', selected=[dict(t, reason='Selected by ' + plan['mode']) for t in selected],
++            omitted=[dict(t, reason='Outside partial ' + plan['mode'] + ' coverage') for t in source if test_key(t) not in keys],
++            partition=actual, estimated_seconds={name: round(sum(duration_weight(t) for t in rows), 2) for name, rows in partitions.items()},
++            execution_tests=[t for name in names for t in actual[name]],
++            execution_commands=[command(directory / (name + '.test-list.txt'), fast=name == 'barrier') for name in names])
++        evidence['identity']['source_file_sha256'] = {file: hashlib.sha256((Path(root) / DESKTOP / file).read_bytes()).hexdigest()
++            for file in sorted({t['file'] for t in source})}
+     except Exception as exc:
+         evidence.update(status='failed', error=f'{type(exc).__name__}: {exc}')
+         raise
+     finally:
+-        (evidence_dir / 'collection.json').write_text(json.dumps(evidence, indent=2) + '\n')
+-        summary = (f"## Source collection: {stage} {shard or ''}\n\n"
+-                   f"Status: {evidence['status']}; head: `{evidence['head']}`; "
+-                   f"target base: `{evidence['target_base']}`; merge base: `{evidence['merge_base']}`.\n\n"
+-                   f"Selected {len(evidence['selected'])}; omitted {len(evidence['omitted'])}; "
+-                   f"this stage {len(evidence['execution_tests'])}. Collection is not a test pass.\n")
++        (directory / 'collection.json').write_text(json.dumps(evidence, indent=2) + '\n')
++        summary = (f"## Piping collection: {stage} {shard or ''}\n\nStatus: {evidence['status']}; "
++                   f"head `{evidence['head']}`, target `{evidence['target_base']}`.\n\n"
++                   f"Selected {len(evidence['selected'])}; omitted {len(evidence['omitted'])}. Collection is not a test pass.\n")
+         if 'error' in evidence:
+             summary += '\n' + evidence['error'] + '\n'
+-        (evidence_dir / 'summary.md').write_text(summary)
++        (directory / 'summary.md').write_text(summary)
+         if os.getenv('GITHUB_STEP_SUMMARY'):
+             with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+                 out.write(summary)
+@@ -335,25 +418,26 @@
+ 
+ 
+ def aggregate(mode, selection, barrier, remainder):
+-    return (mode in {'full', 'changed-specs', 'pr825-repair'}
+-            and selection == barrier == 'success'
+-            and remainder == ('success' if mode == 'full' else 'skipped'))
++    if selection != 'success':
++        return False
++    if mode == 'not-applicable':
++        return barrier == remainder == 'skipped'
++    return mode in {'full', 'changed-specs', 'lean', 'lean-affected'} and barrier == 'success' and remainder == ('success' if mode == 'full' else 'skipped')
+ 
+ 
+ def main():
+     parser = argparse.ArgumentParser(description=__doc__)
+     sub = parser.add_subparsers(dest='action', required=True)
+     build = sub.add_parser('plan')
+-    build.add_argument('--event', required=True)
+-    build.add_argument('--base', default='')
+-    build.add_argument('--head', default='HEAD')
+-    build.add_argument('--pr', default='')
++    for name, default in [('event', None), ('base', ''), ('head', 'HEAD'), ('pr', '')]:
++        build.add_argument('--' + name, default=default, required=name == 'event')
++    build.add_argument('--milestone', choices=['true', 'false'], default='false')
+     build.add_argument('--output', required=True)
+     run = sub.add_parser('run')
+     run.add_argument('--plan', required=True)
+     run.add_argument('--stage', choices=['barrier', 'remainder'], required=True)
+     run.add_argument('--shard', type=int)
+-    run.add_argument('--list', action='store_true', help='Validate collection only; do not execute tests')
++    run.add_argument('--list', action='store_true')
+     run.add_argument('--evidence-dir', required=True)
+     gate = sub.add_parser('aggregate')
+     for key in ('mode', 'selection', 'barrier', 'remainder'):
+@@ -362,28 +446,27 @@
+     root = Path(__file__).resolve().parents[4]
+     if args.action == 'aggregate':
+         ok = aggregate(args.mode, args.selection, args.barrier, args.remainder)
+-        print('Required source CI jobs succeeded' if ok else 'Required source CI job failed, cancelled, absent or invalid')
++        print('Validated not-applicable: no Piping tests selected or passed' if ok and args.mode == 'not-applicable'
++              else 'Required selected coverage succeeded' if ok else 'Required CI failed, cancelled, missing or invalid')
+         raise SystemExit(0 if ok else 1)
+     if args.action == 'plan':
+-        plan = make_plan(root, args.event, args.base, args.head, args.pr)
++        plan = make_plan(root, args.event, args.base, args.head, args.pr, args.milestone == 'true')
+         Path(args.output).write_text(json.dumps(plan, indent=2) + '\n')
+-        if os.getenv('GITHUB_OUTPUT'):
+-            with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+-                out.write('mode=' + plan['mode'] + '\n')
+-        summary = '## Piping source CI selection\n\n' + plan['coverage_note'] + '\n\n```json\n' + json.dumps(plan, indent=2) + '\n```\n'
++        summary = '## Piping source selection\n\n' + plan['coverage_note'] + '\n\n```json\n' + json.dumps(plan, indent=2) + '\n```\n'
+         if os.getenv('GITHUB_STEP_SUMMARY'):
+             with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+                 out.write(summary)
+         print(summary)
+         validate(root, plan)
++        if os.getenv('GITHUB_OUTPUT'):
++            with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
++                out.write('mode=' + plan['mode'] + '\n')
+     else:
+         plan = json.loads(Path(args.plan).read_text())
+-        collect_candidate(root, plan, args.stage, args.shard, args.evidence_dir)
+-        if args.list:
+-            return
+-        for command in commands(plan, args.stage, args.shard):
+-            print(json.dumps(command), flush=True)
+-            subprocess.run(command, cwd=root / DESKTOP, check=True)
++        evidence = collect_candidate(root, plan, args.stage, args.shard, args.evidence_dir)
++        if not args.list:
++            for args in evidence['execution_commands']:
++                subprocess.run(args, cwd=root / DESKTOP, check=True)
+ 
+ 
+ if __name__ == '__main__':
+--- /dev/null
++++ b/projects/chirality-piping/tools/ci/e2e_duration_hints.json
+@@ -0,0 +1,436 @@
++{
++  "version": 1,
++  "basis": {
++    "repository": "sgttomas/chirality",
++    "pr": 826,
++    "log_sha256": "53d4df8d5bcef419a7e4975753b3d6166d7d1ea329e6cf572555315fc7fc215a",
++    "meaning": "Observed successful source test durations; scheduling hints only, not acceptance limits. Unobserved tests use conservative fallback."
++  },
++  "unknown_seconds": 30,
++  "seconds": {
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a Agent reason preserves hover and lets focused page Close receive the pointer": 2.4,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a Both inspector Escape closes from property tab and input to opener": 3.2,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a Model inspector stays docked on Escape": 2.0,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a compact routing selector owns popup Escape before configured shell consumers": 4.8,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a compact routing selector owns popup Escape before narrow shell consumers": 5.4,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a covered pages exclude retained stage controls from Tab and accessibility": 11.7,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a disabled rail and Agent reasons escape clipping under keyboard focus": 4.7,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a disabled reasons own only visible unconsumed Escape and reset on reentry": 3.2,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a keyboard page Close restores visible focus and retained state: libraries": 4.4,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a keyboard page Close restores visible focus and retained state: project": 4.4,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a keyboard page Close restores visible focus and retained state: solve": 4.6,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a portalled routing Escape closes explicitly and supersedes automatic restore": 2.5,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a simultaneous hovered and focused reasons dismiss before the page": 2.4,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a support family popup dismissal does not invent a missing engineering choice": 3.3,
++    "chromium-compact \u203a e2e/b3-accessibility.spec.ts \u203a toolkit child consumes first Escape before inspector close": 2.5,
++    "chromium-compact \u203a e2e/b3a-session-status.spec.ts \u203a canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot": 5.5,
++    "chromium-compact \u203a e2e/gui-workflow-validation.spec.ts \u203a DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions": 17.7,
++    "chromium-compact \u203a e2e/gui-workflow-validation.spec.ts \u203a shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer": 5.4,
++    "chromium-compact \u203a e2e/gui-workflow-validation.spec.ts \u203a shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home": 5.1,
++    "chromium-compact \u203a e2e/linear-authoring.spec.ts \u203a compact blank-to-straight authoring keeps the canvas and exact Add/Apply review": 36.9,
++    "chromium-compact \u203a e2e/r2-smoke.spec.ts \u203a DEC-077 solve temperature queues an explicit unit-bearing operation": 3.2,
++    "chromium-compact \u203a e2e/r2-smoke.spec.ts \u203a R2 desktop preview smoke covers solve, results, report, and viewport overlay": 50.4,
++    "chromium-compact \u203a e2e/r2-smoke.spec.ts \u203a R2 from-blank GUI journey authors the A12 rehearsal script": 24.6,
++    "chromium-compact \u203a e2e/r2-smoke.spec.ts \u203a R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps": 6.2,
++    "chromium-compact \u203a e2e/r2-smoke.spec.ts \u203a diagnostic detail exposes linked result unit context": 3.3,
++    "chromium-compact \u203a e2e/r2-smoke.spec.ts \u203a guided workbench shell keeps journey steps, details, and compact status reachable": 6.3,
++    "chromium-compact \u203a e2e/r2-smoke.spec.ts \u203a library manager loads an invented private sample and reports the desktop-only backend seam": 4.4,
++    "chromium-compact \u203a e2e/r2-smoke.spec.ts \u203a rule-pack manager drafts privately and reports the desktop-only backend seam": 5.8,
++    "chromium-compact \u203a e2e/r2-smoke.spec.ts \u203a run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam": 3.1,
++    "chromium-compact \u203a e2e/r2-smoke.spec.ts \u203a viewport gesture placeholders record unit validation": 5.6,
++    "chromium-compact \u203a e2e/result-compatibility.spec.ts \u203a fresh Current exports strict 0.2 result and stress-neutral evidence": 48.9,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a Actual OD uses valid spans and explains the independently injected centerline fallback": 3.3,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags": 12.3,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft": 3.2,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture": 7.5,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture": 3.0,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a [preflight] maintained fixture supports typed selection and a keyboard-authored measurement": 5.8,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change": 2.1,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a a prepared direct review is rejected after selection membership leaves and returns to the same primary": 4.0,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a a property task keeps its typed target and entered value through filter, collapse, and selection ABA": 5.3,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled": 4.0,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a Escape retires captured Box before delayed pointer up": 3.2,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a Measure cannot revive a captured Box through a mode ABA": 3.2,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a New blank retires captured Box before delayed pointer up": 3.2,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a Select retires captured Box before delayed pointer up": 3.2,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a ordinary real Box applies independent empty Components membership": 3.1,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a palette Node and Select cannot revive a captured Box through a mode ABA": 3.9,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a same-ID Open retires old captured Box before delayed pointer up": 4.5,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a workspace Escape event ownership body captured": 3.1,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a workspace Escape event ownership body idle": 2.5,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a workspace Escape event ownership consumed drawer": 3.2,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a workspace Escape event ownership consumed palette": 2.7,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a decorative viewport overlays pass real canvas gestures while view controls stay interactive": 7.1,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a empty ordered selection publishes independently from project inspector": 10.3,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles": 4.3,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a filtered tree collapse controls retain typed selection and frozen draft across search changes": 6.1,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls": 5.1,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a live Properties routes follow catalogue target B while frozen Task A remains unchanged": 5.2,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a narrow canvas fits visible and selected envelopes in every view preset": 4.0,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a node visibility owns attached symbols while connected spans remain independent, and isolate is bounded": 11.3,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a ordinary typed edit preserves view state and same-ID project replacement clears it": 6.1,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures": 3.4,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a selected-pipe actions copy a stable draft target snapshot instead of following later selection": 5.3,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths": 20.7,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a standard 1000 camera recipe compares legacy and corrected fit without changing targets": 2.8,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a standard 10000 camera recipe compares legacy and corrected fit without changing targets": 7.4,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas dark comfortable 1024x768": 13.7,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas dark comfortable 1280x800": 13.2,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas dark comfortable 1440x920": 13.4,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas dark compact 1024x768": 13.5,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas dark compact 1280x800": 13.2,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas dark compact 1440x920": 13.5,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas light comfortable 1024x768": 13.9,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas light comfortable 1280x800": 13.3,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas light comfortable 1440x920": 13.5,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas light compact 1024x768": 13.6,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas light compact 1280x800": 13.2,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas light compact 1440x920": 13.6,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a typed raw-ID collisions remain distinct through ordered selection and an ABA membership change": 2.7,
++    "chromium-compact \u203a e2e/ui-foundation.spec.ts \u203a virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus": 5.1,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a Box producer phases are reevaluated only on a fresh genuine callback and retain bounded failed facts": 1.2,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a RAF callback percentile cannot be diluted by cheap registrations": 0.008,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a actual elementFromPoint rejects an intercepting overlay": 0.287,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: capacity": 0.157,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: final-without-frame": 0.106,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: no-clear": 0.13,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: pending-at-stop": 0.096,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: same-epoch": 0.119,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: stale-submission": 0.123,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: two-epochs": 0.107,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: unready-tree": 0.121,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: wrong-model": 0.131,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment retains original product start and reconciles stopped identity: complete": 0.091,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment retains original product start and reconciles stopped identity: stopped-model-drift": 0.086,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a bad or missing observer windows cannot receive structural validity": 0.007,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a baseline null outside hit records limitation and continues before label lookup": 0.002,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a box callback consumes actual unavailable or active union and rejects numerical and ordered-state faults": 0.426,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a box feedback checks full membership even when primary is unchanged: complete": 0.088,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a box feedback checks full membership even when primary is unchanged: same-primary-missing-member": 0.091,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a candidate diagnostics without same-callback DOM and positive submission cannot emit qualifying feedback": 0.149,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a candidate point feedback requires product-shaped compact heading: valid": 0.158,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a candidate point feedback requires product-shaped compact heading: wrong-label": 0.174,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a candidate point feedback requires product-shaped compact heading: wrong-typed-identity": 0.181,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a clear sentinel retains original WebGL clear work separately from observer cost": 0.188,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a duplicate ambiguous enclosures and illegal reuse across distinct callbacks fail": 0.003,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a exact observation coverage accepts extra unrelated callbacks and shared pointer action listener": 0.002,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a expected RAF and action operation populations cannot disappear": 0.01,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a extra or unknown observer RAF, product observation RAF, and incomplete restore fail closed": 0.009,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a forced derivation failure preserves immutable earlier journals and a terminal failure": 0.022,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a instrumented preflight still requires complete causal and pixel evidence above raw overhead references": 0.005,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a invalid samples fail and crossing samples are charged in full": 0.004,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a malformed or duplicate expected observation identities and boundaries fail": 0.006,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a missing or non-enclosing pointer and action cost records fail": 0.003,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a missing, malformed, negative and nonfinite observer readings fail structurally": 0.009,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a nonzero canvas origin and prescribed orbit start retain client coordinates": 0.01,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a observer setup failure still invokes the original RAF callback exactly once and restore removes listeners": 0.744,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a overlay target and observer overflow fail closed": 0.013,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a raw zero costs remain uncertain rather than a true-overhead pass": 0.006,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a real input DOM observer binds stopped publication and pending mutation: complete": 0.14,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a real input DOM observer binds stopped publication and pending mutation: pending-mutation": 0.13,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a secondary inspector capture uses phase-specific exact independently supplied typed heading": 0.726,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a source-bound page-edge uncertainty retains possibly intersecting observer work": 0.004,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a unrelated RAF cost cannot substitute for missing saved feedback cost": 0.001,
++    "chromium-compact \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a zero RAF DOM class requires exact input and mutation records without fabricated callbacks": 0.003,
++    "chromium-compact \u203a e2e/ui-foundation/fresh-demo-policy.spec.ts \u203a fresh hash and exclusive entry reject policy drift and output replay": 0.005,
++    "chromium-compact \u203a e2e/ui-foundation/fresh-demo-policy.spec.ts \u203a fresh policy requires exact one-run authorization and all prospective bindings": 0.019,
++    "chromium-compact \u203a e2e/ui-foundation/fresh-demo-policy.spec.ts \u203a fresh smoke is explicit, keeps both-size controls and never consumes timed entry": 0.001,
++    "chromium-compact \u203a e2e/ui-foundation/fresh-demo-policy.spec.ts \u203a single demonstration retains target failure and invalid/incomplete disposition": 0.002,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix": 1.7,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual ReturnAsStream beyond former64MiB preserves EOF exact hash and unsafe identifiers": 0.823,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual action lifecycle persists once before host tail and blocks next action through finalization": 0.016,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual extractor and binder retain reusable tracks distinct raw pairs and tied timestamps": 0.012,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual first callback copies application and capture rejects replacement drift or later backfill": 0.083,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual lifecycle retains injected work stop persistence tail and finalization failures without replacement stop": 0.02,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual product pre-box unavailable and status-less active union is strict": 0.01,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a assignment diagnostics freeze ten fresh identities and cannot qualify full or focused workload": 0.01,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs": 0.002,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a characterization rejects malformed/conflicting modes and every partial/reordered plan": 0.01,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence": 1.2,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a cross-action camera accepts finite sub-nanounit 7 to 8 publication and rejects incomplete or changed geometry": 0.011,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a cue at the wrong attachment location cannot qualify the frozen winner center": 0.006,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a cue plan rejects wrong typed winner anchor camera DPR clip and corrupt PNG mappings": 0.059,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a exact four distinct paired witnesses and actual contrast boundary remain mandatory": 0.021,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a first applied tuple binds same or later submission only for the exact unchanged application and pointer": 0.011,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a first profile repair: D-70 inventory retains the original acceptance independently of later inventories": 0.012,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a first profile repair: generator checks and preflight failures never write": 53.4,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a first profile repair: historical geometry preserves its pinned preimage": 0.001,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a fresh demonstration provenance accepts only its bound revision and internal120 profile": 0.005,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a frozen controller recipe retains prescribed workload and bounded independent segments": 0.001,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a geometry pairing is deterministic conservative and one-to-one": 0.076,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers": 0.001,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: assignment": 0.015,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: tree-filter": 0.003,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a orbit constructor preserves full qualified sequence and unchanged interval gaps": 0.011,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a paired cue permits contrasting rim replacing orange and rejects unchanged/outside changes": 0.107,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a phase label rejection preserves actual boundary metadata: orbit-1-ready": 0.004,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a phase label rejection preserves actual boundary metadata: point-selection-1-stopped": 0.004,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a presented gap bounds widen outward and never subtract observer work": 0.002,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a product inventory rejects omission duplicates split overlap and wrong final provenance": 0.004,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a real caller observer requirements retain complete observations and DOM zero RAF class": 0.001,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries": 0.005,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles": 0.004,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions": 0.011,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a runtime geometry pin checks self-contained manifests and actual disk source": 0.087,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a runtime geometry pin rejects old and mutated plan sources after valid selfhash rebinding": 0.004,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a same-trace boundary rejects mixed raw clock source document action epoch process and lineage": 0.013,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a same-trace integer arithmetic matches independent rational bounds and translation": 0.008,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a source-shaped extractor still rejects overlap missing pair and mismatched track endpoints": 0.01,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a stopped box rejection persists exact fields before throwing and never overwrites evidence": 0.108,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a tree oracle is independently derived with complete typed order and ARIA groups": 0.004,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a tree oracle matches all 40 independently frozen ordered query memberships": 22.8,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a tree oracle restores accepted project restraint provenance and component vocabulary": 0.034,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs": 0.01,
++    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a winner plan requires geometry provenance even when the altered plan is rehashed and self-consistent": 0.001,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a all exact owner boundaries pass despite raw observer reference exceedance": 0.008,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a all left right both-edge cuts retain ties and no omitted candidates": 0.007,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a all twenty box and filter rows are required and nineteenth upper is scored": 0.013,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a boundary endpoints cannot replace missing left right or both outside brackets: actual-od": 0.005,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a boundary endpoints cannot replace missing left right or both outside brackets: centerline": 0.006,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a each target rejects tiny excess and scores upper rather than lower endpoint": 0.023,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a endpoint and envelope defects never become a favorable boundary population": 0.026,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a exact ten-run cohort preserves each result without pooling sizes or modes": 0.021,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a independent dyadic1199 versus1200 dilution must fail using maximum population p95": 0.023,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a invalid duration intervals and absent assignment never qualify": 0.025,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a missing duplicate reordered sparse or unqualified action populations fail without survivor p95": 0.043,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a missing repeated mixed-binding or nonfresh cohort cannot pass": 0.059,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a nearest rank uses the 190th of 200 and retains all tail samples": 0.021,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a orbit requires exact windows complete contiguous brackets correct modes and current OD": 0.02,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a outside orbit brackets survive exact left right and both boundary alignment: actual-od": 0.007,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a outside orbit brackets survive exact left right and both boundary alignment: centerline": 0.007,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: actual-od": 0.016,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: centerline": 0.032,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a run identity bindings freshness and qualification are mandatory": 0.012,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a same capture forbids every raw event reuse while tracks and raw index order may repeat": 0.005,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a same-trace complete populations retain ties and prevent boundary dilution": 0.02,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a same-trace scorer independently rejects narrow bounds and false carried context": 0.088,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a settled owned RAF must be observed exact zero": 0.011,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a tied coordinates do not waive identity population interval or window guards: actual-od": 0.075,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a tied coordinates do not waive identity population interval or window guards: centerline": 0.086,
++    "chromium-compact \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a uncertain right boundary is qualified rather than nominally rejected": 0.007,
++    "chromium-compact \u203a e2e/workspace-layout.spec.ts \u203a D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class": 3.3,
++    "chromium-compact \u203a e2e/workspace-layout.spec.ts \u203a a switch to Table view hides the canvas without resizing its renderer": 2.6,
++    "chromium-compact \u203a e2e/workspace-layout.spec.ts \u203a below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over": 10.2,
++    "chromium-compact \u203a e2e/workspace-layout.spec.ts \u203a browser native-class structural review captures retain pane and drawn-canvas geometry": 4.7,
++    "chromium-compact \u203a e2e/workspace-layout.spec.ts \u203a routing uses the inspector without changing the D2 pane allocation, 1280 x 800, native-runtime class": 5.0,
++    "chromium-compact \u203a e2e/workspace-layout.spec.ts \u203a routing uses the inspector without changing the D2 pane allocation, 1440 x 900, native-runtime class": 5.2,
++    "chromium-compact \u203a e2e/workspace-layout.spec.ts \u203a the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280": 21.5,
++    "chromium-compact \u203a e2e/workspace-layout.spec.ts \u203a the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1440": 23.7,
++    "chromium-compact \u203a e2e/workspace-layout.spec.ts \u203a the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1280": 21.1,
++    "chromium-compact \u203a e2e/workspace-layout.spec.ts \u203a the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440": 23.6,
++    "chromium-compact \u203a e2e/workspace-layout.spec.ts \u203a the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views": 5.5,
++    "chromium-compact \u203a e2e/workspace-layout.spec.ts \u203a workspace preserves the visible model during discovery, routing, property editing and analysis navigation": 6.4,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a Agent reason preserves hover and lets focused page Close receive the pointer": 2.4,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a Both inspector Escape closes from property tab and input to opener": 3.2,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a Model inspector stays docked on Escape": 2.1,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a compact routing selector owns popup Escape before configured shell consumers": 4.9,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a compact routing selector owns popup Escape before narrow shell consumers": 5.0,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a covered pages exclude retained stage controls from Tab and accessibility": 11.5,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a disabled rail and Agent reasons escape clipping under keyboard focus": 6.8,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a disabled reasons own only visible unconsumed Escape and reset on reentry": 3.2,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a keyboard page Close restores visible focus and retained state: libraries": 4.4,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a keyboard page Close restores visible focus and retained state: project": 4.5,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a keyboard page Close restores visible focus and retained state: solve": 4.3,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a portalled routing Escape closes explicitly and supersedes automatic restore": 2.6,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a simultaneous hovered and focused reasons dismiss before the page": 2.6,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a support family popup dismissal does not invent a missing engineering choice": 3.3,
++    "chromium-desktop \u203a e2e/b3-accessibility.spec.ts \u203a toolkit child consumes first Escape before inspector close": 2.4,
++    "chromium-desktop \u203a e2e/b3a-session-status.spec.ts \u203a canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot": 6.2,
++    "chromium-desktop \u203a e2e/gui-workflow-validation.spec.ts \u203a DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions": 17.8,
++    "chromium-desktop \u203a e2e/gui-workflow-validation.spec.ts \u203a shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer": 5.7,
++    "chromium-desktop \u203a e2e/gui-workflow-validation.spec.ts \u203a shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home": 5.2,
++    "chromium-desktop \u203a e2e/linear-authoring.spec.ts \u203a compact blank-to-straight authoring keeps the canvas and exact Add/Apply review": 38.6,
++    "chromium-desktop \u203a e2e/r2-smoke.spec.ts \u203a DEC-077 solve temperature queues an explicit unit-bearing operation": 3.2,
++    "chromium-desktop \u203a e2e/r2-smoke.spec.ts \u203a R2 desktop preview smoke covers solve, results, report, and viewport overlay": 50.8,
++    "chromium-desktop \u203a e2e/r2-smoke.spec.ts \u203a R2 from-blank GUI journey authors the A12 rehearsal script": 25.1,
++    "chromium-desktop \u203a e2e/r2-smoke.spec.ts \u203a R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps": 6.0,
++    "chromium-desktop \u203a e2e/r2-smoke.spec.ts \u203a diagnostic detail exposes linked result unit context": 3.3,
++    "chromium-desktop \u203a e2e/r2-smoke.spec.ts \u203a guided workbench shell keeps journey steps, details, and compact status reachable": 6.3,
++    "chromium-desktop \u203a e2e/r2-smoke.spec.ts \u203a library manager loads an invented private sample and reports the desktop-only backend seam": 4.4,
++    "chromium-desktop \u203a e2e/r2-smoke.spec.ts \u203a rule-pack manager drafts privately and reports the desktop-only backend seam": 5.8,
++    "chromium-desktop \u203a e2e/r2-smoke.spec.ts \u203a run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam": 3.2,
++    "chromium-desktop \u203a e2e/r2-smoke.spec.ts \u203a viewport gesture placeholders record unit validation": 5.5,
++    "chromium-desktop \u203a e2e/result-compatibility.spec.ts \u203a fresh Current exports strict 0.2 result and stress-neutral evidence": 47.9,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a Actual OD uses valid spans and explains the independently injected centerline fallback": 3.7,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags": 13.1,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft": 3.2,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture": 7.6,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture": 3.0,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a [preflight] maintained fixture supports typed selection and a keyboard-authored measurement": 5.8,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change": 2.2,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a a prepared direct review is rejected after selection membership leaves and returns to the same primary": 4.1,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a a property task keeps its typed target and entered value through filter, collapse, and selection ABA": 6.1,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled": 4.2,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a Escape retires captured Box before delayed pointer up": 3.3,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a Measure cannot revive a captured Box through a mode ABA": 3.3,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a New blank retires captured Box before delayed pointer up": 3.3,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a Select retires captured Box before delayed pointer up": 3.2,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a ordinary real Box applies independent empty Components membership": 3.3,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a palette Node and Select cannot revive a captured Box through a mode ABA": 4.0,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a same-ID Open retires old captured Box before delayed pointer up": 4.6,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a workspace Escape event ownership body captured": 3.1,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a workspace Escape event ownership body idle": 2.5,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a workspace Escape event ownership consumed drawer": 3.1,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a captured Box lifetime \u203a workspace Escape event ownership consumed palette": 2.7,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a decorative viewport overlays pass real canvas gestures while view controls stay interactive": 6.9,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a empty ordered selection publishes independently from project inspector": 10.7,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles": 4.5,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a filtered tree collapse controls retain typed selection and frozen draft across search changes": 6.2,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls": 5.3,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a live Properties routes follow catalogue target B while frozen Task A remains unchanged": 5.5,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a narrow canvas fits visible and selected envelopes in every view preset": 4.3,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a node visibility owns attached symbols while connected spans remain independent, and isolate is bounded": 11.8,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a ordinary typed edit preserves view state and same-ID project replacement clears it": 6.5,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures": 3.6,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a selected-pipe actions copy a stable draft target snapshot instead of following later selection": 6.0,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths": 21.8,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a standard 1000 camera recipe compares legacy and corrected fit without changing targets": 2.7,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a standard 10000 camera recipe compares legacy and corrected fit without changing targets": 7.5,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas dark comfortable 1024x768": 14.1,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas dark comfortable 1280x800": 13.3,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas dark comfortable 1440x920": 13.4,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas dark compact 1024x768": 14.6,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas dark compact 1280x800": 13.8,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas dark compact 1440x920": 13.9,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas light comfortable 1024x768": 14.1,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas light comfortable 1280x800": 13.6,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas light comfortable 1440x920": 13.5,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas light compact 1024x768": 14.0,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas light compact 1280x800": 13.5,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a task and analysis dock preserve usable canvas light compact 1440x920": 13.7,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a typed raw-ID collisions remain distinct through ordered selection and an ABA membership change": 2.8,
++    "chromium-desktop \u203a e2e/ui-foundation.spec.ts \u203a virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus": 5.3,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a Box producer phases are reevaluated only on a fresh genuine callback and retain bounded failed facts": 1.4,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a RAF callback percentile cannot be diluted by cheap registrations": 0.009,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a actual elementFromPoint rejects an intercepting overlay": 0.293,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: capacity": 0.167,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: final-without-frame": 0.136,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: no-clear": 0.115,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: pending-at-stop": 0.114,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: same-epoch": 0.104,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: stale-submission": 0.125,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: two-epochs": 0.104,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: unready-tree": 0.141,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment epoch history requires genuine eligible advancing frames: wrong-model": 0.141,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment retains original product start and reconciles stopped identity: complete": 0.081,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a assignment retains original product start and reconciles stopped identity: stopped-model-drift": 0.076,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a bad or missing observer windows cannot receive structural validity": 0.004,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a baseline null outside hit records limitation and continues before label lookup": 0.002,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a box callback consumes actual unavailable or active union and rejects numerical and ordered-state faults": 0.543,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a box feedback checks full membership even when primary is unchanged: complete": 0.085,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a box feedback checks full membership even when primary is unchanged: same-primary-missing-member": 0.081,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a candidate diagnostics without same-callback DOM and positive submission cannot emit qualifying feedback": 0.132,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a candidate point feedback requires product-shaped compact heading: valid": 0.159,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a candidate point feedback requires product-shaped compact heading: wrong-label": 0.155,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a candidate point feedback requires product-shaped compact heading: wrong-typed-identity": 0.162,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a clear sentinel retains original WebGL clear work separately from observer cost": 0.192,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a duplicate ambiguous enclosures and illegal reuse across distinct callbacks fail": 0.004,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a exact observation coverage accepts extra unrelated callbacks and shared pointer action listener": 0.002,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a expected RAF and action operation populations cannot disappear": 0.004,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a extra or unknown observer RAF, product observation RAF, and incomplete restore fail closed": 0.004,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a forced derivation failure preserves immutable earlier journals and a terminal failure": 0.026,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a instrumented preflight still requires complete causal and pixel evidence above raw overhead references": 0.007,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a invalid samples fail and crossing samples are charged in full": 0.012,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a malformed or duplicate expected observation identities and boundaries fail": 0.012,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a missing or non-enclosing pointer and action cost records fail": 0.005,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a missing, malformed, negative and nonfinite observer readings fail structurally": 0.016,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a nonzero canvas origin and prescribed orbit start retain client coordinates": 0.013,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a observer setup failure still invokes the original RAF callback exactly once and restore removes listeners": 0.732,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a overlay target and observer overflow fail closed": 0.009,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a raw zero costs remain uncertain rather than a true-overhead pass": 0.009,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a real input DOM observer binds stopped publication and pending mutation: complete": 0.155,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a real input DOM observer binds stopped publication and pending mutation: pending-mutation": 0.133,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a secondary inspector capture uses phase-specific exact independently supplied typed heading": 0.724,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a source-bound page-edge uncertainty retains possibly intersecting observer work": 0.005,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a unrelated RAF cost cannot substitute for missing saved feedback cost": 0.002,
++    "chromium-desktop \u203a e2e/ui-foundation/causal-method-contract.spec.ts \u203a zero RAF DOM class requires exact input and mutation records without fabricated callbacks": 0.008,
++    "chromium-desktop \u203a e2e/ui-foundation/fresh-demo-policy.spec.ts \u203a fresh hash and exclusive entry reject policy drift and output replay": 0.007,
++    "chromium-desktop \u203a e2e/ui-foundation/fresh-demo-policy.spec.ts \u203a fresh policy requires exact one-run authorization and all prospective bindings": 0.017,
++    "chromium-desktop \u203a e2e/ui-foundation/fresh-demo-policy.spec.ts \u203a fresh smoke is explicit, keeps both-size controls and never consumes timed entry": 0.002,
++    "chromium-desktop \u203a e2e/ui-foundation/fresh-demo-policy.spec.ts \u203a single demonstration retains target failure and invalid/incomplete disposition": 0.002,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix": 1.7,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual ReturnAsStream beyond former64MiB preserves EOF exact hash and unsafe identifiers": 0.857,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual action lifecycle persists once before host tail and blocks next action through finalization": 0.016,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual extractor and binder retain reusable tracks distinct raw pairs and tied timestamps": 0.012,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual first callback copies application and capture rejects replacement drift or later backfill": 0.082,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual lifecycle retains injected work stop persistence tail and finalization failures without replacement stop": 0.019,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a actual product pre-box unavailable and status-less active union is strict": 0.008,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a assignment diagnostics freeze ten fresh identities and cannot qualify full or focused workload": 0.01,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs": 0.002,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a characterization rejects malformed/conflicting modes and every partial/reordered plan": 0.009,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence": 1.2,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a cross-action camera accepts finite sub-nanounit 7 to 8 publication and rejects incomplete or changed geometry": 0.011,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a cue at the wrong attachment location cannot qualify the frozen winner center": 0.005,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a cue plan rejects wrong typed winner anchor camera DPR clip and corrupt PNG mappings": 0.06,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a exact four distinct paired witnesses and actual contrast boundary remain mandatory": 0.017,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a first applied tuple binds same or later submission only for the exact unchanged application and pointer": 0.013,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a first profile repair: D-70 inventory retains the original acceptance independently of later inventories": 0.012,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a first profile repair: generator checks and preflight failures never write": 54.2,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a first profile repair: historical geometry preserves its pinned preimage": 0.001,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a fresh demonstration provenance accepts only its bound revision and internal120 profile": 0.005,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a frozen controller recipe retains prescribed workload and bounded independent segments": 0.001,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a geometry pairing is deterministic conservative and one-to-one": 0.077,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers": 0.001,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: assignment": 0.016,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: tree-filter": 0.003,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a orbit constructor preserves full qualified sequence and unchanged interval gaps": 0.011,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a paired cue permits contrasting rim replacing orange and rejects unchanged/outside changes": 0.113,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a phase label rejection preserves actual boundary metadata: orbit-1-ready": 0.004,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a phase label rejection preserves actual boundary metadata: point-selection-1-stopped": 0.004,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a presented gap bounds widen outward and never subtract observer work": 0.002,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a product inventory rejects omission duplicates split overlap and wrong final provenance": 0.004,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a real caller observer requirements retain complete observations and DOM zero RAF class": 0.002,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries": 0.006,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles": 0.004,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions": 0.013,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a runtime geometry pin checks self-contained manifests and actual disk source": 0.072,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a runtime geometry pin rejects old and mutated plan sources after valid selfhash rebinding": 0.001,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a same-trace boundary rejects mixed raw clock source document action epoch process and lineage": 0.013,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a same-trace integer arithmetic matches independent rational bounds and translation": 0.008,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a source-shaped extractor still rejects overlap missing pair and mismatched track endpoints": 0.01,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a stopped box rejection persists exact fields before throwing and never overwrites evidence": 0.109,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a tree oracle is independently derived with complete typed order and ARIA groups": 0.004,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a tree oracle matches all 40 independently frozen ordered query memberships": 23.3,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a tree oracle restores accepted project restraint provenance and component vocabulary": 0.034,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs": 0.01,
++    "chromium-desktop \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a winner plan requires geometry provenance even when the altered plan is rehashed and self-consistent": 0.001,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a all exact owner boundaries pass despite raw observer reference exceedance": 0.008,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a all left right both-edge cuts retain ties and no omitted candidates": 0.007,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a all twenty box and filter rows are required and nineteenth upper is scored": 0.012,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a boundary endpoints cannot replace missing left right or both outside brackets: actual-od": 0.008,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a boundary endpoints cannot replace missing left right or both outside brackets: centerline": 0.006,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a each target rejects tiny excess and scores upper rather than lower endpoint": 0.025,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a endpoint and envelope defects never become a favorable boundary population": 0.022,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a exact ten-run cohort preserves each result without pooling sizes or modes": 0.019,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a independent dyadic1199 versus1200 dilution must fail using maximum population p95": 0.019,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a invalid duration intervals and absent assignment never qualify": 0.026,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a missing duplicate reordered sparse or unqualified action populations fail without survivor p95": 0.043,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a missing repeated mixed-binding or nonfresh cohort cannot pass": 0.05,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a nearest rank uses the 190th of 200 and retains all tail samples": 0.023,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a orbit requires exact windows complete contiguous brackets correct modes and current OD": 0.02,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a outside orbit brackets survive exact left right and both boundary alignment: actual-od": 0.007,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a outside orbit brackets survive exact left right and both boundary alignment: centerline": 0.007,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: actual-od": 0.021,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: centerline": 0.028,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a run identity bindings freshness and qualification are mandatory": 0.017,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a same capture forbids every raw event reuse while tracks and raw index order may repeat": 0.004,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a same-trace complete populations retain ties and prevent boundary dilution": 0.012,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a same-trace scorer independently rejects narrow bounds and false carried context": 0.071,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a settled owned RAF must be observed exact zero": 0.011,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a tied coordinates do not waive identity population interval or window guards: actual-od": 0.078,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a tied coordinates do not waive identity population interval or window guards: centerline": 0.087,
++    "chromium-desktop \u203a e2e/ui-foundation/performance-targets.spec.ts \u203a uncertain right boundary is qualified rather than nominally rejected": 0.007,
++    "chromium-desktop \u203a e2e/workspace-layout.spec.ts \u203a D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class": 3.1,
++    "chromium-desktop \u203a e2e/workspace-layout.spec.ts \u203a a switch to Table view hides the canvas without resizing its renderer": 2.5,
++    "chromium-desktop \u203a e2e/workspace-layout.spec.ts \u203a below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over": 10.1,
++    "chromium-desktop \u203a e2e/workspace-layout.spec.ts \u203a browser native-class structural review captures retain pane and drawn-canvas geometry": 4.5,
++    "chromium-desktop \u203a e2e/workspace-layout.spec.ts \u203a routing uses the inspector without changing the D2 pane allocation, 1280 x 800, native-runtime class": 5.2,
++    "chromium-desktop \u203a e2e/workspace-layout.spec.ts \u203a routing uses the inspector without changing the D2 pane allocation, 1440 x 900, native-runtime class": 5.3,
++    "chromium-desktop \u203a e2e/workspace-layout.spec.ts \u203a the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280": 22.0,
++    "chromium-desktop \u203a e2e/workspace-layout.spec.ts \u203a the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1440": 24.1,
++    "chromium-desktop \u203a e2e/workspace-layout.spec.ts \u203a the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1280": 21.5,
++    "chromium-desktop \u203a e2e/workspace-layout.spec.ts \u203a the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440": 23.8,
++    "chromium-desktop \u203a e2e/workspace-layout.spec.ts \u203a the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views": 5.2,
++    "chromium-desktop \u203a e2e/workspace-layout.spec.ts \u203a workspace preserves the visible model during discovery, routing, property editing and analysis navigation": 5.1
++  }
++}
+--- a/projects/chirality-piping/tests/test_ci_e2e_plan.py
++++ b/projects/chirality-piping/tests/test_ci_e2e_plan.py
+@@ -1,8 +1,7 @@
+-"""CI routing contracts. Temporary Git history is isolated from the worktree."""
++"""CI policy and exact collection contracts; no browser execution."""
+ import importlib.util
+ import json
+ from pathlib import Path
+-import re
+ import subprocess
+ import tempfile
+ import unittest
+@@ -14,9 +13,8 @@
+ spec.loader.exec_module(ci)
+ 
+ 
+-class SelectionTests(unittest.TestCase):
++class PolicyTests(unittest.TestCase):
+     def setUp(self):
+-        # Fixture repositories are independent of the outer GitHub event.
+         environment = patch.dict(ci.os.environ)
+         environment.start()
+         self.addCleanup(environment.stop)
+@@ -26,343 +24,262 @@
+         self.addCleanup(self.temp.cleanup)
+         self.root = Path(self.temp.name)
+         self.git('init', '-q')
+-        self.git('config', 'user.email', 'ci-test@example.invalid')
++        self.git('config', 'user.email', 'ci-fixture@example.invalid')
+         self.git('config', 'user.name', 'CI fixture')
+-        for path in ci.FOCUSED + ['e2e/ui-foundation.spec.ts', 'e2e/new.test.mts',
+-                                 'e2e/ui-foundation/a.spec.ts', 'e2e/ui-foundation/b.spec.ts',
+-                                 'e2e/example-dist.spec.ts', 'e2e/ui-foundation/a.benchmark.ts']:
+-            self.write(ci.DESKTOP + path, '// fixture\n')
+-        self.write(ci.DESKTOP + 'src/styles.css', 'old')
+-        self.write(ci.DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx', 'old')
++        for file in {ci.FAST, *ci.LEAN_TITLES}:
++            self.write(ci.DESKTOP + file, '// fixture')
+         self.base = self.commit()
+-        self.baseline = patch.object(ci, 'BASELINE', self.base)
+-        self.baseline.start()
+-        self.addCleanup(self.baseline.stop)
+ 
+     def git(self, *args):
+         return subprocess.check_output(['git', '-C', str(self.root), *args], stderr=subprocess.PIPE).decode().strip()
+ 
+-    def write(self, path, text='changed'):
+-        target = self.root / path
+-        target.parent.mkdir(parents=True, exist_ok=True)
+-        target.write_text(text)
++    def write(self, file, contents='changed'):
++        path = self.root / file
++        path.parent.mkdir(parents=True, exist_ok=True)
++        path.write_text(contents)
+ 
+     def commit(self):
+         self.git('add', '.')
+         self.git('commit', '-qm', 'fixture')
+         return self.git('rev-parse', 'HEAD')
+ 
+-    def plan(self, **kwargs):
+-        return ci.make_plan(self.root, kwargs.pop('event', 'pull_request'),
+-                            kwargs.pop('base', self.base), 'HEAD', kwargs.pop('pr', '826'))
+-
+-    def test_pr825_accepts_only_the_approved_dist_blob(self):
+-        approved = 'approved source-parity predicate\n'
+-        self.write(ci.PARITY_DIST_PATH, approved)
+-        self.commit()
+-        digest = ci.hashlib.sha256(approved.encode()).hexdigest()
+-        with patch.object(ci, 'PARITY_DIST_SHA256', digest):
+-            self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
+-            self.write(ci.PARITY_DIST_PATH, approved + '// unrelated edit\n')
++    def plan(self, **kw):
++        return ci.make_plan(self.root, kw.get('event', 'pull_request'), kw.get('base', self.base),
++                            'HEAD', kw.get('pr', '827'), kw.get('milestone', False))
++
++    def test_known_unrelated_projects_and_records_are_explicit_na(self):
++        for path in ['projects/chirality-app-dev/src/App.tsx', 'projects/chirality-runtime/core/a.rs',
++                     ci.PROJECT + 'execution/run/evidence.json', 'docs/design.md']:
++            self.write(path)
++        self.commit()
++        plan = self.plan()
++        self.assertEqual(plan['mode'], 'not-applicable')
++        self.assertEqual(plan['selected_specs'], [])
++        self.assertFalse(plan['coverage_full'])
++        ci.validate(self.root, plan)
++
++    def test_shared_unknown_ci_dependencies_and_model_inputs_are_full(self):
++        for path in ['package.json', '.github/workflows/piping-desktop-e2e.yml',
++                     '.github/actions/setup-piping-e2e/action.yml', ci.PROJECT + 'tools/ci/e2e_plan.py',
++                     ci.PROJECT + 'tools/ci/e2e_duration_hints.json', ci.PROJECT + 'package-lock.json',
++                     ci.PROJECT + 'schemas/model.json', ci.PROJECT + 'core/solver/a.rs',
++                     ci.DESKTOP + 'playwright.config.ts', ci.DESKTOP + 'src/App.tsx',
++                     ci.DESKTOP + 'src/features/workspace/workspaceSession.ts', ci.PROJECT + 'unknown.ts']:
++            self.write(path)
+             self.commit()
+-            self.assertEqual(self.plan(pr='825')['mode'], 'full')
+-
+-    def test_pr825_roundoff_binary_evidence_is_scoped(self):
+-        self.write(ci.RUN + 'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/trace.zip')
+-        self.commit()
+-        self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
+-        self.write(ci.RUN + 'instances/ROOT/CONTINUATION_2026-09-19_CODEX/unclassified.zip')
++            self.assertEqual(self.plan()['mode'], 'full', path)
++
++    def test_complete_pr_diff_prevents_last_commit_underselection(self):
++        self.write(ci.DESKTOP + 'src/App.tsx')
++        self.commit()
++        self.write(ci.DESKTOP + ci.FAST)
++        self.commit()
++        self.assertEqual(self.plan()['mode'], 'full')
++
++    def test_source_spec_only_and_deleted_renamed_fallback(self):
++        path = ci.DESKTOP + 'e2e/ui-foundation.spec.ts'
++        self.write(path)
++        self.commit()
++        self.assertEqual(self.plan()['mode'], 'changed-specs')
++        (self.root / path).rename(self.root / ci.DESKTOP / 'e2e/renamed.spec.ts')
++        self.commit()
++        self.assertEqual(self.plan()['mode'], 'full')
++
++    def test_lean_and_affected_ownership(self):
++        cases = [
++            ('src/features/workspace/shell/DisabledReason.tsx', 'lean', None),
++            ('src/styles.css', 'lean-affected', 'e2e/workspace-layout.spec.ts'),
++            ('src/features/viewport/routeDraft.ts', 'lean-affected', 'e2e/ui-foundation.spec.ts'),
++            ('src/features/results/ResultsPanel.tsx', 'lean-affected', 'e2e/gui-workflow-validation.spec.ts')]
++        for path, mode, file in cases:
++            with self.subTest(path=path), patch.object(ci, 'changes', return_value=[{'status': 'M', 'path': ci.DESKTOP + path}]):
++                plan = self.plan()
++                self.assertEqual(plan['mode'], mode)
++                self.assertEqual(plan['selected_titles'], {**ci.LEAN_TITLES, **({'e2e/ui-foundation.spec.ts': ci.LEAN_TITLES['e2e/ui-foundation.spec.ts'] + ci.LAYOUT_TITLES} if path == 'src/styles.css' else {})})
++                if file: self.assertIn(file, plan['selected_specs'])
++
++    def test_closed_pr_exception_is_retired(self):
++        self.write(ci.DESKTOP + 'src/App.tsx')
+         self.commit()
+         self.assertEqual(self.plan(pr='825')['mode'], 'full')
+-
+-    def test_manual_and_unavailable_diff_are_full(self):
++        self.assertNotIn('baseline', self.plan(pr='825'))
++
++    def test_actual_import_closure_includes_shared_instrument_consumers(self):
++        self.write(ci.E2E + 'ui-foundation/benchmark-harness.ts', 'export const x = 1')
++        self.write(ci.E2E + 'ui-foundation-workflows.ts', 'export { x } from "./ui-foundation/benchmark-harness"')
++        self.write(ci.E2E + 'workspace-layout.spec.ts', 'import { x } from "./ui-foundation-workflows"')
++        self.write(ci.E2E + 'ui-foundation.spec.ts', 'import { x } from "./ui-foundation-workflows"')
++        with patch.object(ci, 'changes', return_value=[{'status': 'M', 'path': ci.E2E + 'ui-foundation/benchmark-harness.ts'}]):
++            plan = self.plan()
++            self.assertEqual(plan['mode'], 'lean-affected')
++            self.assertIn('e2e/workspace-layout.spec.ts', plan['selected_specs'])
++            self.assertIn('e2e/ui-foundation.spec.ts', plan['selected_specs'])
++
++    def test_unknown_instrument_and_fixture_inputs_are_full(self):
++        for suffix in ['new-helper.ts', 'fixtures/model.json', 'playwright.custom.config.ts']:
++            with patch.object(ci, 'changes', return_value=[{'status': 'M', 'path': ci.E2E + 'ui-foundation/' + suffix}]):
++                self.assertEqual(self.plan()['mode'], 'full')
++
++    def test_manual_and_explicit_milestone_are_full(self):
+         self.assertEqual(self.plan(event='workflow_dispatch')['mode'], 'full')
+-        self.assertEqual(self.plan(base='unavailable')['mode'], 'full')
+-        self.assertEqual(self.plan()['mode'], 'full')
+-
+-    def test_complete_pr_diff_not_last_commit(self):
+-        self.write(ci.DESKTOP + 'src/App.tsx')
+-        self.commit()
+-        self.write(ci.E2E + 'b3-accessibility.spec.ts')
+-        self.commit()
+-        plan = self.plan()
+-        self.assertEqual(plan['mode'], 'full')
+-        self.assertEqual(len(plan['changed_paths']), 2)
+-
+-    def test_merge_base_excludes_base_branch_only_changes(self):
++        self.assertEqual(self.plan(milestone=True)['mode'], 'full')
++        self.assertEqual(self.plan()['mode'], 'not-applicable')
++
++    def test_unavailable_target_blocks_even_na(self):
++        for base in ['', 'unavailable']:
++            with self.assertRaisesRegex(ValueError, 'Update the PR base'):
++                ci.validate(self.root, self.plan(base=base))
++
++    def test_stale_target_is_distinct_from_merge_base_and_blocks(self):
+         self.git('checkout', '-qb', 'target')
+         self.write(ci.DESKTOP + 'src/base-only.ts')
+         target = self.commit()
+         self.git('checkout', '-qb', 'candidate', self.base)
+-        self.write(ci.E2E + 'workspace-layout.spec.ts')
++        self.write(ci.DESKTOP + ci.FAST)
+         self.commit()
+         plan = self.plan(base=target)
++        self.assertEqual(plan['target_base'], target)
+         self.assertEqual(plan['base'], self.base)
+-        self.assertEqual(plan['mode'], 'changed-specs')
+-        self.assertEqual(plan['target_base'], target)
+         with self.assertRaisesRegex(ValueError, 'Update the PR base'):
+             ci.validate(self.root, plan)
+ 
+-    def test_spec_and_record_reduction(self):
+-        self.write(ci.E2E + 'workspace-layout.spec.ts')
+-        self.write(ci.PROJECT + 'execution/run/record.json', '{}')
+-        self.commit()
++    def test_malformed_and_stale_plan_are_refused(self):
+         plan = self.plan()
+-        self.assertEqual(plan['mode'], 'changed-specs')
+-        self.assertEqual(set(plan['selected_specs']), {ci.FAST, 'e2e/workspace-layout.spec.ts'})
+-        self.assertFalse(plan['coverage_full'])
+-        ci.validate(self.root, plan)
+-
+-    def test_instrument_inputs_use_full_fallback(self):
+-        self.write(ci.E2E + 'ui-foundation/helper.ts')
+-        self.commit()
+-        plan = self.plan()
+-        self.assertEqual(plan['mode'], 'full')
+-        self.assertIn('e2e/workspace-layout.spec.ts', plan['selected_specs'])
+-
+-    def test_instrument_spec_only_changes_use_changed_specs(self):
+-        self.write(ci.E2E + 'ui-foundation/a.spec.ts')
+-        self.commit()
+-        plan = self.plan()
+-        self.assertEqual(plan['mode'], 'changed-specs')
+-        self.assertNotIn('e2e/ui-foundation/b.spec.ts', plan['selected_specs'])
+-
+-    def test_unknown_input_and_executable_record_fall_back(self):
+-        for path in ['unclassified.config', ci.PROJECT + 'execution/run/code.py',
+-                     ci.PROJECT + 'schemas/a.json', ci.PROJECT + 'core/a.rs',
+-                     ci.PROJECT + 'fixtures/a.json', ci.DESKTOP + 'playwright.config.ts']:
+-            with self.subTest(path=path):
+-                self.write(path)
+-                self.commit()
+-                self.assertEqual(self.plan()['mode'], 'full')
+-
+-    def test_shared_instrument_helper_and_fixture_force_full(self):
+-        for path in ['benchmark-harness.ts', 'fixtures/input.json']:
+-            self.write(ci.E2E + 'ui-foundation/' + path)
+-            self.commit()
+-            self.assertEqual(self.plan()['mode'], 'full')
+-
+-    def test_unavailable_target_base_blocks_execution(self):
+-        for base in ['', 'unavailable']:
+-            plan = self.plan(base=base)
+-            with self.assertRaisesRegex(ValueError, 'Update the PR base'):
+-                ci.validate(self.root, plan)
+-
+-    def test_hosted_event_cannot_be_relabelled_or_drop_target_base(self):
++        for data in [{**plan, 'mode': 'full'}, {**plan, 'selected_specs': [ci.FAST]}, {**plan, 'version': 1}]:
++            with self.assertRaises(ValueError): ci.validate(self.root, data)
++        self.write(ci.E2E + 'new.spec.ts')
++        with self.assertRaises(ValueError): ci.validate(self.root, plan)
++
++    def test_host_event_and_milestone_cannot_be_relabelled(self):
+         plan = self.plan()
+         event_file = self.root / 'event.json'
+-        event_file.write_text(json.dumps({'number': 826, 'pull_request': {
+-            'base': {'sha': self.base}, 'head': {'sha': plan['head']}}}))
++        event_file.write_text(json.dumps({'number': 827, 'pull_request': {
++            'base': {'sha': self.base}, 'head': {'sha': plan['head']}, 'labels': []}}))
+         with patch.dict(ci.os.environ, {'GITHUB_EVENT_NAME': 'pull_request', 'GITHUB_EVENT_PATH': str(event_file)}):
+             ci.validate(self.root, plan)
+-            for patch_data in [{'event': 'workflow_dispatch'}, {'target_base': ''}, {'pr': '825'}]:
++            for patch_data in [{'event': 'workflow_dispatch'}, {'target_base': ''}, {'milestone': True}]:
+                 with self.assertRaises(ValueError): ci.validate(self.root, {**plan, **patch_data})
+ 
+-    def test_deleted_and_renamed_specs_fall_back(self):
+-        old = self.root / (ci.E2E + 'workspace-layout.spec.ts')
+-        old.rename(old.with_name('renamed.spec.ts'))
+-        self.commit()
+-        self.assertEqual(self.plan()['mode'], 'full')
+-        old.with_name('renamed.spec.ts').unlink()
+-        self.commit()
+-        self.assertEqual(self.plan()['mode'], 'full')
+-
+-    def test_pr825_exception_is_narrow_and_partial(self):
+-        self.write(ci.DESKTOP + 'src/styles.css')
+-        self.write(ci.DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx')
+-        self.write(ci.PROJECT + 'tools/ci/e2e_plan.py')
+-        self.write(ci.PROJECT + 'docs/CI_STRATEGY.md')
+-        self.commit()
+-        plan = self.plan(pr='825')
+-        self.assertEqual(plan['mode'], 'pr825-repair')
+-        self.assertEqual(plan['baseline'], self.base)
+-        self.assertEqual(plan['selected_specs'], ci.FOCUSED)
+-        self.assertEqual(plan['focused_titles'], ci.FOCUSED_TITLES)
+-        self.assertFalse(plan['coverage_full'])
+-        ci.validate(self.root, plan)
+-        self.assertEqual(self.plan(pr='826')['mode'], 'full')
+-        self.write(ci.DESKTOP + 'src/App.tsx')
+-        self.commit()
+-        self.assertEqual(self.plan(pr='825')['mode'], 'full')
+-
+-    def test_missing_or_nonancestor_baseline_cannot_enable_exception(self):
+-        self.write(ci.DESKTOP + 'src/styles.css')
+-        candidate = self.commit()
+-        with patch.object(ci, 'BASELINE', 'a' * 40):
+-            self.assertEqual(self.plan(pr='825')['mode'], 'full')
+-        self.git('checkout', '--orphan', 'unrelated')
+-        other = self.commit()
+-        self.git('checkout', candidate)
+-        with patch.object(ci, 'BASELINE', other):
+-            self.assertEqual(self.plan(pr='825')['mode'], 'full')
+-
+-    def test_manifest_and_named_evidence_can_accompany_repair(self):
+-        self.write(ci.DESKTOP + 'src/styles.css')
+-        self.write('docs/governance_harness/tranche_manifests/PIPING-CI-STRATEGY-20260920.yaml')
+-        self.write(ci.REPAIR_EVIDENCE[0] + 'trace.zip')
+-        self.write(ci.PROJECT + 'validation/evidence/sweeps/new.json', '{}')
+-        self.commit()
+-        self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
+-        self.write(ci.PROJECT + 'execution/other/trace.zip')
+-        self.commit()
+-        self.assertEqual(self.plan(pr='825')['mode'], 'full')
+-
+-    def test_only_exact_reproduction_scripts_are_exception_records(self):
+-        self.write(ci.DESKTOP + 'src/styles.css')
+-        prefix = ci.RUN + 'instances/B3-CODEX/ci-tooltip-repair/'
+-        self.write(prefix + '_run_records/implementer/run-focused.sh')
+-        self.commit()
+-        self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
+-        self.write(prefix + '_run_records/other.sh')
+-        self.commit()
+-        self.assertEqual(self.plan(pr='825')['mode'], 'full')
+-
+-    def test_deleted_allowed_component_falls_back(self):
+-        (self.root / (ci.DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx')).unlink()
+-        self.commit()
+-        self.assertEqual(self.plan(pr='825')['mode'], 'full')
+-
+-    def test_malformed_or_stale_plan_is_rejected(self):
+-        plan = self.plan()
+-        ci.validate(self.root, plan)
+-        for key, value in [('mode', 'changed-specs'), ('selected_specs', []),
+-                           ('projects', ['other']), ('inventory', []), ('coverage_full', False)]:
+-            with self.subTest(key=key):
+-                with self.assertRaises(ValueError):
+-                    ci.validate(self.root, {**plan, key: value})
+-        self.write(ci.E2E + 'new.spec.ts')
+-        with self.assertRaises(ValueError):
+-            ci.validate(self.root, plan)
+-        (self.root / ci.DESKTOP / ci.FAST).unlink()
+-        with self.assertRaises(ValueError):
+-            self.plan()
+-
+-    def test_argument_arrays_escape_regex_and_preserve_spaces(self):
+-        unusual = 'e2e/odd [a] $(touch nope);.spec.ts'
+-        self.write(ci.DESKTOP + unusual)
+-        self.commit()
+-        plan = self.plan()
+-        command = ci.commands(plan, 'barrier')[-1]
+-        self.assertIn(re.escape(unusual) + '$', command)
+-        self.assertEqual(command[0], '../../node_modules/.bin/playwright')
+-        self.assertIn('--workers=1', command)
+-        self.assertNotIn('--fully-parallel', command)
+-
+-    def test_full_barrier_remainder_partition_and_new_spec_discovery(self):
+-        plan = self.plan(event='workflow_dispatch')
+-        barrier = ci.commands(plan, 'barrier')[0]
+-        remainder = ci.commands(plan, 'remainder', 1)[0]
+-        patterns = lambda command: [v for v in command if v.startswith('e2e/')]
+-        seen = patterns(barrier) + patterns(remainder)
+-        self.assertEqual(len(seen), len(set(seen)))
+-        self.assertEqual(set(seen), {re.escape(s) + '$' for s in plan['inventory']})
+-        self.assertIn('e2e/new.test.mts', plan['inventory'])
+-        self.assertNotIn('e2e/example-dist.spec.ts', plan['inventory'])
+-        for shard in range(1, 5):
+-            self.assertIn(f'--shard={shard}/4', ci.commands(plan, 'remainder', shard)[0])
+-        for shard in [None, 0, 5]:
+-            with self.assertRaises(ValueError):
+-                ci.commands(plan, 'remainder', shard)
+-
+-    def test_focused_cases_use_separate_invocation_and_exact_suffix(self):
+-        self.write(ci.DESKTOP + 'src/styles.css')
+-        self.commit()
+-        plan = self.plan(pr='825')
+-        commands = ci.commands(plan, 'barrier')
+-        self.assertEqual(len(commands), 3)
+-        self.assertEqual(commands[0][-1], re.escape(ci.FAST) + '$')
+-        grep = commands[-1][commands[-1].index('--grep') + 1]
+-        self.assertEqual(commands[-1][-1], re.escape('e2e/ui-foundation.spec.ts') + '$')
+-        for title in ci.FOCUSED_TITLES:
+-            self.assertIsNotNone(re.search(grep, '[chromium-desktop] file ' + title))
+-            self.assertIsNone(re.search(grep, title + ' changed'))
+-        with self.assertRaises(ValueError):
+-            ci.commands(plan, 'remainder', 1)
+-
+ 
+ class CollectionTests(unittest.TestCase):
+-    def row(self, file, title, project, suffix=''):
+-        return dict(id=file + title + project + suffix, file=file, title=title, project=project, line=1)
+-
+-    def basis(self, mode='full'):
+-        files = ci.FOCUSED
+-        source = [self.row(file, 'ordinary', project) for file in files for project in ci.PROJECTS]
+-        source += [self.row('e2e/ui-foundation.spec.ts', title, project)
+-                   for title in ci.FOCUSED_TITLES for project in ci.PROJECTS]
+-        plan = dict(mode=mode, inventory=files + ['e2e/ui-foundation.spec.ts'],
+-                    selected_specs=files + (['e2e/ui-foundation.spec.ts'] if mode == 'full' else []),
+-                    focused_spec='e2e/ui-foundation.spec.ts' if mode == 'pr825-repair' else None,
+-                    focused_titles=ci.FOCUSED_TITLES if mode == 'pr825-repair' else [])
+-        collections = dict(source=source, **{'barrier-0': source[:2]})
+-        if mode == 'full':
+-            for n in range(4): collections[f'shard-{n+1}'] = source[2+n::4]
+-        else:
+-            collections['barrier-1'] = source[2:6]
+-            if mode == 'pr825-repair': collections['barrier-2'] = source[6:]
+-        return plan, collections
+-
+-    def test_valid_full_and_reduced_collections(self):
+-        for mode in ['full', 'changed-specs', 'pr825-repair']:
+-            plan, collections = self.basis(mode)
+-            selected, omitted = ci.validate_collections(plan, collections)
+-            self.assertEqual(len(selected) + len(omitted), len(collections['source']))
+-            self.assertEqual(bool(omitted), mode == 'changed-specs')
+-
+-    def test_missing_duplicate_focused_title_and_profile_are_refused(self):
+-        for mutation in ['missing', 'duplicate', 'profile']:
+-            plan, collections = self.basis('pr825-repair')
+-            target = collections['source'][-1]
+-            if mutation == 'missing': collections['source'].remove(target)
+-            elif mutation == 'duplicate': collections['source'].append({**target, 'id': 'distinct-duplicate-title'})
+-            else: collections['source'] = [t for t in collections['source'] if t['project'] != ci.PROJECTS[1]]
+-            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+-                ci.validate_collections(plan, collections)
+-
+-    def test_empty_selected_file_or_profile_is_refused(self):
+-        plan, collections = self.basis()
+-        collections['source'] = [t for t in collections['source'] if t['file'] != ci.FOCUSED[1]]
+-        with self.assertRaisesRegex(ValueError, 'Empty selected file/profile'):
+-            ci.validate_collections(plan, collections)
+-
+-    def test_missing_duplicate_empty_partition_refused(self):
+-        for mutation in ['missing', 'duplicate', 'empty', 'lost-test', 'wrong-barrier']:
+-            plan, collections = self.basis()
+-            if mutation == 'missing': del collections['shard-4']
+-            elif mutation == 'duplicate': collections['shard-4'].append(collections['shard-1'][0])
+-            elif mutation == 'empty': collections['shard-4'] = []
+-            elif mutation == 'lost-test': collections['shard-4'].pop()
+-            else: collections['barrier-0'][0], collections['shard-1'][0] = collections['shard-1'][0], collections['barrier-0'][0]
+-            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+-                ci.validate_collections(plan, collections)
+-
+-    def test_missing_filtered_case_cannot_hide_behind_other_matches(self):
+-        plan, collections = self.basis('pr825-repair')
+-        collections['barrier-2'].pop()
+-        with self.assertRaisesRegex(ValueError, 'partition'):
+-            ci.validate_collections(plan, collections)
+-
+-    def test_collection_json_must_be_nonempty_and_error_free(self):
+-        for report in [{}, {'errors': [{'message': 'collection failed'}]}, {'suites': []}]:
++    def source(self):
++        rows = []
++        def add(file, title, projects=ci.PROJECTS, tags=()):
++            for project in projects:
++                rows.append(dict(id=file + title + project, file=file, title=title,
++                                 title_path=[title], tags=list(tags), project=project, line=1))
++        add(ci.FAST, 'accessibility')
++        for file, titles in ci.LEAN_TITLES.items():
++            for title in titles: add(file, title)
++        for title in ci.LAYOUT_TITLES: add('e2e/ui-foundation.spec.ts', title)
++        for theme in ('light', 'dark'):
++            for density in ('comfortable', 'compact'):
++                for width, height in ((1024, 768), (1280, 800), (1440, 920)):
++                    add('e2e/ui-foundation.spec.ts', f'task and analysis dock preserve usable canvas {theme} {density} {width}x{height}', ['chromium-desktop'], ['@explicit-viewport'])
++        return rows
++
++    def plan(self, mode='full'):
++        source = self.source()
++        return dict(mode=mode, selected_specs=sorted({t['file'] for t in source}) if mode == 'full' else [ci.FAST],
++                    selected_titles={} if mode == 'full' else ci.LEAN_TITLES, appearance=False)
++
++    def test_full_and_lean_preserve_explicit_selection(self):
++        source = self.source()
++        self.assertEqual(ci.select_tests(self.plan(), source), source)
++        lean = ci.select_tests(self.plan('lean'), source)
++        self.assertEqual(len(lean), 18)
++        self.assertLess(len(lean), len(source))
++
++    def test_missing_duplicate_title_or_profile_fails(self):
++        for kind in ['missing', 'duplicate', 'profile']:
++            source = self.source()
++            if kind == 'missing': source.pop(3)
++            elif kind == 'duplicate': source.append({**source[3], 'id': 'another-id'})
++            else: source = [t for t in source if t['project'] != 'chromium-compact']
++            with self.subTest(kind=kind), self.assertRaises(ValueError):
++                ci.select_tests(self.plan('lean'), source)
++
++    def test_dedup_matrix_loss_and_override_are_refused(self):
++        source = self.source()
++        with self.assertRaises(ValueError): ci.validate_source(source[:-1])
++        duplicate = {**source[-1], 'project': 'chromium-compact', 'id': 'reintroduced'}
++        with self.assertRaisesRegex(ValueError, 'reintroduced'): ci.validate_source(source + [duplicate])
++
++    def test_empty_missing_extra_or_duplicate_partition_fails(self):
++        rows = self.source()
++        for actual in [[], rows[:-1], rows + [rows[0]], rows + [{**rows[0], 'id': 'extra'}]]:
++            with self.assertRaises(ValueError): ci.assert_partition(rows, actual)
++        ci.assert_partition(rows, rows[::-1])
++
++    def test_exact_list_preserves_project_file_and_nested_titles(self):
++        row = self.source()[0]
++        row = {**row, 'title_path': ['group [a] $(touch nope)', 'literal > child']}
++        line = ci.exact_list([row])
++        self.assertIn('[chromium-desktop] › b3-accessibility.spec.ts › group [a] $(touch nope) › literal > child', line)
++        args = ci.command('/tmp/list with spaces.txt', list_only=True)
++        self.assertIn(str(Path('/tmp/list with spaces.txt').resolve()), args)
++        self.assertNotIn('--grep', args)
++        with self.assertRaises(ValueError): ci.exact_list([{**row, 'title_path': ['bad\nline']}])
++        with self.assertRaises(ValueError): ci.exact_list([])
++
++    def test_balancing_is_deterministic_exact_and_keeps_serial_file(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            root = Path(tmp)
++            for file in {t['file'] for t in self.source()}:
++                path = root / ci.DESKTOP / file
++                path.parent.mkdir(parents=True, exist_ok=True)
++                path.write_text('// independent')
++            serial_file = 'e2e/workspace-layout.spec.ts'
++            (root / ci.DESKTOP / serial_file).write_text('test.describe.configure({mode: "serial"})')
++            first = ci.assign_partitions(self.plan(), self.source(), root)
++            second = ci.assign_partitions(self.plan(), self.source()[::-1], root)
++            self.assertEqual({k: sorted(map(ci.test_key,v)) for k,v in first.items()},
++                             {k: sorted(map(ci.test_key,v)) for k,v in second.items()})
++            ci.assert_partition(self.source(), [t for rows in first.values() for t in rows])
++            for project in ci.PROJECTS:
++                self.assertEqual(sum(any(t['file'] == serial_file and t['project'] == project for t in rows) for rows in first.values()), 1)
++            unknown = {**self.source()[0], 'title': 'new', 'title_path': ['new']}
++            self.assertEqual(ci.duration_weight(unknown), 30)
++
++    def test_new_unobserved_tests_remain_in_full_union(self):
++        source = self.source()
++        for project in ci.PROJECTS:
++            source.append(dict(id='new-' + project, file='e2e/new.spec.ts', title='unknown',
++                               title_path=['unknown'], tags=[], project=project, line=1))
++        with tempfile.TemporaryDirectory() as tmp:
++            root = Path(tmp)
++            for file in {t['file'] for t in source}:
++                path = root / ci.DESKTOP / file
++                path.parent.mkdir(parents=True, exist_ok=True)
++                path.write_text('// new file remains atomic')
++            partitions = ci.assign_partitions(self.plan(), source, root)
++            ci.assert_partition(source, [t for rows in partitions.values() for t in rows])
++            self.assertEqual(sum(t['file'] == 'e2e/new.spec.ts' for rows in partitions.values() for t in rows), 2)
++
++    def test_json_reporter_tag_spelling_is_normalized(self):
++        report = {'specs': [{'id': 'id', 'file': 'a.spec.ts', 'title': 'case', 'line': 1,
++                            'tags': ['explicit-viewport'], 'tests': [{'projectName': 'chromium-desktop'}]}]}
++        self.assertEqual(ci.collected_tests(report)[0]['tags'], ['@explicit-viewport'])
++
++    def test_empty_error_collection_refused(self):
++        for report in [{}, {'errors': [{'message': 'failed'}]}, {'suites': []}]:
+             with self.assertRaises(ValueError): ci.collected_tests(report)
+ 
+ 
+ class GateTests(unittest.TestCase):
+-    def test_full_requires_every_dependency_success(self):
+-        self.assertTrue(ci.aggregate('full', 'success', 'success', 'success'))
+-        for state in ['failure', 'cancelled', 'skipped', '', 'unknown']:
+-            for i in range(3):
+-                values = ['success'] * 3
+-                values[i] = state
+-                self.assertFalse(ci.aggregate('full', *values))
+-
+-    def test_only_explicit_reduced_remainder_can_skip(self):
+-        for mode in ['changed-specs', 'pr825-repair']:
+-            self.assertTrue(ci.aggregate(mode, 'success', 'success', 'skipped'))
+-            self.assertFalse(ci.aggregate(mode, 'success', 'success', 'failure'))
+-            self.assertFalse(ci.aggregate(mode, 'failure', 'success', 'skipped'))
+-            self.assertFalse(ci.aggregate(mode, 'success', 'cancelled', 'skipped'))
+-        self.assertFalse(ci.aggregate('', 'success', 'success', 'skipped'))
+-        self.assertFalse(ci.aggregate('instruments', 'success', 'success', 'skipped'))
++    def test_every_mode_fails_closed(self):
++        valid = [('not-applicable', 'skipped', 'skipped'), ('full', 'success', 'success'),
++                 ('lean', 'success', 'skipped'), ('lean-affected', 'success', 'skipped'), ('changed-specs', 'success', 'skipped')]
++        for mode, barrier, remainder in valid:
++            self.assertTrue(ci.aggregate(mode, 'success', barrier, remainder))
++            for state in ['failure', 'cancelled', '', 'unknown']:
++                self.assertFalse(ci.aggregate(mode, state, barrier, remainder))
++                self.assertFalse(ci.aggregate(mode, 'success', state, remainder))
++                self.assertFalse(ci.aggregate(mode, 'success', barrier, state))
++        for mode in ['', 'pr825-repair', 'instruments']:
++            self.assertFalse(ci.aggregate(mode, 'success', 'success', 'skipped'))
++        self.assertFalse(ci.aggregate('not-applicable', 'success', 'success', 'skipped'))
++        self.assertFalse(ci.aggregate('full', 'success', 'success', 'skipped'))
+ 
+ 
+ if __name__ == '__main__':
+--- a/projects/chirality-piping/apps/desktop/playwright.config.ts
++++ b/projects/chirality-piping/apps/desktop/playwright.config.ts
+@@ -26,6 +26,12 @@
+     : process.env.CI
+       ? 1
+       : undefined;
++
++// Compact omits only scenarios that establish an identical explicit viewport
++// before navigation. Do not let a CLI override reintroduce those repetitions.
++if (process.argv.some(arg => arg === "--grep-invert" || arg.startsWith("--grep-invert="))) {
++  throw new Error("Source projects own --grep-invert for explicit-viewport deduplication; use --grep or --test-list.");
++}
+ 
+ export default defineConfig({
+   testDir: "./e2e",
+@@ -73,6 +79,7 @@
+     },
+     {
+       name: "chromium-compact",
++      grepInvert: /@explicit-viewport/,
+       use: {
+         ...devices["Desktop Chrome"],
+         viewport: { width: 1280, height: 800 }
+--- a/projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts
+@@ -669,7 +669,7 @@
+ for (const theme of APPEARANCE_THEMES) {
+   for (const density of APPEARANCE_DENSITIES) {
+     for (const viewport of APPEARANCE_VIEWPORTS) {
+-      test(`task and analysis dock preserve usable canvas ${theme} ${density} ${viewport.width}x${viewport.height}`, async ({ page }, testInfo) => {
++      test(`task and analysis dock preserve usable canvas ${theme} ${density} ${viewport.width}x${viewport.height}`, { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
+         await page.setViewportSize(viewport);
+         await page.goto("/");
+         await setAppearance(page, theme, density);
+--- a/projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts
+@@ -125,7 +125,7 @@
+   await expect(page.getByTestId("modeling-workspace")).toHaveAttribute("data-view", view);
+ }
+ 
+-test("D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class", async ({ page }, testInfo) => {
++test("D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class", { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
+   await page.setViewportSize({ width: 1440, height: 900 });
+   await page.goto("/");
+   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+@@ -208,7 +208,7 @@
+ // the table first. Arming moves the existing editor into that inspector without
+ // changing either pane's dimensions; disarming restores prior inspector state.
+ for (const [width, height, table, canvas] of [[1440, 900, 737, 603], [1280, 800, 649, 531]] as const) {
+-  test(`routing uses the inspector without changing the D2 pane allocation, ${width} x ${height}, native-runtime class`, async ({ page }, testInfo) => {
++  test(`routing uses the inspector without changing the D2 pane allocation, ${width} x ${height}, native-runtime class`, { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
+     await page.setViewportSize({ width, height });
+     await page.goto("/");
+     await expect(page.getByTestId("viewport-canvas").locator("canvas").first()).toBeVisible();
+@@ -279,7 +279,7 @@
+   });
+ }
+ 
+-test("the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views", async ({ page }, testInfo) => {
++test("the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views", { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
+   await page.setViewportSize({ width: 1440, height: 900 });
+   const model = await gotoRoutedFixture(page);
+   await expect(page.getByTestId("viewport-canvas").locator("canvas").first()).toBeVisible();
+@@ -337,7 +337,7 @@
+   await check("below 1280 px, drawer collapsed");
+ });
+ 
+-test("a switch to Table view hides the canvas without resizing its renderer", async ({ page }) => {
++test("a switch to Table view hides the canvas without resizing its renderer", { tag: "@explicit-viewport" }, async ({ page }) => {
+   await page.setViewportSize({ width: 1440, height: 900 });
+   await page.goto("/");
+   const canvas = page.getByTestId("viewport-canvas").locator("canvas").first();
+@@ -357,7 +357,7 @@
+   expect(await camera()).toEqual(before.camera);
+ });
+ 
+-test("browser native-class structural review captures retain pane and drawn-canvas geometry", async ({ page }, testInfo) => {
++test("browser native-class structural review captures retain pane and drawn-canvas geometry", { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
+   await page.setViewportSize({ width: 1440, height: 900 });
+   await gotoRoutedFixture(page);
+   await page.evaluate(() => { (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {}; });
+@@ -400,7 +400,7 @@
+ 
+ for (const viewport of [{ width: 1440, height: 920 }, { width: 1280, height: 800 }]) {
+   for (const [theme, density] of [["light", "comfortable"], ["dark", "compact"]] as const) {
+-    test(`the split and the drawer resize actual panes, persist, and keep the inspector's controls contained ${theme} ${viewport.width}`, async ({ page }, testInfo) => {
++    test(`the split and the drawer resize actual panes, persist, and keep the inspector's controls contained ${theme} ${viewport.width}`, { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
+       await page.setViewportSize(viewport);
+       const model = await gotoRoutedFixture(page, "ui-foundation-1000.model.json");
+       await setAppearance(page, theme, density);
+@@ -520,7 +520,7 @@
+   }
+ }
+ 
+-test("below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over", async ({ page }, testInfo) => {
++test("below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over", { tag: "@explicit-viewport" }, async ({ page }, testInfo) => {
+   await page.setViewportSize({ width: 1440, height: 920 });
+   await gotoRoutedFixture(page, "ui-foundation-1000.model.json");
+   await page.getByTestId("resize-model-tree").focus(); await page.keyboard.press("ArrowRight");
+--- a/projects/chirality-piping/docs/CI_STRATEGY.md
++++ b/projects/chirality-piping/docs/CI_STRATEGY.md
+@@ -1,107 +1,89 @@
+-# Piping desktop CI strategy
++# Desktop CI selection and integration cadence
+ 
+-Current direction: owner resume of 2026-09-20, retained in the UI implementation
+-run, `instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md`.
+-This is a bounded development verification strategy, not release qualification.
++The Piping desktop workflow runs a cheap selector on every pull request. Its
++stable check remains **Desktop E2E (source mode)**. An unrelated App/Runtime PR or
++Piping evidence-only change receives an explicit validated **not-applicable**
++result; no Piping browser setup or tests run, and no test-pass claim is made.
++Runtime is not a Piping dependency before its owning adoption decision.
+ 
+-## Why keep hosted checks
++The owner authorized reduced routine execution frequency and exact scenario
++deduplication on 2026-09-20. Selected coverage is not equivalent to running the
++full suite. Omitted identities and reasons are retained in the collection
++artifact, and partial CI is not DEC093 full surface4 evidence.
+ 
+-Local verification and hosted CI answer overlapping but different questions.
+-CI builds a clean checkout with locked dependencies and pinned Playwright Chromium
+-on Linux. Local browser configuration can select installed macOS Chrome. PR825
+-passed locally but its full hosted run found an actual tooltip hit-testing defect:
+-the focused Agent reason blocked the page Close pointer target. The failure is
+-retained and repaired; repeating a failed test without fixing it is not evidence.
++| Complete PR diff | Source coverage |
++|---|---|
++| Reviewed reason-tooltip component only | Lean ordinary journeys |
++| Shell/layout/appearance CSS and named layout helpers | Lean plus all distinct layout cases, twelve appearance combinations, Escape ownership and overlay interactions |
++| Viewport, model-tree/properties, geometry/rich authoring and selection state | Lean plus full UI-foundation and linear authoring |
++| Results/report/export/storage display, redaction and persistence-integrity helpers | Lean plus complete result compatibility, GUI, session-status and R2 files |
++| Reviewed instrumentation module | Lean plus its transitive literal-import source-spec consumers; shared benchmark harness reaches UI-foundation and workspace-layout as well as instrument contracts |
++| Only added/modified source specs | Complete changed files plus accessibility |
++| Shared application/session state, dependencies/configuration, native/build/WASM/solver, schemas, CI policy/duration hints, unknown inputs or deleted/renamed test inputs | Full source coverage |
++| No relevant Piping/shared inputs | Not applicable |
+ 
+-The observed run35496887667 took35m55s, including32m22s in source browser tests.
+-Two180-second failures contributed to that duration. The complete original run
+-had408passes,20existing skips and the same failure in both viewport profiles.
+-The four instrument specs accounted for about69seconds of listed test durations;
+-removing their duplicated viewport entries would not address the main cost.
+-These timings describe that run, not a future runtime guarantee.
++The maintained router enumerates actual ownership paths. Unknown instrument
++helpers, dynamic resource inputs, fixtures and configurations fall back to full;
++no directory-wide hermetic or instrument-only classification exists. Source
++selection does not replace applicable dist, native or protected benchmark checks.
++The closed PR825 exception has been removed; its authorization and results remain
++historical records.
+ 
+-## Selection and execution
++The lean set includes the entire B3 accessibility file and the existing canonical
++save/history/reopen, first workspace editing, straight authoring, R2
++solve/results/report/overlay, strict Current export, both shared drawer/menu Close,
++and typed selection/keyboard measurement journeys. Their original project
++assignments remain intact. No assertion, geometry/oracle tolerance, default test
++timeout or permanent skip was changed to obtain a reduced run.
+ 
+-- Run the complete B3 accessibility spec first in both existing viewport profiles.
+-  A failure prevents the expensive remainder from starting.
+-- Broad product, shared configuration, dependency, core, schema, fixture and
+-  unknown changes retain the full source suite. Manual dispatch also requests full.
+-  Run the remainder on four isolated runners, each with one worker. Preserve
+-  per-file execution semantics and all test entries; do not enable fullyParallel.
+-- For changes confined to source specs, run changed specs plus the accessibility
+-  barrier. Instrument helpers and fixtures retain full coverage: some feed ordinary
+-  UI-foundation and workspace-layout journeys outside their directory. Source/dist
+-  are separate; dist specs and unclassified dependencies do not qualify for the
+-  source-spec-only reduction. Rename/deletion/selection uncertainty falls back full.
+-- Route from the complete PR diff, never only its last commit. Execute the exact
+-  PR head and require the event target-base commit to be integrated into it; an
+-  absent or unintegrated base blocks execution. Retain target base separately from
+-  merge base. ROOT revalidates live main before merge. Record selection basis,
+-  head, changed files, selected/omitted test IDs and reasons. Collect actual tests
+-  before execution: every required title/profile must exist exactly once, each
+-  selected file must be nonempty in both profiles, and full mode must prove the
+-  barrier/remainder partition equals the complete source inventory exactly once.
+-  Unknown paths or invalid selection cannot produce a silently empty green run.
+-- The stable aggregate check passes only when every job required by the selected
+-  plan succeeds. A failed or cancelled shard is incomplete coverage and cannot
+-  establish a full pass. Superseded PR runs are cancelled.
++## Exact coverage and duration assignment
+ 
+-The selector and workflow are maintained Piping CI inputs. Their tests cover
+-routing boundaries, missing/invalid bases, unknown changes, renamed/deleted specs,
+-argument safety and full-suite inventory equality. Changes to routing/configuration
+-receive independent review. The first subsequent broad product slice exercises
+-full hosted orchestration; until observed, local plan/inventory checks are not
+-reported as hosted qualification.
++The explicit appearance matrix sets its viewport before navigation and retains
++all twelve theme/density/window combinations once. Explicit-start workspace cases
++also run once. They carry `@explicit-viewport`; the compact project excludes that
++tag. The desktop project, first workspace journey's two distinct starts, and
++selection-cardinality test's two initial states are preserved. CLI `--grep` and
++exact lists retain the project filter; `--grep-invert` overrides are rejected to
++prevent reintroducing repetitions. Collection also rejects a compact tagged test
++or an incomplete appearance matrix. Removed repetitions map to their retained
++same-title desktop counterparts in the implementation evidence.
+ 
+-## PR825 focused repair exception
++Full CI starts with accessibility. Four isolated runners then execute exact
++Playwright 1.60 `--test-list` partitions with one worker each. Duration hints come
++from completed PR826 source logs and are checked into `tools/ci/e2e_duration_hints.json`;
++new or untimed tests use a conservative 30-second scheduling weight. These values
++are scheduling hints, not acceptance limits or a speed guarantee. Assignment is
++deterministic, using the lightest estimated bin first. Files/projects remain
++atomic except the independently set-up UI-foundation and workspace-layout cases;
++named describe groups and explicitly serial files remain together. No global
++`fullyParallel` change is made.
+ 
+-The owner explicitly requested a reduced rerun for the failed tooltip repair.
+-It applies only to PR825, anchored to the already fully exercised candidate
+-`002dff0f244976f98b36517d920b3761f6f88704`. The selector verifies ancestry and the
+-intervening delta. Only the named reason-tooltip CSS/component and accessibility
+-regression files, plus this CI strategy and its records, qualify. Other executable
+-changes restore full mode.
++Every runner collects the actual source inventory and checks each exact list before
++browser execution. The selected union must contain every intended identity exactly
++once, with no empty, missing, duplicate or unexpected matches. Required lean titles
++must exist exactly once per original profile. Collection records source/head/target
++base, config/source/policy hashes, browser configuration identity, commands, IDs,
++selection reasons and scheduling estimates. Collection is not a browser-test pass.
++Cancellation, collection failure, selector failure or a missing required job fails
++the stable aggregate; only explicitly unneeded jobs may skip.
+ 
+-The owner subsequently approved parity of one dist wheel-target assertion with
+-its already accepted source predicate and PR825-only bounded reruns. This single
+-dist file qualifies only at approved SHA256
+-`f6def858ca800f0f65fa338a92847e6ad8e0b11052dc6063f56d31d809cca4f3`;
+-any other edit restores full mode. The original failed local sweep is retained;
+-its unchanged passing surfaces plus corrected complete dist/build checks form
+-combined delta verification under OWNER_DIST_PARITY_APPROVAL.md, not a new complete
+-sweep. Changed CI policy receives its affected checks separately. General DEC025
+-remains unchanged.
++## Full checkpoints and integration
+ 
+-Run all `b3-accessibility.spec.ts`, `workspace-layout.spec.ts` and
+-`gui-workflow-validation.spec.ts` in both profiles, plus these existing
+-`ui-foundation.spec.ts` cases in both profiles:
++Manual `workflow_dispatch` always selects full source coverage. Applying the
++**piping-full** label requests an explicit full integration-milestone run; label
++changes re-evaluate the selector. Broad-risk and CI-policy changes also select
++full automatically. There is no unconditional nightly schedule.
+ 
+-- keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls
+-- decorative viewport overlays pass real canvas gestures while view controls stay interactive
+-- workspace Escape event ownership consumed palette
+-- workspace Escape event ownership consumed drawer
++Execution checks the exact PR head and records the event target base separately
++from its Git merge base. The target must be integrated into head; stale or
++unavailable target data blocks the check with an update-base diagnostic. Hosted
++event identity, PR number and milestone label must match the plan. ROOT rechecks
++live main before merge. Workflow and collection artifacts are bound to the actual
++candidate rather than reused across changed inputs.
+ 
+-This is a focused repair pass supported by prior full-run evidence. It is not a
+-full-suite pass on the repaired candidate, cannot supply DEC-093's
+-`registered_e2e_specs_executed: true`, and does not erase the failed run. The actual
+-repair must remain bounded; shared event/layout changes require reassessment.
+-
+-## Local and merge evidence
+-
+-Keep the clean-candidate full DEC-025 sweep required by the Piping loop before
+-product merges. Avoid running separate complete source and dist suites immediately
+-before that same sweep without a new failure or concern: use focused repair checks,
+-independent review, then the registered sweep once on the frozen candidate.
+-Native-dependent changes still receive an affected actual-Tauri witness. Browser
+-success is not native-menu/window proof, and source success is not dist proof.
+-
+-Keep independent review, harness checks, raw failure evidence, source/binary
+-bindings, existing skips, protected geometry/physics oracles and timeouts. There
+-are no branch-protection changes, recurring schedules, broader scope, acceptance,
+-release or lifecycle promotions. Full hosted verification remains available for
+-explicit checkpoints and mandatory for broad or unclassified changes.
+-
+-Official orchestration references: [Playwright sharding](https://playwright.dev/docs/test-sharding)
+-and [GitHub workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax).
+-
+-Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
++Develop with focused checks, then combine related independently reviewed work into
++one coherent integration candidate and one clean local DEC-025 sweep before product
++integration. Full local source/dist, native witness and governed qualification
++requirements remain distinct from this hosted source check. Fewer internal-worker
++PRs do not weaken review or merge checks, and an early owner merge is not a waiver.
++Branch protections, other project workflows and repository permissions are unchanged.
+--- a/projects/chirality-piping/tools/release/run_evidence_sweep.py
++++ b/projects/chirality-piping/tools/release/run_evidence_sweep.py
+@@ -5,7 +5,7 @@
+ sweep, Python pytest, desktop Vitest with the wasm engine built first,
+ Playwright e2e, desktop production build) and writes a machine-readable
+ summary artifact bound to the current commit hash. This sweep is the required
+-pre-push/fan-in evidence for every parallel agent development branch
++clean-candidate evidence for each coherent reviewed integration batch before product merge
+ (`DEC-025`, recorded in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12;
+ basis `execution/_Coordination/_DECISIONS/D-05_ci_provider_workflow.md`
+ Option D).

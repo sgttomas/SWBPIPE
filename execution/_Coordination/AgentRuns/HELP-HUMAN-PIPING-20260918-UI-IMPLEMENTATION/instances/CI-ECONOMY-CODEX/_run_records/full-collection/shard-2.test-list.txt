@@ -1,0 +1,116 @@
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › phase label rejection preserves actual boundary metadata: point-selection-1-stopped
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › tree oracle is independently derived with complete typed order and ARIA groups
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › runtime geometry pin rejects old and mutated plan sources after valid selfhash rebinding
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › owner one-success transition preserves history and bounded dispatch: stale-success
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › actual product pre-box unavailable and status-less active union is strict
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › geometry pairing is deterministic conservative and one-to-one
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › actual ReturnAsStream beyond former64MiB preserves EOF exact hash and unsafe identifiers
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › winner plan requires geometry provenance even when the altered plan is rehashed and self-consistent
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › presented gap bounds widen outward and never subtract observer work
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › phase label rejection preserves actual boundary metadata: orbit-1-ready
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › actual first callback copies application and capture rejects replacement drift or later backfill
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: tree-filter
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › product inventory rejects omission duplicates split overlap and wrong final provenance
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › owner one-success transition preserves history and bounded dispatch: interrupted,valid
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › exact four distinct paired witnesses and actual contrast boundary remain mandatory
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › tree oracle restores accepted project restraint provenance and component vocabulary
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › fresh demonstration provenance accepts only its bound revision and internal120 profile
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › first profile repair: D-70 inventory retains the original acceptance independently of later inventories
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › real caller observer requirements retain complete observations and DOM zero RAF class
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › orbit constructor preserves full qualified sequence and unchanged interval gaps
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › assignment diagnostics freeze ten fresh identities and cannot qualify full or focused workload
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › runtime geometry pin checks self-contained manifests and actual disk source
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › stopped box rejection persists exact fields before throwing and never overwrites evidence
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › actual lifecycle retains injected work stop persistence tail and finalization failures without replacement stop
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › tree oracle matches all 40 independently frozen ordered query memberships
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › captured scrollable inspector dimensions remain observations while true layout drift rejects
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › first applied tuple binds same or later submission only for the exact unchanged application and pointer
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › paired cue permits contrasting rim replacing orange and rejects unchanged/outside changes
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: assignment
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › owner one-success transition preserves history and bounded dispatch: invalid,valid
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › characterization rejects malformed/conflicting modes and every partial/reordered plan
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › source-shaped extractor still rejects overlap missing pair and mismatched track endpoints
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › owner one-success transition preserves history and bounded dispatch: empty-exit0,valid
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › frozen actual product/profile inputs validate read-only when explicitly supplied
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › first profile repair: historical geometry preserves its pinned preimage
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › frozen controller recipe retains prescribed workload and bounded independent segments
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › owner one-success transition preserves history and bounded dispatch: target-miss
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › cross-action camera accepts finite sub-nanounit 7 to 8 publication and rejects incomplete or changed geometry
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › first profile repair: generator checks and preflight failures never write
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › cue plan rejects wrong typed winner anchor camera DPR clip and corrupt PNG mappings
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › same-trace boundary rejects mixed raw clock source document action epoch process and lineage
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › actual extractor and binder retain reusable tracks distinct raw pairs and tied timestamps
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › cue at the wrong attachment location cannot qualify the frozen winner center
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › actual action lifecycle persists once before host tail and blocks next action through finalization
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › same-trace integer arithmetic matches independent rational bounds and translation
+[chromium-compact] › ui-foundation/full-cohort-controller.spec.ts › real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light comfortable 1440x920
+[chromium-desktop] › ui-foundation.spec.ts › Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags
+[chromium-desktop] › ui-foundation.spec.ts › empty ordered selection publishes independently from project inspector
+[chromium-compact] › ui-foundation.spec.ts › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture
+[chromium-desktop] › ui-foundation.spec.ts › decorative viewport overlays pass real canvas gestures while view controls stay interactive
+[chromium-desktop] › ui-foundation.spec.ts › filtered tree collapse controls retain typed selection and frozen draft across search changes
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: two-epochs
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › source-bound page-edge uncertainty retains possibly intersecting observer work
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: capacity
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › assignment retains original product start and reconciles stopped identity: complete
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › bad or missing observer windows cannot receive structural validity
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › candidate point feedback requires product-shaped compact heading: wrong-label
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › missing or non-enclosing pointer and action cost records fail
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › overlay target and observer overflow fail closed
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › candidate point feedback requires product-shaped compact heading: wrong-typed-identity
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › forced derivation failure preserves immutable earlier journals and a terminal failure
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › expected RAF and action operation populations cannot disappear
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: final-without-frame
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › baseline null outside hit records limitation and continues before label lookup
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › RAF callback percentile cannot be diluted by cheap registrations
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › clear sentinel retains original WebGL clear work separately from observer cost
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › real input DOM observer binds stopped publication and pending mutation: pending-mutation
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › box callback consumes actual unavailable or active union and rejects numerical and ordered-state faults
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › malformed or duplicate expected observation identities and boundaries fail
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › zero RAF DOM class requires exact input and mutation records without fabricated callbacks
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › duplicate ambiguous enclosures and illegal reuse across distinct callbacks fail
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › box feedback checks full membership even when primary is unchanged: same-primary-missing-member
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › nonzero canvas origin and prescribed orbit start retain client coordinates
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › extra or unknown observer RAF, product observation RAF, and incomplete restore fail closed
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: stale-submission
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › missing, malformed, negative and nonfinite observer readings fail structurally
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › unrelated RAF cost cannot substitute for missing saved feedback cost
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › invalid samples fail and crossing samples are charged in full
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: wrong-model
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › candidate diagnostics without same-callback DOM and positive submission cannot emit qualifying feedback
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › actual elementFromPoint rejects an intercepting overlay
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › raw zero costs remain uncertain rather than a true-overhead pass
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: no-clear
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › exact observation coverage accepts extra unrelated callbacks and shared pointer action listener
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › secondary inspector capture uses phase-specific exact independently supplied typed heading
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: unready-tree
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › candidate point feedback requires product-shaped compact heading: valid
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › box feedback checks full membership even when primary is unchanged: complete
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › instrumented preflight still requires complete causal and pixel evidence above raw overhead references
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › observer setup failure still invokes the original RAF callback exactly once and restore removes listeners
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › assignment retains original product start and reconciles stopped identity: stopped-model-drift
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › real input DOM observer binds stopped publication and pending mutation: complete
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › Box producer phases are reevaluated only on a fresh genuine callback and retain bounded failed facts
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: same-epoch
+[chromium-compact] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: pending-at-stop
+[chromium-compact] › b3a-session-status.spec.ts › canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
+[chromium-compact] › ui-foundation.spec.ts › selected-pipe actions copy a stable draft target snapshot instead of following later selection
+[chromium-compact] › ui-foundation.spec.ts › live Properties routes follow catalogue target B while frozen Task A remains unchanged
+[chromium-compact] › ui-foundation.spec.ts › virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus
+[chromium-compact] › ui-foundation.spec.ts › filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles
+[chromium-compact] › ui-foundation.spec.ts › an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled
+[chromium-compact] › ui-foundation.spec.ts › real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures
+[chromium-desktop] › workspace-layout.spec.ts › D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class
+[chromium-compact] › ui-foundation.spec.ts › standard 1000 camera recipe compares legacy and corrected fit without changing targets
+[chromium-desktop] › ui-foundation.spec.ts › a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change

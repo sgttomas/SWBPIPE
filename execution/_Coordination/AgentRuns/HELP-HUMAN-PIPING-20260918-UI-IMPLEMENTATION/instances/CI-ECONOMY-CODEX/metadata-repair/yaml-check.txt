@@ -1,0 +1,1 @@
+PASS: only opened/synchronize/reopened; ignored metadata creates no run/check/concurrency participant; manual full target input wired; stable gate and distinct PR/manual concurrency preserved.

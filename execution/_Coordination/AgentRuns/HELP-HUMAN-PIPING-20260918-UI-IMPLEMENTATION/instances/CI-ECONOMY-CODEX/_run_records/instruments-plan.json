@@ -1,0 +1,83 @@
+{
+  "version": 2,
+  "mode": "lean-affected",
+  "coverage_full": false,
+  "event": "pull_request",
+  "pr": "development",
+  "base": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "target_base": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "head": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "milestone": false,
+  "changed_paths": [
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/benchmark-harness.ts"
+    }
+  ],
+  "projects": [
+    "chromium-desktop",
+    "chromium-compact"
+  ],
+  "inventory": [
+    "e2e/b3-accessibility.spec.ts",
+    "e2e/b3a-session-status.spec.ts",
+    "e2e/gui-workflow-validation.spec.ts",
+    "e2e/linear-authoring.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/result-compatibility.spec.ts",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/ui-foundation/causal-method-contract.spec.ts",
+    "e2e/ui-foundation/fresh-demo-policy.spec.ts",
+    "e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "e2e/ui-foundation/performance-targets.spec.ts",
+    "e2e/workspace-layout.spec.ts"
+  ],
+  "selected_specs": [
+    "e2e/b3-accessibility.spec.ts",
+    "e2e/b3a-session-status.spec.ts",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/ui-foundation/causal-method-contract.spec.ts",
+    "e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "e2e/ui-foundation/performance-targets.spec.ts",
+    "e2e/workspace-layout.spec.ts"
+  ],
+  "selected_titles": {
+    "e2e/b3a-session-status.spec.ts": [
+      "canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot"
+    ],
+    "e2e/workspace-layout.spec.ts": [
+      "workspace preserves the visible model during discovery, routing, property editing and analysis navigation"
+    ],
+    "e2e/linear-authoring.spec.ts": [
+      "compact blank-to-straight authoring keeps the canvas and exact Add/Apply review"
+    ],
+    "e2e/r2-smoke.spec.ts": [
+      "R2 desktop preview smoke covers solve, results, report, and viewport overlay"
+    ],
+    "e2e/result-compatibility.spec.ts": [
+      "fresh Current exports strict 0.2 result and stress-neutral evidence"
+    ],
+    "e2e/gui-workflow-validation.spec.ts": [
+      "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+      "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer"
+    ],
+    "e2e/ui-foundation.spec.ts": [
+      "[preflight] maintained fixture supports typed selection and a keyboard-authored measurement"
+    ]
+  },
+  "appearance": false,
+  "ownership": {
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/benchmark-harness.ts": [
+      "e2e/b3a-session-status.spec.ts",
+      "e2e/ui-foundation.spec.ts",
+      "e2e/ui-foundation/causal-method-contract.spec.ts",
+      "e2e/ui-foundation/full-cohort-controller.spec.ts",
+      "e2e/ui-foundation/performance-targets.spec.ts",
+      "e2e/workspace-layout.spec.ts"
+    ]
+  },
+  "reasons": [
+    "Lean ordinary journeys plus reviewed affected ownership: instruments"
+  ],
+  "coverage_note": "Partial source coverage; omitted tests are not passed and this is not DEC093 full surface4 evidence."
+}

@@ -1,0 +1,73 @@
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › phase label rejection preserves actual boundary metadata: orbit-1-ready
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › actual lifecycle retains injected work stop persistence tail and finalization failures without replacement stop
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › owner one-success transition preserves history and bounded dispatch: empty-exit0,valid
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › geometry pairing is deterministic conservative and one-to-one
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › actual action lifecycle persists once before host tail and blocks next action through finalization
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › orbit constructor preserves full qualified sequence and unchanged interval gaps
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › cross-action camera accepts finite sub-nanounit 7 to 8 publication and rejects incomplete or changed geometry
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › same-trace integer arithmetic matches independent rational bounds and translation
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › owner one-success transition preserves history and bounded dispatch: target-miss
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › runtime geometry pin rejects old and mutated plan sources after valid selfhash rebinding
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › actual first callback copies application and capture rejects replacement drift or later backfill
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › actual product pre-box unavailable and status-less active union is strict
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › frozen controller recipe retains prescribed workload and bounded independent segments
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › exact four distinct paired witnesses and actual contrast boundary remain mandatory
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › characterization rejects malformed/conflicting modes and every partial/reordered plan
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › stopped box rejection persists exact fields before throwing and never overwrites evidence
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › tree oracle matches all 40 independently frozen ordered query memberships
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › cue at the wrong attachment location cannot qualify the frozen winner center
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › real caller observer requirements retain complete observations and DOM zero RAF class
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › assignment diagnostics freeze ten fresh identities and cannot qualify full or focused workload
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › actual ReturnAsStream beyond former64MiB preserves EOF exact hash and unsafe identifiers
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › first profile repair: historical geometry preserves its pinned preimage
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: assignment
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › owner one-success transition preserves history and bounded dispatch: invalid,valid
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › owner one-success transition preserves history and bounded dispatch: interrupted,valid
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › first applied tuple binds same or later submission only for the exact unchanged application and pointer
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › runtime geometry pin checks self-contained manifests and actual disk source
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › same-trace boundary rejects mixed raw clock source document action epoch process and lineage
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › source-shaped extractor still rejects overlap missing pair and mismatched track endpoints
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › fresh demonstration provenance accepts only its bound revision and internal120 profile
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › paired cue permits contrasting rim replacing orange and rejects unchanged/outside changes
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › winner plan requires geometry provenance even when the altered plan is rehashed and self-consistent
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › frozen actual product/profile inputs validate read-only when explicitly supplied
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › actual extractor and binder retain reusable tracks distinct raw pairs and tied timestamps
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › first profile repair: D-70 inventory retains the original acceptance independently of later inventories
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › tree oracle is independently derived with complete typed order and ARIA groups
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › product inventory rejects omission duplicates split overlap and wrong final provenance
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › cue plan rejects wrong typed winner anchor camera DPR clip and corrupt PNG mappings
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › first profile repair: generator checks and preflight failures never write
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › presented gap bounds widen outward and never subtract observer work
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › captured scrollable inspector dimensions remain observations while true layout drift rejects
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: tree-filter
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › phase label rejection preserves actual boundary metadata: point-selection-1-stopped
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › owner one-success transition preserves history and bounded dispatch: stale-success
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › tree oracle restores accepted project restraint provenance and component vocabulary
+[chromium-desktop] › ui-foundation/full-cohort-controller.spec.ts › required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light compact 1280x800
+[chromium-compact] › ui-foundation.spec.ts › Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags
+[chromium-compact] › ui-foundation.spec.ts › empty ordered selection publishes independently from project inspector
+[chromium-desktop] › ui-foundation.spec.ts › standard 10000 camera recipe compares legacy and corrected fit without changing targets
+[chromium-desktop] › ui-foundation.spec.ts › ordinary typed edit preserves view state and same-ID project replacement clears it
+[chromium-desktop] › b3a-session-status.spec.ts › canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
+[chromium-desktop] › ui-foundation.spec.ts › a property task keeps its typed target and entered value through filter, collapse, and selection ABA
+[chromium-desktop] › ui-foundation.spec.ts › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement
+[chromium-desktop] › ui-foundation.spec.ts › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls
+[chromium-desktop] › workspace-layout.spec.ts › routing uses the inspector without changing the D2 pane allocation, 1280 x 800, native-runtime class
+[chromium-desktop] › workspace-layout.spec.ts › workspace preserves the visible model during discovery, routing, property editing and analysis navigation
+[chromium-desktop] › ui-foundation.spec.ts › narrow canvas fits visible and selected envelopes in every view preset
+[chromium-compact] › ui-foundation.spec.ts › narrow canvas fits visible and selected envelopes in every view preset
+[chromium-compact] › ui-foundation.spec.ts › Actual OD uses valid spans and explains the independently injected centerline fallback
+[chromium-desktop] › ui-foundation.spec.ts › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft
+[chromium-desktop] › ui-foundation.spec.ts › typed raw-ID collisions remain distinct through ordered selection and an ABA membership change
+[chromium-compact] › ui-foundation.spec.ts › a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change

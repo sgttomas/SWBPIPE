@@ -1,0 +1,859 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": false,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b3a-session-status.spec.ts",
+      "file": "b3a-session-status.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "2544a1e3073860e024b5-734028ffbb12e1061322",
+          "file": "b3a-session-status.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "2544a1e3073860e024b5-ebb76bd34849822f4871",
+          "file": "b3a-session-status.spec.ts",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "gui-workflow-validation.spec.ts",
+      "file": "gui-workflow-validation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-c48f4ba6816eaa0a49d8",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 90,
+          "column": 1
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-3720d90ed423326b654f",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-911741ca6c3aa832901b",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        },
+        {
+          "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-18816e614bd5373b1189",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 90,
+          "column": 1
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-22525c8411c21aa75b5a",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-6943b9207be490841747",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "title": "linear-authoring.spec.ts",
+      "file": "linear-authoring.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "compact blank-to-straight authoring keeps the canvas and exact Add/Apply review",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "3014788e718664926f50-18ce7a3d16fe101d2937",
+          "file": "linear-authoring.spec.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "compact blank-to-straight authoring keeps the canvas and exact Add/Apply review",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "3014788e718664926f50-4d931543954fc47a1116",
+          "file": "linear-authoring.spec.ts",
+          "line": 60,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "r2-smoke.spec.ts",
+      "file": "r2-smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "guided workbench shell keeps journey steps, details, and compact status reachable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-3a37419abc786134e2b2",
+          "file": "r2-smoke.spec.ts",
+          "line": 148,
+          "column": 1
+        },
+        {
+          "title": "DEC-077 solve temperature queues an explicit unit-bearing operation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-44db23541bdcfdf2a7a1",
+          "file": "r2-smoke.spec.ts",
+          "line": 225,
+          "column": 1
+        },
+        {
+          "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-e53bc32a6da0ec03a248",
+          "file": "r2-smoke.spec.ts",
+          "line": 250,
+          "column": 1
+        },
+        {
+          "title": "viewport gesture placeholders record unit validation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-9a2ad5e6dc4572a3a7bc",
+          "file": "r2-smoke.spec.ts",
+          "line": 828,
+          "column": 1
+        },
+        {
+          "title": "R2 from-blank GUI journey authors the A12 rehearsal script",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-88653e668605347c6f65",
+          "file": "r2-smoke.spec.ts",
+          "line": 865,
+          "column": 1
+        },
+        {
+          "title": "diagnostic detail exposes linked result unit context",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-0bcc2f89e8293d04b4f6",
+          "file": "r2-smoke.spec.ts",
+          "line": 1085,
+          "column": 1
+        },
+        {
+          "title": "rule-pack manager drafts privately and reports the desktop-only backend seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-223113ce8a596d15d02a",
+          "file": "r2-smoke.spec.ts",
+          "line": 1108,
+          "column": 1
+        },
+        {
+          "title": "library manager loads an invented private sample and reports the desktop-only backend seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-8be12f96daf3a8c6809e",
+          "file": "r2-smoke.spec.ts",
+          "line": 1331,
+          "column": 1
+        },
+        {
+          "title": "run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-fd359af484ddb5d05332",
+          "file": "r2-smoke.spec.ts",
+          "line": 1495,
+          "column": 1
+        },
+        {
+          "title": "R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-042d91079de6d8062c1c",
+          "file": "r2-smoke.spec.ts",
+          "line": 1623,
+          "column": 1
+        },
+        {
+          "title": "guided workbench shell keeps journey steps, details, and compact status reachable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-65c3590770936e9d327e",
+          "file": "r2-smoke.spec.ts",
+          "line": 148,
+          "column": 1
+        },
+        {
+          "title": "DEC-077 solve temperature queues an explicit unit-bearing operation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-7568544b6534eab05f7c",
+          "file": "r2-smoke.spec.ts",
+          "line": 225,
+          "column": 1
+        },
+        {
+          "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-6ac6ecaad09abe729ff5",
+          "file": "r2-smoke.spec.ts",
+          "line": 250,
+          "column": 1
+        },
+        {
+          "title": "viewport gesture placeholders record unit validation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-25540f0b9303034b0487",
+          "file": "r2-smoke.spec.ts",
+          "line": 828,
+          "column": 1
+        },
+        {
+          "title": "R2 from-blank GUI journey authors the A12 rehearsal script",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-0af10443a1135dbc5a28",
+          "file": "r2-smoke.spec.ts",
+          "line": 865,
+          "column": 1
+        },
+        {
+          "title": "diagnostic detail exposes linked result unit context",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-2e529f2c3edb5b917f0c",
+          "file": "r2-smoke.spec.ts",
+          "line": 1085,
+          "column": 1
+        },
+        {
+          "title": "rule-pack manager drafts privately and reports the desktop-only backend seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-b94a88386d9decf4ac5a",
+          "file": "r2-smoke.spec.ts",
+          "line": 1108,
+          "column": 1
+        },
+        {
+          "title": "library manager loads an invented private sample and reports the desktop-only backend seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-37c37f114978742f7b09",
+          "file": "r2-smoke.spec.ts",
+          "line": 1331,
+          "column": 1
+        },
+        {
+          "title": "run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-4e3fc4a0b138167e1f3b",
+          "file": "r2-smoke.spec.ts",
+          "line": 1495,
+          "column": 1
+        },
+        {
+          "title": "R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-7e4344db1dcfc06f4d14",
+          "file": "r2-smoke.spec.ts",
+          "line": 1623,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "result-compatibility.spec.ts",
+      "file": "result-compatibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fresh Current exports strict 0.2 result and stress-neutral evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "ad4d63015ca33e87347b-64a324ee696fb7cec5a2",
+          "file": "result-compatibility.spec.ts",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "fresh Current exports strict 0.2 result and stress-neutral evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "ad4d63015ca33e87347b-a01803b61d2d6f774a36",
+          "file": "result-compatibility.spec.ts",
+          "line": 14,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "ui-foundation.spec.ts",
+      "file": "ui-foundation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "[preflight] maintained fixture supports typed selection and a keyboard-authored measurement",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-f3f25afa5846f79ed3cf",
+          "file": "ui-foundation.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "[preflight] maintained fixture supports typed selection and a keyboard-authored measurement",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "066a9facc3ff4192384f-95782ef079471d39f317",
+          "file": "ui-foundation.spec.ts",
+          "line": 38,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "workspace-layout.spec.ts",
+      "file": "workspace-layout.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "workspace preserves the visible model during discovery, routing, property editing and analysis navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-669dcdd10d2fc86cd32e",
+          "file": "workspace-layout.spec.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "workspace preserves the visible model during discovery, routing, property editing and analysis navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-2cda96aeef8732f6a7cb",
+          "file": "workspace-layout.spec.ts",
+          "line": 27,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-20T18:38:42.196Z",
+    "duration": 133.399,
+    "expected": 0,
+    "skipped": 36,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

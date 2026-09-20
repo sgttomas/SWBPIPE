@@ -1,0 +1,6 @@
+{
+  ".github/workflows/piping-desktop-e2e.yml": "ca8d203ef53d13f5de9d590908f3778ca4a46ade6d604a6bac6788bbb8b88185",
+  "projects/chirality-piping/tools/ci/e2e_plan.py": "b26632747d3a3ae76b9c6a30b5e8219382fc8f2a6d3f5b65b3fd5bb52ee0a6fd",
+  "projects/chirality-piping/tests/test_ci_e2e_plan.py": "280d251d5b49b196143a5ff5cf0c3d0fb030fa4a853aa15830f43c395e3a48fe",
+  "projects/chirality-piping/docs/CI_STRATEGY.md": "cfcdb2be90fbeffa5fb1a8f931bf7b3b30e5ca6273eb091675ac1813975558fd"
+}

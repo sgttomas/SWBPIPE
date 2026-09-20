@@ -1,0 +1,63 @@
+{
+  "lean": {
+    "mode": "lean",
+    "selected": 46,
+    "omitted": 375,
+    "ownership": {
+      "projects/chirality-piping/apps/desktop/src/features/workspace/shell/DisabledReason.tsx": [
+        "lean"
+      ]
+    }
+  },
+  "layout": {
+    "mode": "lean-affected",
+    "selected": 81,
+    "omitted": 340,
+    "ownership": {
+      "projects/chirality-piping/apps/desktop/src/styles.css": [
+        "layout"
+      ]
+    }
+  },
+  "authoring": {
+    "mode": "lean-affected",
+    "selected": 130,
+    "omitted": 291,
+    "ownership": {
+      "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts": [
+        "authoring"
+      ]
+    }
+  },
+  "results": {
+    "mode": "lean-affected",
+    "selected": 66,
+    "omitted": 355,
+    "ownership": {
+      "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx": [
+        "results"
+      ]
+    }
+  },
+  "instruments": {
+    "mode": "lean-affected",
+    "selected": 393,
+    "omitted": 28,
+    "ownership": {
+      "projects/chirality-piping/apps/desktop/e2e/ui-foundation/benchmark-harness.ts": [
+        "e2e/b3a-session-status.spec.ts",
+        "e2e/ui-foundation.spec.ts",
+        "e2e/ui-foundation/causal-method-contract.spec.ts",
+        "e2e/ui-foundation/full-cohort-controller.spec.ts",
+        "e2e/ui-foundation/performance-targets.spec.ts",
+        "e2e/workspace-layout.spec.ts"
+      ]
+    }
+  },
+  "not-applicable": {
+    "mode": "not-applicable",
+    "selected": 0,
+    "browser_setup": false
+  },
+  "note": "Synthetic routing diffs with real dirty-source --list collection; no browser/test pass or clean candidate proof."
+}

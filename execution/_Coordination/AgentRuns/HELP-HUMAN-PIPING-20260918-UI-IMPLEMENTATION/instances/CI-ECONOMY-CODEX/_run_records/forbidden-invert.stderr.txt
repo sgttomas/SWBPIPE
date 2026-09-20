@@ -1,0 +1,10 @@
+Error: Source projects own --grep-invert for explicit-viewport deduplication; use --grep or --test-list.
+    at file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/playwright.config.ts:33:9
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at node:internal/modules/esm/loader:643:26
+    at requireOrImport (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/node_modules/playwright/lib/common/index.js:1052:12)
+    at loadUserConfig (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/node_modules/playwright/lib/common/index.js:1292:46)
+    at loadConfig (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/node_modules/playwright/lib/common/index.js:1304:22)
+    at Object.loadConfigFromFile (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/node_modules/playwright/lib/common/index.js:1517:10)
+    at runTests (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/node_modules/playwright/lib/cli/testActions.js:45:18)
+    at _Command.<anonymous> (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/node_modules/playwright/lib/program.js:50:7)
