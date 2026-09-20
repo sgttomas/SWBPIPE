@@ -76,3 +76,46 @@ test("B4 virtualized invalid editor survives scrolling and a filter threshold wi
   expect(await currentModelHashThroughVisibleExport(page)).toBe(hashBefore);
   await page.screenshot({ path: info.outputPath("b4-virtual-editor-cancelled.png") });
 });
+
+test("B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table", async ({ page, browser }, info) => {
+  await attachBrowserIdentity(browser, info);
+  await page.goto("/"); await expect(page.getByTestId("workspace-toolbar")).toBeVisible();
+  await page.getByTestId("view-switch-both").click();
+  if (await page.getByTestId("toggle-inspector").getAttribute("aria-expanded") !== "true") await page.getByTestId("toggle-inspector").click();
+  await ensureTreeExpanded(page); await page.getByTestId("layout-mode-grid").click();
+  const table = page.getByTestId("engineering-table"); const grid = table.getByRole("grid", { name: "Node coordinates" });
+  const measure = () => page.evaluate(() => {
+    const state: Record<string, { x: number; y: number; width: number; height: number; right: number; clientWidth: number; scrollWidth: number; scrollLeft: number }> = {};
+    for (const [name, selector] of Object.entries({ grid: '.engineering-table [role="grid"]', model: '.model-tree', pane: '.shell-table-pane', canvas: '[data-testid="viewport-canvas"]', filter: '[data-testid="model-tree-filter-input"]', tabs: '.entity-grid-tabs', footer: '.engineering-table-footer', header: '.engineering-table-header', body: '[data-testid="engineering-table-rows"]' })) {
+      const element = document.querySelector(selector)!; const rect = element.getBoundingClientRect();
+      state[name] = { x: rect.x, y: rect.y, width: rect.width, height: rect.height, right: rect.right, clientWidth: element.clientWidth, scrollWidth: element.scrollWidth, scrollLeft: element.scrollLeft };
+    }
+    return state;
+  });
+  const before = await measure();
+  await grid.hover({ position: { x: 150, y: 100 } }); await page.mouse.wheel(700, 0);
+  await expect.poll(async () => (await measure()).grid.scrollLeft).toBeGreaterThan(0);
+  const after = await measure();
+  await info.attach("coordinate-scroll-widths", { body: JSON.stringify({ viewport: page.viewportSize(), before, after }, null, 2), contentType: "application/json" });
+  expect(after.grid.scrollWidth).toBeGreaterThan(after.grid.clientWidth);
+  expect(after.model.scrollLeft).toBe(0);
+  for (const name of ["filter", "tabs", "footer", "pane", "canvas"]) {
+    expect(after[name].x).toBe(before[name].x); expect(after[name].width).toBe(before[name].width);
+  }
+  for (const name of ["pane", "canvas"]) {
+    expect(after[name].y).toBe(before[name].y); expect(after[name].height).toBe(before[name].height);
+  }
+  for (const name of ["filter", "tabs", "footer"]) {
+    expect(after[name].x).toBeGreaterThanOrEqual(after.pane.x); expect(after[name].right).toBeLessThanOrEqual(after.pane.right);
+  }
+  expect(after.header.width).toBe(after.body.width);
+  const z = page.getByTestId("table-cell-node:N-100-z");
+  const headerZ = await grid.getByRole("columnheader").last().boundingBox(); const bodyZ = await z.locator("..").boundingBox();
+  expect(bodyZ!.x).toBeCloseTo(headerZ!.x, 1); expect(bodyZ!.width).toBeCloseTo(headerZ!.width, 1);
+  await z.dblclick(); const editor = table.getByRole("textbox", { name: "node:N-100 Z [m]" }); await editor.fill("4.6");
+  await table.getByRole("button", { name: "Cancel", exact: true }).click(); await expect(z).toHaveText("0");
+  await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+  await page.getByTestId("entity-grid-type-pipes").click(); await page.getByTestId("entity-grid-type-nodes").click();
+  await expect(grid).toBeVisible();
+  await page.screenshot({ path: info.outputPath("b4-inspector-pointer-fit.png") });
+});

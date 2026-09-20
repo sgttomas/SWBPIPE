@@ -513,6 +513,7 @@ button:focus-visible {
 
 .entity-grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   min-width: 0;
 }
@@ -3988,6 +3989,8 @@ body { min-width: 760px; min-height: 540px; }
 /* B4.1 entered-coordinate interaction; remaining table grammar is incremental. */
 .engineering-table { min-width: 0; color: var(--ui-text); background: var(--ui-surface); }
 .engineering-table [role="grid"] { overflow-x: auto; }
+/* Header and virtual body move together inside the coordinate-only scroller. */
+.engineering-table [role="rowgroup"] { min-width: 420px; }
 .engineering-table-row { min-width: 420px; display: grid; align-items: stretch; min-height: 100%; border-bottom: 1px solid var(--ui-divider); }
 .engineering-table-row > div { min-width: 0; border-right: 1px solid var(--ui-divider); }
 .engineering-table-row.selected { background: var(--ui-selection); }
