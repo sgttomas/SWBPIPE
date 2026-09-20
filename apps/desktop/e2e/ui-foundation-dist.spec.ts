@@ -1005,6 +1005,7 @@ for (const theme of APPEARANCE_THEMES) {
     const tones = new Set<string>();
     for (const phase of ["before-solve", "solved", "blocked"] as const) {
       if (phase === "blocked") {
+        await activateWithKeyboard(page, page.getByTestId("workspace-dock-close"));
         await openWorkspaceSection(page, "operations");
         await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
         const editor = await startPropertyTaskFromTreeEntity(page, "load", "load:L-100");
