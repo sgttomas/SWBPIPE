@@ -1,0 +1,29 @@
+{
+  "head": "7e6a7f2578e5df12ea891c2d604d0cd48e869934",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "path": "agents/AGENT_HELP_HUMAN.md",
+      "sha256": "0c2fe7a3097ad26c93c0267e4da6aaf90c9264489df8dc368fad657bcac69183"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "path": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    }
+  ]
+}

@@ -1,0 +1,699 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 1,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": true,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "gui-workflow-validation.spec.ts",
+      "file": "gui-workflow-validation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-c48f4ba6816eaa0a49d8",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 90,
+          "column": 1
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-3720d90ed423326b654f",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-911741ca6c3aa832901b",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        },
+        {
+          "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-18816e614bd5373b1189",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 90,
+          "column": 1
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-22525c8411c21aa75b5a",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        },
+        {
+          "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8069ad69b58f4ccce70f-6943b9207be490841747",
+          "file": "gui-workflow-validation.spec.ts",
+          "line": 329,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "title": "workspace-layout.spec.ts",
+      "file": "workspace-layout.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "workspace preserves the visible model during discovery, routing, property editing and analysis navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-669dcdd10d2fc86cd32e",
+          "file": "workspace-layout.spec.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-72406e7a1298b8337fbb",
+          "file": "workspace-layout.spec.ts",
+          "line": 128,
+          "column": 1
+        },
+        {
+          "title": "routing uses the inspector without changing the D2 pane allocation, 1440 x 900, native-runtime class",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-287a34193817f55c825d",
+          "file": "workspace-layout.spec.ts",
+          "line": 211,
+          "column": 3
+        },
+        {
+          "title": "routing uses the inspector without changing the D2 pane allocation, 1280 x 800, native-runtime class",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-e6dab49e6733ae7676d2",
+          "file": "workspace-layout.spec.ts",
+          "line": 211,
+          "column": 3
+        },
+        {
+          "title": "the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-b96afe117de2cd6ab9be",
+          "file": "workspace-layout.spec.ts",
+          "line": 282,
+          "column": 1
+        },
+        {
+          "title": "a switch to Table view hides the canvas without resizing its renderer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-c8270a4aadc6f90084a4",
+          "file": "workspace-layout.spec.ts",
+          "line": 340,
+          "column": 1
+        },
+        {
+          "title": "browser native-class structural review captures retain pane and drawn-canvas geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-f5bf8efc3559d6fe73f1",
+          "file": "workspace-layout.spec.ts",
+          "line": 360,
+          "column": 1
+        },
+        {
+          "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-c34518eca6fb158abe0f",
+          "file": "workspace-layout.spec.ts",
+          "line": 403,
+          "column": 5
+        },
+        {
+          "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1440",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-32d0adad9966d55b78f7",
+          "file": "workspace-layout.spec.ts",
+          "line": 403,
+          "column": 5
+        },
+        {
+          "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1280",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-3968a481bf09d26fb0e8",
+          "file": "workspace-layout.spec.ts",
+          "line": 403,
+          "column": 5
+        },
+        {
+          "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-62d10a1bd22cd1110513",
+          "file": "workspace-layout.spec.ts",
+          "line": 403,
+          "column": 5
+        },
+        {
+          "title": "below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-319b57ff78bbec8f556c",
+          "file": "workspace-layout.spec.ts",
+          "line": 523,
+          "column": 1
+        },
+        {
+          "title": "workspace preserves the visible model during discovery, routing, property editing and analysis navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-2cda96aeef8732f6a7cb",
+          "file": "workspace-layout.spec.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-daa61df304e1fda0e0c0",
+          "file": "workspace-layout.spec.ts",
+          "line": 128,
+          "column": 1
+        },
+        {
+          "title": "routing uses the inspector without changing the D2 pane allocation, 1440 x 900, native-runtime class",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-8e38e59b12722943d55b",
+          "file": "workspace-layout.spec.ts",
+          "line": 211,
+          "column": 3
+        },
+        {
+          "title": "routing uses the inspector without changing the D2 pane allocation, 1280 x 800, native-runtime class",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-3c27c4782cc99bc27739",
+          "file": "workspace-layout.spec.ts",
+          "line": 211,
+          "column": 3
+        },
+        {
+          "title": "the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-87cfa2056f28ace50909",
+          "file": "workspace-layout.spec.ts",
+          "line": 282,
+          "column": 1
+        },
+        {
+          "title": "a switch to Table view hides the canvas without resizing its renderer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-0f534354ac1d41d5df42",
+          "file": "workspace-layout.spec.ts",
+          "line": 340,
+          "column": 1
+        },
+        {
+          "title": "browser native-class structural review captures retain pane and drawn-canvas geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-bb64a813f9b6b6c7a0ea",
+          "file": "workspace-layout.spec.ts",
+          "line": 360,
+          "column": 1
+        },
+        {
+          "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-e47fd4586748e92991bb",
+          "file": "workspace-layout.spec.ts",
+          "line": 403,
+          "column": 5
+        },
+        {
+          "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1440",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-3cb11bd0f7ddad36ad47",
+          "file": "workspace-layout.spec.ts",
+          "line": 403,
+          "column": 5
+        },
+        {
+          "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1280",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-cdba648a1452b9403a36",
+          "file": "workspace-layout.spec.ts",
+          "line": 403,
+          "column": 5
+        },
+        {
+          "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-82a17af03b478fba8fda",
+          "file": "workspace-layout.spec.ts",
+          "line": 403,
+          "column": 5
+        },
+        {
+          "title": "below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-20630d874e4c39009dad",
+          "file": "workspace-layout.spec.ts",
+          "line": 523,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-20T15:36:30.833Z",
+    "duration": 41.95300000000003,
+    "expected": 0,
+    "skipped": 30,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

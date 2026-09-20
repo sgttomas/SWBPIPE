@@ -1,0 +1,72 @@
+{
+  "candidate": "64260a3cf842a9b6fdeaf25c3b2dcbb889b1bcde",
+  "productAndCiEqualityFromVerified7a37": "git diff over .github, apps, core, schemas, fixtures, tools, tests returned no paths",
+  "mainObserved": "21175b5d3668f29acd408812d95a33ed4f14bfc8",
+  "collectionOnly": "68 selected;368 omitted; no local browser rerun",
+  "selfCheckExitCode": 0,
+  "instructionRangeExitCode": 0,
+  "receipt": "VALID",
+  "repositoryState": "clean publication checkout",
+  "files": {
+    "PR_BODY.md": {
+      "bytes": 3619,
+      "sha256": "a1e09a6d1ab4b37f5bac4dc23f2cff8464fbcf71a40056885e9da5129529df49"
+    },
+    "selection-plan.json": {
+      "bytes": 1171883,
+      "sha256": "5d6597939d716bdf341f389c728652063f63a63587ed2903d34727f5378ea861"
+    },
+    "instruction-range.log": {
+      "bytes": 15142,
+      "sha256": "5831f79028f4378e64707baec03e1477e21bdf9c4319c03776b4a3616e3e9bbb"
+    },
+    "selfcheck.log": {
+      "bytes": 41362,
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+    },
+    "selection.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "collection/barrier-1.stdout.json": {
+      "bytes": 22823,
+      "sha256": "f694f708d74762162ea5ce8628c17b8c6fdb98420079e699433ed4815b78a5d3"
+    },
+    "collection/summary.md": {
+      "bytes": 287,
+      "sha256": "d9d36222011da827b5c6f2aef1ffc85226b08e30529a4d05be54d856b05a505d"
+    },
+    "collection/barrier-1.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "collection/source.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "collection/barrier-2.stdout.json": {
+      "bytes": 8189,
+      "sha256": "62bd808e1277f6d22bf99fc46b566c33394bb8af2e657897ee480a5b055e8c9e"
+    },
+    "collection/source.stdout.json": {
+      "bytes": 294660,
+      "sha256": "3a1bad2c682e6e97a8e57ec8da6012ab0046890c7d53a575df99e65cae5daf25"
+    },
+    "collection/barrier-0.stdout.json": {
+      "bytes": 21646,
+      "sha256": "e008ee1df4d5d3519fa80f2630d03332993214dfafc6cdb7209fcfe7af466728"
+    },
+    "collection/barrier-2.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "collection/collection.json": {
+      "bytes": 207740,
+      "sha256": "d5c6652116b652a17c1dbececa14aa1964245ea68792b476d8648bc8dea7d516"
+    },
+    "collection/barrier-0.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

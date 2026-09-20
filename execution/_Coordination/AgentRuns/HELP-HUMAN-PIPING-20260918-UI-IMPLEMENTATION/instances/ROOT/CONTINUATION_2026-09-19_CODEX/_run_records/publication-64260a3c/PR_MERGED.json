@@ -1,0 +1,79 @@
+{
+  "autoMergeRequest": null,
+  "headRefOid": "64260a3cf842a9b6fdeaf25c3b2dcbb889b1bcde",
+  "mergeCommit": {
+    "oid": "7e6a7f2578e5df12ea891c2d604d0cd48e869934"
+  },
+  "mergedAt": "2026-09-20T15:49:07Z",
+  "mergedBy": {
+    "id": "MDQ6VXNlcjE1MzMxMTMy",
+    "is_bot": false,
+    "login": "sgttomas",
+    "name": "Ryan C Tufts"
+  },
+  "number": 825,
+  "state": "MERGED",
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-20T15:43:43Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/35520240241/job/106102950608",
+      "name": "Harness pre-merge",
+      "startedAt": "2026-09-20T15:38:58Z",
+      "status": "COMPLETED",
+      "workflowName": "Harness Pre-merge Validation"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-20T15:39:40Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/35520240233/job/106102950728",
+      "name": "Select source coverage",
+      "startedAt": "2026-09-20T15:38:57Z",
+      "status": "COMPLETED",
+      "workflowName": "Piping Desktop E2E"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-20T15:42:02Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/35520240213/job/106102950628",
+      "name": "harness",
+      "startedAt": "2026-09-20T15:38:57Z",
+      "status": "COMPLETED",
+      "workflowName": "governance-harness"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-20T15:51:37Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/35520240233/job/106103051409",
+      "name": "Accessibility barrier and selected coverage",
+      "startedAt": "2026-09-20T15:39:42Z",
+      "status": "COMPLETED",
+      "workflowName": "Piping Desktop E2E"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-20T15:51:37Z",
+      "conclusion": "SKIPPED",
+      "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/35520240233/job/106104656040",
+      "name": "Source remainder (${{ matrix.shard }}/4)",
+      "startedAt": "2026-09-20T15:51:37Z",
+      "status": "COMPLETED",
+      "workflowName": "Piping Desktop E2E"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-20T15:52:19Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/35520240233/job/106104655483",
+      "name": "Desktop E2E (source mode)",
+      "startedAt": "2026-09-20T15:51:39Z",
+      "status": "COMPLETED",
+      "workflowName": "Piping Desktop E2E"
+    }
+  ],
+  "url": "https://github.com/sgttomas/chirality/pull/825"
+}

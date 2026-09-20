@@ -10,9 +10,9 @@ changes require acknowledged handoffs; silence transfers nothing.
 | Worktree / branch | Owner and current scope |
 |---|---|
 | b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality / codex/swbpipe-continuation-20260919 | ROOT: shared records, graph, decisions, independent reviews and final integration. Current checkpoint includes reviewed CI strategy, owner-approved dist parity and combined verification. |
-| swbpipe-wt2 / codex/swbpipe-b3-20260919 | ROOT integration: bounded reruns passed on 7a37a8f2; PR825 still open on prior 002dff0f until publication. Tooltip repaired 3861; CI strategy reviewed. |
-| swbpipe-wt3 / codex/swbpipe-b-shell-20260918 | B3 manager Astra/high returned clean f7dcbf02, product 3861. New implementers Astra/low. No active workers. |
-| swbpipe-wt4 / codex/swbpipe-b-canvas-20260918 | Preserved clean f6c0bab8e; I1 pause-point work not recreated. Next manager not yet launched. |
+| swbpipe-wt2 / codex/swbpipe-b3-20260919 | ROOT integration: PR825 merged as 7e6a7f25 from reviewed 64260a3c; all selected checks now green. Integration checkout retained for review. |
+| swbpipe-wt3 / codex/swbpipe-b-shell-20260918 | B3A manager Astra/high with fresh TASK Astra/low; saved-model marker, solver fallback and native title scope. Product frozen at 80b9efb4; final source checks and native witness pending. |
+| swbpipe-wt4 / codex/swbpipe-b-canvas-20260918 | I1 manager returned clean 045acae7; instrument-only repair, inherited work preserved. Fresh independent Astra/xhigh review active. C3 unstarted. |
 | chirality-runtime-application-tools/chirality / codex/runtime-application-tools | Peer owns reusable Runtime. Generic tools PR824 merged 21175b5d, reviewed cb08dbe2f; no Piping adapter/adoption in that work. |
 
 The owner resumed Piping repair/merge, CI economy and authorized UI continuation.
@@ -21,7 +21,7 @@ found a separate tiny roundoff difference against a legacy exact dist assertion.
 The owner approved parity with the existing source predicate and bounded reruns.
 The exact patch is applied and independently checked; all 53 dist cases and the
 remaining build passed. Original failed sweep stays failed; unchanged passing
-surfaces are reused under this PR825-only ruling. Hosted CI and merge remain pending. B3A/I1 briefs are prepared, unlaunched.
+surfaces are reused under this PR825-only ruling. Focused hosted CI passed 68 cases; PR825 merged as 7e6a7f25. The merge preceded desktop-check completion; same-head success is verified in MERGE_OBSERVATION.json. B3A is active and I1 has returned for review.
 Design-system 4dddd4412 stays parked. Graph and decision package own detailed state.
 
 Piping retains domain schemas/tools, live controller, UI and future Tauri adapter.
@@ -32,13 +32,12 @@ completed generic Runtime work; that grants no Piping adoption.
 
 ## Resources and sequence
 
-No Piping app, test server, lock or worker remains active at this checkpoint.
+B3A has the next exclusive native/CUA slot and may prepare its frozen native build. Its short final-source browser backcheck is coordinated before native. ROOT will not start a full sweep until native is released. I1 has no test processes or resource reservations.
 Peer acknowledged no conflicting reservations and will signal new use. Reserve
 source/dist 5174/5175 (one worker / run lock), ROOT 5183/5184, canvas 5185/5186 and Tauri 5173;
-share one native/CUA foreground slot. Use isolated profiles/stores/private sockets,
-never live user models. No builds/tests alongside later authorized D-72 timing.
+share one native/CUA foreground slot. B3A native verification uses one uniquely named disposable project row in the actual app store, preserving every other row and settings; this is project-level isolation, not a separate store/profile. Future integration profiles/private sockets must be agreed before writes. Use invented fixtures, never private user models. No builds/tests alongside later authorized D-72 timing.
 
-Finish B3, preferably B3A/B3B dirty/save/busy behavior, before an explicitly authorized
+B3 is merged. Prefer finishing B3A/B3B dirty/save/busy behavior before an explicitly authorized
 Piping integration tranche; whole closing appearance pass need not block adoption.
 Before writes agree exact revision, interfaces, error behavior, scope and resource
 order. Peer acknowledged this sequence. Substantive disagreements go to the owner;

@@ -1,0 +1,13 @@
+{
+  "head": "64260a3cf842a9b6fdeaf25c3b2dcbb889b1bcde",
+  "merge": "7e6a7f2578e5df12ea891c2d604d0cd48e869934",
+  "mergedAt": "2026-09-20T15:49:07Z",
+  "mergedByAccount": "sgttomas",
+  "method": "observed via GitHub API; this ROOT turn did not issue a merge command",
+  "desktopCheckCompletedAt": "2026-09-20T15:52:19Z",
+  "chronology": "Merge was recorded before the desktop check completed; the same unchanged head subsequently passed all selected checks. Do not imply all checks preceded this merge or personal owner review, and do not infer a future gate waiver.",
+  "mainTreeEqualsCandidateForPipingAndCi": true,
+  "focusedCases": "30+30+8 passed;68 total; remainder correctly skipped for declared partial mode",
+  "rawCiLogSha256": "001fb8b1ab100dd041be46209a7b54d5f4ddc62e131cc620e9125686c279908e",
+  "compressedLogSha256": "8569104e6276ac0ce1d03f5cba39aae48dab3a64625be86c315967c4ea60656c"
+}
