@@ -1,0 +1,12 @@
+{
+  "candidate": "9cf1654d2d0b317774290feb72d1a397a1d6cefa",
+  "summary": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260920T065239Z_9cf1654d2d0b.json",
+  "summarySha256": "64871b1d85bc974b0dcff8ca049c1e55113f222eaf13eef6729b2c83bf97f8d1",
+  "rawLogBytes": 1776948,
+  "rawLogSha256": "46fc6eedddd83194af32a5f2d8a1cc7c5af658214de5c4d662e33ecdd6ad8a7f",
+  "archive": "sweep.log.gz",
+  "archiveSha256": "357a48349c8a69666b396dad5b80202d466e5959427edbd2a20142c04f77b055",
+  "archiveVerified": "decompression byte-identical",
+  "processExitCode": 0,
+  "actualHost": "unrestricted local host; runner surface capability labels are not sandbox enforcement"
+}
