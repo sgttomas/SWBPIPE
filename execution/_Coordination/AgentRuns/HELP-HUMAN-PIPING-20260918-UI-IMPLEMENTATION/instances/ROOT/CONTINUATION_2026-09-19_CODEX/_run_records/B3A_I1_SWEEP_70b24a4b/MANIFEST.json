@@ -1,0 +1,63 @@
+{
+  "candidate": "70b24a4b8c643a1082951172b7d7e4ee721f996b",
+  "verdict": "fresh complete five-surface pass; not reused/combined with failed prior sweep",
+  "startedUtc": "2026-09-20T17:09:08+00:00",
+  "finishedUtc": "2026-09-20T17:27:43+00:00",
+  "seconds": 1114.773,
+  "observations": {
+    "rust": "all registered crate commands pass",
+    "python": "1135 passed, 304 retained warnings, 19 subtests passed",
+    "vitest": "88 files / 1462 passed",
+    "source": "424 passed / 20 existing opt-in skips; 444 collected",
+    "dist": "53 passed",
+    "build": "pass",
+    "harness": "379 passed",
+    "selfcheck": "exit 0; retained existing findings",
+    "receipts": "valid",
+    "claims": "348 surfaces valid"
+  },
+  "rawLogSha256": "aa85d8b0ff773b09d6a5bf1f9f4f5ad8456c4245fdb8945e57ad144d61fcada5",
+  "postRunClean": true,
+  "browser": {
+    "path": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "workers": 1,
+    "identity": "Playwright pinned Chromium 1223"
+  },
+  "files": [
+    {
+      "path": "SWEEP_20260920T170908Z_70b24a4b8c64.json",
+      "bytes": 3823,
+      "sha256": "716a0b581ab2580a8a45bbbc00c12e6a0c0363b23aea66a4ddcfb3cdb8f285a4"
+    },
+    {
+      "path": "ci-plan.json",
+      "bytes": 151390,
+      "sha256": "0ccdcf58574a0afc863067ce44f9287997ea875cc34e921a8e8f0ef922dfee12"
+    },
+    {
+      "path": "claims.log",
+      "bytes": 87,
+      "sha256": "2704ec54f61c2fd22648b30395c9088b56cce90777fb751da6e2db8c7cb0da1b"
+    },
+    {
+      "path": "harness.log",
+      "bytes": 501,
+      "sha256": "31d14a81920308642f52d8520e39f368e26a3b79ab0fe29428df4f1cbf7de266"
+    },
+    {
+      "path": "receipts.log",
+      "bytes": 175,
+      "sha256": "163deff7fcef7146b54dc4bd3c591dbd2a0f6fa0565932b793e64774d359a966"
+    },
+    {
+      "path": "selfcheck.log",
+      "bytes": 41362,
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+    },
+    {
+      "path": "sweep.log.gz",
+      "bytes": 56945,
+      "sha256": "8869e3532e5e32765b5fc6f2a6531fced35111067d6771fea397e932f04b1254"
+    }
+  ]
+}

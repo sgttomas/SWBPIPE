@@ -599,7 +599,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the unsaved-edits mark; the 'Solver \u00b7 Not solved' fallback chip",
-      "status": "production d2ef/native PASS; exact display-test correction d71 and final evidence dada3482 frozen, complete packet backcheck active",
+      "status": "production/native/tests and complete packet reviewed; fresh complete combined sweep PASS; publication/CI/merge pending",
       "dependsOn": [
         "B3"
       ],
@@ -733,7 +733,7 @@
       "role": "slice",
       "lane": "B-CANVAS",
       "title": "repair of the benchmark first profile's four defects (instrument code only)",
-      "status": "independent complete-diff review PASS on 045acae7; integrated into local preparation 6d9d5839; clean sweep, hosted CI and merge pending",
+      "status": "complete independent review and fresh combined sweep PASS; publication/CI/merge pending",
       "dependsOn": [
         "C2"
       ],
@@ -1307,7 +1307,7 @@
       "modelRequested": "gpt-6-astra",
       "reasoningRequested": "xhigh",
       "actualMechanism": "collaboration.spawn_agent, fork_turns none",
-      "status": "P2 PASS; final packet and authorized two-case display amendment review active at dada3482",
+      "status": "complete packet PASS through dada3482, no findings",
       "candidate": "80b9efb48c31da0d8dc58a2d728db56adcf17d22",
       "base": "7e6a7f2578e5df12ea891c2d604d0cd48e869934",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3A_INDEPENDENT_REVIEW_BRIEF.md",
@@ -1316,7 +1316,9 @@
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_P2_BACKCHECK_RETURN.md",
       "returnSha256": "32cdacbbabd7264aae79aafb8322d10438c5780589c4873bd2fa6b78e071491c",
       "finding": "Failed later Open must not suppress a verified landed same-session saved-contents comparison basis.",
-      "reviewedCandidate": "d2ef16848841616a26c35bfc03e68c7b64e79380"
+      "reviewedCandidate": "d2ef16848841616a26c35bfc03e68c7b64e79380",
+      "finalReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_FINAL_PACKET_REVIEW_RETURN.md",
+      "finalReturnSha256": "e161ac8c387150a59ce9796ddcc8508dcaea3677e5c7a42ad4d156f574ffa90e"
     },
     "C3-PREPARATION-CODEX": {
       "role": "WORKING_ITEMS Type 1 preparation only",
@@ -1333,7 +1335,7 @@
     },
     "B3A-I1-INTEGRATION": {
       "role": "ROOT integration and verification",
-      "status": "first clean sweep failed at Vitest on two stale display assertions; test-only correction pending",
+      "status": "fresh complete sweep PASS on clean 70b24a4b; whole-merge review PASS; final records backcheck and full hosted CI pending",
       "candidate": "46436a60310819f60d6376bc87cc093c1b33b59f",
       "productSource": "d2ef16848841616a26c35bfc03e68c7b64e79380",
       "instrumentSource": "045acae749fe1acc95bce221cdb58c2db4a7064c",
@@ -1349,7 +1351,50 @@
         "sourceAndDist": "not_run",
         "productionBuild": "not_run"
       },
-      "disposition": "Owner item 2 already authorized fallback; only stale blocked/nonconverged display assertions may change, all solved-only/geometry/integrity checks preserved. Fresh complete clean sweep follows; failed result is preserved."
+      "disposition": "Owner item 2 already authorized fallback; only stale blocked/nonconverged display assertions may change, all solved-only/geometry/integrity checks preserved. Fresh complete clean sweep follows; failed result is preserved.",
+      "freshCandidate": "70b24a4b8c643a1082951172b7d7e4ee721f996b",
+      "freshProgress": {
+        "rust": "all registered crate commands pass",
+        "python": "1135 passed, 304 retained warnings, 19 subtests passed",
+        "vitest": "88 files / 1462 passed",
+        "source": "424 passed / 20 existing opt-in skips; 444 collected",
+        "dist": "53 passed",
+        "build": "pass",
+        "harness": "379 passed",
+        "selfcheck": "exit 0; retained existing findings",
+        "receipts": "valid",
+        "claims": "348 surfaces valid"
+      },
+      "earlierFailedResult": "Retained original 46436 result and DISPOSITION; no surface reuse waiver.",
+      "freshSweep": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_I1_SWEEP_70b24a4b/MANIFEST.json"
+    },
+    "B3A-I1-REVIEW": {
+      "role": "fresh TASK Type 2 independent whole-merge review",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3a_i1_integration_review",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "actualMechanism": "collaboration.spawn_agent, fork_turns none",
+      "status": "complete PASS; 576 paths / 22 maintained files; no findings",
+      "candidate": "70b24a4b8c643a1082951172b7d7e4ee721f996b",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/COMBINED_B3A_I1_REVIEW_BRIEF.md",
+      "briefSha256": "8b05daf45c8cb3d79d6db67a744f76c1d4dc0777e6bda554b11f8f55c57f9a15",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/COMBINED_B3A_I1_REVIEW_RETURN.md",
+      "returnSha256": "9f8ed4e5dbfe1e1267eeb508df12482d36118e8c53d7b60efec7dff088270a71",
+      "limits": "No tests/builds/UI/native/write/Git mutation/delegation; full sweep/CI remained pending at return."
+    },
+    "B3B-PREPARATION-CODEX": {
+      "role": "WORKING_ITEMS Type 1 read-only preparation",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3_manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "status": "complete; no implementation/resources acquired",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_PREPARATION_BRIEF.md",
+      "briefSha256": "875e3748d58f839e58f269563cd1f97128963166a30b21cf84722f2822836ac5",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_PREPARATION_RETURN.md",
+      "returnSha256": "e1094aa9f2ae13443e49ae557c6fa062d26d7ff75d44796663c990d59c375e1d",
+      "base": "dada348294d21b8619b4644a5a690aedb039957d"
     }
   },
   "edges": [
@@ -1528,9 +1573,17 @@
     [
       "ROOT",
       "C3-PREPARATION-CODEX"
+    ],
+    [
+      "ROOT",
+      "B3A-I1-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B3B-PREPARATION-CODEX"
     ]
   ],
-  "current_frontier": "Final B3A handoff dada3482 includes exact two-case display correction; product/native inputs remain d2ef. Complete packet backcheck active. I1 remains independently PASS. Failed 46436 sweep preserved; fresh combined complete sweep and full CI next. B3B/C3 preparation only.",
+  "current_frontier": "B3A/I1 combined candidate 70b24a4b passed fresh complete sweep and whole-merge independent review. Final records backcheck and full hosted CI before merge. B3B/C3 preparations complete; activate after integration milestone. Runtime adoption and reserved product holds unchanged.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",

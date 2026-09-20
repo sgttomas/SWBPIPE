@@ -171,3 +171,7 @@ B3A and I1 managers are now launched under sealed current briefs and retained gr
 ## Control-lane checkpoint after B3
 
 I1 is frozen clean at 045acae749fe1acc95bce221cdb58c2db4a7064c with its complete inherited work preserved. Fresh independent Astra/xhigh review is active against main 7e6a7f25; the canonical manager return is instances/I1-CODEX/MANAGER_RETURN.md. B3A product is frozen at 80b9efb4, with intermediate connected browser journeys passing and final checks/native title witness pending. Native uses only an invented disposable project row in the actual shared store; no separate-store isolation claim. ROOT may integrate both disjoint reviewed slices into one clean candidate for one complete sweep and full default hosted coverage. B3B/C3 remain unstarted. Existing owner holds and provisional deliverable mappings remain unchanged.
+
+## B3A/I1 ready for publication validation
+
+The combined clean candidate 70b24a4b passed the fresh complete five-surface sweep, after an early failed sweep exposed two stale App.test fallback expectations. Their exact display-only amendment follows existing owner item 2; all solved-only and geometry checks remain. Separate slice reviews and fresh whole-merge review passed. Native ordinary journeys are bound to d2ef and the repaired binary; controlled tests cover races. Final records backcheck and full hosted CI remain before merge. B3B/C3 preparations are complete and retained; implementation has not started. No deliverable reconciliation, DAG rebuild, Runtime adoption or qualification is claimed.
