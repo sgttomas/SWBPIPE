@@ -633,7 +633,9 @@
       "status": "planned",
       "dependsOn": [
         "B3B"
-      ]
+      ],
+      "preparation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_PREPARATION_RETURN.md",
+      "preparationSha256": "85e355482e5de78dd1107d88aaa1ca5de29fbbd89a9eef9ba965f0a544f4acac"
     },
     "B5": {
       "role": "slice",
@@ -782,10 +784,12 @@
       "role": "slice",
       "lane": "B-CANVAS",
       "title": "the label budget with All, Budget and Off",
-      "status": "planned",
+      "status": "prepared; Off/mandatory-label capacity tensions pending ROOT verification/disposition before dependent implementation; first-profile/second-profile holds intact",
       "dependsOn": [
         "C3"
-      ]
+      ],
+      "preparation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/C4_PREPARATION_RETURN.md",
+      "preparationSha256": "b5294fef754bb3a820e30b32912caf4f6b45d507c5e98fa53a3f559a011d8fdb"
     },
     "C5": {
       "role": "slice",
@@ -1429,7 +1433,7 @@
       "actualAgent": "/root/b3_manager",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "status": "normal native and ROOT own-look complete; isolated2edit Save-busy probe active under exclusive native/build/CUA slot",
+      "status": "returned clean784ab62d test-only repair; affected/adjacent checks andTS pass; product/config/lock/core unchanged",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_MANAGER_BRIEF.md",
       "briefSha256": "03186a0b04d1809ceb81139872a42c895ab2345cd6aa8cfbf4487b17b94f8b98",
       "basis": "88c6c7463199d1d69caebde04678fa74facca78f",
@@ -1450,7 +1454,8 @@
         "briefSha256": "4a061039dcff01e93039b4c88142c538b669d1e4879f7f5e8d3b3bfeb7806640",
         "candidate": "226b1db57029c1df9f9151463c6c708f76f46704",
         "status": "single uninstrumented build passed; native journey active; exclusive CUA/build slot"
-      }
+      },
+      "sweepTestRepair": "784ab62d48de5c1b590c632730a005a58b5e89cc"
     },
     "C3-CODEX-MANAGER": {
       "role": "WORKING_ITEMS Type 1",
@@ -1458,7 +1463,7 @@
       "actualAgent": "/root/i1_manager",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "status": "returned clean9fb4b88b; connected16/picking69/protected83 complete; no resource held",
+      "status": "edge differential test-only repair fb720420 returned;24edgecases pass; product/protected83 unchanged",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/C3_MANAGER_BRIEF.md",
       "briefSha256": "00dec6ffcbb1acfc2ba0d791854c3c135d7226f802d207e5d1b9047d460d23b2",
       "basis": "88c6c7463199d1d69caebde04678fa74facca78f",
@@ -1478,7 +1483,8 @@
       "testCheckpoint": "48051ca76f3bb17570363b98c0d39b40d36ee56e",
       "finalCheckpoint": "9fb4b88b828808ccbb064405c12b28fde8c60138",
       "return": "instances/C3-CODEX/MANAGER_RETURN.md",
-      "returnSha256": "9b98defa4f1e59777194dcc446b2e22aaae63858cf925ca3d2759606da57e3ce"
+      "returnSha256": "9b98defa4f1e59777194dcc446b2e22aaae63858cf925ca3d2759606da57e3ce",
+      "sweepTestRepair": "fb72042061c338d932a2bfe11134078c369af3e9"
     },
     "CI-ECONOMY-CODEX": {
       "role": "TASK Type 2",
@@ -1499,9 +1505,9 @@
     "B3B-C3-CI-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
-      "status": "clean combined candidate under independent review; connected/native/final sweep/hosted gates pending",
+      "status": "all3diagnosed failures repaired in tests only; native/probe complete; fresh bounded backcheck and complete clean sweep next",
       "base": "88c6c7463199d1d69caebde04678fa74facca78f",
-      "candidate": "a635b01ad67e85a10b542e889f0de29715358e49",
+      "candidate": "d7b8269b819946eb6f28cb93d37e70a8fef7bfed",
       "branch": "codex/swbpipe-ci-economy-20260920",
       "dependsOn": [
         "B3B",
@@ -1510,12 +1516,15 @@
       ],
       "sweep": {
         "candidate": "a635b01ad67e85a10b542e889f0de29715358e49",
-        "status": "running",
+        "status": "failed at desktop_vitest",
         "startedAt": "2026-09-20T19:57:17Z",
         "temporaryPath": "/tmp/swbpipe-b3b-c3-ci-sweep-a635b01a",
         "executionSession": 73916,
         "resourceOwner": "ROOT; native/build/CUA previously released",
-        "complete": false
+        "complete": false,
+        "canonical": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_SWEEP_A635",
+        "durationSeconds": 218.0233397502452,
+        "observed": "Rust/Python pass;1488unitpass/3fail;browser/dist/build not_run;after-run candidate clean"
       }
     },
     "B3B-C3-CI-REVIEW": {
@@ -1752,7 +1761,7 @@
       "CI-ECONOMY-CODEX"
     ]
   ],
-  "current_frontier": "Full clean sweep running at a635 with pinned Chromium/shared lock. Code/P2 backcheck passed; native packet and corrected records tail await final review. B4/C4 preparations returned; C4 dependent label decisions pending. Codex-first validation contract is proposed subject to owner stateless MCP condition and actual-client witness; no integration writes.",
+  "current_frontier": "Test-only repairs integrated d7b8269b; native/probe complete with unchanged production inputs. Final bounded code/evidence backcheck and new complete clean sweep next, hosted CI not started. B4.1 prepared; C4 dependent label questions pending. CLI-first transport recommendation under owner discussion after actual modern-MCP incompatibility; no integration writes.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -1957,7 +1966,7 @@
     "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RUNTIME_COORDINATION_STATUS.md",
     "editor": "ROOT only",
     "peerThread": "01a07cd1-86da-7d30-9b17-e2cbbad3f10a",
-    "state": "Codex-first same-Mac validation direction adopted; stateless MCP2026-07-28 transport conditional on actual-client witness. Peer owns harmless isolated protocol probe/read-only contract review; Piping owns proposed domain bridge. Exact live-binding activation pending; no integration writes.",
+    "state": "Exact intended client probe failed modern MCP2026-07-28 handshake; two leads propose JSON CLI first, owner protocol choice pending in dev-app discussion. Domain contract revision2 prepared, no integration writes.",
     "originMainRevalidated": "88c6c7463199d1d69caebde04678fa74facca78f",
     "peerProposedContract": "cb08dbe2fbeaf5a34a0abfa2f1d599c7c5bd6b2f",
     "peerPr": "https://github.com/sgttomas/chirality/pull/824",

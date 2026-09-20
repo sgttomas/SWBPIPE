@@ -1,0 +1,22 @@
+{
+  "candidate": "a635b01ad67e85a10b542e889f0de29715358e49",
+  "verdict": "fail",
+  "raw_log": {
+    "sha256": "abe802d911fe55d75f7aa54b84c29f2e05d3511cbe02887d9452a009b50282d8",
+    "bytes": 1827895
+  },
+  "files": {
+    "SWEEP_20260920T195719Z_a635b01ad67e.json": {
+      "sha256": "fcef08ae495fbc91dd70b1e60190b22e8535194559700ac0dd94857758b5106b",
+      "bytes": 3259
+    },
+    "run.log.gz": {
+      "sha256": "70190547dbf6ace8891a788a52e2065d7d94a174e9a6319aea1e84595750cb0c",
+      "bytes": 41651
+    },
+    "RUN.json": {
+      "sha256": "0e6f9267c680e7eb33e737a58df3506b4869277ed262f532416e644e5c2cd331",
+      "bytes": 1279
+    }
+  }
+}
