@@ -25,6 +25,9 @@ FOCUSED_TITLES = [
 # Owner-authorized PR825 exception only; further product paths require ROOT review.
 REPAIR_PATHS = {DESKTOP + 'src/styles.css', E2E + 'b3-accessibility.spec.ts',
                 DESKTOP + 'src/features/workspace/shell/DisabledReason.tsx'}
+# Separate owner ruling: only the exact source-parity dist predicate is admitted.
+PARITY_DIST_PATH = E2E + 'ui-foundation-dist.spec.ts'
+PARITY_DIST_SHA256 = 'f6def858ca800f0f65fa338a92847e6ad8e0b11052dc6063f56d31d809cca4f3'
 STRATEGY_PATHS = {'.github/workflows/piping-desktop-e2e.yml',
                   '.github/actions/setup-piping-e2e/action.yml',
                   PROJECT + 'tests/test_ci_e2e_plan.py',
@@ -32,6 +35,7 @@ STRATEGY_PATHS = {'.github/workflows/piping-desktop-e2e.yml',
 RUN = PROJECT + 'execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/'
 REPAIR_EVIDENCE = [RUN + p for p in (
     'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/',
+    'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/',
     'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-repo-checks/',
     'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/final-sweep/',
     'instances/B3-CODEX/ci-tooltip-repair/', 'instances/CI-STRATEGY-CODEX/',
@@ -78,6 +82,15 @@ def strategy(path):
     return path in STRATEGY_PATHS or path.startswith(PROJECT + 'tools/ci/')
 
 
+def repair_path(root, path, head):
+    if path in REPAIR_PATHS:
+        return True
+    if path == PARITY_DIST_PATH:
+        contents = git(root, 'show', head + ':' + path).encode('utf-8')
+        return hashlib.sha256(contents).hexdigest() == PARITY_DIST_SHA256
+    return False
+
+
 def make_plan(root, event, base='', head='HEAD', pr=''):
     specs = inventory(root)
     if FAST not in specs:
@@ -103,7 +116,7 @@ def make_plan(root, event, base='', head='HEAD', pr=''):
             repair = changes(root, BASELINE, head)
             plan.update(baseline=BASELINE, baseline_delta=repair)
             if repair and all(c['status'] in {'A', 'M'} and
-                              (c['path'] in REPAIR_PATHS or strategy(c['path']) or repair_record(c['path'])) for c in repair):
+                              (repair_path(root, c['path'], head) or strategy(c['path']) or repair_record(c['path'])) for c in repair):
                 if not set(FOCUSED + ['e2e/ui-foundation.spec.ts']).issubset(specs):
                     raise ValueError('Required repair selection file is missing')
                 plan.update(mode='pr825-repair', selected_specs=FOCUSED,

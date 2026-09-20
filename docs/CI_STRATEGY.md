@@ -62,6 +62,16 @@ intervening delta. Only the named reason-tooltip CSS/component and accessibility
 regression files, plus this CI strategy and its records, qualify. Other executable
 changes restore full mode.
 
+The owner subsequently approved parity of one dist wheel-target assertion with
+its already accepted source predicate and PR825-only bounded reruns. This single
+dist file qualifies only at approved SHA256
+`f6def858ca800f0f65fa338a92847e6ad8e0b11052dc6063f56d31d809cca4f3`;
+any other edit restores full mode. The original failed local sweep is retained;
+its unchanged passing surfaces plus corrected complete dist/build checks form
+combined delta verification under OWNER_DIST_PARITY_APPROVAL.md, not a new complete
+sweep. Changed CI policy receives its affected checks separately. General DEC025
+remains unchanged.
+
 Run all `b3-accessibility.spec.ts`, `workspace-layout.spec.ts` and
 `gui-workflow-validation.spec.ts` in both profiles, plus these existing
 `ui-foundation.spec.ts` cases in both profiles:

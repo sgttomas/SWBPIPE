@@ -56,6 +56,25 @@ class SelectionTests(unittest.TestCase):
         return ci.make_plan(self.root, kwargs.pop('event', 'pull_request'),
                             kwargs.pop('base', self.base), 'HEAD', kwargs.pop('pr', '826'))
 
+    def test_pr825_accepts_only_the_approved_dist_blob(self):
+        approved = 'approved source-parity predicate\n'
+        self.write(ci.PARITY_DIST_PATH, approved)
+        self.commit()
+        digest = ci.hashlib.sha256(approved.encode()).hexdigest()
+        with patch.object(ci, 'PARITY_DIST_SHA256', digest):
+            self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
+            self.write(ci.PARITY_DIST_PATH, approved + '// unrelated edit\n')
+            self.commit()
+            self.assertEqual(self.plan(pr='825')['mode'], 'full')
+
+    def test_pr825_roundoff_binary_evidence_is_scoped(self):
+        self.write(ci.RUN + 'instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDOFF/trace.zip')
+        self.commit()
+        self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
+        self.write(ci.RUN + 'instances/ROOT/CONTINUATION_2026-09-19_CODEX/unclassified.zip')
+        self.commit()
+        self.assertEqual(self.plan(pr='825')['mode'], 'full')
+
     def test_manual_and_unavailable_diff_are_full(self):
         self.assertEqual(self.plan(event='workflow_dispatch')['mode'], 'full')
         self.assertEqual(self.plan(base='unavailable')['mode'], 'full')

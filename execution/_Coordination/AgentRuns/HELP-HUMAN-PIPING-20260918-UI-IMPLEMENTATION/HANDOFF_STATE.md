@@ -155,3 +155,7 @@ B3A and I1 manager briefs are drafted but unlaunched. ROOT located all9historica
 ## Current checkpoint — owner ruling pending
 
 Product/CI strategy and all new evidence corrections have independent PASS returns. The single dist wheel-target parity proposal is technically reviewed but unapplied; the asynchronous owner question remains unanswered. Failed sweep065 is not promoted. Raw CI evidence was relocated byte-for-byte under its instance _run_records, with EVIDENCE_LOCATIONS mapping; harness now passes and confirmed self-check has no raw-path findings. No workers/apps/servers/tests remain running. B3A/I1 briefs remain drafts and their activation awaits B3 merge. Next on ruling: record exact disposition, apply only authorized patch, complete specified verification and final candidate CI, merge825, then activate the prepared disjoint UI work. The final checkpoint record tail itself remains a local checkpoint until publication backcheck.
+
+## Owner approval — parity and bounded reruns
+
+The owner approved parity with the existing source test and bounded reruns. Exact supplied text and scope are in continuation OWNER_DIST_PARITY_APPROVAL.md. The reviewed patch is applied with expected dist SHA256 f6def858ca800f0f65fa338a92847e6ad8e0b11052dc6063f56d31d809cca4f3. Original failed065 sweep remains failed. Next: full corrected dist/build, unchanged-input binding, affected CI-policy checks, independent backchecks and selected hosted CI; then merge825 and activate B3A/I1. No other test or general sweep requirement changes.
