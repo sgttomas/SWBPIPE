@@ -1,0 +1,464 @@
+{
+  "head": "002dff0f244976f98b36517d920b3761f6f88704",
+  "source": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "8389d10a6a97cdc2757a1c9e947153d5c20ba12eab4281565636f7d5ca3ba9d7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/DisabledReason.tsx",
+      "sha256": "cae3add5f1a490b173bfcaee958fda9ef9e229a0238644964d8c0b9bbee068d2"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts",
+      "sha256": "684be3d9ee42f32a3f0b2f7bf2ef8d1b690353e75a4154bf6c288773ade7992a"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "RETURN.md",
+      "sha256": "395f3a2ad16853cea50198c5946de3d608b402af25939b1b2482a6e839ed64be",
+      "bytes": 5247
+    },
+    {
+      "path": "before-artifacts/.last-run.json",
+      "sha256": "6e20cfb754754b5efea921bb3ad5a173b7cd8cc01f8de9f2437f251f39a7b2b7",
+      "bytes": 145
+    },
+    {
+      "path": "before-artifacts/b3-accessibility-Agent-rea-0f8e0-e-Close-receive-the-pointer-chromium-compact/error-context.md",
+      "sha256": "705cf9aa0d1c9e983bffa27527220cc1f2b006544a648066712da3bf656ce93f",
+      "bytes": 32292
+    },
+    {
+      "path": "before-artifacts/b3-accessibility-Agent-rea-0f8e0-e-Close-receive-the-pointer-chromium-compact/trace.zip",
+      "sha256": "efa2b7ab5e323636db351c53e55f10c944f3c07d9ecc6b757b0980693870bd86",
+      "bytes": 659441
+    },
+    {
+      "path": "before-artifacts/b3-accessibility-Agent-rea-0f8e0-e-Close-receive-the-pointer-chromium-desktop/error-context.md",
+      "sha256": "dfa99a6300f14ac655718dc909682523ea756a7f1c6bf2f1fc33f1ddfa3d311c",
+      "bytes": 32759
+    },
+    {
+      "path": "before-artifacts/b3-accessibility-Agent-rea-0f8e0-e-Close-receive-the-pointer-chromium-desktop/trace.zip",
+      "sha256": "e69b871e65160a85d98ab5876e67c15128bd4bcb9af9227314d4ad279b815b02",
+      "bytes": 607619
+    },
+    {
+      "path": "before.log",
+      "sha256": "1d282c1b3f952c35d9e913faaaf48abaedf3136fb9a9b313cc78d66ee02166ba",
+      "bytes": 9402
+    },
+    {
+      "path": "browser-version.txt",
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a",
+      "bytes": 41
+    },
+    {
+      "path": "chromium-compact-agent-reason-close-hit.json",
+      "sha256": "ae710f7a927bbc504f5fc4c6a1a543d4af1322dfa577fd1b4264c179cebca368",
+      "bytes": 1051
+    },
+    {
+      "path": "chromium-desktop-agent-reason-close-hit.json",
+      "sha256": "2559cd55bc6a1c78f7253989bdf43eb77853f9dc9c4e20bef3339fdbfdcd0c8b",
+      "bytes": 1051
+    },
+    {
+      "path": "context.json",
+      "sha256": "6d5b5e45d5f0a89d2215c1fc1663ea25d7bea8a7b612ab1195ad0b6385f148f4",
+      "bytes": 2712
+    },
+    {
+      "path": "escape-before/arguments.txt",
+      "sha256": "5305759944f35e8e6df646883cc8e43825f8cb1fc5c07f59fffee6149f196cf3",
+      "bytes": 78
+    },
+    {
+      "path": "escape-before/artifacts/.last-run.json",
+      "sha256": "015cc10364d42e6d611943981dafb8cd511fd7cafb2ba978e33606f22d41c33b",
+      "bytes": 243
+    },
+    {
+      "path": "escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-compact/error-context.md",
+      "sha256": "2f1f3cbeeac529ec927e0ad4e47d20d73aa0548e8227c345613ae9d9dd015cab",
+      "bytes": 9928
+    },
+    {
+      "path": "escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-compact/trace.zip",
+      "sha256": "60683d7b58c4de008dd22302fab64c16cf23beabc86c663f305fbee7c7370c54",
+      "bytes": 743980
+    },
+    {
+      "path": "escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-desktop/error-context.md",
+      "sha256": "2f1f3cbeeac529ec927e0ad4e47d20d73aa0548e8227c345613ae9d9dd015cab",
+      "bytes": 9928
+    },
+    {
+      "path": "escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-desktop/trace.zip",
+      "sha256": "716c068bf2a51de9f8e58e36941e69e96c1b48b68d4f97971b5edbd769af1e83",
+      "bytes": 750818
+    },
+    {
+      "path": "escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-compact/error-context.md",
+      "sha256": "5710bdb4a471ea070f4778fea934a5e8315abf83a4913385f3c2d2d3f5fa7228",
+      "bytes": 6705
+    },
+    {
+      "path": "escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-compact/trace.zip",
+      "sha256": "00512de4dde517d554e26f6b6515645895d91a6ed38ecd53c7cb9659da2f853a",
+      "bytes": 740666
+    },
+    {
+      "path": "escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-desktop/error-context.md",
+      "sha256": "5710bdb4a471ea070f4778fea934a5e8315abf83a4913385f3c2d2d3f5fa7228",
+      "bytes": 6705
+    },
+    {
+      "path": "escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-desktop/trace.zip",
+      "sha256": "963e52bc977cb14ffecb2b315cdeb46a4a6f8e1b63e999058c4f230826f34a9b",
+      "bytes": 747229
+    },
+    {
+      "path": "escape-before/executable.txt",
+      "sha256": "196dfbef4a10a8fdb25c0eb68463a888c70c7d4b137baad45f40a63f2b1857d6",
+      "bytes": 143
+    },
+    {
+      "path": "escape-before/result.log",
+      "sha256": "71b2c0f3249a2e073c31f2f625685a0862ac01e9cc6eefd7792079d75e830b94",
+      "bytes": 12886
+    },
+    {
+      "path": "escape-before/version.txt",
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a",
+      "bytes": 41
+    },
+    {
+      "path": "final-description/arguments.txt",
+      "sha256": "188a0eb1bdcdf5491004877faaa21eef73993e0bcfa15f4e8fccbc972d7be7bc",
+      "bytes": 101
+    },
+    {
+      "path": "final-description/artifacts/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "final-description/chromium-compact-agent-reason-close-hit.json",
+      "sha256": "c1135326e3b5aecd233161bed146985bd615c61938566adc0c53ae9dd79307f3",
+      "bytes": 1357
+    },
+    {
+      "path": "final-description/chromium-desktop-agent-reason-close-hit.json",
+      "sha256": "5ae353ec2429075e31ed4498d0734d297e998ba4e66694e0b0232d643ea40518",
+      "bytes": 1357
+    },
+    {
+      "path": "final-description/executable.txt",
+      "sha256": "196dfbef4a10a8fdb25c0eb68463a888c70c7d4b137baad45f40a63f2b1857d6",
+      "bytes": 143
+    },
+    {
+      "path": "final-description/result.log",
+      "sha256": "372c9072efb9a1f660fd7cc0550b70cfe8cdf44edd1920497b3f45a75f80eccc",
+      "bytes": 1814
+    },
+    {
+      "path": "final-description/version.txt",
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a",
+      "bytes": 41
+    },
+    {
+      "path": "final-focused/arguments.txt",
+      "sha256": "d56bb9b5ebf7776c5c99413ac0834d8a7fed552e6bfa6f90e2cd54223e8d7100",
+      "bytes": 147
+    },
+    {
+      "path": "final-focused/artifacts/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "final-focused/chromium-compact-agent-reason-close-hit.json",
+      "sha256": "c1135326e3b5aecd233161bed146985bd615c61938566adc0c53ae9dd79307f3",
+      "bytes": 1357
+    },
+    {
+      "path": "final-focused/chromium-compact-agent-strip-open.json",
+      "sha256": "cf39b02192dd507182df7bfff56cbf67a744552d754a685701876e3d61721cd9",
+      "bytes": 278
+    },
+    {
+      "path": "final-focused/chromium-compact-libraries-covered-focus.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "final-focused/chromium-compact-libraries-native-ax.json",
+      "sha256": "1418c4b8127a77de65782129b9febab4eb07287998fd471ad3147c5415de10df",
+      "bytes": 6832
+    },
+    {
+      "path": "final-focused/chromium-compact-project-covered-focus.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "final-focused/chromium-compact-project-native-ax.json",
+      "sha256": "f3737b33a69954a0b02cff21076f6665c194b8d53922602f93b05bfe5b11936e",
+      "bytes": 14897
+    },
+    {
+      "path": "final-focused/chromium-compact-rail-stage-results.json",
+      "sha256": "4c9435594c153f01944de34ddcd5aeb1b8c382ff3a5241da15cc1fb7a3ad95d4",
+      "bytes": 246
+    },
+    {
+      "path": "final-focused/chromium-compact-rail-stage-review.json",
+      "sha256": "f2e0e7f00a56c1f556222f9ae631726f560f2e8128de63a824bf56ee239803bb",
+      "bytes": 246
+    },
+    {
+      "path": "final-focused/chromium-compact-results-reason.png",
+      "sha256": "b05b740b272979d2e43e68b44a83e4bb0c591b1026313295933073741b5080e5",
+      "bytes": 1118
+    },
+    {
+      "path": "final-focused/chromium-compact-solve-covered-focus.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "final-focused/chromium-compact-solve-native-ax.json",
+      "sha256": "7cd90edbdda21144bed7bacea1fe0828ced11bf30e3985373fa368b8568b8e3c",
+      "bytes": 17821
+    },
+    {
+      "path": "final-focused/chromium-desktop-agent-reason-close-hit.json",
+      "sha256": "5ae353ec2429075e31ed4498d0734d297e998ba4e66694e0b0232d643ea40518",
+      "bytes": 1357
+    },
+    {
+      "path": "final-focused/chromium-desktop-agent-strip-open.json",
+      "sha256": "ee32032d175bd8713593e3edefc0bae8b83bc195a554b58f71c1c862faa77199",
+      "bytes": 278
+    },
+    {
+      "path": "final-focused/chromium-desktop-libraries-covered-focus.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "final-focused/chromium-desktop-libraries-native-ax.json",
+      "sha256": "2be24759a9c9896c2bb58b2ab035b6ba05eb23e45d1c1444e60b8871bc65adf4",
+      "bytes": 6880
+    },
+    {
+      "path": "final-focused/chromium-desktop-project-covered-focus.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "final-focused/chromium-desktop-project-native-ax.json",
+      "sha256": "be88aeab0fd62b2473612d03ec551364809125bc3c92ba0529de1b67ba581af7",
+      "bytes": 14876
+    },
+    {
+      "path": "final-focused/chromium-desktop-rail-stage-results.json",
+      "sha256": "4c9435594c153f01944de34ddcd5aeb1b8c382ff3a5241da15cc1fb7a3ad95d4",
+      "bytes": 246
+    },
+    {
+      "path": "final-focused/chromium-desktop-rail-stage-review.json",
+      "sha256": "f2e0e7f00a56c1f556222f9ae631726f560f2e8128de63a824bf56ee239803bb",
+      "bytes": 246
+    },
+    {
+      "path": "final-focused/chromium-desktop-results-reason.png",
+      "sha256": "b05b740b272979d2e43e68b44a83e4bb0c591b1026313295933073741b5080e5",
+      "bytes": 1118
+    },
+    {
+      "path": "final-focused/chromium-desktop-solve-covered-focus.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "final-focused/chromium-desktop-solve-native-ax.json",
+      "sha256": "9e48057d1769e57a8b453fba873b021efb5e8642b50c1c4b88b22c8c906bb3e4",
+      "bytes": 17632
+    },
+    {
+      "path": "final-focused/executable.txt",
+      "sha256": "196dfbef4a10a8fdb25c0eb68463a888c70c7d4b137baad45f40a63f2b1857d6",
+      "bytes": 143
+    },
+    {
+      "path": "final-focused/result.log",
+      "sha256": "42f2bbd38cda095aa19bee45e8da6256f0dea829e47a415f08cff413993f2ce2",
+      "bytes": 2421
+    },
+    {
+      "path": "final-focused/version.txt",
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a",
+      "bytes": 41
+    },
+    {
+      "path": "final-source.diff",
+      "sha256": "5e7b0e19b010b821dce496d70c742c9b7c34bcf9115c722f592d58609081b91d",
+      "bytes": 8846
+    },
+    {
+      "path": "geometry-only/arguments.txt",
+      "sha256": "2ca30e5d38eb7043dfe5053b436db6083839722e13ecfd5e822d56093f54a4b2",
+      "bytes": 105
+    },
+    {
+      "path": "geometry-only/artifacts/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "geometry-only/chromium-compact-agent-reason-close-hit.json",
+      "sha256": "c1135326e3b5aecd233161bed146985bd615c61938566adc0c53ae9dd79307f3",
+      "bytes": 1357
+    },
+    {
+      "path": "geometry-only/chromium-compact-agent-strip-open.json",
+      "sha256": "cf39b02192dd507182df7bfff56cbf67a744552d754a685701876e3d61721cd9",
+      "bytes": 278
+    },
+    {
+      "path": "geometry-only/chromium-compact-libraries-covered-focus.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "geometry-only/chromium-compact-libraries-native-ax.json",
+      "sha256": "1418c4b8127a77de65782129b9febab4eb07287998fd471ad3147c5415de10df",
+      "bytes": 6832
+    },
+    {
+      "path": "geometry-only/chromium-compact-project-covered-focus.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "geometry-only/chromium-compact-project-native-ax.json",
+      "sha256": "f3737b33a69954a0b02cff21076f6665c194b8d53922602f93b05bfe5b11936e",
+      "bytes": 14897
+    },
+    {
+      "path": "geometry-only/chromium-compact-rail-stage-results.json",
+      "sha256": "4c9435594c153f01944de34ddcd5aeb1b8c382ff3a5241da15cc1fb7a3ad95d4",
+      "bytes": 246
+    },
+    {
+      "path": "geometry-only/chromium-compact-rail-stage-review.json",
+      "sha256": "f2e0e7f00a56c1f556222f9ae631726f560f2e8128de63a824bf56ee239803bb",
+      "bytes": 246
+    },
+    {
+      "path": "geometry-only/chromium-compact-results-reason.png",
+      "sha256": "b05b740b272979d2e43e68b44a83e4bb0c591b1026313295933073741b5080e5",
+      "bytes": 1118
+    },
+    {
+      "path": "geometry-only/chromium-compact-solve-covered-focus.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "geometry-only/chromium-compact-solve-native-ax.json",
+      "sha256": "7cd90edbdda21144bed7bacea1fe0828ced11bf30e3985373fa368b8568b8e3c",
+      "bytes": 17821
+    },
+    {
+      "path": "geometry-only/chromium-desktop-agent-reason-close-hit.json",
+      "sha256": "5ae353ec2429075e31ed4498d0734d297e998ba4e66694e0b0232d643ea40518",
+      "bytes": 1357
+    },
+    {
+      "path": "geometry-only/chromium-desktop-agent-strip-open.json",
+      "sha256": "ee32032d175bd8713593e3edefc0bae8b83bc195a554b58f71c1c862faa77199",
+      "bytes": 278
+    },
+    {
+      "path": "geometry-only/chromium-desktop-libraries-covered-focus.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "geometry-only/chromium-desktop-libraries-native-ax.json",
+      "sha256": "2be24759a9c9896c2bb58b2ab035b6ba05eb23e45d1c1444e60b8871bc65adf4",
+      "bytes": 6880
+    },
+    {
+      "path": "geometry-only/chromium-desktop-project-covered-focus.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "geometry-only/chromium-desktop-project-native-ax.json",
+      "sha256": "be88aeab0fd62b2473612d03ec551364809125bc3c92ba0529de1b67ba581af7",
+      "bytes": 14876
+    },
+    {
+      "path": "geometry-only/chromium-desktop-rail-stage-results.json",
+      "sha256": "4c9435594c153f01944de34ddcd5aeb1b8c382ff3a5241da15cc1fb7a3ad95d4",
+      "bytes": 246
+    },
+    {
+      "path": "geometry-only/chromium-desktop-rail-stage-review.json",
+      "sha256": "f2e0e7f00a56c1f556222f9ae631726f560f2e8128de63a824bf56ee239803bb",
+      "bytes": 246
+    },
+    {
+      "path": "geometry-only/chromium-desktop-results-reason.png",
+      "sha256": "b05b740b272979d2e43e68b44a83e4bb0c591b1026313295933073741b5080e5",
+      "bytes": 1118
+    },
+    {
+      "path": "geometry-only/chromium-desktop-solve-covered-focus.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "geometry-only/chromium-desktop-solve-native-ax.json",
+      "sha256": "9e48057d1769e57a8b453fba873b021efb5e8642b50c1c4b88b22c8c906bb3e4",
+      "bytes": 17632
+    },
+    {
+      "path": "geometry-only/executable.txt",
+      "sha256": "196dfbef4a10a8fdb25c0eb68463a888c70c7d4b137baad45f40a63f2b1857d6",
+      "bytes": 143
+    },
+    {
+      "path": "geometry-only/result.log",
+      "sha256": "677d08964963b6cddbf4ab58c3b187237440e77824d87103166de2ba98d767f7",
+      "bytes": 1819
+    },
+    {
+      "path": "geometry-only/version.txt",
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a",
+      "bytes": 41
+    },
+    {
+      "path": "geometry-only.css.sha256",
+      "sha256": "4715f775793707b5884cd465b2833f84e55114e6363707f780f93549a55b5093",
+      "bytes": 65
+    },
+    {
+      "path": "geometry-only.diff",
+      "sha256": "480504c8b57a6666f1aab14e61717c8df091efa12b3b9c982a5d44ee3ce308f3",
+      "bytes": 1212
+    },
+    {
+      "path": "run-focused.sh",
+      "sha256": "d2d8874d24ef6a0914fcebe258dcba1827268794f0f565826b65d3877088e0bc",
+      "bytes": 925
+    }
+  ]
+}

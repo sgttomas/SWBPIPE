@@ -1,0 +1,32 @@
+[1A[2K[2m[WebServer] [22m(node:80171) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 17 tests using 1 worker
+
+[1A[2K(node:80173) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:80173) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:47:1 › [preflight] production dist exposes compact command groups and keyboard measurement
+[1A[2K[2/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:251:1 › [rail-clearance] closed rail handles leave active viewport controls and complete measurement content usable
+[1A[2K[3/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:512:3 › outer overlays own actual workspace intersections and restore controls 1024
+[1A[2K[4/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:512:3 › outer overlays own actual workspace intersections and restore controls 1440
+[1A[2K[5/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light comfortable 1024x768
+[1A[2K[6/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light comfortable 1280x800
+[1A[2K[7/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light comfortable 1440x920
+[1A[2K[8/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light compact 1024x768
+[1A[2K[9/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light compact 1280x800
+[1A[2K[10/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance light compact 1440x920
+[1A[2K[11/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark comfortable 1024x768
+[1A[2K[12/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark comfortable 1280x800
+[1A[2K[13/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark comfortable 1440x920
+[1A[2K[14/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark compact 1024x768
+[1A[2K[15/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark compact 1280x800
+[1A[2K[16/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:637:7 › production appearance dark compact 1440x920
+[1A[2K[17/17] [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1395:1 › below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over
+[1A[2K  17 passed (50.3s)

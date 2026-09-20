@@ -1,0 +1,19 @@
+{
+  "commit": "3861b614362d8da925e148d7506ecc9902c7f808",
+  "base": "002dff0f244976f98b36517d920b3761f6f88704",
+  "sources": {
+    "projects/chirality-piping/apps/desktop/src/styles.css": "8389d10a6a97cdc2757a1c9e947153d5c20ba12eab4281565636f7d5ca3ba9d7",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/shell/DisabledReason.tsx": "cae3add5f1a490b173bfcaee958fda9ef9e229a0238644964d8c0b9bbee068d2",
+    "projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts": "684be3d9ee42f32a3f0b2f7bf2ef8d1b690353e75a4154bf6c288773ade7992a"
+  },
+  "diagnosis": "Agent reason z70 extends left at strip top over page Close; focus-within or ancestor hover keeps it visible and intercepting. Reproduced center hit is Agent reason at both configured widths. Geometry-only below-trigger/right0 plus hover bridge passed unchanged coverage and deterministic reproduction; separate scoped Escape dismissal preserves mounted description and respects consumed child events.",
+  "evidence": {
+    "RETURN.md": "395f3a2ad16853cea50198c5946de3d608b402af25939b1b2482a6e839ed64be",
+    "manifest.json": "3489c677ef4a483003cfed55ab4371f2b3d5de9b9bdebb3e1571b54b3a8a847a",
+    "before.log": "1d282c1b3f952c35d9e913faaaf48abaedf3136fb9a9b313cc78d66ee02166ba",
+    "geometry-only/result.log": "677d08964963b6cddbf4ab58c3b187237440e77824d87103166de2ba98d767f7",
+    "escape-before/result.log": "71b2c0f3249a2e073c31f2f625685a0862ac01e9cc6eefd7792079d75e830b94",
+    "final-focused/result.log": "42f2bbd38cda095aa19bee45e8da6256f0dea829e47a415f08cff413993f2ce2",
+    "final-description/result.log": "372c9072efb9a1f660fd7cc0550b70cfe8cdf44edd1920497b3f45a75f80eccc"
+  }
+}

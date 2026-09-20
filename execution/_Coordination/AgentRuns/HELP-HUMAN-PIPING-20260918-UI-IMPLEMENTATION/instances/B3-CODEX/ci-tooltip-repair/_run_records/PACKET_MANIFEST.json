@@ -1,0 +1,1732 @@
+{
+  "productCandidate": "3861b614362d8da925e148d7506ecc9902c7f808",
+  "base": "002dff0f244976f98b36517d920b3761f6f88704",
+  "scope": "All new bounded CI repair evidence, excluding this self-referential manifest; historical B3 evidence unchanged.",
+  "entries": [
+    {
+      "path": "IMPLEMENTER_BRIEF.md",
+      "bytes": 2517,
+      "sha256": "89b9f53eaa61a76de09a01317706b136c0e5bbb869c2404539795e82ee450d72"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 6469,
+      "sha256": "49022d0a04bf0f61472ff7282155a4c899beade65710524f350a82464a921a8a"
+    },
+    {
+      "path": "VERIFICATION_PLAN.md",
+      "bytes": 2341,
+      "sha256": "c093092387016578f5f49617fceb69e7661d3035042f87ee1209534a37b532ca"
+    },
+    {
+      "path": "_run_records/BASIS.json",
+      "bytes": 5207,
+      "sha256": "c8c5e7baf635015a86a90eee9eca91e97dbee26a177f00314323c5602fd392b9"
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "bytes": 2329,
+      "sha256": "4d5e651d736a4f2c21f47dcfcd1ebc2ef3f61cd5e83f6c5bc794b9808afc8fd2"
+    },
+    {
+      "path": "_run_records/DISPATCH.json",
+      "bytes": 1231,
+      "sha256": "4a8ee534c08b64526042277e56702a796cf5a1ffa2c796d337fbe14d8910c4a7"
+    },
+    {
+      "path": "_run_records/NATIVE_ACTIONS.md",
+      "bytes": 3029,
+      "sha256": "6c80dd6b002309d2caa1460585b758eb7d830a87b9d1b220d12e660a844828d1"
+    },
+    {
+      "path": "_run_records/NATIVE_BUILD.json",
+      "bytes": 5904,
+      "sha256": "03c8707b6f6c5ff4da2be6b78ecffefa80e0ca690183a1b5519acba05bc873a7"
+    },
+    {
+      "path": "_run_records/NATIVE_LAUNCH.json",
+      "bytes": 516,
+      "sha256": "383c9c9e56a48c61b0b90ece7d7f810e9f13d6198498ec2d62f16b03b72d8e60"
+    },
+    {
+      "path": "_run_records/PRODUCT_CHECKPOINT.json",
+      "bytes": 1669,
+      "sha256": "b8a91401d51a77a23ed657cf7bb3f2b4058c3a49c971860de996717ffd2d86e9"
+    },
+    {
+      "path": "_run_records/TRACE_STAGING_AUTHORITY.json",
+      "bytes": 1919,
+      "sha256": "862bacd737888c7e3431096a1d80e43dea027aeb20f3e3e3dc8e8c0348a8de4f"
+    },
+    {
+      "path": "_run_records/dist-focused/arguments.txt",
+      "bytes": 363,
+      "sha256": "4c026c46f0ecce4455cb3427180bb828e97c6d1b3cb20a965b88e78337e561f0"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist--prefli-cfa44-ps-and-keyboard-measurement-chromium-desktop-dist/attachments/normal-authoring-preflight-light-compact-1024x768-keyboard-measurement-ca50fefb0d3917068b103c378882bfb8194a6990.png",
+      "bytes": 92188,
+      "sha256": "71d206b75df2f5787627d5e654169aecfb71adf5f57e59e4fe4742831391c6a8"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist--prefli-cfa44-ps-and-keyboard-measurement-chromium-desktop-dist/normal-authoring-preflight-light-compact-1024x768-keyboard-measurement.png",
+      "bytes": 92188,
+      "sha256": "71d206b75df2f5787627d5e654169aecfb71adf5f57e59e4fe4742831391c6a8"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/expanded-deformation-dark-compact-1440x920-b2db2256de1c23757efb26a74553f882019e4686.png",
+      "bytes": 141164,
+      "sha256": "a405d6aa52e0f79564247fd1306520c5d170f922e10dd7a1f0615b1c989c2d8e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/normal-authoring-dark-compact-1440x920-13c2beea3222a5769ba89201968d717980eb6bc0.png",
+      "bytes": 175640,
+      "sha256": "b991d1fafb4fbac9d2b7431f518e2d5de66444e8f9675562e3454a23600cd9eb"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-compact-1440-inspector-false-f3ea6d69432c1c0630bf8d1f05ee9f78c7e6ff11.png",
+      "bytes": 1445,
+      "sha256": "8425a115489b3e518a0e13a50d6a02477f4992e216ed668e92172bddbf19e6db"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-compact-1440-inspector-true-ebafc2ae3eb4337788665926d100f487880f8703.png",
+      "bytes": 1473,
+      "sha256": "ee1cf167efb9b26804d208a918f788d7d4856bc672421c103f0b49a92192304e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-compact-1440-tree-false-7500f4690915b7f1d4a95bb5a80e82d9cfffa087.png",
+      "bytes": 199,
+      "sha256": "338d7cc050d0015541da9a79c9051a4a16a446bd698be6f1b6e470241f874fd1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-compact-1440-tree-true-95b469da263814b48b5f98c1dd0c795bd7f5cf24.png",
+      "bytes": 215,
+      "sha256": "03c92a86b1b9672fb802b93df59edd87195172648ca9b8347d708ba389cc6183"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/attachments/unobscured-authoring-dark-compact-1440x920-ab32f4e2018550dc5f744f103bff57b2818e8824.png",
+      "bytes": 142140,
+      "sha256": "7c18a78fd49f1f3392788fcf051eb67ad5c07870273874e3d62fbadc56606203"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/expanded-deformation-dark-compact-1440x920.png",
+      "bytes": 141164,
+      "sha256": "a405d6aa52e0f79564247fd1306520c5d170f922e10dd7a1f0615b1c989c2d8e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/normal-authoring-dark-compact-1440x920.png",
+      "bytes": 175640,
+      "sha256": "b991d1fafb4fbac9d2b7431f518e2d5de66444e8f9675562e3454a23600cd9eb"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/rail-hover-dark-compact-1440-inspector-false.png",
+      "bytes": 1445,
+      "sha256": "8425a115489b3e518a0e13a50d6a02477f4992e216ed668e92172bddbf19e6db"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/rail-hover-dark-compact-1440-inspector-true.png",
+      "bytes": 1473,
+      "sha256": "ee1cf167efb9b26804d208a918f788d7d4856bc672421c103f0b49a92192304e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/rail-hover-dark-compact-1440-tree-false.png",
+      "bytes": 199,
+      "sha256": "338d7cc050d0015541da9a79c9051a4a16a446bd698be6f1b6e470241f874fd1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/rail-hover-dark-compact-1440-tree-true.png",
+      "bytes": 215,
+      "sha256": "03c92a86b1b9672fb802b93df59edd87195172648ca9b8347d708ba389cc6183"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-002ec-rance-dark-compact-1440x920-chromium-desktop-dist/unobscured-authoring-dark-compact-1440x920.png",
+      "bytes": 142140,
+      "sha256": "7c18a78fd49f1f3392788fcf051eb67ad5c07870273874e3d62fbadc56606203"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/expanded-deformation-light-comfortable-1440x920-8dfa6587da7bff9cc5dfc84876e7e1b709d4d572.png",
+      "bytes": 147003,
+      "sha256": "9e793416ff3c95d624254b3987eb078a2a93484f3c8e08f242f47d7d94d15fb8"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/normal-authoring-light-comfortable-1440x920-c7a625469aacd0f7373d1a41f09d61b63623a1fc.png",
+      "bytes": 183180,
+      "sha256": "5692747439b9d11c2ef2d8258f27731a5028ea1b96a0708d59a9183f84a423b3"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1440-inspector-false-646f846a9a5a5fa70e75d1f059e306f973d578e8.png",
+      "bytes": 1443,
+      "sha256": "8662fd65f3c60e28445b42a40242620c9505a01aee183eda11ed71ccd1e65136"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1440-inspector-true-510fd2eff073296cb166ea4ff4f61d6edc58841e.png",
+      "bytes": 1459,
+      "sha256": "23dae4bcb573c7974ea76bd42c5f2c9ca677077d702a1663caecd85fbb5c3897"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1440-tree-false-5553c4fc2a2aaec940e0bca3fb09b642c42a09ad.png",
+      "bytes": 195,
+      "sha256": "00cd5dbc0f762c18a26434e80af42875b183abd524a03b974be20ea947746101"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1440-tree-true-897eebedc850b65fe670caa427727bdb90e1028a.png",
+      "bytes": 219,
+      "sha256": "0aa585da7a24a9599f7327d0da789f7127f59aea89e4bc60a51cc2bb5ed26d94"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/attachments/unobscured-authoring-light-comfortable-1440x920-ca2b194f894284d2940d7860adfbc47ae3f858cf.png",
+      "bytes": 146731,
+      "sha256": "6b0fba3c35727074e2689a7748afb337f98a477e70e28944ef06a35963188642"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/expanded-deformation-light-comfortable-1440x920.png",
+      "bytes": 147003,
+      "sha256": "9e793416ff3c95d624254b3987eb078a2a93484f3c8e08f242f47d7d94d15fb8"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/normal-authoring-light-comfortable-1440x920.png",
+      "bytes": 183180,
+      "sha256": "5692747439b9d11c2ef2d8258f27731a5028ea1b96a0708d59a9183f84a423b3"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/rail-hover-light-comfortable-1440-inspector-false.png",
+      "bytes": 1443,
+      "sha256": "8662fd65f3c60e28445b42a40242620c9505a01aee183eda11ed71ccd1e65136"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/rail-hover-light-comfortable-1440-inspector-true.png",
+      "bytes": 1459,
+      "sha256": "23dae4bcb573c7974ea76bd42c5f2c9ca677077d702a1663caecd85fbb5c3897"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/rail-hover-light-comfortable-1440-tree-false.png",
+      "bytes": 195,
+      "sha256": "00cd5dbc0f762c18a26434e80af42875b183abd524a03b974be20ea947746101"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/rail-hover-light-comfortable-1440-tree-true.png",
+      "bytes": 219,
+      "sha256": "0aa585da7a24a9599f7327d0da789f7127f59aea89e4bc60a51cc2bb5ed26d94"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-0bc0e--light-comfortable-1440x920-chromium-desktop-dist/unobscured-authoring-light-comfortable-1440x920.png",
+      "bytes": 146731,
+      "sha256": "6b0fba3c35727074e2689a7748afb337f98a477e70e28944ef06a35963188642"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/expanded-deformation-light-compact-1024x768-bdb76a02d7751f5d5cfb48aa9502a48657b1d421.png",
+      "bytes": 83650,
+      "sha256": "c832db7b44ed466b2a13e128a6df054670a72418d659cca6c11b1c16c3007733"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/normal-authoring-light-compact-1024x768-63f91d20e10229a30ec5a309c4f72f312231f76d.png",
+      "bytes": 130785,
+      "sha256": "235e6c244894872a2960013e16ee780a41a8df5e0be2a6ea26530d9df50e62d1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-inspector-false-db6739e4619914333715ba6d9ebcebe6848a2813.png",
+      "bytes": 357,
+      "sha256": "fc28d633ed49943fc4da1d2d0caaf03198c1b3646b31ce316d2dd92225c3be72"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-inspector-true-c825f78800767f5eb2755ddffde1bd9db3468eea.png",
+      "bytes": 357,
+      "sha256": "fb4e491cb4eb70436ca7455e4ef46b6a7eefe1914ef7b11f06aa162268a20d16"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-tree-false-d24557862540689dd84c5d14aa301477af4264ed.png",
+      "bytes": 195,
+      "sha256": "00cd5dbc0f762c18a26434e80af42875b183abd524a03b974be20ea947746101"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-tree-true-b45e538ef6547af0fcb999e1f03385bf7bfb6daa.png",
+      "bytes": 219,
+      "sha256": "0aa585da7a24a9599f7327d0da789f7127f59aea89e4bc60a51cc2bb5ed26d94"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/unobscured-authoring-light-compact-1024x768-aee4b008f4bcf9e1086922497686a80e2cea8a78.png",
+      "bytes": 83469,
+      "sha256": "e8257c2651acb8418661acc39852f8114c7322dad2f7d96c727c26f0644a7d51"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/expanded-deformation-light-compact-1024x768.png",
+      "bytes": 83650,
+      "sha256": "c832db7b44ed466b2a13e128a6df054670a72418d659cca6c11b1c16c3007733"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/normal-authoring-light-compact-1024x768.png",
+      "bytes": 130785,
+      "sha256": "235e6c244894872a2960013e16ee780a41a8df5e0be2a6ea26530d9df50e62d1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/rail-hover-light-compact-1024-inspector-false.png",
+      "bytes": 357,
+      "sha256": "fc28d633ed49943fc4da1d2d0caaf03198c1b3646b31ce316d2dd92225c3be72"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/rail-hover-light-compact-1024-inspector-true.png",
+      "bytes": 357,
+      "sha256": "fb4e491cb4eb70436ca7455e4ef46b6a7eefe1914ef7b11f06aa162268a20d16"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/rail-hover-light-compact-1024-tree-false.png",
+      "bytes": 195,
+      "sha256": "00cd5dbc0f762c18a26434e80af42875b183abd524a03b974be20ea947746101"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/rail-hover-light-compact-1024-tree-true.png",
+      "bytes": 219,
+      "sha256": "0aa585da7a24a9599f7327d0da789f7127f59aea89e4bc60a51cc2bb5ed26d94"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/unobscured-authoring-light-compact-1024x768.png",
+      "bytes": 83469,
+      "sha256": "e8257c2651acb8418661acc39852f8114c7322dad2f7d96c727c26f0644a7d51"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/expanded-deformation-dark-compact-1024x768-ca0adf93d9afdf1f01d7274966ee393a22121404.png",
+      "bytes": 80049,
+      "sha256": "49fdc3e48fbe1fbed4e07f3cf56df40b78bd00ee5d76985168a18e01303adb99"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/normal-authoring-dark-compact-1024x768-1daceea4bd73b4ed9788526dbbfe28167c239309.png",
+      "bytes": 123165,
+      "sha256": "6bb3831397b9775917c723fc316024ef6b3d79277a04dfb46e751e79c2fdabc5"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-inspector-false-a1f0ab9d63492b3de17a9c74b091ee0a038356de.png",
+      "bytes": 375,
+      "sha256": "03565cc7791864e9214bf656b56acfc8ca5fd188b5cb05efce06ad9df39f4090"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-inspector-true-4dabf7b84626d1adf78661b75c5874cbe50c215a.png",
+      "bytes": 392,
+      "sha256": "9c4188ce7fcb3531b7332a7181cf8141baea9ec97a5e19336cfd682e9210d097"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-tree-false-274ef7c78357ee90f886da4c9d043698601e6298.png",
+      "bytes": 199,
+      "sha256": "338d7cc050d0015541da9a79c9051a4a16a446bd698be6f1b6e470241f874fd1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-tree-true-f9dd3288b5204abae1d76f428aaa2d5f67b3a294.png",
+      "bytes": 215,
+      "sha256": "03c92a86b1b9672fb802b93df59edd87195172648ca9b8347d708ba389cc6183"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/unobscured-authoring-dark-compact-1024x768-072098923497ca219a6dbd8a740a2decdea43af0.png",
+      "bytes": 80593,
+      "sha256": "785d78e3d6bdfa9cbd3e286bc642532a0a4fbd8ac6518b8c22b60010ce44a2b9"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/expanded-deformation-dark-compact-1024x768.png",
+      "bytes": 80049,
+      "sha256": "49fdc3e48fbe1fbed4e07f3cf56df40b78bd00ee5d76985168a18e01303adb99"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/normal-authoring-dark-compact-1024x768.png",
+      "bytes": 123165,
+      "sha256": "6bb3831397b9775917c723fc316024ef6b3d79277a04dfb46e751e79c2fdabc5"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/rail-hover-dark-compact-1024-inspector-false.png",
+      "bytes": 375,
+      "sha256": "03565cc7791864e9214bf656b56acfc8ca5fd188b5cb05efce06ad9df39f4090"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/rail-hover-dark-compact-1024-inspector-true.png",
+      "bytes": 392,
+      "sha256": "9c4188ce7fcb3531b7332a7181cf8141baea9ec97a5e19336cfd682e9210d097"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/rail-hover-dark-compact-1024-tree-false.png",
+      "bytes": 199,
+      "sha256": "338d7cc050d0015541da9a79c9051a4a16a446bd698be6f1b6e470241f874fd1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/rail-hover-dark-compact-1024-tree-true.png",
+      "bytes": 215,
+      "sha256": "03c92a86b1b9672fb802b93df59edd87195172648ca9b8347d708ba389cc6183"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/unobscured-authoring-dark-compact-1024x768.png",
+      "bytes": 80593,
+      "sha256": "785d78e3d6bdfa9cbd3e286bc642532a0a4fbd8ac6518b8c22b60010ce44a2b9"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/expanded-deformation-dark-comfortable-1024x768-7a57f8a2791a3fcfe8a674a3ff0cf89251acedf4.png",
+      "bytes": 78617,
+      "sha256": "729a0a33ef9a7bf3f8dc95488af6e5385920abfe7e01a68acecd5213a30371eb"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/normal-authoring-dark-comfortable-1024x768-4caf92da6d34e13aa418beeea04b548c7557acd1.png",
+      "bytes": 122258,
+      "sha256": "0657143d37f5e28833ef4d73959fcb6268d37f90cb6f1bb1fc6fb126f42995c5"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-inspector-false-7e9b743e1150c31e71aace6ab0a1a21ed7400871.png",
+      "bytes": 375,
+      "sha256": "03565cc7791864e9214bf656b56acfc8ca5fd188b5cb05efce06ad9df39f4090"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-inspector-true-6090c1aa06795894bf1f2624f268ee9897ffb3bd.png",
+      "bytes": 392,
+      "sha256": "9c4188ce7fcb3531b7332a7181cf8141baea9ec97a5e19336cfd682e9210d097"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-tree-false-24149bc09b88669a7a16a4c1736d8421b14aa74b.png",
+      "bytes": 199,
+      "sha256": "338d7cc050d0015541da9a79c9051a4a16a446bd698be6f1b6e470241f874fd1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-tree-true-2f11a505dc6fdad9cd7e21c961a1db4b831e0fe5.png",
+      "bytes": 215,
+      "sha256": "03c92a86b1b9672fb802b93df59edd87195172648ca9b8347d708ba389cc6183"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/unobscured-authoring-dark-comfortable-1024x768-4df82f21616837b3f6776ec15733a5e8f4b7c0cb.png",
+      "bytes": 78400,
+      "sha256": "bb104b112dae39d7e83c2f310f6439606d5c4b12fd35bf986c12bb9c7ec404ff"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/expanded-deformation-dark-comfortable-1024x768.png",
+      "bytes": 78617,
+      "sha256": "729a0a33ef9a7bf3f8dc95488af6e5385920abfe7e01a68acecd5213a30371eb"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/normal-authoring-dark-comfortable-1024x768.png",
+      "bytes": 122258,
+      "sha256": "0657143d37f5e28833ef4d73959fcb6268d37f90cb6f1bb1fc6fb126f42995c5"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-inspector-false.png",
+      "bytes": 375,
+      "sha256": "03565cc7791864e9214bf656b56acfc8ca5fd188b5cb05efce06ad9df39f4090"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-inspector-true.png",
+      "bytes": 392,
+      "sha256": "9c4188ce7fcb3531b7332a7181cf8141baea9ec97a5e19336cfd682e9210d097"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-tree-false.png",
+      "bytes": 199,
+      "sha256": "338d7cc050d0015541da9a79c9051a4a16a446bd698be6f1b6e470241f874fd1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/rail-hover-dark-comfortable-1024-tree-true.png",
+      "bytes": 215,
+      "sha256": "03c92a86b1b9672fb802b93df59edd87195172648ca9b8347d708ba389cc6183"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/unobscured-authoring-dark-comfortable-1024x768.png",
+      "bytes": 78400,
+      "sha256": "bb104b112dae39d7e83c2f310f6439606d5c4b12fd35bf986c12bb9c7ec404ff"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/expanded-deformation-light-compact-1440x920-8d2cfea5ca9ac91b704c4b3a120229acf1b3fbfe.png",
+      "bytes": 148417,
+      "sha256": "71989b7ccd3f3936de0d25e4251ec674825cd86bdc3a83b12fdb74c3b829fe90"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/normal-authoring-light-compact-1440x920-5a6c658a5c50a698c4ee561766066835ad927061.png",
+      "bytes": 186013,
+      "sha256": "373e8f3d5a463ee9fb91b32460060b25e92a7e503ccae62fe94b18304e172e39"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-light-compact-1440-inspector-false-05771c8fc4b36048186c250124bc6fc1a11c1858.png",
+      "bytes": 1443,
+      "sha256": "8662fd65f3c60e28445b42a40242620c9505a01aee183eda11ed71ccd1e65136"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-light-compact-1440-inspector-true-a79b64c8cd80a011daf064f8d2f5c0fcdae83ae2.png",
+      "bytes": 1459,
+      "sha256": "23dae4bcb573c7974ea76bd42c5f2c9ca677077d702a1663caecd85fbb5c3897"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-light-compact-1440-tree-false-0e58d3518a44b6d8e779a87020808f0a8d5cf2f1.png",
+      "bytes": 195,
+      "sha256": "00cd5dbc0f762c18a26434e80af42875b183abd524a03b974be20ea947746101"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/rail-hover-light-compact-1440-tree-true-158c95279f98dab2d14b1e93f17aca91cbe3f047.png",
+      "bytes": 219,
+      "sha256": "0aa585da7a24a9599f7327d0da789f7127f59aea89e4bc60a51cc2bb5ed26d94"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/attachments/unobscured-authoring-light-compact-1440x920-408c2b7b036de6a978568887c67adc0ed254c9cc.png",
+      "bytes": 148611,
+      "sha256": "2b8192043f38f46814b7d7036d83748f2968c5e15d19dfbd9ea5d295298d8a07"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/expanded-deformation-light-compact-1440x920.png",
+      "bytes": 148417,
+      "sha256": "71989b7ccd3f3936de0d25e4251ec674825cd86bdc3a83b12fdb74c3b829fe90"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/normal-authoring-light-compact-1440x920.png",
+      "bytes": 186013,
+      "sha256": "373e8f3d5a463ee9fb91b32460060b25e92a7e503ccae62fe94b18304e172e39"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/rail-hover-light-compact-1440-inspector-false.png",
+      "bytes": 1443,
+      "sha256": "8662fd65f3c60e28445b42a40242620c9505a01aee183eda11ed71ccd1e65136"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/rail-hover-light-compact-1440-inspector-true.png",
+      "bytes": 1459,
+      "sha256": "23dae4bcb573c7974ea76bd42c5f2c9ca677077d702a1663caecd85fbb5c3897"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/rail-hover-light-compact-1440-tree-false.png",
+      "bytes": 195,
+      "sha256": "00cd5dbc0f762c18a26434e80af42875b183abd524a03b974be20ea947746101"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/rail-hover-light-compact-1440-tree-true.png",
+      "bytes": 219,
+      "sha256": "0aa585da7a24a9599f7327d0da789f7127f59aea89e4bc60a51cc2bb5ed26d94"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-5db03-ance-light-compact-1440x920-chromium-desktop-dist/unobscured-authoring-light-compact-1440x920.png",
+      "bytes": 148611,
+      "sha256": "2b8192043f38f46814b7d7036d83748f2968c5e15d19dfbd9ea5d295298d8a07"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/expanded-deformation-light-comfortable-1280x800-306c84c096bafcb6595a1f9704bdb365f2e6a72e.png",
+      "bytes": 131474,
+      "sha256": "983b7013434760696bcd8b01433752b7e6937922f1823790ca0f8e96fe90ad49"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/normal-authoring-light-comfortable-1280x800-d9e7373263bab25de3500b0b6ce6c21fa0e7466e.png",
+      "bytes": 160589,
+      "sha256": "e8b3c5ad0a10d17c9727b96503d729451c11f8bc943be6f44eee65eb9fd77264"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1280-inspector-false-25636de53373b64b6a77dc4a3f0a924d51dc5588.png",
+      "bytes": 355,
+      "sha256": "4879e63111578db288ec916506a61b176cd6a1faca3270357752c407c6413404"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1280-inspector-true-fd4195f0d830488cd44a09032d0a9fe1ff26e238.png",
+      "bytes": 352,
+      "sha256": "e4a0bd9188318df609df3b3d9fffc83a0c6511d403c56b896c6e24d13bbaa54e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1280-tree-false-07c5f7b9381c05eaabfc4c213d82f8e04196361e.png",
+      "bytes": 195,
+      "sha256": "00cd5dbc0f762c18a26434e80af42875b183abd524a03b974be20ea947746101"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1280-tree-true-5ae665ce9608aab3134250b9da7f3b85638e1439.png",
+      "bytes": 219,
+      "sha256": "0aa585da7a24a9599f7327d0da789f7127f59aea89e4bc60a51cc2bb5ed26d94"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/attachments/unobscured-authoring-light-comfortable-1280x800-21b6a6a8a0dd6ee7b9ce79a46502b8cfe4d39393.png",
+      "bytes": 132649,
+      "sha256": "cde987cf61a40f5f54257638388774368b796ab1c99235ba2cac62ea039702c1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/expanded-deformation-light-comfortable-1280x800.png",
+      "bytes": 131474,
+      "sha256": "983b7013434760696bcd8b01433752b7e6937922f1823790ca0f8e96fe90ad49"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/normal-authoring-light-comfortable-1280x800.png",
+      "bytes": 160589,
+      "sha256": "e8b3c5ad0a10d17c9727b96503d729451c11f8bc943be6f44eee65eb9fd77264"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/rail-hover-light-comfortable-1280-inspector-false.png",
+      "bytes": 355,
+      "sha256": "4879e63111578db288ec916506a61b176cd6a1faca3270357752c407c6413404"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/rail-hover-light-comfortable-1280-inspector-true.png",
+      "bytes": 352,
+      "sha256": "e4a0bd9188318df609df3b3d9fffc83a0c6511d403c56b896c6e24d13bbaa54e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/rail-hover-light-comfortable-1280-tree-false.png",
+      "bytes": 195,
+      "sha256": "00cd5dbc0f762c18a26434e80af42875b183abd524a03b974be20ea947746101"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/rail-hover-light-comfortable-1280-tree-true.png",
+      "bytes": 219,
+      "sha256": "0aa585da7a24a9599f7327d0da789f7127f59aea89e4bc60a51cc2bb5ed26d94"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-60819--light-comfortable-1280x800-chromium-desktop-dist/unobscured-authoring-light-comfortable-1280x800.png",
+      "bytes": 132649,
+      "sha256": "cde987cf61a40f5f54257638388774368b796ab1c99235ba2cac62ea039702c1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/expanded-deformation-dark-comfortable-1280x800-f8667b5b9a4ffad2bb025c4d61f0fced1229cb68.png",
+      "bytes": 125811,
+      "sha256": "ed982e2d36e69b06a8770cbf3ed90e9dcd5a7a5d5b9acde8e824775e4cce3350"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/normal-authoring-dark-comfortable-1280x800-3d2574180456831918439fb12d561dfffa9a494d.png",
+      "bytes": 152072,
+      "sha256": "91152b4d530b803b2b38f6a8803bf15adb4f9d648bd1d750737b08a58c5983f7"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1280-inspector-false-6421200770dd601781f083c2d808def3310c60d0.png",
+      "bytes": 367,
+      "sha256": "2d3f171ec4eb1745db4a8601f5083f8899e3fd1a41d2e4a8e2fd0e6070d45ad8"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1280-inspector-true-fba26ceaaba7cefb4c73603933c3f8d092685903.png",
+      "bytes": 385,
+      "sha256": "7da57d1739b024780beced56af8bcb07f23a6574d995d1d5f351679bf0662513"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1280-tree-false-5658767df46c7759527ffec0cb5e20b651ec0b1a.png",
+      "bytes": 199,
+      "sha256": "338d7cc050d0015541da9a79c9051a4a16a446bd698be6f1b6e470241f874fd1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1280-tree-true-11d1ce0e5987d17d7863d034cdd8c481713b4d65.png",
+      "bytes": 215,
+      "sha256": "03c92a86b1b9672fb802b93df59edd87195172648ca9b8347d708ba389cc6183"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/attachments/unobscured-authoring-dark-comfortable-1280x800-276bdf106f1f5d5c77adbff3a3c19aec4d97d194.png",
+      "bytes": 127313,
+      "sha256": "b0e0d5fed8e6d209aba9b91229f3ef11dcd2ff4fd6e9e42fd851834e4d4cab24"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/expanded-deformation-dark-comfortable-1280x800.png",
+      "bytes": 125811,
+      "sha256": "ed982e2d36e69b06a8770cbf3ed90e9dcd5a7a5d5b9acde8e824775e4cce3350"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/normal-authoring-dark-comfortable-1280x800.png",
+      "bytes": 152072,
+      "sha256": "91152b4d530b803b2b38f6a8803bf15adb4f9d648bd1d750737b08a58c5983f7"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/rail-hover-dark-comfortable-1280-inspector-false.png",
+      "bytes": 367,
+      "sha256": "2d3f171ec4eb1745db4a8601f5083f8899e3fd1a41d2e4a8e2fd0e6070d45ad8"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/rail-hover-dark-comfortable-1280-inspector-true.png",
+      "bytes": 385,
+      "sha256": "7da57d1739b024780beced56af8bcb07f23a6574d995d1d5f351679bf0662513"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/rail-hover-dark-comfortable-1280-tree-false.png",
+      "bytes": 199,
+      "sha256": "338d7cc050d0015541da9a79c9051a4a16a446bd698be6f1b6e470241f874fd1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/rail-hover-dark-comfortable-1280-tree-true.png",
+      "bytes": 215,
+      "sha256": "03c92a86b1b9672fb802b93df59edd87195172648ca9b8347d708ba389cc6183"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-73b68-e-dark-comfortable-1280x800-chromium-desktop-dist/unobscured-authoring-dark-comfortable-1280x800.png",
+      "bytes": 127313,
+      "sha256": "b0e0d5fed8e6d209aba9b91229f3ef11dcd2ff4fd6e9e42fd851834e4d4cab24"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/expanded-deformation-light-comfortable-1024x768-45fb7cfbc197651329d399c8536c3f3028d9eea5.png",
+      "bytes": 82672,
+      "sha256": "37b6c1f392c64ea4d2ae5c670e61f6b160516be6c0519f8a6a39890c82822ff2"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/normal-authoring-light-comfortable-1024x768-cb859876860cab524df4a32e77bf4655e01fc54d.png",
+      "bytes": 130335,
+      "sha256": "1a07a35dcb0da0f21eedd00b70994f05d15c476b84ea541e70e67fe6b902ccb9"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-inspector-false-cee1c184f7ec634c536f5b5f69c6736314b42db2.png",
+      "bytes": 357,
+      "sha256": "fc28d633ed49943fc4da1d2d0caaf03198c1b3646b31ce316d2dd92225c3be72"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-inspector-true-58935d501ca77314525954d8de7cf4400148b220.png",
+      "bytes": 357,
+      "sha256": "fb4e491cb4eb70436ca7455e4ef46b6a7eefe1914ef7b11f06aa162268a20d16"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-tree-false-086791e75ce2ea797d78dfa2bd7267d670aed0a6.png",
+      "bytes": 195,
+      "sha256": "00cd5dbc0f762c18a26434e80af42875b183abd524a03b974be20ea947746101"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-tree-true-e9a7e23625bb76dc9d5b33229ee594d35276fe16.png",
+      "bytes": 219,
+      "sha256": "0aa585da7a24a9599f7327d0da789f7127f59aea89e4bc60a51cc2bb5ed26d94"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/unobscured-authoring-light-comfortable-1024x768-c977d4ab606d75e5d9b5ef12fbe243ce2172900f.png",
+      "bytes": 81851,
+      "sha256": "44ac89500f1f6057deb15cedbc04d7c4f6de08a6ed6ab66728aedbbb2af7590f"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/expanded-deformation-light-comfortable-1024x768.png",
+      "bytes": 82672,
+      "sha256": "37b6c1f392c64ea4d2ae5c670e61f6b160516be6c0519f8a6a39890c82822ff2"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/normal-authoring-light-comfortable-1024x768.png",
+      "bytes": 130335,
+      "sha256": "1a07a35dcb0da0f21eedd00b70994f05d15c476b84ea541e70e67fe6b902ccb9"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/rail-hover-light-comfortable-1024-inspector-false.png",
+      "bytes": 357,
+      "sha256": "fc28d633ed49943fc4da1d2d0caaf03198c1b3646b31ce316d2dd92225c3be72"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/rail-hover-light-comfortable-1024-inspector-true.png",
+      "bytes": 357,
+      "sha256": "fb4e491cb4eb70436ca7455e4ef46b6a7eefe1914ef7b11f06aa162268a20d16"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/rail-hover-light-comfortable-1024-tree-false.png",
+      "bytes": 195,
+      "sha256": "00cd5dbc0f762c18a26434e80af42875b183abd524a03b974be20ea947746101"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/rail-hover-light-comfortable-1024-tree-true.png",
+      "bytes": 219,
+      "sha256": "0aa585da7a24a9599f7327d0da789f7127f59aea89e4bc60a51cc2bb5ed26d94"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/unobscured-authoring-light-comfortable-1024x768.png",
+      "bytes": 81851,
+      "sha256": "44ac89500f1f6057deb15cedbc04d7c4f6de08a6ed6ab66728aedbbb2af7590f"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/expanded-deformation-dark-compact-1280x800-8ad6e5a33cce17c42260bfbbf217d9d3768f5613.png",
+      "bytes": 126913,
+      "sha256": "95c52aafa1b4921d2d04bda2829b668c5dbbe717c80adcbb4a14b8f2b077ed5b"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/normal-authoring-dark-compact-1280x800-704b514a28183052fe2eea76ed47eace09277495.png",
+      "bytes": 152093,
+      "sha256": "fda57a75ab145480f4b44006876abba70d108f8b7fb80340cf30c9bc1f6b3422"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-compact-1280-inspector-false-6119934c6919eb5b95f48b2ccd040f9d842a2aee.png",
+      "bytes": 367,
+      "sha256": "2d3f171ec4eb1745db4a8601f5083f8899e3fd1a41d2e4a8e2fd0e6070d45ad8"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-compact-1280-inspector-true-831fb7064963901df0bd631e713dc7328e99d913.png",
+      "bytes": 385,
+      "sha256": "7da57d1739b024780beced56af8bcb07f23a6574d995d1d5f351679bf0662513"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-compact-1280-tree-false-9c71466423dcb533d444e2197c300355bc54e387.png",
+      "bytes": 199,
+      "sha256": "338d7cc050d0015541da9a79c9051a4a16a446bd698be6f1b6e470241f874fd1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-dark-compact-1280-tree-true-a4f194653986d4e0f391dd92bf02e5c8b32c86d8.png",
+      "bytes": 215,
+      "sha256": "03c92a86b1b9672fb802b93df59edd87195172648ca9b8347d708ba389cc6183"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/attachments/unobscured-authoring-dark-compact-1280x800-0534d3bf1c91604a0afaf9f3dc79ad9e92647833.png",
+      "bytes": 128891,
+      "sha256": "0caa54a296275e25f9dcd8b9a4d17dd765e5fd1452655f49f4841df9b93f02c1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/expanded-deformation-dark-compact-1280x800.png",
+      "bytes": 126913,
+      "sha256": "95c52aafa1b4921d2d04bda2829b668c5dbbe717c80adcbb4a14b8f2b077ed5b"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/normal-authoring-dark-compact-1280x800.png",
+      "bytes": 152093,
+      "sha256": "fda57a75ab145480f4b44006876abba70d108f8b7fb80340cf30c9bc1f6b3422"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/rail-hover-dark-compact-1280-inspector-false.png",
+      "bytes": 367,
+      "sha256": "2d3f171ec4eb1745db4a8601f5083f8899e3fd1a41d2e4a8e2fd0e6070d45ad8"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/rail-hover-dark-compact-1280-inspector-true.png",
+      "bytes": 385,
+      "sha256": "7da57d1739b024780beced56af8bcb07f23a6574d995d1d5f351679bf0662513"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/rail-hover-dark-compact-1280-tree-false.png",
+      "bytes": 199,
+      "sha256": "338d7cc050d0015541da9a79c9051a4a16a446bd698be6f1b6e470241f874fd1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/rail-hover-dark-compact-1280-tree-true.png",
+      "bytes": 215,
+      "sha256": "03c92a86b1b9672fb802b93df59edd87195172648ca9b8347d708ba389cc6183"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-cf489-rance-dark-compact-1280x800-chromium-desktop-dist/unobscured-authoring-dark-compact-1280x800.png",
+      "bytes": 128891,
+      "sha256": "0caa54a296275e25f9dcd8b9a4d17dd765e5fd1452655f49f4841df9b93f02c1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/expanded-deformation-dark-comfortable-1440x920-12f9c1695125fd080342efc50174d87d721800a1.png",
+      "bytes": 139709,
+      "sha256": "7e4ed80c7e0188dca72e8ddc33fc8eeb4f9e1a0efe11b12d603928eb04b52582"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/normal-authoring-dark-comfortable-1440x920-5cadb65d539eaad3d0c28ccc357ca324b3616d68.png",
+      "bytes": 172784,
+      "sha256": "07cb0efb0018dfcdfc9707830b507be4bca303f4ecd3adcd270ea7bdaf2852bc"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1440-inspector-false-920145fb4c78a08c0de7f4515512d39ca6b552b1.png",
+      "bytes": 1445,
+      "sha256": "8425a115489b3e518a0e13a50d6a02477f4992e216ed668e92172bddbf19e6db"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1440-inspector-true-ed3033d1df68eb937e039160924c14bd9f5108d2.png",
+      "bytes": 1473,
+      "sha256": "ee1cf167efb9b26804d208a918f788d7d4856bc672421c103f0b49a92192304e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1440-tree-false-da7283f39f17bbf2fe478b81ccd879f8f48fdd6e.png",
+      "bytes": 199,
+      "sha256": "338d7cc050d0015541da9a79c9051a4a16a446bd698be6f1b6e470241f874fd1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1440-tree-true-6d33c95a09a65dbcee51c587b003cdc293e4e641.png",
+      "bytes": 215,
+      "sha256": "03c92a86b1b9672fb802b93df59edd87195172648ca9b8347d708ba389cc6183"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/attachments/unobscured-authoring-dark-comfortable-1440x920-cb68b8c32e41523da44a127c3d9322dea8e43bf4.png",
+      "bytes": 139995,
+      "sha256": "f0d0f1d959cf37c65c1f820e189d17e147e6c66120b41c62a928be81e1127a9c"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/expanded-deformation-dark-comfortable-1440x920.png",
+      "bytes": 139709,
+      "sha256": "7e4ed80c7e0188dca72e8ddc33fc8eeb4f9e1a0efe11b12d603928eb04b52582"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/normal-authoring-dark-comfortable-1440x920.png",
+      "bytes": 172784,
+      "sha256": "07cb0efb0018dfcdfc9707830b507be4bca303f4ecd3adcd270ea7bdaf2852bc"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/rail-hover-dark-comfortable-1440-inspector-false.png",
+      "bytes": 1445,
+      "sha256": "8425a115489b3e518a0e13a50d6a02477f4992e216ed668e92172bddbf19e6db"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/rail-hover-dark-comfortable-1440-inspector-true.png",
+      "bytes": 1473,
+      "sha256": "ee1cf167efb9b26804d208a918f788d7d4856bc672421c103f0b49a92192304e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/rail-hover-dark-comfortable-1440-tree-false.png",
+      "bytes": 199,
+      "sha256": "338d7cc050d0015541da9a79c9051a4a16a446bd698be6f1b6e470241f874fd1"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/rail-hover-dark-comfortable-1440-tree-true.png",
+      "bytes": 215,
+      "sha256": "03c92a86b1b9672fb802b93df59edd87195172648ca9b8347d708ba389cc6183"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-d92f7-e-dark-comfortable-1440x920-chromium-desktop-dist/unobscured-authoring-dark-comfortable-1440x920.png",
+      "bytes": 139995,
+      "sha256": "f0d0f1d959cf37c65c1f820e189d17e147e6c66120b41c62a928be81e1127a9c"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/expanded-deformation-light-compact-1280x800-08cf23a1f56eb94305abee1a6269d14c5fdbda8e.png",
+      "bytes": 132791,
+      "sha256": "c9ab4aa258003254754443d3d9f3b880290998ba98f6c3de3ddd8b2af3e5820e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/normal-authoring-light-compact-1280x800-794aa287a68c34b50907224ab4a50d4046949334.png",
+      "bytes": 160952,
+      "sha256": "d93455cac3c0ea13d4a9e0194455da9000506d9112d9e6a0fa48930e9d7823ef"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-light-compact-1280-inspector-false-18f0b4123730dcb6c22c02ab9d25cd47285acdcf.png",
+      "bytes": 355,
+      "sha256": "4879e63111578db288ec916506a61b176cd6a1faca3270357752c407c6413404"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-light-compact-1280-inspector-true-8a0b870a24dbc6bf516e5a4a09c2c4c8521abc5b.png",
+      "bytes": 352,
+      "sha256": "e4a0bd9188318df609df3b3d9fffc83a0c6511d403c56b896c6e24d13bbaa54e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-light-compact-1280-tree-false-04d98f4f2467af32de4c455e83f12937c231f60e.png",
+      "bytes": 195,
+      "sha256": "00cd5dbc0f762c18a26434e80af42875b183abd524a03b974be20ea947746101"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/rail-hover-light-compact-1280-tree-true-d433e44cfd887cd11cd5b3b5162616e58a553c6a.png",
+      "bytes": 219,
+      "sha256": "0aa585da7a24a9599f7327d0da789f7127f59aea89e4bc60a51cc2bb5ed26d94"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/attachments/unobscured-authoring-light-compact-1280x800-09c445f7915e1a5f3a923056c7a4e13953833b8c.png",
+      "bytes": 134296,
+      "sha256": "5a21415d3c2b91b6c527eb76d126c49d0480782b2f157ab2bf8b762c9035061e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/expanded-deformation-light-compact-1280x800.png",
+      "bytes": 132791,
+      "sha256": "c9ab4aa258003254754443d3d9f3b880290998ba98f6c3de3ddd8b2af3e5820e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/normal-authoring-light-compact-1280x800.png",
+      "bytes": 160952,
+      "sha256": "d93455cac3c0ea13d4a9e0194455da9000506d9112d9e6a0fa48930e9d7823ef"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/rail-hover-light-compact-1280-inspector-false.png",
+      "bytes": 355,
+      "sha256": "4879e63111578db288ec916506a61b176cd6a1faca3270357752c407c6413404"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/rail-hover-light-compact-1280-inspector-true.png",
+      "bytes": 352,
+      "sha256": "e4a0bd9188318df609df3b3d9fffc83a0c6511d403c56b896c6e24d13bbaa54e"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/rail-hover-light-compact-1280-tree-false.png",
+      "bytes": 195,
+      "sha256": "00cd5dbc0f762c18a26434e80af42875b183abd524a03b974be20ea947746101"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/rail-hover-light-compact-1280-tree-true.png",
+      "bytes": 219,
+      "sha256": "0aa585da7a24a9599f7327d0da789f7127f59aea89e4bc60a51cc2bb5ed26d94"
+    },
+    {
+      "path": "_run_records/dist-focused/artifacts/ui-foundation-dist-product-db897-ance-light-compact-1280x800-chromium-desktop-dist/unobscured-authoring-light-compact-1280x800.png",
+      "bytes": 134296,
+      "sha256": "5a21415d3c2b91b6c527eb76d126c49d0480782b2f157ab2bf8b762c9035061e"
+    },
+    {
+      "path": "_run_records/dist-focused/executable.txt",
+      "bytes": 143,
+      "sha256": "196dfbef4a10a8fdb25c0eb68463a888c70c7d4b137baad45f40a63f2b1857d6"
+    },
+    {
+      "path": "_run_records/dist-focused/result.log",
+      "bytes": 3099,
+      "sha256": "aa605833953e56ea196ee4bc9d565254a2c364d3681e95718df3a16269914791"
+    },
+    {
+      "path": "_run_records/dist-focused/version.txt",
+      "bytes": 41,
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a"
+    },
+    {
+      "path": "_run_records/harness-self-check.log",
+      "bytes": 41362,
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+    },
+    {
+      "path": "_run_records/implementer/RETURN.md",
+      "bytes": 5247,
+      "sha256": "395f3a2ad16853cea50198c5946de3d608b402af25939b1b2482a6e839ed64be"
+    },
+    {
+      "path": "_run_records/implementer/before-artifacts/.last-run.json",
+      "bytes": 145,
+      "sha256": "6e20cfb754754b5efea921bb3ad5a173b7cd8cc01f8de9f2437f251f39a7b2b7"
+    },
+    {
+      "path": "_run_records/implementer/before-artifacts/b3-accessibility-Agent-rea-0f8e0-e-Close-receive-the-pointer-chromium-compact/error-context.md",
+      "bytes": 32292,
+      "sha256": "705cf9aa0d1c9e983bffa27527220cc1f2b006544a648066712da3bf656ce93f"
+    },
+    {
+      "path": "_run_records/implementer/before-artifacts/b3-accessibility-Agent-rea-0f8e0-e-Close-receive-the-pointer-chromium-compact/trace.zip",
+      "bytes": 659441,
+      "sha256": "efa2b7ab5e323636db351c53e55f10c944f3c07d9ecc6b757b0980693870bd86"
+    },
+    {
+      "path": "_run_records/implementer/before-artifacts/b3-accessibility-Agent-rea-0f8e0-e-Close-receive-the-pointer-chromium-desktop/error-context.md",
+      "bytes": 32759,
+      "sha256": "dfa99a6300f14ac655718dc909682523ea756a7f1c6bf2f1fc33f1ddfa3d311c"
+    },
+    {
+      "path": "_run_records/implementer/before-artifacts/b3-accessibility-Agent-rea-0f8e0-e-Close-receive-the-pointer-chromium-desktop/trace.zip",
+      "bytes": 607619,
+      "sha256": "e69b871e65160a85d98ab5876e67c15128bd4bcb9af9227314d4ad279b815b02"
+    },
+    {
+      "path": "_run_records/implementer/before.log",
+      "bytes": 9402,
+      "sha256": "1d282c1b3f952c35d9e913faaaf48abaedf3136fb9a9b313cc78d66ee02166ba"
+    },
+    {
+      "path": "_run_records/implementer/browser-version.txt",
+      "bytes": 41,
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a"
+    },
+    {
+      "path": "_run_records/implementer/chromium-compact-agent-reason-close-hit.json",
+      "bytes": 1051,
+      "sha256": "ae710f7a927bbc504f5fc4c6a1a543d4af1322dfa577fd1b4264c179cebca368"
+    },
+    {
+      "path": "_run_records/implementer/chromium-desktop-agent-reason-close-hit.json",
+      "bytes": 1051,
+      "sha256": "2559cd55bc6a1c78f7253989bdf43eb77853f9dc9c4e20bef3339fdbfdcd0c8b"
+    },
+    {
+      "path": "_run_records/implementer/context.json",
+      "bytes": 2712,
+      "sha256": "6d5b5e45d5f0a89d2215c1fc1663ea25d7bea8a7b612ab1195ad0b6385f148f4"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/arguments.txt",
+      "bytes": 78,
+      "sha256": "5305759944f35e8e6df646883cc8e43825f8cb1fc5c07f59fffee6149f196cf3"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/.last-run.json",
+      "bytes": 243,
+      "sha256": "015cc10364d42e6d611943981dafb8cd511fd7cafb2ba978e33606f22d41c33b"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-compact/error-context.md",
+      "bytes": 9928,
+      "sha256": "2f1f3cbeeac529ec927e0ad4e47d20d73aa0548e8227c345613ae9d9dd015cab"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-compact/trace.zip",
+      "bytes": 743980,
+      "sha256": "60683d7b58c4de008dd22302fab64c16cf23beabc86c663f305fbee7c7370c54"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-desktop/error-context.md",
+      "bytes": 9928,
+      "sha256": "2f1f3cbeeac529ec927e0ad4e47d20d73aa0548e8227c345613ae9d9dd015cab"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/b3-accessibility-disabled--b4687-Escape-and-reset-on-reentry-chromium-desktop/trace.zip",
+      "bytes": 750818,
+      "sha256": "716c068bf2a51de9f8e58e36941e69e96c1b48b68d4f97971b5edbd769af1e83"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-compact/error-context.md",
+      "bytes": 6705,
+      "sha256": "5710bdb4a471ea070f4778fea934a5e8315abf83a4913385f3c2d2d3f5fa7228"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-compact/trace.zip",
+      "bytes": 740666,
+      "sha256": "00512de4dde517d554e26f6b6515645895d91a6ed38ecd53c7cb9659da2f853a"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-desktop/error-context.md",
+      "bytes": 6705,
+      "sha256": "5710bdb4a471ea070f4778fea934a5e8315abf83a4913385f3c2d2d3f5fa7228"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/artifacts/b3-accessibility-simultane-c742a-ons-dismiss-before-the-page-chromium-desktop/trace.zip",
+      "bytes": 747229,
+      "sha256": "963e52bc977cb14ffecb2b315cdeb46a4a6f8e1b63e999058c4f230826f34a9b"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/executable.txt",
+      "bytes": 143,
+      "sha256": "196dfbef4a10a8fdb25c0eb68463a888c70c7d4b137baad45f40a63f2b1857d6"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/result.log",
+      "bytes": 12886,
+      "sha256": "71b2c0f3249a2e073c31f2f625685a0862ac01e9cc6eefd7792079d75e830b94"
+    },
+    {
+      "path": "_run_records/implementer/escape-before/version.txt",
+      "bytes": 41,
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a"
+    },
+    {
+      "path": "_run_records/implementer/final-description/arguments.txt",
+      "bytes": 101,
+      "sha256": "188a0eb1bdcdf5491004877faaa21eef73993e0bcfa15f4e8fccbc972d7be7bc"
+    },
+    {
+      "path": "_run_records/implementer/final-description/artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "_run_records/implementer/final-description/chromium-compact-agent-reason-close-hit.json",
+      "bytes": 1357,
+      "sha256": "c1135326e3b5aecd233161bed146985bd615c61938566adc0c53ae9dd79307f3"
+    },
+    {
+      "path": "_run_records/implementer/final-description/chromium-desktop-agent-reason-close-hit.json",
+      "bytes": 1357,
+      "sha256": "5ae353ec2429075e31ed4498d0734d297e998ba4e66694e0b0232d643ea40518"
+    },
+    {
+      "path": "_run_records/implementer/final-description/executable.txt",
+      "bytes": 143,
+      "sha256": "196dfbef4a10a8fdb25c0eb68463a888c70c7d4b137baad45f40a63f2b1857d6"
+    },
+    {
+      "path": "_run_records/implementer/final-description/result.log",
+      "bytes": 1814,
+      "sha256": "372c9072efb9a1f660fd7cc0550b70cfe8cdf44edd1920497b3f45a75f80eccc"
+    },
+    {
+      "path": "_run_records/implementer/final-description/version.txt",
+      "bytes": 41,
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/arguments.txt",
+      "bytes": 147,
+      "sha256": "d56bb9b5ebf7776c5c99413ac0834d8a7fed552e6bfa6f90e2cd54223e8d7100"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-compact-agent-reason-close-hit.json",
+      "bytes": 1357,
+      "sha256": "c1135326e3b5aecd233161bed146985bd615c61938566adc0c53ae9dd79307f3"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-compact-agent-strip-open.json",
+      "bytes": 278,
+      "sha256": "cf39b02192dd507182df7bfff56cbf67a744552d754a685701876e3d61721cd9"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-compact-libraries-covered-focus.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-compact-libraries-native-ax.json",
+      "bytes": 6832,
+      "sha256": "1418c4b8127a77de65782129b9febab4eb07287998fd471ad3147c5415de10df"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-compact-project-covered-focus.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-compact-project-native-ax.json",
+      "bytes": 14897,
+      "sha256": "f3737b33a69954a0b02cff21076f6665c194b8d53922602f93b05bfe5b11936e"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-compact-rail-stage-results.json",
+      "bytes": 246,
+      "sha256": "4c9435594c153f01944de34ddcd5aeb1b8c382ff3a5241da15cc1fb7a3ad95d4"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-compact-rail-stage-review.json",
+      "bytes": 246,
+      "sha256": "f2e0e7f00a56c1f556222f9ae631726f560f2e8128de63a824bf56ee239803bb"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-compact-results-reason.png",
+      "bytes": 1118,
+      "sha256": "b05b740b272979d2e43e68b44a83e4bb0c591b1026313295933073741b5080e5"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-compact-solve-covered-focus.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-compact-solve-native-ax.json",
+      "bytes": 17821,
+      "sha256": "7cd90edbdda21144bed7bacea1fe0828ced11bf30e3985373fa368b8568b8e3c"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-desktop-agent-reason-close-hit.json",
+      "bytes": 1357,
+      "sha256": "5ae353ec2429075e31ed4498d0734d297e998ba4e66694e0b0232d643ea40518"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-desktop-agent-strip-open.json",
+      "bytes": 278,
+      "sha256": "ee32032d175bd8713593e3edefc0bae8b83bc195a554b58f71c1c862faa77199"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-desktop-libraries-covered-focus.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-desktop-libraries-native-ax.json",
+      "bytes": 6880,
+      "sha256": "2be24759a9c9896c2bb58b2ab035b6ba05eb23e45d1c1444e60b8871bc65adf4"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-desktop-project-covered-focus.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-desktop-project-native-ax.json",
+      "bytes": 14876,
+      "sha256": "be88aeab0fd62b2473612d03ec551364809125bc3c92ba0529de1b67ba581af7"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-desktop-rail-stage-results.json",
+      "bytes": 246,
+      "sha256": "4c9435594c153f01944de34ddcd5aeb1b8c382ff3a5241da15cc1fb7a3ad95d4"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-desktop-rail-stage-review.json",
+      "bytes": 246,
+      "sha256": "f2e0e7f00a56c1f556222f9ae631726f560f2e8128de63a824bf56ee239803bb"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-desktop-results-reason.png",
+      "bytes": 1118,
+      "sha256": "b05b740b272979d2e43e68b44a83e4bb0c591b1026313295933073741b5080e5"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-desktop-solve-covered-focus.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/chromium-desktop-solve-native-ax.json",
+      "bytes": 17632,
+      "sha256": "9e48057d1769e57a8b453fba873b021efb5e8642b50c1c4b88b22c8c906bb3e4"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/executable.txt",
+      "bytes": 143,
+      "sha256": "196dfbef4a10a8fdb25c0eb68463a888c70c7d4b137baad45f40a63f2b1857d6"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/result.log",
+      "bytes": 2421,
+      "sha256": "42f2bbd38cda095aa19bee45e8da6256f0dea829e47a415f08cff413993f2ce2"
+    },
+    {
+      "path": "_run_records/implementer/final-focused/version.txt",
+      "bytes": 41,
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a"
+    },
+    {
+      "path": "_run_records/implementer/final-source.diff",
+      "bytes": 8846,
+      "sha256": "5e7b0e19b010b821dce496d70c742c9b7c34bcf9115c722f592d58609081b91d"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/arguments.txt",
+      "bytes": 105,
+      "sha256": "2ca30e5d38eb7043dfe5053b436db6083839722e13ecfd5e822d56093f54a4b2"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-compact-agent-reason-close-hit.json",
+      "bytes": 1357,
+      "sha256": "c1135326e3b5aecd233161bed146985bd615c61938566adc0c53ae9dd79307f3"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-compact-agent-strip-open.json",
+      "bytes": 278,
+      "sha256": "cf39b02192dd507182df7bfff56cbf67a744552d754a685701876e3d61721cd9"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-compact-libraries-covered-focus.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-compact-libraries-native-ax.json",
+      "bytes": 6832,
+      "sha256": "1418c4b8127a77de65782129b9febab4eb07287998fd471ad3147c5415de10df"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-compact-project-covered-focus.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-compact-project-native-ax.json",
+      "bytes": 14897,
+      "sha256": "f3737b33a69954a0b02cff21076f6665c194b8d53922602f93b05bfe5b11936e"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-compact-rail-stage-results.json",
+      "bytes": 246,
+      "sha256": "4c9435594c153f01944de34ddcd5aeb1b8c382ff3a5241da15cc1fb7a3ad95d4"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-compact-rail-stage-review.json",
+      "bytes": 246,
+      "sha256": "f2e0e7f00a56c1f556222f9ae631726f560f2e8128de63a824bf56ee239803bb"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-compact-results-reason.png",
+      "bytes": 1118,
+      "sha256": "b05b740b272979d2e43e68b44a83e4bb0c591b1026313295933073741b5080e5"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-compact-solve-covered-focus.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-compact-solve-native-ax.json",
+      "bytes": 17821,
+      "sha256": "7cd90edbdda21144bed7bacea1fe0828ced11bf30e3985373fa368b8568b8e3c"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-desktop-agent-reason-close-hit.json",
+      "bytes": 1357,
+      "sha256": "5ae353ec2429075e31ed4498d0734d297e998ba4e66694e0b0232d643ea40518"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-desktop-agent-strip-open.json",
+      "bytes": 278,
+      "sha256": "ee32032d175bd8713593e3edefc0bae8b83bc195a554b58f71c1c862faa77199"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-desktop-libraries-covered-focus.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-desktop-libraries-native-ax.json",
+      "bytes": 6880,
+      "sha256": "2be24759a9c9896c2bb58b2ab035b6ba05eb23e45d1c1444e60b8871bc65adf4"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-desktop-project-covered-focus.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-desktop-project-native-ax.json",
+      "bytes": 14876,
+      "sha256": "be88aeab0fd62b2473612d03ec551364809125bc3c92ba0529de1b67ba581af7"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-desktop-rail-stage-results.json",
+      "bytes": 246,
+      "sha256": "4c9435594c153f01944de34ddcd5aeb1b8c382ff3a5241da15cc1fb7a3ad95d4"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-desktop-rail-stage-review.json",
+      "bytes": 246,
+      "sha256": "f2e0e7f00a56c1f556222f9ae631726f560f2e8128de63a824bf56ee239803bb"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-desktop-results-reason.png",
+      "bytes": 1118,
+      "sha256": "b05b740b272979d2e43e68b44a83e4bb0c591b1026313295933073741b5080e5"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-desktop-solve-covered-focus.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/chromium-desktop-solve-native-ax.json",
+      "bytes": 17632,
+      "sha256": "9e48057d1769e57a8b453fba873b021efb5e8642b50c1c4b88b22c8c906bb3e4"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/executable.txt",
+      "bytes": 143,
+      "sha256": "196dfbef4a10a8fdb25c0eb68463a888c70c7d4b137baad45f40a63f2b1857d6"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/result.log",
+      "bytes": 1819,
+      "sha256": "677d08964963b6cddbf4ab58c3b187237440e77824d87103166de2ba98d767f7"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only/version.txt",
+      "bytes": 41,
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only.css.sha256",
+      "bytes": 65,
+      "sha256": "4715f775793707b5884cd465b2833f84e55114e6363707f780f93549a55b5093"
+    },
+    {
+      "path": "_run_records/implementer/geometry-only.diff",
+      "bytes": 1212,
+      "sha256": "480504c8b57a6666f1aab14e61717c8df091efa12b3b9c982a5d44ee3ce308f3"
+    },
+    {
+      "path": "_run_records/implementer/manifest.json",
+      "bytes": 17287,
+      "sha256": "3489c677ef4a483003cfed55ab4371f2b3d5de9b9bdebb3e1571b54b3a8a847a"
+    },
+    {
+      "path": "_run_records/implementer/run-focused.sh",
+      "bytes": 925,
+      "sha256": "d2d8874d24ef6a0914fcebe258dcba1827268794f0f565826b65d3877088e0bc"
+    },
+    {
+      "path": "_run_records/native-agent-focused-ax.txt",
+      "bytes": 5230,
+      "sha256": "69eb96c6e6804c063dee6a0e49214399bb4a3de29dc02e7381fcbe0940178088"
+    },
+    {
+      "path": "_run_records/native-agent-focused.png",
+      "bytes": 144199,
+      "sha256": "4dd60070bccc8be871e34616cd40eaa5b84e3cbf8e38c48fed0f5bd14f9f61b2"
+    },
+    {
+      "path": "_run_records/native-build.log",
+      "bytes": 3367,
+      "sha256": "dd4e2f667671e2255e5ae4241911f0d1d3fbcbef0c2d13a1bcaac6f4c9d1149f"
+    },
+    {
+      "path": "_run_records/native-final-ax.txt",
+      "bytes": 11355,
+      "sha256": "03434ff09e4822ede11c5c4ea1d849976acd94c9315f11431dfc724fc10292a0"
+    },
+    {
+      "path": "_run_records/native-final.png",
+      "bytes": 136393,
+      "sha256": "72cdd08eab233b5e440d46306bfc486a04546f8ea4828600e4668304f0146e0c"
+    },
+    {
+      "path": "_run_records/native-first-escape-ax.txt",
+      "bytes": 5192,
+      "sha256": "023ad8809651a8cd9c69d98b0a9075434f0e02b20959a154faf7c327f6d5ceb7"
+    },
+    {
+      "path": "_run_records/native-first-escape.png",
+      "bytes": 142719,
+      "sha256": "5aceb8ff3c5882e5f4619a1357a2967d86d77e624aacfd188456f3b415b67453"
+    },
+    {
+      "path": "_run_records/native-initial-ax.txt",
+      "bytes": 11270,
+      "sha256": "3b85aa72a7ffe52fa34c5f67029160d45f40f1cce5e20080db6ef26ee36db0eb"
+    },
+    {
+      "path": "_run_records/native-pointer-close-ax.txt",
+      "bytes": 11355,
+      "sha256": "03434ff09e4822ede11c5c4ea1d849976acd94c9315f11431dfc724fc10292a0"
+    },
+    {
+      "path": "_run_records/native-reason-pointer-ax.txt",
+      "bytes": 5193,
+      "sha256": "f03ee6e86911525022ced0dcc02abc5534fd93373ad273dcf9b5aadf3aeeaa3a"
+    },
+    {
+      "path": "_run_records/native-reason-pointer.png",
+      "bytes": 142308,
+      "sha256": "dc86ae5bbba13db0d60afa0553fe15e0c1f3bef0d6102bc3560c3a58ac237d1e"
+    },
+    {
+      "path": "_run_records/native-runtime.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/native-second-escape-ax.txt",
+      "bytes": 11351,
+      "sha256": "376e5ca6fb3b808322c901c717a5402b3192c44a6be51988bc88dbdd3950b972"
+    },
+    {
+      "path": "_run_records/native-stop.txt",
+      "bytes": 445,
+      "sha256": "12956b01451b9d9c9050b7a7846e98955e4a7c20effd8c187c252daacd5e6dcb"
+    },
+    {
+      "path": "_run_records/run-manager-check.sh",
+      "bytes": 741,
+      "sha256": "2d4273dafd20c3917b5f291aa7a6c3161d49dbaffa405b2e102e83a4e089b313"
+    },
+    {
+      "path": "_run_records/source-escape/arguments.txt",
+      "bytes": 355,
+      "sha256": "2ecfcbe6f6b814b60d7d53d0e35c68ac1eeda9df9fc80e26f022185676b8bfe0"
+    },
+    {
+      "path": "_run_records/source-escape/artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "_run_records/source-escape/artifacts/ui-foundation-decorative-v-edf02-w-controls-stay-interactive-chromium-compact/decorative-overlays-and-view-controls.png",
+      "bytes": 120060,
+      "sha256": "8fd68785be3aaeb3f96ad55b8e8ea2b1eafdf93bbba363110aa761d9de085f69"
+    },
+    {
+      "path": "_run_records/source-escape/artifacts/ui-foundation-decorative-v-edf02-w-controls-stay-interactive-chromium-desktop/decorative-overlays-and-view-controls.png",
+      "bytes": 120060,
+      "sha256": "8fd68785be3aaeb3f96ad55b8e8ea2b1eafdf93bbba363110aa761d9de085f69"
+    },
+    {
+      "path": "_run_records/source-escape/executable.txt",
+      "bytes": 143,
+      "sha256": "196dfbef4a10a8fdb25c0eb68463a888c70c7d4b137baad45f40a63f2b1857d6"
+    },
+    {
+      "path": "_run_records/source-escape/result.log",
+      "bytes": 2265,
+      "sha256": "5721851c4623932eb3904152376a745eecb185ca8938844fa5213f9a7943e780"
+    },
+    {
+      "path": "_run_records/source-escape/version.txt",
+      "bytes": 41,
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a"
+    },
+    {
+      "path": "_run_records/source-focused/arguments.txt",
+      "bytes": 299,
+      "sha256": "60b1bf4a3d2286e7f66a2aafccbb1fdc1d2c2d0e18fd9f7a3f40aa286b5cedad"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-closed-b10c71b154f6437975d24184548bf4c31a196d0a.png",
+      "bytes": 152807,
+      "sha256": "256b4600245c0acb42e720882a024ff1e41a12392ec06bdc572b8e7627db32dd"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-inspector-open-57d3aef6b60d4d09bbd0a4c8b69780d14b63d73d.png",
+      "bytes": 174889,
+      "sha256": "328e9dd2d362c2f1ff1f09a45b94cf3ae1aa3b7b6d1b646fba662c7a9174d413"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-both-routing-6c6ba5af1de8457bf42a163546ce5739d6e2e36a.png",
+      "bytes": 217701,
+      "sha256": "b4bbc6b3e42d5ee70e44bb940b9ba107680cb099791c1b33bc91f2fda16d7e75"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-collapsed-17e476fcec996171529e14b1dd6b2109b6251769.png",
+      "bytes": 127682,
+      "sha256": "6737c9658a8b7893064a9b80a2bd121526e0be5bb48507113a7f50d64292401f"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-model-drawer-open-886df2c2f9b8529665afcb1e813de6b43defca67.png",
+      "bytes": 132089,
+      "sha256": "c6e496ca4b74f6bf6e4b9db0d66469abd85121cad9dd468e043007f26202cce4"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/attachments/browser-native-class-narrow-both-drawer-open-e8785b18792a7fe9017cf8f6547dc60389dd682a.png",
+      "bytes": 87169,
+      "sha256": "8aeb79d614c06df1a7ae000d1b9a64d3fc88cbcf672e45ff34bcc2510f79ade3"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-both-inspector-closed.png",
+      "bytes": 152807,
+      "sha256": "256b4600245c0acb42e720882a024ff1e41a12392ec06bdc572b8e7627db32dd"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-both-inspector-open.png",
+      "bytes": 174889,
+      "sha256": "328e9dd2d362c2f1ff1f09a45b94cf3ae1aa3b7b6d1b646fba662c7a9174d413"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-both-routing.png",
+      "bytes": 217701,
+      "sha256": "b4bbc6b3e42d5ee70e44bb940b9ba107680cb099791c1b33bc91f2fda16d7e75"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-model-drawer-collapsed.png",
+      "bytes": 127682,
+      "sha256": "6737c9658a8b7893064a9b80a2bd121526e0be5bb48507113a7f50d64292401f"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-model-drawer-open.png",
+      "bytes": 132089,
+      "sha256": "c6e496ca4b74f6bf6e4b9db0d66469abd85121cad9dd468e043007f26202cce4"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-compact/browser-native-class-narrow-both-drawer-open.png",
+      "bytes": 87169,
+      "sha256": "8aeb79d614c06df1a7ae000d1b9a64d3fc88cbcf672e45ff34bcc2510f79ade3"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-both-inspector-closed-79bf6c323f47c3fd151aca139fbe4425190fc000.png",
+      "bytes": 152807,
+      "sha256": "256b4600245c0acb42e720882a024ff1e41a12392ec06bdc572b8e7627db32dd"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-both-inspector-open-bb94c3a442331fe3fc3dc66307eadc8ea9619362.png",
+      "bytes": 174889,
+      "sha256": "328e9dd2d362c2f1ff1f09a45b94cf3ae1aa3b7b6d1b646fba662c7a9174d413"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-both-routing-f53b5bb7860b777bf34f5cdef627cc76941271a6.png",
+      "bytes": 217701,
+      "sha256": "b4bbc6b3e42d5ee70e44bb940b9ba107680cb099791c1b33bc91f2fda16d7e75"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-model-drawer-collapsed-3cc8a0c5755d7b0254cf88ff30fb64d378b14284.png",
+      "bytes": 127682,
+      "sha256": "6737c9658a8b7893064a9b80a2bd121526e0be5bb48507113a7f50d64292401f"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-model-drawer-open-4032aeea33e9ad008d394ff9fa3d6b45a11e0a0d.png",
+      "bytes": 132089,
+      "sha256": "c6e496ca4b74f6bf6e4b9db0d66469abd85121cad9dd468e043007f26202cce4"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/attachments/browser-native-class-narrow-both-drawer-open-8b29896e60006c313bffc3fe99cfbb941c558916.png",
+      "bytes": 87169,
+      "sha256": "8aeb79d614c06df1a7ae000d1b9a64d3fc88cbcf672e45ff34bcc2510f79ade3"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-both-inspector-closed.png",
+      "bytes": 152807,
+      "sha256": "256b4600245c0acb42e720882a024ff1e41a12392ec06bdc572b8e7627db32dd"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-both-inspector-open.png",
+      "bytes": 174889,
+      "sha256": "328e9dd2d362c2f1ff1f09a45b94cf3ae1aa3b7b6d1b646fba662c7a9174d413"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-both-routing.png",
+      "bytes": 217701,
+      "sha256": "b4bbc6b3e42d5ee70e44bb940b9ba107680cb099791c1b33bc91f2fda16d7e75"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-model-drawer-collapsed.png",
+      "bytes": 127682,
+      "sha256": "6737c9658a8b7893064a9b80a2bd121526e0be5bb48507113a7f50d64292401f"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-model-drawer-open.png",
+      "bytes": 132089,
+      "sha256": "c6e496ca4b74f6bf6e4b9db0d66469abd85121cad9dd468e043007f26202cce4"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-browser-n-d8d24-e-and-drawn-canvas-geometry-chromium-desktop/browser-native-class-narrow-both-drawer-open.png",
+      "bytes": 87169,
+      "sha256": "8aeb79d614c06df1a7ae000d1b9a64d3fc88cbcf672e45ff34bcc2510f79ade3"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-12613622147fc3e01101e185e2a6452c7c229f06.json",
+      "bytes": 2500,
+      "sha256": "c067f126f5fb3782c815d9feb76f350b7e113e8aec30e5a0ab0722df2b08b33c"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-9a0228f3c84af539648b272c524cd9d89aef7a1c.json",
+      "bytes": 2345,
+      "sha256": "0e7db1880d85be8ddf9cb0633932bb619e09337c8e6ac0655b4ee587c1c25735"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-dc3726b5c988709c7688c4ac1dadb892f5346ae6.json",
+      "bytes": 2330,
+      "sha256": "4c25b0acb1df670c85f811e52a6851c71c53fcae034e829e313516b1381ca405"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/attachments/readout-topmost-e7da7739f4b6bbfca6d76e0076332e673273b4af.json",
+      "bytes": 2485,
+      "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/below-1280-px-drawer-collapsed-readout-topmost.json",
+      "bytes": 2345,
+      "sha256": "0e7db1880d85be8ddf9cb0633932bb619e09337c8e6ac0655b4ee587c1c25735"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/below-1280-px-drawer-open-readout-topmost.json",
+      "bytes": 2330,
+      "sha256": "4c25b0acb1df670c85f811e52a6851c71c53fcae034e829e313516b1381ca405"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/model-view-drawer-collapsed-readout-topmost.json",
+      "bytes": 2500,
+      "sha256": "c067f126f5fb3782c815d9feb76f350b7e113e8aec30e5a0ab0722df2b08b33c"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-compact/model-view-drawer-open-readout-topmost.json",
+      "bytes": 2485,
+      "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-08c1b404175ce9c9c8a3aba9ec772c54f2c97487.json",
+      "bytes": 2485,
+      "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-6635e70d3b8d9c4b399ada095ea8bf5451adb36c.json",
+      "bytes": 2345,
+      "sha256": "0e7db1880d85be8ddf9cb0633932bb619e09337c8e6ac0655b4ee587c1c25735"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-c48851c3ebf45232f4a8198dc2c49f6f0643e153.json",
+      "bytes": 2500,
+      "sha256": "c067f126f5fb3782c815d9feb76f350b7e113e8aec30e5a0ab0722df2b08b33c"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/attachments/readout-topmost-f0619ad532438cc676c5d92039ecc0c1fac3e849.json",
+      "bytes": 2330,
+      "sha256": "4c25b0acb1df670c85f811e52a6851c71c53fcae034e829e313516b1381ca405"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/below-1280-px-drawer-collapsed-readout-topmost.json",
+      "bytes": 2345,
+      "sha256": "0e7db1880d85be8ddf9cb0633932bb619e09337c8e6ac0655b4ee587c1c25735"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/below-1280-px-drawer-open-readout-topmost.json",
+      "bytes": 2330,
+      "sha256": "4c25b0acb1df670c85f811e52a6851c71c53fcae034e829e313516b1381ca405"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/model-view-drawer-collapsed-readout-topmost.json",
+      "bytes": 2500,
+      "sha256": "c067f126f5fb3782c815d9feb76f350b7e113e8aec30e5a0ab0722df2b08b33c"
+    },
+    {
+      "path": "_run_records/source-focused/artifacts/workspace-layout-the-table-a5853-Model-and-narrow-Both-views-chromium-desktop/model-view-drawer-open-readout-topmost.json",
+      "bytes": 2485,
+      "sha256": "11cc7840757a6b315515b90db9ee23e04a46f6bf4357ad774cf7d0773adfe544"
+    },
+    {
+      "path": "_run_records/source-focused/executable.txt",
+      "bytes": 143,
+      "sha256": "196dfbef4a10a8fdb25c0eb68463a888c70c7d4b137baad45f40a63f2b1857d6"
+    },
+    {
+      "path": "_run_records/source-focused/result.log",
+      "bytes": 10785,
+      "sha256": "5500c7b2f61e849e8ea91451377232b2b9e36bb9db5a4557f319f97a295419b2"
+    },
+    {
+      "path": "_run_records/source-focused/version.txt",
+      "bytes": 41,
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a"
+    },
+    {
+      "path": "_run_records/unit-focused.log",
+      "bytes": 162556,
+      "sha256": "3b6ac4566abb711ce1533726aa08c20832f2665a5eec7c1f9f32d5893aa9b66c"
+    }
+  ]
+}

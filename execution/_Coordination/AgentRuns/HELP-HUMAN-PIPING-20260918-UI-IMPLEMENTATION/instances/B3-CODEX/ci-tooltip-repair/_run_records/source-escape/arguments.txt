@@ -1,0 +1,8 @@
+npx
+playwright
+test
+e2e/ui-foundation.spec.ts
+--grep
+keyboard splitters stay named|decorative viewport overlays|workspace Escape event ownership consumed (palette|drawer)
+--reporter=line
+--output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/ci-tooltip-repair/_run_records/source-escape/artifacts

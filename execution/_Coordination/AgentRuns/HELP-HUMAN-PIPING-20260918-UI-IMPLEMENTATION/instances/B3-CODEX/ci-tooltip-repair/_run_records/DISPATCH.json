@@ -1,0 +1,24 @@
+{
+  "manager": {
+    "id": "/root/b3_manager",
+    "role": "WORKING_ITEMS",
+    "model": "gpt-6-astra",
+    "effort": "high",
+    "parent": "/root",
+    "status": "Product3861 frozen; manager44units+68source+17dist passed; affected native and ROOT own look passed; owned app stopped; ROOT final review/sweep/CI remains"
+  },
+  "child": {
+    "id": "/root/b3_manager/ci_tooltip_repair",
+    "role": "TASK",
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "mechanism": "Codex delegated-harness-native fresh context",
+    "brief": "IMPLEMENTER_BRIEF.md",
+    "sha256": "89b9f53eaa61a76de09a01317706b136c0e5bbb869c2404539795e82ee450d72",
+    "scope": "Tooltip CSS/components and meaningful maintained interaction regression; no native/CI/controller/Git changes",
+    "status": "Completed scoped repair; return and manifest sealed, browser slot released; manager owns checks/native",
+    "return": "_run_records/implementer/RETURN.md",
+    "returnSha256": "395f3a2ad16853cea50198c5946de3d608b402af25939b1b2482a6e839ed64be"
+  },
+  "limits": "Unrestricted filesystem; write scopes and resource ownership enforced by instructions, not host sandbox. Manager owns integration and native witness; ROOT owns CI and independent review."
+}

@@ -1,0 +1,68 @@
+{
+  "sourceCommit": "3861b614362d8da925e148d7506ecc9902c7f808",
+  "base": "002dff0f244976f98b36517d920b3761f6f88704",
+  "results": {
+    "units": {
+      "files": [
+        "src/App.shell.test.tsx",
+        "src/features/workspace/workspaceSession.shell.test.tsx"
+      ],
+      "passed": 44,
+      "seconds": 11.51,
+      "exitCode": 0
+    },
+    "sourceFocused": {
+      "files": [
+        "e2e/b3-accessibility.spec.ts",
+        "e2e/workspace-layout.spec.ts",
+        "e2e/gui-workflow-validation.spec.ts"
+      ],
+      "passed": 60,
+      "duration": "2.5m",
+      "exitCode": 0
+    },
+    "sourceEscape": {
+      "file": "e2e/ui-foundation.spec.ts",
+      "grep": "keyboard splitters stay named|decorative viewport overlays|workspace Escape event ownership consumed (palette|drawer)",
+      "passed": 8,
+      "seconds": 18.5,
+      "exitCode": 0
+    },
+    "distFocused": {
+      "file": "e2e/ui-foundation-dist.spec.ts",
+      "grep": "preflight|rail-clearance|outer overlays own actual|below 1280 px|production appearance",
+      "passed": 17,
+      "seconds": 50.3,
+      "exitCode": 0,
+      "distBuild": "npm run tauri -- build --debug --bundles app invokes TypeScript+Vite before bundling; built dist hashes retained"
+    },
+    "nativeBuild": {
+      "command": "npm run tauri -- build --debug --bundles app",
+      "exitCode": 0
+    },
+    "native": "Actual Tauri affected focus/Close/Escape PASS; native hover not established, actual browser hover proof separate"
+  },
+  "logs": {
+    "unit-focused.log": {
+      "sha256": "3b6ac4566abb711ce1533726aa08c20832f2665a5eec7c1f9f32d5893aa9b66c",
+      "bytes": 162556
+    },
+    "native-build.log": {
+      "sha256": "dd4e2f667671e2255e5ae4241911f0d1d3fbcbef0c2d13a1bcaac6f4c9d1149f",
+      "bytes": 3367
+    },
+    "source-focused/result.log": {
+      "sha256": "5500c7b2f61e849e8ea91451377232b2b9e36bb9db5a4557f319f97a295419b2",
+      "bytes": 10785
+    },
+    "source-escape/result.log": {
+      "sha256": "5721851c4623932eb3904152376a745eecb185ca8938844fa5213f9a7943e780",
+      "bytes": 2265
+    },
+    "dist-focused/result.log": {
+      "sha256": "aa605833953e56ea196ee4bc9d565254a2c364d3681e95718df3a16269914791",
+      "bytes": 3099
+    }
+  },
+  "fullSuitePolicy": "No full suite repeated; ROOT owns scoped CI strategy, independent review and clean sweep."
+}

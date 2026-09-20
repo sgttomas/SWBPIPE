@@ -1,0 +1,16 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/styles.css b/projects/chirality-piping/apps/desktop/src/styles.css
+index d7c6f44df..657d18def 100644
+--- a/projects/chirality-piping/apps/desktop/src/styles.css
++++ b/projects/chirality-piping/apps/desktop/src/styles.css
+@@ -3779,7 +3779,10 @@ body { min-width: 760px; min-height: 540px; }
+ }
+ .app-shell .shell-reason-anchor:hover > .shell-reason, .app-shell .shell-reason-anchor:focus-within > .shell-reason { display: block; }
+ .app-shell .shell-rail .shell-reason { top: 0; left: calc(100% + var(--space-2)); }
+-.app-shell .shell-agent-strip .shell-reason { top: 0; left: auto; right: calc(100% + var(--space-2)); }
++/* Place the Agent reason below its trigger, clear of the adjacent page Close.
++   The transparent bridge keeps the reason hoverable across the visual gap. */
++.app-shell .shell-agent-strip .shell-reason { top: calc(100% + var(--space-2)); left: auto; right: 0; }
++.app-shell .shell-agent-strip .shell-reason::before { content: ""; position: absolute; bottom: 100%; left: 0; width: 100%; height: var(--space-2); }
+ .app-shell .shell-panel-toggles .shell-reason { left: auto; right: 0; }
+ 
+ .app-shell .app-menu-bar { flex: 0 0 auto; }

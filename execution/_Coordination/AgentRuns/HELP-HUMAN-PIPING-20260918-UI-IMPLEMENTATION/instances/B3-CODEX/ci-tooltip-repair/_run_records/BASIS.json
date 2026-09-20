@@ -1,0 +1,87 @@
+{
+  "role": "WORKING_ITEMS",
+  "parent": "ROOT HELP_HUMAN",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "entry": "c613922f1725a9b86d81c6c120b05b7df2e0558d",
+  "cleanFastForwardTo": "002dff0f244976f98b36517d920b3761f6f88704",
+  "origins": [
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/.agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CI_REPAIR_MANAGER_BRIEF.md",
+      "sha256": "14b3fe08cb8c169f3fd56491c7c650991a9f46d9af80e3c654c65a1fed55411e"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CI_REPAIR_MANAGER_ADDENDUM_1.md",
+      "sha256": "acd5945e8bcccbf20b11830a5b57a75b599a7b7fffb614b03ef632382a7bec3b"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md",
+      "sha256": "79bcb9f838b0391a93d51a35257339a5bc06ea2ad2117a0b3a79d6cba8fd7858"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_CI_REPAIR_DIRECTION.md",
+      "sha256": "2692c8b401956f483d10f731610df76de3c0a252a5bea38e78f5f3d0f12fdd26"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MODEL_DIRECTION.md",
+      "sha256": "29af1ded5d35ec10efd0820db164ea6d7dca2ae4330dfdc9eb2c9e1e1720cd14"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md",
+      "sha256": "5dc9bfbaefc2fb2de35b6145f23762900556723c67dba15bb843bc026f0aac1a"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/MANIFEST.json",
+      "sha256": "b8d349daeddc252f137d16e1cc2cea2946be4eb6abbf927ce41a765c369228a2"
+    }
+  ],
+  "ciRawVerified": {
+    "recordedAt": "2026-09-20T08:04:26.387259+00:00",
+    "pr": "https://github.com/sgttomas/chirality/pull/825",
+    "head": "002dff0f244976f98b36517d920b3761f6f88704",
+    "runId": 35496887667,
+    "jobId": 106041394519,
+    "status": "FAILURE",
+    "counts": {
+      "passed": 408,
+      "skipped": 20,
+      "failed": 2
+    },
+    "failedScenario": "covered pages exclude retained stage controls from Tab and accessibility",
+    "profiles": [
+      "chromium-desktop",
+      "chromium-compact"
+    ],
+    "failure": "agent-strip-reason tooltip intercepts workspace-dock-close pointer click at e2e/b3-accessibility.spec.ts:79; both reach180000ms timeout",
+    "captureCommand": "gh run view 35496887667 --repo sgttomas/chirality --log-failed",
+    "rawSha256": "a2487a02b1ec2601c53bc9f9322cf1a26b5b0aaa2c88ab30cacf28efff488c4a",
+    "rawBytes": 131359,
+    "archive": "failed-job.log.gz",
+    "archiveSha256": "e8dc4ae8d13adcd2bbc31fcd7acadf6e588b571fa2b223b16a24f21d16021f78",
+    "standing": "actual candidate hosted failure; no repair, rerun or merge performed; owner pause remains"
+  }
+}

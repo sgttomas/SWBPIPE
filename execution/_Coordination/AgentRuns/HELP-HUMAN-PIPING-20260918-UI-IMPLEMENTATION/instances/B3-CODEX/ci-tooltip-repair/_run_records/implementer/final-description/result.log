@@ -1,0 +1,21 @@
+[2m[WebServer] [22m(node:77219) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:77221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:77221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/b3-accessibility.spec.ts:307:1 › Agent reason preserves hover and lets focused page Close receive the pointer (1.7s)
+  ✓  2 [chromium-desktop] › e2e/b3-accessibility.spec.ts:326:1 › disabled reasons own only visible unconsumed Escape and reset on reentry (1.3s)
+  ✓  3 [chromium-desktop] › e2e/b3-accessibility.spec.ts:378:1 › simultaneous hovered and focused reasons dismiss before the page (938ms)
+(node:77271) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:77271) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [chromium-compact] › e2e/b3-accessibility.spec.ts:307:1 › Agent reason preserves hover and lets focused page Close receive the pointer (1.0s)
+  ✓  5 [chromium-compact] › e2e/b3-accessibility.spec.ts:326:1 › disabled reasons own only visible unconsumed Escape and reset on reentry (1.3s)
+  ✓  6 [chromium-compact] › e2e/b3-accessibility.spec.ts:378:1 › simultaneous hovered and focused reasons dismiss before the page (917ms)
+
+  6 passed (9.2s)
