@@ -67,7 +67,7 @@ import {
   validationMatchesSubmission
 } from "../viewport/routeDraft";
 import type { DraftSubmission, FrozenDraftReview } from "../viewport/routeDraft";
-import { composedVisibilityHiddenKeys } from "../viewport/viewportSelection";
+import { deriveViewportVisibility } from "../viewport/viewportVisibility";
 import { useChromeSessionState } from "./chromeSessionState";
 import type { R3JourneyEvent } from "./chromeSessionState";
 import { isMenuCommandId } from "./menuCommands";
@@ -177,7 +177,7 @@ function formatPackageSaveError(error: unknown): string {
  * It returns six slices: `model`, `selection`, `results`, `operations`,
  * `project` and `chrome`. Each holds only what the view reads. Apart from the
  * chrome setters, the setters handed out are the two visibility sets
- * (`setHiddenEntityKeys`, `setIsolateHiddenEntityKeys`) and the two run options
+ * (`setHiddenEntityKeys`, `setIsolationSelectionKeys`) and the two run options
  * (`setSolverMode`, `setReportPackagePrivateIntent`). No setter of the model,
  * of a result, of an operations cell or of a project cell leaves the session:
  * those change only in its effects and handlers, where the stale-response
@@ -249,7 +249,7 @@ export function useWorkspaceSession() {
     orderedSelection, setOrderedSelection,
     orderedSelectionRef,
     hiddenEntityKeys, setHiddenEntityKeys,
-    isolateHiddenEntityKeys, setIsolateHiddenEntityKeys,
+    isolationSelectionKeys, setIsolationSelectionKeys,
     treePublication,
     handleTreePublication,
     selectedPipeRefs
@@ -413,10 +413,17 @@ export function useWorkspaceSession() {
     if (!model || !workspace) return;
     return observeWorkspaceCanvasBudget(workspace);
   }, [Boolean(model)]);
-  const effectiveHiddenKeys = useMemo(
-    () => activeModelIndex ? composedVisibilityHiddenKeys(activeModelIndex, hiddenEntityKeys, isolateHiddenEntityKeys) : new Set([...hiddenEntityKeys, ...isolateHiddenEntityKeys]),
-    [activeModelIndex, hiddenEntityKeys, isolateHiddenEntityKeys]
+  const viewportVisibility = useMemo(
+    () => activeModelIndex
+      ? deriveViewportVisibility(activeModelIndex, hiddenEntityKeys, isolationSelectionKeys)
+      : { hiddenKeys: new Set<EntityKey>(), dimmedKeys: new Set<EntityKey>(), hiddenCount: 0, isolationActive: isolationSelectionKeys !== null },
+    [activeModelIndex, hiddenEntityKeys, isolationSelectionKeys]
   );
+
+  function handleClearVisibility() {
+    setHiddenEntityKeys(new Set());
+    setIsolationSelectionKeys(null);
+  }
 
   useEffect(() => {
     if (!activeModelIndex) return;
@@ -424,7 +431,8 @@ export function useWorkspaceSession() {
       const next = new Set([...current].filter((key) => activeModelIndex.entities.has(key)));
       return next.size === current.size ? current : next;
     });
-    setIsolateHiddenEntityKeys((current) => {
+    setIsolationSelectionKeys((current) => {
+      if (current === null) return current;
       const next = new Set([...current].filter((key) => activeModelIndex.entities.has(key)));
       return next.size === current.size ? current : next;
     });
@@ -603,7 +611,7 @@ export function useWorkspaceSession() {
     const nextGeneration = ++projectSessionGenerationRef.current;
     setProjectSessionGeneration(nextGeneration);
     setHiddenEntityKeys(new Set());
-    setIsolateHiddenEntityKeys(new Set());
+    setIsolationSelectionKeys(null);
     setPropertyTaskRequest(null);
   }
 
@@ -2557,8 +2565,12 @@ export function useWorkspaceSession() {
       orderedSelection,
       orderedSelectionRef,
       hiddenEntityKeys, setHiddenEntityKeys,
-      isolateHiddenEntityKeys, setIsolateHiddenEntityKeys,
-      effectiveHiddenKeys,
+      isolationSelectionKeys, setIsolationSelectionKeys,
+      effectiveHiddenKeys: viewportVisibility.hiddenKeys,
+      dimmedKeys: viewportVisibility.dimmedKeys,
+      hiddenCount: viewportVisibility.hiddenCount,
+      isolationActive: viewportVisibility.isolationActive,
+      handleClearVisibility,
       selectedPipeRefs,
       treePublication,
       handleTreePublication,

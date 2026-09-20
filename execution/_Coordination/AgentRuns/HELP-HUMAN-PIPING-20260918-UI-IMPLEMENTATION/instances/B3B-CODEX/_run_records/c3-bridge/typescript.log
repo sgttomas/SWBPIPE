@@ -1,0 +1,7 @@
+src/features/workspace/workspaceSession.shell.test.tsx(357,11): error TS2322: Type 'string' is not assignable to type 'EntityKey'.
+  Type 'string' is not assignable to type '{ readonly __entityKey: unique symbol; }'.
+src/features/workspace/workspaceSession.shell.test.tsx(358,11): error TS2322: Type 'string' is not assignable to type 'EntityKey'.
+  Type 'string' is not assignable to type '{ readonly __entityKey: unique symbol; }'.
+src/features/workspace/workspaceSession.shell.test.tsx(389,11): error TS2322: Type 'string' is not assignable to type 'EntityKey'.
+  Type 'string' is not assignable to type '{ readonly __entityKey: unique symbol; }'.
+src/features/workspace/workspaceSession.shell.test.tsx(391,82): error TS2345: Argument of type 'Promise<string>' is not assignable to parameter of type 'string'.

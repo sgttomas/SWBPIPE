@@ -1,0 +1,53 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/workspaceSession.shell.test.tsx (12 tests | 2 failed) 831ms
+     × keeps isolation separate from Hide through selection and stage/view changes without model or history edits 60ms
+     × retains active empty isolation after deletion, dims restored geometry and resets on project replacement 57ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/workspaceSession.shell.test.tsx > C3 shell visibility projection > keeps isolation separate from Hide through selection and stage/view changes without model or history edits
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/features/workspace/workspaceSession.shell.test.tsx:364:64
+    362|     expect(result.current.selection.hiddenCount).toBe(0);
+    363|     expect(result.current.selection.dimmedKeys.has(firstKey)).toBe(fal…
+    364|     expect(result.current.selection.dimmedKeys.has(secondKey)).toBe(tr…
+       |                                                                ^
+    365|     act(() => result.current.selection.handleSelectEntity({ type: "pip…
+    366|     act(() => result.current.chrome.setActiveSection("loads"));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/features/workspace/workspaceSession.shell.test.tsx > C3 shell visibility projection > retains active empty isolation after deletion, dims restored geometry and resets on project replacement
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/features/workspace/workspaceSession.shell.test.tsx:392:96
+    390|     act(() => result.current.selection.setIsolationSelectionKeys(new S…
+    391|     const removal = buildGuardedRemoval({ type: "component", id: compo…
+    392|     await act(async () => { expect(await result.current.operations.han…
+       |                                                                                                ^
+    393|     await waitFor(() => expect(result.current.selection.isolationSelec…
+    394|     expect(result.current.selection.isolationActive).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  12:48:58
+   Duration  1.77s (transform 332ms, setup 94ms, import 433ms, tests 831ms, environment 321ms)
+

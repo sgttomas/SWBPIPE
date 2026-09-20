@@ -1,0 +1,15 @@
+# C3 shell bridge return
+
+Implemented by WORKING_ITEMS /root/b3_manager, actual gpt-6-astra/high, after B3B controller freeze and clean integration of canvas e7866be015ba2c83a2faa87d39590801efafa06c. Separate from the Astra/low B3B worker. Six maintained paths are bound in `_run_records/c3-bridge/FREEZE.json`.
+
+The session now owns explicit Hide and nullable isolation selection, memoizes the canvas projection once, and gives actual hidden keys to tree/viewport with separate dimmed keys/count/active state. Selection/stage/view changes retain the snapshot; pruning deleted keys retains an active empty snapshot; restored geometry outside it dims; project replacement clears both; Show All clears both through the session. App wires the exact agreed nullable callback. Only approved content-opacity, inward-focus and hidden-count sizing CSS was added. Exactly the two `other` pipe Hidden-after-Isolate assertions changed after ROOT confirmed CI writer handback; explicit Hide/attachment/task assertions remain untouched.
+
+No viewport file was edited. Per ROOT instruction, two inert legacy optional Props declarations remain for canvas's post-bridge cleanup; no runtime use or legacy shell state remains. Canvas is sole owner of that cleanup. No picking, modelIndex, diagnostic instrument, pane geometry, limits or engineering mutation route changed by this bridge.
+
+Verification: `npx vitest run src/features/workspace/workspaceSession.shell.test.tsx --maxWorkers=1` in desktop passes12/12 in1.55s, including actual structured component removal/Undo to prove active-empty isolation, restored-geometry dimming, explicit Hide precedence, stage/view retention, no presentation-driven model/hash/history changes and New Blank reset. `npx tsc --noEmit -p tsconfig.json` and maintained-source diff check pass. Initial new-test fixtures incorrectly built branded entity keys as colon strings and omitted await for canonicalJsonString; raw failure logs retained, fixture corrected through existing entityKey and canonical function. No production relaxation.
+
+A preliminary TypeScript command was accidentally issued at repository root and reported that the TypeScript compiler was unavailable there; it did not test product code. An empty evidence directory hierarchy was also mistakenly created outside the assigned run and immediately removed with rmdir; no files existed there. Correct desktop commands and canonical logs are `_run_records/c3-bridge/{session-repair,typescript-repair}.log`.
+
+Actual Vitest version is4.1.10 according to all run headers. B3B worker prose returns erroneously said4.1.7; those verbatim returns remain unchanged and are corrected here by their own canonical raw headers. This metadata correction requires no test rerun.
+
+Browser fit/focus/dimming/picking journeys and native witness remain pending. No performance timing, qualification, product acceptance, full sweep or independent review claim follows. ROOT retains combined review/sweep/CI; canvas completes its two Props declarations and protected-input final check.
