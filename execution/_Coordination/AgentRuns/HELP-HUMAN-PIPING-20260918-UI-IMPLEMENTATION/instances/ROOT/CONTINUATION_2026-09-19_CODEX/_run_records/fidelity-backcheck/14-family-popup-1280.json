@@ -1,0 +1,65 @@
+{
+  "viewport": {
+    "w": 1280,
+    "h": 800
+  },
+  "rect": {
+    "x": 1045.5625,
+    "y": 484.71875,
+    "width": 170.4375,
+    "height": 260,
+    "top": 484.71875,
+    "right": 1216,
+    "bottom": 744.71875,
+    "left": 1045.5625
+  },
+  "scrollHeight": 258,
+  "clientHeight": 258,
+  "options": [
+    {
+      "text": "Anchor",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Guide",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Line stop",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Vertical support",
+      "selected": "true",
+      "disabled": null
+    },
+    {
+      "text": "Spring",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Variable spring hanger",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Spring hanger",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Constant-effort support",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Nonlinear support",
+      "selected": "false",
+      "disabled": null
+    }
+  ]
+}

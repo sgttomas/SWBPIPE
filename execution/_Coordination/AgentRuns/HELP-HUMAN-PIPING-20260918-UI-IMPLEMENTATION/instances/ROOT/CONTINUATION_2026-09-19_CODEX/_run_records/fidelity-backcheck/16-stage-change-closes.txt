@@ -1,0 +1,222 @@
+File
+Edit
+View
+Insert
+Analyze
+SWBPIPE
+
+Invented Utility Loop Preview
+
+Table
+Model
+Both
+Run
+Issues
+5
+Entered
+SI
+US
+Search or command…
+⌘K
+Model
+Loads
+Results
+Review
+Libraries
+Rules
+Issues
+5
+Load Cases
+LOAD CASES
+
+2 load cases; 9 primitive loads; 1 combinations; unit posture=single_unit_system_preview; saved_project_mutated=false
+
+load:L-300
+new empty load case; primitives=0; unit=none
+ID
+Label
+Kind
+Status
+Provenance
+Queue case
+
+op:load-manager-create-load:L-300; before=not_present; after=load:L-300; unit=none; dimensionless; primitive_loads=0; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
+
+load:L-100-F300
+concentrated_force; target=node:N-100; unit=N
+Type
+concentrated_force
+distributed_force
+concentrated_moment
+pressure
+thermal
+imposed_displacement
+Primitive load case
+Invented operating gravity and pressure preview (load:L-100)Clear
+2 of 2 targets
+Invented operating gravity and pressure preview
+load:L-100
+Invented alternate gravity and pressure preview
+load:L-200
+ID
+Concentrated force target node
+Pump nozzle (node:N-100)Clear
+5 of 5 targets
+Pump nozzle
+node:N-100
+Low point elbow
+node:N-110
+Riser elbow
+node:N-120
+Rack turn
+node:N-130
+Terminal tie-in
+node:N-140
+Dir
+global_x
+global_y
+global_z
+Magnitude unit
+N (model metadata)
+Magnitude (N, model metadata)
+Provenance
+Queue load
+
+op:load-manager-load:L-100-load:L-100-F300-primitive; before=not_present; after=load:L-100-F300; target=node:N-100; direction=global_y; unit=N; force; unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview; direct_model_mutation_allowed=false; professional_approval=false
+
+combination:C-300
+basis=mechanics; term=load:L-100 x 1
+ID
+Label
+Basis
+mechanics
+result_state_subtraction
+range_envelope
+New combination initial load case
+Invented operating gravity and pressure preview (load:L-100)Clear
+2 of 2 targets
+Invented operating gravity and pressure preview
+load:L-100
+Invented alternate gravity and pressure preview
+load:L-200
+Factor
+Provenance
+Rationale
+Queue combo
+
+op:load-manager-create-combination:C-300; before=not_present; after=combination:C-300; term=load:L-100 x 1; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
+
+Invented operating gravity and pressure preview
+load:L-100; primitive_user_load; preview_only; primitives=5
+invented_example_no_code_combination
+Invented alternate gravity and pressure preview
+load:L-200; primitive_user_load; preview_only; primitives=4
+invented_example_no_code_combination
+load:L-100
+field=status; current=preview_only; path=status
+Field
+Status
+Kind
+Value
+preview_only
+TBD
+Rationale
+Queue metadata
+
+current=preview_only; no changed status queued
+
+Delete rationale
+Queue delete case
+
+op:load-manager-load:L-100-delete; before=load:L-100; Invented operating gravity and pressure preview; primitive_user_load; preview_only; primitives=5; after=not_present; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
+
+weight; -190 N/m
+load:L-100-Z; element:pipe:P-120; global_z; dimension=force_per_length
+occasional; 350 N
+load:L-100-Y; node:node:N-140; global_y; dimension=force
+pressure; 1200000 Pa
+load:L-100-P; element:pipe:P-120; global_x; dimension=pressure
+pressure; 1200000 Pa
+load:L-100-P-EJ; element:pipe:P-130; global_x; dimension=pressure
+thermal; 12.5 degC
+load:L-100-T; element:pipe:P-120; global_z; dimension=temperature_interval
+weight; -95 N/m
+load:L-200-Z; element:pipe:P-120; global_z; dimension=force_per_length
+occasional; 125 N
+load:L-200-Y; node:node:N-140; global_y; dimension=force
+pressure; 600000 Pa
+load:L-200-P; element:pipe:P-120; global_x; dimension=pressure
+pressure; 600000 Pa
+load:L-200-P-EJ; element:pipe:P-130; global_x; dimension=pressure
+load:L-100-Z
+load:L-100; path=primitive_loads.0.magnitude.value
+Magnitude unit
+N/m (model metadata)
+Magnitude (N/m, model metadata)
+Rationale
+Queue magnitude
+
+current=-190 N/m; no changed magnitude queued
+
+Delete rationaleQueue delete
+
+op:load-manager-load:L-100-load:L-100-Z-delete; before=load:L-100-Z; weight; element:pipe:P-120; global_z; -190 N/m; force_per_length; after=not_present; unit=N/m; force_per_length; unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview; direct_model_mutation_allowed=false; professional_approval=false
+
+Invented explicit operating plus alternate preview
+combination:C-OPER-ALT; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 0.5
+load:L-100 x 1
+load:L-200 x 0.5
+combination:C-OPER-ALT
+new term; load=load:L-100; factor=1
+Combination term target combination
+Invented explicit operating plus alternate preview (combination:C-OPER-ALT)Clear
+1 of 1 targets
+Invented explicit operating plus alternate preview
+combination:C-OPER-ALT
+Combination term load case
+Invented operating gravity and pressure preview (load:L-100)Clear
+2 of 2 targets
+Invented operating gravity and pressure preview
+load:L-100
+Invented alternate gravity and pressure preview
+load:L-200
+Factor
+Rationale
+Queue term
+
+op:load-manager-combination:C-OPER-ALT-term-2-create; before=not_present; after=load:L-100 x 1; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
+
+combination:C-OPER-ALT
+field=basis; current=mechanics; path=basis
+Basis
+mechanics
+result_state_subtraction
+range_envelope
+Rationale
+Queue basis
+
+current=mechanics; no changed combination basis queued
+
+Delete rationale
+Queue delete combo
+
+op:load-manager-combination:C-OPER-ALT-delete; before=combination:C-OPER-ALT; Invented explicit operating plus alternate preview; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 0.5; after=not_present; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
+
+combination:C-OPER-ALT
+term=load:L-100; path=terms.0.factor
+Factor
+Rationale
+Queue factor
+
+current=1; no changed combination factor queued
+
+Delete rationale
+Queue delete
+
+op:load-manager-combination:C-OPER-ALT-term-0-delete; before=load:L-100 x 1; after=not_present; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
+
+Load edits are queued as structured operations, applied only after user action, and remain local-session changes until saved. This panel does not add rule-code combinations, protected standards content, or professional approval.
+Agent
+5 Issues
+project: project:invented-loop-01
+Entered

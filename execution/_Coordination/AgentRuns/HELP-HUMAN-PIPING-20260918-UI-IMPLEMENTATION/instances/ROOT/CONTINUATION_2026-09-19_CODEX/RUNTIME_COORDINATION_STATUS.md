@@ -1,6 +1,6 @@
 # Piping / Runtime coordination status
 
-Updated 2026-09-20 05:04 UTC. Sole editor: Piping HELP_HUMAN (ROOT).
+Updated 2026-09-20 during final B3 checks. Sole editor: Piping HELP_HUMAN (ROOT).
 Peer: **dev - app**, task `01a07cd1-86da-7d30-9b17-e2cbbad3f10a`, host local.
 Piping task: `01a0bc58-e7c0-7f11-a2ca-7b00e261014e`.
 The peer acknowledged this as the sole shared note. Both leads remain peers under
@@ -17,18 +17,19 @@ live binding is inferred. No substantive ownership/design disagreement is open.
 | Worktree name / branch | Owner and current scope |
 |---|---|
 | `b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality` / `codex/swbpipe-continuation-20260919` | Piping ROOT: graph, records, coordination, independent reviews and integration. Records checkpoint `7d5603ece`, later evidence pending. |
-| `swbpipe-wt3` / `codex/swbpipe-b-shell-20260918` | B3 manager: desktop shell/controller/styles, scoped routing controls, native menu/host and tests. Product checkpoint `2882acab9`; compact-selector repair active. |
-| `swbpipe-wt2` / `codex/swbpipe-b3-20260919` | ROOT review checkout `5ef9de291`, matching product2882; contains main485051eac. Runtime merge21175b5d awaits the next clean integration point. |
+| `swbpipe-wt3` / `codex/swbpipe-b-shell-20260918` | B3 manager: product24f5d9db and test-only5045bd1c. Controller/shell/native repairs reviewed; complete source rerun/dist and closeout pending. |
+| `swbpipe-wt2` / `codex/swbpipe-b3-20260919` | ROOT review checkout7afd3149, matching5045 product/tests; includes current main21175b5d and ROOT records. |
 | `chirality-runtime-application-tools/chirality` / `codex/runtime-application-tools` | Peer: Runtime only. PR824 merged as `21175b5d3668f29acd408812d95a33ed4f14bfc8`; reviewed head `cb08dbe2f`. Clean worktree; no active writers or processes. Peer retains Runtime ownership. |
 
 Piping retains domain schemas/tools, live controller, UI and future Tauri host
 adapter. Peer is the explicitly acknowledged generic Runtime-contract writer.
 No Root/shared-governance or Piping-domain ownership is transferred.
 
-Active Piping work: B3 manager Astra/high integrates compact selectors and a
-New Blank stage/view reset. Compact-selector implementer Astra/low and structure
-reviewer Astra/high have returned; repair backchecks remain. Original native
-worker completed its Sol/high assignment. Code review is independent Astra/xhigh. All new
+Active Piping work: B3 manager Astra/high completes full tests and evidence fan-in.
+Compact-selector implementer and final native worker Astra/low, independent
+structure reviewer Astra/high, and code reviewer Astra/xhigh have returned and
+backchecked their bounded work. Original native worker completed its Sol/high
+assignment. All new
 formerly-Sol deployments use Astra/low. Canvas `f6c0bab8e` and design-system
 `4dddd4412` stay parked. Native popup prototypes remain diagnostic and unadopted.
 B3 native/full-check/review/sweep/CI gates remain open; no B3 merge is claimed.
@@ -36,8 +37,8 @@ B3 native/full-check/review/sweep/CI gates remain open; no B3 merge is claimed.
 ## Resources
 
 Peer claims no ports, servers or native/CUA use and will message before claiming
-them. Piping's B3 manager serializes native/CUA; ROOT released the uninstrumented
-2882 window back to it. Structure review released headless5183/5184 and its lock.
+them. Piping's B3 manager serializes native/CUA; final repaired native/ROOT checks
+released that slot. Independent headless slots5183/5184 and their lock are clear.
 Source/dist E2E use5174/5175 and one worker; Tauri dev5173 and canvas probes5185/5186
 require reservation. Use isolated test profiles/stores and private sockets; no
 shared live user model. No builds/tests alongside timed D-72 measurements.
@@ -59,6 +60,15 @@ beyond Runtime's transient call retention. Bound trusted context supplies worksp
 and caller identity; later selection cannot retarget a proposal. Deduplicate by
 proposal identity plus binding/invocation/caller context. Project switch, cancellation
 or Runtime restart must never replay an application.
+
+Peer reports this later owner steer: “Use what is the most effective. If there's
+a way to more directly interact with the command layer, that could provide a
+significant speed advantage.” Carry it as future adapter preference, not new
+integration authority. UX §§2.2/2.4 define shared operation semantics with distinct
+actor/acceptance records; §2.8 makes keys accelerators for existing controls.
+Prefer typed command IDs/arguments, availability checks and outcomes through the
+same controller. Presentation commands may complement the four tools. Literal
+agent keypresses do not establish human authorship or human acceptance.
 
 ROOT inspected the proposed generic contract at `da95ec194`; peer's independently
 backchecked cancellation repair `cb08dbe2f` leaves that API unchanged. PR824 merged

@@ -1,0 +1,121 @@
+File
+Edit
+View
+Insert
+Analyze
+SWBPIPE
+
+Blank Local Model
+
+Select
+Table
+Model
+Both
+Run
+Issues
+5
+Inspector
+Agent
+Entered
+SI
+US
+Search or command…
+⌘K
+Model
+Loads
+Results
+Review
+Libraries
+Rules
+Issues
+5
+Model
+Review changes
+MODEL
+Tree
+Grid
+Filter model
+2 of 2 model entities visible
+Blank Local Model
+project:blank-local-20260920t054904z
+▾
+Diagnostics
+BLANK_PROJECT_AUTHORING_TARGET
+diagnostic:blank-project:authoring-target
+3D Centerline
+Deformation · unavailable
+Labels
+Loads
+Grid
+Box Select
+Selection filter
+All
+Pipes
+Nodes
+Supports
+Components
+Hide
+Isolate
+Show All
+Fit Model
+Fit Visible
+Fit Selection
+Schematic
+Actual OD
+Measure
+Selected: project:blank-local-20260920t054904z
+Schematic centerline geometry
+No view command dispatched.
+Front
+Top
+Isometric
+1 m
+Node
+Pipe
+Support
+Component
+Load
+Select
+Selection & navigation
+Blank Local Model — project: project:blank-local-20260920t054904z
+Properties
+Task
+All properties
+Sources and units
+New support configuration
+Support configuration
+
+Choose the support family and enter its physical inputs. Family names do not supply restraints or engineering values. Missing inputs remain missing; validation determines readiness.
+
+Create support
+Support ID
+Support label
+Support node
+No target selected
+0 of 0 targets
+Support family
+Not provided (preserved)
+Restrained degrees of freedom
+UX
+UY
+UZ
+RX
+RY
+RZ
+Support provenance
+Add support stiffness
+Include hanger data
+Include nonlinear behavior
+Queue support creation
+
+Support ID is required.
+
+New section
+New material
+New support
+New component
+Agent
+Solver · Model incomplete
+5 Issues
+project: project:blank-local-20260920t054904z
+Entered
