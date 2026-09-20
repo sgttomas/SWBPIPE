@@ -69,3 +69,5 @@ Return frozen complete diff, named semantics and test amendments, exact authorit
 context/model/child bindings, regression/native evidence, residuals and released
 resources. Independent review is not your self-check. Do not close deliverables,
 rebuild DAG, claim release/usability or start B3B before ROOT schedules it.
+
+Raw tool outputs, traces, native captures, source snapshots and generated indexes belong under the instance's `_run_records/` directory. Preserve bytes; put human-authored control/brief/return files outside it with portable paths. This avoids GEN8 treating captured machine paths as live instructions.

@@ -74,3 +74,5 @@ C3 is next only after ROOT integrates I1 and supplies a bounded next activation.
 Owner second-profile freeze/casing/deformation decisions remain reserved.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+Raw tool outputs, traces, native captures, source snapshots and generated indexes belong under the instance's `_run_records/` directory. Preserve bytes; put human-authored control/brief/return files outside it with portable paths. This avoids GEN8 treating captured machine paths as live instructions.
