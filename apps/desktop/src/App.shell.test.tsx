@@ -571,7 +571,7 @@ describe("routing borrows the inspector", () => {
     control.focus();
     act(() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
     expect(surfaces).toHaveClass("inspector-collapsed");
-    expect(screen.getByTestId("workspace-select")).toHaveFocus();
+    expect(screen.getByTestId("toggle-inspector")).toHaveFocus();
   });
 });
 
@@ -626,4 +626,55 @@ it("reissuing a native routing command reveals its closed inspector home", async
   act(() => nativeMenuCommand("insert.node"));
   expect(surfaces).not.toHaveClass("inspector-collapsed");
   expect(screen.getByTestId("command-node")).toHaveAttribute("aria-pressed", "true");
+});
+
+
+describe("reviewed shell accessibility boundaries", () => {
+  it("keeps covered stage state mounted while marking it inert", async () => {
+    const surfaces = await renderShell();
+    const canvas = screen.getByTestId("viewport-canvas");
+    const filter = screen.getByTestId("model-tree-filter-input");
+    fireEvent.change(filter, { target: { value: "Retained filter" } });
+    fireEvent.click(screen.getByTestId("rail-page-libraries"));
+    expect(surfaces).toHaveAttribute("inert");
+    expect(screen.getByTestId("viewport-canvas")).toBe(canvas);
+    expect(filter).toHaveValue("Retained filter");
+    fireEvent.click(screen.getByTestId("workspace-dock-close"));
+    expect(surfaces).not.toHaveAttribute("inert");
+    expect(screen.getByTestId("viewport-canvas")).toBe(canvas);
+    expect(filter).toHaveValue("Retained filter");
+  });
+
+  it.each([1280, 1440])("Escape closes the Both inspector at %s and preserves Model docking", async (width) => {
+    const surfaces = await renderShell(width);
+    fireEvent.click(screen.getByTestId("toggle-inspector"));
+    const tab = within(screen.getByTestId("property-inspector")).getByRole("tab", { name: "Properties" });
+    tab.focus();
+    const consumed = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+    consumed.preventDefault();
+    act(() => tab.dispatchEvent(consumed));
+    expect(surfaces).not.toHaveClass("inspector-collapsed");
+    expect(tab).toHaveFocus();
+    fireEvent.keyDown(tab, { key: "Escape" });
+    expect(surfaces).toHaveClass("inspector-collapsed");
+    expect(screen.getByTestId("toggle-inspector")).toHaveFocus();
+    fireEvent.click(screen.getByTestId("view-switch-model"));
+    tab.focus();
+    fireEvent.keyDown(tab, { key: "Escape" });
+    expect(surfaces).toHaveAttribute("data-view", "model");
+    expect(screen.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("Escape in portalled routing closes explicitly and cannot be undone by automatic restoration", async () => {
+    const surfaces = await renderShell();
+    fireEvent.click(screen.getByTestId("toggle-inspector"));
+    fireEvent.click(screen.getByTestId("command-node"));
+    const input = screen.getByTestId("viewport-create-node-id");
+    input.focus();
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(surfaces).toHaveClass("inspector-collapsed");
+    expect(screen.getByTestId("toggle-inspector")).toHaveFocus();
+    fireEvent.click(screen.getByTestId("workspace-select"));
+    expect(surfaces).toHaveClass("inspector-collapsed");
+  });
 });

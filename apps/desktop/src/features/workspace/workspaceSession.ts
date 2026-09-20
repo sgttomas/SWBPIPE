@@ -2112,6 +2112,18 @@ export function useWorkspaceSession() {
     function handleWorkspaceEscape(event: KeyboardEvent) {
       const shell = workspaceShellRef.current;
       if (!shell || event.key !== "Escape" || event.defaultPrevented) return;
+      // Inspect the DOM home, including portalled routing controls, after child
+      // controls have had their cancellation opportunity. Model stays docked.
+      const target = event.target instanceof Node ? event.target : document.activeElement;
+      const inspector = document.getElementById("shell-inspector");
+      const surfaces = shell.querySelector(".shell-surfaces");
+      if (shellNowRef.current.view === "both" && !shellNowRef.current.location.page &&
+          target && inspector?.contains(target) && surfaces && !surfaces.classList.contains("inspector-collapsed")) {
+        event.preventDefault();
+        runMenuCommandRef.current("view.inspector");
+        inspectorToggleRef.current?.focus();
+        return;
+      }
       viewportViewCommandRef.current?.({ type: "cancel-box-selection" });
       setOpenMenu(null);
       setArmedCreationTool(null);
@@ -2177,10 +2189,13 @@ export function useWorkspaceSession() {
     event: React.KeyboardEvent<HTMLDivElement>,
     side: "tree" | "inspector"
   ) {
+    if (event.defaultPrevented) return;
+    if (side === "inspector" && event.key === "Escape" && shellNowRef.current.view !== "both") return;
     if (window.innerWidth >= 1280 || (side === "tree" ? treeCollapsed : inspectorCollapsed)) return;
     const pane = event.currentTarget;
     if (event.key === "Escape") {
       event.preventDefault();
+      if (side === "inspector") routingInspectorRestore.current = null;
       closeWorkspaceRail(side, true);
       return;
     }
