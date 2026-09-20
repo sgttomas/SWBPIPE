@@ -540,7 +540,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("queue-explicit-node-intent")).toBeEnabled();
 
   await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
-  await expect(page.getByTestId("viewport-create-pipe-length-unit")).toHaveValue("m");
+  await expect(page.getByTestId("viewport-create-pipe-length-unit")).toHaveAttribute("data-value", "m");
   await expect(page.getByTestId("viewport-create-pipe-unit-basis")).toContainText(
     "Pipe geometry: m, model metadata"
   );
@@ -1708,7 +1708,7 @@ async function applyReviewedDraft(
   }
 ): Promise<void> {
   await expect(page.getByTestId(expectation.unitTestId)).toBeVisible();
-  await expect(page.getByTestId(expectation.unitTestId)).toHaveValue("m");
+  await expect(page.getByTestId(expectation.unitTestId)).toHaveAttribute("data-value", "m");
   await page.getByTestId(expectation.addTestId).click();
 
   const review = page.getByTestId("viewport-draft-review-preview");

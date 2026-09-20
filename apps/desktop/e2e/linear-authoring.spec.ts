@@ -192,7 +192,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await selectTreeEntity(page, "pipe", "pipe:UI-A-100");
   await page.getByTestId("toolkit-entry").click();
   await page.getByTestId("toolkit-properties.assign-section").click();
-  await selectCompactOption(page.getByLabel("Shared section"), "section:ui-phase-a-straight");
+  await selectCompactOption(page.getByRole("combobox", { name: "Shared section", exact: true }), "section:ui-phase-a-straight");
   await page.getByRole("button", { name: "Queue section assignment" }).click();
   await applyQueued(page);
 
