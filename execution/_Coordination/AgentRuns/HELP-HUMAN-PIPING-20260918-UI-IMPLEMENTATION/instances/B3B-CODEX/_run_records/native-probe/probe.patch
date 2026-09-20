@@ -1,0 +1,39 @@
+diff --git a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+index e94941ca3..ef1f3f8e1 100644
+--- a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
++++ b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+@@ -4604,6 +4604,16 @@ async fn save_local_result_json(
+ 
+ pub fn run() {
+     tauri::Builder::default()
++        .setup(|app| {
++            #[cfg(debug_assertions)]
++            {
++                use tauri::Manager;
++                if let Some(window) = app.get_webview_window("main") {
++                    window.open_devtools();
++                }
++            }
++            Ok(())
++        })
+         .plugin(tauri_plugin_dialog::init())
+         .manage(SolveJobRegistry::default())
+         .manage(native_result_download::SaveAdmission::default())
+diff --git a/projects/chirality-piping/apps/desktop/src/services/projectService.ts b/projects/chirality-piping/apps/desktop/src/services/projectService.ts
+index 29b536a69..cff31d135 100644
+--- a/projects/chirality-piping/apps/desktop/src/services/projectService.ts
++++ b/projects/chirality-piping/apps/desktop/src/services/projectService.ts
+@@ -594,6 +594,13 @@ export async function saveLocalProject(
+     recordBrowserSnapshotTimestamps(false);
+     return cloneEnvelope(browserPreviewSnapshot);
+   }
++  await new Promise<void>((resolve) => {
++    const probeWindow = window as Window & { __swbpipeB3bReleaseSave?: () => void };
++    probeWindow.__swbpipeB3bReleaseSave = () => {
++      delete probeWindow.__swbpipeB3bReleaseSave;
++      resolve();
++    };
++  });
+   return invoke<LocalProjectEnvelope>("save_local_project", {
+     request: {
+       project_id: model.project.id,

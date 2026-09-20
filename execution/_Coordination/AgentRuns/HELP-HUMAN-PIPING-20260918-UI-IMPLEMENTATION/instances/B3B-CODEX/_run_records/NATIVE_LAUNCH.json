@@ -1,0 +1,14 @@
+{
+  "launchedAt": "2026-09-20T19:31:56.828934+00:00",
+  "source": "226b1db57029c1df9f9151463c6c708f76f46704",
+  "actor": "/root/b3_manager/b3b_c3_native",
+  "role": "TASK Type2",
+  "parent": "/root/b3_manager",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "mechanism": "collaboration.spawn_agent",
+  "fork_turns": "none",
+  "briefSha256": "4a061039dcff01e93039b4c88142c538b669d1e4879f7f5e8d3b3bfeb7806640",
+  "scope": "single combined native build/witness; no maintained-source edits or probe instrumentation",
+  "enforcement": "unrestricted host; instruction-enforced paths/resources"
+}

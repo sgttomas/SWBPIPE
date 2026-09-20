@@ -1,0 +1,40 @@
+{
+  "candidate": "226b1db57029c1df9f9151463c6c708f76f46704",
+  "actor": "/root/b3_manager",
+  "checks": [
+    {
+      "manifest": "_run_records/worker/EVIDENCE_HASHES.json",
+      "verifiedEntries": 18
+    },
+    {
+      "manifest": "_run_records/worker/OPEN_OBSERVATION_EVIDENCE_HASHES.json",
+      "verifiedEntries": 3
+    },
+    {
+      "manifest": "_run_records/worker/SOURCE_FREEZE.json",
+      "source": "52f1baf01bf90f6af959042cc94e18366f48f1ae",
+      "verifiedEntries": 13
+    },
+    {
+      "manifest": "_run_records/worker/OPEN_OBSERVATION_FREEZE.json",
+      "source": "8037a56b0d0d373d9f698c9ffe0aca2f264bcbd1",
+      "verifiedEntries": 5
+    },
+    {
+      "manifest": "_run_records/c3-bridge/FREEZE.json",
+      "source": "df00c64d3220482060851d05b58a99ac055148e5",
+      "verifiedEntries": 6
+    },
+    {
+      "manifest": "_run_records/browser/MANIFEST.json",
+      "verifiedEntries": 7
+    },
+    {
+      "manifest": "_run_records/browser-repair/MANIFEST.json",
+      "verifiedEntries": 4
+    }
+  ],
+  "maintainedNativeInputsUnchanged": true,
+  "actualVitestVersion": "4.1.10 from canonical run headers; prior worker prose4.1.7 is corrected, unchanged verbatim returns retained",
+  "nativeStatus": "build/witness active, no outcome claimed"
+}

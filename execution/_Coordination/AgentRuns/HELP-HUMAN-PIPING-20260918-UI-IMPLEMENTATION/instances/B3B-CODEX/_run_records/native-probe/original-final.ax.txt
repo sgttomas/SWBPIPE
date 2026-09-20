@@ -1,0 +1,79 @@
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 37-110
+~						29 toggle button Model, Value: on
++				130 container Modeling workspace
++					131 container Tables
++						132 toggle button Model, Value: on
++						133 toggle button Review changes, Value: off
++						134 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
++					135 container Model tree
++						136 text MODEL
++						137 container Layout grid mode
++							138 toggle button Tree, Value: on
++							139 toggle button Grid, Value: off
++						140 container Model tree filtering
++							141 container
++								142 text Filter model
++								143 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++									144 text Name, ID, type, or group
++							145 text 3  of  3  model entities visible
++							146 button (disabled) Clear model tree filter
++						147 container Model
++							148 button (selected) Blank Local Model project:blank-local-20260920t193455z, Help: Blank Local Model (project:blank-local-20260920t193455z)
++							149 button (expanded) Nodes, Secondary Actions: Collapse
++							150 button B3B Native Synthetic A node:B3B-NATIVE-A, Help: B3B Native Synthetic A (node:B3B-NATIVE-A)
++							151 button (expanded) Diagnostics, Secondary Actions: Collapse
++							152 button BLANK_PROJECT_AUTHORING_TARGET diagnostic:blank-project:authoring-target, Help: BLANK_PROJECT_AUTHORING_TARGET (diagnostic:blank-project:authoring-target)
++					153 splitter Resize table and canvas, Value: 55
++					154 container Viewport controls
++						155 text 3D Centerline
++						156 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
++							157 summary Deformation · unavailable, Value: off
++								158 text Deformation · unavailable
++						159 container Viewport display toggles
++							160 toggle button Labels, Help: Show or hide entity labels, Value: on
++							161 toggle button Loads, Help: Show or hide load arrows, Value: on
++							162 toggle button Grid, Help: Show or hide the ground grid, Value: on
++						163 container Viewport selection tools
++							164 toggle button Box Select, Value: off
++							165 container
++								166 text Selection filter
++								167 pop up button Selection filter, Value: All
++							168 button (disabled) Hide, Help: Select at least one valid drawable node, pipe, support, or component.
++							169 button (disabled) Isolate, Help: Select at least one valid drawable node, pipe, support, or component.
++							170 button (disabled) Show All, Help: All eligible entities are already shown.
++							171 text Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.
++							172 button Fit Model
++							173 button Fit Visible
++							174 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
++						175 container Viewport geometry
++							176 toggle button Schematic, Value: on
++							177 toggle button Actual OD, Value: off
++							178 toggle button Measure, Value: off
++					179 container Viewport status
++						180 text Selected:  project:blank-local-20260920t193455z
++						181 container Schematic centerline geometry
++							182 text Schematic centerline geometry
++						183 container View command status, Help: No view command dispatched.
++							184 text No view command dispatched.
++					185 container
++						186 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
++						187 container Viewport entity selection
++							188 toggle button Select B3B Native Synthetic A in viewport, Help: B3B Native Synthetic A (node:B3B-NATIVE-A), Value: off
++						189 image Orientation gizmo showing X, Y, Z axes
++						190 container View controls
++							191 toggle button Front, Value: off
++							192 toggle button Top, Value: off
++							193 toggle button Isometric, Value: on
++						194 text 1 m
++					195 container Command and selection bar
++						196 container Object creation tools
++							197 toggle button Node, Help: Arm node creation, Value: off
++							198 toggle button Pipe, Help: Arm pipe-run creation, Value: off
++							199 toggle button Support, Help: Arm support creation in the Inspector, Value: off
++							200 toggle button Component, Help: Arm component-symbol insertion, Value: off
++							201 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
++						202 text Select
++						203 summary Selection & navigation, Value: off
++							204 text Selection & navigation
+The focused UI element is 29 toggle button Model, Value: on

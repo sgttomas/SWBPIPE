@@ -1,0 +1,9 @@
+Window: "Blank Local Model — SWBPIPE", App: SWBPIPE.
+1 File, Secondary Actions: Cancel, Pick
+	2 menu Secondary Actions: Cancel
+		3 (disabled) New Local Project, ID: fireMenuItemAction:
+		4 (disabled) New Blank Project, ID: fireMenuItemAction:
+		5 (disabled) Open Local Project…, ID: fireMenuItemAction:
+		6 (disabled) List Local Projects, ID: fireMenuItemAction:
+		7 (disabled) Save Local Project, ID: fireMenuItemAction:
+		8 Save Report Package…, ID: fireMenuItemAction:

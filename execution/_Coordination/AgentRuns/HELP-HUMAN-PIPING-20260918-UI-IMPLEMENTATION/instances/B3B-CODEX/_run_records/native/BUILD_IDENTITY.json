@@ -1,0 +1,101 @@
+{
+  "candidate": "226b1db57029c1df9f9151463c6c708f76f46704",
+  "source_tree": "373ca7f5c1f809b18bb7757c84542540ec521a8f",
+  "command": "npm run tauri -- build --debug --bundles app",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "recorded_at": "2026-09-20T13:33:12.770462-06:00",
+  "inputs_verified": true,
+  "binaries": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+      "sha256": "0c1735319c95461ef1e09c3db894bc18937183887b785ce9d865352892643923"
+    }
+  ],
+  "dist": [
+    {
+      "path": "dist/assets/index-BjrVUFwq.js",
+      "sha256": "ede54e5f68cd41479ccd64f7124c3b27bfbb43a9914df0b98fe691b2db380d69"
+    },
+    {
+      "path": "dist/assets/index-CkwfWHre.css",
+      "sha256": "8035c64d8f8798866cb68b197ebd51cde7cfff4c97e2bc80fa2e22eeec44f1c3"
+    },
+    {
+      "path": "dist/assets/invented_agent_proposal-Bm57LVt-.js",
+      "sha256": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c"
+    },
+    {
+      "path": "dist/assets/invented_demo_rule_pack-dhX9tvT1.js",
+      "sha256": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a"
+    },
+    {
+      "path": "dist/assets/invented_design_knowledge-H12r-oKQ.js",
+      "sha256": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040"
+    },
+    {
+      "path": "dist/assets/invented_mechanics_result-CleTy2JL.js",
+      "sha256": "493050a50b346dd1c53de6481da58d3c33d3302c0308f17b49e60584a233be4d"
+    },
+    {
+      "path": "dist/assets/invented_preview_model-pJA3_nB8.js",
+      "sha256": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a"
+    },
+    {
+      "path": "dist/assets/vendor-7OC5HNn7.js",
+      "sha256": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76"
+    },
+    {
+      "path": "dist/assets/vendor-icons-BjC2kMFO.js",
+      "sha256": "c16587f1d30af87974f04473da4620f1eb7bfc4f592da3d8a78c8320b0c50733"
+    },
+    {
+      "path": "dist/assets/vendor-react-u0ysdD_x.js",
+      "sha256": "63fc4459119f62f88e22f9114753605a94dc4fb8a870ffca75648df4c68f8901"
+    },
+    {
+      "path": "dist/assets/vendor-tauri-DlQNAQKj.js",
+      "sha256": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73"
+    },
+    {
+      "path": "dist/assets/vendor-three-CMXgOz27.js",
+      "sha256": "3651933b5f5f1b74297d524f1203d2929fe274b906df73faeefaa1fb4332a187"
+    },
+    {
+      "path": "dist/index.html",
+      "sha256": "ccb711e458079d188c59e50e7f95efaeeb0ce2d2ec1271b019d147791faf249c"
+    },
+    {
+      "path": "dist/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01"
+    },
+    {
+      "path": "dist/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3"
+    },
+    {
+      "path": "dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "sha256": "c76e3a25727307f9503694fb7a15d440cf08eef699be1d2c437a7ab35755322a"
+    },
+    {
+      "path": "dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b"
+    },
+    {
+      "path": "dist/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "sha256": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8"
+    },
+    {
+      "path": "dist/wasm-engine/open_pipe_stress_operation_applier.js",
+      "sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595"
+    },
+    {
+      "path": "dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "sha256": "d6141e2dd2431dc446232a9bc727e96fb5dc978311ea14f61f2d902be4972988"
+    },
+    {
+      "path": "dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "sha256": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16"
+    }
+  ]
+}
