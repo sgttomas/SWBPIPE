@@ -1645,7 +1645,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "Codex delegated-harness-native retained manager; new bounded TASK",
-      "status": "active guarded integration; invalid-draft replacement and late-navigation ownership regressions reproduced/repaired; final focused checks before clean browser freeze",
+      "status": "6dd actual native Cancel/Apply repaired PASS; narrow pointer fit unresolved after ROOT own look; same writer diagnosing bounded UI containment/scroll issue",
       "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
       "branch": "codex/swbpipe-b-shell-20260918",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_MANAGER_BRIEF.md",
@@ -1657,10 +1657,42 @@
       "childBriefSha256": "56df2fc1dec4fffac347042287cc90f9b50f548df24fa810d2d456e4fef43578",
       "childInputsSha256": "58a86b65a5d125e481ceb0e46a05090cd2befeaaee25f9bd46f43ef0ef0b8d6a",
       "writeLease": "shell/controller/table; exact sealed brief; no native or external live transport; no shared Root graph writes",
-      "resourceState": "5174 browser slot granted after clean freeze, one Playwright worker under shared E2E lock; no native/build/CUA grant",
+      "resourceState": "manager owns native identity-bound cleanup then5174/shared-lock bounded browser diagnosis; ROOT released CUA and will not query old app",
       "enforcement": "instruction-asserted; host unrestricted; Type2 no delegation",
       "compatibilityDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_COMPATIBILITY_DISPOSITION.md",
-      "compatibilityDispositionSha256": "f317cddf86edc5faf672629f70c0575d26ff77e2b3b494d7e167687e42865827"
+      "compatibilityDispositionSha256": "f317cddf86edc5faf672629f70c0575d26ff77e2b3b494d7e167687e42865827",
+      "sourceCandidate": "6dd0e466f4432f21d3ce6913782b95f9a325f700",
+      "nativeChild": "/root/b3_manager/b4_1_native",
+      "nativeModel": "gpt-6-astra",
+      "nativeReasoning": "low",
+      "nativeBrief": "instances/B4-1-CODEX/NATIVE_BRIEF.md",
+      "nativeBriefSha256": "ceda51d41a8efc48c2096c4e5094cc7293a57dfd46679b5b71985951b5044413",
+      "nativeInputsSha256": "aec14f6cccde4511a2c08acf5cb6929b4a58e57b5ddd9b2132fe3d78261609e3",
+      "nativeRepairAddendum": "instances/B4-1-CODEX/NATIVE_REPAIR_ADDENDUM.md",
+      "nativeRepairAddendumSha256": "9360e7b8573c0489d1c490c803f4bdca828838d57017dde27d84a59c93c61132",
+      "nativeHistory": [
+        {
+          "source": "840a21647983948c2f9930dd2fc56afb9e5d3eff",
+          "verdict": "Cancel failure3times; other bounded actions passed; fit partial/unmeasured logical dimensions",
+          "binarySha256": "7affe9aeee64aaad357475d84d2ff44ebebca9b1bde4620ba9b9fc0d4b96786b",
+          "pid": 25376,
+          "record": "instances/B4-1-CODEX/NATIVE_RETURN.md",
+          "returnSha256": "56efa211650e91c1632cdc93053f692b8167c2569556dc99f2971bd54b3b6c41",
+          "cleanup": "identity-bound CmdQ then process-only absence; no app AX after quit",
+          "storedRowsTouched": false
+        }
+      ],
+      "nativeRepair": {
+        "source": "6dd0e466f4432f21d3ce6913782b95f9a325f700",
+        "binarySha256": "15ff259be73d115b28321def1042c0eb70f3d4d5f61d47143e2d1d146e1fa4c5",
+        "pid": 28041,
+        "return": "instances/B4-1-CODEX/NATIVE_REPAIR_RETURN.md",
+        "returnSha256": "8173d0123ac11e82331cb1752c0a50f4de94aa7436484881c43a9c32355a42c8",
+        "manifestSha256": "3320e4fae62ca302e2efb9a6923b110369030d3538837938c700b8ccbebcefba",
+        "outcome": "Cancel/Apply/abandoned-pointer/ordinary-blur and keyboard actions passed at stated scopes; actual pointer horizontal fit not established",
+        "rootOwnLook": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_1_ROOT_FIT_OBSERVATION_6DD.md",
+        "rootOwnLookSha256": "2af54e986c3dfb71d88a886f0762bda42f84dda8c0c533e3aa3605355709d458"
+      }
     },
     "LIVE-CONTROL-PREPARATION": {
       "role": "ROOT proposed stage with bounded TASK inventory and peer fit review",
@@ -1734,14 +1766,69 @@
     "CI-DURATION-CALIBRATION": {
       "role": "ROOT bounded scheduling-data update",
       "parent": "ROOT",
-      "status": "implemented locally;29policy tests/7subtests and frozen435identity replay pass; independent review and next normal applicable CI pending",
+      "status": "independent complete7path backcheck PASS at2a6b; exact replay435IDs,29policycases/7subtests pass; next actual candidate collection/CI pending",
       "authority": "Owner directed effective CI/test-time reductions; no new acceptance threshold or skipped test",
       "sourceRun": 35538747925,
       "sourceHead": "127677e1fff8b6c68044dfe0ed8475e3d1dd63d4",
       "changedSource": "tools/ci/e2e_duration_hints.json relative to WORKING_ROOT",
       "hintsSha256": "3ec74a15f33615dbfd8f7530972e3ddb9a25ccfdd30266cee4234e97f41af175",
       "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_DURATION_REPLAY",
-      "note": "Known observed skips previously inherited30second unknown cost. Updated pass durations plus explicit0.05second skip floor balance replayed remainder costs; allnew identities retain30second fallback. Not a measured future walltime or performance qualification."
+      "note": "Known observed skips previously inherited30second unknown cost. Updated pass durations plus explicit0.05second skip floor balance replayed remainder costs; allnew identities retain30second fallback. Not a measured future walltime or performance qualification.",
+      "reviewBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_DURATION_HINTS_BACKCHECK_BRIEF.md",
+      "reviewBriefSha256": "9c0b3ee56184a48fe30918f80f9c5a1c227009865c5c27d431a403d0c498fc50",
+      "reviewReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_DURATION_HINTS_BACKCHECK_RETURN.md",
+      "reviewReturnSha256": "a0d6b72a6773c7cba6586cba746defb4dd058b18ce52a6115ca6b1b8cdd5c345"
+    },
+    "B4-1-REVIEW": {
+      "role": "TASK Type2 independent source review",
+      "parent": "ROOT",
+      "actualAgent": "/root/b4_1_code_review",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "mechanism": "Codex delegated-harness-native fresh context; same-model independence",
+      "status": "complete source coverage through6dd; native behavior remains pending",
+      "initialCandidate": "87faf4b240d1be8b197843cd869b22408e85be3b",
+      "initialVerdict": "Not ready:2newP2 plus known Tab defect",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_INDEPENDENT_REVIEW_BRIEF.md",
+      "briefSha256": "708d04fbaa223d8519ea15361ed146a6b7e24213973a07834909d92721a0aae4",
+      "initialReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_1_INITIAL_REVIEW_RETURN.md",
+      "initialReturnSha256": "a64b34fb9d0da2f4afbcf57323ee9660d22fdf76f9a7c344db5e17fb997fd34c",
+      "backchecks": [
+        {
+          "candidate": "840a21647983948c2f9930dd2fc56afb9e5d3eff",
+          "verdict": "PASS3path repair; initial3P2 closed, native not yet exercised",
+          "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_BACKCHECK_840_BRIEF.md",
+          "briefSha256": "aa82e434aea6c0b2735f3cd4425e25637a4b5f7fc2da31b38580664cfdf774d5",
+          "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_1_BACKCHECK_840_RETURN.md",
+          "returnSha256": "7304a7cfc19b3addd0257ca5f44ea8752affa62b79c024ea2f42f1de666284ed"
+        },
+        {
+          "candidate": "6dd0e466f4432f21d3ce6913782b95f9a325f700",
+          "verdict": "PASS3path native Cancel repair source; actual rebuilt native witness still required",
+          "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_NATIVE_CANCEL_BACKCHECK_BRIEF.md",
+          "briefSha256": "4790c1f3d7446c2f2f22700754d7f3c45659ac6c9d010c7334a824c37d091419",
+          "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_1_NATIVE_CANCEL_BACKCHECK_RETURN.md",
+          "returnSha256": "a56afb0cc282c4de4aa424d7d99b02eb24f1120470e23d6b76d5cff4dbe752cc"
+        }
+      ]
+    },
+    "B4-1-INTEGRATION": {
+      "role": "ROOT integration",
+      "parent": "ROOT",
+      "branch": "codex/swbpipe-b4-controls-20260920",
+      "status": "localf4c1773 contains reviewed6dd and CI changes; native Cancel fixed but narrow pointer-fit issue prevents final acceptance/merge",
+      "candidate": "f4c177399cefc6f7f0b5ea71f05223f9a6327c2c",
+      "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+      "sourceCandidate": "6dd0e466f4432f21d3ce6913782b95f9a325f700",
+      "ciMapCommit": "ab3b057e4",
+      "ciMap": "Independent exact2file backcheck PASS atab3b057e4f5a5b01fdbfa1b8e50381522cb1b369;31policy cases pass. New B4 spec follows authoring/layout and new shared-table remains full.",
+      "dependsOn": [
+        "B4",
+        "CI-DURATION-CALIBRATION"
+      ],
+      "scopeNote": "Internal B4.1 increment, not full B4; remaining table grammar and duplicate-grid retirement remain",
+      "ciMapReview": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_B4_CONSUMER_MAP_BACKCHECK_RETURN.md",
+      "ciMapReviewSha256": "58e5b650acda19d55f1a7f3e64a6a7f01e3e38a93ceb2333626f56bcac81beab"
     }
   },
   "edges": [
@@ -1964,9 +2051,17 @@
     [
       "ROOT",
       "CI-DURATION-CALIBRATION"
+    ],
+    [
+      "ROOT",
+      "B4-1-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B4-1-INTEGRATION"
     ]
   ],
-  "current_frontier": "PR828 merged after all9actual-head checks passed; full hosted1040s. B4.1 Node table/core is active under one shell writer; temporary direct/bulk coexistence authorized for this internal increment. C4 label rulings and bounded CLI live-binding activation await owner. Peer CLI fit review closed with single/atomic-batch and actual-human-witness requirements. No deliverable reconciliation or DAG rebuild.",
+  "current_frontier": "B4.1 repaired6dd native Cancel/Apply passed; ROOT own look left minimum Both+Inspector pointer reach/containment unresolved. Bounded browser layout diagnosis/repair active; no full sweep or PR yet. CI hints reviewed and new-spec map locally tested. C4 rulings and CLI bounded activation remain pending; baseline comparison remains proposed.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2249,15 +2344,16 @@
     "root": "f50435cef3b9f7f6ff2ed4b33b6e6236668155bd",
     "originMain": "fd195cf4287e84572a12183169478a6f7ddf6a92",
     "integrationBranch": {
-      "branch": "codex/swbpipe-ci-economy-20260920",
-      "head": "127677e1fff8b6c68044dfe0ed8475e3d1dd63d4",
-      "state": "merged; preserve, no new PR828 writes"
+      "branch": "codex/swbpipe-b4-controls-20260920",
+      "head": "f4c177399cefc6f7f0b5ea71f05223f9a6327c2c",
+      "state": "ROOT-owned local combined candidate; old PR828 branch127677 preserved"
     },
     "shell": "wt3 fast-forwarded to fd195; B4.1 active",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "separate two-edit worktree preserved; never fan-in",
-    "resources": "B4.1 source5174 reserved after freeze under shared lock; not yet started at last manager report. No native/build/CUA or full sweep active.",
-    "recordStatus": "post-merge continuity records await scoped independent review with next coherent batch"
+    "resources": "manager owns native identity-bound cleanup then5174/shared-lock bounded browser diagnosis; ROOT released CUA and will not query old app",
+    "recordStatus": "post-merge continuity records await scoped independent review with next coherent batch",
+    "observedAt": "2026-09-20T23:30:31.980753+00:00"
   }
 }
