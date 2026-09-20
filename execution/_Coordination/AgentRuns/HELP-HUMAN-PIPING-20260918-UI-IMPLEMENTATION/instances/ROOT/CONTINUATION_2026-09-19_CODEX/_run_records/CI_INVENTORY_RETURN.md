@@ -17,10 +17,10 @@ Summed per-test durations from log, including both projects:
 | `result-compatibility.spec.ts` | 2 | 95.7 |
 | `linear-authoring.spec.ts` | 2 | 73.8 |
 | `ui-foundation/full-cohort-controller.spec.ts` | 86 | 57.0 |
+| `gui-workflow-validation.spec.ts` | 6 | 52.1 |
 | `ui-foundation/causal-method-contract.spec.ts` | 88 | 10.6 |
 | `ui-foundation/performance-targets.spec.ts` | 52 | 1.2 |
 | `ui-foundation/fresh-demo-policy.spec.ts` | 8 | 0.1 |
-| `gui-workflow-validation.spec.ts` | 6 | 52.1 |
 
 These are rounded test durations, not additive job wall-time predictions.
 
