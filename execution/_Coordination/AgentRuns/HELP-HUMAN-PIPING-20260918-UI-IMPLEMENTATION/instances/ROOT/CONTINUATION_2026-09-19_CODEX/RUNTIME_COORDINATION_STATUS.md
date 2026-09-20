@@ -28,9 +28,11 @@ cheap selection on every PR, explicit N/A for unrelated changes, affected
 coverage, conservative full fallback and manual full milestones. Other-project
 CI and protections remain unchanged. See _run_records/CI_PEER_ACK.md.
 
-Owner is discussing a sharper first-published MVP, including whether live
-agent assistance belongs in the initial promise. No product-scope amendment,
-phase transition or Runtime integration write is authorized by that discussion.
+Owner corrected the initial optional-agent answer: agent control of SWBPIPE is
+needed before planned CAEPIPE validation, with Computer Use for CAEPIPE. The leads
+are preparing the bounded integration and actual tool/host qualification. Other
+release details remain under discussion; concrete scopes/interfaces/order still
+must be agreed before integration writes. See OWNER_MVP_AGENT_CORRECTION_2026-09-20.md.
 Design-system4dddd441 remains parked; WORK_GRAPH.json owns detailed slice state.
 
 Piping retains domain schemas/tools, live controller, UI and future Tauri adapter.

@@ -1,6 +1,6 @@
 # MVP publishing target — discussion draft
 
-Status: ROOT recommendation for owner discussion, 2026-09-20. This does not amend the PRD, initiate a new phase, reconcile deliverables, authorize Runtime integration, lift qualification holds or publish a product. Current B3B/C3/CI work continues under existing authority.
+Status: ROOT recommendation for owner discussion, 2026-09-20. The owner corrected the optional-agent reply: agent control of SWBPIPE is required to enable planned CAEPIPE validation (OWNER_MVP_AGENT_CORRECTION_2026-09-20.md). Other recommendations remain proposed. This does not amend the PRD, initiate a new phase, reconcile deliverables, authorize Runtime integration, lift qualification holds or publish a product. Current B3B/C3/CI work continues under existing authority.
 
 ## Owner's current steering
 
@@ -36,7 +36,7 @@ The acceptance story should include an invalid input, an interrupted/failed oper
 | Design iteration | Save an immutable baseline, make one alternative and compare relevant model and result changes. | Keeps §23's basic state/run comparison. Recommend this focused experience before a general mapping editor or extensive comparison-management UI; any incompatible requirement gets an explicit amendment. |
 | Private data/rules | Safe local/private data boundaries, required inputs, private rule-pack schema and an invented non-code example. | PRD §23. Full library/catalogue breadth and a sophisticated rule authoring environment need not expand the initial user promise. |
 | Handoff | Canonical schema-compliant package plus a readable report with reproducible basis and limitations. | PRD §23. A direct adapter for a named commercial tool is a separate promise and qualification task. |
-| Agents | Preserve the shared operation/controller seam; propose keeping live Runtime assistance optional for the first public target unless the owner chooses it as a defining product capability. | PRD §3 calls agents optional; FR-AGENT interaction features are Should; R7 follows the basic workbench milestones. Existing Runtime discussion grants no Piping integration writes. |
+| Agents | Establish reliable agent control through the shared operation/controller seam before planned CAEPIPE validation; the agent uses Computer Use for CAEPIPE. | Owner corrected the earlier optional-agent answer on2026-09-20. Runtime/Piping leads must agree concrete interfaces, disjoint writes and order before integration writes; broad public agent UX is not yet specified. |
 | Platform | Start with the adopted Apple Silicon macOS target; settle a usable installation/signing experience before publication. | DEC-057 and later DEC-089. No cross-platform promise without its own evidence. |
 
 “Small” is not yet a numeric capacity claim. The reference-model envelope and second performance profile need the existing owner freeze and qualification process. No tolerance, performance limit, accessibility criterion or usability hold is relaxed by this proposal.
@@ -62,7 +62,7 @@ It does not yet prove complete user-facing state/run comparison, private-rule wo
 
 Recommend one concise release-target addendum that names the audience, reference journey, supported envelope, required versus optional capabilities and observable exit criteria. Amend PRD §23/§24 only where the adopted target changes their meaning. Correct later-rule drift in release guidance separately: BUILD_AND_RELEASE still carries old CI/signing prose, and RELEASE_QUALITY_GATES' engineering-beta wording is not aligned with the newer VALIDATION_STRATEGY wording.
 
-The highest-impact product choice is whether one live agent-assisted journey must be part of the first public promise. ROOT recommends establishing the complete standalone design journey as the publishing boundary, while Runtime can proceed as a separately authorized, bounded integration. If agent assistance is central to the intended first user's value, include exactly the inspect → propose → preview → accept → Undo → stale-rejection journey already discussed with the peer lead, and budget its actual lifecycle/host qualification into the release path.
+The owner corrected the initial agent-dependency answer: agent control of SWBPIPE enables the planned CAEPIPE validation and belongs before that milestone. The bounded first integration target remains inspect → propose → preview → accept → Undo → stale rejection, followed by the supported solve/export/read-result operations needed for a validation case. The Runtime and Piping leads are preparing exact interfaces, disjoint scopes and resource order. CAEPIPE hosting and the controlling agent's actual tool access still need confirmation. This requirement does not imply that a broad general-purpose agent interface must be complete before the first publication.
 
 ## Evidence basis and limits
 
@@ -72,5 +72,4 @@ The highest-impact product choice is whether one live agent-assisted journey mus
 - Bounded read-only inventory: MVP_BASIS_INVENTORY_BRIEF.md, SHA256 d870e751f67179d41118e9894f65b497951ce71aa939d600b2d05544a6c9d5b3; retained return _run_records/MVP_BASIS_INVENTORY_RETURN.md.
 - Inventory used committed ROOT basis e8f91e086a0ce65ca706bd63e0a3c6e4ef21f15a. Current UI combined source is separately under review at 52142dbdaec190f3a7fdb47a4f937c3e23720824; its passing development checks do not establish release readiness.
 
-No product scope or held decision is adopted by this draft. Standard claim fence applies (F-PIP-2; DEC-081).
-
+The owner's latest agent-control-for-CAEPIPE-validation correction supersedes the initial optional-agent reply. Other product recommendations and held decisions remain open. Standard claim fence applies (F-PIP-2; DEC-081).
