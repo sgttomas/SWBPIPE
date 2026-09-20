@@ -1505,7 +1505,7 @@
     "B3B-C3-CI-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
-      "status": "all3diagnosed failures repaired in tests only; native/probe complete; fresh bounded backcheck and complete clean sweep next",
+      "status": "independent113path backcheck PASS; complete clean143 sweep PASS; final collection/publication records/hosted gates pending",
       "base": "88c6c7463199d1d69caebde04678fa74facca78f",
       "candidate": "d7b8269b819946eb6f28cb93d37e70a8fef7bfed",
       "branch": "codex/swbpipe-ci-economy-20260920",
@@ -1514,17 +1514,27 @@
         "C3",
         "CI-ECONOMY-CODEX"
       ],
+      "sweepHistory": [
+        {
+          "candidate": "a635b01ad67e85a10b542e889f0de29715358e49",
+          "status": "failed at desktop_vitest",
+          "startedAt": "2026-09-20T19:57:17Z",
+          "temporaryPath": "/tmp/swbpipe-b3b-c3-ci-sweep-a635b01a",
+          "executionSession": 73916,
+          "resourceOwner": "ROOT; native/build/CUA previously released",
+          "complete": false,
+          "canonical": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_SWEEP_A635",
+          "durationSeconds": 218.0233397502452,
+          "observed": "Rust/Python pass;1488unitpass/3fail;browser/dist/build not_run;after-run candidate clean"
+        }
+      ],
       "sweep": {
-        "candidate": "a635b01ad67e85a10b542e889f0de29715358e49",
-        "status": "failed at desktop_vitest",
-        "startedAt": "2026-09-20T19:57:17Z",
-        "temporaryPath": "/tmp/swbpipe-b3b-c3-ci-sweep-a635b01a",
-        "executionSession": 73916,
-        "resourceOwner": "ROOT; native/build/CUA previously released",
-        "complete": false,
-        "canonical": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_SWEEP_A635",
-        "durationSeconds": 218.0233397502452,
-        "observed": "Rust/Python pass;1488unitpass/3fail;browser/dist/build not_run;after-run candidate clean"
+        "candidate": "143c863366c0ee5ae7fa3d56405f8bf7d35935aa",
+        "status": "pass",
+        "complete": true,
+        "durationSeconds": 1031.0871080001816,
+        "canonical": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_SWEEP_143",
+        "observed": "Rust allregisteredpass;Python1134/304warnings/7subtests;unit91files1491pass;source415pass20existing-skips;dist53pass;buildpass;candidate clean after run"
       }
     },
     "B3B-C3-CI-REVIEW": {
@@ -1534,7 +1544,7 @@
       "model": "gpt-6-astra",
       "reasoning": "xhigh",
       "mechanism": "Codex delegated-harness-native; fresh context",
-      "status": "code/test P2 backcheck PASS at a635b01a; current-resource and NewBlank wording records corrections pending backcheck",
+      "status": "complete113path delta PASS at143; all P2/P3 findings closed; later record/collection tail remains",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3B_C3_CI_INDEPENDENT_REVIEW_BRIEF.md",
       "briefSha256": "c13a05c9c8c2efdc00735347825c9883753cbaf960847bf25a495a6604f86cff",
       "candidate": "52142dbdaec190f3a7fdb47a4f937c3e23720824",
@@ -1543,7 +1553,9 @@
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_REVIEW_RETURN.md",
       "returnSha256": "07ecaef5aad8a3902d3e028ae36ee52ae267ad2e5ab8de0a32cb62886114734a",
       "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_BACKCHECK_RETURN.md",
-      "backcheckReturnSha256": "bb5044440a47b31ec7e2d1f50f696a0b6fee03ca8e5a7e70a0a1e233ac4b6c7c"
+      "backcheckReturnSha256": "bb5044440a47b31ec7e2d1f50f696a0b6fee03ca8e5a7e70a0a1e233ac4b6c7c",
+      "finalReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_FINAL_BACKCHECK_RETURN.md",
+      "finalReturnSha256": "b92f2e1a3fa1eb7cdece6f80fa7a5fad5fb41aa38339862059ebeba503b68504"
     },
     "MVP-PUBLISHING-DISCUSSION": {
       "role": "ROOT product discussion with bounded TASK inventory",
@@ -1761,7 +1773,7 @@
       "CI-ECONOMY-CODEX"
     ]
   ],
-  "current_frontier": "Test-only repairs integrated d7b8269b; native/probe complete with unchanged production inputs. Final bounded code/evidence backcheck and new complete clean sweep next, hosted CI not started. B4.1 prepared; C4 dependent label questions pending. CLI-first transport recommendation under owner discussion after actual modern-MCP incompatibility; no integration writes.",
+  "current_frontier": "Corrected full clean143 sweep PASS and independent113path review PASS. Prepare current full collection and one draft integration PR, wait applicable hosted checks then merge. B4.1 prepared; C4 protected label decisions pending. CLI-first target adopted, bounded live-binding activation still under preparation.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -1966,8 +1978,8 @@
     "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RUNTIME_COORDINATION_STATUS.md",
     "editor": "ROOT only",
     "peerThread": "01a07cd1-86da-7d30-9b17-e2cbbad3f10a",
-    "state": "Exact intended client probe failed modern MCP2026-07-28 handshake; two leads propose JSON CLI first, owner protocol choice pending in dev-app discussion. Domain contract revision2 prepared, no integration writes.",
-    "originMainRevalidated": "88c6c7463199d1d69caebde04678fa74facca78f",
+    "state": "Owner CLI-first recommendation accepted through peer; futureMCP remainsstrictV2. Canonical failed client probe merged827. Contract revision2 and concrete live-binding activation under preparation; no integration writes.",
+    "originMainRevalidated": "55932683916fd1cd0ca047a0a76c32adaf9b65ab",
     "peerProposedContract": "cb08dbe2fbeaf5a34a0abfa2f1d599c7c5bd6b2f",
     "peerPr": "https://github.com/sgttomas/chirality/pull/824",
     "peerAcknowledgment": "Direct task reply acknowledged sole editor, disjoint scope, resources, DEC-051 correction and B3/B3A/B3B adoption sequence.",

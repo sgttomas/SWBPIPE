@@ -49,7 +49,7 @@ complete. The isolated Save-busy probe and final original-bundle check passed an
 native/build/CUA resources were released. The clean full sweep then stopped at
 unit tests: Rust/Python passed,1488unit passed/3failed, browser/dist/build not run.
 Only isolated unit repair work is active; no browser/native/full sweep is running.
-The next complete clean sweep and hosted checkpoint follow repair/backcheck.
+The corrected full clean143 sweep and independent backcheck passed; collection and hosted checkpoint remain.
 Peer reports no competing desktop or port reservation.
 
 Reserve source/dist5174/5175, ROOT5183/5184, canvas5185/5186 and Tauri5173;
@@ -72,8 +72,8 @@ agent later. Peer subsequently reported the owner's stateless V2 MCP condition;
 the MCP transport remains conditional on actual modern2026-07-28 client evidence.
 The exact bundled Codex0.155.0-alpha.9.2 probe sent legacy initialize2025-06-18
 and stopped at the strict modern server rejection. No modern call was reached.
-ROOT independently inspected the retained result/wire. The two leads recommend
-a small JSON CLI first, pending the owner's consolidated transport choice; any
+ROOT independently inspected the retained result/wire. The owner accepted
+a small JSON CLI first, as retained in OWNER_CLI_PROTOCOL_DISPOSITION_PEER_2026-09-20.md; any
 later MCP adapter must still meet the V2 condition. This is no silent downgrade.
 Proposed shape: Codex → local stdio MCP facade → private local Piping
 app bridge → live workspace controller. Piping ROOT retains all controller,
@@ -82,7 +82,7 @@ read-only contract/protocol review. No shared Root/Runtime product writes or own
 Peer owns the completed isolated actual-client compatibility evidence and read-only domain-interface review.
 The exact domain contract is PIPING_LIVE_CONTROL_CONTRACT_DRAFT.md, now revision2
 addressing lost acknowledgements, cancellation, attribution and publication.
-Owner adapter choice, peer backcheck and bounded live-binding activation precede writes. See
+Peer contract backcheck and bounded live-binding activation precede writes. See
 OWNER_CODEX_VALIDATION_CONTROLLER_2026-09-20.md and
 _run_records/RUNTIME_TRANSPORT_ACK_2026-09-20.md.
 
@@ -134,3 +134,5 @@ consent/residency gate; preserve public-commit/IP and telemetry boundaries.
 No deliverable reconciliation, DAG rebuild, product acceptance or release.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+Canonical peer protocol evidence is merged through PR827/main55932683; exact origin and hashes: _run_records/MCP_V2_CANONICAL_EVIDENCE_POINTER.md. The owner reports oMLX availability only; no model selection or local-provider qualification is inferred.

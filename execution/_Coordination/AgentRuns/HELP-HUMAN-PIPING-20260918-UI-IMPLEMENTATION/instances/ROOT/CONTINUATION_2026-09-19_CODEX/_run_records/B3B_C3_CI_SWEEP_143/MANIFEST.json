@@ -1,0 +1,22 @@
+{
+  "candidate": "143c863366c0ee5ae7fa3d56405f8bf7d35935aa",
+  "verdict": "pass",
+  "raw_log": {
+    "sha256": "fb125ecd8e7a4905672f0fbe67be370344a0af7983ba11c19c8d490f3df3df9b",
+    "bytes": 1890656
+  },
+  "files": {
+    "SWEEP_20260920T202848Z_143c863366c0.json": {
+      "sha256": "a3905a08f90956329ea0cdc738aed6d4b4a55dca07aa824270951e68ded0858b",
+      "bytes": 3824
+    },
+    "run.log.gz": {
+      "sha256": "74cf05d556cd6481ae302138b34c27e732e1d978bdfad4615b7cc945f50d298e",
+      "bytes": 57284
+    },
+    "RUN.json": {
+      "sha256": "8096f3f3136b1187e1d92b1a9baa9ebd99c97801352f8d33c0d0904ace8b1213",
+      "bytes": 1280
+    }
+  }
+}
