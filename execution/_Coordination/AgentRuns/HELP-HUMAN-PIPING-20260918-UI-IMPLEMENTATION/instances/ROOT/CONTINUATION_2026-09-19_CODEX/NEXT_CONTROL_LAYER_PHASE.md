@@ -83,3 +83,7 @@ owning run. Each source-control merge is bounded technical integration, not
 whole-project completion, practitioner usability, engineering reliance or release.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+## Integration scheduling update after B3
+
+B3 is merged. I1 has a fresh independent complete-diff PASS; B3A is repairing one independently identified saved-basis race before final fan-in. ROOT will combine these disjoint reviewed slices in one PR and run one complete clean sweep plus full default hosted coverage. This supersedes the earlier ROOT-accepted P4 recommendation that I1 use its own PR, solely as an integration scheduling choice under the owner's current CI-economy and continuation direction. Each slice keeps its own frozen scope, independent review and evidence; final joint candidate changes receive affected review. No owner product ruling or protected criterion changes, and no waiver of required validation follows. Separate PRs remain a fallback if a dependency makes combined readiness impractical.
