@@ -1,0 +1,18 @@
+[
+  {
+    "path": "_run_records/browser-repair/CLEANUP.json",
+    "sha256": "a8f319788454a403eb17702921747033772005227d88c56fd8cee1f05b61bcfe"
+  },
+  {
+    "path": "_run_records/browser-repair/RUN.json",
+    "sha256": "f2c02859887ef0d8303e894d3db811039c801fc094d2475fe3d1407b30c0033b"
+  },
+  {
+    "path": "_run_records/browser-repair/artifacts/.last-run.json",
+    "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+  },
+  {
+    "path": "_run_records/browser-repair/run.log",
+    "sha256": "f8f1da88deae1e68ca0342382945c99007da2425163ff9624ad3443675d166ff"
+  }
+]

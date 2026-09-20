@@ -1,0 +1,21 @@
+{
+  "source": "8037a56b0d0d373d9f698c9ffe0aca2f264bcbd1",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "command": [
+    "sh",
+    "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+    "npx",
+    "playwright",
+    "test",
+    "e2e/b3b-project-persistence.spec.ts",
+    "--workers=1",
+    "--output=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3B-CODEX/_run_records/browser-repair/artifacts"
+  ],
+  "browser": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+  "browserVersion": "Google Chrome for Testing 148.0.7778.96",
+  "workers": 1,
+  "expectedTests": 2,
+  "exitCode": 0,
+  "durationSeconds": 6.36,
+  "logSha256": "f8f1da88deae1e68ca0342382945c99007da2425163ff9624ad3443675d166ff"
+}
