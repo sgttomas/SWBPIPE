@@ -305,7 +305,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
-      "status": "unfinished checkpoint, not a merge candidate; live source and retained failures inspected, no fresh runtime tests. Superseding Codex continuation package pending owner strategy/product decisions.",
+      "status": "active implementation under approved D1/D2/D3 and strategy; shell and native executors launched by manager. Initial full unit run reported 1381 passed / 3 failed; inspector navigation/focus repair queued, one old arming assertion requires named semantic update. Native Tauri witness in progress; no frozen candidate or completion claim.",
       "dependsOn": [
         "B2F-B2G",
         "C1"
@@ -663,6 +663,24 @@
           "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_ADDENDUM_1.md",
           "sha256": "9deba418f41a372e4b7f3522ebe58ada2b5360b50fbefadd8bceb812cfd15b61"
         }
+      ],
+      "children": [
+        {
+          "agent": "/root/b3_manager/shell",
+          "role": "TASK Type 2",
+          "model": "gpt-5.6-sol",
+          "reasoning": "high",
+          "state": "running; first capacity failure, one same-model retry succeeded",
+          "evidenceOwner": "instances/B3-CODEX on shell lane"
+        },
+        {
+          "agent": "/root/b3_manager/native",
+          "role": "TASK Type 2",
+          "model": "gpt-5.6-sol",
+          "reasoning": "high",
+          "state": "running",
+          "evidenceOwner": "instances/B3-CODEX on shell lane"
+        }
       ]
     },
     "CONTINUATION-RECORDS-REVIEW": {
@@ -671,7 +689,7 @@
       "reasoningRequested": "xhigh",
       "candidate": "c805bcc1a",
       "base": "c459a0fa15e8d33613b6b95f529b5d369c707874",
-      "status": "review returned two actionable findings; corrections prepared for backcheck",
+      "status": "PASS after backcheck on d080c334424f500dd4c8d2f745b475c474bf474f; later candidate metadata requires coverage",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RECORDS_REVIEW_BRIEF.md",
       "briefSha256": "941f528cd80e5adfdddaeb4d5922609091fd4d72f34231dc1abc63b641cf23de",
       "actualAgent": "/root/continuation_records_review",
@@ -683,7 +701,10 @@
       "findings": [
         "P2 discovery evidence classification: corrected by byte-preserving relocation and pointer",
         "P2 local merge boundary: clarified by sealed addendum 1; original brief retained"
-      ]
+      ],
+      "reviewedCandidate": "d080c334424f500dd4c8d2f745b475c474bf474f",
+      "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_REVIEW_BACKCHECK.md",
+      "backcheckReturnSha256": "93a22fa8a46b44424b00026c9febcfd21a3b900810c51ba40f7096c8b52ec569"
     }
   },
   "edges": [
@@ -824,7 +845,7 @@
       "CONTINUATION-RECORDS-REVIEW"
     ]
   ],
-  "current_frontier": "Owner agreed the Codex strategy and D1/D2/D3 in the active chat. B3 first; continuation manager brief sealed. Shell/native implementation with bounded scope, connected workflows and actual Tauri witness precedes frozen-candidate independent review, sweep, CI and merge. Canvas I1 and parked design remain preserved.",
+  "current_frontier": "B3 implementation active on shell lane after clean merge a63607e5c of origin/main c459a0fa1. Sol/high shell and native Type 2 executors work under Astra/high manager; ROOT owns shared graph and independent review. Initial full unit failures are being repaired, native witness underway, browser lanes pending. Records review passed on d080c3344 after two corrected findings; new metadata/product require actual-candidate coverage. Canvas I1 and parked design preserved. No deliverable reconciliation or DAG rebuild.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -971,14 +992,15 @@
     "ownerSteer": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_STEER.md",
     "status": "strategy and three product dispositions approved; see OWNER_APPROVAL.md",
     "agentsLaunched": true,
-    "productChanged": false,
+    "productChanged": true,
     "originMain": "c459a0fa15e8d33613b6b95f529b5d369c707874",
     "supersedesLiveSummaryFields": [
       "older current_frontier",
       "historical openWithOwner blocking/notBlocking classification for D1/D2/D3"
     ],
     "nativeScopeNote": "Historical addendum 4 explicitly deferred native menu and minimum by ROOT; discrepancy carried into proposed B3 strategy, not silently attributed to owner.",
-    "approval": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_APPROVAL.md"
+    "approval": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_APPROVAL.md",
+    "productChangeNote": "Subsequent to discovery, approved implementation is active in the shell lane; discovery artifact remains its original snapshot."
   },
   "phaseTrace": {
     "approvedDag": "execution/_DAG/DAG-010/",
