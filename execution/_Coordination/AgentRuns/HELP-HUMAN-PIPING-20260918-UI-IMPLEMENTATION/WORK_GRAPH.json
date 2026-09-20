@@ -8,7 +8,7 @@
     "ROOT": {
       "role": "HELP_HUMAN Type 0",
       "model": "GPT-6 Astra",
-      "status": "active: owner approval recorded; sealing B3 manager and maintaining integration/review/evidence",
+      "status": "active: owner-adopted B3 implementation, independent reviews, integration and run evidence; peer Runtime coordination discussion only",
       "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md"
     },
     "A1-LINT": {
@@ -305,18 +305,21 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
-      "status": "product/test checkpoint 26a7478b5b7e85760a8f9f8847690c548a01f9e5 frozen for complete-diff code review; final unit 87 files / 1387 tests, viewport 12 files / 240 tests, harness 379 and Rust 101 reported pass. Full source lane running; dist follows. Final debug native bundle built; final native CUA witness and ROOT own look blocked by locked macOS pending manual unlock. No completion/merge claim.",
+      "status": "Original accessibility findings independently closed through 1658a251. Product 2882acab9 adds predefined native text Undo/Redo; final uninstrumented confirmation pending. Failed DOM popup guard removed and preserved as evidence. Public AppKit signals support bounded isolated correlation prototype; no native popup bridge adopted. Final full lanes, native witness, independent backchecks, structure review, ROOT look, sweep and CI remain.",
       "dependsOn": [
         "B2F-B2G",
         "C1"
       ],
       "blockedBy": [
         {
-          "what": "macOS locked; CUA automatic unlock failed and requires manual unlock",
-          "with": "owner / host",
-          "blocks": "final native witness and ROOT own look; B3 merge",
-          "independentWork": "full headless lanes and frozen-diff code review continue",
-          "not": "no approval-review rejection; product decisions D1-D3 are resolved"
+          "what": "native select-popup Escape repair and final uninstrumented text/model Undo confirmation",
+          "with": "B3 manager; bounded isolated diagnosis/prototype",
+          "blocks": "B3 completion/merge; no new owner product ruling requested"
+        },
+        {
+          "what": "final native menu/title/window witness and remaining registered checks/reviews",
+          "with": "manager and ROOT",
+          "blocks": "B3 completion/merge"
         }
       ],
       "nextInstrument": {
@@ -443,7 +446,30 @@
         "owner strategy agreement",
         "owner D1-D3 product dispositions"
       ],
-      "candidate": "26a7478b5b7e85760a8f9f8847690c548a01f9e5"
+      "candidate": "2882acab94120cfa6c3c115ddb416a368cebd9cd",
+      "nativeHostState": {
+        "prior": "Mac lock blocked CUA; manual unlock requested",
+        "ownerReply": "unlocked",
+        "custody": "active chat supplied text, not transport bytes",
+        "status": "Native CUA available; manager serializes the current isolated prototype slot"
+      },
+      "nativeFindings": [
+        {
+          "id": "N1",
+          "what": "focused-input CmdZ preserves model but does not undo text",
+          "state": "A/B probe supports predefined responders; adopted at 2882acab9; final uninstrumented matrix pending"
+        },
+        {
+          "id": "N2",
+          "what": "first Escape from native select popup also closes inspector",
+          "state": "DOM-only observed-open guard failed silent same-value commits and was removed. Public AppKit lifecycle/action signals identified; isolated correlation prototype exposed overbroad window epoch, narrow correction authorized. No production bridge or repair pass."
+        },
+        {
+          "id": "N3",
+          "what": "exact native inner/outer/minimum dimensions not yet observed; standard Inspector access attempts did not expose route",
+          "state": "probe measured logical native window1280×800 and32px startup DOM-height delta; final uninstrumented confirmation remains; no800 CSS/D-72 claim"
+        }
+      ]
     },
     "B3A": {
       "role": "slice",
@@ -698,7 +724,7 @@
       "status": "launched; implementation and verification in progress",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_BRIEF.md",
       "briefSha256": "e494ccdc4763cca0ff53ae238a33c3d3a83299f66a701b75b107c1a5bdb5fb3f",
-      "candidate": "26a7478b5b7e85760a8f9f8847690c548a01f9e5",
+      "candidate": "2882acab94120cfa6c3c115ddb416a368cebd9cd",
       "returnSha256": null,
       "actualAgent": "/root/b3_manager",
       "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
@@ -737,7 +763,7 @@
           "role": "TASK Type 2",
           "model": "gpt-6-astra",
           "reasoning": "high",
-          "state": "running; launched for same bounded shell assignment before owner prospective Astra/low direction",
+          "state": "completed and returned; earlier Astra/high substitution preserved, not a new deployment",
           "evidenceOwner": "instances/B3-CODEX on shell lane"
         }
       ],
@@ -749,6 +775,66 @@
         "authorization": "ROOT operational decision on repeated capacity failure, disclosed in active commentary; the package named Astra/high for hard diagnosis but did not expressly approve the capacity case. This records the actual substitution, not a new owner ruling. Later owner model direction governs all new deployments.",
         "evidenceOwner": "instances/B3-CODEX on shell lane",
         "reviewIndependence": "separate author and fresh context; no model-diversity claim for substituted portion"
+      },
+      "nativeDiagnosis": {
+        "agent": "/root/b3_manager/native_keyboard_diagnosis",
+        "role": "TASK Type 2 read-only diagnosis",
+        "configuredModel": "gpt-6-astra",
+        "configuredReasoning": "low",
+        "briefSha256": "187bb52467dc6aafd0066e2b1ffdde64dce19431805f669aae57904035d5b743",
+        "evidenceOwner": "instances/B3-CODEX on shell lane",
+        "probeMethod": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_NATIVE_DIAGNOSIS_DECISION.md",
+        "probeMethodSha256": "6bb9db8364d4255e316bb740fd0c864cf1307f621a4d34ba35435662d3a85d90",
+        "appliedSkill": {
+          "origin": ".agents/skills/software-defect-diagnosis/SKILL.md",
+          "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23",
+          "consultedBy": "ROOT and manager; manager binds child context separately"
+        },
+        "state": "read-only diagnosis returned; causal hypotheses under probe",
+        "return": "instances/B3-CODEX/_run_records/native-keyboard-diagnosis/RETURN.md",
+        "returnSha256": "e173dbd2962a284c9b4c7ef6d0a88535b543390ae974e080529766325710ac25"
+      },
+      "nativeProbe": {
+        "agent": "/root/b3_manager/native_keyboard_probe",
+        "role": "TASK Type 2 isolated diagnostic probe",
+        "configuredModel": "gpt-6-astra",
+        "configuredReasoning": "low",
+        "briefSha256": "d5233a0f5618687b104583605897ef30245f02b53f246b64fe1a11b1acb87296",
+        "worktreeName": "swbpipe-b3-native-probe-20260919",
+        "base": "f5bc01f8beaa1c210b988fe28aea95573781f963",
+        "state": "completed; diagnostic evidence only",
+        "evidenceOwner": "instances/B3-CODEX on shell lane",
+        "return": "instances/B3-CODEX/_run_records/native-probe/RETURN.md",
+        "returnSha256": "b4381b46a97710573876f91d40bd64cbf533a80309edbb8732a4e5d1c5c334bd"
+      },
+      "selectPopupRepair": {
+        "agent": "/root/b3_manager/select_popup_repair",
+        "role": "TASK Type 2 bounded lifecycle module and isolated proof",
+        "configuredModel": "gpt-6-astra",
+        "configuredReasoning": "low",
+        "briefSha256": "693a1c83ca44c0a6953bcffa8dce87b48544a6d2faedd53d7656e2cdd3cbbe0a",
+        "status": "failed native same-value commit checks; production module/consumer removed; exact evidence retained on shell lane",
+        "disposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_NATIVE_REPAIR_DISPOSITION.md",
+        "initialDispositionSha256": "d21965f2ea3c1e8f405ce276e59dd89637d91b41c722e41d98bf101df3abee50",
+        "currentDispositionSha256": "29d36d269f60f96db5cd4dd8d5d6d94aae8a181acd79c2b295a4389fb9f5ef35"
+      },
+      "publicMenuSignalProbe": {
+        "agent": "/root/b3_manager/public_menu_signal_probe",
+        "role": "TASK Type 2 isolated public-API diagnostic probe",
+        "configuredModel": "gpt-6-astra",
+        "configuredReasoning": "low",
+        "state": "completed; tested commits emit action after end, cancellation does not; original Escape-keydown failure not reproduced; no production proof",
+        "return": "instances/B3-CODEX/_run_records/public-menu-signal-probe/RETURN.md",
+        "returnSha256": "7d2cfac5e2810d22bfd37e9ab82ae3acf65f63f1dae92338b34f081f8f641943"
+      },
+      "correlatedPopupPrototype": {
+        "agent": "/root/b3_manager/correlated_popup_prototype",
+        "role": "TASK Type 2 isolated native correlation prototype",
+        "configuredModel": "gpt-6-astra",
+        "configuredReasoning": "low",
+        "briefSha256": "39d3b77d249b79887f36d38e6b61f78ceb81618179128fd63de20f55c9e8e250",
+        "state": "Space-open binding observed; process-global window epoch failed same-value commit. One narrow owning-window correction authorized; pointer ownership and remaining native matrix unproven. No production adoption.",
+        "evidenceOwner": "instances/B3-CODEX on shell lane"
       }
     },
     "CONTINUATION-RECORDS-REVIEW": {
@@ -777,6 +863,33 @@
       "tailReturnSha256": "b792b8d848960e6abd6be3f8dc0582638c3922c4e6d35ca32c8cfe4a2ca3934a",
       "tailBackcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_TAIL_BACKCHECK.md",
       "tailBackcheckReturnSha256": "d41f5768865f09f204ec243a188dd9bb53c2b05ecfbaf7aa605363987b455c8e"
+    },
+    "B3-CODE-REVIEW": {
+      "role": "TASK Type 2 independent complete-diff read-only code review",
+      "parent": "ROOT",
+      "configuredModel": "gpt-6-astra",
+      "configuredReasoning": "xhigh",
+      "actualAgent": "/root/b3_code_review",
+      "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
+      "status": "original three P2 findings resolved through1658a251; separate native text-undo/select Escape failures still block final suitability",
+      "candidate": "8c0f1593963e4cc8ee3f8ca750f14587afb8c2e0",
+      "base": "c459a0fa15e8d33613b6b95f529b5d369c707874",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_CODE_REVIEW_BRIEF.md",
+      "briefSha256": "9381ac27b96b702ad244b6e3129a4824ed79d03bb476b908bcd4b26af14c6e7f",
+      "inputEvidenceIndex": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CODE_REVIEW_INPUTS.json",
+      "returnSha256": "b57e9452df4b826cc4061ee2678802f3020c9831418311a1f44bc99f782f4a40",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CODE_REVIEW_RETURN.md",
+      "findings": [
+        "covered shell stage remains keyboard/accessibility active under pages",
+        "rail/agent disabled-reason tooltips clipped",
+        "wide Both inspector Escape does not close"
+      ],
+      "backcheckCandidate": "99c0bf0e404982c7de358af56d8292317af730ad",
+      "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CODE_BACKCHECK_1_RETURN.md",
+      "backcheckReturnSha256": "69b73e0e7e45504afc31ea361d48a5a07773800a3f729766269242ee39eb134f",
+      "reviewedCandidate": "1658a2511e4e7527997bd3c0b0d3047f7287e3a4",
+      "backcheck2Return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CODE_BACKCHECK_2_RETURN.md",
+      "backcheck2ReturnSha256": "4c31f2064ef5a80e08313c2aee8e91fcef0acbf05661cd3d77cfee34d6acae72"
     }
   },
   "edges": [
@@ -915,9 +1028,13 @@
     [
       "ROOT",
       "CONTINUATION-RECORDS-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B3-CODE-REVIEW"
     ]
   ],
-  "current_frontier": "B3 source/test checkpoint 26a7478b5 frozen; ROOT preparing independent complete-diff review in swbpipe-wt2. Headless full source/dist verification continues. Native bundle passes build/Rust checks; final native CUA witness and ROOT look need manual Mac unlock, requested asynchronously. Owner Astra/low policy governs new Sol-designated workers. No merge, qualification, reconciliation or DAG rebuild claimed.",
+  "current_frontier": "Finish B3. Product 2882acab9 includes native text responders; select-popup Escape remains in isolated correlated-native prototype after failed DOM guard. Final native witness, repaired full lanes, code backcheck, structure review, ROOT look, clean sweep and CI remain. Runtime peer may advance disjoint generic mechanism under its reported owner grant; Piping integration is discussion only. No deliverable reconciliation or DAG rebuild.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -1120,5 +1237,12 @@
     "newSolDeployments": false,
     "existingInstances": "finish current bounded assignment with actual allocation preserved; no new assignment to evade direction",
     "otherAllocations": "Agent0/managers Astra high or greater; code review Astra xhigh; structure review Astra high, per approved strategy"
+  },
+  "runtimeCoordination": {
+    "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RUNTIME_COORDINATION_STATUS.md",
+    "editor": "ROOT only",
+    "peerThread": "01a07cd1-86da-7d30-9b17-e2cbbad3f10a",
+    "state": "discussion for Piping; peer reports separate owner grant for Runtime-only generic application tools; no Piping adoption or ownership transfer",
+    "originMainRevalidated": "485051eac923c759238948a54cd7bb094eee4899"
   }
 }
