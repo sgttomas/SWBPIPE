@@ -1,0 +1,45 @@
+{
+  "basis": "88c6c7463199d1d69caebde04678fa74facca78f",
+  "graphSha256": "cd75aa99f60182e51db861d2421a1f66c3359fa68883fa7dc8ec210fbe53c489",
+  "files": [
+    {
+      "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:AGENTS.md",
+      "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+    },
+    {
+      "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/AGENTS.md",
+      "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+    },
+    {
+      "origin": "git:88c6c7463199d1d69caebde04678fa74facca78f:projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94"
+    },
+    {
+      "origin": "ROOT continuation/B3B_MANAGER_BRIEF.md",
+      "sha256": "03186a0b04d1809ceb81139872a42c895ab2345cd6aa8cfbf4487b17b94f8b98"
+    },
+    {
+      "origin": "ROOT continuation/C3_MANAGER_BRIEF.md",
+      "sha256": "00dec6ffcbb1acfc2ba0d791854c3c135d7226f802d207e5d1b9047d460d23b2"
+    },
+    {
+      "origin": "ROOT continuation/C3_SHARED_INTERFACE_DRAFT.md",
+      "sha256": "34815f05fe750db1ae36af3dff30a117d3e74d3ffde6522d32f64fb60671cea9"
+    },
+    {
+      "origin": "ROOT continuation/OWNER_CI_ECONOMY_DIRECTION_2026-09-20.md",
+      "sha256": "e742088fc82f20ed68198cc8f83087b7600d4508c8ee3c49bb700c6cbd488878"
+    }
+  ],
+  "mechanism": "Retained managers through collaboration.followup_task; planned fresh native-harness descendants for bounded code",
+  "enforcement": "Unrestricted host; scopes instruction-enforced",
+  "cadence": "One proposed coherent batch; focused development, independent whole-batch review, complete local sweep before merge; owner-authorized lean CI where applicable"
+}
