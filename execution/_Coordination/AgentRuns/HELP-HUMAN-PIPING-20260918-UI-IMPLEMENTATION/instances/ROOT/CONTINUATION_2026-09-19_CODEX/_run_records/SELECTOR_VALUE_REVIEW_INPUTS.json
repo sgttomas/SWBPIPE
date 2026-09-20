@@ -1,0 +1,11 @@
+{
+  "candidate": "bf15aed87571df3601b99c350fc5296fb337cd91",
+  "baseline": "41098f1e18edf58c59b2694119ea76a37ab9a1bc",
+  "evidenceOrigin": "manager shell worktree, untracked",
+  "managerLogs": {
+    "compact-preserved-family-before.log": "902c77ff51798f21dc60546c3b5af10c45bf2b0db9b70717a10eb05899058611",
+    "compact-review-repair-focused.log": "8b4ccebbe0e6fa8af7875ee4638cf3cbc7cd01863f7159e7cbf168d8a0e55be3",
+    "full-unit-value-repair.log": "29c5372811fc25635190b99843103621569ca8cb6e60b9ed5df8b993ef474bdd",
+    "compact-value-repair-browser.log": "44d333708f7919e777d9f7a2c5633a91b816387f489e1650267707401a278294"
+  }
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "text": "Table",
+    "current": null,
+    "pressed": "false",
+    "disabled": null
+  },
+  {
+    "text": "Model",
+    "current": null,
+    "pressed": "false",
+    "disabled": null
+  },
+  {
+    "text": "Both",
+    "current": null,
+    "pressed": "true",
+    "disabled": null
+  },
+  {
+    "text": "Model",
+    "current": null,
+    "pressed": "false",
+    "disabled": null
+  },
+  {
+    "text": "Loads",
+    "current": "page",
+    "pressed": "true",
+    "disabled": null
+  },
+  {
+    "text": "Results",
+    "current": null,
+    "pressed": "false",
+    "disabled": "true"
+  },
+  {
+    "text": "Review",
+    "current": null,
+    "pressed": "false",
+    "disabled": "true"
+  },
+  {
+    "text": "Libraries",
+    "current": null,
+    "pressed": null,
+    "disabled": null
+  },
+  {
+    "text": "Rules",
+    "current": null,
+    "pressed": null,
+    "disabled": null
+  },
+  {
+    "text": "Issues\n5",
+    "current": null,
+    "pressed": null,
+    "disabled": null
+  },
+  {
+    "text": "Agent",
+    "current": null,
+    "pressed": null,
+    "disabled": "true"
+  }
+]

@@ -1,0 +1,64 @@
+{
+  "rect": {
+    "x": 1117,
+    "y": 512.515625,
+    "width": 259,
+    "height": 280,
+    "top": 512.515625,
+    "right": 1376,
+    "bottom": 792.515625,
+    "left": 1117
+  },
+  "options": [
+    {
+      "text": "Not provided (preserved)",
+      "selected": "true",
+      "disabled": "true"
+    },
+    {
+      "text": "Anchor",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Guide",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Line stop",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Vertical support",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Spring",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Variable spring hanger",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Spring hanger",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Constant-effort support",
+      "selected": "false",
+      "disabled": null
+    },
+    {
+      "text": "Nonlinear support",
+      "selected": "false",
+      "disabled": null
+    }
+  ]
+}

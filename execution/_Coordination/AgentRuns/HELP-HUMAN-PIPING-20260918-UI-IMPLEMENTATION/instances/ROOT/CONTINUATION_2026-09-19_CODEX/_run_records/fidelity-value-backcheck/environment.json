@@ -1,0 +1,11 @@
+{
+  "node": "v24.18.0",
+  "chromium": "148.0.7778.96",
+  "platform": "darwin",
+  "arch": "arm64",
+  "headless": true,
+  "viewport": {
+    "width": 1440,
+    "height": 920
+  }
+}

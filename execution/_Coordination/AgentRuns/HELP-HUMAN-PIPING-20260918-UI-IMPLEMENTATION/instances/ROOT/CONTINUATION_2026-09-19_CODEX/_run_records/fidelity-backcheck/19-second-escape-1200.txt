@@ -1,0 +1,81 @@
+File
+Edit
+View
+Insert
+Analyze
+SWBPIPE
+
+Invented Utility Loop Preview
+
+Table
+Model
+Both
+Run
+Issues
+5
+Entered
+SI
+US
+Search or command…
+⌘K
+Model
+Loads
+Results
+Review
+Libraries
+Rules
+Issues
+5
+Model
+Review changes
+3D Centerline
+Deformation · unavailable
+Labels
+Loads
+Grid
+Box Select
+Selection filter
+All
+Pipes
+Nodes
+Supports
+Components
+Hide
+Isolate
+Show All
+Fit Model
+Fit Visible
+Fit Selection
+Schematic
+Actual OD
+Measure
+Selected: project:invented-loop-01
+Schematic centerline geometry
+No view command dispatched.
+P-110
+C-120
+N-110
+N-120
+P-120
+P-130
+C-130
+N-100
+N-130
+N-140
+NL-140
+S-100
+Front
+Top
+Isometric
+1 m
+Node
+Pipe
+Support
+Component
+Load
+Node tool armed
+Selection & navigation
+Agent
+5 Issues
+project: project:invented-loop-01
+Entered

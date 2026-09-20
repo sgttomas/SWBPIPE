@@ -1,0 +1,144 @@
+File
+Edit
+View
+Insert
+Analyze
+SWBPIPE
+
+Invented Utility Loop Preview
+
+Table
+Model
+Both
+Run
+Issues
+5
+Entered
+SI
+US
+Search or command…
+⌘K
+Model
+Loads
+Results
+Review
+Libraries
+Rules
+Issues
+5
+Model
+Review changes
+3D Centerline
+Deformation · unavailable
+Labels
+Loads
+Grid
+Box Select
+Selection filter
+All
+Pipes
+Nodes
+Supports
+Components
+Hide
+Isolate
+Show All
+Fit Model
+Fit Visible
+Fit Selection
+Schematic
+Actual OD
+Measure
+Selected: project:invented-loop-01
+Schematic centerline geometry
+No view command dispatched.
+P-110
+C-120
+N-110
+N-120
+P-120
+P-130
+C-130
+N-100
+N-130
+N-140
+NL-140
+S-100
+Front
+Top
+Isometric
+1 m
+Node
+Pipe
+Support
+Component
+Load
+Node tool armed
+Selection & navigation
+Create node
+Node ID
+Label
+X
+Y
+Z
+Coordinate unit
+m
+Coordinates: m, model metadata
+Pointer plane: global XZ · Y=0 m
+Click within 4 CSS pixels on the visible 3D canvas to capture on global XZ at Y=0.
+Provenance
+Add node
+Enter a node label.; Enter finite X, Y, and Z coordinates.; Enter node provenance.
+Review and Apply
+
+The affected selection changed. Add again to review the current draft.
+
+Add a complete node or route to generate the service validation and exact diff.
+
+Apply
+Unit source
+Pending changes (0)
+Invented Utility Loop Preview — project: project:invented-loop-01
+Properties
+Task
+All properties
+Sources and units
+New support configuration
+Support configuration
+
+Choose the support family and enter its physical inputs. Family names do not supply restraints or engineering values. Missing inputs remain missing; validation determines readiness.
+
+Create support
+Support ID
+Support label
+Support node
+No target selected
+5 of 5 targets
+Pump nozzlenode:N-100
+Low point elbownode:N-110
+Riser elbownode:N-120
+Rack turnnode:N-130
+Terminal tie-innode:N-140
+Support family
+Vertical support
+Restrained degrees of freedom
+UX
+UY
+UZ
+RX
+RY
+RZ
+Support provenance
+Add support stiffness
+Include hanger data
+Include nonlinear behavior
+Queue support creation
+New section
+New material
+New support
+New component
+Agent
+5 Issues
+project: project:invented-loop-01
+Entered
+m

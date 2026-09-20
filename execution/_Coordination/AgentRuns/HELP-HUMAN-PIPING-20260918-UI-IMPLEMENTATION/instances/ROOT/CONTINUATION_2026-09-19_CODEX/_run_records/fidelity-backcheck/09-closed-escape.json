@@ -1,0 +1,22 @@
+{
+  "open": [
+    "New pipe from node",
+    "New pipe to node",
+    "New pipe material",
+    "New component node",
+    "New component realized pipe",
+    "Support node",
+    "New support node",
+    "New component node",
+    "New component realized pipe"
+  ],
+  "inspector": false,
+  "focus": "Inspector",
+  "theme": "dark",
+  "density": [
+    {
+      "tag": "MAIN",
+      "value": "compact"
+    }
+  ]
+}
