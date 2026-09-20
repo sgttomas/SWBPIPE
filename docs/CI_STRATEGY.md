@@ -29,12 +29,18 @@ These timings describe that run, not a future runtime guarantee.
   Run the remainder on four isolated runners, each with one worker. Preserve
   per-file execution semantics and all test entries; do not enable fullyParallel.
 - For changes confined to source specs, run changed specs plus the accessibility
-  barrier. For changes confined to `e2e/ui-foundation/`, run its source specs plus
-  the barrier. Source/dist are separate: dist specs or unclassified dependencies
-  do not silently qualify for source-only reduction. Rename/deletion/selection
-  uncertainty falls back to full.
-- Route from the complete PR diff, never only its last commit. Record selection
-  basis, head, changed files, selected specs/projects, omitted scope and reasons.
+  barrier. Instrument helpers and fixtures retain full coverage: some feed ordinary
+  UI-foundation and workspace-layout journeys outside their directory. Source/dist
+  are separate; dist specs and unclassified dependencies do not qualify for the
+  source-spec-only reduction. Rename/deletion/selection uncertainty falls back full.
+- Route from the complete PR diff, never only its last commit. Execute the exact
+  PR head and require the event target-base commit to be integrated into it; an
+  absent or unintegrated base blocks execution. Retain target base separately from
+  merge base. ROOT revalidates live main before merge. Record selection basis,
+  head, changed files, selected/omitted test IDs and reasons. Collect actual tests
+  before execution: every required title/profile must exist exactly once, each
+  selected file must be nonempty in both profiles, and full mode must prove the
+  barrier/remainder partition equals the complete source inventory exactly once.
   Unknown paths or invalid selection cannot produce a silently empty green run.
 - The stable aggregate check passes only when every job required by the selected
   plan succeeds. A failed or cancelled shard is incomplete coverage and cannot

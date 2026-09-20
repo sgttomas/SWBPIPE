@@ -6,9 +6,9 @@ by remaining authorized UI work. ROOT owns the Piping-specific CI workflow;
 the App/Runtime peer acknowledged no conflicting ownership or host resources.
 
 `docs/CI_STRATEGY.md` is the current scope: early accessibility barrier,
-conservative source-spec/instrument-only reductions, four isolated full-run
+conservative source-spec-only reduction, four isolated full-run
 shards, explicit full fallback/manual checkpoints, and a bounded PR825 repair
-exception anchored to tested002dff0f. Exact selection is emitted in CI evidence.
+exception anchored to tested002dff0f. Exact collected selection is emitted in CI evidence; a stale event target base blocks execution.
 A reduced pass is not full DEC-093 surface4 evidence. The local clean-candidate
 DEC-025 sweep, native witnesses and independent review remain required.
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Conservative source-mode CI routing. No shell execution or external packages."""
 import argparse
+from collections import Counter
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -60,7 +62,12 @@ def record(path):
 
 
 def repair_record(path):
-    return (record(path)
+    reproduction_records = {RUN + 'instances/B3-CODEX/ci-tooltip-repair/' + suffix for suffix in (
+        '_run_records/implementer/final-source.diff',
+        '_run_records/implementer/geometry-only.diff',
+        '_run_records/implementer/run-focused.sh', '_run_records/run-manager-check.sh',
+    )}
+    return (path in reproduction_records or record(path)
             or (any(path.startswith(x) for x in REPAIR_EVIDENCE)
                 and Path(path).suffix in {'.gz', '.png', '.zip'})
             or (path.startswith(PROJECT + 'validation/evidence/sweeps/')
@@ -77,7 +84,7 @@ def make_plan(root, event, base='', head='HEAD', pr=''):
         raise ValueError('Required accessibility barrier is missing')
     head = git(root, 'rev-parse', '--verify', head + '^{commit}').strip()
     plan = dict(version=1, mode='full', coverage_full=True, event=event, pr=str(pr),
-                base=None, head=head, baseline=None, changed_paths=[], baseline_delta=[],
+                base=None, target_base=base, head=head, baseline=None, changed_paths=[], baseline_delta=[],
                 projects=PROJECTS, inventory=specs, selected_specs=specs,
                 focused_spec=None, focused_titles=[], reasons=[], coverage_note='Full source coverage requires barrier and all four shards to succeed.')
     if event != 'pull_request':
@@ -107,10 +114,7 @@ def make_plan(root, event, base='', head='HEAD', pr=''):
     if plan['mode'] == 'full':
         active = [c for c in delta if not record(c['path'])]
         valid = active and all(c['status'] in {'A', 'M'} for c in active)
-        if valid and all(c['path'].startswith(E2E + 'ui-foundation/') for c in active):
-            plan.update(mode='instruments', selected_specs=sorted({FAST} | {s for s in specs if s.startswith('e2e/ui-foundation/')}),
-                        reasons=['Complete PR diff contains instrument inputs and optional records only; no benchmarks'])
-        elif valid and all(c['path'].startswith(E2E) and c['path'][len(DESKTOP):] in specs and
+        if valid and all(c['path'].startswith(E2E) and c['path'][len(DESKTOP):] in specs and
                          c['path'].endswith('.spec.ts') for c in active):
             plan.update(mode='changed-specs', selected_specs=sorted({FAST} | {c['path'][len(DESKTOP):] for c in active}),
                         reasons=['Complete PR diff contains source specs and optional records only'])
@@ -124,10 +128,28 @@ def make_plan(root, event, base='', head='HEAD', pr=''):
 def validate(root, plan):
     if not isinstance(plan, dict) or plan.get('version') != 1:
         raise ValueError('Invalid plan schema')
+    # Bind downloaded metadata to the hosted event, not only to its own fields.
+    if os.getenv('GITHUB_EVENT_NAME'):
+        if plan.get('event') != os.environ['GITHUB_EVENT_NAME']:
+            raise ValueError('Plan event differs from the hosted event')
+        if plan['event'] == 'pull_request':
+            event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
+            request = event['pull_request']
+            if (plan.get('target_base'), plan.get('head'), plan.get('pr')) != (
+                    request['base']['sha'], request['head']['sha'], str(event['number'])):
+                raise ValueError('Plan candidate/base differs from the hosted PR event')
     # Recompute instead of trusting downloaded command/filter data.
-    expected = make_plan(root, plan.get('event'), plan.get('base') or '', plan.get('head', ''), plan.get('pr', ''))
+    expected = make_plan(root, plan.get('event'), plan.get('target_base') or '', plan.get('head', ''), plan.get('pr', ''))
     if plan != expected:
         raise ValueError('Plan differs from checkout and conservative routing policy')
+    if plan['event'] == 'pull_request':
+        try:
+            if not plan['target_base']:
+                raise ValueError('Missing event target base')
+            target = git(root, 'rev-parse', '--verify', plan['target_base'] + '^{commit}').strip()
+            git(root, 'merge-base', '--is-ancestor', target, plan['head'])
+        except (subprocess.CalledProcessError, ValueError):
+            raise ValueError('Update the PR base: event target base is missing, unavailable or not integrated into head') from None
     if git(root, 'rev-parse', 'HEAD').strip() != plan['head']:
         raise ValueError('Plan head differs from checkout')
 
@@ -159,8 +181,148 @@ def commands(plan, stage, shard=None, list_only=False):
     return result
 
 
+def collected_tests(report):
+    """Normalize real Playwright list JSON without treating list status as a pass."""
+    if not isinstance(report, dict) or report.get('errors'):
+        raise ValueError('Playwright collection is invalid or contains errors')
+    rows = []
+    def visit(suite):
+        for spec in suite.get('specs', []):
+            for test in spec['tests']:
+                row = dict(id=spec['id'], file='e2e/' + spec['file'], title=spec['title'],
+                           project=test['projectName'], line=spec['line'])
+                if not all(isinstance(row[k], str) and row[k] for k in ('id', 'file', 'title', 'project')):
+                    raise ValueError('Malformed collected test identity')
+                rows.append(row)
+        for child in suite.get('suites', []):
+            visit(child)
+    visit(report)
+    if not rows:
+        raise ValueError('Empty Playwright collection')
+    return rows
+
+
+def test_key(row):
+    return row['id'], row['project'], row['file'], row['title']
+
+
+def validate_collections(plan, collections):
+    """Prove requested case/file/profile coverage and exact full partition."""
+    full = collections['source']
+    if not full or set(t['project'] for t in full) != set(PROJECTS):
+        raise ValueError('Source collection must contain both profiles')
+    full_ids = Counter(test_key(t) for t in full)
+    if any(n != 1 for n in full_ids.values()):
+        raise ValueError('Duplicate source test identities')
+    for file in plan['selected_specs']:
+        for profile in PROJECTS:
+            if not any(t['file'] == file and t['project'] == profile for t in full):
+                raise ValueError(f'Empty selected file/profile: {file} / {profile}')
+    for title in plan['focused_titles']:
+        for profile in PROJECTS:
+            found = [t for t in full if t['file'] == plan['focused_spec']
+                     and t['title'] == title and t['project'] == profile]
+            if len(found) != 1:
+                raise ValueError(f'Focused title must occur exactly once: {title} / {profile}')
+    if plan['mode'] == 'full':
+        names = ['barrier-0'] + [f'shard-{n}' for n in range(1, 5)]
+        expected = full
+    else:
+        names = [f'barrier-{n}' for n in range(len(commands(plan, 'barrier')))]
+        expected = [t for t in full if t['file'] in plan['selected_specs'] or
+                    (t['file'] == plan['focused_spec'] and t['title'] in plan['focused_titles'])]
+    selected = []
+    for name in names:
+        if not collections.get(name):
+            raise ValueError('Missing or empty required collection: ' + name)
+        selected.extend(collections[name])
+    if Counter(test_key(t) for t in selected) != Counter(test_key(t) for t in expected):
+        raise ValueError('Collected partition has missing, duplicate or unexpected test identities')
+    barrier_expected = Counter(test_key(t) for t in full if t['file'] == FAST)
+    if Counter(test_key(t) for t in collections['barrier-0']) != barrier_expected:
+        raise ValueError('Accessibility barrier collection differs from source inventory')
+    selected_keys = {test_key(t) for t in selected}
+    omitted = [dict(t, reason='Outside explicitly partial ' + plan['mode'] + ' selection')
+               for t in full if test_key(t) not in selected_keys]
+    return selected, omitted
+
+
+def collect_candidate(root, plan, stage, shard, evidence_dir):
+    """Validate cheap collection before any browser execution, on every runner."""
+    evidence_dir = Path(evidence_dir)
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    evidence = dict(kind='collection-only', status='incomplete', head=plan.get('head'),
+                    merge_base=plan.get('base'), target_base=plan.get('target_base'),
+                    mode=plan.get('mode'), stage=stage, shard=shard, commands={},
+                    selection_reasons=plan.get('reasons'),
+                    plan_sha256=hashlib.sha256(json.dumps(plan, sort_keys=True).encode()).hexdigest(),
+                    selected=[], omitted=[], execution_tests=[])
+    try:
+        validate(root, plan)
+        evidence['execution_commands'] = commands(plan, stage, shard)
+        config = Path(root) / DESKTOP / 'playwright.config.ts'
+        registry = Path(root) / PROJECT / 'node_modules/playwright-core/browsers.json'
+        evidence['identity'] = dict(config_sha256=hashlib.sha256(config.read_bytes()).hexdigest(),
+            selector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            config_path=DESKTOP + 'playwright.config.ts', browser_registry=json.loads(registry.read_text()),
+            configured_chromium_executable=os.getenv('PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH'),
+            mac_chrome_fallback_present=Path('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome').exists(),
+            browser_launched=False, runtime_browser_version=None)
+        # Unfiltered collection detects specs the filesystem discovery missed.
+        source_command = commands(plan, 'barrier', list_only=True)[0]
+        source_command = [arg for arg in source_command if arg != re.escape(FAST) + '$' and arg != '--max-failures=1']
+        requests = {'source': source_command}
+        for n, command in enumerate(commands(plan, 'barrier', list_only=True)):
+            requests[f'barrier-{n}'] = command
+        if plan['mode'] == 'full':
+            for n in range(1, 5):
+                requests[f'shard-{n}'] = commands(plan, 'remainder', n, list_only=True)[0]
+        collections = {}
+        for name, command in requests.items():
+            result = subprocess.run(command, cwd=Path(root) / DESKTOP, capture_output=True, text=True, timeout=180)
+            evidence['commands'][name] = dict(argv=command, returncode=result.returncode)
+            (evidence_dir / (name + '.stdout.json')).write_text(result.stdout)
+            (evidence_dir / (name + '.stderr.txt')).write_text(result.stderr)
+            if result.returncode:
+                raise ValueError(f'Collection {name} failed with exit {result.returncode}')
+            report = json.loads(result.stdout)
+            evidence['commands'][name]['config'] = report.get('config')
+            collections[name] = collected_tests(report)
+        selected, omitted = validate_collections(plan, collections)
+        evidence['identity']['source_file_sha256'] = {file: hashlib.sha256(
+            (Path(root) / DESKTOP / file).read_bytes()).hexdigest()
+            for file in sorted({t['file'] for t in collections['source']})}
+        selected = [dict(t, reason=('Full source coverage' if plan['mode'] == 'full'
+                    else 'Selected complete source file' if t['file'] in plan['selected_specs']
+                    else 'Required exact focused title/profile')) for t in selected]
+        execution_names = ([f'shard-{shard}'] if stage == 'remainder'
+                           else [name for name in requests if name.startswith('barrier-')])
+        # Validate stage parameters even when collection is invoked without execution.
+        commands(plan, stage, shard)
+        evidence.update(status='validated', selected=selected, omitted=omitted,
+                        partition={name: rows for name, rows in collections.items() if name != 'source'},
+                        execution_tests=[row for name in execution_names for row in collections[name]])
+    except Exception as exc:
+        evidence.update(status='failed', error=f'{type(exc).__name__}: {exc}')
+        raise
+    finally:
+        (evidence_dir / 'collection.json').write_text(json.dumps(evidence, indent=2) + '\n')
+        summary = (f"## Source collection: {stage} {shard or ''}\n\n"
+                   f"Status: {evidence['status']}; head: `{evidence['head']}`; "
+                   f"target base: `{evidence['target_base']}`; merge base: `{evidence['merge_base']}`.\n\n"
+                   f"Selected {len(evidence['selected'])}; omitted {len(evidence['omitted'])}; "
+                   f"this stage {len(evidence['execution_tests'])}. Collection is not a test pass.\n")
+        if 'error' in evidence:
+            summary += '\n' + evidence['error'] + '\n'
+        (evidence_dir / 'summary.md').write_text(summary)
+        if os.getenv('GITHUB_STEP_SUMMARY'):
+            with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+                out.write(summary)
+    return evidence
+
+
 def aggregate(mode, selection, barrier, remainder):
-    return (mode in {'full', 'changed-specs', 'instruments', 'pr825-repair'}
+    return (mode in {'full', 'changed-specs', 'pr825-repair'}
             and selection == barrier == 'success'
             and remainder == ('success' if mode == 'full' else 'skipped'))
 
@@ -178,7 +340,8 @@ def main():
     run.add_argument('--plan', required=True)
     run.add_argument('--stage', choices=['barrier', 'remainder'], required=True)
     run.add_argument('--shard', type=int)
-    run.add_argument('--list', action='store_true')
+    run.add_argument('--list', action='store_true', help='Validate collection only; do not execute tests')
+    run.add_argument('--evidence-dir', required=True)
     gate = sub.add_parser('aggregate')
     for key in ('mode', 'selection', 'barrier', 'remainder'):
         gate.add_argument('--' + key, required=True)
@@ -199,10 +362,13 @@ def main():
             with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
                 out.write(summary)
         print(summary)
+        validate(root, plan)
     else:
         plan = json.loads(Path(args.plan).read_text())
-        validate(root, plan)
-        for command in commands(plan, args.stage, args.shard, args.list):
+        collect_candidate(root, plan, args.stage, args.shard, args.evidence_dir)
+        if args.list:
+            return
+        for command in commands(plan, args.stage, args.shard):
             print(json.dumps(command), flush=True)
             subprocess.run(command, cwd=root / DESKTOP, check=True)
 

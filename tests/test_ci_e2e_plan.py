@@ -16,6 +16,12 @@ spec.loader.exec_module(ci)
 
 class SelectionTests(unittest.TestCase):
     def setUp(self):
+        # Fixture repositories are independent of the outer GitHub event.
+        environment = patch.dict(ci.os.environ)
+        environment.start()
+        self.addCleanup(environment.stop)
+        ci.os.environ.pop('GITHUB_EVENT_NAME', None)
+        ci.os.environ.pop('GITHUB_EVENT_PATH', None)
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
@@ -74,6 +80,9 @@ class SelectionTests(unittest.TestCase):
         plan = self.plan(base=target)
         self.assertEqual(plan['base'], self.base)
         self.assertEqual(plan['mode'], 'changed-specs')
+        self.assertEqual(plan['target_base'], target)
+        with self.assertRaisesRegex(ValueError, 'Update the PR base'):
+            ci.validate(self.root, plan)
 
     def test_spec_and_record_reduction(self):
         self.write(ci.E2E + 'workspace-layout.spec.ts')
@@ -85,19 +94,19 @@ class SelectionTests(unittest.TestCase):
         self.assertFalse(plan['coverage_full'])
         ci.validate(self.root, plan)
 
-    def test_instrument_inputs_select_all_instruments_without_benchmarks(self):
+    def test_instrument_inputs_use_full_fallback(self):
         self.write(ci.E2E + 'ui-foundation/helper.ts')
         self.commit()
         plan = self.plan()
-        self.assertEqual(plan['mode'], 'instruments')
-        self.assertEqual(set(plan['selected_specs']), {ci.FAST, 'e2e/ui-foundation/a.spec.ts', 'e2e/ui-foundation/b.spec.ts'})
+        self.assertEqual(plan['mode'], 'full')
+        self.assertIn('e2e/workspace-layout.spec.ts', plan['selected_specs'])
 
-    def test_instrument_spec_changes_still_select_all_instruments(self):
+    def test_instrument_spec_only_changes_use_changed_specs(self):
         self.write(ci.E2E + 'ui-foundation/a.spec.ts')
         self.commit()
         plan = self.plan()
-        self.assertEqual(plan['mode'], 'instruments')
-        self.assertIn('e2e/ui-foundation/b.spec.ts', plan['selected_specs'])
+        self.assertEqual(plan['mode'], 'changed-specs')
+        self.assertNotIn('e2e/ui-foundation/b.spec.ts', plan['selected_specs'])
 
     def test_unknown_input_and_executable_record_fall_back(self):
         for path in ['unclassified.config', ci.PROJECT + 'execution/run/code.py',
@@ -107,6 +116,28 @@ class SelectionTests(unittest.TestCase):
                 self.write(path)
                 self.commit()
                 self.assertEqual(self.plan()['mode'], 'full')
+
+    def test_shared_instrument_helper_and_fixture_force_full(self):
+        for path in ['benchmark-harness.ts', 'fixtures/input.json']:
+            self.write(ci.E2E + 'ui-foundation/' + path)
+            self.commit()
+            self.assertEqual(self.plan()['mode'], 'full')
+
+    def test_unavailable_target_base_blocks_execution(self):
+        for base in ['', 'unavailable']:
+            plan = self.plan(base=base)
+            with self.assertRaisesRegex(ValueError, 'Update the PR base'):
+                ci.validate(self.root, plan)
+
+    def test_hosted_event_cannot_be_relabelled_or_drop_target_base(self):
+        plan = self.plan()
+        event_file = self.root / 'event.json'
+        event_file.write_text(json.dumps({'number': 826, 'pull_request': {
+            'base': {'sha': self.base}, 'head': {'sha': plan['head']}}}))
+        with patch.dict(ci.os.environ, {'GITHUB_EVENT_NAME': 'pull_request', 'GITHUB_EVENT_PATH': str(event_file)}):
+            ci.validate(self.root, plan)
+            for patch_data in [{'event': 'workflow_dispatch'}, {'target_base': ''}, {'pr': '825'}]:
+                with self.assertRaises(ValueError): ci.validate(self.root, {**plan, **patch_data})
 
     def test_deleted_and_renamed_specs_fall_back(self):
         old = self.root / (ci.E2E + 'workspace-layout.spec.ts')
@@ -154,6 +185,16 @@ class SelectionTests(unittest.TestCase):
         self.commit()
         self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
         self.write(ci.PROJECT + 'execution/other/trace.zip')
+        self.commit()
+        self.assertEqual(self.plan(pr='825')['mode'], 'full')
+
+    def test_only_exact_reproduction_scripts_are_exception_records(self):
+        self.write(ci.DESKTOP + 'src/styles.css')
+        prefix = ci.RUN + 'instances/B3-CODEX/ci-tooltip-repair/'
+        self.write(prefix + '_run_records/implementer/run-focused.sh')
+        self.commit()
+        self.assertEqual(self.plan(pr='825')['mode'], 'pr825-repair')
+        self.write(prefix + '_run_records/other.sh')
         self.commit()
         self.assertEqual(self.plan(pr='825')['mode'], 'full')
 
@@ -220,6 +261,72 @@ class SelectionTests(unittest.TestCase):
             ci.commands(plan, 'remainder', 1)
 
 
+class CollectionTests(unittest.TestCase):
+    def row(self, file, title, project, suffix=''):
+        return dict(id=file + title + project + suffix, file=file, title=title, project=project, line=1)
+
+    def basis(self, mode='full'):
+        files = ci.FOCUSED
+        source = [self.row(file, 'ordinary', project) for file in files for project in ci.PROJECTS]
+        source += [self.row('e2e/ui-foundation.spec.ts', title, project)
+                   for title in ci.FOCUSED_TITLES for project in ci.PROJECTS]
+        plan = dict(mode=mode, inventory=files + ['e2e/ui-foundation.spec.ts'],
+                    selected_specs=files + (['e2e/ui-foundation.spec.ts'] if mode == 'full' else []),
+                    focused_spec='e2e/ui-foundation.spec.ts' if mode == 'pr825-repair' else None,
+                    focused_titles=ci.FOCUSED_TITLES if mode == 'pr825-repair' else [])
+        collections = dict(source=source, **{'barrier-0': source[:2]})
+        if mode == 'full':
+            for n in range(4): collections[f'shard-{n+1}'] = source[2+n::4]
+        else:
+            collections['barrier-1'] = source[2:6]
+            if mode == 'pr825-repair': collections['barrier-2'] = source[6:]
+        return plan, collections
+
+    def test_valid_full_and_reduced_collections(self):
+        for mode in ['full', 'changed-specs', 'pr825-repair']:
+            plan, collections = self.basis(mode)
+            selected, omitted = ci.validate_collections(plan, collections)
+            self.assertEqual(len(selected) + len(omitted), len(collections['source']))
+            self.assertEqual(bool(omitted), mode == 'changed-specs')
+
+    def test_missing_duplicate_focused_title_and_profile_are_refused(self):
+        for mutation in ['missing', 'duplicate', 'profile']:
+            plan, collections = self.basis('pr825-repair')
+            target = collections['source'][-1]
+            if mutation == 'missing': collections['source'].remove(target)
+            elif mutation == 'duplicate': collections['source'].append({**target, 'id': 'distinct-duplicate-title'})
+            else: collections['source'] = [t for t in collections['source'] if t['project'] != ci.PROJECTS[1]]
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                ci.validate_collections(plan, collections)
+
+    def test_empty_selected_file_or_profile_is_refused(self):
+        plan, collections = self.basis()
+        collections['source'] = [t for t in collections['source'] if t['file'] != ci.FOCUSED[1]]
+        with self.assertRaisesRegex(ValueError, 'Empty selected file/profile'):
+            ci.validate_collections(plan, collections)
+
+    def test_missing_duplicate_empty_partition_refused(self):
+        for mutation in ['missing', 'duplicate', 'empty', 'lost-test', 'wrong-barrier']:
+            plan, collections = self.basis()
+            if mutation == 'missing': del collections['shard-4']
+            elif mutation == 'duplicate': collections['shard-4'].append(collections['shard-1'][0])
+            elif mutation == 'empty': collections['shard-4'] = []
+            elif mutation == 'lost-test': collections['shard-4'].pop()
+            else: collections['barrier-0'][0], collections['shard-1'][0] = collections['shard-1'][0], collections['barrier-0'][0]
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                ci.validate_collections(plan, collections)
+
+    def test_missing_filtered_case_cannot_hide_behind_other_matches(self):
+        plan, collections = self.basis('pr825-repair')
+        collections['barrier-2'].pop()
+        with self.assertRaisesRegex(ValueError, 'partition'):
+            ci.validate_collections(plan, collections)
+
+    def test_collection_json_must_be_nonempty_and_error_free(self):
+        for report in [{}, {'errors': [{'message': 'collection failed'}]}, {'suites': []}]:
+            with self.assertRaises(ValueError): ci.collected_tests(report)
+
+
 class GateTests(unittest.TestCase):
     def test_full_requires_every_dependency_success(self):
         self.assertTrue(ci.aggregate('full', 'success', 'success', 'success'))
@@ -230,12 +337,13 @@ class GateTests(unittest.TestCase):
                 self.assertFalse(ci.aggregate('full', *values))
 
     def test_only_explicit_reduced_remainder_can_skip(self):
-        for mode in ['changed-specs', 'instruments', 'pr825-repair']:
+        for mode in ['changed-specs', 'pr825-repair']:
             self.assertTrue(ci.aggregate(mode, 'success', 'success', 'skipped'))
             self.assertFalse(ci.aggregate(mode, 'success', 'success', 'failure'))
             self.assertFalse(ci.aggregate(mode, 'failure', 'success', 'skipped'))
             self.assertFalse(ci.aggregate(mode, 'success', 'cancelled', 'skipped'))
         self.assertFalse(ci.aggregate('', 'success', 'success', 'skipped'))
+        self.assertFalse(ci.aggregate('instruments', 'success', 'success', 'skipped'))
 
 
 if __name__ == '__main__':
