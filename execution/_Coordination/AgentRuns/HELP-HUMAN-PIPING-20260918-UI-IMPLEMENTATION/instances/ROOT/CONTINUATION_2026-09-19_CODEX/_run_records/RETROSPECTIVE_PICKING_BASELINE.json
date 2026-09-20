@@ -1,0 +1,40 @@
+{
+  "kind": "independent retrospective baseline; not contemporaneous first-run custody",
+  "candidate": "06088fcca82f2968a1cdf036d9c111108db81fb7",
+  "originMain": "c459a0fa15e8d33613b6b95f529b5d369c707874",
+  "worktree": "swbpipe-wt2",
+  "sourceComparison": {
+    "argv": [
+      "git",
+      "diff",
+      "--exit-code",
+      "06088fcca82f2968a1cdf036d9c111108db81fb7",
+      "origin/main",
+      "--",
+      "projects/chirality-piping/apps/desktop/src/features/viewport",
+      "projects/chirality-piping/apps/desktop/src/features/workspace/modelIndex.ts"
+    ],
+    "cwd": "repository root",
+    "exitCode": 0,
+    "stdout": ""
+  },
+  "test": {
+    "cwd": "projects/chirality-piping/apps/desktop",
+    "argv": [
+      "npm",
+      "exec",
+      "--",
+      "vitest",
+      "run",
+      "src/features/viewport/viewportSelection.test.ts"
+    ],
+    "exitCode": 0,
+    "filesPassed": 1,
+    "testsPassed": 69,
+    "vitestVersion": "4.1.10",
+    "rawOutput": "retrospective-picking-baseline.log",
+    "sha256": "90ed4f8b8da65c8566c187a14629fe4c40557eb8814aa60936a3e55d67bdad7f"
+  },
+  "workingTreeCleanAfter": true,
+  "limitation": "Does not restore missing original implementer first-run output. Final candidate regression run remains required."
+}

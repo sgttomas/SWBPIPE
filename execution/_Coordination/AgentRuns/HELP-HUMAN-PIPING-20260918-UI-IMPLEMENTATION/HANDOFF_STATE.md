@@ -123,3 +123,7 @@ Live origin/main and both unmerged lanes revalidated. No agents launched and no 
 ## Owner approval — Codex continuation
 
 The owner agreed to the proposed strategy and all three dispositions. Verbatim approval and adopted-package hash: `instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_APPROVAL.md`. B3 manager brief sealed; actual launch belongs in WORK_GRAPH.json. D1 is overlay with complete clearance, not padding. D2 table-first inspector lending; D3 Both-only assertion replacement. B3 native evidence and independent complete-candidate review remain required.
+
+## Model steering — new deployments
+
+Owner directs all new Sol-designated workers to gpt-6-astra/low. Authority: `instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MODEL_DIRECTION.md`; execution instructions: B3 manager addendum 2 and ORCHESTRATION_PLAN amendment 2. Existing instance attribution stays historical; current bounded tasks can finish. No new Sol launch or new assignment by reuse. Product work continues B3 first.

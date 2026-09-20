@@ -139,3 +139,19 @@ The Apple App ID; typed-interface and engine gaps per gap (G-11 Stale runs and G
 ROOT put the tokens slice and the canvas colour slice first and let a design-system amendment grow a review loop that the shell's next slice was told to wait on. ROOT also wrote "background" into the managers' briefs. Both were ROOT's choices and neither was the owner's.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+## Amendment 2 (2026-09-19) — Codex worker model update
+
+For this continuation, the owner-approved strategy is
+`instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md`, adopted by
+`OWNER_APPROVAL.md` beside it. The later owner direction in that directory's
+`OWNER_MODEL_DIRECTION.md` replaces all prospective Sol worker slots with
+**gpt-6-astra / low** for newly deployed instances. B3 manager addendum 2 applies
+it to child launches; later shell/canvas/native worker briefs use the same rule.
+
+Existing execution attribution remains historical. Agent 0/managers and
+independent reviewer allocations remain as the approved strategy specifies.
+No new Sol worker is launched or assigned a new bounded task through reuse of
+an old instance. Product scope, B3-first sequencing and all verification/review
+requirements remain. Historical model tables above are not this continuation's
+active allocation.

@@ -305,7 +305,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
-      "status": "active implementation under approved D1/D2/D3 and strategy; shell and native executors launched by manager. Initial full unit run reported 1381 passed / 3 failed; inspector navigation/focus repair queued, one old arming assertion requires named semantic update. Native Tauri witness in progress; no frozen candidate or completion claim.",
+      "status": "active verification; first full unit repair rerun 87 files / 1385 tests green. Browser triage found toolkit focus timing and expanded-drawer splitter hit-coverage defects; repairs and backchecks underway. Native menu reselect and Undo/Redo accelerators being completed and verified. Sol capacity interruptions caused same-scope Astra/high continuation. Final full lanes and exact native dimension witness remain before freeze.",
       "dependsOn": [
         "B2F-B2G",
         "C1"
@@ -396,6 +396,14 @@
         "clean-candidate DEC-025 sweep",
         "actual-candidate required CI",
         "merge commit"
+      ],
+      "continuationEngineeringDecisions": [
+        {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_UNDO_OWNERSHIP_DECISION.md",
+          "sha256": "174fe12bd21785297f4d4d91e14cc217bbd36bf884dae262fff7ef6be31418dd",
+          "by": "ROOT; not owner ruling",
+          "status": "directed; native proof pending"
+        }
       ]
     },
     "B3A": {
@@ -662,6 +670,10 @@
         {
           "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_ADDENDUM_1.md",
           "sha256": "9deba418f41a372e4b7f3522ebe58ada2b5360b50fbefadd8bceb812cfd15b61"
+        },
+        {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_ADDENDUM_2.md",
+          "sha256": "f3363e5a2b365af8d0a95cfc1893d80f29ee21dd6aa8aaabd40a63ddb9147ae2"
         }
       ],
       "children": [
@@ -670,7 +682,7 @@
           "role": "TASK Type 2",
           "model": "gpt-5.6-sol",
           "reasoning": "high",
-          "state": "running; first capacity failure, one same-model retry succeeded",
+          "state": "capacity-interrupted; preserved messages/checkpoints; remaining work assigned fresh Astra/high child",
           "evidenceOwner": "instances/B3-CODEX on shell lane"
         },
         {
@@ -681,7 +693,16 @@
           "state": "running",
           "evidenceOwner": "instances/B3-CODEX on shell lane"
         }
-      ]
+      ],
+      "availabilitySubstitution": {
+        "scope": "remaining shell assignment",
+        "from": "gpt-5.6-sol/high",
+        "to": "gpt-6-astra/high",
+        "reason": "repeated model capacity interruptions after temporary successful retries",
+        "authorization": "ROOT invoked named fallback pool within approved strategy; disclosed to owner in active commentary",
+        "evidenceOwner": "instances/B3-CODEX on shell lane",
+        "reviewIndependence": "separate author and fresh context; no model-diversity claim for substituted portion"
+      }
     },
     "CONTINUATION-RECORDS-REVIEW": {
       "role": "TASK Type 2 read-only independent review",
@@ -845,7 +866,7 @@
       "CONTINUATION-RECORDS-REVIEW"
     ]
   ],
-  "current_frontier": "B3 implementation active on shell lane after clean merge a63607e5c of origin/main c459a0fa1. Sol/high shell and native Type 2 executors work under Astra/high manager; ROOT owns shared graph and independent review. Initial full unit failures are being repaired, native witness underway, browser lanes pending. Records review passed on d080c3344 after two corrected findings; new metadata/product require actual-candidate coverage. Canvas I1 and parked design preserved. No deliverable reconciliation or DAG rebuild.",
+  "current_frontier": "B3 first, active verification under approved strategy/D1-D3. Shell manager owns product fan-in, two Sol/high executors; ROOT owns records, independent review, final integration. Unit rerun green; browser geometry triage and final native backchecks underway before freeze. Records review passed on d080c3344, later changes await candidate review. Canvas I1 and parked design preserved; no reconciliation/DAG rebuild.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -936,6 +957,12 @@
       "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_STEER.md",
       "custody": "active-chat text, no transport-byte claim",
       "sha256": "da28b028d8100b207d4f1742d9fde2383441f650f0e7d779edef0e38fb5c397e"
+    },
+    {
+      "date": "2026-09-19",
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MODEL_DIRECTION.md",
+      "sha256": "29af1ded5d35ec10efd0820db164ea6d7dca2ae4330dfdc9eb2c9e1e1720cd14",
+      "custody": "active-chat text, not transport bytes"
     }
   ],
   "openWithOwner": {
@@ -1030,5 +1057,16 @@
         "basis": "historical filing; retained without reconciliation"
       }
     }
+  },
+  "modelPolicy": {
+    "authority": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MODEL_DIRECTION.md",
+    "effective": "new deployments after this active-chat direction",
+    "replacementForSol": {
+      "model": "gpt-6-astra",
+      "reasoning": "low"
+    },
+    "newSolDeployments": false,
+    "existingInstances": "finish current bounded assignment with actual allocation preserved; no new assignment to evade direction",
+    "otherAllocations": "Agent0/managers Astra high or greater; code review Astra xhigh; structure review Astra high, per approved strategy"
   }
 }
