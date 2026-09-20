@@ -1,0 +1,36 @@
+{
+  "candidate": "8c0f1593963e4cc8ee3f8ca750f14587afb8c2e0",
+  "productCheckpoint": "26a7478b5b7e85760a8f9f8847690c548a01f9e5",
+  "base": "c459a0fa15e8d33613b6b95f529b5d369c707874",
+  "evidenceWorktree": "swbpipe-wt3",
+  "logs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-unit-candidate.log",
+      "bytes": 1480104,
+      "sha256": "711373a43ced9b77e75c5acc8ef14e423de91a496e38cf723852198a54d0c6d8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/shell/viewport-final.log",
+      "bytes": 289,
+      "sha256": "2c8b2fe586e0f1b6249b1ebe2e88fe84977b6a36e80c73283aea96af1385470a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/harness-pytest.log",
+      "bytes": 511,
+      "sha256": "c849624b6e46d6b13808a6d2d65418c746b3d6af851f246c4588a03006d6af61"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/harness-self-check-mise.log",
+      "bytes": 41362,
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+    }
+  ],
+  "pending": [
+    "full source and dist lanes",
+    "final native CUA witness on rebuilt bundle; Mac locked",
+    "ROOT own app inspection",
+    "structure-only fidelity review",
+    "clean-candidate DEC-025 sweep",
+    "required actual-head CI"
+  ]
+}

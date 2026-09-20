@@ -1,0 +1,30 @@
+**FINDINGS — not yet suitable for fan-in.** Three actionable P2 defects remain on frozen candidate `8c0f1593963e4cc8ee3f8ca750f14587afb8c2e0`, reviewed against `c459a0fa15e8d33613b6b95f529b5d369c707874`.
+
+1. **P2 — covered stage controls remain keyboard-accessible behind pages.**  
+   [App.tsx:360](/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/src/App.tsx:360), with [styles.css:3870](/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/src/styles.css:3870). Opening Libraries, Rules, Project, Analyze, or Exports places an opaque page over the stage without making the covered surfaces inert or hidden from accessibility navigation. From the Libraries rail button, Tab proceeds through Rules and Issues into the covered stage tabs, tree, and viewport controls before reaching page content. Focus becomes invisible, and Enter can activate a covered control. Preserve mounting and canvas dimensions, but remove covered surfaces from keyboard/accessibility interaction and manage page entry/return focus. Add an actual Tab-sequence regression; existing geometry tests deliberately retain the underlying boxes and do not establish focus isolation.
+
+2. **P2 — rail and agent-strip disabled reasons are clipped.**  
+   [styles.css:3790](/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/src/styles.css:3790). Both containers use `overflow: hidden`, while lines 3781–3782 position their reason tooltips entirely outside those containers. Focus Results or Review before a run, or the unavailable Agent strip button: the custom reason changes to `display: block` but remains clipped. The `title` attribute does not provide the specified visible keyboard-focus reason. Render these tooltips in an unclipped layer and verify their visible rectangles under keyboard focus. Current unit tests verify text, association, and focusability only.
+
+3. **P2 — the advertised inspector Escape action fails at native-supported widths.**  
+   [App.tsx:744](/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/src/App.tsx:744), [workspaceSession.ts:2180](/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2180). At 1280 px or wider, manually open the Both-view inspector, focus its “Close inspector” button, and press Escape. The pane handler returns immediately because of the width guard; the global handler moves focus to Select without closing the inspector. This conflicts with its `Close (⎋)` tooltip and UX §5.1. Implement focused-inspector Escape independently of the narrow drawer handling, preserve nested consumed events and Model view’s always-docked behavior, and test wide pointer/keyboard equivalence.
+
+These findings follow directly from the frozen DOM, CSS, and handler paths. I did not perform a browser or native reproduction.
+
+Coverage and checks:
+
+- Inventoried all **97 changed paths** and reviewed the complete **45-file desktop diff**, including inherited implementation and test amendments. Examined current coordination records and historical failure/move provenance. The 17 historical PNGs received identity/dimension checks, not fresh visual qualification.
+- Verified clean review worktree HEAD and branch `codex/swbpipe-b3-20260919`. Desktop bytes exactly match checkpoint `26a7478b5b7e85760a8f9f8847690c548a01f9e5`.
+- `validate_change_scope.py` passed against the three declared roots.
+- All four indexed evidence hashes matched: unit **87 files / 1,387 tests**, viewport **12 files / 240 tests**, harness **379 tests**, and the retained harness self-check output.
+- No additional tests, servers, browsers, native sessions, benchmarks, file edits, Git mutations, or delegation.
+- `git diff --check` reports six whitespace-only CSS lines and a blank EOF in the retained retrospective log. These are hygiene observations, not additional product findings; preserve raw evidence bytes.
+- Found no additional confirmed defect in the operation/result guards, history route, persistence compatibility, native command mapping, routing restoration, or approved split arithmetic. The protected geometry helpers retain drawn-canvas floors, inspector dominance, and picking endpoints; their named replacements follow D1–D3 and the recorded structural moves.
+
+**Outstanding gates remain:** affected repair checks and independent backcheck; complete source/dist lanes; final Tauri menu, check-state, title, minimum-window and text/model Undo/Redo witness; structure-only fidelity review; ROOT’s own inspection; clean-candidate DEC-025 sweep; required actual-candidate CI. Rust 101 and final bundle success remain reported evidence here, not independently verified by me. The locked Mac is a pending host witness, not a pass or an approval-review rejection.
+
+Context custody: ROOT worktree supplied the sealed brief, checklist, adopted strategy/approval, model direction, manager brief/addenda, Undo ownership decision, and evidence index. All five bound instruction hashes matched. Brief SHA-256 is `9381ac27b96b702ad244b6e3129a4824ed79d03bb476b908bcd4b26af14c6e7f`; evidence-index SHA-256 is `4fad4532dc31905c2fa7107ea36bd24d2c226c9e7995f668185838cec3de6a5f`. The transcript retains the complete additional context hash manifest. Relevant design sources matched UX specification `2141c1e844109d4869287048c695e79677f423acae965d5dd0436b7f6aeff682`, operations map `47e2aa303a358b77fa89439aac198146dbc0a2a13cef9fb86521789888f111c2`, and implementation handoff `0711b0e35f8d02f404dcae9a2b440bcf4506d5f0f9b76dc748195952bf7ab9a7`.
+
+Independent TASK Type 2, parent ROOT HELP_HUMAN Agent 0; requested allocation **gpt-6-astra / xhigh**, Codex native descendant. Backend model/effort telemetry was not independently available. Independence is by author and fresh context, not model diversity.
+
+Standard F-PIP-2 / DEC-081 claim fence applies. No acceptance, release, usability, or performance qualification is established.
