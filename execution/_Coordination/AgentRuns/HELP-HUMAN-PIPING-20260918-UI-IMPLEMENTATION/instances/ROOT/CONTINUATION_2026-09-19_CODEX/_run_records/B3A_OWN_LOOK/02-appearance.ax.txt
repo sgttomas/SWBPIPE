@@ -1,0 +1,11 @@
+The following is a diff from the previous accessibility tree for Window: "Blank Local Model — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 23
++					130 container (expanded) Secondary Actions: Collapse
++						131 summary Appearance, Value: on
++						132 container
++							133 text Theme
++							134 pop up button Appearance theme, Value: System
++						135 container
++							136 text Density
++							137 pop up button Workspace density, Value: Comfortable
+The focused UI element is 131 summary Appearance, Value: on

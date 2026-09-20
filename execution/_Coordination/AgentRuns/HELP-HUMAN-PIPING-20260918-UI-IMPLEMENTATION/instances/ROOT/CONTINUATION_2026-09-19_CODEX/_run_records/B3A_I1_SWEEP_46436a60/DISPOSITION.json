@@ -1,0 +1,19 @@
+{
+  "candidate": "46436a60310819f60d6376bc87cc093c1b33b59f",
+  "sourceProduct": "d2ef16848841616a26c35bfc03e68c7b64e79380",
+  "instrument": "045acae749fe1acc95bce221cdb58c2db4a7064c",
+  "verdict": "failed; not relabelled or combined into a passing sweep",
+  "diagnosis": "Two existing App.test.tsx expectations still asserted pre-B3A display text and no fallback chip for MECHANICS_BLOCKED/MECHANICS_NONCONVERGED. Owner item 2 authorizes updating those display expectations; solved-only consumers/geometry/integrity assertions stay unchanged.",
+  "rawLogSha256": "0840efc782423c377a5804abc9cdf114d9615f292d6e64854943bf6ae331a31c",
+  "summarySha256": "dc437de2b99200a823bea151e08e0cbbeddf2478752cf8493511332c81ec5cd2",
+  "compressedLogSha256": "f80d830a3d1dfe3a6a537bb0182ba3372ae8c4096c7e0305fed3bc2e588014e5",
+  "environment": {
+    "python": "mise Python 3.13",
+    "node": "mise Node 24",
+    "browser": "pinned Chromium 1223; never reached in this failed sweep",
+    "workers": 1,
+    "capability": "host",
+    "sharedLock": true
+  },
+  "next": "Focused regression amendment and independent backcheck, then one fresh clean complete sweep. No general reuse waiver inferred from PR825."
+}

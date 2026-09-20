@@ -10,9 +10,9 @@ changes require acknowledged handoffs; silence transfers nothing.
 | Worktree / branch | Owner and current scope |
 |---|---|
 | b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality / codex/swbpipe-continuation-20260919 | ROOT: shared records, graph, decisions, independent reviews and final integration. Current checkpoint includes reviewed CI strategy, owner-approved dist parity and combined verification. |
-| swbpipe-wt2 / codex/swbpipe-b3a-i1-20260920 | ROOT integration: new codex/swbpipe-b3a-i1-20260920 branch, local preparation 6d9d5839 with reviewed I1 and ROOT records. Former PR825 branch retained at 64260a3c; merged main 7e6a7f25. |
-| swbpipe-wt3 / codex/swbpipe-b-shell-20260918 | B3A manager Astra/high with fresh TASK Astra/low; saved-model marker, solver fallback and native title scope. Intermediate 80b9efb4 passed native happy path; one independently found saved-basis race is being repaired. No B3B changes. |
-| swbpipe-wt4 / codex/swbpipe-b-canvas-20260918 | I1 manager returned clean 045acae7; instrument-only repair, inherited work preserved. Fresh independent Astra/xhigh review PASS. C3 preparation is read-only; implementation unstarted. |
+| swbpipe-wt2 / codex/swbpipe-b3a-i1-20260920 | ROOT integration: new codex/swbpipe-b3a-i1-20260920 branch, clean combined source candidate 46436a60. First sweep stopped at two stale B3A display assertions; correction and fresh sweep pending. Former PR825 branch retained at 64260a3c; merged main 7e6a7f25. |
+| swbpipe-wt3 / codex/swbpipe-b-shell-20260918 | B3A manager Astra/high with fresh TASK Astra/low; saved-model marker, solver fallback and native title scope. Product d2ef1684 and native journey independently checked; final packet 9b3b86dd. Two legacy App.test display assertions are being aligned with the existing owner ruling. No B3B changes. |
+| swbpipe-wt4 / codex/swbpipe-b-canvas-20260918 | I1 manager returned clean 045acae7; instrument-only repair, inherited work preserved. Fresh independent Astra/xhigh review PASS. C3 read-only preparation complete; implementation unstarted. |
 | chirality-runtime-application-tools/chirality / codex/runtime-application-tools | Peer owns reusable Runtime. Generic tools PR824 merged 21175b5d, reviewed cb08dbe2f; no Piping adapter/adoption in that work. |
 
 The owner resumed Piping repair/merge, CI economy and authorized UI continuation.
@@ -32,8 +32,7 @@ completed generic Runtime work; that grants no Piping adoption.
 
 ## Resources and sequence
 
-B3A intermediate native witness is complete and CUA released. Its identified synthetic app process remains for inspection until the repaired build replaces it; no other native user is authorized by this note. B3A repair checks and final native recheck have priority before ROOT's combined sweep. I1 has no test resources reserved.
-Peer acknowledged no conflicting reservations and will signal new use. Reserve
+Final B3A native witness and ROOT own look are complete; PID 38905 is absent. Original System/Comfortable preference was restored. ROOT's first combined sweep stopped before browser work; only the bounded display-test correction is active. ROOT reserves the next full sweep after correction/review; other lanes run no competing tests/builds/UI. Peer acknowledged no conflicting reservations and will signal new use. Reserve
 source/dist 5174/5175 (one worker / run lock), ROOT 5183/5184, canvas 5185/5186 and Tauri 5173;
 share one native/CUA foreground slot. B3A native verification uses one uniquely named disposable project row in the actual app store, preserving every other row and settings; this is project-level isolation, not a separate store/profile. Future integration profiles/private sockets must be agreed before writes. Use invented fixtures, never private user models. No builds/tests alongside later authorized D-72 timing.
 
