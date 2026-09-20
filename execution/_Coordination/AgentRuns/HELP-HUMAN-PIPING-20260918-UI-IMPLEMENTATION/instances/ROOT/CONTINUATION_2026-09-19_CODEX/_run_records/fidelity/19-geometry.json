@@ -1,0 +1,1208 @@
+{
+  "viewport": {
+    "w": 1440,
+    "h": 920
+  },
+  "regions": [
+    {
+      "tag": "HEADER",
+      "cls": "shell-toolbar workspace-toolbar",
+      "role": null,
+      "name": "Toolbar",
+      "rect": {
+        "x": 0,
+        "y": 33,
+        "width": 1440,
+        "height": 48,
+        "top": 33,
+        "right": 1440,
+        "bottom": 81,
+        "left": 0
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-toolbar-identity titlebar",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 8,
+        "y": 47.40625,
+        "width": 242.921875,
+        "height": 18.1875,
+        "top": 47.40625,
+        "right": 250.921875,
+        "bottom": 65.59375,
+        "left": 8
+      }
+    },
+    {
+      "tag": "H1",
+      "cls": "shell-wordmark",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 8,
+        "y": 47.40625,
+        "width": 61.265625,
+        "height": 18.1875,
+        "top": 47.40625,
+        "right": 69.265625,
+        "bottom": 65.59375,
+        "left": 8
+      }
+    },
+    {
+      "tag": "P",
+      "cls": "shell-project-name",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 75.265625,
+        "y": 47.40625,
+        "width": 175.65625,
+        "height": 18.1875,
+        "top": 47.40625,
+        "right": 250.921875,
+        "bottom": 65.59375,
+        "left": 75.265625
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-toolbar-group",
+      "role": "group",
+      "name": "Editing tools",
+      "rect": {
+        "x": 256.921875,
+        "y": 42.5,
+        "width": 136.09375,
+        "height": 28,
+        "top": 42.5,
+        "right": 393.015625,
+        "bottom": 70.5,
+        "left": 256.921875
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-icon-button",
+      "role": null,
+      "name": "Undo model edit",
+      "rect": {
+        "x": 256.921875,
+        "y": 42.5,
+        "width": 30,
+        "height": 28,
+        "top": 42.5,
+        "right": 286.921875,
+        "bottom": 70.5,
+        "left": 256.921875
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-icon-button",
+      "role": null,
+      "name": "Redo model edit",
+      "rect": {
+        "x": 288.921875,
+        "y": 42.5,
+        "width": 30,
+        "height": 28,
+        "top": 42.5,
+        "right": 318.921875,
+        "bottom": 70.5,
+        "left": 288.921875
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-icon-button shell-select-tool",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 320.921875,
+        "y": 42.5,
+        "width": 72.09375,
+        "height": 28,
+        "top": 42.5,
+        "right": 393.015625,
+        "bottom": 70.5,
+        "left": 320.921875
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-toolbar-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 347.921875,
+        "y": 47.40625,
+        "width": 38.09375,
+        "height": 18.1875,
+        "top": 47.40625,
+        "right": 386.015625,
+        "bottom": 65.59375,
+        "left": 347.921875
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-view-switch",
+      "role": "group",
+      "name": "View",
+      "rect": {
+        "x": 399.015625,
+        "y": 43.5,
+        "width": 195.078125,
+        "height": 26,
+        "top": 43.5,
+        "right": 594.09375,
+        "bottom": 69.5,
+        "left": 399.015625
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 399.015625,
+        "y": 43.5,
+        "width": 65.40625,
+        "height": 26,
+        "top": 43.5,
+        "right": 464.421875,
+        "bottom": 69.5,
+        "left": 399.015625
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 464.421875,
+        "y": 43.5,
+        "width": 69.375,
+        "height": 26,
+        "top": 43.5,
+        "right": 533.796875,
+        "bottom": 69.5,
+        "left": 464.421875
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 533.796875,
+        "y": 43.5,
+        "width": 60.296875,
+        "height": 26,
+        "top": 43.5,
+        "right": 594.09375,
+        "bottom": 69.5,
+        "left": 533.796875
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-toolbar-centre",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 600.09375,
+        "y": 42.5,
+        "width": 317.03125,
+        "height": 28,
+        "top": 42.5,
+        "right": 917.125,
+        "bottom": 70.5,
+        "left": 600.09375
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-run",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 682.078125,
+        "y": 42.5,
+        "width": 56.4375,
+        "height": 28,
+        "top": 42.5,
+        "right": 738.515625,
+        "bottom": 70.5,
+        "left": 682.078125
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-issues",
+      "role": null,
+      "name": "Issues, 36",
+      "rect": {
+        "x": 744.515625,
+        "y": 42.5,
+        "width": 90.609375,
+        "height": 28,
+        "top": 42.5,
+        "right": 835.125,
+        "bottom": 70.5,
+        "left": 744.515625
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-toolbar-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 769.515625,
+        "y": 47.40625,
+        "width": 38.328125,
+        "height": 18.1875,
+        "top": 47.40625,
+        "right": 807.84375,
+        "bottom": 65.59375,
+        "left": 769.515625
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-toolbar-group shell-panel-toggles",
+      "role": "group",
+      "name": "Panels",
+      "rect": {
+        "x": 923.125,
+        "y": 42.5,
+        "width": 162.875,
+        "height": 28,
+        "top": 42.5,
+        "right": 1086,
+        "bottom": 70.5,
+        "left": 923.125
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 923.125,
+        "y": 42.5,
+        "width": 91.21875,
+        "height": 28,
+        "top": 42.5,
+        "right": 1014.34375,
+        "bottom": 70.5,
+        "left": 923.125
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-panel-toggle",
+      "role": null,
+      "name": "Inspector",
+      "rect": {
+        "x": 923.125,
+        "y": 42.5,
+        "width": 91.21875,
+        "height": 28,
+        "top": 42.5,
+        "right": 1014.34375,
+        "bottom": 70.5,
+        "left": 923.125
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-toolbar-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 950.125,
+        "y": 47.40625,
+        "width": 57.21875,
+        "height": 18.1875,
+        "top": 47.40625,
+        "right": 1007.34375,
+        "bottom": 65.59375,
+        "left": 950.125
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1016.34375,
+        "y": 42.5,
+        "width": 69.65625,
+        "height": 28,
+        "top": 42.5,
+        "right": 1086,
+        "bottom": 70.5,
+        "left": 1016.34375
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-panel-toggle",
+      "role": null,
+      "name": "Agent",
+      "rect": {
+        "x": 1016.34375,
+        "y": 42.5,
+        "width": 69.65625,
+        "height": 28,
+        "top": 42.5,
+        "right": 1086,
+        "bottom": 70.5,
+        "left": 1016.34375
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-toolbar-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1043.34375,
+        "y": 47.40625,
+        "width": 35.65625,
+        "height": 18.1875,
+        "top": 47.40625,
+        "right": 1079,
+        "bottom": 65.59375,
+        "left": 1043.34375
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-toolbar-units",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1092,
+        "y": 42.5,
+        "width": 80,
+        "height": 28,
+        "top": 42.5,
+        "right": 1172,
+        "bottom": 70.5,
+        "left": 1092
+      }
+    },
+    {
+      "tag": "DETAILS",
+      "cls": "shell-appearance",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1178,
+        "y": 42.5,
+        "width": 28,
+        "height": 28,
+        "top": 42.5,
+        "right": 1206,
+        "bottom": 70.5,
+        "left": 1178
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-appearance-popover",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1006,
+        "y": 74.5,
+        "width": 200,
+        "height": 88,
+        "top": 74.5,
+        "right": 1206,
+        "bottom": 162.5,
+        "left": 1006
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-toolbar-palette",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1212,
+        "y": 42.5,
+        "width": 220,
+        "height": 28,
+        "top": 42.5,
+        "right": 1432,
+        "bottom": 70.5,
+        "left": 1212
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-body",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 81,
+        "width": 1440,
+        "height": 815,
+        "top": 81,
+        "right": 1440,
+        "bottom": 896,
+        "left": 0
+      }
+    },
+    {
+      "tag": "NAV",
+      "cls": "shell-rail",
+      "role": null,
+      "name": "Stages",
+      "rect": {
+        "x": 0,
+        "y": 81,
+        "width": 56,
+        "height": 815,
+        "top": 81,
+        "right": 56,
+        "bottom": 896,
+        "left": 0
+      }
+    },
+    {
+      "tag": "LI",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 81,
+        "width": 55,
+        "height": 45.390625,
+        "top": 81,
+        "right": 55,
+        "bottom": 126.390625,
+        "left": 0
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 81,
+        "width": 55,
+        "height": 45.390625,
+        "top": 81,
+        "right": 55,
+        "bottom": 126.390625,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 12.859375,
+        "y": 107,
+        "width": 32.265625,
+        "height": 15.390625,
+        "top": 107,
+        "right": 45.125,
+        "bottom": 122.390625,
+        "left": 12.859375
+      }
+    },
+    {
+      "tag": "LI",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 126.390625,
+        "width": 55,
+        "height": 45.390625,
+        "top": 126.390625,
+        "right": 55,
+        "bottom": 171.78125,
+        "left": 0
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 126.390625,
+        "width": 55,
+        "height": 45.390625,
+        "top": 126.390625,
+        "right": 55,
+        "bottom": 171.78125,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 13.296875,
+        "y": 152.390625,
+        "width": 31.390625,
+        "height": 15.390625,
+        "top": 152.390625,
+        "right": 44.6875,
+        "bottom": 167.78125,
+        "left": 13.296875
+      }
+    },
+    {
+      "tag": "LI",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 171.78125,
+        "width": 55,
+        "height": 45.390625,
+        "top": 171.78125,
+        "right": 55,
+        "bottom": 217.171875,
+        "left": 0
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 171.78125,
+        "width": 55,
+        "height": 45.390625,
+        "top": 171.78125,
+        "right": 55,
+        "bottom": 217.171875,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 9.8125,
+        "y": 197.78125,
+        "width": 38.375,
+        "height": 15.390625,
+        "top": 197.78125,
+        "right": 48.1875,
+        "bottom": 213.171875,
+        "left": 9.8125
+      }
+    },
+    {
+      "tag": "LI",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 217.171875,
+        "width": 55,
+        "height": 45.390625,
+        "top": 217.171875,
+        "right": 55,
+        "bottom": 262.5625,
+        "left": 0
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 217.171875,
+        "width": 55,
+        "height": 45.390625,
+        "top": 217.171875,
+        "right": 55,
+        "bottom": 262.5625,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 10.453125,
+        "y": 243.171875,
+        "width": 37.078125,
+        "height": 15.390625,
+        "top": 243.171875,
+        "right": 47.53125,
+        "bottom": 258.5625,
+        "left": 10.453125
+      }
+    },
+    {
+      "tag": "HR",
+      "cls": "shell-rail-hairline",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 262.5625,
+        "width": 55,
+        "height": 1,
+        "top": 262.5625,
+        "right": 55,
+        "bottom": 263.5625,
+        "left": 0
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 759.828125,
+        "width": 55,
+        "height": 45.390625,
+        "top": 759.828125,
+        "right": 55,
+        "bottom": 805.21875,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 6.234375,
+        "y": 785.828125,
+        "width": 45.515625,
+        "height": 15.390625,
+        "top": 785.828125,
+        "right": 51.75,
+        "bottom": 801.21875,
+        "left": 6.234375
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 805.21875,
+        "width": 55,
+        "height": 45.390625,
+        "top": 805.21875,
+        "right": 55,
+        "bottom": 850.609375,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 14.609375,
+        "y": 831.21875,
+        "width": 28.765625,
+        "height": 15.390625,
+        "top": 831.21875,
+        "right": 43.375,
+        "bottom": 846.609375,
+        "left": 14.609375
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": "Issues, 36",
+      "rect": {
+        "x": 0,
+        "y": 850.609375,
+        "width": 55,
+        "height": 45.390625,
+        "top": 850.609375,
+        "right": 55,
+        "bottom": 896,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 12.390625,
+        "y": 876.609375,
+        "width": 33.203125,
+        "height": 15.390625,
+        "top": 876.609375,
+        "right": 45.59375,
+        "bottom": 892,
+        "left": 12.390625
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-badge",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 28.96875,
+        "y": 852.609375,
+        "width": 20.03125,
+        "height": 15.390625,
+        "top": 852.609375,
+        "right": 49,
+        "bottom": 868,
+        "left": 28.96875
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "workspace shell-surfaces-frame",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 56,
+        "y": 81,
+        "width": 1340,
+        "height": 815,
+        "top": 81,
+        "right": 1396,
+        "bottom": 896,
+        "left": 56
+      }
+    },
+    {
+      "tag": "SECTION",
+      "cls": "modeling-workspace shell-surfaces inspector-collapsed",
+      "role": null,
+      "name": "Modeling workspace",
+      "rect": {
+        "x": 56,
+        "y": 81,
+        "width": 1340,
+        "height": 815,
+        "top": 81,
+        "right": 1396,
+        "bottom": 896,
+        "left": 56
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "workspace-pane workspace-pane-tree shell-table-pane",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 56,
+        "y": 81,
+        "width": 737,
+        "height": 815,
+        "top": 81,
+        "right": 793,
+        "bottom": 896,
+        "left": 56
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-tab-strip",
+      "role": "group",
+      "name": "Tables",
+      "rect": {
+        "x": 56,
+        "y": 81,
+        "width": 736,
+        "height": 28,
+        "top": 81,
+        "right": 792,
+        "bottom": 109,
+        "left": 56
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-tab",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 56,
+        "y": 81,
+        "width": 61.28125,
+        "height": 27,
+        "top": 81,
+        "right": 117.28125,
+        "bottom": 108,
+        "left": 56
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-tab",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 117.28125,
+        "y": 81,
+        "width": 72.09375,
+        "height": 27,
+        "top": 81,
+        "right": 189.375,
+        "bottom": 108,
+        "left": 117.28125
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-tab-strip-fill",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 189.375,
+        "y": 81,
+        "width": 574.625,
+        "height": 27,
+        "top": 81,
+        "right": 764,
+        "bottom": 108,
+        "left": 189.375
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor shell-drawer-chevron-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 764,
+        "y": 81,
+        "width": 28,
+        "height": 27,
+        "top": 81,
+        "right": 792,
+        "bottom": 108,
+        "left": 764
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-drawer-chevron",
+      "role": null,
+      "name": "Collapse table drawer",
+      "rect": {
+        "x": 764,
+        "y": 81,
+        "width": 28,
+        "height": 27,
+        "top": 81,
+        "right": 792,
+        "bottom": 108,
+        "left": 764
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-table-body",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 56,
+        "y": 109,
+        "width": 736,
+        "height": 787,
+        "top": 109,
+        "right": 792,
+        "bottom": 896,
+        "left": 56
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "workspace-dock-body shell-stage-sections",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 56,
+        "y": 109,
+        "width": 736,
+        "height": 787,
+        "top": 109,
+        "right": 792,
+        "bottom": 896,
+        "left": 56
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "workspace-splitter workspace-splitter-tree shell-both-splitter",
+      "role": "separator",
+      "name": "Resize table and canvas",
+      "rect": {
+        "x": 769,
+        "y": 109,
+        "width": 24,
+        "height": 787,
+        "top": 109,
+        "right": 793,
+        "bottom": 896,
+        "left": 769
+      }
+    },
+    {
+      "tag": "CANVAS",
+      "cls": "",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 793,
+        "y": 217,
+        "width": 603,
+        "height": 633,
+        "top": 217,
+        "right": 1396,
+        "bottom": 850,
+        "left": 793
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "viewport-scale-bar",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1292,
+        "y": 803.421875,
+        "width": 90,
+        "height": 32.796875,
+        "top": 803.421875,
+        "right": 1382,
+        "bottom": 836.21875,
+        "left": 1292
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "viewport-measurement-strip",
+      "role": "status",
+      "name": null,
+      "rect": {
+        "x": 793,
+        "y": 850.21875,
+        "width": 603,
+        "height": 45.78125,
+        "top": 850.21875,
+        "right": 1396,
+        "bottom": 896,
+        "left": 793
+      }
+    },
+    {
+      "tag": "ASIDE",
+      "cls": "shell-agent-strip",
+      "role": null,
+      "name": "Agent",
+      "rect": {
+        "x": 1396,
+        "y": 81,
+        "width": 44,
+        "height": 815,
+        "top": 81,
+        "right": 1440,
+        "bottom": 896,
+        "left": 1396
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1397,
+        "y": 81,
+        "width": 43,
+        "height": 45.390625,
+        "top": 81,
+        "right": 1440,
+        "bottom": 126.390625,
+        "left": 1397
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": "Agent",
+      "rect": {
+        "x": 1397,
+        "y": 81,
+        "width": 43,
+        "height": 45.390625,
+        "top": 81,
+        "right": 1440,
+        "bottom": 126.390625,
+        "left": 1397
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1404.578125,
+        "y": 107,
+        "width": 30.828125,
+        "height": 15.390625,
+        "top": 107,
+        "right": 1435.40625,
+        "bottom": 122.390625,
+        "left": 1404.578125
+      }
+    },
+    {
+      "tag": "FOOTER",
+      "cls": "status-bar shell-status-bar",
+      "role": null,
+      "name": "Workspace status",
+      "rect": {
+        "x": 0,
+        "y": 896,
+        "width": 1440,
+        "height": 24,
+        "top": 896,
+        "right": 1440,
+        "bottom": 920,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-chip-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 8,
+        "y": 898.5,
+        "width": 160.765625,
+        "height": 20,
+        "top": 898.5,
+        "right": 168.765625,
+        "bottom": 918.5,
+        "left": 8
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "status-pill shell-chip",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 8,
+        "y": 898.5,
+        "width": 160.765625,
+        "height": 20,
+        "top": 898.5,
+        "right": 168.765625,
+        "bottom": 918.5,
+        "left": 8
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-status-selection",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 280.765625,
+        "y": 900.09375,
+        "width": 102.390625,
+        "height": 16.796875,
+        "top": 900.09375,
+        "right": 383.15625,
+        "bottom": 916.890625,
+        "left": 280.765625
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-status-units",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1356.09375,
+        "y": 900.09375,
+        "width": 43.90625,
+        "height": 16.796875,
+        "top": 900.09375,
+        "right": 1400,
+        "bottom": 916.890625,
+        "left": 1356.09375
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "status-drawer-button shell-about",
+      "role": null,
+      "name": "About SWBPIPE…",
+      "rect": {
+        "x": 1408,
+        "y": 898.5,
+        "width": 24,
+        "height": 20,
+        "top": 898.5,
+        "right": 1432,
+        "bottom": 918.5,
+        "left": 1408
+      }
+    }
+  ]
+}

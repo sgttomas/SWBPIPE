@@ -1,0 +1,100 @@
+File
+Edit
+View
+Insert
+Analyze
+SWBPIPE
+
+Blank Local Model
+
+Select
+Table
+Model
+Both
+Run
+Issues
+5
+Inspector
+Agent
+Entered
+SI
+US
+Search or command…
+⌘K
+Model
+Loads
+Results
+Review
+Libraries
+Rules
+Issues
+5
+Results
+Evidence
+RESULTS
+
+Run the bounded preview mechanics path to populate result summaries.
+
+COMPARISON
+
+Run mechanics preview to populate the local comparison workspace from stable result IDs and explicit source result references.
+
+DESIGN WORKSPACE
+Include known private values in this local export
+decisions=112; findings=112; blocked=true
+Details
+Workspace JSON
+knowledge=3; states=0; runs=0; comparisons=0; operations=0
+Core contract
+records=2; warnings=1; states=2; runs=2; overlays=5
+Current browser
+analysis_run=not generated; comparison=not generated; result_rows=0
+Operation review
+records=0; accepted_mutation=false; application=empty_operation_queue
+Routing
+selected=none; route=no_selected_review_target
+Units
+model=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; results=none; comparison=none; conversion=false
+Boundary
+private_payload=false; protected=false; professional_claim=false
+Design workspace evidence is a local composition of GUI state, comparison context, and operation-review metadata. It does not apply operations or mutate accepted model state.
+3D Centerline
+Deformation · unavailable
+Labels
+Loads
+Grid
+Box Select
+Selection filter
+All
+Pipes
+Nodes
+Supports
+Components
+Hide
+Isolate
+Show All
+Fit Model
+Fit Visible
+Fit Selection
+Schematic
+Actual OD
+Measure
+Selected: project:blank-local-20260920t044925z
+Schematic centerline geometry
+Measurement enabled.
+Front
+Top
+Isometric
+1 m
+Node
+Pipe
+Support
+Component
+Load
+Select
+Selection & navigation
+Agent
+Solver · Model incomplete
+5 Issues
+project: project:blank-local-20260920t044925z
+Entered

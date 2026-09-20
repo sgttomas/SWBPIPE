@@ -1,0 +1,79 @@
+[
+  {
+    "text": "Table",
+    "current": null,
+    "pressed": "false",
+    "disabled": null,
+    "title": "Table view (⌘1)"
+  },
+  {
+    "text": "Model",
+    "current": null,
+    "pressed": "false",
+    "disabled": null,
+    "title": "Model view (⌘2)"
+  },
+  {
+    "text": "Both",
+    "current": null,
+    "pressed": "true",
+    "disabled": null,
+    "title": "Both view (⌘3)"
+  },
+  {
+    "text": "Model",
+    "current": null,
+    "pressed": "false",
+    "disabled": null,
+    "title": "Model"
+  },
+  {
+    "text": "Loads",
+    "current": null,
+    "pressed": "false",
+    "disabled": null,
+    "title": "Loads"
+  },
+  {
+    "text": "Results",
+    "current": "page",
+    "pressed": "true",
+    "disabled": "true",
+    "title": "No run yet"
+  },
+  {
+    "text": "Review",
+    "current": null,
+    "pressed": "false",
+    "disabled": "true",
+    "title": "No run yet"
+  },
+  {
+    "text": "Libraries",
+    "current": null,
+    "pressed": null,
+    "disabled": null,
+    "title": "Libraries"
+  },
+  {
+    "text": "Rules",
+    "current": null,
+    "pressed": null,
+    "disabled": null,
+    "title": "Rules"
+  },
+  {
+    "text": "Issues\n5",
+    "current": null,
+    "pressed": null,
+    "disabled": null,
+    "title": "Issues"
+  },
+  {
+    "text": "Agent",
+    "current": null,
+    "pressed": null,
+    "disabled": "true",
+    "title": "Agent: not available yet"
+  }
+]

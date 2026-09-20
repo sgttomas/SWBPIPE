@@ -1,0 +1,91 @@
+File
+Edit
+View
+Insert
+Analyze
+SWBPIPE
+
+Blank Local Model
+
+Table
+Model
+Both
+Run
+Issues
+5
+Entered
+SI
+US
+Search or command…
+⌘K
+Model
+Loads
+Results
+Review
+Libraries
+Rules
+Issues
+5
+Model
+Review changes
+MODEL
+Tree
+Grid
+Filter model
+2 of 2 model entities visible
+Blank Local Model
+project:blank-local-20260920t045005z
+▾
+Diagnostics
+BLANK_PROJECT_AUTHORING_TARGET
+diagnostic:blank-project:authoring-target
+3D Centerline
+Deformation · unavailable
+Labels
+Loads
+Grid
+Box Select
+Selection filter
+All
+Pipes
+Nodes
+Supports
+Components
+Hide
+Isolate
+Show All
+Fit Model
+Fit Visible
+Fit Selection
+Schematic
+Actual OD
+Measure
+Selected: project:blank-local-20260920t045005z
+Schematic centerline geometry
+Measurement enabled.
+Front
+Top
+Isometric
+1 m
+Node
+Pipe
+Support
+Component
+Load
+Select
+Selection & navigation
+Blank Local Model — project: project:blank-local-20260920t045005z
+Properties
+Task
+All properties
+Sources and units
+New support configuration
+New section
+New material
+New support
+New component
+Agent
+Solver · Model incomplete
+5 Issues
+project: project:blank-local-20260920t045005z
+Entered

@@ -1,0 +1,1144 @@
+{
+  "viewport": {
+    "w": 1280,
+    "h": 800
+  },
+  "regions": [
+    {
+      "tag": "HEADER",
+      "cls": "shell-toolbar workspace-toolbar",
+      "role": null,
+      "name": "Toolbar",
+      "rect": {
+        "x": 0,
+        "y": 33,
+        "width": 1280,
+        "height": 48,
+        "top": 33,
+        "right": 1280,
+        "bottom": 81,
+        "left": 0
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-toolbar-identity titlebar",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 8,
+        "y": 47.40625,
+        "width": 177.15625,
+        "height": 18.1875,
+        "top": 47.40625,
+        "right": 185.15625,
+        "bottom": 65.59375,
+        "left": 8
+      }
+    },
+    {
+      "tag": "H1",
+      "cls": "shell-wordmark",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 8,
+        "y": 47.40625,
+        "width": 61.265625,
+        "height": 18.1875,
+        "top": 47.40625,
+        "right": 69.265625,
+        "bottom": 65.59375,
+        "left": 8
+      }
+    },
+    {
+      "tag": "P",
+      "cls": "shell-project-name",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 75.265625,
+        "y": 47.40625,
+        "width": 109.890625,
+        "height": 18.1875,
+        "top": 47.40625,
+        "right": 185.15625,
+        "bottom": 65.59375,
+        "left": 75.265625
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-toolbar-group",
+      "role": "group",
+      "name": "Editing tools",
+      "rect": {
+        "x": 191.15625,
+        "y": 42.5,
+        "width": 94,
+        "height": 28,
+        "top": 42.5,
+        "right": 285.15625,
+        "bottom": 70.5,
+        "left": 191.15625
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-icon-button",
+      "role": null,
+      "name": "Undo model edit",
+      "rect": {
+        "x": 191.15625,
+        "y": 42.5,
+        "width": 30,
+        "height": 28,
+        "top": 42.5,
+        "right": 221.15625,
+        "bottom": 70.5,
+        "left": 191.15625
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-icon-button",
+      "role": null,
+      "name": "Redo model edit",
+      "rect": {
+        "x": 223.15625,
+        "y": 42.5,
+        "width": 30,
+        "height": 28,
+        "top": 42.5,
+        "right": 253.15625,
+        "bottom": 70.5,
+        "left": 223.15625
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-icon-button shell-select-tool",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 255.15625,
+        "y": 42.5,
+        "width": 30,
+        "height": 28,
+        "top": 42.5,
+        "right": 285.15625,
+        "bottom": 70.5,
+        "left": 255.15625
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-view-switch",
+      "role": "group",
+      "name": "View",
+      "rect": {
+        "x": 291.15625,
+        "y": 43.5,
+        "width": 195.078125,
+        "height": 26,
+        "top": 43.5,
+        "right": 486.234375,
+        "bottom": 69.5,
+        "left": 291.15625
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 291.15625,
+        "y": 43.5,
+        "width": 65.40625,
+        "height": 26,
+        "top": 43.5,
+        "right": 356.5625,
+        "bottom": 69.5,
+        "left": 291.15625
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 356.5625,
+        "y": 43.5,
+        "width": 69.375,
+        "height": 26,
+        "top": 43.5,
+        "right": 425.9375,
+        "bottom": 69.5,
+        "left": 356.5625
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 425.9375,
+        "y": 43.5,
+        "width": 60.296875,
+        "height": 26,
+        "top": 43.5,
+        "right": 486.234375,
+        "bottom": 69.5,
+        "left": 425.9375
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-toolbar-centre",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 492.234375,
+        "y": 42.5,
+        "width": 365.765625,
+        "height": 28,
+        "top": 42.5,
+        "right": 858,
+        "bottom": 70.5,
+        "left": 492.234375
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-run",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 602.75,
+        "y": 42.5,
+        "width": 56.4375,
+        "height": 28,
+        "top": 42.5,
+        "right": 659.1875,
+        "bottom": 70.5,
+        "left": 602.75
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-issues",
+      "role": null,
+      "name": "Issues, 5",
+      "rect": {
+        "x": 665.1875,
+        "y": 42.5,
+        "width": 82.296875,
+        "height": 28,
+        "top": 42.5,
+        "right": 747.484375,
+        "bottom": 70.5,
+        "left": 665.1875
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-toolbar-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 690.1875,
+        "y": 47.40625,
+        "width": 38.328125,
+        "height": 18.1875,
+        "top": 47.40625,
+        "right": 728.515625,
+        "bottom": 65.59375,
+        "left": 690.1875
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-toolbar-group shell-panel-toggles",
+      "role": "group",
+      "name": "Panels",
+      "rect": {
+        "x": 864,
+        "y": 42.5,
+        "width": 62,
+        "height": 28,
+        "top": 42.5,
+        "right": 926,
+        "bottom": 70.5,
+        "left": 864
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 864,
+        "y": 42.5,
+        "width": 30,
+        "height": 28,
+        "top": 42.5,
+        "right": 894,
+        "bottom": 70.5,
+        "left": 864
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-panel-toggle",
+      "role": null,
+      "name": "Inspector",
+      "rect": {
+        "x": 864,
+        "y": 42.5,
+        "width": 30,
+        "height": 28,
+        "top": 42.5,
+        "right": 894,
+        "bottom": 70.5,
+        "left": 864
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 896,
+        "y": 42.5,
+        "width": 30,
+        "height": 28,
+        "top": 42.5,
+        "right": 926,
+        "bottom": 70.5,
+        "left": 896
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-panel-toggle",
+      "role": null,
+      "name": "Agent",
+      "rect": {
+        "x": 896,
+        "y": 42.5,
+        "width": 30,
+        "height": 28,
+        "top": 42.5,
+        "right": 926,
+        "bottom": 70.5,
+        "left": 896
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-toolbar-units",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 932,
+        "y": 42.5,
+        "width": 80,
+        "height": 28,
+        "top": 42.5,
+        "right": 1012,
+        "bottom": 70.5,
+        "left": 932
+      }
+    },
+    {
+      "tag": "DETAILS",
+      "cls": "shell-appearance",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1018,
+        "y": 42.5,
+        "width": 28,
+        "height": 28,
+        "top": 42.5,
+        "right": 1046,
+        "bottom": 70.5,
+        "left": 1018
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-appearance-popover",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 846,
+        "y": 74.5,
+        "width": 200,
+        "height": 88,
+        "top": 74.5,
+        "right": 1046,
+        "bottom": 162.5,
+        "left": 846
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-toolbar-palette",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1052,
+        "y": 42.5,
+        "width": 220,
+        "height": 28,
+        "top": 42.5,
+        "right": 1272,
+        "bottom": 70.5,
+        "left": 1052
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-body",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 81,
+        "width": 1280,
+        "height": 695,
+        "top": 81,
+        "right": 1280,
+        "bottom": 776,
+        "left": 0
+      }
+    },
+    {
+      "tag": "NAV",
+      "cls": "shell-rail",
+      "role": null,
+      "name": "Stages",
+      "rect": {
+        "x": 0,
+        "y": 81,
+        "width": 56,
+        "height": 695,
+        "top": 81,
+        "right": 56,
+        "bottom": 776,
+        "left": 0
+      }
+    },
+    {
+      "tag": "LI",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 81,
+        "width": 55,
+        "height": 45.390625,
+        "top": 81,
+        "right": 55,
+        "bottom": 126.390625,
+        "left": 0
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 81,
+        "width": 55,
+        "height": 45.390625,
+        "top": 81,
+        "right": 55,
+        "bottom": 126.390625,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 12.859375,
+        "y": 107,
+        "width": 32.265625,
+        "height": 15.390625,
+        "top": 107,
+        "right": 45.125,
+        "bottom": 122.390625,
+        "left": 12.859375
+      }
+    },
+    {
+      "tag": "LI",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 126.390625,
+        "width": 55,
+        "height": 45.390625,
+        "top": 126.390625,
+        "right": 55,
+        "bottom": 171.78125,
+        "left": 0
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 126.390625,
+        "width": 55,
+        "height": 45.390625,
+        "top": 126.390625,
+        "right": 55,
+        "bottom": 171.78125,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 13.296875,
+        "y": 152.390625,
+        "width": 31.390625,
+        "height": 15.390625,
+        "top": 152.390625,
+        "right": 44.6875,
+        "bottom": 167.78125,
+        "left": 13.296875
+      }
+    },
+    {
+      "tag": "LI",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 171.78125,
+        "width": 55,
+        "height": 45.390625,
+        "top": 171.78125,
+        "right": 55,
+        "bottom": 217.171875,
+        "left": 0
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 171.78125,
+        "width": 55,
+        "height": 45.390625,
+        "top": 171.78125,
+        "right": 55,
+        "bottom": 217.171875,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 9.8125,
+        "y": 197.78125,
+        "width": 38.375,
+        "height": 15.390625,
+        "top": 197.78125,
+        "right": 48.1875,
+        "bottom": 213.171875,
+        "left": 9.8125
+      }
+    },
+    {
+      "tag": "LI",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 217.171875,
+        "width": 55,
+        "height": 45.390625,
+        "top": 217.171875,
+        "right": 55,
+        "bottom": 262.5625,
+        "left": 0
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 217.171875,
+        "width": 55,
+        "height": 45.390625,
+        "top": 217.171875,
+        "right": 55,
+        "bottom": 262.5625,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 10.453125,
+        "y": 243.171875,
+        "width": 37.078125,
+        "height": 15.390625,
+        "top": 243.171875,
+        "right": 47.53125,
+        "bottom": 258.5625,
+        "left": 10.453125
+      }
+    },
+    {
+      "tag": "HR",
+      "cls": "shell-rail-hairline",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 262.5625,
+        "width": 55,
+        "height": 1,
+        "top": 262.5625,
+        "right": 55,
+        "bottom": 263.5625,
+        "left": 0
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 639.828125,
+        "width": 55,
+        "height": 45.390625,
+        "top": 639.828125,
+        "right": 55,
+        "bottom": 685.21875,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 6.234375,
+        "y": 665.828125,
+        "width": 45.515625,
+        "height": 15.390625,
+        "top": 665.828125,
+        "right": 51.75,
+        "bottom": 681.21875,
+        "left": 6.234375
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 0,
+        "y": 685.21875,
+        "width": 55,
+        "height": 45.390625,
+        "top": 685.21875,
+        "right": 55,
+        "bottom": 730.609375,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 14.609375,
+        "y": 711.21875,
+        "width": 28.765625,
+        "height": 15.390625,
+        "top": 711.21875,
+        "right": 43.375,
+        "bottom": 726.609375,
+        "left": 14.609375
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": "Issues, 5",
+      "rect": {
+        "x": 0,
+        "y": 730.609375,
+        "width": 55,
+        "height": 45.390625,
+        "top": 730.609375,
+        "right": 55,
+        "bottom": 776,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 12.390625,
+        "y": 756.609375,
+        "width": 33.203125,
+        "height": 15.390625,
+        "top": 756.609375,
+        "right": 45.59375,
+        "bottom": 772,
+        "left": 12.390625
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-badge",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 35,
+        "y": 732.609375,
+        "width": 14,
+        "height": 15.390625,
+        "top": 732.609375,
+        "right": 49,
+        "bottom": 748,
+        "left": 35
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "workspace shell-surfaces-frame",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 56,
+        "y": 81,
+        "width": 1180,
+        "height": 695,
+        "top": 81,
+        "right": 1236,
+        "bottom": 776,
+        "left": 56
+      }
+    },
+    {
+      "tag": "SECTION",
+      "cls": "modeling-workspace shell-surfaces inspector-collapsed",
+      "role": null,
+      "name": "Modeling workspace",
+      "rect": {
+        "x": 56,
+        "y": 81,
+        "width": 1180,
+        "height": 695,
+        "top": 81,
+        "right": 1236,
+        "bottom": 776,
+        "left": 56
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "workspace-pane workspace-pane-tree shell-table-pane",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 56,
+        "y": 81,
+        "width": 649,
+        "height": 695,
+        "top": 81,
+        "right": 705,
+        "bottom": 776,
+        "left": 56
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-tab-strip",
+      "role": "group",
+      "name": "Tables",
+      "rect": {
+        "x": 56,
+        "y": 81,
+        "width": 648,
+        "height": 28,
+        "top": 81,
+        "right": 704,
+        "bottom": 109,
+        "left": 56
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-tab",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 56,
+        "y": 81,
+        "width": 54.375,
+        "height": 27,
+        "top": 81,
+        "right": 110.375,
+        "bottom": 108,
+        "left": 56
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-tab",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 110.375,
+        "y": 81,
+        "width": 114.78125,
+        "height": 27,
+        "top": 81,
+        "right": 225.15625,
+        "bottom": 108,
+        "left": 110.375
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-tab-strip-fill",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 225.15625,
+        "y": 81,
+        "width": 450.84375,
+        "height": 27,
+        "top": 81,
+        "right": 676,
+        "bottom": 108,
+        "left": 225.15625
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor shell-drawer-chevron-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 676,
+        "y": 81,
+        "width": 28,
+        "height": 27,
+        "top": 81,
+        "right": 704,
+        "bottom": 108,
+        "left": 676
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-drawer-chevron",
+      "role": null,
+      "name": "Collapse table drawer",
+      "rect": {
+        "x": 676,
+        "y": 81,
+        "width": 28,
+        "height": 27,
+        "top": 81,
+        "right": 704,
+        "bottom": 108,
+        "left": 676
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-table-body",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 56,
+        "y": 109,
+        "width": 648,
+        "height": 667,
+        "top": 109,
+        "right": 704,
+        "bottom": 776,
+        "left": 56
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "shell-tree-host",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 56,
+        "y": 109,
+        "width": 648,
+        "height": 667,
+        "top": 109,
+        "right": 704,
+        "bottom": 776,
+        "left": 56
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "workspace-splitter workspace-splitter-tree shell-both-splitter",
+      "role": "separator",
+      "name": "Resize table and canvas",
+      "rect": {
+        "x": 681,
+        "y": 109,
+        "width": 24,
+        "height": 667,
+        "top": 109,
+        "right": 705,
+        "bottom": 776,
+        "left": 681
+      }
+    },
+    {
+      "tag": "CANVAS",
+      "cls": "",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 705,
+        "y": 217,
+        "width": 531,
+        "height": 559,
+        "top": 217,
+        "right": 1236,
+        "bottom": 776,
+        "left": 705
+      }
+    },
+    {
+      "tag": "DIV",
+      "cls": "viewport-scale-bar",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1132,
+        "y": 729.203125,
+        "width": 90,
+        "height": 32.796875,
+        "top": 729.203125,
+        "right": 1222,
+        "bottom": 762,
+        "left": 1132
+      }
+    },
+    {
+      "tag": "ASIDE",
+      "cls": "shell-agent-strip",
+      "role": null,
+      "name": "Agent",
+      "rect": {
+        "x": 1236,
+        "y": 81,
+        "width": 44,
+        "height": 695,
+        "top": 81,
+        "right": 1280,
+        "bottom": 776,
+        "left": 1236
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-reason-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1237,
+        "y": 81,
+        "width": 43,
+        "height": 45.390625,
+        "top": 81,
+        "right": 1280,
+        "bottom": 126.390625,
+        "left": 1237
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "shell-rail-item",
+      "role": null,
+      "name": "Agent",
+      "rect": {
+        "x": 1237,
+        "y": 81,
+        "width": 43,
+        "height": 45.390625,
+        "top": 81,
+        "right": 1280,
+        "bottom": 126.390625,
+        "left": 1237
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-rail-label",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1244.578125,
+        "y": 107,
+        "width": 30.828125,
+        "height": 15.390625,
+        "top": 107,
+        "right": 1275.40625,
+        "bottom": 122.390625,
+        "left": 1244.578125
+      }
+    },
+    {
+      "tag": "FOOTER",
+      "cls": "status-bar shell-status-bar",
+      "role": null,
+      "name": "Workspace status",
+      "rect": {
+        "x": 0,
+        "y": 776,
+        "width": 1280,
+        "height": 24,
+        "top": 776,
+        "right": 1280,
+        "bottom": 800,
+        "left": 0
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-chip-anchor",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 8,
+        "y": 778.5,
+        "width": 160.5625,
+        "height": 20,
+        "top": 778.5,
+        "right": 168.5625,
+        "bottom": 798.5,
+        "left": 8
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "status-pill shell-chip",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 8,
+        "y": 778.5,
+        "width": 160.5625,
+        "height": 20,
+        "top": 778.5,
+        "right": 168.5625,
+        "bottom": 798.5,
+        "left": 8
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-status-selection",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 280.5625,
+        "y": 780.09375,
+        "width": 273.71875,
+        "height": 16.796875,
+        "top": 780.09375,
+        "right": 554.28125,
+        "bottom": 796.890625,
+        "left": 280.5625
+      }
+    },
+    {
+      "tag": "SPAN",
+      "cls": "shell-status-units",
+      "role": null,
+      "name": null,
+      "rect": {
+        "x": 1196.09375,
+        "y": 780.09375,
+        "width": 43.90625,
+        "height": 16.796875,
+        "top": 780.09375,
+        "right": 1240,
+        "bottom": 796.890625,
+        "left": 1196.09375
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "status-drawer-button shell-about",
+      "role": null,
+      "name": "About SWBPIPE…",
+      "rect": {
+        "x": 1248,
+        "y": 778.5,
+        "width": 24,
+        "height": 20,
+        "top": 778.5,
+        "right": 1272,
+        "bottom": 798.5,
+        "left": 1248
+      }
+    }
+  ]
+}
