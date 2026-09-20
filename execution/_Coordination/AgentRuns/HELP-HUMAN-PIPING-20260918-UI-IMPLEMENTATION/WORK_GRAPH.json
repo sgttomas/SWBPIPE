@@ -648,11 +648,42 @@
       "parent": "ROOT",
       "modelRequested": "gpt-6-astra",
       "reasoningRequested": "high",
-      "status": "brief sealed; launch pending",
+      "status": "launched; implementation and verification in progress",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_BRIEF.md",
       "briefSha256": "e494ccdc4763cca0ff53ae238a33c3d3a83299f66a701b75b107c1a5bdb5fb3f",
       "candidate": null,
-      "returnSha256": null
+      "returnSha256": null,
+      "actualAgent": "/root/b3_manager",
+      "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
+      "modelRan": "gpt-6-astra",
+      "reasoningRan": "high",
+      "integrationBase": "a63607e5c6d805f364c969eb6963f768baefb300",
+      "addenda": [
+        {
+          "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_MANAGER_ADDENDUM_1.md",
+          "sha256": "9deba418f41a372e4b7f3522ebe58ada2b5360b50fbefadd8bceb812cfd15b61"
+        }
+      ]
+    },
+    "CONTINUATION-RECORDS-REVIEW": {
+      "role": "TASK Type 2 read-only independent review",
+      "modelRequested": "gpt-6-astra",
+      "reasoningRequested": "xhigh",
+      "candidate": "c805bcc1a",
+      "base": "c459a0fa15e8d33613b6b95f529b5d369c707874",
+      "status": "review returned two actionable findings; corrections prepared for backcheck",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/RECORDS_REVIEW_BRIEF.md",
+      "briefSha256": "941f528cd80e5adfdddaeb4d5922609091fd4d72f34231dc1abc63b641cf23de",
+      "actualAgent": "/root/continuation_records_review",
+      "actualMechanism": "Codex collaboration.spawn_agent, fresh context",
+      "modelRan": "gpt-6-astra",
+      "reasoningRan": "xhigh",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_REVIEW_RETURN.md",
+      "returnSha256": "279673ad27d70ad99a8139ea2cbb748bf8f8bc9b47f39c4fc3967c8081d05aed",
+      "findings": [
+        "P2 discovery evidence classification: corrected by byte-preserving relocation and pointer",
+        "P2 local merge boundary: clarified by sealed addendum 1; original brief retained"
+      ]
     }
   },
   "edges": [
@@ -787,6 +818,10 @@
     [
       "ROOT",
       "B3-CODEX-MANAGER"
+    ],
+    [
+      "ROOT",
+      "CONTINUATION-RECORDS-REVIEW"
     ]
   ],
   "current_frontier": "Owner agreed the Codex strategy and D1/D2/D3 in the active chat. B3 first; continuation manager brief sealed. Shell/native implementation with bounded scope, connected workflows and actual Tauri witness precedes frozen-candidate independent review, sweep, CI and merge. Canvas I1 and parked design remain preserved.",
@@ -935,7 +970,7 @@
     "decisionAndStrategy": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md",
     "ownerSteer": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_STEER.md",
     "status": "strategy and three product dispositions approved; see OWNER_APPROVAL.md",
-    "agentsLaunched": false,
+    "agentsLaunched": true,
     "productChanged": false,
     "originMain": "c459a0fa15e8d33613b6b95f529b5d369c707874",
     "supersedesLiveSummaryFields": [
