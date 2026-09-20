@@ -384,13 +384,13 @@ describe("the status chip policy (§5.4)", () => {
 
   it("rule 7: after a failed or stopped run, only what the run record carries", () => {
     // No status on the record: empty, and Model incomplete is not carried over from before the run.
-    expect(statusChips(chipInputs(FAILED, { modelMechanicsStatus: "MODEL_INCOMPLETE" }), "model")).toEqual([]);
+    expect(statusChips(chipInputs(FAILED, { modelMechanicsStatus: "MODEL_INCOMPLETE" }), "model")).toEqual([{ token: "failed", label: "Not solved", domain: "Solver", source: "Solve job state" }]);
     expect(statusChips(chipInputs(STOPPED, { modelMechanicsStatus: "MODEL_INCOMPLETE" }), "results")).toEqual([]);
     // A run that completed without solving carries its Solver status, and lights nothing else.
     expect(faces(chipInputs(UNSOLVED_RESULT, { rulePackStatus: "USER_RULE_CHECKED" }), "review")).toEqual([
       "Solver · Model incomplete"
     ]);
-    expect(faces(chipInputs(UNSOLVED_RESULT, { resultMechanicsStatus: "not_a_status" }), "model")).toEqual([]);
+    expect(faces(chipInputs(UNSOLVED_RESULT, { resultMechanicsStatus: "not_a_status" }), "model")).toEqual(["Solver · Not solved"]);
   });
 
   it("draws labels from the one registered table only, never an evidence label, never more than the rules allow", () => {
@@ -407,7 +407,16 @@ describe("the status chip policy (§5.4)", () => {
         expect(chips.length).toBeLessThanOrEqual(stage === "review" ? 3 : 2);
         expect(new Set(chips.map((chip) => chip.domain)).size).toBe(chips.length);
         for (const chip of chips) {
-          const row = REGISTERED_STATUS_LABELS[chip.token];
+          // B3A owner fallback amendment: a display fallback is not a registry row.
+          if (chip.label === "Not solved") {
+            expect(chip.domain).toBe("Solver");
+            if (inputs.solveJobState === "failed") {
+              expect(chip.token).toBe("failed");
+              expect(chip.source).toBe("Solve job state");
+            } else expect(chip.token).toBe(inputs.modelMechanicsStatus);
+            continue;
+          }
+          const row = REGISTERED_STATUS_LABELS[chip.token as keyof typeof REGISTERED_STATUS_LABELS];
           expect(row.kind).toBe("status");
           expect(chip).toEqual({ token: row.token, label: row.label, domain: row.domain });
           if (chip.domain === "Human") expect(stage).toBe("review");
@@ -523,5 +532,19 @@ describe("the regions' designed geometry", () => {
     const narrow = shellGeometry({ width: 1440, height: 900 }, "both", { bothSplit: 0.95, inspectorOpen: true });
     expect(narrow.canvas?.width).toBe(220);
     expect(narrow.inspector?.width).toBe(300);
+  });
+});
+
+describe("B3A solver display fallback", () => {
+  it("retains an unknown result's exact token while displaying Not solved", () => {
+    expect(statusChips(chipInputs(UNSOLVED_RESULT, { resultMechanicsStatus: "BLOCKED_custom" }), "model")).toEqual([
+      { token: "BLOCKED_custom", label: "Not solved", domain: "Solver" }
+    ]);
+  });
+  it("distinguishes recorded failed job state from a solver token, and leaves cancellation empty", () => {
+    expect(statusChips(chipInputs(FAILED), "model")).toEqual([
+      { token: "failed", label: "Not solved", domain: "Solver", source: "Solve job state" }
+    ]);
+    expect(statusChips(chipInputs(STOPPED), "model")).toEqual([]);
   });
 });

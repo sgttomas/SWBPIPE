@@ -3806,6 +3806,8 @@ const NATIVE_MENU_DOM_EVENT: &str = "openpipestress-native-menu-command";
 #[serde(rename_all = "camelCase")]
 struct NativeShellState {
     project_name: Option<String>,
+    #[serde(default)]
+    model_edited: bool,
     stage: String,
     view: String,
     theme: String,
@@ -3841,9 +3843,15 @@ fn normalized_project_name(project_name: Option<&str>) -> Option<String> {
         .filter(|name| !name.is_empty())
 }
 
-fn native_window_title(project_name: Option<&str>) -> String {
+fn native_window_title(project_name: Option<&str>, model_edited: bool) -> String {
     normalized_project_name(project_name)
-        .map(|name| format!("{name} — SWBPIPE"))
+        .map(|name| {
+            if model_edited {
+                format!("{name} · Edited — SWBPIPE")
+            } else {
+                format!("{name} — SWBPIPE")
+            }
+        })
         .unwrap_or_else(|| "SWBPIPE".to_string())
 }
 
@@ -3972,7 +3980,7 @@ fn sync_native_shell_state(
             }
         }
     }
-    let title = native_window_title(state.project_name.as_deref());
+    let title = native_window_title(state.project_name.as_deref(), state.model_edited);
     app.get_webview_window("main")
         .ok_or_else(|| "NATIVE-WINDOW-UNAVAILABLE: main webview is not installed".to_string())?
         .set_title(&title)
@@ -4893,6 +4901,7 @@ mod tests {
     fn sample_native_shell_state() -> NativeShellState {
         NativeShellState {
             project_name: Some("Loop 4 header".to_string()),
+            model_edited: false,
             stage: "loads".to_string(),
             view: "table".to_string(),
             theme: "dark".to_string(),
@@ -4963,10 +4972,15 @@ mod tests {
 
     #[test]
     fn native_window_title_uses_normalized_project_identity() {
-        assert_eq!(native_window_title(None), "SWBPIPE");
-        assert_eq!(native_window_title(Some("  \n\t")), "SWBPIPE");
         assert_eq!(
-            native_window_title(Some("  Loop 4\nheader  ")),
+            native_window_title(Some("Loop 4 header"), true),
+            "Loop 4 header · Edited — SWBPIPE"
+        );
+        assert_eq!(native_window_title(None, true), "SWBPIPE");
+        assert_eq!(native_window_title(None, false), "SWBPIPE");
+        assert_eq!(native_window_title(Some("  \n\t"), false), "SWBPIPE");
+        assert_eq!(
+            native_window_title(Some("  Loop 4\nheader  "), false),
             "Loop 4 header — SWBPIPE"
         );
     }

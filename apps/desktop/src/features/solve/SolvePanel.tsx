@@ -1,7 +1,7 @@
 import { AlertTriangle, Download, Play, ShieldCheck, Square } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, SolveJobAuditState } from "../../types";
 import type { PreviewSolverMode } from "../../services/previewService";
-import { professionalStatusToken, ruleCheckStatusToken, statusDisplayWithToken } from "../workspace/statusLabels";
+import { hasRecordedUnsolvedModelStatus, professionalStatusToken, ruleCheckStatusToken, solverDisplayWithToken, statusDisplayWithToken } from "../workspace/statusLabels";
 
 export function SolvePanel({
   analysisRun,
@@ -25,7 +25,7 @@ export function SolvePanel({
   onSolverModeChange: (mode: PreviewSolverMode) => void;
 }) {
   const diagnostics = [...model.diagnostics, ...(result?.diagnostics ?? [])];
-  const readinessItems = readinessSummary({ model, result, diagnostics });
+  const readinessItems = readinessSummary({ model, result, diagnostics, solveJob });
   const packet = buildSolveJobPacket({ model, result, analysisRun, solveJob, running, solverMode });
   return (
     <section className="panel solve-panel" aria-label="Solve execution" data-testid="solve-panel">
@@ -113,11 +113,13 @@ type ReadinessItem = {
 function readinessSummary({
   model,
   result,
-  diagnostics
+  diagnostics,
+  solveJob
 }: {
   model: PreviewModel;
   result: MechanicsResult | null;
   diagnostics: Diagnostic[];
+  solveJob: SolveJobAuditState;
 }): ReadinessItem[] {
   const mechanicsStatus = result?.status.mechanics ?? model.analysis_status.mechanics;
   const ruleStatus = result?.status.rule_check ?? model.analysis_status.rule_check;
@@ -130,8 +132,9 @@ function readinessSummary({
       id: "mechanics",
       label: "Mechanics readiness",
       value: result
-        ? `${result.results.length} computed result rows; ${statusDisplayWithToken(mechanicsStatus)}`
-        : `preview run not started; ${statusDisplayWithToken(mechanicsStatus)}`,
+        ? `${result.results.length} computed result rows; ${solverDisplayWithToken(mechanicsStatus)}`
+        : solveJob.state === "failed" ? `Solve job state: ${solveJob.state}; ${solverDisplayWithToken(solveJob.state)}`
+        : `preview run not started; ${hasRecordedUnsolvedModelStatus(mechanicsStatus) ? solverDisplayWithToken(mechanicsStatus) : statusDisplayWithToken(mechanicsStatus)}`,
       tone: result ? "ok" : "info"
     },
     {

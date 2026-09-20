@@ -1,6 +1,6 @@
 import type React from "react";
 import { isTauriRuntime, syncNativeShellState } from "../../services/nativeMenu";
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   canonicalSha256Hex,
   computeModelHash,
@@ -79,6 +79,7 @@ import {
   deriveProjectEnvelopeHashIntegrity,
   isSupportedChangedModelPersistenceResponse
 } from "./projectPersistenceIntegrity";
+import { persistenceHashesMatch } from "./savedModelBasis";
 import { useProjectSessionState } from "./projectSessionState";
 import { useResultsSessionState } from "./resultsSessionState";
 import { useSelectionSessionState } from "./selectionSessionState";
@@ -221,6 +222,22 @@ export function useWorkspaceSession() {
     currentModel,
     activeModelIndex
   } = useModelSessionState();
+  // Chrome-only canonical comparison. A revision shortcut is used only for a
+  // verified snapshot, or the untouched initial loaded-source snapshot (which
+  // makes no claim of a file save). Later revisions need a current owned hash.
+  const [savedModelBasis, setSavedModelBasis] = useState<{
+    generation: number; revision: number; hash: string | null;
+    source: "loaded-source" | "open" | "create" | "save";
+  } | null>(null);
+  const savedBasisSequence = useRef(0);
+  const modelHashOwner = useRef<{ generation: number; revision: number } | null>(null);
+  const currentHashOwned = modelHashOwner.current?.generation === projectSessionGeneration &&
+    modelHashOwner.current?.revision === uiModelRevision;
+  const modelEdited = Boolean(model && (!savedModelBasis ||
+    savedModelBasis.generation !== projectSessionGeneration ||
+    (savedModelBasis.revision !== uiModelRevision &&
+      (!currentHashOwned || !modelHash || modelHash.value !== savedModelBasis.hash))));
+
   const {
     selection, setPrimarySelection,
     orderedSelection, setOrderedSelection,
@@ -467,6 +484,18 @@ export function useWorkspaceSession() {
         if (!active) return;
         advanceProjectSession();
         commitModel(loadedModel);
+        const generation = projectSessionGenerationRef.current;
+        const revision = uiModelRevisionRef.current;
+        const sequence = ++savedBasisSequence.current;
+        setSavedModelBasis({ generation, revision, hash: null, source: "loaded-source" });
+        computeModelHash(loadedModel).then((hash) => {
+          if (active && generation === projectSessionGenerationRef.current && sequence === savedBasisSequence.current) {
+            setSavedModelBasis({ generation, revision, hash: hash?.value ?? null, source: "loaded-source" });
+          }
+        }).catch(() => {
+          // Keep only the untouched loaded-source revision. No saved-file claim
+          // or canonical equality for a later revision follows from this failure.
+        });
         setKnowledge(loadedKnowledge);
         setSelection(defaultSelection(loadedModel));
         setStorageCapability(loadedStorageCapability);
@@ -486,15 +515,21 @@ export function useWorkspaceSession() {
     setSolveProof(null);
     setModelHash(null);
     if (!model) return;
+    const generation = projectSessionGenerationRef.current;
+    const revision = uiModelRevisionRef.current;
     computeModelHash(model).then((hash) => {
-      if (active) setModelHash(hash);
-    });
+      if (active && currentModel.current === model && generation === projectSessionGenerationRef.current && revision === uiModelRevisionRef.current) {
+        modelHashOwner.current = { generation, revision };
+        setModelHash(hash);
+      }
+    }).catch(() => { /* An unavailable current hash cannot prove a clean comparison. */ });
     return () => {
       active = false;
     };
   }, [model]);
 
   function commitModel(nextModel: PreviewModel, directDraftToken: string | null = null) {
+    modelHashOwner.current = null;
     viewportViewCommandRef.current?.({ type: "retire-box-gesture" });
     invalidateReportPackageComputedState();
     const assignmentStartedAt = performance.now();
@@ -1430,6 +1465,9 @@ export function useWorkspaceSession() {
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
     const requestModel = model;
+    const generation = projectSessionGenerationRef.current;
+    const requestRevision = uiModelRevisionRef.current;
+    const ownsPersistence = () => request === projectRequest.current && generation === projectSessionGenerationRef.current;
     const requestHistoricalRun = historicalRun;
     const requestMigrationLedgerCount = modelMigrationLedger.length;
     const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
@@ -1470,9 +1508,9 @@ export function useWorkspaceSession() {
         setModelHashIntegrity(null);
         setProjectEnvelopeHashIntegrity(null);
       }
-      if (!stillCurrent()) return;
+      if (!ownsPersistence()) return;
       const returnedModelHash = await computeModelHash(created.model);
-      if (!stillCurrent()) return;
+      if (!ownsPersistence()) return;
       const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
         model: created.model,
         editor_intents: created.editor_intents,
@@ -1482,7 +1520,7 @@ export function useWorkspaceSession() {
         analysis_run: created.analysis_run,
         model_hash: created.model_hash
       });
-      if (!stillCurrent()) return;
+      if (!ownsPersistence()) return;
       const responseModelChanged = returnedModelHash?.value !== actualRequestModelHash?.value;
       const modelChanged = isSupportedChangedModelPersistenceResponse(
         created,
@@ -1491,11 +1529,24 @@ export function useWorkspaceSession() {
         recomputedReturnedEnvelopeHash,
         requestMigrationLedgerCount
       );
+      const verifiedResponse = Boolean(actualRequestModelHash && returnedModelHash &&
+        created.model.project.id === requestModel.project.id &&
+        created.summary.project_id === requestModel.project.id &&
+        persistenceHashesMatch(created, returnedModelHash, recomputedReturnedEnvelopeHash, !responseModelChanged ? requestHistoricalRun?.modelHash ?? null : null) &&
+        (!responseModelChanged || modelChanged));
       if (responseModelChanged && !modelChanged) {
+        if (!stillCurrent()) return;
         setProjectMessage("Create failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: returned model change is not bound to the supported persisted normalization transition.");
         setProjectOperation("create_failed");
         return;
       }
+      // A landed same-project write owns this comparison even if a later edit
+      // owns the visible model. Never adopt that older model/history for chrome.
+      if (verifiedResponse) {
+        savedBasisSequence.current += 1;
+        setSavedModelBasis({ generation, revision: responseModelChanged ? -1 : requestRevision, hash: returnedModelHash!.value, source: "create" });
+      }
+      if (!stillCurrent()) return;
       const returnedHistory = modelChanged || requestHistoricalRun
         ? await buildHistoricalRunContext(created)
         : null;
@@ -1503,6 +1554,7 @@ export function useWorkspaceSession() {
       if (modelChanged) {
         adoptNormalizedPersistenceModel(created, returnedHistory, returnedModelHash);
         epoch = requestEpochRef.current;
+        if (verifiedResponse) setSavedModelBasis({ generation, revision: uiModelRevisionRef.current, hash: returnedModelHash!.value, source: "create" });
       } else if (requestHistoricalRun) {
         setHistoricalRun((current) => current === requestHistoricalRun ? returnedHistory : current);
       }
@@ -1542,6 +1594,19 @@ export function useWorkspaceSession() {
       });
       const created = await createLocalProject(blankModel, [], null, null, null, null, blankModelHash, envelopeHash);
       if (!stillCurrent()) return;
+      const returnedHash = await computeModelHash(created.model);
+      const returnedEnvelopeHash = await computeProjectEnvelopeHash({
+        model: created.model, editor_intents: created.editor_intents,
+        proposal: created.proposal, selected_review_target: created.selected_review_target,
+        mechanics_result: created.mechanics_result, analysis_run: created.analysis_run,
+        model_hash: created.model_hash
+      });
+      if (!stillCurrent()) return;
+      const verifiedBlankResponse = Boolean(blankModelHash && returnedHash &&
+        created.model.project.id === blankModel.project.id &&
+        created.summary.project_id === blankModel.project.id &&
+        persistenceHashesMatch(created, returnedHash, returnedEnvelopeHash) &&
+        (returnedHash.value === blankModelHash.value || isSupportedChangedModelPersistenceResponse(created, blankModelHash, returnedHash, returnedEnvelopeHash, 0)));
       const createdSummary = {
         ...created.summary,
         message: "Created blank local model document without fixture entities or external file copies."
@@ -1569,6 +1634,7 @@ export function useWorkspaceSession() {
       setIssuesDrawerOpen(false);
       setOperationTab("review");
       commitModel(created.model);
+      if (verifiedBlankResponse) setSavedModelBasis({ generation: projectSessionGenerationRef.current, revision: uiModelRevisionRef.current, hash: returnedHash!.value, source: "create" });
       setSelection(defaultSelection(created.model));
       epoch = requestEpochRef.current;
       setUndoStack([]);
@@ -1630,6 +1696,9 @@ export function useWorkspaceSession() {
       setProjectEnvelopeHashIntegrity(null);
       advanceProjectSession();
       commitModel(opened.model);
+      const openedGeneration = projectSessionGenerationRef.current;
+      const openedRevision = uiModelRevisionRef.current;
+      const openedBasisSequence = ++savedBasisSequence.current;
       setSelection(defaultSelection(opened.model));
       epoch = requestEpochRef.current;
       setUndoStack([]);
@@ -1662,6 +1731,9 @@ export function useWorkspaceSession() {
       setProjectOperation(projectId ? "open_by_id" : "open");
       setActiveSection(restoredHistory ? "results" : null);
       const recomputedHash = await computeModelHash(opened.model);
+      if (recomputedHash && openedGeneration === projectSessionGenerationRef.current && openedBasisSequence === savedBasisSequence.current) {
+        setSavedModelBasis({ generation: openedGeneration, revision: openedRevision, hash: recomputedHash.value, source: "open" });
+      }
       if (!stillCurrent()) return;
       setModelHashIntegrity(deriveModelHashIntegrity(opened.model_hash ?? null, recomputedHash, opened.model.project.id));
       const recomputedEnvelopeHash = await computeProjectEnvelopeHash({
@@ -1696,6 +1768,9 @@ export function useWorkspaceSession() {
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
     const requestModel = model;
+    const generation = projectSessionGenerationRef.current;
+    const requestRevision = uiModelRevisionRef.current;
+    const ownsPersistence = () => request === projectRequest.current && generation === projectSessionGenerationRef.current;
     const requestHistoricalRun = historicalRun;
     const requestMigrationLedgerCount = modelMigrationLedger.length;
     const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
@@ -1737,9 +1812,9 @@ export function useWorkspaceSession() {
         setModelHashIntegrity(null);
         setProjectEnvelopeHashIntegrity(null);
       }
-      if (!stillCurrent()) return;
+      if (!ownsPersistence()) return;
       const returnedModelHash = await computeModelHash(saved.model);
-      if (!stillCurrent()) return;
+      if (!ownsPersistence()) return;
       const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
         model: saved.model,
         editor_intents: saved.editor_intents,
@@ -1749,7 +1824,7 @@ export function useWorkspaceSession() {
         analysis_run: saved.analysis_run,
         model_hash: saved.model_hash
       });
-      if (!stillCurrent()) return;
+      if (!ownsPersistence()) return;
       const responseModelChanged = returnedModelHash?.value !== actualRequestModelHash?.value;
       const modelChanged = isSupportedChangedModelPersistenceResponse(
         saved,
@@ -1758,11 +1833,24 @@ export function useWorkspaceSession() {
         recomputedReturnedEnvelopeHash,
         requestMigrationLedgerCount
       );
+      const verifiedResponse = Boolean(actualRequestModelHash && returnedModelHash &&
+        saved.model.project.id === requestModel.project.id &&
+        saved.summary.project_id === requestModel.project.id &&
+        persistenceHashesMatch(saved, returnedModelHash, recomputedReturnedEnvelopeHash, !responseModelChanged ? requestHistoricalRun?.modelHash ?? null : null) &&
+        (!responseModelChanged || modelChanged));
       if (responseModelChanged && !modelChanged) {
+        if (!stillCurrent()) return;
         setProjectMessage("Save failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: returned model change is not bound to the supported persisted normalization transition.");
         setProjectOperation("save_failed");
         return;
       }
+      // A landed same-project write owns this comparison even if a later edit
+      // owns the visible model. Never adopt that older model/history for chrome.
+      if (verifiedResponse) {
+        savedBasisSequence.current += 1;
+        setSavedModelBasis({ generation, revision: responseModelChanged ? -1 : requestRevision, hash: returnedModelHash!.value, source: "save" });
+      }
+      if (!stillCurrent()) return;
       const returnedHistory = modelChanged || requestHistoricalRun
         ? await buildHistoricalRunContext(saved)
         : null;
@@ -1770,6 +1858,7 @@ export function useWorkspaceSession() {
       if (modelChanged) {
         adoptNormalizedPersistenceModel(saved, returnedHistory, returnedModelHash);
         epoch = requestEpochRef.current;
+        if (verifiedResponse) setSavedModelBasis({ generation, revision: uiModelRevisionRef.current, hash: returnedModelHash!.value, source: "save" });
       } else if (requestHistoricalRun) {
         // Preserve a fresh Current solve that completed while the native save
         // was pending. Only the still-owned Historical snapshot may refresh.
@@ -2107,6 +2196,7 @@ export function useWorkspaceSession() {
     if (!model || !isTauriRuntime()) return;
     void syncNativeShellState({
       projectName: nativeProjectName,
+      modelEdited,
       stage: shellNow.stage,
       view: stageViewNow,
       theme: uiPreferences.theme,
@@ -2119,7 +2209,7 @@ export function useWorkspaceSession() {
       canRun: !running,
       canCancel: running
     }).catch((error: unknown) => console.warn("Native shell state sync failed", error));
-  }, [Boolean(model), nativeProjectName, shellNow.stage, stageViewNow, uiPreferences.theme, uiPreferences.density,
+  }, [Boolean(model), nativeProjectName, modelEdited, shellNow.stage, stageViewNow, uiPreferences.theme, uiPreferences.density,
     nativeResultsEnabled, nativeReviewEnabled, inspectorCollapsed, undoStack.length, redoStack.length, operationBusy, running]);
 
   // Latest-closure ref so native menu events (registered once) always dispatch
@@ -2465,6 +2555,7 @@ export function useWorkspaceSession() {
       invalidateDirectDraftContext
     },
     project: {
+      modelEdited,
       storageCapability,
       projectSummary,
       projectIndex,

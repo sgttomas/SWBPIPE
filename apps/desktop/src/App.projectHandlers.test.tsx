@@ -5,7 +5,8 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 
 import { App } from "./App";
-import { loadPreviewModel } from "./services/previewService";
+import * as hashService from "./services/hashService";
+import { loadPreviewModel, runPreviewMechanics } from "./services/previewService";
 import { applyModelOperation } from "./services/operationService";
 import type {
   EditorOperationIntent,
@@ -663,4 +664,323 @@ describe("project handlers: a landed write clears the open-time record even when
     expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
     expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required");
   });
+});
+
+// B3A: observable saved canonical model identity, through the shared command route.
+describe("B3A saved-model marker", () => {
+  it("marks an edit, save clears it, Undo differs from the saved snapshot and Redo returns clean", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+    await applyGridEditWhilePending();
+    expect(screen.getByTestId("project-edited")).toHaveTextContent("Edited");
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "sync_native_shell_state") return Promise.resolve({});
+      if (command === "save_local_project") return Promise.resolve(savedEnvelopeFor(model, args!.request!, "B3A saved"));
+      return Promise.reject(new Error(command));
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
+    fireEvent.click(screen.getByTestId("workspace-undo"));
+    await waitFor(() => expect(screen.getByTestId("project-edited")).toHaveTextContent("Edited"));
+    fireEvent.click(screen.getByTestId("workspace-redo"));
+    await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
+  });
+
+  it("keeps newer edits after a landed save and makes Undo to that persisted snapshot clean", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    await applyGridEditWhilePending();
+    const pending = deferred<LocalProjectEnvelope>();
+    let request: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "sync_native_shell_state") return Promise.resolve({});
+      if (command === "save_local_project") { request = args!.request; return pending.promise; }
+      return Promise.reject(new Error(command));
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(request).toBeDefined());
+    fireEvent.click(screen.getByTestId("workspace-undo"));
+    await act(async () => pending.resolve(savedEnvelopeFor(model, request!, "B3A landed")));
+    await flushPendingWork();
+    expect(screen.getByTestId("project-edited")).toHaveTextContent("Edited");
+    fireEvent.click(screen.getByTestId("workspace-redo"));
+    await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
+  });
+});
+
+
+describe("B3A asynchronous canonical comparison", () => {
+  it("ignores out-of-order hash completion and stays Edited while Undo hash is pending", async () => {
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    await applyGridEditWhilePending();
+    await flushPendingWork();
+    const original = hashService.computeModelHash;
+    const pending: Array<{ model: PreviewModel; gate: ReturnType<typeof deferred<ModelHashEvidence | null>> }> = [];
+    vi.spyOn(hashService, "computeModelHash").mockImplementation((model) => {
+      const gate = deferred<ModelHashEvidence | null>(); pending.push({ model, gate }); return gate.promise;
+    });
+    fireEvent.click(screen.getByTestId("workspace-undo"));
+    expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("workspace-redo"));
+    expect(pending).toHaveLength(2);
+    await act(async () => pending[1].gate.resolve(await original(pending[1].model)));
+    expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+    await act(async () => pending[0].gate.resolve(await original(pending[0].model)));
+    expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("workspace-undo"));
+    expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+    await act(async () => pending[2].gate.resolve(await original(pending[2].model)));
+    await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
+  });
+
+  it("retains the actually opened baseline through a pending hash, a missing later Open and an edit", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const opened = inventedOpenEnvelope(model);
+    const original = hashService.computeModelHash;
+    const gate = deferred<void>();
+    let delayed = 0;
+    vi.spyOn(hashService, "computeModelHash").mockImplementation(async (input) => {
+      if (input.project.id === opened.model.project.id && delayed++ < 2) await gate.promise;
+      return original(input);
+    });
+    invokeMock.mockImplementation((command: string) => command === "open_local_project" ? Promise.resolve(opened) : Promise.resolve({}));
+    setTauriRuntime(true);
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(opened.model.project.name));
+    invokeMock.mockImplementation((command: string) => command === "open_local_project" ? Promise.resolve(null) : Promise.resolve({}));
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("No local project snapshot"));
+    await applyGridEditWhilePending();
+    await act(async () => gate.resolve());
+    await flushPendingWork();
+    expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("workspace-undo"));
+    await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
+  });
+
+  it.each(["write failure", "wrong model hash", "wrong envelope hash", "wrong project identity"])("does not clear edits after %s", async (failure) => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    await applyGridEditWhilePending();
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command !== "save_local_project") return Promise.resolve({});
+      if (failure === "write failure") return Promise.reject(new Error("Invented failed write"));
+      const saved = savedEnvelopeFor(model, args!.request!, "Invalid response");
+      if (failure === "wrong model hash") saved.model_hash = { ...saved.model_hash!, value: "sha256:wrong" };
+      if (failure === "wrong envelope hash") saved.project_envelope_hash = { ...saved.project_envelope_hash!, value: "sha256:wrong" };
+      if (failure === "wrong project identity") saved.summary.project_id = "project:wrong";
+      return Promise.resolve(saved);
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(failure === "write failure" ? "Save failed:" : "Invalid response"));
+    expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("workspace-undo"));
+    await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
+  });
+});
+
+describe("B3A baseline ownership after asynchronous persistence", () => {
+  it("does not let a delayed Open hash overwrite a newer verified same-generation save", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const opened = inventedOpenEnvelope(model);
+    const original = hashService.computeModelHash;
+    const gate = deferred<void>();
+    let delayed = 0;
+    vi.spyOn(hashService, "computeModelHash").mockImplementation(async (input) => {
+      if (input.project.id === opened.model.project.id && delayed++ < 2) await gate.promise;
+      return original(input);
+    });
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "open_local_project") return Promise.resolve(opened);
+      if (command === "save_local_project") return Promise.resolve(savedEnvelopeFor(opened.model, args!.request!, "Newer verified save"));
+      return Promise.resolve({});
+    });
+    setTauriRuntime(true);
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(opened.model.project.name));
+    await applyGridEditWhilePending();
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Newer verified save"));
+    expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+    await act(async () => gate.resolve());
+    await flushPendingWork();
+    expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("workspace-undo"));
+    await waitFor(() => expect(screen.getByTestId("project-edited")).toBeInTheDocument());
+  });
+
+  it("drops a landed old save after same-ID project replacement and preserves the reopened baseline", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    await applyGridEditWhilePending();
+    const pending = deferred<LocalProjectEnvelope>();
+    let request: Record<string, unknown> | undefined;
+    const reopened = savedEnvelopeFor(model, { model }, "Same-ID reopened source");
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") { request = args!.request; return pending.promise; }
+      if (command === "open_local_project") return Promise.resolve(reopened);
+      return Promise.resolve({});
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(request).toBeDefined());
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Same-ID reopened source"));
+    await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
+    await act(async () => pending.resolve(savedEnvelopeFor(model, request!, "Obsolete landed save")));
+    await flushPendingWork();
+    expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+    expect(screen.getByTestId("workspace-undo")).toBeDisabled();
+    expect(projectMessage()).toHaveTextContent("Same-ID reopened source");
+  });
+});
+
+describe("B3A persisted normalization comparison", () => {
+  it.each([true, false])("clears only a verified supported normalization (ledger=%s)", async (supported) => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    await applyGridEditWhilePending();
+    invokeMock.mockImplementation(async (command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command !== "save_local_project") return {};
+      const returned = savedEnvelopeFor(model, args!.request!, "Normalized saved model");
+      const beforeHash = await hashService.computeModelHash(returned.model);
+      returned.model = { ...returned.model, schema_version: "0.2.0" };
+      returned.model_hash = await hashService.computeModelHash(returned.model);
+      returned.project_envelope_hash = await hashService.computeProjectEnvelopeHash({
+        model: returned.model, editor_intents: returned.editor_intents, proposal: returned.proposal,
+        selected_review_target: returned.selected_review_target, mechanics_result: returned.mechanics_result,
+        analysis_run: returned.analysis_run, model_hash: returned.model_hash
+      });
+      if (supported) {
+        const ids = ["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"];
+        returned.model_document_migration = {
+          status: "migrated", source_schema_version: "0.1.0", target_schema_version: "0.2.0",
+          migration_framework: "application_service_separate_db_and_product_schema",
+          db_migration_status: "store_user_version_ledger_separate_ddl_only", product_schema_migration_status: "migrated",
+          applied_migration_ids: ids, persistence_state: "persisted_with_ledger_record", detail: "Invented supported normalization"
+        };
+        returned.model_migration_ledger = [{
+          record_kind: "model_document_migration_ledger_record", recorded_at_unix: 1,
+          source_schema_version: "0.1.0", target_schema_version: "0.2.0", applied_migration_ids: ids,
+          migration_framework: "application_service_separate_db_and_product_schema",
+          pre_migration_model_hash: beforeHash!.value, post_migration_model_hash: returned.model_hash!.value,
+          trigger: "migrate_in_memory_on_open_persisted_on_save", destructive_rewrite: false,
+          professional_boundary: { human_review_required: true, software_makes_compliance_claim: false },
+          hash_evidence: {
+            schema: "model_migration_hash_evidence_v1", source_payload_basis: "incoming_pre_migration_model",
+            received: { model_hash: beforeHash, project_envelope_hash: null }, prior_stored: null,
+            computed: { pre_migration_model_hash: beforeHash!.value, post_migration_model_hash: returned.model_hash!.value,
+              post_migration_project_envelope_hash: returned.project_envelope_hash!.value }, received_claim_verification: "not_asserted"
+          }
+        }];
+      }
+      return returned;
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(supported ? "Normalized saved model" : "Save failed:"));
+    if (supported) {
+      expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+      expect(screen.getByTestId("workspace-undo")).toBeDisabled();
+    } else expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+  });
+});
+
+describe("B3A initial source ownership", () => {
+  it("keeps untouched loading source unmarked and does not overwrite a newer save when its hash resolves", async () => {
+    const model = await loadPreviewModel();
+    const original = hashService.computeModelHash;
+    const gate = deferred<void>();
+    let calls = 0;
+    vi.spyOn(hashService, "computeModelHash").mockImplementation(async (input) => {
+      if (calls++ < 2) await gate.promise;
+      return original(input);
+    });
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+    await applyGridEditWhilePending();
+    expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => command === "save_local_project"
+      ? Promise.resolve(savedEnvelopeFor(model, args!.request!, "Saved ahead of initial hash")) : Promise.resolve({}));
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved ahead of initial hash"));
+    expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+    await act(async () => gate.resolve());
+    await flushPendingWork();
+    expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("workspace-undo"));
+    await waitFor(() => expect(screen.getByTestId("project-edited")).toBeInTheDocument());
+    await waitFor(() => expect(invokeMock).toHaveBeenLastCalledWith("sync_native_shell_state", { state: expect.objectContaining({ modelEdited: true }) }));
+  });
+});
+
+
+it("B3A keeps the model available when the initial canonical hash fails, without a clean saved claim", async () => {
+  const original = hashService.computeModelHash;
+  let calls = 0;
+  vi.spyOn(hashService, "computeModelHash").mockImplementation((input) => calls++ < 2
+    ? Promise.reject(new Error("Invented hash unavailable")) : original(input));
+  render(<App />);
+  await screen.findByTestId("desktop-preview-shell");
+  await flushPendingWork();
+  expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+  expect(screen.getByTestId("toolbar-project-name")).not.toBeEmptyDOMElement();
+  await applyGridEditWhilePending();
+  expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+});
+
+
+it("B3A verifies unchanged Historical save against its exact retained hash carrier, preserving Historical standing", async () => {
+  const model = await loadPreviewModel();
+  const opened = inventedOpenEnvelope(model);
+  opened.mechanics_result = await runPreviewMechanics(opened.model);
+  opened.model_hash = mismatchedModelHash(opened.model);
+  render(<App />);
+  await screen.findByTestId("desktop-preview-shell");
+  const original = hashService.computeModelHash;
+  const gate = deferred<void>();
+  let openedHashes = 0;
+  vi.spyOn(hashService, "computeModelHash").mockImplementation(async (input) => {
+    if (input.project.id === opened.model.project.id) {
+      openedHashes += 1;
+      // Historical verification is first; delay the committed Open baseline
+      // and live hash, so only the later verified save can clear the marker.
+      if (openedHashes === 2 || openedHashes === 3) await gate.promise;
+    }
+    return original(input);
+  });
+  let saveRequest: Record<string, unknown> | undefined;
+  invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+    if (command === "open_local_project") return Promise.resolve(opened);
+    if (command === "save_local_project") {
+      saveRequest = args!.request;
+      return Promise.resolve(savedEnvelopeFor(opened.model, saveRequest!, "Historical carrier retained"));
+    }
+    return Promise.resolve({});
+  });
+  setTauriRuntime(true);
+  act(() => nativeMenuCommand("file.open-local"));
+  await screen.findByTestId("historical-run-context");
+  expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+  act(() => nativeMenuCommand("file.save-local"));
+  await waitFor(() => expect(projectMessage()).toHaveTextContent("Historical carrier retained"));
+  expect(saveRequest!.model_hash).toEqual(opened.model_hash);
+  expect(saveRequest!.model).toEqual(opened.model);
+  expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
+  expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_MODEL_HASH_MISMATCH");
+  expect(screen.queryByTestId("status-pill-mechanics")).not.toBeInTheDocument();
+  expect(screen.getByTestId("workspace-undo")).toBeDisabled();
+  await act(async () => gate.resolve());
+  await flushPendingWork();
+  expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
 });
