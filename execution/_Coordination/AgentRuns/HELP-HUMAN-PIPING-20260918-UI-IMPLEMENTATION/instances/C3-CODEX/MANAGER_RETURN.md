@@ -45,3 +45,14 @@ writers, independent whole-batch review, own look, complete local sweep, CI and 
 Source-stage checkpoint is not connected-product verification or completion/acceptance.
 No C4/C5, Runtime, DAG, deliverable reconciliation, release or owner-profile freeze performed.
 Standard F-PIP-2/DEC-081 claim fence applies.
+
+## Bridge consumed; connected execution activated
+
+ROOT resumed execution after the earlier handoff-preparation message. Clean wt4 fast-forwarded
+to shell bridge df00c64d3220482060851d05b58a99ac055148e5; its C3_BRIDGE_RETURN.md hash
+94d14072b7f8d9da7a08d80cebf6d8dfb4213e0cc7cbb4ab1755c6c06bfd1c85 verified.
+Manager removed exactly the optional isolateHiddenKeys/onIsolateKeysChange Props declarations.
+TypeScript noEmit passed; the combined source is frozen by the next local commit before testing.
+ROOT assigned the exclusive source 5174 slot, pinned Chromium, one worker/shared lock, for
+the dedicated C3 cases plus the exact legacy visibility and B3B persistence journeys.
+Connected results are still pending at this checkpoint; no full lanes/native/timing authorized.

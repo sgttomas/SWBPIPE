@@ -153,7 +153,6 @@ type Props = {
   modelIdentityHash?: string | null;
   hiddenKeys?: ReadonlySet<EntityKey>;
   explicitHiddenKeys?: ReadonlySet<EntityKey>;
-  isolateHiddenKeys?: ReadonlySet<EntityKey>;
   dimmedKeys?: ReadonlySet<EntityKey>;
   isolationSelectionKeys?: ReadonlySet<EntityKey> | null;
   isolationActive?: boolean;
@@ -166,7 +165,6 @@ type Props = {
   onApplyDraft?: (review: FrozenDraftReview) => Promise<boolean>;
   onInvalidateDraft?: () => void;
   onHiddenKeysChange?: (keys: ReadonlySet<EntityKey>) => void;
-  onIsolateKeysChange?: (keys: ReadonlySet<EntityKey>) => void;
   onIsolationSelectionChange?: (keys: ReadonlySet<EntityKey> | null) => void;
   onClearVisibility?: () => void;
   onViewportInteractionStart?: (interaction: ViewportExposureInteraction) => void;
