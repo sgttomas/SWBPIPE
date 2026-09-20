@@ -4053,6 +4053,8 @@ fn build_app_menu<R: tauri::Runtime>(
     let edit = SubmenuBuilder::new(handle, "Edit")
         .text("edit.undo", "Undo Model Edit")
         .text("edit.redo", "Redo Model Edit")
+        .undo()
+        .redo()
         .separator()
         .cut()
         .copy()
