@@ -1,0 +1,32 @@
+{
+  "at": "2026-09-21T10:00:39.396988+00:00",
+  "rootDisposition": "Preserve exact existing hash-bound ZIPs with exact-path force-add; do not change original claims/returns/source/assertions or rerun old tests. Integration3bdf remains frozen for current sweep.",
+  "verified": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR832_UNDO_REPAIR/affected/b4-table-editing-B4-text-f-fecd6-ugh-pointer-Queue-and-Clear-chromium-desktop/trace.zip",
+      "sha256": "a9f3d47265bd39fa0721b0861c8a3319087ffb556f7beb86fb376bf9af6762e6",
+      "bytes": 3232061,
+      "zipCRC": "PASS",
+      "priorGitCandidate": "absent",
+      "ignoreRule": ".gitignore:76:*.zip\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR832_UNDO_REPAIR/affected/b4-table-editing-B4-text-f-fecd6-ugh-pointer-Queue-and-Clear-chromium-desktop/trace.zip"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR832_UNDO_REPAIR/affected/b4-table-editing-B4-text-f-fecd6-ugh-pointer-Queue-and-Clear-chromium-compact/trace.zip",
+      "sha256": "20b23d75d2672c7cab8c0fef9fdf6cafb2f4f74f30dac45d14f51b234fbe85ef",
+      "bytes": 3460096,
+      "zipCRC": "PASS",
+      "priorGitCandidate": "absent",
+      "ignoreRule": ".gitignore:76:*.zip\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR832_UNDO_REPAIR/affected/b4-table-editing-B4-text-f-fecd6-ugh-pointer-Queue-and-Clear-chromium-compact/trace.zip"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR832_CI_FAILURE/trace.zip",
+      "sha256": "8d8dec3eee6097ea431ee99289a3b96014c385d2836d886621741b66ef5b06b6",
+      "bytes": 2378997,
+      "zipCRC": "PASS",
+      "priorGitCandidate": "absent",
+      "ignoreRule": ".gitignore:76:*.zip\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR832_CI_FAILURE/trace.zip"
+    }
+  ],
+  "sourceDelta": "none; evidence-only tail",
+  "review": "same independent reviewer backcheck required before publication"
+}

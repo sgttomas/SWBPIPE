@@ -1,0 +1,10 @@
+{
+  "reviewer": "/root/b4_3_code_review, independent TASK Astra/xhigh",
+  "candidate": "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
+  "severity": "P2 evidence packaging",
+  "messages": [
+    "Combined review found a concrete evidence packaging gap: frozen3bdf614 lacks the two PR832_UNDO_REPAIR/affected/.../trace.zip paths named by SUMMARY.json (desktop SHAa9f3d472..., compact20b23d75...). PR832_CI_FAILURE/DIAGNOSIS.md also says its decisive canonical trace.zip is retained here (SHA8d8dec3e...), but no trace.zip exists in that frozen directory. Other compressed/raw publication+repair gate bindings pass. I am checking local canonical availability; likely ignored ZIP omissions. These should be preserved in a bounded evidence-only tail or their retention claims corrected before merge; original reviewed bytes need not be rerun.",
+    "Confirmed all three omitted PR832 traces still exist in ROOT at their canonical paths and match recorded sizes/SHA256 exactly: failure2378997bytes/8d8dec3e..., desktop3232061/a9f3d472..., compact3460096/20b23d75.... All are absent in frozen3bdf and wt2. Ordinary exact-path force-add of these ignored artifacts in an evidence-only tail can close this P2 packaging gap; no source or prior assertions need change.",
+    "Combined source/native/authority review otherwise remains clean. All12 desktop paths match reviewed15186 tree; all6 CI maintained paths match ci_cache_review's final reviewed bytes, shared setup/selector unchanged. New Node-native28 and ROOT13 manifests verify, with fresh22492/binaryed24 bindings and truthful natural blur/Keep/Clear/no-model-Apply scope. Historical PR832 payload checks uncovered only the three omitted ZIPs reported. I will backcheck their evidence-only tail and bind supplied preflight/full-sweep results when available."
+  ]
+}

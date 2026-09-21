@@ -2571,9 +2571,9 @@
     "B4-3-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
-      "state": "all reviewed source/CI/native/ROOT records combined; this metadata freeze corrects current graph only; final gates not yet run",
+      "state": "full clean sweep executing on frozen3bdf; combined review source/native clean, three historical ZIP omissions repaired on ROOT evidence-only tail pending backcheck",
       "branch": "codex/swbpipe-b4-materials-integration-20260921",
-      "candidate": "a40a415baaf1f5c6e7f017a02e994db35bd2854a",
+      "candidate": "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
       "desktopTree": "569bb433ce914ef5f96234bc1ddfbb4a82700924",
       "scope": "reviewed Materials and cache maintenance plus truthful run evidence; Node diagnosis before final freeze",
       "remaining": [
@@ -2585,7 +2585,12 @@
         "B4-3-CODEX-MANAGER",
         "B4-3-REVIEW",
         "CI-CACHE-WARMING"
-      ]
+      ],
+      "packagingCorrection": {
+        "finding": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_COMBINED_PACKAGING_FINDING.json",
+        "repair": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR832_TRACE_RETENTION_REPAIR.json",
+        "scope": "three original manifest-bound PR832 ZIPs, exact bytes/CRC verified; no product/test change"
+      }
     }
   },
   "edges": [
@@ -2882,7 +2887,7 @@
       "B4-NODE-SORT-UNDO-DIAG"
     ]
   ],
-  "current_frontier": "All maintained component changes reviewed; scoped Materials/Node-native and ROOT observations complete. Compose final clean candidate, run cheap full-range gates and one registered sweep with complete combined review, then actual-head CI/merge and main-cache observation. C4/live CLI decisions and qualification holds remain.",
+  "current_frontier": "Complete clean3bdf sweep and combined review; backcheck the evidence-only repair preserving three omitted historical PR832 traces, then publication metadata/actual-head CI/merge. C4/live CLI decisions and qualification holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
