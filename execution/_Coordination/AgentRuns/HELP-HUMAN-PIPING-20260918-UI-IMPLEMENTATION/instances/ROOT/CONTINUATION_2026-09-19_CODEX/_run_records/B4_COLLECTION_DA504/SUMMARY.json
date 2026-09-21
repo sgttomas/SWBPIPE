@@ -1,0 +1,32 @@
+{
+  "kind": "collection-only; not test execution or a performance result",
+  "head": "da504e5a9a1a386494df80e965abda88b4020312",
+  "productSource": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
+  "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+  "mode": "full",
+  "status": "validated",
+  "selected": 445,
+  "omitted": 0,
+  "partitions": {
+    "barrier": 30,
+    "shard-1": 108,
+    "shard-2": 58,
+    "shard-3": 63,
+    "shard-4": 186
+  },
+  "estimatedSeconds": {
+    "barrier": 118.2,
+    "shard-1": 393.76,
+    "shard-2": 393.76,
+    "shard-3": 395.0,
+    "shard-4": 395.01
+  },
+  "estimateLimit": "Scheduling hints plus conservative30s fallback for new identities; not measured timings of this candidate.",
+  "browserLaunched": false,
+  "archive": "collection.tar.gz",
+  "archiveSha256": "6ac4419e86417c33dc9825fc18dd79332a0e6f84dc04eb0463bb9320f9a2595d",
+  "archiveBytes": 113028,
+  "sourceCollectionSha256": "93e5f215e9292e0def9306c4eb4ed3ec2d7b9ca9bf9ee031c53bf4c379632d73",
+  "memberCount": 23,
+  "rerun": "Use the retained commands.json and plan.json in the archive on the bound clean candidate. The maintained selector derives REPO_ROOT from its own path. --list collects tests without opening a browser/server."
+}
