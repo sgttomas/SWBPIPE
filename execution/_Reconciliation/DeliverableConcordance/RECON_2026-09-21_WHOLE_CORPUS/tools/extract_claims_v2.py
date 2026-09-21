@@ -16,10 +16,12 @@ Changes from v1 (tools/extract_claims.py, retained as calibration provenance):
      `PreType=NON_NORMATIVE`.
   4. Where two CSV surfaces of one deliverable are keyed by the same row-ID
      set, each row is issued once (surface `ROWS`), citing both files.
-  5. `SharedTextCount` gives how many deliverables carry an identical unit
-     text (same TextSHA256), for canonical pre-disposition.
+  5. `SharedTextCount` gives how many deliverables carry a unit with an
+     identical body (`BodySHA256`: block text without its heading line, so a
+     differing CLM number does not hide identical text), for canonical and
+     consistency handling.
   6. `DuplicateOf` names the first earlier unit in the same deliverable with
-     identical text.
+     an identical body.
 Reads from a Git commit, never the working tree. Output is the coverage
 denominator: each key is dispositioned exactly once.
 
@@ -54,7 +56,7 @@ STANDARD = {"_STATUS.md", "MEMORY.md", "_CONTEXT.md", "_REFERENCES.md", "_DEPEND
             ".gitattributes"}
 
 FIELDS = ["ClaimKey", "DeliverableID", "PackageID", "Surface", "SourcePath", "UnitKind", "PreType", "Required",
-          "ParentKey", "LineStart", "LineEnd", "TextSHA256", "SharedTextCount", "DuplicateOf",
+          "ParentKey", "LineStart", "LineEnd", "TextSHA256", "BodySHA256", "SharedTextCount", "DuplicateOf",
           "Title", "Commit"]
 
 
@@ -69,6 +71,7 @@ class Unit:
     title: str
     pretype: str = ""
     source: str = ""
+    body: str = ""      # block text without its heading line (shared-text and duplicate detection)
 
 
 def git(repo: str, *args: str) -> str:
@@ -107,40 +110,50 @@ def markdown_units(del_id: str, surface: str, text: str, quoted_blocks: bool) ->
     owner = [base] * len(lines)          # innermost block key covering each line
     level_of = {base: 1}
     stack: list[tuple[int, str]] = []    # (level, key)
+    blocks: list[Unit] = []
     for idx, (i, level, title) in enumerate(heads):
         nxt = next((k for (k, lv, _t) in heads[idx + 1:] if lv <= level), len(lines))
         end = nxt
         if quoted_blocks and level >= 3:
-            # a quoted claim block ends at the first unquoted, non-blank line after its heading
-            for r in range(i + 1, nxt):
-                if lines[r].strip() and not lines[r].startswith(">"):
-                    end = r
-                    break
+            # A quoted claim block ends at the first unquoted, non-blank line after its heading.
+            # A block written unquoted (first non-blank body line unquoted and not an ID
+            # bullet) runs to the next heading instead (R0 PR review finding 2).
+            first = next((r for r in range(i + 1, nxt) if lines[r].strip()), None)
+            if first is not None and lines[first].startswith(">"):
+                for r in range(first, nxt):
+                    if lines[r].strip() and not lines[r].startswith(">"):
+                        end = r
+                        break
+            elif first is not None and BULLET_ID_RE.match(lines[first]):
+                end = first
         while stack and stack[-1][0] >= level:
             stack.pop()
         parent = stack[-1][1] if stack else base
         cm = CLM_RE.match(title)
         key = keys(f"{base}#{cm.group(1) if cm else slug(title)}")
         body_lines = lines[i + 1:end]
-        body = "\n".join(lines[i:end])
         substantive = [unquote(l).strip() for l in body_lines
                        if unquote(l).strip() and not QUOTED_HEADING_RE.match(unquote(l).strip())
                        and not unquote(l).strip().startswith("<!--")]
-        pretype = ""
-        if not substantive:
-            pretype = "NON_NORMATIVE"
-        elif level == 2 and quoted_blocks:
-            # a section wrapper: only child headings and unquoted ID bullets beneath it
-            own = [l for l in lines[i + 1:(heads[idx + 1][0] if idx + 1 < len(heads) else nxt)]
-                   if l.strip() and not BULLET_ID_RE.match(l)]
-            if not own:
-                pretype = "NON_NORMATIVE"
-        units.append(Unit(key, "BLOCK", parent, i + 1, end, body, title, pretype))
+        u = Unit(key, "BLOCK", parent, i + 1, end, "\n".join(lines[i:end]), title,
+                 "" if substantive else "NON_NORMATIVE")
+        u.body = "\n".join(body_lines)
+        blocks.append(u)
+        units.append(u)
         level_of[key] = level
         for r in range(i, end):
             if level_of.get(owner[r], 1) < level:
                 owner[r] = key
         stack.append((level, key))
+    if quoted_blocks:
+        # A section wrapper is non-normative only if no line it owns directly (after child
+        # blocks take theirs) carries content other than ID bullets (finding 2).
+        for u in blocks:
+            if level_of[u.key] == 2 and not u.pretype:
+                own = [lines[r] for r in range(u.start, u.end) if owner[r] == u.key
+                       and lines[r].strip() and not BULLET_ID_RE.match(lines[r])]
+                if not own:
+                    u.pretype = "NON_NORMATIVE"
     # items
     table_counter: dict[str, int] = collections.Counter()
     for r, line in enumerate(lines):
@@ -274,21 +287,22 @@ def main(argv: list[str]) -> int:
     by_hash: dict[str, set[str]] = collections.defaultdict(set)
     for del_id, _pkg, u, _sp in all_units:
         if u.kind != "SURFACE":
-            by_hash[sha(u.text)].add(del_id)
+            by_hash[sha(u.body or u.text)].add(del_id)
     first_in_del: dict[tuple[str, str], str] = {}
     for del_id, pkg, u, sp in all_units:
         surface, path = sp.split("\t")
         h = sha(u.text)
+        bh = sha(u.body or u.text)
         dup = ""
         if u.kind != "SURFACE":
-            k = (del_id, h)
+            k = (del_id, bh)
             if k in first_in_del:
                 dup = first_in_del[k]
             else:
                 first_in_del[k] = u.key
         required = "NO" if re.search(r"\.r\d{2}$", u.key) else "YES"
-        rows.append([u.key, del_id, pkg, surface, path, u.kind, u.pretype, required, u.parent, u.start, u.end, h,
-                     len(by_hash[h]) if u.kind != "SURFACE" else 1, dup, u.title[:120], commit])
+        rows.append([u.key, del_id, pkg, surface, path, u.kind, u.pretype, required, u.parent, u.start, u.end, h, bh,
+                     len(by_hash[bh]) if u.kind != "SURFACE" else 1, dup, u.title[:120], commit])
     keys = [r[0] for r in rows]
     if len(keys) != len(set(keys)):
         print(f"DUPLICATE KEYS: {sorted(k for k, c in collections.Counter(keys).items() if c > 1)[:10]}", file=sys.stderr)

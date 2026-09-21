@@ -3,14 +3,20 @@
 **Status: BOUND by the owner's R0 ruling** (`R0_CALIBRATION/R0_RULING.md`).
 This file consolidates the candidate conventions
 (`R0_CALIBRATION/CANDIDATE_CONVENTIONS.md`) with every amendment the owner
-adopted: the dispositions in `R0_CALIBRATION/R0_REVIEW.md` §4 and the
-ruling's items 2–4. Where this file and those sources differ, the ruling
-governs, then this file. A later change needs a new owner ruling.
+adopted: the dispositions and texts in `R0_CALIBRATION/R0_REVIEW.md` §4–§7
+and the ruling's items 2–4.
+
+**Precedence.** The ruling, including the `R0_REVIEW.md` §4–§7 texts it
+adopts, governs. This file comes second. Where this file differs from an
+adopted text, the adopted text governs and the difference is a defect to
+correct. A later change needs a new owner ruling.
 
 Origin labels:
 - **OWNER**: the owner's words.
 - **KERNEL**: the pinned method.
-- **RULED**: the owner adopted Agent 0's or the reviewer's text at R0.
+- **RULED**: text the owner adopted at R0 (candidate or reviewer text).
+- **AGENT**: an Agent 0 clarification made while consolidating. It is marked
+  so it can be checked against the adopted texts; the ruling governs.
 
 ## Part A — Authority and evidence
 
@@ -32,8 +38,8 @@ see what was done and why."
   requires.
 - When shipped behaviour departs from a `LOCAL_DESIGN` claim and a merged PR
   explains why, the likely resolution is that the deliverable catches up.
-- A merged PR does not amend a `PROJECT_BASELINE` or `INVARIANT` claim. Such a
-  divergence goes to R4 with the PR as context.
+- A merged PR does not by itself amend a `PROJECT_BASELINE` or `INVARIANT`
+  claim. Such a divergence goes to R4 with the PR as context.
 
 **A3. Authority versus evidence (RULED).**
 
@@ -52,8 +58,8 @@ see what was done and why."
 - Evidence may change a disposition. Context may only explain one.
 - **Discovery step.** Before recording `NONE_FOUND` for a record-type claim
   (parity, claim map, review), run `git grep -l <DEL-ID>` over the frozen
-  tree. Include root `execution/_Coordination/AgentRuns/`. Start with the
-  evidence map in your brief.
+  tree. Include root `execution/_Coordination/AgentRuns/`. (AGENT:) Start
+  with `EVIDENCE_MAP.csv`.
 - Rulings adopted by reference keep the `ADOPTED_BY_REFERENCE` flag in the
   `AdoptedByReference` column.
 
@@ -149,12 +155,23 @@ independently. R3 owns the final unmapped set.
   - A block whose substance is fully carried by its children is `CONTAINER` /
     `COVERED_BY_CHILDREN`.
   - A block that has children and substance of its own is assessed directly.
-- **Sub-claims.** Table rows are issued as deterministic `.rNN` keys. Use a
-  `.sNN` sub-claim only for normative prose that no issued key covers, and
-  whenever parts of a block would take different dispositions.
+- **Keys and sub-claims.** Workers never mint keys other than `.sNN`
+  sub-claims (RULED).
+  - Table rows without their own identifier are issued as deterministic
+    `.rNN` keys with `Required=NO`.
+  - **AGENT, disclosed departure:** a `.rNN` row is needed only when a worker
+    splits the block. Once a block is split, every one of its `.rNN` keys is
+    required (all-or-none).
+  - A split block may be assessed directly when it has substance of its own.
+    Otherwise it is `CONTAINER`.
+  - A block that has `.rNN` keys may not use `.sNN` sub-claims in their
+    place.
+  - Use a `.sNN` sub-claim only for normative prose that no issued key covers,
+    and whenever parts of a block would take different dispositions.
 - **Common defects.** A defect common to every item of a surface is recorded
   once on the SURFACE row. Items are then judged on their own substance.
-- **History.** The history rule applies to `MEMORY`, `STATUS#history` and
+- **History.** The history rule applies to every `HISTORY`-typed unit,
+  including `MEMORY` (a single history unit), `STATUS#history` and
   `CONTEXT#preparation-notes`.
   - Accurate history is `ALIGNED`.
   - Only text that still reads as a current obligation is assessed.
@@ -168,9 +185,13 @@ independently. R3 owns the final unmapped set.
   `ContextRefs`.
 - **Duplicates.** A duplicate of another unit in the same deliverable writes
   `DUPLICATE_OF <key>` in Notes and takes the same disposition.
-- **Canonical inheritance.** Where the claim keys give a `CanonicalSituation`,
-  the row inherits the canonical disposition, cause, tier and layer. Depart
-  from them only with a justification in Notes.
+- **Canonical inheritance.** Where `CANONICAL_ASSIGNMENTS.csv` gives a
+  situation, the row inherits its fields. Where a pattern in
+  `CANONICAL_SITUATIONS.md` applies, the row follows it. To depart, write
+  `CANONICAL_DEPARTURE:` in Notes followed by the reason.
+- **Pre-typed units (AGENT).** A unit that extractor v2 pre-typed
+  `NON_NORMATIVE` may be overridden only with `PRETYPE_OVERRIDE:` and the
+  reason in Notes.
 
 **C2. Claim type:** `REQUIREMENT`, `ACCEPTANCE`, `EXCLUSION`,
 `DECLARED_STATE`, `REMAINING_WORK`, `CONTEXT`, `CONTAINER`, `NON_NORMATIVE`,
@@ -181,21 +202,28 @@ is the authority of the claim's substance as it stands.
 
 | Tier | Use it for |
 |---|---|
-| `LOCAL_DESIGN` | A deliverable-local design choice. Also pointer drift and setup residue that a deliverable catch-up would repair with no decision, even when the stale text names a ruling |
-| `PROJECT_BASELINE` | Substance that conflicts with, or restates, a ruling or accepted scope |
-| `INVARIANT` | Substance that restates a contract, boundary or validation invariant, including every `VERIFIED_NOT_VALIDATED` row. `DivergenceLayers` carries the subject |
+| `LOCAL_DESIGN` | The claim's authority is a deliverable-local design choice. Also pointer drift and setup residue that a deliverable catch-up would repair with no decision, even when the stale text names a ruling |
+| `PROJECT_BASELINE` | The claim restates a ruled decision, accepted scope or baseline, or its substance conflicts with one |
+| `INVARIANT` | The claim restates a contract, specification or boundary invariant, including every `VERIFIED_NOT_VALIDATED` row. Covered subjects: professional boundary, IP and data, security and privacy, protected checks, and engineering validation. `DivergenceLayers` carries the subject |
 
 **C4. Baseline class (RULED).**
 
-- Values: `ISSUED`, `FROZEN_CONTRACT`, `PROTECTED_CHECK`, `RULED_CRITERION`,
-  `OWNER_HOLD`, `NONE`.
+- Values:
+  - `ISSUED`;
+  - `FROZEN_CONTRACT`: hash, result-semantics or schema versions;
+  - `PROTECTED_CHECK`: tests, tolerances, oracles and limits;
+  - `RULED_CRITERION`: for example D-68 and D-72;
+  - `OWNER_HOLD`;
+  - `NONE`.
 - The class names the baseline of the artifact that diverges, not of the
   claim's deliverable.
-- `NONE` is the default on non-aligned rows.
+- `NONE` is the default on non-aligned rows. Leave the field empty on quiet
+  rows.
 - An owner-ruled gate that is not a hold on this deliverable is
   `RULED_CRITERION`.
-- `PROTECTED_CHECK` is for a protected check that was removed, weakened or
-  contradicted. A stale test count is not a protected-check event.
+- **AGENT:** use `PROTECTED_CHECK` when the diverging artifact is a protected
+  check that was removed, weakened or contradicted. A stale count in prose is
+  not one.
 
 **C5. Divergence layers (RULED).** A `;` list, no spaces.
 
@@ -239,7 +267,8 @@ Rules:
   - `REMAINING_STATE_MISMATCH` for `STATUS#remaining/*` units only.
 - **(d)** An ISSUED claim that was true at issuance but was overtaken by a
   later ruling is `LIFECYCLE_REASSESSMENT_REQUIRED` and carries a
-  `FindingGroup` (ruling item 4). `IMPLEMENTED_DIFFERENTLY` is reserved for:
+  `FindingGroup`. The group goes to R4 as one item on the ISSUED change path
+  (ruling item 4). `IMPLEMENTED_DIFFERENTLY` is reserved for:
   - implementation that departs from a claim;
   - a declared-open hold settled in code with no ruling (cause
     `AUTHORITY_UNCLEAR`).
@@ -247,7 +276,8 @@ Rules:
   `ACCEPTED_DIVERGENCE` until its trigger occurs. Record the trigger in
   `RemainingWork`. **Exception (ruling item 3):** DEC-101 does not reach
   deliverable Scope of Work files. Rename residue there is a finding with
-  cause `RENAME_OR_IDENTITY`, never an accepted divergence.
+  cause `RENAME_OR_IDENTITY`, never an accepted divergence. R3 clusters these
+  findings as one class for a single R4 ruling.
 - **(f)** `UNKNOWN` with `AUTHORITY_UNCLEAR` means the governing sources are
   silent.
 - **(g)** `ACCEPTED_DIVERGENCE` requires a named governing ruling that permits
@@ -302,8 +332,9 @@ State this once in the notes.
 
 RFC-4180 CSV, CRLF record endings, UTF-8. One file per deliverable per pass.
 
-**Sentinel.** Each file ends with a final record whose first field is `#END`
-and whose last field holds the body-row count.
+**Sentinel.** Each file ends with a final record whose first field is `#END`.
+The body-row count goes in the `Notes` field of the forward ledger and the
+`Reason` field of the reverse answers.
 
 **Forward ledger `<DEL>_forward.csv`:**
 
@@ -322,11 +353,13 @@ SourceStateSHA
 - `ClaimClass`: `GOVERNANCE`, `SCHEMA`, `MECHANICS`, `WORKFLOW`, `GUI`,
   `REPORTING`, `INTEROP`, `VALIDATION`, `SECURITY`, `DOCUMENTATION`.
 - `ClaimSummary`: at most 200 characters, in the worker's own words.
-- Evidence columns hold a `;` list (no spaces) of tokens, or `NONE_FOUND` or
-  `NOT_APPLICABLE`. A token is one of:
+- Evidence columns are never empty. Each holds a `;` list (no spaces) of
+  tokens, or `NONE_FOUND` or `NOT_APPLICABLE`. A token is one of:
   - a path from the repository root (`projects/…`, `execution/…`, `docs/…`,
     `tools/…`, `agents/…`, `workflows/…`, `.github/…`, `_DomainEngines/…`);
-  - `GATE:<run-relative path>`.
+  - a path from the project root (`core/…`, `apps/…`), which the validator
+    resolves under `projects/chirality-piping/`;
+  - `GATE:GATE_EVIDENCE/<path>`.
 
   Append `::case` or `#Lnn` where useful. Put free text in Notes, never in
   evidence columns.
@@ -335,9 +368,9 @@ SourceStateSHA
 - `CanonicalSituation`: the ID from the canonical situation table, or empty.
 - `AdoptedByReference`: `YES` or empty.
 - `AuthorityNeeded`: `NO`, `OWNER`, `ENGINEERING`, `SCOPE_CHANGE`, `REVIEW`,
-  or a decision ID. Use `NO` when a deliverable catch-up with no decision
-  would repair the row (typically `LOCAL_DESIGN`). Use `OWNER` when a choice
-  is needed.
+  or a decision ID. (AGENT, answering §7's request for a definition:) Use `NO`
+  when a deliverable catch-up with no decision would repair the row
+  (typically `LOCAL_DESIGN`). Use `OWNER` when a choice is needed.
 - `Confidence`: `HIGH`, `MEDIUM`, `LOW`.
 - `CauseTag` and `AuthorityTier` are empty on quiet rows (`ALIGNED`,
   `COVERED_BY_CHILDREN`, `NOT_ASSESSED`).
@@ -358,5 +391,18 @@ departures, convention friction, and the smallest checks for `UNKNOWN` rows.
 - Never state or imply a release, approval, compliance or certification
   claim.
 - Agent dispositions are never owner rulings.
+
+## Narrowings and changes against the adopted texts (disclosed)
+
+- **Sentinel.** The count goes in `Notes` (forward) or `Reason` (reverse), as
+  the candidates had it.
+- **Optional `.rNN` keys.** Rows for them are optional and all-or-none (C1,
+  AGENT). This departs from `R0_REVIEW.md` §5 item 2 as written and is pending
+  owner confirmation. The reason and how to reverse it are in `RUN_STATE.jsonl`
+  under `DISCLOSED_DEPARTURE`.
+- **Canonical coverage of shared text.** Consistency is enforced for shared
+  bodies without a keyed row (`CANONICAL_SITUATIONS.md`, "Shared text without
+  a keyed row"). §5 item 5 asked for one canonical row per hash; the reason is
+  recorded there.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

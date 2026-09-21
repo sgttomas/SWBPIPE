@@ -2,17 +2,21 @@
 """Build the evidence map and the canonical assignments (R0 ruling, item 1).
 
 Deterministic and read-only against the frozen commit. It writes:
-  EVIDENCE_MAP.csv           Scope-of-Work parity and claim-map records for each
-                             deliverable, with whether the parity production hash
-                             equals the frozen Scope of Work.
+  EVIDENCE_MAP.csv           Every Scope-of-Work parity record in the frozen tree
+                             (found by content signature, whatever its file name),
+                             its verdict and production hash, whether that hash
+                             equals the frozen Scope of Work, and a per-deliverable
+                             `AnyPassMatchesFrozen` summary.
   CANONICAL_ASSIGNMENTS.csv  For each required claim key that matches a canonical
                              situation (see CANONICAL_SITUATIONS.md): the
                              situation ID, the mechanical check result where the
                              situation needs one, and the inherited fields.
 
 Mechanical checks compare `_CONTEXT.md` restatements with the frozen companion
-sources: the SOFTWARE_DECOMP package table, and docs/_Registers/Deliverables.csv
-and ScopeLedger.csv. The situation definitions and their field values are Agent
+sources: every field of the SOFTWARE_DECOMP package table row (name, scope,
+assigned scope items, exclusions), docs/_Registers/Deliverables.csv
+(objectives, scope items) and docs/_Registers/ScopeLedger.csv (scope-item
+statements). The situation definitions and their field values are Agent
 0's judgments under the bound conventions, reviewed before use. Workers inherit
 them and may depart only with a justification in Notes (CONVENTIONS C1).
 
@@ -82,31 +86,38 @@ def main(argv):
     c = git(a.repo_root, "rev-parse", a.commit).strip()
     keys = list(csv.DictReader(open(f"{a.run_dir}/CLAIM_KEYS_V2.csv", newline="", encoding="utf-8")))
 
-    # ---- evidence map
-    tree = git(a.repo_root, "ls-tree", "-r", "-z", "--name-only", c).split("\0")
-    parity = [t for t in tree if t.endswith("/parity.md") and "/checks/DEL-" in t]
-    sow_path = {}
-    for k in keys:
-        if k["Surface"] == "SOW" and k["UnitKind"] == "SURFACE":
-            sow_path[k["DeliverableID"]] = k["SourcePath"]
+    # ---- evidence map: every parity record, found by content signature
+    sow_path = {k["DeliverableID"]: k["SourcePath"] for k in keys if k["Surface"] == "SOW" and k["UnitKind"] == "SURFACE"}
+    frozen = {d: sha_bytes(subprocess.run(["git", "-C", a.repo_root, "show", f"{c}:{p}"], check=True,
+                                          capture_output=True).stdout) for d, p in sow_path.items()}
+    sig = "Production Scope-of-Work SHA-256"
+    hits = subprocess.run(["git", "-C", a.repo_root, "grep", "-l", sig, c, "--", "execution/_Coordination/AgentRuns",
+                           f"{P}/execution"], capture_output=True, text=True).stdout.split("\n")
+    tree = set(git(a.repo_root, "ls-tree", "-r", "-z", "--name-only", c).split("\0"))
     emap = []
-    for t in sorted(parity):
-        d = re.search(r"/checks/(DEL-\d\d-\d\d)/", t).group(1)
-        body = git(a.repo_root, "show", f"{c}:{t}")
-        verdict = (re.search(r"Verdict:\s*\*\*(\w+)\*\*", body) or [None, ""])[1]
-        prod = (re.search(r"Production Scope-of-Work SHA-256:\s*`([0-9a-f]{64})`", body) or [None, ""])[1]
-        frozen = ""
-        if d in sow_path:
-            frozen = sha_bytes(subprocess.run(["git", "-C", a.repo_root, "show", f"{c}:{sow_path[d]}"],
-                                              check=True, capture_output=True).stdout)
-        cmap = t.replace("/parity.md", "/claim-map.csv")
-        emap.append([d, t, verdict, prod, frozen, "YES" if prod and prod == frozen else "NO",
-                     cmap if cmap in set(tree) else ""])
+    for h in sorted(x.split(":", 1)[1] for x in hits if x):
+        body = git(a.repo_root, "show", f"{c}:{h}")
+        m = re.search(r"(DEL-\d\d-\d\d)", h) or re.search(r"(DEL-\d\d-\d\d)", body)
+        if not m:
+            continue
+        d = m.group(1)
+        for block in re.split(r"(?=Verdict:)", body)[1:] or [body]:
+            verdict = (re.search(r"Verdict:\s*\*{0,2}(\w+)", block) or [None, ""])[1]
+            prod = (re.search(sig + r":\s*`([0-9a-f]{64})`", block) or [None, ""])[1]
+            if not prod:
+                continue
+            cmap = re.sub(r"parity[^/]*\.md$", "claim-map.csv", h)
+            emap.append([d, h, verdict, prod, frozen.get(d, ""), "YES" if prod == frozen.get(d) else "NO",
+                         cmap if cmap in tree else ""])
+    anymatch = {d for d, _h, v, _p, _f, mt, _c in emap if v == "PASS" and mt == "YES"}
     with open(f"{a.run_dir}/EVIDENCE_MAP.csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh, lineterminator="\r\n")
         w.writerow(["DeliverableID", "ParityPath", "Verdict", "ParityProductionSHA256", "FrozenSOWSHA256",
-                    "HashMatchesFrozen", "ClaimMapPath"])
-        w.writerows(emap)
+                    "HashMatchesFrozen", "ClaimMapPath", "AnyPassMatchesFrozen"])
+        for r in emap:
+            w.writerow(r + ["YES" if r[0] in anymatch else "NO"])
+        for d in sorted(set(sow_path) - {r[0] for r in emap}):
+            w.writerow([d, "NONE_FOUND", "", "", frozen[d], "NO", "", "NO"])
 
     # ---- companion sources
     decomp = git(a.repo_root, "show", f"{c}:{P}/execution/_Decomposition/SOFTWARE_DECOMP.md")
@@ -142,18 +153,33 @@ def main(argv):
             sit, check = "CS-05", "PKG-00 gate superseded (D-43; HUMAN-STEER-PKG00-EXCLUSION-001)"
         elif slug.startswith("package-reference"):
             pk = (re.search(r"\*\*Package:\*\*\s*(PKG-\d\d)", block) or [None, ""])[1]
-            cur = pkg_rows.get(pk)
-            scope = field(block, "Package Scope")
-            ok = bool(cur) and scope and any(scope == x for x in cur[1:])
-            sit, check = ("CS-06-OK" if ok else "CS-06-DRIFT"), f"package scope {'matches' if ok else 'differs from'} SOFTWARE_DECOMP rev 0.12 table row {pk}"
+            cur = pkg_rows.get(pk)  # PackageID | Name | Scope Description | Assigned Scope Items | Exclusions
+            name = re.sub(r"^PKG-\d\d\s*", "", field(block, "Package")).strip()
+            parts = {
+                "name": bool(cur) and name == cur[1],
+                "scope": bool(cur) and field(block, "Package Scope") == cur[2],
+                "assigned": bool(cur) and ids(field(block, "Package Assigned Scope Items"), "SOW") == ids(cur[3], "SOW")
+                            and bool(ids(cur[3], "SOW")),
+                "exclusions": bool(cur) and field(block, "Package Exclusions") == cur[4],
+            }
+            bad = [k for k, v in parts.items() if not v]
+            sit = "CS-06-OK" if not bad else "CS-06-DRIFT"
+            check = f"{pk} matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions" if not bad \
+                else f"{pk} differs from SOFTWARE_DECOMP rev 0.12 on {', '.join(bad)}"
         elif slug.startswith("objective-support"):
             ok = ids(block, "OBJ") == ids(dreg.get(d, {}).get("SupportsObjectives", ""), "OBJ")
             sit, check = ("CS-06-OK" if ok else "CS-06-DRIFT"), f"objectives {'match' if ok else 'differ from'} Deliverables.csv"
         elif slug.startswith("scope-coverage"):
             ok = ids(block, "SOW") == ids(dreg.get(d, {}).get("CoversScopeItems", ""), "SOW")
             sit, check = ("CS-06-OK" if ok else "CS-06-DRIFT"), f"scope items {'match' if ok else 'differ from'} Deliverables.csv"
-        elif slug.startswith("context-envelope") or slug.startswith("context-budget-qa"):
-            sit, check = "CS-07", "setup process metadata, no product claim"
+        elif slug.startswith("scope-detail"):
+            items = re.findall(r"^-\s*(SOW-\d{3}):\s*(.*\S)\s*$", block, re.M)
+            bad = [sid for sid, txt in items if (sreg.get(sid, {}).get("ScopeItemStatement", "").strip() != txt.strip())]
+            ok = bool(items) and not bad
+            sit, check = ("CS-06-OK" if ok else "CS-06-DRIFT"), ("scope-item statements match ScopeLedger.csv" if ok
+                          else f"scope-item statements differ from ScopeLedger.csv: {', '.join(bad) or 'none parsed'}")
+        elif slug.startswith("context-budget-qa"):
+            sit, check = "CS-07", "setup context-budget metadata, no product claim"
         if sit:
             rows.append([k["ClaimKey"], d, sit.split("-OK")[0].split("-DRIFT")[0], sit, check, *CS[sit]])
     with open(f"{a.run_dir}/CANONICAL_ASSIGNMENTS.csv", "w", newline="", encoding="utf-8") as fh:

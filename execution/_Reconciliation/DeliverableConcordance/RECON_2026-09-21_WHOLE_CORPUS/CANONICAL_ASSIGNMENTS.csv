@@ -1,812 +1,730 @@
 ClaimKey,DeliverableID,CanonicalSituation,Variant,MechanicalCheck,ClaimType,Disposition,CauseTag,AuthorityTier,BaselineClass,DivergenceLayers,AuthorityNeeded
 DEL-00-01:CONTEXT#scope-coverage,DEL-00-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-01:CONTEXT#objective-support,DEL-00-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-00-01:CONTEXT#context-envelope,DEL-00-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-01:CONTEXT#context-budget-qa,DEL-00-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-01:CONTEXT#package-reference,DEL-00-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-00,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-00-01:CONTEXT#context-budget-qa,DEL-00-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-00-01:CONTEXT#package-reference,DEL-00-01,CS-06,CS-06-OK,"PKG-00 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-01:CONTEXT#architecture-gate-rule,DEL-00-01,CS-05,CS-05,PKG-00 gate superseded (D-43; HUMAN-STEER-PKG00-EXCLUSION-001),DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,SCOPE_REDIRECTED_BY_RULING,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-01:CONTEXT#decomposition-reference,DEL-00-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-01:CONTEXT#preparation-notes,DEL-00-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-00-02:CONTEXT#scope-coverage,DEL-00-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-02:CONTEXT#objective-support,DEL-00-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-00-02:CONTEXT#context-envelope,DEL-00-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-02:CONTEXT#context-budget-qa,DEL-00-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-02:CONTEXT#package-reference,DEL-00-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-00,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-00-02:CONTEXT#context-budget-qa,DEL-00-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-00-02:CONTEXT#package-reference,DEL-00-02,CS-06,CS-06-OK,"PKG-00 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-02:CONTEXT#architecture-gate-rule,DEL-00-02,CS-05,CS-05,PKG-00 gate superseded (D-43; HUMAN-STEER-PKG00-EXCLUSION-001),DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,SCOPE_REDIRECTED_BY_RULING,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-02:CONTEXT#decomposition-reference,DEL-00-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-02:CONTEXT#preparation-notes,DEL-00-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-00-03:CONTEXT#scope-coverage,DEL-00-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-03:CONTEXT#objective-support,DEL-00-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-00-03:CONTEXT#context-envelope,DEL-00-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-03:CONTEXT#context-budget-qa,DEL-00-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-03:CONTEXT#package-reference,DEL-00-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-00,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-00-03:CONTEXT#context-budget-qa,DEL-00-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-00-03:CONTEXT#package-reference,DEL-00-03,CS-06,CS-06-OK,"PKG-00 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-03:CONTEXT#architecture-gate-rule,DEL-00-03,CS-05,CS-05,PKG-00 gate superseded (D-43; HUMAN-STEER-PKG00-EXCLUSION-001),DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,SCOPE_REDIRECTED_BY_RULING,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-03:CONTEXT#decomposition-reference,DEL-00-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-03:CONTEXT#preparation-notes,DEL-00-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-00-04:CONTEXT#scope-coverage,DEL-00-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-04:CONTEXT#objective-support,DEL-00-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-00-04:CONTEXT#context-envelope,DEL-00-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-04:CONTEXT#context-budget-qa,DEL-00-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-04:CONTEXT#package-reference,DEL-00-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-00,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-00-04:CONTEXT#context-budget-qa,DEL-00-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-00-04:CONTEXT#package-reference,DEL-00-04,CS-06,CS-06-OK,"PKG-00 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-04:CONTEXT#architecture-gate-rule,DEL-00-04,CS-05,CS-05,PKG-00 gate superseded (D-43; HUMAN-STEER-PKG00-EXCLUSION-001),DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,SCOPE_REDIRECTED_BY_RULING,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-04:CONTEXT#decomposition-reference,DEL-00-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-04:CONTEXT#preparation-notes,DEL-00-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-00-05:CONTEXT#scope-coverage,DEL-00-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-05:CONTEXT#objective-support,DEL-00-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-00-05:CONTEXT#context-envelope,DEL-00-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-05:CONTEXT#context-budget-qa,DEL-00-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-05:CONTEXT#package-reference,DEL-00-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-00,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-00-05:CONTEXT#context-budget-qa,DEL-00-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-00-05:CONTEXT#package-reference,DEL-00-05,CS-06,CS-06-OK,"PKG-00 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-05:CONTEXT#architecture-gate-rule,DEL-00-05,CS-05,CS-05,PKG-00 gate superseded (D-43; HUMAN-STEER-PKG00-EXCLUSION-001),DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,SCOPE_REDIRECTED_BY_RULING,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-05:CONTEXT#decomposition-reference,DEL-00-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-05:CONTEXT#preparation-notes,DEL-00-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-00-06:CONTEXT#scope-coverage,DEL-00-06,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-06:CONTEXT#objective-support,DEL-00-06,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-00-06:CONTEXT#context-envelope,DEL-00-06,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-06:CONTEXT#context-budget-qa,DEL-00-06,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-06:CONTEXT#package-reference,DEL-00-06,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-00,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-00-06:CONTEXT#context-budget-qa,DEL-00-06,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-00-06:CONTEXT#package-reference,DEL-00-06,CS-06,CS-06-OK,"PKG-00 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-06:CONTEXT#architecture-gate-rule,DEL-00-06,CS-05,CS-05,PKG-00 gate superseded (D-43; HUMAN-STEER-PKG00-EXCLUSION-001),DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,SCOPE_REDIRECTED_BY_RULING,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-06:CONTEXT#decomposition-reference,DEL-00-06,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-06:CONTEXT#preparation-notes,DEL-00-06,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-00-07:CONTEXT#scope-coverage,DEL-00-07,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-07:CONTEXT#objective-support,DEL-00-07,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-00-07:CONTEXT#context-envelope,DEL-00-07,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-07:CONTEXT#context-budget-qa,DEL-00-07,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-07:CONTEXT#package-reference,DEL-00-07,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-00,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-00-07:CONTEXT#context-budget-qa,DEL-00-07,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-00-07:CONTEXT#package-reference,DEL-00-07,CS-06,CS-06-OK,"PKG-00 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-07:CONTEXT#architecture-gate-rule,DEL-00-07,CS-05,CS-05,PKG-00 gate superseded (D-43; HUMAN-STEER-PKG00-EXCLUSION-001),DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,SCOPE_REDIRECTED_BY_RULING,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-07:CONTEXT#decomposition-reference,DEL-00-07,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-07:CONTEXT#preparation-notes,DEL-00-07,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-00-08:CONTEXT#scope-coverage,DEL-00-08,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-08:CONTEXT#objective-support,DEL-00-08,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-00-08:CONTEXT#context-envelope,DEL-00-08,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-08:CONTEXT#context-budget-qa,DEL-00-08,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-00-08:CONTEXT#package-reference,DEL-00-08,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-00,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-00-08:CONTEXT#context-budget-qa,DEL-00-08,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-00-08:CONTEXT#package-reference,DEL-00-08,CS-06,CS-06-OK,"PKG-00 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-00-08:CONTEXT#architecture-gate-rule,DEL-00-08,CS-05,CS-05,PKG-00 gate superseded (D-43; HUMAN-STEER-PKG00-EXCLUSION-001),DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,SCOPE_REDIRECTED_BY_RULING,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-08:CONTEXT#decomposition-reference,DEL-00-08,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-00-08:CONTEXT#preparation-notes,DEL-00-08,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-01-01:CONTEXT#scope-coverage,DEL-01-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-01-01:CONTEXT#objective-support,DEL-01-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-01-01:CONTEXT#context-envelope,DEL-01-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-01-01:CONTEXT#context-budget-qa,DEL-01-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-01-01:CONTEXT#package-reference,DEL-01-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-01,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-01-01:CONTEXT#context-budget-qa,DEL-01-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-01-01:CONTEXT#package-reference,DEL-01-01,CS-06,CS-06-DRIFT,PKG-01 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-01-01:CONTEXT#decomposition-reference,DEL-01-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-01-01:CONTEXT#architecture-basis-injection,DEL-01-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-01-02:CONTEXT#scope-coverage,DEL-01-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-01-02:CONTEXT#objective-support,DEL-01-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-01-02:CONTEXT#context-envelope,DEL-01-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-01-02:CONTEXT#context-budget-qa,DEL-01-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-01-02:CONTEXT#package-reference,DEL-01-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-01,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-01-02:CONTEXT#context-budget-qa,DEL-01-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-01-02:CONTEXT#package-reference,DEL-01-02,CS-06,CS-06-DRIFT,PKG-01 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-01-02:CONTEXT#decomposition-reference,DEL-01-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-01-02:CONTEXT#architecture-basis-injection,DEL-01-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-01-03:CONTEXT#scope-coverage,DEL-01-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-01-03:CONTEXT#objective-support,DEL-01-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-01-03:CONTEXT#context-envelope,DEL-01-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-01-03:CONTEXT#context-budget-qa,DEL-01-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-01-03:CONTEXT#package-reference,DEL-01-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-01,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-01-03:CONTEXT#context-budget-qa,DEL-01-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-01-03:CONTEXT#package-reference,DEL-01-03,CS-06,CS-06-DRIFT,PKG-01 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-01-03:CONTEXT#decomposition-reference,DEL-01-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-01-03:CONTEXT#architecture-basis-injection,DEL-01-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-01-04:CONTEXT#scope-coverage,DEL-01-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-01-04:CONTEXT#objective-support,DEL-01-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-01-04:CONTEXT#context-envelope,DEL-01-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-01-04:CONTEXT#context-budget-qa,DEL-01-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-01-04:CONTEXT#package-reference,DEL-01-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-01,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-01-04:CONTEXT#context-budget-qa,DEL-01-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-01-04:CONTEXT#package-reference,DEL-01-04,CS-06,CS-06-DRIFT,PKG-01 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-01-04:CONTEXT#decomposition-reference,DEL-01-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-01-04:CONTEXT#architecture-basis-injection,DEL-01-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-01-04:CONTEXT#preparation-notes,DEL-01-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-02-01:CONTEXT#scope-coverage,DEL-02-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-02-01:CONTEXT#objective-support,DEL-02-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-02-01:CONTEXT#context-envelope,DEL-02-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-02-01:CONTEXT#context-budget-qa,DEL-02-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-02-01:CONTEXT#package-reference,DEL-02-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-02,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-02-01:CONTEXT#context-budget-qa,DEL-02-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-02-01:CONTEXT#package-reference,DEL-02-01,CS-06,CS-06-OK,"PKG-02 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-02-01:CONTEXT#decomposition-reference,DEL-02-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-01:CONTEXT#architecture-basis-injection,DEL-02-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-01:CONTEXT#preparation-notes,DEL-02-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-02-02:CONTEXT#scope-coverage,DEL-02-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-02-02:CONTEXT#objective-support,DEL-02-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-02-02:CONTEXT#context-envelope,DEL-02-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-02-02:CONTEXT#context-budget-qa,DEL-02-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-02-02:CONTEXT#package-reference,DEL-02-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-02,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-02-02:CONTEXT#context-budget-qa,DEL-02-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-02-02:CONTEXT#package-reference,DEL-02-02,CS-06,CS-06-DRIFT,PKG-02 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-02:CONTEXT#decomposition-reference,DEL-02-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-02:CONTEXT#architecture-basis-injection,DEL-02-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-02:CONTEXT#preparation-notes,DEL-02-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-02-03:CONTEXT#scope-coverage,DEL-02-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-02-03:CONTEXT#objective-support,DEL-02-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-02-03:CONTEXT#context-envelope,DEL-02-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-02-03:CONTEXT#context-budget-qa,DEL-02-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-02-03:CONTEXT#package-reference,DEL-02-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-02,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-02-03:CONTEXT#context-budget-qa,DEL-02-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-02-03:CONTEXT#package-reference,DEL-02-03,CS-06,CS-06-DRIFT,PKG-02 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-03:CONTEXT#decomposition-reference,DEL-02-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-03:CONTEXT#architecture-basis-injection,DEL-02-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-03:CONTEXT#preparation-notes,DEL-02-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-02-04:CONTEXT#scope-coverage,DEL-02-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-02-04:CONTEXT#objective-support,DEL-02-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-02-04:CONTEXT#context-envelope,DEL-02-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-02-04:CONTEXT#context-budget-qa,DEL-02-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-02-04:CONTEXT#package-reference,DEL-02-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-02,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-02-04:CONTEXT#context-budget-qa,DEL-02-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-02-04:CONTEXT#package-reference,DEL-02-04,CS-06,CS-06-DRIFT,PKG-02 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-04:CONTEXT#decomposition-reference,DEL-02-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-04:CONTEXT#architecture-basis-injection,DEL-02-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-04:CONTEXT#preparation-notes,DEL-02-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-02-05:CONTEXT#scope-coverage,DEL-02-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-02-05:CONTEXT#objective-support,DEL-02-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-02-05:CONTEXT#context-envelope,DEL-02-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-02-05:CONTEXT#context-budget-qa,DEL-02-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-02-05:CONTEXT#package-reference,DEL-02-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-02,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-02-05:CONTEXT#context-budget-qa,DEL-02-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-02-05:CONTEXT#package-reference,DEL-02-05,CS-06,CS-06-DRIFT,PKG-02 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-05:CONTEXT#decomposition-reference,DEL-02-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-05:CONTEXT#architecture-basis-injection,DEL-02-05,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-02-05:CONTEXT#preparation-notes,DEL-02-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-03-01:CONTEXT#scope-coverage,DEL-03-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-01:CONTEXT#objective-support,DEL-03-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-03-01:CONTEXT#context-envelope,DEL-03-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-01:CONTEXT#context-budget-qa,DEL-03-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-01:CONTEXT#package-reference,DEL-03-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-03,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-03-01:CONTEXT#context-budget-qa,DEL-03-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-03-01:CONTEXT#package-reference,DEL-03-01,CS-06,CS-06-OK,"PKG-03 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-01:CONTEXT#decomposition-reference,DEL-03-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-01:CONTEXT#architecture-basis-injection,DEL-03-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-01:CONTEXT#preparation-notes,DEL-03-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-03-02:CONTEXT#scope-coverage,DEL-03-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-02:CONTEXT#objective-support,DEL-03-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-03-02:CONTEXT#context-envelope,DEL-03-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-02:CONTEXT#context-budget-qa,DEL-03-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-02:CONTEXT#package-reference,DEL-03-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-03,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-03-02:CONTEXT#context-budget-qa,DEL-03-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-03-02:CONTEXT#package-reference,DEL-03-02,CS-06,CS-06-OK,"PKG-03 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-02:CONTEXT#decomposition-reference,DEL-03-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-02:CONTEXT#architecture-basis-injection,DEL-03-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-02:CONTEXT#preparation-notes,DEL-03-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-03-03:CONTEXT#scope-coverage,DEL-03-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-03:CONTEXT#objective-support,DEL-03-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-03-03:CONTEXT#context-envelope,DEL-03-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-03:CONTEXT#context-budget-qa,DEL-03-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-03:CONTEXT#package-reference,DEL-03-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-03,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-03-03:CONTEXT#context-budget-qa,DEL-03-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-03-03:CONTEXT#package-reference,DEL-03-03,CS-06,CS-06-OK,"PKG-03 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-03:CONTEXT#decomposition-reference,DEL-03-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-03:CONTEXT#architecture-basis-injection,DEL-03-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-03:CONTEXT#preparation-notes,DEL-03-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-03-04:CONTEXT#scope-coverage,DEL-03-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-04:CONTEXT#objective-support,DEL-03-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-03-04:CONTEXT#context-envelope,DEL-03-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-04:CONTEXT#context-budget-qa,DEL-03-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-04:CONTEXT#package-reference,DEL-03-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-03,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-03-04:CONTEXT#context-budget-qa,DEL-03-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-03-04:CONTEXT#package-reference,DEL-03-04,CS-06,CS-06-OK,"PKG-03 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-04:CONTEXT#decomposition-reference,DEL-03-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-04:CONTEXT#architecture-basis-injection,DEL-03-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-04:CONTEXT#preparation-notes,DEL-03-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-03-05:CONTEXT#scope-coverage,DEL-03-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-05:CONTEXT#objective-support,DEL-03-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-03-05:CONTEXT#context-envelope,DEL-03-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-05:CONTEXT#context-budget-qa,DEL-03-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-05:CONTEXT#package-reference,DEL-03-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-03,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-03-05:CONTEXT#context-budget-qa,DEL-03-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-03-05:CONTEXT#package-reference,DEL-03-05,CS-06,CS-06-OK,"PKG-03 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-05:CONTEXT#decomposition-reference,DEL-03-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-05:CONTEXT#architecture-basis-injection,DEL-03-05,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-05:CONTEXT#preparation-notes,DEL-03-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-03-06:CONTEXT#scope-coverage,DEL-03-06,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-06:CONTEXT#objective-support,DEL-03-06,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-03-06:CONTEXT#context-envelope,DEL-03-06,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-06:CONTEXT#context-budget-qa,DEL-03-06,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-06:CONTEXT#package-reference,DEL-03-06,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-03,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-03-06:CONTEXT#context-budget-qa,DEL-03-06,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-03-06:CONTEXT#package-reference,DEL-03-06,CS-06,CS-06-OK,"PKG-03 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-06:CONTEXT#decomposition-reference,DEL-03-06,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-06:CONTEXT#architecture-basis-injection,DEL-03-06,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-06:CONTEXT#preparation-notes,DEL-03-06,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-03-07:CONTEXT#scope-coverage,DEL-03-07,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-07:CONTEXT#objective-support,DEL-03-07,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-03-07:CONTEXT#context-envelope,DEL-03-07,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-07:CONTEXT#context-budget-qa,DEL-03-07,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-07:CONTEXT#package-reference,DEL-03-07,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-03,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-03-07:CONTEXT#context-budget-qa,DEL-03-07,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-03-07:CONTEXT#package-reference,DEL-03-07,CS-06,CS-06-OK,"PKG-03 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-07:CONTEXT#decomposition-reference,DEL-03-07,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-07:CONTEXT#architecture-basis-injection,DEL-03-07,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-07:CONTEXT#preparation-notes,DEL-03-07,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-03-08:CONTEXT#scope-coverage,DEL-03-08,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-08:CONTEXT#objective-support,DEL-03-08,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-03-08:CONTEXT#context-envelope,DEL-03-08,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-08:CONTEXT#context-budget-qa,DEL-03-08,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-03-08:CONTEXT#package-reference,DEL-03-08,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-03,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-03-08:CONTEXT#context-budget-qa,DEL-03-08,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-03-08:CONTEXT#package-reference,DEL-03-08,CS-06,CS-06-OK,"PKG-03 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-03-08:CONTEXT#decomposition-reference,DEL-03-08,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-08:CONTEXT#architecture-basis-injection,DEL-03-08,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-03-08:CONTEXT#preparation-notes,DEL-03-08,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-04-01:CONTEXT#scope-coverage,DEL-04-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-04-01:CONTEXT#objective-support,DEL-04-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-04-01:CONTEXT#context-envelope,DEL-04-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-04-01:CONTEXT#context-budget-qa,DEL-04-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-04-01:CONTEXT#package-reference,DEL-04-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-04,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-04-01:CONTEXT#context-budget-qa,DEL-04-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-04-01:CONTEXT#package-reference,DEL-04-01,CS-06,CS-06-OK,"PKG-04 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-04-01:CONTEXT#decomposition-reference,DEL-04-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-04-01:CONTEXT#architecture-basis-injection,DEL-04-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-04-01:CONTEXT#preparation-notes,DEL-04-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-04-02:CONTEXT#scope-coverage,DEL-04-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-04-02:CONTEXT#objective-support,DEL-04-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-04-02:CONTEXT#context-envelope,DEL-04-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-04-02:CONTEXT#context-budget-qa,DEL-04-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-04-02:CONTEXT#package-reference,DEL-04-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-04,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-04-02:CONTEXT#context-budget-qa,DEL-04-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-04-02:CONTEXT#package-reference,DEL-04-02,CS-06,CS-06-OK,"PKG-04 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-04-02:CONTEXT#decomposition-reference,DEL-04-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-04-02:CONTEXT#architecture-basis-injection,DEL-04-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-04-02:CONTEXT#preparation-notes,DEL-04-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-04-03:CONTEXT#scope-coverage,DEL-04-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-04-03:CONTEXT#objective-support,DEL-04-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-04-03:CONTEXT#context-envelope,DEL-04-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-04-03:CONTEXT#context-budget-qa,DEL-04-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-04-03:CONTEXT#package-reference,DEL-04-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-04,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-04-03:CONTEXT#context-budget-qa,DEL-04-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-04-03:CONTEXT#package-reference,DEL-04-03,CS-06,CS-06-OK,"PKG-04 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-04-03:CONTEXT#decomposition-reference,DEL-04-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-04-03:CONTEXT#architecture-basis-injection,DEL-04-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-04-03:CONTEXT#preparation-notes,DEL-04-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-04-04:CONTEXT#scope-coverage,DEL-04-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-04-04:CONTEXT#objective-support,DEL-04-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-04-04:CONTEXT#context-envelope,DEL-04-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-04-04:CONTEXT#context-budget-qa,DEL-04-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-04-04:CONTEXT#package-reference,DEL-04-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-04,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-04-04:CONTEXT#context-budget-qa,DEL-04-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-04-04:CONTEXT#package-reference,DEL-04-04,CS-06,CS-06-OK,"PKG-04 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-04-04:CONTEXT#decomposition-reference,DEL-04-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-04-04:CONTEXT#architecture-basis-injection,DEL-04-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-04-04:CONTEXT#preparation-notes,DEL-04-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-04-05:CONTEXT#scope-coverage,DEL-04-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-04-05:CONTEXT#objective-support,DEL-04-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-04-05:CONTEXT#context-envelope,DEL-04-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-04-05:CONTEXT#context-budget-qa,DEL-04-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-04-05:CONTEXT#package-reference,DEL-04-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-04,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-04-05:CONTEXT#context-budget-qa,DEL-04-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-04-05:CONTEXT#package-reference,DEL-04-05,CS-06,CS-06-OK,"PKG-04 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-04-05:CONTEXT#decomposition-reference,DEL-04-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-04-05:CONTEXT#architecture-basis-injection,DEL-04-05,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-04-05:CONTEXT#preparation-notes,DEL-04-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-04-06:CONTEXT#scope-coverage,DEL-04-06,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-04-06:CONTEXT#objective-support,DEL-04-06,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-04-06:CONTEXT#context-envelope,DEL-04-06,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-04-06:CONTEXT#context-budget-qa,DEL-04-06,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-04-06:CONTEXT#package-reference,DEL-04-06,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-04,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-04-06:CONTEXT#context-budget-qa,DEL-04-06,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-04-06:CONTEXT#package-reference,DEL-04-06,CS-06,CS-06-OK,"PKG-04 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-04-06:CONTEXT#decomposition-reference,DEL-04-06,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-04-06:CONTEXT#architecture-basis-injection,DEL-04-06,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-04-06:CONTEXT#preparation-notes,DEL-04-06,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-05-01:CONTEXT#scope-coverage,DEL-05-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-05-01:CONTEXT#objective-support,DEL-05-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-05-01:CONTEXT#context-envelope,DEL-05-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-05-01:CONTEXT#context-budget-qa,DEL-05-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-05-01:CONTEXT#package-reference,DEL-05-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-05,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-05-01:CONTEXT#context-budget-qa,DEL-05-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-05-01:CONTEXT#package-reference,DEL-05-01,CS-06,CS-06-OK,"PKG-05 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-05-01:CONTEXT#decomposition-reference,DEL-05-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-05-01:CONTEXT#architecture-basis-injection,DEL-05-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-05-01:CONTEXT#preparation-notes,DEL-05-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-05-02:CONTEXT#scope-coverage,DEL-05-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-05-02:CONTEXT#objective-support,DEL-05-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-05-02:CONTEXT#context-envelope,DEL-05-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-05-02:CONTEXT#context-budget-qa,DEL-05-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-05-02:CONTEXT#package-reference,DEL-05-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-05,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-05-02:CONTEXT#context-budget-qa,DEL-05-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-05-02:CONTEXT#package-reference,DEL-05-02,CS-06,CS-06-OK,"PKG-05 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-05-02:CONTEXT#decomposition-reference,DEL-05-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-05-02:CONTEXT#architecture-basis-injection,DEL-05-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-05-02:CONTEXT#preparation-notes,DEL-05-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-05-03:CONTEXT#scope-coverage,DEL-05-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-05-03:CONTEXT#objective-support,DEL-05-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-05-03:CONTEXT#context-envelope,DEL-05-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-05-03:CONTEXT#context-budget-qa,DEL-05-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-05-03:CONTEXT#package-reference,DEL-05-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-05,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-05-03:CONTEXT#context-budget-qa,DEL-05-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-05-03:CONTEXT#package-reference,DEL-05-03,CS-06,CS-06-OK,"PKG-05 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-05-03:CONTEXT#decomposition-reference,DEL-05-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-05-03:CONTEXT#architecture-basis-injection,DEL-05-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-05-03:CONTEXT#preparation-notes,DEL-05-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-05-04:CONTEXT#scope-coverage,DEL-05-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-05-04:CONTEXT#objective-support,DEL-05-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-05-04:CONTEXT#context-envelope,DEL-05-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-05-04:CONTEXT#context-budget-qa,DEL-05-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-05-04:CONTEXT#package-reference,DEL-05-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-05,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-05-04:CONTEXT#context-budget-qa,DEL-05-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-05-04:CONTEXT#package-reference,DEL-05-04,CS-06,CS-06-OK,"PKG-05 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-05-04:CONTEXT#decomposition-reference,DEL-05-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-05-04:CONTEXT#architecture-basis-injection,DEL-05-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-05-04:CONTEXT#preparation-notes,DEL-05-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-05-05:CONTEXT#scope-coverage,DEL-05-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-05-05:CONTEXT#objective-support,DEL-05-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-05-05:CONTEXT#context-envelope,DEL-05-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-05-05:CONTEXT#context-budget-qa,DEL-05-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-05-05:CONTEXT#package-reference,DEL-05-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-05,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-05-05:CONTEXT#context-budget-qa,DEL-05-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-05-05:CONTEXT#package-reference,DEL-05-05,CS-06,CS-06-OK,"PKG-05 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-05-05:CONTEXT#decomposition-reference,DEL-05-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-05-05:CONTEXT#architecture-basis-injection,DEL-05-05,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-05-05:CONTEXT#preparation-notes,DEL-05-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-06-01:CONTEXT#scope-coverage,DEL-06-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-06-01:CONTEXT#objective-support,DEL-06-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-06-01:CONTEXT#context-envelope,DEL-06-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-06-01:CONTEXT#context-budget-qa,DEL-06-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-06-01:CONTEXT#package-reference,DEL-06-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-06,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-06-01:CONTEXT#context-budget-qa,DEL-06-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-06-01:CONTEXT#package-reference,DEL-06-01,CS-06,CS-06-OK,"PKG-06 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-06-01:CONTEXT#decomposition-reference,DEL-06-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-06-01:CONTEXT#architecture-basis-injection,DEL-06-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-06-01:CONTEXT#preparation-notes,DEL-06-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-06-02:CONTEXT#scope-coverage,DEL-06-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-06-02:CONTEXT#objective-support,DEL-06-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-06-02:CONTEXT#context-envelope,DEL-06-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-06-02:CONTEXT#context-budget-qa,DEL-06-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-06-02:CONTEXT#package-reference,DEL-06-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-06,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-06-02:CONTEXT#context-budget-qa,DEL-06-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-06-02:CONTEXT#package-reference,DEL-06-02,CS-06,CS-06-OK,"PKG-06 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-06-02:CONTEXT#decomposition-reference,DEL-06-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-06-02:CONTEXT#architecture-basis-injection,DEL-06-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-06-02:CONTEXT#preparation-notes,DEL-06-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-06-03:CONTEXT#scope-coverage,DEL-06-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-06-03:CONTEXT#objective-support,DEL-06-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-06-03:CONTEXT#context-envelope,DEL-06-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-06-03:CONTEXT#context-budget-qa,DEL-06-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-06-03:CONTEXT#package-reference,DEL-06-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-06,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-06-03:CONTEXT#context-budget-qa,DEL-06-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-06-03:CONTEXT#package-reference,DEL-06-03,CS-06,CS-06-OK,"PKG-06 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-06-03:CONTEXT#decomposition-reference,DEL-06-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-06-03:CONTEXT#architecture-basis-injection,DEL-06-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-06-03:CONTEXT#preparation-notes,DEL-06-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-06-04:CONTEXT#scope-coverage,DEL-06-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-06-04:CONTEXT#objective-support,DEL-06-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-06-04:CONTEXT#context-envelope,DEL-06-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-06-04:CONTEXT#context-budget-qa,DEL-06-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-06-04:CONTEXT#package-reference,DEL-06-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-06,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-06-04:CONTEXT#context-budget-qa,DEL-06-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-06-04:CONTEXT#package-reference,DEL-06-04,CS-06,CS-06-OK,"PKG-06 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-06-04:CONTEXT#decomposition-reference,DEL-06-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-06-04:CONTEXT#architecture-basis-injection,DEL-06-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-06-04:CONTEXT#preparation-notes,DEL-06-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-06-05:CONTEXT#scope-coverage,DEL-06-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-06-05:CONTEXT#objective-support,DEL-06-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-06-05:CONTEXT#context-envelope,DEL-06-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-06-05:CONTEXT#context-budget-qa,DEL-06-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-06-05:CONTEXT#package-reference,DEL-06-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-06,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-06-05:CONTEXT#context-budget-qa,DEL-06-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-06-05:CONTEXT#package-reference,DEL-06-05,CS-06,CS-06-OK,"PKG-06 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-06-05:CONTEXT#decomposition-reference,DEL-06-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-06-05:CONTEXT#architecture-basis-injection,DEL-06-05,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-06-05:CONTEXT#preparation-notes,DEL-06-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-07-01:CONTEXT#scope-coverage,DEL-07-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-07-01:CONTEXT#objective-support,DEL-07-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-07-01:CONTEXT#context-envelope,DEL-07-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-01:CONTEXT#context-budget-qa,DEL-07-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-01:CONTEXT#package-reference,DEL-07-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-07,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-07-01:CONTEXT#context-budget-qa,DEL-07-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-07-01:CONTEXT#package-reference,DEL-07-01,CS-06,CS-06-DRIFT,PKG-07 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-01:CONTEXT#decomposition-reference,DEL-07-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-01:CONTEXT#architecture-basis-injection,DEL-07-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-01:CONTEXT#preparation-notes,DEL-07-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-07-02:CONTEXT#scope-coverage,DEL-07-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-07-02:CONTEXT#objective-support,DEL-07-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-07-02:CONTEXT#context-envelope,DEL-07-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-02:CONTEXT#context-budget-qa,DEL-07-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-02:CONTEXT#package-reference,DEL-07-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-07,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-07-02:CONTEXT#context-budget-qa,DEL-07-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-07-02:CONTEXT#package-reference,DEL-07-02,CS-06,CS-06-DRIFT,PKG-07 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-02:CONTEXT#decomposition-reference,DEL-07-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-02:CONTEXT#architecture-basis-injection,DEL-07-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-02:CONTEXT#preparation-notes,DEL-07-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-07-03:CONTEXT#scope-coverage,DEL-07-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-07-03:CONTEXT#objective-support,DEL-07-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-07-03:CONTEXT#context-envelope,DEL-07-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-03:CONTEXT#context-budget-qa,DEL-07-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-03:CONTEXT#package-reference,DEL-07-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-07,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-07-03:CONTEXT#context-budget-qa,DEL-07-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-07-03:CONTEXT#package-reference,DEL-07-03,CS-06,CS-06-DRIFT,PKG-07 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-03:CONTEXT#decomposition-reference,DEL-07-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-03:CONTEXT#architecture-basis-injection,DEL-07-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-03:CONTEXT#preparation-notes,DEL-07-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-07-04:CONTEXT#scope-coverage,DEL-07-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-07-04:CONTEXT#objective-support,DEL-07-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-07-04:CONTEXT#context-envelope,DEL-07-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-04:CONTEXT#context-budget-qa,DEL-07-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-04:CONTEXT#package-reference,DEL-07-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-07,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-07-04:CONTEXT#context-budget-qa,DEL-07-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-07-04:CONTEXT#package-reference,DEL-07-04,CS-06,CS-06-DRIFT,PKG-07 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-04:CONTEXT#decomposition-reference,DEL-07-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-04:CONTEXT#architecture-basis-injection,DEL-07-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-04:CONTEXT#preparation-notes,DEL-07-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-07-05:CONTEXT#scope-coverage,DEL-07-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-07-05:CONTEXT#objective-support,DEL-07-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-07-05:CONTEXT#context-envelope,DEL-07-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-05:CONTEXT#context-budget-qa,DEL-07-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-05:CONTEXT#package-reference,DEL-07-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-07,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-07-05:CONTEXT#context-budget-qa,DEL-07-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-07-05:CONTEXT#package-reference,DEL-07-05,CS-06,CS-06-DRIFT,PKG-07 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-05:CONTEXT#decomposition-reference,DEL-07-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-05:CONTEXT#architecture-basis-injection,DEL-07-05,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-05:CONTEXT#preparation-notes,DEL-07-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-07-06:CONTEXT#scope-coverage,DEL-07-06,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-07-06:CONTEXT#objective-support,DEL-07-06,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-07-06:CONTEXT#context-envelope,DEL-07-06,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-06:CONTEXT#context-budget-qa,DEL-07-06,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-06:CONTEXT#package-reference,DEL-07-06,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-07,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-07-06:CONTEXT#context-budget-qa,DEL-07-06,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-07-06:CONTEXT#package-reference,DEL-07-06,CS-06,CS-06-DRIFT,PKG-07 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-06:CONTEXT#decomposition-reference,DEL-07-06,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-06:CONTEXT#architecture-basis-injection,DEL-07-06,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-06:CONTEXT#preparation-notes,DEL-07-06,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-07-07:CONTEXT#scope-coverage,DEL-07-07,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-07-07:CONTEXT#objective-support,DEL-07-07,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-07-07:CONTEXT#context-envelope,DEL-07-07,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-07:CONTEXT#context-budget-qa,DEL-07-07,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-07:CONTEXT#package-reference,DEL-07-07,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-07,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-07-07:CONTEXT#context-budget-qa,DEL-07-07,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-07-07:CONTEXT#package-reference,DEL-07-07,CS-06,CS-06-DRIFT,PKG-07 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-07:CONTEXT#decomposition-reference,DEL-07-07,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-07:CONTEXT#architecture-basis-injection,DEL-07-07,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-07:CONTEXT#preparation-notes,DEL-07-07,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-07-08:CONTEXT#scope-coverage,DEL-07-08,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-07-08:CONTEXT#scope-detail,DEL-07-08,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-07-08:CONTEXT#objective-support,DEL-07-08,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-07-08:CONTEXT#context-envelope,DEL-07-08,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-08:CONTEXT#context-budget-qa,DEL-07-08,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-08:CONTEXT#package-reference,DEL-07-08,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-07,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-07-08:CONTEXT#context-budget-qa,DEL-07-08,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-07-08:CONTEXT#package-reference,DEL-07-08,CS-06,CS-06-DRIFT,PKG-07 differs from SOFTWARE_DECOMP rev 0.12 on assigned,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-08:CONTEXT#decomposition-reference,DEL-07-08,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-08:CONTEXT#architecture-basis-injection,DEL-07-08,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-07-08:CONTEXT#sca-002-control-surface-refresh-note,DEL-07-08,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-07-08:CONTEXT#preparation-notes,DEL-07-08,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-07-09:CONTEXT#scope-coverage,DEL-07-09,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-07-09:CONTEXT#scope-detail,DEL-07-09,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-07-09:CONTEXT#objective-support,DEL-07-09,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-07-09:CONTEXT#context-envelope,DEL-07-09,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-07-09:CONTEXT#package-reference,DEL-07-09,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-07,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-07-09:CONTEXT#package-reference,DEL-07-09,CS-06,CS-06-OK,"PKG-07 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-07-09:CONTEXT#preparation-notes,DEL-07-09,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-08-01:CONTEXT#scope-coverage,DEL-08-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-08-01:CONTEXT#objective-support,DEL-08-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-08-01:CONTEXT#context-envelope,DEL-08-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-08-01:CONTEXT#context-budget-qa,DEL-08-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-08-01:CONTEXT#package-reference,DEL-08-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-08,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-08-01:CONTEXT#context-budget-qa,DEL-08-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-08-01:CONTEXT#package-reference,DEL-08-01,CS-06,CS-06-OK,"PKG-08 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-08-01:CONTEXT#decomposition-reference,DEL-08-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-08-01:CONTEXT#architecture-basis-injection,DEL-08-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-08-01:CONTEXT#preparation-notes,DEL-08-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-08-02:CONTEXT#scope-coverage,DEL-08-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-08-02:CONTEXT#objective-support,DEL-08-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-08-02:CONTEXT#context-envelope,DEL-08-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-08-02:CONTEXT#context-budget-qa,DEL-08-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-08-02:CONTEXT#package-reference,DEL-08-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-08,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-08-02:CONTEXT#context-budget-qa,DEL-08-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-08-02:CONTEXT#package-reference,DEL-08-02,CS-06,CS-06-OK,"PKG-08 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-08-02:CONTEXT#decomposition-reference,DEL-08-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-08-02:CONTEXT#architecture-basis-injection,DEL-08-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-08-02:CONTEXT#preparation-notes,DEL-08-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-08-03:CONTEXT#scope-coverage,DEL-08-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-08-03:CONTEXT#objective-support,DEL-08-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-08-03:CONTEXT#context-envelope,DEL-08-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-08-03:CONTEXT#context-budget-qa,DEL-08-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-08-03:CONTEXT#package-reference,DEL-08-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-08,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-08-03:CONTEXT#context-budget-qa,DEL-08-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-08-03:CONTEXT#package-reference,DEL-08-03,CS-06,CS-06-OK,"PKG-08 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-08-03:CONTEXT#decomposition-reference,DEL-08-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-08-03:CONTEXT#architecture-basis-injection,DEL-08-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-08-03:CONTEXT#preparation-notes,DEL-08-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-08-04:CONTEXT#scope-coverage,DEL-08-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-08-04:CONTEXT#objective-support,DEL-08-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-08-04:CONTEXT#context-envelope,DEL-08-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-08-04:CONTEXT#context-budget-qa,DEL-08-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-08-04:CONTEXT#package-reference,DEL-08-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-08,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-08-04:CONTEXT#context-budget-qa,DEL-08-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-08-04:CONTEXT#package-reference,DEL-08-04,CS-06,CS-06-OK,"PKG-08 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-08-04:CONTEXT#decomposition-reference,DEL-08-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-08-04:CONTEXT#architecture-basis-injection,DEL-08-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-08-04:CONTEXT#preparation-notes,DEL-08-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-08-05:CONTEXT#scope-coverage,DEL-08-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-08-05:CONTEXT#objective-support,DEL-08-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-08-05:CONTEXT#context-envelope,DEL-08-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-08-05:CONTEXT#context-budget-qa,DEL-08-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-08-05:CONTEXT#package-reference,DEL-08-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-08,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-08-05:CONTEXT#context-budget-qa,DEL-08-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-08-05:CONTEXT#package-reference,DEL-08-05,CS-06,CS-06-OK,"PKG-08 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-08-05:CONTEXT#decomposition-reference,DEL-08-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-08-05:CONTEXT#architecture-basis-injection,DEL-08-05,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-08-05:CONTEXT#preparation-notes,DEL-08-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-08-06:CONTEXT#scope-coverage,DEL-08-06,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-08-06:CONTEXT#scope-detail,DEL-08-06,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-08-06:CONTEXT#objective-support,DEL-08-06,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-08-06:CONTEXT#context-envelope,DEL-08-06,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-08-06:CONTEXT#context-budget-qa,DEL-08-06,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-08-06:CONTEXT#package-reference,DEL-08-06,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-08,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-08-06:CONTEXT#context-budget-qa,DEL-08-06,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-08-06:CONTEXT#package-reference,DEL-08-06,CS-06,CS-06-OK,"PKG-08 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-08-06:CONTEXT#decomposition-reference,DEL-08-06,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-08-06:CONTEXT#architecture-basis-injection,DEL-08-06,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-08-06:CONTEXT#sca-002-control-surface-refresh-note,DEL-08-06,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-08-06:CONTEXT#preparation-notes,DEL-08-06,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-09-01:CONTEXT#scope-coverage,DEL-09-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-09-01:CONTEXT#objective-support,DEL-09-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-09-01:CONTEXT#context-envelope,DEL-09-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-09-01:CONTEXT#context-budget-qa,DEL-09-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-09-01:CONTEXT#package-reference,DEL-09-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-09,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-09-01:CONTEXT#context-budget-qa,DEL-09-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-09-01:CONTEXT#package-reference,DEL-09-01,CS-06,CS-06-OK,"PKG-09 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-09-01:CONTEXT#decomposition-reference,DEL-09-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-09-01:CONTEXT#architecture-basis-injection,DEL-09-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-09-01:CONTEXT#preparation-notes,DEL-09-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-09-02:CONTEXT#scope-coverage,DEL-09-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-09-02:CONTEXT#objective-support,DEL-09-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-09-02:CONTEXT#context-envelope,DEL-09-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-09-02:CONTEXT#context-budget-qa,DEL-09-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-09-02:CONTEXT#package-reference,DEL-09-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-09,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-09-02:CONTEXT#context-budget-qa,DEL-09-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-09-02:CONTEXT#package-reference,DEL-09-02,CS-06,CS-06-OK,"PKG-09 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-09-02:CONTEXT#decomposition-reference,DEL-09-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-09-02:CONTEXT#architecture-basis-injection,DEL-09-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-09-02:CONTEXT#preparation-notes,DEL-09-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-09-03:CONTEXT#scope-coverage,DEL-09-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-09-03:CONTEXT#objective-support,DEL-09-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-09-03:CONTEXT#context-envelope,DEL-09-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-09-03:CONTEXT#context-budget-qa,DEL-09-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-09-03:CONTEXT#package-reference,DEL-09-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-09,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-09-03:CONTEXT#context-budget-qa,DEL-09-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-09-03:CONTEXT#package-reference,DEL-09-03,CS-06,CS-06-OK,"PKG-09 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-09-03:CONTEXT#decomposition-reference,DEL-09-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-09-03:CONTEXT#architecture-basis-injection,DEL-09-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-09-03:CONTEXT#preparation-notes,DEL-09-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-09-04:CONTEXT#scope-coverage,DEL-09-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-09-04:CONTEXT#objective-support,DEL-09-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-09-04:CONTEXT#context-envelope,DEL-09-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-09-04:CONTEXT#context-budget-qa,DEL-09-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-09-04:CONTEXT#package-reference,DEL-09-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-09,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-09-04:CONTEXT#context-budget-qa,DEL-09-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-09-04:CONTEXT#package-reference,DEL-09-04,CS-06,CS-06-OK,"PKG-09 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-09-04:CONTEXT#decomposition-reference,DEL-09-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-09-04:CONTEXT#architecture-basis-injection,DEL-09-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-09-04:CONTEXT#preparation-notes,DEL-09-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-09-05:CONTEXT#scope-coverage,DEL-09-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-09-05:CONTEXT#objective-support,DEL-09-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-09-05:CONTEXT#context-envelope,DEL-09-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-09-05:CONTEXT#context-budget-qa,DEL-09-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-09-05:CONTEXT#package-reference,DEL-09-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-09,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-09-05:CONTEXT#context-budget-qa,DEL-09-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-09-05:CONTEXT#package-reference,DEL-09-05,CS-06,CS-06-OK,"PKG-09 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-09-05:CONTEXT#decomposition-reference,DEL-09-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-09-05:CONTEXT#architecture-basis-injection,DEL-09-05,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-09-05:CONTEXT#preparation-notes,DEL-09-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-10-01:CONTEXT#scope-coverage,DEL-10-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-10-01:CONTEXT#objective-support,DEL-10-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-10-01:CONTEXT#context-envelope,DEL-10-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-10-01:CONTEXT#context-budget-qa,DEL-10-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-10-01:CONTEXT#package-reference,DEL-10-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-10,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-10-01:CONTEXT#context-budget-qa,DEL-10-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-10-01:CONTEXT#package-reference,DEL-10-01,CS-06,CS-06-OK,"PKG-10 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-10-01:CONTEXT#decomposition-reference,DEL-10-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-10-01:CONTEXT#architecture-basis-injection,DEL-10-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-10-01:CONTEXT#preparation-notes,DEL-10-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-10-02:CONTEXT#scope-coverage,DEL-10-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-10-02:CONTEXT#objective-support,DEL-10-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-10-02:CONTEXT#context-envelope,DEL-10-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-10-02:CONTEXT#context-budget-qa,DEL-10-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-10-02:CONTEXT#package-reference,DEL-10-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-10,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-10-02:CONTEXT#context-budget-qa,DEL-10-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-10-02:CONTEXT#package-reference,DEL-10-02,CS-06,CS-06-OK,"PKG-10 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-10-02:CONTEXT#decomposition-reference,DEL-10-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-10-02:CONTEXT#architecture-basis-injection,DEL-10-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-10-02:CONTEXT#preparation-notes,DEL-10-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-10-03:CONTEXT#scope-coverage,DEL-10-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-10-03:CONTEXT#objective-support,DEL-10-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-10-03:CONTEXT#context-envelope,DEL-10-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-10-03:CONTEXT#context-budget-qa,DEL-10-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-10-03:CONTEXT#package-reference,DEL-10-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-10,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-10-03:CONTEXT#context-budget-qa,DEL-10-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-10-03:CONTEXT#package-reference,DEL-10-03,CS-06,CS-06-OK,"PKG-10 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-10-03:CONTEXT#decomposition-reference,DEL-10-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-10-03:CONTEXT#architecture-basis-injection,DEL-10-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-10-03:CONTEXT#preparation-notes,DEL-10-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-10-04:CONTEXT#scope-coverage,DEL-10-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-10-04:CONTEXT#objective-support,DEL-10-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-10-04:CONTEXT#context-envelope,DEL-10-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-10-04:CONTEXT#context-budget-qa,DEL-10-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-10-04:CONTEXT#package-reference,DEL-10-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-10,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-10-04:CONTEXT#context-budget-qa,DEL-10-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-10-04:CONTEXT#package-reference,DEL-10-04,CS-06,CS-06-OK,"PKG-10 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-10-04:CONTEXT#decomposition-reference,DEL-10-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-10-04:CONTEXT#architecture-basis-injection,DEL-10-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-10-04:CONTEXT#preparation-notes,DEL-10-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-10-05:CONTEXT#scope-coverage,DEL-10-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-10-05:CONTEXT#objective-support,DEL-10-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-10-05:CONTEXT#context-envelope,DEL-10-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-10-05:CONTEXT#context-budget-qa,DEL-10-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-10-05:CONTEXT#package-reference,DEL-10-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-10,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-10-05:CONTEXT#context-budget-qa,DEL-10-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-10-05:CONTEXT#package-reference,DEL-10-05,CS-06,CS-06-OK,"PKG-10 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-10-05:CONTEXT#decomposition-reference,DEL-10-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-10-05:CONTEXT#architecture-basis-injection,DEL-10-05,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-10-05:CONTEXT#preparation-notes,DEL-10-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-11-01:CONTEXT#scope-coverage,DEL-11-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-11-01:CONTEXT#objective-support,DEL-11-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-11-01:CONTEXT#context-envelope,DEL-11-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-11-01:CONTEXT#context-budget-qa,DEL-11-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-11-01:CONTEXT#package-reference,DEL-11-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-11,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-11-01:CONTEXT#context-budget-qa,DEL-11-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-11-01:CONTEXT#package-reference,DEL-11-01,CS-06,CS-06-OK,"PKG-11 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-11-01:CONTEXT#decomposition-reference,DEL-11-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-11-01:CONTEXT#architecture-basis-injection,DEL-11-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-11-01:CONTEXT#preparation-notes,DEL-11-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-11-02:CONTEXT#scope-coverage,DEL-11-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-11-02:CONTEXT#objective-support,DEL-11-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-11-02:CONTEXT#context-envelope,DEL-11-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-11-02:CONTEXT#context-budget-qa,DEL-11-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-11-02:CONTEXT#package-reference,DEL-11-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-11,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-11-02:CONTEXT#context-budget-qa,DEL-11-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-11-02:CONTEXT#package-reference,DEL-11-02,CS-06,CS-06-OK,"PKG-11 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-11-02:CONTEXT#decomposition-reference,DEL-11-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-11-02:CONTEXT#architecture-basis-injection,DEL-11-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-11-02:CONTEXT#preparation-notes,DEL-11-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-11-03:CONTEXT#scope-coverage,DEL-11-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-11-03:CONTEXT#objective-support,DEL-11-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-11-03:CONTEXT#context-envelope,DEL-11-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-11-03:CONTEXT#context-budget-qa,DEL-11-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-11-03:CONTEXT#package-reference,DEL-11-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-11,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-11-03:CONTEXT#context-budget-qa,DEL-11-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-11-03:CONTEXT#package-reference,DEL-11-03,CS-06,CS-06-OK,"PKG-11 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-11-03:CONTEXT#decomposition-reference,DEL-11-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-11-03:CONTEXT#architecture-basis-injection,DEL-11-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-11-03:CONTEXT#preparation-notes,DEL-11-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-11-04:CONTEXT#scope-coverage,DEL-11-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-11-04:CONTEXT#objective-support,DEL-11-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-11-04:CONTEXT#context-envelope,DEL-11-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-11-04:CONTEXT#context-budget-qa,DEL-11-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-11-04:CONTEXT#package-reference,DEL-11-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-11,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-11-04:CONTEXT#context-budget-qa,DEL-11-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-11-04:CONTEXT#package-reference,DEL-11-04,CS-06,CS-06-OK,"PKG-11 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-11-04:CONTEXT#decomposition-reference,DEL-11-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-11-04:CONTEXT#architecture-basis-injection,DEL-11-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-11-04:CONTEXT#preparation-notes,DEL-11-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-11-05:CONTEXT#scope-coverage,DEL-11-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-11-05:CONTEXT#objective-support,DEL-11-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-11-05:CONTEXT#context-envelope,DEL-11-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-11-05:CONTEXT#context-budget-qa,DEL-11-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-11-05:CONTEXT#package-reference,DEL-11-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-11,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-11-05:CONTEXT#context-budget-qa,DEL-11-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-11-05:CONTEXT#package-reference,DEL-11-05,CS-06,CS-06-OK,"PKG-11 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-11-05:CONTEXT#decomposition-reference,DEL-11-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-11-05:CONTEXT#architecture-basis-injection,DEL-11-05,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-11-05:CONTEXT#preparation-notes,DEL-11-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-12-01:CONTEXT#scope-coverage,DEL-12-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-12-01:CONTEXT#objective-support,DEL-12-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-12-01:CONTEXT#context-envelope,DEL-12-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-12-01:CONTEXT#context-budget-qa,DEL-12-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-12-01:CONTEXT#package-reference,DEL-12-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-12,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-12-01:CONTEXT#context-budget-qa,DEL-12-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-12-01:CONTEXT#package-reference,DEL-12-01,CS-06,CS-06-OK,"PKG-12 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-12-01:CONTEXT#decomposition-reference,DEL-12-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-12-01:CONTEXT#architecture-basis-injection,DEL-12-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-12-01:CONTEXT#preparation-notes,DEL-12-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-12-02:CONTEXT#scope-coverage,DEL-12-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-12-02:CONTEXT#objective-support,DEL-12-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-12-02:CONTEXT#context-envelope,DEL-12-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-12-02:CONTEXT#context-budget-qa,DEL-12-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-12-02:CONTEXT#package-reference,DEL-12-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-12,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-12-02:CONTEXT#context-budget-qa,DEL-12-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-12-02:CONTEXT#package-reference,DEL-12-02,CS-06,CS-06-OK,"PKG-12 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-12-02:CONTEXT#decomposition-reference,DEL-12-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-12-02:CONTEXT#architecture-basis-injection,DEL-12-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-12-02:CONTEXT#preparation-notes,DEL-12-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-12-03:CONTEXT#scope-coverage,DEL-12-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-12-03:CONTEXT#objective-support,DEL-12-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-12-03:CONTEXT#context-envelope,DEL-12-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-12-03:CONTEXT#context-budget-qa,DEL-12-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-12-03:CONTEXT#package-reference,DEL-12-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-12,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-12-03:CONTEXT#context-budget-qa,DEL-12-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-12-03:CONTEXT#package-reference,DEL-12-03,CS-06,CS-06-OK,"PKG-12 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-12-03:CONTEXT#decomposition-reference,DEL-12-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-12-03:CONTEXT#architecture-basis-injection,DEL-12-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-12-03:CONTEXT#preparation-notes,DEL-12-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-12-04:CONTEXT#scope-coverage,DEL-12-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-12-04:CONTEXT#objective-support,DEL-12-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-12-04:CONTEXT#context-envelope,DEL-12-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-12-04:CONTEXT#context-budget-qa,DEL-12-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-12-04:CONTEXT#package-reference,DEL-12-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-12,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-12-04:CONTEXT#context-budget-qa,DEL-12-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-12-04:CONTEXT#package-reference,DEL-12-04,CS-06,CS-06-OK,"PKG-12 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-12-04:CONTEXT#decomposition-reference,DEL-12-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-12-04:CONTEXT#architecture-basis-injection,DEL-12-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-12-04:CONTEXT#preparation-notes,DEL-12-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-12-05:CONTEXT#scope-coverage,DEL-12-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-12-05:CONTEXT#objective-support,DEL-12-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-12-05:CONTEXT#context-envelope,DEL-12-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-12-05:CONTEXT#context-budget-qa,DEL-12-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-12-05:CONTEXT#package-reference,DEL-12-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-12,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-12-05:CONTEXT#context-budget-qa,DEL-12-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-12-05:CONTEXT#package-reference,DEL-12-05,CS-06,CS-06-OK,"PKG-12 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-12-05:CONTEXT#decomposition-reference,DEL-12-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-12-05:CONTEXT#architecture-basis-injection,DEL-12-05,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-12-05:CONTEXT#preparation-notes,DEL-12-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-13-01:CONTEXT#scope-coverage,DEL-13-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-13-01:CONTEXT#scope-detail,DEL-13-01,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-13-01:CONTEXT#objective-support,DEL-13-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-13-01:CONTEXT#context-envelope,DEL-13-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-13-01:CONTEXT#context-budget-qa,DEL-13-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-13-01:CONTEXT#package-reference,DEL-13-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-13,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-13-01:CONTEXT#context-budget-qa,DEL-13-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-13-01:CONTEXT#package-reference,DEL-13-01,CS-06,CS-06-OK,"PKG-13 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-13-01:CONTEXT#decomposition-reference,DEL-13-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-13-01:CONTEXT#architecture-basis-injection,DEL-13-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-13-01:CONTEXT#sca-002-control-surface-refresh-note,DEL-13-01,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-13-01:CONTEXT#preparation-notes,DEL-13-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-13-02:CONTEXT#scope-coverage,DEL-13-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-13-02:CONTEXT#scope-detail,DEL-13-02,CS-06,CS-06-DRIFT,scope-item statements differ from ScopeLedger.csv: SOW-068,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-13-02:CONTEXT#objective-support,DEL-13-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-13-02:CONTEXT#context-envelope,DEL-13-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-13-02:CONTEXT#context-budget-qa,DEL-13-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-13-02:CONTEXT#package-reference,DEL-13-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-13,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-13-02:CONTEXT#context-budget-qa,DEL-13-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-13-02:CONTEXT#package-reference,DEL-13-02,CS-06,CS-06-OK,"PKG-13 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-13-02:CONTEXT#decomposition-reference,DEL-13-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-13-02:CONTEXT#architecture-basis-injection,DEL-13-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-13-02:CONTEXT#sca-002-control-surface-refresh-note,DEL-13-02,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-13-02:CONTEXT#preparation-notes,DEL-13-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-13-03:CONTEXT#scope-coverage,DEL-13-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-13-03:CONTEXT#scope-detail,DEL-13-03,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-13-03:CONTEXT#objective-support,DEL-13-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-13-03:CONTEXT#context-envelope,DEL-13-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-13-03:CONTEXT#context-budget-qa,DEL-13-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-13-03:CONTEXT#package-reference,DEL-13-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-13,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-13-03:CONTEXT#context-budget-qa,DEL-13-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-13-03:CONTEXT#package-reference,DEL-13-03,CS-06,CS-06-OK,"PKG-13 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-13-03:CONTEXT#decomposition-reference,DEL-13-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-13-03:CONTEXT#architecture-basis-injection,DEL-13-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-13-03:CONTEXT#sca-002-control-surface-refresh-note,DEL-13-03,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-13-03:CONTEXT#preparation-notes,DEL-13-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-13-04:CONTEXT#scope-coverage,DEL-13-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-13-04:CONTEXT#scope-detail,DEL-13-04,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-13-04:CONTEXT#objective-support,DEL-13-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-13-04:CONTEXT#context-envelope,DEL-13-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-13-04:CONTEXT#context-budget-qa,DEL-13-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-13-04:CONTEXT#package-reference,DEL-13-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-13,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-13-04:CONTEXT#context-budget-qa,DEL-13-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-13-04:CONTEXT#package-reference,DEL-13-04,CS-06,CS-06-OK,"PKG-13 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-13-04:CONTEXT#decomposition-reference,DEL-13-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-13-04:CONTEXT#architecture-basis-injection,DEL-13-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-13-04:CONTEXT#sca-002-control-surface-refresh-note,DEL-13-04,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-13-04:CONTEXT#preparation-notes,DEL-13-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-01:CONTEXT#scope-coverage,DEL-14-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-14-01:CONTEXT#scope-detail,DEL-14-01,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-14-01:CONTEXT#objective-support,DEL-14-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-14-01:CONTEXT#context-envelope,DEL-14-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-14-01:CONTEXT#context-budget-qa,DEL-14-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-14-01:CONTEXT#package-reference,DEL-14-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-14,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-14-01:CONTEXT#context-budget-qa,DEL-14-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-14-01:CONTEXT#package-reference,DEL-14-01,CS-06,CS-06-OK,"PKG-14 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-14-01:CONTEXT#decomposition-reference,DEL-14-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-01:CONTEXT#architecture-basis-injection,DEL-14-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-01:CONTEXT#sca-002-control-surface-refresh-note,DEL-14-01,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-01:CONTEXT#preparation-notes,DEL-14-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-02:CONTEXT#scope-coverage,DEL-14-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-14-02:CONTEXT#scope-detail,DEL-14-02,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-14-02:CONTEXT#objective-support,DEL-14-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-14-02:CONTEXT#context-envelope,DEL-14-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-14-02:CONTEXT#context-budget-qa,DEL-14-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-14-02:CONTEXT#package-reference,DEL-14-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-14,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-14-02:CONTEXT#context-budget-qa,DEL-14-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-14-02:CONTEXT#package-reference,DEL-14-02,CS-06,CS-06-OK,"PKG-14 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-14-02:CONTEXT#decomposition-reference,DEL-14-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-02:CONTEXT#architecture-basis-injection,DEL-14-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-02:CONTEXT#sca-002-control-surface-refresh-note,DEL-14-02,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-02:CONTEXT#preparation-notes,DEL-14-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-03:CONTEXT#scope-coverage,DEL-14-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-14-03:CONTEXT#scope-detail,DEL-14-03,CS-06,CS-06-DRIFT,scope-item statements differ from ScopeLedger.csv: SOW-073,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-03:CONTEXT#objective-support,DEL-14-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-14-03:CONTEXT#context-envelope,DEL-14-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-14-03:CONTEXT#context-budget-qa,DEL-14-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-14-03:CONTEXT#package-reference,DEL-14-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-14,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-14-03:CONTEXT#context-budget-qa,DEL-14-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-14-03:CONTEXT#package-reference,DEL-14-03,CS-06,CS-06-OK,"PKG-14 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-14-03:CONTEXT#decomposition-reference,DEL-14-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-03:CONTEXT#architecture-basis-injection,DEL-14-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-03:CONTEXT#sca-002-control-surface-refresh-note,DEL-14-03,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-03:CONTEXT#preparation-notes,DEL-14-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-04:CONTEXT#scope-coverage,DEL-14-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-14-04:CONTEXT#scope-detail,DEL-14-04,CS-06,CS-06-DRIFT,scope-item statements differ from ScopeLedger.csv: SOW-073,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-04:CONTEXT#objective-support,DEL-14-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-14-04:CONTEXT#context-envelope,DEL-14-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-14-04:CONTEXT#context-budget-qa,DEL-14-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-14-04:CONTEXT#package-reference,DEL-14-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-14,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-14-04:CONTEXT#context-budget-qa,DEL-14-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-14-04:CONTEXT#package-reference,DEL-14-04,CS-06,CS-06-OK,"PKG-14 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-14-04:CONTEXT#decomposition-reference,DEL-14-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-04:CONTEXT#architecture-basis-injection,DEL-14-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-04:CONTEXT#sca-002-control-surface-refresh-note,DEL-14-04,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-04:CONTEXT#preparation-notes,DEL-14-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-05:CONTEXT#scope-coverage,DEL-14-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-14-05:CONTEXT#scope-detail,DEL-14-05,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-14-05:CONTEXT#objective-support,DEL-14-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-14-05:CONTEXT#context-envelope,DEL-14-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-14-05:CONTEXT#context-budget-qa,DEL-14-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-14-05:CONTEXT#package-reference,DEL-14-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-14,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-14-05:CONTEXT#context-budget-qa,DEL-14-05,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-14-05:CONTEXT#package-reference,DEL-14-05,CS-06,CS-06-OK,"PKG-14 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-14-05:CONTEXT#decomposition-reference,DEL-14-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-05:CONTEXT#architecture-basis-injection,DEL-14-05,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-05:CONTEXT#sca-002-control-surface-refresh-note,DEL-14-05,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-05:CONTEXT#preparation-notes,DEL-14-05,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-15-01:CONTEXT#scope-coverage,DEL-15-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-15-01:CONTEXT#scope-detail,DEL-15-01,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-15-01:CONTEXT#objective-support,DEL-15-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-15-01:CONTEXT#context-envelope,DEL-15-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-15-01:CONTEXT#context-budget-qa,DEL-15-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-15-01:CONTEXT#package-reference,DEL-15-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-15,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-15-01:CONTEXT#context-budget-qa,DEL-15-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-15-01:CONTEXT#package-reference,DEL-15-01,CS-06,CS-06-OK,"PKG-15 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-15-01:CONTEXT#decomposition-reference,DEL-15-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-15-01:CONTEXT#architecture-basis-injection,DEL-15-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-15-01:CONTEXT#sca-002-control-surface-refresh-note,DEL-15-01,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-15-01:CONTEXT#preparation-notes,DEL-15-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-15-02:CONTEXT#scope-coverage,DEL-15-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-15-02:CONTEXT#scope-detail,DEL-15-02,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-15-02:CONTEXT#objective-support,DEL-15-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-15-02:CONTEXT#context-envelope,DEL-15-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-15-02:CONTEXT#context-budget-qa,DEL-15-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-15-02:CONTEXT#package-reference,DEL-15-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-15,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-15-02:CONTEXT#context-budget-qa,DEL-15-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-15-02:CONTEXT#package-reference,DEL-15-02,CS-06,CS-06-OK,"PKG-15 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-15-02:CONTEXT#decomposition-reference,DEL-15-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-15-02:CONTEXT#architecture-basis-injection,DEL-15-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-15-02:CONTEXT#sca-002-control-surface-refresh-note,DEL-15-02,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-15-02:CONTEXT#preparation-notes,DEL-15-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-15-03:CONTEXT#scope-coverage,DEL-15-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-15-03:CONTEXT#scope-detail,DEL-15-03,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-15-03:CONTEXT#objective-support,DEL-15-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-15-03:CONTEXT#context-envelope,DEL-15-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-15-03:CONTEXT#context-budget-qa,DEL-15-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-15-03:CONTEXT#package-reference,DEL-15-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-15,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-15-03:CONTEXT#context-budget-qa,DEL-15-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-15-03:CONTEXT#package-reference,DEL-15-03,CS-06,CS-06-OK,"PKG-15 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-15-03:CONTEXT#decomposition-reference,DEL-15-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-15-03:CONTEXT#architecture-basis-injection,DEL-15-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-15-03:CONTEXT#sca-002-control-surface-refresh-note,DEL-15-03,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-15-03:CONTEXT#preparation-notes,DEL-15-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-15-04:CONTEXT#scope-coverage,DEL-15-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-15-04:CONTEXT#scope-detail,DEL-15-04,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-15-04:CONTEXT#objective-support,DEL-15-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-15-04:CONTEXT#context-envelope,DEL-15-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-15-04:CONTEXT#context-budget-qa,DEL-15-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-15-04:CONTEXT#package-reference,DEL-15-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-15,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-15-04:CONTEXT#context-budget-qa,DEL-15-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-15-04:CONTEXT#package-reference,DEL-15-04,CS-06,CS-06-OK,"PKG-15 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-15-04:CONTEXT#decomposition-reference,DEL-15-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-15-04:CONTEXT#architecture-basis-injection,DEL-15-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-15-04:CONTEXT#sca-002-control-surface-refresh-note,DEL-15-04,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-15-04:CONTEXT#preparation-notes,DEL-15-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-16-01:CONTEXT#scope-coverage,DEL-16-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-16-01:CONTEXT#scope-detail,DEL-16-01,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-16-01:CONTEXT#objective-support,DEL-16-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-16-01:CONTEXT#context-envelope,DEL-16-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-16-01:CONTEXT#context-budget-qa,DEL-16-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-16-01:CONTEXT#package-reference,DEL-16-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-16,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-16-01:CONTEXT#context-budget-qa,DEL-16-01,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-16-01:CONTEXT#package-reference,DEL-16-01,CS-06,CS-06-OK,"PKG-16 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-16-01:CONTEXT#decomposition-reference,DEL-16-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-16-01:CONTEXT#architecture-basis-injection,DEL-16-01,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-16-01:CONTEXT#sca-002-control-surface-refresh-note,DEL-16-01,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-16-01:CONTEXT#preparation-notes,DEL-16-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-16-02:CONTEXT#scope-coverage,DEL-16-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-16-02:CONTEXT#scope-detail,DEL-16-02,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-16-02:CONTEXT#objective-support,DEL-16-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-16-02:CONTEXT#context-envelope,DEL-16-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-16-02:CONTEXT#context-budget-qa,DEL-16-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-16-02:CONTEXT#package-reference,DEL-16-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-16,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-16-02:CONTEXT#context-budget-qa,DEL-16-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-16-02:CONTEXT#package-reference,DEL-16-02,CS-06,CS-06-OK,"PKG-16 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-16-02:CONTEXT#decomposition-reference,DEL-16-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-16-02:CONTEXT#architecture-basis-injection,DEL-16-02,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-16-02:CONTEXT#sca-002-control-surface-refresh-note,DEL-16-02,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-16-02:CONTEXT#preparation-notes,DEL-16-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-16-03:CONTEXT#scope-coverage,DEL-16-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-16-03:CONTEXT#scope-detail,DEL-16-03,CS-06,CS-06-DRIFT,scope-item statements differ from ScopeLedger.csv: SOW-069,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-16-03:CONTEXT#objective-support,DEL-16-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-16-03:CONTEXT#context-envelope,DEL-16-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-16-03:CONTEXT#context-budget-qa,DEL-16-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-16-03:CONTEXT#package-reference,DEL-16-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-16,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-16-03:CONTEXT#context-budget-qa,DEL-16-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-16-03:CONTEXT#package-reference,DEL-16-03,CS-06,CS-06-OK,"PKG-16 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-16-03:CONTEXT#decomposition-reference,DEL-16-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-16-03:CONTEXT#architecture-basis-injection,DEL-16-03,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-16-03:CONTEXT#sca-002-control-surface-refresh-note,DEL-16-03,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-16-03:CONTEXT#preparation-notes,DEL-16-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-16-04:CONTEXT#scope-coverage,DEL-16-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-16-04:CONTEXT#scope-detail,DEL-16-04,CS-06,CS-06-OK,scope-item statements match ScopeLedger.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-16-04:CONTEXT#objective-support,DEL-16-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-16-04:CONTEXT#context-envelope,DEL-16-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-16-04:CONTEXT#context-budget-qa,DEL-16-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-16-04:CONTEXT#package-reference,DEL-16-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-16,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-16-04:CONTEXT#context-budget-qa,DEL-16-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
+DEL-16-04:CONTEXT#package-reference,DEL-16-04,CS-06,CS-06-OK,"PKG-16 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-16-04:CONTEXT#decomposition-reference,DEL-16-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-16-04:CONTEXT#architecture-basis-injection,DEL-16-04,CS-04,CS-04,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-16-04:CONTEXT#sca-002-control-surface-refresh-note,DEL-16-04,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-16-04:CONTEXT#preparation-notes,DEL-16-04,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-17-01:CONTEXT#scope-coverage,DEL-17-01,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-01:CONTEXT#objective-support,DEL-17-01,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-17-01:CONTEXT#context-envelope,DEL-17-01,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-17-01:CONTEXT#package-reference,DEL-17-01,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-17,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-17-01:CONTEXT#package-reference,DEL-17-01,CS-06,CS-06-OK,"PKG-17 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-01:CONTEXT#decomposition-reference,DEL-17-01,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-17-01:CONTEXT#sca-004-control-surface-note,DEL-17-01,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-17-02:CONTEXT#scope-coverage,DEL-17-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-02:CONTEXT#objective-support,DEL-17-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-17-02:CONTEXT#context-envelope,DEL-17-02,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-17-02:CONTEXT#package-reference,DEL-17-02,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-17,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-17-02:CONTEXT#package-reference,DEL-17-02,CS-06,CS-06-OK,"PKG-17 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-02:CONTEXT#decomposition-reference,DEL-17-02,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-17-02:CONTEXT#sca-004-control-surface-note,DEL-17-02,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-17-03:CONTEXT#scope-coverage,DEL-17-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-03:CONTEXT#objective-support,DEL-17-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-17-03:CONTEXT#context-envelope,DEL-17-03,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-17-03:CONTEXT#package-reference,DEL-17-03,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-17,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-17-03:CONTEXT#package-reference,DEL-17-03,CS-06,CS-06-OK,"PKG-17 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-03:CONTEXT#decomposition-reference,DEL-17-03,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-17-03:CONTEXT#sca-004-control-surface-note,DEL-17-03,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-17-04:CONTEXT#scope-coverage,DEL-17-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-04:CONTEXT#objective-support,DEL-17-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-17-04:CONTEXT#context-envelope,DEL-17-04,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-17-04:CONTEXT#package-reference,DEL-17-04,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-17,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-17-04:CONTEXT#package-reference,DEL-17-04,CS-06,CS-06-OK,"PKG-17 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-04:CONTEXT#decomposition-reference,DEL-17-04,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-17-04:CONTEXT#sca-004-control-surface-note,DEL-17-04,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-17-05:CONTEXT#scope-coverage,DEL-17-05,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-05:CONTEXT#objective-support,DEL-17-05,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-17-05:CONTEXT#context-envelope,DEL-17-05,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-17-05:CONTEXT#package-reference,DEL-17-05,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-17,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-17-05:CONTEXT#package-reference,DEL-17-05,CS-06,CS-06-OK,"PKG-17 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-05:CONTEXT#decomposition-reference,DEL-17-05,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-17-05:CONTEXT#sca-004-control-surface-note,DEL-17-05,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-17-06:CONTEXT#scope-coverage,DEL-17-06,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-06:CONTEXT#objective-support,DEL-17-06,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-17-06:CONTEXT#context-envelope,DEL-17-06,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-17-06:CONTEXT#package-reference,DEL-17-06,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-17,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-17-06:CONTEXT#package-reference,DEL-17-06,CS-06,CS-06-OK,"PKG-17 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-06:CONTEXT#decomposition-reference,DEL-17-06,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-17-06:CONTEXT#sca-004-control-surface-note,DEL-17-06,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-17-07:CONTEXT#scope-coverage,DEL-17-07,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-07:CONTEXT#objective-support,DEL-17-07,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-17-07:CONTEXT#context-envelope,DEL-17-07,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-17-07:CONTEXT#package-reference,DEL-17-07,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-17,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-17-07:CONTEXT#package-reference,DEL-17-07,CS-06,CS-06-OK,"PKG-17 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-07:CONTEXT#decomposition-reference,DEL-17-07,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-17-07:CONTEXT#sca-004-control-surface-note,DEL-17-07,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-17-08:CONTEXT#scope-coverage,DEL-17-08,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-08:CONTEXT#objective-support,DEL-17-08,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-17-08:CONTEXT#context-envelope,DEL-17-08,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-17-08:CONTEXT#package-reference,DEL-17-08,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-17,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-17-08:CONTEXT#package-reference,DEL-17-08,CS-06,CS-06-OK,"PKG-17 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-08:CONTEXT#decomposition-reference,DEL-17-08,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-17-08:CONTEXT#sca-004-control-surface-note,DEL-17-08,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-17-09:CONTEXT#scope-coverage,DEL-17-09,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-09:CONTEXT#objective-support,DEL-17-09,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-17-09:CONTEXT#context-envelope,DEL-17-09,CS-07,CS-07,"setup process metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
-DEL-17-09:CONTEXT#package-reference,DEL-17-09,CS-06,CS-06-OK,package scope matches SOFTWARE_DECOMP rev 0.12 table row PKG-17,DECLARED_STATE,ALIGNED,,,,NONE,NO
+DEL-17-09:CONTEXT#package-reference,DEL-17-09,CS-06,CS-06-OK,"PKG-17 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-17-09:CONTEXT#decomposition-reference,DEL-17-09,CS-01,CS-01,revision pin is not 0.12,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-17-09:CONTEXT#sca-004-control-surface-note,DEL-17-09,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO

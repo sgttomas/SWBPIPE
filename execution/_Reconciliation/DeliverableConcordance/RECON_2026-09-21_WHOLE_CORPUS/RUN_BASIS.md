@@ -150,3 +150,17 @@ taxonomy per DEC-081).
 - 2026-09-21 — Disclosed Agent 0 departure: `.rNN` table-row keys are optional
   (all-or-none per block) rather than mandatory rows; see `RUN_STATE.jsonl`
   `DISCLOSED_DEPARTURE` for reason and reversal.
+- 2026-09-21 — R0 PR review (verdict FINDINGS; return in the orchestration
+  record) repaired. Corrections to the preceding entry: extractor v2 now
+  bounds unquoted claim blocks (DEL-17-06 CLM-042 restored), hashes block
+  bodies without headings (26 in-deliverable duplicates found), and keeps
+  12,854 units / 7,257 required (808 pre-typed). Canonical assignments are
+  729 (Package Reference compared on all four fields: 20 DRIFT). The evidence
+  map lists 501 parity records found by content signature, covering
+  88 of 93 SOW deliverables; 9 have a PASS record matching the frozen SOW.
+  Current hashes: the latest `BOUND_INPUTS` event in `RUN_STATE.jsonl`.
+- 2026-09-21 — Disclosure: the verbatim gate-evidence copies
+  (`GATE_EVIDENCE/B4_4_SWEEP_9D55/START.json`, `registered/SWEEP_*.json` and
+  the `.log.gz` files) contain absolute local paths from the host that
+  produced them. They are left unedited to preserve blob custody.
+

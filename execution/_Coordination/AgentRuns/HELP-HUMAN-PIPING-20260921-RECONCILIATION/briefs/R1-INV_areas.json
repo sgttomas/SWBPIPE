@@ -1,0 +1,128 @@
+{
+ "_note": "R1 inventory partition, relative to projects/chirality-piping/. SHELL = everything under apps/desktop/ not under apps/desktop/src/features/. Excluded by design: execution/, plans/, loop/, init/, tests/, validation/evidence/. Verified disjoint and complete over 1,227 tracked product files at 00115c719.",
+ "VIEW": [
+  "apps/desktop/src/features/viewport",
+  "apps/desktop/src/features/toolkit",
+  "apps/desktop/src/features/geometry-tools",
+  "apps/desktop/src/features/component-creation",
+  "apps/desktop/src/features/rich-authoring",
+  "apps/desktop/src/features/model-workspace",
+  "apps/desktop/src/features/design-workspace",
+  "apps/desktop/src/features/display-units"
+ ],
+ "WSUI": [
+  "apps/desktop/src/features/workspace",
+  "apps/desktop/src/features/model-tree",
+  "apps/desktop/src/features/operations",
+  "apps/desktop/src/features/diff-preview",
+  "apps/desktop/src/features/missing-data",
+  "apps/desktop/src/features/editor-contract",
+  "apps/desktop/src/features/solve",
+  "apps/desktop/src/features/results"
+ ],
+ "FEATB": [
+  "apps/desktop/src/features/rule-packs",
+  "apps/desktop/src/features/rule-check",
+  "apps/desktop/src/features/report",
+  "apps/desktop/src/features/report-lint",
+  "apps/desktop/src/features/redaction-controls",
+  "apps/desktop/src/features/load-cases",
+  "apps/desktop/src/features/library",
+  "apps/desktop/src/features/secret-private-library",
+  "apps/desktop/src/features/project-validation",
+  "apps/desktop/src/features/project-storage",
+  "apps/desktop/src/features/validation-evidence"
+ ],
+ "FEATC": [
+  "apps/desktop/src/features/accessibility-baseline",
+  "apps/desktop/src/features/adapter-framework",
+  "apps/desktop/src/features/agent-proposals",
+  "apps/desktop/src/features/boundary-authoring",
+  "apps/desktop/src/features/build-readiness",
+  "apps/desktop/src/features/caepipe-external",
+  "apps/desktop/src/features/caepipe-mbf",
+  "apps/desktop/src/features/comparison",
+  "apps/desktop/src/features/diagnostics",
+  "apps/desktop/src/features/export-adapter-sdk",
+  "apps/desktop/src/features/export-review",
+  "apps/desktop/src/features/exportUnitDisclosure.ts",
+  "apps/desktop/src/features/external-prover",
+  "apps/desktop/src/features/handoff",
+  "apps/desktop/src/features/hanger-selection",
+  "apps/desktop/src/features/headless-runner",
+  "apps/desktop/src/features/knowledge",
+  "apps/desktop/src/features/local-fea-handoff",
+  "apps/desktop/src/features/material-temperature",
+  "apps/desktop/src/features/native-package",
+  "apps/desktop/src/features/offline-proposal-intake",
+  "apps/desktop/src/features/pcf-export",
+  "apps/desktop/src/features/result-export",
+  "apps/desktop/src/features/review-geometry",
+  "apps/desktop/src/features/run-audit",
+  "apps/desktop/src/features/security-threat-model",
+  "apps/desktop/src/features/self-weight-authoring",
+  "apps/desktop/src/features/stress-neutral",
+  "apps/desktop/src/features/support-configuration",
+  "apps/desktop/src/features/telemetry",
+  "apps/desktop/src/features/wind-exposure"
+ ],
+ "SHELL": [
+  "apps/desktop/"
+ ],
+ "SOLVER": [
+  "core/solver/",
+  "core/loads/",
+  "core/section_properties/"
+ ],
+ "PHYS": [
+  "core/product_physics/",
+  "core/product_preview/",
+  "core/model_transform/",
+  "core/runner/"
+ ],
+ "COREB": [
+  "core/model_operations/",
+  "core/gui/",
+  "core/constraints/",
+  "core/units/",
+  "core/serialization/",
+  "core/project_persistence/",
+  "core/library_import/"
+ ],
+ "COREC": [
+  "core/reporting/",
+  "core/analysis_runs/",
+  "core/comparison/",
+  "core/handoff/",
+  "core/rules/",
+  "core/security/",
+  "core/adapters/"
+ ],
+ "DATA": [
+  "schemas/",
+  "fixtures/",
+  "examples/",
+  "api/",
+  "_harness/",
+  "provenance/"
+ ],
+ "CHECKS": [
+  "tools/",
+  "validation/",
+  "software-workflow.json",
+  "package.json",
+  "package-lock.json",
+  "requirements-dev.txt",
+  ".github/",
+  ".gitignore",
+  ".gitattributes"
+ ],
+ "DOCS": [
+  "docs/",
+  "governance/",
+  "README.md",
+  "CONTRIBUTING.md",
+  "LICENSE.md",
+  "AGENTS.md"
+ ]
+}

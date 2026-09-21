@@ -122,6 +122,19 @@
    "dependsOn": [
     "R4"
    ]
+  },
+  "R0-PR-REVIEW": {
+   "role": "TASK (review, read-only)",
+   "model": "claude-opus-5",
+   "reasoning": "high (inherited)",
+   "parent": "ROOT",
+   "actualAgent": "a547c67e11adf28f7",
+   "mechanism": "harness-native Agent tool, general-purpose, background (D-GOV-35)",
+   "brief": "briefs/R0-PR-REVIEW_brief.md",
+   "briefSha256": "6d642bb757550cfe91d26f53a67612c3c877269fff04ebf8d36801a175402c5d",
+   "return": "returns/R0-PR-REVIEW_return.md",
+   "returnSha256": "67fb54b0f92a6671e7da2ffe12f08e0e0e0c0071b03db758d24775fc84730ebc",
+   "status": "FINDINGS applied by Agent 0; backcheck pending"
   }
  },
  "edges": [
@@ -132,6 +145,10 @@
   [
    "ROOT",
    "ACT-REVIEW"
+  ],
+  [
+   "ROOT",
+   "R0-PR-REVIEW"
   ]
  ],
  "current_frontier": "R0 PR: independent review, checks, merge. Then R1 whole inventory.",
