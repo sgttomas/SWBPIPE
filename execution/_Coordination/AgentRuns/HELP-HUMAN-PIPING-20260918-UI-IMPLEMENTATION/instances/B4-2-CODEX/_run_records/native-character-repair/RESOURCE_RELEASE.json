@@ -1,0 +1,11 @@
+{
+  "at": "2026-09-21T04:38:26Z",
+  "lsof_command": "lsof -nP -iTCP:5174 -sTCP:LISTEN",
+  "exit": 1,
+  "stdout": "",
+  "stderr": "",
+  "lock": "/Users/ryan/dev/chirality/.git/swbpipe-e2e.lock",
+  "lockExists": false,
+  "owner": null,
+  "actions": "read-only; no process or lock modified"
+}

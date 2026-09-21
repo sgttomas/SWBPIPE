@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "a0649cbc9a434a28144d010a3a19d68111ace412",
+  "worker": "/root/b3_manager/b4_2_table gpt-6-astra/low",
+  "returnSha256": "3d4af68736d9a203e2ce664032f910407aa8f010d02e67dac18b877943c46faf",
+  "manifestSha256": "3d5b0778fd4ee969ba4d1900efeeb2bcfbd83856ea38c7e92895bac57fe476f7",
+  "verifiedPayloads": 27,
+  "payloadBytes": 1524239,
+  "traceStaging": "ordinary exact-path add -f for the manifest-bound before-fail trace; no ignore/history change",
+  "sourceStatus": "all4 frozen hashes unchanged; source-only backcheck pending; no native rebuild",
+  "resources": "5174/sharedlock released per RESOURCE_RELEASE; no native activity",
+  "priorEvidence": "unchanged"
+}
