@@ -43,7 +43,7 @@
   },
   "ACT": {
    "title": "D-73 activation packet, profile, ruling, review, merge",
-   "status": "ruled 2026-09-21; ruling, register flip and DEC-110 recorded; awaiting independent review, checks and merge",
+   "status": "ruled; reviewed PASS; checks pass; PR and merge pending",
    "dependsOn": [],
    "write": [
     "execution/_Coordination/_DECISIONS/D-73_*",
@@ -55,7 +55,7 @@
   },
   "ACT-REVIEW": {
    "title": "Fresh read-only review of the complete activation diff",
-   "status": "review FINDINGS (1 BLOCKING, 7 MINOR) applied at dcbfda55b; backcheck 1 closed all but one new ACTIONABLE N-1, applied; backcheck 2 pending",
+   "status": "complete: review FINDINGS applied; backcheck 1 N-1 applied; backcheck 2 VERDICT: PASS through 20192a20c",
    "role": "TASK (review, read-only)",
    "model": "claude-opus-5",
    "reasoning": "high",
@@ -74,7 +74,10 @@
    "enforcement": "read-only and non-delegation are instruction-asserted, not host-enforced; reviewer reported working tree unchanged",
    "backcheck1Return": "returns/ACT-REVIEW_backcheck1_return.md",
    "backcheck1ReturnSha256": "22f829c1ecfc23686edd37a6abf368c49eae967d6ab7e7d48917cf606b3c3469",
-   "returnCustody": "returns extracted verbatim from the parent session transcript (tool result; task-notification result), not the child's own transcript"
+   "returnCustody": "returns extracted verbatim from the parent session transcript (tool result; task-notification result), not the child's own transcript",
+   "backcheck2Return": "returns/ACT-REVIEW_backcheck2_return.md",
+   "backcheck2ReturnSha256": "de8270ff6db978f101d7be6657da1931357fe3d281f6822b5e8c9d5cb97b530a",
+   "reviewedCandidate": "20192a20c (subsequent commits are records-only and listed in the PR)"
   },
   "R0": {
    "title": "Freeze basis, run tooling, gate transcript, 8-deliverable calibration, candidate conventions",
@@ -129,7 +132,7 @@
    "ACT-REVIEW"
   ]
  ],
- "current_frontier": "D-73 ruled. Launch the one fresh read-only activation reviewer, then checks, PR, CI and merge. No reconciliation dispatch before merge.",
+ "current_frontier": "Activation PR: open, CI, merge. Then R0 from merged main.",
  "openWithOwner": [],
  "holdsPreserved": [
   "Piping development pause (owner, 2026-09-21)",
