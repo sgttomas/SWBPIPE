@@ -1,0 +1,19 @@
+{
+  "at": "2026-09-21T03:15:18.947161+00:00",
+  "actor": "ROOT via owner-configured gh identity",
+  "head": "8f24efd6ece5869a538ca20894d1ae78e59df618",
+  "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+  "all8ActualHeadChecksSuccessful": true,
+  "command": [
+    "gh",
+    "pr",
+    "merge",
+    "829",
+    "--repo",
+    "sgttomas/chirality",
+    "--merge",
+    "--match-head-commit",
+    "8f24efd6ece5869a538ca20894d1ae78e59df618"
+  ],
+  "bypass": false
+}

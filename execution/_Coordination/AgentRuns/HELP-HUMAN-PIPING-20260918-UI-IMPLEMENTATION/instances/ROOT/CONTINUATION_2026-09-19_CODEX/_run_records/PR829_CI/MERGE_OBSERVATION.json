@@ -1,0 +1,35 @@
+{
+  "pr": "https://github.com/sgttomas/chirality/pull/829",
+  "head": "8f24efd6ece5869a538ca20894d1ae78e59df618",
+  "baseBeforeMerge": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+  "merge": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+  "mergedAt": "2026-09-21T03:15:21Z",
+  "actor": "ROOT issued gh merge through owner-configured identity after all8 actual-head checks succeeded; no personal owner review implied",
+  "tree": {
+    "candidate": "7dfd6c151933d2e410d9adf8bd09d72151a14511",
+    "merge": "7dfd6c151933d2e410d9adf8bd09d72151a14511",
+    "identical": true
+  },
+  "desktopRun": "35555726163",
+  "desktopWorkflowWallSeconds": 1001.0,
+  "desktopSourceResults": {
+    "passed": 425,
+    "existingSkipped": 20
+  },
+  "harnessRun": "35555726127",
+  "all8ChecksBeforeMerge": "SUCCESS",
+  "localSweep": "47ad675c9dd013007c587ce6325003c990b2359c; unchanged maintained inputs",
+  "pause": "owner-directed pause effective after this closeout; explicit resume required",
+  "files": {
+    "DESKTOP_RUN.json": "a29262aa7662b56aba68089e416cea77ae9edf82610914fa545599be3f34e665",
+    "HARNESS_RUN.json": "9927a80cdabc8c823de6da10607504b8702dc06e71364a8651b3c63a7f156032",
+    "INITIAL_PR.json": "98564761ca9edfa45fce6a61d317f6a4a69bcd84d7b546b6dfc8dbe1312849d4",
+    "LOG_BINDING.json": "ea95b037b7a6723bc2da0f9ae81ff1b571b31f1d1e95f05295a55c635faee03a",
+    "MERGED_PR.json": "fefb063331c61cda69c71572e7a014a2253b256237ffb0118656d01d23b8bfd7",
+    "MERGE_REQUEST.json": "4b7526368c05403393344345841df0b7d9c3d6446b55d3331be2200342ca8e28",
+    "PASS_SUMMARIES.txt": "c52a29a0d3580ab95a6a1a1a8426457a87fdd93e41ee8e84c8a593e0a689971f",
+    "PREMERGE_PR.json": "6920f437087893c2609098159cc342f39ce1a514eac6338cd764a5c2968be08e",
+    "READY_PR.json": "0bb2537bcbbccb72f1c872eb079c9f86f7b46353e111278afbd7e5ceb450feb9",
+    "desktop-ci.log.gz": "7998fd2b546d8bd713b7730e874ec75c50dee8614eacc4cbcd2f468b15d20f08"
+  }
+}

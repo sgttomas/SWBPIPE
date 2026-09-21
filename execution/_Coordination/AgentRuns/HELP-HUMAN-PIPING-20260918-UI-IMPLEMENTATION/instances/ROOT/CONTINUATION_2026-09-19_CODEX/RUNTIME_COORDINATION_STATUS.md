@@ -1,13 +1,13 @@
 # Piping / Runtime coordination status
 
-Updated 2026-09-20. Owner requests graceful pause after current B4.1 PR closure; further work waits for explicit resume. Sole editor: Piping HELP_HUMAN ROOT. Peer **dev - app**, local task 01a07cd1-86da-7d30-9b17-e2cbbad3f10a; Piping task 01a0bc58-e7c0-7f11-a2ca-7b00e261014e. Both leads remain peers under the owner. Write ownership changes require an acknowledged handoff; silence transfers nothing.
+Updated 2026-09-20. Owner pause is effective after PR829 merged15e8b7a72; further work waits for explicit resume. Sole editor: Piping HELP_HUMAN ROOT. Peer **dev - app**, local task 01a07cd1-86da-7d30-9b17-e2cbbad3f10a; Piping task 01a0bc58-e7c0-7f11-a2ca-7b00e261014e. Both leads remain peers under the owner. Write ownership changes require an acknowledged handoff; silence transfers nothing.
 
 ## Current writers and milestone
 
 | Scope | Writer and current state |
 |---|---|
 | ROOT / codex/swbpipe-continuation-20260919 | HELP_HUMAN owns integration, graph, this note, owner decisions and review. Main fd195cf4; ROOT coordination branch retains final-boundary review and PR829 observations outside the frozen PR head. |
-| swbpipe-wt2 / codex/swbpipe-b4-controls-20260920 | ROOT frozen PR829 candidate8f24efd6 contains the reviewed sourceed8 plus complete local/native evidence and pause records. All local/review gates pass; hosted CI runs on that exact head before merge and pause. Old PR828 branch127677 preserved. |
+| swbpipe-wt2 / codex/swbpipe-b4-controls-20260920 | ROOT frozen PR829 candidate8f24efd6 contains the reviewed sourceed8 plus complete local/native evidence and pause records. All local/review gates and all8 hosted checks passed on that exact head before ROOT merged; Piping is now paused. Old PR828 branch127677 preserved. |
 | swbpipe-wt3 / codex/swbpipe-b-shell-20260918 | Retained WORKING_ITEMS Astra/high; fresh TASK Astra/low /root/b3_manager/b4_1_table. B4.1 source1ad is independently reviewed; same manager/child owns any repairs. Temporary bulk coexistence and retirement remain. Native WebKit Cancel failure on840a is repaired and passed in6dd; owner clarified vertical whole-host scrolling moves controls; the finite full-height Both/Table repair is frozened8 after measured compact reproduction; independent14-path backcheck passed; the bounded native witness passed and ROOT corroborated it, including a separate scrollbar-pointer Z/Cancel observation. The short Model drawer keeps its prior behavior as a later B4 gap. Sole shell/controller/UI writer. |
 | swbpipe-wt4 / codex/swbpipe-b-canvas-20260918 | C3/edge repair fb720420 merged. C4 preparation returned; two label rulings pending before affected implementation. |
 | Runtime / codex/runtime-application-tools | Peer owns reusable Runtime. PR824 merged21175b5d; canonical actual-client evidence PR827 merged55932683. This CLI tranche presently needs no Runtime or shared Root product change. |
@@ -35,3 +35,5 @@ B4.1 horizontal source1ad has independent review and12unique affected browser pa
 The same Codex session keeps its own Computer Use provider. Do not expose private desktop endpoints or claim a separately embedded agent inherits it. A later harmless Windows-application reachability witness remains necessary; no VM/CAEPIPE installation, control or correlation run has occurred. Existing public/IP/telemetry and claims boundaries remain; product/user-guide export wording stays .mbf. Work graph owns detailed sequencing and provisional mappings.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+Final closeout: PR829 merged15e8b7a72 on2026-09-21T03:15:21Z, with candidate/merge tree equality verified. Hosted source425passes/20existing skips; workflow1001seconds. All local resources remain released, and no next implementation or integration is launched. Explicit owner resume is required.

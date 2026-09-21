@@ -1,0 +1,44 @@
+{
+  "at": "2026-09-21T03:25:00.751849+00:00",
+  "claims": {
+    "exit": 0,
+    "stdout": "VALID claims-language surfaces: 353 files scanned; DEC-081 registry taxonomy satisfied"
+  },
+  "receiptInitial": {
+    "exit": 1,
+    "finding": "INVALID OWNER_DIRECTION_STATUS at LOOP_RECEIPTS.md:3344: Owner-Direction must include CHAT_TRANSCRIPTION \u2014 EVIDENCE, NOT RULING",
+    "correction": "Added the required evidence-status label to new Receipt157 only; validator and older receipt history unchanged."
+  },
+  "receiptFinal": {
+    "exit": 0,
+    "stdout": "VALID /Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/loop/LOOP_RECEIPTS.md: frozen through Receipt-44; versioned receipt contract satisfied"
+  },
+  "descendants": "all returned/completed in collaboration.list_agents; no new work launched",
+  "worktrees": [
+    {
+      "name": "swbpipe-wt2",
+      "branch": "codex/swbpipe-b4-controls-20260920",
+      "head": "8f24efd6ece5869a538ca20894d1ae78e59df618",
+      "status": ""
+    },
+    {
+      "name": "swbpipe-wt3",
+      "branch": "codex/swbpipe-b-shell-20260918",
+      "head": "c0a3314e2b141d8f93b90364250d2bffa89433f7",
+      "status": ""
+    },
+    {
+      "name": "swbpipe-wt4",
+      "branch": "codex/swbpipe-b-canvas-20260918",
+      "head": "fb72042061c338d932a2bfe11134078c369af3e9",
+      "status": ""
+    },
+    {
+      "name": "swbpipe-b3b-busy-probe-20260920",
+      "branch": "codex/swbpipe-b3b-busy-probe-20260920",
+      "head": "226b1db57029c1df9f9151463c6c708f76f46704",
+      "status": "M projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs\n M projects/chirality-piping/apps/desktop/src/services/projectService.ts\n?? projects/chirality-piping/apps/desktop/node_modules\n?? projects/chirality-piping/node_modules"
+    }
+  ],
+  "scope": "read-only preservation checks and required pause receipt validation; no source/test/build/native changes"
+}

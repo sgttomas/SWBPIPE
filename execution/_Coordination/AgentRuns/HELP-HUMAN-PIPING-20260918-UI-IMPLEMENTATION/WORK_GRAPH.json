@@ -8,7 +8,7 @@
     "ROOT": {
       "role": "HELP_HUMAN Type 0",
       "model": "GPT-6 Astra",
-      "status": "owner-directed graceful pause at current B4.1 PR: final publication checks/CI/merge if passing and handoff only",
+      "status": "paused by owner after PR829 merge; explicit resume required",
       "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md"
     },
     "A1-LINT": {
@@ -635,7 +635,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the table component through the one operation route",
-      "status": "internal B4.1 locally verified, publication closeout only; full B4 remainder held for owner resume",
+      "status": "B4.1 merged in PR829; remaining B4 implementation unstarted/held for owner resume",
       "dependsOn": [
         "B3B"
       ],
@@ -1663,7 +1663,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "Codex delegated-harness-native retained manager; new bounded TASK",
-      "status": "sourceed8 independently reviewed; native vertical TASK PASS and ROOT own look/scrollbar-Z-Cancel PASS; clean evidencec0 handed back; remainder preparation read-only active",
+      "status": "B4.1 merged; manager and all children returned/idle; next-table preparation retained but implementation unlaunched",
       "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
       "branch": "codex/swbpipe-b-shell-20260918",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_MANAGER_BRIEF.md",
@@ -1907,7 +1907,7 @@
       "role": "ROOT integration",
       "parent": "ROOT",
       "branch": "codex/swbpipe-b4-controls-20260920",
-      "status": "PR829 draft at8f24; all local/native/source/combined/tail/final-boundary checks pass, actual-head hosted CI running. Merge if all applicable checks succeed, then owner pause.",
+      "status": "MERGED PR829 after all8 actual-head checks passed; owner pause effective",
       "candidate": "47ad675c9dd013007c587ce6325003c990b2359c",
       "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
       "sourceCandidate": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
@@ -1937,7 +1937,20 @@
       "publicationChecksSha256": "ccc1e9154b1a4c4ef866f30246e89d726d7a0dd32ebb0a35e07ac14646320c35",
       "pr": "https://github.com/sgttomas/chirality/pull/829",
       "hostedHead": "8f24efd6ece5869a538ca20894d1ae78e59df618",
-      "hostedBase": "fd195cf4287e84572a12183169478a6f7ddf6a92"
+      "hostedBase": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+      "merge": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+      "mergedTree": "7dfd6c151933d2e410d9adf8bd09d72151a14511",
+      "publicationObservation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR829_CI/MERGE_OBSERVATION.json",
+      "publicationObservationSha256": "01d6c6f41adb03965b348ba1ffb4257d5fd41f2672dbe2fc3bd20dd331d64caa",
+      "hostedCI": {
+        "desktopRun": "35555726163",
+        "harnessRun": "35555726127",
+        "checks": 8,
+        "conclusion": "SUCCESS",
+        "sourcePassed": 425,
+        "existingSkipped": 20,
+        "workflowWallSeconds": 1001
+      }
     },
     "B5-PREPARATION-CODEX": {
       "role": "TASK Type2 read-only preparation",
@@ -2303,7 +2316,7 @@
       "B4-FINAL-BOUNDARY-REVIEW"
     ]
   ],
-  "current_frontier": "PR829 draft at8f24, basefd195; hosted CI running. No new implementation/preparation. Complete current PR only if checks pass, preserve closeout, then pause until explicit owner resume.",
+  "current_frontier": "PAUSED by owner after PR829 merged15e8b7a72. Local/native/source/combined/tail reviews and all8 actual-head CI checks passed; merged/candidate trees identical. No new work until explicit resume. B4.2 is proposed only; C4/liveCLI decisions remain pending; all broader holds unchanged.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2533,14 +2546,17 @@
     "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_GRACEFUL_PAUSE_2026-09-20.md",
     "recordSha256": "86a9634e9913c8599ab34e4c5dcb8bf3889ef95c59aef411b51c9d0172cfe8f8",
     "recordedAt": "2026-09-21T02:43:07.088986+00:00",
-    "state": "graceful current-PR closeout only, then paused until explicit resume",
+    "state": "paused by owner after successful PR829 closeout",
     "allowedCloseout": "publication records, final checks/backcheck, current B4.1 PR/actual-head CI and merge if passing, pause handoff",
     "blockedCheckDisposition": "preserve any blocking check and pause with PR open; no new repair tranche",
     "nextWork": "B4.2 and all other new implementation/preparation unlaunched or held; no ownership transfer",
     "localResources": "full sweep finished; native apps closed and source/dist ports/shared lock released",
     "pr": "https://github.com/sgttomas/chirality/pull/829",
     "candidate": "8f24efd6ece5869a538ca20894d1ae78e59df618",
-    "ci": "in_progress"
+    "ci": "all8 actual-head checks SUCCESS before ROOT merge",
+    "merge": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+    "resources": "all local Piping apps/tests/servers/ports/locks released; no CI watcher or new implementation",
+    "resume": "Wait for explicit owner resume; revalidate main/checkouts/graph and pending product decisions before new work."
   },
   "historicalOpenWithOwner": {
     "blocking": [
@@ -2571,20 +2587,20 @@
     "scope": "No silence-as-approval; unaffected B4.1 continues"
   },
   "liveContinuationState": {
-    "root": "7ce6c9477405e58defd68d730d91db487dc52fd8 plus PR/CI continuity observations",
-    "originMain": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+    "root": "verified merge15e8b7a72 absorbed into coordination branch; this postmerge pause checkpoint records closure",
+    "originMain": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-controls-20260920",
       "head": "8f24efd6ece5869a538ca20894d1ae78e59df618",
-      "state": "clean frozen published PR829 candidate"
+      "state": "clean merged PR829 branch retained"
     },
     "shell": "clean evidencec0, producted8 unchanged; manager read-only remainder preparation",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
-    "nativeProbe": "separate two-edit worktree preserved; never fan-in",
-    "resources": "no Piping native/browser/test/server process or port/lock claim; local sweep complete; no new worker",
-    "recordStatus": "publication/pause tail awaiting scoped checks and independent backcheck",
-    "observedAt": "2026-09-21T02:43:07.089363+00:00"
+    "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
+    "resources": "no local Piping native/browser/test/server or shared lock/port ownership; all descendants idle",
+    "recordStatus": "postmerge/pause observations retained as continuity; any later integration reviews this record tail",
+    "observedAt": "2026-09-21T03:22:12.378352+00:00"
   },
   "historicalPauses": [
     {

@@ -3336,3 +3336,13 @@
   - Checks: complete clean unchanged-candidate local sweep, bounded native witnesses, source and combined integration/evidence reviews passed at their stated scopes. Final publication-tail checks/backcheck and actual-head hosted CI remain before merge. Earlier failures and native method limits remain preserved; no future gate waiver is inferred.
   - Model-Attribution: HELP_HUMAN/retained WORKING_ITEMS Astra high-or-greater; bounded implementation/native/inventory TASK workers Astra/low; independent reviewers Astra/xhigh. Actual parentage, briefs, returns and instruction-enforced limits remain in the run.
   - Gate-Outcome: `EXECUTED` — B4.1 local verification and owner-directed graceful stopping point. Finish only this PR's passing Git closeout and pause; if a check blocks merge, retain it and pause with the PR open. B4.2 is prepared but unlaunched; C4/live-binding decisions and all prior qualification/usability/phase/release holds remain. No Runtime adoption, deliverable reconciliation or DAG rebuild. Standard F-PIP-2/DEC-081 fence applies.
+
+- **2026-09-20 — Receipt 157** (B4.1 merged; owner pause effective).
+  - Receipt-ID: `Receipt-157`
+  - Examined-Through: `15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c`
+  - Parent-Receipt: `Receipt-156`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING; exact graceful-pause request remains in continuation `OWNER_GRACEFUL_PAUSE_2026-09-20.md` of the owning run.
+  - Pointers: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json`; same run `HANDOFF_STATE.md`; continuation `PAUSE_HANDOFF_2026-09-20.md` and `_run_records/PR829_CI/MERGE_OBSERVATION.json`; PR #829.
+  - Checks: complete clean local sweep, bounded native witnesses, independent source/integration/publication/final-boundary reviews and record gates passed at their stated scopes. All8 actual-head hosted checks succeeded before ROOT merged; merged/candidate trees are identical. Earlier failures and explicit skips/limitations remain preserved. This postmerge pause record awaits review with any later integration.
+  - Model-Attribution: retained HELP_HUMAN/WORKING_ITEMS Astra high-or-greater, TASK implementation/native/inventory Astra/low and independent reviews Astra/xhigh; actual launches/returns remain in the owning run. All delegated assignments returned.
+  - Gate-Outcome: `EXECUTED` — B4.1 source-control closeout and explicit owner pause until resume. All local runtime/test resources released; next B4.2 implementation unlaunched. C4/live-binding decisions and prior qualification/usability/phase/release holds remain. No Runtime adoption, deliverable reconciliation or DAG rebuild. Standard F-PIP-2/DEC-081 fence applies.
