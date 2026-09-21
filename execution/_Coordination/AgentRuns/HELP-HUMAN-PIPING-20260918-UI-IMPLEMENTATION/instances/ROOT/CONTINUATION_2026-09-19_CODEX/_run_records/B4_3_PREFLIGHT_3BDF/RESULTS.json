@@ -1,0 +1,102 @@
+[
+  {
+    "name": "claims",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/validation/validate_claims_language.py",
+      "--repo-root",
+      "."
+    ],
+    "exit": 0,
+    "seconds": 0.5911,
+    "logSha256": "5b069d7f793582aac6bfb7934beaf92d113984f1da5da8b7690bcaa8cffdea3f"
+  },
+  {
+    "name": "receipts",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/validation/validate_piping_loop_receipts.py",
+      "--repo-root",
+      "."
+    ],
+    "exit": 0,
+    "seconds": 1.982713,
+    "logSha256": "163deff7fcef7146b54dc4bd3c591dbd2a0f6fa0565932b793e64774d359a966"
+  },
+  {
+    "name": "tranche",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/validation/validate_instruction_tranche_manifest.py",
+      "--base",
+      "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+      "--head",
+      "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
+      "--added-manifests-only"
+    ],
+    "exit": 0,
+    "seconds": 0.32048,
+    "logSha256": "0bebb72ab800ce2d37651c0dbf2611ebe606a1663e409397193f172bff9e47a9"
+  },
+  {
+    "name": "harness-tests",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "tools/practitioner_harness"
+    ],
+    "exit": 0,
+    "seconds": 58.427708,
+    "logSha256": "b0e91b3b69c2a30449094f46fd68a64a21eacfeae72e60badaf704c2b4fbccdc"
+  },
+  {
+    "name": "harness-self-check",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/practitioner_harness/harness.py",
+      "self-check",
+      "--json-report",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/_harness_generated/piping-b4-3bdf.json"
+    ],
+    "exit": 0,
+    "seconds": 29.236048,
+    "logSha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+  },
+  {
+    "name": "ci-plan",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/ci/e2e_plan.py",
+      "plan",
+      "--event",
+      "pull_request",
+      "--base",
+      "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+      "--head",
+      "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
+      "--output",
+      "/tmp/swbpipe-b4-3bdf-preflight/ci-plan.json"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "exact-collection",
+    "command": [
+      "sh",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/ci/e2e_plan.py",
+      "run",
+      "--plan",
+      "/tmp/swbpipe-b4-3bdf-preflight/ci-plan.json",
+      "--stage",
+      "barrier",
+      "--list",
+      "--evidence-dir",
+      "/tmp/swbpipe-b4-3bdf-preflight/collection"
+    ],
+    "exit": 0
+  }
+]

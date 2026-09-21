@@ -2571,7 +2571,7 @@
     "B4-3-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
-      "state": "full clean sweep executing on frozen3bdf; combined review source/native clean, three historical ZIP omissions repaired on ROOT evidence-only tail pending backcheck",
+      "state": "clean3bdf full sweep in source-browser execution; combined source/evidence review clear, historical ZIP omission backcheck CLOSED; awaits final sweep binding",
       "branch": "codex/swbpipe-b4-materials-integration-20260921",
       "candidate": "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
       "desktopTree": "569bb433ce914ef5f96234bc1ddfbb4a82700924",
@@ -2589,7 +2589,25 @@
       "packagingCorrection": {
         "finding": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_COMBINED_PACKAGING_FINDING.json",
         "repair": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR832_TRACE_RETENTION_REPAIR.json",
-        "scope": "three original manifest-bound PR832 ZIPs, exact bytes/CRC verified; no product/test change"
+        "scope": "three original manifest-bound PR832 ZIPs, exact bytes/CRC verified; no product/test change",
+        "candidate": "58118d17c5b76414591dcc9b7f0c44f68e40d8f2",
+        "state": "independent tracked-blob backcheck PASS/closed",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_PACKAGING_BACKCHECK_RETURN.md",
+        "returnSha256": "0e5862e1835300ed9691d7df6bbfca1a65b6de174fa1d0a8f055cc323dc26ec1"
+      },
+      "preflight": {
+        "candidate": "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
+        "summary": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_PREFLIGHT_3BDF/SUMMARY.json",
+        "summarySha256": "86100fee609741c7e3260cf0f1f4803dec11ca78aa80a793942cc215f7ca7317",
+        "state": "all7stages pass;379harness; claims/receipts/G4; baseline self-check;465exact identities/0omitted, collection-only"
+      },
+      "combinedReview": {
+        "agent": "/root/b4_3_code_review",
+        "model": "gpt-6-astra",
+        "reasoning": "xhigh",
+        "launch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_COMBINED_REVIEW_LAUNCH.md",
+        "launchSha256": "79127ed8ea780bb40dfcfa77593a27f82db0638d78cbe34114b82a7649d52e7b",
+        "state": "source/evidence review clear including Node-native/ROOT; final verdict awaits sweep binding"
       }
     }
   },
