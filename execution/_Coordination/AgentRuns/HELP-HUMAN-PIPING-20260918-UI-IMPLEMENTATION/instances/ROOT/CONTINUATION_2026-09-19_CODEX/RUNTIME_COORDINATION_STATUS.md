@@ -9,7 +9,7 @@ Sole editor: Piping HELP_HUMAN ROOT. Peer **dev - app**, local task `01a07cd1-86
 | CI maintenance | ROOT retains ownership of Piping-specific CI follow-up. Reviewed cache preparation and duration hints merged in PR833; four Piping dependency caches were created on main. Consumer reuse and a timing benefit remain unobserved. ROOT will add the new Sections browser spec to authoring/layout ownership before integration. |
 | Reusable Runtime | Peer. Generic tools PR824 and actual-client probe PR827 are merged. No new Runtime or shared Root product implementation is authorized here. Existing public-export workflow references to omitted Piping were handed to peer as a separate compatibility finding. |
 
-Sections source and focused nonbrowser checks are granted. Browser, native and heavy verification need the next coordinated resource handoff. The first focused worker run reports 79 passes; final source and verification are not frozen. Full B4, compact Model/narrow-Both drawer fit and Both+Inspector-open native Provenance exposure remain open. B5 follows B4; C4 label decisions are pending.
+Sections source, focused unit/TypeScript and four bounded Rust checks are granted. Browser execution awaits the exact source/check plan; native and heavy verification need separate resource coordination. The first focused worker run reports 79 passes; final source and verification are not frozen. Full B4, compact Model/narrow-Both drawer fit and Both+Inspector-open native Provenance exposure remain open. B5 follows B4; C4 label decisions are pending.
 
 ## Live control remains pending
 
@@ -21,7 +21,7 @@ The proposed bounded journey is inspect/preview/submit/status, actual human revi
 
 Materials and corrected Node-review native/ROOT witnesses passed at their bound sources. Owned PIDs16639 and22492 were quit and process-only absence verified; no post-Quit app query. Canonical invented baselines are supported by observed UI/history/actions, not exported whole-model hashes. Node work was review-only: natural family blur kept/closed the editor, raw drafts were cleared and model Undo/Redo remained disabled. Native/build/CUA, source ports and shared lock are released; peer notified.
 
-No Piping heavy run or browser/native slot is active. The prior full-sweep reservation is released. Peer acknowledged no active or queued conflicting workload and no overlapping writes. A fresh resource notice precedes Sections browser/native verification.
+Peer acknowledged exclusive resources for four single-worker operation-applier Rust tests, followed by focused browser journeys on 5174 under the shared lock. ROOT granted those four Rust filters; browser execution awaits the exact source/check plan. Peer defers competing workloads until release. No native/CUA, app build or full-sweep reservation is included.
 
 Source5174/dist5175 use swbpipe-e2e.lock; ROOT5183/5184, canvas5185/5186 and Tauri5173 remain named resources. One native/CUA foreground slot. Native fixtures are invented; preserve other project rows/preferences.
 

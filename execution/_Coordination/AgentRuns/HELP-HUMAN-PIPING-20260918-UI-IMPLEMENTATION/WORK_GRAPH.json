@@ -635,7 +635,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the table component through the one operation route",
-      "status": "B4.1/B4.2/Materials and related Node-review correction merged; Sections prepared next; remaining families and B4 fit/control scope open",
+      "status": "B4.1/B4.2/Materials and related Node-review correction merged; B4.4 Sections actively implementing; remaining families and B4 fit/control scope open",
       "dependsOn": [
         "B3B"
       ],
@@ -670,12 +670,12 @@
           "basis": "B4-3 architecture/undo-dom probe plus unchanged Node review sorting path; no Node repair authorized by the Materials brief",
           "diagnosticBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_DIAGNOSTIC_BRIEF.md",
           "diagnosticBriefSha256": "8866966443b009b1aace77d127eded2088fcd7e2e0a2d33b203b36aa06f4b847",
-          "next": "Close the reviewed correction through the combined PR; do not infer full B4/MVP keyboard or fit completion."
+          "next": "Continue the remaining B4 work; this case is merged and need not be restarted absent new evidence."
         }
       ],
       "remainderPreparationBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_REMAINDER_PREPARATION_BRIEF.md",
       "remainderPreparationBriefSha256": "cf1ea19b9ef79493cb3399785745789d035f8bdc05dd9dd604ffdeae432d235c",
-      "remainderPreparationState": "Materials recommendation activated under B4.3; Sections remains preparation for a later bounded brief",
+      "remainderPreparationState": "Materials merged in PR833; bounded Sections/common enum activated and executing under B4.4.",
       "remainderPreparationBasis": {
         "source": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
         "workerReturnSha256": "f7aa44110af6fbef5564ad98b1cc80b95a892d2b0d888acb52a479663b9e2bca",
@@ -2697,7 +2697,7 @@
       "scope": "common Sections/opt-in typed enum and bounded tests only",
       "activation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_SECTIONS_ACTIVATION.md",
       "activationSha256": "e6d44615d671bdcff02fb4b2693d5eb6b36ebef1367d1211ca2c760533a7c64f",
-      "resources": "source/nonbrowser focused unit/TS granted; browser/heavy/native/full sweep need coordinated handoff",
+      "resources": "Peer acknowledged exclusive bounded Rust tests, then browser 5174. Four one-worker Rust filters granted; browser execution awaits source/check plan. No native/heavy app build/full sweep.",
       "dependsOn": [
         "B4-3-INTEGRATION",
         "B4-4-SECTIONS-PREPARATION"
@@ -2719,7 +2719,9 @@
       "clarification": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_EDITOR_POLICY_CLARIFICATION.md",
       "clarificationSha256": "d6460cc8434742de6e1aa2cf33f5858a1b385ea3bbb814fff4f90bdab46262fe",
       "interimCheck": "Manager reports 79 focused passes across four files; two TS failures retained during repair. Final source freeze/checks remain pending; no browser/native/build resource use.",
-      "architectureUpdate": "Current helper uses a body portal tied to the stable input. ROOT permits this implementation choice with truthful disclosure and explicit hidden/inert/detached, external-focus, placement and passive-choice coverage; no scope expansion."
+      "architectureUpdate": "Current helper uses a body portal tied to the stable input. ROOT permits this implementation choice with truthful disclosure and explicit hidden/inert/detached, external-focus, placement and passive-choice coverage; no scope expansion.",
+      "focusedResourceGrant": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_FOCUSED_RESOURCE_GRANT.md",
+      "focusedResourceGrantSha256": "6d4175771bd3a8d40899f096ff46f3f59597c767ca04f75e47cb016ee2a70d4b"
     }
   },
   "edges": [
@@ -3024,7 +3026,7 @@
       "B4-4-CODEX-MANAGER"
     ]
   ],
-  "current_frontier": "PR833 merged, main dependency caches created. Sections/common typed-enum source increment activated under existing B4 strategy; await actual worker/input and early architecture/source return. Coordinate browser/native, independent review and one coherent final validation. C4/live CLI owner decisions and all qualification/reconciliation holds remain.",
+  "current_frontier": "PR833 merged and four main dependency caches created. B4.4 Sections/common typed enum is under active Astra/low implementation; early focused tests pass while final source checks remain in progress. Peer reserved bounded Rust and browser resources; four Rust filters granted, browser execution awaits source checkpoint/plan. Independent review, affected native verification and one coherent final validation follow. C4/live CLI decisions and qualification/reconciliation holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
