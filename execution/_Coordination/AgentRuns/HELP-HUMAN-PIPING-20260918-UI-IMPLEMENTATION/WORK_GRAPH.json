@@ -667,7 +667,10 @@
           "item": "Check Node review text-Undo while a draft changes active sort order; Node still uses inline editor and the Materials probe showed Chromium history loss on actual ancestor movement",
           "state": "suspected analogous gap only; no Node reproduction or defect verdict yet",
           "retireAt": "bounded B4 follow-up before claiming complete common-table/MVP keyboard coverage",
-          "basis": "B4-3 architecture/undo-dom probe plus unchanged Node review sorting path; no Node repair authorized by the Materials brief"
+          "basis": "B4-3 architecture/undo-dom probe plus unchanged Node review sorting path; no Node repair authorized by the Materials brief",
+          "diagnosticBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_DIAGNOSTIC_BRIEF.md",
+          "diagnosticBriefSha256": "8866966443b009b1aace77d127eded2088fcd7e2e0a2d33b203b36aa06f4b847",
+          "next": "bounded diagnosis after native release, before final candidate freeze; no Node production repair granted by this prepared brief"
         }
       ],
       "remainderPreparationBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_REMAINDER_PREPARATION_BRIEF.md",
@@ -2425,12 +2428,19 @@
         "evidence": "2bbb8ce4f4d9a8230b710d15a278f2176f86d99b"
       },
       "nativePreparation": {
-        "state": "ROOT activation sealed; actual manager/native launch to be observed",
+        "state": "actual retained native TASK launched; one fresh build running",
         "record": "instances/B4-3-CODEX/_run_records/NATIVE_PLAN_DRAFT.md",
         "sha256": "dc789da88f84713e6a0f4c774aae029c680f06a9217ad94d261776e48014ffb8",
         "scope": "one uninstrumented build; verified invented baseline; one synthetic Material through existing Inspector create; mixed-unit sort/textUndo, pointer/field/page lifecycle and baseline restoration; no store actions",
         "activation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_3_NATIVE_ACTIVATION.md",
-        "activationSha256": "4dbb1017d7f2adc8815d3e3e7ecb4246ba542ba8682afb8ea60b6a1ef8c10104"
+        "activationSha256": "4dbb1017d7f2adc8815d3e3e7ecb4246ba542ba8682afb8ea60b6a1ef8c10104",
+        "actualAgent": "/root/b3_manager/b4_1_native",
+        "model": "gpt-6-astra",
+        "reasoning": "low",
+        "addendum": "instances/B4-3-CODEX/_run_records/NATIVE_ADDENDUM.md",
+        "addendumSha256": "1beaac9a28706741fb0226919b0c04d802f9440f1a8b78e2cbe08673d7d514bc",
+        "inputs": "instances/B4-3-CODEX/_run_records/NATIVE_INPUTS.json",
+        "inputsSha256": "5dc84dd3b9ad4cf5e79a303ede122a5798be04c74991f356381f2c96e2c4045c"
       }
     },
     "B4-3-REVIEW": {
@@ -3028,9 +3038,9 @@
     "root": "132112c1edf99f159a7c150177b137de3d72ed6a plus current backcheck/continuity records",
     "originMain": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
     "integrationBranch": {
-      "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "head": "8077032231ded1cc5d206becd03a18e43e6f3bb2",
-      "state": "PR832 merged; branch preserved at8077"
+      "branch": "codex/swbpipe-b4-materials-integration-20260921",
+      "head": "6b48c8c5b427a7b1bd4731e91d8e15e3711923b8",
+      "state": "clean initial combined source; no final candidate/sweep yet; old Node integration branch preserved"
     },
     "shell": "Materials source 75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5 / evidence 2bbb8ce4f4d9a8230b710d15a278f2176f86d99b clean in wt3; worker held pending independent backcheck",
     "canvas": "fb720420 preserved; C4 preparation returned",
