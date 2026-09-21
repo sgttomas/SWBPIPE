@@ -89,7 +89,10 @@ seeding as a ruled variance, because it's stale." Clarified (Direction 2):
 
 Related, and carried to R0 as a candidate convention rather than ruled here:
 existing `## Remaining` entries are stale and are never cited as authority
-for what is open or done; they are audited as declared-state claims.
+for what is open or done; they are audited as declared-state claims. R0 must
+reconcile that convention with the contract's "Remaining is executable truth"
+invariant and its validity item 12 (the final Remaining census), which
+become relevant only at R6.
 
 ### Item 4 — Phases this ruling covers
 
@@ -114,8 +117,8 @@ only to the complete write and read-only boundary below.)*
 **5a. New surfaces**, authorized as ruled program surfaces. They select no
 work and are not status surfaces:
 
-- the project profile `docs/RECONCILIATION_PROFILE.md` (kernel §5's recurring
-  process asset for this project);
+- the project profile `docs/RECONCILIATION_PROFILE.md` (kernel §7's project
+  adoption record);
 - the run's orchestration record
   `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260921-RECONCILIATION/`
   (work graph, briefs, returns, owner directions, handoff);
@@ -147,7 +150,9 @@ work and are not status surfaces:
   a separate R5 authorization;
 - `docs/CHECKING_ENTRY_PROFILES.md` (R3 may propose maturity feedback; any
   write waits for a later ruling);
-- the Task Management register (R3 may propose dispositions of its rows);
+- the Task Management register
+  `execution/_Coordination/_TaskManagement/REGISTER.csv` (R3 may propose
+  dispositions of its rows);
 - the in-tree `validation/evidence/sweeps/` (the fresh sweep writes outside
   the tree);
 - `execution/_DAG/**`, `execution/_ScopeChange/**`, `docs/_ScopeChange/**`,

@@ -77,8 +77,10 @@ single disposition. Each row records which layers apply.
    contract's data and IP clauses. Run artifacts never quote protected
    standards content, vendor catalogue data or private user data; they cite
    locations.
-4. **Accepted baselines and protected criteria.** Each row records its
-   baseline class and that class's change path:
+4. **Accepted baselines and protected criteria.** These baselines and their
+   change paths are preserved. How a ledger records them per row (for
+   example a baseline-class column) is a candidate convention for a run's
+   R0, not in effect until ruled there:
    - `ISSUED` deliverables (currently DEL-01-01): read-only in discovery;
      any change routes through the governed scope-change process;
    - frozen contracts, including the ruled hash and result-semantics
@@ -88,14 +90,16 @@ single disposition. Each row records which layers apply.
    - ruled acceptance criteria (for example D-68 and D-72) and explicit
      owner holds: recorded, never lifted by a run.
 5. **Security and privacy.** Local-first operation, telemetry off by default
-   and private-data handling (PKG-12, F-PIP-1) are invariant-tier claims.
+   and private-data handling (PKG-12, F-PIP-1) are contract-level
+   obligations.
 6. **Lifecycle.** Discovery records `LIFECYCLE_REASSESSMENT_REQUIRED` where
    evidence warrants and never applies a transition (F-PIP-3).
 
-## 5. Authority tiers
+## 5. Authority tiers — candidate for R0
 
-Every non-aligned claim carries one tier, because the tier decides what kind
-of act a divergence needs:
+**Not in effect until a run's owner rules it at R0.** The candidate
+convention: every non-aligned claim carries one tier, because the tier
+decides what kind of act a divergence needs.
 
 | Tier | Meaning | Typical resolution |
 |---|---|---|

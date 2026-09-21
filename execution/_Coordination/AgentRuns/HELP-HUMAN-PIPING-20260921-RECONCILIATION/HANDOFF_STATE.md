@@ -25,6 +25,14 @@ A cold session starts here. Read in order: this file, `OWNER_DIRECTIONS.md`,
    receipt validator; then PR, CI and merge to `main`.
 3. R0 from the merged `main`, per `PLAN.md` Step 2.
 
+## Departures from the approved plan
+
+- `PLAN.md` Step 1 listed a coordination notice
+  `NOTICE_2026-09-21_RECONCILIATION_ACTIVATION.md`. It was not written: the
+  owner has already notified and paused the other sessions, and D-73 Item 5b
+  allows notices only when another loop is affected. Reverse by writing the
+  notice if a loop turns out to be affected.
+
 ## Cautions
 
 - Do not touch `codex/swbpipe-continuation-20260919` or any other session's

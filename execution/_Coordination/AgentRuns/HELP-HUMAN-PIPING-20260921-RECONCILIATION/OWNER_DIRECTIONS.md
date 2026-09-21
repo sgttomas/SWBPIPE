@@ -2,7 +2,7 @@
 
 Recorded 2026-09-21 by HELP_HUMAN Agent 0 (Claude Code). Each quoted block is
 extracted from this session's stored transcript
-(`~/.claude/projects/<project>/efe0b4ff-c1b6-4a97-af70-b04220464651.jsonl`),
+(Claude Code session transcript `efe0b4ff-c1b6-4a97-af70-b04220464651.jsonl`),
 the user text of the named entry, UTF-8, no trailing newline added. This is
 stored-transcript custody, not original transport bytes. Agent 0's reading
 follows each block and is labelled as such; it is not the owner's word.
