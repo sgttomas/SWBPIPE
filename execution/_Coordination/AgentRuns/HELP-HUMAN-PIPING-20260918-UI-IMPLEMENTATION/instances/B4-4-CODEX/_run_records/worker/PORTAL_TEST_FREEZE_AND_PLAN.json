@@ -20,7 +20,7 @@
   "collection_sha256": "fce2d0dd7d23379980374cc5dfb9478d0eca6e0080b422e62aa1639953b02fa9",
   "environment": {
     "PLAYWRIGHT_WORKERS": "1",
-    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "{PINNED_CHROMIUM_EXECUTABLE}"
   },
   "fail_before_command": [
     "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
@@ -34,5 +34,8 @@
     "--reporter=list,json",
     "--output=<fresh portal-fail-before artifacts>"
   ],
-  "after_repair": "same 16 titles/profile executions in BROWSER_PLAN.json, now includes light/dark popup checks in existing enum journey"
+  "after_repair": "same 16 titles/profile executions in BROWSER_PLAN.json, now includes light/dark popup checks in existing enum journey",
+  "path_binding_note": "Portable representation of the historical supplied plan. Resolve WORKING_ROOT from the active repository and PINNED_CHROMIUM_EXECUTABLE from the current host, verifying the original executable hash where specified. Original supplied bytes and path bindings are preserved as historical evidence; this record does not grant a new execution.",
+  "original_supplied_evidence": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_PORTABILITY_REPAIR/supplied-2.json",
+  "original_supplied_sha256": "eddfe74905ac0b0dad04a38858405ea3642740909ba5d7e32f909cc2e0739341"
 }

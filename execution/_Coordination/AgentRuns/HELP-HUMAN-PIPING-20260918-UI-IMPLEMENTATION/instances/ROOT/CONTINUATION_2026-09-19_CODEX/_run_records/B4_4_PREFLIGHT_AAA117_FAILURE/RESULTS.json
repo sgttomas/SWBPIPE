@@ -1,0 +1,58 @@
+[
+  {
+    "name": "claims",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/validation/validate_claims_language.py",
+      "--repo-root",
+      "."
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2",
+    "exit": 0,
+    "seconds": 0.582037417,
+    "logSha256": "03821a19490601326f115b872c9dd1c5cfabd1104aafdd18c81430f6a0392474"
+  },
+  {
+    "name": "receipts",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/validation/validate_piping_loop_receipts.py",
+      "--repo-root",
+      "."
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2",
+    "exit": 0,
+    "seconds": 2.155740208,
+    "logSha256": "163deff7fcef7146b54dc4bd3c591dbd2a0f6fa0565932b793e64774d359a966"
+  },
+  {
+    "name": "tranche",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/validation/validate_instruction_tranche_manifest.py",
+      "--base",
+      "fd002217f067020d44deaee22866e14eed81173f",
+      "--head",
+      "aaa1172380ce7d941f2b2cae57064f7a7e4c465a",
+      "--added-manifests-only"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2",
+    "exit": 0,
+    "seconds": 0.28955795800000006,
+    "logSha256": "0e842a0a2ed2d15f4f9b2d01da509dd814382606258c68a264fd4005d7af0eb2"
+  },
+  {
+    "name": "harness-tests",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "tools/practitioner_harness"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2",
+    "exit": 1,
+    "seconds": 65.47406249999999,
+    "logSha256": "4ae02802973f43059237f972f40654662bc1c16c3b90c56732e0fa8f8e38e1f8"
+  }
+]

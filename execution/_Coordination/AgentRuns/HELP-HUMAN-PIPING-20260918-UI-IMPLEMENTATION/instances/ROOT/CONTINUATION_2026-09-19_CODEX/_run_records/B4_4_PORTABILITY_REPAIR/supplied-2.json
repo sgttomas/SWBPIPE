@@ -1,0 +1,38 @@
+{
+  "base": "3687e4450a3e2cfa37616b9b1e7ee7b28075e1fe",
+  "status": "test-only frozen, await manager checkpoint and ROOT fail-before grant",
+  "test_sha256": "9c336e36001b8b4a8f29f6766aace3605783bd4f01a8120fb783c18330b2ea48",
+  "production_unchanged": {
+    "src/styles.css": "773f7c36104e6e82bb77b799b4060393dc69dab6d3770200d0bb2d9cacdfbf19",
+    "src/features/workspace/table/useEnumEditor.tsx": "909cff6062a45b10ac642ecded0273cd6ed7adf499087cbd84539955d0640865"
+  },
+  "collection_command": [
+    "npx",
+    "playwright",
+    "test",
+    "e2e/b4-sections.spec.ts",
+    "e2e/b4-table-editing.spec.ts",
+    "--grep",
+    "(?:^|\\s)(?:B4 Sections mixed-unit direct editing preserves no-op, rejection, shared-pipe rejection and history|B4 Sections enum explicit completion, passive cancellation and raw review retention|B4 Sections Apply Tab accepts the next actual key during unrelated quantity reconversion|B4 Sections moved review row preserves text Undo, input ownership and virtual hidden lifetimes|B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership|B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize|B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts|B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward)$",
+    "--list"
+  ],
+  "collection_exit": 0,
+  "collection_sha256": "fce2d0dd7d23379980374cc5dfb9478d0eca6e0080b422e62aa1639953b02fa9",
+  "environment": {
+    "PLAYWRIGHT_WORKERS": "1",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+  },
+  "fail_before_command": [
+    "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+    "npx",
+    "playwright",
+    "test",
+    "e2e/b4-sections.spec.ts",
+    "--grep",
+    "(?:^|\\s)B4 Sections enum explicit completion, passive cancellation and raw review retention$",
+    "--project=chromium-desktop",
+    "--reporter=list,json",
+    "--output=<fresh portal-fail-before artifacts>"
+  ],
+  "after_repair": "same 16 titles/profile executions in BROWSER_PLAN.json, now includes light/dark popup checks in existing enum journey"
+}

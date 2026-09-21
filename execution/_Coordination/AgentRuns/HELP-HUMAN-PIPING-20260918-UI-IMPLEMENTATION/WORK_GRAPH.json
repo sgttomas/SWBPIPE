@@ -2803,14 +2803,15 @@
       "parent": "ROOT",
       "branch": "codex/swbpipe-b4-sections-integration-20260921",
       "checkout": "wt2",
-      "head": "d8d53f2bca659a26315fbdd7a2f97b8298f4785a",
-      "state": "early clean source/CI fan-in for verification; browser correction/evidence, independent source review, native and final gates outstanding",
+      "head": "aaa1172380ce7d941f2b2cae57064f7a7e4c465a",
+      "state": "aaa117 preflight stopped at378pass/1harness failure: two absolute-path plan records. ROOT portable-path repair preserves original supplied bytes; bounded rerun before first full sweep.",
       "source": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
       "dependsOn": [
         "B4-4-CODEX-MANAGER",
         "B4-4-CI-COVERAGE"
       ],
-      "deliverableMapping": "provisional, inherited B4 trace; no DAG/deliverable reconciliation"
+      "deliverableMapping": "provisional, inherited B4 trace; no DAG/deliverable reconciliation",
+      "portabilityRepair": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_PORTABILITY_REPAIR/REPAIR.json"
     },
     "B4-4-SOURCE-REVIEW": {
       "role": "independent TASK Type2",
@@ -2853,6 +2854,19 @@
       "scope": "next supported family versus compact table fit; no DAG/deliverable/CLI/C4/B5 expansion",
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_NEXT_PREPARATION_RETURN.md",
       "returnSha256": "c6d8ece0b35b36db2d9fd71a7e35a084bef15df0e3663544883d926f401e26f8"
+    },
+    "B4-4-COMBINED-REVIEW": {
+      "role": "independent TASK Type2",
+      "parent": "ROOT",
+      "actualAgent": "/root/b4_4_source_review",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "mechanism": "actual retained independent TASK followup",
+      "state": "active complete317-path candidate review; source15paths unchanged from reviewed source/CI",
+      "basis": "fd002217f067020d44deaee22866e14eed81173f",
+      "candidate": "aaa1172380ce7d941f2b2cae57064f7a7e4c465a",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_COMBINED_REVIEW_LAUNCH.md",
+      "briefSha256": "2b3ca45b353ade7aa85f1f7d1d0961c27a617d7440a500e840502c92c01622c3"
     }
   },
   "edges": [
@@ -3157,7 +3171,7 @@
       "B4-4-CODEX-MANAGER"
     ]
   ],
-  "current_frontier": "B4.4 source review/P2 backcheck/native/ROOT own-look complete. Prepare one clean combined candidate, governance preflight, registered sweep and complete-record review, then actual-head hosted CI/merge. Compact table fit prepared next but not activated. C4/liveCLI/qualification/reconciliation holds remain.",
+  "current_frontier": "Source/native review complete; final preflight found two active-plan portability errors. Repair is records-only, original supplied bytes retained; bounded failed-check rerun precedes the first clean full sweep and actual-head CI. Compact fit prepared, not activated; owner holds unchanged.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",

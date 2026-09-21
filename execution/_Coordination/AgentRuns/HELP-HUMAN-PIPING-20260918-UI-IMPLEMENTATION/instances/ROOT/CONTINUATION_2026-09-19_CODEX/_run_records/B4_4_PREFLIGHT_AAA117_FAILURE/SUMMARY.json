@@ -1,0 +1,27 @@
+{
+  "candidate": "aaa1172380ce7d941f2b2cae57064f7a7e4c465a",
+  "outcome": "claims/receipts/tranche pass; harness378pass/1fail before full sweep",
+  "failure": "test_live_gen8_semantic_portability_invariants: two active plan records carry absolute paths",
+  "followupSelfCheck": {
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/practitioner_harness/harness.py",
+      "self-check",
+      "--json-report",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/_harness_generated/piping-b44-aaa117.json"
+    ],
+    "exit": 0,
+    "meaning": "report generated, includes two confirmed portability REVIEW findings; not a passing portability test"
+  },
+  "files": {
+    "END.json": "9b2bd898990fbceef81fb1c8e6519525f9cdccea420ce6306cd0075751607af6",
+    "RESULTS.json": "7c98b8db80ee5b4837cec8ba9e7b774ab648fa8b2612ede94f339813bbbff12b",
+    "START.json": "278d5fb57aacb664a53690accbbeedd2ff5bb1e728a125bf90a91e9a0b70c797",
+    "claims.log": "03821a19490601326f115b872c9dd1c5cfabd1104aafdd18c81430f6a0392474",
+    "harness-self-check.json": "b1dcd46473af88d96107edb79b10eaa9a023ff26fb9fe219cfc45d12737c422c",
+    "harness-self-check.log": "9ef2d30458b76f0a39bf8cadfbfb921881008fbe4a16bf221286c87c8ff9f39a",
+    "harness-tests.log": "4ae02802973f43059237f972f40654662bc1c16c3b90c56732e0fa8f8e38e1f8",
+    "receipts.log": "163deff7fcef7146b54dc4bd3c591dbd2a0f6fa0565932b793e64774d359a966",
+    "tranche.log": "0e842a0a2ed2d15f4f9b2d01da509dd814382606258c68a264fd4005d7af0eb2"
+  }
+}

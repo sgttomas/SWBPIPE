@@ -1,0 +1,51 @@
+{
+  "candidate": "3687e4450a3e2cfa37616b9b1e7ee7b28075e1fe",
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "e2e/b4-sections.spec.ts",
+    "e2e/b4-table-editing.spec.ts",
+    "--grep",
+    "(?:^|\\s)(?:B4 Sections mixed-unit direct editing preserves no-op, rejection, shared-pipe rejection and history|B4 Sections enum explicit completion, passive cancellation and raw review retention|B4 Sections Apply Tab accepts the next actual key during unrelated quantity reconversion|B4 Sections moved review row preserves text Undo, input ownership and virtual hidden lifetimes|B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership|B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize|B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts|B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward)$",
+    "--list"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "exit_code": 0,
+  "titles": [
+    "B4 Sections mixed-unit direct editing preserves no-op, rejection, shared-pipe rejection and history",
+    "B4 Sections enum explicit completion, passive cancellation and raw review retention",
+    "B4 Sections Apply Tab accepts the next actual key during unrelated quantity reconversion",
+    "B4 Sections moved review row preserves text Undo, input ownership and virtual hidden lifetimes",
+    "B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership",
+    "B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize",
+    "B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts",
+    "B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward"
+  ],
+  "executable": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+  "executable_sha256": "2447c7bdea8e8ad38b52594f1ba53e18821c05445e8a07ad1cf3b0f23931d89d",
+  "version": "not executed by worker yet; prior p2 method reports 148.0.7778.96, to verify at authorized browser launch",
+  "environment": {
+    "PLAYWRIGHT_WORKERS": "1",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+  },
+  "source_hashes": {
+    "e2e/b4-sections.spec.ts": "11978e77be10f0901f1b39f4c6c5676bd97795628e5208d8e926f6359ea542d7",
+    "e2e/b4-table-editing.spec.ts": "ee15a0d7eb5b87926ba3a8179c73de6b6f9d0ce5fdea06622e21ace9f55a0e29",
+    "playwright.config.ts": "d861a8567ce54c803e2bef914a5b9965906f90e0eda58ab4d907160d10eed31a"
+  },
+  "collection_sha256": "1ad949cdaa4dcde5f1644f2671fad4dc25036239d9b66adfc47c427a04ac4a45",
+  "execution_plan": [
+    "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+    "npx",
+    "playwright",
+    "test",
+    "e2e/b4-sections.spec.ts",
+    "e2e/b4-table-editing.spec.ts",
+    "--grep",
+    "(?:^|\\s)(?:B4 Sections mixed-unit direct editing preserves no-op, rejection, shared-pipe rejection and history|B4 Sections enum explicit completion, passive cancellation and raw review retention|B4 Sections Apply Tab accepts the next actual key during unrelated quantity reconversion|B4 Sections moved review row preserves text Undo, input ownership and virtual hidden lifetimes|B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership|B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize|B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts|B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward)$",
+    "--reporter=list,json",
+    "--output=<fresh run evidence artifacts>"
+  ],
+  "status": "collected only; execution not authorized yet"
+}

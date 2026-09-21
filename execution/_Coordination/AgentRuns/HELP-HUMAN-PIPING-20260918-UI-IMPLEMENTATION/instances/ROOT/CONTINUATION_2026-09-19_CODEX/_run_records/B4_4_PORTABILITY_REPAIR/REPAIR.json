@@ -1,0 +1,20 @@
+{
+  "basis": "aaa1172380ce7d941f2b2cae57064f7a7e4c465a",
+  "cause": "two active control records contain machine-specific cwd/executable paths",
+  "scope": "portable path representation only; original sealed bytes retained separately and in Git; no raw executed record, manifest, instruction lint or test edited",
+  "historicalManifestRule": "Earlier manifests bind original plan bytes at their recorded candidate or the byte-identical supplied capture; new plan hashes are explicit here. Do not relabel earlier seals as binding the repaired plan.",
+  "entries": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/BROWSER_PLAN.json",
+      "originalSha256": "8808488dff82e469027dd792b913acb026e5e1e30391a6b498ebd1d79d300d31",
+      "originalEvidence": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_PORTABILITY_REPAIR/supplied-1.json",
+      "repairedSha256": "1b1b30dd7e8c5395a17f270ba4da6c74684a23f94a78487bd51ceba4b8f07f9a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/PORTAL_TEST_FREEZE_AND_PLAN.json",
+      "originalSha256": "eddfe74905ac0b0dad04a38858405ea3642740909ba5d7e32f909cc2e0739341",
+      "originalEvidence": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_PORTABILITY_REPAIR/supplied-2.json",
+      "repairedSha256": "910fbd3e41cc55fa290283065677955c126581d210cde6514dbc16525f590ebe"
+    }
+  ]
+}
