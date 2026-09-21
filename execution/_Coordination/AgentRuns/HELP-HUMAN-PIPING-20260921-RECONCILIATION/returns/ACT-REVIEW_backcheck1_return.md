@@ -32,4 +32,38 @@ Scope: the complete delta `5438c1c98..dcbfda55b` (commit `dcbfda55b`), 9 files, 
 - It does not list the edits to `OWNER_DIRECTIONS.md`, `HANDOFF_STATE.md` and `WORK_GRAPH.json`. Those are run-record files, not ruled instruments, so this is acceptable.
 
 **(d) `WORK_GRAPH.json` hashes match the files**, and the file parses as valid JSON (see the hash table).
-- The stored `returns/ACT-REVIEW_return.md` runs from `VERDICT: FINDINGS` to `END-OF-RETURN
+- The stored `returns/ACT-REVIEW_return.md` runs from `VERDICT: FINDINGS` to `END-OF-RETURN`, with no trailing newline. It matches my return section by section and line by line; I compared it against my own message by reading, not with a byte diff.
+- `briefs/ACT-REVIEW_brief.md` at `dcbfda55b` still has the sealed hash `17a385b4…c796`.
+
+**(e) New findings**
+
+**N-1. The ruling record now says something false about how to reproduce the ruled-on packet hash**
+- **Severity:** ACTIONABLE
+- **Where:** `projects/chirality-piping/execution/_Coordination/_DECISIONS/D-73_RULING_2026-09-21.md`, lines 18–19.
+- **What is wrong:** The sentence says the hash `0241867d…` "reproduces from the merged packet by replacing the body of its §6 with the single line `*(Awaiting ruling.)*`". This same delta then edited the packet after the ruling (Items 3, 5a, 5d). Applying that procedure to the packet at `dcbfda55b` gives `8c9660d3558bc936040614bce77b65680ac09f47eeddb97ef6bf544aca12baa4`, not `0241867d…`. It still gives `0241867d…` from the packet at `5438c1c98`.
+- **Smallest fix:** Replace "from the merged packet" with "from the packet as committed at `5438c1c98`".
+
+**Hash table (at `dcbfda55b`)**
+
+| Item | Stated | Recomputed | Match |
+|---|---|---|---|
+| OWNER_DIRECTIONS.md (WORK_GRAPH) | 03738706…0b6b | 03738706…0b6b (6752 B) | yes |
+| briefs/ACT-REVIEW_brief.md (WORK_GRAPH) | 17a385b4…c796 | 17a385b4…c796 (4413 B) | yes |
+| returns/ACT-REVIEW_return.md (WORK_GRAPH) | 23bf3049…b3f | 23bf3049…b3f (10232 B) | yes |
+| PLAN.md (WORK_GRAPH) | 18d39600…6381 | 18d39600…6381 | yes |
+| ENTRY_BRIEF (WORK_GRAPH) | 3767db25…7823 | 3767db25…7823 | yes |
+| Profile as merged (ruling "Changes after ruling") | 271bd0d0…da73 | 271bd0d0…da73 | yes |
+| Profile at proposal commit `4a1b6fdd3` | ac29229a… | ac29229a8dd6… | yes |
+| Packet as ruled, from `5438c1c98` | 0241867d…a879 | 0241867d…a879 | yes |
+| Packet as ruled, "from the merged packet" (`dcbfda55b`) | 0241867d…a879 | 8c9660d3…baa4 | **no (N-1)** |
+| Quoted owner blocks: Directions 1–4, Acts 1–2 | ac397039 / ab4cc637 / 78cff483 / 94ebe9ac / 19d90885 / e40b902e | same, with byte counts 1825 / 765 / 110 / 82 / 844 / 39 | yes |
+
+**Validator outputs** (HEAD `dcbfda55b`, `PYTHONDONTWRITEBYTECODE=1`)
+
+- `python3 tools/validation/validate_claims_language.py` printed "VALID claims-language surfaces: 356 files scanned; DEC-081 registry taxonomy satisfied" (exit 0).
+- `python3 tools/validation/validate_piping_loop_receipts.py --repo-root .` printed "VALID …/projects/chirality-piping/loop/LOOP_RECEIPTS.md: frozen through Receipt-44; versioned receipt contract satisfied" (exit 0).
+- `git status --porcelain` is empty, so this backcheck left the working tree unchanged.
+
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+END-OF-RETURN

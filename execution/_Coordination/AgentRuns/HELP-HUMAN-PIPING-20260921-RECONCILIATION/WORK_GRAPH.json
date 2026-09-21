@@ -73,7 +73,8 @@
    "reasoningRequested": "high (inherited from session; the host takes no per-call reasoning setting)",
    "enforcement": "read-only and non-delegation are instruction-asserted, not host-enforced; reviewer reported working tree unchanged",
    "backcheck1Return": "returns/ACT-REVIEW_backcheck1_return.md",
-   "backcheck1ReturnSha256": "313ff544a1e54a143302680e43f56003d2f9d23f21c86efede3be7ae5044a7e9"
+   "backcheck1ReturnSha256": "22f829c1ecfc23686edd37a6abf368c49eae967d6ab7e7d48917cf606b3c3469",
+   "returnCustody": "returns extracted verbatim from the parent session transcript (tool result; task-notification result), not the child's own transcript"
   },
   "R0": {
    "title": "Freeze basis, run tooling, gate transcript, 8-deliverable calibration, candidate conventions",
