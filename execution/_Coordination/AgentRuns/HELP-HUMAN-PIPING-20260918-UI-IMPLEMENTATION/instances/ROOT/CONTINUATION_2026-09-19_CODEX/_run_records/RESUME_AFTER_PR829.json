@@ -1,0 +1,53 @@
+{
+  "at": "2026-09-21T03:35:50.764527+00:00",
+  "repoRootOrigin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality",
+  "workingRoot": "projects/chirality-piping",
+  "rootHead": "7b619b3099cc48c71cae47cf0e751ab65f8e1d39",
+  "originMain": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+  "instructionAndBriefBindings": {
+    "AGENTS.md": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b",
+    "agents/AGENT_HELP_HUMAN.md": "0c2fe7a3097ad26c93c0267e4da6aaf90c9264489df8dc368fad657bcac69183",
+    "projects/chirality-piping/AGENTS.md": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005",
+    "projects/chirality-piping/loop/LOOP_INIT.md": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94",
+    ".agents/skills/chirality-change/SKILL.md": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba",
+    ".agents/skills/software-code-review/SKILL.md": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_APPROVAL.md": "c13f02ac0b19ea1e1fae86ff89f90f9472f3bfb8ad93074b13db4504670321d9",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MODEL_DIRECTION.md": "29af1ded5d35ec10efd0820db164ea6d7dca2ae4330dfdc9eb2c9e1e1720cd14",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_COMPATIBILITY_DISPOSITION.md": "f317cddf86edc5faf672629f70c0575d26ff77e2b3b494d7e167687e42865827",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_VERTICAL_SCROLL_REPAIR_DISPOSITION.md": "b125b5b7b5fefa7011e504c891f440edcd22801f361ccd8778d770de28a072b6",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_REMAINDER_PREPARATION_RETURN.md": "065aeb1bc0bcb74752612fbc7f27913aa7f7ae104a75071867822dc2ddbde4ef",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_REMAINDER_CLARIFICATION_RETURN.md": "765e619dc83014bd8d451188c787d8152b01ed116e873a76e003492d5a89e8e2",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_AFTER_PR829_2026-09-20.md": "a6bddcb4a67b3aedd55c200815f14512a9df95de2b74cd3a41596acdda2dad4d",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_MANAGER_BRIEF.md": "9d534b90967995ddf67dd81bef9afc6ff7e7a9bac0d711afa91272d7cf0c72f0"
+  },
+  "checkouts": [
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2",
+      "branch": "codex/swbpipe-b4-controls-20260920",
+      "head": "8f24efd6ece5869a538ca20894d1ae78e59df618",
+      "status": ""
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+      "branch": "codex/swbpipe-b-shell-20260918",
+      "head": "c0a3314e2b141d8f93b90364250d2bffa89433f7",
+      "status": ""
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt4",
+      "branch": "codex/swbpipe-b-canvas-20260918",
+      "head": "fb72042061c338d932a2bfe11134078c369af3e9",
+      "status": ""
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-b3b-busy-probe-20260920",
+      "branch": "codex/swbpipe-b3b-busy-probe-20260920",
+      "head": "226b1db57029c1df9f9151463c6c708f76f46704",
+      "status": "M projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs\n M projects/chirality-piping/apps/desktop/src/services/projectService.ts\n?? projects/chirality-piping/apps/desktop/node_modules\n?? projects/chirality-piping/node_modules"
+    }
+  ],
+  "resources": "lsof found no5173/5174/5175 listener; sharedE2E lock absent; no native claim before future acknowledged handoff",
+  "mainSincePR829": "no changed paths or commits",
+  "pr829": "live gh stateMERGED,merge15e8b7a72,head8f24,all8recorded checksSUCCESS",
+  "mechanism": "ROOT read-only discovery; worker not yet launched"
+}

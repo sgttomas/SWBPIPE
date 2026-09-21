@@ -8,7 +8,7 @@
     "ROOT": {
       "role": "HELP_HUMAN Type 0",
       "model": "GPT-6 Astra",
-      "status": "paused by owner after PR829 merge; explicit resume required",
+      "status": "active HELP_HUMAN after owner resume: B4.2 coordination/next decisions, records, integration and independent review",
       "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md"
     },
     "A1-LINT": {
@@ -79,7 +79,7 @@
     "B-SHELL": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "current WORKING_ITEMS gpt-6-astra/high; historical Fable allocation preserved separately",
-      "status": "B4.1 source/evidence handed back and verified; read-only remainder preparation returned; manager/workers idle for owner pause",
+      "status": "B4.1 merged; retained manager assigned bounded B4.2 Node scalar/common review renderer under fresh sealed brief",
       "briefSha256": "00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75",
       "brief": "briefs/B-SHELL_shell_lane.md",
       "returnSha256": null,
@@ -111,7 +111,7 @@
         "model": "fable",
         "status": "paused clean, confirmed by ROOT: branch codex/swbpipe-b-shell-20260918 at a9be4aaefa432e1eed56e87482391e90958cb087, pushed; contains origin/main at d20eb1294 (not PR #807). Merged: B2 (PR #803), B2F and B2G (PR #805). In progress: B3. The managers of 2026-09-18 and 2026-09-19 cannot be resumed from another session; instances/B-SHELL/LANE_LOG.md ends with a section for a fresh start."
       },
-      "currentExecutionNode": "B4-1-CODEX-MANAGER"
+      "currentExecutionNode": "B4-2-CODEX-MANAGER"
     },
     "B-CANVAS": {
       "role": "WORKING_ITEMS Type 1 lane manager",
@@ -635,7 +635,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the table component through the one operation route",
-      "status": "B4.1 merged in PR829; remaining B4 implementation unstarted/held for owner resume",
+      "status": "B4.1 merged; bounded B4.2 Node scalar/common review rendering activated after owner resume",
       "dependsOn": [
         "B3B"
       ],
@@ -2056,6 +2056,28 @@
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_FINAL_BOUNDARY_BACKCHECK_RETURN.md",
       "briefSha256": "c92cbf0ef55b615b70fb726560ff8b15a0a6bc9b308dcb114f0d87ac71fe2a9e",
       "returnSha256": "97e95c45568bd3cb9f0ca56fe766afdea31561e3ec391b3737d984c725168875"
+    },
+    "B4-2-CODEX-MANAGER": {
+      "role": "WORKING_ITEMS Type1",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3_manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "mechanism": "retained Codex delegated-harness-native manager; bounded Astra/low TASK to be sealed/launched by manager",
+      "status": "actual retained-manager followup dispatched; branch/child launch verification pending",
+      "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+      "branch": "codex/swbpipe-b4-node-fields-20260920",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_MANAGER_BRIEF.md",
+      "inputs": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RESUME_AFTER_PR829.json",
+      "scope": "Node Label/string Provenance + common direct/review renderer; same typed route, one writer; no controller/engine/schema/VirtualList/native/CLI/other family migration",
+      "resource": "5174/sharedE2E authorized; peer reports no competing work; native slot unclaimed until handoff",
+      "enforcement": "unrestricted host; role/scope/resource boundaries instruction-enforced",
+      "briefSha256": "9d534b90967995ddf67dd81bef9afc6ff7e7a9bac0d711afa91272d7cf0c72f0",
+      "inputsSha256": "180ed178f9bc31853055f9f72b0af57af9099c6493092e8ed0c2e28108b9a9ab",
+      "slice": "B4",
+      "dependsOn": [
+        "B4-1-INTEGRATION"
+      ]
     }
   },
   "edges": [
@@ -2314,9 +2336,13 @@
     [
       "ROOT",
       "B4-FINAL-BOUNDARY-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B4-2-CODEX-MANAGER"
     ]
   ],
-  "current_frontier": "PAUSED by owner after PR829 merged15e8b7a72. Local/native/source/combined/tail reviews and all8 actual-head CI checks passed; merged/candidate trees identical. No new work until explicit resume. B4.2 is proposed only; C4/liveCLI decisions remain pending; all broader holds unchanged.",
+  "current_frontier": "Explicit owner resume received. Main15e8/mergedPR829 and clean lanes revalidated. Activate bounded B4.2 Node scalar fields/common review rendering with retained Astra/high manager and one Astra/low worker; C4/liveCLI decisions still pending. No new phase/DAG work.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2546,7 +2572,7 @@
     "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_GRACEFUL_PAUSE_2026-09-20.md",
     "recordSha256": "86a9634e9913c8599ab34e4c5dcb8bf3889ef95c59aef411b51c9d0172cfe8f8",
     "recordedAt": "2026-09-21T02:43:07.088986+00:00",
-    "state": "paused by owner after successful PR829 closeout",
+    "state": "resumed by explicit owner direction after PR829",
     "allowedCloseout": "publication records, final checks/backcheck, current B4.1 PR/actual-head CI and merge if passing, pause handoff",
     "blockedCheckDisposition": "preserve any blocking check and pause with PR open; no new repair tranche",
     "nextWork": "B4.2 and all other new implementation/preparation unlaunched or held; no ownership transfer",
@@ -2556,7 +2582,10 @@
     "ci": "all8 actual-head checks SUCCESS before ROOT merge",
     "merge": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
     "resources": "all local Piping apps/tests/servers/ports/locks released; no CI watcher or new implementation",
-    "resume": "Wait for explicit owner resume; revalidate main/checkouts/graph and pending product decisions before new work."
+    "resume": "explicit resume received; prior pause/closeout remains historical, new scoped B4.2 activated",
+    "resumeOwnerText": "You may resume.",
+    "resumeRecord": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_AFTER_PR829_2026-09-20.md",
+    "resumeRecordSha256": "a6bddcb4a67b3aedd55c200815f14512a9df95de2b74cd3a41596acdda2dad4d"
   },
   "historicalOpenWithOwner": {
     "blocking": [
@@ -2584,23 +2613,23 @@
   "currentOwnerQuestions": {
     "C4": "two label dispositions pending; package instances/ROOT/CONTINUATION_2026-09-19_CODEX/C4_LABEL_DECISION_PACKAGE.md",
     "liveControl": "bounded activation pending for peer-reviewed proposal instances/ROOT/CONTINUATION_2026-09-19_CODEX/LIVE_CONTROL_ACTIVATION_PROPOSAL.md",
-    "scope": "No silence-as-approval; unaffected B4.1 continues"
+    "scope": "No silence-as-approval; unaffected authorized B4.2 proceeds"
   },
   "liveContinuationState": {
-    "root": "verified merge15e8b7a72 absorbed into coordination branch; this postmerge pause checkpoint records closure",
+    "root": "7b619b3099cc48c71cae47cf0e751ab65f8e1d39 plus resume/launch record",
     "originMain": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-controls-20260920",
       "head": "8f24efd6ece5869a538ca20894d1ae78e59df618",
       "state": "clean merged PR829 branch retained"
     },
-    "shell": "clean evidencec0, producted8 unchanged; manager read-only remainder preparation",
+    "shell": "clean c0; new B4.2 branch from verified main to be created by manager",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "no local Piping native/browser/test/server or shared lock/port ownership; all descendants idle",
-    "recordStatus": "postmerge/pause observations retained as continuity; any later integration reviews this record tail",
-    "observedAt": "2026-09-21T03:22:12.378352+00:00"
+    "resources": "no local listener or shared lock; peer no conflict, source5174/shared lock assigned to manager",
+    "recordStatus": "prior postmerge pause tail and new resume/launch records await combined review at next checkpoint",
+    "observedAt": "2026-09-21T03:36:35.586000+00:00"
   },
   "historicalPauses": [
     {

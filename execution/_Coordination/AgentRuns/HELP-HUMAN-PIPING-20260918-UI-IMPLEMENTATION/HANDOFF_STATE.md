@@ -1,3 +1,5 @@
+**Current resume entry:** owner explicitly resumed after PR829. Read `WORK_GRAPH.json`, continuation `OWNER_RESUME_AFTER_PR829_2026-09-20.md` and `B4_2_MANAGER_BRIEF.md`. Prior pause handoff remains historical.
+
 # Handoff state
 
 Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, ROOT (HELP_HUMAN, Agent 0). Working surface; superseded lines are struck, not deleted.
