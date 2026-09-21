@@ -1,0 +1,48 @@
+{
+  "repoRootOrigin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+  "workingRoot": "projects/chirality-piping",
+  "candidate": "97c03e3b26db1d49cc1f36ce627d19db8a56541c",
+  "productSource": "a1833393e597acbe81f943accf64a9548035fe6a",
+  "parent": "/root/b3_manager WORKING_ITEMS gpt-6-astra/high",
+  "retainedNativeTask": "/root/b3_manager/b4_1_native TASK gpt-6-astra/low",
+  "bindings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_NATIVE_ACTIVATION.txt",
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_NATIVE_ACTIVATION.txt",
+      "sha256": "71544fcd568d8d4cdb5f37fcefec051cf657770b253670b69dea098d3f046a1b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_R1_BACKCHECK_RETURN.md",
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_R1_BACKCHECK_RETURN.md",
+      "sha256": "858501b8e8e0583c8832ad1ce00cb3249e0a7f371749d539b4e9fce67ca25b03"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/MANAGER_NATIVE_PLAN.md",
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/MANAGER_NATIVE_PLAN.md",
+      "sha256": "275c282069a8932a60ca82edc04f954016ffb8b2098b29a5f6177d56a3d7465c"
+    }
+  ],
+  "sourceHashes": {
+    "projects/chirality-piping/apps/desktop/e2e/b3a-session-status.spec.ts": "b92e73b71a7fd2e1f6bc0f6ea99bdcc2f60363debaf46d62fb64c5a3a2d41191",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts": "03c022bc5ff1726c6f7eaa0e8fcfa391550f812377c1bd54aa79f5f320aec018",
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": "9464cf1163a9a78bd2a607297721c65a71c9db8fc44cc174132dfb6cd0bf2ae5",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts": "0bbfd7c51482a5243e75a347b4ed39cfd5a698ef233b5f172c87fa4dc6a95fd3",
+    "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx": "cdd85764dada5f5fb4d29d146efefb930c211b9d75429be8f57e8ceab9e729a8",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "5e16c0d91fe9d489aa523b179bcdc9bf79f78faa0b23f7ef6a72dc8f88a964d4",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx": "64b2d89f25f4912d63ab5a2d65d068a1c5321755f631001d57eb38969f74c48c",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx": "0b42e280a69d1d923142e582d1e1d72167681885c03f7e947eac3356a0c96b24",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx": "a6200d9894c016ebd0853c6e62158eaadfe14d611fce6f8e3e3aa5b529220c3b",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx": "cb4fc744eae1773053c95a905dd8c3033a5350d1a70318ad6a758ea549c605ae",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx": "c44ba7c8f30f2f8d32adfaa798706363f4d52f727bb0d6eec3d67f546846ab8d",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx": "e67ad561397a93cb6fad35f6d052dd065a9324d714da7121f27e59ddb4e52524",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.ts": "322ef0e87914b8b04bf4986573021f9ce4bd2fbf2d4218528fd159a419cf048b",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.ts": "cbbd0eb55477aadc38fcbd75fc7cf99dde291e8f73d5d7bca414cc6f3d7803fd",
+    "projects/chirality-piping/apps/desktop/src/styles.css": "e27b40c3656d62404719b42737825fd5665ae36eed7661c028b0604192a93f7e",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+    "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json": "b3de0965f205e1ed34f07744939314c9ac40dd00af2ee8c0de336c6e2bfba5d0",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts": "fe0f9eea5a991d965dc097553e73e8c4c23c7968ed1743a8709af94f02dab20d",
+    "projects/chirality-piping/apps/desktop/src/App.tsx": "05ab59648af6d3c94a2001cd25c893d275a35aa4f463525c9b60345967109c2f"
+  },
+  "resourceAuthority": "ROOT relayed peer acknowledged exclusive native/build/CUA handoff after independent R1 PASS",
+  "mechanism": "followup_task pending; no descendants"
+}

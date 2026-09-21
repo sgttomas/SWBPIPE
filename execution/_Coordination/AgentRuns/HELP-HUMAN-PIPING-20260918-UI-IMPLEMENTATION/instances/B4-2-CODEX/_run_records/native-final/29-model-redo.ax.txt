@@ -1,0 +1,4 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~						11 button (disabled) Redo model edit, Help: Nothing to redo
+~										332 cell (selected, settable) node:N-110 Provenance: native final provenance
+The focused UI element is 360 button node:N-110 Provenance: native final provenance

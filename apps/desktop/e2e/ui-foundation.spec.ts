@@ -360,18 +360,20 @@ test("Grid drafts survive Tree round-trips and a filtered queue clears only its 
   await activateWithKeyboard(page, page.getByTestId("layout-mode-grid"));
   await openNodeGridReview(page);
   await activateWithKeyboard(page, page.getByTestId("entity-grid-type-nodes"));
-  const visibleInput = page.getByTestId(`entity-grid-input-${visibleNode.id}-x`);
-  const retainedInput = page.getByTestId(`entity-grid-input-${retainedNode.id}-x`);
-  await visibleInput.fill(visibleDraft);
-  await retainedInput.fill(retainedDraft);
+  const visibleInput = page.getByTestId(`review-cell-${visibleNode.id}-x`);
+  const retainedInput = page.getByTestId(`review-cell-${retainedNode.id}-x`);
+  await visibleInput.dblclick(); await page.getByTestId("engineering-table-review").getByRole("textbox").fill(visibleDraft);
+  await page.getByRole("button", { name: "Keep draft", exact: true }).click();
+  await retainedInput.dblclick(); await page.getByTestId("engineering-table-review").getByRole("textbox").fill(retainedDraft);
+  await page.getByRole("button", { name: "Keep draft", exact: true }).click();
   await expect(page.getByTestId("entity-grid-change-count")).toContainText("2 changed cells");
 
   await activateWithKeyboard(page, page.getByTestId("layout-mode-tree"));
   await expect(page.getByRole("tree", { name: "Model" })).toBeVisible();
   await activateWithKeyboard(page, page.getByTestId("layout-mode-grid"));
   await openNodeGridReview(page);
-  await expect(visibleInput).toHaveValue(visibleDraft);
-  await expect(retainedInput).toHaveValue(retainedDraft);
+  await expect(visibleInput).toHaveText(visibleDraft);
+  await expect(retainedInput).toHaveText(retainedDraft);
   await expect(page.getByTestId("entity-grid-change-count")).toContainText("2 changed cells");
 
   const filter = page.getByTestId("model-tree-filter-input");
@@ -388,8 +390,8 @@ test("Grid drafts survive Tree round-trips and a filtered queue clears only its 
   // Slice B3: the model tree and Review changes are two tabs of one pane; return to the tree's tab.
   await showModelTree(page);
   await filter.fill("");
-  await expect(visibleInput).toHaveValue(visibleBase);
-  await expect(retainedInput).toHaveValue(retainedDraft);
+  await expect(visibleInput).toHaveText(visibleBase);
+  await expect(retainedInput).toHaveText(retainedDraft);
   await expect(page.getByTestId("entity-grid-change-count")).toContainText("1 changed cells");
 });
 

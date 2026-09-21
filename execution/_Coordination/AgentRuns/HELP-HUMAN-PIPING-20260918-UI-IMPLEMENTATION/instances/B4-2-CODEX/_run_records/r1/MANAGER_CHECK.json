@@ -1,0 +1,25 @@
+{
+  "base": "deb50f5db6e3dc4b89e88aaca34449357647cab9",
+  "productSource": "a1833393e597acbe81f943accf64a9548035fe6a",
+  "actualMaintainedDelta": [
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx"
+  ],
+  "allOtherFrozenMaintainedHashes": "matched original SOURCE_FREEZE",
+  "inspection": "Nine read assertions replaced only; exact raw string expectations and all transitions/Queue/payload/generation oracles unchanged. Accessor is side-effect-free and matches requested row/field. Explicit edit helper interactions unchanged.",
+  "rawEvidenceSha256": {
+    "ACTUAL_RESUME.json": "b9e13bbe4ebf87dda502e805b6c30bbbe1f57438ef103cdf152a20fab8b29ef4",
+    "INPUTS.json": "6157f490fe6cb8d1d6da495f3008a6166f84fd7bfbd96df9ac513ddebc6e0974",
+    "READ_BINDINGS.json": "fb7718d46d954e84375f7ec990b1bf7ba0d23678d00fa575b1eb0ccbb20e68dd",
+    "RETURN.json": "78f8e7f5ea87ba78c0ee0e33d0a3563a55d31ded00284e10e6157a6cc4a2a361",
+    "RETURN.md": "ff11d611a5a1f4e6de9814193bd3e9212db07e583a4b7a2572eca149db9a79ae",
+    "TASK_ADDENDUM.md": "7306ba6b8a9e36df7049b74b9ef55850555f6e455fc8fcd237572154ea1b9e48",
+    "TASK_FINAL_VERBATIM.md": "a287a530fa55a6dbd830fb4dc3ba0f4dd588bd418daca618a042fa62d1367f0a",
+    "types.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "types.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "unit.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "unit.log": "b328720502cde20d0a1e3d904b7d1c7a079463de4789bf4044f59be6bedf788f"
+  },
+  "checks": "26 tests in two full files; TypeScript exit0; git diff --check clean",
+  "remaining": "independent R1 backcheck; native pending separate grant"
+}

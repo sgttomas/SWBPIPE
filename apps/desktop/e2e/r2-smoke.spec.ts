@@ -172,15 +172,15 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await page.getByTestId("layout-mode-grid").click();
   await openNodeGridReview(page);
   await expect(page.getByTestId("entity-grid")).toBeVisible();
-  await expect(page.getByTestId("entity-grid-table-nodes")).toBeVisible();
-  await page.getByTestId("entity-grid-row-node-node:N-100").click();
+  await expect(page.getByTestId("engineering-table-review")).toBeVisible();
+  await page.getByTestId("engineering-table-review").getByRole("rowheader").getByRole("button", { name: "node:N-100", exact: true }).click();
   await expect(page.getByTestId("agent-focus-selection")).toContainText("node:N-100");
   // Slice B3: the Both view's docked inspector is closed at first open; open it to read it.
   await ensureInspectorExpanded(page);
   await openNamedDisclosure(page.getByRole("region", { name: "Property inspector", exact: true }), "All properties");
   await expect(page.getByRole("region", { name: "Property inspector", exact: true })).toContainText("node:N-100");
-  await page.getByTestId("entity-grid-input-node:N-100-x").fill("1.25");
-  await page.getByTestId("entity-grid-input-node:N-100-y").fill("0.5");
+  await reviewFill(page, "node:N-100-x", "1.25");
+  await reviewFill(page, "node:N-100-y", "0.5");
   await expect(page.getByTestId("entity-grid-change-count")).toContainText("2 changed cells");
   await page.getByTestId("queue-entity-grid-intents").click();
   await expect(page.getByTestId("entity-grid-queued-message")).toContainText("Queued 2 review intents");
@@ -1889,4 +1889,12 @@ async function openNodeGridReview(page: import("@playwright/test").Page) {
   if (await summary.getAttribute("aria-expanded") !== "true") {
     await summary.click();
   }
+}
+
+async function reviewFill(page: import("@playwright/test").Page, cell: string, value: string) {
+  const table = page.getByTestId("engineering-table-review");
+  const keep = table.getByRole("button", { name: "Keep draft", exact: true });
+  if (await keep.count()) await keep.click();
+  await table.getByTestId(`review-cell-${cell}`).dblclick();
+  await table.getByRole("textbox").fill(value);
 }

@@ -1,0 +1,11 @@
+{
+  "mechanism": "collaboration.followup_task",
+  "parent": "/root/b3_manager WORKING_ITEMS gpt-6-astra/high",
+  "target": "/root/b3_manager/b4_2_table TASK gpt-6-astra/low",
+  "scope": "ROOT6aa3 initial-selection repair only",
+  "addendumSha256": "b44bd50c4c2d1504c76140ac9cc80f16d98669e2fcadfce1aa0dcb4d617b8618",
+  "inputsSha256": "d513d940eeacf7f5444ead8e7e605f834b645d986343ba50396416e75eee5c38",
+  "precondition": "78436 and matching native process absent; native slot released",
+  "result": "tool returned canonical task; execution resumed",
+  "descendants": "prohibited"
+}

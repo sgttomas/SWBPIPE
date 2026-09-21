@@ -1,0 +1,24 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~						20 button (expanded) Inspector, Help: Inspector (⌘I), Secondary Actions: Collapse
++					239 button Close inspector, Help: Close (⎋)
++					240 container Property inspector
++						241 heading Invented Utility Loop Preview — project:project:invented-loop-01, Value: 2
++							242 text Invented Utility Loop Preview —  project : project:invented-loop-01
++						243 tab group (selectable) Inspector views
++							244 tab (selected) Properties
++							245 tab (selectable) Task
++						246 summary All properties, Value: off
++							247 text All properties
++						248 summary Sources and units, Value: off
++							249 text Sources and units
++						250 summary New support configuration, Value: off
++							251 text New support configuration
++						252 summary New section, Value: off
++							253 text New section
++						254 summary New material, Value: off
++							255 text New material
++						256 summary New support, Value: off
++							257 text New support
++						258 summary New component, Value: off
++							259 text New component
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

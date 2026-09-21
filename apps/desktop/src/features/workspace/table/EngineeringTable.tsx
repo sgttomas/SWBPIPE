@@ -7,6 +7,7 @@ import {
 } from "./tableState";
 
 export type TableApplyResult = Readonly<{ applied: boolean; rejected?: boolean; messages: readonly string[] }>;
+export type TableDraftResult = Readonly<{ retained: boolean; messages: readonly string[] }>;
 type Props = Readonly<{
   label: string;
   bounded?: boolean;
@@ -20,12 +21,18 @@ type Props = Readonly<{
   selectedKey: EntityKey;
   busy?: boolean;
   onSelect: (key: EntityKey) => void;
-  onApply: (captured: CapturedCell, text: string) => Promise<TableApplyResult>;
-}>;
+}> & (Readonly<{ policy?: "direct"; onApply: (captured: CapturedCell, text: string) => Promise<TableApplyResult> }> | Readonly<{
+  policy: "review";
+  resetEditsKey: number;
+  onDraftChange: (captured: CapturedCell, text: string) => void;
+  onKeepDraft: (captured: CapturedCell, text: string) => TableDraftResult;
+}>);
 
 /** Owns interaction drafts only. Canonical values and operation acceptance belong to the caller. */
 export function EngineeringTable(props: Props) {
-  const { label, rows, columns, generation, filter, density, selectedKey, busy = false, bounded = false, active: surfaceActive = true, onDraftStateChange, onSelect, onApply } = props;
+  const { label, rows, columns, generation, filter, density, selectedKey, busy = false, bounded = false, active: surfaceActive = true, onDraftStateChange, onSelect } = props;
+  const review = props.policy === "review";
+  const resetEditsKey = review ? props.resetEditsKey : 0;
   const body = useTableBodyHeight(bounded, surfaceActive);
   const [focused, setFocused] = useState<CellAddress | null>(null);
   const [edit, setEditState] = useState<TableEdit | null>(null);
@@ -39,6 +46,7 @@ export function EngineeringTable(props: Props) {
   const footer = useRef<HTMLDivElement>(null);
   const editRef = useRef<TableEdit | null>(null);
   const sequence = useRef(0);
+  const initializedInputToken = useRef<number | null>(null);
   const pointerFocus = useRef<CellAddress | null>(null);
   const latest = useRef(props);
   latest.current = props;
@@ -48,6 +56,21 @@ export function EngineeringTable(props: Props) {
     selectionOwnership.current = { key: selectedKey, revision: selectionOwnership.current.revision + 1 };
   }
   const focusRequest = useRef<CellAddress | null>(null);
+  const ownedCellElement = useRef<{ element: HTMLElement; selectionRevision: number } | null>(null);
+  // A completed label edit can disappear on a later canonical publication.
+  // Recover only focus lost through removal, never an intentional external move.
+  useLayoutEffect(() => {
+    const owned = ownedCellElement.current; const element = owned?.element;
+    if (element && owned?.selectionRevision === selectionOwnership.current.revision && !element.isConnected && document.activeElement === document.body && surfaceActive && !root.current?.closest("[hidden], [inert]")) footer.current?.focus();
+  }, [rows, filter, surfaceActive]);
+  useEffect(() => {
+    const track = (event: FocusEvent) => {
+      const element = event.target as HTMLElement;
+      ownedCellElement.current = root.current?.contains(element) && element.matches("[data-table-cell], .engineering-table-cell input") ? { element, selectionRevision: selectionOwnership.current.revision } : null;
+    };
+    document.addEventListener("focusin", track);
+    return () => document.removeEventListener("focusin", track);
+  }, []);
   function setEdit(value: TableEdit | null) { editRef.current = value; setEditState(value); }
 
   const matchingRows = useMemo(() => rows.filter((row) => !filter.trim() || (row.searchText ?? `${row.label} ${row.key}`).toLowerCase().includes(filter.trim().toLowerCase())), [rows, filter]);
@@ -78,11 +101,14 @@ export function EngineeringTable(props: Props) {
     setEdit(null); setFocused(null); focusRequest.current = null;
   }, [generation]);
 
+  useLayoutEffect(() => { setEdit(null); setFeedback(""); }, [resetEditsKey]);
+
   useLayoutEffect(() => {
     if (!focusRequest.current) return;
     const request = focusRequest.current;
     if (!viewRows.some((row) => row.key === request.rowKey && row.cells[request.columnKey])) {
       focusRequest.current = null;
+      footer.current?.focus();
       return;
     }
     const element = Array.from(root.current?.querySelectorAll<HTMLElement>("[data-table-cell]") ?? []).find((candidate) => candidate.dataset.rowKey === request.rowKey && candidate.dataset.columnKey === request.columnKey);
@@ -90,21 +116,29 @@ export function EngineeringTable(props: Props) {
   }, [focused, viewRows, reveal]);
 
   function focusCell(address: CellAddress, moveDomFocus = true) {
-    setFocused(address); onSelect(address.rowKey);
+    setFocused(address);
+    // Review editing preserves the existing ordered selection; its rowheader
+    // remains the explicit model-selection control.
+    if (!review) onSelect(address.rowKey);
     if (moveDomFocus) { focusRequest.current = address; setReveal((value) => value + 1); }
   }
   function startEdit(address: CellAddress, replacement?: string) {
     if (busy || editRef.current) return;
     const row = rows.find((item) => item.key === address.rowKey); const cell = row?.cells[address.columnKey];
-    if (!row || !cell) return;
+    if (!row || !cell || cell.readonly) return;
     focusRequest.current = null;
     focusCell(address, false); setFeedback("");
-    setEdit({ captured: { ...address, token: ++sequence.current, before: cell.value, unit: cell.unit, generation, row }, text: replacement ?? cell.value, pending: false });
+    const captured = { ...address, token: ++sequence.current, before: cell.value, unit: cell.unit, generation, row };
+    setEdit({ captured, initialSelection: replacement === undefined ? "all" : "end", text: replacement ?? cell.value, pending: false });
+    if (props.policy === "review" && replacement !== undefined) props.onDraftChange(captured, replacement);
   }
   function cancel() {
     const current = editRef.current;
     if (!current || current.pending) return;
-    sequence.current += 1; setEdit(null); setFeedback("");
+    const liveCell = latest.current.rows.find((row) => row.key === current.captured.rowKey)?.cells[current.captured.columnKey];
+    const staleReview = props.policy === "review" && (current.captured.generation !== latest.current.generation || !liveCell || liveCell.readonly || liveCell.unit !== current.captured.unit);
+    if (props.policy === "review" && !staleReview) props.onDraftChange(current.captured, current.captured.before);
+    sequence.current += 1; setEdit(null); setFeedback(staleReview ? "The editor basis changed; editor closed without rewriting retained drafts. Queue uses the current model value and unit." : "");
     const destination = latest.current.rows.some((row) => row.key === current.captured.rowKey) ? current.captured
       : viewRows.find((row) => latest.current.rows.some((canonical) => canonical.key === row.key));
     if (destination) focusCell("rowKey" in destination ? destination : { rowKey: destination.key, columnKey: columns[0].key });
@@ -114,9 +148,13 @@ export function EngineeringTable(props: Props) {
     const current = editRef.current;
     if (!current || current.pending) return false;
     const column = columns.find((candidate) => candidate.key === current.captured.columnKey);
-    const error = column?.validate?.(current.text);
+    const error = review ? undefined : column?.validate?.(current.text);
     if (error) { setEdit({ ...current, error }); return false; }
-    if (!capturedCellIsCurrent(current.captured, latest.current.rows, latest.current.generation)) {
+    const liveCell = latest.current.rows.find((row) => row.key === current.captured.rowKey)?.cells[current.captured.columnKey];
+    if (review && (!liveCell || current.captured.generation !== latest.current.generation)) { setEdit({ ...current, error: "This cell or project changed. Cancel to return to the current model." }); return false; }
+    if (review && liveCell?.unit !== current.captured.unit) { setEdit({ ...current, error: "The entered unit changed. Cancel this editor; retained drafts queue using the current model value and unit." }); return false; }
+    if (liveCell?.readonly) { setEdit({ ...current, error: "This cell is now read-only. Cancel to return to the current value." }); return false; }
+    if (!review && !capturedCellIsCurrent(current.captured, latest.current.rows, latest.current.generation)) {
       setEdit({ ...current, error: "This cell or project changed after editing began. Cancel and edit the current value." }); return false;
     }
     if (busy) { setEdit({ ...current, error: "Another operation is running. Apply again when it finishes." }); return false; }
@@ -131,12 +169,17 @@ export function EngineeringTable(props: Props) {
         if (boundaryExit.isConnected && root.current?.contains(boundaryExit) && !boundaryExit.closest("[hidden], [inert]")) boundaryExit.focus();
       } else focusCell(next ?? captured);
     };
+    if (props.policy === "review") {
+      const result = props.onKeepDraft(captured, current.text);
+      if (!result.retained) { setEdit({ ...current, error: result.messages.join(" · ") }); return false; }
+      setEdit(null); setFeedback(result.messages.join(" · ")); finishFocus(); return true;
+    }
     if (column?.equivalent?.(captured.before, current.text) ?? current.text === captured.before) {
       setEdit(null); finishFocus(); return true;
     }
     setEdit({ ...current, pending: true, error: undefined });
     let result: TableApplyResult;
-    try { result = await onApply(captured, current.text); }
+    try { result = await props.onApply(captured, current.text); }
     catch (error) { result = { applied: false, messages: [`Apply failed: ${String(error)}`] }; }
     if (!stillOwns()) return false;
     if (!result.applied && !result.rejected) {
@@ -186,36 +229,50 @@ export function EngineeringTable(props: Props) {
       event.preventDefault(); event.stopPropagation(); startEdit(address, event.key === "Enter" ? undefined : event.key);
     }
   }
-  const template = `minmax(130px, 1.4fr) repeat(${columns.length}, minmax(90px, 1fr))`;
-  return <div className={`engineering-table${bounded ? " bounded" : ""}`} ref={root} tabIndex={-1} data-testid="engineering-table">
+  const template = `minmax(130px, 1.4fr) ${columns.map((column) => column.kind === "text" ? "minmax(150px, 1.5fr)" : review ? "minmax(160px, 1fr)" : "minmax(90px, 1fr)").join(" ")}`;
+  const tableWidth = 130 + columns.reduce((sum, column) => sum + (column.kind === "text" ? 150 : review ? 160 : 90), 0);
+  return <div className={`engineering-table${bounded ? " bounded" : ""}`} ref={root} style={{ "--table-min-width": `${tableWidth}px` } as React.CSSProperties} tabIndex={-1} data-testid={review ? "engineering-table-review" : "engineering-table"}>
     <div role="grid" aria-label={label} aria-rowcount={viewRows.length + 1} aria-colcount={columns.length + 1}>
       <div role="row" className="engineering-table-row engineering-table-header" style={{ gridTemplateColumns: template }}>
         <div role="columnheader">Node</div>
         {columns.map((column) => <div key={column.key} role="columnheader" aria-sort={sort?.columnKey === column.key ? sort.direction : "none"}>
-          <button type="button" aria-label={`Sort ${column.label}`} onClick={() => setSort((current) => current?.columnKey !== column.key ? { columnKey: column.key, direction: "ascending" } : current.direction === "ascending" ? { ...current, direction: "descending" } : null)}>{column.label} [{column.unit}] <span aria-hidden="true">{sort?.columnKey === column.key ? sort.direction === "ascending" ? "↑" : "↓" : "↕"}</span></button>
+          <button type="button" aria-label={`Sort ${column.label}`} onClick={() => setSort((current) => current?.columnKey !== column.key ? { columnKey: column.key, direction: "ascending" } : current.direction === "ascending" ? { ...current, direction: "descending" } : null)}>{column.label}{column.kind === "text" ? "" : ` [${column.unit}]`} <span aria-hidden="true">{sort?.columnKey === column.key ? sort.direction === "ascending" ? "↑" : "↓" : "↕"}</span></button>
         </div>)}
       </div>
       <div className="engineering-table-body-slot" ref={body.ref}>
-      <VirtualList items={viewRows} itemKey={(row) => row.key} activeIndex={activeIndex} pinIndex={activeIndex} revealActiveRequest={reveal} height={bounded ? Math.min(body.height, viewRows.length * (density === "compact" ? 30 : 36)) : 360} rowHeight={density === "compact" ? 30 : 36} role="rowgroup" testId="engineering-table-rows" renderItem={(row, index) => <div role="row" aria-rowindex={index + 2} aria-selected={selectedKey === row.key} className={`engineering-table-row${index % 2 ? " stripe" : ""}${selectedKey === row.key ? " selected" : ""}`} style={{ gridTemplateColumns: template }}>
+      <VirtualList items={viewRows} itemKey={(row) => row.key} activeIndex={activeIndex} pinIndex={activeIndex} revealActiveRequest={reveal} height={bounded ? Math.min(body.height, viewRows.length * (density === "compact" ? 30 : 36)) : 360} rowHeight={density === "compact" ? 30 : 36} role="rowgroup" testId={review ? "engineering-table-review-rows" : "engineering-table-rows"} renderItem={(row, index) => <div role="row" aria-rowindex={index + 2} aria-selected={selectedKey === row.key} className={`engineering-table-row${index % 2 ? " stripe" : ""}${selectedKey === row.key ? " selected" : ""}`} style={{ gridTemplateColumns: template }}>
         <div role="rowheader"><button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} onClick={() => onSelect(row.key)} title={row.label}>{row.label}{!rows.some((canonical) => canonical.key === row.key) ? " (removed edit)" : ""}</button></div>
         {columns.map((column) => {
           const address = { rowKey: row.key, columnKey: column.key }; const editing = sameCell(edit?.captured ?? null, address);
-          return <div key={column.key} role="gridcell" aria-selected={sameCell(focused, address)} className={`engineering-table-cell${editing ? " editing" : ""}${editing && edit?.error ? " invalid" : ""}`}>
-            {editing && edit ? <input ref={input} autoFocus aria-label={`${row.label} ${column.label} [${edit.captured.unit}]`} aria-invalid={Boolean(edit.error)} aria-describedby={edit.error ? errorId : undefined} value={edit.text} readOnly={edit.pending} onFocus={(event) => event.currentTarget.select()} onChange={(event) => {
+          return <div key={column.key} role="gridcell" aria-selected={sameCell(focused, address)} aria-readonly={Boolean(row.cells[column.key].readonly)} data-kind={column.kind} className={`engineering-table-cell${row.cells[column.key].readout ? " has-readout" : ""}${editing ? " editing" : ""}${editing && edit?.error ? " invalid" : ""}`}>
+            {editing && edit ? <input ref={input} autoFocus aria-label={`${row.label} ${column.label}${column.kind === "text" ? "" : ` [${edit.captured.unit}]`}`} aria-invalid={Boolean(edit.error)} aria-describedby={edit.error ? errorId : undefined} value={edit.text} readOnly={edit.pending} onFocus={(event) => {
+              if (initializedInputToken.current === edit.captured.token) return;
+              initializedInputToken.current = edit.captured.token;
+              if (edit.initialSelection === "all") event.currentTarget.select();
+              else event.currentTarget.setSelectionRange(event.currentTarget.value.length, event.currentTarget.value.length);
+            }} onChange={(event) => {
               const current = editRef.current;
-              if (current && !current.pending && current.captured.token === edit.captured.token) setEdit({ ...current, text: event.target.value, error: undefined });
+              if (current && !current.pending && current.captured.token === edit.captured.token) {
+                setEdit({ ...current, text: event.target.value, error: undefined });
+                if (props.policy === "review") {
+                  const live = latest.current.rows.find((row) => row.key === current.captured.rowKey)?.cells[current.captured.columnKey];
+                  if (live && !live.readonly && live.unit === current.captured.unit && latest.current.generation === current.captured.generation) props.onDraftChange(current.captured, event.target.value);
+                  else setEdit({ ...current, error: "The editor basis changed. Cancel to return to retained drafts; Queue uses the current model value and unit." });
+                }
+              }
             }} onKeyDown={(event) => cellKey(event, address, true)} onBlur={(event) => {
               const destination = event.relatedTarget as HTMLElement | null;
               // Footer controls explicitly own Apply/Cancel. Cell clicks own their next target.
               if (destination && root.current?.contains(destination) && destination.closest("[data-table-action], [data-table-cell]")) return;
               void apply();
-            }} /> : <button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} data-table-cell="true" data-row-key={row.key} data-column-key={column.key} data-testid={`table-cell-${row.label}-${column.key}`} aria-label={`${row.label} ${column.label}: ${row.cells[column.key].value} ${row.cells[column.key].unit}`} tabIndex={sameCell(rovingFocus, address) ? 0 : -1} onPointerDown={() => { pointerFocus.current = address; }} onFocus={() => {
+            }} /> : <button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} data-table-cell="true" data-row-key={row.key} data-column-key={column.key} data-testid={`${review ? "review" : "table"}-cell-${row.label}-${column.key}`} aria-label={`${row.label} ${column.label}: ${row.cells[column.key].value}${column.kind === "text" ? "" : ` ${row.cells[column.key].unit}`}`} tabIndex={sameCell(rovingFocus, address) ? 0 : -1} onPointerDown={() => { pointerFocus.current = address; }} onFocus={() => {
               if (!sameCell(pointerFocus.current, address) && !editRef.current && !sameCell(focused, address)) focusCell(address, false);
             }} onBlur={() => { if (sameCell(pointerFocus.current, address)) pointerFocus.current = null; }} onClick={() => {
               pointerFocus.current = null;
               if (editRef.current) { void apply(address, true); return; }
               if (sameCell(focused, address)) startEdit(address); else focusCell(address);
             }} onDoubleClick={() => { if (!editRef.current) startEdit(address); }} onKeyDown={(event) => cellKey(event, address, false)}>{row.cells[column.key].value}</button>}
+            {row.cells[column.key].readout ? <small aria-label="Quantity readout">{row.cells[column.key].readout}</small> : null}
           </div>;
         })}
       </div>} />
@@ -223,7 +280,7 @@ export function EngineeringTable(props: Props) {
     </div>
     {/* Keep the editor focused until a footer click; no action occurs on pointer-down. */}
     <div className="engineering-table-footer" ref={footer} role="group" aria-label={`${label} footer`} tabIndex={-1}>
-      {edit ? <><span>Editing {columns.find((column) => column.key === edit.captured.columnKey)?.label} · {edit.captured.row.label}</span><button type="button" data-table-action="apply" onPointerDown={(event) => event.preventDefault()} disabled={edit.pending || busy} onClick={() => void apply(undefined, true)} title="Apply (Enter)">Apply</button><button type="button" data-table-action="cancel" onPointerDown={(event) => event.preventDefault()} disabled={edit.pending} onClick={cancel} title="Cancel (Escape)">Cancel</button></> : <span>{matchingRows.length} of {rows.length} rows</span>}
+      {edit ? <><span>Editing {columns.find((column) => column.key === edit.captured.columnKey)?.label} · {edit.captured.row.label}</span><button type="button" data-table-action="apply" onPointerDown={(event) => event.preventDefault()} disabled={edit.pending || busy} onClick={() => void apply(undefined, true)} title={review ? "Keep draft (Enter)" : "Apply (Enter)"}>{review ? "Keep draft" : "Apply"}</button><button type="button" data-table-action="cancel" onPointerDown={(event) => event.preventDefault()} disabled={edit.pending} onClick={cancel} title="Cancel (Escape)">Cancel</button></> : <span>{matchingRows.length} of {rows.length} rows</span>}
       {sort ? <button type="button" onClick={() => setSort(null)}>Sorted by {columns.find((column) => column.key === sort.columnKey)?.label} · Clear</button> : null}
       {edit && !rows.some((row) => row.key === edit.captured.rowKey) ? <span role="alert">The edited row was removed. This retained draft cannot be applied; Cancel to return to the current model.</span>
         : edit && !matchingRows.some((row) => row.key === edit.captured.rowKey) ? <span>Editing row retained outside the filter.</span> : null}

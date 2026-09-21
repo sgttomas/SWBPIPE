@@ -1,0 +1,11 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 23
++					172 container (expanded) Secondary Actions: Collapse
++						173 summary Appearance, Value: on
++						174 container
++							175 text Theme
++							176 pop up button Appearance theme, Value: System
++						177 container
++							178 text Density
++							179 pop up button Workspace density, Value: Comfortable
+The focused UI element is 173 summary Appearance, Value: on

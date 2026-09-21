@@ -1,0 +1,5 @@
+{
+  "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/.agents/skills/software-defect-diagnosis/SKILL.md",
+  "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23",
+  "usedScope": "B4.2 preserved failed tests, causal diagnosis and bounded repair checks"
+}

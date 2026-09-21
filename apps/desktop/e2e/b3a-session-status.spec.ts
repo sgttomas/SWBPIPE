@@ -10,7 +10,7 @@ test("canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
   await ensureTreeExpanded(page);
   await page.getByTestId("layout-mode-grid").click();
   await openNodeGridReview(page);
-  await page.getByTestId("entity-grid-input-node:N-100-y").fill("0.5");
+  await reviewFill(page, "node:N-100-y", "0.5");
   await page.getByTestId("queue-entity-grid-intents").click();
   await page.getByTestId("apply-intent-editor-intent-1").click();
   await expect(page.getByTestId("operation-apply-summary")).toContainText("1 applied");
@@ -33,7 +33,7 @@ test("canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
   await ensureTreeExpanded(page);
   await page.getByTestId("layout-mode-grid").click();
   await openNodeGridReview(page);
-  await expect(page.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+  await expect(page.getByTestId("review-cell-node:N-100-y")).toHaveText("0.5");
   await page.screenshot({ path: info.outputPath("reopened-clean.png") });
 });
 
@@ -43,4 +43,12 @@ async function openNodeGridReview(page: import("@playwright/test").Page) {
   if (await summary.getAttribute("aria-expanded") !== "true") {
     await summary.click();
   }
+}
+
+async function reviewFill(page: import("@playwright/test").Page, cell: string, value: string) {
+  const table = page.getByTestId("engineering-table-review");
+  const keep = table.getByRole("button", { name: "Keep draft", exact: true });
+  if (await keep.count()) await keep.click();
+  await table.getByTestId(`review-cell-${cell}`).dblclick();
+  await table.getByRole("textbox").fill(value);
 }

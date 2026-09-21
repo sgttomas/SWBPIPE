@@ -1,0 +1,11 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 265-269
+~						39 toggle button Review changes, Value: on
+~								258 text 0  queued;  2  applied this session. Applying validates through the structured-operation seam and replaces the session model document; saving the project stores it locally.
+~								260 text Engine  ready 0 unit-bearing queued, 0 dimensionless queued; not_run; 2 applied receipts.
+~								264 text 2  undo /  0  redo
++							274 text Applied op:grid-intent-node:N-100-label-01 to the session model; previous solve results were cleared. Run a new solve, then save the project to store the edited model locally.
++							275 text Queue a review intent from the property inspector or viewport to validate and apply it here.
++							276 container
++								277 text op:grid-intent-node:N-100-label-01 Node node:N-100 ;  label :  xPump nozzle  to TBD Applied through  tauri_backend_apply . Acceptance basis  user_initiated_apply_in_local_session ; persistence session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:b5bb5027516f810af…
+The focused UI element is 240 container Operation Apply section

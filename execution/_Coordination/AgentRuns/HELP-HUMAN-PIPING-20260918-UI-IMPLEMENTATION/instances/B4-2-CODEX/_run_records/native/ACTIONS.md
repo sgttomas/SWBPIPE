@@ -1,0 +1,7 @@
+# B4.2 native interim actions
+
+Candidate97c/producta183 hashes and all bound inputs verified. No prior process; one buildEXIT0; freshPID78436 exactwt3 bundle; binary83271f4c8f8935d5656f14ac95a06975f13c6ac4f9fd7b5be479f4dcecd43714. Startup invented-loop-01, project selected, nohistory, Both/Tree,Entered units,System theme,Comfortable density; Appearance opened/read/closed without preference change. Grid+Inspector opened; Collapse disabled/expanded.
+
+N100 Label physical doubleclick[218,317], typed Native Label, Left then X produced Native LabeXl; CmdZNativeLabel,ShiftCmdZNativeLabeXl, modelhistory empty. CmdA Backspace Return retains blank/error Enter text or explicitly enter TBD. TypeCancel valid then pointerCancel restoresPumpnozzle/nohistory. PointerApply Native unique 42 commitsone; CmdZ restoresPumpnozzle/Undooff,ShiftCmdZlabel restored/Redoff. FilterNative unique42, renameRenamed native pointerApply removes row and focuses visibleNodefieldsfooter, selectedidentityN100 unchanged. Clearfilter. Two modeloperations now.
+
+Provenance clipped in directBoth/Inspector; screenshots13/14 show no visible scrollbarthumb; one verticalbodywheel[250,430]down1 no visiblemovement. No horizontalwheel or keyboardreveal. OpenReview; Label firstclick focuses, typeTextD then typeTextraft one resultsrawraft one (second call replaced selected initialD); pointerKeep exactDraft retained;modelunchanged, canonicalInspectorRenamednative,localcount1. PendingProvenance pointer access disposition before second draft/Queue/Clear matrix.

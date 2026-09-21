@@ -1,0 +1,137 @@
+[
+  {
+    "path": "ACTUAL_RESUME.json",
+    "bytes": 581,
+    "sha256": "f7429db2ed892cb726e7e23b9f9d71b81f2fa2e063f74b7812475d6946badb1a"
+  },
+  {
+    "path": "CHECK_COMMANDS.json",
+    "bytes": 2066,
+    "sha256": "022c567f90b1557fc33c21a27a070a55e70f76860640bd5e6236855b56f8ffc3"
+  },
+  {
+    "path": "FAIL_BEFORE_SOURCE.json",
+    "bytes": 344,
+    "sha256": "94c5196637ac1c5fcdc495c2b03d0422ea4bdc8ed8f77cc48ff2767ce4ef282f"
+  },
+  {
+    "path": "INPUTS.json",
+    "bytes": 1857,
+    "sha256": "d513d940eeacf7f5444ead8e7e605f834b645d986343ba50396416e75eee5c38"
+  },
+  {
+    "path": "MANAGER_SOURCE_HANDOFF.md",
+    "bytes": 1842,
+    "sha256": "cdf3ebadf3d187c1128fa42a89b5aef38779a7f56dd568dcfb16b498325c7c0f"
+  },
+  {
+    "path": "RESOURCE_RELEASE.json",
+    "bytes": 290,
+    "sha256": "d89125f74f6b651873280828b38a3a42f2cc2c53120ac010102432c702e08418"
+  },
+  {
+    "path": "RETURN.md",
+    "bytes": 2702,
+    "sha256": "3d4af68736d9a203e2ce664032f910407aa8f010d02e67dac18b877943c46faf"
+  },
+  {
+    "path": "SOURCE_FREEZE.json",
+    "bytes": 707,
+    "sha256": "ce0d0b6724bd32f123cd618c96715db2fb3173f2512b90e3a3befeb14eee80d7"
+  },
+  {
+    "path": "TASK_ADDENDUM.md",
+    "bytes": 2174,
+    "sha256": "b44bd50c4c2d1504c76140ac9cc80f16d98669e2fcadfce1aa0dcb4d617b8618"
+  },
+  {
+    "path": "fail-before/.last-run.json",
+    "bytes": 96,
+    "sha256": "3660c6a7fbe957cc349f932b22755d0af34d00cad2641c815482a6a45cc3bf64"
+  },
+  {
+    "path": "fail-before/b4-table-editing-B4-charac-48689-erves-intentional-selection-chromium-desktop/error-context.md",
+    "bytes": 15297,
+    "sha256": "f3ce87f31029d60d59839b04675f80011ce38f2468687d86d1b9b1fa6dd63eca"
+  },
+  {
+    "path": "fail-before/b4-table-editing-B4-charac-48689-erves-intentional-selection-chromium-desktop/trace.zip",
+    "bytes": 1486981,
+    "sha256": "545f97a52526880c8b6186ebebd5a16bc7ec6bbeba4e2685de66c09823120496"
+  },
+  {
+    "path": "fail-before-list.txt",
+    "bytes": 189,
+    "sha256": "b64954f50c73e643ffa78d4e6108e80117a924e01923af3a3cc39726ec452678"
+  },
+  {
+    "path": "fail-before.exit",
+    "bytes": 2,
+    "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+  },
+  {
+    "path": "fail-before.log",
+    "bytes": 3766,
+    "sha256": "310cb618a62876829e94d6a466578d7ff9e39645b92f7d9a0dbd7a23e86e657f"
+  },
+  {
+    "path": "pass-after/.last-run.json",
+    "bytes": 45,
+    "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+  },
+  {
+    "path": "pass-after-list.txt",
+    "bytes": 1589,
+    "sha256": "a804d9bd9807c7acc3167f0a382d7d7c0639f3404b831d1f474acf4d1eccddde"
+  },
+  {
+    "path": "pass-after.exit",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  {
+    "path": "pass-after.log",
+    "bytes": 2655,
+    "sha256": "31ebb1ab4e10ebd230338319cc21b88c409f41ec28499c06ed6af75c38a02307"
+  },
+  {
+    "path": "pre-repair-cleanup/after.json",
+    "bytes": 462,
+    "sha256": "5905d5b893d7ef65c93cb85fa3eca35e8d0366d39399fbb59a0f7ef14bc92024"
+  },
+  {
+    "path": "pre-repair-cleanup/before.json",
+    "bytes": 301,
+    "sha256": "921cd2e60cc8a77241e270e74fb5af40f35e2b592855bec1517cf66b7a342543"
+  },
+  {
+    "path": "types-frozen.exit",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  {
+    "path": "types-frozen.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "types.exit",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  {
+    "path": "types.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "unit.exit",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  {
+    "path": "unit.log",
+    "bytes": 285,
+    "sha256": "ce89fea9d844d3ed8d51488de5e6855afbafb6543484cdef6e456ae28be1900d"
+  }
+]
