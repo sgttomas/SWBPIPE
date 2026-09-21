@@ -598,7 +598,7 @@
     "B3A": {
       "role": "slice",
       "lane": "B-SHELL",
-      "title": "the unsaved-edits mark; the 'Solver · Not solved' fallback chip",
+      "title": "the unsaved-edits mark; the 'Solver \u00b7 Not solved' fallback chip",
       "status": "merged as 88c6c746; all local and hosted checks subsequently passed; technical integration only",
       "dependsOn": [
         "B3"
@@ -2690,7 +2690,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "ROOT actual retained manager followup",
-      "state": "activation granted; manager to verify/create branch and seal fresh TASK launch",
+      "state": "actual fresh implementation TASK launched after live main/wt3 verification; concrete architecture received, focused source/units underway",
       "basis": "fd002217f067020d44deaee22866e14eed81173f",
       "branch": "codex/swbpipe-b4-sections-20260921",
       "checkout": "existingwt3 after clean verification; old Materials branch preserved",
@@ -2701,7 +2701,25 @@
       "dependsOn": [
         "B4-3-INTEGRATION",
         "B4-4-SECTIONS-PREPARATION"
-      ]
+      ],
+      "worker": {
+        "actualAgent": "/root/b3_manager/b4_4_sections",
+        "role": "TASK Type2",
+        "model": "gpt-6-astra",
+        "reasoning": "low",
+        "mechanism": "manager actual collaboration.spawn_agent fork_turns none",
+        "brief": "instances/B4-4-CODEX/_run_records/TASK_BRIEF.md",
+        "briefSha256": "425fe66bf061e1d8de1ae45693994f6cbd921ba1558aed446eabee86d572e43c",
+        "inputsSha256": "99b7844b2ec135776447a767ecc57980b0cfb67e43e3c5012be4132cccf091db",
+        "launchSha256": "f12f2d8f743e6eb241beb72f036d5a7f1b9cc1a99d3fc146c68de7d0cfbe5656",
+        "scope": "sole maintained writer under manager integration ownership; no descendants"
+      },
+      "earlyArchitecture": "instances/B4-4-CODEX/_run_records/EARLY_ARCHITECTURE.md",
+      "earlyArchitectureSha256": "35d91bf7de8254099a94544e579d30406efd89107e1b9ffe06bc83b244630439",
+      "clarification": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_EDITOR_POLICY_CLARIFICATION.md",
+      "clarificationSha256": "d6460cc8434742de6e1aa2cf33f5858a1b385ea3bbb814fff4f90bdab46262fe",
+      "interimCheck": "Manager reports 79 focused passes across four files; two TS failures retained during repair. Final source freeze/checks remain pending; no browser/native/build resource use.",
+      "architectureUpdate": "Current helper uses a body portal tied to the stable input. ROOT permits this implementation choice with truthful disclosure and explicit hidden/inert/detached, external-focus, placement and passive-choice coverage; no scope expansion."
     }
   },
   "edges": [
@@ -3303,7 +3321,7 @@
       "head": "6fa70c15c7d8f1bce78b6e7f153b7296503d8bed",
       "state": "PR833 merged; preserve branch/head"
     },
-    "shell": "Sections manager activated from mergedfd002217; branch/worker launch verification pending; old Materialsdd8be592 preserved",
+    "shell": "actual Sections branch codex/swbpipe-b4-sections-20260921 inwt3 fromfd002; fresh TASKAstra/low sole source writer; olddd8 Materials branch preserved",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",

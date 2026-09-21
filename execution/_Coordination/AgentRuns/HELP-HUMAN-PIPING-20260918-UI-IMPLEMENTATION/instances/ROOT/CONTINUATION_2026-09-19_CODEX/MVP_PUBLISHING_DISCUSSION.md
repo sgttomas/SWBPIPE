@@ -1,6 +1,6 @@
 # MVP publishing target — discussion draft
 
-Status: ROOT recommendation for owner discussion, 2026-09-20. The owner corrected the optional-agent reply: agent control of SWBPIPE is required to enable planned CAEPIPE validation (OWNER_MVP_AGENT_CORRECTION_2026-09-20.md). Other recommendations remain proposed. This does not amend the PRD, initiate a new phase, reconcile deliverables, authorize Runtime integration, lift qualification holds or publish a product. B3B/C3/CI has merged; B4.1 table work continues under existing authority.
+Status: ROOT recommendation for owner discussion, 2026-09-20; implementation cursor updated 2026-09-21. The owner corrected the optional-agent reply: agent control of SWBPIPE is required to enable planned CAEPIPE validation (OWNER_MVP_AGENT_CORRECTION_2026-09-20.md). Other recommendations remain proposed. This does not amend the PRD, initiate a new phase, reconcile deliverables, authorize Runtime integration, lift qualification holds or publish a product. B3 and the bounded Node/Materials table increments are merged; B4.4 Sections work continues under existing authority.
 
 ## Owner's current steering
 
